@@ -44,6 +44,12 @@ export default function Home() {
             ➕ Create New Product
           </Link>
           <Link
+            href="/deals/new"
+            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          >
+            📄 Create New Deal
+          </Link>
+          <Link
             href="/login"
             className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
           >

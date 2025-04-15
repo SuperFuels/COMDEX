@@ -1,0 +1,32 @@
+{
+  "name": "comdex",
+  "version": "1.0.0",
+  "description": "COMDEX digital commodity marketplace",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SuperFuels/COMDEX.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SuperFuels/COMDEX/issues"
+  },
+  "homepage": "https://github.com/SuperFuels/COMDEX#readme",
+  "dependencies": {
+    "next": "^15.3.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  }
+}
+

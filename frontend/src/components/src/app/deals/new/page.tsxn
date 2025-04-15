@@ -1,0 +1,100 @@
+// src/app/deals/new/page.tsx
+
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { createDeal } from "@/lib/api"; // Assuming this is set up for deal creation
+
+export default function CreateDealPage() {
+  const [buyerEmail, setBuyerEmail] = useState("");
+  const [supplierEmail, setSupplierEmail] = useState("");
+  const [productTitle, setProductTitle] = useState("");
+  const [quantityKg, setQuantityKg] = useState(0);
+  const [totalPrice, setTotalPrice] = useState(0);
+  const router = useRouter();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const dealData = {
+      buyer_email: buyerEmail,
+      supplier_email: supplierEmail,
+      product_title: productTitle,
+      quantity_kg: quantityKg,
+      total_price: totalPrice,
+    };
+
+    try {
+      await createDeal(dealData);
+      alert("Deal created successfully!");
+      router.push("/dashboard");
+    } catch (error) {
+      console.error(error);
+      alert("Error creating deal.");
+    }
+  };
+
+  return (
+    <main className="p-6">
+      <h1 className="text-3xl font-bold mb-6">📜 Create New Deal</h1>
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block text-sm">Buyer Email</label>
+          <input
+            type="email"
+            value={buyerEmail}
+            onChange={(e) => setBuyerEmail(e.target.value)}
+            className="w-full p-2 border rounded"
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-sm">Supplier Email</label>
+          <input
+            type="email"
+            value={supplierEmail}
+            onChange={(e) => setSupplierEmail(e.target.value)}
+            className="w-full p-2 border rounded"
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-sm">Product Title</label>
+          <input
+            type="text"
+            value={productTitle}
+            onChange={(e) => setProductTitle(e.target.value)}
+            className="w-full p-2 border rounded"
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-sm">Quantity (kg)</label>
+          <input
+            type="number"
+            value={quantityKg}
+            onChange={(e) => setQuantityKg(parseFloat(e.target.value))}
+            className="w-full p-2 border rounded"
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-sm">Total Price ($)</label>
+          <input
+            type="number"
+            value={totalPrice}
+            onChange={(e) => setTotalPrice(parseFloat(e.target.value))}
+            className="w-full p-2 border rounded"
+            required
+          />
+        </div>
+        <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded">
+          Create Deal
+        </button>
+      </form>
+    </main>
+  );
+}
+≈
