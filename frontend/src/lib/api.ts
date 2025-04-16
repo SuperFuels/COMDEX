@@ -7,29 +7,51 @@ const api = axios.create({
   withCredentials: true,
 })
 
-// ✅ GET: Fetch all products
+// ✅ GET: Fetch all products (authenticated)
 export async function getProducts() {
   const token = localStorage.getItem('token')
-
-  if (!token) {
-    throw new Error('Not authenticated')
-  }
+  if (!token) throw new Error('Not authenticated')
 
   const res = await api.get('/products/', {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    headers: { Authorization: `Bearer ${token}` },
   })
+  return res.data
+}
 
+// ✅ GET: Fetch current user's own products
+export async function getUserProducts() {
+  const token = localStorage.getItem('token')
+  if (!token) throw new Error('Not authenticated')
+
+  const res = await api.get('/products/', {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+  return res.data
+}
+
+// ✅ GET: Fetch deals for the current user
+export async function getUserDeals() {
+  const token = localStorage.getItem('token')
+  if (!token) throw new Error('Not authenticated')
+
+  const res = await api.get('/deals/', {
+    headers: { Authorization: `Bearer ${token}` },
+  })
   return res.data
 }
 
 // ✅ POST: Create new product
 export async function createProduct(data: any, token: string) {
   const res = await api.post('/products/create', data, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    headers: { Authorization: `Bearer ${token}` },
+  })
+  return res.data
+}
+
+// ✅ PUT: Update product
+export async function updateProduct(productId: number, data: any, token: string) {
+  const res = await api.put(`/products/${productId}`, data, {
+    headers: { Authorization: `Bearer ${token}` },
   })
   return res.data
 }
@@ -37,61 +59,45 @@ export async function createProduct(data: any, token: string) {
 // ✅ DELETE: Delete product by ID
 export async function deleteProduct(id: number) {
   const token = localStorage.getItem('token')
-
-  if (!token) {
-    throw new Error('Not authenticated')
-  }
+  if (!token) throw new Error('Not authenticated')
 
   const res = await api.delete(`/products/${id}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    headers: { Authorization: `Bearer ${token}` },
   })
-
   return res.data
 }
 
 // ✅ POST: Register user
 export async function registerUser(userData: { name: string; email: string; password: string }) {
-  const res = await api.post('/auth/register', {
-    name: userData.name,
-    email: userData.email,
-    password: userData.password,
-  })
+  const res = await api.post('/auth/register', userData)
   return res.data
 }
 
 // ✅ POST: Login user
-export async function loginUser(userData: { email: string; password: string }) {
-  const res = await api.post('/auth/login', {
-    email: userData.email,
-    password: userData.password,
-  })
+export async function loginUser(credentials: { email: string; password: string }) {
+  const res = await api.post('/auth/login', credentials)
   return res.data
 }
 
-// ✅ PUT: Update product
-export async function updateProduct(productId: number, data: any, token: string) {
-  const res = await api.put(`/products/edit/${productId}`, data, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+// ✅ POST: Create a new deal
+export async function createDeal(dealData: any) {
+  const token = localStorage.getItem("token")
+  if (!token) throw new Error("Not authenticated")
+
+  const res = await api.post("/deals/create", dealData, {
+    headers: { Authorization: `Bearer ${token}` },
   })
   return res.data
 }
-
-export default api
 
 // ✅ GET: Download deal PDF
 export async function downloadDealPdf(dealId: number, token: string) {
-  const res = await api.get(`/deals/pdf/${dealId}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    responseType: 'blob', // Important for binary data
+  const res = await api.get(`/deals/${dealId}/pdf`, {
+    headers: { Authorization: `Bearer ${token}` },
+    responseType: 'blob',
   })
 
-  // Trigger download in browser
+  // Trigger browser download
   const url = window.URL.createObjectURL(new Blob([res.data]))
   const link = document.createElement('a')
   link.href = url
@@ -101,20 +107,5 @@ export async function downloadDealPdf(dealId: number, token: string) {
   document.body.removeChild(link)
 }
 
-// ✅ POST: Create a new deal
-export async function createDeal(dealData: any) {
-  const token = localStorage.getItem("token");
-
-  if (!token) {
-    throw new Error("Not authenticated");
-  }
-
-  const res = await api.post("/deals/create", dealData, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  return res.data;
-}
+export default api
 

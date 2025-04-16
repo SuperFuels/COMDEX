@@ -1,4 +1,3 @@
-// src/components/ProductCard.tsx
 "use client"
 
 import { useRouter } from "next/navigation"
@@ -26,7 +25,7 @@ export default function ProductCard({ product }: { product: any }) {
     const token = localStorage.getItem("token")
     if (!token) return alert("Not authenticated")
 
-    const dealId = product.deal_id || product.id // fallback to product.id for now
+    const dealId = product.deal_id || product.id // fallback for testing
     try {
       await downloadDealPdf(dealId, token)
     } catch (error) {
@@ -39,8 +38,10 @@ export default function ProductCard({ product }: { product: any }) {
     <div className="border rounded p-4 shadow bg-white text-black">
       <h2 className="text-xl font-bold mb-2">{product.title}</h2>
       <p className="text-sm text-gray-600">Origin: {product.origin_country}</p>
-      <p className="text-sm text-gray-600">Category: {product.category}</p>
-      <p className="text-sm text-gray-600">Price: ${product.price_per_kg} / kg</p>
+      <p className="text-sm text-gray-600">Certifications: {product.certifications || 'N/A'}</p>
+      <p className="text-sm text-gray-600">
+        Price: ${product.price_per_kg} / kg
+      </p>
       <p className="mt-2">{product.description}</p>
 
       {product.image_url && (
@@ -51,7 +52,7 @@ export default function ProductCard({ product }: { product: any }) {
         />
       )}
 
-      <div className="mt-4 flex gap-2">
+      <div className="mt-4 flex flex-wrap gap-2">
         <Link
           href={`/edit/${product.id}`}
           className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded"
@@ -70,6 +71,12 @@ export default function ProductCard({ product }: { product: any }) {
         >
           📄 Download PDF
         </button>
+        <Link
+          href={`/deals/new?product_id=${product.id}&seller_id=${product.seller_id}`}
+          className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded"
+        >
+          🤝 Create Deal
+        </Link>
       </div>
     </div>
   )

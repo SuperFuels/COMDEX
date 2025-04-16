@@ -36,6 +36,21 @@ def create_deal(
     # Return the newly created deal
     return new_deal
 
+# ✅ GET: Fetch all deals for the authenticated user
+@router.get("/", response_model=List[DealOut])
+def get_user_deals(
+    db: Session = Depends(get_db),
+    current_user: str = Depends(get_current_user)
+):
+    """
+    Endpoint to fetch all deals for the authenticated user.
+    """
+    # Query the database for all deals associated with the current user
+    deals = db.query(Deal).filter(Deal.buyer_email == current_user).all()
+
+    # Return the list of deals
+    return deals
+
 # ✅ Download PDF summary
 @router.get("/{deal_id}/pdf")
 def generate_deal_pdf(
@@ -58,20 +73,20 @@ def generate_deal_pdf(
     html_content = f"""
     <h1>Deal Summary</h1> <p><strong>Buyer:</strong> {deal.buyer_email}</p>
     <p><strong>Supplier:</strong> {deal.supplier_email}</p>
-    <p><strong>Product:</strong> {deal.product_title}</p>   
+    <p><strong>Product:</strong> {deal.product_title}</p>
     <p><strong>Quantity (kg):</strong> {deal.quantity_kg}</p>
-    <p><strong>Total Price:</strong> ${deal.total_price}</p>
+    <p><strong>Total Price:</strong> ${deal.total_price}</p>     
     """
-
+    
     # Create a BytesIO object to hold the generated PDF
     pdf_bytes = BytesIO()
-
+    
     # Generate the PDF from the HTML content using WeasyPrint
     HTML(string=html_content).write_pdf(pdf_bytes)
-    pdf_bytes.seek(0)  # Reset the pointer to the start of the BytesIO buffer
-    
+    pdf_bytes.seek(0)  # Reset the pointer to the start of the BytesIO buffer   
+
     # Return the PDF as a StreamingResponse to allow download
     return StreamingResponse(pdf_bytes, media_type="application/pdf", headers={
         "Content-Disposition": f"inline; filename=deal_{deal_id}.pdf"
-    }) 
+    })
 
