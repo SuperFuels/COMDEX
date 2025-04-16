@@ -192,3 +192,17 @@ To revolutionize global commodity trading by offering a transparent, traceable, 
 ## 11. **GitHub Repository Link**
 [SuperFuels/COMDEX](https://github.com/SuperFuels/COMDEX)
 
+## COMDEX Project Summary (Updated - 2025-04-16)
+
+### Progress Updates:
+- Switched from Alembic to manual SQLAlchemy table creation.
+- Created tables for `users` and `deals` using SQLAlchemy (via `create_tables.py`).
+- Resolved import errors and corrected path issues within `models.py` and `__init__.py`.
+- Tables (`users` and `deals`) successfully created in the SQLite database.
+- The admin panel is now showing at [http://localhost:3000/admin/dashboard].
+
+### Next Steps for Tomorrow:
+- Fully test table creation and database connection.
+- Test admin panel functionality and its integration with the database.
+- Continue with the integration of other features such as product listings, deal creation, and dashboard functionalities.
+
