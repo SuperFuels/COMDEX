@@ -1,0 +1,88 @@
+/* Tailwind's base styles */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom global styles */
+
+/* Body styling */
+body {
+  background-color: white;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+/* Button styling */
+button {
+  border: 2px solid #2C3E50; /* Anthracite grey for button borders */
+  color: #2C3E50; /* Anthracite grey for text */
+  background-color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+}
+
+button:hover {
+  background-color: #3498db; /* Light blue on hover */
+  color: white;
+  border-color: #3498db;
+}
+
+/* Input field styling */
+input, select, textarea {
+  border: 1px solid #2C3E50; /* Anthracite grey for input borders */
+  padding: 10px;
+  border-radius: 5px;
+  transition: all 0.3s ease;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline-color: #3498db; /* Light blue focus border */
+}
+
+/* Additional Custom Styling for a minimalistic look */
+
+/* Form labels and headings */
+label {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #2C3E50;
+}
+
+/* Card-like component style */
+.card {
+  border: 1px solid #2C3E50;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 15px;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+  background-color: white;
+}
+
+/* Simple link styling */
+a {
+  color: #3498db; /* Light blue for links */
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+  
+a:hover {
+  color: #2C3E50; /* Darker shade when hovered */
+}
+
+/* Modal or pop-up window (if applicable) */
+.modal {
+  background-color: white;
+  border: 2px solid #2C3E50;
+  border-radius: 10px;
+  padding: 30px;
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Text fields (optional improvement for clarity) */
+textarea {
+  resize: vertical;
+}
+
