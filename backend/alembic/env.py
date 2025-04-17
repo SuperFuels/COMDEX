@@ -8,23 +8,29 @@ from sqlalchemy.ext.declarative import declarative_base
 from logging.config import fileConfig
 
 # Import your models here
-from models import Base  # Ensure this points to the correct module
+# Ensure this points to the correct location of your models, e.g., from models.user import Base
+from models import Base  # Ensure this points to the correct module where Base is defined
 
 # this is the Alembic Config object, which provides access to the values
 # within the .ini file in use.
 config = context.config
 
 # Interpret the config file for Python logging.
-fileConfig(config.config_file_name)
+# This line sets up loggers basically.
+if config.config_file_name is not None:
+    fileConfig(config.config_file_name)
 
 # Set up the target metadata for "autogenerate" support
-target_metadata = Base.metadata  # Make sure this points to the metadata object
+# Make sure this points to the metadata object
+target_metadata = Base.metadata
 
-# Set up the database URL
+# Set up the database URL from alembic.ini
 sqlalchemy_url = config.get_main_option("sqlalchemy.url")
+
+# Create an engine with the database URL
 engine = create_engine(sqlalchemy_url, poolclass=pool.NullPool)
 
-# Run migrations
+# Run migrations in 'offline' mode
 def run_migrations_offline():
     """Run migrations in 'offline' mode."""
     url = sqlalchemy_url
@@ -38,6 +44,7 @@ def run_migrations_offline():
     with context.begin_transaction():
         context.run_migrations()
 
+# Run migrations in 'online' mode
 def run_migrations_online():
     """Run migrations in 'online' mode."""
     with engine.connect() as connection:
@@ -49,6 +56,7 @@ def run_migrations_online():
         with context.begin_transaction():
             context.run_migrations()
 
+# Determine if Alembic is running in offline or online mode
 if context.is_offline_mode():
     run_migrations_offline()
 else:

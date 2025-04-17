@@ -25,5 +25,5 @@ class Deal(Base):
     supplier = relationship("User", back_populates="supplier_deals", foreign_keys=[supplier_id])
 
     def __repr__(self):
-        return f"<Deal(id={self.id}, buyer_email={self.buyer_email}, supplier_email={self.supplier_email}, product_title={self.product_title}, quantity_kg={self.quantity_kg}, total_price={self.total_price})>"
+        return f"<Deal(id={self.id}, buyer_email={self.buyer_email}, supplier_email={self.supplier_email}, product_title={self.product_title})>"
 
