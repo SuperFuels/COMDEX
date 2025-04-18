@@ -1,5 +1,6 @@
 @import "tailwindcss";
 
+/* Custom CSS Variables for Color Scheme */
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -12,6 +13,7 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* Dark mode color scheme */
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
@@ -19,11 +21,15 @@
   }
 }
 
+/* General body styling */
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  padding: 0;
 }
+
 /* Reusable Tailwind Utility Classes */
 
 /* Input Fields */
@@ -58,7 +64,33 @@ body {
   @apply bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded;
 }
 
+/* Card for forms and general UI */
 .form-card {
   @apply grid gap-4 bg-white p-6 rounded shadow-lg;
+}
+
+/* Button Hover Effects for interactive UI elements */
+button {
+  @apply border-2 border-gray-500 bg-white text-gray-800 py-2 px-4 rounded-lg transition-all duration-300 ease-in-out;
+}
+
+button:hover {
+  @apply bg-blue-600 text-white border-blue-600;
+}
+
+a {
+  @apply text-blue-600 hover:text-blue-700;
+}
+
+/* Text Styling for Headers and Labels */
+h1, h2, h3 {
+  font-weight: bold;
+  color: var(--foreground);
+}
+
+label {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--foreground);
 }
 
