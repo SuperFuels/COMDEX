@@ -18,11 +18,19 @@ class Deal(Base):
 
     # Relationship to link the deal with the user (buyer)
     buyer_id = Column(Integer, ForeignKey("users.id"))
-    buyer = relationship("User", back_populates="deals", foreign_keys=[buyer_id])
+    buyer = relationship(
+        "User",
+        back_populates="buyer_deals",
+        foreign_keys=[buyer_id]
+    )
 
     # Relationship to link the deal with the user (supplier)
     supplier_id = Column(Integer, ForeignKey("users.id"))
-    supplier = relationship("User", back_populates="supplier_deals", foreign_keys=[supplier_id])
+    supplier = relationship(
+        "User",
+        back_populates="supplier_deals",
+        foreign_keys=[supplier_id]
+    )
 
     def __repr__(self):
         return f"<Deal(id={self.id}, buyer_email={self.buyer_email}, supplier_email={self.supplier_email}, product_title={self.product_title})>"

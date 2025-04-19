@@ -9,14 +9,15 @@ from sqlalchemy.orm import Session
 from database import get_db
 from models.user import User
 
-# Secret key + algorithm
-SECRET_KEY = "your-secret-key"  # Replace with env variable in production
+# ✅ Use consistent SECRET_KEY across all files (update if changed)
+SECRET_KEY = "super-secret-123"  # 🔐 Use env var in production
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
+# Password hashing context
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-# Auth token scheme
+# Token scheme (Bearer)
 security = HTTPBearer()
 
 def hash_password(password: str):
@@ -40,12 +41,24 @@ def get_current_user(
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         email: str = payload.get("sub")
         if email is None:
-            raise HTTPException(status_code=401, detail="Invalid token")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid token: subject not found",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
     except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid token")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
     user = db.query(User).filter(User.email == email).first()
     if user is None:
-        raise HTTPException(status_code=401, detail="User not found")
-    return user  # Return full User object
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return user
 

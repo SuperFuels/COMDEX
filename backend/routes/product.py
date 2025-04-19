@@ -9,15 +9,20 @@ from typing import List
 
 router = APIRouter()
 
-# ✅ Get all products by current user
-@router.get("/", response_model=List[ProductOut])
-def get_products(
+# ✅ Get all products by current user (used for /dashboard view)
+@router.get("/me", response_model=List[ProductOut])
+def get_my_products(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    # Fixed incomplete filter statement
+    print("🔑 Current user:", current_user.email)  # 🧪 DEBUG TOKEN
     products = db.query(Product).filter(Product.owner_email == current_user.email).all()
     return products
+
+# ✅ Get ALL products (admin/global listing)
+@router.get("/", response_model=List[ProductOut])
+def get_all_products(db: Session = Depends(get_db)):
+    return db.query(Product).all()
 
 # ✅ Create Product
 @router.post("/create", response_model=ProductOut)
@@ -26,7 +31,6 @@ def create_product(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    # Ensure the owner_email is from the current user
     new_product = Product(**product.dict(), owner_email=current_user.email)
     db.add(new_product)
     db.commit()
@@ -41,7 +45,6 @@ def update_product(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    # Ensure that the product belongs to the current user
     product = db.query(Product).filter(
         Product.id == product_id,
         Product.owner_email == current_user.email
@@ -64,15 +67,14 @@ def delete_product(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    # Ensure that the product belongs to the current user
     product = db.query(Product).filter(
         Product.id == product_id,
         Product.owner_email == current_user.email
     ).first()
 
-    if not product:
+    if not product: 
         raise HTTPException(status_code=404, detail="Product not found")
-
+    
     db.delete(product)
     db.commit()
     return {"detail": "Product deleted successfully"}
