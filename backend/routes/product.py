@@ -1,11 +1,13 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Form, File, UploadFile
 from sqlalchemy.orm import Session
 from database import get_db
 from models.product import Product
 from models.user import User
 from utils.auth import get_current_user
-from schemas import ProductCreate, ProductOut
+from schemas import ProductOut, ProductCreate
 from typing import List
+import shutil
+import os
 
 router = APIRouter()
 
@@ -15,23 +17,44 @@ def get_my_products(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    print("🔑 Current user:", current_user.email)  # 🧪 DEBUG TOKEN
-    products = db.query(Product).filter(Product.owner_email == current_user.email).all()
-    return products
+    print("🔑 Current user:", current_user.email)
+    return db.query(Product).filter(Product.owner_email == current_user.email).all()
 
-# ✅ Get ALL products (admin/global listing)
+# ✅ Get ALL products (public view / homepage)
 @router.get("/", response_model=List[ProductOut])
 def get_all_products(db: Session = Depends(get_db)):
     return db.query(Product).all()
 
-# ✅ Create Product
+# ✅ Create Product with image upload
 @router.post("/create", response_model=ProductOut)
 def create_product(
-    product: ProductCreate,
+    title: str = Form(...),
+    origin_country: str = Form(...),
+    category: str = Form(...),
+    description: str = Form(...),
+    price_per_kg: float = Form(...),
+    image: UploadFile = File(...),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    new_product = Product(**product.dict(), owner_email=current_user.email)
+    image_dir = "uploaded_images"
+    os.makedirs(image_dir, exist_ok=True)
+    image_path = os.path.join(image_dir, image.filename)
+    
+    with open(image_path, "wb") as buffer:
+        shutil.copyfileobj(image.file, buffer)
+
+    image_url = f"/uploaded_images/{image.filename}"
+
+    new_product = Product(
+        title=title,
+        origin_country=origin_country,
+        category=category,
+        description=description,
+        price_per_kg=price_per_kg,
+        image_url=image_url,
+        owner_email=current_user.email
+    )
     db.add(new_product)
     db.commit()
     db.refresh(new_product)
@@ -42,7 +65,7 @@ def create_product(
 def update_product(
     product_id: int,
     updated_data: ProductCreate,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db),  
     current_user: User = Depends(get_current_user)
 ):
     product = db.query(Product).filter(
@@ -72,9 +95,9 @@ def delete_product(
         Product.owner_email == current_user.email
     ).first()
 
-    if not product: 
+    if not product:
         raise HTTPException(status_code=404, detail="Product not found")
-    
+
     db.delete(product)
     db.commit()
     return {"detail": "Product deleted successfully"}

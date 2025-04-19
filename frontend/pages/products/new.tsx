@@ -10,25 +10,44 @@ export default function NewProduct() {
     description: '',
     price_per_kg: '',
     origin_country: '',
-    image_url: ''
+    category: '',
   });
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setImageFile(e.target.files[0]);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const token = localStorage.getItem('token');
+    const formData = new FormData();
+
+    Object.entries(form).forEach(([key, value]) => {
+      formData.append(key, value);
+    });
+
+    if (imageFile) {
+      formData.append('image', imageFile);
+    }
+
     try {
-      await axios.post('http://localhost:8000/products', form, {
+      await axios.post('http://localhost:8000/products/create', formData, {
         headers: {
-          Authorization: `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+        },
       });
       router.push('/dashboard');
     } catch (err) {
-      alert('Failed to create product');
+      console.error(err);
+      alert('❌ Failed to create product');
     }
   };
 
@@ -42,12 +61,14 @@ export default function NewProduct() {
           placeholder="Title"
           onChange={handleChange}
           className="input"
+          required
         />
         <textarea
           name="description"
           placeholder="Description"
           onChange={handleChange}
           className="input"
+          required
         />
         <input
           type="number"
@@ -55,6 +76,7 @@ export default function NewProduct() {
           placeholder="Price per kg"
           onChange={handleChange}
           className="input"
+          required
         />
         <input
           type="text"
@@ -62,13 +84,23 @@ export default function NewProduct() {
           placeholder="Origin Country"
           onChange={handleChange}
           className="input"
+          required
         />
         <input
           type="text"
-          name="image_url"
-          placeholder="Image URL"
+          name="category"
+          placeholder="Category"
           onChange={handleChange}
           className="input"
+          required
+        />
+        <input
+          type="file"
+          name="image"
+          onChange={handleImageChange}
+          className="input"
+          accept="image/*"
+          required
         />
         <button type="submit" className="btn btn-primary w-full">
           Submit

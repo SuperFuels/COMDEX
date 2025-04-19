@@ -10,14 +10,6 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // 🔁 Redirect if already logged in
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      router.push('/dashboard');
-    }
-  }, [router]);
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -50,7 +42,7 @@ export default function LoginPage() {
           setError(err.response.data.detail);
         }
       } else {
-        setError('Login failed');
+        setError('Login failed. Please try again.');
       }
     } finally {
       setLoading(false);
@@ -65,9 +57,7 @@ export default function LoginPage() {
       >
         <h1 className="text-2xl font-bold mb-4 text-center">Login</h1>
 
-        {error && (
-          <p className="text-red-500 mb-4 text-sm text-center">{error}</p>
-        )}
+        {error && <p className="text-red-500 mb-4 text-sm text-center">{error}</p>}
 
         <input
           type="email"
@@ -89,7 +79,7 @@ export default function LoginPage() {
 
         <button
           type="submit"
-          className="bg-blue-600 text-white px-4 py-2 w-full rounded hover:bg-blue-700 disabled:opacity-50"
+          className="bg-blue-600 text-white px-4 py-2 w-full rounded hover:bg-blue-700"
           disabled={loading}
         >
           {loading ? 'Logging in...' : 'Login'}

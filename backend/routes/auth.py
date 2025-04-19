@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Form
 from sqlalchemy.orm import Session
 from models import User
 from database import get_db
@@ -9,7 +9,7 @@ from fastapi.security import OAuth2PasswordBearer
 from typing import Optional
 
 # ✅ JWT configuration
-SECRET_KEY = "super-secret-123"  # Replace with secure key or env var in production
+SECRET_KEY = "super-secret-123"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
@@ -37,7 +37,12 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
 
 # ✅ Register Endpoint
 @router.post("/register")
-def register_user(name: str, email: str, password: str, db: Session = Depends(get_db)):
+def register_user(
+    name: str = Form(...),
+    email: str = Form(...),
+    password: str = Form(...),
+    db: Session = Depends(get_db)
+):
     db_user = db.query(User).filter(User.email == email).first()
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
@@ -48,11 +53,18 @@ def register_user(name: str, email: str, password: str, db: Session = Depends(ge
     db.commit()
     db.refresh(new_user)
 
-    return {"msg": "User created successfully", "user": {"id": new_user.id, "email": new_user.email}}
+    return {
+        "msg": "User created successfully",
+        "user": {"id": new_user.id, "email": new_user.email}
+    }
 
 # ✅ Login Endpoint
 @router.post("/login")
-def login_user(email: str, password: str, db: Session = Depends(get_db)):
+def login_user(
+    email: str = Form(...),
+    password: str = Form(...),
+    db: Session = Depends(get_db)
+):
     db_user = db.query(User).filter(User.email == email).first()
     if not db_user or not verify_password(password, db_user.password_hash):
         raise HTTPException(status_code=400, detail="Invalid credentials")
@@ -60,7 +72,8 @@ def login_user(email: str, password: str, db: Session = Depends(get_db)):
     access_token = create_access_token(data={"sub": db_user.email})
     return {"access_token": access_token, "token_type": "bearer"}
 
-# ✅ Token Validation (Optional: Use in protected routes)
+# ✅ Token Validation
+@router.get("/validate-token")
 def get_current_user(token: str = Depends(oauth2_scheme)):
     credentials_exception = HTTPException(
         status_code=401,
@@ -72,7 +85,7 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
         email: str = payload.get("sub")
         if email is None:
             raise credentials_exception
-        return email
+        return {"email": email}
     except JWTError:
         raise credentials_exception
 

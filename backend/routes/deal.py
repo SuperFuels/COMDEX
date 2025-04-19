@@ -8,84 +8,98 @@ from utils.auth import get_current_user
 from fastapi.responses import StreamingResponse
 from weasyprint import HTML
 from io import BytesIO
+import logging
 
+# ✅ Initialize router
 router = APIRouter(
     prefix="/deals",
     tags=["Deals"]
 )
 
-# ✅ Create new deal
-@router.post("/create", response_model=DealOut)
+# ✅ Logger
+logger = logging.getLogger(__name__)
+
+# ✅ POST: Create a new deal
+@router.post("/", response_model=DealOut)
 def create_deal(
     deal_data: DealCreate,
     db: Session = Depends(get_db),
-    current_user: str = Depends(get_current_user)
+    current_user=Depends(get_current_user)
 ):
-    """
-    Endpoint to create a new deal.
-    The data is received as a DealCreate model and saved in the database.
-    """
-    # Create a new deal instance using the received data
-    new_deal = Deal(**deal_data.dict())
+    try:
+        new_deal = Deal(**deal_data.dict())
+        db.add(new_deal)
+        db.commit()
+        db.refresh(new_deal)
+        logger.info(f"✅ Deal created: {new_deal.id} by {current_user.email}")
+        return new_deal
+    except Exception as e:
+        logger.error(f"❌ Failed to create deal: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to create deal")
 
-    # Add the new deal to the database session and commit it
-    db.add(new_deal)
-    db.commit()
-    db.refresh(new_deal)  # Refresh the instance to reflect the committed data
-
-    # Return the newly created deal
-    return new_deal
-
-# ✅ GET: Fetch all deals for the authenticated user
+# ✅ GET: All deals for authenticated user
 @router.get("/", response_model=List[DealOut])
 def get_user_deals(
     db: Session = Depends(get_db),
-    current_user: str = Depends(get_current_user)
+    current_user=Depends(get_current_user)
 ):
-    """
-    Endpoint to fetch all deals for the authenticated user.
-    """
-    # Query the database for all deals associated with the current user
-    deals = db.query(Deal).filter(Deal.buyer_email == current_user).all()
+    try:
+        deals = db.query(Deal).filter(Deal.buyer_email == current_user.email).all()
+        logger.info(f"✅ {len(deals)} deal(s) fetched for {current_user.email}")
+        return deals
+    except Exception as e:
+        logger.error(f"❌ Failed to fetch deals: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to fetch deals")
 
-    # Return the list of deals
-    return deals
+# ✅ GET: Deal by ID (with permission check)
+@router.get("/{deal_id}", response_model=DealOut)
+def get_deal_by_id(
+    deal_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    deal = db.query(Deal).filter(Deal.id == deal_id).first()
 
-# ✅ Download PDF summary
+    if not deal:
+        logger.warning(f"⚠️ Deal {deal_id} not found")
+        raise HTTPException(status_code=404, detail="Deal not found")
+
+    if current_user.email not in [deal.buyer_email, deal.supplier_email]:
+        raise HTTPException(status_code=403, detail="Not authorized to view this deal")
+
+    logger.info(f"✅ Deal {deal_id} fetched by {current_user.email}")
+    return deal
+
+# ✅ GET: Generate and return PDF
 @router.get("/{deal_id}/pdf")
 def generate_deal_pdf(
     deal_id: int,
     db: Session = Depends(get_db),
-    current_user: str = Depends(get_current_user)
+    current_user=Depends(get_current_user)
 ):
-    """
-    Endpoint to generate and download a PDF summarizing the deal.
-    The PDF includes buyer, supplier, product, quantity, and total price.
-    """
-    # Fetch the deal from the database
     deal = db.query(Deal).filter(Deal.id == deal_id).first()
 
-    # If the deal does not exist, raise an HTTPException
     if not deal:
+        logger.warning(f"⚠️ Deal {deal_id} not found")
         raise HTTPException(status_code=404, detail="Deal not found")
 
-    # Construct HTML content for the PDF
+    if current_user.email not in [deal.buyer_email, deal.supplier_email]:
+        raise HTTPException(status_code=403, detail="Not authorized to view this deal")
+
     html_content = f"""
-    <h1>Deal Summary</h1> <p><strong>Buyer:</strong> {deal.buyer_email}</p>
+    <h1>Deal Summary</h1>
+    <p><strong>Buyer:</strong> {deal.buyer_email}</p>
     <p><strong>Supplier:</strong> {deal.supplier_email}</p>
     <p><strong>Product:</strong> {deal.product_title}</p>
     <p><strong>Quantity (kg):</strong> {deal.quantity_kg}</p>
-    <p><strong>Total Price:</strong> ${deal.total_price}</p>     
+    <p><strong>Total Price:</strong> ${deal.total_price}</p>
     """
-    
-    # Create a BytesIO object to hold the generated PDF
-    pdf_bytes = BytesIO()
-    
-    # Generate the PDF from the HTML content using WeasyPrint
-    HTML(string=html_content).write_pdf(pdf_bytes)
-    pdf_bytes.seek(0)  # Reset the pointer to the start of the BytesIO buffer   
 
-    # Return the PDF as a StreamingResponse to allow download
+    pdf_bytes = BytesIO()
+    HTML(string=html_content).write_pdf(pdf_bytes)
+    pdf_bytes.seek(0)
+
+    logger.info(f"✅ PDF generated for deal {deal_id}")
     return StreamingResponse(pdf_bytes, media_type="application/pdf", headers={
         "Content-Disposition": f"inline; filename=deal_{deal_id}.pdf"
     })

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
+import useAuthRedirect from '../hooks/useAuthRedirect'; // ✅ Protect page
 
 interface Product {
   id: number;
@@ -12,14 +13,18 @@ interface Product {
 }
 
 const Dashboard = () => {
+  useAuthRedirect(); // ✅ Redirect if not logged in
   const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [authError, setAuthError] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
-      console.error('No token found in localStorage');
-      router.push('/login');
+      console.warn('⚠️ No token found in localStorage');
+      setAuthError(true);
+      setLoading(false);
       return;
     }
 
@@ -31,14 +36,35 @@ const Dashboard = () => {
           },
         });
         setProducts(response.data);
-      } catch (error) {
-        console.error('Failed to fetch products:', error);
-        router.push('/login');
+      } catch (error: any) {
+        console.error('❌ Failed to fetch products:', error);
+        setAuthError(true);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchProducts();
-  }, [router]);
+  }, []);
+
+  if (loading) {
+    return (
+      <main className="p-6 w-full bg-gray-50 min-h-screen">
+        <p>Loading your products...</p>
+      </main>
+    );
+  }
+
+  if (authError) {
+    return (
+      <main className="p-6 w-full bg-gray-50 min-h-screen text-center">
+        <p className="text-red-500 font-semibold">
+          ⚠️ Unauthorized. Please{' '}
+          <a className="underline text-blue-600" href="/login">login</a>.
+        </p>
+      </main>
+    );
+  }
 
   return (
     <main className="p-6 w-full bg-gray-50 min-h-screen">
@@ -48,7 +74,7 @@ const Dashboard = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {products.map((product) => (
-            <div key={product.id} className="card">
+            <div key={product.id} className="card bg-white p-4 rounded shadow">
               <img
                 src={product.image_url}
                 alt={product.title}
@@ -58,12 +84,8 @@ const Dashboard = () => {
                 }}
               />
               <h2 className="text-xl font-semibold">{product.title}</h2>
-              <p className="text-sm text-gray-700 mb-1">
-                {product.description}
-              </p>
-              <p className="text-sm text-gray-500 mb-1">
-                {product.origin_country}
-              </p>
+              <p className="text-sm text-gray-700 mb-1">{product.description}</p>
+              <p className="text-sm text-gray-500 mb-1">{product.origin_country}</p>
               <p className="text-lg font-bold">${product.price_per_kg}/kg</p>
             </div>
           ))}
