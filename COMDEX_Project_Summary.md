@@ -1,128 +1,143 @@
-# 🧾 COMDEX Project Summary (Updated — 2025-04-19)
+# 🧾 COMDEX Project Summary (Updated — 2025-04-20)
+
+---
 
 ## 🌍 Overview
-COMDEX is a modern global commodity marketplace, starting with whey protein. Verified suppliers can list products, and buyers can transact using fiat (via Stripe) or crypto (future). COMDEX emphasizes transparency, traceability, and automation. Future versions will feature smart contracts, on-chain verification, and AI-driven matching.
+
+COMDEX is a global commodity marketplace enabling secure B2B trade across fiat and crypto rails. Starting with whey protein, COMDEX enables verified suppliers to list products and buyers to transact with full transparency, traceability, and automation.
+
+Future versions will introduce **smart contract escrow**, **on-chain passports**, and **AI agents** that represent users in negotiation and matching.
 
 ---
 
 ## 🔹 Business Plan
 
 ### 🎯 Mission
-Revolutionize global commodity trade with transparency, traceability, and efficiency.
+Revolutionize global trade with transparency, traceability, and decentralized transactions.
 
 ### ❗ Problems Solved
-- Manual, fragmented global commodity trade
-- Trust issues in product quality or source
-- Friction in global payments and deal closure
-- Lack of a centralized, verified supplier network
+- Manual, fragmented commodity trade
+- Lack of global product traceability
+- Payment friction (cross-border, fiat/crypto)
+- No decentralized record of trade
 
 ### 🎯 Target Market
-- **V1**: Whey protein (EU, USA, India, NZ)
-- **V2+**: Cocoa, coffee, olive oil, pea protein, spices
+- V1: Whey protein (EU, India, US, NZ)
+- V2: Cocoa, coffee, olive oil, pea protein, spices
 
 ### 💰 Revenue Model
-- 2–3% transaction fee on deals
-- Premium seller subscriptions (badges, insights)
-- COA/lab test upload + verified seller filters
-- Supply chain passport licensing
-- FX & crypto SWAP transaction fees
+- 2–3% deal commission
+- Premium supplier tools (badges, COA uploads)
+- Licensing the COMDEX Passport engine
+- Crypto SWAP/FX fees
+- Utility token usage for features
 
 ---
 
-## ✅ Version 1 — MVP (Fully Functional)
+## ✅ V1 — MVP Completed
 
-### ✅ Core Features
-- Supplier onboarding (KYC placeholder)
-- JWT auth (register/login)
-- Product listing (title, price, origin, image, description)
-- Image upload (stored locally)
-- Manual deal logging + status flow
-- Deal PDF export via ReportLab
-- Buyer and Supplier Dashboards
-- Admin panel (view users/products/deals)
-- Route protection via useAuthRedirect
-- Stripe checkout placeholder (for v2 crypto prep)
-- PostgreSQL + FastAPI backend
-- Next.js + Tailwind frontend
+- ✅ JWT Auth: register, login, protected routes
+- ✅ Product creation, image upload
+- ✅ Manual deal creation (buyer ↔ supplier)
+- ✅ Deal status: Negotiation → Confirmed → Completed
+- ✅ PDF export of deal record
+- ✅ Dashboards: Buyer, Supplier, Admin
+- ✅ Admin: Users, Products, Deals overview
+- ✅ Stripe integration placeholder (crypto prep)
+- ✅ PostgreSQL + FastAPI backend
+- ✅ Next.js + Tailwind frontend
 
 ---
 
-## 🧪 Logins (Demo)
-- **Admin**: `admin@example.com` / `admin123`
-- **Token-Based Auth**: Stored in `localStorage` (`token` key)
-- **Database Credentials**:
-  - Username: `comdex`
-  - Password: `Wn8smx123`
-  - DB: `comdex`
+## 🔄 Version 2 — Feature Expansion (In Progress)
+
+### 🧠 Core Goals
+- Introduce **crypto settlement** (Polygon/USDC)
+- Build **public landing page** (no login required to browse)
+- Add **AI Agent functionality** and **Agent-to-Agent protocol**
+- Enable **QR-based traceability** for physical products
 
 ---
 
-## 🧱 Database Schema (2025-04-19)
+### 🧱 V2 Feature Breakdown
 
-### 📦 users
-- `id`, `name`, `email`, `password_hash`
-- `role`: `user`, `supplier`, `admin`
-- `created_at`, `updated_at`
-
-### 📦 products
-- `id`, `owner_email`
-- `title`, `description`, `price_per_kg`
-- `origin_country`, `category`, `image_url`
-- `created_at`
-
-### 📦 deals
-- `id`, `buyer_id`, `supplier_id`, `product_id`
-- `quantity_kg`, `agreed_price`, `currency`
-- `status`: negotiation → confirmed → completed
-- `pdf_url`, `created_at`
-
----
-
-## 🧱 Build Phases
-
-### ✅ Phase 0: Setup
-- GitHub: `SuperFuels/COMDEX`
-- Backend scaffolded (FastAPI)
-- Frontend scaffolded (Next.js + Tailwind)
-- Local PostgreSQL DB seeded
-
-### ✅ Phase 1: Core Platform
-- Auth system + JWT
-- Product creation + dashboards
-- Admin panel
-- Route protection (admin/user)
-
-### ✅ Phase 2: Deal Flow
-- Deal creation form
-- PDF generation
-- Deal status toggle
-- Buyer contact form
-
-### 🔜 Phase 3: v2 Prep
-- Wallet integration (MetaMask / Supabase auth)
-- Crypto-based escrow (Polygon smart contracts)
-- Swap interface (Revolut-style)
-- JSON API refactor
-- Mobile-first PWA or React Native app
-- AI matching & commodity market data
+| Category                | Feature                                                                 |
+|------------------------|-------------------------------------------------------------------------|
+| 💳 Crypto Integration  | MetaMask login (for wallet auth)                                        |
+|                        | Smart contract escrow (Polygon / COMDEX Stablecoin)                     |
+|                        | Swap interface (fiat ⇄ crypto converter)                                |
+|                        | Deal finalization triggers escrow & token movement                      |
+| 🧠 AI Integration       | AI Supplier Matching (based on COA, price, demand)                      |
+|                        | AI Agents for negotiation (future: autonomous bots per supplier/buyer)  |
+|                        | Agent-to-Agent protocol integration (experimental)                      |
+| 🌐 UI & Routing         | Public landing page with featured products                              |
+|                        | No login required for browsing, filtering, or price viewing             |
+|                        | New login/signup flow for **Buyer** and **Supplier**                    |
+|                        | Buyer Portal: Order tracking, product history                           |
+|                        | Seller Portal: Inventory, deals, passport status                        |
+|                        | Searchable dashboard feed (social-style UI, infinite scroll)            |
+| 📦 Traceability        | QR code for every physical product deal                                 |
+|                        | QR links to transaction record (e.g., Etherscan or COMDEX tx viewer)    |
+| 🛠️ Infra/API           | JSON-based RESTful API (ready for mobile app)                           |
+|                        | Mobile-first PWA or React Native frontend                               |
+| 🧾 Supply Chain Passport | On-chain proof of ownership / sale + COA + seller verification          |
+|                        | NFT certification for key deals or real-world goods                     |
 
 ---
 
 ## 💸 Coin Structure (Planned)
-- 🪙 **COMDEX Stablecoin** (escrow transactions)
-- 🔁 **FX Engine** (auto-convert to local currencies)
-- 📈 **Utility Token** (used for rewards/staking)
-- 🏦 **BTC-like Store-of-Value Coin**
+
+| Token                    | Purpose                          |
+|--------------------------|----------------------------------|
+| 🪙 COMDEX Stablecoin      | Escrow settlement                |
+| 🔁 FX Engine              | Auto-convert fiat <-> crypto     |
+| 📈 Utility Token (CMDX)   | Access premium features, staking |
+| 🏦 Store-of-Value Token   | BTC-like, used for long-term holding |
 
 ---
 
-## 🛠️ Deployment Commands
+## 📁 COMDEX Directory Structure
 
-### 🚀 Backend
-```bash
-source venv/bin/activate
-cd backend
-uvicorn main:app --reload
+COMDEX/
+├── backend/
+│   ├── main.py
+│   ├── create_tables.py
+│   ├── uploaded_images/             # Uploaded image storage
+│   ├── models/
+│   │   ├── user.py
+│   │   ├── product.py
+│   │   └── deal.py
+│   ├── routes/
+│   │   ├── auth.py
+│   │   ├── product.py
+│   │   ├── deal.py
+│   │   └── admin.py
+│   ├── schemas/
+│   │   ├── user.py
+│   │   ├── product.py
+│   │   ├── deal.py
+│   │   └── admin.py
+│   └── utils/
+│       └── auth.py
+
+├── frontend/
+│   ├── pages/
+│   │   ├── index.tsx                # Public landing page (V2)
+│   │   ├── login.tsx
+│   │   ├── register.tsx
+│   │   ├── dashboard.tsx
+│   │   ├── products/
+│   │   │   ├── new.tsx
+│   │   │   └── edit/[id].tsx
+│   │   ├── deals/
+│   │   │   ├── index.tsx
+│   │   │   └── new.tsx
+│   │   └── admin/
+│   │       └── dashboard.tsx
+│   ├── components/
+│   │   └── ProductCard.tsx
+│   └── hooks/
+│       └── useAuthRedirect.ts
 
 cd frontend
 npm install
@@ -131,49 +146,27 @@ npm run dev
 cd backend
 python create_tables.py
 
-📁 COMDEX/
-├── backend/
-│   ├── main.py
-│   ├── models/
-│   │   └── user.py, product.py, deal.py
-│   ├── routes/
-│   │   └── auth.py, product.py, deal.py, admin.py
-│   ├── schemas/
-│   │   └── product.py, deal.py, user.py, admin.py
-│   ├── utils/
-│   │   └── auth.py
-│   └── uploaded_images/
-│
-├── frontend/
-│   ├── pages/
-│   │   └── login.tsx, register.tsx, dashboard.tsx, products/new.tsx
-│   │   └── admin/dashboard.tsx
-│   ├── components/
-│   │   └── ProductCard.tsx
-│   └── hooks/
-│       └── useAuthRedirect.ts
+✅ Final V1 Checklist
 
-✅ What’s Left in V1
+Feature	Status
+Auth + Route Protection	✅ Done
+Product Creation	✅ Done
+Deals + PDF Export	✅ Done
+Admin Dashboard	✅ Done
+Image Upload	✅ Done
+Frontend Polishing	✅ Done
+PDF Preview	✅ Done
+GitHub Push	✅ Ready
 
-Task	Status
-Image upload (fully implemented)	✅ Done
-Route protection via token	✅ Done
-Admin route filtering	✅ Done
-UI polish (cards, inputs, etc.)	⏳ In Progress
-Frontend PDF preview	❌ Not started
-Final push to GitHub	❌ Pending
-🧠 Final Notes
-You are now ready to test deals, images, route auth, and admin visibility.
+🚀 What's Next
+Begin scaffolding MetaMask wallet auth and crypto deal flow
 
-Smart contract escrow & crypto wallet are next phase (v2).
+Implement public homepage for product browsing (no login)
 
-Push all updates to SuperFuels/COMDEX once satisfied.
+Build AI Agent logic and modular negotiation protocols
 
-✅ How to Open the Summary File
-If you want to save this markdown summary to a file and edit it in terminal:
+Add QR generator per deal and display in PDF/receipt
 
-bash
-Copy
-Edit
-cd ~/Desktop/Comdex
-nano COMDEX_Project_Summary.md
+Deploy smart contracts + register deals on-chain
+
+

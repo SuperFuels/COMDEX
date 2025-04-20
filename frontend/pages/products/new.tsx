@@ -1,10 +1,12 @@
-// pages/products/new.tsx
 import { useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
+import useAuthRedirect from '../../hooks/useAuthRedirect';
 
 export default function NewProduct() {
+  useAuthRedirect(); // ✅ Protect this route
   const router = useRouter();
+
   const [form, setForm] = useState({
     title: '',
     description: '',
@@ -14,7 +16,9 @@ export default function NewProduct() {
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 

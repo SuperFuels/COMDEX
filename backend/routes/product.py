@@ -11,7 +11,7 @@ import os
 
 router = APIRouter()
 
-# ✅ Get all products by current user (used for /dashboard view)
+# ✅ Get all products by current user
 @router.get("/me", response_model=List[ProductOut])
 def get_my_products(
     db: Session = Depends(get_db),
@@ -24,6 +24,22 @@ def get_my_products(
 @router.get("/", response_model=List[ProductOut])
 def get_all_products(db: Session = Depends(get_db)):
     return db.query(Product).all()
+
+# ✅ Get a single product by ID (used in edit page)
+@router.get("/{product_id}", response_model=ProductOut)
+def get_product_by_id(
+    product_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    product = db.query(Product).filter(
+        Product.id == product_id,
+        Product.owner_email == current_user.email
+    ).first()
+
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    return product
 
 # ✅ Create Product with image upload
 @router.post("/create", response_model=ProductOut)
@@ -40,7 +56,7 @@ def create_product(
     image_dir = "uploaded_images"
     os.makedirs(image_dir, exist_ok=True)
     image_path = os.path.join(image_dir, image.filename)
-    
+
     with open(image_path, "wb") as buffer:
         shutil.copyfileobj(image.file, buffer)
 
@@ -65,7 +81,7 @@ def create_product(
 def update_product(
     product_id: int,
     updated_data: ProductCreate,
-    db: Session = Depends(get_db),  
+    db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
     product = db.query(Product).filter(

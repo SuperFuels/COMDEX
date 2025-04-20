@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
-import useAuthRedirect from '../hooks/useAuthRedirect'; // ✅ Protect page
+import useAuthRedirect from '../hooks/useAuthRedirect';
 
 interface Product {
   id: number;
@@ -36,7 +36,7 @@ const Dashboard = () => {
           },
         });
         setProducts(response.data);
-      } catch (error: any) {
+      } catch (error) {
         console.error('❌ Failed to fetch products:', error);
         setAuthError(true);
       } finally {
@@ -46,6 +46,28 @@ const Dashboard = () => {
 
     fetchProducts();
   }, []);
+
+  const handleEdit = (id: number) => {
+    router.push(`/products/edit/${id}`);
+  };
+
+  const handleDelete = async (id: number) => {
+    const token = localStorage.getItem('token');
+    const confirmDelete = window.confirm('Are you sure you want to delete this product?');
+    if (!confirmDelete) return;
+
+    try {
+      await axios.delete(`http://localhost:8000/products/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setProducts(products.filter((p) => p.id !== id));
+    } catch (error) {
+      console.error('❌ Delete failed:', error);
+      alert('Failed to delete product');
+    }
+  };
 
   if (loading) {
     return (
@@ -74,9 +96,9 @@ const Dashboard = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {products.map((product) => (
-            <div key={product.id} className="card bg-white p-4 rounded shadow">
+            <div key={product.id} className="bg-white p-4 rounded shadow">
               <img
-                src={product.image_url}
+                src={`http://localhost:8000/uploaded_images/${product.image_url.split('/').pop()}`}
                 alt={product.title}
                 className="h-40 w-full object-cover rounded mb-2"
                 onError={(e) => {
@@ -87,6 +109,20 @@ const Dashboard = () => {
               <p className="text-sm text-gray-700 mb-1">{product.description}</p>
               <p className="text-sm text-gray-500 mb-1">{product.origin_country}</p>
               <p className="text-lg font-bold">${product.price_per_kg}/kg</p>
+              <div className="flex justify-between mt-4">
+                <button
+                  onClick={() => handleEdit(product.id)}
+                  className="text-sm bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleDelete(product.id)}
+                  className="text-sm bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
+                >
+                  Delete
+                </button>
+              </div>
             </div>
           ))}
         </div>

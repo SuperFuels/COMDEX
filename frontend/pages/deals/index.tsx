@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
+import useAuthRedirect from '../../hooks/useAuthRedirect'; // ✅ Protect page
 
 interface Deal {
   id: number;
@@ -14,10 +15,13 @@ interface Deal {
 }
 
 export default function DealsPage() {
+  useAuthRedirect(); // ✅ Redirects if not authenticated
+
   const [deals, setDeals] = useState<Deal[]>([]);
   const [filteredDeals, setFilteredDeals] = useState<Deal[]>([]);
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -30,9 +34,7 @@ export default function DealsPage() {
     const fetchDeals = async () => {
       try {
         const response = await axios.get('http://localhost:8000/deals/', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
         setDeals(response.data);
         setFilteredDeals(response.data);
@@ -58,39 +60,52 @@ export default function DealsPage() {
         return 'text-green-600 font-semibold';
       case 'completed':
         return 'text-blue-600 font-semibold';
-      case 'negotiation':
       default:
         return 'text-yellow-600 font-semibold';
     }
   };
 
-  const handlePDFDownload = async (dealId: number) => {
+  const handleStatusChange = async (dealId: number, newStatus: string) => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    try {
+      await axios.put(
+        `http://localhost:8000/deals/${dealId}/status`,
+        { status: newStatus },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      const updated = deals.map((d) =>
+        d.id === dealId ? { ...d, status: newStatus } : d
+      );
+      setDeals(updated);
+      setFilteredDeals(updated);
+    } catch (err) {
+      console.error('Failed to update deal status:', err);
+      alert('Status update failed.');
+    }
+  };
+
+  const handlePDFPreview = async (dealId: number) => {
     const token = localStorage.getItem('token');
     if (!token) {
-      alert('Please log in to download this PDF.');
+      alert('Please log in to preview this PDF.');
       return;
     }
 
     try {
       const response = await axios.get(`http://localhost:8000/deals/${dealId}/pdf`, {
         responseType: 'blob',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       const blob = new Blob([response.data], { type: 'application/pdf' });
       const url = window.URL.createObjectURL(blob);
-
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `deal_${dealId}.pdf`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      setPdfUrl(url);
     } catch (error) {
-      console.error('❌ Failed to download PDF:', error);
-      alert('Failed to download PDF.');
+      console.error('❌ Failed to preview PDF:', error);
+      alert('Failed to load PDF.');
     }
   };
 
@@ -132,15 +147,46 @@ export default function DealsPage() {
                 <p className={`text-xs mt-1 ${getStatusStyle(deal.status)}`}>
                   Status: {deal.status}
                 </p>
+
+                <div className="mt-2">
+                  <label className="text-xs font-semibold mr-2">Update Status:</label>
+                  <select
+                    value={deal.status}
+                    onChange={(e) => handleStatusChange(deal.id, e.target.value)}
+                    className="text-sm p-1 border rounded"
+                  >
+                    <option value="negotiation">Negotiation</option>
+                    <option value="confirmed">Confirmed</option>
+                    <option value="completed">Completed</option>
+                  </select>
+                </div>
               </div>
+
               <button
-                onClick={() => handlePDFDownload(deal.id)}
-                className="mt-2 bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 text-sm"
+                onClick={() => handlePDFPreview(deal.id)}
+                className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
               >
-                Download PDF
+                Preview PDF
               </button>
             </div>
           ))}
+        </div>
+      )}
+
+      {pdfUrl && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-4 rounded shadow-lg max-w-3xl w-full">
+            <div className="flex justify-between mb-2">
+              <h2 className="text-lg font-semibold">PDF Preview</h2>
+              <button
+                onClick={() => setPdfUrl(null)}
+                className="text-red-600 hover:text-red-800 text-sm"
+              >
+                Close ✖
+              </button>
+            </div>
+            <iframe src={pdfUrl} className="w-full h-[500px]" />
+          </div>
         </div>
       )}
     </main>
