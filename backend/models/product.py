@@ -1,4 +1,3 @@
-# models/product.py
 from sqlalchemy import Column, Integer, String, Float, ForeignKey
 from sqlalchemy.orm import relationship
 from database import Base
@@ -18,7 +17,7 @@ class Product(Base):
     # Relationship with User (one-to-many)
     owner = relationship("User", back_populates="products")
 
-    # Relationship with Deals
+    # Relationship with Deals (one-to-many)
     deals = relationship("Deal", back_populates="product", cascade="all, delete-orphan")
 
     def __repr__(self):

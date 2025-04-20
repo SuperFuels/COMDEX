@@ -1,7 +1,9 @@
+// pages/dashboard.tsx
+
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
-import useAuthRedirect from '../hooks/useAuthRedirect';
+import useAuthRedirect from '@/hooks/useAuthRedirect'; // ✅ Ensure correct path
 
 interface Product {
   id: number;
@@ -13,7 +15,8 @@ interface Product {
 }
 
 const Dashboard = () => {
-  useAuthRedirect(); // ✅ Redirect if not logged in
+  useAuthRedirect('buyer'); // ✅ Only allow buyers
+
   const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -22,7 +25,6 @@ const Dashboard = () => {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
-      console.warn('⚠️ No token found in localStorage');
       setAuthError(true);
       setLoading(false);
       return;
@@ -98,7 +100,7 @@ const Dashboard = () => {
           {products.map((product) => (
             <div key={product.id} className="bg-white p-4 rounded shadow">
               <img
-                src={`http://localhost:8000/uploaded_images/${product.image_url.split('/').pop()}`}
+                src={`http://localhost:8000/uploaded_images/${product.image_url}`}
                 alt={product.title}
                 className="h-40 w-full object-cover rounded mb-2"
                 onError={(e) => {

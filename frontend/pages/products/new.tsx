@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
-import useAuthRedirect from '../../hooks/useAuthRedirect';
+import useAuthRedirect from '@/hooks/useAuthRedirect';
 
 export default function NewProduct() {
-  useAuthRedirect(); // ✅ Protect this route
+  useAuthRedirect('supplier'); // ✅ Only suppliers can access
+
   const router = useRouter();
 
   const [form, setForm] = useState({
@@ -48,7 +49,7 @@ export default function NewProduct() {
           'Content-Type': 'multipart/form-data',
         },
       });
-      router.push('/dashboard');
+      router.push('/supplier/dashboard');
     } catch (err) {
       console.error(err);
       alert('❌ Failed to create product');
@@ -56,58 +57,76 @@ export default function NewProduct() {
   };
 
   return (
-    <div className="max-w-xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4">Create New Product</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white p-6 rounded shadow-md w-full max-w-lg space-y-4"
+      >
+        <h1 className="text-2xl font-bold text-center mb-2">📦 New Product</h1>
+
         <input
           type="text"
           name="title"
           placeholder="Title"
+          value={form.title}
           onChange={handleChange}
-          className="input"
+          className="w-full border border-gray-300 rounded p-2"
           required
         />
+
         <textarea
           name="description"
           placeholder="Description"
+          value={form.description}
           onChange={handleChange}
-          className="input"
+          className="w-full border border-gray-300 rounded p-2"
+          rows={3}
           required
         />
+
         <input
           type="number"
           name="price_per_kg"
-          placeholder="Price per kg"
+          placeholder="Price per kg (USD)"
+          value={form.price_per_kg}
           onChange={handleChange}
-          className="input"
+          className="w-full border border-gray-300 rounded p-2"
           required
         />
+
         <input
           type="text"
           name="origin_country"
-          placeholder="Origin Country"
+          placeholder="Country of Origin"
+          value={form.origin_country}
           onChange={handleChange}
-          className="input"
+          className="w-full border border-gray-300 rounded p-2"
           required
         />
+
         <input
           type="text"
           name="category"
-          placeholder="Category"
+          placeholder="Category (e.g. Protein, Cocoa)"
+          value={form.category}
           onChange={handleChange}
-          className="input"
+          className="w-full border border-gray-300 rounded p-2"
           required
         />
+
         <input
           type="file"
-          name="image"
-          onChange={handleImageChange}
-          className="input"
           accept="image/*"
+          onChange={handleImageChange}
+          className="w-full border border-gray-300 rounded p-2"
           required
         />
-        <button type="submit" className="btn btn-primary w-full">
-          Submit
+
+        <button
+          type="submit"
+          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+        >
+          Submit Product
         </button>
       </form>
     </div>

@@ -1,7 +1,6 @@
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
-from database import Base  # Ensure Base is imported correctly
-
+from database import Base
 from models.deal import Deal  # Required for foreign_keys references
 
 class User(Base):
@@ -10,10 +9,10 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
     email = Column(String, unique=True, index=True)
-    password_hash = Column(String)  # To store the hashed password
-    role = Column(String, default="user")  # Default role is "user"
+    password_hash = Column(String)
+    role = Column(String, default="user")  # buyer, supplier, admin
 
-    # Relationship to link the user with the deals they are buyers in
+    # Deals where the user is the buyer
     buyer_deals = relationship(
         "Deal",
         back_populates="buyer",
@@ -21,7 +20,7 @@ class User(Base):
         cascade="all, delete-orphan"
     )
 
-    # Relationship to link the user with the deals they are suppliers in
+    # Deals where the user is the supplier
     supplier_deals = relationship(
         "Deal",
         back_populates="supplier",
@@ -29,7 +28,7 @@ class User(Base):
         cascade="all, delete-orphan"
     )
 
-    # Relationship to link the user with their products
+    # Products owned by the user (if supplier)
     products = relationship(
         "Product",
         back_populates="owner",

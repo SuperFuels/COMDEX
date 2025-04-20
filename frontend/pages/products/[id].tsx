@@ -1,7 +1,7 @@
-// pages/products/[id].tsx
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import Navbar from '@/components/Navbar';
 
 interface Product {
   id: number;
@@ -27,22 +27,49 @@ export default function ProductDetailPage() {
     }
   }, [id]);
 
-  if (!product) return <p>Loading...</p>;
+  if (!product) {
+    return (
+      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+        <p>Loading product...</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="p-8">
-      <h1 className="text-3xl font-bold mb-4">{product.title}</h1>
-      {product.image_url && (
-        <img
-          src={product.image_url}
-          alt={product.title}
-          className="w-64 h-64 object-cover mb-4"
-        />
-      )}
-      <p className="mb-2"><strong>Category:</strong> {product.category}</p>
-      <p className="mb-2"><strong>Origin:</strong> {product.origin_country}</p>
-      <p className="mb-2"><strong>Description:</strong> {product.description}</p>
-      <p className="mb-2"><strong>Price per KG:</strong> ${product.price_per_kg}</p>
+    <div className="min-h-screen bg-black text-white">
+      <Navbar />
+
+      <div className="max-w-4xl mx-auto p-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <img
+            src={`http://localhost:8000${product.image_url}`}
+            alt={product.title}
+            className="w-full h-80 object-cover rounded"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = '/placeholder.jpg';
+            }}
+          />
+
+          <div>
+            <h1 className="text-3xl font-bold mb-2">{product.title}</h1>
+            <p className="text-pink-400 font-semibold text-xl mb-4">
+              ${product.price_per_kg}/kg
+            </p>
+            <p className="text-sm text-gray-400 mb-2">
+              Origin: {product.origin_country}
+            </p>
+            <p className="text-sm text-gray-400 mb-2">Category: {product.category}</p>
+            <p className="mb-4">{product.description}</p>
+
+            <button
+              disabled
+              className="bg-pink-600 text-white py-2 px-4 rounded hover:bg-pink-700 disabled:opacity-50"
+            >
+              Contact Seller (Login Required)
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

@@ -24,23 +24,42 @@ export default function LoginPage() {
         'http://localhost:8000/auth/login',
         params,
         {
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         }
       );
 
       const token = response.data.access_token;
       localStorage.setItem('token', token);
-      router.push('/dashboard');
+
+      // 🔐 Decode user email from token if needed
+      const base64Payload = token.split('.')[1];
+      const payload = JSON.parse(atob(base64Payload));
+      const userEmail = payload.sub;
+
+      // 🔍 Get user role from backend
+      const roleRes = await axios.get('http://localhost:8000/auth/role', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const role = roleRes.data.role;
+
+      // 🎯 Redirect based on role
+      if (role === 'admin') {
+        router.push('/admin/dashboard');
+      } else if (role === 'supplier') {
+        router.push('/supplier/dashboard');
+      } else {
+        router.push('/dashboard');
+      }
+
     } catch (err: any) {
       if (err?.response?.data?.detail) {
-        if (Array.isArray(err.response.data.detail)) {
-          const messages = err.response.data.detail.map((d: any) => d.msg).join(', ');
-          setError(messages);
-        } else {
-          setError(err.response.data.detail);
-        }
+        const detail = err.response.data.detail;
+        setError(
+          Array.isArray(detail)
+            ? detail.map((d: any) => d.msg).join(', ')
+            : detail
+        );
       } else {
         setError('Login failed. Please try again.');
       }
@@ -57,7 +76,9 @@ export default function LoginPage() {
       >
         <h1 className="text-2xl font-bold mb-4 text-center">Login</h1>
 
-        {error && <p className="text-red-500 mb-4 text-sm text-center">{error}</p>}
+        {error && (
+          <p className="text-red-500 mb-4 text-sm text-center">{error}</p>
+        )}
 
         <input
           type="email"

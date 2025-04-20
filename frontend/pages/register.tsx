@@ -8,6 +8,7 @@ export default function RegisterPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [role, setRole] = useState<'buyer' | 'supplier'>('buyer');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -17,12 +18,11 @@ export default function RegisterPage() {
     setError('');
 
     try {
-      const response = await axios.post(`http://localhost:8000/auth/register`, null, {
-        params: {
-          name,
-          email,
-          password,
-        },
+      const response = await axios.post(`http://localhost:8000/auth/register`, {
+        name,
+        email,
+        password,
+        role,
       });
 
       if (response.status === 200) {
@@ -49,7 +49,7 @@ export default function RegisterPage() {
 
         <input
           type="text"
-          placeholder="Name"
+          placeholder="Full Name"
           className="border p-2 w-full mb-4 rounded"
           value={name}
           onChange={(e) => setName(e.target.value)}
@@ -74,9 +74,18 @@ export default function RegisterPage() {
           required
         />
 
+        <select
+          className="border p-2 w-full mb-4 rounded"
+          value={role}
+          onChange={(e) => setRole(e.target.value as 'buyer' | 'supplier')}
+        >
+          <option value="buyer">Buyer</option>
+          <option value="supplier">Supplier</option>
+        </select>
+
         <button
           type="submit"
-          className="bg-green-600 text-white px-4 py-2 w-full rounded hover:bg-green-700 transition"
+          className="bg-green-600 text-white px-4 py-2 w-full rounded hover:bg-green-700"
           disabled={loading}
         >
           {loading ? 'Registering...' : 'Register'}

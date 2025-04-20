@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from typing import List
+from datetime import datetime
 
 class UserOut(BaseModel):
     id: int
@@ -31,7 +32,7 @@ class DealOut(BaseModel):
     quantity_kg: int
     total_price: float
     status: str
-    created_at: str
+    created_at: datetime
 
     class Config:
         from_attributes = True

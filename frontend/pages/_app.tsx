@@ -2,7 +2,6 @@
 import '@/styles/globals.css';
 import type { AppProps } from 'next/app';
 import Navbar from '@/components/Navbar';
-import Sidebar from '@/components/Sidebar';
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
@@ -10,13 +9,10 @@ export default function App({ Component, pageProps }: AppProps) {
       {/* Global Navbar */}
       <Navbar />
 
-      {/* Main Content Area with Sidebar + Page */}
-      <div className="flex flex-1">
-        <Sidebar />
-        <main className="flex-grow p-6 overflow-y-auto">
-          <Component {...pageProps} />
-        </main>
-      </div>
+      {/* Page Content */}
+      <main className="flex-grow p-6">
+        <Component {...pageProps} />
+      </main>
     </div>
   );
 }

@@ -35,27 +35,36 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
-# ✅ Register Endpoint
+# ✅ Register Endpoint (includes role)
 @router.post("/register")
 def register_user(
     name: str = Form(...),
     email: str = Form(...),
     password: str = Form(...),
+    role: str = Form("buyer"),  # default role = buyer
     db: Session = Depends(get_db)
 ):
-    db_user = db.query(User).filter(User.email == email).first()
-    if db_user:
+    existing_user = db.query(User).filter(User.email == email).first()
+    if existing_user:
         raise HTTPException(status_code=400, detail="Email already registered")
 
     hashed_password = get_password_hash(password)
-    new_user = User(name=name, email=email, password_hash=hashed_password)
+    new_user = User(
+        name=name,
+        email=email,
+        password_hash=hashed_password,
+        role=role
+    )
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
-
     return {
         "msg": "User created successfully",
-        "user": {"id": new_user.id, "email": new_user.email}
+        "user": {
+            "id": new_user.id,
+            "email": new_user.email,
+            "role": new_user.role
+        }
     }
 
 # ✅ Login Endpoint
@@ -68,7 +77,7 @@ def login_user(
     db_user = db.query(User).filter(User.email == email).first()
     if not db_user or not verify_password(password, db_user.password_hash):
         raise HTTPException(status_code=400, detail="Invalid credentials")
-
+        
     access_token = create_access_token(data={"sub": db_user.email})
     return {"access_token": access_token, "token_type": "bearer"}
 
@@ -88,4 +97,19 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
         return {"email": email}
     except JWTError:
         raise credentials_exception
+
+# ✅ User Role Endpoint
+@router.get("/auth/role")
+def get_user_role(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email: str = payload.get("sub")
+        if not email:
+            raise HTTPException(status_code=401, detail="Invalid token")
+        user = db.query(User).filter(User.email == email).first()
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        return {"role": user.role}
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid token")
 
