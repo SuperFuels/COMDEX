@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import Navbar from '@/components/Navbar';
 import useAuthRedirect from '@/hooks/useAuthRedirect'; // ✅ Route guard
 
 interface Product {
@@ -31,8 +30,6 @@ export default function SupplierDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-100 text-gray-900">
-      <Navbar />
-
       <div className="max-w-6xl mx-auto py-8 px-4">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">📦 My Products</h1>

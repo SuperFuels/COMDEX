@@ -41,7 +41,7 @@ def register_user(
     name: str = Form(...),
     email: str = Form(...),
     password: str = Form(...),
-    role: str = Form("buyer"),  # default role = buyer
+    role: str = Form("buyer"),
     db: Session = Depends(get_db)
 ):
     existing_user = db.query(User).filter(User.email == email).first()
@@ -77,11 +77,11 @@ def login_user(
     db_user = db.query(User).filter(User.email == email).first()
     if not db_user or not verify_password(password, db_user.password_hash):
         raise HTTPException(status_code=400, detail="Invalid credentials")
-        
+    
     access_token = create_access_token(data={"sub": db_user.email})
     return {"access_token": access_token, "token_type": "bearer"}
 
-# ✅ Token Validation
+# ✅ Token Validation Endpoint
 @router.get("/validate-token")
 def get_current_user(token: str = Depends(oauth2_scheme)):
     credentials_exception = HTTPException(
@@ -99,16 +99,18 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
         raise credentials_exception
 
 # ✅ User Role Endpoint
-@router.get("/auth/role")
+@router.get("/role")
 def get_user_role(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         email: str = payload.get("sub")
         if not email:
             raise HTTPException(status_code=401, detail="Invalid token")
+
         user = db.query(User).filter(User.email == email).first()
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
+
         return {"role": user.role}
     except JWTError:
         raise HTTPException(status_code=401, detail="Invalid token")

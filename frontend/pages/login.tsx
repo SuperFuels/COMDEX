@@ -31,11 +31,6 @@ export default function LoginPage() {
       const token = response.data.access_token;
       localStorage.setItem('token', token);
 
-      // 🔐 Decode user email from token if needed
-      const base64Payload = token.split('.')[1];
-      const payload = JSON.parse(atob(base64Payload));
-      const userEmail = payload.sub;
-
       // 🔍 Get user role from backend
       const roleRes = await axios.get('http://localhost:8000/auth/role', {
         headers: { Authorization: `Bearer ${token}` },
@@ -51,7 +46,6 @@ export default function LoginPage() {
       } else {
         router.push('/dashboard');
       }
-
     } catch (err: any) {
       if (err?.response?.data?.detail) {
         const detail = err.response.data.detail;

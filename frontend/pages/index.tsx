@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import WalletConnect from '@/components/WalletConnect';
 
 interface Product {
   id: number;
@@ -32,18 +33,18 @@ export default function Home() {
       {/* Swap UI */}
       <div className="flex flex-col items-center justify-center pt-12 px-4">
         <h1 className="text-3xl font-bold mb-4 text-center">Swap COMDEX Assets</h1>
-        <div className="bg-gray-100 border border-gray-300 rounded-lg p-4 w-full max-w-sm shadow">
+        <div className="bg-gray-100 border border-gray-300 rounded-lg p-4 w-full max-w-md">
           <input
             type="text"
             placeholder="0"
             disabled
-            className="w-full mb-2 p-2 rounded bg-white border border-gray-300 text-center"
+            className="w-full mb-2 p-2 rounded bg-white border border-gray-300"
           />
           <input
             type="text"
             placeholder="0"
             disabled
-            className="w-full mb-2 p-2 rounded bg-white border border-gray-300 text-center"
+            className="w-full mb-2 p-2 rounded bg-white border border-gray-300"
           />
           <button
             className="w-full py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
@@ -52,6 +53,11 @@ export default function Home() {
             Coming Soon
           </button>
         </div>
+      </div>
+
+      {/* 🔐 Wallet Connect */}
+      <div className="flex justify-center mt-6">
+        <WalletConnect />
       </div>
 
       {/* Marketplace */}

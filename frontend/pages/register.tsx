@@ -18,12 +18,21 @@ export default function RegisterPage() {
     setError('');
 
     try {
-      const response = await axios.post(`http://localhost:8000/auth/register`, {
-        name,
-        email,
-        password,
-        role,
-      });
+      const formData = new URLSearchParams();
+      formData.append('name', name);
+      formData.append('email', email);
+      formData.append('password', password);
+      formData.append('role', role);
+
+      const response = await axios.post(
+        'http://localhost:8000/auth/register',
+        formData,
+        {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+        }
+      );
 
       if (response.status === 200) {
         router.push('/login');
@@ -85,7 +94,7 @@ export default function RegisterPage() {
 
         <button
           type="submit"
-          className="bg-green-600 text-white px-4 py-2 w-full rounded hover:bg-green-700"
+          className="bg-green-600 text-white px-4 py-2 w-full rounded hover:bg-green-700 transition"
           disabled={loading}
         >
           {loading ? 'Registering...' : 'Register'}

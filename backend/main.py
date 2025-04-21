@@ -26,21 +26,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ✅ Mount static file serving for image access
+# ✅ Mount static files (e.g. product images)
 app.mount("/uploaded_images", StaticFiles(directory="uploaded_images"), name="uploaded_images")
 
 # ✅ Register route modules
 app.include_router(auth.router, prefix="/auth", tags=["Auth"])
 app.include_router(product.router, prefix="/products", tags=["Products"])
-app.include_router(deal.router)  # Prefix is set inside deal.py
-app.include_router(admin.router)  # Prefix is set inside admin.py
+app.include_router(deal.router)      # Deals router handles its own prefixes
+app.include_router(admin.router)     # Admin router handles its own prefixes
 
 # ✅ Root route
 @app.get("/")
 def read_root() -> dict:
     return {"message": "🚀 Welcome to the COMDEX API!"}
 
-# ✅ Health check endpoint
+# ✅ Health check route
 @app.get("/health")
 def health_check() -> dict:
     try:
