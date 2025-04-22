@@ -11,6 +11,7 @@ import os
 
 router = APIRouter()
 
+
 # ✅ Get all products by current user
 @router.get("/me", response_model=List[ProductOut])
 def get_my_products(
@@ -20,10 +21,12 @@ def get_my_products(
     print("🔑 Current user:", current_user.email)
     return db.query(Product).filter(Product.owner_email == current_user.email).all()
 
+
 # ✅ Get ALL products (public view / homepage)
 @router.get("/", response_model=List[ProductOut])
 def get_all_products(db: Session = Depends(get_db)):
     return db.query(Product).all()
+
 
 # ✅ Get a single product by ID (used in edit page)
 @router.get("/{product_id}", response_model=ProductOut)
@@ -41,9 +44,32 @@ def get_product_by_id(
         raise HTTPException(status_code=404, detail="Product not found")
     return product
 
+
+# ✅ Create Product via JSON (for curl or frontend form)
+@router.post("/", response_model=ProductOut)
+def create_product_json(
+    product: ProductCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    new_product = Product(
+        title=product.title,
+        origin_country=product.origin_country,
+        category=product.category,
+        description=product.description,
+        price_per_kg=product.price_per_kg,
+        image_url=product.image_url,
+        owner_email=current_user.email
+    )
+    db.add(new_product)
+    db.commit()
+    db.refresh(new_product)
+    return new_product
+
+
 # ✅ Create Product with image upload
 @router.post("/create", response_model=ProductOut)
-def create_product(
+def create_product_with_upload(
     title: str = Form(...),
     origin_country: str = Form(...),
     category: str = Form(...),
@@ -61,7 +87,6 @@ def create_product(
         shutil.copyfileobj(image.file, buffer)
 
     image_url = f"/uploaded_images/{image.filename}"
-
     new_product = Product(
         title=title,
         origin_country=origin_country,
@@ -75,6 +100,7 @@ def create_product(
     db.commit()
     db.refresh(new_product)
     return new_product
+
 
 # ✅ Update Product
 @router.put("/{product_id}", response_model=ProductOut)
@@ -98,6 +124,7 @@ def update_product(
     db.commit()
     db.refresh(product)
     return product
+
 
 # ✅ Delete Product
 @router.delete("/{product_id}")

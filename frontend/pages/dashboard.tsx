@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
-import useAuthRedirect from '@/hooks/useAuthRedirect'; // ✅ Ensure correct path
 
 interface Product {
   id: number;
@@ -15,8 +14,6 @@ interface Product {
 }
 
 const Dashboard = () => {
-  useAuthRedirect('buyer'); // ✅ Only allow buyers
-
   const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -30,24 +27,38 @@ const Dashboard = () => {
       return;
     }
 
-    const fetchProducts = async () => {
-      try {
-        const response = await axios.get('http://localhost:8000/products/me', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setProducts(response.data);
-      } catch (error) {
-        console.error('❌ Failed to fetch products:', error);
+    axios
+      .get('http://localhost:8000/auth/role', {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((res) => {
+        if (res.data.role !== 'supplier') {
+          router.push('/');
+        } else {
+          fetchProducts(token);
+        }
+      })
+      .catch(() => {
         setAuthError(true);
-      } finally {
         setLoading(false);
-      }
-    };
-
-    fetchProducts();
+      });
   }, []);
+
+  const fetchProducts = async (token: string) => {
+    try {
+      const response = await axios.get('http://localhost:8000/products/me', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setProducts(response.data);
+    } catch (error) {
+      console.error('❌ Failed to fetch products:', error);
+      setAuthError(true);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleEdit = (id: number) => {
     router.push(`/products/edit/${id}`);
@@ -55,6 +66,8 @@ const Dashboard = () => {
 
   const handleDelete = async (id: number) => {
     const token = localStorage.getItem('token');
+    if (!token) return;
+
     const confirmDelete = window.confirm('Are you sure you want to delete this product?');
     if (!confirmDelete) return;
 
@@ -83,8 +96,7 @@ const Dashboard = () => {
     return (
       <main className="p-6 w-full bg-gray-50 min-h-screen text-center">
         <p className="text-red-500 font-semibold">
-          ⚠️ Unauthorized. Please{' '}
-          <a className="underline text-blue-600" href="/login">login</a>.
+          ⚠️ Unauthorized. Please <a className="underline text-blue-600" href="/login">login</a>.
         </p>
       </main>
     );
@@ -100,7 +112,7 @@ const Dashboard = () => {
           {products.map((product) => (
             <div key={product.id} className="bg-white p-4 rounded shadow">
               <img
-                src={`http://localhost:8000/uploaded_images/${product.image_url}`}
+                src={`http://localhost:8000${product.image_url}`}
                 alt={product.title}
                 className="h-40 w-full object-cover rounded mb-2"
                 onError={(e) => {

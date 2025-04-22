@@ -8,21 +8,21 @@ from datetime import datetime, timedelta
 from fastapi.security import OAuth2PasswordBearer
 from typing import Optional
 
-# ✅ JWT configuration
+# JWT configuration
 SECRET_KEY = "super-secret-123"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-# ✅ Password hashing
+# Password hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-# ✅ FastAPI Router
+# ✅ FastAPI Router (no prefix here — prefix comes from main.py)
 router = APIRouter()
 
-# ✅ OAuth2 token dependency
+# Token dependency
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
-# ✅ Utility Functions
+# Utility Functions
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
@@ -35,7 +35,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
-# ✅ Register Endpoint (includes role)
+# ✅ Register Endpoint
 @router.post("/register")
 def register_user(
     name: str = Form(...),
@@ -67,9 +67,9 @@ def register_user(
         }
     }
 
-# ✅ Login Endpoint
-@router.post("/login")
-def login_user(
+# ✅ Login Endpoint   
+@router.post("/login")   
+def login_user(   
     email: str = Form(...),
     password: str = Form(...),
     db: Session = Depends(get_db)
@@ -80,7 +80,7 @@ def login_user(
     
     access_token = create_access_token(data={"sub": db_user.email})
     return {"access_token": access_token, "token_type": "bearer"}
-
+    
 # ✅ Token Validation Endpoint
 @router.get("/validate-token")
 def get_current_user(token: str = Depends(oauth2_scheme)):
@@ -97,7 +97,7 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
         return {"email": email}
     except JWTError:
         raise credentials_exception
-
+     
 # ✅ User Role Endpoint
 @router.get("/role")
 def get_user_role(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
@@ -106,11 +106,11 @@ def get_user_role(token: str = Depends(oauth2_scheme), db: Session = Depends(get
         email: str = payload.get("sub")
         if not email:
             raise HTTPException(status_code=401, detail="Invalid token")
-
+    
         user = db.query(User).filter(User.email == email).first()
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
-
+    
         return {"role": user.role}
     except JWTError:
         raise HTTPException(status_code=401, detail="Invalid token")

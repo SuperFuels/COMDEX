@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
-import useAuthRedirect from '../../hooks/useAuthRedirect'; // ✅ Protect page
+import useAuthRedirect from '@/hooks/useAuthRedirect';
+import Navbar from '@/components/Navbar';
 
 interface Deal {
   id: number;
@@ -15,7 +16,7 @@ interface Deal {
 }
 
 export default function DealsPage() {
-  useAuthRedirect(); // ✅ Redirects if not authenticated
+  useAuthRedirect();
 
   const [deals, setDeals] = useState<Deal[]>([]);
   const [filteredDeals, setFilteredDeals] = useState<Deal[]>([]);
@@ -110,86 +111,89 @@ export default function DealsPage() {
   };
 
   return (
-    <main className="w-full p-6 bg-gray-100 min-h-screen">
-      <h1 className="text-2xl font-bold mb-4">My Deals</h1>
+    <div className="min-h-screen bg-gray-100">
+      <Navbar />
+      <main className="p-6 max-w-6xl mx-auto">
+        <h1 className="text-2xl font-bold mb-4">My Deals</h1>
 
-      {error && <p className="text-red-500 mb-4">{error}</p>}
+        {error && <p className="text-red-500 mb-4">{error}</p>}
 
-      <input
-        type="text"
-        placeholder="Filter by product title..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        className="mb-4 p-2 border border-gray-300 rounded w-full"
-      />
+        <input
+          type="text"
+          placeholder="Filter by product title..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="mb-4 p-2 border border-gray-300 rounded w-full"
+        />
 
-      {filteredDeals.length === 0 ? (
-        <p>No deals found.</p>
-      ) : (
-        <div className="space-y-4">
-          {filteredDeals.map((deal) => (
-            <div
-              key={deal.id}
-              className="bg-white p-4 rounded shadow flex justify-between items-start"
-            >
-              <div>
-                <p className="font-semibold text-lg">{deal.product_title}</p>
-                <p className="text-sm text-gray-600">
-                  Buyer: {deal.buyer_email} | Supplier: {deal.supplier_email}
-                </p>
-                <p className="text-sm">Quantity: {deal.quantity_kg} kg</p>
-                <p className="text-sm font-bold text-green-700">
-                  Total: ${deal.total_price}
-                </p>
-                <p className="text-xs text-gray-500">
-                  Created: {new Date(deal.created_at).toLocaleDateString()}
-                </p>
-                <p className={`text-xs mt-1 ${getStatusStyle(deal.status)}`}>
-                  Status: {deal.status}
-                </p>
+        {filteredDeals.length === 0 ? (
+          <p>No deals found.</p>
+        ) : (
+          <div className="space-y-4">
+            {filteredDeals.map((deal) => (
+              <div
+                key={deal.id}
+                className="bg-white p-4 rounded shadow flex justify-between items-start"
+              >
+                <div>
+                  <p className="font-semibold text-lg">{deal.product_title}</p>
+                  <p className="text-sm text-gray-600">
+                    Buyer: {deal.buyer_email} | Supplier: {deal.supplier_email}
+                  </p>
+                  <p className="text-sm">Quantity: {deal.quantity_kg} kg</p>
+                  <p className="text-sm font-bold text-green-700">
+                    Total: ${deal.total_price}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    Created: {new Date(deal.created_at).toLocaleDateString()}
+                  </p>
+                  <p className={`text-xs mt-1 ${getStatusStyle(deal.status)}`}>
+                    Status: {deal.status}
+                  </p>
 
-                <div className="mt-2">
-                  <label className="text-xs font-semibold mr-2">Update Status:</label>
-                  <select
-                    value={deal.status}
-                    onChange={(e) => handleStatusChange(deal.id, e.target.value)}
-                    className="text-sm p-1 border rounded"
-                  >
-                    <option value="negotiation">Negotiation</option>
-                    <option value="confirmed">Confirmed</option>
-                    <option value="completed">Completed</option>
-                  </select>
+                  <div className="mt-2">
+                    <label className="text-xs font-semibold mr-2">Update Status:</label>
+                    <select
+                      value={deal.status}
+                      onChange={(e) => handleStatusChange(deal.id, e.target.value)}
+                      className="text-sm p-1 border rounded"
+                    >
+                      <option value="negotiation">Negotiation</option>
+                      <option value="confirmed">Confirmed</option>
+                      <option value="completed">Completed</option>
+                    </select>
+                  </div>
                 </div>
+
+                <button
+                  onClick={() => handlePDFPreview(deal.id)}
+                  className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
+                >
+                  Preview PDF
+                </button>
               </div>
-
-              <button
-                onClick={() => handlePDFPreview(deal.id)}
-                className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
-              >
-                Preview PDF
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {pdfUrl && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-4 rounded shadow-lg max-w-3xl w-full">
-            <div className="flex justify-between mb-2">
-              <h2 className="text-lg font-semibold">PDF Preview</h2>
-              <button
-                onClick={() => setPdfUrl(null)}
-                className="text-red-600 hover:text-red-800 text-sm"
-              >
-                Close ✖
-              </button>
-            </div>
-            <iframe src={pdfUrl} className="w-full h-[500px]" />
+            ))}
           </div>
-        </div>
-      )}
-    </main>
+        )}
+
+        {pdfUrl && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white p-4 rounded shadow-lg max-w-3xl w-full">
+              <div className="flex justify-between mb-2">
+                <h2 className="text-lg font-semibold">PDF Preview</h2>
+                <button
+                  onClick={() => setPdfUrl(null)}
+                  className="text-red-600 hover:text-red-800 text-sm"
+                >
+                  Close ✖
+                </button>
+              </div>
+              <iframe src={pdfUrl} className="w-full h-[500px]" />
+            </div>
+          </div>
+        )}
+      </main>
+    </div>
   );
 }
 

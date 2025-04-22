@@ -1,7 +1,7 @@
-// pages/products/edit/[id].tsx
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import axios from 'axios';
+import Navbar from '@/components/Navbar'; // ✅ Include Navbar
 
 interface ProductForm {
   title: string;
@@ -44,7 +44,9 @@ export default function EditProductPage() {
     fetchProduct();
   }, [id]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
@@ -66,60 +68,66 @@ export default function EditProductPage() {
   }
 
   return (
-    <div className="max-w-xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4">✏️ Edit Product</h1>
-      {error && <p className="text-red-500 mb-2">{error}</p>}
+    <div className="min-h-screen bg-gray-100">
+      <Navbar /> {/* ✅ Navbar added */}
+      <div className="max-w-xl mx-auto p-6">
+        <h1 className="text-2xl font-bold mb-4">✏️ Edit Product</h1>
+        {error && <p className="text-red-500 mb-2">{error}</p>}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          type="text"
-          name="title"
-          value={form.title}
-          onChange={handleChange}
-          className="input w-full"
-          placeholder="Title"
-          required
-        />
-        <textarea
-          name="description"
-          value={form.description}
-          onChange={handleChange}
-          className="input w-full"
-          placeholder="Description"
-          rows={4}
-          required
-        />
-        <input
-          type="text"
-          name="category"
-          value={form.category}
-          onChange={handleChange}
-          className="input w-full"
-          placeholder="Category"
-          required
-        />
-        <input
-          type="text"
-          name="origin_country"
-          value={form.origin_country}
-          onChange={handleChange}
-          className="input w-full"
-          placeholder="Origin Country"
-          required
-        />
-        <input
-          type="number"
-          name="price_per_kg"
-          value={form.price_per_kg}
-          onChange={handleChange}
-          className="input w-full"
-          placeholder="Price per kg"
-          required
-        />
-        <button type="submit" className="btn btn-primary w-full">
-          ✅ Update Product
-        </button>
-      </form>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <input
+            type="text"
+            name="title"
+            value={form.title}
+            onChange={handleChange}
+            className="w-full border border-gray-300 p-2 rounded"
+            placeholder="Title"
+            required
+          />
+          <textarea
+            name="description"
+            value={form.description}
+            onChange={handleChange}
+            className="w-full border border-gray-300 p-2 rounded"
+            placeholder="Description"
+            rows={4}
+            required
+          />
+          <input
+            type="text"
+            name="category"
+            value={form.category}
+            onChange={handleChange}
+            className="w-full border border-gray-300 p-2 rounded"
+            placeholder="Category"
+            required
+          />
+          <input
+            type="text"
+            name="origin_country"
+            value={form.origin_country}
+            onChange={handleChange}
+            className="w-full border border-gray-300 p-2 rounded"
+            placeholder="Origin Country"
+            required
+          />
+          <input
+            type="number"
+            name="price_per_kg"
+            value={form.price_per_kg}
+            onChange={handleChange}
+            className="w-full border border-gray-300 p-2 rounded"
+            placeholder="Price per kg"
+            required
+          />
+          <button
+            type="submit"
+            className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 w-full"
+          >
+            ✅ Update Product
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

@@ -1,5 +1,5 @@
-// components/WalletConnect.tsx
 import { useState } from 'react';
+import axios from 'axios';
 
 export default function WalletConnect() {
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
@@ -10,10 +10,29 @@ export default function WalletConnect() {
         const accounts = await window.ethereum.request({
           method: 'eth_requestAccounts',
         });
-        setWalletAddress(accounts[0]);
+        const address = accounts[0];
+        setWalletAddress(address);
+
+        const token = localStorage.getItem('token');
+        if (!token) {
+          alert('🔐 Please log in first to bind your wallet');
+          return;
+        }
+
+        await axios.patch(
+          'http://localhost:8000/users/me/wallet',
+          { wallet_address: address },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        console.log('✅ Wallet successfully linked to user account');
       } catch (err) {
         alert('🛑 Wallet connection failed');
-        console.error(err);
+        console.error('Wallet Connect Error:', err);
       }
     } else {
       alert('🦊 MetaMask not detected');

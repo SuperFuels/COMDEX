@@ -1,10 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from routes import auth, product, deal, admin
+from routes import auth, product, deal, admin, user
 import logging
 from sqlalchemy import create_engine, text
 from sqlalchemy.exc import OperationalError
+import os
 
 # ✅ Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -20,20 +21,21 @@ app = FastAPI(
 # ✅ Enable CORS for frontend communication
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=["http://localhost:3000"],  # Frontend origin
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# ✅ Mount static files (e.g. product images)
+# ✅ Mount static files (serving uploaded product images)
 app.mount("/uploaded_images", StaticFiles(directory="uploaded_images"), name="uploaded_images")
 
 # ✅ Register route modules
 app.include_router(auth.router, prefix="/auth", tags=["Auth"])
 app.include_router(product.router, prefix="/products", tags=["Products"])
-app.include_router(deal.router)      # Deals router handles its own prefixes
-app.include_router(admin.router)     # Admin router handles its own prefixes
+app.include_router(deal.router, prefix="/deals", tags=["Deals"])
+app.include_router(admin.router, prefix="/admin", tags=["Admin"])
+app.include_router(user.router, prefix="/users", tags=["Users"])  # includes PATCH /me/wallet
 
 # ✅ Root route
 @app.get("/")
@@ -44,7 +46,8 @@ def read_root() -> dict:
 @app.get("/health")
 def health_check() -> dict:
     try:
-        engine = create_engine("postgresql://comdex:Wn8smx123@localhost/comdex")
+        db_url = os.getenv("DATABASE_URL", "postgresql://comdex:Wn8smx123@localhost/comdex")
+        engine = create_engine(db_url)
         with engine.connect() as connection:
             connection.execute(text("SELECT 1"))
         logger.info("✅ Database connection successful.")

@@ -45,7 +45,7 @@ const Navbar = () => {
         COMDEX
       </Link>
 
-      <div className="space-x-6 text-sm">
+      <div className="space-x-6 text-sm flex items-center">
         {isLoggedIn ? (
           <>
             {role === 'admin' && (
@@ -53,16 +53,18 @@ const Navbar = () => {
                 Admin Panel
               </Link>
             )}
+
             {role === 'supplier' && (
               <>
-                <Link href="/supplier/dashboard" className="hover:text-pink-400 transition">
+                <Link href="/dashboard" className="hover:text-pink-400 transition">
                   Supplier Dashboard
                 </Link>
-                <Link href="/products/new" className="hover:text-pink-400 transition">
+                <Link href="/products/create" className="hover:text-pink-400 transition">
                   + New Product
                 </Link>
               </>
             )}
+
             {role === 'buyer' && (
               <Link href="/dashboard" className="hover:text-pink-400 transition">
                 Buyer Dashboard
@@ -72,6 +74,7 @@ const Navbar = () => {
             <Link href="/deals" className="hover:text-pink-400 transition">
               My Deals
             </Link>
+
             <button
               onClick={handleLogout}
               className="hover:text-red-400 transition ml-2"

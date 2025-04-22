@@ -25,9 +25,13 @@ export default function useAuthRedirect(requiredRole?: 'admin' | 'supplier' | 'b
 
         if (requiredRole && userRole !== requiredRole) {
           // Redirect to correct dashboard if not allowed
-          if (userRole === 'admin') router.push('/admin/dashboard');
-          else if (userRole === 'supplier') router.push('/supplier/dashboard');
-          else router.push('/dashboard');
+          if (userRole === 'admin') {
+            router.push('/admin/dashboard');
+          } else if (userRole === 'supplier') {
+            router.push('/dashboard'); // Supplier dashboard
+          } else {
+            router.push('/buyer/dashboard'); // Buyer fallback
+          }
         }
       } catch (err) {
         console.error('⚠️ Token validation failed:', err);

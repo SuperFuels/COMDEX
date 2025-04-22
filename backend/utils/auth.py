@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from typing import Optional
+import time
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from fastapi import Depends, HTTPException, status
@@ -61,4 +62,12 @@ def get_current_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
     return user
+
+# ✅ Used by JWTBearer to validate token directly
+def decodeJWT(token: str):
+    try:
+        decoded_token = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return decoded_token if decoded_token.get("exp", 0) >= int(time.time()) else None
+    except JWTError:
+        return None
 
