@@ -1,9 +1,10 @@
-// hooks/useAuthRedirect.ts
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import axios from 'axios';
 
-export default function useAuthRedirect(requiredRole?: 'admin' | 'supplier' | 'buyer') {
+type UserRole = 'admin' | 'supplier' | 'buyer';
+
+export default function useAuthRedirect(requiredRole?: UserRole) {
   const router = useRouter();
 
   useEffect(() => {
@@ -21,16 +22,16 @@ export default function useAuthRedirect(requiredRole?: 'admin' | 'supplier' | 'b
           },
         });
 
-        const userRole = res.data.role;
+        const userRole: UserRole = res.data.role;
 
         if (requiredRole && userRole !== requiredRole) {
-          // Redirect to correct dashboard if not allowed
+          // Redirect user to their appropriate dashboard if role mismatch
           if (userRole === 'admin') {
             router.push('/admin/dashboard');
           } else if (userRole === 'supplier') {
-            router.push('/dashboard'); // Supplier dashboard
+            router.push('/dashboard');
           } else {
-            router.push('/buyer/dashboard'); // Buyer fallback
+            router.push('/buyer/dashboard');
           }
         }
       } catch (err) {

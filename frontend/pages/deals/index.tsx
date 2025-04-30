@@ -3,6 +3,8 @@ import axios from 'axios';
 import { useRouter } from 'next/router';
 import useAuthRedirect from '@/hooks/useAuthRedirect';
 import Navbar from '@/components/Navbar';
+import { ethers } from 'ethers';
+import { releaseToSeller } from '../../lib/escrow';
 
 interface Deal {
   id: number;
@@ -34,7 +36,7 @@ export default function DealsPage() {
 
     const fetchDeals = async () => {
       try {
-        const response = await axios.get('http://localhost:8000/deals/', {
+	const response = await axios.get('http://localhost:8000/deals/', {
           headers: { Authorization: `Bearer ${token}` },
         });
         setDeals(response.data);
@@ -110,6 +112,25 @@ export default function DealsPage() {
     }
   };
 
+  const handleReleaseFunds = async () => {
+    if (typeof window.ethereum === 'undefined') {
+      alert('MetaMask is required to release funds.');
+      return;
+    }
+
+    try {
+      await window.ethereum.request({ method: 'eth_requestAccounts' });
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+
+      const tx = await releaseToSeller(signer);
+      alert(`✅ Funds released. TX Hash: ${tx.hash}`);
+    } catch (err) {
+      console.error('❌ Failed to release funds:', err);
+      alert('Failed to release funds. See console.');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-100">
       <Navbar />
@@ -152,10 +173,14 @@ export default function DealsPage() {
                   </p>
 
                   <div className="mt-2">
-                    <label className="text-xs font-semibold mr-2">Update Status:</label>
+                    <label className="text-xs font-semibold mr-2">
+                      Update Status:
+                    </label>
                     <select
                       value={deal.status}
-                      onChange={(e) => handleStatusChange(deal.id, e.target.value)}
+                      onChange={(e) =>
+                        handleStatusChange(deal.id, e.target.value)
+                      }
                       className="text-sm p-1 border rounded"
                     >
                       <option value="negotiation">Negotiation</option>
@@ -165,12 +190,20 @@ export default function DealsPage() {
                   </div>
                 </div>
 
-                <button
-                  onClick={() => handlePDFPreview(deal.id)}
-                  className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
-                >
-                  Preview PDF
-                </button>
+                <div className="flex flex-col items-end gap-2 ml-4">
+                  <button
+                    onClick={() => handlePDFPreview(deal.id)}
+                    className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
+                  >
+                    Preview PDF
+                  </button>
+                  <button
+                    onClick={handleReleaseFunds}
+                    className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
+                  >
+                    Release Escrow
+                  </button>
+                </div>
               </div>
             ))}
           </div>

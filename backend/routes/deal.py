@@ -12,7 +12,6 @@ import logging
 
 # ✅ Initialize router
 router = APIRouter(
-    prefix="/deals",
     tags=["Deals"]
 )
 
@@ -37,21 +36,24 @@ def create_deal(
         logger.error(f"❌ Failed to create deal: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to create deal")
 
-# ✅ GET: All deals for authenticated user
+# ✅ GET: All deals for authenticated user (as buyer or supplier)
 @router.get("/", response_model=List[DealOut])
 def get_user_deals(
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user)
 ):
     try:
-        deals = db.query(Deal).filter(Deal.buyer_email == current_user.email).all()
+        deals = db.query(Deal).filter(
+            (Deal.buyer_email == current_user.email) |
+            (Deal.supplier_email == current_user.email)
+        ).all()
         logger.info(f"✅ {len(deals)} deal(s) fetched for {current_user.email}")
         return deals
     except Exception as e:
         logger.error(f"❌ Failed to fetch deals: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to fetch deals")
 
-# ✅ GET: Deal by ID (with permission check)
+# ✅ GET: Deal by ID
 @router.get("/{deal_id}", response_model=DealOut)
 def get_deal_by_id(
     deal_id: int,
@@ -70,7 +72,7 @@ def get_deal_by_id(
     logger.info(f"✅ Deal {deal_id} fetched by {current_user.email}")
     return deal
 
-# ✅ GET: Generate and return PDF
+# ✅ GET: Generate PDF for deal
 @router.get("/{deal_id}/pdf")
 def generate_deal_pdf(
     deal_id: int,
@@ -84,7 +86,7 @@ def generate_deal_pdf(
         raise HTTPException(status_code=404, detail="Deal not found")
 
     if current_user.email not in [deal.buyer_email, deal.supplier_email]:
-        raise HTTPException(status_code=403, detail="Not authorized to view this deal")
+        raise HTTPException(status_code=403, detail="Not authorized to view this PDF")
 
     html_content = f"""
     <h1>Deal Summary</h1>
@@ -93,6 +95,8 @@ def generate_deal_pdf(
     <p><strong>Product:</strong> {deal.product_title}</p>
     <p><strong>Quantity (kg):</strong> {deal.quantity_kg}</p>
     <p><strong>Total Price:</strong> ${deal.total_price}</p>
+    <p><strong>Status:</strong> {deal.status}</p>
+    <p><strong>Created:</strong> {deal.created_at.strftime('%Y-%m-%d')}</p>
     """
 
     pdf_bytes = BytesIO()

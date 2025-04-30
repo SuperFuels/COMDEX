@@ -29,22 +29,22 @@ export default function LoginPage() {
       );
 
       const token = response.data.access_token;
-      localStorage.setItem('token', token);
+      localStorage.setItem('token', token); // ✅ Store token first
 
-      // 🔍 Get user role from backend
+      // 🔍 Then fetch role with stored token
       const roleRes = await axios.get('http://localhost:8000/auth/role', {
         headers: { Authorization: `Bearer ${token}` },
       });
 
       const role = roleRes.data.role;
 
-      // 🎯 Redirect based on role
+      // 🎯 Role-based redirection
       if (role === 'admin') {
         router.push('/admin/dashboard');
       } else if (role === 'supplier') {
-        router.push('/supplier/dashboard');
-      } else {
         router.push('/dashboard');
+      } else {
+        router.push('/buyer/dashboard');
       }
     } catch (err: any) {
       if (err?.response?.data?.detail) {
