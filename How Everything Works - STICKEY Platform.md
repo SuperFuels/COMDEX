@@ -86,5 +86,21 @@ If a dispute arises, it can be resolved through an internal mediation system or 
 Initially, the platform allows manual shipping arrangements between buyers and sellers.
 
 In the future, an integrated API will provide live shipping quotes and tracking (e.g., via DHL, UPS).
+📄 “How Everything Works” ⇄ Roadmap Mapping
 
+| Section                        | Doc Details                                                                                            | Roadmap Item(s)                                                                                |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------- |
+| **Landing Page & Wallet Auth** | • MetaMask‑based login (auto‑reconnect) <br> • Show \$GLU balance                                      | ✅ MVP: MetaMask connect & backend binding <br> ⚙️ Phase 1: Seller/Buyer flows                  |
+| **Product Search**             | • Simple search bar for commodities (Whey, Cocoa…) <br> • Future AI‑driven advanced query              | ✅ MVP: Public marketplace search <br> 🤖 Phase 4: AI Matching Engine                           |
+| **Real‑time Price Ticker**     | • Scrolling exchange rates (GLU/USD/local)                                                             | 🔄 Phase 3: Live rate API & swap engine integration                                            |
+| **Currency Swap**              | • Inline swap of GBP, USD → \$GLU <br> • Expanded view for multi‑currency                              | ✅ MVP: Dummy SwapPanel <br> ⚙️ Phase 3: On‑chain Swap Engine                                   |
+| **Product Listings & Filters** | • List product cards with supplier, origin, price/kg in \$GLU & USD <br> • Filters (price, rating…)    | ✅ MVP: Product listing/search <br> ⚙️ Phase 2: Detail page + filters                           |
+| **Product Detail Page**        | • Full specs, media, MOQ, production, shipping                                                         | ⚙️ Phase 2: `/product/[id]` detail + “Generate Quote”                                          |
+| **Generate Quote & Shipping**  | • “Generate Quote” → smart‑contract draft <br> • Supplier uploads shipping quote or manual arrangement | ⚙️ Phase 2: Quote flow via SwapPanel → deal creation <br> ⚙️ Phase 3: Shipping API integration |
+| **Contract & Escrow**          | • Smart contract draft → both parties agree → funds locked in escrow                                   | ✅ MVP: Manual deals + PDF <br> ⚙️ Phase 3: On‑chain escrow integration                         |
+| **Shipping Confirmation**      | • QR scan by shipper → escrow release                                                                  | ⚙️ Phase 3: Shipping tracking & escrow release triggers                                        |
+| **Buyer Dashboard**            | • Saved quotes, transaction history, active quotes, wallet balance                                     | ⚙️ Phase 2: Buyer Dashboard skeleton + deals                                                   |
+| **Supplier Dashboard**         | • Manage incoming quotes, accept/decline, active deals <br> • Manage shipping providers                | ⚙️ Phase 2: Supplier Dashboard + deals tab                                                     |
+| **Smart Contract & NFT Certs** | • Record tx on‑chain <br> • Mint NFT as certificate                                                    | ⚙️ Phase 3: Product passport & NFT explorer                                                    |
+| **Dispute Resolution**         | • Rules‑based mediation or third‑party arbitration                                                     | 🤖 Phase 4: Dispute workflows                                                                  |
 

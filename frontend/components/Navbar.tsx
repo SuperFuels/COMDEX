@@ -1,101 +1,134 @@
-import Link from 'next/link';
-import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
-import axios from 'axios';
+// frontend/components/Navbar.tsx
 
-const Navbar = () => {
-  const router = useRouter();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [role, setRole] = useState('');
+import Link from 'next/link'
+import Image from 'next/image'
+import { useRouter } from 'next/router'
+import { useEffect, useState } from 'react'
+import axios from 'axios'
+import Web3 from 'web3'
+import styles from './Header.module.css'
 
+export default function Navbar() {
+  const router = useRouter()
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [role, setRole] = useState<string>('')
+  const [walletAddress, setWalletAddress] = useState<string | null>(null)
+
+  // Check JWT + fetch role
   useEffect(() => {
     const checkAuth = async () => {
-      const token = localStorage.getItem('token');
-      if (!token) return;
-
-      try {
-        const res = await axios.get('http://localhost:8000/auth/role', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setIsLoggedIn(true);
-        setRole(res.data.role);
-      } catch {
-        setIsLoggedIn(false);
-        setRole('');
+      const token = localStorage.getItem('token')
+      if (!token) {
+        setIsLoggedIn(false)
+        return
       }
-    };
-
-    checkAuth();
-    router.events?.on('routeChangeComplete', checkAuth);
+      try {
+        const res = await axios.get(
+          'http://localhost:8000/auth/role',
+          { headers: { Authorization: `Bearer ${token}` } }
+        )
+        setIsLoggedIn(true)
+        setRole(res.data.role)
+      } catch {
+        setIsLoggedIn(false)
+        setRole('')
+      }
+    }
+    checkAuth()
+    router.events.on('routeChangeComplete', checkAuth)
     return () => {
-      router.events?.off('routeChangeComplete', checkAuth);
-    };
-  }, [router]);
+      router.events.off('routeChangeComplete', checkAuth)
+    }
+  }, [router])
+
+  // Connect MetaMask
+  useEffect(() => {
+    if ((window as any).ethereum) {
+      ;(window as any).ethereum
+        .request({ method: 'eth_requestAccounts' })
+        .then((accounts: string[]) => setWalletAddress(accounts[0]))
+        .catch(console.error)
+    }
+  }, [])
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    setIsLoggedIn(false);
-    setRole('');
-    router.push('/login');
-  };
+    localStorage.removeItem('token')
+    setIsLoggedIn(false)
+    setRole('')
+    router.push('/login')
+  }
 
   return (
-    <nav className="w-full bg-black text-white px-6 py-4 flex justify-between items-center">
-      <Link href="/" className="text-xl font-bold text-pink-500">
-        COMDEX
-      </Link>
+    <nav className={styles.navbar}>
+      <div className={styles.left}>
+        <Link href="/">
+          <Image
+            src="/stickey.png"
+            alt="Stickey Logo"
+            width={120}
+            height={40}
+            className={styles.logoImage}
+          />
+        </Link>
+      </div>
 
-      <div className="space-x-6 text-sm flex items-center">
-        {isLoggedIn ? (
+      <div className={styles.right}>
+        {!isLoggedIn ? (
           <>
-            {role === 'admin' && (
-              <Link href="/admin/dashboard" className="hover:text-pink-400 transition">
-                Admin Panel
-              </Link>
-            )}
-
-            {role === 'supplier' && (
-              <>
-                <Link href="/dashboard" className="hover:text-pink-400 transition">
-                  Supplier Dashboard
-                </Link>
-                <Link href="/products/create" className="hover:text-pink-400 transition">
-                  + New Product
-                </Link>
-              </>
-            )}
-
-            {role === 'buyer' && (
-              <Link href="/dashboard" className="hover:text-pink-400 transition">
-                Buyer Dashboard
-              </Link>
-            )}
-
-            <Link href="/deals" className="hover:text-pink-400 transition">
-              My Deals
+            <Link href="/login" className={styles.link}>
+              Login
             </Link>
-
-            <button
-              onClick={handleLogout}
-              className="hover:text-red-400 transition ml-2"
-            >
-              Logout
-            </button>
+            <Link href="/register/seller" className={styles.link}>
+              Sellers
+            </Link>
+            <Link href="/register/buyer" className={styles.link}>
+              Buyers
+            </Link>
           </>
         ) : (
           <>
-            <Link href="/login" className="hover:text-pink-400 transition">
-              Login
-            </Link>
-            <Link href="/register" className="hover:text-pink-400 transition">
-              Register
-            </Link>
+            {role === 'admin' && (
+              <Link href="/admin/dashboard" className={styles.link}>
+                Admin Panel
+              </Link>
+            )}
+            {role === 'supplier' && (
+              <>
+                <Link href="/dashboard" className={styles.link}>
+                  Dashboard
+                </Link>
+                <Link href="/products/create" className={styles.link}>
+                  New Product
+                </Link>
+              </>
+            )}
+            {role === 'buyer' && (
+              <Link href="/dashboard" className={styles.link}>
+                Dashboard
+              </Link>
+            )}
+            <button onClick={handleLogout} className={styles.link}>
+              Logout
+            </button>
           </>
+        )}
+
+        {walletAddress ? (
+          <span className={styles.walletAddress}>
+            {walletAddress.slice(0, 6)}…{walletAddress.slice(-4)}
+          </span>
+        ) : (
+          <button
+            onClick={() =>
+              (window as any).ethereum.request({ method: 'eth_requestAccounts' })
+            }
+            className={styles.connectButton}
+          >
+            Connect Wallet
+          </button>
         )}
       </div>
     </nav>
-  );
-};
-
-export default Navbar;
+  )
+}
 

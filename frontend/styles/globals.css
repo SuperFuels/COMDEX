@@ -2,6 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─────────────────────────────────────────
+   CSS VARIABLES
+───────────────────────────────────────── */
+:root {
+  --grey-light:  #f5f5f5;
+  --baby-blue:   #89CFF0;
+  --anthracite:  #2e2e2e;
+}
+
 /* -----------------------------------
    ✅ Custom Global Styles
 ----------------------------------- */
@@ -25,14 +34,14 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #edf2f7;
+  background: var(--grey-light);
 }
 
 /* Base Font */
 body {
   font-family: 'Inter', sans-serif;
-  background-color: #f9fafb;
-  color: #1a202c;
+  background-color: var(--grey-light);
+  color: var(--anthracite);
   line-height: 1.6;
 }
 
@@ -65,17 +74,17 @@ body {
 }
 
 .btn-primary {
-  background-color: #3b82f6;
+  background-color: var(--baby-blue);
   color: white;
 }
 
 .btn-primary:hover {
-  background-color: #2563eb;
+  background-color: darken(var(--baby-blue), 10%);
 }
 
 .btn-secondary {
   background-color: #e2e8f0;
-  color: #1a202c;
+  color: var(--anthracite);
 }
 
 .btn-secondary:hover {
@@ -97,7 +106,7 @@ input:focus,
 select:focus,
 textarea:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+  border-color: var(--baby-blue);
+  box-shadow: 0 0 0 2px rgba(137, 207, 240, 0.2); /* var(--baby-blue) @ 20% */
 }
 

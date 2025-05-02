@@ -1,4 +1,6 @@
-import { useEffect, useState } from 'react';
+// pages/login.tsx
+
+import React, { useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
@@ -16,6 +18,7 @@ export default function LoginPage() {
     setError('');
 
     try {
+      // 1. Send credentials as form data
       const params = new URLSearchParams();
       params.append('email', email);
       params.append('password', password);
@@ -23,22 +26,20 @@ export default function LoginPage() {
       const response = await axios.post(
         'http://localhost:8000/auth/login',
         params,
-        {
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        }
+        { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
       );
 
+      // 2. Store JWT in localStorage
       const token = response.data.access_token;
-      localStorage.setItem('token', token); // ✅ Store token first
+      localStorage.setItem('token', token);
 
-      // 🔍 Then fetch role with stored token
+      // 3. Fetch user role with stored token
       const roleRes = await axios.get('http://localhost:8000/auth/role', {
         headers: { Authorization: `Bearer ${token}` },
       });
+      const role = roleRes.data.role as string;
 
-      const role = roleRes.data.role;
-
-      // 🎯 Role-based redirection
+      // 4. Redirect based on role
       if (role === 'admin') {
         router.push('/admin/dashboard');
       } else if (role === 'supplier') {
@@ -47,8 +48,9 @@ export default function LoginPage() {
         router.push('/buyer/dashboard');
       }
     } catch (err: any) {
-      if (err?.response?.data?.detail) {
-        const detail = err.response.data.detail;
+      // Display API errors if any
+      const detail = err?.response?.data?.detail;
+      if (detail) {
         setError(
           Array.isArray(detail)
             ? detail.map((d: any) => d.msg).join(', ')
@@ -94,8 +96,10 @@ export default function LoginPage() {
 
         <button
           type="submit"
-          className="bg-blue-600 text-white px-4 py-2 w-full rounded hover:bg-blue-700"
           disabled={loading}
+          className={`w-full py-2 rounded text-white ${
+            loading ? 'bg-blue-400' : 'bg-blue-600 hover:bg-blue-700'
+          }`}
         >
           {loading ? 'Logging in...' : 'Login'}
         </button>

@@ -1,19 +1,20 @@
-// pages/_app.tsx
-import '@/styles/globals.css';
-import type { AppProps } from 'next/app';
-import Navbar from '@/components/Navbar';
+// frontend/pages/_app.tsx
 
-export default function App({ Component, pageProps }: AppProps) {
+import '../styles/globals.css'
+import type { AppProps } from 'next/app'
+import Navbar from '@/components/Navbar'
+import SwapPanel from '@/components/Swap'
+
+function MyApp({ Component, pageProps }: AppProps) {
   return (
-    <div className="min-h-screen flex flex-col bg-gray-100 text-gray-900">
-      {/* Global Navbar */}
+    <>
       <Navbar />
-
-      {/* Page Content */}
-      <main className="flex-grow p-6">
-        <Component {...pageProps} />
-      </main>
-    </div>
-  );
+      {/* only one SwapPanel here, sticks under Navbar on every page */}
+      <SwapPanel />
+      <Component {...pageProps} />
+    </>
+  )
 }
+
+export default MyApp
 

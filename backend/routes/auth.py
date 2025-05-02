@@ -1,3 +1,5 @@
+# backend/routes/auth.py
+
 from fastapi import APIRouter, HTTPException, Depends, Form
 from sqlalchemy.orm import Session
 from models import User
@@ -59,7 +61,7 @@ def register_user(
     db.commit()
     db.refresh(new_user)
     return {
-        "msg": "User created successfully",
+         "msg": "User created successfully",
         "user": {
             "id": new_user.id,
             "email": new_user.email,
@@ -67,9 +69,9 @@ def register_user(
         }
     }
 
-# ✅ Login Endpoint   
-@router.post("/login")   
-def login_user(   
+# ✅ Login Endpoint
+@router.post("/login")
+def login_user(
     email: str = Form(...),
     password: str = Form(...),
     db: Session = Depends(get_db)
@@ -77,10 +79,10 @@ def login_user(
     db_user = db.query(User).filter(User.email == email).first()
     if not db_user or not verify_password(password, db_user.password_hash):
         raise HTTPException(status_code=400, detail="Invalid credentials")
-    
+        
     access_token = create_access_token(data={"sub": db_user.email})
     return {"access_token": access_token, "token_type": "bearer"}
-    
+
 # ✅ Token Validation Endpoint
 @router.get("/validate-token")
 def get_current_user(token: str = Depends(oauth2_scheme)):
@@ -94,23 +96,23 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
         email: str = payload.get("sub")
         if email is None:
             raise credentials_exception
-        return {"email": email}
+        return {"email": email}  
     except JWTError:
         raise credentials_exception
-     
+
 # ✅ User Role Endpoint
-@router.get("/role")
+@router.get("/role")  
 def get_user_role(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         email: str = payload.get("sub")
         if not email:
             raise HTTPException(status_code=401, detail="Invalid token")
-    
+
         user = db.query(User).filter(User.email == email).first()
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
-    
+
         return {"role": user.role}
     except JWTError:
         raise HTTPException(status_code=401, detail="Invalid token")

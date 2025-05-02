@@ -316,3 +316,144 @@ Shipping API Integration: Develop shipping provider API integration for real-tim
 Full Testing & QA: Comprehensive testing for contract creation, escrow release, and shipping tracking.
 
 
+🎯 MVP (Version 1) — Completed
+Core B2B commodity marketplace with role‑based auth, product CRUD, manual deals, PDF exports, and basic swap UI.
+
+Authentication & Onboarding
+
+✅ JWT­-based register & login
+
+✅ Role assignment (admin / supplier / buyer)
+
+✅ Placeholder KYC on registration
+
+Product Management
+
+✅ Supplier “My Products” CRUD (incl. image upload)
+
+✅ Public marketplace listing & search
+
+Deal Management
+
+✅ Buyer creates “deal” records
+
+✅ Supplier views & updates deal status
+
+✅ PDF generation & download of deal contract
+
+Admin Panel
+
+✅ Admin CRUD on users, products, deals
+
+Tech Stack & Infra
+
+✅ FastAPI + PostgreSQL + SQLAlchemy
+
+✅ Next.js + Tailwind CSS + TypeScript
+
+✅ Local image hosting & CORS setup
+
+✅ MetaMask wallet connect & backend binding
+
+✅ Smart contract escrow deployed on Polygon Amoy
+
+Basic Swap UI
+
+✅ SwapPanel component (dummy rate)
+
+✅ Sticky header + swap bar layout
+
+🚀 Phase 2 — Polish & Complete Core Flows
+Registration & Dashboard Flows
+
+ 🔄 Flesh out /register/seller and /register/buyer pages
+
+ 🔄 Build Supplier Dashboard
+
+My Products & New Product form
+
+Deals tab (accept/reject)
+
+ 🔄 Build Buyer Dashboard
+
+My Deals list & status
+
+Swap → Deal Integration
+
+ 🔄 Wire SwapPanel “Swap” button to POST /deals/
+
+ 🔄 Show confirmation & update buyer’s “My Deals”
+
+Product Detail & Quote Flow
+
+ 🔄 /product/[id] page: full info + “Buy” to open SwapPanel
+
+Route Protection & UX
+
+ 🔄 Enforce role‑based guards on all pages
+
+ 🔄 Improve error / loading states, form validation
+
+Responsive & Accessibility
+
+ 🔄 Mobile-first layout tuning (navbar, swap bar, grid)
+
+ 🔄 Keyboard navigation & aria labels
+
+⚙️ Phase 3 — Expand Features & Integrations
+On‑chain Swap Engine
+
+ 🛠 Integrate real swap logic (Web3 + your escrow contract)
+
+ 🛠 Show live rates (via oracle or off‑chain API)
+
+Product Passport & Traceability
+
+ 📦 Extend products schema with batch_number, trace_id, certificate_url, blockchain_tx_hash
+
+ 📦 UI for viewing & uploading certificates + NFT explorer
+
+Shipping & Logistics
+
+ 🚚 Supplier shipping rate uploads
+
+ 🚚 Integrate a shipping‑provider API for quotes & tracking
+
+Stripe / FIAT‑Crypto Onramp
+
+ 💳 Add real payment integration (Stripe for fiat, WalletConnect for crypto)
+
+🤖 Phase 4 — AI & Automation (V2/V3)
+AI‑Powered Matching
+
+ 🤖 Build /match endpoint: rank suppliers by price, rating, location
+
+ 🤖 UI to recommend “best” suppliers
+
+Autonomous Trade Agents
+
+ 🤖 Chat‑bot interface for negotiating deals
+
+In‑Platform Messaging & Arbitration
+
+ 💬 Buyer ↔ Supplier chat
+
+ ⚖️ Dispute resolution workflows
+
+📈 Long‑Term Vision
+COMDEX Chain: Launch your own EVM‑chain for escrow & NFT certificates
+
+Governance Token (CDXT): DAO‑style governance & staking
+
+Global Expansion: Add new commodity verticals (coffee, cocoa, olive oil…)
+
+Mobile Apps: iOS/Android wrappers for on‑the‑go trading
+
+Next Immediate Steps
+Lock down Registration & Dashboard skeletons (so roles have proper home pages).
+
+Wire SwapPanel → /deals/ and finish buyer “My Deals” flow.
+
+Build product detail / “Get Quote” → SwapPanel integration.
+
+
