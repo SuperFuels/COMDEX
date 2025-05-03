@@ -1,24 +1,29 @@
-from pydantic import BaseModel
+# backend/schemas/product.py
 
-class ProductCreate(BaseModel):
+from pydantic import BaseModel, EmailStr
+from typing import Optional
+
+class ProductBase(BaseModel):
     title: str
     origin_country: str
-    price_per_kg: float
     category: str
     description: str
     image_url: str
-
-class ProductUpdate(BaseModel):
-    title: str
-    origin_country: str
     price_per_kg: float
-    category: str
-    description: str
-    image_url: str
 
-class ProductOut(ProductCreate):
+class ProductCreate(ProductBase):
+    """
+    Used for incoming POST/PUT bodies.
+    """
+    pass
+
+class ProductOut(ProductBase):
+    """
+    What we return in GET/POST responses.
+    """
     id: int
+    owner_email: EmailStr   # ← include the supplier’s email
 
     class Config:
-        from_attributes = True
+        orm_mode = True
 

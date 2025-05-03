@@ -7,13 +7,17 @@ from fastapi.staticfiles import StaticFiles
 from sqlalchemy import create_engine, text
 from sqlalchemy.exc import OperationalError
 
-from routes import auth, product, deal, admin, user
+from routes.auth    import router as auth_router
+from routes.products import router as products_router
+from routes.deal    import router as deal_router
+from routes.admin   import router as admin_router
+from routes.user    import router as user_router
 
-# ─── Logging ────────────────────────────────
+# ─── Logging ───────────────────────────────
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("comdex")
 
-# ─── App setup ───────────────────────────────
+# ─── App setup ──────────────────────────────
 app = FastAPI(
     title="COMDEX API",
     version="1.0.0",
@@ -23,31 +27,30 @@ app = FastAPI(
 # CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # your frontend
+    allow_origins=["http://localhost:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Serve image files
+# Serve uploaded images
 app.mount(
     "/uploaded_images",
     StaticFiles(directory="uploaded_images"),
     name="uploaded_images"
 )
 
-# ─── Routers ─────────────────────────────────
-app.include_router(auth.router,    prefix="/auth",    tags=["Auth"])
-app.include_router(product.router, prefix="/products", tags=["Products"])
-app.include_router(deal.router,    prefix="/deals",    tags=["Deals"])
-app.include_router(admin.router,   prefix="/admin",    tags=["Admin"])
-app.include_router(user.router,    prefix="/users",    tags=["Users"])
+# ─── Routers ───────────────────────────────
+app.include_router(auth_router,     prefix="/auth",     tags=["Auth"])
+app.include_router(products_router, prefix="/products", tags=["Products"])
+app.include_router(deal_router,     prefix="/deals",    tags=["Deals"])
+app.include_router(admin_router,    prefix="/admin",    tags=["Admin"])
+app.include_router(user_router,     prefix="/users",    tags=["Users"])
 
-# ─── Health & Root ──────────────────────────
+# ─── Health & Root ─────────────────────────
 @app.get("/")
 def read_root() -> dict:
     return {"message": "🚀 Welcome to the COMDEX API!"}
-
 
 @app.get("/health")
 def health_check() -> dict:

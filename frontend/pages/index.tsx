@@ -17,64 +17,42 @@ interface Product {
 
 const Home: NextPage = () => {
   const [products, setProducts] = useState<Product[]>([])
-  const [search, setSearch] = useState('')
 
-  // fetch all products (public)
-  const fetchAll = async () => {
-    try {
-      const { data } = await axios.get<Product[]>(
-        'http://localhost:8000/products'
-      )
-      setProducts(data)
-    } catch (err) {
-      console.error('❌ Failed to load products', err)
-    }
-  }
-
-  // fetch only matching products
-  const searchProducts = async (query: string) => {
-    try {
-      const { data } = await axios.get<Product[]>(
-        `http://localhost:8000/products/search?query=${encodeURIComponent(
-          query
-        )}`
-      )
-      setProducts(data)
-    } catch (err) {
-      console.error('❌ Search failed', err)
-    }
-  }
-
-  // whenever `search` changes, decide which to fetch
   useEffect(() => {
-    if (search.trim()) {
-      searchProducts(search.trim())
-    } else {
-      fetchAll()
+    const fetchAll = async () => {
+      try {
+        const { data } = await axios.get<Product[]>(
+          'http://localhost:8000/products'
+        )
+        setProducts(data)
+      } catch (err) {
+        console.error('❌ Failed to load products', err)
+      }
     }
-  }, [search])
+    fetchAll()
+  }, [])
 
   return (
     <div className="min-h-screen bg-white text-gray-900">
-      {/* ─── Marketplace Search & Results ───────────────────────── */}
       <div className="mt-8 max-w-6xl mx-auto px-4 pb-12">
         <div className="mb-8 text-center">
           <h2 className="text-2xl font-bold mb-2">Explore the Marketplace</h2>
-          <input
-            type="text"
-            placeholder="Search by title or category..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full max-w-md mx-auto p-2 border border-gray-300 rounded"
-          />
+          <form action="/search" method="get" className="flex justify-center">
+            <input
+              name="query"
+              type="text"
+              placeholder="Search by title or category..."
+              className="w-full max-w-md p-2 border border-gray-300 rounded"
+            />
+            <button
+              type="submit"
+              className="ml-2 py-2 px-4 bg-blue-500 text-white rounded"
+            >
+              Search
+            </button>
+          </form>
         </div>
 
-        {/* only when they've actively searched and found nothing */}
-        {search.trim() && products.length === 0 && (
-          <p className="text-center text-gray-500">No products found.</p>
-        )}
-
-        {/* show grid of results (or all products) if any exist */}
         {products.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {products.map((p) => (
@@ -99,10 +77,12 @@ const Home: NextPage = () => {
                 <p className="text-sm text-gray-700">{p.origin_country}</p>
                 <p className="text-sm text-gray-500 mb-2">{p.category}</p>
                 <p className="font-bold mb-4">${p.price_per_kg}/kg</p>
-                <Link href={`/product/${p.id}`} passHref>
-                  <button className="mt-auto w-full py-2 bg-blue-500 text-white rounded">
-                    View Product
-                  </button>
+
+                <Link
+                  href={`/products/${p.id}`}
+                  className="mt-auto w-full py-2 bg-blue-500 text-white rounded text-center"
+                >
+                  View Product
                 </Link>
               </div>
             ))}

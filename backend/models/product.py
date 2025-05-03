@@ -14,12 +14,21 @@ class Product(Base):
     image_url = Column(String, nullable=False)
     owner_email = Column(String, ForeignKey("users.email"), nullable=False)
 
-    # Relationship with User (one-to-many)
+    # one User can have many Products
     owner = relationship("User", back_populates="products")
 
-    # Relationship with Deals (one-to-many)
-    deals = relationship("Deal", back_populates="product", cascade="all, delete-orphan")
+    # one Product can have many Deals
+    deals = relationship(
+        "Deal",
+        back_populates="product",
+        cascade="all, delete-orphan"
+    )
 
     def __repr__(self):
-        return f"<Product(id={self.id}, title='{self.title}', price_per_kg={self.price_per_kg})>"
+        return (
+            f"<Product("
+            f"id={self.id!r}, title={self.title!r}, price_per_kg={self.price_per_kg!r}, "
+            f"owner_email={self.owner_email!r}"
+            ")>"
+        )
 

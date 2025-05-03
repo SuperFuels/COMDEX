@@ -1,106 +1,342 @@
-Document 1: How Everything Works - STICKEY Platform
-STICKEY is designed to simplify and streamline global commodity trade, leveraging blockchain technology, AI, and a decentralized approach to create an efficient and transparent marketplace. Here's how it works:
+STICKEY Unified Handover & Reference
+Table of Contents
+Overview
 
-1. Landing Page:
-User Interaction:
+Architecture
 
-New users can either sign up or log in via wallet-based authentication (using MetaMask).
+Authentication & Roles
 
-The wallet automatically logs users in if previously registered, making the platform easy to use.
+Database Schemas
 
-Once logged in, users can view their wallet balance in $GLU.
+Backend Endpoints
 
-Product Search:
+5.1 Auth (/auth)
 
-A simple search bar for commodities. Initially, it will feature basic options like Whey Protein and Cocoa. In the future, AI will enable advanced searches (e.g., "Find a supplier in South Africa for 1 tonne of organic coffee beans").
+5.2 Products (/products)
 
-Real-time price and exchange rates for commodities will be displayed in a scrolling bar.
+5.3 Deals (/deals)
 
-Currency Swap:
+5.4 Contracts (/contracts) Stub
 
-Swap currency option will be visible on the homepage but will expand when clicked to facilitate easy conversion of GBP, USD, and other major currencies into $GLU.
+5.5 Admin (/admin)
 
-2. Product Search Page:
-Product Listings:
+5.6 Users (/users)
 
-Displays key information about each product like supplier name, origin, price per kg in $GLU and USD, and certifications.
+Frontend Structure
 
-Basic filters like price, rating, and supplier type.
+6.1 Pages
 
-Product Details:
+6.2 Components
 
-Clicking on a product brings the user to a dedicated product page.
+Completed Features
 
-This page includes detailed specifications, media (images/videos), supplier details, minimum order quantity, production date, and shipping details.
+Search & Search Results
 
-3. Product Page (Amazon-like):
-Generate Quote:
+Quote & Deal Flow
 
-The "Generate Quote" button initiates the process of creating a smart contract draft for the product, starting the negotiation process.
+AI Agent & Contract Engine
 
-Shipping Options:
+Roadmap & Next Steps
 
-Users can either arrange shipping themselves or request a quote from the supplier.
+Dev Commands
 
-Shipping providers (DHL, UPS) can upload a quote, and this becomes part of the contract.
+1. Overview
+COMDEX (rebranded front-end STICKEY, coin ticker $GLU) is a next-gen global commodity-trading platform combining:
 
-4. Contract Creation & Escrow:
-Draft Contract:
+AI: autonomous agents for supplier matching & contract drafting
 
-Once a quote is generated, a contract is created that includes all the terms (price, quantity, supplier/buyer details, delivery terms, and payment in escrow).
+Blockchain: on-chain escrow & NFT certificates
 
-Escrow:
+Crypto-native features: wallet binding, swap panel, token flows
 
-Payment is locked in escrow once both parties agree on the terms.
+Mission: Revolutionize B2B commodity trade with trust, automation, and transparency.
 
-Shipping Confirmation: Once the product is scanned by the shipping provider, the escrow funds are released to the supplier.
+V1 Target: Whey Protein (EU, USA, India, NZ)
+V2+: Cocoa, coffee, olive oil, pea protein, spices, and beyond.
 
-5. Dashboard Features:
-Buyer Dashboard:
+2. Architecture
+scss
+Copy
+Edit
+[Next.js Frontend] ←→ [FastAPI Backend] ←→ [PostgreSQL]
+       │                    │
+    MetaMask            Smart Contracts
+       │                    │
+    $GLU Wallet         Polygon Amoy Testnet
+Frontend: Next.js + Tailwind CSS + TypeScript
 
-Displays saved quotes, transaction history, active quotes, and wallet balance.
+Backend: FastAPI + SQLAlchemy + Pydantic + WeasyPrint (PDF)
 
-Allows for accepting or rejecting quotes and finalizing purchases.
+DB: PostgreSQL
 
-Supplier Dashboard:
+Blockchain: Polygon Amoy (escrow contract), future COMDEX Chain
 
-Allows suppliers to manage incoming quotes, accept/decline quotes, and track active deals.
+AI: OpenAI LLM integrations under /agent and /contracts/generate
 
-Shipping provider management: Suppliers can manage their preferred shipping providers and add quotes to deals.
+3. Authentication & Roles
+JWT auth via /auth/register and /auth/login (tokens stored in localStorage).
 
-6. Smart Contract and Blockchain:
-Smart Contract:
+Roles: admin / supplier / buyer.
 
-Each transaction is recorded on the blockchain, and an NFT will be generated as a certificate of authenticity.
+MetaMask wallet connect + backend binding (PATCH /users/me/wallet).
 
-Escrow System:
+Route Guards on front-end & back-end (role-based dependencies).
 
-Funds are released only when the product is collected by the shipping provider and scanned (via QR code) to confirm delivery.
+Demo credentials:
 
-7. Dispute Resolution:
-In case of a dispute, automatic rules are defined to protect both parties.
+Role	Email	Password
+admin	admin@example.com	admin123
+supplier	supplier@example.com	supplypass
+buyer	buyer@example.com	buyerpass
 
-If a dispute arises, it can be resolved through an internal mediation system or third-party arbitration.
+4. Database Schemas
+users
+id, name, email, password_hash
 
-8. Shipping Integration:
-Initially, the platform allows manual shipping arrangements between buyers and sellers.
+role (admin/supplier/buyer)
 
-In the future, an integrated API will provide live shipping quotes and tracking (e.g., via DHL, UPS).
-📄 “How Everything Works” ⇄ Roadmap Mapping
+wallet_address
 
-| Section                        | Doc Details                                                                                            | Roadmap Item(s)                                                                                |
-| ------------------------------ | ------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------- |
-| **Landing Page & Wallet Auth** | • MetaMask‑based login (auto‑reconnect) <br> • Show \$GLU balance                                      | ✅ MVP: MetaMask connect & backend binding <br> ⚙️ Phase 1: Seller/Buyer flows                  |
-| **Product Search**             | • Simple search bar for commodities (Whey, Cocoa…) <br> • Future AI‑driven advanced query              | ✅ MVP: Public marketplace search <br> 🤖 Phase 4: AI Matching Engine                           |
-| **Real‑time Price Ticker**     | • Scrolling exchange rates (GLU/USD/local)                                                             | 🔄 Phase 3: Live rate API & swap engine integration                                            |
-| **Currency Swap**              | • Inline swap of GBP, USD → \$GLU <br> • Expanded view for multi‑currency                              | ✅ MVP: Dummy SwapPanel <br> ⚙️ Phase 3: On‑chain Swap Engine                                   |
-| **Product Listings & Filters** | • List product cards with supplier, origin, price/kg in \$GLU & USD <br> • Filters (price, rating…)    | ✅ MVP: Product listing/search <br> ⚙️ Phase 2: Detail page + filters                           |
-| **Product Detail Page**        | • Full specs, media, MOQ, production, shipping                                                         | ⚙️ Phase 2: `/product/[id]` detail + “Generate Quote”                                          |
-| **Generate Quote & Shipping**  | • “Generate Quote” → smart‑contract draft <br> • Supplier uploads shipping quote or manual arrangement | ⚙️ Phase 2: Quote flow via SwapPanel → deal creation <br> ⚙️ Phase 3: Shipping API integration |
-| **Contract & Escrow**          | • Smart contract draft → both parties agree → funds locked in escrow                                   | ✅ MVP: Manual deals + PDF <br> ⚙️ Phase 3: On‑chain escrow integration                         |
-| **Shipping Confirmation**      | • QR scan by shipper → escrow release                                                                  | ⚙️ Phase 3: Shipping tracking & escrow release triggers                                        |
-| **Buyer Dashboard**            | • Saved quotes, transaction history, active quotes, wallet balance                                     | ⚙️ Phase 2: Buyer Dashboard skeleton + deals                                                   |
-| **Supplier Dashboard**         | • Manage incoming quotes, accept/decline, active deals <br> • Manage shipping providers                | ⚙️ Phase 2: Supplier Dashboard + deals tab                                                     |
-| **Smart Contract & NFT Certs** | • Record tx on‑chain <br> • Mint NFT as certificate                                                    | ⚙️ Phase 3: Product passport & NFT explorer                                                    |
-| **Dispute Resolution**         | • Rules‑based mediation or third‑party arbitration                                                     | 🤖 Phase 4: Dispute workflows                                                                  |
+created_at, updated_at
 
+products
+id, owner_email (FK → users.email)
+
+title, description, price_per_kg
+
+origin_country, category, image_url
+
+batch_number, trace_id, certificate_url, blockchain_tx_hash
+
+created_at
+
+deals
+id, buyer_id (FK), supplier_id (FK), product_id (FK)
+
+quantity_kg, agreed_price, currency
+
+status: negotiation → confirmed → completed
+
+created_at, pdf_url
+
+(Stub) contracts
+id, prompt (free-form)
+
+generated_contract (Markdown/HTML)
+
+status, pdf_url, nft_metadata
+
+5. Backend Endpoints
+5.1 Auth (/auth)
+POST /register (name, email, password) → user + JWT
+
+POST /login (email, password) → access_token
+
+GET /role (Bearer token) → { role }
+
+5.2 Products (/products)
+Public
+
+GET /products/ → list all products
+
+GET /products/search?query=… → filtered by title/category
+
+GET /products/{id} → single product
+
+Authenticated
+
+GET /products/me → supplier’s products
+
+POST /products/ (JSON) → create (owner_email from JWT)
+
+POST /products/create (multipart) → with file upload → saved in /uploaded_images
+
+PUT /products/{id} → update own product
+
+DELETE /products/{id} → delete own product
+
+5.3 Deals (/deals)
+GET /deals/ → list deals for current user (buyer or supplier)
+
+POST /deals/ → create deal (buyer_email, supplier_email, product_title, quantity_kg, total_price)
+
+GET /deals/{id} → fetch single deal
+
+GET /deals/{id}/pdf → stream PDF contract
+
+5.4 Contracts (/contracts) Stub
+POST /contracts/generate → { prompt: str } → { id, generated_contract, status, pdf_url }
+
+(future) GET /contracts/{id} → contract details
+
+(future) POST /contracts/{id}/mint → mint NFT receipt
+
+5.5 Admin (/admin)
+CRUD on all users, products, deals
+
+5.6 Users (/users)
+PATCH /users/me/wallet → bind MetaMask wallet
+
+(future) profile updates
+
+6. Frontend Structure
+6.1 Pages
+bash
+Copy
+Edit
+/                    Home (product listing + search form)
+/search              Search results table
+/products/[id]       Product detail + “Generate Quote” button
+/products/create     Supplier: new product + image upload form
+/deals               Listing page for deals
+/deals/[id]          Deal detail + PDF link
+/contracts/[id]      (Stub) Contract detail page
+/login               Login form
+/register/seller     Seller onboarding
+/register/buyer      Buyer onboarding
+/dashboard           Role-based dashboard skeleton
+/admin/dashboard     Admin panel
+6.2 Components
+Navbar: logo, search bar (→ /search?query=), auth links, wallet connect
+
+ProductCard: thumbnail, title, origin, price/kg, “View Product” (→ /products/{id})
+
+QuoteModal: quantity input → POST /deals/ → redirect /deals
+
+SwapPanel: dummy currency swap UI (GBP/USD ↔ $GLU)
+
+Sidebar: role-based nav links
+
+AgentBar: (future) contract prompt input → /contracts/generate
+
+7. Completed Features
+🌐 Public marketplace: product listing, search
+
+🖼️ Image upload for products
+
+🔐 JWT auth + role-based route protection
+
+🦊 MetaMask wallet connect & backend binding
+
+📝 Product CRUD (supplier)
+
+📋 Deals CRUD + status flow (negotiation → confirmed)
+
+📄 PDF generation of deal contract (WeasyPrint)
+
+⚖️ Admin panel for all entities
+
+🏗️ Next.js front-end with Tailwind CSS
+
+🔄 Dummy SwapPanel + sticky header layout
+
+🚀 Escrow contract deployed on Polygon Amoy testnet
+
+8. Search & Search Results
+Home page has a search form (<form action="/search">)
+
+/search page displays results in a table with columns:
+
+Image, Product, Origin, Cost /kg, Supplier, Change %, Rating /10, Details
+
+Placeholder values for Change % and Rating
+
+Future: real change_pct from commodity price feeds, actual rating and filter tags (organic, grass-fed, shipping regions).
+
+9. Quote & Deal Flow
+Product Detail: click “View Product” → /products/[id]
+
+Generate Quote: opens QuoteModal, enter quantity → POST /deals/
+
+Success: redirect to /deals listing; then detail /deals/[id]
+
+Supplier confirms or rejects in their dashboard
+
+PDF available via /deals/{id}/pdf
+
+On-chain escrow integration planned (Phase 3).
+
+10. AI Agent & Contract Engine
+Agent Bar (future): text prompt → POST /contracts/generate
+
+Contract Stub: returns Markdown/HTML draft + PDF URL + id
+
+Contract page at /contracts/[id] to review & share
+
+Mint NFT after both parties sign → on-chain certificate
+
+Long-term: universal asset engine (cars, real-estate, NFTs, digital goods).
+
+11. Roadmap & Next Steps
+Phase 2 (Polish & Core Flows)
+Registration UIs: /register/seller, /register/buyer
+
+Dashboards:
+
+Buyer: /dashboard → “My Deals”, wallet balance
+
+Supplier: /dashboard → “My Products”, incoming quotes
+
+Search filters: price, rating, tags (organic, regions)
+
+SwapPanel → Deal: wire “Swap” button to /deals/
+
+Product Detail: full specs, multi-image, cert uploads
+
+Deals Listing: /deals page for both roles
+
+Phase 3 (On-chain & Integrations)
+Real swap engine (Web3 + escrow contract)
+
+Live commodity price feeds → change_pct
+
+Product passports & NFT certificate explorer
+
+Shipping API integration & QR tracking
+
+Stripe + WalletConnect for fiat/crypto payments
+
+Phase 4 (AI & Automation)
+AI Matching Engine: POST /match → ranked suppliers
+
+Autonomous trade agents: in-chat negotiation
+
+Messaging & dispute workflows
+
+Contract LLM templates, PDF styling
+
+Phase 5 (Governance & Expansion)
+COMDEX Chain (fork Polygon → own EVM network)
+
+Governance token (CDXT) & staking
+
+Global CDN + mobile apps
+
+New commodity verticals and digital goods.
+
+12. Dev Commands
+Backend
+bash
+Copy
+Edit
+cd ~/Desktop/Comdex/backend
+source venv/bin/activate
+uvicorn main:app --reload
+# DB migrations
+alembic upgrade head
+Frontend
+bash
+Copy
+Edit
+cd ~/Desktop/Comdex/frontend
+npm install    # or yarn
+npm run dev    # or yarn dev
+Restarting Backend
+bash
+Copy
+Edit
+lsof -n -iTCP:8000 | awk 'NR>1 {print $2}' | xargs --no-run-if-empty kill -9
+cd ~/Desktop/Comdex/backend
+source venv/bin/activate
+uvicorn main:app --reload
+This document consolidates all current setup, completed work, page/component structure, API routes, and the full feature roadmap—from MVP through AI-driven contract automation. It’s your single point of reference for onboarding new developers or AI agents and for tracking next steps at any point in time.

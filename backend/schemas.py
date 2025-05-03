@@ -1,20 +1,32 @@
-from pydantic import BaseModel
-from typing import Optional
+# backend/schemas.py
 
-# ✅ For Product creation
+from pydantic import BaseModel, EmailStr
+
+# ─── User / Auth Schemas ─────────────────────────────
+class UserCreate(BaseModel):
+    name:     str
+    email:    EmailStr
+    password: str
+
+class Token(BaseModel):
+    access_token: str
+    token_type:   str = "bearer"
+
+
+# ─── Product Schemas ──────────────────────────────────
 class ProductCreate(BaseModel):
-    title: str
+    title:          str
     origin_country: str
-    category: str
-    description: str
-    image_url: str
-    price_per_kg: float
+    category:       str
+    description:    str
+    image_url:      str
+    price_per_kg:   float
 
-# ✅ For Product responses
 class ProductOut(ProductCreate):
-    id: int
-    owner_email: str
+    id:          int
+    owner_email: EmailStr
 
-    class Config:
-        from_attributes = True  # This replaces `orm_mode = True` in Pydantic v2
+    model_config = {
+        "from_attributes": True,  # Pydantic v2 replacement for orm_mode
+    }
 

@@ -1,27 +1,23 @@
 // frontend/components/Navbar.tsx
-
 import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import axios from 'axios'
-import Web3 from 'web3'
 import styles from './Header.module.css'
 
 export default function Navbar() {
   const router = useRouter()
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const [role, setRole] = useState<string>('')
+  const [search, setSearch]           = useState('')
+  const [isLoggedIn, setIsLoggedIn]   = useState(false)
+  const [role, setRole]               = useState<string>('')
   const [walletAddress, setWalletAddress] = useState<string | null>(null)
 
   // Check JWT + fetch role
   useEffect(() => {
     const checkAuth = async () => {
       const token = localStorage.getItem('token')
-      if (!token) {
-        setIsLoggedIn(false)
-        return
-      }
+      if (!token) { setIsLoggedIn(false); return }
       try {
         const res = await axios.get(
           'http://localhost:8000/auth/role',
@@ -36,12 +32,10 @@ export default function Navbar() {
     }
     checkAuth()
     router.events.on('routeChangeComplete', checkAuth)
-    return () => {
-      router.events.off('routeChangeComplete', checkAuth)
-    }
+    return () => router.events.off('routeChangeComplete', checkAuth)
   }, [router])
 
-  // Connect MetaMask
+  // MetaMask connect
   useEffect(() => {
     if ((window as any).ethereum) {
       ;(window as any).ethereum
@@ -58,6 +52,12 @@ export default function Navbar() {
     router.push('/login')
   }
 
+  const submitSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    const q = search.trim()
+    if (q) router.push(`/search?query=${encodeURIComponent(q)}`)
+  }
+
   return (
     <nav className={styles.navbar}>
       <div className={styles.left}>
@@ -65,12 +65,25 @@ export default function Navbar() {
           <Image
             src="/stickey.png"
             alt="Stickey Logo"
-            width={120}
-            height={40}
+            width={144}
+            height={48}
             className={styles.logoImage}
           />
         </Link>
       </div>
+
+      <form onSubmit={submitSearch} className={styles.searchForm}>
+        <input
+          className={styles.searchInput}
+          type="text"
+          placeholder="Search commodities..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+        <button type="submit" className={styles.searchButton}>
+          Search
+        </button>
+      </form>
 
       <div className={styles.right}>
         {!isLoggedIn ? (
@@ -103,9 +116,14 @@ export default function Navbar() {
               </>
             )}
             {role === 'buyer' && (
-              <Link href="/dashboard" className={styles.link}>
-                Dashboard
-              </Link>
+              <>
+                <Link href="/" className={styles.link}>
+                  Marketplace
+                </Link>
+                <Link href="/dashboard" className={styles.link}>
+                  Dashboard
+                </Link>
+              </>
             )}
             <button onClick={handleLogout} className={styles.link}>
               Logout
