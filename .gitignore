@@ -22,3 +22,5 @@ ignition/deployments/chain-31337
 /backend/node_modules/
 node_modules/
 .next/
+node_modules/
+.next/
