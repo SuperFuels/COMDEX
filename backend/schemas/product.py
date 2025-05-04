@@ -1,7 +1,6 @@
 # backend/schemas/product.py
 
 from pydantic import BaseModel, EmailStr
-from typing import Optional
 
 class ProductBase(BaseModel):
     title: str
@@ -10,6 +9,8 @@ class ProductBase(BaseModel):
     description: str
     image_url: str
     price_per_kg: float
+    change_pct: float = 0.0   # new field
+    rating: float = 0.0       # new field
 
 class ProductCreate(ProductBase):
     """
@@ -22,7 +23,7 @@ class ProductOut(ProductBase):
     What we return in GET/POST responses.
     """
     id: int
-    owner_email: EmailStr   # ← include the supplier’s email
+    owner_email: EmailStr
 
     class Config:
         orm_mode = True

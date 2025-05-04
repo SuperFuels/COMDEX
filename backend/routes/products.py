@@ -1,5 +1,9 @@
 # backend/routes/products.py
 
+import os
+import shutil
+from typing import List
+
 from fastapi import (
     APIRouter,
     Depends,
@@ -10,19 +14,14 @@ from fastapi import (
     UploadFile,
 )
 from sqlalchemy.orm import Session
-from typing import List
-import os
-import shutil
 
 from database import get_db
-# <-- Correct import for your JWT checker:
 from utils.auth import get_current_user
 
 from models.product import Product
 from schemas.product import ProductOut, ProductCreate
 from models.user import User
 
-# No prefix here — applied once in main.py
 router = APIRouter(tags=["Products"])
 
 
@@ -33,7 +32,7 @@ router = APIRouter(tags=["Products"])
 @router.get("/me", response_model=List[ProductOut])
 def get_my_products(
     current_user: User = Depends(get_current_user),
-    db: Session      = Depends(get_db),
+    db: Session = Depends(get_db),
 ):
     """
     Private: GET /products/me
@@ -97,10 +96,10 @@ def get_product_by_id(
 def create_product_json(
     payload: ProductCreate,
     current_user: User = Depends(get_current_user),
-    db: Session      = Depends(get_db),
+    db: Session = Depends(get_db),
 ):
     """
-    Private: POST /products
+    Private: POST /products  (application/json)
     """
     new_product = Product(**payload.dict(), owner_email=current_user.email)
     db.add(new_product)
@@ -111,14 +110,14 @@ def create_product_json(
 
 @router.post("/create", response_model=ProductOut, status_code=status.HTTP_201_CREATED)
 def create_product_with_upload(
-    title: str            = Form(...),
-    origin_country: str   = Form(...),
-    category: str         = Form(...),
-    description: str      = Form(...),
-    price_per_kg: float   = Form(...),
-    image: UploadFile     = File(...),
-    current_user: User    = Depends(get_current_user),
-    db: Session           = Depends(get_db),
+    title: str = Form(...),
+    origin_country: str = Form(...),
+    category: str = Form(...),
+    description: str = Form(...),
+    price_per_kg: float = Form(...),
+    image: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
 ):
     """
     Private: POST /products/create  (multipart/form-data)
@@ -148,7 +147,7 @@ def update_product(
     product_id: int,
     payload: ProductCreate,
     current_user: User = Depends(get_current_user),
-    db: Session      = Depends(get_db),
+    db: Session = Depends(get_db),
 ):
     """
     Private: PUT /products/{product_id}
@@ -179,7 +178,7 @@ def update_product(
 def delete_product(
     product_id: int,
     current_user: User = Depends(get_current_user),
-    db: Session      = Depends(get_db),
+    db: Session = Depends(get_db),
 ):
     """
     Private: DELETE /products/{product_id}
@@ -200,6 +199,5 @@ def delete_product(
 
     db.delete(product)
     db.commit()
-    # 204 No Content – nothing to return
     return
 

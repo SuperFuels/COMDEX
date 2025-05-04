@@ -7,11 +7,12 @@ from fastapi.staticfiles import StaticFiles
 from sqlalchemy import create_engine, text
 from sqlalchemy.exc import OperationalError
 
-from routes.auth    import router as auth_router
-from routes.products import router as products_router
-from routes.deal    import router as deal_router
-from routes.admin   import router as admin_router
-from routes.user    import router as user_router
+from routes.auth      import router as auth_router
+from routes.products  import router as products_router
+from routes.deal      import router as deal_router
+from routes.contracts import router as contracts_router
+from routes.admin     import router as admin_router
+from routes.user      import router as user_router
 
 # ─── Logging ───────────────────────────────
 logging.basicConfig(level=logging.INFO)
@@ -41,11 +42,12 @@ app.mount(
 )
 
 # ─── Routers ───────────────────────────────
-app.include_router(auth_router,     prefix="/auth",     tags=["Auth"])
-app.include_router(products_router, prefix="/products", tags=["Products"])
-app.include_router(deal_router,     prefix="/deals",    tags=["Deals"])
-app.include_router(admin_router,    prefix="/admin",    tags=["Admin"])
-app.include_router(user_router,     prefix="/users",    tags=["Users"])
+app.include_router(auth_router,      prefix="/auth",     tags=["Auth"])
+app.include_router(products_router,  prefix="/products", tags=["Products"])
+app.include_router(deal_router,      prefix="/deals",    tags=["Deals"])
+app.include_router(contracts_router, prefix="/contracts", tags=["Contracts"])
+app.include_router(admin_router,     prefix="/admin",    tags=["Admin"])
+app.include_router(user_router,      prefix="/users",    tags=["Users"])
 
 # ─── Health & Root ─────────────────────────
 @app.get("/")

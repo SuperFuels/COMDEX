@@ -1,20 +1,22 @@
+# backend/schemas/deal.py
+
 from pydantic import BaseModel
-from typing import Optional
+from datetime import datetime
 
 class DealCreate(BaseModel):
+    product_id: int
+    quantity_kg: float
+
+class DealOut(BaseModel):
+    id: int
     buyer_email: str
     supplier_email: str
     product_title: str
     quantity_kg: float
     total_price: float
+    status: str
+    created_at: datetime
 
     class Config:
-        orm_mode = True  # This ensures compatibility with SQLAlchemy models
-
-class DealOut(DealCreate):
-    id: int
-    status: Optional[str] = "Pending"
-
-    class Config:
-        from_attributes = True  # This is for Pydantic v2+ for compatibility with SQLAlchemy models
+        orm_mode = True
 

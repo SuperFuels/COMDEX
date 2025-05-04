@@ -1,22 +1,34 @@
+# backend/create_tables.py
+
 import os
 import logging
 from sqlalchemy import create_engine
-from models import Base, User, Deal, Product  # Import all necessary models
+
+# Import your shared Base and engine config
+from database import Base
+# Import every model module so Base.metadata knows about them
+import models.user
+import models.product
+import models.deal
+import models.contract
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# PostgreSQL URL (ensure this matches your actual connection details)
-DATABASE_URL = "postgresql://comdex_user:your_password@localhost/comdex"  # Update this with actual credentials
+# Use the same DATABASE_URL that your app uses
+DATABASE_URL = os.getenv(
+    "DATABASE_URL",
+    "postgresql://comdex:Wn8smx123@localhost:5432/comdex"
+)
 
-# Setup the engine for PostgreSQL (not SQLite)
+# Create the engine
 engine = create_engine(DATABASE_URL, echo=True)
 
 try:
-    # Create all tables in the database (User, Deal, Product, etc.)
-    Base.metadata.create_all(engine)
-    logger.info("Tables created successfully.")
+    # Create all tables defined on Base.metadata
+    Base.metadata.create_all(bind=engine)
+    logger.info("✅ All tables (including contracts) created/updated successfully.")
 except Exception as e:
-    logger.error(f"Error during table creation: {str(e)}")
+    logger.error(f"❌ Error during table creation: {e}")
 

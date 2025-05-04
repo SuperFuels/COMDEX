@@ -1,4 +1,5 @@
 // frontend/components/Navbar.tsx
+
 import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
@@ -8,9 +9,9 @@ import styles from './Header.module.css'
 
 export default function Navbar() {
   const router = useRouter()
-  const [search, setSearch]           = useState('')
-  const [isLoggedIn, setIsLoggedIn]   = useState(false)
-  const [role, setRole]               = useState<string>('')
+  const [search, setSearch]             = useState('')
+  const [isLoggedIn, setIsLoggedIn]     = useState(false)
+  const [role, setRole]                 = useState<string>('')
   const [walletAddress, setWalletAddress] = useState<string | null>(null)
 
   // Check JWT + fetch role
@@ -119,6 +120,9 @@ export default function Navbar() {
               <>
                 <Link href="/" className={styles.link}>
                   Marketplace
+                </Link>
+                <Link href="/deals" className={styles.link}>
+                  My Deals
                 </Link>
                 <Link href="/dashboard" className={styles.link}>
                   Dashboard

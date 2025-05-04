@@ -12,7 +12,8 @@ interface Product {
   price_per_kg: number
   image_url: string
   owner_email: string        // supplier’s email from backend
-  // you can add real `change_pct` and `rating` to your schema later
+  change_pct: number         // ← new
+  rating: number             // ← new
 }
 
 export default function SearchPage() {
@@ -27,9 +28,7 @@ export default function SearchPage() {
     setLoading(true)
     axios
       .get<Product[]>(
-        `http://localhost:8000/products/search?query=${encodeURIComponent(
-          query
-        )}`
+        `http://localhost:8000/products/search?query=${encodeURIComponent(query)}`
       )
       .then(res => setResults(res.data))
       .catch(() => setError('Failed to load search results'))
@@ -57,8 +56,8 @@ export default function SearchPage() {
               <th className="border px-4 py-2">Origin</th>
               <th className="border px-4 py-2">Cost/kg</th>
               <th className="border px-4 py-2">Supplier</th>
-              <th className="border px-4 py-2">Change %</th>
-              <th className="border px-4 py-2">Rating /10</th>
+              <th className="border px-4 py-2">Change %</th>
+              <th className="border px-4 py-2">Rating /10</th>
               <th className="border px-4 py-2">Details</th>
             </tr>
           </thead>
@@ -77,7 +76,7 @@ export default function SearchPage() {
                     }
                     alt={p.title}
                     className="h-10 w-10 object-cover rounded"
-                  />
+                   />
                 </td>
                 <td className="border px-4 py-2">{p.title}</td>
                 <td className="border px-4 py-2">{p.origin_country}</td>
@@ -86,17 +85,15 @@ export default function SearchPage() {
                 </td>
                 <td className="border px-4 py-2">{p.owner_email}</td>
                 <td className="border px-4 py-2 text-green-600">
-                  {/* placeholder */}
-                  +0.00%
+                  {(p.change_pct * 100).toFixed(2)}%
                 </td>
                 <td className="border px-4 py-2 text-yellow-600">
-                  {/* placeholder */}
-                  9.5
+                  {p.rating.toFixed(1)}
                 </td>
                 <td className="border px-4 py-2">
                   <Link
                     href={`/products/${p.id}`}
-                    className="inline-block bg-blue-600 hover:bg-blue-700 text-white py-1 px-3 rounded"
+                    className="inline-block bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded"
                   >
                     View
                   </Link>

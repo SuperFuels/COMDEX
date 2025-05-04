@@ -1,39 +1,49 @@
-from __future__ import with_statement
-import sys
 import os
-from alembic import context
-from sqlalchemy import create_engine
-from sqlalchemy import pool
-from sqlalchemy.ext.declarative import declarative_base
+import sys
 from logging.config import fileConfig
 
-# Import your models here
-# Ensure this points to the correct location of your models, e.g., from models.user import Base
-from models import Base  # Ensure this points to the correct module where Base is defined
+from sqlalchemy import engine_from_config, pool
+from alembic import context
 
-# this is the Alembic Config object, which provides access to the values
-# within the .ini file in use.
+# ─── make sure we can import your app’s modules ───────────────────────────────
+# adjust if your code lives elsewhere—this assumes your structure is:
+# backend/
+#   alembic/
+#     env.py    <-- here
+#   database.py
+#   models/
+#     user.py
+#     product.py
+#     deal.py
+#     contract.py
+sys.path.insert(
+    0,
+    os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+)
+
+# ─── Alembic Config object ───────────────────────────────────────────────────
 config = context.config
 
-# Interpret the config file for Python logging.
-# This line sets up loggers basically.
+# ─── Logging ─────────────────────────────────────────────────────────────────
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# Set up the target metadata for "autogenerate" support
-# Make sure this points to the metadata object
+# ─── Import your MetaData ────────────────────────────────────────────────────
+# change the import path as needed to where your Base is defined
+from database import Base  # noqa: E402
 target_metadata = Base.metadata
 
-# Set up the database URL from alembic.ini
-sqlalchemy_url = config.get_main_option("sqlalchemy.url")
+# ─── Ensure all models are loaded so Alembic can see them ────────────────────
+import models.user     # noqa: E402
+import models.product  # noqa: E402
+import models.deal     # noqa: E402
+import models.contract # noqa: E402
 
-# Create an engine with the database URL
-engine = create_engine(sqlalchemy_url, poolclass=pool.NullPool)
 
-# Run migrations in 'offline' mode
-def run_migrations_offline():
+# ─── Offline migrations ──────────────────────────────────────────────────────
+def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode."""
-    url = sqlalchemy_url
+    url = config.get_main_option("sqlalchemy.url")
     context.configure(
         url=url,
         target_metadata=target_metadata,
@@ -44,19 +54,29 @@ def run_migrations_offline():
     with context.begin_transaction():
         context.run_migrations()
 
-# Run migrations in 'online' mode
-def run_migrations_online():
+
+# ─── Online migrations ───────────────────────────────────────────────────────
+def run_migrations_online() -> None:
     """Run migrations in 'online' mode."""
-    with engine.connect() as connection:
+    connectable = engine_from_config(
+        config.get_section(config.config_ini_section, {}),
+        prefix="sqlalchemy.",
+        poolclass=pool.NullPool,
+    )
+
+    with connectable.connect() as connection:
         context.configure(
             connection=connection,
             target_metadata=target_metadata,
+            compare_type=True,            # detect column type changes
+            compare_server_default=True,  # detect default changes
         )
 
         with context.begin_transaction():
             context.run_migrations()
 
-# Determine if Alembic is running in offline or online mode
+
+# ─── Entrypoint ─────────────────────────────────────────────────────────────
 if context.is_offline_mode():
     run_migrations_offline()
 else:

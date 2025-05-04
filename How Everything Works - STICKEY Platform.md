@@ -7,25 +7,21 @@ Architecture
 Authentication & Roles
 
 Database Schemas
+4.1 Users
+4.2 Products
+4.3 Deals
+4.4 Contracts
 
 Backend Endpoints
-
 5.1 Auth (/auth)
-
 5.2 Products (/products)
-
 5.3 Deals (/deals)
-
-5.4 Contracts (/contracts) Stub
-
+5.4 Contracts (/contracts)
 5.5 Admin (/admin)
-
 5.6 Users (/users)
 
 Frontend Structure
-
 6.1 Pages
-
 6.2 Components
 
 Completed Features
@@ -40,29 +36,30 @@ Roadmap & Next Steps
 
 Dev Commands
 
-1. Overview
-COMDEX (rebranded front-end STICKEY, coin ticker $GLU) is a next-gen global commodity-trading platform combining:
+Overview
+COMDEX (front‑end branded STICKEY, ticker $GLU) is a next‑gen B2B commodity‑trading platform combining:
 
 AI: autonomous agents for supplier matching & contract drafting
 
-Blockchain: on-chain escrow & NFT certificates
+Blockchain: on‑chain escrow & NFT certificates
 
-Crypto-native features: wallet binding, swap panel, token flows
+Crypto‑native: wallet binding, swap panel, token flows
 
-Mission: Revolutionize B2B commodity trade with trust, automation, and transparency.
-
+Mission: Revolutionize global commodity trade with trust, automation, transparency.
 V1 Target: Whey Protein (EU, USA, India, NZ)
 V2+: Cocoa, coffee, olive oil, pea protein, spices, and beyond.
 
-2. Architecture
-scss
+Architecture
+text
 Copy
 Edit
 [Next.js Frontend] ←→ [FastAPI Backend] ←→ [PostgreSQL]
-       │                    │
-    MetaMask            Smart Contracts
-       │                    │
-    $GLU Wallet         Polygon Amoy Testnet
+       │                                │
+ [MetaMask + $GLU Wallet]        [Alembic Migrations]
+       │                                │
+ [Polygon Amoy Testnet Escrow Contract]
+       │
+    (Future: COMDEX Chain)
 Frontend: Next.js + Tailwind CSS + TypeScript
 
 Backend: FastAPI + SQLAlchemy + Pydantic + WeasyPrint (PDF)
@@ -73,14 +70,14 @@ Blockchain: Polygon Amoy (escrow contract), future COMDEX Chain
 
 AI: OpenAI LLM integrations under /agent and /contracts/generate
 
-3. Authentication & Roles
-JWT auth via /auth/register and /auth/login (tokens stored in localStorage).
+Authentication & Roles
+JWT auth via /auth/register and /auth/login (tokens in localStorage)
 
-Roles: admin / supplier / buyer.
+Roles: admin / supplier / buyer
 
-MetaMask wallet connect + backend binding (PATCH /users/me/wallet).
+MetaMask wallet connect + backend binding (PATCH /users/me/wallet)
 
-Route Guards on front-end & back-end (role-based dependencies).
+Route guards on both front-end & back-end
 
 Demo credentials:
 
@@ -89,132 +86,251 @@ admin	admin@example.com	admin123
 supplier	supplier@example.com	supplypass
 buyer	buyer@example.com	buyerpass
 
-4. Database Schemas
-users
+Database Schemas
+Users
 id, name, email, password_hash
 
-role (admin/supplier/buyer)
+role: admin/supplier/buyer
 
 wallet_address
 
 created_at, updated_at
 
-products
-id, owner_email (FK → users.email)
+Products
+id
+
+owner_email (FK → users.email)
 
 title, description, price_per_kg
 
 origin_country, category, image_url
 
+New fields (added via Alembic revision fa7a1f804df6):
+
+change_pct (FLOAT NOT NULL)
+
+rating (FLOAT NOT NULL)
+
 batch_number, trace_id, certificate_url, blockchain_tx_hash
 
 created_at
 
-deals
-id, buyer_id (FK), supplier_id (FK), product_id (FK)
+Deals
+id
 
-quantity_kg, agreed_price, currency
+buyer_id (FK → users.id), supplier_id (FK → users.id)
+
+product_id (FK → products.id)
+
+quantity_kg, total_price
 
 status: negotiation → confirmed → completed
 
 created_at, pdf_url
 
-(Stub) contracts
-id, prompt (free-form)
+Contracts
+id
 
-generated_contract (Markdown/HTML)
+prompt (TEXT)
 
-status, pdf_url, nft_metadata
+generated_contract (HTML/Markdown)
 
-5. Backend Endpoints
+status
+
+pdf_url, nft_metadata (stub for future NFT)
+
+Backend Endpoints
 5.1 Auth (/auth)
 POST /register (name, email, password) → user + JWT
 
-POST /login (email, password) → access_token
+POST /login (email, password) → { access_token, token_type }
 
-GET /role (Bearer token) → { role }
+GET /role (Bearer) → { role }
 
 5.2 Products (/products)
 Public
+GET /products/ → all products (now includes change_pct, rating)
 
-GET /products/ → list all products
-
-GET /products/search?query=… → filtered by title/category
+GET /products/search?query=… → filter by title/category
 
 GET /products/{id} → single product
 
-Authenticated
-
+Authenticated (supplier)
 GET /products/me → supplier’s products
 
-POST /products/ (JSON) → create (owner_email from JWT)
+POST /products/ (JSON) → create (Pydantic schema updated with change_pct & rating)
 
-POST /products/create (multipart) → with file upload → saved in /uploaded_images
+POST /products/create (multipart) → file upload → saved to /uploaded_images/
 
 PUT /products/{id} → update own product
 
 DELETE /products/{id} → delete own product
 
+Pydantic Schemas (backend/schemas/product.py)
+python
+Copy
+Edit
+class ProductBase(BaseModel):
+    title: str
+    origin_country: str
+    category: str
+    description: str
+    image_url: str
+    price_per_kg: float
+
+class ProductCreate(ProductBase): pass
+
+class ProductOut(ProductBase):
+    id: int
+    owner_email: EmailStr
+    change_pct: float    # ← added
+    rating: float        # ← added
+
+    class Config:
+        orm_mode = True
+Alembic Migration
+Generated revision fa7a1f804df6_add_change_pct_rating_to_products.py
+
+Applied via:
+
+bash
+Copy
+Edit
+alembic stamp aa5d58481454
+alembic upgrade head
 5.3 Deals (/deals)
-GET /deals/ → list deals for current user (buyer or supplier)
+GET /deals/ → list deals for current user (buyer or supplier)
 
-POST /deals/ → create deal (buyer_email, supplier_email, product_title, quantity_kg, total_price)
+POST /deals/ → create deal (calculates total_price, fills emails & IDs)
 
-GET /deals/{id} → fetch single deal
+GET /deals/{id} → single deal (role‑guarded)
 
-GET /deals/{id}/pdf → stream PDF contract
+GET /deals/{id}/pdf → stream PDF summary (WeasyPrint)
 
-5.4 Contracts (/contracts) Stub
-POST /contracts/generate → { prompt: str } → { id, generated_contract, status, pdf_url }
+Route (backend/routes/deal.py)
+python
+Copy
+Edit
+@router.post("/", response_model=DealOut)    # DealCreate → DealOut
+def create_deal(...):
+    # fetch product, supplier, build payload, persist, return
 
-(future) GET /contracts/{id} → contract details
+@router.get("/", response_model=List[DealOut])
+def get_user_deals(...):
+    # fetch where buyer_email==current_user or supplier_email==current_user
 
-(future) POST /contracts/{id}/mint → mint NFT receipt
+@router.get("/{deal_id}", response_model=DealOut)
+def get_deal_by_id(...):
+    # 404 if not found, 403 if not authorized
+
+@router.get("/{deal_id}/pdf")
+def generate_deal_pdf(...):
+    # HTML → PDF bytes → StreamingResponse
+5.4 Contracts (/contracts)
+Stub endpoints:
+
+POST /contracts/generate → draft contract via LLM
+
+GET /contracts/{id} → details (future)
+
+GET /contracts/{id}/pdf → PDF stream
+
+POST /contracts/{id}/mint → mint NFT (future)
 
 5.5 Admin (/admin)
-CRUD on all users, products, deals
+CRUD on all users, products, deals, contracts
 
 5.6 Users (/users)
 PATCH /users/me/wallet → bind MetaMask wallet
 
 (future) profile updates
 
-6. Frontend Structure
+Frontend Structure
 6.1 Pages
-bash
+text
 Copy
 Edit
-/                    Home (product listing + search form)
-/search              Search results table
-/products/[id]       Product detail + “Generate Quote” button
-/products/create     Supplier: new product + image upload form
-/deals               Listing page for deals
-/deals/[id]          Deal detail + PDF link
-/contracts/[id]      (Stub) Contract detail page
-/login               Login form
-/register/seller     Seller onboarding
-/register/buyer      Buyer onboarding
-/dashboard           Role-based dashboard skeleton
-/admin/dashboard     Admin panel
-6.2 Components
-Navbar: logo, search bar (→ /search?query=), auth links, wallet connect
+/                Home (product listing + change% & rating)
+/search          Search results table
+/products/[id]   Product detail + change% & rating + "Get Quote"
+/products/create Create product + upload image
+/deals           Deals list (import Deal from types.ts)
+/deals/[id]      Deal detail + debug logging + PDF link
+/contracts       (stub) list of contracts
+/contracts/[id]  Contract detail + PDF link (stub)
+/login           Login form
+/register/seller Seller sign‑up
+/register/buyer  Buyer sign‑up
+/dashboard       Role‑based dashboard skeleton
+/admin/dashboard Admin panel
+Key TS Files & Interfaces
+frontend/types.ts
 
-ProductCard: thumbnail, title, origin, price/kg, “View Product” (→ /products/{id})
+ts
+Copy
+Edit
+export interface Deal {
+  id: number
+  buyer_email: string
+  supplier_email: string
+  product_title: string
+  quantity_kg: number
+  total_price: number
+  status: string
+  created_at: string
+}
+frontend/pages/search.tsx
+
+Extended interface Product with change_pct & rating
+
+Added table columns for Change % and Rating /10
+
+frontend/pages/products/[id].tsx
+
+Show {(prod.change_pct*100).toFixed(2)}% and {prod.rating.toFixed(1)}/10
+
+Debug logging to console for router query, token, response
+
+frontend/pages/deals/index.tsx
+
+import { Deal } from '../../types'
+
+Removed inline interface
+
+frontend/pages/deals/[id].tsx
+
+import { Deal } from '../../types'
+
+Debug logging in useEffect
+
+Handles 403 Forbidden when unauthorized
+
+frontend/pages/contracts/[id].tsx (stub)
+
+tsx
+Copy
+Edit
+interface Contract { id: number; prompt: string; generated_contract: string; status: string }
+// fetch /contracts/{id}, show HTML, link to PDF
+6.2 Components
+Navbar: logo, search bar, auth links, wallet connect
+
+ProductCard: shows thumbnail, title, origin, price, change%, rating, view link
 
 QuoteModal: quantity input → POST /deals/ → redirect /deals
 
 SwapPanel: dummy currency swap UI (GBP/USD ↔ $GLU)
 
-Sidebar: role-based nav links
+Sidebar: role‑based nav links
 
-AgentBar: (future) contract prompt input → /contracts/generate
+AgentBar: (future) contract prompt → POST /contracts/generate
 
-7. Completed Features
+Completed Features
 🌐 Public marketplace: product listing, search
 
 🖼️ Image upload for products
 
-🔐 JWT auth + role-based route protection
+🔐 JWT auth + role‑based route protection
 
 🦊 MetaMask wallet connect & backend binding
 
@@ -226,66 +342,58 @@ AgentBar: (future) contract prompt input → /contracts/generate
 
 ⚖️ Admin panel for all entities
 
-🏗️ Next.js front-end with Tailwind CSS
+🏗️ Next.js front‑end with Tailwind CSS
 
 🔄 Dummy SwapPanel + sticky header layout
 
 🚀 Escrow contract deployed on Polygon Amoy testnet
 
-8. Search & Search Results
-Home page has a search form (<form action="/search">)
+Search & Search Results
+Home → search form
 
-/search page displays results in a table with columns:
+/search table with columns:
 
-Image, Product, Origin, Cost /kg, Supplier, Change %, Rating /10, Details
+mathematica
+Copy
+Edit
+Image | Product | Origin | Cost/kg | Supplier | Change % | Rating /10 | Details
+Change% & Rating are now real fields from the API.
 
-Placeholder values for Change % and Rating
+Quote & Deal Flow
+Product detail (/products/{id})
 
-Future: real change_pct from commodity price feeds, actual rating and filter tags (organic, grass-fed, shipping regions).
+Click Get Quote → open QuoteModal
 
-9. Quote & Deal Flow
-Product Detail: click “View Product” → /products/[id]
+Enter quantity → POST /deals/
 
-Generate Quote: opens QuoteModal, enter quantity → POST /deals/
+On success, redirect to /deals list
 
-Success: redirect to /deals listing; then detail /deals/[id]
+Deal detail (/deals/{id}) shows data + download PDF link
 
-Supplier confirms or rejects in their dashboard
+Supplier confirms/rejects via their dashboard
 
-PDF available via /deals/{id}/pdf
+AI Agent & Contract Engine
+Stub: AgentBar to input prompt → POST /contracts/generate
 
-On-chain escrow integration planned (Phase 3).
+Saves generated_contract HTML + status + pdf_url
 
-10. AI Agent & Contract Engine
-Agent Bar (future): text prompt → POST /contracts/generate
+Contract pages (/contracts/[id]) to review & download
 
-Contract Stub: returns Markdown/HTML draft + PDF URL + id
+Future: mint NFT certificate on-chain
 
-Contract page at /contracts/[id] to review & share
-
-Mint NFT after both parties sign → on-chain certificate
-
-Long-term: universal asset engine (cars, real-estate, NFTs, digital goods).
-
-11. Roadmap & Next Steps
-Phase 2 (Polish & Core Flows)
+Roadmap & Next Steps
+Phase 2: Polish & Core Flows
 Registration UIs: /register/seller, /register/buyer
 
-Dashboards:
+Role dashboards: buyer/supplier views
 
-Buyer: /dashboard → “My Deals”, wallet balance
+Search filters: rating, tags, regions
 
-Supplier: /dashboard → “My Products”, incoming quotes
+Wire SwapPanel “Swap” → create a deal
 
-Search filters: price, rating, tags (organic, regions)
+Multi-image product uploads & certificates
 
-SwapPanel → Deal: wire “Swap” button to /deals/
-
-Product Detail: full specs, multi-image, cert uploads
-
-Deals Listing: /deals page for both roles
-
-Phase 3 (On-chain & Integrations)
+Phase 3: On‑chain & Integrations
 Real swap engine (Web3 + escrow contract)
 
 Live commodity price feeds → change_pct
@@ -294,49 +402,57 @@ Product passports & NFT certificate explorer
 
 Shipping API integration & QR tracking
 
-Stripe + WalletConnect for fiat/crypto payments
+Stripe + WalletConnect payments
 
-Phase 4 (AI & Automation)
-AI Matching Engine: POST /match → ranked suppliers
+Phase 4: AI & Automation
+AI matching engine → POST /match → ranked suppliers
 
-Autonomous trade agents: in-chat negotiation
+Autonomous trade agents & in‑chat negotiation
 
 Messaging & dispute workflows
 
-Contract LLM templates, PDF styling
+Rich contract templates & PDF styling
 
-Phase 5 (Governance & Expansion)
-COMDEX Chain (fork Polygon → own EVM network)
+Phase 5: Governance & Expansion
+COMDEX Chain (fork Polygon)
 
 Governance token (CDXT) & staking
 
-Global CDN + mobile apps
+Global CDN & mobile apps
 
-New commodity verticals and digital goods.
+New commodity verticals and digital goods
 
-12. Dev Commands
+Dev Commands
 Backend
 bash
 Copy
 Edit
 cd ~/Desktop/Comdex/backend
 source venv/bin/activate
+# run server
 uvicorn main:app --reload
+
 # DB migrations
+alembic revision --autogenerate -m "add change_pct & rating to products"
 alembic upgrade head
+
+# Restart if stuck
+lsof -n -iTCP:8000 | awk 'NR>1 {print $2}' | xargs --no-run-if-empty kill -9
+uvicorn main:app --reload
 Frontend
 bash
 Copy
 Edit
 cd ~/Desktop/Comdex/frontend
-npm install    # or yarn
-npm run dev    # or yarn dev
-Restarting Backend
-bash
-Copy
-Edit
-lsof -n -iTCP:8000 | awk 'NR>1 {print $2}' | xargs --no-run-if-empty kill -9
-cd ~/Desktop/Comdex/backend
-source venv/bin/activate
-uvicorn main:app --reload
-This document consolidates all current setup, completed work, page/component structure, API routes, and the full feature roadmap—from MVP through AI-driven contract automation. It’s your single point of reference for onboarding new developers or AI agents and for tracking next steps at any point in time.
+npm install        # or yarn
+npm run dev        # or yarn dev
+
+# To create new pages
+cd pages
+mkdir -p deals contracts
+touch deals/index.tsx deals/[id].tsx contracts/index.tsx contracts/[id].tsx
+
+# To open files
+nano pages/search.tsx
+nano pages/products/[id].tsx
+This document now reflects all recent migrations, schema changes, route updates, UI enhancements, debug processes, and the full feature roadmap. Use it as your single source of truth for onboarding, development, and continued planning.

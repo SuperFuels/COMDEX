@@ -13,6 +13,8 @@ interface Product {
   origin_country: string
   image_url: string
   category: string
+  change_pct: number    // ← new
+  rating: number        // ← new
 }
 
 const Home: NextPage = () => {
@@ -58,7 +60,7 @@ const Home: NextPage = () => {
             {products.map((p) => (
               <div
                 key={p.id}
-                className="flex flex-col bg-white border border-gray-200 p-4 rounded"
+                className="flex flex-col bg-white border border-gray-200 p-4 rounded-lg"
               >
                 <img
                   src={
@@ -76,8 +78,15 @@ const Home: NextPage = () => {
                 <h3 className="font-semibold text-lg mb-1">{p.title}</h3>
                 <p className="text-sm text-gray-700">{p.origin_country}</p>
                 <p className="text-sm text-gray-500 mb-2">{p.category}</p>
-                <p className="font-bold mb-4">${p.price_per_kg}/kg</p>
-
+                <p className="font-bold mb-2">${p.price_per_kg.toFixed(2)}/kg</p>
+                <div className="flex items-center mb-4 space-x-4">
+                  <span className="text-green-600 font-medium">
+                    {(p.change_pct * 100).toFixed(2)}%
+                  </span>
+                  <span className="text-yellow-600 font-medium">
+                    {p.rating.toFixed(1)}/10
+                  </span>
+                </div>
                 <Link
                   href={`/products/${p.id}`}
                   className="mt-auto w-full py-2 bg-blue-500 text-white rounded text-center"
