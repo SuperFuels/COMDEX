@@ -1,5 +1,3 @@
-// frontend/pages/contracts/index.tsx
-
 import { useEffect, useState } from 'react'
 import axios from 'axios'
 import Link from 'next/link'
@@ -23,6 +21,7 @@ export default function ContractsPage() {
 
   if (loading) return <p>Loading contracts…</p>
   if (error)   return <p className="text-red-600">Error: {error}</p>
+  if (contracts.length === 0) return <p>No contracts found.</p>
 
   return (
     <div className="max-w-4xl mx-auto p-4">
@@ -47,7 +46,10 @@ export default function ContractsPage() {
                 {new Date(c.created_at).toLocaleString()}
               </td>
               <td className="border px-4 py-2">
-                <Link href={`/contracts/${c.id}`} className="text-blue-600 hover:underline">
+                <Link
+                  href={`/contracts/${c.id}`}
+                  className="text-blue-600 hover:underline"
+                >
                   View
                 </Link>
               </td>

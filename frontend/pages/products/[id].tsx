@@ -1,5 +1,3 @@
-// frontend/pages/products/[id].tsx
-
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import axios from 'axios'
@@ -13,8 +11,9 @@ interface Product {
   price_per_kg: number
   image_url: string
   owner_email: string
-  change_pct: number    // ← new
-  rating: number        // ← new
+  owner_wallet_address: string   // ← make sure your backend includes this field
+  change_pct: number
+  rating: number
 }
 
 export default function ProductDetail() {
@@ -58,7 +57,7 @@ export default function ProductDetail() {
       <p className="mb-1">
         <strong>Price per kg:</strong> ${prod.price_per_kg.toFixed(2)}
       </p>
-      <p className="mb-1">
+      <p className="mb-1"> 
         <strong>Change % (24h):</strong> {(prod.change_pct * 100).toFixed(2)}%
       </p>
       <p className="mb-4">
@@ -68,17 +67,17 @@ export default function ProductDetail() {
       <button
         onClick={() => setShowSwap(s => !s)}
         className="bg-blue-600 text-white px-4 py-2 rounded mb-4"
-      >
-        {showSwap ? 'Cancel' : 'Get Quote'}
+      >   
+        {showSwap ? 'Cancel' : 'Lock in GLU Quote'}
       </button>
-
+            
       {showSwap && (
         <div className="mt-4">
           <SwapPanel
-            productId={prod.id}
+            supplierAddress={prod.owner_wallet_address}
             pricePerKg={prod.price_per_kg}
             onSuccess={() => {
-              alert('Deal created!')
+              alert('Escrow created on Polygon PoS!')
               setShowSwap(false)
               router.push('/deals')
             }}
