@@ -1,7 +1,6 @@
-# backend/routes/contracts.py
-
 import os
 from io import BytesIO
+from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import StreamingResponse
@@ -24,7 +23,23 @@ if not OPENAI_API_KEY:
 
 client = OpenAI(api_key=OPENAI_API_KEY)
 
-router = APIRouter(tags=["Contracts"])
+router = APIRouter(prefix="/contracts", tags=["Contracts"])
+
+
+@router.get(
+    "/",
+    response_model=List[ContractOut],
+    summary="List all contracts",
+)
+def list_contracts(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """
+    Return all contracts the current user can see.
+    """
+    contracts = db.query(Contract).all()
+    return contracts
 
 
 @router.post(
@@ -45,32 +60,33 @@ def generate_contract(
             model="gpt-3.5-turbo",
             messages=[
                 {"role": "system", "content": "You are a legal contract drafting assistant."},
-                {"role": "user",   "content": data.prompt},
+                {"role": "user", "content": data.prompt},
             ],
             temperature=0.2,
         )
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
-            detail=f"OpenAI API error: {e}"
+            detail=f"OpenAI API error: {str(e)}"
         )
 
     generated_text = resp.choices[0].message.content
 
-    new = Contract(
+    new_contract = Contract(
         prompt=data.prompt,
         generated_contract=f"<div>{generated_text}</div>",
         status="draft",
     )
-    db.add(new)
+    db.add(new_contract)
     db.commit()
-    db.refresh(new)
-    return new
+    db.refresh(new_contract)
+    return new_contract
 
 
 @router.get(
     "/{contract_id}",
     response_model=ContractOut,
+    summary="Get a single contract",
 )
 def get_contract(
     contract_id: int,
@@ -82,13 +98,16 @@ def get_contract(
     """
     contract = db.query(Contract).filter(Contract.id == contract_id).first()
     if not contract:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Contract not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Contract not found."
+        )
     return contract
 
 
 @router.get(
     "/{contract_id}/pdf",
-    summary="Download contract as PDF"
+    summary="Download contract as PDF",
 )
 def download_contract_pdf(
     contract_id: int,
@@ -100,7 +119,10 @@ def download_contract_pdf(
     """
     contract = db.query(Contract).filter(Contract.id == contract_id).first()
     if not contract:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Contract not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Contract not found."
+        )
 
     pdf_io = BytesIO()
     HTML(string=contract.generated_contract).write_pdf(pdf_io)

@@ -5,3 +5,4 @@ psycopg2==2.9.10
 psycopg2-binary==2.9.10
 SQLAlchemy==2.0.40
 typing_extensions==4.13.2
+weasyprint==57.1

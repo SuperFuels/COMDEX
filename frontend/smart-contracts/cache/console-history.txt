@@ -1,3 +1,18 @@
+console.log("Buyer private key:", buyer._signingKey().privateKey);
+console.log("Buyer GLU balance:", ethers.utils.formatUnits(balance, 18));
+const balance = await glu.balanceOf(buyer.address);
+// 5) Confirm the buyer’s balance
+await glu.connect(deployer).transfer(buyer.address, amount);
+// 4) Transfer from deployer → buyer
+const amount = ethers.utils.parseUnits("1000", 18);
+// 3) Define how many tokens to send (e.g. 1000 GLU)
+);
+  process.env.PRIVATE_GLU_ADDRESS || "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+  "GLU",
+const glu = await ethers.getContractAt(
+// 2) Get your GLU token instance
+const [deployer, supplier, buyer] = await ethers.getSigners();
+// 1) Grab the first three signers: deployer, supplier, buyer
 console.log("Supplier GLU after release:",(await glu.balanceOf(supplier.address)).toString())
 console.log("Escrow GLU after release:",  (await glu.balanceOf(escrow.address)).toString())
 await (await escrow.connect(deployer).release(0)).wait()

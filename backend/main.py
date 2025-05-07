@@ -1,3 +1,5 @@
+# backend/main.py
+
 import os
 import logging
 
@@ -7,12 +9,13 @@ from fastapi.staticfiles import StaticFiles
 from sqlalchemy import create_engine, text
 from sqlalchemy.exc import OperationalError
 
+# Import routers via the local routes package
 from routes.auth      import router as auth_router
 from routes.products  import router as products_router
-from routes.deal      import router as deal_router
-from routes.contracts import router as contracts_router
-from routes.admin     import router as admin_router
-from routes.user      import router as user_router
+from routes.deal      import router as deal_router       # has prefix="/deals"
+from routes.contracts import router as contracts_router  # has prefix="/contracts"
+from routes.admin     import router as admin_router      # has prefix="/admin"
+from routes.user      import router as user_router       # has prefix="/users"
 
 # ─── Logging ───────────────────────────────
 logging.basicConfig(level=logging.INFO)
@@ -25,7 +28,8 @@ app = FastAPI(
     description="Global Commodity Marketplace API"
 )
 
-# CORS
+# ─── CORS ───────────────────────────────────
+# Allow your React frontend on localhost:3000 to call this API
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000"],
@@ -34,7 +38,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Serve uploaded images
+# ─── Serve uploaded images ───────────────────
 app.mount(
     "/uploaded_images",
     StaticFiles(directory="uploaded_images"),
@@ -44,16 +48,16 @@ app.mount(
 # ─── Routers ───────────────────────────────
 app.include_router(auth_router,      prefix="/auth",     tags=["Auth"])
 app.include_router(products_router,  prefix="/products", tags=["Products"])
-app.include_router(deal_router,      prefix="/deals",    tags=["Deals"])
-app.include_router(contracts_router, prefix="/contracts", tags=["Contracts"])
-app.include_router(admin_router,     prefix="/admin",    tags=["Admin"])
-app.include_router(user_router,      prefix="/users",    tags=["Users"])
+app.include_router(deal_router)      # → /deals
+app.include_router(contracts_router) # → /contracts
+app.include_router(admin_router)     # → /admin
+app.include_router(user_router)      # → /users
 
 # ─── Health & Root ─────────────────────────
 @app.get("/")
 def read_root() -> dict:
     return {"message": "🚀 Welcome to the COMDEX API!"}
-
+    
 @app.get("/health")
 def health_check() -> dict:
     db_url = os.getenv(

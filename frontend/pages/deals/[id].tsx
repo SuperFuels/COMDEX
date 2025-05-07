@@ -9,9 +9,12 @@ import { Deal } from '../../types'
 export default function DealDetailPage() {
   const router = useRouter()
   const { id } = router.query as { id?: string }
+
   const [deal, setDeal]       = useState<Deal | null>(null)
   const [loading, setLoading] = useState<boolean>(true)
   const [error, setError]     = useState<string | null>(null)
+
+  const API = process.env.NEXT_PUBLIC_API_URL
 
   const fetchDeal = () => {
     if (!id) return
@@ -19,10 +22,13 @@ export default function DealDetailPage() {
     setError(null)
     const token = localStorage.getItem('token')
     axios
-      .get<Deal>(`${process.env.NEXT_PUBLIC_API_URL}/deals/${id}`, {
+      .get<Deal>(`${API}/deals/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
-      .then(res => setDeal(res.data))
+      .then(res => {
+        console.log("Loaded deal from API:", res.data)
+        setDeal(res.data)
+      })
       .catch(err => {
         setError(err.response?.data?.detail || err.message)
       })
@@ -33,6 +39,22 @@ export default function DealDetailPage() {
     fetchDeal()
   }, [id])
 
+  // Called after the on-chain escrow tx succeeds
+  const handleEscrowSuccess = async () => {
+    const token = localStorage.getItem('token')
+    try {
+      await axios.put(
+        `${API}/deals/${id}/status`,
+        { status: "confirmed" },
+        { headers: { Authorization: `Bearer ${token}` } }
+      )
+      fetchDeal()
+    } catch (e: any) {
+      console.error("Failed to update deal status:", e)
+      alert("Could not update deal status on server")
+    }
+  }
+
   if (loading) return <p>Loading…</p>
   if (error)   return <p className="text-red-600">{error}</p>
   if (!deal)   return <p>Deal not found</p>
@@ -41,7 +63,7 @@ export default function DealDetailPage() {
     <div className="max-w-xl mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Deal #{deal.id}</h1>
       <p><strong>Product:</strong> {deal.product_title}</p>
-      <p><strong>Quantity:</strong> {deal.quantity_kg} kg</p>
+      <p><strong>Quantity:</strong> {deal.quantity_kg} kg</p>
       <p><strong>Total:</strong> ${deal.total_price}</p>
       <p><strong>Status:</strong> {deal.status}</p>
       <p>
@@ -54,19 +76,19 @@ export default function DealDetailPage() {
         <SwapPanel
           supplierAddress={deal.supplier_wallet_address}
           pricePerKg={deal.total_price / deal.quantity_kg}
-          onSuccess={fetchDeal}
+          onSuccess={handleEscrowSuccess}
         />
       )}
 
       {/* 2) Supplier releases funds once GLU is locked */}
-      {deal.status === 'released' && (
+      {deal.status === 'confirmed' && (
         <button
           className="mt-4 bg-red-500 text-white px-4 py-2 rounded"
           onClick={async () => {
             const token = localStorage.getItem('token')
             try {
               await axios.post(
-                `${process.env.NEXT_PUBLIC_API_URL}/deals/${id}/release`,
+                `${API}/deals/${id}/release`,
                 {},
                 { headers: { Authorization: `Bearer ${token}` } }
               )

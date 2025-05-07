@@ -1,31 +1,32 @@
 // frontend/components/Navbar.tsx
-
 import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import axios from 'axios'
-import styles from './Header.module.css'
 
 export default function Navbar() {
   const router = useRouter()
-  const [search, setSearch]             = useState('')
-  const [isLoggedIn, setIsLoggedIn]     = useState(false)
-  const [role, setRole]                 = useState<string>('')
+  const [isLoggedIn, setIsLoggedIn]       = useState(false)
+  const [role, setRole]                   = useState<string>('')
   const [walletAddress, setWalletAddress] = useState<string | null>(null)
 
-  // Check JWT + fetch role
+  // 1) Check JWT + fetch role
   useEffect(() => {
     const checkAuth = async () => {
       const token = localStorage.getItem('token')
-      if (!token) { setIsLoggedIn(false); return }
+      if (!token) {
+        setIsLoggedIn(false)
+        setRole('')
+        return
+      }
       try {
-        const res = await axios.get(
-          'http://localhost:8000/auth/role',
+        const { data } = await axios.get<{ role: string }>(
+          `${process.env.NEXT_PUBLIC_API_URL}/auth/role`,
           { headers: { Authorization: `Bearer ${token}` } }
         )
         setIsLoggedIn(true)
-        setRole(res.data.role)
+        setRole(data.role)
       } catch {
         setIsLoggedIn(false)
         setRole('')
@@ -36,7 +37,7 @@ export default function Navbar() {
     return () => router.events.off('routeChangeComplete', checkAuth)
   }, [router])
 
-  // MetaMask connect
+  // 2) MetaMask connect
   useEffect(() => {
     if ((window as any).ethereum) {
       ;(window as any).ethereum
@@ -53,104 +54,92 @@ export default function Navbar() {
     router.push('/login')
   }
 
-  const submitSearch = (e: React.FormEvent) => {
-    e.preventDefault()
-    const q = search.trim()
-    if (q) router.push(`/search?query=${encodeURIComponent(q)}`)
-  }
+  const shortAddr = walletAddress
+    ? `${walletAddress.slice(0, 6)}…${walletAddress.slice(-4)}`
+    : ''
 
   return (
-    <nav className={styles.navbar}>
-      <div className={styles.left}>
-        <Link href="/">
-          <Image
-            src="/stickey.png"
-            alt="Stickey Logo"
-            width={144}
-            height={48}
-            className={styles.logoImage}
-          />
-        </Link>
-      </div>
+    <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex h-16 items-center justify-between">
+          {/* Logo */}
+          <Link href="/" className="flex-shrink-0">
+            <Image
+              src="/stickey.png"
+              alt="Stickey Logo"
+              width={144}
+              height={48}
+              style={{ width: 'auto', height: 'auto' }}
+              priority
+            />
+          </Link>
 
-      <form onSubmit={submitSearch} className={styles.searchForm}>
-        <input
-          className={styles.searchInput}
-          type="text"
-          placeholder="Search commodities..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-        <button type="submit" className={styles.searchButton}>
-          Search
-        </button>
-      </form>
-
-      <div className={styles.right}>
-        {!isLoggedIn ? (
-          <>
-            <Link href="/login" className={styles.link}>
-              Login
-            </Link>
-            <Link href="/register/seller" className={styles.link}>
-              Sellers
-            </Link>
-            <Link href="/register/buyer" className={styles.link}>
-              Buyers
-            </Link>
-          </>
-        ) : (
-          <>
-            {role === 'admin' && (
-              <Link href="/admin/dashboard" className={styles.link}>
-                Admin Panel
-              </Link>
-            )}
-            {role === 'supplier' && (
+          {/* Right: Auth links & wallet */}
+          <div className="flex items-center space-x-6">
+            {!isLoggedIn ? (
               <>
-                <Link href="/dashboard" className={styles.link}>
-                  Dashboard
+                <Link href="/login" className="text-sm font-medium text-gray-700 hover:text-gray-900">
+                  Login
                 </Link>
-                <Link href="/products/create" className={styles.link}>
-                  New Product
+                <Link href="/register/supplier" className="text-sm font-medium text-gray-700 hover:text-gray-900">
+                  Sell
+                </Link>
+                <Link href="/register/buyer" className="text-sm font-medium text-gray-700 hover:text-gray-900">
+                  Buy
                 </Link>
               </>
-            )}
-            {role === 'buyer' && (
+            ) : (
               <>
-                <Link href="/" className={styles.link}>
-                  Marketplace
-                </Link>
-                <Link href="/deals" className={styles.link}>
-                  My Deals
-                </Link>
-                <Link href="/dashboard" className={styles.link}>
-                  Dashboard
-                </Link>
+                {role === 'admin' && (
+                  <Link href="/admin/dashboard" className="text-sm font-medium text-gray-700 hover:text-gray-900">
+                    Admin
+                  </Link>
+                )}
+                {role === 'supplier' && (
+                  <>
+                    <Link href="/dashboard" className="text-sm font-medium text-gray-700 hover:text-gray-900">
+                      Dashboard
+                    </Link>
+                    <Link href="/products/create" className="text-sm font-medium text-gray-700 hover:text-gray-900">
+                      New Product
+                    </Link>
+                  </>
+                )}
+                {role === 'buyer' && (
+                  <>
+                    <Link href="/" className="text-sm font-medium text-gray-700 hover:text-gray-900">
+                      Marketplace
+                    </Link>
+                    <Link href="/dashboard" className="text-sm font-medium text-gray-700 hover:text-gray-900">
+                      Dashboard
+                    </Link>
+                  </>
+                )}
+                <button
+                  onClick={handleLogout}
+                  className="text-sm font-medium text-gray-700 hover:text-gray-900"
+                >
+                  Logout
+                </button>
               </>
             )}
-            <button onClick={handleLogout} className={styles.link}>
-              Logout
-            </button>
-          </>
-        )}
 
-        {walletAddress ? (
-          <span className={styles.walletAddress}>
-            {walletAddress.slice(0, 6)}…{walletAddress.slice(-4)}
-          </span>
-        ) : (
-          <button
-            onClick={() =>
-              (window as any).ethereum.request({ method: 'eth_requestAccounts' })
-            }
-            className={styles.connectButton}
-          >
-            Connect Wallet
-          </button>
-        )}
+            {walletAddress ? (
+              <span className="px-3 py-1 bg-gray-100 rounded-full text-sm font-medium text-gray-800">
+                {shortAddr}
+              </span>
+            ) : (
+              <button
+                onClick={() => (window as any).ethereum.request({ method: 'eth_requestAccounts' })}
+                className="px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded"
+              >
+                Connect Wallet
+              </button>
+            )}
+          </div>
+        </div>
       </div>
-    </nav>
+    </header>
   )
 }
 

@@ -1,9 +1,8 @@
-// frontend/pages/search.tsx
-
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import axios from 'axios'
 import Link from 'next/link'
+import Image from 'next/image'
 
 interface Product {
   id: number
@@ -11,9 +10,9 @@ interface Product {
   origin_country: string
   price_per_kg: number
   image_url: string
-  owner_email: string        // supplier’s email from backend
-  change_pct: number         // ← new
-  rating: number             // ← new
+  owner_email: string
+  change_pct: number    // decimal, e.g. 0.0123
+  rating: number
 }
 
 export default function SearchPage() {
@@ -21,14 +20,15 @@ export default function SearchPage() {
   const { query } = router.query as { query?: string }
   const [results, setResults] = useState<Product[]>([])
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError]     = useState<string | null>(null)
 
   useEffect(() => {
     if (!query) return
     setLoading(true)
+    setError(null)
     axios
       .get<Product[]>(
-        `http://localhost:8000/products/search?query=${encodeURIComponent(query)}`
+        `${process.env.NEXT_PUBLIC_API_URL}/products/search?query=${encodeURIComponent(query)}`
       )
       .then(res => setResults(res.data))
       .catch(() => setError('Failed to load search results'))
@@ -36,72 +36,112 @@ export default function SearchPage() {
   }, [query])
 
   return (
-    <div className="max-w-5xl mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">
+    <div className="px-4 py-6 max-w-6xl mx-auto">
+      <h1 className="text-2xl font-semibold mb-4">
         Search results for “{query}”
       </h1>
 
       {loading && <p>Loading…</p>}
-      {error && <p className="text-red-600">{error}</p>}
+      {error   && <p className="text-red-600">{error}</p>}
       {!loading && !error && results.length === 0 && (
         <p className="text-gray-500">No suppliers found for “{query}”.</p>
       )}
 
       {results.length > 0 && (
-        <table className="min-w-full border-collapse mt-4">
-          <thead>
-            <tr className="bg-gray-200">
-              <th className="border px-4 py-2">Image</th>
-              <th className="border px-4 py-2">Product</th>
-              <th className="border px-4 py-2">Origin</th>
-              <th className="border px-4 py-2">Cost/kg</th>
-              <th className="border px-4 py-2">Supplier</th>
-              <th className="border px-4 py-2">Change %</th>
-              <th className="border px-4 py-2">Rating /10</th>
-              <th className="border px-4 py-2">Details</th>
-            </tr>
-          </thead>
-          <tbody>
-            {results.map((p, i) => (
-              <tr
-                key={p.id}
-                className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}
-              >
-                <td className="border px-4 py-2">
-                  <img
-                    src={
-                      p.image_url.startsWith('http')
-                        ? p.image_url
-                        : `http://localhost:8000${p.image_url}`
-                    }
-                    alt={p.title}
-                    className="h-10 w-10 object-cover rounded"
-                   />
-                </td>
-                <td className="border px-4 py-2">{p.title}</td>
-                <td className="border px-4 py-2">{p.origin_country}</td>
-                <td className="border px-4 py-2">
-                  ${p.price_per_kg.toFixed(2)}
-                </td>
-                <td className="border px-4 py-2">{p.owner_email}</td>
-                <td className="border px-4 py-2 text-green-600">
-                  {(p.change_pct * 100).toFixed(2)}%
-                </td>
-                <td className="border px-4 py-2 text-yellow-600">
-                  {p.rating.toFixed(1)}
-                </td>
-                <td className="border px-4 py-2">
-                  <Link
-                    href={`/products/${p.id}`}
-                    className="inline-block bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded"
+        <div className="overflow-x-auto bg-white shadow rounded-lg">
+          <table className="min-w-full divide-y divide-gray-200 table-auto">
+            <thead className="bg-gray-50">
+              <tr>
+                {[
+                  'Image','Product','Origin','Cost/kg',
+                  'Supplier','Change %','Rating / 10','Details'
+                ].map(col => (
+                  <th
+                    key={col}
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                   >
-                    View
-                  </Link>
-                </td>
+                    {col}
+                  </th>
+                ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {results.map(p => (
+                <tr key={p.id} className="hover:bg-gray-100">
+                  {/* Image */}
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {p.image_url ? (
+                      <Image
+                        src={
+                          p.image_url.startsWith('http')
+                            ? p.image_url
+                            : `${process.env.NEXT_PUBLIC_API_URL}${p.image_url}`
+                        }
+                        alt={p.title}
+                        width={40}
+                        height={40}
+                        className="rounded"
+                      />
+                    ) : (
+                      <div className="w-10 h-10 bg-gray-200 rounded flex items-center justify-center text-xs text-gray-500">
+                        No Img
+                      </div>
+                    )}
+                  </td>
+
+                  {/* Title */}
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {p.title}
+                  </td>
+
+                  {/* Origin */}
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {p.origin_country}
+                  </td>
+
+                  {/* Price */}
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    ${p.price_per_kg.toFixed(2)}
+                  </td>
+
+                  {/* Supplier */}
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {p.owner_email}
+                  </td>
+
+                  {/* Change % */}
+                  <td className="px-6 py-4 whitespace-nowrap text-sm">
+                    <span
+                      className={
+                        p.change_pct >= 0
+                          ? 'text-green-600 font-semibold'
+                          : 'text-red-600 font-semibold'
+                      }
+                    >
+                      {(p.change_pct * 100).toFixed(2)}%
+                    </span>
+                  </td>
+
+                  {/* Rating */}
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {p.rating.toFixed(1)}
+                  </td>
+
+                  {/* Details */}
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
+                    <Link
+                      href={`/products/${p.id}`}
+                      className="inline-block px-3 py-1 bg-primary hover:bg-primaryHover text-white rounded-full text-xs"
+                    >
+                      View
+                    </Link>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   )

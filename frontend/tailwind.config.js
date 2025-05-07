@@ -6,8 +6,18 @@ export default {
     "./app/**/*.{js,ts,jsx,tsx}"
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        // Use Inter throughout
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+      },
+      colors: {
+        // Your softer blue tokens
+        primary: '#4A90E2',
+        primaryHover: '#357ABD',
+      },
+    },
   },
   plugins: [],
-};
+}
 

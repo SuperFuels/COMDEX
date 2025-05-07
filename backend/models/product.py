@@ -1,5 +1,3 @@
-# backend/models/product.py
-
 from sqlalchemy import Column, Integer, String, Float, ForeignKey
 from sqlalchemy.orm import relationship
 from database import Base
@@ -10,10 +8,10 @@ class Product(Base):
     id             = Column(Integer, primary_key=True, index=True)
     title          = Column(String, nullable=False)
     origin_country = Column(String, nullable=False)
-    price_per_kg   = Column(Float, nullable=False)
     category       = Column(String, nullable=False)
     description    = Column(String, nullable=False)
     image_url      = Column(String, nullable=False)
+    price_per_kg   = Column(Float, nullable=False)
     owner_email    = Column(String, ForeignKey("users.email"), nullable=False)
 
     # ─── NEW FIELDS ──────────────────────────
@@ -31,8 +29,10 @@ class Product(Base):
     def __repr__(self):
         return (
             f"<Product("
-            f"id={self.id!r}, title={self.title!r}, price_per_kg={self.price_per_kg!r}, "
-            f"owner_email={self.owner_email!r}, change_pct={self.change_pct!r}, rating={self.rating!r}"
+            f"id={self.id!r}, title={self.title!r}, origin_country={self.origin_country!r}, "
+            f"category={self.category!r}, price_per_kg={self.price_per_kg!r}, "
+            f"owner_email={self.owner_email!r}, change_pct={self.change_pct!r}, "
+            f"rating={self.rating!r}"
             f")>"
         )
 

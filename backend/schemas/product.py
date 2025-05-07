@@ -9,8 +9,8 @@ class ProductBase(BaseModel):
     description: str
     image_url: str
     price_per_kg: float
-    change_pct: float = 0.0   # new field
-    rating: float = 0.0       # new field
+    change_pct: float = 0.0
+    rating: float = 0.0
 
 class ProductCreate(ProductBase):
     """
@@ -24,6 +24,7 @@ class ProductOut(ProductBase):
     """
     id: int
     owner_email: EmailStr
+    owner_wallet_address: str    # ← newly added field
 
     class Config:
         orm_mode = True

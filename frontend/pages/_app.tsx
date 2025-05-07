@@ -1,20 +1,23 @@
 // frontend/pages/_app.tsx
-
 import '../styles/globals.css'
 import type { AppProps } from 'next/app'
-import Navbar from '@/components/Navbar'
-import SwapPanel from '@/components/Swap'
+import Navbar from '../components/Navbar'
+import SwapBar from '../components/SwapBar'
 
-function MyApp({ Component, pageProps }: AppProps) {
+export default function MyApp({ Component, pageProps }: AppProps) {
   return (
     <>
+      {/* Main header */}
       <Navbar />
-      {/* only one SwapPanel here, sticks under Navbar on every page */}
-      <SwapPanel />
+
+      {/* Sticky swap bar, positioned immediately below the 64px-high navbar */}
+      <div className="sticky top-16 z-20 bg-gray-50">
+        <SwapBar />
+      </div>
+
+      {/* Page content */}
       <Component {...pageProps} />
     </>
   )
 }
-
-export default MyApp
 
