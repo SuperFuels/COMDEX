@@ -1,4 +1,4 @@
-// pages/login.tsx
+// frontend/pages/login.tsx
 
 import React, { useState } from 'react';
 import axios from 'axios';
@@ -45,7 +45,7 @@ export default function LoginPage() {
       } else if (role === 'supplier') {
         router.push('/dashboard');
       } else {
-        router.push('/buyer/dashboard');
+        router.push('/'); // Buyers go straight to the Marketplace
       }
     } catch (err: any) {
       // Display API errors if any

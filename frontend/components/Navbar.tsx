@@ -1,4 +1,5 @@
 // frontend/components/Navbar.tsx
+
 import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
@@ -78,40 +79,37 @@ export default function Navbar() {
           <div className="flex items-center space-x-6">
             {!isLoggedIn ? (
               <>
-                <Link href="/login" className="text-sm font-medium text-gray-700 hover:text-gray-900">
+                <Link href="/login" className="text-sm font-medium text-gray-700 hover:underline">
                   Login
                 </Link>
-                <Link href="/register/supplier" className="text-sm font-medium text-gray-700 hover:text-gray-900">
+                <Link href="/register/supplier" className="text-sm font-medium text-gray-700 hover:underline">
                   Sell
                 </Link>
-                <Link href="/register/buyer" className="text-sm font-medium text-gray-700 hover:text-gray-900">
+                <Link href="/register/buyer" className="text-sm font-medium text-gray-700 hover:underline">
                   Buy
                 </Link>
               </>
             ) : (
               <>
                 {role === 'admin' && (
-                  <Link href="/admin/dashboard" className="text-sm font-medium text-gray-700 hover:text-gray-900">
+                  <Link href="/admin/dashboard" className="text-sm font-medium text-gray-700 hover:underline">
                     Admin
                   </Link>
                 )}
                 {role === 'supplier' && (
                   <>
-                    <Link href="/dashboard" className="text-sm font-medium text-gray-700 hover:text-gray-900">
+                    <Link href="/dashboard" className="text-sm font-medium text-gray-700 hover:underline">
                       Dashboard
                     </Link>
-                    <Link href="/products/create" className="text-sm font-medium text-gray-700 hover:text-gray-900">
+                    <Link href="/products/create" className="text-sm font-medium text-gray-700 hover:underline">
                       New Product
                     </Link>
                   </>
                 )}
                 {role === 'buyer' && (
                   <>
-                    <Link href="/" className="text-sm font-medium text-gray-700 hover:text-gray-900">
+                    <Link href="/" className="text-sm font-medium text-gray-700 hover:underline">
                       Marketplace
-                    </Link>
-                    <Link href="/dashboard" className="text-sm font-medium text-gray-700 hover:text-gray-900">
-                      Dashboard
                     </Link>
                   </>
                 )}
@@ -125,7 +123,7 @@ export default function Navbar() {
             )}
 
             {walletAddress ? (
-              <span className="px-3 py-1 bg-gray-100 rounded-full text-sm font-medium text-gray-800">
+              <span className="px-3 py-1 bg-gray-100 rounded-full text-sm font-medium text-gray-700">
                 {shortAddr}
               </span>
             ) : (
