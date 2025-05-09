@@ -1,336 +1,285 @@
-STICKEY Unified Handover & Reference
-Table of Contents
-Overview
+# How Everything Works — STICKEY Platform
 
-Architecture
+## Table of Contents
+1. [Overview](#overview)  
+2. [Architecture](#architecture)  
+3. [Authentication & Roles](#authentication--roles)  
+4. [Database Schemas](#database-schemas)  
+   1. [Users](#users)  
+   2. [Products](#products)  
+   3. [Deals](#deals)  
+   4. [Contracts](#contracts)  
+5. [Backend Endpoints](#backend-endpoints)  
+   1. [Auth (`/auth`)](#auth-auth)  
+   2. [Products (`/products`)](#products-products)  
+   3. [Deals (`/deals`)](#deals-deals)  
+   4. [Contracts (`/contracts`)](#contracts-contracts)  
+   5. [Admin (`/admin`)](#admin-admin)  
+   6. [Users (`/users`)](#users-users)  
+6. [Frontend Structure](#frontend-structure)  
+   1. [Pages](#pages)  
+   2. [Components](#components)  
+7. [Completed Features](#completed-features)  
+8. [Search & Search Results](#search--search-results)  
+9. [Quote & Deal Flow](#quote--deal-flow)  
+10. [AI Agent & Contract Engine](#ai-agent--contract-engine)  
+11. [Roadmap & Next Steps](#roadmap--next-steps)  
+12. [Dev Commands](#dev-commands)  
 
-Authentication & Roles
+---
 
-Database Schemas
+## 1. Overview
+COMDEX (front‑end branded **STICKEY**, ticker **$GLU**) is a next‑gen B2B commodity‑trading platform combining:
+- **AI**: autonomous agents for supplier matching & contract drafting  
+- **Blockchain**: on‑chain escrow & NFT certificates  
+- **Crypto‑native**: wallet binding, swap panel, token flows  
 
-Users
+**Mission**: Revolutionize global commodity trade with trust, automation, transparency.  
+**V1 Target**: Whey Protein (EU, USA, India, NZ)  
+**V2+**: Cocoa, coffee, olive oil, pea protein, spices, and beyond.
 
-Products
+---
 
-Deals
+## 2. Architecture
 
-Contracts
+[ Next.js Frontend ] ↔ [ FastAPI Backend ] ↔ [ PostgreSQL ]
+↑
+[ MetaMask + $GLU Wallet ]
+[ Alembic Migrations ]
+↑
+[ Polygon Amoy Testnet Escrow Contract ]
+(Future: COMDEX Chain)
 
-Backend Endpoints
-
-Auth (/auth)
-
-Products (/products)
-
-Deals (/deals)
-
-Contracts (/contracts)
-
-Admin (/admin)
-
-Users (/users)
-
-Frontend Structure
-
-Pages
-
-Components
-
-Completed Features
-
-Search & Search Results
-
-Quote & Deal Flow
-
-AI Agent & Contract Engine
-
-Roadmap & Next Steps
-
-Dev Commands
-
-1. Overview
-COMDEX (front‑end branded STICKEY, ticker $GLU) is a next‑gen B2B commodity‑trading platform combining:
-
-AI: autonomous agents for supplier matching & contract drafting
-
-Blockchain: on‑chain escrow & NFT certificates
-
-Crypto‑native: wallet binding, swap panel, token flows
-
-Mission: Revolutionize global commodity trade with trust, automation, transparency.
-V1 Target: Whey Protein (EU, USA, India, NZ)
-V2+: Cocoa, coffee, olive oil, pea protein, spices, and beyond.
-
-2. Architecture
-less
+markdown
 Copy
 Edit
-[ Next.js Frontend ] ←→ [ FastAPI Backend ] ←→ [ PostgreSQL ]
-           ↑                    ↑
-  [ MetaMask + $GLU Wallet ]   [ Alembic Migrations ]
-           ↑                    ↑
- [ Polygon Amoy Testnet Escrow Contract ] 
- (Future: COMDEX Chain)
-Frontend: Next.js + Tailwind CSS + TypeScript
 
-Backend: FastAPI + SQLAlchemy + Pydantic + WeasyPrint (PDF)
+- **Frontend**: Next.js + Tailwind CSS + TypeScript  
+- **Backend**: FastAPI + SQLAlchemy + Pydantic + WeasyPrint (PDF)  
+- **DB**: PostgreSQL  
+- **Blockchain**: Polygon Amoy testnet (escrow contract), future COMDEX Chain  
+- **AI**: OpenAI LLM integrations under `/agent` and `/contracts/generate`
 
-DB: PostgreSQL
+---
 
-Blockchain: Polygon Amoy (escrow contract), future COMDEX Chain
+## 3. Authentication & Roles
 
-AI: OpenAI LLM integrations under /agent and /contracts/generate
+- **JWT auth** via `/auth/register` & `/auth/login`  
+- **SIWE** (Sign‑In With Ethereum) wallet login & backend binding  
+- **Roles**: `admin` / `supplier` / `buyer`  
+- **Route guards** on both front‑end (React hook) & back‑end (FastAPI dependencies)  
+- **Dev stub** in v1: SIWE `/verify` always returns `role: "supplier"` for rapid testing  
 
-3. Authentication & Roles
-JWT auth via /auth/register & /auth/login
+**Demo credentials** (email/password):
+- Admin: `admin@example.com` / `admin123`  
+- Supplier: `supplier@example.com` / `supplypass`  
+- Buyer: `buyer@example.com` / `buyerpass`  
 
-Roles: admin / supplier / buyer
+---
 
-MetaMask wallet connect + backend binding (PATCH /users/me/wallet)
+## 4. Database Schemas
 
-Route guards on both front-end & back-end
+### 4.1 Users
+- `id` (PK)  
+- `name`  
+- `email` (nullable for wallet‑only users)  
+- `password_hash` (nullable for wallet‑only users)  
+- `role`: `admin` / `supplier` / `buyer`  
+- `wallet_address` (EIP‑55 normalized, nullable)  
+- `created_at`, `updated_at`
 
-Demo credentials:
+### 4.2 Products
+- `id` (PK)  
+- `owner_email` (FK → `users.email`)  
+- `title`, `description`  
+- `price_per_kg`  
+- `origin_country`, `category`  
+- `image_url`  
+- **New**: `change_pct` (FLOAT), `rating` (FLOAT)  
+- **New**: `batch_number`, `trace_id`, `certificate_url`, `blockchain_tx_hash`  
+- `created_at`
 
-Admin: admin@example.com / admin123
+### 4.3 Deals
+- `id` (PK)  
+- `buyer_id` (FK → `users.id`), `supplier_id` (FK → `users.id`)  
+- `product_id` (FK → `products.id`)  
+- `quantity_kg`, `total_price`  
+- `status`: `negotiation` → `confirmed` → `completed`  
+- `created_at`, `pdf_url`
 
-Supplier: supplier@example.com / supplypass
+### 4.4 Contracts
+- `id` (PK)  
+- `prompt` (TEXT)  
+- `generated_contract` (HTML/Markdown)  
+- `status`  
+- `pdf_url`  
+- `nft_metadata` (stub)  
 
-Buyer: buyer@example.com / buyerpass
+---
 
-4. Database Schemas
-4.1 Users
-id, name, email, password_hash
+## 5. Backend Endpoints
 
-role: admin/supplier/buyer
+### 5.1 Auth (`/auth`)
+| Method | Path         | Description                                  | Auth                 |
+|--------|--------------|----------------------------------------------|----------------------|
+| POST   | `/register`  | Register user (email/password + role)        | —                    |
+| POST   | `/login`     | Email/password login → JWT                   | —                    |
+| GET    | `/nonce`     | SIWE: issue nonce & EIP‑4361 message         | —                    |
+| POST   | `/verify`    | SIWE: verify signature → JWT + role          | —                    |
+| GET    | `/role`      | Validate JWT → `{ role }`                    | Bearer JWT           |
 
-wallet_address
+### 5.2 Products (`/products`)
+| Method | Path                 | Description                              | Auth                  |
+|--------|----------------------|------------------------------------------|-----------------------|
+| GET    | `/`                  | List all products                        | Public                |
+| GET    | `/search?query=…`    | Search products                          | Public                |
+| GET    | `/{id}`              | Single product details                   | Public                |
+| GET    | `/me`                | List supplier’s own products             | Bearer supplier JWT   |
+| POST   | `/`                  | Create product                           | Bearer supplier JWT   |
+| POST   | `/create`            | Create + file upload                     | Bearer supplier JWT   |
+| PUT    | `/{id}`              | Update product                           | Bearer supplier JWT   |
+| DELETE | `/{id}`              | Delete product                           | Bearer supplier JWT   |
 
-created_at, updated_at
+### 5.3 Deals (`/deals`)
+| Method | Path                     | Description                              | Auth                    |
+|--------|--------------------------|------------------------------------------|-------------------------|
+| GET    | `/`                      | List deals for current user              | Bearer JWT              |
+| POST   | `/`                      | Create deal (calculates total_price)     | Bearer JWT              |
+| GET    | `/{id}`                  | Get single deal                          | Bearer JWT + role‑guard |
+| GET    | `/{id}/pdf`              | Download deal summary as PDF             | Bearer JWT              |
+| PUT    | `/{id}/status`           | Update deal status                      | Bearer admin or parties |
+| POST   | `/{id}/release`          | Release funds on‑chain                   | Bearer buyer/supplier   |
 
-4.2 Products
-id, owner_email (FK → users.email)
+### 5.4 Contracts (`/contracts`)
+| Method | Path                        | Description                              | Auth                    |
+|--------|-----------------------------|------------------------------------------|-------------------------|
+| POST   | `/generate`                 | Draft via LLM                            | Bearer JWT              |
+| GET    | `/{id}`                     | Contract details                        | Bearer JWT              |
+| GET    | `/{id}/pdf`                 | Download contract as PDF                 | Bearer JWT              |
+| POST   | `/{id}/mint`                | Mint NFT (future)                       | Bearer JWT              |
 
-title, description, price_per_kg
+### 5.5 Admin (`/admin`)
+CRUD endpoints for all resources (users, products, deals, contracts).  
+Accessible only to `admin` role via JWT.
 
-origin_country, category, image_url
+### 5.6 Users (`/users`)
+| Method | Path                          | Description                           | Auth       |
+|--------|-------------------------------|---------------------------------------|------------|
+| PATCH  | `/me/wallet`                  | Bind MetaMask wallet to user          | Bearer JWT |
 
-New: change_pct (FLOAT), rating (FLOAT)
+---
 
-New: batch_number, trace_id, certificate_url, blockchain_tx_hash
+## 6. Frontend Structure
 
-created_at
+### 6.1 Pages
+/ → Home / Marketplace
+/search → Search results
+/products/[id] → Product detail
+/products/[id]/sample → Sample request form
+/products/[id]/zoom → Zoom request form
+/products/create → Create product
+/deals → (moved into Deal Flow tab)
+/deals/[id] → Deal detail + PDF download
+/contracts → Contracts list (stub)
+/contracts/[id] → Contract detail (stub)
+/login → Email/password login
+/register/supplier → Supplier sign‑up
+/register/buyer → Buyer sign‑up
+/dashboard → Supplier dashboard
+/buyer/dashboard → Buyer dashboard
+/admin/dashboard → Admin panel
 
-4.3 Deals
-id, buyer_id (FK → users.id), supplier_id
-
-product_id (FK → products.id)
-
-quantity_kg, total_price
-
-status: negotiation → confirmed → completed
-
-created_at, pdf_url
-
-4.4 Contracts
-id, prompt (TEXT), generated_contract (HTML/Markdown)
-
-status, pdf_url, nft_metadata (stub)
-
-5. Backend Endpoints
-5.1 Auth (/auth)
-POST /register → user + JWT
-
-POST /login → { access_token, token_type }
-
-GET /role (Bearer) → { role }
-
-5.2 Products (/products)
-Public
-
-GET /products → all products (includes change_pct, rating)
-
-GET /products/search?query=…
-
-GET /products/{id}
-
-Authenticated (supplier)
-
-GET /products/me → own products
-
-POST /products → create
-
-POST /products/create → multipart file upload
-
-PUT /products/{id}, DELETE /products/{id}
-
-5.3 Deals (/deals)
-GET /deals → list for current user
-
-POST /deals → create (calculates total_price)
-
-GET /deals/{id} → single deal (role‑guarded)
-
-GET /deals/{id}/pdf → PDF summary
-
-5.4 Contracts (/contracts)
-POST /contracts/generate → draft via LLM
-
-GET /contracts/{id} → details
-
-GET /contracts/{id}/pdf → PDF stream
-
-POST /contracts/{id}/mint → mint NFT (future)
-
-5.5 Admin (/admin)
-CRUD all users, products, deals, contracts
-
-5.6 Users (/users)
-PATCH /users/me/wallet → bind MetaMask wallet
-
-(future) profile updates
-
-6. Frontend Structure
-6.1 Pages
-bash
+markdown
 Copy
 Edit
-/                    Home (Marketplace + chart + table)
-/search              Search results table
-/products/[id]       Product detail (+ Lock‑in, Sample, Zoom buttons)
-/products/[id]/sample  Sample Request form
-/products/[id]/zoom    Zoom Request form
-/products/create     Create Product
-/deals               (moved into “Deal Flow” tab)
-/deals/[id]          Deal detail + PDF link
-/contracts           Contracts list (stub)
-/contracts/[id]      Contract detail (stub)
-/login               Login form
-/register/supplier   Supplier sign‑up
-/register/buyer     Buyer sign‑up
-/dashboard           Role‑based dashboard (supplier & buyer)
-/admin/dashboard     Admin panel
-6.2 Components
-Navbar: logo, search, auth links, wallet connect (sticky)
 
-SwapBar: inline amount/token swap UI (sticky below Navbar)
+### 6.2 Components
+- **Navbar**: logo, search, auth links, wallet connect (sticky)  
+- **SwapBar**: inline amount/token swap UI (sticky)  
+- **Chart**: Recharts line‑chart component  
+- **ProductCard**: card with image, price, change%, rating, details link  
+- **QuoteModal**: quantity input → create deal  
+- **Sidebar**: filters & selected commodity  
+- **DashboardTabs**: tabs for deals/contracts per role  
 
-Chart: Recharts line chart component
+---
 
-ProductCard: card with image, price, change%, rating, tags, Chart link
+## 7. Completed Features
+- 🌐 Public marketplace with listings & filters  
+- 🖼️ Image upload & display for products  
+- 🔐 Email/password JWT auth & role‑based guards  
+- 🦊 MetaMask wallet connect & SIWE flow (DEV stub)  
+- 📝 Product CRUD (supplier)  
+- 📋 Deal creation & status workflow  
+- 📄 PDF generation (WeasyPrint) for deals & contracts  
+- ⚖️ Admin panel for full CRUD  
+- 🔄 Sticky SwapPanel (dummy)  
+- 🚀 Polygon Amoy escrow contract integration (testnet)  
+- 📊 Live charts with stub data  
+- 📑 Sample & Zoom request pages  
 
-QuoteModal: quantity input → create deal
+---
 
-Sidebar: filters & selected commodity
+## 8. Search & Search Results
+- `/search` page shows a table with:  
+  - Image | Title | Origin | Price/kg | Supplier | Change % | Rating /10 | Details  
 
-DashboardTabs: buyer “Deal Flow” etc.
+---
 
-7. Completed Features
-🌐 Public marketplace: listing + filters
+## 9. Quote & Deal Flow
+- On `/products/[id]`, “Lock in GLU Quote” opens **QuoteModal**  
+- Buyers confirm quantity → POST `/deals` → redirect to `/buyer/dashboard`  
+- **Buyer Dashboard** tabbed interface replaces old `/deals` page  
 
-🖼️ Image upload for products
+---
 
-🔐 JWT auth + role‑based guards
+## 10. AI Agent & Contract Engine
+- **AgentBar** stub on `/contracts` → POST `/contracts/generate` → save draft  
+- Contracts pages allow review & PDF download  
 
-🦊 MetaMask wallet binding
+---
 
-📝 Product CRUD (supplier)
+## 11. Roadmap & Next Steps
 
-📋 Deals CRUD + status flow
+### Phase 2: Core Flows & Polish
+1. Restrict `useAuthRedirect` to page‑level only (remove from layout)  
+2. Harden SIWE real‑world flow (remove DEV stub)  
+3. Add registration UIs (`/register/*`)  
+4. Enhanced search filters (rating, tags, regions)  
+5. SwapPanel → real on‑chain swap & deal creation  
+6. Multi‑image uploads & NFT certificate viewer  
 
-📄 PDF generation (WeasyPrint)
+### Phase 3: On‑chain & Integrations
+- Real swap engine & escrow interactions  
+- Live price feeds → dynamic `change_pct`  
+- Shipping API & QR tracking  
+- Stripe + WalletConnect payments  
 
-⚖️ Admin panel
+### Phase 4: AI & Automation
+- Autonomous negotiation agents  
+- Messaging & dispute resolution  
+- Rich contract templates & styling  
 
-🔄 SwapPanel (dummy) + sticky layout
+### Phase 5: Governance & Expansion
+- Launch COMDEX Chain (Polygon fork)  
+- Governance token (CDXT), staking & DAO  
+- Mobile apps & global expansion  
 
-🚀 Escrow contract on Polygon Amoy testnet
+---
 
-📊 Live charts (stub data)
+## 12. Dev Commands
 
-📑 Sample Request page
-
-📹 Zoom Request page
-
-8. Search & Search Results
-/search table with columns: Image | Product | Origin | Cost/kg | Supplier | Change % | Rating /10 | Details
-
-9. Quote & Deal Flow
-Product details → “Lock in GLU Quote” button → open QuoteModal
-
-New “Deal Flow” tab on Buyer Dashboard replaces /deals page
-
-Buyers view and manage all deals under tabbed interface
-
-10. AI Agent & Contract Engine
-Stub: AgentBar → POST /contracts/generate → save draft
-
-Contract pages (/contracts/[id]) to review & download PDF
-
-11. Roadmap & Next Steps
-Phase 2: Polish & Core Flows
-Registration UIs: /register/supplier, /register/buyer
-
-Role dashboards refinement
-
-Search filters: rating, tags, regions
-
-SwapPanel “Swap” → create deal
-
-Multi-image uploads & NFT certificate explorer
-
-New Feature Proposal: Blockchain-Based Trust System
-“TrustlessTrust” – tokenized real‑world assets held in smart‑contract trusts with programmable beneficiaries and revenue streams.
-
-Asset Tokenization: NFTs for deeds, IP, artwork
-
-Smart Trust: Solidity contracts enforce distribution rules
-
-Streaming Income: e.g. Superfluid, DeFi yields
-
-Legal Wrapper: Wyoming DAO law, Swiss trusts
-
-Phase 3: On‑chain & Integrations
-Real swap engine (Web3 + escrow)
-
-Live commodity price feeds → real change_pct
-
-Product passports & NFT certificates
-
-Shipping API & QR tracking
-
-Stripe + WalletConnect payments
-
-Phase 4: AI & Automation
-Autonomous trade agents & negotiation
-
-Messaging & dispute workflows
-
-Rich contract templates & styling
-
-Phase 5: Governance & Expansion
-COMDEX Chain (Polygon fork)
-
-Governance token (CDXT), staking
-
-CDN & mobile apps
-
-New commodity verticals & digital goods
-
-12. Dev Commands
-Backend
-bash
-Copy
-Edit
+### Backend
+```bash
 cd ~/Desktop/Comdex/backend
-source venv/bin/activate
+source .venv/bin/activate
 uvicorn main:app --reload
 
 # DB migrations
-alembic revision --autogenerate -m "add change_pct & rating to products"
+alembic revision --autogenerate -m "add new fields"
 alembic upgrade head
 
-# Restart if stuck
+# Kill & restart if port stuck
 lsof -n -iTCP:8000 | awk 'NR>1 {print $2}' | xargs --no-run-if-empty kill -9
 uvicorn main:app --reload
 Frontend
@@ -338,20 +287,23 @@ bash
 Copy
 Edit
 cd ~/Desktop/Comdex/frontend
-npm install       # or yarn
-npm run dev       # or yarn dev
+npm install        # or yarn
+npm run dev        # or yarn dev
+Environment (.env.local):
 
-# Tailwind config & next.config.js updated for custom colors, fonts, remotePatterns
-# Env vars required:
-#   NEXT_PUBLIC_API_URL
-#   NEXT_PUBLIC_GLU_TOKEN_ADDRESS
-#   NEXT_PUBLIC_ESCROW_ADDRESS
-Creating & Opening Files
+env
+Copy
+Edit
+NEXT_PUBLIC_API_URL=http://localhost:8000
+NEXT_PUBLIC_GLU_TOKEN_ADDRESS=0x5FbDB2315678afecb367f032d93F642f64180aa3
+NEXT_PUBLIC_ESCROW_ADDRESS=0xe7f1725e7734ce288f8367e1bb143e90bb3f0512
+NEXT_PUBLIC_WEB3_PROVIDER_URL=http://127.0.0.1:8545
+Editing Files:
+
 bash
 Copy
 Edit
-# Dashboard, pages, components
 nano pages/dashboard.tsx
-nano pages/products/[id].tsx
-nano components/SwapBar.tsx
-nano components/Chart.tsx
+nano pages/buyer/dashboard.tsx
+nano components/Navbar.tsx
+nano lib/api.ts
