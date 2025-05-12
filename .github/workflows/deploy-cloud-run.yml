@@ -2,16 +2,14 @@ name: Build & Deploy to Cloud Run
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-
     steps:
-      # 1) Check out the code
+      # 1) Check out your code
       - name: Checkout code
         uses: actions/checkout@v3
 
@@ -21,15 +19,15 @@ jobs:
         with:
           credentials_json: '${{ secrets.GCP_SA_KEY }}'
 
-      # 3) Install the gcloud SDK (including beta components)
-      - name: Set up gcloud SDK
+      # 3) Install gcloud SDK
+      - name: Set up gcloud
         uses: google-github-actions/setup-gcloud@v1
         with:
-          project_id: ${{ secrets.GCP_PROJECT }}
+          project_id: '${{ secrets.GCP_PROJECT }}'
           install_components: 'beta'
 
-      # 4) Configure Docker to push to Artifact Registry
-      - name: Configure Docker for Artifact Registry
+      # 4) Configure Docker for Artifact Registry
+      - name: Configure Docker
         run: |
           gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
 
@@ -41,7 +39,7 @@ jobs:
             -f backend/Dockerfile \
             .
 
-      # 6) Push the image to Artifact Registry
+      # 6) Push to Artifact Registry
       - name: Push to Artifact Registry
         run: |
           docker push us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/comdex-api/comdex-api:${{ github.sha }}
@@ -54,9 +52,4 @@ jobs:
             --region us-central1 \
             --platform managed \
             --allow-unauthenticated \
-            --set-env-vars \
-WEB3_PROVIDER_URL=${{ secrets.WEB3_PROVIDER_URL }},\
-ESCROW_CONTRACT_ADDRESS=${{ secrets.ESCROW_CONTRACT_ADDRESS }},\
-DEPLOYER_PRIVATE_KEY=${{ secrets.DEPLOYER_PRIVATE_KEY }},\
-OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }},\
-CORS_ALLOWED_ORIGINS=${{ secrets.CORS_ALLOWED_ORIGINS }}
+            --set-env-vars WEB3_PROVIDER_URL=${{ secrets.WEB3_PROVIDER_URL }},ESCROW_CONTRACT_ADDRESS=${{ secrets.ESCROW_CONTRACT_ADDRESS }},DEPLOYER_PRIVATE_KEY=${{ secrets.DEPLOYER_PRIVATE_KEY }},OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }},CORS_ALLOWED_ORIGINS=${{ secrets.CORS_ALLOWED_ORIGINS }}
