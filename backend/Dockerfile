@@ -1,5 +1,7 @@
 FROM python:3.11-slim
 WORKDIR /srv
+
+# install OS packages for psycopg2, WeasyPrint & CFFI
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
       build-essential \
@@ -13,9 +15,14 @@ RUN apt-get update \
       shared-mime-info \
  && rm -rf /var/lib/apt/lists/*
 
+# copy & install Python deps
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# copy rest of the code
 COPY . .
+
 EXPOSE 8080
+
+# ← shell form so $PORT is expanded correctly at runtime
 CMD uvicorn main:app --host 0.0.0.0 --port \${PORT:-8080}
