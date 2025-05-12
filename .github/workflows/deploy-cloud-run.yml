@@ -8,53 +8,48 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+
     steps:
-      # 1) Check out your code
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # 2) Authenticate to GCP
       - name: Authenticate to GCP
         uses: google-github-actions/auth@v1
         with:
-          credentials_json: \${{ secrets.GCP_SA_KEY }}
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
 
-      # 3) Install gcloud SDK
       - name: Set up gcloud SDK
         uses: google-github-actions/setup-gcloud@v1
         with:
-          project_id: \${{ secrets.GCP_PROJECT }}
+          project_id: ${{ secrets.GCP_PROJECT }}
           install_components: 'beta'
 
-      # 4) Configure Docker for Artifact Registry
       - name: Configure Docker for Artifact Registry
         run: |
           gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
 
-      # 5) Build the Docker image (use backend/ as context)
       - name: Build Docker image
         run: |
+          # build *from* the backend folder so COPY requirements.txt sees the right file
           docker build \
-            -t us-central1-docker.pkg.dev/\${{ secrets.GCP_PROJECT }}/comdex-api/comdex-api:\${{ github.sha }} \
+            -t us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/comdex-api/comdex-api:${{ github.sha }} \
             -f backend/Dockerfile \
             backend
 
-      # 6) Push to Artifact Registry
       - name: Push to Artifact Registry
         run: |
-          docker push us-central1-docker.pkg.dev/\${{ secrets.GCP_PROJECT }}/comdex-api/comdex-api:\${{ github.sha }}
+          docker push us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/comdex-api/comdex-api:${{ github.sha }}
 
-      # 7) Deploy to Cloud Run
       - name: Deploy to Cloud Run
         run: |
           gcloud run deploy comdex-api \
-            --image us-central1-docker.pkg.dev/\${{ secrets.GCP_PROJECT }}/comdex-api/comdex-api:\${{ github.sha }} \
+            --image us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/comdex-api/comdex-api:${{ github.sha }} \
             --region us-central1 \
             --platform managed \
             --allow-unauthenticated \
             --set-env-vars \
-              WEB3_PROVIDER_URL=\${{ secrets.WEB3_PROVIDER_URL }},\
-ESCROW_CONTRACT_ADDRESS=\${{ secrets.ESCROW_CONTRACT_ADDRESS }},\
-DEPLOYER_PRIVATE_KEY=\${{ secrets.DEPLOYER_PRIVATE_KEY }},\
-OPENAI_API_KEY=\${{ secrets.OPENAI_API_KEY }},\
-CORS_ALLOWED_ORIGINS=\${{ secrets.CORS_ALLOWED_ORIGINS }}
+              WEB3_PROVIDER_URL=${{ secrets.WEB3_PROVIDER_URL }},\
+              ESCROW_CONTRACT_ADDRESS=${{ secrets.ESCROW_CONTRACT_ADDRESS }},\
+              DEPLOYER_PRIVATE_KEY=${{ secrets.DEPLOYER_PRIVATE_KEY }},\
+              OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }},\
+              CORS_ALLOWED_ORIGINS=${{ secrets.CORS_ALLOWED_ORIGINS }}
