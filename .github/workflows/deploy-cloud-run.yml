@@ -1,6 +1,5 @@
 name: Build & Deploy to Cloud Run
 
-# so you can also trigger it manually:
 on:
   push:
     branches: [ main ]
@@ -27,11 +26,12 @@ jobs:
           project_id: ${{ secrets.GCP_PROJECT }}
           install_components: beta
 
-      # 4) Configure Docker to push to Artifact Registry
+      # 4) Configure Docker for Artifact Registry
       - name: Configure Docker
-        run: gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
+        run: |
+          gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
 
-      # 5) Build the container
+      # 5) Build the Docker image
       - name: Build Docker image
         run: |
           docker build \
