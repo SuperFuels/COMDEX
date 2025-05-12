@@ -1,0 +1,32 @@
+# backend/Dockerfile
+
+# CACHE-BUST: 2025-05-12  # force Docker to re-run COPY layer on each build
+FROM python:3.11-slim
+
+WORKDIR /srv
+
+# install OS packages for psycopg2, WeasyPrint & CFFI
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+      build-essential \
+      libpq-dev \
+      libcairo2 \
+      libpango-1.0-0 \
+      libpangocairo-1.0-0 \
+      libgdk-pixbuf2.0-0 \
+      libglib2.0-0 \
+      libffi-dev \
+      shared-mime-info \
+ && rm -rf /var/lib/apt/lists/*
+
+# copy & install Python deps
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# copy rest of the code
+COPY . .
+
+EXPOSE 8080
+
+# shell form so $PORT is expanded at runtime
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "${PORT:-8080}"]
