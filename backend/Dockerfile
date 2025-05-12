@@ -1,6 +1,5 @@
 # backend/Dockerfile
 
-# CACHE-BUST: 2025-05-12  # force Docker to re-run COPY layer on each build
 FROM python:3.11-slim
 
 WORKDIR /srv
@@ -19,14 +18,13 @@ RUN apt-get update \
       shared-mime-info \
  && rm -rf /var/lib/apt/lists/*
 
-# copy & install Python deps
-COPY requirements.txt .
+# copy & install your backend Python deps
+COPY backend/requirements.txt requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-# copy rest of the code
-COPY . .
+# copy only the backend code into /srv
+COPY backend/ .
 
 EXPOSE 8080
 
-# shell form so $PORT is expanded at runtime
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "${PORT:-8080}"]
