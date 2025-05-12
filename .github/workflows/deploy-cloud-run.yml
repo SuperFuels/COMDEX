@@ -13,13 +13,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # 2) Authenticate with GCP
+      # 2) Authenticate to GCP
       - name: Authenticate to GCP
         uses: google-github-actions/auth@v1
         with:
           credentials_json: '${{ secrets.GCP_SA_KEY }}'
 
-      # 3) Install gcloud
+      # 3) Install gcloud SDK
       - name: Set up gcloud SDK
         uses: google-github-actions/setup-gcloud@v1
         with:
@@ -53,4 +53,3 @@ jobs:
             --allow-unauthenticated \
             --set-env-vars \
 WEB3_PROVIDER_URL=${{ secrets.WEB3_PROVIDER_URL }},ESCROW_CONTRACT_ADDRESS=${{ secrets.ESCROW_CONTRACT_ADDRESS }},DEPLOYER_PRIVATE_KEY=${{ secrets.DEPLOYER_PRIVATE_KEY }},OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }},CORS_ALLOWED_ORIGINS=${{ secrets.CORS_ALLOWED_ORIGINS }}
-
