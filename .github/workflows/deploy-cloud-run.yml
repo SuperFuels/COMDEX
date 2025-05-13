@@ -1,5 +1,5 @@
+# .github/workflows/deploy-cloud-run.yml
 name: Build & Deploy to Cloud Run
-
 on:
   push:
     branches: [ main ]
@@ -8,31 +8,31 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-
     steps:
-      # 1) Check out the code
-      - name: Checkout code
+
+      # 1️⃣ Check out the code
+      - name: Checkout
         uses: actions/checkout@v3
 
-      # 2) Authenticate to GCP
-      - name: Authenticate to GCP
+      # 2️⃣ Authenticate to GCP
+      - name: GCP Auth
         uses: google-github-actions/auth@v1
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
 
-      # 3) Install gcloud
-      - name: Set up gcloud
+      # 3️⃣ Install & configure gcloud
+      - name: Setup gcloud
         uses: google-github-actions/setup-gcloud@v1
         with:
           project_id: ${{ secrets.GCP_PROJECT }}
           install_components: beta
 
-      # 4) Configure Docker for Artifact Registry
+      # 4️⃣ Let Docker push to Artifact Registry
       - name: Configure Docker
         run: |
           gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
 
-      # 5) Build the Docker image from backend/Dockerfile
+      # 5️⃣ Build your image
       - name: Build Docker image
         run: |
           docker build \
@@ -40,12 +40,12 @@ jobs:
             -f backend/Dockerfile \
             backend
 
-      # 6) Push the image
+      # 6️⃣ Push it
       - name: Push to Artifact Registry
         run: |
           docker push us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/comdex-api/comdex-api:${{ github.sha }}
 
-      # 7) Deploy to Cloud Run (all env vars on one line)
+      # 7️⃣ Deploy to Cloud Run (env-vars all on one line)
       - name: Deploy to Cloud Run
         run: |
           gcloud run deploy comdex-api \
