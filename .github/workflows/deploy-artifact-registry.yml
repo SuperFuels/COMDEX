@@ -1,4 +1,5 @@
 name: CD → Cloud Run (Artifact Registry)
+
 on:
   push:
     branches: [ main ]
@@ -7,30 +8,36 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
- - name: Checkout
+    steps:
+      - name: Checkout
         uses: actions/checkout@v3
- - name: GCP Auth
+
+      - name: GCP Auth
         uses: google-github-actions/auth@v1
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
- - name: Setup gcloud
+
+      - name: Setup gcloud
         uses: google-github-actions/setup-gcloud@v1
         with:
           project_id: ${{ secrets.GCP_PROJECT }}
           install_components: beta
-- name: Docker Auth
-        run: |
-          gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
- - name: Build image
+
+      - name: Docker Auth
+        run: gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
+
+      - name: Build image
         run: |
           docker build \
             -t us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/comdex-api/comdex-api:${{ github.sha }} \
-            -f backend/Dockerfile .
-- name: Push image
+            -f backend/Dockerfile \
+            .
+
+      - name: Push image
         run: |
           docker push us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/comdex-api/comdex-api:${{ github.sha }}
 
-- name: Deploy
+      - name: Deploy to Cloud Run
         run: |
           gcloud run deploy comdex-api \
             --image us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/comdex-api/comdex-api:${{ github.sha }} \
