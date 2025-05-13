@@ -21,23 +21,23 @@ from utils.auth import create_access_token, SECRET_KEY, ALGORITHM
 router = APIRouter(tags=["Auth"])
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/verify")
 
-# DEV‐only in-memory nonce store
+# DEV-only in-memory nonce store
 _nonces: Dict[str, str] = {}
 
 # Your one “supplier” wallet for testing
 DEV_SUPPLIER_WALLET = "0x70997970c51812dc3a010c7d01b50e0d17dc79c8".lower()
 
-#
-# Web3 (used only for recovering the SIWE signature)
-#
+# ─── Lazy Web3 connection ───
+def get_web3():
+    rpc_url = os.getenv("WEB3_PROVIDER_URL")
+    if not rpc_url:
+        raise RuntimeError("Missing WEB3_PROVIDER_URL in environment")
 
-RPC_URL = os.getenv("WEB3_PROVIDER_URL")
-if not RPC_URL:
-    raise RuntimeError("Missing WEB3_PROVIDER_URL in environment")
+    w3 = Web3(Web3.HTTPProvider(rpc_url))
+    if not w3.is_connected():
+        raise RuntimeError(f"Cannot connect to Web3 provider at {rpc_url}")
 
-W3 = Web3(Web3.HTTPProvider(RPC_URL))
-if not W3.is_connected():
-    raise RuntimeError(f"Cannot connect to Web3 provider at {RPC_URL}")
+    return w3
 
 
 class SiweVerifyBody(BaseModel):
@@ -76,43 +76,44 @@ def verify_siwe(
     db: Session = Depends(get_db),
 ):
     """
-    1) Extract wallet address from the 2nd line of the message  
-    2) Validate the nonce  
-    3) Recover signer & compare  
-    4) Lookup user by wallet_address  
-    5) Issue JWT with sub = numeric user.id
+    Verify a SIWE message and signature. Return a JWT.
     """
-    # 1) extract wallet
+    # 1) Extract wallet
     try:
         wallet = body.message.split("\n")[1].strip().lower()
     except IndexError:
-        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Malformed SIWE message")
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Malformed SIWE message")
 
-    # 2) validate nonce
+    # 2) Validate nonce
     try:
-        raw = next(l for l in body.message.splitlines() if l.startswith("Nonce:"))
+        raw = next(line for line in body.message.splitlines() if line.startswith("Nonce:"))
         nonce = raw.split("Nonce:")[1].strip()
     except StopIteration:
-        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Nonce not found")
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Nonce not found")
 
     if _nonces.get(wallet) != nonce:
-        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Invalid nonce")
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Invalid nonce")
 
-    # 3) recover signature
-    msg = encode_defunct(text=body.message)
-    signer = W3.eth.account.recover_message(msg, signature=body.signature)
+    # 3) Recover signature using lazy Web3
+    try:
+        w3 = get_web3()
+        msg = encode_defunct(text=body.message)
+        signer = w3.eth.account.recover_message(msg, signature=body.signature)
+    except Exception as e:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail=f"Signature recovery failed: {e}")
+
     if signer.lower() != wallet:
-        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Signature mismatch")
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Signature mismatch")
 
-    # 4) find the user in your DB
+    # 4) Find user
     user = db.query(User).filter(User.wallet_address == wallet).first()
     if not user:
         raise HTTPException(
             status.HTTP_404_NOT_FOUND,
-            "No user found for this wallet—insert one first"
+            detail="No user found for this wallet—insert one first"
         )
 
-    # 5) issue JWT with sub = user.id
+    # 5) Create token
     token = create_access_token(subject=str(user.id))
     return {"token": token, "role": user.role}
 
@@ -123,18 +124,17 @@ def get_user_role(
     db: Session = Depends(get_db),
 ):
     """
-    Read JWT sub as int, load that User, and return role.
+    Extracts user role from the JWT.
     """
     try:
         data = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        sub = data.get("sub")
-        user_id = int(sub)
+        user_id = int(data.get("sub"))
     except (JWTError, ValueError):
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid or expired token")
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired token")
 
     user = db.query(User).get(user_id)
     if not user:
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "User not found")
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="User not found")
 
     return {"role": user.role}
 
