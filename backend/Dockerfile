@@ -1,7 +1,10 @@
+# Use the slim Python base
 FROM python:3.11-slim
-WORKDIR /srv
 
-# install OS packages for psycopg2, WeasyPrint & CFFI
+# 1️⃣ Switch into /srv/backend so all COPY paths line up
+WORKDIR /srv/backend
+
+# 2️⃣ Install system-level deps for psycopg2, WeasyPrint & CFFI
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
       build-essential \
@@ -15,13 +18,17 @@ RUN apt-get update \
       shared-mime-info \
  && rm -rf /var/lib/apt/lists/*
 
-# copy & install Python deps
-COPY backend/requirements.txt requirements.txt
+# 3️⃣ Copy and install Python dependencies
+#    (requirements.txt lives at the root of this context)
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# copy rest of the code
+# 4️⃣ Copy the rest of your backend code
 COPY . .
 
-EXPOSE 8080
+# 5️⃣ Create the uploads dir for StaticFiles
+RUN mkdir -p uploaded_images
 
-CMD uvicorn main:app --host 0.0.0.0 --port ${PORT:-8080}
+# 6️⃣ Expose & launch
+EXPOSE 8080
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "${PORT:-8080}"]
