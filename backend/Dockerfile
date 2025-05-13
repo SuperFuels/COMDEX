@@ -16,7 +16,7 @@ RUN apt-get update \
  && rm -rf /var/lib/apt/lists/*
 
 # copy & install Python deps
-COPY requirements.txt .
+COPY backend/requirements.txt requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
 # copy rest of the code
@@ -24,5 +24,4 @@ COPY . .
 
 EXPOSE 8080
 
-# ← shell form so $PORT is expanded correctly at runtime
-CMD uvicorn main:app --host 0.0.0.0 --port \${PORT:-8080}
+CMD uvicorn main:app --host 0.0.0.0 --port ${PORT:-8080}
