@@ -1,44 +1,37 @@
-# cloudbuild.yaml
 substitutions:
   _SERVICE: comdex
   _REGION: us-central1
 
 steps:
-  # 1️⃣ Build the container image from your backend/Dockerfile, using `backend` as the context
-  - name: "gcr.io/cloud-builders/docker"
+  # Build the container from the repo root
+  - name: 'gcr.io/cloud-builders/docker'
     args:
       [
         "build",
         "-f", "backend/Dockerfile",
         "-t", "gcr.io/$PROJECT_ID/$_SERVICE:$SHORT_SHA",
-        "backend"
+        "."
       ]
 
-  # 2️⃣ Push the image into Container Registry
-  - name: "gcr.io/cloud-builders/docker"
+  # Push to GCR
+  - name: 'gcr.io/cloud-builders/docker'
     args:
       [
         "push",
         "gcr.io/$PROJECT_ID/$_SERVICE:$SHORT_SHA"
       ]
 
-  # 3️⃣ Deploy that image to Cloud Run
-  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
-    entrypoint: "gcloud"
+  # Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
     args:
       [
-        "run",
-        "deploy",
-        "$_SERVICE",
-        "--image",
-        "gcr.io/$PROJECT_ID/$_SERVICE:$SHORT_SHA",
-        "--region",
-        "$_REGION",
-        "--platform",
-        "managed",
+        "run", "deploy", "$_SERVICE",
+        "--image", "gcr.io/$PROJECT_ID/$_SERVICE:$SHORT_SHA",
+        "--region", "$_REGION",
+        "--platform", "managed",
         "--allow-unauthenticated",
-        "--port",
-        "8080"
+        "--port", "8080"
       ]
 
 images:
