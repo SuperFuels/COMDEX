@@ -18,8 +18,8 @@ RUN apt-get update \
       shared-mime-info \
  && rm -rf /var/lib/apt/lists/*
 
-# 3️⃣ Copy and install Python dependencies
-#    (requirements.txt lives at the root of this context)
+# 3️⃣ Copy & install Python dependencies
+#    (requirements.txt lives at the repo root when we build from backend/)
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
@@ -33,3 +33,4 @@ RUN mkdir -p uploaded_images
 EXPOSE 8080
 # run via shell so $PORT is interpolated
 CMD sh -c "uvicorn main:app --host 0.0.0.0 --port ${PORT:-8080}"
+
