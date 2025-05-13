@@ -47,4 +47,4 @@ jobs:
             --platform managed \
             --allow-unauthenticated \
             --add-cloudsql-instances=${{ secrets.CLOUDSQL_CONNECTION_NAME }} \
-            --set-env-vars DATABASE_URL=${{ secrets.DATABASE_URL }},WEB3_PROVIDER_URL=${{ secrets.WEB3_PROVIDER_URL }},ESCROW_CONTRACT_ADDRESS=${{ secrets.ESCROW_CONTRACT_ADDRESS }},DEPLOYER_PRIVATE_KEY=${{ secrets.DEPLOYER_PRIVATE_KEY }},OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }},CORS_ALLOWED_ORIGINS=${{ secrets.CORS_ALLOWED_ORIGINS }}
+            --set-env-vars=DATABASE_URL=${{ secrets.DATABASE_URL }},WEB3_PROVIDER_URL=${{ secrets.WEB3_PROVIDER_URL }},ESCROW_CONTRACT_ADDRESS=${{ secrets.ESCROW_CONTRACT_ADDRESS }},DEPLOYER_PRIVATE_KEY=${{ secrets.DEPLOYER_PRIVATE_KEY }},OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }},CORS_ALLOWED_ORIGINS=${{ secrets.CORS_ALLOWED_ORIGINS }}
