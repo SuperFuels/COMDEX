@@ -1,11 +1,15 @@
 import os
+import time
 import logging
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import create_engine, text
 from sqlalchemy.exc import OperationalError
+
+# ─── Temporary Cloud Run cold start fix ─────
+time.sleep(3)  # Delay to let VPC and socket stabilize
 
 # ─── Import your routers ───────────────────
 from routes.auth      import router as auth_router
@@ -55,13 +59,13 @@ app.include_router(user_router,      prefix="/users",     tags=["Users"])
 
 # ─── Root & Health Endpoints ──────────────
 @app.get("/", tags=["Root"])
-def read_root():
+def read_root():   
     return {"message": "🚀 Welcome to the COMDEX API!"}
-
+        
 @app.get("/health", tags=["Health"])
 def health_check():
     db_url = os.getenv(
-        "DATABASE_URL",
+        "DATABASE_URL", 
         "postgresql://comdex:Wn8smx123@localhost:5432/comdex"
     )
     try:
