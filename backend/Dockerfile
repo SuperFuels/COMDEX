@@ -31,4 +31,5 @@ RUN mkdir -p uploaded_images
 
 # 6️⃣ Expose & launch
 EXPOSE 8080
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "${PORT:-8080}"]
+# run via shell so $PORT is interpolated
+CMD sh -c "uvicorn main:app --host 0.0.0.0 --port ${PORT:-8080}"
