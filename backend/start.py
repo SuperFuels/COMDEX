@@ -1,21 +1,22 @@
 # backend/start.py
 
-import os
 from dotenv import load_dotenv
+load_dotenv()            # pulls in backend/.env
+
+import os
 import uvicorn
 
-# Load environment variables from .env (for local development)
-load_dotenv()
+# import the FastAPI instance from main.py
+from main import app
 
 if __name__ == "__main__":
-    # Cloud Run injects PORT; default to 8080 for local dev
+    # Cloud Run will inject PORT; default to 8080 for local dev
     port = int(os.environ.get("PORT", 8080))
-
-    # Run the FastAPI app in main.py as "main:app"
     uvicorn.run(
-        "main:app",
+        app,                 # use the imported FastAPI app
         host="0.0.0.0",
         port=port,
-        reload=True,      # hot-reload during local development
+        reload=True,         # hot reload in local dev
         log_level="info"
     )
+
