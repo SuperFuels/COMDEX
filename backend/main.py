@@ -2,11 +2,15 @@ import os
 import time
 import logging
 
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import create_engine, text
 from sqlalchemy.exc import OperationalError
+
+# Load .env for local development
+load_dotenv()
 
 # Delay to let VPC and socket stabilize on cold start
 time.sleep(3)
@@ -65,7 +69,7 @@ app.include_router(user_router,      prefix="/users",     tags=["Users"])
 @app.get("/", tags=["Root"])
 def read_root():
     return {"message": "🚀 Welcome to the COMDEX API!"}
-    
+
 @app.get("/health", tags=["Health"])
 def health_check():
     db_url = os.getenv(
