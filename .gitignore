@@ -29,3 +29,8 @@ backend/.env
 # ignore local secret files
 /backend/.env
 
+__pycache__/
+*.py[cod]
+*.so
+
+/backend/.env
