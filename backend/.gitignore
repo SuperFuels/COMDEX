@@ -7,3 +7,8 @@ __pycache__/
 *.py[cod]
 *.so
 /backend/.env
+# local env files
+env.yaml
+env_vars.env
+cors_env.yaml
+*.env
