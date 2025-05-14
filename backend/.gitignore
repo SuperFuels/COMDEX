@@ -2,3 +2,8 @@
 .env
 .env
 env.yaml
+
+__pycache__/
+*.py[cod]
+*.so
+/backend/.env
