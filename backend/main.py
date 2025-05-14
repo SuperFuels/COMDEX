@@ -31,12 +31,16 @@ app = FastAPI(
 )
 
 # ─── Global CORS middleware ────────────────
+# Read comma-separated origins from env var, fallback to localhost defaults
+raw_origins = os.getenv(
+    "CORS_ALLOWED_ORIGINS", 
+    "http://localhost:3000,http://127.0.0.1:3000"
+)
+origins = [o.strip() for o in raw_origins.split(",") if o.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-    ],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -61,11 +65,11 @@ app.include_router(user_router,      prefix="/users",     tags=["Users"])
 @app.get("/", tags=["Root"])
 def read_root():   
     return {"message": "🚀 Welcome to the COMDEX API!"}
-        
+    
 @app.get("/health", tags=["Health"])
 def health_check():
     db_url = os.getenv(
-        "DATABASE_URL", 
+        "DATABASE_URL",
         "postgresql://comdex:Wn8smx123@localhost:5432/comdex"
     )
     try:
@@ -77,4 +81,3 @@ def health_check():
     except OperationalError:
         logger.error("❌ Database connection failed.", exc_info=True)
         return {"status": "error", "database": "not connected"}
-
