@@ -8,10 +8,10 @@ from fastapi.staticfiles import StaticFiles
 from sqlalchemy import create_engine, text
 from sqlalchemy.exc import OperationalError
 
-# ─── Temporary Cloud Run cold start fix ─────
-time.sleep(3)  # Delay to let VPC and socket stabilize
+# Delay to let VPC and socket stabilize on cold start
+time.sleep(3)
 
-# ─── Import your routers ───────────────────
+# Import routers
 from routes.auth      import router as auth_router
 from routes.products  import router as products_router
 from routes.deal      import router as deal_router
@@ -19,41 +19,41 @@ from routes.contracts import router as contracts_router
 from routes.admin     import router as admin_router
 from routes.user      import router as user_router
 
-# ─── Logging setup ─────────────────────────
+# Logging setup
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("comdex")
 
-# ─── FastAPI instantiation ─────────────────
+# FastAPI instantiation
 app = FastAPI(
     title="COMDEX API",
     version="1.0.0",
     description="Global Commodity Marketplace API",
 )
 
-# ─── Global CORS middleware ────────────────
-# Read comma-separated origins from env var, fallback to localhost defaults
+# Read CORS origins from env var (comma‑separated)
 raw_origins = os.getenv(
-    "CORS_ALLOWED_ORIGINS", 
+    "CORS_ALLOWED_ORIGINS",
     "http://localhost:3000,http://127.0.0.1:3000"
 )
-origins = [o.strip() for o in raw_origins.split(",") if o.strip()]
+allowed_origins = [o.strip() for o in raw_origins.split(",") if o.strip()]
 
+# Global CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# ─── Serve uploaded images ─────────────────
+# Serve uploaded images
 app.mount(
     "/uploaded_images",
     StaticFiles(directory="uploaded_images"),
     name="uploaded_images",
 )
 
-# ─── Mount all routers under their prefixes ─
+# Register routers
 app.include_router(auth_router,      prefix="/auth",      tags=["Auth"])
 app.include_router(products_router,  prefix="/products",  tags=["Products"])
 app.include_router(deal_router,      prefix="/deals",     tags=["Deals"])
@@ -61,11 +61,11 @@ app.include_router(contracts_router, prefix="/contracts", tags=["Contracts"])
 app.include_router(admin_router,     prefix="/admin",     tags=["Admin"])
 app.include_router(user_router,      prefix="/users",     tags=["Users"])
 
-# ─── Root & Health Endpoints ──────────────
+# Root & Health Endpoints
 @app.get("/", tags=["Root"])
-def read_root():   
+def read_root():
     return {"message": "🚀 Welcome to the COMDEX API!"}
-    
+
 @app.get("/health", tags=["Health"])
 def health_check():
     db_url = os.getenv(
@@ -81,3 +81,4 @@ def health_check():
     except OperationalError:
         logger.error("❌ Database connection failed.", exc_info=True)
         return {"status": "error", "database": "not connected"}
+
