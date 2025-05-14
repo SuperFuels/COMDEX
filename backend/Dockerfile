@@ -35,5 +35,5 @@ RUN mkdir -p uploaded_images
 EXPOSE 8080
 
 # Launch Uvicorn directly so we bind to $PORT and get clear logs
-ENTRYPOINT ["sh", "-c", "exec uvicorn main:app --host 0.0.0.0 --port ${PORT:-8080} --log-level info"]
+ENTRYPOINT ["sh", "-c", "exec uvicorn main:app --host 0.0.0.0 --port ${PORT:-8080}"]
 

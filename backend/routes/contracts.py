@@ -20,7 +20,7 @@ from models.user import User
 # Load environment variables from .env, if present
 load_dotenv()
 
-router = APIRouter(tags=["Contracts"])
+router = APIRouter(prefix="/contracts", tags=["Contracts"])
 
 # ─── Configure OpenAI client ──────────────────────
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -30,11 +30,7 @@ if not OPENAI_API_KEY:
 client = OpenAI(api_key=OPENAI_API_KEY)
 
 
-@router.get(
-    "/",
-    response_model=List[ContractOut],
-    summary="List all contracts"
-)
+@router.get("/", response_model=List[ContractOut], summary="List all contracts")
 def list_contracts(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -49,7 +45,7 @@ def list_contracts(
     "/generate",
     response_model=ContractOut,
     status_code=status.HTTP_201_CREATED,
-    summary="Generate a new contract"
+    summary="Generate a new contract",
 )
 def generate_contract(
     data: ContractCreate,
@@ -63,7 +59,7 @@ def generate_contract(
         resp = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": "You are a legal contract drafting assistant. Respond with clean HTML."},
+                {"role": "system", "content": "You are a legal contract drafting assistant."},
                 {"role": "user", "content": data.prompt},
             ],
             temperature=0.2,
@@ -71,7 +67,7 @@ def generate_contract(
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
-            detail=f"OpenAI API error: {e}"
+            detail=f"OpenAI API error: {e}",
         )
 
     generated_text = resp.choices[0].message.content
@@ -86,11 +82,7 @@ def generate_contract(
     return new_contract
 
 
-@router.get(
-    "/{contract_id}",
-    response_model=ContractOut,
-    summary="Get a single contract"
-)
+@router.get("/{contract_id}", response_model=ContractOut, summary="Get a single contract")
 def get_contract(
     contract_id: int,
     db: Session = Depends(get_db),
@@ -103,15 +95,12 @@ def get_contract(
     if not contract:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Contract not found."
+            detail="Contract not found.",
         )
     return contract
 
 
-@router.get(
-    "/{contract_id}/pdf",
-    summary="Download contract as PDF"
-)
+@router.get("/{contract_id}/pdf", summary="Download contract as PDF")
 def download_contract_pdf(
     contract_id: int,
     db: Session = Depends(get_db),
@@ -124,7 +113,7 @@ def download_contract_pdf(
     if not contract:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Contract not found."
+            detail="Contract not found.",
         )
 
     pdf_io = BytesIO()
