@@ -22,7 +22,7 @@ from utils.auth import get_current_user
 router = APIRouter(tags=["Deals"])
 logger = logging.getLogger(__name__)
 
-# ─── ABI Setup ────────────────────────────────
+# ─── ABI Setup ─────────────────────────────────
 ABI_PATH = os.path.join(os.path.dirname(__file__), "../abi/GLUEscrow.json")
 with open(ABI_PATH, "r") as f:
     artifact = json.load(f)
@@ -30,8 +30,11 @@ ESCROW_ABI = artifact.get("abi", [])
 if not ESCROW_ABI:
     raise RuntimeError("ABI not found in GLUEscrow.json")
 
-# ─── Helper: Get Web3 Components ──────────────
+# ─── Helper: Lazy Web3 Initialization ─────────────
 def get_web3_contract() -> Tuple[Web3, any, any]:
+    """
+    Lazy-load Web3 connection, contract, and deployer account.
+    """
     RPC_URL = os.getenv("WEB3_PROVIDER_URL")
     if not RPC_URL:
         raise RuntimeError("Missing WEB3_PROVIDER_URL")
@@ -57,9 +60,14 @@ def get_web3_contract() -> Tuple[Web3, any, any]:
 
     return w3, contract, deployer
 
-# ─── Endpoints ────────────────────────────────
+# ─── CRUD & On-Chain Endpoints ─────────────────
 @router.post("/", response_model=DealOut, status_code=status.HTTP_201_CREATED)
-def create_deal(deal_data: DealCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def create_deal(
+    deal_data: DealCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    # fetch product and supplier
     product = db.query(Product).filter(Product.id == deal_data.product_id).first()
     if not product:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Product not found")
@@ -68,6 +76,7 @@ def create_deal(deal_data: DealCreate, db: Session = Depends(get_db), current_us
     if not supplier:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Supplier not found")
 
+    # calculate and persist
     total_price = deal_data.quantity_kg * product.price_per_kg
     payload = {
         **deal_data.dict(),
@@ -79,7 +88,6 @@ def create_deal(deal_data: DealCreate, db: Session = Depends(get_db), current_us
         "total_price": total_price,
         "status": "negotiation",
     }
-
     try:
         new_deal = Deal(**payload)
         db.add(new_deal)
@@ -89,20 +97,35 @@ def create_deal(deal_data: DealCreate, db: Session = Depends(get_db), current_us
         return new_deal
     except Exception as e:
         logger.error(f"❌ Failed to create deal: {e}")
-        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, "Failed to create deal")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to create deal"
+        )
 
 @router.get("/", response_model=List[DealOut])
-def get_user_deals(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    deals = db.query(Deal).filter(
-        (Deal.buyer_email == current_user.email) | (Deal.supplier_email == current_user.email)
-    ).all()
+def get_user_deals(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    deals = (
+        db.query(Deal)
+        .filter(
+            (Deal.buyer_email == current_user.email) |
+            (Deal.supplier_email == current_user.email)
+        )
+        .all()
+    )
     for d in deals:
         sup = db.query(User).filter(User.email == d.supplier_email).first()
         d.supplier_wallet_address = sup.wallet_address or ""
     return deals
 
 @router.get("/{deal_id}", response_model=DealOut)
-def get_deal_by_id(deal_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def get_deal_by_id(
+    deal_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     deal = db.query(Deal).filter(Deal.id == deal_id).first()
     if not deal:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Deal not found")
@@ -113,7 +136,12 @@ def get_deal_by_id(deal_id: int, db: Session = Depends(get_db), current_user: Us
     return deal
 
 @router.put("/{deal_id}/status", response_model=DealOut)
-def update_deal_status(deal_id: int, data: DealStatusUpdate = Body(...), db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def update_deal_status(
+    deal_id: int,
+    data: DealStatusUpdate = Body(...),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     deal = db.query(Deal).filter(Deal.id == deal_id).first()
     if not deal:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Deal not found")
@@ -129,7 +157,11 @@ def update_deal_status(deal_id: int, data: DealStatusUpdate = Body(...), db: Ses
     return deal
 
 @router.get("/{deal_id}/pdf")
-def generate_deal_pdf(deal_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def generate_deal_pdf(
+    deal_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     deal = db.query(Deal).filter(Deal.id == deal_id).first()
     if not deal:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Deal not found")
@@ -148,10 +180,18 @@ def generate_deal_pdf(deal_id: int, db: Session = Depends(get_db), current_user:
     buf = BytesIO()
     HTML(string=html_content).write_pdf(buf)
     buf.seek(0)
-    return StreamingResponse(buf, media_type="application/pdf", headers={"Content-Disposition": f'inline; filename="deal_{deal_id}.pdf"'})
+    return StreamingResponse(
+        buf,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'inline; filename="deal_{deal_id}.pdf"'}
+    )
 
 @router.post("/{deal_id}/release")
-def release_deal(deal_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def release_deal(
+    deal_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     deal = db.query(Deal).filter(Deal.id == deal_id).first()
     if not deal:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Deal not found")
