@@ -30,7 +30,7 @@ app = FastAPI(
     description="Global Commodity Marketplace API",
 )
 
-# Read CORS origins from env var (comma‑separated)
+# Read CORS origins from env var (comma-separated)
 raw_origins = os.getenv(
     "CORS_ALLOWED_ORIGINS",
     "http://localhost:3000,http://127.0.0.1:3000"
