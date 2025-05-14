@@ -24,3 +24,8 @@ node_modules/
 .next/
 node_modules/
 .next/
+backend/.env
+
+# ignore local secret files
+/backend/.env
+
