@@ -25,15 +25,17 @@ jobs:
         uses: google-github-actions/setup-gcloud@v1
         with:
           project_id: ${{ secrets.GCP_PROJECT }}
-          install_components: ["beta"]
+          install_components: beta
 
       # 4️⃣ Let Docker push to Artifact Registry
       - name: Configure Docker
-        run: gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
+        run: |
+          gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
 
       # 5️⃣ Compute a short SHA for tagging
       - name: Set IMAGE_TAG env var
-        run: echo "IMAGE_TAG=$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_ENV
+        run: |
+          echo "IMAGE_TAG=$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_ENV
 
       # 6️⃣ Build your image for linux/amd64
       - name: Build Docker image
@@ -44,7 +46,7 @@ jobs:
             -f backend/Dockerfile \
             backend
 
-      # 7️⃣ Push it
+      # 7️⃣ Push to Artifact Registry
       - name: Push to Artifact Registry
         run: |
           docker push us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/comdex-api/comdex-api:${{ env.IMAGE_TAG }}
@@ -59,6 +61,6 @@ jobs:
             --allow-unauthenticated \
             --add-cloudsql-instances=${{ secrets.CLOUDSQL_CONNECTION_NAME }} \
             --vpc-connector=comdex-connector \
-            --vpc-egress=private-ranges-only \
+            --vpc-egress private-ranges-only \
             --set-env-vars DATABASE_URL=${{ secrets.DATABASE_URL }},WEB3_PROVIDER_URL=${{ secrets.WEB3_PROVIDER_URL }},ESCROW_CONTRACT_ADDRESS=${{ secrets.ESCROW_CONTRACT_ADDRESS }},DEPLOYER_PRIVATE_KEY=${{ secrets.DEPLOYER_PRIVATE_KEY }},OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }},CORS_ALLOWED_ORIGINS=${{ secrets.CORS_ALLOWED_ORIGINS }}
 
