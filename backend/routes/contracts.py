@@ -7,6 +7,7 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
+from dotenv import load_dotenv
 from openai import OpenAI
 from weasyprint import HTML
 
@@ -15,6 +16,9 @@ from models.contract import Contract
 from schemas.contract import ContractCreate, ContractOut
 from utils.auth import get_current_user
 from models.user import User
+
+# Load environment variables from .env, if present
+load_dotenv()
 
 router = APIRouter(tags=["Contracts"])
 
@@ -27,8 +31,8 @@ client = OpenAI(api_key=OPENAI_API_KEY)
 
 
 @router.get(
-    "/", 
-    response_model=List[ContractOut], 
+    "/",
+    response_model=List[ContractOut],
     summary="List all contracts"
 )
 def list_contracts(
@@ -59,7 +63,7 @@ def generate_contract(
         resp = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": "You are a legal contract drafting assistant. Generate clear, concise, and professional contract text based on the user prompt."},
+                {"role": "system", "content": "You are a legal contract drafting assistant. Respond with clean HTML."},
                 {"role": "user", "content": data.prompt},
             ],
             temperature=0.2,
