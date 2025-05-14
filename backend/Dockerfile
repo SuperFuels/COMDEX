@@ -25,15 +25,15 @@ WORKDIR /srv
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application code
+# Copy application code (including .env for local dev; it's gitignored)
 COPY . .
 
 # Prepare uploads folder
 RUN mkdir -p uploaded_images
 
-# Expose the port Cloud Run will use
+# Expose the port Cloud Run will use (informational)
 EXPOSE 8080
 
-# Start via our start.py which reads $PORT at runtime
-CMD ["python", "start.py"]
+# Launch Uvicorn directly so we bind to $PORT and get clear logs
+ENTRYPOINT ["sh", "-c", "exec uvicorn main:app --host 0.0.0.0 --port ${PORT:-8080} --log-level info"]
 
