@@ -26,7 +26,11 @@ if not OPENAI_API_KEY:
 client = OpenAI(api_key=OPENAI_API_KEY)
 
 
-@router.get("/", response_model=List[ContractOut], summary="List all contracts")
+@router.get(
+    "/", 
+    response_model=List[ContractOut], 
+    summary="List all contracts"
+)
 def list_contracts(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -55,7 +59,7 @@ def generate_contract(
         resp = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": "You are a legal contract drafting assistant."},
+                {"role": "system", "content": "You are a legal contract drafting assistant. Generate clear, concise, and professional contract text based on the user prompt."},
                 {"role": "user", "content": data.prompt},
             ],
             temperature=0.2,
@@ -78,7 +82,11 @@ def generate_contract(
     return new_contract
 
 
-@router.get("/{contract_id}", response_model=ContractOut, summary="Get a single contract")
+@router.get(
+    "/{contract_id}",
+    response_model=ContractOut,
+    summary="Get a single contract"
+)
 def get_contract(
     contract_id: int,
     db: Session = Depends(get_db),
@@ -96,7 +104,10 @@ def get_contract(
     return contract
 
 
-@router.get("/{contract_id}/pdf", summary="Download contract as PDF")
+@router.get(
+    "/{contract_id}/pdf",
+    summary="Download contract as PDF"
+)
 def download_contract_pdf(
     contract_id: int,
     db: Session = Depends(get_db),
@@ -123,3 +134,4 @@ def download_contract_pdf(
             "Content-Disposition": f"attachment; filename=contract_{contract_id}.pdf"
         },
     )
+

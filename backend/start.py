@@ -1,4 +1,5 @@
-# start.py
+# backend/start.py
+
 import os
 import uvicorn
 
