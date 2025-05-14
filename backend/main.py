@@ -65,7 +65,7 @@ app.include_router(user_router,      prefix="/users",     tags=["Users"])
 @app.get("/", tags=["Root"])
 def read_root():
     return {"message": "🚀 Welcome to the COMDEX API!"}
-
+    
 @app.get("/health", tags=["Health"])
 def health_check():
     db_url = os.getenv(
