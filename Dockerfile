@@ -1,43 +1,36 @@
-# Use official Python slim image
+# 1) Base image
 FROM python:3.11-slim
 
-# Ensure Python output is sent straight to the terminal (no buffering)
+# 2) No buffering on stdout/stderr
 ENV PYTHONUNBUFFERED=1
 
-# Install system dependencies for Web3, Postgres, WeasyPrint, etc.
+# 3) Install system deps
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
-    build-essential \
-    libffi-dev \
-    libpq-dev \
-    libjpeg-dev \
-    libcairo2 \
-    libpango-1.0-0 \
-    libpangocairo-1.0-0 \
-    libgdk-pixbuf2.0-0 \
-    shared-mime-info \
+      build-essential libffi-dev libpq-dev libjpeg-dev \
+      libcairo2 libpango-1.0-0 libpangocairo-1.0-0 \
+      libgdk-pixbuf2.0-0 shared-mime-info \
  && rm -rf /var/lib/apt/lists/*
 
-# Set working directory
+# 4) Set workdir to /srv
 WORKDIR /srv
 
-# Copy & install Python deps from your root requirements.txt
-COPY requirements.txt .
+# 5) Install exactly the backend requirements
+COPY backend/requirements.txt requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy your entire backend/ tree into /srv/backend
+# 6) Copy in your backend code
 COPY backend/ backend/
 
-# Prepare uploads folder
+# 7) Switch into the backend folder so imports like "from routes.auth" work
+WORKDIR /srv/backend
+
+# 8) Prepare upload dir
 RUN mkdir -p uploaded_images
 
-# Expose the port Cloud Run will use (informational)
+# 9) Expose port
 EXPOSE 8080
 
-# Add a basic healthcheck so Docker will fail early if Uvicorn/your app doesn't serve /health
-HEALTHCHECK --interval=15s --timeout=5s --start-period=10s \
-  CMD wget -qO- http://localhost:8080/health || exit 1
-
-# Launch Uvicorn, pointing at your FastAPI app in backend/main.py
-ENTRYPOINT ["sh","-c","exec uvicorn backend.main:app --host 0.0.0.0 --port ${PORT:-8080}"]
+# 10) Launch Uvicorn, pointing at main:app
+ENTRYPOINT ["sh","-c","exec uvicorn main:app --host 0.0.0.0 --port ${PORT:-8080}"]
 
