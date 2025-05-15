@@ -16,8 +16,6 @@ from schemas.contract import ContractCreate, ContractOut
 from utils.auth import get_current_user
 from models.user import User
 
-# Load environment variables from .env, if present
-
 router = APIRouter(prefix="/contracts", tags=["Contracts"])
 
 
@@ -46,7 +44,6 @@ def generate_contract(
     """
     Generate a draft contract via OpenAI and save it to the database.
     """
-    # Now defer the API-key check here so the app can still start up without it
     openai_key = os.getenv("OPENAI_API_KEY")
     if not openai_key:
         raise HTTPException(
