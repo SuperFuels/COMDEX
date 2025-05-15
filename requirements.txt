@@ -62,3 +62,4 @@ zopfli==0.2.3.post1
 eth-account
 web3==6.0.0
 
+web3
