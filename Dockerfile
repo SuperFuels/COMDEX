@@ -18,15 +18,15 @@ RUN apt-get update \
     shared-mime-info \
  && rm -rf /var/lib/apt/lists/*
 
-# Set working directory
+# Set working directory inside the container
 WORKDIR /srv
 
 # Copy and install Python dependencies
-COPY requirements.txt requirements.txt
+COPY backend/requirements.txt requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application code (including .env for local dev; it's gitignored)
-COPY . .
+# Copy only your FastAPI code into /srv
+COPY backend/ .
 
 # Prepare uploads folder
 RUN mkdir -p uploaded_images
@@ -34,6 +34,6 @@ RUN mkdir -p uploaded_images
 # Expose the port Cloud Run will use (informational)
 EXPOSE 8080
 
-# Launch Uvicorn so we bind to $PORT (defaults to 8080)
-ENTRYPOINT ["sh", "-c", "exec uvicorn backend.main:app --host 0.0.0.0 --port ${PORT:-8080}"]
+# Launch Uvicorn on main:app (since main.py is now at /srv/main.py)
+ENTRYPOINT ["sh", "-c", "exec uvicorn main:app --host 0.0.0.0 --port ${PORT:-8080}"]
 
