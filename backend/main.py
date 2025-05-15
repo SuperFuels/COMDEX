@@ -56,7 +56,7 @@ app.mount(
     StaticFiles(directory="uploaded_images"),
     name="uploaded_images",
 )
-
+    
 # Register routers
 app.include_router(auth_router,      prefix="/auth",      tags=["Auth"])
 app.include_router(products_router,  prefix="/products",  tags=["Products"])
@@ -64,22 +64,22 @@ app.include_router(deal_router,      prefix="/deals",     tags=["Deals"])
 app.include_router(contracts_router, prefix="/contracts", tags=["Contracts"])
 app.include_router(admin_router,     prefix="/admin",     tags=["Admin"])
 app.include_router(user_router,      prefix="/users",     tags=["Users"])
-
+ 
 # Root & Health Endpoints
 @app.get("/", tags=["Root"])
 def read_root():
     return {"message": "🚀 Welcome to the COMDEX API!"}
-
+    
 @app.get("/health", tags=["Health"])
 def health_check():
-    db_url = os.getenv(
-        "DATABASE_URL",
+    db_url = os.getenv( 
+        "DATABASE_URL", 
         "postgresql://comdex:Wn8smx123@localhost:5432/comdex"
     )
     try:
         engine = create_engine(db_url)
         with engine.connect() as conn:
-            conn.execute(text("SELECT 1"))
+            conn.execute(text("SELECT 1"))   
         logger.info("✅ Database connection successful.")
         return {"status": "ok", "database": "connected"}
     except OperationalError:

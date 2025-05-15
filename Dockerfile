@@ -35,6 +35,7 @@ RUN mkdir -p uploaded_images
 # Expose the port Cloud Run will use (informational)
 EXPOSE 8080
 
-# Launch Uvicorn directly so we bind to $PORT and get clear logs
-ENTRYPOINT ["sh", "-c", "exec uvicorn main:app --host 0.0.0.0 --port ${PORT:-8080}"]
+# Launch Uvicorn so we bind to $PORT (defaults to 8080)
+# ← UPDATED: point at your FastAPI app in backend/main.py
+ENTRYPOINT ["sh", "-c", "exec uvicorn backend.main:app --host 0.0.0.0 --port ${PORT:-8080}"]
 
