@@ -1,0 +1,22 @@
+# ignore Python venvs
+.venv/
+venv/
+
+# ignore env files
+.env
+env.yaml
+
+# ignore Git metadata
+.git
+.gitignore
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+
+# pip build artifacts
+pip-wheel-metadata/
+
+# editor temp files
+*.swp
+.DS_Store
