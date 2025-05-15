@@ -19,7 +19,7 @@ WORKDIR /srv/backend
 # Copy all backend files (including main.py, routes/, etc.) into cwd
 COPY backend/ ./
 
-# Copy root requirements.txt (which includes python-dotenv) into cwd
+# Copy root requirements.txt into cwd
 COPY requirements.txt ./
 
 # Install your Python deps
@@ -28,7 +28,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Create uploads dir
 RUN mkdir -p uploaded_images
 
+# Expose port (for documentation—Cloud Run injects PORT=8080 automatically)
 EXPOSE 8080
 
-ENTRYPOINT ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "${PORT:-8080}"]
+# Force Uvicorn to bind to 0.0.0.0:8080
+ENTRYPOINT ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
 
