@@ -7,7 +7,6 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
-from dotenv import load_dotenv
 from openai import OpenAI
 from weasyprint import HTML
 
@@ -18,7 +17,6 @@ from utils.auth import get_current_user
 from models.user import User
 
 # Load environment variables from .env, if present
-load_dotenv()
 
 router = APIRouter(prefix="/contracts", tags=["Contracts"])
 
