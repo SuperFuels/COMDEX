@@ -61,3 +61,6 @@ zopfli==0.2.3.post1
 # Needed for eth_account in routes/auth
 eth-account
 
+# Needed for web3 usage in routes/auth
+web3
+
