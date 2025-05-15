@@ -1,41 +1,33 @@
-# Dockerfile
-
-# 1) Base image
+# ────────── Dockerfile ──────────
 FROM python:3.11-slim
-
-# 2) No buffering
 ENV PYTHONUNBUFFERED=1
 
-# 3) System deps
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
-    build-essential \
-    libffi-dev \
-    libpq-dev \
-    libjpeg-dev \
-    libcairo2 \
-    libpango-1.0-0 \
-    libpangocairo-1.0-0 \
-    libgdk-pixbuf2.0-0 \
-    shared-mime-info \
+      build-essential libffi-dev libpq-dev libjpeg-dev \
+      libcairo2 libpango-1.0-0 libpangocairo-1.0-0 libgdk-pixbuf2.0-0 \
+      shared-mime-info \
  && rm -rf /var/lib/apt/lists/*
 
-# 4) Work dir
 WORKDIR /srv
 
-# 5) Copy & install Python deps from the root requirements.txt
-COPY requirements.txt .
+# 1) copy & install your requirements
+COPY requirements.txt requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 6) Copy all your code (including the backend/ folder)
-COPY . .
+# 2) smoke-test that dotenv really is installed
+RUN python - <<'EOF'
+import dotenv
+print("✅ python-dotenv:", dotenv.__version__)
+EOF
 
-# 7) Prepare uploads
-RUN mkdir -p backend/uploaded_images
+# 3) copy the rest of your code
+COPY backend/ backend/
+COPY main.py .
 
-# 8) Expose for Cloud Run
+RUN mkdir -p uploaded_images
 EXPOSE 8080
 
-# 9) Entrypoint: run the app in backend/main.py
-ENTRYPOINT ["sh","-c","exec uvicorn backend.main:app --host 0.0.0.0 --port ${PORT:-8080}"]
+# point uvicorn at your app in backend/main.py
+ENTRYPOINT ["sh", "-c", "exec uvicorn backend.main:app --host 0.0.0.0 --port ${PORT:-8080}"]
 
