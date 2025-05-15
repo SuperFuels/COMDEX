@@ -12,25 +12,24 @@ RUN apt-get update \
     shared-mime-info \
  && rm -rf /var/lib/apt/lists/*
 
-# We’ll put all code under /srv
-WORKDIR /srv
+# Work from /srv/backend so routes/ and main.py are on the PYTHONPATH by default
+WORKDIR /srv/backend
 
-# Copy & install Python deps
-COPY requirements.txt .
+# Copy your backend code
+COPY backend/ . 
+
+# Copy root requirements.txt (which includes python-dotenv, etc.)
+COPY requirements.txt .  
+
+# Install Python deps
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy your backend code into /srv/backend
-COPY backend/ backend/
+# Create your uploads dir
+RUN mkdir -p uploaded_images
 
-# Make sure Python knows to look in backend/ for your modules
-ENV PYTHONPATH=/srv
-
-# Create your uploads directory
-RUN mkdir -p /srv/backend/uploaded_images
-
-# Expose the port Cloud Run will use
+# Expose Cloud Run port
 EXPOSE 8080
 
-# Launch Uvicorn, pointing at backend/main.py
-ENTRYPOINT ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "${PORT:-8080}"]
+# Launch Uvicorn against your main.py
+ENTRYPOINT ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "${PORT:-8080}"]
 
