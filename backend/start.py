@@ -1,8 +1,5 @@
 # backend/start.py
 
-from dotenv import load_dotenv
-load_dotenv()            # pulls in backend/.env
-
 import os
 import uvicorn
 
