@@ -1,10 +1,10 @@
 # Use official Python slim image
 FROM python:3.11-slim
 
-# Ensure Python output is sent straight to the terminal (no buffering)
+# Make Python output unbuffered (logs immediately)
 ENV PYTHONUNBUFFERED=1
 
-# Install system dependencies for Web3, Postgres, WeasyPrint, etc.
+# System deps for Web3, Postgres, WeasyPrint, etc.
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
     build-essential \
@@ -18,22 +18,22 @@ RUN apt-get update \
     shared-mime-info \
  && rm -rf /var/lib/apt/lists/*
 
-# Set working directory
+# Set workdir
 WORKDIR /srv
 
-# Copy and install Python dependencies
+# 1️⃣ Copy & install Python deps
 COPY requirements.txt requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy your FastAPI app sources
-COPY backend/ .
+# 2️⃣ Copy your entire backend app
+COPY backend/ backend/
 
-# Prepare uploads folder
+# 3️⃣ Ensure uploads dir exists
 RUN mkdir -p uploaded_images
 
-# Expose the port Cloud Run will use (informational)
+# 4️⃣ Expose port (Cloud Run uses $PORT)
 EXPOSE 8080
 
-# Launch Uvicorn so we bind to $PORT (defaults to 8080)
-ENTRYPOINT ["sh", "-c", "exec uvicorn main:app --host 0.0.0.0 --port ${PORT:-8080}"]
+# 5️⃣ Launch Uvicorn pointing at backend/main.py
+CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8080"]
 
