@@ -17,8 +17,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # 3) Copy your app into /srv/backend
 COPY backend/ ./backend
 
-# 4) Create uploads dir
-RUN mkdir -p uploaded_images
+# 4) Create uploads dir (inside /srv for static output)
+RUN mkdir -p /srv/uploaded_images
 
 # 5) Expose and run Uvicorn pointing at backend.main:app
 EXPOSE 8080
