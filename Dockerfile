@@ -22,7 +22,6 @@ RUN apt-get update \
 WORKDIR /srv
 
 # Copy and install Python dependencies
-# Ensure Docker finds the correct requirements file
 COPY requirements.txt requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
@@ -36,6 +35,5 @@ RUN mkdir -p uploaded_images
 EXPOSE 8080
 
 # Launch Uvicorn so we bind to $PORT (defaults to 8080)
-# ← UPDATED: point at your FastAPI app in backend/main.py
 ENTRYPOINT ["sh", "-c", "exec uvicorn backend.main:app --host 0.0.0.0 --port ${PORT:-8080}"]
 
