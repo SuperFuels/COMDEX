@@ -7,7 +7,7 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
-from openai import OpenAI
+import openai  # use the module directly
 from weasyprint import HTML
 
 from database import get_db
@@ -24,9 +24,7 @@ def list_contracts(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """
-    Return all contracts the current user can see.
-    """
+    """Return all contracts the current user can see."""
     return db.query(Contract).all()
 
 
@@ -50,16 +48,14 @@ def generate_contract(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Missing OPENAI_API_KEY environment variable",
         )
-    client = OpenAI(api_key=openai_key)
+
+    openai.api_key = openai_key
 
     try:
-        resp = client.chat.completions.create(
+        resp = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=[
-                {
-                    "role": "system",
-                    "content": "You are a legal contract drafting assistant."
-                },
+                {"role": "system", "content": "You are a legal contract drafting assistant."},
                 {"role": "user", "content": data.prompt},
             ],
             temperature=0.2,
@@ -88,15 +84,10 @@ def get_contract(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """
-    Fetch a previously generated contract by ID.
-    """
+    """Fetch a previously generated contract by ID."""
     contract = db.query(Contract).filter(Contract.id == contract_id).first()
     if not contract:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Contract not found.",
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Contract not found.")
     return contract
 
 
@@ -111,10 +102,7 @@ def download_contract_pdf(
     """
     contract = db.query(Contract).filter(Contract.id == contract_id).first()
     if not contract:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Contract not found.",
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Contract not found.")
 
     pdf_io = BytesIO()
     HTML(string=contract.generated_contract).write_pdf(pdf_io)
