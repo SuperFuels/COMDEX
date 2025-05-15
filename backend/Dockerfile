@@ -22,7 +22,8 @@ RUN apt-get update \
 WORKDIR /srv
 
 # Copy and install Python dependencies
-COPY requirements.txt .
+# Ensure Docker finds the correct requirements file
+COPY backend/requirements.txt requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code (including .env for local dev; it's gitignored)
