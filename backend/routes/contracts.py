@@ -22,13 +22,6 @@ load_dotenv()
 
 router = APIRouter(prefix="/contracts", tags=["Contracts"])
 
-# ─── Configure OpenAI client ──────────────────────
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-if not OPENAI_API_KEY:
-    raise RuntimeError("Missing OPENAI_API_KEY environment variable")
-
-client = OpenAI(api_key=OPENAI_API_KEY)
-
 
 @router.get("/", response_model=List[ContractOut], summary="List all contracts")
 def list_contracts(
@@ -55,11 +48,23 @@ def generate_contract(
     """
     Generate a draft contract via OpenAI and save it to the database.
     """
+    # Now defer the API-key check here so the app can still start up without it
+    openai_key = os.getenv("OPENAI_API_KEY")
+    if not openai_key:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Missing OPENAI_API_KEY environment variable",
+        )
+    client = OpenAI(api_key=openai_key)
+
     try:
         resp = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": "You are a legal contract drafting assistant."},
+                {
+                    "role": "system",
+                    "content": "You are a legal contract drafting assistant."
+                },
                 {"role": "user", "content": data.prompt},
             ],
             temperature=0.2,
