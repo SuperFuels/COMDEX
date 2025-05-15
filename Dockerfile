@@ -1,36 +1,36 @@
-# 1) Base image
+# Use official Python slim image
 FROM python:3.11-slim
 
-# 2) No buffering on stdout/stderr
+# Don’t buffer Python stdout/stderr
 ENV PYTHONUNBUFFERED=1
 
-# 3) Install system deps
+# Install system deps
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
-      build-essential libffi-dev libpq-dev libjpeg-dev \
-      libcairo2 libpango-1.0-0 libpangocairo-1.0-0 \
-      libgdk-pixbuf2.0-0 shared-mime-info \
+    build-essential libffi-dev libpq-dev libjpeg-dev \
+    libcairo2 libpango-1.0-0 libpangocairo-1.0-0 libgdk-pixbuf2.0-0 \
+    shared-mime-info \
  && rm -rf /var/lib/apt/lists/*
 
-# 4) Set workdir to /srv
+# We’ll put all code under /srv
 WORKDIR /srv
 
-# 5) Install exactly the backend requirements
-COPY backend/requirements.txt requirements.txt
+# Copy & install Python deps
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 6) Copy in your backend code
+# Copy your backend code into /srv/backend
 COPY backend/ backend/
 
-# 7) Switch into the backend folder so imports like "from routes.auth" work
-WORKDIR /srv/backend
+# Make sure Python knows to look in backend/ for your modules
+ENV PYTHONPATH=/srv/backend
 
-# 8) Prepare upload dir
-RUN mkdir -p uploaded_images
+# Create your uploads directory
+RUN mkdir -p /srv/backend/uploaded_images
 
-# 9) Expose port
+# Expose the port Cloud Run will use
 EXPOSE 8080
 
-# 10) Launch Uvicorn, pointing at main:app
-ENTRYPOINT ["sh","-c","exec uvicorn main:app --host 0.0.0.0 --port ${PORT:-8080}"]
+# Launch Uvicorn, pointing at main.py inside backend/
+ENTRYPOINT ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "${PORT:-8080}"]
 
