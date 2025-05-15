@@ -1,10 +1,12 @@
-# Use official Python slim image
+# Dockerfile
+
+# 1) Base image
 FROM python:3.11-slim
 
-# Make Python output unbuffered (logs immediately)
+# 2) No buffering
 ENV PYTHONUNBUFFERED=1
 
-# System deps for Web3, Postgres, WeasyPrint, etc.
+# 3) System deps
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
     build-essential \
@@ -18,22 +20,22 @@ RUN apt-get update \
     shared-mime-info \
  && rm -rf /var/lib/apt/lists/*
 
-# Set workdir
+# 4) Work dir
 WORKDIR /srv
 
-# 1️⃣ Copy & install Python deps
-COPY requirements.txt requirements.txt
+# 5) Copy & install Python deps from the root requirements.txt
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 2️⃣ Copy your entire backend app
-COPY backend/ backend/
+# 6) Copy all your code (including the backend/ folder)
+COPY . .
 
-# 3️⃣ Ensure uploads dir exists
-RUN mkdir -p uploaded_images
+# 7) Prepare uploads
+RUN mkdir -p backend/uploaded_images
 
-# 4️⃣ Expose port (Cloud Run uses $PORT)
+# 8) Expose for Cloud Run
 EXPOSE 8080
 
-# 5️⃣ Launch Uvicorn pointing at backend/main.py
-CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8080"]
+# 9) Entrypoint: run the app in backend/main.py
+ENTRYPOINT ["sh","-c","exec uvicorn backend.main:app --host 0.0.0.0 --port ${PORT:-8080}"]
 
