@@ -28,14 +28,15 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy your entire backend/ tree into /srv/backend
 COPY backend/ backend/
 
-# (Optional) copy any top-level assets/static if you have them:
-# COPY static/ static/
-
 # Prepare uploads folder
 RUN mkdir -p uploaded_images
 
 # Expose the port Cloud Run will use (informational)
 EXPOSE 8080
+
+# Add a basic healthcheck so Docker will fail early if Uvicorn/your app doesn't serve /health
+HEALTHCHECK --interval=15s --timeout=5s --start-period=10s \
+  CMD wget -qO- http://localhost:8080/health || exit 1
 
 # Launch Uvicorn, pointing at your FastAPI app in backend/main.py
 ENTRYPOINT ["sh","-c","exec uvicorn backend.main:app --host 0.0.0.0 --port ${PORT:-8080}"]
