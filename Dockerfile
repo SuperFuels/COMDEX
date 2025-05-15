@@ -23,7 +23,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY backend/ backend/
 
 # Make sure Python knows to look in backend/ for your modules
-ENV PYTHONPATH=/srv/backend
+ENV PYTHONPATH=/srv
 
 # Create your uploads directory
 RUN mkdir -p /srv/backend/uploaded_images
@@ -31,6 +31,6 @@ RUN mkdir -p /srv/backend/uploaded_images
 # Expose the port Cloud Run will use
 EXPOSE 8080
 
-# Launch Uvicorn, pointing at main.py inside backend/
-ENTRYPOINT ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "${PORT:-8080}"]
+# Launch Uvicorn, pointing at backend/main.py
+ENTRYPOINT ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "${PORT:-8080}"]
 
