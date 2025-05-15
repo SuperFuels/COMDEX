@@ -7,7 +7,7 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
-import openai  # use the module directly
+import openai
 from weasyprint import HTML
 
 from database import get_db
@@ -39,16 +39,13 @@ def generate_contract(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """
-    Generate a draft contract via OpenAI and save it to the database.
-    """
+    """Generate a draft contract via OpenAI and save it to the database."""
     openai_key = os.getenv("OPENAI_API_KEY")
     if not openai_key:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Missing OPENAI_API_KEY environment variable",
         )
-
     openai.api_key = openai_key
 
     try:
@@ -87,7 +84,10 @@ def get_contract(
     """Fetch a previously generated contract by ID."""
     contract = db.query(Contract).filter(Contract.id == contract_id).first()
     if not contract:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Contract not found.")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Contract not found.",
+        )
     return contract
 
 
@@ -97,12 +97,13 @@ def download_contract_pdf(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """
-    Render the generated_contract HTML as a PDF and stream it back.
-    """
+    """Render the generated_contract HTML as a PDF and stream it back."""
     contract = db.query(Contract).filter(Contract.id == contract_id).first()
     if not contract:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Contract not found.")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Contract not found.",
+        )
 
     pdf_io = BytesIO()
     HTML(string=contract.generated_contract).write_pdf(pdf_io)
