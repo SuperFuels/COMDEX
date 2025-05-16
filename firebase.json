@@ -1,16 +1,23 @@
 {
   "hosting": {
+    // 1) CD into frontend
+    "source": "frontend",
+    // 2) these commands will be run inside frontend/
+    "predeploy": [
+      "npm ci",
+      "npm run build",
+      "npm run export"
+    ],
+    // 3) point at the folder Next.js spits out
     "public": "frontend/out",
     "ignore": [
       "firebase.json",
       "**/.*",
       "**/node_modules/**"
     ],
+    // SPA fallback
     "rewrites": [
-      {
-        "source": "**",
-        "destination": "/index.html"
-      }
+      { "source": "**", "destination": "/index.html" }
     ]
   }
 }
