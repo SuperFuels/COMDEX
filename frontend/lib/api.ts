@@ -13,7 +13,7 @@ const api = axios.create({
   withCredentials: false,
 })
 
-// ─── Attach JWT from localStorage ───────────────────────────────
+// ─── Attach JWT from localStorage ────────────────────────────────────
 api.interceptors.request.use(
   (config: AxiosRequestConfig) => {
     if (typeof window !== 'undefined') {
@@ -28,13 +28,15 @@ api.interceptors.request.use(
   (error: AxiosError) => Promise.reject(error)
 )
 
-// ─── On 401 / 403, clear token and send you back to login ────────
+// ─── On 401 / 403, clear token and send you back to login ───────────
 api.interceptors.response.use(
   response => response,
   (error: AxiosError) => {
     const status = error.response?.status
     if ((status === 401 || status === 403) && typeof window !== 'undefined') {
-      console.warn('[api] Unauthorized – clearing token and redirecting to /login')
+      console.warn(
+        '[api] Unauthorized – clearing token and redirecting to /login'
+      )
       localStorage.removeItem('token')
       Router.replace('/login')
     }
