@@ -1,4 +1,4 @@
-// pages/admin/dashboard.tsx (Admin Dashboard)
+// pages/admin/dashboard.tsx
 
 import { useEffect, useState } from 'react'
 import Navbar from '@/components/Navbar'
@@ -30,7 +30,7 @@ interface Deal {
 }
 
 export default function AdminDashboard() {
-  // Client-side guard: redirect to /login if not an admin
+  // Redirect away if not an admin
   useAuthRedirect('admin')
 
   const [users, setUsers] = useState<User[]>([])
@@ -61,6 +61,7 @@ export default function AdminDashboard() {
     <div className="min-h-screen bg-gray-100 text-gray-900">
       <Navbar />
       <main className="p-6 max-w-6xl mx-auto space-y-10">
+
         <h1 className="text-3xl font-bold mb-6 text-center">🛠️ Admin Dashboard</h1>
         {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
 
@@ -94,4 +95,59 @@ export default function AdminDashboard() {
           <h2 className="text-xl font-semibold mb-2">📦 All Products</h2>
           <div className="bg-white shadow p-4 rounded overflow-x-auto">
             <table className="min-w-full text-sm">
+              <thead>
+                <tr>
+                  <th className="text-left p-2">Title</th>
+                  <th className="text-left p-2">Country</th>
+                  <th className="text-left p-2">Category</th>
+                  <th className="text-left p-2">Owner</th>
+                </tr>
+              </thead>
+              <tbody>
+                {products.map((p) => (
+                  <tr key={p.id} className="border-t">
+                    <td className="p-2">{p.title}</td>
+                    <td className="p-2">{p.origin_country}</td>
+                    <td className="p-2">{p.category}</td>
+                    <td className="p-2">{p.owner_email}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        {/* Deals Table */}
+        <section>
+          <h2 className="text-xl font-semibold mb-2">🤝 All Deals</h2>
+          <div className="bg-white shadow p-4 rounded overflow-x-auto">
+            <table className="min-w-full text-sm">
+              <thead>
+                <tr>
+                  <th className="text-left p-2">Product</th>
+                  <th className="text-left p-2">Buyer</th>
+                  <th className="text-left p-2">Supplier</th>
+                  <th className="text-left p-2">Quantity (kg)</th>
+                  <th className="text-left p-2">Total Price</th>
+                </tr>
+              </thead>
+              <tbody>
+                {deals.map((d) => (
+                  <tr key={d.id} className="border-t">
+                    <td className="p-2">{d.product_title}</td>
+                    <td className="p-2">{d.buyer_email}</td>
+                    <td className="p-2">{d.supplier_email}</td>
+                    <td className="p-2">{d.quantity_kg}</td>
+                    <td className="p-2">{d.total_price}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  )
+}
 
