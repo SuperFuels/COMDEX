@@ -1,0 +1,16 @@
+{
+  "hosting": {
+    // point Firebase at your exported static files
+    "public": "frontend/out",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    // funnel all client-side routes through index.html
+    "rewrites": [
+      { "source": "**", "destination": "/index.html" }
+    ]
+  }
+}
+
