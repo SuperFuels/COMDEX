@@ -1,4 +1,4 @@
-k{
+{
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
@@ -43,10 +43,11 @@ k{
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
   },
-  "description": "This is a [Next.js](https://nextjs.org) project bootstrapped with Create Next App.",
+  "description": "This is a Next.js project bootstrapped with Create Next App.",
   "main": "index.js",
   "keywords": [],
   "author": "",
   "license": "ISC"
+}
 }
 
