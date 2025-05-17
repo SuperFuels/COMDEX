@@ -35,17 +35,17 @@ app = FastAPI(
     description="Global Commodity Marketplace API",
 )
 
-# ↓ Disable automatic trailing‐slash redirects ↓
-app.router.redirect_slashes = False
+# ─── Leave the default trailing‐slash behavior so /foo → /foo/ still redirects ───
+# (We removed app.router.redirect_slashes = False)
 
-# ↓ Whitelist origins for CORS ↓
+# ─── Whitelist origins for CORS ────────────────────────────────────────────────
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:3000",
         "http://127.0.0.1:3000",
-        "https://swift-area-459514-d1.web.app",            # your Firebase Hosting
-        "https://comdex-api-375760843948.us-central1.run.app",  # your Live Cloud Run
+        "https://swift-area-459514-d1.web.app",                       # your Firebase site
+        "https://comdex-api-375760843948.us-central1.run.app",       # your live API
     ],
     allow_credentials=True,
     allow_methods=["*"],
