@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
-import api from '../../lib/api'
+import api from '@/lib/api'
 import SwapPanel from '../../components/SwapPanel'
 import { Deal } from '../../types'
 

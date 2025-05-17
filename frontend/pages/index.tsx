@@ -1,7 +1,7 @@
 // frontend/pages/index.tsx
 import { useEffect, useState } from 'react'
 import type { NextPage } from 'next'
-import api from '../lib/api'
+import api from '@/lib/api'
 import Chart, { ChartPoint } from '../components/Chart'
 import Link from 'next/link'
 

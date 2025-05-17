@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import api from '../../lib/api';
+import api from '@/lib/api';
 import { useRouter } from 'next/router';
 import useAuthRedirect from '@/hooks/useAuthRedirect';
 
