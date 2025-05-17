@@ -1,10 +1,10 @@
-{
+k{
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build && next export",
+    "build": "next build",
     "export": "next export",
     "start": "next start",
     "lint": "next lint"
@@ -43,7 +43,7 @@
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
   },
-  "description": "This is a [Next.js](https://nextjs.org) project bootstrapped with Create Next App",
+  "description": "This is a [Next.js](https://nextjs.org) project bootstrapped with Create Next App.",
   "main": "index.js",
   "keywords": [],
   "author": "",
