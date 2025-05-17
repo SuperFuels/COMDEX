@@ -1,17 +1,19 @@
 {
   "hosting": {
-    "source": "frontend",
+    // 1) run these inside 'frontend' before deploy
     "predeploy": [
-      "npm ci",
-      "npm run build",
-      "npm run export"
+      "npm --prefix frontend ci",
+      "npm --prefix frontend run build",
+      "npm --prefix frontend run export"
     ],
+    // 2) point at your static output
     "public": "frontend/out",
     "ignore": [
       "firebase.json",
       "**/.*",
       "**/node_modules/**"
     ],
+    // 3) SPA‐style client‐side routing
     "rewrites": [
       { "source": "**", "destination": "/index.html" }
     ]
