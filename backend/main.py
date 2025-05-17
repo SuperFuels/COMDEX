@@ -35,15 +35,17 @@ app = FastAPI(
     description="Global Commodity Marketplace API",
 )
 
-# CORS
-raw_origins = os.getenv(
-    "CORS_ALLOWED_ORIGINS",
-    "http://localhost:3000,http://127.0.0.1:3000"
-)
-allowed_origins = [o.strip() for o in raw_origins.split(",") if o.strip()]
+# Disable automatic trailing-slash redirects (so GET /products returns 200 directly)
+app.router.redirect_slashes = False
+
+# CORS — allow your frontend origin + localhost for dev
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allowed_origins,
+    allow_origins=[
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "https://swift-area-459514-d1.web.app",  # your Firebase-hosted URL
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -76,7 +78,6 @@ def get_database_url():
             f"postgresql+psycopg2://{DB_USER}:{DB_PASS}@/{DB_NAME}"
             f"?host=/cloudsql/{DB_SOCKET_PATH}"
         )
-    # fallback to full host/port URL
     return os.getenv(
         "DATABASE_URL",
         f"postgresql://{DB_USER}:{DB_PASS}@localhost:5432/{DB_NAME}"
