@@ -2,18 +2,17 @@
 import axios, { AxiosRequestConfig, AxiosError } from 'axios'
 import Router from 'next/router'
 
-// Create an Axios instance with default settings
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000',
+  baseURL:
+    process.env.NEXT_PUBLIC_API_URL ??
+    'https://comdex-api-375760843948.us-central1.run.app',
   headers: {
     Accept: 'application/json',
     'Content-Type': 'application/json',
   },
-  // We’re doing stateless Bearer-token auth, so no cookies for now
   withCredentials: false,
 })
 
-// ─── Attach JWT from localStorage ────────────────────────────────────
 api.interceptors.request.use(
   (config: AxiosRequestConfig) => {
     if (typeof window !== 'undefined') {
@@ -28,7 +27,6 @@ api.interceptors.request.use(
   (error: AxiosError) => Promise.reject(error)
 )
 
-// ─── On 401 / 403, clear token and send you back to login ───────────
 api.interceptors.response.use(
   response => response,
   (error: AxiosError) => {
