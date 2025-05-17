@@ -1,7 +1,7 @@
 // frontend/pages/products/[id].tsx
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
-import api from '../../lib/api'
+import api from '@/lib/api'
 import Image from 'next/image'
 import Link from 'next/link'
 import { StarIcon as SolidStar } from '@heroicons/react/24/solid'

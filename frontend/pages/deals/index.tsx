@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import api from '../../lib/api'
+import api from '@/lib/api'
 import { Deal } from '../../types'
 
 export default function DealsPage() {
