@@ -35,16 +35,16 @@ app = FastAPI(
     description="Global Commodity Marketplace API",
 )
 
-# Disable automatic trailing-slash redirects (so GET /products returns 200 directly)
+# ↓ Disable trailing-slash redirects & add CORS middleware ↓
 app.router.redirect_slashes = False
 
-# CORS — allow your frontend origin + localhost for dev
+# Allow both localhost during dev and your Firebase domain in prod
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:3000",
         "http://127.0.0.1:3000",
-        "https://swift-area-459514-d1.web.app",  # your Firebase-hosted URL
+        "https://swift-area-459514-d1.web.app",   # your hosting URL
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -58,7 +58,7 @@ app.mount(
     name="uploaded_images",
 )
 
-# Routers
+# Include all your routers
 app.include_router(auth_router,      prefix="/auth",      tags=["Auth"])
 app.include_router(products_router,  prefix="/products",  tags=["Products"])
 app.include_router(deal_router,      prefix="/deals",     tags=["Deals"])
@@ -66,11 +66,11 @@ app.include_router(contracts_router, prefix="/contracts", tags=["Contracts"])
 app.include_router(admin_router,     prefix="/admin",     tags=["Admin"])
 app.include_router(user_router,      prefix="/users",     tags=["Users"])
 
-# Helpers to build DB URL via Cloud SQL socket
+# Build your DB URL (socket or env var fallback)
 DB_USER        = os.getenv("DB_USER", "")
 DB_PASS        = os.getenv("DB_PASS", "")
 DB_NAME        = os.getenv("DB_NAME", "")
-DB_SOCKET_PATH = os.getenv("DB_SOCKET_PATH", "")  # e.g. "project:region:instance"
+DB_SOCKET_PATH = os.getenv("DB_SOCKET_PATH", "")
 
 def get_database_url():
     if DB_SOCKET_PATH:
@@ -83,7 +83,7 @@ def get_database_url():
         f"postgresql://{DB_USER}:{DB_PASS}@localhost:5432/{DB_NAME}"
     )
 
-# Root & health
+# Health & root
 @app.get("/", tags=["Root"])
 def read_root():
     return {"message": "🚀 Welcome to the COMDEX API!"}
