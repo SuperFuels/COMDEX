@@ -14,8 +14,9 @@ const nextConfig = {
   // ⚙️ Static-export mode for Firebase Hosting
   output: "export",
 
-  // 📸 Your remote image domains
+  // 📸 Your remote image domains and disable built-in optimization
   images: {
+    unoptimized: true,  // disable Image Optimization API for static export
     remotePatterns: [
       {
         protocol: "https",
