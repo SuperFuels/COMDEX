@@ -35,8 +35,8 @@ app = FastAPI(
     description="Global Commodity Marketplace API",
 )
 
-# ─── Leave the default trailing‐slash behavior so /foo → /foo/ still redirects ───
-# (We removed app.router.redirect_slashes = False)
+# ─── Leave the default trailing-slash behavior so /foo → /foo/ still redirects ───
+# (we removed/commented-out app.router.redirect_slashes = False)
 
 # ─── Whitelist origins for CORS ────────────────────────────────────────────────
 app.add_middleware(
