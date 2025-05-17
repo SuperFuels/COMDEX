@@ -43,11 +43,6 @@
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
   },
-  "description": "This is a Next.js project bootstrapped with Create Next App.",
-  "main": "index.js",
-  "keywords": [],
-  "author": "",
   "license": "ISC"
-}
 }
 
