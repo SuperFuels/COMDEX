@@ -1,10 +1,12 @@
-kHow Everything Works — STICKEY Platform
+How Everything Works — STICKEY Platform
 Table of Contents
 Overview
 
 Architecture
 
 Authentication & Roles
+
+Email/Password + JWT
 
 SIWE Login & Account Switching
 
@@ -44,217 +46,195 @@ Blockchain: on-chain escrow & NFT certificates
 Crypto-native: wallet binding, swap panel, token flows
 
 Mission: Revolutionize global commodity trade with trust, automation, transparency.
-
 V1 Target: Whey Protein (EU, USA, India, NZ)
-
-V2+: Cocoa, coffee, olive oil, pea protein, spices, and beyond.
+V2+: Cocoa, coffee, olive oil, pea protein, spices, and beyond
 
 2. Architecture
 less
 Copy
 Edit
-[ Next.js Frontend ] ↔ [ FastAPI Backend ] ↔ [ PostgreSQL ]
-          ↑                  ↑
-    [ MetaMask + $GLU ]   [ Migrations / Alembic ]
-          ↑                  ↑
-    [ Polygon Amoy Testnet Escrow Contract ]
-             (Future: COMDEX Chain)
-Frontend: Next.js + Tailwind CSS + TypeScript
+[ Next.js Frontend (Firebase Hosting, static ∪ rewrites) ]
+            ↕
+[ FastAPI Backend (Cloud Run, Docker) ]
+            ↕
+        [ PostgreSQL (Cloud SQL) ]
 
-Backend: FastAPI + SQLAlchemy + Pydantic + WeasyPrint (PDF)
+     ↑                           ↑
+[ MetaMask + $GLU ]       [ Migrations / Alembic ]
 
-DB: PostgreSQL
+     ↑
+[ Polygon Amoy Testnet Escrow Contract ]
+      (Future: COMDEX Chain)
+Frontend: Next.js + Tailwind CSS + TypeScript, statically exported → frontend/out → served by Firebase Hosting
 
-Blockchain: Polygon Amoy testnet escrow, future COMDEX Chain
+Backend: FastAPI + SQLAlchemy + Pydantic + WeasyPrint (Docker → Cloud Run)
+
+DB: PostgreSQL (Cloud SQL)
+
+Blockchain: Polygon Amoy testnet escrow; future COMDEX Chain
 
 AI: OpenAI LLM integrations under /agent and /contracts/generate
 
 3. Authentication & Roles
-Email/password + JWT via /auth/register & /auth/login
+3.1 Email/Password + JWT
+/auth/register → store hashed password + role
 
-SIWE (Sign-In With Ethereum) wallet login & binding to user row
+/auth/login → issue JWT
 
-Roles: admin / supplier / buyer
+Guards on backend (Depends(get_current_user) + role check) and frontend (React hook useAuthRedirect(role))
 
-Guards: front-end (React hook) & back-end (FastAPI dependency)
-
-Dev stub v1: /auth/verify always returns "supplier" for rapid testing
-
-Demo creds (email/password):
-
-Admin: admin@example.com / admin123
-
-Supplier: supplier@example.com / supplypass
-
-Buyer: buyer@example.com / buyerpass
-
-3.1 SIWE Login & Account Switching
-To avoid “Invalid nonce” or “Signature mismatch” when you switch MetaMask accounts, always re-run the full SIWE handshake:
+3.2 SIWE Login & Account Switching
+Fetch nonce & SIWE message
 
 ts
 Copy
 Edit
-// 1) fetch a fresh SIWE message
-const [address] = await window.ethereum.request({ method: 'eth_requestAccounts' });
-const { data: { nonce, message } } = await api.get('/auth/nonce', { params: { address } });
+const { data: { message } } = await api.get('/auth/nonce', { params: { address } });
+Sign in MetaMask
 
-// 2) sign it in MetaMask
-const signature = await window.ethereum.request({
-  method: 'personal_sign',
-  params: [message, address],
-});
+ts
+Copy
+Edit
+const signature = await ethereum.request({ method: 'personal_sign', params: [message, address] });
+Verify & receive JWT
 
-// 3) verify with backend
-const { data: { token, role } } = await api.post('/auth/verify', { message, signature });
+ts
+Copy
+Edit
+const { data: { token, role } } = await api.post('/auth/verify',{ message, signature });
 localStorage.setItem('token', token);
 api.defaults.headers.common.Authorization = `Bearer ${token}`;
-Automatically handle accountsChanged in Navbar.tsx:
-ts
-Copy
-Edit
-useEffect(() => {
-  const eth = (window as any).ethereum;
-  if (!eth) return;
+Handle account changes in Navbar.tsx: re-run handshake on accountsChanged.
 
-  const handleAccountsChanged = (accounts: string[]) => {
-    if (accounts[0]) {
-      // re-run full handshake for new account
-      doLogin(accounts[0]);
-    } else {
-      // MetaMask locked/disconnected
-      handleDisconnect();
-    }
-  };
-
-  eth.on('accountsChanged', handleAccountsChanged);
-  return () => eth.removeListener('accountsChanged', handleAccountsChanged);
-}, [doLogin, handleDisconnect]);
 4. Database Schemas
 4.1 Users
-id (PK)
-
-name
-
-email (nullable for wallet-only)
-
-password_hash (nullable for wallet-only)
-
-role: admin / supplier / buyer
-
-wallet_address (EIP-55, nullable)
-
-created_at, updated_at
+Column	Type	Notes
+id	PK	
+name	TEXT	
+email	TEXT	nullable if wallet-only
+password_hash	TEXT	nullable if wallet-only
+role	ENUM	admin | supplier | buyer
+wallet_address	TEXT	EIP-55, nullable
+created_at	TIMESTAMP	
+updated_at	TIMESTAMP	
 
 4.2 Products
-id (PK)
-
-owner_email → users.email
-
-title, description
-
-price_per_kg
-
-origin_country, category
-
-image_url
-
-New: change_pct, rating, batch_number, trace_id, certificate_url, blockchain_tx_hash
-
-created_at
+Column	Type	Notes
+id	PK	
+owner_email	FK	→ users.email
+title	TEXT	
+description	TEXT	
+price_per_kg	NUMERIC	
+origin_country	TEXT	
+category	TEXT	
+image_url	TEXT	
+New Fields		
+change_pct	NUMERIC	price change %
+rating	NUMERIC	user rating
+batch_number	TEXT	
+trace_id	TEXT	
+certificate_url	TEXT	NFT cert viewer
+blockchain_tx_hash	TEXT	escrow Tx hash
+created_at	TIMESTAMP	
 
 4.3 Deals
-id (PK)
-
-buyer_id → users.id, supplier_id → users.id
-
-product_id → products.id
-
-quantity_kg, total_price
-
-status: negotiation → confirmed → completed
-
-created_at, pdf_url
+Column	Type	Notes
+id	PK	
+buyer_id	FK	→ users.id
+supplier_id	FK	→ users.id
+product_id	FK	→ products.id
+quantity_kg	NUMERIC	
+total_price	NUMERIC	
+status	ENUM	negotiation→confirmed→completed
+created_at	TIMESTAMP	
+pdf_url	TEXT	generated PDF
 
 4.4 Contracts
-id (PK)
-
-prompt (TEXT)
-
-generated_contract (HTML/Markdown)
-
-status
-
-pdf_url
-
-nft_metadata (stub)
+Column	Type	Notes
+id	PK	
+prompt	TEXT	LLM prompt
+generated_contract	TEXT	HTML/Markdown
+status	TEXT	draft/final
+pdf_url	TEXT	PDF export
+nft_metadata	JSONB	stub
 
 5. Backend Endpoints
-Section	Method	Path	Description	Auth
-Auth	POST	/auth/register	Register user (email/password + role)	—
-POST	/auth/login	Email/password login → JWT	—
-GET	/auth/nonce	SIWE: issue nonce + EIP-4361 message	—
-POST	/auth/verify	SIWE: verify signature → JWT + role	—
-GET	/auth/role	Validate JWT → { role }	Bearer JWT
-Products	GET	/products	List all products	Public
-GET	/products/search	Search products	Public
-GET	/products/{id}	Product details	Public
-GET	/products/me	List supplier’s own products	Bearer supplier JWT
-POST	/products	Create product	Bearer supplier JWT
-PUT	/products/{id}	Update product	Bearer supplier JWT
-DELETE	/products/{id}	Delete product	Bearer supplier JWT
-Deals	GET	/deals	List deals for current user	Bearer JWT
-POST	/deals	Create deal (calculates total_price)	Bearer JWT
-GET	/deals/{id}	Single deal	Bearer JWT + guard
-GET	/deals/{id}/pdf	Download deal PDF	Bearer JWT
-PUT	/deals/{id}/status	Update deal status	Bearer admin/parties
-POST	/deals/{id}/release	Release funds on-chain	Bearer buyer/supplier
-Contracts	POST	/contracts/generate	Draft via LLM	Bearer JWT
-GET	/contracts/{id}	Contract details	Bearer JWT
-GET	/contracts/{id}/pdf	Download contract PDF	Bearer JWT
-POST	/contracts/{id}/mint	Mint NFT (future)	Bearer JWT
-Admin	CRUD	/admin/*	Full CRUD on all resources	Bearer admin JWT
-Users	PATCH	/users/me/wallet	Bind MetaMask wallet to user	Bearer JWT
+<details> <summary>Auth</summary>
+Method	Path	Description	Auth
+POST	/auth/register	email/password + role → create user	—
+POST	/auth/login	email/password → JWT	—
+GET	/auth/nonce	SIWE nonce + EIP-4361 message	—
+POST	/auth/verify	SIWE verify → JWT + role	—
+GET	/auth/role	validate JWT → { role }	Bearer JWT
 
+</details> <details> <summary>Products</summary>
+Method	Path	Description	Auth
+GET	/products	list all products	Public
+GET	/products/search	search products	Public
+GET	/products/{id}	product details	Public
+GET	/products/me	supplier’s own products	Bearer supplier JWT
+POST	/products	create product	Bearer supplier JWT
+PUT	/products/{id}	update product	Bearer supplier JWT
+DELETE	/products/{id}	delete product	Bearer supplier JWT
+
+</details> <details> <summary>Deals</summary>
+Method	Path	Description	Auth
+GET	/deals	list deals for current user	Bearer JWT
+POST	/deals	create deal (calculates total_price)	Bearer JWT
+GET	/deals/{id}	single deal	Bearer JWT + ownership guard
+GET	/deals/{id}/pdf	download deal PDF	Bearer JWT
+PUT	/deals/{id}/status	update deal status	Bearer admin/parties
+POST	/deals/{id}/release	release funds on-chain	Bearer buyer/supplier
+
+</details> <details> <summary>Contracts</summary>
+Method	Path	Description	Auth
+POST	/contracts/generate	LLM draft contract	Bearer JWT
+GET	/contracts/{id}	contract details	Bearer JWT
+GET	/contracts/{id}/pdf	download contract PDF	Bearer JWT
+POST	/contracts/{id}/mint	mint NFT (future)	Bearer JWT
+
+</details> <details> <summary>Admin</summary>
+All CRUD under /admin/* for users, products, deals, contracts
+
+Auth: Bearer admin JWT
+
+</details> <details> <summary>Users</summary>
+Method	Path	Description	Auth
+PATCH	/users/me/wallet	bind MetaMask wallet to user profile	Bearer JWT
+
+</details>
 6. Frontend Structure
 6.1 Pages
-/ → Home / Marketplace
-
-/search → Search results
-
-/products/[id] → Product detail
-
+bash
+Copy
+Edit
+/                 → Home / Marketplace
+/search           → Search results
+/products/[id]    → Product detail
 /products/[id]/sample → Sample request
+/products/[id]/zoom   → Zoom request
+/products/create      → Create product
+/products/edit/[id]   → Edit product
+/buyer/dashboard      → Buyer Dashboard
+/dashboard            → Supplier Dashboard
+/admin/dashboard      → Admin panel
+/login                → Email/password login
+/register/supplier    → Supplier signup
+/register/buyer       → Buyer signup
+6.2 Key Components
+Navbar: logo, search bar, auth links, wallet-connect, SIWE & account-switch
 
-/products/[id]/zoom → Zoom request
+SwapPanel: inline token swap UI (stub)
 
-/products/create → Create product
+Chart: Recharts line chart
 
-/buyer/dashboard → Buyer Dashboard
+ProductCard: image, price, change %, rating, details link
 
-/dashboard → Supplier Dashboard
-
-/admin/dashboard → Admin panel
-
-/login → Email/password login
-
-/register/supplier → Supplier signup
-
-/register/buyer → Buyer signup
-
-6.2 Components
-Navbar: logo, search, auth links, wallet connect, SIWE & account-switch handling
-
-SwapBar: inline amount/token swap UI
-
-Chart: Recharts line-chart
-
-ProductCard: image, price, change%, rating, details link
-
-QuoteModal: quantity input → create deal
+QuoteModal: input quantity → create deal
 
 Sidebar: filters & selected commodity
 
-DashboardTabs: tabs for deals/contracts
+DashboardTabs: tabs for deals / contracts
 
 7. Completed Features
 🌐 Public marketplace with listings & filters
@@ -263,7 +243,7 @@ DashboardTabs: tabs for deals/contracts
 
 🔐 Email/password JWT auth & role-guards
 
-🦊 MetaMask wallet connect & full SIWE handshake with account switching
+🦊 MetaMask wallet connect & full SIWE handshake with account-switch
 
 📝 Product CRUD (supplier)
 
@@ -286,14 +266,14 @@ DashboardTabs: tabs for deals/contracts
 Image | Title | Origin | Price/kg | Supplier | Change % | Rating | Details
 
 9. Quote & Deal Flow
-On /products/[id], “Lock in GLU Quote” opens QuoteModal
+On /products/[id], click “Lock in GLU Quote” → opens QuoteModal
 
 Buyer enters quantity → POST /deals → redirect to /buyer/dashboard
 
 10. AI Agent & Contract Engine
-AgentBar stub on /contracts → POST /contracts/generate → save draft
+AgentBar stub on /contracts
 
-Review & PDF download
+POST /contracts/generate → save draft → review & PDF download
 
 11. Roadmap & Next Steps
 Phase 2: Core Flows & Polish
@@ -308,73 +288,89 @@ SwapPanel → real on-chain swaps & deals
 
 Multi-image uploads & NFT certificate viewer
 
-Phase 3+: On-chain & Integrations, AI agents, Governance, COMDEX Chain, mobile, global expansion.
+Phase 3+: On-chain & Integrations
+
+AI agents
+
+Governance
+
+COMDEX Chain
+
+Mobile & global expansion
 
 12. Dev Commands
-Backend
+12.1 Backend (FastAPI + Docker + Cloud Run)
 bash
 Copy
 Edit
-cd ~/Desktop/Comdex/backend
+# Local
+cd backend
 source .venv/bin/activate
 uvicorn main:app --reload
 
-# DB migrations
-alembic revision --autogenerate -m "add new fields"
+# DB Migrations
+alembic revision --autogenerate -m "…"
 alembic upgrade head
 
-# Kill & restart if port stuck
-lsof -n -iTCP:8000 | awk 'NR>1 {print $2}' | xargs --no-run-if-empty kill -9
-uvicorn main:app --reload
-Upsert your supplier user (so SIWE verify can find them):
+# Docker build & push (for Cloud Run):
+docker build -t gcr.io/$PROJECT/comdex-api:latest .
+docker push gcr.io/$PROJECT/comdex-api:latest
+
+# Deploy to Cloud Run
+gcloud run deploy comdex-api \
+  --image=gcr.io/$PROJECT/comdex-api:latest \
+  --region=us-central1 \
+  --platform=managed \
+  --allow-unauthenticated \
+  --add-cloudsql-instances="$CLOUDSQL_INSTANCE" \
+  --vpc-connector=comdex-connector \
+  --vpc-egress=private-ranges-only \
+  --env-vars-file=env.yaml
+
+# Tail logs
+gcloud beta run services logs tail comdex-api \
+  --region=us-central1 --platform=managed
+12.2 Frontend (Next.js + Firebase Hosting)
 bash
 Copy
 Edit
-psql postgresql://comdex:Wn8smx123@localhost:5432/comdex
-sql
+cd frontend
+
+# Local dev
+npm install
+npm run dev
+
+# Static export
+npm run build      # → runs `next build`
+# no longer need `next export` here: `output: "export"` in next.config.js
+npm run export     # → writes to `out/`
+
+# Deploy to Firebase Hosting
+firebase deploy --only hosting
+firebase.json (public-only mode + Cloud Run rewrite):
+
+jsonc
 Copy
 Edit
-INSERT INTO users (name, email, wallet_address, role)
-VALUES (
-  'My Supplier',
-  'supplier@example.com',
-  LOWER('0x70997970c51812dc3a010c7d01b50e0d17dc79c8'),
-  'supplier'
-)
-ON CONFLICT (email) DO UPDATE
-  SET wallet_address = EXCLUDED.wallet_address,
-      role           = EXCLUDED.role;
+{
+  "hosting": {
+    "public": "frontend/out",
+    "ignore": [ "firebase.json", "**/.*", "**/node_modules/**" ],
+    "rewrites": [
+      {
+        "source": "/api/**",
+        "run": {
+          "serviceId": "comdex-api",
+          "region": "us-central1"
+        }
+      },
+      { "source": "**", "destination": "/index.html" }
+    ]
+  }
+}
+<br>
+End of document.
 
-SELECT id, email, role, wallet_address
-  FROM users
- WHERE email = 'supplier@example.com';
-
-\q
-Frontend
-bash
-Copy
-Edit
-cd ~/Desktop/Comdex/frontend
-npm install      # or yarn
-npm run dev      # or yarn dev
-Env (.env.local):
-
-ini
-Copy
-Edit
-NEXT_PUBLIC_API_URL=http://localhost:8000
-NEXT_PUBLIC_GLU_TOKEN_ADDRESS=0x5FbDB2315678afecb367f032d93F642f64180aa3
-NEXT_PUBLIC_ESCROW_ADDRESS=0xe7f1725e7734ce288f8367e1bb143e90bb3f0512
-NEXT_PUBLIC_WEB3_PROVIDER_URL=http://127.0.0.1:8545
-Editing Files:
-
-bash
-Copy
-Edit
-nano routes/auth.py
-nano components/Navbar.tsx
-nano pages/buyer/dashboard.tsx
-nano lib/api.ts
 
 
 
