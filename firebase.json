@@ -1,12 +1,11 @@
 {
   "hosting": {
-    // run these inside 'frontend'
+    "source": "frontend",
     "predeploy": [
-      "npm --prefix frontend ci",
-      "npm --prefix frontend run build",
-      "npm --prefix frontend run export"
+      "npm ci",
+      "npm run build",
+      "npm run export"
     ],
-    // serve the static-out folder
     "public": "frontend/out",
     "ignore": [
       "firebase.json",
