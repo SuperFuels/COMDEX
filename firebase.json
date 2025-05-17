@@ -3,16 +3,16 @@
     // run these inside 'frontend'
     "predeploy": [
       "npm --prefix frontend ci",
-      "npm --prefix frontend run build"
+      "npm --prefix frontend run build",
+      "npm --prefix frontend run export"
     ],
-    // point at your static out folder
+    // serve the static-out folder
     "public": "frontend/out",
     "ignore": [
       "firebase.json",
       "**/.*",
       "**/node_modules/**"
     ],
-    // SPA‐style fallback
     "rewrites": [
       { "source": "**", "destination": "/index.html" }
     ]
