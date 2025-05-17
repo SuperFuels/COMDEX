@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "export": "next export",
     "start": "next start",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -54,3 +55,4 @@
     "typescript": "^5.8.3"
   }
 }
+
