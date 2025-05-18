@@ -1,3 +1,5 @@
+# Dockerfile
+
 FROM python:3.11-slim
 ENV PYTHONUNBUFFERED=1
 
@@ -9,20 +11,18 @@ RUN apt-get update && \
       shared-mime-info && \
     rm -rf /var/lib/apt/lists/*
 
-# 2) Install Python deps
+# 2) Copy & install Python deps
 WORKDIR /srv
 COPY backend/requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 3) Copy your app code under /srv/backend
+# 3) Copy app code
 COPY backend/ ./backend
 
-# 4) Ensure Uvicorn can import routes/ by pointing Python at /srv/backend
+# 4) Make sure Uvicorn can find your package
 ENV PYTHONPATH=/srv/backend
 
-# (no more build-time `mkdir` here—your app will create the folder at runtime)
-
-# 5) Expose port and run Uvicorn
+# 5) Expose & run
 EXPOSE 8080
 ENTRYPOINT ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8080"]
 
