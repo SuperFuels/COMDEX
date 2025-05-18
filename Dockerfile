@@ -20,10 +20,9 @@ COPY backend/ ./backend
 # 4) Ensure Uvicorn can import routes/ by pointing Python at /srv/backend
 ENV PYTHONPATH=/srv/backend
 
-# 5) Create uploads dir
-RUN mkdir -p uploaded_images
+# (no more build-time `mkdir` here—your app will create the folder at runtime)
 
-# 6) Expose port and run Uvicorn
+# 5) Expose port and run Uvicorn
 EXPOSE 8080
 ENTRYPOINT ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8080"]
 
