@@ -2,10 +2,17 @@
 import axios, { AxiosRequestConfig, AxiosError } from 'axios'
 import Router from 'next/router'
 
+// Ensure baseURL always ends with a slash
+type NullableString = string | undefined
+const rawBaseURL: string =
+  (process.env.NEXT_PUBLIC_API_URL as string) ||
+  'https://comdex-api-375760843948.us-central1.run.app'
+const baseURL: string = rawBaseURL.endsWith('/')
+  ? rawBaseURL
+  : rawBaseURL + '/'
+
 const api = axios.create({
-  baseURL:
-    process.env.NEXT_PUBLIC_API_URL ??
-    'https://comdex-api-375760843948.us-central1.run.app',
+  baseURL,
   headers: {
     Accept: 'application/json',
     'Content-Type': 'application/json',
@@ -13,12 +20,22 @@ const api = axios.create({
   withCredentials: false,
 })
 
+// Request interceptor: normalize URL and attach auth token
 api.interceptors.request.use(
   (config: AxiosRequestConfig) => {
+    // Normalize URL to include trailing slash before query parameters
+    if (config.url) {
+      const [path, query] = config.url.split('?')
+      if (!path.endsWith('/')) {
+        config.url = path + '/' + (query ? `?${query}` : '')
+      }
+    }
+
+    // Attach auth token if present in localStorage
     if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('token')
+      const token = window.localStorage.getItem('token')
       if (token) {
-        config.headers = config.headers ?? {}
+        config.headers = config.headers || {}
         config.headers.Authorization = `Bearer ${token}`
       }
     }
@@ -27,6 +44,7 @@ api.interceptors.request.use(
   (error: AxiosError) => Promise.reject(error)
 )
 
+// Response interceptor: handle unauthorized
 api.interceptors.response.use(
   response => response,
   (error: AxiosError) => {
@@ -35,7 +53,7 @@ api.interceptors.response.use(
       console.warn(
         '[api] Unauthorized – clearing token and redirecting to /login'
       )
-      localStorage.removeItem('token')
+      window.localStorage.removeItem('token')
       Router.replace('/login')
     }
     return Promise.reject(error)
