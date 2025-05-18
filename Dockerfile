@@ -1,7 +1,11 @@
 # Dockerfile
 
+# base image
 FROM python:3.11-slim
-ENV PYTHONUNBUFFERED=1
+
+# make sure Python output is unbuffered, and default PORT to 8080
+ENV PYTHONUNBUFFERED=1 \
+    PORT=8080
 
 # 1) Install system deps
 RUN apt-get update && \
@@ -16,13 +20,16 @@ WORKDIR /srv
 COPY backend/requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 3) Copy app code
+# 3) Copy your app
 COPY backend/ ./backend
 
-# 4) Make sure Uvicorn can find your package
+# 4) Make sure Uvicorn can import your package
 ENV PYTHONPATH=/srv/backend
 
-# 5) Expose & run
-EXPOSE 8080
-ENTRYPOINT ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8080"]
+# 5) Tell Docker which port your app will listen on
+EXPOSE $PORT
+
+# 6) Start Uvicorn, honoring $PORT and proxy headers
+#    We use sh -c so that $PORT is expanded in exec form
+CMD ["sh", "-c", "exec uvicorn backend.main:app --host 0.0.0.0 --port $PORT --proxy-headers"]
 
