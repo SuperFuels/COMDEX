@@ -11,7 +11,7 @@ steps:
       [
         'build',
         '-f', 'backend/Dockerfile',
-        '-t', 'gcr.io/$PROJECT_ID/${_SERVICE}:$SHORT_SHA',
+        '-t', 'gcr.io/$PROJECT_ID/${_SERVICE}:$BUILD_ID',
         '.'
       ]
 
@@ -20,7 +20,7 @@ steps:
     args:
       [
         'push',
-        'gcr.io/$PROJECT_ID/${_SERVICE}:$SHORT_SHA'
+        'gcr.io/$PROJECT_ID/${_SERVICE}:$BUILD_ID'
       ]
 
   # 3) Deploy to Cloud Run
@@ -29,7 +29,7 @@ steps:
     args:
       [
         'run', 'deploy', '${_SERVICE}',
-        '--image', 'gcr.io/$PROJECT_ID/${_SERVICE}:$SHORT_SHA',
+        '--image', 'gcr.io/$PROJECT_ID/${_SERVICE}:$BUILD_ID',
         '--region', '$_REGION',
         '--platform', 'managed',
         '--allow-unauthenticated',
@@ -41,5 +41,5 @@ steps:
       ]
 
 images:
-  - 'gcr.io/$PROJECT_ID/${_SERVICE}:$SHORT_SHA'
+  - 'gcr.io/$PROJECT_ID/${_SERVICE}:$BUILD_ID'
 
