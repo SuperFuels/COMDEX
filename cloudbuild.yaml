@@ -5,17 +5,17 @@ substitutions:
   _REGION: us-central1
 
 steps:
-  # 1) Build the container
+  # 1) Build the container (Dockerfile lives at the repo root)
   - name: 'gcr.io/cloud-builders/docker'
     args:
       [
         'build',
-        '-f', 'backend/Dockerfile',
+        '-f', 'Dockerfile',
         '-t', 'gcr.io/$PROJECT_ID/${_SERVICE}:$BUILD_ID',
         '.'
       ]
 
-  # 2) Push to Artifact Registry / GCR
+  # 2) Push the image
   - name: 'gcr.io/cloud-builders/docker'
     args:
       [
@@ -23,7 +23,7 @@ steps:
         'gcr.io/$PROJECT_ID/${_SERVICE}:$BUILD_ID'
       ]
 
-  # 3) Deploy to Cloud Run
+  # 3) Deploy to Cloud Run (mount Cloud SQL, VPC, env-vars)
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
     args:
