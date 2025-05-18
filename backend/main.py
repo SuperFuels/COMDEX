@@ -2,6 +2,9 @@ import os
 import time
 import logging
 
+# ensure uploads folder exists at runtime
+os.makedirs("uploaded_images", exist_ok=True)
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -35,17 +38,16 @@ app = FastAPI(
     description="Global Commodity Marketplace API",
 )
 
-# ─── Leave the default trailing-slash behavior so /foo → /foo/ still redirects ───
-# (we removed/commented-out app.router.redirect_slashes = False)
+# (No redirect_slashes override—let FastAPI handle trailing-slash redirects.)
 
-# ─── Whitelist origins for CORS ────────────────────────────────────────────────
+# CORS Middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:3000",
         "http://127.0.0.1:3000",
-        "https://swift-area-459514-d1.web.app",                       # your Firebase site
-        "https://comdex-api-375760843948.us-central1.run.app",       # your live API
+        "https://swift-area-459514-d1.web.app",
+        "https://comdex-api-375760843948.us-central1.run.app",
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -59,7 +61,7 @@ app.mount(
     name="uploaded_images",
 )
 
-# Include all your routers
+# Include all routers
 app.include_router(auth_router,      prefix="/auth",      tags=["Auth"])
 app.include_router(products_router,  prefix="/products",  tags=["Products"])
 app.include_router(deal_router,      prefix="/deals",     tags=["Deals"])
@@ -67,7 +69,7 @@ app.include_router(contracts_router, prefix="/contracts", tags=["Contracts"])
 app.include_router(admin_router,     prefix="/admin",     tags=["Admin"])
 app.include_router(user_router,      prefix="/users",     tags=["Users"])
 
-# Helpers to build DB URL via Cloud SQL socket
+# Database URL helper
 DB_USER        = os.getenv("DB_USER", "")
 DB_PASS        = os.getenv("DB_PASS", "")
 DB_NAME        = os.getenv("DB_NAME", "")
@@ -79,7 +81,6 @@ def get_database_url():
             f"postgresql+psycopg2://{DB_USER}:{DB_PASS}@/{DB_NAME}"
             f"?host=/cloudsql/{DB_SOCKET_PATH}"
         )
-    # fallback to full host/port URL
     return os.getenv(
         "DATABASE_URL",
         f"postgresql://{DB_USER}:{DB_PASS}@localhost:5432/{DB_NAME}"
