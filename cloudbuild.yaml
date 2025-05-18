@@ -1,39 +1,45 @@
+# cloudbuild.yaml
+
 substitutions:
-  _SERVICE: comdex
+  _SERVICE: comdex-api
   _REGION: us-central1
 
 steps:
-  # Build the container from the repo root
+  # 1) Build the container
   - name: 'gcr.io/cloud-builders/docker'
     args:
       [
-        "build",
-        "-f", "backend/Dockerfile",
-        "-t", "gcr.io/$PROJECT_ID/$_SERVICE:$SHORT_SHA",
-        "."
+        'build',
+        '-f', 'backend/Dockerfile',
+        '-t', 'gcr.io/$PROJECT_ID/${_SERVICE}:$SHORT_SHA',
+        '.'
       ]
 
-  # Push to GCR
+  # 2) Push to Artifact Registry / GCR
   - name: 'gcr.io/cloud-builders/docker'
     args:
       [
-        "push",
-        "gcr.io/$PROJECT_ID/$_SERVICE:$SHORT_SHA"
+        'push',
+        'gcr.io/$PROJECT_ID/${_SERVICE}:$SHORT_SHA'
       ]
 
-  # Deploy to Cloud Run
+  # 3) Deploy to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
     args:
       [
-        "run", "deploy", "$_SERVICE",
-        "--image", "gcr.io/$PROJECT_ID/$_SERVICE:$SHORT_SHA",
-        "--region", "$_REGION",
-        "--platform", "managed",
-        "--allow-unauthenticated",
-        "--port", "8080"
+        'run', 'deploy', '${_SERVICE}',
+        '--image', 'gcr.io/$PROJECT_ID/${_SERVICE}:$SHORT_SHA',
+        '--region', '$_REGION',
+        '--platform', 'managed',
+        '--allow-unauthenticated',
+        '--add-cloudsql-instances=swift-area-459514-d1:us-central1:comdex-db',
+        '--vpc-connector=comdex-connector',
+        '--vpc-egress=private-ranges-only',
+        '--env-vars-file=env.yaml',
+        '--port', '8080'
       ]
 
 images:
-  - "gcr.io/$PROJECT_ID/$_SERVICE:$SHORT_SHA"
+  - 'gcr.io/$PROJECT_ID/${_SERVICE}:$SHORT_SHA'
 
