@@ -1,3 +1,5 @@
+# main.py
+
 import os
 import time
 import logging
@@ -38,8 +40,6 @@ app = FastAPI(
     description="Global Commodity Marketplace API",
 )
 
-# (No redirect_slashes override—let FastAPI handle trailing-slash redirects.)
-
 # CORS Middleware
 app.add_middleware(
     CORSMiddleware,
@@ -62,31 +62,39 @@ app.mount(
 )
 
 # Include all routers
-app.include_router(auth_router,      prefix="/auth",      tags=["Auth"])
-app.include_router(products_router,  prefix="/products",  tags=["Products"])
-app.include_router(deal_router,      prefix="/deals",     tags=["Deals"])
-app.include_router(contracts_router, prefix="/contracts", tags=["Contracts"])
-app.include_router(admin_router,     prefix="/admin",     tags=["Admin"])
-app.include_router(user_router,      prefix="/users",     tags=["Users"])
+app.include_router(auth_router,      prefix="/auth",     tags=["Auth"])
+app.include_router(products_router,  prefix="/products", tags=["Products"])
+app.include_router(deal_router,      prefix="/deals",    tags=["Deals"])
+app.include_router(contracts_router, prefix="/contracts",tags=["Contracts"])
+app.include_router(admin_router,     prefix="/admin",    tags=["Admin"])
+app.include_router(user_router,      prefix="/users",    tags=["Users"])
 
 # Database URL helper
-DB_USER        = os.getenv("DB_USER", "")
-DB_PASS        = os.getenv("DB_PASS", "")
-DB_NAME        = os.getenv("DB_NAME", "")
-DB_SOCKET_PATH = os.getenv("DB_SOCKET_PATH", "")
+DB_USER = os.getenv("DB_USER", "")
+DB_PASS = os.getenv("DB_PASS", "")
+DB_NAME = os.getenv("DB_NAME", "")
+
+# Read the Cloud SQL socket name — use INSTANCE_CONNECTION_NAME (as in env.yaml)
+# falling back to DB_SOCKET_PATH if you still have that set
+INSTANCE_CONNECTION_NAME = (
+    os.getenv("INSTANCE_CONNECTION_NAME")
+    or os.getenv("DB_SOCKET_PATH", "")
+)
 
 def get_database_url():
-    if DB_SOCKET_PATH:
+    if INSTANCE_CONNECTION_NAME:
+        # Connect via Unix socket
         return (
             f"postgresql+psycopg2://{DB_USER}:{DB_PASS}@/{DB_NAME}"
-            f"?host=/cloudsql/{DB_SOCKET_PATH}"
+            f"?host=/cloudsql/{INSTANCE_CONNECTION_NAME}"
         )
+    # Otherwise, allow a full URL override or default to localhost
     return os.getenv(
         "DATABASE_URL",
         f"postgresql://{DB_USER}:{DB_PASS}@localhost:5432/{DB_NAME}"
     )
 
-# Root & health endpoints
+# Health & root
 @app.get("/", tags=["Root"])
 def read_root():
     return {"message": "🚀 Welcome to the COMDEX API!"}
@@ -95,7 +103,7 @@ def read_root():
 def health_check():
     db_url = get_database_url()
     try:
-        engine = create_engine(db_url)
+        engine = create_engine(db_url, pool_pre_ping=True)
         with engine.connect() as conn:
             conn.execute(text("SELECT 1"))
         logger.info("✅ Database connection successful.")
