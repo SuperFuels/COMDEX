@@ -7,7 +7,6 @@ os.makedirs("uploaded_images", exist_ok=True)
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from starlette.middleware.proxy_headers import ProxyHeadersMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import create_engine, text
 from sqlalchemy.exc import OperationalError
@@ -39,8 +38,7 @@ app = FastAPI(
     description="Global Commodity Marketplace API",
 )
 
-# 1) Trust Cloud Run's X-Forwarded headers so redirects stay HTTPS
-app.add_middleware(ProxyHeadersMiddleware, trusted_hosts="*")
+# 1) We rely on Uvicorn’s --proxy-headers flag, so no middleware here
 
 # 2) CORS Middleware
 app.add_middleware(
@@ -62,7 +60,7 @@ app.mount(
     StaticFiles(directory="uploaded_images"),
     name="uploaded_images",
 )
-
+    
 # Include all routers
 app.include_router(auth_router,      prefix="/auth",     tags=["Auth"])
 app.include_router(products_router,  prefix="/products", tags=["Products"])
@@ -75,12 +73,12 @@ app.include_router(user_router,      prefix="/users",    tags=["Users"])
 DB_USER = os.getenv("DB_USER", "")
 DB_PASS = os.getenv("DB_PASS", "")
 DB_NAME = os.getenv("DB_NAME", "")
-
+        
 INSTANCE_CONNECTION_NAME = (
     os.getenv("INSTANCE_CONNECTION_NAME")
     or os.getenv("DB_SOCKET_PATH", "")
 )
-
+    
 def get_database_url():
     if INSTANCE_CONNECTION_NAME:
         # Connect via Unix socket
