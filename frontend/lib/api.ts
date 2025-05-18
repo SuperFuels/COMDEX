@@ -2,14 +2,21 @@
 import axios, { AxiosRequestConfig, AxiosError } from 'axios'
 import Router from 'next/router'
 
-// Ensure baseURL always ends with a slash
-type NullableString = string | undefined
-const rawBaseURL: string =
-  (process.env.NEXT_PUBLIC_API_URL as string) ||
-  'https://comdex-api-375760843948.us-central1.run.app'
-const baseURL: string = rawBaseURL.endsWith('/')
-  ? rawBaseURL
-  : rawBaseURL + '/'
+// 1️⃣ Require that NEXT_PUBLIC_API_URL is set (and must be HTTPS)
+if (!process.env.NEXT_PUBLIC_API_URL) {
+  throw new Error(
+    'Missing env var NEXT_PUBLIC_API_URL — please set it to your Cloud Run URL'
+  )
+}
+const rawBaseURL = process.env.NEXT_PUBLIC_API_URL
+if (!rawBaseURL.startsWith('https://')) {
+  throw new Error(
+    `NEXT_PUBLIC_API_URL must start with "https://", but got "${rawBaseURL}"`
+  )
+}
+
+// 2️⃣ Ensure baseURL always ends with a slash
+const baseURL = rawBaseURL.endsWith('/') ? rawBaseURL : rawBaseURL + '/'
 
 const api = axios.create({
   baseURL,
@@ -17,21 +24,19 @@ const api = axios.create({
     Accept: 'application/json',
     'Content-Type': 'application/json',
   },
-  withCredentials: false,
+  withCredentials: false, // adjust if you ever need cookies
 })
 
-// Request interceptor: normalize URL and attach auth token
+// 3️⃣ Normalize every request URL and attach auth token
 api.interceptors.request.use(
   (config: AxiosRequestConfig) => {
-    // Normalize URL to include trailing slash before query parameters
     if (config.url) {
-      const [path, query] = config.url.split('?')
+      const [path, qs] = config.url.split('?')
       if (!path.endsWith('/')) {
-        config.url = path + '/' + (query ? `?${query}` : '')
+        config.url = path + '/' + (qs ? `?${qs}` : '')
       }
     }
 
-    // Attach auth token if present in localStorage
     if (typeof window !== 'undefined') {
       const token = window.localStorage.getItem('token')
       if (token) {
@@ -44,15 +49,13 @@ api.interceptors.request.use(
   (error: AxiosError) => Promise.reject(error)
 )
 
-// Response interceptor: handle unauthorized
+// 4️⃣ Global 401/403 handler
 api.interceptors.response.use(
   response => response,
   (error: AxiosError) => {
     const status = error.response?.status
     if ((status === 401 || status === 403) && typeof window !== 'undefined') {
-      console.warn(
-        '[api] Unauthorized – clearing token and redirecting to /login'
-      )
+      console.warn('[api] Unauthorized – clearing token and redirecting to /login')
       window.localStorage.removeItem('token')
       Router.replace('/login')
     }

@@ -1,5 +1,3 @@
-# main.py
-
 import os
 import time
 import logging
@@ -10,6 +8,7 @@ os.makedirs("uploaded_images", exist_ok=True)
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from starlette.middleware.proxy_headers import ProxyHeadersMiddleware
 from sqlalchemy import create_engine, text
 from sqlalchemy.exc import OperationalError
 
@@ -39,6 +38,9 @@ app = FastAPI(
     version="1.0.0",
     description="Global Commodity Marketplace API",
 )
+
+# Trust Cloud Run's X-Forwarded headers so redirects stay HTTPS
+app.add_middleware(ProxyHeadersMiddleware, trusted_hosts="*")
 
 # CORS Middleware
 app.add_middleware(
@@ -73,9 +75,7 @@ app.include_router(user_router,      prefix="/users",    tags=["Users"])
 DB_USER = os.getenv("DB_USER", "")
 DB_PASS = os.getenv("DB_PASS", "")
 DB_NAME = os.getenv("DB_NAME", "")
-
-# Read the Cloud SQL socket name — use INSTANCE_CONNECTION_NAME (as in env.yaml)
-# falling back to DB_SOCKET_PATH if you still have that set
+        
 INSTANCE_CONNECTION_NAME = (
     os.getenv("INSTANCE_CONNECTION_NAME")
     or os.getenv("DB_SOCKET_PATH", "")
