@@ -39,10 +39,10 @@ app = FastAPI(
     description="Global Commodity Marketplace API",
 )
 
-# Trust Cloud Run's X-Forwarded headers so redirects stay HTTPS
+# 1) Trust Cloud Run's X-Forwarded headers so redirects stay HTTPS
 app.add_middleware(ProxyHeadersMiddleware, trusted_hosts="*")
 
-# CORS Middleware
+# 2) CORS Middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
