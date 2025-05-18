@@ -7,8 +7,8 @@ os.makedirs("uploaded_images", exist_ok=True)
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.proxy_headers import ProxyHeadersMiddleware
 from fastapi.staticfiles import StaticFiles
-from starlette.middleware.proxy_headers import ProxyHeadersMiddleware
 from sqlalchemy import create_engine, text
 from sqlalchemy.exc import OperationalError
 
@@ -75,7 +75,7 @@ app.include_router(user_router,      prefix="/users",    tags=["Users"])
 DB_USER = os.getenv("DB_USER", "")
 DB_PASS = os.getenv("DB_PASS", "")
 DB_NAME = os.getenv("DB_NAME", "")
-        
+
 INSTANCE_CONNECTION_NAME = (
     os.getenv("INSTANCE_CONNECTION_NAME")
     or os.getenv("DB_SOCKET_PATH", "")
