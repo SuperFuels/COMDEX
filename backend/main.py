@@ -7,7 +7,7 @@ os.makedirs("uploaded_images", exist_ok=True)
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.middleware.proxy_headers import ProxyHeadersMiddleware
+from starlette.middleware.proxy_headers import ProxyHeadersMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import create_engine, text
 from sqlalchemy.exc import OperationalError
