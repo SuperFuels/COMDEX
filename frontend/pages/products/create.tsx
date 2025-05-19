@@ -26,7 +26,7 @@ export default function CreateProductPage() {
     setToken(storedToken);
 
     axios
-      .get('http://localhost:8000/auth/role', {
+      .get('/auth/role', {
         headers: { Authorization: `Bearer ${storedToken}` },
       })
       .then((res) => {
@@ -61,7 +61,7 @@ export default function CreateProductPage() {
     if (formData.image) data.append('image', formData.image);
 
     try {
-      await api.post('http://localhost:8000/products/create', data, {
+      await api.post('/products/create', data, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data',

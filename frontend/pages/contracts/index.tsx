@@ -11,7 +11,7 @@ export default function ContractsPage() {
   useEffect(() => {
     const token = localStorage.getItem('token')
     axios
-      .get<Contract[]>('http://localhost:8000/contracts/', {
+      .get<Contract[]>('/contracts/', {
         headers: { Authorization: `Bearer ${token}` }
       })
       .then(res => setContracts(res.data))

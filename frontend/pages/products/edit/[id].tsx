@@ -1,134 +1,150 @@
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
-import api from '@/lib/api';
-import Navbar from '@/components/Navbar'; // ✅ Include Navbar
+// frontend/pages/products/edit/[id].tsx
+
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/router'
+import api from '@/lib/api'
+import Navbar from '@/components/Navbar'
 
 interface ProductForm {
-  title: string;
-  description: string;
-  price_per_kg: string;
-  origin_country: string;
-  category: string;
+  title: string
+  description: string
+  price_per_kg: string
+  origin_country: string
+  category: string
 }
 
 export default function EditProductPage() {
-  const router = useRouter();
-  const { id } = router.query;
+  const router = useRouter()
+  const { id } = router.query
+
   const [form, setForm] = useState<ProductForm>({
     title: '',
     description: '',
     price_per_kg: '',
     origin_country: '',
     category: '',
-  });
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(true);
+  })
+  const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token || !id) return;
+    if (!id) return
 
     const fetchProduct = async () => {
+      setLoading(true)
       try {
-        const res = await api.get(`http://localhost:8000/products/${id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setForm(res.data);
-      } catch {
-        setError('❌ Failed to load product');
+        // api is preconfigured with baseURL = NEXT_PUBLIC_API_URL
+        const { data } = await api.get(`/products/${id}`)
+        setForm({
+          title: data.title,
+          description: data.description,
+          price_per_kg: String(data.price_per_kg),
+          origin_country: data.origin_country,
+          category: data.category,
+        })
+      } catch (err) {
+        console.error(err)
+        setError('❌ Failed to load product')
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
 
-    fetchProduct();
-  }, [id]);
+    fetchProduct()
+  }, [id])
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const token = localStorage.getItem('token');
+    e.preventDefault()
+    setError(null)
     try {
-      await axios.put(`http://localhost:8000/products/${id}`, form, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      router.push('/dashboard');
+      await api.put(`/products/${id}`, {
+        title: form.title,
+        description: form.description,
+        price_per_kg: parseFloat(form.price_per_kg),
+        origin_country: form.origin_country,
+        category: form.category,
+      })
+      router.push('/dashboard')
     } catch (err) {
-      setError('❌ Failed to update product');
+      console.error(err)
+      setError('❌ Failed to update product')
     }
-  };
+  }
 
   if (loading) {
-    return <div className="p-6">Loading product details...</div>;
+    return (
+      <div className="p-6 text-center">
+        Loading product details…
+      </div>
+    )
   }
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <Navbar /> {/* ✅ Navbar added */}
+      <Navbar />
       <div className="max-w-xl mx-auto p-6">
         <h1 className="text-2xl font-bold mb-4">✏️ Edit Product</h1>
         {error && <p className="text-red-500 mb-2">{error}</p>}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
-            type="text"
             name="title"
             value={form.title}
             onChange={handleChange}
-            className="w-full border border-gray-300 p-2 rounded"
             placeholder="Title"
             required
+            className="w-full border p-2 rounded"
           />
           <textarea
             name="description"
             value={form.description}
             onChange={handleChange}
-            className="w-full border border-gray-300 p-2 rounded"
             placeholder="Description"
             rows={4}
             required
+            className="w-full border p-2 rounded"
           />
           <input
-            type="text"
             name="category"
             value={form.category}
             onChange={handleChange}
-            className="w-full border border-gray-300 p-2 rounded"
             placeholder="Category"
             required
+            className="w-full border p-2 rounded"
           />
           <input
-            type="text"
             name="origin_country"
             value={form.origin_country}
             onChange={handleChange}
-            className="w-full border border-gray-300 p-2 rounded"
             placeholder="Origin Country"
             required
+            className="w-full border p-2 rounded"
           />
           <input
-            type="number"
             name="price_per_kg"
+            type="number"
+            step="0.01"
             value={form.price_per_kg}
             onChange={handleChange}
-            className="w-full border border-gray-300 p-2 rounded"
             placeholder="Price per kg"
             required
+            className="w-full border p-2 rounded"
           />
           <button
             type="submit"
-            className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 w-full"
+            className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
           >
             ✅ Update Product
           </button>
         </form>
       </div>
     </div>
-  );
+  )
 }
 

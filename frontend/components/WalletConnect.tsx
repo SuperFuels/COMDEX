@@ -20,7 +20,7 @@ export default function WalletConnect() {
         }
 
         await axios.patch(
-          'http://localhost:8000/users/me/wallet',
+          '/users/me/wallet',
           { wallet_address: address },
           {
             headers: {

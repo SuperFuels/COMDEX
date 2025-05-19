@@ -18,7 +18,7 @@ export default function CreateDealPage() {
     if (!token || !product_id) return;
 
     axios
-      .get(`http://localhost:8000/products/${product_id}`, {
+      .get(`/products/${product_id}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
@@ -36,7 +36,7 @@ export default function CreateDealPage() {
 
     try {
       await api.post(
-        `http://localhost:8000/deals/create`,
+        `/deals/create`,
         {
           product_id: Number(product_id),
           quantity_kg: Number(quantityKg),

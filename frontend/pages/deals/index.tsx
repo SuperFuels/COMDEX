@@ -13,7 +13,7 @@ export default function DealsPage() {
     setError(null)
     const token = localStorage.getItem('token')
     axios
-      .get<Deal[]>('http://localhost:8000/deals/', {
+      .get<Deal[]>('/deals/', {
         headers: { Authorization: `Bearer ${token}` }
       })
       .then(res => setDeals(res.data))
@@ -25,7 +25,7 @@ export default function DealsPage() {
     const token = localStorage.getItem('token')
     axios
       .put(
-        `http://localhost:8000/deals/${id}/status`,
+        `/deals/${id}/status`,
         { status: nextStatus },
         { headers: { Authorization: `Bearer ${token}` } }
       )

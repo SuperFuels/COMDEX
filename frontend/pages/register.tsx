@@ -25,7 +25,7 @@ export default function RegisterPage() {
       formData.append('role', role);
 
       const response = await api.post(
-        'http://localhost:8000/auth/register',
+        '/auth/register',
         formData,
         {
           headers: {
