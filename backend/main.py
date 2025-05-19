@@ -21,21 +21,25 @@ if os.getenv("ENV", "").lower() != "production":
 # 3) give Cloud SQL socket & VPC connector time on cold start
 time.sleep(3)
 
-# 4) import the single shared engine (configured in backend/database.py)
-from database import engine
-
-# 5) set up logging
+# 4) set up logging so we can debug early
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("comdex")
 
-# 6) FastAPI app
+# 5) import and log the actual DB URL being used
+from config import SQLALCHEMY_DATABASE_URL
+logger.info(f"🔍 SQLALCHEMY_DATABASE_URL = {SQLALCHEMY_DATABASE_URL}")
+
+# 6) import the single shared engine (configured in backend/database.py)
+from database import engine
+
+# 7) FastAPI app
 app = FastAPI(
     title="COMDEX API",
     version="1.0.0",
     description="Global Commodity Marketplace API",
 )
 
-# 7) configure CORS from env var (comma-separated list)
+# 8) configure CORS from env var (comma-separated list)
 origins = os.getenv("CORS_ALLOWED_ORIGINS", "")
 allow_origins = [o.strip() for o in origins.split(",") if o.strip()]
 app.add_middleware(
@@ -46,14 +50,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 8) serve user uploads
+# 9) serve user uploads
 app.mount(
     "/uploaded_images",
     StaticFiles(directory="uploaded_images"),
     name="uploaded_images",
 )
 
-# 9) import & include routers
+# 10) import & include routers
 from routes.auth      import router as auth_router
 from routes.products  import router as products_router
 from routes.deal      import router as deal_router
@@ -68,12 +72,12 @@ app.include_router(contracts_router, prefix="/contracts",tags=["Contracts"])
 app.include_router(admin_router,     prefix="/admin",    tags=["Admin"])
 app.include_router(user_router,      prefix="/users",    tags=["Users"])
 
-# 10) root endpoint
+# 11) root endpoint
 @app.get("/", tags=["Root"])
 def read_root():
     return {"message": "🚀 Welcome to the COMDEX API!"}
 
-# 11) health check — uses only the socket-based engine
+# 12) health check — uses only the socket-based engine
 @app.get("/health", tags=["Health"])
 def health_check():
     try:
