@@ -27,8 +27,11 @@ _nonces: Dict[str, str] = {}
 # Your one “supplier” wallet for testing
 DEV_SUPPLIER_WALLET = "0x70997970c51812dc3a010c7d01b50e0d17dc79c8".lower()
 
-# ─── Lazy Web3 connection ───
-def get_web3():
+
+def get_web3() -> Web3:
+    """
+    Lazily instantiate a Web3 HTTPProvider from env.
+    """
     rpc_url = os.getenv("WEB3_PROVIDER_URL")
     if not rpc_url:
         raise RuntimeError("Missing WEB3_PROVIDER_URL in environment")
@@ -82,38 +85,57 @@ def verify_siwe(
     try:
         wallet = body.message.split("\n")[1].strip().lower()
     except IndexError:
-        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Malformed SIWE message")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Malformed SIWE message: cannot extract wallet address"
+        )
 
     # 2) Validate nonce
     try:
-        raw = next(line for line in body.message.splitlines() if line.startswith("Nonce:"))
+        raw = next(
+            line
+            for line in body.message.splitlines()
+            if line.startswith("Nonce:")
+        )
         nonce = raw.split("Nonce:")[1].strip()
     except StopIteration:
-        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Nonce not found")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Nonce not found in SIWE message"
+        )
 
     if _nonces.get(wallet) != nonce:
-        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Invalid nonce")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid nonce"
+        )
 
-    # 3) Recover signature using lazy Web3
+    # 3) Recover signature using Web3
     try:
         w3 = get_web3()
         msg = encode_defunct(text=body.message)
         signer = w3.eth.account.recover_message(msg, signature=body.signature)
     except Exception as e:
-        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail=f"Signature recovery failed: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Signature recovery failed: {e}"
+        )
 
     if signer.lower() != wallet:
-        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Signature mismatch")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Signature mismatch"
+        )
 
-    # 4) Find user
+    # 4) Find user in DB
     user = db.query(User).filter(User.wallet_address == wallet).first()
     if not user:
         raise HTTPException(
-            status.HTTP_404_NOT_FOUND,
+            status_code=status.HTTP_404_NOT_FOUND,
             detail="No user found for this wallet—insert one first"
         )
 
-    # 5) Create token
+    # 5) Create JWT
     token = create_access_token(subject=str(user.id))
     return {"token": token, "role": user.role}
 
@@ -127,14 +149,20 @@ def get_user_role(
     Extracts user role from the JWT.
     """
     try:
-        data = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id = int(data.get("sub"))
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = int(payload.get("sub"))
     except (JWTError, ValueError):
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired token")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired token"
+        )
 
     user = db.query(User).get(user_id)
     if not user:
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="User not found")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found"
+        )
 
     return {"role": user.role}
 
