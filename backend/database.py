@@ -1,33 +1,22 @@
+# backend/database.py
+
 from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from config import SQLALCHEMY_DATABASE_URL
 
-# Import the socket-based URL from config
-from .config import SQLALCHEMY_DATABASE_URL
+# Create a single shared Engine for the whole app, with pre-ping for resilience
+engine = create_engine(SQLALCHEMY_DATABASE_URL, pool_pre_ping=True)
 
-# Create engine for PostgreSQL via Cloud SQL Unix socket
-# echo=True to log SQL statements; pool_pre_ping=True to ensure connections
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL,
-    echo=True,
-    pool_pre_ping=True
-)
+# Session factory
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Base class for models
-Base = declarative_base()
-
-# Create a session maker for database sessions
-SessionLocal = sessionmaker(
-    autocommit=False,
-    autoflush=False,
-    bind=engine
-)
-
-# Dependency for FastAPI to get DB session
-# Usage in path operations:
-#   def endpoint(db: Session = Depends(get_db)):
-#       ...
 def get_db():
+    """
+    FastAPI dependency: yield a DB session, then close it.
+    Usage:
+        def endpoint(db: Session = Depends(get_db)):
+            ...
+    """
     db = SessionLocal()
     try:
         yield db
