@@ -14,7 +14,7 @@ export function useRoleGuard(allowedRoles: string[]) {
     }
 
     axios
-      .get("http://localhost:8000/auth/role", {
+      .get("/auth/role", {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {

@@ -53,7 +53,7 @@ export default function QuoteModal({
       }
 
       const res = await axios.post(
-        'http://localhost:8000/deals/',
+        '/deals/',
         body,
         { headers: { Authorization: `Bearer ${token}` } }
       )

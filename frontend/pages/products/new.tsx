@@ -43,7 +43,7 @@ export default function NewProduct() {
     }
 
     try {
-      await api.post('http://localhost:8000/products/create', formData, {
+      await api.post('/products/create', formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data',

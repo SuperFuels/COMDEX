@@ -1,16 +1,10 @@
-import api from '../lib/api';
+// frontend/utils/api.ts
+import axios from 'axios'
 
-const API = axios.create({
-  baseURL: 'http://localhost:8000',
-});
+const api = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_API_URL,  // ← use your env var
+  // any other defaults (timeout, headers, etc)…
+})
 
-API.interceptors.request.use((config) => {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
-
-export default API;
+export default api
 

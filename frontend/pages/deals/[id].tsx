@@ -1,57 +1,62 @@
-// pages/deals/[id].tsx
+// frontend/pages/deals/[id].tsx
 
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import api from '@/lib/api'
-import SwapPanel from '../../components/SwapPanel'
-import { Deal } from '../../types'
+import SwapPanel from '@/components/SwapPanel'
+import { Deal } from '@/types'
 
 export default function DealDetailPage() {
   const router = useRouter()
   const { id } = router.query as { id?: string }
 
   const [deal, setDeal]       = useState<Deal | null>(null)
-  const [loading, setLoading] = useState<boolean>(true)
+  const [loading, setLoading] = useState(true)
   const [error, setError]     = useState<string | null>(null)
 
-  const API = process.env.NEXT_PUBLIC_API_URL
-
-  const fetchDeal = () => {
+  // Fetch the deal from your API
+  const fetchDeal = async () => {
     if (!id) return
     setLoading(true)
     setError(null)
-    const token = localStorage.getItem('token')
-    axios
-      .get<Deal>(`${API}/deals/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      .then(res => {
-        console.log("Loaded deal from API:", res.data)
-        setDeal(res.data)
-      })
-      .catch(err => {
-        setError(err.response?.data?.detail || err.message)
-      })
-      .finally(() => setLoading(false))
+
+    try {
+      const { data } = await api.get<Deal>(`/deals/${id}`)
+      console.log('Loaded deal from API:', data)
+      setDeal(data)
+    } catch (err: any) {
+      console.error(err)
+      setError(err.response?.data?.detail || err.message)
+    } finally {
+      setLoading(false)
+    }
   }
 
   useEffect(() => {
     fetchDeal()
   }, [id])
 
-  // Called after the on-chain escrow tx succeeds
+  // Buyer escrow step → mark confirmed on our server
   const handleEscrowSuccess = async () => {
-    const token = localStorage.getItem('token')
+    if (!id) return
     try {
-      await axios.put(
-        `${API}/deals/${id}/status`,
-        { status: "confirmed" },
-        { headers: { Authorization: `Bearer ${token}` } }
-      )
-      fetchDeal()
-    } catch (e: any) {
-      console.error("Failed to update deal status:", e)
-      alert("Could not update deal status on server")
+      await api.put(`/deals/${id}/status`, { status: 'confirmed' })
+      await fetchDeal()
+    } catch (err: any) {
+      console.error('Failed to update deal status:', err)
+      alert(err.response?.data?.detail || 'Could not update deal status on server')
+    }
+  }
+
+  // Supplier release step → call release endpoint
+  const handleRelease = async () => {
+    if (!id) return
+    try {
+      await api.post(`/deals/${id}/release`)
+      await fetchDeal()
+    } catch (err: any) {
+      console.error('Release failed:', err)
+      alert(err.response?.data?.detail || 'Release failed')
     }
   }
 
@@ -84,20 +89,7 @@ export default function DealDetailPage() {
       {deal.status === 'confirmed' && (
         <button
           className="mt-4 bg-red-500 text-white px-4 py-2 rounded"
-          onClick={async () => {
-            const token = localStorage.getItem('token')
-            try {
-              await api.post(
-                `${API}/deals/${id}/release`,
-                {},
-                { headers: { Authorization: `Bearer ${token}` } }
-              )
-              fetchDeal()
-            } catch (err: any) {
-              console.error(err)
-              alert(err.response?.data?.detail || 'Release failed')
-            }
-          }}
+          onClick={handleRelease}
         >
           Release Funds
         </button>
