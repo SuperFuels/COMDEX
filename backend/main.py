@@ -7,7 +7,7 @@ import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from sqlalchemy import create_engine, text
+from sqlalchemy import text
 from sqlalchemy.exc import OperationalError
 
 # ensure uploads folder exists
@@ -21,15 +21,12 @@ if os.getenv("ENV", "").lower() != "production":
 # give Cloud SQL socket & VPC connector time on cold start
 time.sleep(3)
 
-# import the socket-based URL from config
-from config import SQLALCHEMY_DATABASE_URL
+# import the single shared engine (configured in backend/database.py)
+from database import engine
 
 # set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("comdex")
-
-# create one engine for the entire app
-engine = create_engine(SQLALCHEMY_DATABASE_URL, pool_pre_ping=True)
 
 # FastAPI app
 app = FastAPI(
