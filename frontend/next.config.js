@@ -1,19 +1,21 @@
 // frontend/next.config.js
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  eslint: {
-    // turn off ESLint during production builds
-    ignoreDuringBuilds: true,
+  // → this makes `next build` also produce an `out/` folder
+  output: 'export',
+
+  // if you’re using next/image, you need this to avoid the image‐optimization API
+  images: {
+    unoptimized: true,
   },
 
-  // make NEXT_PUBLIC_API_URL available in the browser
+  // keep your existing settings…
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   env: {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
   },
-
-  // remove any `output: 'export'` or next-export settings,
-  // so Next.js will produce a dynamic build that respects env-vars
 };
 
 module.exports = nextConfig;
