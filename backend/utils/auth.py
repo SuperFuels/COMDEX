@@ -14,15 +14,15 @@ from sqlalchemy.orm import Session
 from database import get_db
 from models.user import User
 
-# ─── JWT configuration ──────────────────────────────────────────────
+# ─── JWT configuration ───────────────────────────
 SECRET_KEY = os.getenv("SECRET_KEY", "super-secret-123")
 ALGORITHM = os.getenv("ALGORITHM", "HS256")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 60))
 
-# ─── Password hashing context ────────────────────────────────────────
+# ─── Password hashing context ─────────────────────
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-# ─── HTTP Bearer scheme ─────────────────────────────────────────────
+# ─── HTTP Bearer scheme ──────────────────────────
 security = HTTPBearer()
 
 
@@ -31,6 +31,10 @@ def hash_password(password: str) -> str:
     Hash a plaintext password for storage.
     """
     return pwd_context.hash(password)
+
+
+# Alias for backward compatibility
+get_password_hash = hash_password
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
@@ -77,7 +81,7 @@ def get_current_user(
             detail="Invalid or expired token",
             headers={"WWW-Authenticate": "Bearer"},
         )
-
+    
     user = db.query(User).get(user_id)
     if not user:
         raise HTTPException(
