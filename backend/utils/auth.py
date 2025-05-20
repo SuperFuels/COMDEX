@@ -14,23 +14,29 @@ from sqlalchemy.orm import Session
 from database import get_db
 from models.user import User
 
-# ─── JWT configuration (now loaded from env, with sane defaults) ────────────
+# ─── JWT configuration ──────────────────────────────────────────────
 SECRET_KEY = os.getenv("SECRET_KEY", "super-secret-123")
-ALGORITHM  = os.getenv("ALGORITHM",  "HS256")
-ACCESS_TOKEN_EXPIRE_MINUTES = 60
+ALGORITHM = os.getenv("ALGORITHM", "HS256")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 60))
 
-# ─── Password hashing (if you ever use email/password login) ───────────────
+# ─── Password hashing context ────────────────────────────────────────
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-# ─── Bearer token scheme for FastAPI dependencies ─────────────────────────
+# ─── HTTP Bearer scheme ─────────────────────────────────────────────
 security = HTTPBearer()
 
 
 def hash_password(password: str) -> str:
+    """
+    Hash a plaintext password for storage.
+    """
     return pwd_context.hash(password)
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """
+    Verify a plaintext password against its bcrypt hash.
+    """
     return pwd_context.verify(plain_password, hashed_password)
 
 
@@ -39,7 +45,7 @@ def create_access_token(
     expires_delta: Optional[timedelta] = None
 ) -> str:
     """
-    Create a JWT whose `sub` is the given subject (here: user.id).
+    Create a JWT with 'sub' set to the given subject (e.g. the user ID).
     """
     expire = datetime.utcnow() + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
     to_encode = {"sub": str(subject), "exp": expire}
@@ -52,7 +58,7 @@ def get_current_user(
 ) -> User:
     """
     FastAPI dependency to retrieve the current user from the Bearer JWT.
-    Expects `sub` to be the user's numeric ID.
+    Expects the token's 'sub' claim to be the user's numeric ID.
     """
     token = credentials.credentials
     try:
@@ -72,7 +78,6 @@ def get_current_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    # SQLAlchemy 1.x: db.query(User).get(user_id) → but better to use Session.get in newer versions:
     user = db.query(User).get(user_id)
     if not user:
         raise HTTPException(
@@ -85,8 +90,8 @@ def get_current_user(
 
 def decodeJWT(token: str) -> Optional[dict]:
     """
-    Utility to decode/validate a token outside of a request context.
-    Returns the payload if valid and unexpired, else None.
+    Helper to decode/validate a token outside of a request context.
+    Returns the payload if valid and unexpired; otherwise returns None.
     """
     try:
         decoded = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])

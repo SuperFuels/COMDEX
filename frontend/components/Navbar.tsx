@@ -9,12 +9,14 @@ import { UserRole } from '@/hooks/useAuthRedirect'
 
 export default function Navbar() {
   const router = useRouter()
+
+  // ─── track connected account & current role ────────────────
   const [account, setAccount] = useState<string | null>(null)
   const [role, setRole] = useState<UserRole | null>(null)
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const wrapperRef = useRef<HTMLDivElement>(null)
 
-  // ─── SIWE login helper ───────────────────────
+  // ─── SIWE login helper ───────────────────────────
   const doLogin = useCallback(
     async (address: string) => {
       try {
@@ -33,44 +35,52 @@ export default function Navbar() {
           data: { token, role: newRole },
         } = await api.post('/auth/verify', { message, signature })
 
+        // success → store token + role
         localStorage.setItem('token', token)
         api.defaults.headers.common.Authorization = `Bearer ${token}`
         setRole(newRole as UserRole)
       } catch (err: any) {
+        // if we get a 404, go register
+        if (err.response?.status === 404) {
+          router.push('/register')
+          return
+        }
+
+        // otherwise, treat as normal login failure
         console.error('SIWE login failed:', err.response?.data ?? err.message)
         localStorage.removeItem('token')
         delete api.defaults.headers.common.Authorization
         setRole(null)
       }
     },
-    []
+    [router]
   )
 
-  // ─── Handle account changes (switch / disconnect) ────────────
+  // ─── Handle account changes ───────────────────────
   const handleAccountsChanged = useCallback(
     (accounts: string[]) => {
       const addr = accounts[0] || null
       if (addr && addr !== account) {
-        // new wallet: clear old auth and re-login
+        // new wallet => reset and re-login
         localStorage.removeItem('token')
         delete api.defaults.headers.common.Authorization
         setAccount(addr)
         setRole(null)
         doLogin(addr)
       } else if (!addr) {
-        // completely disconnected
+        // disconnected
         handleDisconnect()
       }
     },
     [account, doLogin]
   )
 
-  // ─── On-mount: hydrate & subscribe ───────────────────
+  // ─── On mount: hydrate token & subscribe to wallet changes ─────
   useEffect(() => {
     const eth = (window as any).ethereum
     if (!eth) return
 
-    // hydrate token if any
+    // hydrate existing token
     const token = localStorage.getItem('token')
     if (token) {
       api.defaults.headers.common.Authorization = `Bearer ${token}`
@@ -84,19 +94,16 @@ export default function Navbar() {
         })
     }
 
-    // check current account
+    // check currently connected account
     eth
       .request({ method: 'eth_accounts' })
       .then((accounts: string[]) => {
         const addr = accounts[0] || null
         setAccount(addr)
-        if (addr && !token) {
-          doLogin(addr)
-        }
+        if (addr && !token) doLogin(addr)
       })
       .catch(console.error)
 
-    // listen for changes
     eth.on('accountsChanged', handleAccountsChanged)
     return () => {
       eth.removeListener('accountsChanged', handleAccountsChanged)
@@ -129,7 +136,7 @@ export default function Navbar() {
     }
   }
 
-  // ─── Close dropdown when clicking outside ────────────────
+  // ─── Close dropdown when clicking outside ─────────
   useEffect(() => {
     function onClick(e: MouseEvent) {
       if (
@@ -166,26 +173,40 @@ export default function Navbar() {
 
         {/* Navigation */}
         <div className="flex items-center space-x-6">
-          <Link href="/">
+          {/* always visible */}
+          <Link href="/" passHref>
             <a className="text-gray-700 hover:underline">Marketplace</a>
           </Link>
 
+          {/* show Register until you’ve connected & registered */}
+          {!account && (
+            <Link href="/register" passHref>
+              <a className="text-gray-700 hover:underline">Register</a>
+            </Link>
+          )}
+
+          {/* role-based dashboard links */}
           {role === 'supplier' && (
-            <Link href="/dashboard" prefetch={false}>
-              <a className="text-gray-700 hover:underline">Supplier Dashboard</a>
+            <Link href="/dashboard" passHref>
+              <a className="text-gray-700 hover:underline">
+                Supplier Dashboard
+              </a>
             </Link>
           )}
           {role === 'buyer' && (
-            <Link href="/buyer/dashboard" prefetch={false}>
-              <a className="text-gray-700 hover:underline">Buyer Dashboard</a>
+            <Link href="/buyer/dashboard" passHref>
+              <a className="text-gray-700 hover:underline">
+                Buyer Dashboard
+              </a>
             </Link>
           )}
           {role === 'admin' && (
-            <Link href="/admin/dashboard" prefetch={false}>
+            <Link href="/admin/dashboard" passHref>
               <a className="text-gray-700 hover:underline">Admin Dashboard</a>
             </Link>
           )}
 
+          {/* connect button vs connected state */}
           {!account ? (
             <button
               onClick={handleConnect}
@@ -202,7 +223,7 @@ export default function Navbar() {
                 {shortAddr}
               </button>
               {dropdownOpen && (
-                <div className="absolute right-0 mt-2 w-40 bg-white border rounded shadow">
+                <div className="absolute right-0 mt-2 w-40 bg-white border rounded shadow-md">
                   <button
                     onClick={handleDisconnect}
                     className="w-full text-left px-4 py-2 hover:bg-gray-100"
