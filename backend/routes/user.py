@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from database import get_db
 from models.user import User
-from schemas.user import WalletUpdate, UserOut
+from backend.schemas.user import WalletUpdate, UserOut
 from utils.auth import get_current_user
 
 # Initialize router without prefix; prefix applied in main.py

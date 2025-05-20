@@ -16,13 +16,13 @@ from database import get_db
 from models.deal import Deal
 from models.product import Product
 from models.user import User
-from schemas.deal import DealCreate, DealOut, DealStatusUpdate
+from backend.schemas.deal import DealCreate, DealOut, DealStatusUpdate
 from utils.auth import get_current_user
 
 router = APIRouter(tags=["Deals"])
 logger = logging.getLogger(__name__)
 
-# ─── ABI Setup ─────────────────────────────────
+# ─── ABI Setup ────────────────────────────────────────────────────
 ABI_PATH = os.path.join(os.path.dirname(__file__), "../abi/GLUEscrow.json")
 with open(ABI_PATH, "r") as f:
     artifact = json.load(f)
@@ -30,7 +30,7 @@ ESCROW_ABI = artifact.get("abi", [])
 if not ESCROW_ABI:
     raise RuntimeError("ABI not found in GLUEscrow.json")
 
-# ─── Helper: Lazy Web3 Initialization ─────────────
+# ─── Helper: Lazy Web3 Initialization ──────────────────────────────
 def get_web3_contract() -> Tuple[Web3, any, any]:
     """
     Lazy-load Web3 connection, contract, and deployer account.
@@ -38,11 +38,11 @@ def get_web3_contract() -> Tuple[Web3, any, any]:
     RPC_URL = os.getenv("WEB3_PROVIDER_URL")
     if not RPC_URL:
         raise RuntimeError("Missing WEB3_PROVIDER_URL")
-    
+
     w3 = Web3(Web3.HTTPProvider(RPC_URL))
     if not w3.is_connected():
         raise RuntimeError(f"Cannot connect to Web3 provider at {RPC_URL}")
-    
+
     addr = os.getenv("ESCROW_CONTRACT_ADDRESS")
     if not addr:
         raise RuntimeError("Missing ESCROW_CONTRACT_ADDRESS")
@@ -50,7 +50,7 @@ def get_web3_contract() -> Tuple[Web3, any, any]:
         escrow_addr = Web3.to_checksum_address(addr)
     except ValueError:
         raise RuntimeError(f"Invalid ESCROW_CONTRACT_ADDRESS: {addr}")
-    
+
     contract = w3.eth.contract(address=escrow_addr, abi=ESCROW_ABI)
 
     pk = os.getenv("DEPLOYER_PRIVATE_KEY")
@@ -60,7 +60,8 @@ def get_web3_contract() -> Tuple[Web3, any, any]:
 
     return w3, contract, deployer
 
-# ─── CRUD & On-Chain Endpoints ─────────────────
+# ─── CRUD & On-Chain Endpoints ────────────────────────────────────
+
 @router.post("/", response_model=DealOut, status_code=status.HTTP_201_CREATED)
 def create_deal(
     deal_data: DealCreate,
@@ -88,6 +89,7 @@ def create_deal(
         "total_price": total_price,
         "status": "negotiation",
     }
+
     try:
         new_deal = Deal(**payload)
         db.add(new_deal)
@@ -95,12 +97,14 @@ def create_deal(
         db.refresh(new_deal)
         new_deal.supplier_wallet_address = supplier.wallet_address or ""
         return new_deal
+
     except Exception as e:
         logger.error(f"❌ Failed to create deal: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to create deal"
         )
+
 
 @router.get("/", response_model=List[DealOut])
 def get_user_deals(
@@ -109,16 +113,17 @@ def get_user_deals(
 ):
     deals = (
         db.query(Deal)
-        .filter(
-            (Deal.buyer_email == current_user.email) |
-            (Deal.supplier_email == current_user.email)
-        )
-        .all()
+          .filter(
+              (Deal.buyer_email == current_user.email) |
+              (Deal.supplier_email == current_user.email)
+          )
+          .all()
     )
     for d in deals:
         sup = db.query(User).filter(User.email == d.supplier_email).first()
         d.supplier_wallet_address = sup.wallet_address or ""
     return deals
+
 
 @router.get("/{deal_id}", response_model=DealOut)
 def get_deal_by_id(
@@ -134,6 +139,7 @@ def get_deal_by_id(
     sup = db.query(User).filter(User.email == deal.supplier_email).first()
     deal.supplier_wallet_address = sup.wallet_address or ""
     return deal
+
 
 @router.put("/{deal_id}/status", response_model=DealOut)
 def update_deal_status(
@@ -155,6 +161,7 @@ def update_deal_status(
     sup = db.query(User).filter(User.email == deal.supplier_email).first()
     deal.supplier_wallet_address = sup.wallet_address or ""
     return deal
+
 
 @router.get("/{deal_id}/pdf")
 def generate_deal_pdf(
@@ -185,6 +192,7 @@ def generate_deal_pdf(
         media_type="application/pdf",
         headers={"Content-Disposition": f'inline; filename="deal_{deal_id}.pdf"'}
     )
+
 
 @router.post("/{deal_id}/release")
 def release_deal(
