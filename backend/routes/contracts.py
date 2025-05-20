@@ -6,17 +6,17 @@ from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import StreamingResponse
-from sqlalchemy.orm import Session
 import openai
 from weasyprint import HTML
+from sqlalchemy.orm import Session
 
 from database import get_db
 from models.contract import Contract
-from schemas.contract import ContractCreate, ContractOut
-from utils.auth import get_current_user
 from models.user import User
+from backend.schemas.contract import ContractCreate, ContractOut
+from utils.auth import get_current_user
 
-router = APIRouter(prefix="/contracts", tags=["Contracts"])
+router = APIRouter(tags=["Contracts"])  # prefix applied in main.py
 
 
 @router.get("/", response_model=List[ContractOut], summary="List all contracts")
@@ -108,7 +108,6 @@ def download_contract_pdf(
     pdf_io = BytesIO()
     HTML(string=contract.generated_contract).write_pdf(pdf_io)
     pdf_io.seek(0)
-
     return StreamingResponse(
         pdf_io,
         media_type="application/pdf",

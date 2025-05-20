@@ -11,7 +11,7 @@ from database import get_db
 from utils.auth import get_current_user
 from models.product import Product
 from models.user import User
-from schemas.product import ProductOut, ProductCreate
+from backend.schemas.product import ProductOut, ProductCreate
 
 router = APIRouter(tags=["Products"])
 logger = logging.getLogger(__name__)
@@ -109,8 +109,8 @@ def update_product(
     product = (
         db.query(Product)
           .filter(
-              Product.id == product_id,
-              Product.owner_email == current_user.email,
+               Product.id == product_id,
+               Product.owner_email == current_user.email,
           )
           .first()
     )
