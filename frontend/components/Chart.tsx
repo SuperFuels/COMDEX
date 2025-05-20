@@ -23,7 +23,7 @@ interface ChartProps {
 }
 
 export default function Chart({ data, height = 200 }: ChartProps) {
-  // format timestamps into human‑readable labels
+  // format timestamps into human-readable labels
   const formatted = data.map(d => ({
     time: new Date(d.time * 1000).toLocaleTimeString([], {
       hour: '2-digit',
@@ -44,7 +44,6 @@ export default function Chart({ data, height = 200 }: ChartProps) {
         <Line
           type="monotone"
           dataKey="value"
-          stroke="#4A90E2"
           strokeWidth={2}
           dot={false}
         />
