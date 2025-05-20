@@ -11,7 +11,9 @@
     "build": "next build",
     "export": "next export",
     "start": "next start",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    // ← NEW
+    "deploy:hosting": "cd frontend && npm ci && npm run build && npm run export && cd .. && firebase deploy --only hosting"
   },
   "repository": {
     "type": "git",
