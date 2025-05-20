@@ -1,4 +1,4 @@
-// components/Navbar.tsx
+// frontend/components/Navbar.tsx
 
 import Link from 'next/link'
 import Image from 'next/image'
@@ -18,32 +18,26 @@ export default function Navbar() {
   const doLogin = useCallback(
     async (address: string) => {
       try {
-        // 1) fetch nonce + message
         const {
           data: { nonce, message },
         } = await api.get('/auth/nonce', { params: { address } })
 
-        // 2) sign with MetaMask
+        // sign with MetaMask
         const signature: string = await (window as any).ethereum.request({
           method: 'personal_sign',
           params: [message, address],
         })
 
-        // 3) verify on server
+        // verify on server
         const {
           data: { token, role: newRole },
         } = await api.post('/auth/verify', { message, signature })
 
-        // 4) persist & set up for future requests
         localStorage.setItem('token', token)
         api.defaults.headers.common.Authorization = `Bearer ${token}`
         setRole(newRole as UserRole)
       } catch (err: any) {
-        console.error(
-          'SIWE login failed:',
-          err.response?.data ?? err.message
-        )
-        // clear any bad token
+        console.error('SIWE login failed:', err.response?.data ?? err.message)
         localStorage.removeItem('token')
         delete api.defaults.headers.common.Authorization
         setRole(null)
@@ -52,7 +46,7 @@ export default function Navbar() {
     []
   )
 
-  // ─── Handle account changes (switch / disconnect) ──────────────────
+  // ─── Handle account changes (switch / disconnect) ────────────
   const handleAccountsChanged = useCallback(
     (accounts: string[]) => {
       const addr = accounts[0] || null
@@ -71,12 +65,12 @@ export default function Navbar() {
     [account, doLogin]
   )
 
-  // ─── On-mount: hydrate & subscribe ─────────────────────────────────
+  // ─── On-mount: hydrate & subscribe ───────────────────
   useEffect(() => {
     const eth = (window as any).ethereum
     if (!eth) return
 
-    // a) hydrate token if any
+    // hydrate token if any
     const token = localStorage.getItem('token')
     if (token) {
       api.defaults.headers.common.Authorization = `Bearer ${token}`
@@ -90,7 +84,7 @@ export default function Navbar() {
         })
     }
 
-    // b) check current account
+    // check current account
     eth
       .request({ method: 'eth_accounts' })
       .then((accounts: string[]) => {
@@ -102,14 +96,14 @@ export default function Navbar() {
       })
       .catch(console.error)
 
-    // c) listen for changes
+    // listen for changes
     eth.on('accountsChanged', handleAccountsChanged)
     return () => {
       eth.removeListener('accountsChanged', handleAccountsChanged)
     }
   }, [doLogin, handleAccountsChanged])
 
-  // ─── Disconnect handler ─────────────────────────────────────────────
+  // ─── Disconnect handler ─────────────────────────
   const handleDisconnect = () => {
     localStorage.removeItem('token')
     delete api.defaults.headers.common.Authorization
@@ -119,7 +113,7 @@ export default function Navbar() {
     router.push('/')
   }
 
-  // ─── Connect wallet button ──────────────────────────────────────────
+  // ─── Connect wallet button ───────────────────────
   const handleConnect = async () => {
     const eth = (window as any).ethereum
     if (!eth) return alert('Please install MetaMask')
@@ -135,7 +129,7 @@ export default function Navbar() {
     }
   }
 
-  // ─── Close dropdown when clicking outside ──────────────────────────
+  // ─── Close dropdown when clicking outside ────────────────
   useEffect(() => {
     function onClick(e: MouseEvent) {
       if (
@@ -159,46 +153,36 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-4">
         {/* Logo */}
         <Link href="/" passHref>
-          <Image
-            src="/stickey.png"
-            width={144}
-            height={48}
-            alt="Logo"
-            priority
-          />
+          <a>
+            <Image
+              src="/stickey.png"
+              width={144}
+              height={48}
+              alt="Logo"
+              priority
+            />
+          </a>
         </Link>
 
         {/* Navigation */}
         <div className="flex items-center space-x-6">
-          <Link href="/" className="text-gray-700 hover:underline">
-            Marketplace
+          <Link href="/">
+            <a className="text-gray-700 hover:underline">Marketplace</a>
           </Link>
 
           {role === 'supplier' && (
-            <Link
-              href="/dashboard"
-              prefetch={false}
-              className="text-gray-700 hover:underline"
-            >
-              Supplier Dashboard
+            <Link href="/dashboard" prefetch={false}>
+              <a className="text-gray-700 hover:underline">Supplier Dashboard</a>
             </Link>
           )}
           {role === 'buyer' && (
-            <Link
-              href="/buyer/dashboard"
-              prefetch={false}
-              className="text-gray-700 hover:underline"
-            >
-              Buyer Dashboard
+            <Link href="/buyer/dashboard" prefetch={false}>
+              <a className="text-gray-700 hover:underline">Buyer Dashboard</a>
             </Link>
           )}
           {role === 'admin' && (
-            <Link
-              href="/admin/dashboard"
-              prefetch={false}
-              className="text-gray-700 hover:underline"
-            >
-              Admin Dashboard
+            <Link href="/admin/dashboard" prefetch={false}>
+              <a className="text-gray-700 hover:underline">Admin Dashboard</a>
             </Link>
           )}
 

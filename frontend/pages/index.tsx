@@ -1,8 +1,9 @@
 // frontend/pages/index.tsx
+
 import { useEffect, useState } from 'react'
 import type { NextPage } from 'next'
 import api from '@/lib/api'
-import Chart, { ChartPoint } from '../components/Chart'
+import Chart, { ChartPoint } from '@/components/Chart'
 import Link from 'next/link'
 
 interface Product {
@@ -48,8 +49,16 @@ const Home: NextPage = () => {
     ? products.filter((p) => filters.includes(p.origin_country))
     : products
 
-  if (loading) return <p className="p-8 text-center">Loading…</p>
-  if (error) return <p className="p-8 text-center text-red-500">Failed to load products.</p>
+  if (loading) {
+    return <p className="p-8 text-center">Loading…</p>
+  }
+  if (error) {
+    return (
+      <p className="p-8 text-center text-red-500">
+        Failed to load products. Please try again later.
+      </p>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -58,7 +67,11 @@ const Home: NextPage = () => {
         <div className="col-span-12 md:col-span-9 space-y-6">
           {/* Chart */}
           <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-4">
-            <Chart data={chartData} height={300} />
+            {selected ? (
+              <Chart data={chartData} height={300} />
+            ) : (
+              <p className="text-center text-gray-500">No product selected.</p>
+            )}
           </div>
 
           {/* Products table */}
@@ -82,21 +95,26 @@ const Home: NextPage = () => {
                     onClick={() => setSelected(p)}
                   >
                     <td className="px-4 py-2">
-                      <Link legacyBehavior href={`/products/${p.id}`} className="text-blue-600 hover:underline">
-                        {p.title}
+                      <Link href={`/products/${p.id}`}>
+                        <a className="text-blue-600 hover:underline">{p.title}</a>
                       </Link>
                     </td>
                     <td className="px-4 py-2">{p.origin_country}</td>
                     <td className="px-4 py-2">{p.category}</td>
-                    <td className="px-4 py-2 text-right">£{p.price_per_kg.toFixed(2)}</td>
+                    <td className="px-4 py-2 text-right">
+                      £{p.price_per_kg.toFixed(2)}
+                    </td>
                     <td
                       className={`px-4 py-2 text-right ${
                         p.change_pct >= 0 ? 'text-green-600' : 'text-red-600'
                       }`}
                     >
-                      {p.change_pct >= 0 ? '↑' : '↓'} {Math.abs(p.change_pct).toFixed(2)}%
+                      {p.change_pct >= 0 ? '↑' : '↓'}{' '}
+                      {Math.abs(p.change_pct * 100).toFixed(2)}%
                     </td>
-                    <td className="px-4 py-2 text-center">{p.rating.toFixed(1)}/5</td>
+                    <td className="px-4 py-2 text-center">
+                      {p.rating.toFixed(1)}/5
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -113,10 +131,13 @@ const Home: NextPage = () => {
                 £{(selected.price_per_kg * 1000).toFixed(2)}/t{' '}
                 <span
                   className={
-                    selected.change_pct >= 0 ? 'text-green-600' : 'text-red-600'
+                    selected.change_pct >= 0
+                      ? 'text-green-600'
+                      : 'text-red-600'
                   }
                 >
-                  {selected.change_pct >= 0 ? '↑' : '↓'} {Math.abs(selected.change_pct).toFixed(2)}%
+                  {selected.change_pct >= 0 ? '↑' : '↓'}{' '}
+                  {(Math.abs(selected.change_pct) * 100).toFixed(2)}%
                 </span>
               </p>
               <div className="flex space-x-3 text-gray-500">
@@ -137,10 +158,10 @@ const Home: NextPage = () => {
                       type="checkbox"
                       checked={filters.includes(country)}
                       onChange={() =>
-                        setFilters((f) =>
-                          f.includes(country)
-                            ? f.filter((x) => x !== country)
-                            : [...f, country]
+                        setFilters((prev) =>
+                          prev.includes(country)
+                            ? prev.filter((x) => x !== country)
+                            : [...prev, country]
                         )
                       }
                       className="form-checkbox h-4 w-4 text-blue-500"
