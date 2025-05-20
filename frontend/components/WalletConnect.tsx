@@ -1,43 +1,45 @@
-import { useState } from 'react';
-import api from '../lib/api';
+// frontend/components/WalletConnect.tsx
+
+import { useState } from 'react'
+import api from '../lib/api'
 
 export default function WalletConnect() {
-  const [walletAddress, setWalletAddress] = useState<string | null>(null);
+  const [walletAddress, setWalletAddress] = useState<string | null>(null)
 
   const connectWallet = async () => {
     if (typeof window.ethereum !== 'undefined') {
       try {
         const accounts = await window.ethereum.request({
           method: 'eth_requestAccounts',
-        });
-        const address = accounts[0];
-        setWalletAddress(address);
+        })
+        const address = accounts[0]
+        setWalletAddress(address)
 
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('token')
         if (!token) {
-          alert('🔐 Please log in first to bind your wallet');
-          return;
+          alert('🔐 Please log in first to bind your wallet')
+          return
         }
 
-        await axios.patch(
+        await api.patch(
           '/users/me/wallet',
           { wallet_address: address },
           {
             headers: {
               Authorization: `Bearer ${token}`,
             },
-          }
-        );
+          },
+        )
 
-        console.log('✅ Wallet successfully linked to user account');
+        console.log('✅ Wallet successfully linked to user account')
       } catch (err) {
-        alert('🛑 Wallet connection failed');
-        console.error('Wallet Connect Error:', err);
+        alert('🛑 Wallet connection failed')
+        console.error('Wallet Connect Error:', err)
       }
     } else {
-      alert('🦊 MetaMask not detected');
+      alert('🦊 MetaMask not detected')
     }
-  };
+  }
 
   return (
     <div className="text-center mt-4">
@@ -52,6 +54,6 @@ export default function WalletConnect() {
         </button>
       )}
     </div>
-  );
+  )
 }
 

@@ -52,7 +52,7 @@ export default function QuoteModal({
         total_price:    totalPrice,
       }
 
-      const res = await axios.post(
+      const res = await api.post(
         '/deals/',
         body,
         { headers: { Authorization: `Bearer ${token}` } }
