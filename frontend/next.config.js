@@ -1,44 +1,10 @@
-// frontend/next.config.js
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // 🚫 Skip ESLint errors during build
   eslint: {
+    // turn off ESLint during production builds
     ignoreDuringBuilds: true,
   },
-
-  // 🚫 Skip TypeScript type-checking errors during build
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-
-  // ⚙️ Static-export mode for Firebase Hosting
-  output: "export",
-
-  // 📸 Your remote image domains and disable built-in optimization
-  images: {
-    unoptimized: true,  // disable Image Optimization API for static export
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "via.placeholder.com",
-        port: "",
-        pathname: "/**",
-      },
-      {
-        protocol: "https",
-        hostname: "placekitten.com",
-        port: "",
-        pathname: "/**",
-      },
-      {
-        protocol: "http",
-        hostname: "localhost",
-        port: "8000",
-        pathname: "/uploaded_images/**",
-      },
-    ],
-  },
+  // ...any other Next.js config you already have
 };
 
 module.exports = nextConfig;
-

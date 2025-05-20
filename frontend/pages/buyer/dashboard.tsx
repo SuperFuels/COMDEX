@@ -23,26 +23,49 @@ export default function BuyerDashboard() {
   const [products, setProducts] = useState<any[]>([])
   const [loading, setLoading] = useState<boolean>(true)
 
-  // Client-side guard: redirect non-buyers
+  // ─── Guard + Role Check ───────────────────────────────
   useEffect(() => {
-    const token = localStorage.getItem('token')
-    if (!token) return router.replace('/login')
-    api
-      .get('/auth/role')
-      .then(r => {
-        if (r.data.role !== 'buyer') router.replace('/login')
-      })
-      .catch(() => router.replace('/login'))
+    const safeguard = async () => {
+      const token = localStorage.getItem('token')
+      if (!token) {
+        await router.replace('/login')
+        return
+      }
+
+      try {
+        const res = await api.get(
+          '/auth/role',
+          { headers: { Authorization: `Bearer ${token}` } }
+        )
+        if (res.data.role !== 'buyer') {
+          await router.replace('/login')
+          return
+        }
+      } catch {
+        await router.replace('/login')
+      }
+    }
+
+    safeguard()
   }, [router])
 
-  // Fetch chart data, deals and products
+  // ─── Fetch chart points, deals & products ──────────────
   useEffect(() => {
     const fetchAll = async () => {
+      const token = localStorage.getItem('token')
+      if (!token) {
+        await router.replace('/login')
+        return
+      }
+
       try {
-        // ─── Chart Data (fallback to /products) ───────────────────────
+        // • Chart data (fallback to /products for pricing)
         let pts: ChartPoint[] = []
         try {
-          const chartRes = await api.get('/products')
+          const chartRes = await api.get(
+            '/products',
+            { headers: { Authorization: `Bearer ${token}` } }
+          )
           pts = chartRes.data.map((p: any) => ({
             x: new Date().toLocaleTimeString(),
             y: p.price_per_kg,
@@ -52,19 +75,26 @@ export default function BuyerDashboard() {
         }
         setChartData(pts)
 
-        // ─── Active Deals ────────────────────────────────────────────
-        const dealsRes = await api.get('/deals')
+        // • Active deals
+        const dealsRes = await api.get(
+          '/deals',
+          { headers: { Authorization: `Bearer ${token}` } }
+        )
         setDeals(dealsRes.data)
 
-        // ─── Marketplace Listings ───────────────────────────────────
-        const prodRes = await api.get('/products')
+        // • Marketplace listings
+        const prodRes = await api.get(
+          '/products',
+          { headers: { Authorization: `Bearer ${token}` } }
+        )
         setProducts(prodRes.data)
       } finally {
         setLoading(false)
       }
     }
+
     fetchAll()
-  }, [])
+  }, [router])
 
   if (loading) {
     return (
@@ -116,7 +146,7 @@ export default function BuyerDashboard() {
               <p className="text-gray-500">🤝 No active deals.</p>
             ) : (
               <ul>
-                {deals.map(d => (
+                {deals.map((d) => (
                   <li key={d.id} className="mb-2">
                     Deal #{d.id}: {d.product_title} – {d.status}
                   </li>
@@ -125,34 +155,40 @@ export default function BuyerDashboard() {
             )}
           </div>
         )}
+
         {tab === 'notifications' && (
           <div className="bg-white p-4 rounded shadow">
             <p className="text-gray-500">🔔 No notifications.</p>
           </div>
         )}
+
         {tab === 'escrow' && (
           <div className="bg-white p-4 rounded shadow">
             <p className="text-gray-500">🔒 Escrow empty.</p>
           </div>
         )}
+
         {tab === 'deliveries' && (
           <div className="bg-white p-4 rounded shadow">
             <p className="text-gray-500">🚚 No deliveries.</p>
           </div>
         )}
+
         {tab === 'orders' && (
           <div className="bg-white p-4 rounded shadow">
             <p className="text-gray-500">📦 No orders.</p>
           </div>
         )}
+
         {tab === 'supplierList' && (
           <div className="bg-white p-4 rounded shadow">
             <p className="text-gray-500">🏷️ No suppliers found.</p>
           </div>
         )}
+
         {tab === 'products' && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {products.map(p => (
+            {products.map((p) => (
               <div
                 key={p.id}
                 className="bg-white p-4 rounded shadow flex flex-col"
@@ -161,7 +197,7 @@ export default function BuyerDashboard() {
                   src={`${process.env.NEXT_PUBLIC_API_URL}${p.image_url}`}
                   alt={p.title}
                   className="h-40 w-full object-cover rounded mb-2"
-                  onError={e => {
+                  onError={(e) => {
                     ;(e.target as HTMLImageElement).src = '/placeholder.jpg'
                   }}
                 />
@@ -170,7 +206,9 @@ export default function BuyerDashboard() {
                 <p className="text-sm text-gray-500 mt-1">
                   {p.origin_country}
                 </p>
-                <p className="text-lg font-bold mt-2">${p.price_per_kg}/kg</p>
+                <p className="text-lg font-bold mt-2">
+                  ${p.price_per_kg}/kg
+                </p>
                 <button
                   onClick={() => router.push(`/deals/create/${p.id}`)}
                   className="mt-auto bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"

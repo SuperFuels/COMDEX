@@ -14,48 +14,44 @@ export default function DealDetailPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError]     = useState<string | null>(null)
 
-  // Fetch the deal from your API
-  const fetchDeal = async () => {
-    if (!id) return
-    setLoading(true)
-    setError(null)
-
-    try {
-      const { data } = await api.get<Deal>(`/deals/${id}`)
-      console.log('Loaded deal from API:', data)
-      setDeal(data)
-    } catch (err: any) {
-      console.error(err)
-      setError(err.response?.data?.detail || err.message)
-    } finally {
-      setLoading(false)
-    }
-  }
-
+  // fetch / refetch the deal
   useEffect(() => {
+    const fetchDeal = async () => {
+      if (!id) return
+      setLoading(true)
+      setError(null)
+      try {
+        const { data } = await api.get<Deal>(`/deals/${id}`)
+        setDeal(data)
+      } catch (err: any) {
+        setError(err.response?.data?.detail || err.message)
+      } finally {
+        setLoading(false)
+      }
+    }
     fetchDeal()
   }, [id])
 
-  // Buyer escrow step → mark confirmed on our server
   const handleEscrowSuccess = async () => {
     if (!id) return
     try {
       await api.put(`/deals/${id}/status`, { status: 'confirmed' })
-      await fetchDeal()
+      // refetch to get updated status
+      const { data } = await api.get<Deal>(`/deals/${id}`)
+      setDeal(data)
     } catch (err: any) {
-      console.error('Failed to update deal status:', err)
-      alert(err.response?.data?.detail || 'Could not update deal status on server')
+      alert(err.response?.data?.detail || 'Could not confirm escrow')
     }
   }
 
-  // Supplier release step → call release endpoint
   const handleRelease = async () => {
     if (!id) return
     try {
       await api.post(`/deals/${id}/release`)
-      await fetchDeal()
+      // refetch to get updated status
+      const { data } = await api.get<Deal>(`/deals/${id}`)
+      setDeal(data)
     } catch (err: any) {
-      console.error('Release failed:', err)
       alert(err.response?.data?.detail || 'Release failed')
     }
   }
@@ -76,16 +72,14 @@ export default function DealDetailPage() {
         {new Date(deal.created_at).toLocaleString()}
       </p>
 
-      {/* 1) Buyer deposits GLU into escrow */}
       {deal.status === 'negotiation' && (
         <SwapPanel
-          supplierAddress={deal.supplier_wallet_address}
+          supplierAddress={deal.supplier_wallet_address!}
           pricePerKg={deal.total_price / deal.quantity_kg}
           onSuccess={handleEscrowSuccess}
         />
       )}
 
-      {/* 2) Supplier releases funds once GLU is locked */}
       {deal.status === 'confirmed' && (
         <button
           className="mt-4 bg-red-500 text-white px-4 py-2 rounded"
