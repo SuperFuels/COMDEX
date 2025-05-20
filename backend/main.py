@@ -3,11 +3,11 @@
 import os
 import time
 import logging
-from typing import List
 
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from starlette.responses import RedirectResponse
 from sqlalchemy import text
 from sqlalchemy.exc import OperationalError
 
@@ -60,13 +60,11 @@ app.mount(
 
 # 10) import & include routers
 from routes.auth      import router as auth_router
-from routes.products  import router as products_router, list_products
+from routes.products  import router as products_router
 from routes.deal      import router as deal_router
 from routes.contracts import router as contracts_router
 from routes.admin     import router as admin_router
 from routes.user      import router as user_router
-
-from schemas.product  import ProductOut  # your Pydantic output model
 
 app.include_router(auth_router,      prefix="/auth",     tags=["Auth"])
 app.include_router(products_router,  prefix="/products", tags=["Products"])
@@ -75,14 +73,10 @@ app.include_router(contracts_router, prefix="/contracts",tags=["Contracts"])
 app.include_router(admin_router,     prefix="/admin",    tags=["Admin"])
 app.include_router(user_router,      prefix="/users",    tags=["Users"])
 
-# ——— Workaround: catch GET /products (no trailing slash) to avoid 307 ———
-@app.get(
-    "/products",
-    response_model=List[ProductOut],
-    include_in_schema=False,   # don’t duplicate in OpenAPI UI
-)
-async def list_products_no_slash(db=Depends(get_db)):
-    return await list_products(db)
+# — Workaround: catch GET /products (no trailing slash) to avoid 307 redirect —
+@app.get("/products", include_in_schema=False)
+def products_no_slash():
+    return RedirectResponse(url="/products/", status_code=307)
 
 
 # 11) root endpoint
