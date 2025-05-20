@@ -1,8 +1,10 @@
+// frontend/pages/search.tsx
+
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
-import api from '@/lib/api'
 import Link from 'next/link'
 import Image from 'next/image'
+import api from '@/lib/api'
 
 interface Product {
   id: number
@@ -26,13 +28,20 @@ export default function SearchPage() {
     if (!query) return
     setLoading(true)
     setError(null)
-    axios
+
+    api
       .get<Product[]>(
-        `${process.env.NEXT_PUBLIC_API_URL}/products/search?query=${encodeURIComponent(query)}`
+        `/products/search?query=${encodeURIComponent(query)}`
       )
-      .then(res => setResults(res.data))
-      .catch(() => setError('Failed to load search results'))
-      .finally(() => setLoading(false))
+      .then(res => {
+        setResults(res.data)
+      })
+      .catch(() => {
+        setError('Failed to load search results')
+      })
+      .finally(() => {
+        setLoading(false)
+      })
   }, [query])
 
   return (
@@ -44,7 +53,7 @@ export default function SearchPage() {
       {loading && <p>Loading…</p>}
       {error   && <p className="text-red-600">{error}</p>}
       {!loading && !error && results.length === 0 && (
-        <p className="text-gray-500">No suppliers found for “{query}”.</p>
+        <p className="text-gray-500">No products found for “{query}”.</p>
       )}
 
       {results.length > 0 && (
@@ -53,8 +62,14 @@ export default function SearchPage() {
             <thead className="bg-gray-50">
               <tr>
                 {[
-                  'Image','Product','Origin','Cost/kg',
-                  'Supplier','Change %','Rating / 10','Details'
+                  'Image',
+                  'Product',
+                  'Origin',
+                  'Cost/kg',
+                  'Supplier',
+                  'Change %',
+                  'Rating / 10',
+                  'Details'
                 ].map(col => (
                   <th
                     key={col}
@@ -132,7 +147,7 @@ export default function SearchPage() {
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
                     <Link
                       href={`/products/${p.id}`}
-                      className="inline-block px-3 py-1 bg-primary hover:bg-primaryHover text-white rounded-full text-xs"
+                      className="inline-block px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded"
                     >
                       View
                     </Link>

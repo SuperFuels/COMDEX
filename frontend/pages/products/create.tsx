@@ -1,10 +1,12 @@
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
-import api from '@/lib/api';
-import Navbar from '@/components/Navbar';
+// frontend/pages/products/create.tsx
+
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/router'
+import api from '@/lib/api'
+import Navbar from '@/components/Navbar'
 
 export default function CreateProductPage() {
-  const router = useRouter();
+  const router = useRouter()
   const [formData, setFormData] = useState({
     title: '',
     origin_country: '',
@@ -12,53 +14,53 @@ export default function CreateProductPage() {
     description: '',
     price_per_kg: '',
     image: null as File | null,
-  });
-  const [error, setError] = useState('');
-  const [token, setToken] = useState('');
+  })
+  const [error, setError] = useState('')
+  const [token, setToken] = useState('')
 
   // 🔒 Redirect non-suppliers
   useEffect(() => {
-    const storedToken = localStorage.getItem('token');
+    const storedToken = localStorage.getItem('token')
     if (!storedToken) {
-      router.push('/login');
-      return;
+      router.push('/login')
+      return
     }
-    setToken(storedToken);
+    setToken(storedToken)
 
-    axios
+    api
       .get('/auth/role', {
         headers: { Authorization: `Bearer ${storedToken}` },
       })
-      .then((res) => {
+      .then(res => {
         if (res.data.role !== 'supplier') {
-          router.push('/');
+          router.push('/')
         }
       })
       .catch(() => {
-        router.push('/');
-      });
-  }, [router]);
+        router.push('/')
+      })
+  }, [router])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, files } = e.target;
+    const { name, value, files } = e.target
     if (name === 'image' && files) {
-      setFormData({ ...formData, image: files[0] });
+      setFormData({ ...formData, image: files[0] })
     } else {
-      setFormData({ ...formData, [name]: value });
+      setFormData({ ...formData, [name]: value })
     }
-  };
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
+    e.preventDefault()
+    setError('')
 
-    const data = new FormData();
-    data.append('title', formData.title);
-    data.append('origin_country', formData.origin_country);
-    data.append('category', formData.category);
-    data.append('description', formData.description);
-    data.append('price_per_kg', formData.price_per_kg);
-    if (formData.image) data.append('image', formData.image);
+    const data = new FormData()
+    data.append('title', formData.title)
+    data.append('origin_country', formData.origin_country)
+    data.append('category', formData.category)
+    data.append('description', formData.description)
+    data.append('price_per_kg', formData.price_per_kg)
+    if (formData.image) data.append('image', formData.image)
 
     try {
       await api.post('/products/create', data, {
@@ -66,12 +68,12 @@ export default function CreateProductPage() {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data',
         },
-      });
-      router.push('/dashboard');
+      })
+      router.push('/dashboard')
     } catch (err: any) {
-      setError(err.response?.data?.detail || '❌ Upload failed.');
+      setError(err.response?.data?.detail || '❌ Upload failed.')
     }
-  };
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -135,6 +137,6 @@ export default function CreateProductPage() {
         </form>
       </main>
     </div>
-  );
+  )
 }
 
