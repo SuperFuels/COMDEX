@@ -1,7 +1,6 @@
-// frontend/firebase.json
 {
   "hosting": {
-    "public": "out",
+    "public": ".next",
     "ignore": [
       "firebase.json",
       "**/.*",
