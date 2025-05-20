@@ -1,4 +1,5 @@
 // frontend/next.config.js
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // → this makes `next build` also produce an `out/` folder
