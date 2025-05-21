@@ -21,14 +21,16 @@ export default function Navbar() {
         const { data: { message } } = await api.get('/auth/nonce', { params: { address } });
         console.log('[SIWE] got message:', message);
 
+        console.log('[SIWE] calling personal_sign…');
         const signature = await (window as any).ethereum.request({
           method: 'personal_sign',
           params: [message, address],
         });
         console.log('[SIWE] signature:', signature);
 
-        console.log('[SIWE] calling /auth/verify …');
-        const { data: { token, role: newRole } } = await api.post('/auth/verify', { message, signature });
+        console.log('[SIWE] calling /auth/verify…');
+        const { data: { token, role: newRole } } =
+          await api.post('/auth/verify', { message, signature });
         console.log('[SIWE] verify response:', { token, newRole });
 
         localStorage.setItem('token', token);
@@ -59,14 +61,14 @@ export default function Navbar() {
   }, [router]);
 
   const handleConnect = async () => {
-    // clear any manual‐disconnect marker
+    console.log('[handleConnect] clicked');
     localStorage.removeItem('manuallyDisconnected');
     if (!(window as any).ethereum) {
       return alert('Please install MetaMask');
     }
     try {
       const [addr] = await (window as any).ethereum.request({ method: 'eth_requestAccounts' });
-      console.log('[handleConnect] got account:', addr);
+      console.log('[handleConnect] got address', addr);
       setAccount(addr);
       await doLogin(addr);
     } catch (e) {
@@ -74,11 +76,10 @@ export default function Navbar() {
     }
   };
 
-  // 🔑 Treat any account change as a FULL disconnect
+  // Treat any account switch as a full disconnect
   const handleAccountsChanged = useCallback(
     (accounts: string[]) => {
-      console.log('[MetaMask] accountsChanged:', accounts);
-      // whether they switched or disconnected, clear all auth & account
+      console.log('[MetaMask] accountsChanged → disconnecting', accounts);
       handleDisconnect();
     },
     [handleDisconnect]
@@ -91,13 +92,13 @@ export default function Navbar() {
     const token = localStorage.getItem('token');
     const manually = localStorage.getItem('manuallyDisconnected');
 
-    // hydrate existing JWT → fetch role
+    // If we have a JWT, fetch and set role
     if (token) {
-      console.log('[hydrate] existing token found, fetching /auth/role …');
+      console.log('[hydrate] existing token → fetch /auth/role');
       api.defaults.headers.common.Authorization = `Bearer ${token}`;
       api.get('/auth/role')
          .then(res => {
-           console.log('[hydrate] /auth/role response:', res.data);
+           console.log('[hydrate] /auth/role:', res.data);
            setRole(res.data.role as UserRole);
          })
          .catch(err => {
@@ -108,14 +109,15 @@ export default function Navbar() {
          });
     }
 
-    // populate current account in UI—but do NOT auto-login
+    // Just populate current account in UI — no SIWE here
     eth.request({ method: 'eth_accounts' })
       .then((accounts: string[]) => {
         if (manually) {
-          console.log('[hydrate] manuallyDisconnected → skipping');
+          console.log('[hydrate] manuallyDisconnected → skip setting account');
           setAccount(null);
           return;
         }
+        console.log('[hydrate] current eth_accounts:', accounts);
         setAccount(accounts[0] || null);
       })
       .catch(console.error);
@@ -124,12 +126,14 @@ export default function Navbar() {
     return () => {
       eth.removeListener('accountsChanged', handleAccountsChanged);
     };
-  }, [doLogin, handleAccountsChanged]);
+  }, [handleAccountsChanged]);
 
   // Close dropdown on outside click
   useEffect(() => {
     function onClick(e: MouseEvent) {
-      if (dropdownOpen && wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
+      if (dropdownOpen &&
+          wrapperRef.current &&
+          !wrapperRef.current.contains(e.target as Node)) {
         setDropdownOpen(false);
       }
     }
@@ -202,3 +206,11 @@ export default function Navbar() {
                     Disconnect
                   </button>
                 </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </header>
+  );
+}
