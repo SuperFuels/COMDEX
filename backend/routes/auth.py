@@ -14,7 +14,7 @@ from fastapi import (
     Form,
     HTTPException,
     status,
-    Request,  # for dynamic origin extraction
+    Request,
 )
 from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel, EmailStr
@@ -28,7 +28,7 @@ from models.user import User
 from utils.auth import (
     create_access_token,
     get_password_hash,
-    verify_password,  # for email/password login
+    verify_password,
     SECRET_KEY,
     ALGORITHM,
 )
@@ -120,7 +120,7 @@ def verify_siwe(
     db: Session = Depends(get_db),
 ):
     """Verify SIWE signature and return JWT + role."""
-    # 1) Extract wallet from the message
+    # 1) Extract wallet
     try:
         wallet = body.message.split("\n")[1].strip().lower()
     except Exception:
@@ -149,7 +149,7 @@ def verify_siwe(
     if signer.lower() != wallet:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Signature mismatch")
 
-    # 4) Lookup user by wallet
+    # 4) Lookup user
     user = db.query(User).filter(User.wallet_address == wallet).first()
     if not user:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "User not found")
@@ -159,11 +159,7 @@ def verify_siwe(
     return {"token": token, "role": user.role}
 
 
-@router.post(
-    "/login",
-    response_model=TokenOut,
-    summary="Email/password login"
-)
+@router.post("/login", response_model=TokenOut, summary="Email/password login")
 def login_user(
     form_data: LoginIn,
     db: Session = Depends(get_db),
@@ -177,14 +173,10 @@ def login_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
     token = create_access_token(subject=str(user.id))
-    return {"access_token": token}
+    return {"access_token": token, "token_type": "bearer"}
 
 
-@router.get(
-    "/role",
-    response_model=RoleOut,
-    summary="Get current user's role"
-)
+@router.get("/role", response_model=RoleOut, summary="Get current user's role")
 def get_user_role(
     token: str = Depends(oauth2_scheme),
     db: Session = Depends(get_db),
@@ -211,4 +203,28 @@ def get_user_role(
 )
 def register_user(
     name: str = Form(...),
-    
+    email: EmailStr = Form(...),
+    password: str = Form(...),
+    role: str = Form(...),
+    db: Session = Depends(get_db),
+):
+    """Register a new user (name, email, password, role)."""
+    # prevent duplicate email
+    if db.query(User).filter(User.email == email).first():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email already registered",
+        )
+
+    hashed_pw = get_password_hash(password)
+    new_user = User(
+        name=name,
+        email=email,
+        hashed_password=hashed_pw,
+        role=role,
+    )
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+
+    return new_user
