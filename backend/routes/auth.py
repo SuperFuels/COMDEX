@@ -14,7 +14,7 @@ from fastapi import (
     Form,
     HTTPException,
     status,
-    Request,  # ← import Request
+    Request,  # for dynamic origin extraction
 )
 from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel, EmailStr
@@ -28,6 +28,7 @@ from models.user import User
 from utils.auth import (
     create_access_token,
     get_password_hash,
+    verify_password,  # for email/password login
     SECRET_KEY,
     ALGORITHM,
 )
@@ -58,6 +59,16 @@ class RegisterOut(BaseModel):
         orm_mode = True
 
 
+class LoginIn(BaseModel):
+    email: EmailStr
+    password: str
+
+
+class TokenOut(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+
+
 def get_web3() -> Web3:
     rpc_url = os.getenv("WEB3_PROVIDER_URL")
     if not rpc_url:
@@ -70,7 +81,7 @@ def get_web3() -> Web3:
 
 @router.get("/nonce", response_model=Dict[str, str])
 def get_siwe_nonce(
-    request: Request,  # ← inject Request
+    request: Request,
     address: str = Query(..., description="Wallet address")
 ):
     """DEV: Issue a SIWE nonce + message for front-end to sign."""
@@ -78,7 +89,7 @@ def get_siwe_nonce(
     nonce = secrets.token_urlsafe(16)
     _nonces[address.lower()] = nonce
 
-    # 2) derive domain & uri from incoming Origin header (or fallback)
+    # 2) derive domain & uri from incoming Origin header
     origin = (
         request.headers.get("origin")
         or request.headers.get("host")
@@ -109,25 +120,64 @@ def verify_siwe(
     db: Session = Depends(get_db),
 ):
     """Verify SIWE signature and return JWT + role."""
-    # ... unchanged ...
-    wallet = body.message.split("\n")[1].strip().lower()
-    raw = next(l for l in body.message.splitlines() if l.startswith("Nonce:"))
-    nonce = raw.split("Nonce:")[1].strip()
+    # 1) Extract wallet from the message
+    try:
+        wallet = body.message.split("\n")[1].strip().lower()
+    except Exception:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Malformed SIWE message")
+
+    # 2) Check nonce
+    try:
+        raw = next(l for l in body.message.splitlines() if l.startswith("Nonce:"))
+        nonce = raw.split("Nonce:")[1].strip()
+    except StopIteration:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Nonce not found")
+
     if _nonces.get(wallet) != nonce:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Invalid nonce")
 
+    # 3) Recover signature
     w3 = get_web3()
     msg = encode_defunct(text=body.message)
-    signer = w3.eth.account.recover_message(msg, signature=body.signature)
+    try:
+        signer = w3.eth.account.recover_message(msg, signature=body.signature)
+    except Exception as e:
+        raise HTTPException(
+            status.HTTP_400_BAD_REQUEST, f"Signature recovery failed: {e}"
+        )
+
     if signer.lower() != wallet:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Signature mismatch")
 
+    # 4) Lookup user by wallet
     user = db.query(User).filter(User.wallet_address == wallet).first()
     if not user:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "User not found")
 
+    # 5) Issue JWT
     token = create_access_token(subject=str(user.id))
     return {"token": token, "role": user.role}
+
+
+@router.post(
+    "/login",
+    response_model=TokenOut,
+    summary="Email/password login"
+)
+def login_user(
+    form_data: LoginIn,
+    db: Session = Depends(get_db),
+):
+    """Authenticate via email/password and return JWT."""
+    user = db.query(User).filter(User.email == form_data.email).first()
+    if not user or not verify_password(form_data.password, user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid email or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    token = create_access_token(subject=str(user.id))
+    return {"access_token": token}
 
 
 @router.get(
@@ -139,7 +189,7 @@ def get_user_role(
     token: str = Depends(oauth2_scheme),
     db: Session = Depends(get_db),
 ):
-    # ... unchanged ...
+    """Decode JWT, look up the user, and return their role."""
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id = int(payload.get("sub"))
@@ -161,28 +211,4 @@ def get_user_role(
 )
 def register_user(
     name: str = Form(...),
-    email: EmailStr = Form(...),
-    password: str = Form(...),
-    role: str = Form(...),
-    db: Session = Depends(get_db),
-):
-    # ... unchanged ...
-    if db.query(User).filter(User.email == email).first():
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Email already registered",
-        )
-
-    hashed_pw = get_password_hash(password)
-    new_user = User(
-        name=name,
-        email=email,
-        hashed_password=hashed_pw,
-        role=role,
-    )
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-
-    return new_user
-
+    
