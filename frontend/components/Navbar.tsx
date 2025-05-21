@@ -58,26 +58,28 @@ export default function Navbar() {
       const accounts: string[] = await eth.request({ method: 'eth_requestAccounts' })
       const addr = accounts[0]
       setAccount(addr)
-      doLogin(addr)
+      await doLogin(addr)
     } catch (e) {
       console.error(e)
     }
   }
 
+  // ←–– this no longer calls doLogin
   const handleAccountsChanged = useCallback(
     (accounts: string[]) => {
       const addr = accounts[0] || null
       if (addr && addr !== account) {
+        // user switched wallet in MetaMask → just clear auth
         localStorage.removeItem('token')
         delete api.defaults.headers.common.Authorization
         setAccount(addr)
         setRole(null)
-        doLogin(addr)
       } else if (!addr) {
+        // user disconnected in MetaMask UI
         handleDisconnect()
       }
     },
-    [account, doLogin, handleDisconnect]
+    [account, handleDisconnect]
   )
 
   useEffect(() => {
@@ -87,6 +89,7 @@ export default function Navbar() {
     const token = localStorage.getItem('token')
     const manually = localStorage.getItem('manuallyDisconnected')
 
+    // hydrate existing session
     if (token) {
       api.defaults.headers.common.Authorization = `Bearer ${token}`
       api.get('/auth/role')
@@ -106,6 +109,7 @@ export default function Navbar() {
         }
         const addr = accounts[0] || null
         setAccount(addr)
+        // still auto-login if we’ve never had a token AND never disconnected manually
         if (addr && !token) doLogin(addr)
       })
       .catch(console.error)
@@ -126,20 +130,15 @@ export default function Navbar() {
     return () => document.removeEventListener('mousedown', onClick)
   }, [dropdownOpen])
 
-  // *** DEBUGGING: make sure we actually have the right values ***
-  console.log('🔐 Navbar — account:', account, 'role:', role)
-
   const shortAddr = account ? `${account.slice(0, 6)}…${account.slice(-4)}` : ''
 
   return (
     <header className="sticky top-0 bg-white border-b z-50">
       <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-4">
-        {/* Logo */}
         <Link href="/" className="flex items-center">
           <Image src="/stickey.png" width={144} height={48} alt="Logo" priority />
         </Link>
 
-        {/* Navigation */}
         <div className="flex items-center space-x-6">
           <Link href="/" className="text-gray-700 hover:underline">
             Marketplace
