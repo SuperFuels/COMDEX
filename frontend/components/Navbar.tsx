@@ -1,136 +1,151 @@
 // frontend/components/Navbar.tsx
-
-import Link from 'next/link'
-import Image from 'next/image'
-import { useRouter } from 'next/router'
-import { useEffect, useState, useRef, useCallback } from 'react'
-import api from '@/lib/api'
-import { UserRole } from '@/hooks/useAuthRedirect'
+import Link from 'next/link';
+import Image from 'next/image';
+import { useRouter } from 'next/router';
+import { useEffect, useState, useRef, useCallback } from 'react';
+import api from '@/lib/api';
+import { UserRole } from '@/hooks/useAuthRedirect';
 
 export default function Navbar() {
-  const router = useRouter()
-  const [account, setAccount] = useState<string | null>(null)
-  const [role, setRole] = useState<UserRole | null>(null)
-  const [dropdownOpen, setDropdownOpen] = useState(false)
-  const wrapperRef = useRef<HTMLDivElement>(null)
+  const router = useRouter();
+  const [account, setAccount] = useState<string | null>(null);
+  const [role, setRole] = useState<UserRole | null>(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const wrapperRef = useRef<HTMLDivElement>(null);
 
   const doLogin = useCallback(
     async (address: string) => {
       try {
-        const { data: { message } } = await api.get('/auth/nonce', { params: { address } })
+        console.log('[SIWE] request nonce for', address);
+        const { data: { message } } = await api.get('/auth/nonce', { params: { address } });
+        console.log('[SIWE] got message:', message);
+
         const signature = await (window as any).ethereum.request({
           method: 'personal_sign',
           params: [message, address],
-        })
-        const { data: { token, role: newRole } } = await api.post('/auth/verify', { message, signature })
-        localStorage.setItem('token', token)
-        api.defaults.headers.common.Authorization = `Bearer ${token}`
-        setRole(newRole as UserRole)
+        });
+        console.log('[SIWE] signature:', signature);
+
+        console.log('[SIWE] calling /auth/verify …');
+        const { data: { token, role: newRole } } = await api.post('/auth/verify', { message, signature });
+        console.log('[SIWE] verify response:', { token, newRole });
+
+        localStorage.setItem('token', token);
+        api.defaults.headers.common.Authorization = `Bearer ${token}`;
+        setRole(newRole as UserRole);
       } catch (err: any) {
+        console.error('[SIWE] login failed:', err);
         if (err.response?.status === 404) {
-          router.push('/register')
-          return
+          router.push('/register');
+          return;
         }
-        console.error('SIWE login failed:', err)
-        localStorage.removeItem('token')
-        delete api.defaults.headers.common.Authorization
-        setRole(null)
+        localStorage.removeItem('token');
+        delete api.defaults.headers.common.Authorization;
+        setRole(null);
       }
     },
     [router]
-  )
+  );
 
   const handleDisconnect = useCallback(() => {
-    localStorage.removeItem('token')
-    localStorage.setItem('manuallyDisconnected', '1')
-    delete api.defaults.headers.common.Authorization
-    setAccount(null)
-    setRole(null)
-    setDropdownOpen(false)
-    router.push('/')
-  }, [router])
+    localStorage.removeItem('token');
+    localStorage.setItem('manuallyDisconnected', '1');
+    delete api.defaults.headers.common.Authorization;
+    setAccount(null);
+    setRole(null);
+    setDropdownOpen(false);
+    router.push('/');
+  }, [router]);
 
   const handleConnect = async () => {
-    localStorage.removeItem('manuallyDisconnected')
-    const eth = (window as any).ethereum
-    if (!eth) return alert('Please install MetaMask')
-    try {
-      const accounts: string[] = await eth.request({ method: 'eth_requestAccounts' })
-      const addr = accounts[0]
-      setAccount(addr)
-      await doLogin(addr)
-    } catch (e) {
-      console.error(e)
+    localStorage.removeItem('manuallyDisconnected');
+    if (!(window as any).ethereum) {
+      return alert('Please install MetaMask');
     }
-  }
+    try {
+      const [addr] = await (window as any).ethereum.request({ method: 'eth_requestAccounts' });
+      setAccount(addr);
+      await doLogin(addr);
+    } catch (e) {
+      console.error('[handleConnect] error:', e);
+    }
+  };
 
-  // ←–– this no longer calls doLogin
+  // Only clears auth on chain/account switch—no auto‐login here
   const handleAccountsChanged = useCallback(
     (accounts: string[]) => {
-      const addr = accounts[0] || null
+      const addr = accounts[0] || null;
       if (addr && addr !== account) {
-        // user switched wallet in MetaMask → just clear auth
-        localStorage.removeItem('token')
-        delete api.defaults.headers.common.Authorization
-        setAccount(addr)
-        setRole(null)
+        console.log('[MetaMask] switched account → clearing auth');
+        localStorage.removeItem('token');
+        delete api.defaults.headers.common.Authorization;
+        setAccount(addr);
+        setRole(null);
       } else if (!addr) {
-        // user disconnected in MetaMask UI
-        handleDisconnect()
+        handleDisconnect();
       }
     },
     [account, handleDisconnect]
-  )
+  );
 
   useEffect(() => {
-    const eth = (window as any).ethereum
-    if (!eth) return
+    const eth = (window as any).ethereum;
+    if (!eth) return;
 
-    const token = localStorage.getItem('token')
-    const manually = localStorage.getItem('manuallyDisconnected')
+    const token = localStorage.getItem('token');
+    const manually = localStorage.getItem('manuallyDisconnected');
 
-    // hydrate existing session
+    // If we have a token, fetch the stored role
     if (token) {
-      api.defaults.headers.common.Authorization = `Bearer ${token}`
+      console.log('[hydrate] existing token found, fetching /auth/role …');
+      api.defaults.headers.common.Authorization = `Bearer ${token}`;
       api.get('/auth/role')
-         .then(res => setRole(res.data.role as UserRole))
-         .catch(() => {
-           localStorage.removeItem('token')
-           delete api.defaults.headers.common.Authorization
-           setRole(null)
+         .then(res => {
+           console.log('[hydrate] /auth/role response:', res.data);
+           setRole(res.data.role as UserRole);
          })
+         .catch(err => {
+           console.error('[hydrate] /auth/role failed:', err);
+           localStorage.removeItem('token');
+           delete api.defaults.headers.common.Authorization;
+           setRole(null);
+         });
     }
 
     eth.request({ method: 'eth_accounts' })
       .then((accounts: string[]) => {
         if (manually) {
-          setAccount(null)
-          return
+          console.log('[hydrate] manuallyDisconnected → skipping auto-login');
+          setAccount(null);
+          return;
         }
-        const addr = accounts[0] || null
-        setAccount(addr)
-        // still auto-login if we’ve never had a token AND never disconnected manually
-        if (addr && !token) doLogin(addr)
+        const addr = accounts[0] || null;
+        setAccount(addr);
+        if (addr && !token) {
+          console.log('[hydrate] no token & have account → auto doLogin');
+          doLogin(addr);
+        }
       })
-      .catch(console.error)
+      .catch(console.error);
 
-    eth.on('accountsChanged', handleAccountsChanged)
+    eth.on('accountsChanged', handleAccountsChanged);
     return () => {
-      eth.removeListener('accountsChanged', handleAccountsChanged)
-    }
-  }, [doLogin, handleAccountsChanged])
+      eth.removeListener('accountsChanged', handleAccountsChanged);
+    };
+  }, [doLogin, handleAccountsChanged]);
 
+  // Close dropdown on outside click
   useEffect(() => {
     function onClick(e: MouseEvent) {
       if (dropdownOpen && wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
-        setDropdownOpen(false)
+        setDropdownOpen(false);
       }
     }
-    document.addEventListener('mousedown', onClick)
-    return () => document.removeEventListener('mousedown', onClick)
-  }, [dropdownOpen])
+    document.addEventListener('mousedown', onClick);
+    return () => document.removeEventListener('mousedown', onClick);
+  }, [dropdownOpen]);
 
-  const shortAddr = account ? `${account.slice(0, 6)}…${account.slice(-4)}` : ''
+  const shortAddr = account ? `${account.slice(0, 6)}…${account.slice(-4)}` : '';
 
   return (
     <header className="sticky top-0 bg-white border-b z-50">
@@ -138,6 +153,11 @@ export default function Navbar() {
         <Link href="/" className="flex items-center">
           <Image src="/stickey.png" width={144} height={48} alt="Logo" priority />
         </Link>
+
+        {/* Debug: show current role */}
+        <span className="text-sm px-2 py-1 bg-gray-100 rounded">
+          Role: {role ?? '⏳null'}
+        </span>
 
         <div className="flex items-center space-x-6">
           <Link href="/" className="text-gray-700 hover:underline">
@@ -193,5 +213,5 @@ export default function Navbar() {
         </div>
       </div>
     </header>
-  )
+  );
 }
