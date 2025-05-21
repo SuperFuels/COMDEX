@@ -1,4 +1,5 @@
 // frontend/components/Navbar.tsx
+
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
@@ -112,19 +113,16 @@ export default function Navbar() {
          });
     }
 
+    // Populate the address on mount—but do NOT auto-login
     eth.request({ method: 'eth_accounts' })
       .then((accounts: string[]) => {
         if (manually) {
-          console.log('[hydrate] manuallyDisconnected → skipping auto-login');
+          console.log('[hydrate] manuallyDisconnected → skipping');
           setAccount(null);
           return;
         }
         const addr = accounts[0] || null;
         setAccount(addr);
-        if (addr && !token) {
-          console.log('[hydrate] no token & have account → auto doLogin');
-          doLogin(addr);
-        }
       })
       .catch(console.error);
 
