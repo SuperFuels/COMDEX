@@ -59,12 +59,14 @@ export default function Navbar() {
   }, [router]);
 
   const handleConnect = async () => {
+    // clear any manual‐disconnect marker
     localStorage.removeItem('manuallyDisconnected');
     if (!(window as any).ethereum) {
       return alert('Please install MetaMask');
     }
     try {
       const [addr] = await (window as any).ethereum.request({ method: 'eth_requestAccounts' });
+      console.log('[handleConnect] got account:', addr);
       setAccount(addr);
       await doLogin(addr);
     } catch (e) {
@@ -72,21 +74,14 @@ export default function Navbar() {
     }
   };
 
-  // Only clears auth on chain/account switch—no auto‐login here
+  // 🔑 Treat any account change as a FULL disconnect
   const handleAccountsChanged = useCallback(
     (accounts: string[]) => {
-      const addr = accounts[0] || null;
-      if (addr && addr !== account) {
-        console.log('[MetaMask] switched account → clearing auth');
-        localStorage.removeItem('token');
-        delete api.defaults.headers.common.Authorization;
-        setAccount(addr);
-        setRole(null);
-      } else if (!addr) {
-        handleDisconnect();
-      }
+      console.log('[MetaMask] accountsChanged:', accounts);
+      // whether they switched or disconnected, clear all auth & account
+      handleDisconnect();
     },
-    [account, handleDisconnect]
+    [handleDisconnect]
   );
 
   useEffect(() => {
@@ -96,7 +91,7 @@ export default function Navbar() {
     const token = localStorage.getItem('token');
     const manually = localStorage.getItem('manuallyDisconnected');
 
-    // If we have a token, fetch the stored role
+    // hydrate existing JWT → fetch role
     if (token) {
       console.log('[hydrate] existing token found, fetching /auth/role …');
       api.defaults.headers.common.Authorization = `Bearer ${token}`;
@@ -113,7 +108,7 @@ export default function Navbar() {
          });
     }
 
-    // Populate the address on mount—but do NOT auto-login
+    // populate current account in UI—but do NOT auto-login
     eth.request({ method: 'eth_accounts' })
       .then((accounts: string[]) => {
         if (manually) {
@@ -121,8 +116,7 @@ export default function Navbar() {
           setAccount(null);
           return;
         }
-        const addr = accounts[0] || null;
-        setAccount(addr);
+        setAccount(accounts[0] || null);
       })
       .catch(console.error);
 
@@ -152,7 +146,7 @@ export default function Navbar() {
           <Image src="/stickey.png" width={144} height={48} alt="Logo" priority />
         </Link>
 
-        {/* Debug: show current role */}
+        {/* Debug badge */}
         <span className="text-sm px-2 py-1 bg-gray-100 rounded">
           Role: {role ?? '⏳null'}
         </span>
@@ -185,7 +179,10 @@ export default function Navbar() {
           )}
 
           {!account ? (
-            <button onClick={handleConnect} className="bg-blue-600 text-white px-3 py-1 rounded">
+            <button
+              onClick={handleConnect}
+              className="bg-blue-600 text-white px-3 py-1 rounded"
+            >
               Connect Wallet
             </button>
           ) : (
@@ -205,11 +202,3 @@ export default function Navbar() {
                     Disconnect
                   </button>
                 </div>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
-    </header>
-  );
-}
