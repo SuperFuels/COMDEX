@@ -12,12 +12,14 @@
     "export": "next export",
     "start": "next start",
     "test": "echo \"Error: no test specified\" && exit 1",
-    // ← NEW
-    "deploy:hosting": "cd frontend && npm ci && npm run build && npm run export && cd .. && firebase deploy --only hosting"
+    "chain:dev": "npx hardhat node",
+    "deploy:backend": "gcloud builds submit . --tag gcr.io/swift-area-459514-d1/comdex:latest && gcloud run deploy comdex-api --project=swift-area-459514-d1 --region=us-central1 --platform=managed --image=gcr.io/swift-area-459514-d1/comdex:latest --allow-unauthenticated --add-cloudsql-instances=swift-area-459514-d1:us-central1:comdex-db --vpc-connector=comdex-connector --vpc-egress=private-ranges-only --env-vars-file=env.yaml --timeout=300s",
+    "deploy:frontend": "cd frontend && npm ci && npm run build && npm run export && firebase deploy --only hosting",
+    "deploy:all": "npm run deploy:backend && npm run deploy:frontend"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/SuperFuels/COMDEX.git"
+    "url": "https://github.com/SuperFuels/COMDEX.git"
   },
   "keywords": [],
   "author": "",
@@ -57,4 +59,3 @@
     "typescript": "^5.8.3"
   }
 }
-
