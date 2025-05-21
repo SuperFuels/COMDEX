@@ -27,5 +27,6 @@ class ProductOut(ProductBase):
     owner_wallet_address: str    # ← newly added field
 
     class Config:
-        orm_mode = True
+        # Pydantic V2 replaces orm_mode with from_attributes
+        from_attributes = True
 

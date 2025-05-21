@@ -10,13 +10,13 @@ import { UserRole } from '@/hooks/useAuthRedirect'
 export default function Navbar() {
   const router = useRouter()
 
-  // ─── track connected account & current role ────────────────
+  // ─── track connected account & current role ───────────────
   const [account, setAccount] = useState<string | null>(null)
   const [role, setRole] = useState<UserRole | null>(null)
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const wrapperRef = useRef<HTMLDivElement>(null)
 
-  // ─── SIWE login helper ───────────────────────────
+  // ─── SIWE login helper ─────────────────────────
   const doLogin = useCallback(
     async (address: string) => {
       try {
@@ -24,13 +24,11 @@ export default function Navbar() {
           data: { nonce, message },
         } = await api.get('/auth/nonce', { params: { address } })
 
-        // sign with MetaMask
         const signature: string = await (window as any).ethereum.request({
           method: 'personal_sign',
           params: [message, address],
         })
 
-        // verify on server
         const {
           data: { token, role: newRole },
         } = await api.post('/auth/verify', { message, signature })
@@ -40,13 +38,11 @@ export default function Navbar() {
         api.defaults.headers.common.Authorization = `Bearer ${token}`
         setRole(newRole as UserRole)
       } catch (err: any) {
-        // if we get a 404, go register
+        // redirect to register if wallet not found
         if (err.response?.status === 404) {
           router.push('/register')
           return
         }
-
-        // otherwise, treat as normal login failure
         console.error('SIWE login failed:', err.response?.data ?? err.message)
         localStorage.removeItem('token')
         delete api.defaults.headers.common.Authorization
@@ -56,74 +52,25 @@ export default function Navbar() {
     [router]
   )
 
-  // ─── Handle account changes ───────────────────────
-  const handleAccountsChanged = useCallback(
-    (accounts: string[]) => {
-      const addr = accounts[0] || null
-      if (addr && addr !== account) {
-        // new wallet => reset and re-login
-        localStorage.removeItem('token')
-        delete api.defaults.headers.common.Authorization
-        setAccount(addr)
-        setRole(null)
-        doLogin(addr)
-      } else if (!addr) {
-        // disconnected
-        handleDisconnect()
-      }
-    },
-    [account, doLogin]
-  )
-
-  // ─── On mount: hydrate token & subscribe to wallet changes ─────
-  useEffect(() => {
-    const eth = (window as any).ethereum
-    if (!eth) return
-
-    // hydrate existing token
-    const token = localStorage.getItem('token')
-    if (token) {
-      api.defaults.headers.common.Authorization = `Bearer ${token}`
-      api
-        .get('/auth/role')
-        .then(res => setRole(res.data.role as UserRole))
-        .catch(() => {
-          localStorage.removeItem('token')
-          delete api.defaults.headers.common.Authorization
-          setRole(null)
-        })
-    }
-
-    // check currently connected account
-    eth
-      .request({ method: 'eth_accounts' })
-      .then((accounts: string[]) => {
-        const addr = accounts[0] || null
-        setAccount(addr)
-        if (addr && !token) doLogin(addr)
-      })
-      .catch(console.error)
-
-    eth.on('accountsChanged', handleAccountsChanged)
-    return () => {
-      eth.removeListener('accountsChanged', handleAccountsChanged)
-    }
-  }, [doLogin, handleAccountsChanged])
-
   // ─── Disconnect handler ─────────────────────────
-  const handleDisconnect = () => {
+  const handleDisconnect = useCallback(() => {
     localStorage.removeItem('token')
+    localStorage.setItem('manuallyDisconnected', '1')
     delete api.defaults.headers.common.Authorization
     setAccount(null)
     setRole(null)
     setDropdownOpen(false)
     router.push('/')
-  }
+  }, [router])
 
   // ─── Connect wallet button ───────────────────────
   const handleConnect = async () => {
+    // clear manual flag so we can auto-login next time
+    localStorage.removeItem('manuallyDisconnected')
+
     const eth = (window as any).ethereum
     if (!eth) return alert('Please install MetaMask')
+
     try {
       const accounts: string[] = await eth.request({
         method: 'eth_requestAccounts',
@@ -136,7 +83,65 @@ export default function Navbar() {
     }
   }
 
-  // ─── Close dropdown when clicking outside ─────────
+  // ─── Handle account changes ───────────────────────
+  const handleAccountsChanged = useCallback(
+    (accounts: string[]) => {
+      const addr = accounts[0] || null
+
+      if (addr && addr !== account) {
+        // new wallet → reset + re-login
+        localStorage.removeItem('token')
+        delete api.defaults.headers.common.Authorization
+        setAccount(addr)
+        setRole(null)
+        doLogin(addr)
+      } else if (!addr) {
+        // disconnected in wallet UI
+        handleDisconnect()
+      }
+    },
+    [account, doLogin, handleDisconnect]
+  )
+
+  // ─── On mount: hydrate token, auto-login, subscribe to wallet ────
+  useEffect(() => {
+    const eth = (window as any).ethereum
+    if (!eth) return
+
+    const token = localStorage.getItem('token')
+    const manually = localStorage.getItem('manuallyDisconnected')
+
+    if (token) {
+      api.defaults.headers.common.Authorization = `Bearer ${token}`
+      api
+        .get('/auth/role')
+        .then((res) => setRole(res.data.role as UserRole))
+        .catch(() => {
+          localStorage.removeItem('token')
+          delete api.defaults.headers.common.Authorization
+          setRole(null)
+        })
+    }
+
+    eth
+      .request({ method: 'eth_accounts' })
+      .then((accounts: string[]) => {
+        const addr = accounts[0] || null
+        setAccount(addr)
+        // auto-login only if not manually disconnected
+        if (addr && !token && !manually) {
+          doLogin(addr)
+        }
+      })
+      .catch(console.error)
+
+    eth.on('accountsChanged', handleAccountsChanged)
+    return () => {
+      eth.removeListener('accountsChanged', handleAccountsChanged)
+    }
+  }, [doLogin, handleAccountsChanged])
+
+  // ─── Close dropdown on outside click ─────────
   useEffect(() => {
     function onClick(e: MouseEvent) {
       if (
@@ -173,19 +178,16 @@ export default function Navbar() {
 
         {/* Navigation */}
         <div className="flex items-center space-x-6">
-          {/* always visible */}
           <Link href="/" passHref>
             <a className="text-gray-700 hover:underline">Marketplace</a>
           </Link>
 
-          {/* show Register until you’ve connected & registered */}
           {!account && (
             <Link href="/register" passHref>
               <a className="text-gray-700 hover:underline">Register</a>
             </Link>
           )}
 
-          {/* role-based dashboard links */}
           {role === 'supplier' && (
             <Link href="/dashboard" passHref>
               <a className="text-gray-700 hover:underline">
@@ -193,20 +195,19 @@ export default function Navbar() {
               </a>
             </Link>
           )}
+
           {role === 'buyer' && (
             <Link href="/buyer/dashboard" passHref>
-              <a className="text-gray-700 hover:underline">
-                Buyer Dashboard
-              </a>
+              <a className="text-gray-700 hover:underline">Buyer Dashboard</a>
             </Link>
           )}
+
           {role === 'admin' && (
             <Link href="/admin/dashboard" passHref>
               <a className="text-gray-700 hover:underline">Admin Dashboard</a>
             </Link>
           )}
 
-          {/* connect button vs connected state */}
           {!account ? (
             <button
               onClick={handleConnect}
@@ -217,13 +218,13 @@ export default function Navbar() {
           ) : (
             <div ref={wrapperRef} className="relative">
               <button
-                onClick={() => setDropdownOpen(o => !o)}
+                onClick={() => setDropdownOpen((o) => !o)}
                 className="bg-gray-100 px-3 py-1 rounded-full border border-gray-300"
               >
                 {shortAddr}
               </button>
               {dropdownOpen && (
-                <div className="absolute right-0 mt-2 w-40 bg-white border rounded shadow-md">
+                <div className="absolute right-0 mt-2 w-40 bg-white border rounded shadow">
                   <button
                     onClick={handleDisconnect}
                     className="w-full text-left px-4 py-2 hover:bg-gray-100"
