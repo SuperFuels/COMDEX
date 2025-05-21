@@ -1,4 +1,5 @@
 // frontend/components/Navbar.tsx
+
 import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
@@ -13,25 +14,31 @@ export default function Navbar() {
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const wrapperRef = useRef<HTMLDivElement>(null)
 
-  const doLogin = useCallback(async (address: string) => {
-    try {
-      const { data: { message } } = await api.get('/auth/nonce', { params: { address } })
-      const signature: string = await (window as any).ethereum.request({
-        method: 'personal_sign',
-        params: [message, address],
-      })
-      const { data: { token, role: newRole } } = await api.post('/auth/verify', { message, signature })
-      localStorage.setItem('token', token)
-      api.defaults.headers.common.Authorization = `Bearer ${token}`
-      setRole(newRole as UserRole)
-    } catch (err: any) {
-      if (err.response?.status === 404) return router.push('/register')
-      console.error('SIWE login failed:', err)
-      localStorage.removeItem('token')
-      delete api.defaults.headers.common.Authorization
-      setRole(null)
-    }
-  }, [router])
+  const doLogin = useCallback(
+    async (address: string) => {
+      try {
+        const { data: { message } } = await api.get('/auth/nonce', { params: { address } })
+        const signature = await (window as any).ethereum.request({
+          method: 'personal_sign',
+          params: [message, address],
+        })
+        const { data: { token, role: newRole } } = await api.post('/auth/verify', { message, signature })
+        localStorage.setItem('token', token)
+        api.defaults.headers.common.Authorization = `Bearer ${token}`
+        setRole(newRole as UserRole)
+      } catch (err: any) {
+        if (err.response?.status === 404) {
+          router.push('/register')
+          return
+        }
+        console.error('SIWE login failed:', err)
+        localStorage.removeItem('token')
+        delete api.defaults.headers.common.Authorization
+        setRole(null)
+      }
+    },
+    [router]
+  )
 
   const handleDisconnect = useCallback(() => {
     localStorage.removeItem('token')
@@ -49,25 +56,29 @@ export default function Navbar() {
     if (!eth) return alert('Please install MetaMask')
     try {
       const accounts: string[] = await eth.request({ method: 'eth_requestAccounts' })
-      setAccount(accounts[0])
-      await doLogin(accounts[0])
-    } catch (err) {
-      console.error(err)
+      const addr = accounts[0]
+      setAccount(addr)
+      doLogin(addr)
+    } catch (e) {
+      console.error(e)
     }
   }
 
-  const handleAccountsChanged = useCallback((accounts: string[]) => {
-    const addr = accounts[0] || null
-    if (addr && addr !== account) {
-      localStorage.removeItem('token')
-      delete api.defaults.headers.common.Authorization
-      setAccount(addr)
-      setRole(null)
-      doLogin(addr)
-    } else if (!addr) {
-      handleDisconnect()
-    }
-  }, [account, doLogin, handleDisconnect])
+  const handleAccountsChanged = useCallback(
+    (accounts: string[]) => {
+      const addr = accounts[0] || null
+      if (addr && addr !== account) {
+        localStorage.removeItem('token')
+        delete api.defaults.headers.common.Authorization
+        setAccount(addr)
+        setRole(null)
+        doLogin(addr)
+      } else if (!addr) {
+        handleDisconnect()
+      }
+    },
+    [account, doLogin, handleDisconnect]
+  )
 
   useEffect(() => {
     const eth = (window as any).ethereum
@@ -79,12 +90,12 @@ export default function Navbar() {
     if (token) {
       api.defaults.headers.common.Authorization = `Bearer ${token}`
       api.get('/auth/role')
-        .then(res => setRole(res.data.role as UserRole))
-        .catch(() => {
-          localStorage.removeItem('token')
-          delete api.defaults.headers.common.Authorization
-          setRole(null)
-        })
+         .then(res => setRole(res.data.role as UserRole))
+         .catch(() => {
+           localStorage.removeItem('token')
+           delete api.defaults.headers.common.Authorization
+           setRole(null)
+         })
     }
 
     eth.request({ method: 'eth_accounts' })
@@ -100,11 +111,13 @@ export default function Navbar() {
       .catch(console.error)
 
     eth.on('accountsChanged', handleAccountsChanged)
-    return () => eth.removeListener('accountsChanged', handleAccountsChanged)
+    return () => {
+      eth.removeListener('accountsChanged', handleAccountsChanged)
+    }
   }, [doLogin, handleAccountsChanged])
 
   useEffect(() => {
-    const onClick = (e: MouseEvent) => {
+    function onClick(e: MouseEvent) {
       if (dropdownOpen && wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
         setDropdownOpen(false)
       }
@@ -113,7 +126,10 @@ export default function Navbar() {
     return () => document.removeEventListener('mousedown', onClick)
   }, [dropdownOpen])
 
-  const shortAddr = account ? `${account.slice(0,6)}…${account.slice(-4)}` : ''
+  // *** DEBUGGING: make sure we actually have the right values ***
+  console.log('🔐 Navbar — account:', account, 'role:', role)
+
+  const shortAddr = account ? `${account.slice(0, 6)}…${account.slice(-4)}` : ''
 
   return (
     <header className="sticky top-0 bg-white border-b z-50">
@@ -125,27 +141,56 @@ export default function Navbar() {
 
         {/* Navigation */}
         <div className="flex items-center space-x-6">
-          <Link href="/" className="text-gray-700 hover:underline">Marketplace</Link>
-          {!account && <Link href="/register" className="text-gray-700 hover:underline">Register</Link>}
-          {role === 'supplier' && <Link href="/dashboard" className="text-gray-700 hover:underline">Supplier Dashboard</Link>}
-          {role === 'buyer'    && <Link href="/buyer/dashboard" className="text-gray-700 hover:underline">Buyer Dashboard</Link>}
-          {role === 'admin'    && <Link href="/admin/dashboard" className="text-gray-700 hover:underline">Admin Dashboard</Link>}
+          <Link href="/" className="text-gray-700 hover:underline">
+            Marketplace
+          </Link>
 
-          {!account
-            ? <button onClick={handleConnect} className="bg-blue-600 text-white px-3 py-1 rounded">Connect Wallet</button>
-            : <div ref={wrapperRef} className="relative">
-                <button onClick={() => setDropdownOpen(o => !o)} className="bg-gray-100 px-3 py-1 rounded-full border border-gray-300">
-                  {shortAddr}
-                </button>
-                {dropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-40 bg-white border rounded shadow">
-                    <button onClick={handleDisconnect} className="w-full text-left px-4 py-2 hover:bg-gray-100">
-                      Disconnect
-                    </button>
-                  </div>
-                )}
-              </div>
-          }
+          {!account && (
+            <Link href="/register" className="text-gray-700 hover:underline">
+              Register
+            </Link>
+          )}
+
+          {role === 'supplier' && (
+            <Link href="/dashboard" className="text-gray-700 hover:underline">
+              Supplier Dashboard
+            </Link>
+          )}
+          {role === 'buyer' && (
+            <Link href="/buyer/dashboard" className="text-gray-700 hover:underline">
+              Buyer Dashboard
+            </Link>
+          )}
+          {role === 'admin' && (
+            <Link href="/admin/dashboard" className="text-gray-700 hover:underline">
+              Admin Dashboard
+            </Link>
+          )}
+
+          {!account ? (
+            <button onClick={handleConnect} className="bg-blue-600 text-white px-3 py-1 rounded">
+              Connect Wallet
+            </button>
+          ) : (
+            <div ref={wrapperRef} className="relative">
+              <button
+                onClick={() => setDropdownOpen(o => !o)}
+                className="bg-gray-100 px-3 py-1 rounded-full border border-gray-300"
+              >
+                {shortAddr}
+              </button>
+              {dropdownOpen && (
+                <div className="absolute right-0 mt-2 w-40 bg-white border rounded shadow">
+                  <button
+                    onClick={handleDisconnect}
+                    className="w-full text-left px-4 py-2 hover:bg-gray-100"
+                  >
+                    Disconnect
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </header>
