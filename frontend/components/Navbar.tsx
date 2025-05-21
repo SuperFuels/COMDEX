@@ -10,13 +10,13 @@ import { UserRole } from '@/hooks/useAuthRedirect'
 export default function Navbar() {
   const router = useRouter()
 
-  // track connected account & current role
+  // ─── track connected account & current role ─────────────────────────
   const [account, setAccount] = useState<string | null>(null)
   const [role, setRole] = useState<UserRole | null>(null)
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const wrapperRef = useRef<HTMLDivElement>(null)
 
-  // SIWE login helper
+  // ─── SIWE login helper ─────────────────────────────────────────────
   const doLogin = useCallback(
     async (address: string) => {
       try {
@@ -26,9 +26,11 @@ export default function Navbar() {
           params: [message, address],
         })
         const { data: { token, role: newRole } } = await api.post('/auth/verify', { message, signature })
+
+        // store and normalize
         localStorage.setItem('token', token)
         api.defaults.headers.common.Authorization = `Bearer ${token}`
-        setRole(newRole as UserRole)
+        setRole((newRole as string).toLowerCase() as UserRole)
       } catch (err: any) {
         if (err.response?.status === 404) {
           router.push('/register')
@@ -43,7 +45,7 @@ export default function Navbar() {
     [router]
   )
 
-  // Disconnect handler
+  // ─── Disconnect handler ────────────────────────────────────────────
   const handleDisconnect = useCallback(() => {
     localStorage.removeItem('token')
     localStorage.setItem('manuallyDisconnected', '1')
@@ -54,11 +56,14 @@ export default function Navbar() {
     router.push('/')
   }, [router])
 
-  // Connect wallet button
+  // ─── Connect wallet button ────────────────────────────────────────
   const handleConnect = async () => {
     localStorage.removeItem('manuallyDisconnected')
     const eth = (window as any).ethereum
-    if (!eth) return alert('Please install MetaMask')
+    if (!eth) {
+      alert('Please install MetaMask')
+      return
+    }
     try {
       const accounts: string[] = await eth.request({ method: 'eth_requestAccounts' })
       const addr = accounts[0]
@@ -69,7 +74,7 @@ export default function Navbar() {
     }
   }
 
-  // Handle account changes (e.g. in MetaMask UI)
+  // ─── Handle account changes (MetaMask UI) ────────────────────────
   const handleAccountsChanged = useCallback(
     (accounts: string[]) => {
       const addr = accounts[0] || null
@@ -88,7 +93,7 @@ export default function Navbar() {
     [account, doLogin, handleDisconnect]
   )
 
-  // On mount: hydrate token, auto-login (unless manually disconnected), subscribe to wallet events
+  // ─── On mount: hydrate token, auto-login (unless manually disconnected) ──
   useEffect(() => {
     const eth = (window as any).ethereum
     if (!eth) return
@@ -96,10 +101,11 @@ export default function Navbar() {
     const token = localStorage.getItem('token')
     const manually = localStorage.getItem('manuallyDisconnected')
 
+    // hydrate role from existing token
     if (token) {
       api.defaults.headers.common.Authorization = `Bearer ${token}`
       api.get('/auth/role')
-        .then(res => setRole(res.data.role as UserRole))
+        .then(res => setRole((res.data.role as string).toLowerCase() as UserRole))
         .catch(() => {
           localStorage.removeItem('token')
           delete api.defaults.headers.common.Authorization
@@ -107,17 +113,16 @@ export default function Navbar() {
         })
     }
 
+    // check current accounts
     eth.request({ method: 'eth_accounts' })
       .then((accounts: string[]) => {
-        // if previously “manually disconnected”, ignore whatever MetaMask returns
         if (manually) {
+          // if user manually disconnected, ignore MetaMask’s always-present account
           setAccount(null)
           return
         }
-
         const addr = accounts[0] || null
         setAccount(addr)
-        // auto-login only if we don’t already have a token
         if (addr && !token) {
           doLogin(addr)
         }
@@ -130,16 +135,23 @@ export default function Navbar() {
     }
   }, [doLogin, handleAccountsChanged])
 
-  // Close dropdown on outside click
+  // ─── Close dropdown on outside click ──────────────────────────────
   useEffect(() => {
     function onClick(e: MouseEvent) {
-      if (dropdownOpen && wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
+      if (
+        dropdownOpen &&
+        wrapperRef.current &&
+        !wrapperRef.current.contains(e.target as Node)
+      ) {
         setDropdownOpen(false)
       }
     }
     document.addEventListener('mousedown', onClick)
     return () => document.removeEventListener('mousedown', onClick)
   }, [dropdownOpen])
+
+  // ─── Debug: shows current account/role in console ──────────────────
+  console.log('🔐 Navbar — account:', account, 'role:', role)
 
   const shortAddr = account ? `${account.slice(0, 6)}…${account.slice(-4)}` : ''
 
@@ -170,11 +182,13 @@ export default function Navbar() {
               <a className="text-gray-700 hover:underline">Supplier Dashboard</a>
             </Link>
           )}
+
           {role === 'buyer' && (
             <Link href="/buyer/dashboard" passHref>
               <a className="text-gray-700 hover:underline">Buyer Dashboard</a>
             </Link>
           )}
+
           {role === 'admin' && (
             <Link href="/admin/dashboard" passHref>
               <a className="text-gray-700 hover:underline">Admin Dashboard</a>
@@ -182,7 +196,10 @@ export default function Navbar() {
           )}
 
           {!account ? (
-            <button onClick={handleConnect} className="bg-blue-600 text-white px-3 py-1 rounded">
+            <button
+              onClick={handleConnect}
+              className="bg-blue-600 text-white px-3 py-1 rounded"
+            >
               Connect Wallet
             </button>
           ) : (
@@ -210,4 +227,3 @@ export default function Navbar() {
     </header>
   )
 }
-
