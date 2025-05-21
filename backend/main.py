@@ -40,9 +40,14 @@ app = FastAPI(
     description="Global Commodity Marketplace API",
 )
 
-# 8) configure CORS from env var (comma-separated list)
-origins = os.getenv("CORS_ALLOWED_ORIGINS", "")
-allow_origins = [o.strip() for o in origins.split(",") if o.strip()]
+# 8) configure CORS
+#    Read from env var or fall back to localhost & prod URL
+raw_origins = os.getenv(
+    "CORS_ALLOWED_ORIGINS",
+    "http://localhost:3000,https://swift-area-459514-d1.web.app",
+)
+allow_origins = [o.strip() for o in raw_origins.split(",") if o.strip()]
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allow_origins,
@@ -95,4 +100,3 @@ def health_check():
     except OperationalError:
         logger.error("❌ Database connection failed.", exc_info=True)
         return {"status": "error", "database": "not connected"}
-
