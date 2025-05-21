@@ -20,13 +20,17 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/verify")
 
 
 @router.get("/me", response_model=List[ProductOut])
-def get_my_products(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+def get_my_products(
+    token: str = Depends(oauth2_scheme),
+    db: Session = Depends(get_db)
+):
     """
     Private: List products owned by the current user.
     """
     user = get_current_user(token)
     products = db.query(Product).filter(Product.owner_email == user.email).all()
     for p in products:
+        # always produce a string
         p.owner_wallet_address = user.wallet_address or ""
     return products
 
@@ -39,7 +43,7 @@ def get_all_products(db: Session = Depends(get_db)):
     products = db.query(Product).all()
     for p in products:
         owner = db.query(User).filter(User.email == p.owner_email).first()
-        p.owner_wallet_address = owner.wallet_address if owner else ""
+        p.owner_wallet_address = (owner.wallet_address or "") if owner else ""
     return products
 
 
@@ -58,7 +62,7 @@ def search_products(query: str, db: Session = Depends(get_db)):
     )
     for p in products:
         owner = db.query(User).filter(User.email == p.owner_email).first()
-        p.owner_wallet_address = owner.wallet_address if owner else ""
+        p.owner_wallet_address = (owner.wallet_address or "") if owner else ""
     return products
 
 
@@ -71,7 +75,7 @@ def get_product_by_id(product_id: int, db: Session = Depends(get_db)):
     if not p:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
     owner = db.query(User).filter(User.email == p.owner_email).first()
-    p.owner_wallet_address = owner.wallet_address if owner else ""
+    p.owner_wallet_address = (owner.wallet_address or "") if owner else ""
     return p
 
 
@@ -113,7 +117,7 @@ def update_product(
     )
     if not p:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
-
+    
     for field, value in payload.dict().items():
         setattr(p, field, value)
 
@@ -143,7 +147,7 @@ def delete_product(
     )
     if not p:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
-
+        
     db.delete(p)
     db.commit()
 
