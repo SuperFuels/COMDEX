@@ -1,10 +1,8 @@
-# backend/main.py
-
 import os
 import time
 import logging
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from starlette.responses import RedirectResponse
@@ -30,18 +28,28 @@ logger = logging.getLogger("comdex")
 from config import SQLALCHEMY_DATABASE_URL
 logger.info(f"🔍 SQLALCHEMY_DATABASE_URL = {SQLALCHEMY_DATABASE_URL}")
 
-# 6) import the single shared engine & session dependency
-from database import engine, get_db
+# 6) import the shared engine, Base, and session dependency
+from database import engine, Base, get_db
 
-# 7) FastAPI app
+# 7) import all models so they register on Base before we create tables
+import models.user
+import models.product
+import models.deal
+import models.contract
+# …and any others under models/
+
+# 8) auto-create missing tables in your Cloud SQL database
+Base.metadata.create_all(bind=engine)
+logger.info("✅ Database tables checked/created.")
+
+# 9) FastAPI app
 app = FastAPI(
     title="COMDEX API",
     version="1.0.0",
     description="Global Commodity Marketplace API",
 )
 
-# 8) configure CORS
-#    Read from env var or fall back to localhost & prod URL
+# 10) configure CORS
 raw_origins = os.getenv(
     "CORS_ALLOWED_ORIGINS",
     "http://localhost:3000,https://swift-area-459514-d1.web.app",
@@ -56,14 +64,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 9) serve user uploads
+# 11) serve user uploads
 app.mount(
     "/uploaded_images",
     StaticFiles(directory="uploaded_images"),
     name="uploaded_images",
 )
 
-# 10) import & include routers
+# 12) import & include routers
 from routes.auth      import router as auth_router
 from routes.products  import router as products_router
 from routes.deal      import router as deal_router
@@ -83,13 +91,12 @@ app.include_router(user_router,      prefix="/users",    tags=["Users"])
 def products_no_slash():
     return RedirectResponse(url="/products/", status_code=307)
 
-
-# 11) root endpoint
+# 13) root endpoint
 @app.get("/", tags=["Root"])
 def read_root():
     return {"message": "🚀 Welcome to the COMDEX API!"}
 
-# 12) health check — uses only the socket-based engine
+# 14) health check — uses only the socket-based engine
 @app.get("/health", tags=["Health"])
 def health_check():
     try:
