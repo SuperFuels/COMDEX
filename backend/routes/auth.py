@@ -166,7 +166,7 @@ def login_user(
 ):
     """Authenticate via email/password and return JWT."""
     user = db.query(User).filter(User.email == form_data.email).first()
-    if not user or not verify_password(form_data.password, user.hashed_password):
+    if not user or not verify_password(form_data.password, user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid email or password",
@@ -220,7 +220,7 @@ def register_user(
     new_user = User(
         name=name,
         email=email,
-        hashed_password=hashed_pw,
+        password_hash=hashed_pw,
         role=role,
     )
     db.add(new_user)
