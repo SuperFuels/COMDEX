@@ -6,7 +6,7 @@ import { useRouter } from 'next/router'
 import { useEffect, useState, useRef, useCallback } from 'react'
 import api from '@/lib/api'
 import { UserRole } from '@/hooks/useAuthRedirect'
-import { signInWithEthereum, logout } from '@/utils/auth'
+import { signInWithEthereum, logout } from '@/utils/auth'  // this now matches frontend/utils/auth.ts
 
 export default function Navbar() {
   const router = useRouter()
