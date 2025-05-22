@@ -1,5 +1,3 @@
-# backend/main.py
-
 import os
 import time
 import logging
@@ -38,7 +36,7 @@ import models.user
 import models.product
 import models.deal
 import models.contract
-# …and any others under models/
+# …any others under models/
 
 # 8) auto-create missing tables in your Cloud SQL database
 Base.metadata.create_all(bind=engine)
@@ -54,7 +52,7 @@ app = FastAPI(
 # ─── 10) APPLY CORS GLOBALLY ───────────────────────────────────────────────────
 raw_origins = os.getenv(
     "CORS_ALLOWED_ORIGINS",
-    "http://localhost:3000,https://swift-area-459514-d1.web.app",
+    "http://localhost:3000,https://swift-area-459514-d1.web.app"
 )
 allow_origins = [o.strip() for o in raw_origins.split(",") if o.strip()]
 

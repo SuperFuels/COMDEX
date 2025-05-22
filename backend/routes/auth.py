@@ -1,5 +1,3 @@
-# backend/routes/auth.py
-
 import os
 import secrets
 from datetime import datetime
@@ -13,8 +11,8 @@ from fastapi import (
     Body,
     Form,
     HTTPException,
-    status,
     Request,
+    status,
 )
 from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel, EmailStr
@@ -85,11 +83,9 @@ def get_siwe_nonce(
     address: str = Query(..., description="Wallet address")
 ):
     """DEV: Issue a SIWE nonce + message for front-end to sign."""
-    # 1) generate & store a fresh nonce
     nonce = secrets.token_urlsafe(16)
     _nonces[address.lower()] = nonce
 
-    # 2) derive domain & uri from incoming Origin header
     origin = (
         request.headers.get("origin")
         or request.headers.get("host")
@@ -99,7 +95,6 @@ def get_siwe_nonce(
     domain = parsed.netloc
     issued = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
 
-    # 3) build the EIP-4361 message
     message = (
         f"{domain} wants you to sign in with your Ethereum account:\n"
         f"{address}\n\n"
@@ -110,7 +105,6 @@ def get_siwe_nonce(
         f"Nonce: {nonce}\n"
         f"Issued At: {issued}"
     )
-
     return {"nonce": nonce, "message": message}
 
 
@@ -120,13 +114,11 @@ def verify_siwe(
     db: Session = Depends(get_db),
 ):
     """Verify SIWE signature and return JWT + role."""
-    # 1) Extract wallet
     try:
         wallet = body.message.split("\n")[1].strip().lower()
     except Exception:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Malformed SIWE message")
 
-    # 2) Check nonce
     try:
         raw = next(l for l in body.message.splitlines() if l.startswith("Nonce:"))
         nonce = raw.split("Nonce:")[1].strip()
@@ -136,7 +128,6 @@ def verify_siwe(
     if _nonces.get(wallet) != nonce:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Invalid nonce")
 
-    # 3) Recover signature
     w3 = get_web3()
     msg = encode_defunct(text=body.message)
     try:
@@ -149,12 +140,10 @@ def verify_siwe(
     if signer.lower() != wallet:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Signature mismatch")
 
-    # 4) Lookup user
     user = db.query(User).filter(User.wallet_address == wallet).first()
     if not user:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "User not found")
 
-    # 5) Issue JWT
     token = create_access_token(subject=str(user.id))
     return {"token": token, "role": user.role}
 
@@ -164,7 +153,6 @@ def login_user(
     form_data: LoginIn,
     db: Session = Depends(get_db),
 ):
-    """Authenticate via email/password and return JWT."""
     user = db.query(User).filter(User.email == form_data.email).first()
     if not user or not verify_password(form_data.password, user.password_hash):
         raise HTTPException(
@@ -181,7 +169,6 @@ def get_user_role(
     token: str = Depends(oauth2_scheme),
     db: Session = Depends(get_db),
 ):
-    """Decode JWT, look up the user, and return their role."""
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id = int(payload.get("sub"))
@@ -209,7 +196,6 @@ def register_user(
     db: Session = Depends(get_db),
 ):
     """Register a new user (name, email, password, role)."""
-    # prevent duplicate email
     if db.query(User).filter(User.email == email).first():
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
