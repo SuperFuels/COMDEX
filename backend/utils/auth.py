@@ -1,5 +1,3 @@
-# backend/utils/auth.py
-
 import os
 import time
 from datetime import datetime, timedelta
@@ -81,7 +79,7 @@ def get_current_user(
             detail="Invalid or expired token",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
+
     user = db.query(User).get(user_id)
     if not user:
         raise HTTPException(
@@ -105,4 +103,3 @@ def decodeJWT(token: str) -> Optional[dict]:
     except JWTError:
         pass
     return None
-
