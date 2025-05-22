@@ -51,7 +51,7 @@ app = FastAPI(
     description="Global Commodity Marketplace API",
 )
 
-# 10) configure CORS
+# ─── 10) APPLY CORS GLOBALLY ───────────────────────────────────────────────────
 raw_origins = os.getenv(
     "CORS_ALLOWED_ORIGINS",
     "http://localhost:3000,https://swift-area-459514-d1.web.app",
@@ -65,6 +65,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+# ───────────────────────────────────────────────────────────────────────────────
 
 # 11) serve user uploads
 app.mount(
