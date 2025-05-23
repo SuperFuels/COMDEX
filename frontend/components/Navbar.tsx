@@ -6,7 +6,7 @@ import { useRouter } from 'next/router'
 import { useEffect, useState, useRef, useCallback } from 'react'
 import api from '@/lib/api'
 import { UserRole } from '@/hooks/useAuthRedirect'
-import { signInWithEthereum, logout } from '@/utils/auth'  // this now matches frontend/utils/auth.ts
+import { signInWithEthereum, logout } from '@/utils/auth'
 
 export default function Navbar() {
   const router = useRouter()
@@ -16,13 +16,15 @@ export default function Navbar() {
   const wrapperRef = useRef<HTMLDivElement>(null)
 
   const handleConnect = useCallback(async () => {
+    // If user explicitly connects, clear any prior manual-disconnect
+    localStorage.removeItem('manualDisconnect')
+
     try {
       const { address, role: newRole } = await signInWithEthereum()
       setAccount(address)
       setRole(newRole as UserRole)
     } catch (err: any) {
       console.error('SIWE login failed', err)
-      // if user is new, go register
       if (err.response?.status === 404) {
         router.push('/register')
       }
@@ -30,19 +32,21 @@ export default function Navbar() {
   }, [router])
 
   const handleDisconnect = useCallback(() => {
-    logout()
+    // Mark that user intentionally disconnected
+    localStorage.setItem('manualDisconnect', 'true')
+    logout() // clears token, role, and reloads
     setAccount(null)
     setRole(null)
     setDropdownOpen(false)
     router.push('/')
   }, [router])
 
-  // hydrate on page load
+  // Hydrate on mount: restore JWT → role, and optionally auto-connect wallet
   useEffect(() => {
     const eth = (window as any).ethereum
     if (!eth) return
 
-    // load existing JWT → fetch role
+    // 1) If there's a saved JWT, set it on our client and fetch the role
     const token = localStorage.getItem('token')
     if (token) {
       api.defaults.headers.common.Authorization = `Bearer ${token}`
@@ -54,19 +58,31 @@ export default function Navbar() {
         })
     }
 
-    eth.request({ method: 'eth_accounts' })
-      .then((accounts: string[]) => {
-        setAccount(accounts[0] || null)
-      })
-      .catch(console.error)
+    // 2) Auto-connect only if user didn't manually disconnect
+    const manuallyDisconnected = localStorage.getItem('manualDisconnect')
+    if (!manuallyDisconnected) {
+      eth.request({ method: 'eth_accounts' })
+        .then((accounts: string[]) => {
+          if (accounts.length) setAccount(accounts[0])
+        })
+        .catch(console.error)
+    }
 
-    eth.on('accountsChanged', () => handleDisconnect())
+    // 3) Listen for account changes (e.g. lock/unlock)
+    const onAccountsChanged = (accounts: string[]) => {
+      if (accounts.length === 0) {
+        handleDisconnect()
+      } else if (!localStorage.getItem('manualDisconnect')) {
+        setAccount(accounts[0])
+      }
+    }
+    eth.on('accountsChanged', onAccountsChanged)
     return () => {
-      eth.removeListener('accountsChanged', () => handleDisconnect())
+      eth.removeListener('accountsChanged', onAccountsChanged)
     }
   }, [handleDisconnect])
 
-  // close dropdown
+  // Close dropdown when clicking outside
   useEffect(() => {
     function onClick(e: MouseEvent) {
       if (
@@ -81,17 +97,25 @@ export default function Navbar() {
     return () => document.removeEventListener('mousedown', onClick)
   }, [dropdownOpen])
 
-  const shortAddr = account ? `${account.slice(0, 6)}…${account.slice(-4)}` : ''
+  const shortAddr = account
+    ? `${account.slice(0, 6)}…${account.slice(-4)}`
+    : ''
 
   return (
     <header className="sticky top-0 bg-white border-b z-50">
       <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-4">
         <Link href="/" className="flex items-center">
-          <Image src="/stickey.png" width={144} height={48} alt="Logo" priority />
+          <Image
+            src="/stickey.png"
+            width={144}
+            height={48}
+            alt="Logo"
+            priority
+          />
         </Link>
 
         <span className="text-sm px-2 py-1 bg-gray-100 rounded">
-          Role: {role ?? '⏳null'}
+          Role: {role ?? 'None'}
         </span>
 
         <div className="flex items-center space-x-6">
@@ -111,7 +135,10 @@ export default function Navbar() {
             </Link>
           )}
           {role === 'buyer' && (
-            <Link href="/buyer/dashboard" className="text-gray-700 hover:underline">
+            <Link
+              href="/buyer/dashboard"
+              className="text-gray-700 hover:underline"
+            >
               Buyer Dashboard
             </Link>
           )}

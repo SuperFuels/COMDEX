@@ -1,16 +1,43 @@
 {
   "compilerOptions": {
-    "target": "es2020",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "resolveJsonModule": true,
-    "outDir": "dist",
-    "rootDir": "./",
+    "target": "es5",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
     "strict": true,
-    "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "skipLibCheck": true
-  },
-  "include": ["./scripts", "./test", "./typechain-types", "./hardhat.config.ts"]
-}
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
 
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["*"]
+    },
+
+    // ← Added for custom declarations
+    "typeRoots": [
+      "types",                 // ← your custom .d.ts files
+      "node_modules/@types"    // ← default
+    ],
+
+    "incremental": true
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "types/**/*.d.ts"         // ← include your new ambient declarations
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
