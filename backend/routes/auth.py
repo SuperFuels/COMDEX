@@ -6,7 +6,7 @@ from database import get_db
 from models.user import User
 from utils.auth import generate_nonce, verify_siwe, create_access_token, SECRET_KEY, ALGORITHM
 
-router = APIRouter(prefix="/auth", tags=["auth"])
+router = APIRouter(tags=["Auth"])
 
 class SiweVerifyBody(BaseModel):
     message: str
