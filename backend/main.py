@@ -2,7 +2,7 @@ import os
 import time
 import logging
 
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from starlette.responses import RedirectResponse
@@ -49,16 +49,22 @@ app = FastAPI(
     description="Global Commodity Marketplace API",
 )
 
-# ─── 10) APPLY CORS GLOBALLY ───────────────────────────────────────────────────
-raw_origins = os.getenv(
-    "CORS_ALLOWED_ORIGINS",
-    "http://localhost:3000,https://swift-area-459514-d1.web.app"
-)
-allow_origins = [o.strip() for o in raw_origins.split(",") if o.strip()]
+# ─── 10) APPLY CORS GLOBALLY WITH REGEX FALLBACK ───────────────────────────────
+# Lock down via CORS_ALLOWED_ORIGINS (comma-sep list) or CORS_ALLOWED_ORIGINS_REGEX (single regex).
+# If neither is set, we fall back to allow all origins (and reflect credentials properly).
+raw_origins = os.getenv("CORS_ALLOWED_ORIGINS", "")
+allowed_origins = [o.strip() for o in raw_origins.split(",") if o.strip()]
+
+allowed_regex = os.getenv("CORS_ALLOWED_ORIGINS_REGEX", "").strip() or None
+
+# If no explicit origins and no regex, allow everything via regex
+if not allowed_origins and not allowed_regex:
+    allowed_regex = r".*"
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allow_origins,
+    allow_origins=allowed_origins,            # list of exact origins, or empty
+    allow_origin_regex=allowed_regex,         # single regex, or None
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -108,3 +114,4 @@ def health_check():
     except OperationalError:
         logger.error("❌ Database connection failed.", exc_info=True)
         return {"status": "error", "database": "not connected"}
+        
