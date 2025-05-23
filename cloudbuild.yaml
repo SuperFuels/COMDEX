@@ -5,17 +5,20 @@ substitutions:
   _REGION: us-central1
 
 steps:
-  # 1) Build the container (Dockerfile lives at the repo root)
+  # 1) Build the container from your Dockerfile, no cache,
+  #    and tag it with $BUILD_ID and also :latest
   - name: 'gcr.io/cloud-builders/docker'
     args:
       [
         'build',
+        '--no-cache',
         '-f', 'Dockerfile',
         '-t', 'gcr.io/$PROJECT_ID/${_SERVICE}:$BUILD_ID',
+        '-t', 'gcr.io/$PROJECT_ID/${_SERVICE}:latest',
         '.'
       ]
 
-  # 2) Push the image
+  # 2) Push the build-ID tag
   - name: 'gcr.io/cloud-builders/docker'
     args:
       [
@@ -23,7 +26,15 @@ steps:
         'gcr.io/$PROJECT_ID/${_SERVICE}:$BUILD_ID'
       ]
 
-  # 3) Deploy to Cloud Run (mount Cloud SQL, VPC, env-vars)
+  # 3) Push the :latest tag
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      [
+        'push',
+        'gcr.io/$PROJECT_ID/${_SERVICE}:latest'
+      ]
+
+  # 4) Deploy to Cloud Run using the fresh $BUILD_ID image
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
     args:
@@ -37,9 +48,11 @@ steps:
         '--vpc-connector=comdex-connector',
         '--vpc-egress=private-ranges-only',
         '--env-vars-file=env.yaml',
-        '--port', '8080'
+        '--timeout=300s',
+        '--port=8080'
       ]
 
+# tell Cloud Build which images you’ve produced
 images:
   - 'gcr.io/$PROJECT_ID/${_SERVICE}:$BUILD_ID'
-
+  - 'gcr.io/$PROJECT_ID/${_SERVICE}:latest'

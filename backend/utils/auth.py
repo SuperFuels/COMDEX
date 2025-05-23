@@ -126,3 +126,4 @@ def verify_siwe(message: str, signature: str, db: Session) -> tuple[User, str]:
     # return user + JWT token
     token = create_access_token(subject=user.id, role=user.role)
     return user, token
+

@@ -33,3 +33,7 @@ cd frontend
 npm ci
 npm run build
 firebase deploy --only hosting
+
+
+
+gcloud builds submit --config cloudbuild.yaml .
