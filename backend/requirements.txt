@@ -60,7 +60,7 @@ yarl==1.20.0
 zopfli==0.2.3.post1
 
 # Ethereum / SIWE dependencies
-eth-account==0.8.0
+eth-account>=0.13.1,<0.14
 web3>=7.3.0,<8.0.0
 
 # SIWE (Sign-In-With-Ethereum)
