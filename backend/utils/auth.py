@@ -1,15 +1,14 @@
-# backend/utils/auth.py
-
 import os
 import time
 import secrets
 from datetime import datetime, timedelta
-from typing import Optional
+from typing import Optional, Tuple
 
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from pydantic import ValidationError
 from sqlalchemy.orm import Session
 
 from database import get_db
@@ -100,22 +99,37 @@ def validate_nonce(nonce: str) -> bool:
     return ts is not None and (time.time() - ts) < NONCE_TTL
 
 
-def verify_siwe(message: str, signature: str, db: Session) -> tuple[User, str]:
+def verify_siwe(
+    message: str,
+    signature: str,
+    db: Session
+) -> Tuple[User, str]:
     """
-    Given a raw SIWE message string and its signature, verify it, then
-    lookup-or-create the User and return (User, role).
+    Given a raw SIWE message string and its signature, verify it,
+    then lookup-or-create the User and return (User, access_token).
     """
     from siwe import SiweMessage
 
-    siwe = SiweMessage(message)
+    # parse the raw SIWE message into the Pydantic model
+    try:
+        siwe = SiweMessage.parse_raw(message)
+    except ValidationError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Malformed SIWE message: {e}"
+        )
+
+    # verify the Ethereum signature
     if not siwe.verify(signature):
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid SIWE signature")
 
+    # check nonce freshness
     if not validate_nonce(siwe.nonce):
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Invalid or expired nonce")
 
     address = siwe.address.lower()
-    # lookup or create user
+
+    # lookup or create the user record
     user = db.query(User).filter_by(address=address).first()
     if not user:
         user = User(address=address, role="buyer")  # default role
@@ -123,7 +137,7 @@ def verify_siwe(message: str, signature: str, db: Session) -> tuple[User, str]:
         db.commit()
         db.refresh(user)
 
-    # return user + JWT token
+    # mint a JWT for our API
     token = create_access_token(subject=user.id, role=user.role)
     return user, token
-
+    

@@ -20,7 +20,7 @@ if os.getenv("ENV", "").lower() != "production":
 # 3) give Cloud SQL socket & VPC connector time on cold start
 time.sleep(3)
 
-# 4) set up logging so we can debug early
+# 4) set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("comdex")
 
@@ -42,29 +42,29 @@ import models.contract
 Base.metadata.create_all(bind=engine)
 logger.info("✅ Database tables checked/created.")
 
-# 9) FastAPI app
+# ─── 9) FastAPI app ───────────────────────────────────────────────────────────
 app = FastAPI(
     title="COMDEX API",
     version="1.0.0",
     description="Global Commodity Marketplace API",
 )
 
-# ─── 10) APPLY CORS GLOBALLY WITH REGEX FALLBACK ───────────────────────────────
-# Lock down via CORS_ALLOWED_ORIGINS (comma-sep list) or CORS_ALLOWED_ORIGINS_REGEX (single regex).
-# If neither is set, we fall back to allow all origins (and reflect credentials properly).
+# ─── 10) GLOBAL CORS ─────────────────────────────────────────────────────────
+# Pull from env or hard-code your front-end URL here.
+# For local testing you can do ["*"], but for production lock it down.
 raw_origins = os.getenv("CORS_ALLOWED_ORIGINS", "")
 allowed_origins = [o.strip() for o in raw_origins.split(",") if o.strip()]
 
-allowed_regex = os.getenv("CORS_ALLOWED_ORIGINS_REGEX", "").strip() or None
+# If you prefer to just allow your single front-end URL, uncomment:
+# allowed_origins = ["https://swift-area-459514-d1.web.app"]
 
-# If no explicit origins and no regex, allow everything via regex
-if not allowed_origins and not allowed_regex:
-    allowed_regex = r".*"
+# Fallback to allow all if nothing set
+if not allowed_origins:
+    allowed_origins = ["*"]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allowed_origins,            # list of exact origins, or empty
-    allow_origin_regex=allowed_regex,         # single regex, or None
+    allow_origins=allowed_origins,     # e.g. ["https://swift-area-459514-d1.web.app"]
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -78,7 +78,7 @@ app.mount(
     name="uploaded_images",
 )
 
-# 12) import & include routers
+# 12) include your routers
 from routes.auth      import router as auth_router
 from routes.products  import router as products_router
 from routes.deal      import router as deal_router
@@ -93,17 +93,17 @@ app.include_router(contracts_router, prefix="/contracts",tags=["Contracts"])
 app.include_router(admin_router,     prefix="/admin",    tags=["Admin"])
 app.include_router(user_router,      prefix="/users",    tags=["Users"])
 
-# — Workaround: catch GET /products (no trailing slash) to avoid 307 redirect —
+# 13) redirect no-slash to slash for products
 @app.get("/products", include_in_schema=False)
 def products_no_slash():
     return RedirectResponse(url="/products/", status_code=307)
 
-# 13) root endpoint
+# 14) root endpoint
 @app.get("/", tags=["Root"])
 def read_root():
     return {"message": "🚀 Welcome to the COMDEX API!"}
 
-# 14) health check — uses only the socket-based engine
+# 15) health check — uses only the socket-based engine
 @app.get("/health", tags=["Health"])
 def health_check():
     try:
