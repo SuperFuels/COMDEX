@@ -1,28 +1,28 @@
-import { ethers } from "hardhat";
+import hre from "hardhat";
 
 async function main() {
-  const [deployer] = await ethers.getSigners();
+  // Grab the deployer signer
+  const [deployer] = await hre.ethers.getSigners();
+  console.log("🚀 Deploying with:", deployer.address);
 
-  console.log("🚀 Deployer:", deployer.address);
-
-  // Hardcoded buyer and seller addresses
-  const buyer = "0x89F44431d03C175cd8758f69Aa1F9A5F89064Db4";
+  // Hard-coded buyer / seller for now
+  const buyer  = "0x89F44431d03C175cd8758f69Aa1F9A5F89064Db4";
   const seller = "0xC8F9CbF2712fbA4e123D1855A4665544B6b535A9";
 
-  const Escrow = await ethers.getContractFactory("Escrow");
+  // Compile & grab factory
+  const Escrow = await hre.ethers.getContractFactory("Escrow");
 
-  // Deploy Escrow contract with buyer, seller, and send 0.01 MATIC
+  // Deploy with 0.01 MATIC upfront
   const escrow = await Escrow.deploy(buyer, seller, {
-    value: ethers.parseEther("0.01"), // sending 0.01 MATIC to the escrow
+    // ethers v5 style: use utils.parseEther
+    value: hre.ethers.utils.parseEther("0.01"),
   });
 
-  await escrow.waitForDeployment();
-
-  console.log("✅ Escrow contract deployed to:", await escrow.getAddress());
+  await escrow.deployed();
+  console.log("✅ Escrow deployed to:", escrow.address);
 }
 
-main().catch((error) => {
-  console.error("❌ Deployment failed:", error);
+main().catch((err) => {
+  console.error("❌ Deployment failed:", err);
   process.exit(1);
 });
-
