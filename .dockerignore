@@ -1,22 +1,25 @@
-# ignore Python venvs
+# ─── Python venvs ───────────────────────────────────────────
 .venv/
 venv/
 
-# ignore env files
-.env
-env.yaml
+# ─── ignore only the repo-root env files ───────────────────
+/.env
+/env.yaml
 
-# ignore Git metadata
+# ─── but allow backend/.env into the build context ─────────
+!backend/.env
+
+# ─── Git metadata ──────────────────────────────────────────
 .git
 .gitignore
 
-# Python bytecode
+# ─── Python bytecode ───────────────────────────────────────
 __pycache__/
 *.py[cod]
 
-# pip build artifacts
+# ─── pip build artifacts ───────────────────────────────────
 pip-wheel-metadata/
 
-# editor temp files
+# ─── editor temp files ────────────────────────────────────
 *.swp
 .DS_Store

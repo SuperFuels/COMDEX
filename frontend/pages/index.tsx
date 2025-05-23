@@ -1,5 +1,4 @@
 // frontend/pages/index.tsx
-
 import { useEffect, useState } from 'react'
 import type { NextPage } from 'next'
 import api from '@/lib/api'
@@ -55,115 +54,122 @@ const Home: NextPage = () => {
       }))
     : []
 
-  // 3) Derive unique country list and filter the table
+  // 3) Country filters
   const countries = Array.from(new Set(products.map((p) => p.origin_country)))
   const visibleProducts = filters.length
     ? products.filter((p) => filters.includes(p.origin_country))
     : products
 
-  // 4) Handler to sign in
+  // 4) Connect-wallet handler
   const handleLogin = async () => {
     try {
       const token = await signInWithEthereum()
       setJwt(token)
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`
+      localStorage.setItem('jwt', token)
     } catch (err) {
       console.error('Login failed', err)
       alert('Failed to sign in. Check console for details.')
     }
   }
 
-  if (!jwt) {
-    // Not logged in yet
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <button
-          onClick={handleLogin}
-          className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-        >
-          Sign in with Ethereum
-        </button>
-      </div>
-    )
-  }
-
-  if (loading) {
-    return <p className="p-8 text-center">Loading…</p>
-  }
-  if (error) {
-    return (
-      <p className="p-8 text-center text-red-500">
-        Failed to load products. Please try again later.
-      </p>
-    )
-  }
-
   return (
     <div className="min-h-screen bg-white">
-      <div className="max-w-7xl mx-auto grid grid-cols-12 gap-6 px-4 py-6">
-        {/* Main content */}
-        <div className="col-span-12 md:col-span-9 space-y-6">
-          {/* Chart */}
-          <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-4">
-            {selected ? (
-              <Chart data={chartData} height={300} />
-            ) : (
-              <p className="text-center text-gray-500">No product selected.</p>
-            )}
-          </div>
+      {/* Header */}
+      <header className="flex items-center justify-between px-6 py-4 bg-blue-600 text-white">
+        <h1 className="text-2xl font-bold">COMDEX Marketplace</h1>
+        {jwt ? (
+          <span className="px-4 py-2 bg-blue-800 rounded">Connected</span>
+        ) : (
+          <button
+            onClick={handleLogin}
+            className="px-4 py-2 bg-white text-blue-600 rounded hover:bg-gray-100"
+          >
+            Connect Wallet
+          </button>
+        )}
+      </header>
 
-          {/* Products table */}
-          <div className="overflow-x-auto bg-white border border-gray-200 rounded-lg shadow-sm">
-            <table className="min-w-full table-auto">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-4 py-2 text-left">Product</th>
-                  <th className="px-4 py-2 text-left">Origin</th>
-                  <th className="px-4 py-2 text-left">Category</th>
-                  <th className="px-4 py-2 text-right">Price/kg</th>
-                  <th className="px-4 py-2 text-right">Change%</th>
-                  <th className="px-4 py-2 text-center">Rating</th>
-                </tr>
-              </thead>
-              <tbody>
-                {visibleProducts.map((p) => (
-                  <tr
-                    key={p.id}
-                    className="border-t hover:bg-gray-50 cursor-pointer"
-                    onClick={() => setSelected(p)}
-                  >
-                    <td className="px-4 py-2">
-                      <Link href={`/products/${p.id}`}>
-                        <a className="text-blue-600 hover:underline">{p.title}</a>
-                      </Link>
-                    </td>
-                    <td className="px-4 py-2">{p.origin_country}</td>
-                    <td className="px-4 py-2">{p.category}</td>
-                    <td className="px-4 py-2 text-right">
-                      £{p.price_per_kg.toFixed(2)}
-                    </td>
-                    <td
-                      className={`px-4 py-2 text-right ${
-                        p.change_pct >= 0 ? 'text-green-600' : 'text-red-600'
-                      }`}
-                    >
-                      {p.change_pct >= 0 ? '↑' : '↓'}{' '}
-                      {Math.abs(p.change_pct * 100).toFixed(2)}%
-                    </td>
-                    <td className="px-4 py-2 text-center">
-                      {p.rating.toFixed(1)}/5
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+      <main className="max-w-7xl mx-auto grid grid-cols-12 gap-6 px-4 py-6">
+        {/* Main */}
+        <div className="col-span-12 md:col-span-9 space-y-6">
+          {loading ? (
+            <p className="text-center">Loading…</p>
+          ) : error ? (
+            <p className="text-center text-red-500">
+              Failed to load products.
+            </p>
+          ) : (
+            <>
+              {/* Chart */}
+              <div className="bg-white border rounded-lg shadow-sm p-4">
+                {selected ? (
+                  <Chart data={chartData} height={300} />
+                ) : (
+                  <p className="text-center text-gray-500">
+                    No product selected.
+                  </p>
+                )}
+              </div>
+
+              {/* Products Table */}
+              <div className="overflow-x-auto bg-white border rounded-lg shadow-sm">
+                <table className="min-w-full table-auto">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-4 py-2 text-left">Product</th>
+                      <th className="px-4 py-2 text-left">Origin</th>
+                      <th className="px-4 py-2 text-left">Category</th>
+                      <th className="px-4 py-2 text-right">Price/kg</th>
+                      <th className="px-4 py-2 text-right">Change%</th>
+                      <th className="px-4 py-2 text-center">Rating</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {visibleProducts.map((p) => (
+                      <tr
+                        key={p.id}
+                        className="border-t hover:bg-gray-50 cursor-pointer"
+                        onClick={() => setSelected(p)}
+                      >
+                        <td className="px-4 py-2">
+                          <Link href={`/products/${p.id}`}>
+                            <a className="text-blue-600 hover:underline">
+                              {p.title}
+                            </a>
+                          </Link>
+                        </td>
+                        <td className="px-4 py-2">{p.origin_country}</td>
+                        <td className="px-4 py-2">{p.category}</td>
+                        <td className="px-4 py-2 text-right">
+                          £{p.price_per_kg.toFixed(2)}
+                        </td>
+                        <td
+                          className={`px-4 py-2 text-right ${
+                            p.change_pct >= 0
+                              ? 'text-green-600'
+                              : 'text-red-600'
+                          }`}
+                        >
+                          {p.change_pct >= 0 ? '↑' : '↓'}{' '}
+                          {(Math.abs(p.change_pct) * 100).toFixed(2)}%
+                        </td>
+                        <td className="px-4 py-2 text-center">
+                          {p.rating.toFixed(1)}/5
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
         </div>
 
         {/* Sidebar */}
         <aside className="col-span-12 md:col-span-3 space-y-6">
           {selected && (
-            <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-4">
+            <div className="bg-white border rounded-lg shadow-sm p-4">
               <h2 className="text-xl font-semibold">{selected.title}</h2>
               <p className="text-3xl font-bold">
                 £{(selected.price_per_kg * 1000).toFixed(2)}/t{' '}
@@ -184,7 +190,7 @@ const Home: NextPage = () => {
             </div>
           )}
 
-          <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-4">
+          <div className="bg-white border rounded-lg shadow-sm p-4">
             <h3 className="text-lg font-medium mb-2">Country Filters</h3>
             <ul className="space-y-1">
               {countries.map((country) => (
@@ -209,7 +215,7 @@ const Home: NextPage = () => {
             </ul>
           </div>
         </aside>
-      </div>
+      </main>
     </div>
   )
 }
