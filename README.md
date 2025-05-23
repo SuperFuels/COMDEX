@@ -37,3 +37,4 @@ firebase deploy --only hosting
 
 
 gcloud builds submit --config cloudbuild.yaml .
+
