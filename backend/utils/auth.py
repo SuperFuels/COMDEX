@@ -105,7 +105,7 @@ def verify_siwe(message: str, signature: str, db: Session) -> tuple[User, str]:
     Given a raw SIWE message string and its signature, verify it, then
     lookup-or-create the User and return (User, role).
     """
-    from siwe import SiweMessage  # pip install python-siwe
+    from siwe import SiweMessage
 
     siwe = SiweMessage(message)
     if not siwe.verify(signature):
