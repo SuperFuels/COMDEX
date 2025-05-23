@@ -1,5 +1,6 @@
 // pages/_app.tsx
-import '@/lib/api'                // ← ensure this runs before anything else
+
+import '@/lib/api'                // ← configure your axios instance first
 import '../styles/globals.css'
 import type { AppProps } from 'next/app'
 import { useEffect } from 'react'
@@ -8,10 +9,14 @@ import SwapBar from '../components/SwapBar'
 
 export default function MyApp({ Component, pageProps }: AppProps) {
   useEffect(() => {
-    console.log(
-      '🔍 NEXT_PUBLIC_API_URL =',
-      process.env.NEXT_PUBLIC_API_URL
-    )
+    // debug your API URL
+    console.log('🔍 NEXT_PUBLIC_API_URL =', process.env.NEXT_PUBLIC_API_URL)
+
+    // if user still has a JWT, clear the manual-disconnect flag
+    // so they’ll auto-reconnect their wallet on page reload
+    if (typeof window !== 'undefined' && localStorage.getItem('token')) {
+      localStorage.removeItem('manualDisconnect')
+    }
   }, [])
 
   return (
@@ -24,9 +29,8 @@ export default function MyApp({ Component, pageProps }: AppProps) {
         <SwapBar />
       </div>
 
-      {/* the actual page */}
+      {/* app pages */}
       <Component {...pageProps} />
     </>
   )
 }
-
