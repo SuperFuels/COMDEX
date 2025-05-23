@@ -40,7 +40,6 @@ pyphen==0.17.2
 python-dotenv==1.1.0
 python-jose==3.4.0
 python-multipart==0.0.20
-python-siwe
 python-jose[cryptography]
 requests==2.32.3
 rsa==4.9.1
