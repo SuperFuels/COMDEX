@@ -1,11 +1,11 @@
 // frontend/utils/auth.ts
-
-import axios from 'axios'
+import { ethers } from 'ethers'
+import api from '@/lib/api'              // ← your preconfigured axios instance
 import { SiweMessage } from 'siwe'
 
 const API = process.env.NEXT_PUBLIC_API_URL!
 
-function getEthereumProvider() {
+function getEthereumProvider(): any {
   if (typeof window === 'undefined' || !window.ethereum) {
     throw new Error('No Ethereum provider found. Install MetaMask or similar.')
   }
@@ -15,18 +15,20 @@ function getEthereumProvider() {
 export async function signInWithEthereum(): Promise<{ address: string; role: string }> {
   const eth = getEthereumProvider()
 
-  // 1) get wallet address
-  const [address] = (await eth.request({ method: 'eth_requestAccounts' })) as string[]
+  // 1) request accounts
+  const [rawAddress] = (await eth.request({ method: 'eth_requestAccounts' })) as string[]
 
-  // 2) fetch a nonce from your backend
-  const { data: { nonce } } = await axios.get<{ nonce: string }>(
-    `${API}/auth/nonce?address=${address}`
+  // 2) checksum it (throws if invalid)
+  const address = ethers.utils.getAddress(rawAddress)
+
+  // 3) fetch SIWE nonce
+  const { data: { nonce } } = await api.get<{ nonce: string }>(
+    `/auth/nonce?address=${address}`
   )
 
-  // 3) build the SIWE message
-  const chainHex = await eth.request({ method: 'eth_chainId' })
-  const chainId = parseInt(chainHex.toString(), 16)
-
+  // 4) build message
+  const chainHex = (await eth.request({ method: 'eth_chainId' })) as string
+  const chainId  = parseInt(chainHex, 16)
   const siwe = new SiweMessage({
     domain:    window.location.host,
     address,
@@ -37,33 +39,39 @@ export async function signInWithEthereum(): Promise<{ address: string; role: str
     nonce,
   })
 
-  // 4) have the user sign it
+  // 5) sign it
   const message   = siwe.prepareMessage()
   const signature = (await eth.request({
     method: 'personal_sign',
     params: [message, address],
   })) as string
 
-  // 5) POST to verify & get your JWT + user info
-  const { data: { token, user } } = await axios.post<{
+  // 6) verify & get JWT + role
+  const { data: { token, user } } = await api.post<{
     token: string
     user:  { role: string }
   }>(
-    `${API}/auth/verify`,
+    `/auth/verify`,
     { message, signature },
     { withCredentials: true }
   )
 
-  // 6) persist token + role, clear manualDisconnect so auto-connect works again
+  // 7) persist + clear manualDisconnect
   localStorage.setItem('token', token)
   localStorage.setItem('role',  user.role)
   localStorage.removeItem('manualDisconnect')
 
+  // 8) set axios header so subsequent calls carry your JWT
+  api.defaults.headers.common.Authorization = `Bearer ${token}`
+
+  // 9) bind/update your wallet on your user profile
+  await api.patch('/users/me/wallet', { wallet_address: address })
+
   return { address, role: user.role }
 }
 
-export const getToken       = (): string | null  => localStorage.getItem('token')
-export const isAuthenticated = (): boolean       => Boolean(getToken())
+export const getToken        = (): string | null => localStorage.getItem('token')
+export const isAuthenticated = (): boolean      => Boolean(getToken())
 
 export function logout(): void {
   localStorage.removeItem('token')
