@@ -1,5 +1,3 @@
-// frontend/components/Chart.tsx
-
 import React from 'react'
 import {
   LineChart,
