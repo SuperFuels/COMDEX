@@ -14,16 +14,31 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
+
+    // ─── BASE URL + PATHS ─────────────────────────────────────────────
     "baseUrl": ".",
     "paths": {
-      "@/*": ["*"]
-    }
+      "@/*": ["./*"]
+    },
+
+    // ─── TYPE ROOTS ──────────────────────────────────────────────────
+    // only look in ./types (for your global.d.ts) and node_modules/@types
+    "typeRoots": ["./types", "./node_modules/@types"],
+
+    // ─── EXPLICIT TYPES ───────────────────────────────────────────────
+    // if you want to pull in any @types/* by name, list them here;
+    // an empty array means "don't auto-load every folder under types/"
+    "types": []
   },
+
+  // include your next-env + everything under pages/components/lib/hooks/etc
+  // plus your top-level global.d.ts
   "include": [
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    "types/**/*.d.ts"
+    "global.d.ts"
   ],
+
   "exclude": ["node_modules"]
 }

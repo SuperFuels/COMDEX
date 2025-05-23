@@ -1,4 +1,4 @@
-// global.d.ts
+// frontend/global.d.ts
 import type { MetaMaskInpageProvider } from "@metamask/providers";
 
 declare global {
@@ -10,3 +10,6 @@ declare global {
     };
   }
 }
+
+// Ensure this file is treated as a module
+export {};
