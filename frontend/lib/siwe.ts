@@ -1,44 +1,54 @@
 // frontend/lib/siwe.ts
-
-import api from './api'
-import { SiweMessage } from 'siwe'
-import { ethers } from 'ethers'
+import { SiweMessage } from "siwe";
+import api from "./api";
 
 export async function signInWithEthereum(): Promise<string> {
-  // 1) get a Web3 provider and prompt user to connect their wallet
-  const provider = new ethers.providers.Web3Provider(window.ethereum as any)
-  await provider.send('eth_requestAccounts', [])
-  const signer = provider.getSigner()
-  const address = await signer.getAddress()
+  // 1) check wallet
+  if (!window.ethereum) {
+    throw new Error("No Ethereum wallet detected");
+  }
 
-  // 2) ask your backend for a nonce
+  // 2) request access to accounts
+  const accounts: string[] = await window.ethereum.request({
+    method: "eth_requestAccounts",
+  });
+  const address = accounts[0];
+  if (!address) {
+    throw new Error("No account found");
+  }
+
+  // 3) fetch a fresh nonce
   const {
-    data: { nonce },
-  } = await api.get<{ nonce: string }>(`/auth/nonce?address=${address}`)
+    data: { message: nonceMessage },
+  } = await api.get<{ message: string }>(`/auth/nonce?address=${address}`);
 
-  // 3) build a SIWE message
-  const siweMessage = new SiweMessage({
+  // 4) build the SIWE message
+  const siweMsg = new SiweMessage({
     domain: window.location.host,
     address,
-    statement: 'Sign in to COMDEX',
+    statement: "Sign in to COMDEX",
     uri: window.location.origin,
-    version: '1',
+    version: "1",
     chainId: 1,
-    nonce,
-  })
-  const messageToSign = siweMessage.prepareMessage()
+    nonce: nonceMessage,
+  });
+  const messageToSign = siweMsg.prepareMessage();
 
-  // 4) have the user sign it
-  const signature = await signer.signMessage(messageToSign)
+  // 5) have user sign
+  const signature: string = await window.ethereum.request({
+    method: "personal_sign",
+    params: [messageToSign, address],
+  });
 
-  // 5) send signed message + signature to your /auth/verify endpoint
-  const resp = await api.post<{ token: string }>('/auth/verify', {
-    message: messageToSign,
-    signature,
-  })
+  // ←— debug logging
+  console.log("→ verify payload:", { message: messageToSign, signature });
 
-  const token = resp.data.token
-  // 6) persist for next page load
-  localStorage.setItem('jwt', token)
-  return token
+  // 6) send to your backend
+  const { data } = await api.post<{ token: string }>(
+    "/auth/verify",
+    { message: messageToSign, signature },
+    { withCredentials: true }
+  );
+
+  return data.token;
 }
