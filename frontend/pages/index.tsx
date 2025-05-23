@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import type { NextPage } from 'next'
 import api from '@/lib/api'
+import { signInWithEthereum } from '@/lib/siwe'
 import Chart, { ChartPoint } from '@/components/Chart'
 import Link from 'next/link'
 
@@ -22,9 +23,20 @@ const Home: NextPage = () => {
   const [error, setError] = useState(false)
   const [selected, setSelected] = useState<Product | null>(null)
   const [filters, setFilters] = useState<string[]>([])
+  const [jwt, setJwt] = useState<string | null>(null)
 
-  // 1) Fetch products once
+  // 0) On mount, load any saved JWT
   useEffect(() => {
+    const token = localStorage.getItem('jwt')
+    if (token) {
+      setJwt(token)
+      api.defaults.headers.common['Authorization'] = `Bearer ${token}`
+    }
+  }, [])
+
+  // 1) Fetch products once _and_ whenever we log in
+  useEffect(() => {
+    setLoading(true)
     api
       .get<Product[]>('/products')
       .then(({ data }) => {
@@ -33,7 +45,7 @@ const Home: NextPage = () => {
       })
       .catch(() => setError(true))
       .finally(() => setLoading(false))
-  }, [])
+  }, [jwt])
 
   // 2) Build chart data for the selected product
   const chartData: ChartPoint[] = selected
@@ -48,6 +60,32 @@ const Home: NextPage = () => {
   const visibleProducts = filters.length
     ? products.filter((p) => filters.includes(p.origin_country))
     : products
+
+  // 4) Handler to sign in
+  const handleLogin = async () => {
+    try {
+      const token = await signInWithEthereum()
+      setJwt(token)
+      api.defaults.headers.common['Authorization'] = `Bearer ${token}`
+    } catch (err) {
+      console.error('Login failed', err)
+      alert('Failed to sign in. Check console for details.')
+    }
+  }
+
+  if (!jwt) {
+    // Not logged in yet
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <button
+          onClick={handleLogin}
+          className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+        >
+          Sign in with Ethereum
+        </button>
+      </div>
+    )
+  }
 
   if (loading) {
     return <p className="p-8 text-center">Loading…</p>
@@ -131,9 +169,7 @@ const Home: NextPage = () => {
                 £{(selected.price_per_kg * 1000).toFixed(2)}/t{' '}
                 <span
                   className={
-                    selected.change_pct >= 0
-                      ? 'text-green-600'
-                      : 'text-red-600'
+                    selected.change_pct >= 0 ? 'text-green-600' : 'text-red-600'
                   }
                 >
                   {selected.change_pct >= 0 ? '↑' : '↓'}{' '}
@@ -179,4 +215,3 @@ const Home: NextPage = () => {
 }
 
 export default Home
-
