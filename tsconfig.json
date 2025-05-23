@@ -1,11 +1,7 @@
 {
   "compilerOptions": {
     "target": "es5",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -23,10 +19,10 @@
       "@/*": ["*"]
     },
 
-    // ← Added for custom declarations
+    // ← include your ambient declarations
     "typeRoots": [
-      "types",                 // ← your custom .d.ts files
-      "node_modules/@types"    // ← default
+      "./frontend",            // ← look here for *.d.ts
+      "node_modules/@types"
     ],
 
     "incremental": true
@@ -35,9 +31,7 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    "types/**/*.d.ts"         // ← include your new ambient declarations
+    "frontend/**/*.d.ts"      // ← also explicitly include them
   ],
-  "exclude": [
-    "node_modules"
-  ]
+  "exclude": ["node_modules"]
 }
