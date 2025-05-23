@@ -1,0 +1,19 @@
+# cloudrun-env.yaml
+DB_USER: "comdex"
+DB_PASS: "Wn8smx123"
+DB_NAME: "comdex"
+INSTANCE_CONNECTION_NAME: "swift-area-459514-d1:us-central1:comdex-db"
+
+WEB3_PROVIDER_URL: "https://polygon-amoy.g.alchemy.com/v2/2iHliTT_b-chEgTBquOv_HRRR…"
+ESCROW_CONTRACT_ADDRESS: "0xe7f1725e7734ce288f8367e1bb143e90bb3f0512"
+DEPLOYER_PRIVATE_KEY: "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efca…"
+
+OPENAI_API_KEY: "sk-proj-IWBeDBMDWNAPz093F9PiR2lMXMjgq1VGq2sICyn75uD…"
+
+CORS_ALLOWED_ORIGINS: "https://swift-area-459514-d1.web.app,http://localhost:3000"
+
+SECRET_KEY: "super-secret-123"
+ALGORITHM: "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES: "60"
+
+ENV: "production"
