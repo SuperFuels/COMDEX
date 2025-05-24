@@ -10,12 +10,11 @@ import { signInWithEthereum, logout } from '@/utils/auth'
 export default function Navbar() {
   const router = useRouter()
   const [account, setAccount] = useState<string | null>(null)
-  const [role, setRole]       = useState<UserRole | null>(null)
+  const [role, setRole] = useState<UserRole | null>(null)
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const wrapperRef = useRef<HTMLDivElement>(null)
 
   const handleConnect = useCallback(async () => {
-    // clear any previous “do not auto-connect”
     localStorage.removeItem('manualDisconnect')
     try {
       const { address, role: newRole } = await signInWithEthereum()
@@ -30,9 +29,8 @@ export default function Navbar() {
   }, [router])
 
   const handleDisconnect = useCallback(() => {
-    // remember that user chose to opt-out of auto-connect
     localStorage.setItem('manualDisconnect', 'true')
-    logout()   // clears token + reloads page
+    logout() // clears token + reloads page
     setAccount(null)
     setRole(null)
     setDropdownOpen(false)
@@ -43,29 +41,33 @@ export default function Navbar() {
     const eth = (window as any).ethereum
     if (!eth) return
 
-    // 1) if we already have a JWT, fetch + hydrate the role
+    // 1) hydrate role if JWT present
     const token = localStorage.getItem('token')
     if (token) {
       api.defaults.headers.common.Authorization = `Bearer ${token}`
-      api.get('/auth/role')
-        .then(res => setRole(res.data.role as UserRole))
+      api
+        .get<{ role: UserRole }>('/auth/role')
+        .then(res => setRole(res.data.role))
         .catch(() => {
           localStorage.removeItem('token')
           delete api.defaults.headers.common.Authorization
         })
     }
 
-    // 2) Only auto-connect if the user hasn't manually disconnected
+    // 2) auto-connect if not manually disconnected
     const manuallyDisconnected = localStorage.getItem('manualDisconnect') === 'true'
     if (!manuallyDisconnected) {
-      eth.request({ method: 'eth_accounts' })
+      // cast to Promise<string[]> and type the callback param
+      (eth.request({ method: 'eth_accounts' }) as Promise<string[]>)
         .then((accounts: string[]) => {
-          if (accounts.length) setAccount(accounts[0])
+          if (accounts.length) {
+            setAccount(accounts[0])
+          }
         })
         .catch(console.error)
     }
 
-    // 3) Watch for on-chain account changes and treat them as explicit disconnects
+    // 3) listen for on-chain account changes
     const onAccountsChanged = (accounts: string[]) => {
       if (accounts.length === 0) {
         handleDisconnect()
@@ -82,9 +84,10 @@ export default function Navbar() {
   // close dropdown when clicking outside
   useEffect(() => {
     function onClick(e: MouseEvent) {
-      if ( dropdownOpen &&
-           wrapperRef.current &&
-           !wrapperRef.current.contains(e.target as Node)
+      if (
+        dropdownOpen &&
+        wrapperRef.current &&
+        !wrapperRef.current.contains(e.target as Node)
       ) {
         setDropdownOpen(false)
       }
@@ -101,10 +104,15 @@ export default function Navbar() {
     <header className="sticky top-0 bg-white border-b z-50">
       <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-4">
         <Link href="/" className="flex items-center">
-          <Image src="/stickey.png" width={144} height={48} alt="Logo" priority />
+          <Image
+            src="/stickey.png"
+            width={144}
+            height={48}
+            alt="Logo"
+            priority
+          />
         </Link>
 
-        {/* only render the role-pill once `role` is set */}
         {role && (
           <span className="text-sm px-2 py-1 bg-gray-100 rounded">
             Role: {role}
@@ -112,7 +120,9 @@ export default function Navbar() {
         )}
 
         <div className="flex items-center space-x-6">
-          <Link href="/" className="text-gray-700 hover:underline">Marketplace</Link>
+          <Link href="/" className="text-gray-700 hover:underline">
+            Marketplace
+          </Link>
 
           {!account && (
             <Link href="/register" className="text-gray-700 hover:underline">
@@ -126,12 +136,18 @@ export default function Navbar() {
             </Link>
           )}
           {role === 'buyer' && (
-            <Link href="/buyer/dashboard" className="text-gray-700 hover:underline">
+            <Link
+              href="/buyer/dashboard"
+              className="text-gray-700 hover:underline"
+            >
               Buyer Dashboard
             </Link>
           )}
           {role === 'admin' && (
-            <Link href="/admin/dashboard" className="text-gray-700 hover:underline">
+            <Link
+              href="/admin/dashboard"
+              className="text-gray-700 hover:underline"
+            >
               Admin Dashboard
             </Link>
           )}
