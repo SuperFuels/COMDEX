@@ -5,10 +5,9 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "export": "next export",
     "start": "next start",
     "lint": "next lint",
-    "deploy:hosting": "npm run build && npm run export && firebase deploy --only hosting",
+    "deploy:hosting": "npm run build && firebase deploy --only hosting",
     "chain:dev": "npx hardhat node"
   },
   "dependencies": {
