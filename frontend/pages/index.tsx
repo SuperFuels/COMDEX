@@ -1,10 +1,12 @@
 // frontend/pages/index.tsx
 import { useEffect, useState } from 'react'
 import type { NextPage } from 'next'
+import Link from 'next/link'
+
 import api from '@/lib/api'
 import { signInWithEthereum } from '@/lib/siwe'
 import Chart, { ChartPoint } from '@/components/Chart'
-import Link from 'next/link'
+import Navbar from '@/components/Navbar'
 
 interface Product {
   id: number
@@ -24,7 +26,7 @@ const Home: NextPage = () => {
   const [filters, setFilters] = useState<string[]>([])
   const [jwt, setJwt] = useState<string | null>(null)
 
-  // 0) On mount, load any saved JWT
+  // Load any saved JWT on mount
   useEffect(() => {
     const token = localStorage.getItem('jwt')
     if (token) {
@@ -33,7 +35,7 @@ const Home: NextPage = () => {
     }
   }, [])
 
-  // 1) Fetch products once _and_ whenever we log in
+  // Fetch products whenever jwt changes (i.e. login)
   useEffect(() => {
     setLoading(true)
     api
@@ -46,7 +48,7 @@ const Home: NextPage = () => {
       .finally(() => setLoading(false))
   }, [jwt])
 
-  // 2) Build chart data for the selected product
+  // Build 24-point chart data for selected product
   const chartData: ChartPoint[] = selected
     ? Array.from({ length: 24 }, (_, i) => ({
         time: Math.floor(Date.now() / 1000) - (23 - i) * 3600,
@@ -54,13 +56,17 @@ const Home: NextPage = () => {
       }))
     : []
 
-  // 3) Country filters
-  const countries = Array.from(new Set(products.map((p) => p.origin_country)))
+  // Unique list of origin countries
+  const countries = Array.from(
+    new Set(products.map((p) => p.origin_country))
+  )
+
+  // Filtered products
   const visibleProducts = filters.length
     ? products.filter((p) => filters.includes(p.origin_country))
     : products
 
-  // 4) Connect-wallet handler
+  // Wallet-connect / SIWE login
   const handleLogin = async () => {
     try {
       const token = await signInWithEthereum()
@@ -74,24 +80,12 @@ const Home: NextPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Header */}
-      <header className="flex items-center justify-between px-6 py-4 bg-blue-600 text-white">
-        <h1 className="text-2xl font-bold">COMDEX Marketplace</h1>
-        {jwt ? (
-          <span className="px-4 py-2 bg-blue-800 rounded">Connected</span>
-        ) : (
-          <button
-            onClick={handleLogin}
-            className="px-4 py-2 bg-white text-blue-600 rounded hover:bg-gray-100"
-          >
-            Connect Wallet
-          </button>
-        )}
-      </header>
+    <div className="min-h-screen bg-gray-50">
+      {/* shared navbar */}
+      <Navbar />
 
       <main className="max-w-7xl mx-auto grid grid-cols-12 gap-6 px-4 py-6">
-        {/* Main */}
+        {/* left/main column */}
         <div className="col-span-12 md:col-span-9 space-y-6">
           {loading ? (
             <p className="text-center">Loading…</p>
@@ -101,8 +95,8 @@ const Home: NextPage = () => {
             </p>
           ) : (
             <>
-              {/* Chart */}
-              <div className="bg-white border rounded-lg shadow-sm p-4">
+              {/* Chart card */}
+              <div className="bg-white border rounded-lg shadow p-4">
                 {selected ? (
                   <Chart data={chartData} height={300} />
                 ) : (
@@ -112,16 +106,16 @@ const Home: NextPage = () => {
                 )}
               </div>
 
-              {/* Products Table */}
-              <div className="overflow-x-auto bg-white border rounded-lg shadow-sm">
+              {/* Products table */}
+              <div className="overflow-x-auto bg-white border rounded-lg shadow">
                 <table className="min-w-full table-auto">
-                  <thead className="bg-gray-50">
+                  <thead className="bg-gray-100">
                     <tr>
                       <th className="px-4 py-2 text-left">Product</th>
                       <th className="px-4 py-2 text-left">Origin</th>
                       <th className="px-4 py-2 text-left">Category</th>
                       <th className="px-4 py-2 text-right">Price/kg</th>
-                      <th className="px-4 py-2 text-right">Change%</th>
+                      <th className="px-4 py-2 text-right">Change %</th>
                       <th className="px-4 py-2 text-center">Rating</th>
                     </tr>
                   </thead>
@@ -166,16 +160,19 @@ const Home: NextPage = () => {
           )}
         </div>
 
-        {/* Sidebar */}
+        {/* right/sidebar column */}
         <aside className="col-span-12 md:col-span-3 space-y-6">
+          {/* Selected product summary */}
           {selected && (
-            <div className="bg-white border rounded-lg shadow-sm p-4">
+            <div className="bg-white border rounded-lg shadow p-4">
               <h2 className="text-xl font-semibold">{selected.title}</h2>
               <p className="text-3xl font-bold">
                 £{(selected.price_per_kg * 1000).toFixed(2)}/t{' '}
                 <span
                   className={
-                    selected.change_pct >= 0 ? 'text-green-600' : 'text-red-600'
+                    selected.change_pct >= 0
+                      ? 'text-green-600'
+                      : 'text-red-600'
                   }
                 >
                   {selected.change_pct >= 0 ? '↑' : '↓'}{' '}
@@ -184,13 +181,14 @@ const Home: NextPage = () => {
               </p>
               <div className="flex space-x-3 text-gray-500">
                 <button title="Copy link">🔗</button>
-                <button title="Twitter">🐦</button>
-                <button title="Telegram">✈️</button>
+                <button title="Share on Twitter">🐦</button>
+                <button title="Share on Telegram">✈️</button>
               </div>
             </div>
           )}
 
-          <div className="bg-white border rounded-lg shadow-sm p-4">
+          {/* Country filters */}
+          <div className="bg-white border rounded-lg shadow p-4">
             <h3 className="text-lg font-medium mb-2">Country Filters</h3>
             <ul className="space-y-1">
               {countries.map((country) => (
@@ -202,7 +200,7 @@ const Home: NextPage = () => {
                       onChange={() =>
                         setFilters((prev) =>
                           prev.includes(country)
-                            ? prev.filter((x) => x !== country)
+                            ? prev.filter((c) => c !== country)
                             : [...prev, country]
                         )
                       }
