@@ -43,7 +43,7 @@ cd frontend
 npm ci
 npm run build
 npm run export    # produces `frontend/out`
-c
+
 
 gcloud builds submit --config cloudbuild.yaml .
 
