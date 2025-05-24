@@ -3,79 +3,108 @@ import { ethers } from 'ethers'
 import api from '@/lib/api'              // ← your preconfigured axios instance
 import { SiweMessage } from 'siwe'
 
-const API = process.env.NEXT_PUBLIC_API_URL!
-
+/** helper to grab window.ethereum or throw */
 function getEthereumProvider(): any {
-  if (typeof window === 'undefined' || !window.ethereum) {
-    throw new Error('No Ethereum provider found. Install MetaMask or similar.')
+  if (typeof window === 'undefined' || !(window as any).ethereum) {
+    throw new Error(
+      'No Ethereum provider found. Please install MetaMask or another wallet.'
+    )
   }
-  return window.ethereum
+  return (window as any).ethereum
 }
 
-export async function signInWithEthereum(): Promise<{ address: string; role: string }> {
+/**
+ * Perform a SIWE login:
+ * 1. request accounts
+ * 2. get chainId & nonce
+ * 3. build & sign a SiweMessage
+ * 4. POST { message, signature } to /auth/verify
+ * 5. persist token & role, set axios header, bind wallet on profile
+ */
+export async function signInWithEthereum(): Promise<{
+  address: string
+  role: string
+}> {
+  // 1) get provider & request accounts
   const eth = getEthereumProvider()
+  const [rawAddress] = (await eth.request({
+    method: 'eth_requestAccounts',
+  })) as string[]
 
-  // 1) request accounts
-  const [rawAddress] = (await eth.request({ method: 'eth_requestAccounts' })) as string[]
-
-  // 2) checksum it (throws if invalid)
+  // 2) checksum
   const address = ethers.utils.getAddress(rawAddress)
 
-  // 3) fetch SIWE nonce
-  const { data: { nonce } } = await api.get<{ nonce: string }>(
-    `/auth/nonce?address=${address}`
-  )
+  // 3) fetch nonce (as JSON)
+  const {
+    data: { nonce },
+  } = await api.get<{ nonce: string }>('/auth/nonce', {
+    params: { address },
+    withCredentials: true,
+  })
 
-  // 4) build message
+  // 4) determine chain ID
   const chainHex = (await eth.request({ method: 'eth_chainId' })) as string
-  const chainId  = parseInt(chainHex, 16)
-  const siwe = new SiweMessage({
-    domain:    window.location.host,
+  const chainId = parseInt(chainHex, 16)
+
+  // 5) build the SIWE message
+  const siweMessage = new SiweMessage({
+    domain: window.location.host,
     address,
-    statement: 'Sign in with Ethereum to Sticky',
-    uri:       window.location.origin,
-    version:   '1',
+    statement: 'Sign in with Ethereum to STICKEY',
+    uri: window.location.origin,
+    version: '1',
     chainId,
     nonce,
   })
+  const message = siweMessage.prepareMessage()
 
-  // 5) sign it
-  const message   = siwe.prepareMessage()
+  // 6) get the user’s signature
   const signature = (await eth.request({
     method: 'personal_sign',
     params: [message, address],
   })) as string
 
-  // 6) verify & get JWT + role
-  const { data: { token, user } } = await api.post<{
+  // 7) POST message+signature to verify endpoint
+  const {
+    data: { token, user },
+  } = await api.post<{
     token: string
-    user:  { role: string }
+    user: { role: string }
   }>(
-    `/auth/verify`,
+    '/auth/verify',
     { message, signature },
     { withCredentials: true }
   )
 
-  // 7) persist + clear manualDisconnect
+  // 8) persist JWT + role in localStorage
   localStorage.setItem('token', token)
-  localStorage.setItem('role',  user.role)
-  localStorage.removeItem('manualDisconnect')
+  localStorage.setItem('role', user.role)
 
-  // 8) set axios header so subsequent calls carry your JWT
+  // 9) ensure axios sends it from now on
   api.defaults.headers.common.Authorization = `Bearer ${token}`
 
-  // 9) bind/update your wallet on your user profile
-  await api.patch('/users/me/wallet', { wallet_address: address })
+  // 10) optionally bind this wallet on the server
+  await api.patch('/users/me/wallet', {
+    wallet_address: address,
+  })
 
   return { address, role: user.role }
 }
 
-export const getToken        = (): string | null => localStorage.getItem('token')
-export const isAuthenticated = (): boolean      => Boolean(getToken())
+/** Helpers for other parts of your app */
+export const getToken = (): string | null =>
+  localStorage.getItem('token')
+export const getRole = (): string | null =>
+  localStorage.getItem('role')
+export const isAuthenticated = (): boolean =>
+  Boolean(getToken())
 
+/** Logout by clearing storage & reloading */
 export function logout(): void {
   localStorage.removeItem('token')
   localStorage.removeItem('role')
+  // optional: track that this was a manual disconnect
   localStorage.setItem('manualDisconnect', 'true')
+  // force reload so your app sees isAuthenticated() === false
   window.location.reload()
 }
