@@ -1,58 +1,54 @@
 // frontend/lib/siwe.ts
-import { SiweMessage } from "siwe";
-import api from "./api";
+import { ethers } from 'ethers'
+import { SiweMessage } from 'siwe'
+import api from './api'
 
-export async function signInWithEthereum(): Promise<string> {
-  // 1) check wallet
-  if (!window.ethereum) {
-    throw new Error("No Ethereum wallet detected");
+export interface LoginResult {
+  token: string
+  role: string
+}
+
+export async function signInWithEthereum(): Promise<LoginResult> {
+  if (!(window as any).ethereum) {
+    throw new Error('No injected Ethereum provider found')
   }
 
-  // 2) request access to accounts and cast to string[]
-  const accounts = (await window.ethereum.request({
-    method: "eth_requestAccounts",
-  })) as string[];
+  const provider = new ethers.providers.Web3Provider(
+    (window as any).ethereum,
+    'any'
+  )
+  await provider.send('eth_requestAccounts', [])
+  const signer = provider.getSigner()
+  const address = await signer.getAddress()
 
-  if (!accounts || accounts.length === 0) {
-    throw new Error("No accounts returned from wallet");
-  }
-  const address = accounts[0];
-
-  // 3) fetch a fresh nonce
+  // 1) Fetch nonce
   const {
-    data: { message: nonceMessage },
-  } = await api.get<{ message: string }>(`/auth/nonce?address=${address}`);
+    data: { nonce },
+  } = await api.get<{ nonce: string }>(
+    `/auth/nonce?address=${address}`
+  )
 
-  // 4) build the SIWE message
-  const siweMsg = new SiweMessage({
+  // 2) Build SIWE message
+  const siweMessage = new SiweMessage({
     domain: window.location.host,
-    address,                    // now guaranteed to be a string
-    statement: "Sign in to COMDEX",
+    address,
+    statement: 'Sign in to STICKEY',
     uri: window.location.origin,
-    version: "1",
+    version: '1',
     chainId: 1,
-    nonce: nonceMessage,
-  });
-  const messageToSign = siweMsg.prepareMessage();
+    nonce,
+  })
+  const message = siweMessage.prepareMessage()
 
-  // 5) have user sign, cast to string
-  const signature = (await window.ethereum.request({
-    method: "personal_sign",
-    params: [messageToSign, address],
-  })) as string;
+  // 3) Sign it
+  const signature = await signer.signMessage(message)
 
-  if (!signature) {
-    throw new Error("Signature request failed");
-  }
-
-  console.log("→ verify payload:", { message: messageToSign, signature });
-
-  // 6) send to your backend
-  const { data } = await api.post<{ token: string }>(
-    "/auth/verify",
-    { message: messageToSign, signature },
+  // 4) Verify & receive JWT + role
+  const { data } = await api.post<LoginResult>(
+    '/auth/verify',
+    { message, signature },
     { withCredentials: true }
-  );
+  )
 
-  return data.token;
+  return data
 }
