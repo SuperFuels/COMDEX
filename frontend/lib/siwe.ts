@@ -8,14 +8,15 @@ export async function signInWithEthereum(): Promise<string> {
     throw new Error("No Ethereum wallet detected");
   }
 
-  // 2) request access to accounts
-  const accounts: string[] = await window.ethereum.request({
+  // 2) request access to accounts and cast to string[]
+  const accounts = (await window.ethereum.request({
     method: "eth_requestAccounts",
-  });
-  const address = accounts[0];
-  if (!address) {
-    throw new Error("No account found");
+  })) as string[];
+
+  if (!accounts || accounts.length === 0) {
+    throw new Error("No accounts returned from wallet");
   }
+  const address = accounts[0];
 
   // 3) fetch a fresh nonce
   const {
@@ -25,7 +26,7 @@ export async function signInWithEthereum(): Promise<string> {
   // 4) build the SIWE message
   const siweMsg = new SiweMessage({
     domain: window.location.host,
-    address,
+    address,                    // now guaranteed to be a string
     statement: "Sign in to COMDEX",
     uri: window.location.origin,
     version: "1",
@@ -34,13 +35,16 @@ export async function signInWithEthereum(): Promise<string> {
   });
   const messageToSign = siweMsg.prepareMessage();
 
-  // 5) have user sign
-  const signature: string = await window.ethereum.request({
+  // 5) have user sign, cast to string
+  const signature = (await window.ethereum.request({
     method: "personal_sign",
     params: [messageToSign, address],
-  });
+  })) as string;
 
-  // ←— debug logging
+  if (!signature) {
+    throw new Error("Signature request failed");
+  }
+
   console.log("→ verify payload:", { message: messageToSign, signature });
 
   // 6) send to your backend
