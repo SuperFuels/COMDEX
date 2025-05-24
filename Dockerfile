@@ -21,11 +21,9 @@ RUN pip install --upgrade pip && \
     pip show siwe
 
 # ─── 3) Copy your app & its .env ─────────────────────────────
-# bring in all of your backend code
 COPY backend/ ./backend
-
-# explicitly copy the .env into /srv/.env (and set root ownership)
-COPY --chown=root:root backend/.env /srv/.env
+# explicitly copy the **root** .env into /srv/.env (and set root ownership)
+COPY --chown=root:root .env /srv/.env
 
 # ─── 4) Make sure Uvicorn can import your package ────────────
 ENV PYTHONPATH=/srv/backend
