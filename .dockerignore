@@ -4,10 +4,11 @@ venv/
 
 # ─── ignore only the repo-root env files ───────────────────
 /.env
-/env.yaml
+/.env.yaml
 
-# ─── but allow backend/.env into the build context ─────────
-!backend/.env
+# ─── explicitly allow the backend folder and its .env ─────
+!/backend
+!/backend/.env
 
 # ─── Git metadata ──────────────────────────────────────────
 .git

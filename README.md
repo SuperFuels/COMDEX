@@ -28,13 +28,22 @@ gcloud run deploy comdex-api \
   --env-vars-file=env.yaml \
   --timeout=300s
 
-# 4. Frontend
+
+# from repo root
+npm ci
+npm run build       # builds root (for any root scripts)
+npm run export      # exports frontend if you like
+
+# or:
+npm run deploy:all  # builds+deploys both backend and frontend
+
+firebase use production
+
 cd frontend
 npm ci
 npm run build
+npm run export    # produces `frontend/out`
 firebase deploy --only hosting
-
-
 
 gcloud builds submit --config cloudbuild.yaml .
 

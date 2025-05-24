@@ -3,26 +3,22 @@
 import { useState } from 'react'
 import api from '../lib/api'
 
-declare global {
-  interface Window {
-    ethereum?: {
-      request: (args: { method: string }) => Promise<unknown>
-    }
-  }
-}
-
 export default function WalletConnect() {
   const [walletAddress, setWalletAddress] = useState<string | null>(null)
 
   const connectWallet = async () => {
-    if (!window.ethereum) {
+    // avoid TypeScript redeclaration conflicts by casting:
+    const eth = (window as any).ethereum as {
+      request(args: { method: string; params?: any[] }): Promise<unknown>
+    } | undefined
+
+    if (!eth) {
       alert('🦊 MetaMask not detected')
       return
     }
 
     try {
-      // Cast the result to string[] or null
-      const accounts = (await window.ethereum.request({
+      const accounts = (await eth.request({
         method: 'eth_requestAccounts',
       })) as string[] | null
 
@@ -43,9 +39,7 @@ export default function WalletConnect() {
         '/users/me/wallet',
         { wallet_address: address },
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         },
       )
 
