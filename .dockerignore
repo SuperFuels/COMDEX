@@ -2,13 +2,12 @@
 .venv/
 venv/
 
-# ─── ignore only the repo-root env files ───────────────────
-/.env
+# ─── ignore only the repo-root local env & yaml ────────────
 /.env.local
 /env.yaml
 
-# ─── explicitly re-include the backend env ─────────────────
-!/backend/.env
+# ─── re-include the root .env so Docker can COPY it ─────────
+!/.env
 
 # ─── Git metadata ──────────────────────────────────────────
 .git

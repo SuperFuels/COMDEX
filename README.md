@@ -43,7 +43,22 @@ cd frontend
 npm ci
 npm run build
 npm run export    # produces `frontend/out`
-firebase deploy --only hosting
+c
 
 gcloud builds submit --config cloudbuild.yaml .
 
+
+# 1. Double-check you’re on main
+git checkout main
+
+# 2. See what’s changed
+git status
+
+# 3. Stage absolutely everything (new, modified, deleted)
+git add -A
+
+# 4. Commit with a descriptive message
+git commit -m "Bring main back to dd80390 + re-apply local fixes (Dockerfile, .dockerignore, siwe, firebase.json, etc.)"
+
+# 5. Push up to GitHub
+git push origin main --force
