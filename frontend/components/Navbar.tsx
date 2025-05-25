@@ -10,10 +10,11 @@ import { signInWithEthereum, logout } from '@/utils/auth'
 export default function Navbar() {
   const router = useRouter()
   const [account, setAccount] = useState<string | null>(null)
-  const [role, setRole] = useState<UserRole | null>(null)
+  const [role, setRole]       = useState<UserRole | null>(null)
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const wrapperRef = useRef<HTMLDivElement>(null)
 
+  // 1) Connect & SIWE-login
   const handleConnect = useCallback(async () => {
     localStorage.removeItem('manualDisconnect')
     try {
@@ -28,6 +29,7 @@ export default function Navbar() {
     }
   }, [router])
 
+  // 2) Manual disconnect
   const handleDisconnect = useCallback(() => {
     localStorage.setItem('manualDisconnect', 'true')
     logout() // clears token + reloads page
@@ -41,12 +43,12 @@ export default function Navbar() {
     const eth = (window as any).ethereum
     if (!eth) return
 
-    // 1) hydrate role if JWT present
+    // hydrate existing token → fetch role
     const token = localStorage.getItem('token')
     if (token) {
       api.defaults.headers.common.Authorization = `Bearer ${token}`
       api
-        .get<{ role: UserRole }>('/auth/role')
+        .get<{ role: UserRole }>('/auth/profile')
         .then(res => setRole(res.data.role))
         .catch(() => {
           localStorage.removeItem('token')
@@ -54,20 +56,17 @@ export default function Navbar() {
         })
     }
 
-    // 2) auto-connect if not manually disconnected
+    // auto-connect if user hasn’t manually disconnected
     const manuallyDisconnected = localStorage.getItem('manualDisconnect') === 'true'
     if (!manuallyDisconnected) {
-      // cast to Promise<string[]> and type the callback param
-      (eth.request({ method: 'eth_accounts' }) as Promise<string[]>)
-        .then((accounts: string[]) => {
-          if (accounts.length) {
-            setAccount(accounts[0])
-          }
+      ;(eth.request({ method: 'eth_accounts' }) as Promise<string[]>)
+        .then(accounts => {
+          if (accounts.length) setAccount(accounts[0])
         })
         .catch(console.error)
     }
 
-    // 3) listen for on-chain account changes
+    // listen for chain account changes
     const onAccountsChanged = (accounts: string[]) => {
       if (accounts.length === 0) {
         handleDisconnect()
@@ -103,6 +102,7 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 bg-white border-b z-50">
       <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-4">
+        {/* Logo */}
         <Link href="/" className="flex items-center">
           <Image
             src="/stickey.png"
@@ -113,12 +113,14 @@ export default function Navbar() {
           />
         </Link>
 
+        {/* Role badge */}
         {role && (
           <span className="text-sm px-2 py-1 bg-gray-100 rounded">
             Role: {role}
           </span>
         )}
 
+        {/* Links & buttons */}
         <div className="flex items-center space-x-6">
           <Link href="/" className="text-gray-700 hover:underline">
             Marketplace
@@ -136,22 +138,17 @@ export default function Navbar() {
             </Link>
           )}
           {role === 'buyer' && (
-            <Link
-              href="/buyer/dashboard"
-              className="text-gray-700 hover:underline"
-            >
+            <Link href="/buyer/dashboard" className="text-gray-700 hover:underline">
               Buyer Dashboard
             </Link>
           )}
           {role === 'admin' && (
-            <Link
-              href="/admin/dashboard"
-              className="text-gray-700 hover:underline"
-            >
+            <Link href="/admin/dashboard" className="text-gray-700 hover:underline">
               Admin Dashboard
             </Link>
           )}
 
+          {/* Connect / Account dropdown */}
           {!account ? (
             <button
               onClick={handleConnect}

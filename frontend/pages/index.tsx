@@ -4,7 +4,6 @@ import type { NextPage } from 'next'
 import Link from 'next/link'
 
 import api from '@/lib/api'
-import { signInWithEthereum, getToken } from '@/utils/auth'
 import Chart, { ChartPoint } from '@/components/Chart'
 
 interface Product {
@@ -23,18 +22,8 @@ const Home: NextPage = () => {
   const [error, setError]       = useState(false)
   const [selected, setSelected] = useState<Product | null>(null)
   const [filters, setFilters]   = useState<string[]>([])
-  const [token, setToken]       = useState<string | null>(null)
 
-  // 1) Load any existing token on mount
-  useEffect(() => {
-    const t = getToken()
-    if (t) {
-      setToken(t)
-      api.defaults.headers.common['Authorization'] = `Bearer ${t}`
-    }
-  }, [])
-
-  // 2) Fetch products whenever token changes
+  // 1) Fetch products on mount
   useEffect(() => {
     setLoading(true)
     api
@@ -45,9 +34,9 @@ const Home: NextPage = () => {
       })
       .catch(() => setError(true))
       .finally(() => setLoading(false))
-  }, [token])
+  }, [])
 
-  // 3) Build 24-point chart data
+  // 2) Build chart data
   const chartData: ChartPoint[] = selected
     ? Array.from({ length: 24 }, (_, i) => ({
         time:  Math.floor(Date.now() / 1000) - (23 - i) * 3600,
@@ -55,50 +44,14 @@ const Home: NextPage = () => {
       }))
     : []
 
-  // 4) Country filter logic
-  const countries = Array.from(new Set(products.map((p) => p.origin_country)))
+  // 3) Country filter logic
+  const countries = Array.from(new Set(products.map(p => p.origin_country)))
   const visibleProducts = filters.length
-    ? products.filter((p) => filters.includes(p.origin_country))
+    ? products.filter(p => filters.includes(p.origin_country))
     : products
-
-  // 5) Wallet-connect / SIWE login
-  const handleLogin = async () => {
-    try {
-      // fetch, sign, verify → stores JWT under "token"
-      await signInWithEthereum()
-
-      // now read it back and re-render
-      const newToken = getToken()
-      if (newToken) {
-        setToken(newToken)
-        api.defaults.headers.common['Authorization'] = `Bearer ${newToken}`
-      }
-    } catch (err) {
-      console.error('Login failed', err)
-      alert('Failed to sign in. Check console for details.')
-    }
-  }
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Connect / Dashboard button */}
-      <div className="max-w-7xl mx-auto px-4 py-4 flex justify-end">
-        {!token ? (
-          <button
-            onClick={handleLogin}
-            className="px-4 py-2 bg-blue-600 text-white rounded"
-          >
-            Connect Wallet
-          </button>
-        ) : (
-          <Link href="/dashboard">
-            <a className="px-4 py-2 bg-green-600 text-white rounded">
-              Dashboard
-            </a>
-          </Link>
-        )}
-      </div>
-
       <main className="max-w-7xl mx-auto grid grid-cols-12 gap-6 px-4 py-6">
         {/* ─── Main Column ─────────────────────────────────────────────── */}
         <div className="col-span-12 md:col-span-9 space-y-6">
@@ -155,9 +108,7 @@ const Home: NextPage = () => {
                         </td>
                         <td
                           className={`px-4 py-2 text-right ${
-                            p.change_pct >= 0
-                              ? 'text-green-600'
-                              : 'text-red-600'
+                            p.change_pct >= 0 ? 'text-green-600' : 'text-red-600'
                           }`}
                         >
                           {p.change_pct >= 0 ? '↑' : '↓'}{' '}
@@ -204,9 +155,9 @@ const Home: NextPage = () => {
                       type="checkbox"
                       checked={filters.includes(country)}
                       onChange={() =>
-                        setFilters((prev) =>
+                        setFilters(prev =>
                           prev.includes(country)
-                            ? prev.filter((c) => c !== country)
+                            ? prev.filter(c => c !== country)
                             : [...prev, country]
                         )
                       }
