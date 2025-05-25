@@ -22,40 +22,43 @@ export async function signInWithEthereum(): Promise<LoginResult> {
   const signer  = provider.getSigner()
   const address = await signer.getAddress()
 
-  // 2) get nonce
+  // 2) fetch SIWE nonce
   const { data: { nonce } } = await api.get<{ nonce: string }>(
-    `/auth/nonce?address=${address}`
+    `/auth/nonce`,
+    { params: { address }, withCredentials: true }
   )
 
-  // 3) build SIWE message
+  // 3) build message
   const siweMessage = new SiweMessage({
-    domain:  window.location.host,
+    domain:    window.location.host,
     address,
-    statement: 'Sign in to STICKEY',
-    uri:     window.location.origin,
-    version: '1',
-    chainId: 1,
+    statement: 'Sign in with Ethereum to STICKEY',
+    uri:       window.location.origin,
+    version:   '1',
+    chainId:   parseInt(await provider.send('eth_chainId', []), 16),
     nonce,
   })
-  const message   = siweMessage.prepareMessage()
+  const message = siweMessage.prepareMessage()
 
-  // 4) sign it
+  // 4) sign
   const signature = await signer.signMessage(message)
 
-  // 5) verify on backend
-  const { data } = await api.post<LoginResult>(
+  // 5) verify & receive JWT + role
+  const {
+    data: { token, role }
+  } = await api.post<LoginResult>(
     '/auth/verify',
     { message, signature },
     { withCredentials: true }
   )
 
-  // 6) persist & configure axios
-  localStorage.setItem('token', data.token)
-  localStorage.setItem('role',  data.role)
-  api.defaults.headers.common.Authorization = `Bearer ${data.token}`
+  // 6) persist + set header
+  localStorage.setItem('token', token)
+  localStorage.setItem('role',  role)
+  api.defaults.headers.common.Authorization = `Bearer ${token}`
 
-  // 7) bind wallet to profile (optional)
+  // 7) bind wallet on profile
   await api.patch('/users/me/wallet', { wallet_address: address })
 
-  return data
+  return { token, role }
 }
