@@ -1,7 +1,9 @@
 // frontend/hooks/useAuthRedirect.ts
+
 import { useEffect } from 'react'
 import { useRouter } from 'next/router'
 import api from '@/lib/api'
+import { getToken, logout } from '@/utils/auth'
 
 // our roles
 export type UserRole = 'supplier' | 'buyer' | 'admin'
@@ -14,10 +16,10 @@ export default function useAuthRedirect(requiredRole?: UserRole) {
   const { pathname } = router
 
   useEffect(() => {
-    const token = localStorage.getItem('token')
+    const token = getToken()
     const manualDisconnect = localStorage.getItem('manualDisconnect')
 
-    // 1) If no token (or they've manually disconnected), 
+    // 1) If no token (or they've manually disconnected),
     //    and this isn't a public page, send to /login
     if (!token || manualDisconnect) {
       if (!PUBLIC_PATHS.includes(pathname)) {
@@ -26,20 +28,21 @@ export default function useAuthRedirect(requiredRole?: UserRole) {
       return
     }
 
-    // 2) We have a token: set it on our axios client
+    // 2) We have a token: set it on axios
     api.defaults.headers.common.Authorization = `Bearer ${token}`
 
     // 3) Fetch the actual role from the server
-    api.get<{ role: UserRole }>('/auth/role')
+    api
+      .get<{ role: UserRole }>('/auth/profile')
       .then(({ data }) => {
         const userRole = data.role
 
-        // 3a) If we're on a public page (login/register), 
+        // 3a) If we're on a public page (login/register),
         //     send them to their dashboard immediately
         if (PUBLIC_PATHS.includes(pathname)) {
           switch (userRole) {
             case 'supplier':
-              return router.replace('/dashboard')
+              return router.replace('/supplier/dashboard')
             case 'buyer':
               return router.replace('/buyer/dashboard')
             case 'admin':
@@ -55,10 +58,9 @@ export default function useAuthRedirect(requiredRole?: UserRole) {
         // Otherwise: allowed, stay put
       })
       .catch(err => {
-        console.error('[useAuthRedirect] error validating token/role', err)
+        console.error('[useAuthRedirect] token validation failed', err)
         // Invalid token → clear & force to login
-        localStorage.removeItem('token')
-        localStorage.removeItem('role')
+        logout()
         router.replace('/login')
       })
   }, [pathname, requiredRole, router])

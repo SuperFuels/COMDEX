@@ -14,12 +14,14 @@
     "next": "^15.3.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "siwe": "^4.4.0"
+    "react-select": "^5.10.1",
+    "siwe": "^2.3.2"
   },
   "devDependencies": {
     "@types/node": "20.x",
     "@types/react": "18.x",
     "@types/react-dom": "18.x",
+    "@types/react-select": "^5.0.0",
     "eslint": "8.x",
     "eslint-config-next": "13.x",
     "typescript": "5.x"

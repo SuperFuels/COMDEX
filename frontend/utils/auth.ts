@@ -1,9 +1,10 @@
 // frontend/utils/auth.ts
+
 import { ethers } from 'ethers'
-import api from '@/lib/api'              // ← your preconfigured axios instance
+import api from '@/lib/api'
 import { SiweMessage } from 'siwe'
 
-/** helper to grab window.ethereum or throw */
+/** Grabs window.ethereum or throws if missing */
 function getEthereumProvider(): any {
   if (typeof window === 'undefined' || !(window as any).ethereum) {
     throw new Error(
@@ -15,26 +16,26 @@ function getEthereumProvider(): any {
 
 /**
  * Perform a SIWE login:
- * 1. request accounts
- * 2. get chainId & nonce
- * 3. build & sign a SiweMessage
- * 4. POST { message, signature } to /auth/verify
- * 5. persist token & role, set axios header, bind wallet on profile
+ *  1) request accounts
+ *  2) fetch nonce
+ *  3) build & sign a SiweMessage
+ *  4) POST { message, signature } to /auth/verify
+ *  5) persist JWT + role, set axios header, bind wallet
+ *
+ * @returns the connected address and your user role
  */
 export async function signInWithEthereum(): Promise<{
   address: string
   role:    string
 }> {
-  // 1) get provider & request accounts
+  // 1) request accounts
   const eth = getEthereumProvider()
   const [rawAddress] = (await eth.request({
     method: 'eth_requestAccounts',
   })) as string[]
-
-  // 2) checksum
   const address = ethers.utils.getAddress(rawAddress)
 
-  // 3) fetch nonce (as JSON)
+  // 2) fetch nonce from backend
   const {
     data: { nonce },
   } = await api.get<{ nonce: string }>('/auth/nonce', {
@@ -42,11 +43,11 @@ export async function signInWithEthereum(): Promise<{
     withCredentials: true,
   })
 
-  // 4) determine chain ID
+  // 3) determine chain ID
   const chainHex = (await eth.request({ method: 'eth_chainId' })) as string
   const chainId  = parseInt(chainHex, 16)
 
-  // 5) build the SIWE message
+  // 4) build the SIWE message
   const siweMessage = new SiweMessage({
     domain:    window.location.host,
     address,
@@ -58,13 +59,13 @@ export async function signInWithEthereum(): Promise<{
   })
   const message = siweMessage.prepareMessage()
 
-  // 6) get the user’s signature
+  // 5) have user sign the message
   const signature = (await eth.request({
     method: 'personal_sign',
     params: [message, address],
   })) as string
 
-  // 7) POST message+signature to verify endpoint
+  // 6) verify with backend, receive JWT + user.role
   const {
     data: { token, user },
   } = await api.post<{
@@ -76,18 +77,23 @@ export async function signInWithEthereum(): Promise<{
     { withCredentials: true }
   )
 
-  // 8) persist JWT + role in localStorage
+  // 7) persist JWT & role, configure axios
   localStorage.setItem('token', token)
-  localStorage.setItem('role', user.role)
-
-  // 9) ensure axios sends it from now on
+  localStorage.setItem('role',  user.role)
   api.defaults.headers.common.Authorization = `Bearer ${token}`
 
-  // 10) optionally bind this wallet on the server
-  await api.patch('/users/me/wallet', {
-    wallet_address: address,
-  })
+  // 8) bind/update your wallet on your profile (optional)
+  try {
+    await api.patch(
+      '/users/me/wallet',
+      { wallet_address: address },
+      { withCredentials: true }
+    )
+  } catch {
+    // if that endpoint isn’t present yet, just ignore
+  }
 
+  // now return both address and role
   return { address, role: user.role }
 }
 
@@ -96,12 +102,10 @@ export const getToken        = (): string | null => localStorage.getItem('token'
 export const getRole         = (): string | null => localStorage.getItem('role')
 export const isAuthenticated = (): boolean      => Boolean(getToken())
 
-/** Logout by clearing storage & reloading */
+/** Clears storage & reloads to force logout */
 export function logout(): void {
   localStorage.removeItem('token')
   localStorage.removeItem('role')
-  // optional: track manual disconnect
   localStorage.setItem('manualDisconnect', 'true')
-  // force reload so isAuthenticated() flips to false
   window.location.reload()
 }
