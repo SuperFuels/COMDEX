@@ -14,7 +14,8 @@
     ],
     "predeploy": [
       "npm --prefix frontend install",
-      "npm --prefix frontend run build"
+      "npm --prefix frontend run build",
+      "npm --prefix frontend run export"
     ]
   }
 }

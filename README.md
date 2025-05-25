@@ -64,5 +64,4 @@ git commit -m "Bring main back to dd80390 + re-apply local fixes (Dockerfile, .d
 git push origin main --force
 
 
-cd ~/COMDEX
-firebase deploy --only hosting
+cd ..
