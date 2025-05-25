@@ -2,7 +2,6 @@
 
 import { ethers } from 'ethers'
 import api from '@/lib/api'
-import { SiweMessage } from 'siwe'
 
 /** Grabs window.ethereum or throws if missing */
 function getEthereumProvider(): any {
@@ -17,10 +16,10 @@ function getEthereumProvider(): any {
 /**
  * Perform a SIWE login:
  *  1) request accounts
- *  2) fetch nonce
- *  3) build & sign a SiweMessage
+ *  2) fetch full SIWE message from your backend
+ *  3) ask user to sign that message
  *  4) POST { message, signature } to /auth/verify
- *  5) persist JWT + role, set axios header, bind wallet
+ *  5) persist JWT (under "token") & role, set axios header, bind wallet
  *
  * @returns the connected address and your user role
  */
@@ -35,54 +34,34 @@ export async function signInWithEthereum(): Promise<{
   })) as string[]
   const address = ethers.utils.getAddress(rawAddress)
 
-  // 2) fetch nonce from backend
-  const {
-    data: { nonce },
-  } = await api.get<{ nonce: string }>('/auth/nonce', {
-    params: { address },
-    withCredentials: true,
-  })
+  // 2) fetch the full SIWE message from your backend
+  const { data: { message } } = await api.get<{ message: string }>(
+    '/auth/nonce',
+    { params: { address }, withCredentials: true }
+  )
 
-  // 3) determine chain ID
-  const chainHex = (await eth.request({ method: 'eth_chainId' })) as string
-  const chainId  = parseInt(chainHex, 16)
-
-  // 4) build the SIWE message
-  const siweMessage = new SiweMessage({
-    domain:    window.location.host,
-    address,
-    statement: 'Sign in with Ethereum to STICKEY',
-    uri:       window.location.origin,
-    version:   '1',
-    chainId,
-    nonce,
-  })
-  const message = siweMessage.prepareMessage()
-
-  // 5) have user sign the message
+  // 3) have user sign exactly that message
   const signature = (await eth.request({
     method: 'personal_sign',
     params: [message, address],
   })) as string
 
-  // 6) verify with backend, receive JWT + user.role
-  const {
-    data: { token, user },
-  } = await api.post<{
+  // 4) send back message+signature for verification
+  const { data: { token, role } } = await api.post<{
     token: string
-    user:  { role: string }
+    role:  string
   }>(
     '/auth/verify',
     { message, signature },
     { withCredentials: true }
   )
 
-  // 7) persist JWT & role, configure axios
+  // 5) persist JWT & role, configure axios
   localStorage.setItem('token', token)
-  localStorage.setItem('role',  user.role)
-  api.defaults.headers.common.Authorization = `Bearer ${token}`
+  localStorage.setItem('role',  role)
+  api.defaults.headers.common['Authorization'] = `Bearer ${token}`
 
-  // 8) bind/update your wallet on your profile (optional)
+  // 6) attempt to bind/update your wallet on your profile (optional)
   try {
     await api.patch(
       '/users/me/wallet',
@@ -90,11 +69,10 @@ export async function signInWithEthereum(): Promise<{
       { withCredentials: true }
     )
   } catch {
-    // if that endpoint isn’t present yet, just ignore
+    // ignore if that endpoint isn’t available yet
   }
 
-  // now return both address and role
-  return { address, role: user.role }
+  return { address, role }
 }
 
 /** Helpers for other parts of your app */

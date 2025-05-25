@@ -47,7 +47,7 @@ const Home: NextPage = () => {
       .finally(() => setLoading(false))
   }, [token])
 
-  // 3) Build 24-point chart data for selected product
+  // 3) Build 24-point chart data
   const chartData: ChartPoint[] = selected
     ? Array.from({ length: 24 }, (_, i) => ({
         time:  Math.floor(Date.now() / 1000) - (23 - i) * 3600,
@@ -64,7 +64,7 @@ const Home: NextPage = () => {
   // 5) Wallet-connect / SIWE login
   const handleLogin = async () => {
     try {
-      // this signs & stores the JWT in localStorage
+      // fetch, sign, verify → stores JWT under "token"
       await signInWithEthereum()
 
       // now read it back and re-render
@@ -155,7 +155,9 @@ const Home: NextPage = () => {
                         </td>
                         <td
                           className={`px-4 py-2 text-right ${
-                            p.change_pct >= 0 ? 'text-green-600' : 'text-red-600'
+                            p.change_pct >= 0
+                              ? 'text-green-600'
+                              : 'text-red-600'
                           }`}
                         >
                           {p.change_pct >= 0 ? '↑' : '↓'}{' '}
