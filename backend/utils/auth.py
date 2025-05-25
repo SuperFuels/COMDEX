@@ -14,9 +14,9 @@ from database import get_db
 from models.user import User
 
 # ─── JWT configuration ───────────────────────────
-SECRET_KEY                = os.getenv("SECRET_KEY", "super-secret-123")
-ALGORITHM                 = os.getenv("ALGORITHM", "HS256")
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 60))
+SECRET_KEY                   = os.getenv("SECRET_KEY", "super-secret-123")
+ALGORITHM                    = os.getenv("ALGORITHM", "HS256")
+ACCESS_TOKEN_EXPIRE_MINUTES  = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 60))
 
 # ─── Password hashing ─────────────────────────────
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -63,9 +63,9 @@ def get_current_user(
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         sub     = payload.get("sub")
         if sub is None:
-            raise ValueError()
+            raise ValueError("Missing subject")
         user_id = int(sub)
-    except (JWTError, ValueError):
+    except (JWTError, ValueError) as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or expired token",
@@ -89,30 +89,28 @@ def verify_siwe(
     3) Lookup-or-create User
     4) Return (User, JWT)
     """
-    from siwe import SiweMessage  # local import to avoid circulars
+    from siwe import SiweMessage  # avoid circular import
 
     # 1) parse the message string
     try:
+        # construct from raw EIP-4361 text
         siwe = SiweMessage(message)
     except Exception as e:
-        # covers both Pydantic ValidationError and plain ValueError
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Malformed SIWE message: {e}"
         )
 
-    # 2a) signature must verify
+    # 2a) verify the signature
     if not siwe.verify(signature):
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid SIWE signature")
 
-    # 2b) nonce must still be fresh
+    # 2b) check the nonce
     if not validate_nonce(siwe.nonce):
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Invalid or expired nonce")
 
-    # normalize address
+    # 3) lookup-or-create user
     address = siwe.address.lower()
-
-    # 3) find-or-create user
     user = db.query(User).filter_by(address=address).first()
     if not user:
         user = User(address=address, role="buyer")  # default role
@@ -120,7 +118,6 @@ def verify_siwe(
         db.commit()
         db.refresh(user)
 
-    # 4) mint a JWT
+    # 4) mint a JWT for this user
     token = create_access_token(subject=user.id, role=user.role)
     return user, token
-    
