@@ -1,11 +1,12 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Request, Body, Query
+from fastapi import APIRouter, Depends, HTTPException, Request, Body, Query
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 import logging
 
 from database import get_db
 from models.user import User
-from utils.auth import generate_nonce, verify_siwe
+from utils.auth import verify_siwe, generate_nonce
+from siwe import SiweMessage  # EIP-4361 message builder
 
 router = APIRouter(tags=["Auth"])
 logger = logging.getLogger("routes.auth")
@@ -28,7 +29,26 @@ def get_siwe_nonce(
     Issue a SIWE nonce + message for front-end to sign.
     Returns { message: string } containing the full EIP-4361 SIWE message.
     """
-    message = generate_nonce_message(request, address)
+    # Build a compliant SIWE message
+    origin = request.headers.get("origin") or f"http://{request.client.host}:{request.url.port}"
+    parsed = origin
+    domain = parsed.replace("https://", "").replace("http://", "")
+    # Generate nonce and timestamp
+    nonce = generate_nonce()
+    issued_at = __import__('datetime').datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
+
+    siwe_msg = SiweMessage(
+        domain=domain,
+        address=address,
+        statement="Sign in to STICKEY",
+        uri=origin,
+        version="1",
+        chain_id=1,
+        nonce=nonce,
+        issued_at=issued_at,
+    )
+    message = siwe_msg.prepare_message()
+    logger.debug(f"Generated SIWE message: {repr(message)}")
     return {"message": message}
 
 @router.post("/verify", response_model=TokenRoleOut)
@@ -39,11 +59,9 @@ def verify_signature(
     """
     Verify SIWE signature, lookup/create user, and return JWT + role.
     """
-    # Log and normalize the incoming SIWE message
+    # Normalize message newlines
     raw_message = body.message or ""
-    # Normalize CRLF to LF to avoid parsing issues
     normalized_message = raw_message.replace("\r\n", "\n")
-    # Debug logging of the exact message received
     logger.debug(f"Raw SIWE message received: {repr(normalized_message)}")
 
     try:
@@ -52,31 +70,8 @@ def verify_signature(
             signature=body.signature,
             db=db
         )
-    except HTTPException as e:
-        # Re-raise HTTPExceptions from verify_siwe
+    except HTTPException:
         logger.error("SIWE verification failed", exc_info=True)
         raise
 
     return {"token": token, "role": user.role}
-
-# Helper to build the standard EIP-4361 message using our generate_nonce
-from urllib.parse import urlparse
-from datetime import datetime
-
-def generate_nonce_message(request: Request, address: str) -> str:
-    nonce = generate_nonce()
-    origin = request.headers.get("origin") or f"http://{request.client.host}:{request.url.port}"
-    parsed = urlparse(origin)
-    domain = parsed.netloc
-    issued = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
-
-    return (
-        f"{domain} wants you to sign in with your Ethereum account:\n"
-        f"{address}\n\n"
-        f"Sign in to STICKEY\n\n"
-        f"URI: {origin}\n"
-        f"Version: 1\n"
-        f"Chain ID: 1\n"
-        f"Nonce: {nonce}\n"
-        f"Issued At: {issued}"
-    )
