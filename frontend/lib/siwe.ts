@@ -14,15 +14,18 @@ export async function signInWithEthereum(): Promise<LoginResult> {
   }
 
   // 1) Connect wallet
-  const provider = new ethers.providers.Web3Provider((window as any).ethereum, 'any')
+  const provider = new ethers.providers.Web3Provider(
+    (window as any).ethereum,
+    'any'
+  )
   await provider.send('eth_requestAccounts', [])
   const signer  = provider.getSigner()
   const address = await signer.getAddress()
 
-  // 2) Fetch SIWE nonce
+  // 2) Fetch the full SIWE message from backend
   const {
-    data: { nonce },
-  } = await api.get<{ nonce: string }>(
+    data: { message: siweMessageString },
+  } = await api.get<{ message: string }>(
     '/auth/nonce',
     {
       params: { address },
@@ -30,7 +33,17 @@ export async function signInWithEthereum(): Promise<LoginResult> {
     }
   )
 
-  // 3) Build the SIWE message
+  // 3) Extract the nonce out of that message text
+  const nonceLine = siweMessageString
+    .split('\n')
+    .find(line => line.trim().startsWith('Nonce:'))
+
+  if (!nonceLine) {
+    throw new Error('SIWE message from server did not include a Nonce')
+  }
+  const nonce = nonceLine.split('Nonce:')[1].trim()
+
+  // 4) Build the SIWE message model
   const chainHex = await provider.send('eth_chainId', [])
   const siweMessage = new SiweMessage({
     domain:    window.location.host,
@@ -41,26 +54,26 @@ export async function signInWithEthereum(): Promise<LoginResult> {
     chainId:   parseInt(chainHex as string, 16),
     nonce,
   })
-  const message = siweMessage.prepareMessage()
+  const preparedMessage = siweMessage.prepareMessage()
 
-  // 4) Have the user sign it
-  const signature = await signer.signMessage(message)
+  // 5) Have the user sign it
+  const signature = await signer.signMessage(preparedMessage)
 
-  // 5) Send to backend to verify & receive JWT + role
+  // 6) Send to backend to verify & receive { token, role }
   const {
     data: { token, role },
   } = await api.post<LoginResult>(
     '/auth/verify',
-    { message, signature },
+    { message: preparedMessage, signature },
     { withCredentials: true }
   )
 
-  // 6) Persist and configure axios
+  // 7) Persist the JWT + role and set Axios header
   localStorage.setItem('token', token)
   localStorage.setItem('role',  role)
   api.defaults.headers.common.Authorization = `Bearer ${token}`
 
-  // 7) (Optional) Bind wallet on your profile—ignore failures here
+  // 8) (Optional) bind wallet on profile—ignore errors
   try {
     await api.patch(
       '/users/me/wallet',
