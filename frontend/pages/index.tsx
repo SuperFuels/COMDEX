@@ -4,7 +4,7 @@ import type { NextPage } from 'next'
 import Link from 'next/link'
 
 import api from '@/lib/api'
-import { signInWithEthereum } from '@/lib/siwe'
+import { signInWithEthereum, getToken } from '@/utils/auth'
 import Chart, { ChartPoint } from '@/components/Chart'
 import Navbar from '@/components/Navbar'
 
@@ -19,33 +19,34 @@ interface Product {
 }
 
 const Home: NextPage = () => {
-  const [products, setProducts] = useState<Product[]>([])
+  const [products, setProducts]   = useState<Product[]>([])
   const [loading, setLoading]     = useState(true)
   const [error, setError]         = useState(false)
   const [selected, setSelected]   = useState<Product | null>(null)
   const [filters, setFilters]     = useState<string[]>([])
-  const [jwt, setJwt]             = useState<string | null>(null)
+  const [token, setToken]         = useState<string | null>(null)
 
-  // 1) Load JWT on first render
+  // 1) On mount, load any saved token
   useEffect(() => {
-    const token = localStorage.getItem('jwt')
-    if (token) {
-      setJwt(token)
-      api.defaults.headers.common['Authorization'] = `Bearer ${token}`
+    const t = getToken()
+    if (t) {
+      setToken(t)
+      api.defaults.headers.common['Authorization'] = `Bearer ${t}`
     }
   }, [])
 
-  // 2) Fetch products whenever jwt changes
+  // 2) Fetch products whenever token changes
   useEffect(() => {
     setLoading(true)
-    api.get<Product[]>('/products')
+    api
+      .get<Product[]>('/products')
       .then(({ data }) => {
         setProducts(data)
         if (data.length) setSelected(data[0])
       })
       .catch(() => setError(true))
       .finally(() => setLoading(false))
-  }, [jwt])
+  }, [token])
 
   // 3) Build 24-point chart data for `selected`
   const chartData: ChartPoint[] = selected
@@ -55,7 +56,7 @@ const Home: NextPage = () => {
       }))
     : []
 
-  // 4) Compute unique countries & filter product list
+  // 4) Country filters
   const countries = Array.from(new Set(products.map(p => p.origin_country)))
   const visibleProducts = filters.length
     ? products.filter(p => filters.includes(p.origin_country))
@@ -64,10 +65,9 @@ const Home: NextPage = () => {
   // 5) Wallet-connect / SIWE login
   const handleLogin = async () => {
     try {
-      const { token } = await signInWithEthereum()
-      setJwt(token)
-      api.defaults.headers.common['Authorization'] = `Bearer ${token}`
-      localStorage.setItem('jwt', token)
+      const { token: newToken } = await signInWithEthereum()
+      setToken(newToken)
+      api.defaults.headers.common['Authorization'] = `Bearer ${newToken}`
     } catch (err) {
       console.error('Login failed', err)
       alert('Failed to sign in. Check console for details.')
@@ -76,11 +76,12 @@ const Home: NextPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* top navbar */}
       <Navbar />
 
-      {/* Connect / Dashboard button */}
+      {/* Connect / Dashboard */}
       <div className="max-w-7xl mx-auto px-4 py-4 flex justify-end">
-        {!jwt ? (
+        {!token ? (
           <button
             onClick={handleLogin}
             className="px-4 py-2 bg-blue-600 text-white rounded"
@@ -97,7 +98,7 @@ const Home: NextPage = () => {
       </div>
 
       <main className="max-w-7xl mx-auto grid grid-cols-12 gap-6 px-4 py-6">
-        {/* ─── Left/Main column ───────────────────────────────────────── */}
+        {/* ── Main ───────────────────────────────────────────────────────── */}
         <div className="col-span-12 md:col-span-9 space-y-6">
           {loading ? (
             <p className="text-center">Loading…</p>
@@ -107,7 +108,7 @@ const Home: NextPage = () => {
             </p>
           ) : (
             <>
-              {/* Chart card */}
+              {/* Chart */}
               <div className="bg-white border rounded-lg shadow p-4">
                 {selected ? (
                   <Chart data={chartData} height={300} />
@@ -118,7 +119,7 @@ const Home: NextPage = () => {
                 )}
               </div>
 
-              {/* Products table */}
+              {/* Table */}
               <div className="overflow-x-auto bg-white border rounded-lg shadow">
                 <table className="min-w-full table-auto">
                   <thead className="bg-gray-100">
@@ -170,9 +171,8 @@ const Home: NextPage = () => {
           )}
         </div>
 
-        {/* ─── Right/Sidebar column ────────────────────────────────────── */}
+        {/* ── Sidebar ─────────────────────────────────────────────────────── */}
         <aside className="col-span-12 md:col-span-3 space-y-6">
-          {/* Selected product summary */}
           {selected && (
             <div className="bg-white border rounded-lg shadow p-4">
               <h2 className="text-xl font-semibold">{selected.title}</h2>
@@ -190,7 +190,6 @@ const Home: NextPage = () => {
             </div>
           )}
 
-          {/* Country filters */}
           <div className="bg-white border rounded-lg shadow p-4">
             <h3 className="text-lg font-medium mb-2">Country Filters</h3>
             <ul className="space-y-1">

@@ -23,7 +23,7 @@ function getEthereumProvider(): any {
  */
 export async function signInWithEthereum(): Promise<{
   address: string
-  role: string
+  role:    string
 }> {
   // 1) get provider & request accounts
   const eth = getEthereumProvider()
@@ -44,15 +44,15 @@ export async function signInWithEthereum(): Promise<{
 
   // 4) determine chain ID
   const chainHex = (await eth.request({ method: 'eth_chainId' })) as string
-  const chainId = parseInt(chainHex, 16)
+  const chainId  = parseInt(chainHex, 16)
 
   // 5) build the SIWE message
   const siweMessage = new SiweMessage({
-    domain: window.location.host,
+    domain:    window.location.host,
     address,
     statement: 'Sign in with Ethereum to STICKEY',
-    uri: window.location.origin,
-    version: '1',
+    uri:       window.location.origin,
+    version:   '1',
     chainId,
     nonce,
   })
@@ -69,7 +69,7 @@ export async function signInWithEthereum(): Promise<{
     data: { token, user },
   } = await api.post<{
     token: string
-    user: { role: string }
+    user:  { role: string }
   }>(
     '/auth/verify',
     { message, signature },
@@ -92,19 +92,16 @@ export async function signInWithEthereum(): Promise<{
 }
 
 /** Helpers for other parts of your app */
-export const getToken = (): string | null =>
-  localStorage.getItem('token')
-export const getRole = (): string | null =>
-  localStorage.getItem('role')
-export const isAuthenticated = (): boolean =>
-  Boolean(getToken())
+export const getToken        = (): string | null => localStorage.getItem('token')
+export const getRole         = (): string | null => localStorage.getItem('role')
+export const isAuthenticated = (): boolean      => Boolean(getToken())
 
 /** Logout by clearing storage & reloading */
 export function logout(): void {
   localStorage.removeItem('token')
   localStorage.removeItem('role')
-  // optional: track that this was a manual disconnect
+  // optional: track manual disconnect
   localStorage.setItem('manualDisconnect', 'true')
-  // force reload so your app sees isAuthenticated() === false
+  // force reload so isAuthenticated() flips to false
   window.location.reload()
 }
