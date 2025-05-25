@@ -6,7 +6,6 @@ import Link from 'next/link'
 import api from '@/lib/api'
 import { signInWithEthereum, getToken } from '@/utils/auth'
 import Chart, { ChartPoint } from '@/components/Chart'
-import Navbar from '@/components/Navbar'
 
 interface Product {
   id: number
@@ -19,14 +18,14 @@ interface Product {
 }
 
 const Home: NextPage = () => {
-  const [products, setProducts]   = useState<Product[]>([])
-  const [loading, setLoading]     = useState(true)
-  const [error, setError]         = useState(false)
-  const [selected, setSelected]   = useState<Product | null>(null)
-  const [filters, setFilters]     = useState<string[]>([])
-  const [token, setToken]         = useState<string | null>(null)
+  const [products, setProducts] = useState<Product[]>([])
+  const [loading, setLoading]   = useState(true)
+  const [error, setError]       = useState(false)
+  const [selected, setSelected] = useState<Product | null>(null)
+  const [filters, setFilters]   = useState<string[]>([])
+  const [token, setToken]       = useState<string | null>(null)
 
-  // 1) On mount, load any saved token
+  // 1) Load any existing token on mount
   useEffect(() => {
     const t = getToken()
     if (t) {
@@ -48,7 +47,7 @@ const Home: NextPage = () => {
       .finally(() => setLoading(false))
   }, [token])
 
-  // 3) Build 24-point chart data for `selected`
+  // 3) Build 24-point chart data for selected product
   const chartData: ChartPoint[] = selected
     ? Array.from({ length: 24 }, (_, i) => ({
         time:  Math.floor(Date.now() / 1000) - (23 - i) * 3600,
@@ -56,18 +55,24 @@ const Home: NextPage = () => {
       }))
     : []
 
-  // 4) Country filters
-  const countries = Array.from(new Set(products.map(p => p.origin_country)))
+  // 4) Country filter logic
+  const countries = Array.from(new Set(products.map((p) => p.origin_country)))
   const visibleProducts = filters.length
-    ? products.filter(p => filters.includes(p.origin_country))
+    ? products.filter((p) => filters.includes(p.origin_country))
     : products
 
   // 5) Wallet-connect / SIWE login
   const handleLogin = async () => {
     try {
-      const { token: newToken } = await signInWithEthereum()
-      setToken(newToken)
-      api.defaults.headers.common['Authorization'] = `Bearer ${newToken}`
+      // this signs & stores the JWT in localStorage
+      await signInWithEthereum()
+
+      // now read it back and re-render
+      const newToken = getToken()
+      if (newToken) {
+        setToken(newToken)
+        api.defaults.headers.common['Authorization'] = `Bearer ${newToken}`
+      }
     } catch (err) {
       console.error('Login failed', err)
       alert('Failed to sign in. Check console for details.')
@@ -76,10 +81,7 @@ const Home: NextPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* top navbar */}
-      <Navbar />
-
-      {/* Connect / Dashboard */}
+      {/* Connect / Dashboard button */}
       <div className="max-w-7xl mx-auto px-4 py-4 flex justify-end">
         {!token ? (
           <button
@@ -98,7 +100,7 @@ const Home: NextPage = () => {
       </div>
 
       <main className="max-w-7xl mx-auto grid grid-cols-12 gap-6 px-4 py-6">
-        {/* ── Main ───────────────────────────────────────────────────────── */}
+        {/* ─── Main Column ─────────────────────────────────────────────── */}
         <div className="col-span-12 md:col-span-9 space-y-6">
           {loading ? (
             <p className="text-center">Loading…</p>
@@ -119,7 +121,7 @@ const Home: NextPage = () => {
                 )}
               </div>
 
-              {/* Table */}
+              {/* Products Table */}
               <div className="overflow-x-auto bg-white border rounded-lg shadow">
                 <table className="min-w-full table-auto">
                   <thead className="bg-gray-100">
@@ -171,7 +173,7 @@ const Home: NextPage = () => {
           )}
         </div>
 
-        {/* ── Sidebar ─────────────────────────────────────────────────────── */}
+        {/* ─── Sidebar ─────────────────────────────────────────────────── */}
         <aside className="col-span-12 md:col-span-3 space-y-6">
           {selected && (
             <div className="bg-white border rounded-lg shadow p-4">
