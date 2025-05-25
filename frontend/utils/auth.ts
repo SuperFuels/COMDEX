@@ -1,5 +1,3 @@
-// frontend/utils/auth.ts
-
 import { ethers } from 'ethers'
 import api from '@/lib/api'
 
@@ -39,6 +37,9 @@ export async function signInWithEthereum(): Promise<{
     '/auth/nonce',
     { params: { address }, withCredentials: true }
   )
+
+  // 2.1) log the exact SIWE payload for debugging
+  console.debug('SIWE nonce fetched:', message)
 
   // 3) have user sign exactly that message
   const signature = (await eth.request({
