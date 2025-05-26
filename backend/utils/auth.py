@@ -1,3 +1,4 @@
+# backend/utils/auth.py
 import os
 import time
 import secrets
@@ -12,7 +13,6 @@ from sqlalchemy.orm import Session
 
 from database import get_db
 from models.user import User
-from siwe import SiweMessage, parse_message  # EIP-4361 helpers
 
 # ─── JWT configuration ───────────────────────────
 SECRET_KEY                  = os.getenv("SECRET_KEY", "super-secret-123")
@@ -87,19 +87,11 @@ def verify_siwe(
     3) Lookup-or-create User
     4) Return (User, JWT)
     """
+    from siwe import SiweMessage  # avoid circular import
+
     # 1) parse the raw EIP-4361 text using the library helper
     try:
-        # Try class-based parser first
-        siwe = SiweMessage.parse(message)
-    except AttributeError:
-        # Fallback to standalone function
-        try:
-            siwe = parse_message(message)
-        except Exception as e:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Malformed SIWE message: {e}"
-            )
+        siwe = SiweMessage.parse_message(message)
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -107,11 +99,7 @@ def verify_siwe(
         )
 
     # 2a) verify the Ethereum signature
-    try:
-        valid = siwe.verify(signature)
-    except Exception as e:
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, f"Invalid SIWE signature: {e}")
-    if not valid:
+    if not siwe.verify(signature):
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid SIWE signature")
 
     # 2b) check that the nonce is fresh
@@ -120,9 +108,9 @@ def verify_siwe(
 
     # 3) lookup-or-create the User
     address = siwe.address.lower()
-    user = db.query(User).filter_by(wallet_address=address).first()
+    user = db.query(User).filter_by(address=address).first()
     if not user:
-        user = User(wallet_address=address, role="buyer")  # default role
+        user = User(address=address, role="buyer")  # default to buyer
         db.add(user)
         db.commit()
         db.refresh(user)
