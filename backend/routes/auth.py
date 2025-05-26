@@ -5,7 +5,7 @@ import logging
 
 from database import get_db
 from models.user import User
-from utils.auth import verify_siwe, generate_nonce
+from utils.auth import verify_siwe, generate_nonce, create_access_token
 from siwe import SiweMessage  # EIP-4361 message builder
 
 router = APIRouter(tags=["Auth"])
@@ -29,16 +29,13 @@ def get_siwe_nonce(
     Issue a SIWE nonce + message for front-end to sign.
     Returns { message: string } containing the full EIP-4361 SIWE message.
     """
-    # Build compliant SIWE message using official library
     origin = request.headers.get("origin") or f"http://{request.client.host}:{request.url.port}"
     domain = origin.replace("https://", "").replace("http://", "")
 
-    # Generate nonce and timestamp
     nonce = generate_nonce()
     from datetime import datetime
     issued_at = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
 
-    # Construct SIWE message
     siwe_msg = SiweMessage(
         domain=domain,
         address=address,
@@ -61,7 +58,6 @@ def verify_signature(
     """
     Verify SIWE signature, lookup/create user, and return JWT + role.
     """
-    # Normalize incoming message newlines
     raw_message = body.message or ""
     normalized_message = raw_message.replace("\r\n", "\n")
     logger.debug(f"Raw SIWE message received: {repr(normalized_message)}")
@@ -76,4 +72,23 @@ def verify_signature(
         logger.error("SIWE verification failed", exc_info=True)
         raise
 
+    return {"token": token, "role": user.role}
+
+@router.post("/test-login", response_model=TokenRoleOut)
+def test_login(
+    db: Session = Depends(get_db)
+):
+    """
+    🔧 DEV ONLY: issue a real JWT for the first user (or create one)
+    so you can hit protected endpoints without SIWE.
+    """
+    user = db.query(User).first()
+    if not user:
+        user = User(address="0xDEADBEEF", role="buyer")
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+
+    token = create_access_token(subject=user.id, role=user.role)
+    logger.debug(f"Issued test JWT for user {user.id}")
     return {"token": token, "role": user.role}
