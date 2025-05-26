@@ -1,4 +1,3 @@
-# backend/utils/auth.py
 import os
 import time
 import secrets
@@ -89,9 +88,9 @@ def verify_siwe(
     """
     from siwe import SiweMessage  # avoid circular import
 
-    # 1) parse the raw EIP-4361 text using the library helper
+    # 1) parse the raw EIP-4361 text by instantiating
     try:
-        siwe = SiweMessage.parse_message(message)
+        siwe = SiweMessage(message)
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
