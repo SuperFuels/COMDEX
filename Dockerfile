@@ -20,10 +20,9 @@ RUN pip install --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt && \
     pip show siwe
 
-# ─── 3) Copy your app & its env ──────────────────────────────
+# ─── 3) Copy your app ────────────────────────────────────────
 COPY backend/ ./backend
-# bring in the actual env file (renamed in your repo) as .env
-COPY --chown=root:root env_vars.env /srv/.env
+# (we no longer COPY any .env here—env is injected at deploy via Cloud Run)
 
 # ─── 4) Make sure Uvicorn can import your package ────────────
 ENV PYTHONPATH=/srv/backend
