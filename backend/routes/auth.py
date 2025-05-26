@@ -29,14 +29,16 @@ def get_siwe_nonce(
     Issue a SIWE nonce + message for front-end to sign.
     Returns { message: string } containing the full EIP-4361 SIWE message.
     """
-    # Build a compliant SIWE message
+    # Build compliant SIWE message using official library
     origin = request.headers.get("origin") or f"http://{request.client.host}:{request.url.port}"
-    parsed = origin
-    domain = parsed.replace("https://", "").replace("http://", "")
+    domain = origin.replace("https://", "").replace("http://", "")
+
     # Generate nonce and timestamp
     nonce = generate_nonce()
-    issued_at = __import__('datetime').datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
+    from datetime import datetime
+    issued_at = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
 
+    # Construct SIWE message
     siwe_msg = SiweMessage(
         domain=domain,
         address=address,
@@ -59,7 +61,7 @@ def verify_signature(
     """
     Verify SIWE signature, lookup/create user, and return JWT + role.
     """
-    # Normalize message newlines
+    # Normalize incoming message newlines
     raw_message = body.message or ""
     normalized_message = raw_message.replace("\r\n", "\n")
     logger.debug(f"Raw SIWE message received: {repr(normalized_message)}")
