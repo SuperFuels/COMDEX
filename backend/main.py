@@ -50,7 +50,6 @@ app = FastAPI(
 )
 
 # ─── 10) GLOBAL CORS ────────────────────────────────────────────────
-# Read a comma-separated list from the environment
 raw = os.getenv("CORS_ALLOWED_ORIGINS", "")
 allowed_origins = [o.strip() for o in raw.split(",") if o.strip()]
 
@@ -58,7 +57,6 @@ allowed_origins = [o.strip() for o in raw.split(",") if o.strip()]
 if os.getenv("ENV", "").lower() != "production":
     allowed_origins += ["http://localhost:3000"]
 
-# If nothing at all is configured, *fail closed* and require you to set it
 if not allowed_origins:
     raise RuntimeError(
         "CORS_ALLOWED_ORIGINS must be set to at least one origin "
@@ -119,4 +117,3 @@ def health_check():
     except OperationalError:
         logger.error("❌ Database connection failed.", exc_info=True)
         return {"status": "error", "database": "not connected"}
-        
