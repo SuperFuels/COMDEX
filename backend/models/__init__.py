@@ -1,16 +1,22 @@
 # backend/models/__init__.py
 
-from database import Base  # Import Base from database.py
+"""
+Package‐level import of all SQLAlchemy models.
+"""
 
-# Import all your model classes so they register with Base.metadata
-from models.user     import User
-from models.deal     import Deal
-from models.product  import Product
-from models.contract import Contract
+# Import each model so that SQLAlchemy will register its table on Base.metadata
+from .user     import User
+from .deal     import Deal
+from .product  import Product
+from .contract import Contract
+# …and any other models you have:
+# from .admin import Admin
+# from .order import Order
 
-# …and any other models you have, for example:
-# from models.admin    import Admin
-# from models.order    import Order
-
-# This ensures that when you run Base.metadata.create_all() or autogenerate
-# migrations with Alembic, all models are included in the metadata.
+__all__ = [
+    "User",
+    "Deal",
+    "Product",
+    "Contract",
+    # "Admin", "Order", etc.
+]

@@ -9,15 +9,14 @@ from typing import List, Tuple
 from fastapi import APIRouter, Depends, HTTPException, status, Body
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
-from weasyprint import HTML
 from web3 import Web3
 
-from database import get_db
-from models.deal import Deal
-from models.product import Product
-from models.user import User
-from backend.schemas.deal import DealCreate, DealOut, DealStatusUpdate
-from utils.auth import get_current_user
+from ..database import get_db
+from ..models.deal import Deal
+from ..models.product import Product
+from ..models.user import User
+from ..schemas.deal import DealCreate, DealOut, DealStatusUpdate
+from ..utils.auth import get_current_user
 
 router = APIRouter(tags=["Deals"])
 logger = logging.getLogger(__name__)
@@ -30,7 +29,7 @@ ESCROW_ABI = artifact.get("abi", [])
 if not ESCROW_ABI:
     raise RuntimeError("ABI not found in GLUEscrow.json")
 
-# ─── Helper: Lazy Web3 Initialization ──────────────────────────────
+
 def get_web3_contract() -> Tuple[Web3, any, any]:
     """
     Lazy-load Web3 connection, contract, and deployer account.
@@ -60,7 +59,6 @@ def get_web3_contract() -> Tuple[Web3, any, any]:
 
     return w3, contract, deployer
 
-# ─── CRUD & On-Chain Endpoints ────────────────────────────────────
 
 @router.post("/", response_model=DealOut, status_code=status.HTTP_201_CREATED)
 def create_deal(
@@ -68,7 +66,6 @@ def create_deal(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    # fetch product and supplier
     product = db.query(Product).filter(Product.id == deal_data.product_id).first()
     if not product:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Product not found")
@@ -77,7 +74,6 @@ def create_deal(
     if not supplier:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Supplier not found")
 
-    # calculate and persist
     total_price = deal_data.quantity_kg * product.price_per_kg
     payload = {
         **deal_data.dict(),
@@ -97,7 +93,6 @@ def create_deal(
         db.refresh(new_deal)
         new_deal.supplier_wallet_address = supplier.wallet_address or ""
         return new_deal
-
     except Exception as e:
         logger.error(f"❌ Failed to create deal: {e}")
         raise HTTPException(
@@ -175,6 +170,15 @@ def generate_deal_pdf(
     if current_user.email not in {deal.buyer_email, deal.supplier_email}:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Not authorized")
 
+    # Lazy-import WeasyPrint
+    try:
+        from weasyprint import HTML
+    except ImportError as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="WeasyPrint is not installed or missing dependencies: " + str(e)
+        )
+
     html_content = f"""
     <h1>Deal #{deal.id}</h1>
     <p><strong>Buyer:</strong> {deal.buyer_email}</p>
@@ -223,4 +227,3 @@ def release_deal(
 
     logger.info(f"🔓 Deal {deal_id} released on-chain, tx={receipt.transactionHash.hex()}")
     return {"status": "released", "txHash": receipt.transactionHash.hex()}
-
