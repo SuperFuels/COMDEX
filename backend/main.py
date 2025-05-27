@@ -25,7 +25,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("comdex")
 
 # 5) log the actual DB URL
-from config import SQLALCHEMY_DATABASE_URL
+from .config import SQLALCHEMY_DATABASE_URL
 logger.info(f"🔍 SQLALCHEMY_DATABASE_URL = {SQLALCHEMY_DATABASE_URL}")
 
 # 6) import engine, Base, session dependency
