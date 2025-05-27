@@ -14,7 +14,7 @@ export default function Navbar() {
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const wrapperRef = useRef<HTMLDivElement>(null)
 
-  // 1) Connect & SIWE-login
+  // SIWE-login via wallet
   const handleConnect = useCallback(async () => {
     localStorage.removeItem('manualDisconnect')
     try {
@@ -29,7 +29,7 @@ export default function Navbar() {
     }
   }, [router])
 
-  // 2) Manual disconnect
+  // Manual logout for both SIWE and email/password flows
   const handleDisconnect = useCallback(() => {
     localStorage.setItem('manualDisconnect', 'true')
     logout() // clears token + reloads page
@@ -41,9 +41,7 @@ export default function Navbar() {
 
   useEffect(() => {
     const eth = (window as any).ethereum
-    if (!eth) return
-
-    // hydrate existing token → fetch role
+    // 1) hydrate from existing JWT (email/password login)
     const token = localStorage.getItem('token')
     if (token) {
       api.defaults.headers.common.Authorization = `Bearer ${token}`
@@ -51,36 +49,37 @@ export default function Navbar() {
         .get<{ role: UserRole }>('/auth/profile')
         .then(res => setRole(res.data.role))
         .catch(() => {
+          // invalid token
           localStorage.removeItem('token')
           delete api.defaults.headers.common.Authorization
         })
     }
 
-    // auto-connect if user hasn’t manually disconnected
-    const manuallyDisconnected = localStorage.getItem('manualDisconnect') === 'true'
-    if (!manuallyDisconnected) {
-      ;(eth.request({ method: 'eth_accounts' }) as Promise<string[]>)
-        .then(accounts => {
-          if (accounts.length) setAccount(accounts[0])
-        })
-        .catch(console.error)
-    }
-
-    // listen for chain account changes
-    const onAccountsChanged = (accounts: string[]) => {
-      if (accounts.length === 0) {
-        handleDisconnect()
-      } else if (!manuallyDisconnected) {
-        setAccount(accounts[0])
+    // 2) auto‐detect already‐connected wallet unless manually disconnected
+    if (eth) {
+      const manuallyDisconnected = localStorage.getItem('manualDisconnect') === 'true'
+      if (!manuallyDisconnected) {
+        ;(eth.request({ method: 'eth_accounts' }) as Promise<string[]>)
+          .then(accounts => {
+            if (accounts.length) setAccount(accounts[0])
+          })
+          .catch(console.error)
       }
-    }
-    eth.on('accountsChanged', onAccountsChanged)
-    return () => {
-      eth.removeListener('accountsChanged', onAccountsChanged)
+
+      // 3) react to wallet disconnect
+      const onAccountsChanged = (accounts: string[]) => {
+        if (accounts.length === 0) {
+          handleDisconnect()
+        } else if (!manuallyDisconnected) {
+          setAccount(accounts[0])
+        }
+      }
+      eth.on('accountsChanged', onAccountsChanged)
+      return () => eth.removeListener('accountsChanged', onAccountsChanged)
     }
   }, [handleDisconnect])
 
-  // close dropdown when clicking outside
+  // close profile dropdown on outside click
   useEffect(() => {
     function onClick(e: MouseEvent) {
       if (
@@ -113,25 +112,31 @@ export default function Navbar() {
           />
         </Link>
 
-        {/* Role badge */}
+        {/* If we have a known role, show badge */}
         {role && (
           <span className="text-sm px-2 py-1 bg-gray-100 rounded">
             Role: {role}
           </span>
         )}
 
-        {/* Links & buttons */}
         <div className="flex items-center space-x-6">
           <Link href="/" className="text-gray-700 hover:underline">
             Marketplace
           </Link>
 
-          {!account && (
-            <Link href="/register" className="text-gray-700 hover:underline">
-              Register
-            </Link>
+          {/* Show Register + Login when completely unauthenticated */}
+          {!account && !role && (
+            <>
+              <Link href="/register" className="text-gray-700 hover:underline">
+                Register
+              </Link>
+              <Link href="/login" className="text-gray-700 hover:underline">
+                Login
+              </Link>
+            </>
           )}
 
+          {/* Dashboard links based on role */}
           {role === 'supplier' && (
             <Link href="/dashboard" className="text-gray-700 hover:underline">
               Supplier Dashboard
@@ -148,7 +153,7 @@ export default function Navbar() {
             </Link>
           )}
 
-          {/* Connect / Account dropdown */}
+          {/* Connect Wallet / Account menu */}
           {!account ? (
             <button
               onClick={handleConnect}

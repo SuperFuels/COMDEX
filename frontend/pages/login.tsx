@@ -1,15 +1,15 @@
 // frontend/pages/login.tsx
 
 import React, { useState } from 'react'
-import api from '@/lib/api'
 import { useRouter } from 'next/router'
+import api from '@/lib/api'
 
 export default function LoginPage() {
   const router = useRouter()
-  const [email, setEmail] = useState('')
+  const [email, setEmail]       = useState('')
   const [password, setPassword] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
+  const [loading, setLoading]   = useState(false)
+  const [error, setError]       = useState('')
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -17,26 +17,29 @@ export default function LoginPage() {
     setError('')
 
     try {
-      // 1. Send credentials as form data
-      const params = new URLSearchParams()
-      params.append('email', email)
-      params.append('password', password)
+      // 1) Send credentials as URL-encoded form data
+      const params = new URLSearchParams({
+        email,
+        password,
+      })
 
-      // 2. Request token
+      // 2) Hit /auth/login
       const { data } = await api.post(
         '/auth/login',
         params,
         { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
       )
 
-      // 3. Store JWT
-      localStorage.setItem('token', data.access_token)
+      // 3) Store and set the JWT on our axios instance
+      const token = data.access_token
+      localStorage.setItem('token', token)
+      api.defaults.headers.common.Authorization = `Bearer ${token}`
 
-      // 4. Fetch role
-      const roleRes = await api.get('/auth/role')
-      const role = roleRes.data.role as string
+      // 4) Fetch the user’s role
+      const profileRes = await api.get<{ role: string }>('/auth/profile')
+      const role       = profileRes.data.role
 
-      // 5. Redirect based on role
+      // 5) Redirect based on role
       if (role === 'admin') {
         router.push('/admin/dashboard')
       } else if (role === 'supplier') {
@@ -99,10 +102,9 @@ export default function LoginPage() {
             loading ? 'bg-blue-400' : 'bg-blue-600 hover:bg-blue-700'
           }`}
         >
-          {loading ? 'Logging in...' : 'Login'}
+          {loading ? 'Logging in…' : 'Login'}
         </button>
       </form>
     </div>
   )
 }
-

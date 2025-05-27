@@ -51,9 +51,12 @@ app = FastAPI(
 raw = os.getenv("CORS_ALLOWED_ORIGINS", "")
 allowed_origins = [o.strip() for o in raw.split(",") if o.strip()]
 
-# In non-prod, default to also allowing localhost:3000
+# Include localhost in non-prod
 if os.getenv("ENV", "").lower() != "production":
     allowed_origins.append("http://localhost:3000")
+
+# And your Firebase‐hosted front end
+allowed_origins.append("https://swift-area-459514-d1.web.app")
 
 if not allowed_origins:
     raise RuntimeError(
@@ -87,14 +90,14 @@ from .routes.contracts import router as contracts_router
 from .routes.admin     import router as admin_router
 from .routes.user      import router as user_router
 
-app.include_router(auth_router,      prefix="/auth",     tags=["Auth"])
-app.include_router(products_router,  prefix="/products", tags=["Products"])
-app.include_router(deal_router,      prefix="/deals",    tags=["Deals"])
-app.include_router(contracts_router, prefix="/contracts",tags=["Contracts"])
-app.include_router(admin_router,     prefix="/admin",    tags=["Admin"])
-app.include_router(user_router,      prefix="/users",    tags=["Users"])
+app.include_router(auth_router,      prefix="/auth",      tags=["Auth"])
+app.include_router(products_router,  prefix="/products",  tags=["Products"])
+app.include_router(deal_router,      prefix="/deals",     tags=["Deals"])
+app.include_router(contracts_router, prefix="/contracts", tags=["Contracts"])
+app.include_router(admin_router,     prefix="/admin",     tags=["Admin"])
+app.include_router(user_router,      prefix="/users",     tags=["Users"])
 
-# 13) workaround: redirect no-slash /products → /products/
+# 13) redirect no-slash /products → /products/
 @app.get("/products", include_in_schema=False)
 def products_no_slash():
     return RedirectResponse(url="/products/", status_code=307)
