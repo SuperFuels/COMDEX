@@ -7,14 +7,13 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import StreamingResponse
 import openai
-from weasyprint import HTML
 from sqlalchemy.orm import Session
 
-from database import get_db
-from models.contract import Contract
-from models.user import User
-from backend.schemas.contract import ContractCreate, ContractOut
-from utils.auth import get_current_user
+from ..database import get_db
+from ..models.contract import Contract
+from ..models.user import User
+from ..schemas.contract import ContractCreate, ContractOut
+from ..utils.auth import get_current_user
 
 router = APIRouter(tags=["Contracts"])  # prefix applied in main.py
 
@@ -105,6 +104,15 @@ def download_contract_pdf(
             detail="Contract not found.",
         )
 
+    # lazy-import WeasyPrint so startup won’t fail if libs are missing
+    try:
+        from weasyprint import HTML
+    except ImportError as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="WeasyPrint is not installed or depends on missing native libraries: " + str(e),
+        )
+
     pdf_io = BytesIO()
     HTML(string=contract.generated_contract).write_pdf(pdf_io)
     pdf_io.seek(0)
@@ -115,4 +123,3 @@ def download_contract_pdf(
             "Content-Disposition": f"attachment; filename=contract_{contract_id}.pdf"
         },
     )
-

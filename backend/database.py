@@ -1,27 +1,32 @@
-# backend/database.py
-
+import os
 from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy.pool import NullPool
 
-# pull in the socket- or localhost-URL from config.py
-from config import SQLALCHEMY_DATABASE_URL
+from .config import SQLALCHEMY_DATABASE_URL
 
-# 1) engine & session factory
+# If using SQLite, disable the same-thread check
+connect_args = {}
+if SQLALCHEMY_DATABASE_URL.startswith("sqlite"):
+    connect_args["check_same_thread"] = False
+
+# 1) Engine & session factory
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL,
-    pool_pre_ping=True
+    connect_args=connect_args,
+    poolclass=NullPool,
+    pool_pre_ping=True,
 )
 SessionLocal = sessionmaker(
     autocommit=False,
     autoflush=False,
-    bind=engine
+    bind=engine,
 )
 
-# 2) Base class for your models
+# 2) Base class for all models
 Base = declarative_base()
 
-# 3) FastAPI dependency to get a session
+# 3) Dependency for FastAPI routes
 def get_db():
     db = SessionLocal()
     try:

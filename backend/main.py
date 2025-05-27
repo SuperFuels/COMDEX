@@ -1,3 +1,5 @@
+# backend/main.py
+
 import os
 import time
 import logging
@@ -29,14 +31,10 @@ from .config import SQLALCHEMY_DATABASE_URL
 logger.info(f"🔍 SQLALCHEMY_DATABASE_URL = {SQLALCHEMY_DATABASE_URL}")
 
 # 6) import engine, Base, session dependency
-from database import engine, Base, get_db
+from .database import engine, Base, get_db
 
-# 7) import all models before creating tables
-import models.user
-import models.product
-import models.deal
-import models.contract
-# …any other models
+# 7) import the models package so all models register on Base.metadata
+import backend.models  # noqa: F401
 
 # 8) auto-create missing tables
 Base.metadata.create_all(bind=engine)
@@ -55,7 +53,7 @@ allowed_origins = [o.strip() for o in raw.split(",") if o.strip()]
 
 # In non-prod, default to also allowing localhost:3000
 if os.getenv("ENV", "").lower() != "production":
-    allowed_origins += ["http://localhost:3000"]
+    allowed_origins.append("http://localhost:3000")
 
 if not allowed_origins:
     raise RuntimeError(
@@ -82,12 +80,12 @@ app.mount(
 )
 
 # 12) include your routers
-from routes.auth      import router as auth_router
-from routes.products  import router as products_router
-from routes.deal      import router as deal_router
-from routes.contracts import router as contracts_router
-from routes.admin     import router as admin_router
-from routes.user      import router as user_router
+from .routes.auth      import router as auth_router
+from .routes.products  import router as products_router
+from .routes.deal      import router as deal_router
+from .routes.contracts import router as contracts_router
+from .routes.admin     import router as admin_router
+from .routes.user      import router as user_router
 
 app.include_router(auth_router,      prefix="/auth",     tags=["Auth"])
 app.include_router(products_router,  prefix="/products", tags=["Products"])

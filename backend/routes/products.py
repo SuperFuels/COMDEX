@@ -7,11 +7,11 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 
-from database import get_db
-from utils.auth import get_current_user
-from models.product import Product
-from models.user import User
-from schemas.product import ProductOut, ProductCreate
+from ..database import get_db
+from ..utils.auth import get_current_user
+from ..models.product import Product
+from ..models.user import User
+from ..schemas.product import ProductOut, ProductCreate
 
 router = APIRouter(tags=["Products"])
 logger = logging.getLogger(__name__)
@@ -22,7 +22,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/verify")
 @router.get("/me", response_model=List[ProductOut])
 def get_my_products(
     token: str = Depends(oauth2_scheme),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """
     Private: List products owned by the current user.
@@ -30,7 +30,6 @@ def get_my_products(
     user = get_current_user(token)
     products = db.query(Product).filter(Product.owner_email == user.email).all()
     for p in products:
-        # always produce a string
         p.owner_wallet_address = user.wallet_address or ""
     return products
 
@@ -117,7 +116,7 @@ def update_product(
     )
     if not p:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
-    
+
     for field, value in payload.dict().items():
         setattr(p, field, value)
 
@@ -147,7 +146,6 @@ def delete_product(
     )
     if not p:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
-        
+
     db.delete(p)
     db.commit()
-

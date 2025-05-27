@@ -4,12 +4,12 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from database import get_db
-from models.user import User
-from models.product import Product
-from models.deal import Deal
-from backend.schemas.admin import UserOut, ProductOut, DealOut
-from utils.auth import get_current_user
+from ..database import get_db
+from ..models.user import User
+from ..models.product import Product
+from ..models.deal import Deal
+from ..schemas.admin import UserOut, ProductOut, DealOut
+from ..utils.auth import get_current_user
 
 router = APIRouter(tags=["Admin"])  # prefix applied in main.py
 
@@ -51,4 +51,3 @@ def get_all_deals(
             detail="Not authorized",
         )
     return db.query(Deal).all()
-
