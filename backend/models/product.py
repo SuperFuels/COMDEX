@@ -18,7 +18,7 @@ class Product(Base):
     rating        = Column(Float,     nullable=False, default=0.0)
 
     # ─── relationships
-    owner = relationship("User",   back_populates="products")
+    owner = relationship("User", back_populates="products_owned")  # corrected back_populates to match User.products_owned
     deals = relationship(
         "Deal",
         back_populates="product",
