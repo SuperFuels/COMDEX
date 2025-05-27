@@ -55,7 +55,7 @@ allowed_origins = [o.strip() for o in raw.split(",") if o.strip()]
 if os.getenv("ENV", "").lower() != "production":
     allowed_origins.append("http://localhost:3000")
 
-# And your Firebase‐hosted front end
+# And your Firebase-hosted front end
 allowed_origins.append("https://swift-area-459514-d1.web.app")
 
 if not allowed_origins:
