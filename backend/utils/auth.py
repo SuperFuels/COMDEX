@@ -1,5 +1,3 @@
-# backend/utils/auth.py
-
 import os
 import time
 import secrets
@@ -11,6 +9,9 @@ from passlib.context import CryptContext
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
+
+from eth_account import Account
+from eth_account.messages import encode_defunct
 
 from database import get_db
 from models.user import User
@@ -76,6 +77,56 @@ def get_current_user(
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "User not found")
     return user
 
+def _parse_siwe_raw(message: str) -> dict:
+    """
+    Minimal parser for standard EIP-4361 message:
+    <domain> wants you to sign in with your Ethereum account:
+    <address>
+
+    <statement>
+
+    URI: <uri>
+    Version: <version>
+    Chain ID: <chain_id>
+    Nonce: <nonce>
+    Issued At: <issued_at>
+    """
+    lines = message.splitlines()
+    if len(lines) < 6:
+        raise ValueError("Message too short")
+
+    domain = lines[0].split(" wants you")[0].strip()
+    address = lines[1].strip().lower()
+
+    # grab first non-empty between address and URI:
+    statement = None
+    for ln in lines[2:]:
+        if ln.strip() and not ln.startswith("URI:"):
+            statement = ln.strip()
+            break
+    if not statement:
+        raise ValueError("Missing statement")
+
+    meta = {}
+    for ln in lines:
+        if ln.startswith("URI:"):
+            meta["uri"] = ln.split("URI:",1)[1].strip()
+        elif ln.startswith("Version:"):
+            meta["version"] = ln.split("Version:",1)[1].strip()
+        elif ln.startswith("Chain ID:"):
+            meta["chain_id"] = int(ln.split("Chain ID:",1)[1].strip())
+        elif ln.startswith("Nonce:"):
+            meta["nonce"] = ln.split("Nonce:",1)[1].strip()
+        elif ln.startswith("Issued At:"):
+            meta["issued_at"] = ln.split("Issued At:",1)[1].strip()
+
+    return {
+        "domain": domain,
+        "address": address,
+        "statement": statement,
+        **meta
+    }
+
 # ─── SIWE verification ────────────────────────────
 def verify_siwe(
     message: str,
@@ -83,39 +134,42 @@ def verify_siwe(
     db: Session
 ) -> Tuple[User, str]:
     """
-    1) Parse & validate EIP-4361 SIWE message from the exact raw string
-    2) Check signature & nonce
-    3) Lookup-or-create User
-    4) Return (User, JWT)
+    1) Parse & validate raw SIWE message text
+    2) Verify signature
+    3) Check nonce freshness
+    4) Lookup-or-create User
+    5) Return (User, JWT)
     """
-    from siwe import SiweMessage  # avoid circular import
-
-    # 1) parse the raw EIP-4361 text using the library helper
+    # 1) parse
     try:
-        siwe = SiweMessage.parse_message(message)
+        parsed = _parse_siwe_raw(message)
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Malformed SIWE message: {e}"
         )
 
-    # 2a) verify the Ethereum signature
-    if not siwe.verify(signature):
+    # 2) verify signature on the exact raw text
+    eth_msg = encode_defunct(text=message)
+    try:
+        recovered = Account.recover_message(eth_msg, signature=signature)
+    except Exception:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid SIWE signature")
+    if recovered.lower() != parsed["address"]:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Signature does not match address")
 
-    # 2b) check that the nonce is fresh
-    if not validate_nonce(siwe.nonce):
+    # 3) nonce
+    if not validate_nonce(parsed["nonce"]):
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Invalid or expired nonce")
 
-    # 3) lookup-or-create the User
-    address = siwe.address.lower()
-    user = db.query(User).filter_by(address=address).first()
+    # 4) user record
+    user = db.query(User).filter_by(address=parsed["address"]).first()
     if not user:
-        user = User(address=address, role="buyer")  # default to buyer
+        user = User(address=parsed["address"], role="buyer")
         db.add(user)
         db.commit()
         db.refresh(user)
 
-    # 4) mint a JWT for this user
+    # 5) mint JWT
     token = create_access_token(subject=user.id, role=user.role)
     return user, token
