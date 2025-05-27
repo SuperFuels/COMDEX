@@ -1,5 +1,3 @@
-// frontend/pages/login.tsx
-
 import React, { useState } from 'react'
 import { useRouter } from 'next/router'
 import api from '@/lib/api'
@@ -17,33 +15,27 @@ export default function LoginPage() {
     setError('')
 
     try {
-      // 1) Send credentials as URL-encoded form data
-      const params = new URLSearchParams({
-        email,
-        password,
-      })
+      // Send credentials as JSON
+      const payload = { email, password }
 
-      // 2) Hit /auth/login
+      // Hit /auth/login with JSON body
       const { data } = await api.post(
         '/auth/login',
-        params,
-        { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+        payload,
+        { headers: { 'Content-Type': 'application/json' } }
       )
 
-      // 3) Store and set the JWT on our axios instance
-      const token = data.access_token
+      // Store token and set Authorization header
+      const token = data.token
       localStorage.setItem('token', token)
       api.defaults.headers.common.Authorization = `Bearer ${token}`
 
-      // 4) Fetch the user’s role
-      const profileRes = await api.get<{ role: string }>('/auth/profile')
-      const role       = profileRes.data.role
-
-      // 5) Redirect based on role
+      // Redirect based on role returned by backend
+      const role = data.role
       if (role === 'admin') {
         router.push('/admin/dashboard')
       } else if (role === 'supplier') {
-        router.push('/dashboard')
+        router.push('/supplier/dashboard')
       } else if (role === 'buyer') {
         router.push('/buyer/dashboard')
       } else {
