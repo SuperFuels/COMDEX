@@ -22,7 +22,7 @@ class User(Base):
 
     # ─── Relationships ────────────────────────────────────────────────────────────
 
-    # A user can own many products
+    # Products owned by this supplier
     products_owned = relationship(
         "Product",
         back_populates="owner",
