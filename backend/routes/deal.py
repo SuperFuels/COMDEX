@@ -18,7 +18,10 @@ from ..models.user import User
 from ..schemas.deal import DealCreate, DealOut, DealStatusUpdate
 from ..utils.auth import get_current_user
 
-router = APIRouter(tags=["Deals"])
+router = APIRouter(
+    prefix="/deals",
+    tags=["Deals"],
+)
 logger = logging.getLogger(__name__)
 
 # ─── ABI Setup ────────────────────────────────────────────────────
@@ -106,6 +109,9 @@ def get_user_deals(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    """
+    List all deals where the current user is buyer or supplier.
+    """
     deals = (
         db.query(Deal)
           .filter(

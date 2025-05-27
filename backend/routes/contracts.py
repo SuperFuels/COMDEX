@@ -15,16 +15,26 @@ from ..models.user import User
 from ..schemas.contract import ContractCreate, ContractOut
 from ..utils.auth import get_current_user
 
-router = APIRouter(tags=["Contracts"])  # prefix applied in main.py
+router = APIRouter(
+    prefix="/contracts",
+    tags=["Contracts"],
+)
 
 
-@router.get("/", response_model=List[ContractOut], summary="List all contracts")
+@router.get("/", response_model=List[ContractOut], summary="List my contracts")
 def list_contracts(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """Return all contracts the current user can see."""
-    return db.query(Contract).all()
+    """
+    Return all contracts owned by the current user.
+    """
+    return (
+        db
+        .query(Contract)
+        .filter(Contract.owner_id == current_user.id)
+        .all()
+    )
 
 
 @router.post(
@@ -38,7 +48,10 @@ def generate_contract(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """Generate a draft contract via OpenAI and save it to the database."""
+    """
+    Generate a draft contract via OpenAI, save it, and associate it
+    with the current user.
+    """
     openai_key = os.getenv("OPENAI_API_KEY")
     if not openai_key:
         raise HTTPException(
@@ -52,7 +65,7 @@ def generate_contract(
             model="gpt-3.5-turbo",
             messages=[
                 {"role": "system", "content": "You are a legal contract drafting assistant."},
-                {"role": "user", "content": data.prompt},
+                {"role": "user",   "content": data.prompt},
             ],
             temperature=0.2,
         )
@@ -67,6 +80,7 @@ def generate_contract(
         prompt=data.prompt,
         generated_contract=f"<div>{generated_text}</div>",
         status="draft",
+        owner_id=current_user.id,            # ← associate with user
     )
     db.add(new_contract)
     db.commit()
@@ -80,8 +94,18 @@ def get_contract(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """Fetch a previously generated contract by ID."""
-    contract = db.query(Contract).filter(Contract.id == contract_id).first()
+    """
+    Fetch a single contract by ID, only if it belongs to the current user.
+    """
+    contract = (
+        db
+        .query(Contract)
+        .filter(
+            Contract.id == contract_id,
+            Contract.owner_id == current_user.id,
+        )
+        .first()
+    )
     if not contract:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -96,8 +120,19 @@ def download_contract_pdf(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """Render the generated_contract HTML as a PDF and stream it back."""
-    contract = db.query(Contract).filter(Contract.id == contract_id).first()
+    """
+    Render the generated_contract HTML as a PDF and stream it back,
+    only if the contract belongs to the current user.
+    """
+    contract = (
+        db
+        .query(Contract)
+        .filter(
+            Contract.id == contract_id,
+            Contract.owner_id == current_user.id,
+        )
+        .first()
+    )
     if not contract:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -110,7 +145,7 @@ def download_contract_pdf(
     except ImportError as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="WeasyPrint is not installed or depends on missing native libraries: " + str(e),
+            detail="WeasyPrint unavailable or missing native libs: " + str(e),
         )
 
     pdf_io = BytesIO()
@@ -120,6 +155,6 @@ def download_contract_pdf(
         pdf_io,
         media_type="application/pdf",
         headers={
-            "Content-Disposition": f"attachment; filename=contract_{contract_id}.pdf"
+            "Content-Disposition": f'attachment; filename="contract_{contract_id}.pdf"'
         },
     )

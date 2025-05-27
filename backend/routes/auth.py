@@ -23,20 +23,29 @@ class RegisterBody(BaseModel):
     password: str = Field(..., min_length=8)
     role: Literal["buyer", "supplier"]
     phone: Optional[str] = None
+
+    # supplier fields
     business_name: Optional[str] = None
     address: Optional[str] = None
     delivery_address: Optional[str] = None
     products: Optional[list[str]] = None
+
+    # buyer fields
     monthly_spend: Optional[str] = None
+
+    # optional wallet
     wallet_address: Optional[str] = None
+
 
 class LoginBody(BaseModel):
     email: EmailStr
     password: str = Field(..., min_length=8)
 
+
 class TokenRoleOut(BaseModel):
     token: str
     role: str
+
 
 class ProfileOut(BaseModel):
     id: int
@@ -46,9 +55,13 @@ class ProfileOut(BaseModel):
     wallet_address: Optional[str] = None
 
     class Config:
-        from_attributes = True
+        from_attributes = True  # Pydantic v2
+
+
+# ─── Router Setup ────────────────────────────────────────────────────────
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
+
 
 # ─── REGISTER ───────────────────────────────────────────────────────────
 
@@ -59,14 +72,16 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
 )
 def register(
     body: RegisterBody = Body(...),
-    db: Session     = Depends(get_db),
+    db: Session           = Depends(get_db),
 ):
+    # 1) Prevent duplicate email
     if db.query(User).filter_by(email=body.email).first():
         raise HTTPException(
             status.HTTP_400_BAD_REQUEST,
             "Email already registered"
         )
 
+    # 2) Normalize wallet if provided
     wallet = None
     if body.wallet_address:
         from web3 import Web3
@@ -78,6 +93,7 @@ def register(
                 "Invalid wallet address format"
             )
 
+    # 3) Build user
     user = User(
         name           = body.name,
         email          = body.email,
@@ -88,6 +104,7 @@ def register(
         created_at     = datetime.utcnow(),
     )
 
+    # 4) Role‐specific fields
     if body.role == "supplier":
         if not body.business_name or not body.products:
             raise HTTPException(
@@ -99,14 +116,17 @@ def register(
         user.delivery_address = body.delivery_address or ""
         user.products         = body.products
     else:
-        user.monthly_spend    = body.monthly_spend or ""
+        user.monthly_spend = body.monthly_spend or ""
 
+    # 5) Persist
     db.add(user)
     db.commit()
     db.refresh(user)
 
+    # 6) Issue JWT
     token = create_access_token(subject=user.id, role=user.role)
     return {"token": token, "role": user.role}
+
 
 # ─── LOGIN ──────────────────────────────────────────────────────────────
 
@@ -121,9 +141,9 @@ def login(
             status.HTTP_401_UNAUTHORIZED,
             "Invalid email or password"
         )
-
     token = create_access_token(subject=user.id, role=user.role)
     return {"token": token, "role": user.role}
+
 
 # ─── PROFILE ───────────────────────────────────────────────────────────
 
@@ -132,6 +152,6 @@ def profile(
     current_user: User = Depends(get_current_user),
 ):
     """
-    Returns the current user's basic info (including role).
+    Returns the logged-in user’s basic info (including role & wallet).
     """
     return current_user

@@ -23,6 +23,9 @@ def get_my_products(
     token: str = Depends(oauth2_scheme),
     db: Session = Depends(get_db),
 ):
+    """
+    Private: List products owned by the current user.
+    """
     user = get_current_user(token)
     products = db.query(Product).filter(Product.owner_id == user.id).all()
     for p in products:
@@ -32,6 +35,9 @@ def get_my_products(
 
 @router.get("/", response_model=List[ProductOut])
 def get_all_products(db: Session = Depends(get_db)):
+    """
+    Public: List all products.
+    """
     products = db.query(Product).all()
     for p in products:
         owner = db.query(User).get(p.owner_id)
@@ -41,6 +47,9 @@ def get_all_products(db: Session = Depends(get_db)):
 
 @router.get("/search", response_model=List[ProductOut])
 def search_products(query: str, db: Session = Depends(get_db)):
+    """
+    Public: Search products by name or description.
+    """
     products = (
         db.query(Product)
           .filter(
@@ -57,6 +66,9 @@ def search_products(query: str, db: Session = Depends(get_db)):
 
 @router.get("/{product_id}", response_model=ProductOut)
 def get_product_by_id(product_id: int, db: Session = Depends(get_db)):
+    """
+    Public: Get a product by its ID.
+    """
     p = db.query(Product).get(product_id)
     if not p:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
@@ -71,6 +83,9 @@ def create_product(
     current_user=Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    """
+    Private: Create a new product (authenticated user).
+    """
     new_product = Product(**payload.dict(), owner_id=current_user.id)
     db.add(new_product)
     db.commit()
@@ -87,6 +102,9 @@ def update_product(
     current_user=Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    """
+    Private: Update an existing product owned by the user.
+    """
     p = (
         db.query(Product)
           .filter(
@@ -114,6 +132,9 @@ def delete_product(
     current_user=Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    """
+    Private: Delete a product owned by the user.
+    """
     p = (
         db.query(Product)
           .filter(
