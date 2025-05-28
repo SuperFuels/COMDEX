@@ -19,9 +19,9 @@ from ..schemas.deal import DealCreate, DealOut, DealStatusUpdate
 from ..utils.auth import get_current_user
 
 router = APIRouter(
+    prefix="/deals",
     tags=["Deals"]
 )
-logger = logging.getLogger(__name__)
 
 # ─── ABI Setup ────────────────────────────────────────────────────
 ABI_PATH = os.path.join(os.path.dirname(__file__), "../abi/GLUEscrow.json")
