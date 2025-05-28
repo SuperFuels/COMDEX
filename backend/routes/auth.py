@@ -60,7 +60,7 @@ class ProfileOut(BaseModel):
 
 # ─── Router Setup ────────────────────────────────────────────────────────
 
-router = APIRouter(prefix="/auth", tags=["Auth"])
+router = APIRouter(tags=["Auth"])
 
 
 # ─── REGISTER ───────────────────────────────────────────────────────────
