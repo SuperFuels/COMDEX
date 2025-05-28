@@ -13,7 +13,7 @@ from ..models.product import Product
 from ..models.user import User
 from ..schemas.product import ProductOut, ProductCreate
 
-router = APIRouter(prefix="/products", tags=["Products"])
+router = APIRouter(tags=["Products"])
 logger = logging.getLogger(__name__)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 

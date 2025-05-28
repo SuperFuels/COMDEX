@@ -9,7 +9,6 @@ from ..schemas.user import WalletUpdate, UserOut
 from ..utils.auth import get_current_user
 
 router = APIRouter(
-    prefix="/users",
     tags=["Users"]
 )
 
