@@ -1,4 +1,3 @@
-# backend/utils/auth.py
 import os
 import time
 import secrets
@@ -81,4 +80,37 @@ def get_current_user(
         )
     return user
 
-# ─── SIWE message parsing & verification ────────
+# ─── SIWE parsing & verification ──────────────────
+def verify_siwe(
+    message: str,
+    signature: str,
+    db: Session = Depends(get_db)
+) -> Tuple[User, str]:
+    """
+    Validate a SIWE message + signature. Auto-provision a 'buyer' user
+    if wallet_address not in DB. Returns (user, jwt_token).
+    """
+    # 1) parse & recover address
+    msg = encode_defunct(text=message)
+    signer = Account.recover_message(msg, signature=signature).lower()
+
+    # (optional) here you could unpack a structured SIWE JSON and validate domain, nonce, etc.
+
+    # 2) lookup or create user
+    user = db.query(User).filter_by(wallet_address=signer).first()
+    if not user:
+        user = User(
+            name=f"{signer[:6]}…",        # placeholder
+            email="",
+            password_hash="",
+            role="buyer",
+            wallet_address=signer,
+            created_at=datetime.utcnow(),
+        )
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+
+    # 3) issue JWT
+    token = create_access_token(subject=user.id, role=user.role)
+    return user, token

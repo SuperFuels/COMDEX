@@ -28,5 +28,5 @@ COPY backend/ ./backend
 ENV PYTHONPATH=/srv/backend
 
 # ─── 5) Expose port & start server ──────────────────────────
-EXPOSE $PORT
+EXPOSE 8080
 CMD ["sh", "-c", "exec uvicorn backend.main:app --host 0.0.0.0 --port $PORT --proxy-headers"]
