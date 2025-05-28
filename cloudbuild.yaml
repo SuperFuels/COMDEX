@@ -47,7 +47,7 @@ steps:
         '--add-cloudsql-instances=swift-area-459514-d1:us-central1:comdex-db',
         '--vpc-connector=comdex-connector',
         '--vpc-egress=private-ranges-only',
-        '--env-vars-file=env.yaml',
+        '--env-vars-file=cloudrun-env.yaml',
         '--timeout=300s',
         '--port=8080'
       ]
