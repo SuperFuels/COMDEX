@@ -12,6 +12,7 @@ from ..schemas.admin import UserOut, ProductOut, DealOut
 from ..utils.auth import get_current_user
 
 router = APIRouter(
+    prefix="/admin",
     tags=["Admin"]
 )
 def _ensure_admin(user: User):
