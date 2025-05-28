@@ -76,17 +76,23 @@ def get_current_user(
         )
     user = db.get(User, user_id)
     if not user:
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "User not found")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found",
+        )
     return user
+
+# ─── SIWE message parsing & verification ────────
 
 def _parse_siwe_raw(message: str) -> dict:
     lines = message.splitlines()
     if len(lines) < 6:
         raise ValueError("Message too short")
 
-    domain = lines[0].split(" wants you")[0].strip()
+    domain  = lines[0].split(" wants you")[0].strip()
     address = lines[1].strip().lower()
 
+    # find the first non-empty statement line (skip URI:)
     statement = None
     for ln in lines[2:]:
         if ln.strip() and not ln.startswith("URI:"):
@@ -134,13 +140,22 @@ def verify_siwe(
     try:
         recovered = Account.recover_message(eth_msg, signature=signature)
     except Exception:
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid SIWE signature")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid SIWE signature"
+        )
     if recovered.lower() != parsed["address"]:
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Signature does not match address")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Signature does not match address"
+        )
 
     # 3) validate nonce
     if not validate_nonce(parsed["nonce"]):
-        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Invalid or expired nonce")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid or expired nonce"
+        )
 
     # 4) lookup-or-create user by wallet_address
     user = db.query(User).filter_by(wallet_address=parsed["address"]).first()

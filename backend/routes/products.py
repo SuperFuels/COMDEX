@@ -13,7 +13,10 @@ from ..models.product import Product
 from ..models.user import User
 from ..schemas.product import ProductOut, ProductCreate
 
-router = APIRouter(tags=["Products"])
+router = APIRouter(
+    prefix="/products",
+    tags=["Products"],
+)
 logger = logging.getLogger(__name__)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
@@ -71,7 +74,10 @@ def get_product_by_id(product_id: int, db: Session = Depends(get_db)):
     """
     p = db.query(Product).get(product_id)
     if not p:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Product not found"
+        )
     owner = db.query(User).get(p.owner_id)
     p.owner_wallet_address = owner.wallet_address or "" if owner else ""
     return p
@@ -114,7 +120,10 @@ def update_product(
           .first()
     )
     if not p:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Product not found"
+        )
 
     for field, value in payload.dict().items():
         setattr(p, field, value)
@@ -144,7 +153,10 @@ def delete_product(
           .first()
     )
     if not p:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Product not found"
+        )
 
     db.delete(p)
     db.commit()
