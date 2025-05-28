@@ -66,7 +66,3 @@ git push origin main --force
 
 cd ..
 
-npm --prefix frontend ci
-npm --prefix frontend run build
-npm --prefix frontend run export
-firebase deploy --only hosting
