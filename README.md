@@ -64,5 +64,11 @@ git commit -m "Bring main back to dd80390 + re-apply local fixes (Dockerfile, .d
 git push origin main --force
 
 
+# 1. Build your Next.js frontend
+cd frontend
+npm install
+npm run build
 cd ..
+# 2. Deploy only the hosting portion to Firebase
+firebase deploy --only hosting
 
