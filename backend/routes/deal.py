@@ -19,8 +19,7 @@ from ..schemas.deal import DealCreate, DealOut, DealStatusUpdate
 from ..utils.auth import get_current_user
 
 router = APIRouter(
-    prefix="/deals",
-    tags=["Deals"],
+    tags=["Deals"]
 )
 logger = logging.getLogger(__name__)
 
