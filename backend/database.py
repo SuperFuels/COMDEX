@@ -1,22 +1,33 @@
 import os
+import logging
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 from sqlalchemy.pool import NullPool
 
-from .config import SQLALCHEMY_DATABASE_URL
+# Pull from ENV first; then from your config module; else default to SQLite
+DATABASE_URL = os.getenv(
+    "DATABASE_URL",
+    os.getenv("SQLALCHEMY_DATABASE_URL", "sqlite:///./dev.db")
+)
+
+# Log which database URL we’re actually using
+logging.basicConfig(level=logging.INFO)
+logging.info(f"🔍 SQLALCHEMY_DATABASE_URL = {DATABASE_URL}")
 
 # If using SQLite, disable the same-thread check
 connect_args = {}
-if SQLALCHEMY_DATABASE_URL.startswith("sqlite"):
+if DATABASE_URL.startswith("sqlite"):
     connect_args["check_same_thread"] = False
 
 # 1) Engine & session factory
 engine = create_engine(
-    SQLALCHEMY_DATABASE_URL,
+    DATABASE_URL,
     connect_args=connect_args,
-    poolclass=NullPool,
-    pool_pre_ping=True,
+    poolclass=NullPool,     # no connection pooling on Cloud Run
+    pool_pre_ping=True,     # detect stale connections
 )
+
 SessionLocal = sessionmaker(
     autocommit=False,
     autoflush=False,
