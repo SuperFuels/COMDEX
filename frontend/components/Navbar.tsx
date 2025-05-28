@@ -23,50 +23,46 @@ export default function Navbar() {
       setRole(newRole as UserRole)
     } catch (err: any) {
       console.error('SIWE login failed', err)
-      if (err.response?.status === 404) {
-        router.push('/register')
-      }
+      if (err.response?.status === 404) router.push('/register')
     }
   }, [router])
 
-  // Manual logout for both SIWE and email/password flows
+  // Manual logout
   const handleDisconnect = useCallback(() => {
     localStorage.setItem('manualDisconnect', 'true')
-    logout() // clears token + reloads page
+    logout()
     setAccount(null)
     setRole(null)
     setDropdownOpen(false)
     router.push('/')
   }, [router])
 
+  // Hydrate email/password JWT and/or wallet
   useEffect(() => {
     const eth = (window as any).ethereum
-    // 1) hydrate from existing JWT (email/password login)
+
+    // 1) JWT login
     const token = localStorage.getItem('token')
     if (token) {
       api.defaults.headers.common.Authorization = `Bearer ${token}`
-      api
-        .get<{ role: UserRole }>('/auth/profile')
-        .then(res => setRole(res.data.role))
-        .catch(() => {
-          // invalid token
-          localStorage.removeItem('token')
-          delete api.defaults.headers.common.Authorization
-        })
+      api.get<{ role: UserRole }>('/auth/profile')
+         .then(res => setRole(res.data.role))
+         .catch(() => {
+           localStorage.removeItem('token')
+           delete api.defaults.headers.common.Authorization
+         })
     }
 
-    // 2) auto‐detect already‐connected wallet unless manually disconnected
+    // 2) Wallet auto-reconnect
     if (eth) {
       const manuallyDisconnected = localStorage.getItem('manualDisconnect') === 'true'
       if (!manuallyDisconnected) {
-        ;(eth.request({ method: 'eth_accounts' }) as Promise<string[]>)
-          .then(accounts => {
-            if (accounts.length) setAccount(accounts[0])
-          })
-          .catch(console.error)
+        eth.request({ method: 'eth_accounts' })
+           .then((accounts: string[]) => accounts[0] && setAccount(accounts[0]))
+           .catch(console.error)
       }
 
-      // 3) react to wallet disconnect
+      // 3) handle wallet changes
       const onAccountsChanged = (accounts: string[]) => {
         if (accounts.length === 0) {
           handleDisconnect()
@@ -79,14 +75,10 @@ export default function Navbar() {
     }
   }, [handleDisconnect])
 
-  // close profile dropdown on outside click
+  // close dropdown on outside click
   useEffect(() => {
     function onClick(e: MouseEvent) {
-      if (
-        dropdownOpen &&
-        wrapperRef.current &&
-        !wrapperRef.current.contains(e.target as Node)
-      ) {
+      if (dropdownOpen && wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
         setDropdownOpen(false)
       }
     }
@@ -98,33 +90,29 @@ export default function Navbar() {
     ? `${account.slice(0, 6)}…${account.slice(-4)}`
     : ''
 
+  // determine /<role>/dashboard path
+  const dashboardPath = role === 'admin'
+    ? '/admin/dashboard'
+    : role === 'supplier'
+      ? '/supplier/dashboard'
+      : role === 'buyer'
+        ? '/buyer/dashboard'
+        : undefined
+
   return (
     <header className="sticky top-0 bg-white border-b z-50">
       <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-4">
         {/* Logo */}
         <Link href="/" className="flex items-center">
-          <Image
-            src="/stickey.png"
-            width={144}
-            height={48}
-            alt="Logo"
-            priority
-          />
+          <Image src="/stickey.png" width={144} height={48} alt="Logo" priority />
         </Link>
-
-        {/* If we have a known role, show badge */}
-        {role && (
-          <span className="text-sm px-2 py-1 bg-gray-100 rounded">
-            Role: {role}
-          </span>
-        )}
 
         <div className="flex items-center space-x-6">
           <Link href="/" className="text-gray-700 hover:underline">
             Marketplace
           </Link>
 
-          {/* Show Register + Login when completely unauthenticated */}
+          {/* Unauthenticated */}
           {!account && !role && (
             <>
               <Link href="/register" className="text-gray-700 hover:underline">
@@ -136,24 +124,14 @@ export default function Navbar() {
             </>
           )}
 
-          {/* Dashboard links based on role */}
-          {role === 'supplier' && (
-            <Link href="/dashboard" className="text-gray-700 hover:underline">
-              Supplier Dashboard
-            </Link>
-          )}
-          {role === 'buyer' && (
-            <Link href="/buyer/dashboard" className="text-gray-700 hover:underline">
-              Buyer Dashboard
-            </Link>
-          )}
-          {role === 'admin' && (
-            <Link href="/admin/dashboard" className="text-gray-700 hover:underline">
-              Admin Dashboard
+          {/* Role‐based dashboard link */}
+          {dashboardPath && (
+            <Link href={dashboardPath} className="text-gray-700 hover:underline">
+              {role!.charAt(0).toUpperCase() + role!.slice(1)} Dashboard
             </Link>
           )}
 
-          {/* Connect Wallet / Account menu */}
+          {/* Wallet connect / account menu */}
           {!account ? (
             <button
               onClick={handleConnect}
