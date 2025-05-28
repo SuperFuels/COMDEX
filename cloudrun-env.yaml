@@ -1,6 +1,10 @@
 # cloudrun-env.yaml
 # -----------------
 
+# 0) Standard DATABASE_URL for Twelve-Factor compatibility
+- name: DATABASE_URL
+  value: "postgresql+psycopg2://comdex:Wn8smx123@/comdex?host=/cloudsql/swift-area-459514-d1:us-central1:comdex-db"
+
 # 1) Tell your app it's in production mode
 - name: ENV
   value: "production"
@@ -15,7 +19,7 @@
 - name: INSTANCE_CONNECTION_NAME
   value: "swift-area-459514-d1:us-central1:comdex-db"
 
-# 3) SQLAlchemy URL pointing at the socket (optional override)
+# 3) SQLAlchemy URL (your code reads SQLALCHEMY_DATABASE_URL)
 - name: SQLALCHEMY_DATABASE_URL
   value: "postgresql+psycopg2://comdex:Wn8smx123@/comdex?host=/cloudsql/swift-area-459514-d1:us-central1:comdex-db"
 
