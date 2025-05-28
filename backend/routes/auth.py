@@ -93,17 +93,16 @@ def get_siwe_nonce(
 )
 def register(
     body: RegisterBody = Body(...),
-    db: Session           = Depends(get_db),
+    db: Session       = Depends(get_db),
 ):
-    # ... existing register logic unchanged ...
-    # Prevent duplicate email
+    # 1) Prevent duplicate email
     if db.query(User).filter_by(email=body.email).first():
         raise HTTPException(
             status.HTTP_400_BAD_REQUEST,
             "Email already registered"
         )
 
-    # Normalize wallet if provided
+    # 2) Normalize wallet if provided
     wallet = None
     if body.wallet_address:
         from web3 import Web3
@@ -115,7 +114,7 @@ def register(
                 "Invalid wallet address format"
             )
 
-    # Create user
+    # 3) Create user record
     user = User(
         name           = body.name,
         email          = body.email,
@@ -126,7 +125,7 @@ def register(
         created_at     = datetime.utcnow(),
     )
 
-    # Role-specific fields
+    # 4) Apply role‐specific fields
     if body.role == "supplier":
         if not body.business_name or not body.products:
             raise HTTPException(
@@ -140,12 +139,12 @@ def register(
     else:
         user.monthly_spend = body.monthly_spend or ""
 
-    # Persist
+    # 5) Persist to DB
     db.add(user)
     db.commit()
     db.refresh(user)
 
-    # Issue JWT
+    # 6) Issue JWT
     token = create_access_token(subject=user.id, role=user.role)
     return {"token": token, "role": user.role}
 
@@ -172,6 +171,10 @@ def siwe_login(
     body: SIWELogin = Body(...),
     db: Session     = Depends(get_db),
 ):
+    """
+    Verify a SIWE message+signature, auto-create user if needed,
+    and return JWT.
+    """
     user, token = verify_siwe(body.message, body.signature, db)
     return {"token": token, "role": user.role}
 
