@@ -1,6 +1,6 @@
 # backend/routes/auth.py
 
-from fastapi import APIRouter, Depends, HTTPException, Body, status
+from fastapi import APIRouter, Depends, HTTPException, Body, status, Query
 from typing import Literal, Optional
 from pydantic import BaseModel, EmailStr, Field
 from datetime import datetime
@@ -13,6 +13,8 @@ from ..utils.auth import (
     create_access_token,
     verify_password,
     get_current_user,
+    generate_nonce,
+    verify_siwe,
 )
 
 # ─── Schemas ────────────────────────────────────────────────────────────
@@ -42,6 +44,11 @@ class LoginBody(BaseModel):
     password: str = Field(..., min_length=8)
 
 
+class SIWELogin(BaseModel):
+    message: str
+    signature: str
+
+
 class TokenRoleOut(BaseModel):
     token: str
     role: str
@@ -65,6 +72,18 @@ router = APIRouter(
     tags=["Auth"]
 )
 
+# ─── NONCE for SIWE ──────────────────────────────────────────────────────
+
+@router.get("/nonce")
+def get_siwe_nonce(
+    address: str = Query(..., description="Wallet address to generate nonce for")
+) -> dict:
+    """
+    Returns a one-time nonce for SIWE authentication.
+    """
+    nonce = generate_nonce()
+    return {"nonce": nonce}
+
 # ─── REGISTER ───────────────────────────────────────────────────────────
 
 @router.post(
@@ -76,14 +95,15 @@ def register(
     body: RegisterBody = Body(...),
     db: Session           = Depends(get_db),
 ):
-    # 1) Prevent duplicate email
+    # ... existing register logic unchanged ...
+    # Prevent duplicate email
     if db.query(User).filter_by(email=body.email).first():
         raise HTTPException(
             status.HTTP_400_BAD_REQUEST,
             "Email already registered"
         )
 
-    # 2) Normalize wallet if provided
+    # Normalize wallet if provided
     wallet = None
     if body.wallet_address:
         from web3 import Web3
@@ -95,7 +115,7 @@ def register(
                 "Invalid wallet address format"
             )
 
-    # 3) Build user
+    # Create user
     user = User(
         name           = body.name,
         email          = body.email,
@@ -106,7 +126,7 @@ def register(
         created_at     = datetime.utcnow(),
     )
 
-    # 4) Role‐specific fields
+    # Role-specific fields
     if body.role == "supplier":
         if not body.business_name or not body.products:
             raise HTTPException(
@@ -120,17 +140,16 @@ def register(
     else:
         user.monthly_spend = body.monthly_spend or ""
 
-    # 5) Persist
+    # Persist
     db.add(user)
     db.commit()
     db.refresh(user)
 
-    # 6) Issue JWT
+    # Issue JWT
     token = create_access_token(subject=user.id, role=user.role)
     return {"token": token, "role": user.role}
 
-
-# ─── LOGIN ──────────────────────────────────────────────────────────────
+# ─── LOGIN (email/password) ─────────────────────────────────────────────
 
 @router.post("/login", response_model=TokenRoleOut)
 def login(
@@ -146,8 +165,17 @@ def login(
     token = create_access_token(subject=user.id, role=user.role)
     return {"token": token, "role": user.role}
 
+# ─── LOGIN SIWE (wallet) ─────────────────────────────────────────────────
 
-# ─── PROFILE ───────────────────────────────────────────────────────────
+@router.post("/siwe", response_model=TokenRoleOut)
+def siwe_login(
+    body: SIWELogin = Body(...),
+    db: Session     = Depends(get_db),
+):
+    user, token = verify_siwe(body.message, body.signature, db)
+    return {"token": token, "role": user.role}
+
+# ─── PROFILE ────────────────────────────────────────────────────────────
 
 @router.get("/profile", response_model=ProfileOut)
 def profile(
