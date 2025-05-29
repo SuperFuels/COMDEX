@@ -1,5 +1,4 @@
 // frontend/pages/register.tsx
-
 import { useState, FormEvent } from 'react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
@@ -34,16 +33,15 @@ export default function RegisterPage() {
   const [email, setEmail]                 = useState('')
   const [password, setPassword]           = useState('')
   const [confirm, setConfirm]             = useState('')
-  const [phone, setPhone]                 = useState('')
   const [role, setRole]                   = useState<Role>('buyer')
   const [walletAddress, setWalletAddress] = useState<string | null>(null)
 
   // ─── Step 2 fields ─────────────────────────────────────────────
-  const [businessName, setBusinessName]     = useState('')
-  const [address, setAddress]               = useState('')
+  const [businessName, setBusinessName]       = useState('')
+  const [address, setAddress]                 = useState('')
   const [deliveryAddress, setDeliveryAddress] = useState('')
-  const [products, setProducts]             = useState<ProductOption[]>([])
-  const [monthlySpend, setMonthlySpend]     = useState('')
+  const [products, setProducts]               = useState<ProductOption[]>([])
+  const [monthlySpend, setMonthlySpend]       = useState('')
 
   // 1) Connect wallet (pure client-side)
   const handleConnectWallet = async () => {
@@ -94,16 +92,15 @@ export default function RegisterPage() {
 
     try {
       const payload: any = {
-        name:             fullName,
+        name:           fullName,
         email,
         password,
-        phone,
         role,
-        wallet_address:   walletAddress,
-        business_name:    businessName,
+        wallet_address: walletAddress,
+        business_name:  businessName,
         address,
         delivery_address: deliveryAddress,
-        products:         products.map((p) => p.value),
+        products:       products.map((p) => p.value),
       }
       if (role === 'buyer') {
         payload.monthly_spend = monthlySpend
@@ -186,19 +183,6 @@ export default function RegisterPage() {
                 />
               </div>
 
-              {/* Phone */}
-              <div>
-                <label className="block font-medium mb-1">
-                  Phone Number
-                </label>
-                <input
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  className="w-full border rounded px-3 py-2 focus:outline-none focus:ring"
-                />
-              </div>
-
               {/* Role */}
               <div>
                 <label className="block font-medium mb-1">I am a</label>
@@ -222,9 +206,7 @@ export default function RegisterPage() {
                   }`}
                 >
                   {walletAddress
-                    ? `Connected: ${walletAddress.slice(0, 6)}…${walletAddress.slice(
-                        -4
-                      )}`
+                    ? `Connected: ${walletAddress.slice(0, 6)}…${walletAddress.slice(-4)}`
                     : 'Connect Wallet'}
                 </button>
               </div>
