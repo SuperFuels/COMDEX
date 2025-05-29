@@ -87,7 +87,12 @@ def update_product(
     """
     Update an existing product belonging to the current supplier.
     """
-    product = db.query(Product).filter_by(id=product_id, owner_email=current_user.email).first()
+    product = (
+        db
+        .query(Product)
+        .filter_by(id=product_id, owner_email=current_user.email)
+        .first()
+    )
     if not product:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
     for field, value in product_in.dict(exclude_unset=True).items():
@@ -107,7 +112,12 @@ def delete_product(
     """
     Delete a product owned by the current supplier.
     """
-    product = db.query(Product).filter_by(id=product_id, owner_email=current_user.email).first()
+    product = (
+        db
+        .query(Product)
+        .filter_by(id=product_id, owner_email=current_user.email)
+        .first()
+    )
     if not product:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
     db.delete(product)
