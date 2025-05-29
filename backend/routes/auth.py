@@ -23,17 +23,6 @@ class RegisterBody(BaseModel):
     email: EmailStr
     password: str = Field(..., min_length=8)
     role: Literal["buyer", "supplier"]
-
-    # supplier-only fields
-    business_name: Optional[str] = None
-    address: Optional[str] = None
-    delivery_address: Optional[str] = None
-    products: Optional[list[str]] = None
-
-    # buyer-only field
-    monthly_spend: Optional[str] = None
-
-    # optional wallet
     wallet_address: Optional[str] = None
 
 class LoginBody(BaseModel):
@@ -56,28 +45,18 @@ class ProfileOut(BaseModel):
     wallet_address: Optional[str] = None
 
     class Config:
-        from_attributes = True  # Pydantic v2
+        from_attributes = True
 
 # ─── Router Setup ────────────────────────────────────────────────────────
 
-router = APIRouter(
-    prefix="/auth",
-    tags=["Auth"]
-)
-
-# ─── NONCE for SIWE ──────────────────────────────────────────────────────
+router = APIRouter(prefix="/auth", tags=["Auth"])
 
 @router.get("/nonce")
 def get_siwe_nonce(
     address: str = Query(..., description="Wallet address to generate nonce for")
 ) -> dict:
-    """
-    Returns a one-time nonce for SIWE authentication.
-    """
     nonce = generate_nonce()
     return {"nonce": nonce}
-
-# ─── REGISTER ───────────────────────────────────────────────────────────
 
 @router.post(
     "/register",
@@ -90,10 +69,7 @@ def register(
 ):
     # Prevent duplicate email
     if db.query(User).filter_by(email=body.email).first():
-        raise HTTPException(
-            status.HTTP_400_BAD_REQUEST,
-            "Email already registered"
-        )
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Email already registered")
 
     # Normalize wallet if provided
     wallet = None
@@ -102,10 +78,7 @@ def register(
         try:
             wallet = Web3.to_checksum_address(body.wallet_address)
         except Exception:
-            raise HTTPException(
-                status.HTTP_400_BAD_REQUEST,
-                "Invalid wallet address format"
-            )
+            raise HTTPException(status.HTTP_400_BAD_REQUEST, "Invalid wallet address format")
 
     # Create user record
     user = User(
@@ -117,30 +90,12 @@ def register(
         created_at=datetime.utcnow(),
     )
 
-    # Apply role-specific fields
-    if body.role == "supplier":
-        if not body.business_name or not body.products:
-            raise HTTPException(
-                status.HTTP_400_BAD_REQUEST,
-                "Suppliers must provide business_name and products"
-            )
-        user.business_name = body.business_name
-        user.address = body.address or ""
-        user.delivery_address = body.delivery_address or ""
-        user.products = body.products
-    else:
-        user.monthly_spend = body.monthly_spend or ""
-
-    # Persist to DB
     db.add(user)
     db.commit()
     db.refresh(user)
 
-    # Issue JWT
     token = create_access_token(subject=user.id, role=user.role)
     return {"token": token, "role": user.role}
-
-# ─── LOGIN (email/password) ─────────────────────────────────────────────
 
 @router.post("/login", response_model=TokenRoleOut)
 def login(
@@ -149,33 +104,20 @@ def login(
 ):
     user = db.query(User).filter_by(email=body.email).first()
     if not user or not verify_password(body.password, user.password_hash):
-        raise HTTPException(
-            status.HTTP_401_UNAUTHORIZED,
-            "Invalid email or password"
-        )
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid email or password")
     token = create_access_token(subject=user.id, role=user.role)
     return {"token": token, "role": user.role}
 
-# ─── SIWE LOGIN ──────────────────────────────────────────────────────────
-
 @router.post("/siwe", response_model=TokenRoleOut)
 def siwe_login(
-    body: SIWELogin = Body(...),
+    body: SIWELOGIN = Body(...),
     db: Session = Depends(get_db),
 ):
-    """
-    Verify SIWE message+signature, auto-create user if needed, and return JWT.
-    """
     user, token = verify_siwe(body.message, body.signature, db)
     return {"token": token, "role": user.role}
-
-# ─── PROFILE ────────────────────────────────────────────────────────────
 
 @router.get("/profile", response_model=ProfileOut)
 def profile(
     current_user: User = Depends(get_current_user),
 ):
-    """
-    Returns the logged-in user’s basic info (including role & wallet).
-    """
     return current_user
