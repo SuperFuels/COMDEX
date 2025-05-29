@@ -12,7 +12,6 @@ class User(Base):
     password_hash    = Column(String,    nullable=False)
     wallet_address   = Column(String,    unique=True, index=True, nullable=True)
     role             = Column(String,    nullable=False, default="buyer")  # buyer or supplier
-    phone            = Column(String,    nullable=True)
     business_name    = Column(String,    nullable=True)  # supplier only
     address          = Column(String,    nullable=True)  # supplier only
     delivery_address = Column(String,    nullable=True)  # supplier only
