@@ -1,6 +1,6 @@
-COMDEX Project Summary (Updated — 2025-04-30)
+Stickey Ai Project Summary (Updated — 2025-04-30)
 🌍 Overview
-COMDEX is a next-gen global commodity trading platform built for trust, automation, and transparency — combining AI, blockchain, and crypto-native features to reshape how global B2B trade happens.
+Stickey Ai is a next-gen global commodity trading platform built for trust, automation, and transparency — combining AI, blockchain, and crypto-native features to reshape how global B2B trade happens.
 
 🔹 Business Plan
 🎯 Mission
