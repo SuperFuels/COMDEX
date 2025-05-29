@@ -17,7 +17,6 @@ from ..utils.auth import (
 )
 
 # ─── Schemas ────────────────────────────────────────────────────────────
-
 class RegisterBody(BaseModel):
     name: str = Field(..., min_length=1)
     email: EmailStr
@@ -29,7 +28,7 @@ class LoginBody(BaseModel):
     email: EmailStr
     password: str = Field(..., min_length=8)
 
-class SIWELogin(BaseModel):
+class SIWELogin(BaseModel):  # corrected class name
     message: str
     signature: str
 
@@ -48,7 +47,6 @@ class ProfileOut(BaseModel):
         from_attributes = True
 
 # ─── Router Setup ────────────────────────────────────────────────────────
-
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
 @router.get("/nonce")
@@ -110,7 +108,7 @@ def login(
 
 @router.post("/siwe", response_model=TokenRoleOut)
 def siwe_login(
-    body: SIWELOGIN = Body(...),
+    body: SIWELogin = Body(...),  # fixed reference
     db: Session = Depends(get_db),
 ):
     user, token = verify_siwe(body.message, body.signature, db)
