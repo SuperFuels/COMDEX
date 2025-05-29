@@ -18,6 +18,7 @@ class User(Base):
     products         = Column(JSON,      nullable=True)  # list of product slugs for supplier
     monthly_spend    = Column(String,    nullable=True)  # buyer only
     created_at       = Column(DateTime,  nullable=False, default=datetime.utcnow)
+    updated_at       = Column(DateTime,  nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # ─── Relationships ────────────────────────────────────────────────────────────
 
