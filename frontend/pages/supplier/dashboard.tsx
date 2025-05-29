@@ -24,8 +24,19 @@ export default function SupplierDashboard() {
 
   useEffect(() => {
     const fetchMyProducts = async () => {
+      setLoading(true)
       try {
-        const res = await api.get<Product[]>('/products/me')
+        // grab the JWT out of localStorage (or wherever you saved it)
+        const token = localStorage.getItem('token')
+        if (!token) {
+          throw new Error('Not authenticated')
+        }
+
+        // attach it to your axios instance for this call
+        const res = await api.get<Product[]>('/products/me', {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+
         setProducts(res.data)
       } catch (err) {
         console.error('❌ Failed to fetch products', err)
@@ -34,17 +45,18 @@ export default function SupplierDashboard() {
         setLoading(false)
       }
     }
+
     fetchMyProducts()
   }, [])
 
   // Stub metrics
   const totalSalesToday = 0
-  const activeListings = products.length
-  const stock = 0
-  const capacity = 0
-  const openOrders = 0
-  const proceeds30d = 0
-  const feedbackRating = 0
+  const activeListings    = products.length
+  const stock             = 0
+  const capacity          = 0
+  const openOrders        = 0
+  const proceeds30d       = 0
+  const feedbackRating    = 0
 
   if (loading) {
     return (
@@ -67,52 +79,12 @@ export default function SupplierDashboard() {
       <main className="p-6 max-w-7xl mx-auto space-y-8">
         {/* Metrics cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
-          <div className="bg-white shadow rounded p-4">
-            <p className="text-sm text-gray-500">My business</p>
-            <p className="text-2xl font-bold">£{totalSalesToday}</p>
-            <p className="text-xs text-gray-400">Today's sales</p>
-          </div>
-          <div className="bg-white shadow rounded p-4">
-            <p className="text-sm text-gray-500">Products</p>
-            <p className="text-2xl font-bold">{activeListings}</p>
-            <p className="text-xs text-gray-400">Active listings</p>
-          </div>
-          <div className="bg-white shadow rounded p-4">
-            <p className="text-sm text-gray-500">Inventory</p>
-            <p className="text-2xl font-bold">{stock}/{capacity}</p>
-            <p className="text-xs text-gray-400">Stock / capacity</p>
-          </div>
-          <div className="bg-white shadow rounded p-4">
-            <p className="text-sm text-gray-500">Orders</p>
-            <p className="text-2xl font-bold">{openOrders}</p>
-            <p className="text-xs text-gray-400">Open orders</p>
-          </div>
-          <div className="bg-white shadow rounded p-4">
-            <p className="text-sm text-gray-500">Payments</p>
-            <p className="text-2xl font-bold">£{proceeds30d}</p>
-            <p className="text-xs text-gray-400">Proceeds (30d)</p>
-          </div>
-          <div className="bg-white shadow rounded p-4">
-            <p className="text-sm text-gray-500">Customers</p>
-            <p className="text-2xl font-bold">{feedbackRating}</p>
-            <p className="text-xs text-gray-400">Feedback rating</p>
-          </div>
+          {/* ... your existing metric cards ... */}
         </div>
 
         {/* Charts section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-white shadow rounded p-4">
-            <h2 className="text-lg font-semibold mb-2">Sales Over Time</h2>
-            <div className="h-48 bg-gray-100 flex items-center justify-center text-gray-400">
-              Chart placeholder
-            </div>
-          </div>
-          <div className="bg-white shadow rounded p-4">
-            <h2 className="text-lg font-semibold mb-2">Orders Over Time</h2>
-            <div className="h-48 bg-gray-100 flex items-center justify-center text-gray-400">
-              Chart placeholder
-            </div>
-          </div>
+          {/* ... chart placeholders ... */}
         </div>
 
         {/* My Listings Table */}
@@ -162,4 +134,3 @@ export default function SupplierDashboard() {
     </div>
   )
 }
-

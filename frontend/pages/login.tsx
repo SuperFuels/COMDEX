@@ -1,3 +1,5 @@
+// frontend/pages/login.tsx
+
 import React, { useState } from 'react'
 import { useRouter } from 'next/router'
 import api from '@/lib/api'
@@ -25,7 +27,7 @@ export default function LoginPage() {
         { headers: { 'Content-Type': 'application/json' } }
       )
 
-      // Store token and set Authorization header
+      // Store token and set Authorization header on axios
       const token = data.token
       localStorage.setItem('token', token)
       api.defaults.headers.common.Authorization = `Bearer ${token}`
