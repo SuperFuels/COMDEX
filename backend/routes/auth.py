@@ -1,5 +1,4 @@
 # backend/routes/auth.py
-
 from fastapi import APIRouter, Depends, HTTPException, Body, status, Query
 from typing import Literal, Optional
 from pydantic import BaseModel, EmailStr, Field
@@ -24,35 +23,30 @@ class RegisterBody(BaseModel):
     email: EmailStr
     password: str = Field(..., min_length=8)
     role: Literal["buyer", "supplier"]
-    phone: Optional[str] = None
 
-    # supplier fields
+    # supplier-only fields
     business_name: Optional[str] = None
     address: Optional[str] = None
     delivery_address: Optional[str] = None
     products: Optional[list[str]] = None
 
-    # buyer fields
+    # buyer-only field
     monthly_spend: Optional[str] = None
 
     # optional wallet
     wallet_address: Optional[str] = None
 
-
 class LoginBody(BaseModel):
     email: EmailStr
     password: str = Field(..., min_length=8)
-
 
 class SIWELogin(BaseModel):
     message: str
     signature: str
 
-
 class TokenRoleOut(BaseModel):
     token: str
     role: str
-
 
 class ProfileOut(BaseModel):
     id: int
@@ -63,7 +57,6 @@ class ProfileOut(BaseModel):
 
     class Config:
         from_attributes = True  # Pydantic v2
-
 
 # ─── Router Setup ────────────────────────────────────────────────────────
 
@@ -93,16 +86,16 @@ def get_siwe_nonce(
 )
 def register(
     body: RegisterBody = Body(...),
-    db: Session       = Depends(get_db),
+    db: Session = Depends(get_db),
 ):
-    # 1) Prevent duplicate email
+    # Prevent duplicate email
     if db.query(User).filter_by(email=body.email).first():
         raise HTTPException(
             status.HTTP_400_BAD_REQUEST,
             "Email already registered"
         )
 
-    # 2) Normalize wallet if provided
+    # Normalize wallet if provided
     wallet = None
     if body.wallet_address:
         from web3 import Web3
@@ -114,37 +107,36 @@ def register(
                 "Invalid wallet address format"
             )
 
-    # 3) Create user record
+    # Create user record
     user = User(
-        name           = body.name,
-        email          = body.email,
-        password_hash  = hash_password(body.password),
-        role           = body.role,
-        phone          = body.phone,
-        wallet_address = wallet,
-        created_at     = datetime.utcnow(),
+        name=body.name,
+        email=body.email,
+        password_hash=hash_password(body.password),
+        role=body.role,
+        wallet_address=wallet,
+        created_at=datetime.utcnow(),
     )
 
-    # 4) Apply role‐specific fields
+    # Apply role-specific fields
     if body.role == "supplier":
         if not body.business_name or not body.products:
             raise HTTPException(
                 status.HTTP_400_BAD_REQUEST,
                 "Suppliers must provide business_name and products"
             )
-        user.business_name    = body.business_name
-        user.address          = body.address or ""
+        user.business_name = body.business_name
+        user.address = body.address or ""
         user.delivery_address = body.delivery_address or ""
-        user.products         = body.products
+        user.products = body.products
     else:
         user.monthly_spend = body.monthly_spend or ""
 
-    # 5) Persist to DB
+    # Persist to DB
     db.add(user)
     db.commit()
     db.refresh(user)
 
-    # 6) Issue JWT
+    # Issue JWT
     token = create_access_token(subject=user.id, role=user.role)
     return {"token": token, "role": user.role}
 
@@ -153,7 +145,7 @@ def register(
 @router.post("/login", response_model=TokenRoleOut)
 def login(
     body: LoginBody = Body(...),
-    db: Session     = Depends(get_db),
+    db: Session = Depends(get_db),
 ):
     user = db.query(User).filter_by(email=body.email).first()
     if not user or not verify_password(body.password, user.password_hash):
@@ -164,16 +156,15 @@ def login(
     token = create_access_token(subject=user.id, role=user.role)
     return {"token": token, "role": user.role}
 
-# ─── LOGIN SIWE (wallet) ─────────────────────────────────────────────────
+# ─── SIWE LOGIN ──────────────────────────────────────────────────────────
 
 @router.post("/siwe", response_model=TokenRoleOut)
 def siwe_login(
     body: SIWELogin = Body(...),
-    db: Session     = Depends(get_db),
+    db: Session = Depends(get_db),
 ):
     """
-    Verify a SIWE message+signature, auto-create user if needed,
-    and return JWT.
+    Verify SIWE message+signature, auto-create user if needed, and return JWT.
     """
     user, token = verify_siwe(body.message, body.signature, db)
     return {"token": token, "role": user.role}
