@@ -11,51 +11,31 @@ export interface Product {
 }
 
 export interface SupplierDashboardData {
-  totalSalesToday: number
-  activeListings: number
-  stock: number
-  capacity: number
-  openOrders: number
-  proceeds30d: number
-  feedbackRating: number
   products: Product[]
+  loading: boolean
+  error: string | null
 }
 
-export default function useSupplierDashboard() {
-  const [data, setData] = useState<SupplierDashboardData | null>(null)
+export default function useSupplierDashboard(): SupplierDashboardData {
+  const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    const fetchData = async () => {
+    async function fetchProducts() {
       setLoading(true)
       try {
-        const token = localStorage.getItem('token')
-        if (!token) throw new Error('Not authenticated')
-        const res = await api.get<Product[]>('/products/me', {
-          headers: { Authorization: `Bearer ${token}` }
-        })
-        const products = res.data || []
-        // stub metrics for now
-        setData({
-          totalSalesToday: 0,
-          activeListings: products.length,
-          stock: 0,
-          capacity: 0,
-          openOrders: 0,
-          proceeds30d: 0,
-          feedbackRating: 0,
-          products
-        })
-      } catch (err: any) {
-        console.error(err)
-        setError('Failed to load dashboard data')
+        const res = await api.get<Product[]>('/products/me')
+        setProducts(res.data)
+      } catch (e) {
+        console.error('Failed to fetch products', e)
+        setError('Unable to load your products.')
       } finally {
         setLoading(false)
       }
     }
-    fetchData()
+    fetchProducts()
   }, [])
 
-  return { data, loading, error }
+  return { products, loading, error }
 }

@@ -2,11 +2,15 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
+import useAuthRedirect from '@/hooks/useAuthRedirect'
 import api from '@/lib/api'
 import Navbar from '@/components/Navbar'
 
 export default function CreateProductPage() {
   const router = useRouter()
+  // will redirect to /login or / if not a supplier
+  useAuthRedirect('supplier')
+
   const [formData, setFormData] = useState({
     title: '',
     origin_country: '',
@@ -16,37 +20,13 @@ export default function CreateProductPage() {
     image: null as File | null,
   })
   const [error, setError] = useState('')
-  const [token, setToken] = useState('')
-
-  // 🔒 Redirect non-suppliers
-  useEffect(() => {
-    const storedToken = localStorage.getItem('token')
-    if (!storedToken) {
-      router.push('/login')
-      return
-    }
-    setToken(storedToken)
-
-    api
-      .get('/auth/role', {
-        headers: { Authorization: `Bearer ${storedToken}` },
-      })
-      .then(res => {
-        if (res.data.role !== 'supplier') {
-          router.push('/')
-        }
-      })
-      .catch(() => {
-        router.push('/')
-      })
-  }, [router])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, files } = e.target
     if (name === 'image' && files) {
-      setFormData({ ...formData, image: files[0] })
+      setFormData(f => ({ ...f, image: files[0] }))
     } else {
-      setFormData({ ...formData, [name]: value })
+      setFormData(f => ({ ...f, [name]: value }))
     }
   }
 
@@ -63,13 +43,9 @@ export default function CreateProductPage() {
     if (formData.image) data.append('image', formData.image)
 
     try {
-      await api.post('/products/create', data, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data',
-        },
-      })
-      router.push('/dashboard')
+      // POST to /products (not /products/create)
+      await api.post('/products', data)
+      router.push('/supplier/dashboard')
     } catch (err: any) {
       setError(err.response?.data?.detail || '❌ Upload failed.')
     }
@@ -90,6 +66,7 @@ export default function CreateProductPage() {
             className="w-full border border-gray-300 p-2 rounded"
             required
           />
+
           <input
             name="origin_country"
             placeholder="Country of Origin"
@@ -97,6 +74,7 @@ export default function CreateProductPage() {
             className="w-full border border-gray-300 p-2 rounded"
             required
           />
+
           <input
             name="category"
             placeholder="Category (e.g. whey)"
@@ -104,6 +82,7 @@ export default function CreateProductPage() {
             className="w-full border border-gray-300 p-2 rounded"
             required
           />
+
           <input
             name="description"
             placeholder="Description"
@@ -111,6 +90,7 @@ export default function CreateProductPage() {
             className="w-full border border-gray-300 p-2 rounded"
             required
           />
+
           <input
             name="price_per_kg"
             type="number"
@@ -120,6 +100,7 @@ export default function CreateProductPage() {
             className="w-full border border-gray-300 p-2 rounded"
             required
           />
+
           <input
             name="image"
             type="file"
@@ -128,6 +109,7 @@ export default function CreateProductPage() {
             className="w-full"
             required
           />
+
           <button
             type="submit"
             className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
@@ -139,4 +121,3 @@ export default function CreateProductPage() {
     </div>
   )
 }
-
