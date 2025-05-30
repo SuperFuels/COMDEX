@@ -1,90 +1,42 @@
-// frontend/pages/dashboard.tsx
-
-import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import useAuthRedirect from '@/hooks/useAuthRedirect'
-import api from '@/lib/api'
-
-interface Product {
-  id: number
-  title: string
-  category: string
-  origin_country: string
-  price_per_kg: number
-  image_url: string
-}
+import { useSupplierDashboard } from '@/hooks/useSupplierDashboard'
 
 export default function SupplierDashboard() {
-  // only suppliers allowed here
   useAuthRedirect('supplier')
+  const { products, metrics, loading, error } = useSupplierDashboard()
 
-  const [products, setProducts] = useState<Product[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  if (loading) return (
+    <div className="min-h-screen flex items-center justify-center">
+      <p className="text-gray-600">Loading dashboard…</p>
+    </div>
+  )
+  if (error) return (
+    <div className="min-h-screen flex items-center justify-center">
+      <p className="text-red-600">{error}</p>
+    </div>
+  )
 
-  useEffect(() => {
-    const fetchMyProducts = async () => {
-      setLoading(true)
-      try {
-        // grab the JWT out of localStorage (or wherever you saved it)
-        const token = localStorage.getItem('token')
-        if (!token) {
-          throw new Error('Not authenticated')
-        }
-
-        // attach it to your axios instance for this call
-        const res = await api.get<Product[]>('/products/me', {
-          headers: { Authorization: `Bearer ${token}` }
-        })
-
-        setProducts(res.data)
-      } catch (err) {
-        console.error('❌ Failed to fetch products', err)
-        setError('Unable to load your products.')
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchMyProducts()
-  }, [])
-
-  // Stub metrics
-  const totalSalesToday = 0
-  const activeListings    = products.length
-  const stock             = 0
-  const capacity          = 0
-  const openOrders        = 0
-  const proceeds30d       = 0
-  const feedbackRating    = 0
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-600">Loading dashboard…</p>
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-red-600">{error}</p>
-      </div>
-    )
-  }
+  const cards = [
+    { title: "Today's sales", value: `£${metrics.totalSalesToday}` },
+    { title: 'Active listings', value: metrics.activeListings },
+    { title: 'Stock / capacity', value: `${metrics.stock}/${metrics.capacity}` },
+    { title: 'Open orders', value: metrics.openOrders },
+    { title: 'Proceeds (30d)', value: `£${metrics.proceeds30d}` },
+    { title: 'Feedback rating', value: metrics.feedbackRating },
+  ]
 
   return (
     <div className="min-h-screen bg-gray-50">
       <main className="p-6 max-w-7xl mx-auto space-y-8">
         {/* Metrics cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
-          {/* ... your existing metric cards ... */}
-        </div>
-
-        {/* Charts section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* ... chart placeholders ... */}
+          {cards.map((c) => (
+            <div key={c.title} className="bg-white shadow rounded p-4">
+              <h3 className="text-sm text-gray-500">{c.title}</h3>
+              <p className="text-xl font-semibold">{c.value}</p>
+            </div>
+          ))}
         </div>
 
         {/* My Listings Table */}
