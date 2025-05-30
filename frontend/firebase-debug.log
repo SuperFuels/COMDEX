@@ -1,0 +1,29 @@
+[debug] [2025-05-30T21:00:15.684Z] ----------------------------------------------------------------------
+[debug] [2025-05-30T21:00:15.687Z] Command:       /nix/store/ixbb20farqh1f4fqbmsn6b1ixn8mc8ij-nodejs-20.18.1/bin/node /home/user/.global_modules/bin/firebase deploy --only hosting
+[debug] [2025-05-30T21:00:15.688Z] CLI Version:   14.4.0
+[debug] [2025-05-30T21:00:15.688Z] Platform:      linux
+[debug] [2025-05-30T21:00:15.688Z] Node Version:  v20.18.1
+[debug] [2025-05-30T21:00:15.688Z] Time:          Fri May 30 2025 21:00:15 GMT+0000 (Coordinated Universal Time)
+[debug] [2025-05-30T21:00:15.688Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-05-30T21:00:16.165Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-05-30T21:00:23.588Z] Running auto auth
+[debug] [2025-05-30T21:00:23.617Z] [iam] checking project swift-area-459514-d1 for permissions ["firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2025-05-30T21:00:23.620Z] No OAuth tokens found
+[debug] [2025-05-30T21:00:23.623Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/swift-area-459514-d1:testIamPermissions [none]
+[debug] [2025-05-30T21:00:23.624Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/swift-area-459514-d1:testIamPermissions x-goog-quota-user=projects/swift-area-459514-d1
+[debug] [2025-05-30T21:00:23.625Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/swift-area-459514-d1:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2025-05-30T21:00:24.517Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/swift-area-459514-d1:testIamPermissions 200
+[debug] [2025-05-30T21:00:24.519Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/swift-area-459514-d1:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2025-05-30T21:00:24.520Z] No OAuth tokens found
+[debug] [2025-05-30T21:00:24.524Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/swift-area-459514-d1 [none]
+[debug] [2025-05-30T21:00:24.804Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/swift-area-459514-d1 200
+[debug] [2025-05-30T21:00:24.804Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/swift-area-459514-d1 {"projectId":"swift-area-459514-d1","projectNumber":"375760843948","displayName":"My First Project","name":"projects/swift-area-459514-d1","resources":{"hostingSite":"swift-area-459514-d1"},"state":"ACTIVE","etag":"1_1a367835-d262-4734-9cc1-dd04ca9936cf"}
+[debug] [2025-05-30T21:00:24.808Z] Specified "public" directory "frontend/out" does not exist; Deploy to Hosting site "swift-area-459514-d1" may fail or be empty.
+[info] 
+[info] === Deploying to 'swift-area-459514-d1'...
+[info] 
+[info] i  deploying hosting 
+[info] Running command: npm --prefix frontend install
+[error] 
+[error] Error: hosting predeploy error: Command terminated with non-zero exit code 254
