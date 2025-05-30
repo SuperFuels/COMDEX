@@ -106,7 +106,7 @@ export default function Navbar() {
         {/* Logo */}
         <Link href="/" className="flex items-center">
           <Image
-            src="/stickeyai.svg"
+            src="/Stickeyai.svg"
             alt="Stickey.ai"
             width={144}
             height={48}
