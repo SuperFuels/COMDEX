@@ -1,12 +1,13 @@
-import { useState } from 'react';
-import api from '@/lib/api';
-import { useRouter } from 'next/router';
-import useAuthRedirect from '@/hooks/useAuthRedirect';
+// frontend/pages/products/new.tsx
+import { useState } from 'react'
+import api from '@/lib/api'
+import { useRouter } from 'next/router'
+import useAuthRedirect from '@/hooks/useAuthRedirect'
 
 export default function NewProduct() {
-  useAuthRedirect('supplier'); // ✅ Only suppliers can access
+  useAuthRedirect('supplier') // ✅ Only suppliers can access
 
-  const router = useRouter();
+  const router = useRouter()
 
   const [form, setForm] = useState({
     title: '',
@@ -14,47 +15,43 @@ export default function NewProduct() {
     price_per_kg: '',
     origin_country: '',
     category: '',
-  });
-  const [imageFile, setImageFile] = useState<File | null>(null);
+  })
+  const [imageFile, setImageFile] = useState<File | null>(null)
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+    setForm({ ...form, [e.target.name]: e.target.value })
+  }
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setImageFile(e.target.files[0]);
+      setImageFile(e.target.files[0])
     }
-  };
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const token = localStorage.getItem('token');
-    const formData = new FormData();
+    e.preventDefault()
+    const token = localStorage.getItem('token')
+    const formData = new FormData()
 
     Object.entries(form).forEach(([key, value]) => {
-      formData.append(key, value);
-    });
+      formData.append(key, value)
+    })
 
     if (imageFile) {
-      formData.append('image', imageFile);
+      formData.append('image', imageFile)
     }
 
     try {
-      await api.post('/products/create', formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-      router.push('/supplier/dashboard');
+      // post to your FastAPI endpoint at POST /products
+      await api.post('/products', formData)
+      router.push('/supplier/dashboard')
     } catch (err) {
-      console.error(err);
-      alert('❌ Failed to create product');
+      console.error(err)
+      alert('❌ Failed to create product')
     }
-  };
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
@@ -130,6 +127,5 @@ export default function NewProduct() {
         </button>
       </form>
     </div>
-  );
+  )
 }
-
