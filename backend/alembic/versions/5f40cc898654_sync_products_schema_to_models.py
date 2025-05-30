@@ -64,11 +64,25 @@ def upgrade() -> None:
     op.drop_column('deals', 'total_price')
     op.drop_column('deals', 'buyer_email')
     op.drop_column('deals', 'product_title')
+
     op.add_column('products', sa.Column('batch_number', sa.String(), nullable=True))
     op.add_column('products', sa.Column('trace_id', sa.String(), nullable=True))
     op.add_column('products', sa.Column('certificate_url', sa.String(), nullable=True))
     op.add_column('products', sa.Column('blockchain_tx_hash', sa.String(), nullable=True))
-    op.add_column('products', sa.Column('created_at', sa.DateTime(), nullable=False))
+
+    # ── Add created_at with a server_default to backfill existing rows,
+    #     then drop that default so future inserts use the model's default.
+    op.add_column(
+        'products',
+        sa.Column(
+            'created_at',
+            sa.DateTime(),
+            nullable=False,
+            server_default=sa.text('NOW()')
+        )
+    )
+    op.alter_column('products', 'created_at', server_default=None)
+
     op.alter_column('products', 'description',
                existing_type=sa.VARCHAR(),
                type_=sa.Text(),
@@ -130,7 +144,7 @@ def downgrade() -> None:
     op.drop_constraint(None, 'deals', type_='foreignkey')
     op.drop_constraint(None, 'deals', type_='foreignkey')
     op.create_foreign_key(op.f('deals_supplier_id_fkey'), 'deals', 'users', ['supplier_id'], ['id'])
-    op.create_foreign_key(op.f('deals_product_id_fkey'), 'deals', 'products', ['product_id'], ['id'])
+    op.create_foreign_key(op.f('deels_product_id_fkey'), 'deals', 'products', ['product_id'], ['id'])
     op.create_foreign_key(op.f('deals_buyer_id_fkey'), 'deals', 'users', ['buyer_id'], ['id'])
     op.drop_index(op.f('ix_deals_supplier_id'), table_name='deals')
     op.drop_index(op.f('ix_deals_product_id'), table_name='deals')
@@ -138,7 +152,7 @@ def downgrade() -> None:
     op.alter_column('deals', 'created_at',
                existing_type=postgresql.TIMESTAMP(),
                nullable=True)
-    op.alter_column('deals', 'status',
+    op.alter_column('deels', 'status',
                existing_type=sa.VARCHAR(),
                server_default=None,
                nullable=True)
