@@ -9,3 +9,9 @@
 2025/05/30 13:40:56 Client closed local connection on 127.0.0.1:5432
 2025/05/30 13:41:08 New connection for "swift-area-459514-d1:us-central1:comdex-db"
 2025/05/30 13:41:10 Client closed local connection on 127.0.0.1:5432
+2025/05/30 14:35:53 ephemeral certificate for instance swift-area-459514-d1:us-central1:comdex-db will expire soon, refreshing now.
+2025/05/30 14:35:53 refreshing ephemeral certificate for instance swift-area-459514-d1:us-central1:comdex-db
+2025/05/30 14:35:53 Scheduling refresh of ephemeral certificate in 54m59s
+2025/05/30 15:30:53 ephemeral certificate for instance swift-area-459514-d1:us-central1:comdex-db will expire soon, refreshing now.
+2025/05/30 15:30:53 refreshing ephemeral certificate for instance swift-area-459514-d1:us-central1:comdex-db
+2025/05/30 15:30:56 Scheduling refresh of ephemeral certificate in 54m59s

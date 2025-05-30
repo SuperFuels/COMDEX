@@ -10,52 +10,38 @@ export interface Product {
   image_url: string
 }
 
-export interface DashboardMetrics {
-  totalSalesToday: number
-  activeListings: number
-  stock: number
-  capacity: number
-  openOrders: number
-  proceeds30d: number
-  feedbackRating: number
+export interface SupplierDashboardData {
+  products: Product[]
+  loading: boolean
+  error: string | null
 }
 
-export function useSupplierDashboard() {
+export default function useSupplierDashboard(): SupplierDashboardData {
   const [products, setProducts] = useState<Product[]>([])
-  const [metrics, setMetrics] = useState<DashboardMetrics>({
-    totalSalesToday: 0,
-    activeListings: 0,
-    stock: 0,
-    capacity: 0,
-    openOrders: 0,
-    proceeds30d: 0,
-    feedbackRating: 0,
-  })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    async function fetchData() {
+    const fetchMyProducts = async () => {
+      setLoading(true)
       try {
         const token = localStorage.getItem('token')
         if (!token) throw new Error('Not authenticated')
 
-        const [prodRes, metricRes] = await Promise.all([
-          api.get<Product[]>('/products/me', { headers: { Authorization: `Bearer ${token}` } }),
-          api.get<DashboardMetrics>('/dashboard/supplier', { headers: { Authorization: `Bearer ${token}` } }),
-        ])
-
-        setProducts(prodRes.data)
-        setMetrics(metricRes.data)
-      } catch (e) {
-        console.error('Dashboard error', e)
-        setError('Failed to load dashboard data.')
+        const res = await api.get<Product[]>('/products/me', {
+          headers: { Authorization: `Bearer ${token}` },
+          withCredentials: true
+        })
+        setProducts(res.data)
+      } catch (err) {
+        console.error('❌ Failed to fetch products', err)
+        setError('Unable to load your products.')
       } finally {
         setLoading(false)
       }
     }
-    fetchData()
+    fetchMyProducts()
   }, [])
 
-  return { products, metrics, loading, error }
+  return { products, loading, error }
 }
