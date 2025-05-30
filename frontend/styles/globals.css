@@ -5,109 +5,110 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ──────────────────────────────────────$
-   CSS VARIABLES
-───────────────────────────────────────*/
+/* ────────────────────────────────────
+   Now your custom variables, resets, etc.
+───────────────────────────────────── */
 :root {
-  --grey-light:  #f5f5f5;
-  --baby-blue:   #89CFF0;
-  --anthracite:  #2e2e2e;
+  /* Light mode tokens */
+  --bg-page:       #ffffff;
+  --bg-header:     #f3f4f6;
+  --text-primary:  #1f2937;
+  --btn-primary:   #4a90e2;
+  --btn-primary-hover: #357abd;
+  --border-light:  #e5e7eb;
+  --scrollbar-thumb: #4a5568;
 }
 
-/* -----------------------------------
-   ✅ Custom Global Styles
------------------------------------ */
+.dark {
+  /* Dark mode overrides */
+  --bg-page:       #111827;
+  --bg-header:     #1f2937;
+  --text-primary:  #f9fafb;
+  --btn-primary:   #374151;
+  --btn-primary-hover: #4b5563;
+  --border-light:  #4b5563;
+  --scrollbar-thumb: #9ca3af;
+}
 
-/* Reset */
+/* Reset + base */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-/* Scrollbar Styling */
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg-page);
+  color: var(--text-primary);
+  line-height: 1.6;
+}
+
+/* Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
-
 ::-webkit-scrollbar-thumb {
-  background: #4a5568;
+  background: var(--scrollbar-thumb);
   border-radius: 10px;
 }
-
 ::-webkit-scrollbar-track {
-  background: var(--grey-light);
+  background: var(--bg-header);
 }
 
-/* Base Font & Background */
-body {
-  font-family: 'Inter', sans-serif;
-  background-color: var(--grey-light);
-  color: var(--anthracite);
-  line-height: 1.6;
-}
-
-/* Utility Classes */
+/* Utility classes */
 .container {
-  max-width: 1280px;   
+  max-width: 1280px;
   margin: 0 auto;
   padding: 0 1rem;
 }
- 
+
+/* Cards */
 .card {
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px; 
+  background: var(--bg-page);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
   padding: 1.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  transition: box-shadow 0.3s ease, filter 0.2s ease;
+  transition: box-shadow .3s;
 }
 .card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
 /* Buttons */
 .btn {
-  padding: 0.5rem 1rem;
+  padding: .5rem 1rem;
   border-radius: 6px;
   font-weight: 600;
-  transition: background-color 0.3s ease, filter 0.2s ease;
+  transition: background-color .3s, filter .2s;
 }
-
 .btn-primary {
-  background-color: var(--baby-blue);
-  color: white;   
+  background: var(--btn-primary);
+  color: white;
 }
 .btn-primary:hover {
-  /* subtle darkening */
-  filter: brightness(0.9);
+  background: var(--btn-primary-hover);
 }
-  
-.btn-secondary {  
-  background-color: #e2e8f0;
-  color: var(--anthracite);
+.btn-secondary {
+  background: var(--border-light);
+  color: var(--text-primary);
 }
 .btn-secondary:hover {
-  background-color: #cbd5e0;
+  filter: brightness(0.9);
 }
 
-/* Forms */  
-input,
-select,
-textarea {
+/* Forms */
+input, select, textarea {
   width: 100%;
-  padding: 0.5rem;
-  border: 1px solid #cbd5e0;
+  padding: .5rem;
+  border: 1px solid var(--border-light);
   border-radius: 6px;
-  background: white;
+  background: var(--bg-page);
+  color: var(--text-primary);
 }
-  
-input:focus,
-select:focus,
-textarea:focus {
+input:focus, select:focus, textarea:focus {
   outline: none;
-  border-color: var(--baby-blue);
-  box-shadow: 0 0 0 2px rgba(137, 207, 240, 0.2);
+  border-color: var(--btn-primary);
+  box-shadow: 0 0 0 2px rgba(74,144,226,0.2);
 }
-
