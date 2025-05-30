@@ -6,6 +6,7 @@ import { useEffect, useState, useRef, useCallback } from 'react'
 import api from '@/lib/api'
 import { UserRole } from '@/hooks/useAuthRedirect'
 import { signInWithEthereum, logout } from '@/utils/auth'
+import { DarkModeToggle } from './DarkModeToggle'
 
 export default function Navbar() {
   const router = useRouter()
@@ -14,7 +15,7 @@ export default function Navbar() {
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const wrapperRef = useRef<HTMLDivElement>(null)
 
-  // SIWE-login via wallet
+  // SIWE login via wallet
   const handleConnect = useCallback(async () => {
     localStorage.removeItem('manualDisconnect')
     try {
@@ -37,23 +38,22 @@ export default function Navbar() {
     router.push('/')
   }, [router])
 
-  // Hydrate email/password JWT and/or wallet
+  // Hydrate JWT and/or wallet on mount
   useEffect(() => {
-    const eth = (window as any).ethereum
-
-    // 1) JWT login
+    // 1) JWT
     const token = localStorage.getItem('token')
     if (token) {
       api.defaults.headers.common.Authorization = `Bearer ${token}`
       api.get<{ role: UserRole }>('/auth/profile')
-         .then(res => setRole(res.data.role))
-         .catch(() => {
-           localStorage.removeItem('token')
-           delete api.defaults.headers.common.Authorization
-         })
+        .then(res => setRole(res.data.role))
+        .catch(() => {
+          localStorage.removeItem('token')
+          delete api.defaults.headers.common.Authorization
+        })
     }
 
     // 2) Wallet auto-reconnect
+    const eth = (window as any).ethereum
     if (eth) {
       const manuallyDisconnected = localStorage.getItem('manualDisconnect') === 'true'
       if (!manuallyDisconnected) {
@@ -61,8 +61,7 @@ export default function Navbar() {
            .then((accounts: string[]) => accounts[0] && setAccount(accounts[0]))
            .catch(console.error)
       }
-
-      // 3) handle wallet changes
+      // 3) Watch for account changes
       const onAccountsChanged = (accounts: string[]) => {
         if (accounts.length === 0) {
           handleDisconnect()
@@ -75,10 +74,14 @@ export default function Navbar() {
     }
   }, [handleDisconnect])
 
-  // close dropdown on outside click
+  // Close dropdown on outside click
   useEffect(() => {
     function onClick(e: MouseEvent) {
-      if (dropdownOpen && wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
+      if (
+        dropdownOpen &&
+        wrapperRef.current &&
+        !wrapperRef.current.contains(e.target as Node)
+      ) {
         setDropdownOpen(false)
       }
     }
@@ -90,52 +93,59 @@ export default function Navbar() {
     ? `${account.slice(0, 6)}…${account.slice(-4)}`
     : ''
 
-  // determine /<role>/dashboard path
-  const dashboardPath = role === 'admin'
-    ? '/admin/dashboard'
-    : role === 'supplier'
-      ? '/supplier/dashboard'
-      : role === 'buyer'
-        ? '/buyer/dashboard'
-        : undefined
+  // Build dashboard link by role
+  const dashboardPath =
+    role === 'admin'    ? '/admin/dashboard'   :
+    role === 'supplier' ? '/supplier/dashboard':
+    role === 'buyer'    ? '/buyer/dashboard'    :
+    undefined
 
   return (
-    <header className="sticky top-0 bg-white border-b z-50">
+    <header className="sticky top-0 bg-background-header border-b z-50">
       <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-4">
         {/* Logo */}
         <Link href="/" className="flex items-center">
-          <Image src="/stickey.png" width={144} height={48} alt="Logo" priority />
+          <Image
+            src="/stickeyai.svg"
+            alt="Stickey.ai"
+            width={144}
+            height={48}
+            priority
+          />
         </Link>
 
         <div className="flex items-center space-x-6">
-          <Link href="/" className="text-gray-700 hover:underline">
+          <Link href="/" className="text-text hover:text-primary transition">
             Marketplace
           </Link>
 
           {/* Unauthenticated */}
           {!account && !role && (
             <>
-              <Link href="/register" className="text-gray-700 hover:underline">
+              <Link href="/register" className="text-text hover:text-primary transition">
                 Register
               </Link>
-              <Link href="/login" className="text-gray-700 hover:underline">
+              <Link href="/login" className="text-text hover:text-primary transition">
                 Login
               </Link>
             </>
           )}
 
-          {/* Role‐based dashboard link */}
+          {/* Role-based dashboard link */}
           {dashboardPath && (
-            <Link href={dashboardPath} className="text-gray-700 hover:underline">
-              {role!.charAt(0).toUpperCase() + role!.slice(1)} Dashboard
+            <Link
+              href={dashboardPath}
+              className="text-text hover:text-primary transition"
+            >
+              {role![0].toUpperCase() + role!.slice(1)} Dashboard
             </Link>
           )}
 
-          {/* Wallet connect / account menu */}
+          {/* Connect / Account */}
           {!account ? (
             <button
               onClick={handleConnect}
-              className="bg-blue-600 text-white px-3 py-1 rounded"
+              className="btn-primary"
             >
               Connect Wallet
             </button>
@@ -143,15 +153,15 @@ export default function Navbar() {
             <div ref={wrapperRef} className="relative">
               <button
                 onClick={() => setDropdownOpen(o => !o)}
-                className="bg-gray-100 px-3 py-1 rounded-full border border-gray-300"
+                className="bg-gray-200 text-text px-3 py-1 rounded-full border border-gray-300 hover:bg-gray-300 transition"
               >
                 {shortAddr}
               </button>
               {dropdownOpen && (
-                <div className="absolute right-0 mt-2 w-40 bg-white border rounded shadow">
+                <div className="absolute right-0 mt-2 w-40 bg-white border rounded shadow-lg">
                   <button
                     onClick={handleDisconnect}
-                    className="w-full text-left px-4 py-2 hover:bg-gray-100"
+                    className="w-full text-left px-4 py-2 hover:bg-gray-100 transition"
                   >
                     Disconnect
                   </button>
@@ -159,6 +169,9 @@ export default function Navbar() {
               )}
             </div>
           )}
+
+          {/* Dark / Light toggle */}
+          <DarkModeToggle />
         </div>
       </div>
     </header>
