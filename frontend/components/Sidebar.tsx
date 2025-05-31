@@ -1,7 +1,9 @@
 // frontend/components/Sidebar.tsx
+
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { DarkModeToggle } from './DarkModeToggle'
+import { UserRole } from '@/hooks/useAuthRedirect'    // ← import UserRole
 
 interface SidebarProps {
   isOpen: boolean
@@ -106,7 +108,7 @@ export default function Sidebar({
               </Link>
             )}
 
-            {/* If not logged in, show Login/ Register */}
+            {/* If not logged in, show Login / Register */}
             {!account && !role && (
               <>
                 <Link
