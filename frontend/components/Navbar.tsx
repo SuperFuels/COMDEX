@@ -118,13 +118,6 @@ export default function Navbar() {
     ? `${account.slice(0, 6)}…${account.slice(-4)}`
     : ''
 
-  // Determine dashboard path by role
-  const dashboardPath =
-    role === 'admin'    ? '/admin/dashboard'    :
-    role === 'supplier' ? '/supplier/dashboard' :
-    role === 'buyer'    ? '/buyer/dashboard'    :
-    undefined
-
   return (
     <>
       {/* ─── Slide‐in Sidebar ─────────────────────────────────────────────── */}
@@ -138,82 +131,71 @@ export default function Navbar() {
 
       {/* ─── Top Bar / Navbar ────────────────────────────────────────────── */}
       <header className="sticky top-0 z-50 bg-background-header dark:bg-background-dark border-b border-border-light">
-        <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-4">
+        <div className="max-w-7xl mx-auto flex items-center">
 
-          {/* ── (1) Left: “G.svg” toggle / Logo / “Live” indicator ────────── */}
-          <div className="flex items-center space-x-4">
-            {/* (1a) “G.svg” toggle */}
-            <button
-              onClick={() => setSidebarOpen(true)}
-              className="p-2 focus:outline-none"
-              aria-label="Open menu"
-            >
+          {/* (1) “G” toggle: flush left, no extra padding */}
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="p-2 focus:outline-none"
+            aria-label="Open menu"
+          >
+            <Image src="/G.svg" alt="Menu" width={24} height={24} />
+          </button>
+
+          {/* (2) Remaining content: padded to align with SwapBar below */}
+          <div className="flex-1 flex items-center justify-between px-4 h-16">
+
+            {/* (2a) Logo */}
+            <Link href="/" className="flex items-center">
               <Image
-                src="/G.svg"
-                alt="Menu"
-                width={24}
-                height={24}
+                src="/Stickeyai.svg"
+                alt="Stickey.ai"
+                width={144}
+                height={48}
+                priority
               />
-            </button>
-
-            {/* (1b) Logo (flush‐left, so it lines up under the search bar) */}
-            <div className="flex-1 flex justify-start">
-              <Link href="/" className="flex items-center">
-                <Image
-                  src="/Stickeyai.svg"
-                  alt="Stickey.ai"
-                  width={144}
-                  height={48}
-                  priority
-                />
-              </Link>
-            </div>
-
-            {/* (1c) “Live” indicator with green dot */}
-            <Link href="/" className="flex items-center space-x-1">
-              <span className="inline-block w-2 h-2 bg-green-500 rounded-full" />
-              <span className="text-text font-medium">Live</span>
             </Link>
-          </div>
 
-          {/* ── (2) Center: (empty for search/swap) ────────────────────────── */}
-          <div className="flex-1 flex justify-center">
-            {/* If you want a search input or a SwapBar here, place it in this div */}
-          </div>
+            {/* (2b) Right side: “Live” indicator + Wallet UI */}
+            <div className="flex items-center space-x-4">
 
-          {/* ── (3) Right: Wallet UI only ──────────────────────────────────── */}
-          <div className="flex items-center space-x-4">
-            {!account ? (
-              // (3a) If not connected: show “Connect Wallet” button
-              <button
-                onClick={handleConnect}
-                className="px-3 py-1 border border-text-primary rounded text-text-primary hover:bg-gray-100 transition"
-              >
-                Connect Wallet
-              </button>
-            ) : (
-              // (3b) If connected: show short address + dropdown
-              <div ref={wrapperRef} className="relative">
+              {/* “Live” indicator styled as a button */}
+              <div className="flex items-center space-x-1 px-3 py-1 border border-text-primary rounded text-text-primary hover:bg-gray-100 transition">
+                <span className="inline-block w-2 h-2 bg-green-500 rounded-full" />
+                <span className="text-text font-medium">Live</span>
+              </div>
+
+              {/* Wallet connect / short address + dropdown */}
+              {!account ? (
                 <button
-                  onClick={() => setDropdownOpen(o => !o)}
+                  onClick={handleConnect}
                   className="px-3 py-1 border border-text-primary rounded text-text-primary hover:bg-gray-100 transition"
                 >
-                  {shortAddr}
+                  Connect Wallet
                 </button>
-                {dropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 border border-border-light dark:border-gray-700 rounded shadow-lg">
-                    <button
-                      onClick={handleDisconnect}
-                      className="w-full text-left px-4 py-2 text-text-primary hover:bg-gray-100 dark:hover:bg-gray-700 transition"
-                    >
-                      Disconnect
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
+              ) : (
+                <div ref={wrapperRef} className="relative">
+                  <button
+                    onClick={() => setDropdownOpen(o => !o)}
+                    className="px-3 py-1 border border-text-primary rounded text-text-primary hover:bg-gray-100 transition"
+                  >
+                    {shortAddr}
+                  </button>
+                  {dropdownOpen && (
+                    <div className="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 border border-border-light dark:border-gray-700 rounded shadow-lg">
+                      <button
+                        onClick={handleDisconnect}
+                        className="w-full text-left px-4 py-2 text-text-primary hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                      >
+                        Disconnect
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
 
+            </div>
+          </div>
         </div>
       </header>
     </>
