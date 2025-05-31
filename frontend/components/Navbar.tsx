@@ -1,4 +1,5 @@
 // frontend/components/Navbar.tsx
+
 import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
@@ -15,7 +16,7 @@ export default function Navbar() {
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const wrapperRef = useRef<HTMLDivElement>(null)
 
-  // SIWE login via wallet
+  // Connect wallet / SIWE
   const handleConnect = useCallback(async () => {
     localStorage.removeItem('manualDisconnect')
     try {
@@ -28,7 +29,7 @@ export default function Navbar() {
     }
   }, [router])
 
-  // Manual logout
+  // Logout
   const handleDisconnect = useCallback(() => {
     localStorage.setItem('manualDisconnect', 'true')
     logout()
@@ -38,18 +39,20 @@ export default function Navbar() {
     router.push('/')
   }, [router])
 
-  // Hydrate JWT and/or wallet on mount
+  // Hydrate JWT or Wallet on mount
   useEffect(() => {
     // 1) JWT
-    const token = localStorage.getItem('token')
-    if (token) {
-      api.defaults.headers.common.Authorization = `Bearer ${token}`
-      api.get<{ role: UserRole }>('/auth/profile')
-        .then(res => setRole(res.data.role))
-        .catch(() => {
-          localStorage.removeItem('token')
-          delete api.defaults.headers.common.Authorization
-        })
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('token')
+      if (token) {
+        api.defaults.headers.common.Authorization = `Bearer ${token}`
+        api.get<{ role: UserRole }>('/auth/profile')
+          .then(res => setRole(res.data.role))
+          .catch(() => {
+            localStorage.removeItem('token')
+            delete api.defaults.headers.common.Authorization
+          })
+      }
     }
 
     // 2) Wallet auto-reconnect
@@ -58,8 +61,8 @@ export default function Navbar() {
       const manuallyDisconnected = localStorage.getItem('manualDisconnect') === 'true'
       if (!manuallyDisconnected) {
         eth.request({ method: 'eth_accounts' })
-           .then((accounts: string[]) => accounts[0] && setAccount(accounts[0]))
-           .catch(console.error)
+          .then((accounts: string[]) => accounts[0] && setAccount(accounts[0]))
+          .catch(console.error)
       }
       // 3) Watch for account changes
       const onAccountsChanged = (accounts: string[]) => {
@@ -74,9 +77,9 @@ export default function Navbar() {
     }
   }, [handleDisconnect])
 
-  // Close dropdown on outside click
+  // Close dropdown if clicked outside
   useEffect(() => {
-    function onClick(e: MouseEvent) {
+    function onClickOutside(e: MouseEvent) {
       if (
         dropdownOpen &&
         wrapperRef.current &&
@@ -85,84 +88,74 @@ export default function Navbar() {
         setDropdownOpen(false)
       }
     }
-    document.addEventListener('mousedown', onClick)
-    return () => document.removeEventListener('mousedown', onClick)
+    document.addEventListener('mousedown', onClickOutside)
+    return () => document.removeEventListener('mousedown', onClickOutside)
   }, [dropdownOpen])
 
   const shortAddr = account
     ? `${account.slice(0, 6)}…${account.slice(-4)}`
     : ''
 
-  // Build dashboard link by role
+  // Build dashboard path by role
   const dashboardPath =
     role === 'admin'    ? '/admin/dashboard'   :
     role === 'supplier' ? '/supplier/dashboard':
     role === 'buyer'    ? '/buyer/dashboard'    :
     undefined
 
+  // A little helper to trigger the Sidebar’s toggle button
+  const openSidebar = () => {
+    const btn = document.getElementById('sidebarToggle')
+    if (btn) (btn as HTMLButtonElement).click()
+  }
+
   return (
-    <header className="sticky top-0 bg-background-header border-b z-50">
-      <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-4">
+    <header className="sticky top-0 z-50 bg-background-header dark:bg-background-dark border-b border-gray-200 dark:border-gray-700">
+      <div className="max-w-7xl mx-auto flex items-center justify-between h-16 px-4">
         {/* Logo */}
         <Link href="/" className="flex items-center">
-          {/* Make sure the public file is named exactly “Stickeyai.svg” (or whatever your file is called) */}
           <Image
             src="/Stickeyai.svg"
-            alt="Stickey.ai"
+            alt="Stickey.ai Logo"
             width={144}
             height={48}
             priority
           />
         </Link>
 
-        <div className="flex items-center space-x-6">
-          <Link href="/" className="text-text hover:text-primary transition">
-            Marketplace
-          </Link>
+        {/* Empty flex‐spacer so that Connect Wallet + menu icon float right */}
+        <div className="flex-1" />
 
-          {/* Unauthenticated */}
-          {!account && !role && (
-            <>
-              <Link href="/register" className="text-text hover:text-primary transition">
-                Register
-              </Link>
-              <Link href="/login" className="text-text hover:text-primary transition">
-                Login
-              </Link>
-            </>
-          )}
-
-          {/* Role-based dashboard link */}
-          {dashboardPath && (
-            <Link
-              href={dashboardPath}
-              className="text-text hover:text-primary transition"
-            >
-              {role![0].toUpperCase() + role!.slice(1)} Dashboard
-            </Link>
-          )}
-
-          {/* Connect / Account */}
-          {!account ? (
-            <button
-              onClick={handleConnect}
-              className="btn-primary"
-            >
-              Connect Wallet
-            </button>
-          ) : (
+        <div className="flex items-center space-x-4">
+          {/* If user is logged in, show their abbreviated address */}
+          {account && (
             <div ref={wrapperRef} className="relative">
               <button
                 onClick={() => setDropdownOpen(o => !o)}
-                className="bg-gray-200 text-text px-3 py-1 rounded-full border border-gray-300 hover:bg-gray-300 transition"
+                className="flex items-center space-x-2 border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-text px-3 py-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition"
               >
-                {shortAddr}
+                <span className="text-sm">{shortAddr}</span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className={`h-4 w-4 transform ${dropdownOpen ? 'rotate-180' : 'rotate-0'}`}
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
               </button>
               {dropdownOpen && (
-                <div className="absolute right-0 mt-2 w-40 bg-white border rounded shadow-lg">
+                <div className="absolute right-0 mt-2 w-48 bg-background-header dark:bg-background-dark border border-gray-200 dark:border-gray-600 rounded shadow-dropdown z-50">
+                  <Link href={dashboardPath ?? "/"}>
+                    <a className="block px-4 py-2 text-text hover:bg-gray-100 dark:hover:bg-gray-700">
+                      {role ? `${role.charAt(0).toUpperCase() + role.slice(1)} Dashboard` : "Dashboard"}
+                    </a>
+                  </Link>
                   <button
                     onClick={handleDisconnect}
-                    className="w-full text-left px-4 py-2 hover:bg-gray-100 transition"
+                    className="block w-full text-left px-4 py-2 text-text hover:bg-gray-100 dark:hover:bg-gray-700"
                   >
                     Disconnect
                   </button>
@@ -171,7 +164,30 @@ export default function Navbar() {
             </div>
           )}
 
-          {/* Dark / Light toggle */}
+          {/* If no account & no role, show Register/Login as part of dropdown */}
+          {!account && !role && (
+            <button
+              onClick={openSidebar}
+              className="text-text hover:text-primary transition text-sm"
+            >
+              Menu
+            </button>
+          )}
+
+          {/* Connect Wallet always at far right */}
+          <button
+            onClick={handleConnect}
+            className="btn-primary text-sm"
+          >
+            Connect Wallet
+          </button>
+
+          {/* Hamburger / menu icon to open Sidebar */}
+          <button onClick={openSidebar} className="ml-2 p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded">
+            <Image src="/g.svg" alt="menu" width={24} height={24} />
+          </button>
+
+          {/* Dark Mode Toggle */}
           <DarkModeToggle />
         </div>
       </div>
