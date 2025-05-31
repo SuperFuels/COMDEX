@@ -21,7 +21,7 @@ export default function MyApp({ Component, pageProps }: AppProps) {
 
   return (
     <div className="flex min-h-screen">
-      {/* We do NOT render <Sidebar /> here, because Navbar handles it. */}
+      {/* We do NOT render <Sidebar /> here, because Navbar controls it. */}
 
       <div className="flex-1 flex flex-col">
         {/* Global Navbar (white background in light mode) */}

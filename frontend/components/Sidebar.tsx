@@ -1,80 +1,139 @@
 // frontend/components/Sidebar.tsx
 import Link from 'next/link'
 import { DarkModeToggle } from './DarkModeToggle'
+import { useState } from 'react'
 
-interface SidebarProps {
-  isOpen: boolean
-  onClose: () => void
-}
+export default function Sidebar() {
+  const [isOpen, setIsOpen] = useState(false)
 
-export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   return (
-    <div
-      className={`fixed inset-y-0 left-0 z-40 w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 transform ${
-        isOpen ? 'translate-x-0' : '-translate-x-full'
-      } transition-transform duration-300 ease-in-out`}
-    >
-      <div className="flex flex-col h-full">
-        <div className="px-4 pt-4 pb-2 flex justify-between items-center border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-xl font-semibold text-text">Stickey.ai</h2>
-          <button onClick={onClose} className="p-1 focus:outline-none">
-            <span className="sr-only">Close sidebar</span>
-            {/* Simple “X” icon—feel free to replace with an SVG */}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5 text-text"
-              viewBox="0 0 20 20"
-              fill="currentColor"
+    <>
+      {/* ── G.svg Toggle Button ───────────────────────────────────────────────── */}
+      <button
+        onClick={() => setIsOpen(true)}
+        aria-label="Open sidebar"
+        className="
+          fixed top-4 left-4 z-50 
+          p-2 
+          bg-transparent border border-black 
+          rounded
+          hover:bg-gray-100 dark:hover:bg-gray-800
+          transition-colors
+        "
+      >
+        <img src="/G.svg" alt="≡" className="h-6 w-6" />
+      </button>
+
+      {/* ── Sidebar Overlay (slides in/out) ────────────────────────────────────── */}
+      <div
+        className={`
+          fixed inset-y-0 left-0 z-40 w-64 
+          bg-white dark:bg-gray-900 
+          border-r border-gray-200 dark:border-gray-700 
+          transform ${
+            isOpen ? 'translate-x-0' : '-translate-x-full'
+          } 
+          transition-transform duration-300 ease-in-out
+        `}
+      >
+        <div className="flex flex-col h-full">
+          {/* ── Sidebar Header ─────────────────────────────────────────── */}
+          <div className="flex items-center justify-between px-4 pt-4 pb-2 border-b border-gray-200 dark:border-gray-700">
+            <h2 className="text-xl font-semibold text-text">Stickey.ai</h2>
+            <button
+              onClick={() => setIsOpen(false)}
+              aria-label="Close sidebar"
+              className="
+                p-1 focus:outline-none
+                bg-transparent border border-black rounded
+                hover:bg-gray-100 dark:hover:bg-gray-800
+                transition-colors
+              "
             >
-              <path
-                fillRule="evenodd"
-                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 
-                   111.414 1.414L11.414 10l4.293 4.293a1 1 0 
-                   01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 
-                   01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                clipRule="evenodd"
+              {/* We reuse the same G.svg but rotate it 90° to look like an “×” */}
+              <img
+                src="/G.svg"
+                alt="×"
+                className="h-5 w-5 transform rotate-90 text-text"
               />
-            </svg>
-          </button>
-        </div>
+            </button>
+          </div>
 
-        <nav className="flex-1 px-4 py-6 space-y-4 overflow-y-auto">
-          <Link href="/" onClick={onClose}>
-            <a className="block py-2 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-text">
-              Marketplace
-            </a>
-          </Link>
-          <Link href="/supplier/dashboard" onClick={onClose}>
-            <a className="block py-2 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-text">
-              Supplier Dashboard
-            </a>
-          </Link>
-          <Link href="/buyer/dashboard" onClick={onClose}>
-            <a className="block py-2 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-text">
-              Buyer Dashboard
-            </a>
-          </Link>
-          <Link href="/admin/dashboard" onClick={onClose}>
-            <a className="block py-2 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-text">
-              Admin Dashboard
-            </a>
-          </Link>
-          <Link href="/register" onClick={onClose}>
-            <a className="block py-2 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-text">
-              Register
-            </a>
-          </Link>
-          <Link href="/login" onClick={onClose}>
-            <a className="block py-2 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-text">
-              Login
-            </a>
-          </Link>
-        </nav>
+          {/* ── Navigation Links ───────────────────────────────────────── */}
+          <nav className="flex-1 overflow-y-auto px-4 py-6 space-y-4">
+            <Link href="/" onClick={() => setIsOpen(false)}>
+              <a className="
+                block py-2 px-3 rounded 
+                text-text 
+                hover:bg-gray-100 dark:hover:bg-gray-800 
+                transition-colors
+              ">
+                Marketplace
+              </a>
+            </Link>
 
-        <div className="px-4 pb-4 border-t border-gray-200 dark:border-gray-700">
-          <DarkModeToggle />
+            <Link href="/supplier/dashboard" onClick={() => setIsOpen(false)}>
+              <a className="
+                block py-2 px-3 rounded 
+                text-text 
+                hover:bg-gray-100 dark:hover:bg-gray-800 
+                transition-colors
+              ">
+                Supplier Dashboard
+              </a>
+            </Link>
+
+            <Link href="/buyer/dashboard" onClick={() => setIsOpen(false)}>
+              <a className="
+                block py-2 px-3 rounded 
+                text-text 
+                hover:bg-gray-100 dark:hover:bg-gray-800 
+                transition-colors
+              ">
+                Buyer Dashboard
+              </a>
+            </Link>
+
+            <Link href="/admin/dashboard" onClick={() => setIsOpen(false)}>
+              <a className="
+                block py-2 px-3 rounded 
+                text-text 
+                hover:bg-gray-100 dark:hover:bg-gray-800 
+                transition-colors
+              ">
+                Admin Dashboard
+              </a>
+            </Link>
+
+            <Link href="/register" onClick={() => setIsOpen(false)}>
+              <a className="
+                block py-2 px-3 rounded 
+                text-text 
+                hover:bg-gray-100 dark:hover:bg-gray-800 
+                transition-colors
+              ">
+                Register
+              </a>
+            </Link>
+
+            <Link href="/login" onClick={() => setIsOpen(false)}>
+              <a className="
+                block py-2 px-3 rounded 
+                text-text 
+                hover:bg-gray-100 dark:hover:bg-gray-800 
+                transition-colors
+              ">
+                Login
+              </a>
+            </Link>
+          </nav>
+
+          {/* ── Dark/Light Toggle in Footer ───────────────────────────────── ── */}
+          <div className="px-4 pb-4 border-t border-gray-200 dark:border-gray-700">
+            <DarkModeToggle />
+          </div>
         </div>
       </div>
-    </div>
+    </>
   )
 }
