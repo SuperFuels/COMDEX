@@ -6,7 +6,6 @@ import type { AppProps } from 'next/app'
 import { useEffect } from 'react'
 import Navbar from '@/components/Navbar'
 import SwapBar from '@/components/SwapBar'
-import Sidebar from '@/components/Sidebar'
 
 export default function MyApp({ Component, pageProps }: AppProps) {
   useEffect(() => {
@@ -22,12 +21,10 @@ export default function MyApp({ Component, pageProps }: AppProps) {
 
   return (
     <div className="flex min-h-screen">
-      {/* Sidebar will slide in/out by CSS class */}
-      <Sidebar />
+      {/* We do NOT render <Sidebar /> here, because Navbar handles it. */}
 
-      {/* Main app area */}
       <div className="flex-1 flex flex-col">
-        {/* Global Navbar (white bg) */}
+        {/* Global Navbar (white background in light mode) */}
         <Navbar />
 
         {/* Sticky swap controls (just below the header) */}
