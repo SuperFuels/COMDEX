@@ -8,15 +8,12 @@ import { useEffect, useState, useRef, useCallback } from 'react'
 import api from '@/lib/api'
 import { UserRole } from '@/hooks/useAuthRedirect'
 import { signInWithEthereum, logout } from '@/utils/auth'
-// Note: We've removed the SwapBar import since we're integrating swap inputs directly here
-// import SwapBar from './SwapBar'
 
 export default function Navbar() {
   const router = useRouter()
   const [account, setAccount]           = useState<string | null>(null)
   const [role, setRole]                 = useState<UserRole | null>(null)
   const [dropdownOpen, setDropdownOpen] = useState(false)
-  const [sidebarOpen, setSidebarOpen]   = useState(false)
   const wrapperRef = useRef<HTMLDivElement>(null)
 
   //
@@ -116,33 +113,36 @@ export default function Navbar() {
     ? `${account.slice(0, 6)}…${account.slice(-4)}`
     : ''
 
-  // Swap amounts (for inline swap inputs)
+  // Inline swap amounts (shown in desktop header)
   const [amountIn, setAmountIn]   = useState('')
   const [amountOut, setAmountOut] = useState('')
 
   return (
     <>
-      {/* ─── Sidebar Toggle in Top-Left ───────────────────────────────────────── */}
+      {/* ─── “G” Toggle (far left, always visible) ───────────────────────────────── */}
       <button
-        onClick={() => setSidebarOpen(true)}
-        className="fixed top-4 left-4 p-2 border border-gray-200 dark:border-gray-700 rounded bg-white dark:bg-gray-900 z-50"
+        onClick={() => {
+          /* open your sidebar here */
+        }}
+        className="
+          fixed top-4 left-4
+          p-2
+          border border-gray-200 dark:border-gray-700
+          rounded
+          bg-white dark:bg-gray-900
+          z-50
+        "
         aria-label="Open menu"
       >
-        <Image
-          src="/G.svg"
-          alt="Menu"
-          width={24}
-          height={24}
-        />
+        <Image src="/G.svg" alt="Menu" width={24} height={24} />
       </button>
 
-      {/* ─── Top Bar / Navbar ─────────────────────────────────────────────────── */}
+      {/* ─── Top Bar / Navbar ────────────────────────────────────────────────────── */}
       <header className="sticky top-0 z-40 bg-background-header dark:bg-background-dark border-b border-border-light dark:border-gray-700">
-        <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-4">
+        <div className="max-w-7xl mx-auto flex items-center justify-between h-16 px-4">
 
-          {/* ── (1) Left Group: Logo + Live Indicator ─────────────────────────── */}
-          <div className="flex items-center space-x-4">
-            {/* (1a) Logo (no border) */}
+          {/* ── (1) Left: Logo (no border) ──────────────────────────────────────────── */}
+          <div className="flex items-center">
             <Link href="/" className="flex items-center -ml-2">
               <Image
                 src="/Stickeyai.svg"
@@ -152,95 +152,166 @@ export default function Navbar() {
                 priority
               />
             </Link>
-
-            {/* (1b) “Live” indicator with green dot */}
-            <div className="flex items-center space-x-1">
-              <span className="inline-block w-2 h-2 bg-green-500 rounded-full" />
-              <span className="text-text font-medium">Live</span>
-            </div>
           </div>
 
-          {/* ── (2) Center: Search Bar ──────────────────────────────────────────── */}
-          <div className="flex-1 flex justify-center px-4">
+          {/* ── (2) Center: Search + Swap (desktop) ────────────────────────────────── */}
+          <div className="hidden md:flex flex-1 justify-center items-center space-x-2">
+            {/* Search Input (reduced height) */}
             <input
               type="text"
               placeholder="Search by title or category…"
-              className="w-full max-w-md p-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="
+                w-full max-w-sm
+                py-1 px-2
+                border border-gray-300 dark:border-gray-600
+                rounded-full
+                text-sm
+                focus:outline-none focus:ring-2 focus:ring-blue-500
+              "
             />
-          </div>
 
-          {/* ── (3) Right Group: Inline Swap + Wallet ──────────────────────────── */}
-          <div className="flex items-center space-x-2">
-            {/* ─── Amount In Input ─── */}
+            {/* Amount In Input */}
             <input
               type="number"
               value={amountIn}
               onChange={(e) => setAmountIn(e.target.value)}
               placeholder="0"
-              className="w-16 p-1 border border-gray-300 rounded text-center text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="
+                w-14
+                py-1 px-1
+                border border-gray-300 dark:border-gray-600
+                rounded
+                text-center text-sm
+                focus:outline-none focus:ring-2 focus:ring-blue-500
+              "
             />
 
-            {/* ─── From Token Button ─── */}
+            {/* From Token Selector */}
             <button
               type="button"
-              className="flex items-center border border-gray-300 rounded px-1 py-1 text-sm hover:bg-gray-50"
-              onClick={() => {/* open “from” token picker */}}
+              className="
+                flex items-center
+                border border-gray-300 dark:border-gray-600
+                rounded
+                py-1 px-2
+                text-sm
+                hover:bg-gray-50 dark:hover:bg-gray-700
+              "
+              onClick={() => { /* open “from” token picker */ }}
             >
               <Image src="/tokens/usdt.svg" alt="USDT" width={16} height={16} />
               <span className="ml-1">USDT</span>
             </button>
 
-            {/* ─── Arrow Icon ─── */}
-            <span className="text-xl text-gray-400 select-none">→</span>
+            {/* Arrow Icon */}
+            <span className="text-lg text-gray-400 select-none">→</span>
 
-            {/* ─── Amount Out Input ─── */}
+            {/* Amount Out Input */}
             <input
               type="number"
               value={amountOut}
               onChange={(e) => setAmountOut(e.target.value)}
               placeholder="0"
-              className="w-16 p-1 border border-gray-300 rounded text-center text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="
+                w-14
+                py-1 px-1
+                border border-gray-300 dark:border-gray-600
+                rounded
+                text-center text-sm
+                focus:outline-none focus:ring-2 focus:ring-blue-500
+              "
             />
 
-            {/* ─── To Token Button ─── */}
+            {/* To Token Selector */}
             <button
               type="button"
-              className="flex items-center border border-gray-300 rounded px-1 py-1 text-sm hover:bg-gray-50"
-              onClick={() => {/* open “to” token picker */}}
+              className="
+                flex items-center
+                border border-gray-300 dark:border-gray-600
+                rounded
+                py-1 px-2
+                text-sm
+                hover:bg-gray-50 dark:hover:bg-gray-700
+              "
+              onClick={() => { /* open “to” token picker */ }}
             >
               <Image src="/tokens/glu.svg" alt="GLU" width={16} height={16} />
               <span className="ml-1">$GLU</span>
             </button>
 
-            {/* ─── Swap Button ─── */}
+            {/* Swap Button */}
             <button
               onClick={() => router.push('/swap')}
-              className="px-3 py-1 border border-text-primary rounded text-text-primary text-sm hover:bg-gray-100 transition"
+              className="
+                py-1 px-3
+                border border-text-primary
+                rounded
+                text-text-primary
+                text-sm
+                hover:bg-gray-100 dark:hover:bg-gray-700
+                transition
+              "
             >
               Swap
             </button>
+          </div>
 
-            {/* ─── Connect / Display Wallet ─── */}
+          {/* ── (3) Right: Live Indicator + Wallet ────────────────────────────────── */}
+          <div className="flex items-center space-x-3">
+            {/* “Live” Indicator */}
+            <div className="flex items-center space-x-1">
+              <span className="inline-block w-2 h-2 bg-green-500 rounded-full" />
+              <span className="text-text font-medium text-sm">Live</span>
+            </div>
+
+            {/* Wallet / Connect Wallet */}
             {!account ? (
               <button
                 onClick={handleConnect}
-                className="ml-2 px-3 py-1 border border-text-primary rounded text-text-primary text-sm hover:bg-gray-100 transition"
+                className="
+                  py-1 px-3
+                  border border-text-primary
+                  rounded
+                  text-text-primary
+                  text-sm
+                  hover:bg-gray-100 dark:hover:bg-gray-700
+                  transition
+                "
               >
                 Connect Wallet
               </button>
             ) : (
-              <div ref={wrapperRef} className="relative ml-2">
+              <div ref={wrapperRef} className="relative">
                 <button
                   onClick={() => setDropdownOpen(o => !o)}
-                  className="px-3 py-1 border border-text-primary rounded text-text-primary text-sm hover:bg-gray-100 transition"
+                  className="
+                    py-1 px-3
+                    border border-text-primary
+                    rounded
+                    text-text-primary
+                    text-sm
+                    hover:bg-gray-100 dark:hover:bg-gray-700
+                    transition
+                  "
                 >
                   {shortAddr}
                 </button>
                 {dropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 border border-border-light dark:border-gray-700 rounded shadow-lg">
+                  <div className="
+                    absolute right-0 mt-2 w-40
+                    bg-white dark:bg-gray-800
+                    border border-border-light dark:border-gray-700
+                    rounded shadow-lg
+                  ">
                     <button
                       onClick={handleDisconnect}
-                      className="w-full text-left px-4 py-2 text-text-primary hover:bg-gray-100 dark:hover:bg-gray-700 transition text-sm"
+                      className="
+                        w-full text-left px-4 py-2
+                        text-text-primary dark:text-text-secondary
+                        text-sm
+                        hover:bg-gray-100 dark:hover:bg-gray-700
+                        transition
+                      "
                     >
                       Disconnect
                     </button>
@@ -251,6 +322,110 @@ export default function Navbar() {
           </div>
         </div>
       </header>
+
+      {/* ─── Lower Swap Bar for Mobile Only ─────────────────────────────────────── */}
+      <div className="md:hidden sticky top-16 z-30 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+        <div className="max-w-7xl mx-auto px-4 py-2 flex items-center space-x-2">
+          {/* Search Input */}
+          <input
+            type="text"
+            placeholder="Search by title or category…"
+            className="
+              flex-1
+              py-1 px-2
+              border border-gray-300 dark:border-gray-600
+              rounded-full
+              text-sm
+              focus:outline-none focus:ring-2 focus:ring-blue-500
+            "
+          />
+
+          {/* Amount In Input */}
+          <input
+            type="number"
+            value={amountIn}
+            onChange={(e) => setAmountIn(e.target.value)}
+            placeholder="0"
+            className="
+              w-16
+              py-1 px-1
+              border border-gray-300 dark:border-gray-600
+              rounded
+              text-center text-sm
+              focus:outline-none focus:ring-2 focus:ring-blue-500
+            "
+          />
+
+          {/* From Token */}
+          <button
+            type="button"
+            className="
+              flex items-center
+              border border-gray-300 dark:border-gray-600
+              rounded
+              py-1 px-2
+              text-sm
+              hover:bg-gray-50 dark:hover:bg-gray-700
+            "
+            onClick={() => { /* open “from” token picker */ }}
+          >
+            <Image src="/tokens/usdt.svg" alt="USDT" width={16} height={16} />
+            <span className="ml-1">USDT</span>
+          </button>
+
+          {/* Arrow */}
+          <span className="text-xl text-gray-400 select-none">→</span>
+
+          {/* Amount Out */}
+          <input
+            type="number"
+            value={amountOut}
+            onChange={(e) => setAmountOut(e.target.value)}
+            placeholder="0"
+            className="
+              w-16
+              py-1 px-1
+              border border-gray-300 dark:border-gray-600
+              rounded
+              text-center text-sm
+              focus:outline-none focus:ring-2 focus:ring-blue-500
+            "
+          />
+
+          {/* To Token */}
+          <button
+            type="button"
+            className="
+              flex items-center
+              border border-gray-300 dark:border-gray-600
+              rounded
+              py-1 px-2
+              text-sm
+              hover:bg-gray-50 dark:hover:bg-gray-700
+            "
+            onClick={() => { /* open “to” token picker */ }}
+          >
+            <Image src="/tokens/glu.svg" alt="GLU" width={16} height={16} />
+            <span className="ml-1">$GLU</span>
+          </button>
+
+          {/* Swap Button */}
+          <button
+            onClick={() => router.push('/swap')}
+            className="
+              py-1 px-3
+              border border-text-primary
+              rounded
+              text-text-primary
+              text-sm
+              hover:bg-gray-100 dark:hover:bg-gray-700
+              transition
+            "
+          >
+            Swap
+          </button>
+        </div>
+      </div>
     </>
   )
 }
