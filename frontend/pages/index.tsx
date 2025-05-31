@@ -1,4 +1,5 @@
 // frontend/pages/index.tsx
+
 import { useEffect, useState } from 'react'
 import type { NextPage } from 'next'
 import Link from 'next/link'
@@ -51,47 +52,59 @@ const Home: NextPage = () => {
     : products
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-bg-page">
       <main className="max-w-7xl mx-auto grid grid-cols-12 gap-6 px-4 py-6">
         {/* ─── Main Column ─────────────────────────────────────────────── */}
         <div className="col-span-12 md:col-span-9 space-y-6">
           {loading ? (
-            <p className="text-center">Loading…</p>
+            <p className="text-center text-text-secondary">Loading…</p>
           ) : error ? (
             <p className="text-center text-red-500">
               Failed to load products.
             </p>
           ) : (
             <>
-              {/* Chart */}
-              <div className="bg-white border rounded-lg shadow p-4">
+              {/* Chart Card */}
+              <div className="bg-white dark:bg-gray-800 border border-border-light dark:border-gray-700 rounded-lg shadow p-4">
                 {selected ? (
                   <Chart data={chartData} height={300} />
                 ) : (
-                  <p className="text-center text-gray-500">
+                  <p className="text-center text-text-secondary">
                     No product selected.
                   </p>
                 )}
               </div>
 
-              {/* Products Table */}
-              <div className="overflow-x-auto bg-white border rounded-lg shadow">
+              {/* Products Table Card */}
+              <div className="overflow-x-auto bg-white dark:bg-gray-800 border border-border-light dark:border-gray-700 rounded-lg shadow">
                 <table className="min-w-full table-auto">
-                  <thead className="bg-gray-100">
+                  <thead className="bg-gray-100 dark:bg-gray-700">
                     <tr>
-                      <th className="px-4 py-2 text-left">Product</th>
-                      <th className="px-4 py-2 text-left">Origin</th>
-                      <th className="px-4 py-2 text-left">Category</th>
-                      <th className="px-4 py-2 text-right">Price/kg</th>
-                      <th className="px-4 py-2 text-right">Change %</th>
-                      <th className="px-4 py-2 text-center">Rating</th>
+                      <th className="px-4 py-2 text-left text-text-secondary">
+                        Product
+                      </th>
+                      <th className="px-4 py-2 text-left text-text-secondary">
+                        Origin
+                      </th>
+                      <th className="px-4 py-2 text-left text-text-secondary">
+                        Category
+                      </th>
+                      <th className="px-4 py-2 text-right text-text-secondary">
+                        Price/kg
+                      </th>
+                      <th className="px-4 py-2 text-right text-text-secondary">
+                        Change %
+                      </th>
+                      <th className="px-4 py-2 text-center text-text-secondary">
+                        Rating
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     {visibleProducts.map((p) => (
                       <tr
                         key={p.id}
-                        className="border-t hover:bg-gray-50 cursor-pointer"
+                        className="border-t border-border-light dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer"
                         onClick={() => setSelected(p)}
                       >
                         <td className="px-4 py-2">
@@ -102,9 +115,13 @@ const Home: NextPage = () => {
                             {p.title}
                           </Link>
                         </td>
-                        <td className="px-4 py-2">{p.origin_country}</td>
-                        <td className="px-4 py-2">{p.category}</td>
-                        <td className="px-4 py-2 text-right">
+                        <td className="px-4 py-2 text-text">
+                          {p.origin_country}
+                        </td>
+                        <td className="px-4 py-2 text-text">
+                          {p.category}
+                        </td>
+                        <td className="px-4 py-2 text-right text-text">
                           £{p.price_per_kg.toFixed(2)}
                         </td>
                         <td
@@ -115,7 +132,7 @@ const Home: NextPage = () => {
                           {p.change_pct >= 0 ? '↑' : '↓'}{' '}
                           {(Math.abs(p.change_pct) * 100).toFixed(2)}%
                         </td>
-                        <td className="px-4 py-2 text-center">
+                        <td className="px-4 py-2 text-center text-text">
                           {p.rating.toFixed(1)}/5
                         </td>
                       </tr>
@@ -130,9 +147,11 @@ const Home: NextPage = () => {
         {/* ─── Sidebar ─────────────────────────────────────────────────── */}
         <aside className="col-span-12 md:col-span-3 space-y-6">
           {selected && (
-            <div className="bg-white border rounded-lg shadow p-4">
-              <h2 className="text-xl font-semibold">{selected.title}</h2>
-              <p className="text-3xl font-bold">
+            <div className="bg-white dark:bg-gray-800 border border-border-light dark:border-gray-700 rounded-lg shadow p-4">
+              <h2 className="text-xl font-semibold text-text">
+                {selected.title}
+              </h2>
+              <p className="text-3xl font-bold text-text">
                 £{(selected.price_per_kg * 1000).toFixed(2)}/t{' '}
                 <span
                   className={
@@ -146,8 +165,10 @@ const Home: NextPage = () => {
             </div>
           )}
 
-          <div className="bg-white border rounded-lg shadow p-4">
-            <h3 className="text-lg font-medium mb-2">Country Filters</h3>
+          <div className="bg-white dark:bg-gray-800 border border-border-light dark:border-gray-700 rounded-lg shadow p-4">
+            <h3 className="text-lg font-medium text-text mb-2">
+              Country Filters
+            </h3>
             <ul className="space-y-1">
               {countries.map((country) => (
                 <li key={country}>
@@ -156,15 +177,15 @@ const Home: NextPage = () => {
                       type="checkbox"
                       checked={filters.includes(country)}
                       onChange={() =>
-                        setFilters(prev =>
+                        setFilters((prev) =>
                           prev.includes(country)
-                            ? prev.filter(c => c !== country)
+                            ? prev.filter((c) => c !== country)
                             : [...prev, country]
                         )
                       }
                       className="form-checkbox h-4 w-4 text-blue-500"
                     />
-                    <span>{country}</span>
+                    <span className="text-text">{country}</span>
                   </label>
                 </li>
               ))}

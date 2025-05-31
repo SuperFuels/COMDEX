@@ -27,8 +27,12 @@ export default function MyApp({ Component, pageProps }: AppProps) {
         {/* ─── Global Navbar (white bg in light mode / dark bg in dark mode) ─── */}
         <Navbar />
 
-        {/* ─── Sticky SwapBar (immediately below the header) ────────────────── */}
-        <div className="sticky top-16 z-20 bg-background-header dark:bg-background-dark">
+        {/* 
+          ─── Sticky SwapBar (only shown on mobile) ──────────────────────────
+          We hide this at md: and above so that desktop no longer has
+          the duplicated swap row. On smaller viewports, it remains visible.
+        */}
+        <div className="sticky top-16 z-20 bg-background-header dark:bg-background-dark md:hidden">
           <SwapBar />
         </div>
 
