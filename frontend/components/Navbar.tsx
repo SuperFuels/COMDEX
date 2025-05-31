@@ -19,7 +19,7 @@ export default function Navbar() {
   const wrapperRef = useRef<HTMLDivElement>(null)
 
   //
-  // 1) Handle “Connect Wallet”
+  // 1) Handle “Connect Wallet” (SIWE)
   //
   const handleConnect = useCallback(async () => {
     localStorage.removeItem('manualDisconnect')
@@ -118,13 +118,6 @@ export default function Navbar() {
     ? `${account.slice(0, 6)}…${account.slice(-4)}`
     : ''
 
-  // Determine dashboard path by role
-  const dashboardPath =
-    role === 'admin'    ? '/admin/dashboard'    :
-    role === 'supplier' ? '/supplier/dashboard' :
-    role === 'buyer'    ? '/buyer/dashboard'    :
-    undefined
-
   return (
     <>
       {/* ─── Slide‐in Sidebar ─────────────────────────────────────────────── */}
@@ -139,20 +132,21 @@ export default function Navbar() {
       {/* ─── Top Bar / Navbar ────────────────────────────────────────────── */}
       <header className="sticky top-0 z-50 bg-background-header dark:bg-background-dark border-b border-border-light">
         <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-4">
-
+          
           {/* ── (1) Left: “G.svg” toggle / Logo / “Live” indicator ────────── */}
           <div className="flex items-center space-x-4">
             {/* (1a) “G.svg” toggle */}
             <button
               onClick={() => setSidebarOpen(true)}
               className="p-2 focus:outline-none"
-              aria-label="Open menu"
+              aria-label={sidebarOpen ? 'Close menu' : 'Open menu'}
             >
               <Image
                 src="/G.svg"
                 alt="Menu"
                 width={24}
                 height={24}
+                unoptimized
               />
             </button>
 
@@ -164,6 +158,7 @@ export default function Navbar() {
                 width={144}
                 height={48}
                 priority
+                unoptimized
               />
             </Link>
 
@@ -174,15 +169,15 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* ── (2) Center: (empty for search/swap) ────────────────────────── */}
+          {/* ── (2) Center: (empty for now) ───────────────────────────────── */}
           <div className="flex-1 flex justify-center">
-            {/* If you want a search input or a SwapBar here, place it in this div */}
+            {/* Placeholder for search/swap/etc. */}
           </div>
 
           {/* ── (3) Right: Wallet UI only ──────────────────────────────────── */}
           <div className="flex items-center space-x-4">
             {!account ? (
-              // (3a) If not connected: show “Connect Wallet” button
+              // (3a) If not connected: show “Connect Wallet”
               <button
                 onClick={handleConnect}
                 className="px-3 py-1 border border-text-primary rounded text-text-primary hover:bg-gray-100 transition"
