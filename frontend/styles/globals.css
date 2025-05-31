@@ -1,5 +1,3 @@
-/* frontend/styles/globals.css */
-
 /* ── 1) Import Inter BEFORE any Tailwind directives ───────────────────────── */
 @import url('https://rsms.me/inter/inter.css');
 
@@ -150,4 +148,11 @@ h3 {
 }
 p {
   @apply text-base;
+}
+
+/* ── EXCEPTION: Remove border on the “logo-link” class ──────────────────── */
+/* Any <a class="logo-link">…</a> will not inherit the global a { border: … }. */
+a.logo-link {
+  border: none !important;
+  padding: 0 !important;
 }

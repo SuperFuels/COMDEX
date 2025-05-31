@@ -8,12 +8,14 @@ import { useEffect, useState, useRef, useCallback } from 'react'
 import api from '@/lib/api'
 import { UserRole } from '@/hooks/useAuthRedirect'
 import { signInWithEthereum, logout } from '@/utils/auth'
+import Sidebar from './Sidebar'
 
 export default function Navbar() {
   const router = useRouter()
   const [account, setAccount]           = useState<string | null>(null)
   const [role, setRole]                 = useState<UserRole | null>(null)
   const [dropdownOpen, setDropdownOpen] = useState(false)
+  const [sidebarOpen, setSidebarOpen]   = useState(false)
   const wrapperRef = useRef<HTMLDivElement>(null)
 
   //
@@ -119,16 +121,23 @@ export default function Navbar() {
 
   return (
     <>
-      {/* ─── “G” Toggle (far left, always visible) ───────────────────────────────── */}
+      {/* ─── Slide‐in Sidebar ─────────────────────────────────────────────── */}
+      <Sidebar
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+        role={role}
+        account={account}
+        onLogout={handleDisconnect}
+      />
+
+      {/* ─── “G” Toggle (far left, always visible) ────────────────────────────── */}
       <button
-        onClick={() => {
-          /* open your sidebar here */
-        }}
+        onClick={() => setSidebarOpen(true)}
         className="
           fixed top-4 left-4
           p-2
-          border border-gray-200 dark:border-gray-700
-          rounded
+          border border-gray-300 dark:border-gray-700
+          rounded-lg
           bg-white dark:bg-gray-900
           z-50
         "
@@ -141,9 +150,9 @@ export default function Navbar() {
       <header className="sticky top-0 z-40 bg-background-header dark:bg-background-dark border-b border-border-light dark:border-gray-700">
         <div className="max-w-7xl mx-auto flex items-center justify-between h-16 px-4">
 
-          {/* ── (1) Left: Logo (no border) ──────────────────────────────────────────── */}
+          {/* ── (1) Left: Stickey.ai Logo (no border) ───────────────────────────────── */}
           <div className="flex items-center">
-            <Link href="/" className="flex items-center -ml-2">
+            <Link href="/" className="logo-link flex items-center -ml-2">
               <Image
                 src="/Stickeyai.svg"
                 alt="Stickey.ai"
@@ -154,18 +163,19 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* ── (2) Center: Search + Swap (desktop) ────────────────────────────────── */}
-          <div className="hidden md:flex flex-1 justify-center items-center space-x-2">
-            {/* Search Input (reduced height) */}
+          {/* ── (2) Center: Search + Swap (desktop only) ────────────────────────────── */}
+          <div className="hidden md:flex flex-1 justify-center items-center space-x-3">
+            {/* Search Input (rounded-lg, reduced height) */}
             <input
               type="text"
               placeholder="Search by title or category…"
               className="
-                w-full max-w-sm
-                py-1 px-2
+                w-full max-w-md
+                py-1.5 px-3
                 border border-gray-300 dark:border-gray-600
-                rounded-full
-                text-sm
+                rounded-lg
+                text-sm text-text
+                bg-white dark:bg-gray-800
                 focus:outline-none focus:ring-2 focus:ring-blue-500
               "
             />
@@ -177,11 +187,12 @@ export default function Navbar() {
               onChange={(e) => setAmountIn(e.target.value)}
               placeholder="0"
               className="
-                w-14
-                py-1 px-1
+                w-20 sm:w-28
+                py-1 px-2
                 border border-gray-300 dark:border-gray-600
-                rounded
+                rounded-lg
                 text-center text-sm
+                bg-white dark:bg-gray-800
                 focus:outline-none focus:ring-2 focus:ring-blue-500
               "
             />
@@ -192,10 +203,12 @@ export default function Navbar() {
               className="
                 flex items-center
                 border border-gray-300 dark:border-gray-600
-                rounded
+                rounded-lg
                 py-1 px-2
-                text-sm
+                bg-white dark:bg-gray-800
+                text-sm text-text
                 hover:bg-gray-50 dark:hover:bg-gray-700
+                focus:outline-none
               "
               onClick={() => { /* open “from” token picker */ }}
             >
@@ -213,11 +226,12 @@ export default function Navbar() {
               onChange={(e) => setAmountOut(e.target.value)}
               placeholder="0"
               className="
-                w-14
-                py-1 px-1
+                w-20 sm:w-28
+                py-1 px-2
                 border border-gray-300 dark:border-gray-600
-                rounded
+                rounded-lg
                 text-center text-sm
+                bg-white dark:bg-gray-800
                 focus:outline-none focus:ring-2 focus:ring-blue-500
               "
             />
@@ -228,10 +242,12 @@ export default function Navbar() {
               className="
                 flex items-center
                 border border-gray-300 dark:border-gray-600
-                rounded
+                rounded-lg
                 py-1 px-2
-                text-sm
+                bg-white dark:bg-gray-800
+                text-sm text-text
                 hover:bg-gray-50 dark:hover:bg-gray-700
+                focus:outline-none
               "
               onClick={() => { /* open “to” token picker */ }}
             >
@@ -244,11 +260,13 @@ export default function Navbar() {
               onClick={() => router.push('/swap')}
               className="
                 py-1 px-3
-                border border-text-primary
-                rounded
-                text-text-primary
+                border border-black
+                rounded-lg
+                bg-transparent
+                text-black dark:text-white
                 text-sm
                 hover:bg-gray-100 dark:hover:bg-gray-700
+                focus:outline-none
                 transition
               "
             >
@@ -256,7 +274,7 @@ export default function Navbar() {
             </button>
           </div>
 
-          {/* ── (3) Right: Live Indicator + Wallet ────────────────────────────────── */}
+          {/* ── (3) Right: Live Indicator + Wallet ─────────────────────────────────── */}
           <div className="flex items-center space-x-3">
             {/* “Live” Indicator */}
             <div className="flex items-center space-x-1">
@@ -270,11 +288,13 @@ export default function Navbar() {
                 onClick={handleConnect}
                 className="
                   py-1 px-3
-                  border border-text-primary
-                  rounded
-                  text-text-primary
+                  border border-black
+                  rounded-lg
+                  bg-transparent
+                  text-black dark:text-white
                   text-sm
                   hover:bg-gray-100 dark:hover:bg-gray-700
+                  focus:outline-none
                   transition
                 "
               >
@@ -286,11 +306,13 @@ export default function Navbar() {
                   onClick={() => setDropdownOpen(o => !o)}
                   className="
                     py-1 px-3
-                    border border-text-primary
-                    rounded
-                    text-text-primary
+                    border border-black
+                    rounded-lg
+                    bg-transparent
+                    text-black dark:text-white
                     text-sm
                     hover:bg-gray-100 dark:hover:bg-gray-700
+                    focus:outline-none
                     transition
                   "
                 >
@@ -301,7 +323,8 @@ export default function Navbar() {
                     absolute right-0 mt-2 w-40
                     bg-white dark:bg-gray-800
                     border border-border-light dark:border-gray-700
-                    rounded shadow-lg
+                    rounded-lg shadow-lg
+                    z-50
                   ">
                     <button
                       onClick={handleDisconnect}
@@ -310,6 +333,7 @@ export default function Navbar() {
                         text-text-primary dark:text-text-secondary
                         text-sm
                         hover:bg-gray-100 dark:hover:bg-gray-700
+                        focus:outline-none
                         transition
                       "
                     >
@@ -323,10 +347,10 @@ export default function Navbar() {
         </div>
       </header>
 
-      {/* ─── Lower Swap Bar for Mobile Only ─────────────────────────────────────── */}
+      {/* ─── Lower Swap Bar (mobile only) ─────────────────────────────────────── */}
       <div className="md:hidden sticky top-16 z-30 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 py-2 flex items-center space-x-2">
-          {/* Search Input */}
+          {/* Mobile Search Input */}
           <input
             type="text"
             placeholder="Search by title or category…"
@@ -334,13 +358,14 @@ export default function Navbar() {
               flex-1
               py-1 px-2
               border border-gray-300 dark:border-gray-600
-              rounded-full
-              text-sm
+              rounded-lg
+              text-sm text-text
+              bg-white dark:bg-gray-800
               focus:outline-none focus:ring-2 focus:ring-blue-500
             "
           />
 
-          {/* Amount In Input */}
+          {/* Mobile Amount In Input */}
           <input
             type="number"
             value={amountIn}
@@ -350,22 +375,25 @@ export default function Navbar() {
               w-16
               py-1 px-1
               border border-gray-300 dark:border-gray-600
-              rounded
-              text-center text-sm
+              rounded-lg
+              text-center text-sm text-text
+              bg-white dark:bg-gray-800
               focus:outline-none focus:ring-2 focus:ring-blue-500
             "
           />
 
-          {/* From Token */}
+          {/* Mobile “From” Token */}
           <button
             type="button"
             className="
               flex items-center
               border border-gray-300 dark:border-gray-600
-              rounded
+              rounded-lg
               py-1 px-2
-              text-sm
+              bg-white dark:bg-gray-800
+              text-sm text-text
               hover:bg-gray-50 dark:hover:bg-gray-700
+              focus:outline-none
             "
             onClick={() => { /* open “from” token picker */ }}
           >
@@ -373,10 +401,10 @@ export default function Navbar() {
             <span className="ml-1">USDT</span>
           </button>
 
-          {/* Arrow */}
+          {/* Mobile Arrow */}
           <span className="text-xl text-gray-400 select-none">→</span>
 
-          {/* Amount Out */}
+          {/* Mobile Amount Out Input */}
           <input
             type="number"
             value={amountOut}
@@ -386,22 +414,25 @@ export default function Navbar() {
               w-16
               py-1 px-1
               border border-gray-300 dark:border-gray-600
-              rounded
-              text-center text-sm
-              focus:outline-none focus:ring-2 focus:ring-blue-500
+              rounded-lg
+              text-center text-sm text-text
+              bg-white dark:bg-gray-800
+              focus:outline none focus:ring-2 focus:ring-blue-500
             "
           />
 
-          {/* To Token */}
+          {/* Mobile “To” Token */}
           <button
             type="button"
             className="
               flex items-center
               border border-gray-300 dark:border-gray-600
-              rounded
+              rounded-lg
               py-1 px-2
-              text-sm
+              bg-white dark:bg-gray-800
+              text-sm text-text
               hover:bg-gray-50 dark:hover:bg-gray-700
+              focus:outline-none
             "
             onClick={() => { /* open “to” token picker */ }}
           >
@@ -409,16 +440,18 @@ export default function Navbar() {
             <span className="ml-1">$GLU</span>
           </button>
 
-          {/* Swap Button */}
+          {/* Mobile Swap Button */}
           <button
             onClick={() => router.push('/swap')}
             className="
               py-1 px-3
-              border border-text-primary
-              rounded
-              text-text-primary
+              border border-black
+              rounded-lg
+              bg-transparent
+              text-black dark:text-white
               text-sm
               hover:bg-gray-100 dark:hover:bg-gray-700
+              focus:outline-none
               transition
             "
           >
