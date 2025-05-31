@@ -49,7 +49,7 @@ export default function SupplierDashboard() {
   return (
     <div className="bg-bg-page min-h-screen pb-8">
       <main className="max-w-7xl mx-auto px-4 pt-6 space-y-8">
-        {/* ── Terminal‐Style Metric Container (full‐width) ────────────────────── */}
+        {/* ── Terminal-Style Metric Container (full-width) ────────────────────── */}
         <div className="bg-white dark:bg-gray-800 border border-border-light dark:border-gray-700 rounded-lg">
           <div className="p-4 flex flex-col md:flex-row md:items-center md:justify-between">
             <div className="flex items-center space-x-2">
@@ -80,9 +80,7 @@ export default function SupplierDashboard() {
               className={`font-mono ${
                 selectedMetric === 'feedbackRating'
                   ? 'text-purple-600'
-                  : ['totalSalesToday', 'proceeds30d'].includes(
-                      selectedMetric
-                    )
+                  : ['totalSalesToday', 'proceeds30d'].includes(selectedMetric)
                   ? 'text-blue-600'
                   : 'text-green-600'
               }`}
@@ -145,10 +143,13 @@ export default function SupplierDashboard() {
                         £{p.price_per_kg.toFixed(2)}
                       </td>
                       <td className="px-4 py-2 text-right">
-                        <Link href={`/products/edit/${p.id}`} prefetch={false}>
-                          <a className="px-3 py-1 border border-text rounded text-text text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition">
-                            Edit
-                          </a>
+                        {/* ── “Edit” link: no nested <a> ── */}
+                        <Link
+                          href={`/products/edit/${p.id}`}
+                          prefetch={false}
+                          className="px-3 py-1 border border-text rounded text-text text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+                        >
+                          Edit
                         </Link>
                       </td>
                     </tr>
@@ -161,10 +162,13 @@ export default function SupplierDashboard() {
 
         {/* ── Sell Product CTA ─────────────────────────────────────────────────── */}
         <div className="text-right">
-          <Link href="/products/new" prefetch={false}>
-            <a className="px-3 py-1 border border-text rounded text-text text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition">
-              + Sell Product
-            </a>
+          {/* ── “+ Sell Product” link: no nested <a> ── */}
+          <Link
+            href="/products/new"
+            prefetch={false}
+            className="px-3 py-1 border border-text rounded text-text text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+          >
+            + Sell Product
           </Link>
         </div>
       </main>
