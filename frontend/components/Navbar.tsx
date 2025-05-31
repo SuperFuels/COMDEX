@@ -19,7 +19,7 @@ export default function Navbar() {
   const wrapperRef = useRef<HTMLDivElement>(null)
 
   //
-  // 1) Handle “Connect Wallet” (SIWE)
+  // 1) Handle “Connect Wallet”
   //
   const handleConnect = useCallback(async () => {
     localStorage.removeItem('manualDisconnect')
@@ -95,7 +95,7 @@ export default function Navbar() {
   }, [handleDisconnect])
 
   //
-  // 4) Close the connected‐account dropdown if clicked outside
+  // 4) Close account dropdown on outside click
   //
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -139,6 +139,7 @@ export default function Navbar() {
       {/* ─── Top Bar / Navbar ────────────────────────────────────────────── */}
       <header className="sticky top-0 z-50 bg-background-header dark:bg-background-dark border-b border-border-light">
         <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-4">
+
           {/* ── (1) Left: “G.svg” toggle / Logo / “Live” indicator ────────── */}
           <div className="flex items-center space-x-4">
             {/* (1a) “G.svg” toggle */}
@@ -173,10 +174,9 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* ── (2) Center: (empty or placeholder for search/swap) ───────────── */}
+          {/* ── (2) Center: (empty for search/swap) ────────────────────────── */}
           <div className="flex-1 flex justify-center">
-            {/* If you want a search input or a SwapBar here, put it inside this div */}
-            {/* e.g. <SwapBar /> */}
+            {/* If you want a search input or a SwapBar here, place it in this div */}
           </div>
 
           {/* ── (3) Right: Wallet UI only ──────────────────────────────────── */}
@@ -211,6 +211,7 @@ export default function Navbar() {
               </div>
             )}
           </div>
+
         </div>
       </header>
     </>

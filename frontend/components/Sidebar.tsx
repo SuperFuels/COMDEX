@@ -1,10 +1,9 @@
 // frontend/components/Sidebar.tsx
-
+import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { DarkModeToggle } from './DarkModeToggle'
-import { UserRole } from '@/hooks/useAuthRedirect'
 
-export interface SidebarProps {
+interface SidebarProps {
   isOpen: boolean
   onClose: () => void
   role: UserRole | null
@@ -19,25 +18,36 @@ export default function Sidebar({
   account,
   onLogout,
 }: SidebarProps) {
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  // Close sidebar when clicking outside
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (
+        isOpen &&
+        containerRef.current &&
+        !containerRef.current.contains(e.target as Node)
+      ) {
+        onClose()
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [isOpen, onClose])
+
   return (
     <>
-      {/*
-        ── Sliding Sidebar Panel ─────────────────────────────────────────
-        We expect Navbar to pass us `isOpen` and `onClose`. 
-        We also receive `role`, `account` and `onLogout` so that we can render
-        the proper menu items (e.g. Dashboard vs. Login/Register vs. Logout).
-      */}
+      {/* ── Sliding Sidebar ──────────────────────────────────────── */}
       <div
+        ref={containerRef}
         className={`
-          fixed inset-y-0 left-0 z-40 w-64 
-          bg-white dark:bg-gray-900 
-          border-r border-gray-200 dark:border-gray-700 
+          fixed inset-y-0 left-0 z-40 w-64 max-w-full
+          bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700
           transform transition-transform duration-300 ease-in-out
           ${isOpen ? 'translate-x-0' : '-translate-x-full'}
         `}
       >
         <div className="flex flex-col h-full">
-          {/* ── Header of Sidebar: Title + “X” to close ──────────────── */}
           <div className="px-4 pt-4 pb-2 flex justify-between items-center border-b border-gray-200 dark:border-gray-700">
             <h2 className="text-xl font-semibold text-text-primary dark:text-text-secondary">
               Stickey.ai
@@ -55,10 +65,15 @@ export default function Sidebar({
               >
                 <path
                   fillRule="evenodd"
-                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 
-                     111.414 1.414L11.414 10l4.293 4.293a1 1 0 
-                     01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 
-                     01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                  d="M4.293 4.293a1 1 0 011.414 0L10 
+                     8.586l4.293-4.293a1 1 0 
+                     111.414 1.414L11.414 10l4.293 
+                     4.293a1 1 0 01-1.414 
+                     1.414L10 11.414l-4.293 
+                     4.293a1 1 0 
+                     01-1.414-1.414L8.586 
+                     10 4.293 5.707a1 1 0 
+                     010-1.414z"
                   clipRule="evenodd"
                 />
               </svg>
@@ -66,23 +81,15 @@ export default function Sidebar({
           </div>
 
           <nav className="flex-1 px-4 py-6 space-y-4 overflow-y-auto">
-            {/*
-              ── “Live Market” (formerly “Marketplace”) ─────────────────────
-              Always visible. We show a little green dot next to it.
-            */}
-            <Link href="/" onClick={onClose}>
-              <a className="flex items-center py-2 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-800">
-                <span className="h-2 w-2 mr-2 rounded-full bg-green-500"></span>
-                <span className="text-text-primary dark:text-text-secondary">
-                  Live Market
-                </span>
-              </a>
+            <Link
+              href="/"
+              onClick={onClose}
+              className="block py-2 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-text-primary dark:text-text-secondary"
+            >
+              Live Market
             </Link>
 
-            {/*
-              ── “Dashboard” link only if user is logged in (role ≠ null) ───
-              We show the appropriate dashboard route based on role.
-            */}
+            {/* If user is logged in, show Dashboard link */}
             {role && (
               <Link
                 href={
@@ -93,50 +100,48 @@ export default function Sidebar({
                     : '/buyer/dashboard'
                 }
                 onClick={onClose}
+                className="block py-2 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-text-primary dark:text-text-secondary"
               >
-                <a className="block py-2 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-text-primary dark:text-text-secondary">
-                  Dashboard
-                </a>
+                Dashboard
               </Link>
             )}
 
-            {/*
-              ── If NOT authenticated (no account & no role), show:
-                   • Login
-                   • Register
-            */}
+            {/* If not logged in, show Login/ Register */}
             {!account && !role && (
               <>
-                <Link href="/login" onClick={onClose}>
-                  <a className="block py-2 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-text-primary dark:text-text-secondary">
-                    Login
-                  </a>
+                <Link
+                  href="/login"
+                  onClick={onClose}
+                  className="block py-2 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-text-primary dark:text-text-secondary"
+                >
+                  Login
                 </Link>
-                <Link href="/register" onClick={onClose}>
-                  <a className="block py-2 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-text-primary dark:text-text-secondary">
-                    Register
-                  </a>
+                <Link
+                  href="/register"
+                  onClick={onClose}
+                  className="block py-2 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-text-primary dark:text-text-secondary"
+                >
+                  Register
                 </Link>
               </>
             )}
 
-            {/*
-              ── If authenticated (account ≠ null), show:
-                   • Profile
-                   • Settings
-                   • Logout (which calls onLogout)
-            */}
-            {account && (
+            {/* If logged in, show Profile / Settings / Logout */}
+            {account && role && (
               <>
-                <Link href="/profile" onClick={onClose}>
-                  <a className="block py-2 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-text-primary dark:text-text-secondary">
-                    Profile
-                  </a>
+                <Link
+                  href="/profile"
+                  onClick={onClose}
+                  className="block py-2 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-text-primary dark:text-text-secondary"
+                >
+                  Profile
                 </Link>
-                <Link href="/settings" onClick={onClose}>
-                  <a className="block py-2 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-text-primary dark:text-text-secondary">
-                    Settings
-                  </a>
+                <Link
+                  href="/settings"
+                  onClick={onClose}
+                  className="block py-2 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-text-primary dark:text-text-secondary"
+                >
+                  Settings
                 </Link>
                 <button
                   onClick={() => {
@@ -151,9 +156,6 @@ export default function Sidebar({
             )}
           </nav>
 
-          {/*
-            ── DarkModeToggle at bottom of sidebar ─────────────────────
-          */}
           <div className="px-4 pb-4 border-t border-gray-200 dark:border-gray-700">
             <DarkModeToggle />
           </div>
