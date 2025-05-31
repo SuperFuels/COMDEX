@@ -6,16 +6,15 @@ import { useEffect, useState, useRef, useCallback } from 'react'
 import api from '@/lib/api'
 import { UserRole } from '@/hooks/useAuthRedirect'
 import { signInWithEthereum, logout } from '@/utils/auth'
-import Sidebar from './Sidebar'
 
 export default function Navbar() {
   const router = useRouter()
   const [account, setAccount] = useState<string | null>(null)
-  const [role, setRole] = useState<UserRole | null>(null)
-  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [role, setRole]       = useState<UserRole | null>(null)
+  const [dropdownOpen, setDropdownOpen] = useState(false)
   const wrapperRef = useRef<HTMLDivElement>(null)
 
-  // 1) SIWE login via wallet
+  // SIWE login via wallet
   const handleConnect = useCallback(async () => {
     localStorage.removeItem('manualDisconnect')
     try {
@@ -28,19 +27,19 @@ export default function Navbar() {
     }
   }, [router])
 
-  // 2) Manual logout
+  // Manual logout
   const handleDisconnect = useCallback(() => {
     localStorage.setItem('manualDisconnect', 'true')
     logout()
     setAccount(null)
     setRole(null)
-    setSidebarOpen(false)
+    setDropdownOpen(false)
     router.push('/')
   }, [router])
 
-  // 3) Hydrate JWT and/or wallet on mount
+  // Hydrate JWT and/or wallet on mount
   useEffect(() => {
-    // JWT login
+    // 1) JWT
     const token = localStorage.getItem('token')
     if (token) {
       api.defaults.headers.common.Authorization = `Bearer ${token}`
@@ -52,17 +51,16 @@ export default function Navbar() {
         })
     }
 
-    // Wallet auto‐reconnect
+    // 2) Wallet auto-reconnect
     const eth = (window as any).ethereum
     if (eth) {
       const manuallyDisconnected = localStorage.getItem('manualDisconnect') === 'true'
       if (!manuallyDisconnected) {
         eth.request({ method: 'eth_accounts' })
-          .then((accounts: string[]) => accounts[0] && setAccount(accounts[0]))
-          .catch(console.error)
+           .then((accounts: string[]) => accounts[0] && setAccount(accounts[0]))
+           .catch(console.error)
       }
-
-      // Watch for account changes
+      // 3) Watch for account changes
       const onAccountsChanged = (accounts: string[]) => {
         if (accounts.length === 0) {
           handleDisconnect()
@@ -75,96 +73,110 @@ export default function Navbar() {
     }
   }, [handleDisconnect])
 
-  // Close sidebar on outside click (optional, if you want click outside to close)
+  // Close dropdown on outside click
   useEffect(() => {
     function onClick(e: MouseEvent) {
       if (
-        sidebarOpen &&
+        dropdownOpen &&
         wrapperRef.current &&
         !wrapperRef.current.contains(e.target as Node)
       ) {
-        setSidebarOpen(false)
+        setDropdownOpen(false)
       }
     }
     document.addEventListener('mousedown', onClick)
-    return () => {
-      document.removeEventListener('mousedown', onClick)
-    }
-  }, [sidebarOpen])
+    return () => document.removeEventListener('mousedown', onClick)
+  }, [dropdownOpen])
 
-  const shortAddr = account
-    ? `${account.slice(0, 6)}…${account.slice(-4)}`
-    : ''
+  const shortAddr = account ? `${account.slice(0, 6)}…${account.slice(-4)}` : ''
+
+  // Build dashboard link by role
+  const dashboardPath =
+    role === 'admin'    ? '/admin/dashboard'   :
+    role === 'supplier' ? '/supplier/dashboard':
+    role === 'buyer'    ? '/buyer/dashboard'    :
+    undefined
 
   return (
-    <>
-      {/* Sidebar (slides in/out) */}
-      <Sidebar
-        isOpen={sidebarOpen}
-        onClose={() => setSidebarOpen(false)}
-      />
+    <header className="sticky top-0 bg-white border-b z-50">
+      <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-4">
+        {/* Logo */}
+        <Link href="/" className="flex items-center">
+          <Image
+            src="/Stickeyai.svg"
+            alt="Stickey.ai"
+            width={144}
+            height={48}
+            priority
+          />
+        </Link>
 
-      <header
-        className="sticky top-0 z-50 bg-background-header dark:bg-background-dark border-b border-border-light dark:border-gray-700"
-        ref={wrapperRef}
-      >
-        <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-4">
-          {/* ── Left: G.svg “hamburger” / sidebar toggle + Logo ──────── */}
-          <div className="flex items-center space-x-4">
-            <button
-              onClick={() => setSidebarOpen(o => !o)}
-              className="p-1 focus:outline-none"
-            >
-              <span className="sr-only">Open sidebar</span>
-              <Image
-                src="/G.svg"
-                alt="Menu"
-                width={24}
-                height={24}
-                className="text-text"
-              />
-            </button>
-            <Link href="/" className="flex items-center">
-              <Image
-                src="/Stickeyai.svg"
-                alt="Stickey.ai"
-                width={144}
-                height={48}
-                priority
-              />
+        <div className="flex items-center space-x-6">
+          <Link href="/" className="text-text hover:text-primary transition">
+            Marketplace
+          </Link>
+
+          {/* Unauthenticated */}
+          {!account && !role && (
+            <>
+              <Link href="/register" className="text-text hover:text-primary transition">
+                Register
+              </Link>
+              <Link href="/login" className="text-text hover:text-primary transition">
+                Login
+              </Link>
+            </>
+          )}
+
+          {/* Role-based dashboard link */}
+          {dashboardPath && (
+            <Link href={dashboardPath} className="text-text hover:text-primary transition">
+              {role![0].toUpperCase() + role!.slice(1)} Dashboard
             </Link>
-          </div>
+          )}
 
-          {/* ── Right: Connect Wallet OR Account Pill ───────────────── */}
-          <div className="flex items-center space-x-4">
-            {!account ? (
+          {/* Connect / Account */}
+          {!account ? (
+            <button
+              onClick={handleConnect}
+              className="
+                p-2 px-4 
+                bg-transparent border border-black 
+                rounded 
+                hover:bg-gray-100 dark:hover:bg-gray-800 
+                transition-colors
+              "
+            >
+              Connect Wallet
+            </button>
+          ) : (
+            <div ref={wrapperRef} className="relative">
               <button
-                onClick={handleConnect}
-                className="px-3 py-1 rounded border border-text text-text bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 transition text-sm"
+                onClick={() => setDropdownOpen(o => !o)}
+                className="
+                  p-2 px-4 
+                  bg-transparent border border-black 
+                  rounded-full 
+                  hover:bg-gray-100 dark:hover:bg-gray-800 
+                  transition-colors
+                "
               >
-                Connect Wallet
+                {shortAddr}
               </button>
-            ) : (
-              <div className="relative">
-                <button
-                  onClick={() => {}}
-                  className="px-3 py-1 rounded-full border border-text bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 transition text-sm"
-                >
-                  {shortAddr}
-                </button>
-                <div className="absolute right-0 mt-2 w-32 bg-white dark:bg-gray-800 border border-border-light dark:border-gray-700 rounded shadow-lg hidden">
+              {dropdownOpen && (
+                <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 dark:bg-gray-800 dark:border-gray-700 rounded shadow-lg">
                   <button
                     onClick={handleDisconnect}
-                    className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition text-sm"
+                    className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
                   >
                     Disconnect
                   </button>
                 </div>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          )}
         </div>
-      </header>
-    </>
+      </div>
+    </header>
   )
 }

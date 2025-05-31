@@ -10,7 +10,7 @@ interface Product {
   origin_country: string
   category: string
   price_per_kg: number
-  image_url: string
+  image_url?: string
 }
 
 export default function ProductList() {
@@ -35,42 +35,49 @@ export default function ProductList() {
   }, [])
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-bg-page">
+      {/* ── Sidebar (self‐contained open/close) ─────────────────────────────── */}
       <Sidebar />
-      <div className="p-8 w-full">
-        <h1 className="text-2xl font-bold mb-4">Product Listing</h1>
 
-        {loading && <p className="text-gray-600">Loading products…</p>}
+      {/* ── Main Content Area ────────────────────────────────────────────────── */}
+      <div className="flex-1 p-8">
+        <h1 className="text-2xl font-semibold text-text mb-4">Product Listing</h1>
 
-        {error && <p className="text-red-600">{error}</p>}
+        {loading && (
+          <p className="text-text-secondary">Loading products…</p>
+        )}
+
+        {error && (
+          <p className="text-red-600">{error}</p>
+        )}
 
         {!loading && !error && products.length === 0 && (
-          <p className="text-gray-500">No products found.</p>
+          <p className="text-text-secondary">No products found.</p>
         )}
 
         {!loading && !error && products.length > 0 && (
-          <table className="min-w-full bg-white shadow rounded overflow-hidden">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="px-4 py-2 text-left">Title</th>
-                <th className="px-4 py-2 text-left">Category</th>
-                <th className="px-4 py-2 text-left">Origin</th>
-                <th className="px-4 py-2 text-right">Price / kg</th>
-              </tr>
-            </thead>
-            <tbody>
-              {products.map((p) => (
-                <tr key={p.id} className="border-t">
-                  <td className="px-4 py-2">{p.title}</td>
-                  <td className="px-4 py-2">{p.category}</td>
-                  <td className="px-4 py-2">{p.origin_country}</td>
-                  <td className="px-4 py-2 text-right">
-                    £{p.price_per_kg.toFixed(2)}
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
+              <thead className="bg-gray-100">
+                <tr>
+                  <th className="px-4 py-2 text-left text-text-secondary">Title</th>
+                  <th className="px-4 py-2 text-left text-text-secondary">Category</th>
+                  <th className="px-4 py-2 text-left text-text-secondary">Origin</th>
+                  <th className="px-4 py-2 text-right text-text-secondary">Price / kg</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {products.map((p) => (
+                  <tr key={p.id} className="border-t border-border-light dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
+                    <td className="px-4 py-2 text-text">{p.title}</td>
+                    <td className="px-4 py-2 text-text">{p.category}</td>
+                    <td className="px-4 py-2 text-text">{p.origin_country}</td>
+                    <td className="px-4 py-2 text-right text-text">£{p.price_per_kg.toFixed(2)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </div>
