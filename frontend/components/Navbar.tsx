@@ -6,16 +6,15 @@ import { useEffect, useState, useRef, useCallback } from 'react'
 import api from '@/lib/api'
 import { UserRole } from '@/hooks/useAuthRedirect'
 import { signInWithEthereum, logout } from '@/utils/auth'
-import { DarkModeToggle } from './DarkModeToggle'
 
 export default function Navbar() {
   const router = useRouter()
   const [account, setAccount] = useState<string | null>(null)
-  const [role, setRole]       = useState<UserRole | null>(null)
+  const [role, setRole] = useState<UserRole | null>(null)
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const wrapperRef = useRef<HTMLDivElement>(null)
 
-  // SIWE login via wallet
+  // 1) SIWE login via wallet
   const handleConnect = useCallback(async () => {
     localStorage.removeItem('manualDisconnect')
     try {
@@ -24,11 +23,13 @@ export default function Navbar() {
       setRole(newRole as UserRole)
     } catch (err: any) {
       console.error('SIWE login failed', err)
-      if (err.response?.status === 404) router.push('/register')
+      if (err.response?.status === 404) {
+        router.push('/register')
+      }
     }
   }, [router])
 
-  // Manual logout
+  // 2) Manual logout
   const handleDisconnect = useCallback(() => {
     localStorage.setItem('manualDisconnect', 'true')
     logout()
@@ -38,30 +39,39 @@ export default function Navbar() {
     router.push('/')
   }, [router])
 
-  // Hydrate JWT and/or wallet on mount
+  // 3) Hydrate JWT and/or wallet on mount
   useEffect(() => {
-    // 1) JWT
-    const token = localStorage.getItem('token')
+    // JWT‐based login
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
     if (token) {
       api.defaults.headers.common.Authorization = `Bearer ${token}`
-      api.get<{ role: UserRole }>('/auth/profile')
-        .then(res => setRole(res.data.role))
+      api
+        .get<{ role: UserRole }>('/auth/profile')
+        .then(res => {
+          setRole(res.data.role)
+        })
         .catch(() => {
           localStorage.removeItem('token')
           delete api.defaults.headers.common.Authorization
         })
     }
 
-    // 2) Wallet auto-reconnect
-    const eth = (window as any).ethereum
+    // Wallet auto‐reconnect
+    const eth = (window as any)?.ethereum
     if (eth) {
       const manuallyDisconnected = localStorage.getItem('manualDisconnect') === 'true'
       if (!manuallyDisconnected) {
-        eth.request({ method: 'eth_accounts' })
-           .then((accounts: string[]) => accounts[0] && setAccount(accounts[0]))
-           .catch(console.error)
+        eth
+          .request({ method: 'eth_accounts' })
+          .then((accounts: string[]) => {
+            if (accounts[0]) {
+              setAccount(accounts[0])
+            }
+          })
+          .catch(console.error)
       }
-      // 3) Watch for account changes
+
+      // Listen for account changes
       const onAccountsChanged = (accounts: string[]) => {
         if (accounts.length === 0) {
           handleDisconnect()
@@ -70,109 +80,126 @@ export default function Navbar() {
         }
       }
       eth.on('accountsChanged', onAccountsChanged)
-      return () => eth.removeListener('accountsChanged', onAccountsChanged)
+      return () => void eth.removeListener('accountsChanged', onAccountsChanged)
     }
   }, [handleDisconnect])
 
-  // Close dropdown on outside click
+  // 4) Close dropdown if clicked outside
   useEffect(() => {
-    function onClick(e: MouseEvent) {
-      if (
-        dropdownOpen &&
-        wrapperRef.current &&
-        !wrapperRef.current.contains(e.target as Node)
-      ) {
+    function onClickOutside(e: MouseEvent) {
+      if (dropdownOpen && wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
         setDropdownOpen(false)
       }
     }
-    document.addEventListener('mousedown', onClick)
-    return () => document.removeEventListener('mousedown', onClick)
+    document.addEventListener('mousedown', onClickOutside)
+    return () => void document.removeEventListener('mousedown', onClickOutside)
   }, [dropdownOpen])
 
-  const shortAddr = account
-    ? `${account.slice(0, 6)}…${account.slice(-4)}`
-    : ''
+  const shortAddr = account ? `${account.slice(0, 6)}…${account.slice(-4)}` : ''
 
-  // Build dashboard link by role
+  // Decide where “Dashboard” should point
   const dashboardPath =
-    role === 'admin'    ? '/admin/dashboard'   :
-    role === 'supplier' ? '/supplier/dashboard':
-    role === 'buyer'    ? '/buyer/dashboard'    :
-    undefined
+    role === 'admin'
+      ? '/admin/dashboard'
+      : role === 'supplier'
+      ? '/supplier/dashboard'
+      : role === 'buyer'
+      ? '/buyer/dashboard'
+      : undefined
 
   return (
-    <header className="sticky top-0 bg-background-header border-b z-50">
-      <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-4">
-        {/* Logo */}
+    <header className="sticky top-0 bg-background-header dark:bg-background-dark border-b z-50">
+      <div className="max-w-7xl mx-auto flex items-center h-16 px-4">
+        {/* Logo on the far left */}
         <Link href="/" className="flex items-center">
           <Image
-            src="/Stickeyai.svg"
-            alt="Stickey.ai"
+            src="/stickeyai.svg"
+            alt="Stickey.ai Logo"
             width={144}
             height={48}
             priority
           />
         </Link>
 
-        <div className="flex items-center space-x-6">
-          <Link href="/" className="text-text hover:text-primary transition">
-            Marketplace
-          </Link>
+        {/* Dropdown toggler: “G.svg” icon */}
+        <div ref={wrapperRef} className="relative ml-6">
+          <button
+            onClick={() => setDropdownOpen(o => !o)}
+            className="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition"
+          >
+            <Image src="/g.svg" alt="Menu" width={24} height={24} />
+          </button>
 
-          {/* Unauthenticated */}
-          {!account && !role && (
-            <>
-              <Link href="/register" className="text-text hover:text-primary transition">
-                Register
-              </Link>
-              <Link href="/login" className="text-text hover:text-primary transition">
-                Login
-              </Link>
-            </>
-          )}
+          {dropdownOpen && (
+            <ul className="absolute left-0 mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow-dropdown">
+              {/* Always show “Marketplace” */}
+              <li>
+                <Link href="/" className="block px-4 py-2 text-text hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                  Marketplace
+                </Link>
+              </li>
 
-          {/* Role-based dashboard link */}
-          {dashboardPath && (
-            <Link
-              href={dashboardPath}
-              className="text-text hover:text-primary transition"
-            >
-              {role![0].toUpperCase() + role!.slice(1)} Dashboard
-            </Link>
-          )}
-
-          {/* Connect / Account */}
-          {!account ? (
-            <button
-              onClick={handleConnect}
-              className="btn-primary"
-            >
-              Connect Wallet
-            </button>
-          ) : (
-            <div ref={wrapperRef} className="relative">
-              <button
-                onClick={() => setDropdownOpen(o => !o)}
-                className="bg-gray-200 text-text px-3 py-1 rounded-full border border-gray-300 hover:bg-gray-300 transition"
-              >
-                {shortAddr}
-              </button>
-              {dropdownOpen && (
-                <div className="absolute right-0 mt-2 w-40 bg-white border rounded shadow-lg">
-                  <button
-                    onClick={handleDisconnect}
-                    className="w-full text-left px-4 py-2 hover:bg-gray-100 transition"
-                  >
-                    Disconnect
-                  </button>
-                </div>
+              {/* If not logged in at all, show Register & Login */}
+              {!account && !role && (
+                <>
+                  <li>
+                    <Link href="/register" className="block px-4 py-2 text-text hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                      Register
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/login" className="block px-4 py-2 text-text hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                      Login
+                    </Link>
+                  </li>
+                </>
               )}
-            </div>
-          )}
 
-          {/* Dark / Light toggle */}
-          <DarkModeToggle />
+              {/* If we have a dashboardPath (i.e. user is logged‐in), show Dashboard link */}
+              {dashboardPath && (
+                <li>
+                  <Link href={dashboardPath} className="block px-4 py-2 text-text hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                    {role![0].toUpperCase() + role!.slice(1)} Dashboard
+                  </Link>
+                </li>
+              )}
+            </ul>
+          )}
         </div>
+
+        {/* Spacer → push Connect Wallet all the way right */}
+        <div className="flex-1" />
+
+        {/* Connect Wallet or Account Dropdown on the far right */}
+        {!account ? (
+          <button
+            onClick={handleConnect}
+            className="bg-primary hover:bg-primaryHover text-white px-3 py-1 rounded transition"
+          >
+            Connect Wallet
+          </button>
+        ) : (
+          <div ref={wrapperRef} className="relative">
+            <button
+              onClick={() => setDropdownOpen(o => !o)}
+              className="bg-gray-200 dark:bg-gray-700 text-text px-3 py-1 rounded-full border border-gray-300 dark:border-gray-600 hover:bg-gray-300 dark:hover:bg-gray-600 transition"
+            >
+              {shortAddr}
+            </button>
+
+            {/* If account is clicked, show “Disconnect” */}
+            {dropdownOpen && (
+              <div className="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow-dropdown">
+                <button
+                  onClick={handleDisconnect}
+                  className="w-full text-left px-4 py-2 text-text hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                >
+                  Disconnect
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </header>
   )
