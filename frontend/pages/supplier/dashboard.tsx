@@ -1,11 +1,11 @@
 // frontend/pages/supplier/dashboard.tsx
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import useAuthRedirect from '@/hooks/useAuthRedirect'
 import useSupplierDashboard from '@/hooks/useSupplierDashboard'
 import Link from 'next/link'
+import Chart, { ChartPoint } from '@/components/Chart' // reuse your existing Chart
 
-// Define your metric keys and labels
 const METRICS = [
   { key: 'totalSalesToday', label: 'Sales Today' },
   { key: 'activeListings',   label: 'Active Listings' },
@@ -15,7 +15,7 @@ const METRICS = [
 ]
 
 export default function SupplierDashboard() {
-  // Redirect if not a supplier
+  // Redirect if not a supplier (the hook does a push in useAuthRedirect if role !== 'supplier')
   useAuthRedirect('supplier')
 
   // Fetch dashboard data
@@ -38,19 +38,24 @@ export default function SupplierDashboard() {
     )
   }
 
-  // Determine the current metric label + value
+  // Determine current metric label + value
   const currentMetric = METRICS.find((m) => m.key === selectedMetric)!
-  let rawValue: number = (data as any)[currentMetric.key]
+  let rawValue = (data as any)[currentMetric.key]
   let displayValue: string | number = rawValue
-
   if (selectedMetric === 'proceeds30d') {
     displayValue = `£${rawValue}`
   }
 
+  // Build some dummy chart data if you want to display something
+  const sampleChartData: ChartPoint[] = Array.from({ length: 24 }, (_, i) => ({
+    time:  Math.floor(Date.now() / 1000) - (23 - i) * 3600,
+    value: (data.products.length > 0 ? data.products[0].price_per_kg : 1) * 1000 + (Math.random() - 0.5) * 500,
+  }))
+
   return (
     <div className="bg-bg-page min-h-screen pb-8">
       <main className="max-w-7xl mx-auto px-4 pt-6 space-y-8">
-        {/* ── (A) Terminal‐Style Metric Container (full‐width) ─────────────── */}
+        {/* ── Terminal-Style Metric Container (full-width) ─────────────────────────── */}
         <div className="bg-white dark:bg-gray-800 border border-border-light dark:border-gray-700 rounded-lg">
           <div className="p-4 flex flex-col md:flex-row md:items-center md:justify-between">
             <div className="flex items-center space-x-2">
@@ -62,12 +67,7 @@ export default function SupplierDashboard() {
               </label>
               <select
                 id="metricSelect"
-                className="
-                  bg-white dark:bg-gray-800
-                  border border-border-light dark:border-gray-600
-                  rounded px-2 py-1 text-text text-sm
-                  focus:outline-none focus:ring-2 focus:ring-primary
-                "
+                className="bg-white dark:bg-gray-800 border border-border-light dark:border-gray-600 rounded px-2 py-1 text-text text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                 value={selectedMetric}
                 onChange={(e) => setSelectedMetric(e.target.value)}
               >
@@ -80,11 +80,7 @@ export default function SupplierDashboard() {
             </div>
           </div>
 
-          <div className="
-            border-t border-border-light dark:border-gray-700
-            px-4 py-2 font-mono bg-white dark:bg-gray-800
-            text-text dark:text-text-secondary text-sm
-          ">
+          <div className="border-t border-border-light dark:border-gray-700 px-4 py-2 font-mono bg-white dark:bg-gray-800 text-text dark:text-text-secondary text-sm">
             <span className="font-mono">{currentMetric.label}:</span>{' '}
             <span
               className={`font-mono ${
@@ -101,55 +97,53 @@ export default function SupplierDashboard() {
           </div>
         </div>
 
-        {/* ── (B) Chart + AI Analysis Placeholders ─────────────────────────── */}
+        {/* ── Chart + AI Analysis Placeholders ─────────────────────────────────────── */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* (B1) Chart placeholder */}
-          <div className="
-            bg-white dark:bg-gray-800
-            border border-border-light dark:border-gray-700
-            rounded-lg h-64 flex items-center justify-center
-            text-text-secondary
-          ">
-            {/* Replace with actual <Chart /> when ready */}
-            Chart placeholder
+          {/* (A) Chart area: embed a real Chart component */}
+          <div className="bg-white dark:bg-gray-800 border border-border-light dark:border-gray-700 rounded-lg h-64 overflow-hidden">
+            <Chart data={sampleChartData} height={256} />
           </div>
 
-          {/* (B2) AI Analysis area: styled like a “mini‐terminal” */}
-          <div className="
-            bg-black text-green-200 font-mono
-            border border-border-light dark:border-gray-700
-            rounded-lg h-64 p-4 overflow-auto
-          ">
-            <p className="text-sm mb-2">⭢ Fetching latest metrics…</p>
-            <p className="text-sm mb-2">⭢ Analyzing sales trends for last 30 days…</p>
-            <p className="text-sm mb-2">⭢ Generating insights…</p>
-            <p className="text-sm mb-2">⭢ “Sales Today” shows a 5% uptick vs. yesterday.</p>
-            <p className="text-sm mb-2">⭢ “30d Proceeds” have increased by £1,320.</p>
-            <p className="text-sm mb-2">⭢ “Feedback Rating” stays steady at 4.7/5.</p>
-            <p className="text-sm">[ More AI insights to come… ]</p>
+          {/* (B) AI Analysis area: white background + black text */}
+          <div className="bg-white dark:bg-gray-800 border border-border-light dark:border-gray-700 rounded-lg h-64 p-4 overflow-auto font-sans text-black dark:text-text-secondary text-sm">
+            {/* Replace the black-on-green terminal with a white box and black text */}
+            <p className="mb-2">→ Fetching latest metrics…</p>
+            <p className="mb-2">→ Analyzing sales trends for last 30 days…</p>
+            <p className="mb-2">→ Generating insights…</p>
+            <p className="mb-2">“Sales Today” shows a 5% uptick vs. yesterday.</p>
+            <p className="mb-2">“30d Proceeds” have increased by £1,320.</p>
+            <p className="mb-2">“Feedback Rating” stays steady at 4.7/5.</p>
+            <p className="mb-2">[ More AI insights to come… ]</p>
           </div>
         </div>
 
-        {/* ── (C) “My Listings” Table ───────────────────────────────────────── */}
-        <div className="
-          bg-white dark:bg-gray-800
-          border border-border-light dark:border-gray-700
-          rounded-lg p-4
-        ">
+        {/* ── “My Listings” Table ─────────────────────────────────────────────────── */}
+        <div className="bg-white dark:bg-gray-800 border border-border-light dark:border-gray-700 rounded-lg p-4">
           <h2 className="text-lg font-semibold text-text mb-2">My Listings</h2>
-
           {data.products.length === 0 ? (
-            <p className="text-text-secondary">You have no active listings yet.</p>
+            <p className="text-text-secondary">
+              You have no active listings yet.
+            </p>
           ) : (
             <div className="overflow-x-auto">
               <table className="min-w-full table-auto">
                 <thead className="bg-gray-100 dark:bg-gray-700">
                   <tr>
-                    <th className="px-4 py-2 text-left text-text-secondary">Title</th>
-                    <th className="px-4 py-2 text-left text-text-secondary">Category</th>
-                    <th className="px-4 py-2 text-left text-text-secondary">Origin</th>
-                    <th className="px-4 py-2 text-right text-text-secondary">Price / kg</th>
-                    <th className="px-4 py-2 text-right text-text-secondary">Actions</th>
+                    <th className="px-4 py-2 text-left text-text-secondary">
+                      Title
+                    </th>
+                    <th className="px-4 py-2 text-left text-text-secondary">
+                      Category
+                    </th>
+                    <th className="px-4 py-2 text-left text-text-secondary">
+                      Origin
+                    </th>
+                    <th className="px-4 py-2 text-right text-text-secondary">
+                      Price / kg
+                    </th>
+                    <th className="px-4 py-2 text-right text-text-secondary">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -161,18 +155,14 @@ export default function SupplierDashboard() {
                       <td className="px-4 py-2">{p.title}</td>
                       <td className="px-4 py-2">{p.category}</td>
                       <td className="px-4 py-2">{p.origin_country}</td>
-                      <td className="px-4 py-2 text-right">£{p.price_per_kg.toFixed(2)}</td>
+                      <td className="px-4 py-2 text-right">
+                        £{p.price_per_kg.toFixed(2)}
+                      </td>
                       <td className="px-4 py-2 text-right">
                         <Link
                           href={`/products/edit/${p.id}`}
                           prefetch={false}
-                          className="
-                            px-3 py-1
-                            border border-text
-                            rounded text-text text-sm
-                            hover:bg-gray-50 dark:hover:bg-gray-700
-                            transition
-                          "
+                          className="px-3 py-1 border border-black rounded text-black text-sm hover:bg-gray-50 transition"
                         >
                           Edit
                         </Link>
@@ -185,18 +175,12 @@ export default function SupplierDashboard() {
           )}
         </div>
 
-        {/* ── (D) Sell Product CTA ─────────────────────────────────────────── */}
+        {/* ── Sell Product CTA ─────────────────────────────────────────────────────── */}
         <div className="text-right">
           <Link
             href="/products/new"
             prefetch={false}
-            className="
-              px-3 py-1
-              border border-text
-              rounded text-text text-sm
-              hover:bg-gray-50 dark:hover:bg-gray-700
-              transition
-            "
+            className="px-3 py-1 border border-black rounded text-black text-sm hover:bg-gray-50 transition text-left inline-block"
           >
             + Sell Product
           </Link>

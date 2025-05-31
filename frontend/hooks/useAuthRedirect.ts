@@ -17,11 +17,9 @@ export default function useAuthRedirect(requiredRole?: UserRole) {
 
   useEffect(() => {
     const token = getToken()
-    const manualDisconnect = localStorage.getItem('manualDisconnect')
 
-    // 1) If no token (or they've manually disconnected),
-    //    and this isn't a public page, send to /login
-    if (!token || manualDisconnect) {
+    // 1) If no token, and this isn’t a public page, send to /login
+    if (!token) {
       if (!PUBLIC_PATHS.includes(pathname)) {
         router.replace('/login')
       }
@@ -37,7 +35,7 @@ export default function useAuthRedirect(requiredRole?: UserRole) {
       .then(({ data }) => {
         const userRole = data.role
 
-        // 3a) If we're on a public page (login/register),
+        // 3a) If we’re on a public page (login/register),
         //     send them to their dashboard immediately
         if (PUBLIC_PATHS.includes(pathname)) {
           switch (userRole) {
@@ -57,7 +55,7 @@ export default function useAuthRedirect(requiredRole?: UserRole) {
 
         // Otherwise: allowed, stay put
       })
-      .catch(err => {
+      .catch((err) => {
         console.error('[useAuthRedirect] token validation failed', err)
         // Invalid token → clear & force to login
         logout()
