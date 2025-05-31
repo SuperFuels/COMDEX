@@ -48,7 +48,7 @@ export default function Navbar() {
   }, [router])
 
   //
-  // 3) On‐mount: hydrate JWT and/or wallet
+  // 3) On-mount: hydrate JWT and/or wallet
   //
   useEffect(() => {
     // a) If a JWT exists, retrieve role
@@ -57,14 +57,14 @@ export default function Navbar() {
       api.defaults.headers.common.Authorization = `Bearer ${token}`
       api
         .get<{ role: UserRole }>('/auth/profile')
-        .then(res => setRole(res.data.role))
+        .then((res) => setRole(res.data.role))
         .catch(() => {
           localStorage.removeItem('token')
           delete api.defaults.headers.common.Authorization
         })
     }
 
-    // b) Wallet auto‐reconnect
+    // b) Wallet auto-reconnect
     const eth = (window as any).ethereum
     if (eth) {
       const manuallyDisconnected = localStorage.getItem('manualDisconnect') === 'true'
@@ -114,13 +114,11 @@ export default function Navbar() {
   }, [dropdownOpen])
 
   // Shorten the address for display (e.g. 0x1234…abcd)
-  const shortAddr = account
-    ? `${account.slice(0, 6)}…${account.slice(-4)}`
-    : ''
+  const shortAddr = account ? `${account.slice(0, 6)}…${account.slice(-4)}` : ''
 
   return (
     <>
-      {/* ─── Slide‐in Sidebar ─────────────────────────────────────────────── */}
+      {/* ─── Slide-in Sidebar ───────────────────────────────────────────────── */}
       <Sidebar
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
@@ -129,23 +127,22 @@ export default function Navbar() {
         onLogout={handleDisconnect}
       />
 
-      {/* ─── Top Bar / Navbar ────────────────────────────────────────────── */}
+      {/* ─── Top Bar / Navbar ───────────────────────────────────────────────── */}
       <header className="sticky top-0 z-50 bg-background-header dark:bg-background-dark border-b border-border-light">
-        <div className="max-w-7xl mx-auto flex items-center">
+        <div className="flex w-full">
 
-          {/* (1) “G” toggle: flush left, no extra padding */}
+          {/* (1) “G” toggle flush-left (no left padding) */}
           <button
             onClick={() => setSidebarOpen(true)}
-            className="p-2 focus:outline-none"
+            className="m-2 p-2 focus:outline-none border border-border-light rounded-lg bg-white dark:bg-gray-800 hover:bg-gray-100 transition"
             aria-label="Open menu"
           >
             <Image src="/G.svg" alt="Menu" width={24} height={24} />
           </button>
 
-          {/* (2) Remaining content: padded to align with SwapBar below */}
-          <div className="flex-1 flex items-center justify-between px-4 h-16">
-
-            {/* (2a) Logo */}
+          {/* (2) Inner container: Logo & Right-side buttons */}
+          <div className="flex-1 flex items-center justify-between px-4 py-2">
+            {/* ── Logo (no border) ────────────────────────── */}
             <Link href="/" className="flex items-center">
               <Image
                 src="/Stickeyai.svg"
@@ -156,16 +153,16 @@ export default function Navbar() {
               />
             </Link>
 
-            {/* (2b) Right side: “Live” indicator + Wallet UI */}
+            {/* ── Right: “Live” + Wallet/Address ───────────── */}
             <div className="flex items-center space-x-4">
 
-              {/* “Live” indicator styled as a button */}
+              {/* “Live” indicator as a button (same height/border as wallet) */}
               <div className="flex items-center space-x-1 px-3 py-1 border border-text-primary rounded text-text-primary hover:bg-gray-100 transition">
                 <span className="inline-block w-2 h-2 bg-green-500 rounded-full" />
-                <span className="text-text font-medium">Live</span>
+                <span className="font-medium">Live</span>
               </div>
 
-              {/* Wallet connect / short address + dropdown */}
+              {/* Wallet connect or short address+dropdown */}
               {!account ? (
                 <button
                   onClick={handleConnect}
@@ -176,7 +173,7 @@ export default function Navbar() {
               ) : (
                 <div ref={wrapperRef} className="relative">
                   <button
-                    onClick={() => setDropdownOpen(o => !o)}
+                    onClick={() => setDropdownOpen((o) => !o)}
                     className="px-3 py-1 border border-text-primary rounded text-text-primary hover:bg-gray-100 transition"
                   >
                     {shortAddr}
@@ -193,7 +190,6 @@ export default function Navbar() {
                   )}
                 </div>
               )}
-
             </div>
           </div>
         </div>
