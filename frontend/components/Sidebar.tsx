@@ -1,9 +1,10 @@
+// frontend/components/Sidebar.tsx
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { DarkModeToggle } from './DarkModeToggle'
 
-// You already have SidebarProps, just confirm it’s imported / declared somewhere
-import type { UserRole } from '@/hooks/useAuthRedirect'
+// We need to import UserRole so SidebarProps can type the `role` prop
+import { UserRole } from '@/hooks/useAuthRedirect'
 
 interface SidebarProps {
   isOpen: boolean
@@ -22,7 +23,7 @@ export default function Sidebar({
 }: SidebarProps) {
   const containerRef = useRef<HTMLDivElement>(null)
 
-  // Close sidebar when clicking outside
+  // Close when clicking outside
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (
@@ -39,19 +40,19 @@ export default function Sidebar({
 
   return (
     <>
-      {/* ── Sliding Sidebar ─────────────────────────────────────────────── */}
+      {/* ── Sliding Sidebar ──────────────────────────────────────────────────── */}
       <div
         ref={containerRef}
         className={`
           fixed inset-y-0 left-0 z-40 w-64 max-w-full
-          bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700
+          bg-white dark:bg-gray-900 border-r border-black 
           transform transition-transform duration-300 ease-in-out
           ${isOpen ? 'translate-x-0' : '-translate-x-full'}
         `}
       >
         <div className="flex flex-col h-full">
-          <div className="px-4 pt-4 pb-2 flex justify-between items-center border-b border-gray-200 dark:border-gray-700">
-            <h2 className="text-xl font-semibold text-text-primary dark:text-text-secondary">
+          <div className="px-4 pt-4 pb-2 flex justify-between items-center border-b border-black">
+            <h2 className="text-xl font-semibold text-black dark:text-text-secondary">
               Stickey.ai
             </h2>
             <button
@@ -61,7 +62,7 @@ export default function Sidebar({
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 text-text-primary dark:text-text-secondary"
+                className="h-5 w-5 text-black dark:text-text-secondary"
                 viewBox="0 0 20 20"
                 fill="currentColor"
               >
@@ -82,18 +83,17 @@ export default function Sidebar({
             </button>
           </div>
 
-          <nav className="flex-1 px-4 py-6 space-y-4 overflow-y-auto">
-            {/* “Live Market” always visible */}
+          <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+            {/* Live Market (always show) */}
             <Link
               href="/"
               onClick={onClose}
+              className="block py-2 px-3 border border-black rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-black dark:text-text-secondary text-left"
             >
-              <a className="block py-2 px-3 rounded border border-gray-500 text-left hover:bg-gray-100 dark:hover:bg-gray-800 text-text-primary dark:text-text-secondary">
-                Live Market
-              </a>
+              Live Market
             </Link>
 
-            {/* If user is logged in, show Dashboard link */}
+            {/* If user is logged in (anything in `role`), show Dashboard link */}
             {role && (
               <Link
                 href={
@@ -101,28 +101,33 @@ export default function Sidebar({
                     ? '/admin/dashboard'
                     : role === 'supplier'
                     ? '/supplier/dashboard'
-                    : '/buyer/dashboard'
+                    : role === 'buyer'
+                    ? '/buyer/dashboard'
+                    : '/'
                 }
                 onClick={onClose}
+                className="block py-2 px-3 border border-black rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-black dark:text-text-secondary text-left"
               >
-                <a className="block py-2 px-3 rounded border border-gray-500 text-left hover:bg-gray-100 dark:hover:bg-gray-800 text-text-primary dark:text-text-secondary">
-                  Dashboard
-                </a>
+                Dashboard
               </Link>
             )}
 
             {/* If not logged in, show Login / Register */}
             {!account && !role && (
               <>
-                <Link href="/login" onClick={onClose}>
-                  <a className="block py-2 px-3 rounded border border-gray-500 text-left hover:bg-gray-100 dark:hover:bg-gray-800 text-text-primary dark:text-text-secondary">
-                    Login
-                  </a>
+                <Link
+                  href="/login"
+                  onClick={onClose}
+                  className="block py-2 px-3 border border-black rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-black dark:text-text-secondary text-left"
+                >
+                  Login
                 </Link>
-                <Link href="/register" onClick={onClose}>
-                  <a className="block py-2 px-3 rounded border border-gray-500 text-left hover:bg-gray-100 dark:hover:bg-gray-800 text-text-primary dark:text-text-secondary">
-                    Register
-                  </a>
+                <Link
+                  href="/register"
+                  onClick={onClose}
+                  className="block py-2 px-3 border border-black rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-black dark:text-text-secondary text-left"
+                >
+                  Register
                 </Link>
               </>
             )}
@@ -130,22 +135,26 @@ export default function Sidebar({
             {/* If logged in, show Profile / Settings / Logout */}
             {account && role && (
               <>
-                <Link href="/profile" onClick={onClose}>
-                  <a className="block py-2 px-3 rounded border border-gray-500 text-left hover:bg-gray-100 dark:hover:bg-gray-800 text-text-primary dark:text-text-secondary">
-                    Profile
-                  </a>
+                <Link
+                  href="/profile"
+                  onClick={onClose}
+                  className="block py-2 px-3 border border-black rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-black dark:text-text-secondary text-left"
+                >
+                  Profile
                 </Link>
-                <Link href="/settings" onClick={onClose}>
-                  <a className="block py-2 px-3 rounded border border-gray-500 text-left hover:bg-gray-100 dark:hover:bg-gray-800 text-text-primary dark:text-text-secondary">
-                    Settings
-                  </a>
+                <Link
+                  href="/settings"
+                  onClick={onClose}
+                  className="block py-2 px-3 border border-black rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-black dark:text-text-secondary text-left"
+                >
+                  Settings
                 </Link>
                 <button
                   onClick={() => {
                     onLogout()
                     onClose()
                   }}
-                  className="w-full text-left py-2 px-3 rounded border border-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 text-text-primary dark:text-text-secondary"
+                  className="w-full text-left py-2 px-3 border border-black rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-black dark:text-text-secondary text-sm"
                 >
                   Logout
                 </button>
@@ -153,7 +162,7 @@ export default function Sidebar({
             )}
           </nav>
 
-          <div className="px-4 pb-4 border-t border-gray-200 dark:border-gray-700">
+          <div className="px-4 pb-4 border-t border-black">
             <DarkModeToggle />
           </div>
         </div>

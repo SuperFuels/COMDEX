@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react'
 import { useRouter } from 'next/router'
+import Link from 'next/link'      // ← Add this import
 import api from '@/lib/api'
 
 export default function LoginPage() {
@@ -98,6 +99,13 @@ export default function LoginPage() {
         >
           {loading ? 'Logging in…' : 'Login'}
         </button>
+
+        <p className="mt-4 text-center text-sm">
+          Don’t have an account?{' '}
+          <Link href="/register" className="text-blue-600 hover:underline">
+            Register here
+          </Link>
+        </p>
       </form>
     </div>
   )
