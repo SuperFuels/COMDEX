@@ -1,12 +1,13 @@
 // frontend/components/SwapBar.tsx
+
 import { useRouter } from 'next/router'
 import { useState, FormEvent } from 'react'
 import Image from 'next/image'
 
 export default function SwapBar() {
   const router = useRouter()
-  const [query, setQuery]       = useState('')
-  const [amountIn, setAmountIn] = useState('')
+  const [query, setQuery]         = useState('')
+  const [amountIn, setAmountIn]   = useState('')
   const [amountOut, setAmountOut] = useState('')
 
   const submitSearch = (e: FormEvent) => {
@@ -16,58 +17,124 @@ export default function SwapBar() {
   }
 
   return (
-    <div className="sticky top-16 z-20 bg-white border-b border-gray-200">
-      <div className="max-w-7xl mx-auto px-4 py-3 flex items-center space-x-4">
-        {/* ─── Marketplace search ─── */}
+    <div className="sticky top-16 z-20 bg-background-header dark:bg-background-dark border-b border-border-light">
+      <div className="max-w-7xl mx-auto px-4 py-3 flex items-center space-x-3">
+        {/* ─── Marketplace search ───────────────────────────────────────── */}
         <form onSubmit={submitSearch} className="flex-1">
           <input
             type="text"
             placeholder="Search by title or category…"
             value={query}
-            onChange={e => setQuery(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+            onChange={(e) => setQuery(e.target.value)}
+            className="
+              w-full h-10
+              px-3
+              border border-text-primary dark:border-text-secondary
+              bg-transparent
+              text-text-primary dark:text-text-secondary
+              rounded-full
+              focus:outline-none focus:ring-2 focus:ring-primary
+            "
           />
         </form>
 
-        {/* ─── Swap inputs & selectors ─── */}
+        {/* ─── Amount In input ─────────────────────────────────────────── */}
         <input
           type="number"
           value={amountIn}
-          onChange={e => setAmountIn(e.target.value)}
+          onChange={(e) => setAmountIn(e.target.value)}
           placeholder="0"
-          className="w-20 sm:w-32 p-2 border border-gray-300 rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="
+            w-20 sm:w-28 h-10
+            px-3
+            border border-text-primary dark:border-text-secondary
+            bg-transparent
+            text-center text-text-primary dark:text-text-secondary
+            rounded-lg
+            focus:outline-none focus:ring-2 focus:ring-primary
+          "
         />
+
+        {/* ─── “From” token picker ────────────────────────────────────── */}
         <button
           type="button"
-          className="flex items-center border border-gray-300 rounded-lg px-2 py-1 hover:bg-gray-50"
-          onClick={() => {/* open your “from” token picker */}}
+          onClick={() => {
+            /* open your “from” token picker */
+          }}
+          className="
+            flex items-center h-10
+            px-3
+            border border-text-primary dark:border-text-secondary
+            bg-transparent
+            rounded-lg
+            hover:bg-gray-50 dark:hover:bg-gray-800
+            transition
+          "
         >
           <Image src="/tokens/usdt.svg" alt="USDT" width={20} height={20} />
-          <span className="ml-1 text-sm font-medium">USDT</span>
+          <span className="ml-1 text-text-primary dark:text-text-secondary text-sm">
+            USDT
+          </span>
         </button>
 
-        <span className="text-2xl text-gray-400 select-none">→</span>
+        {/* ─── Arrow icon ───────────────────────────────────────────────── */}
+        <span className="text-xl text-border-light dark:text-border-dark select-none">
+          →
+        </span>
 
+        {/* ─── Amount Out input ────────────────────────────────────────── */}
         <input
           type="number"
           value={amountOut}
-          onChange={e => setAmountOut(e.target.value)}
+          onChange={(e) => setAmountOut(e.target.value)}
           placeholder="0"
-          className="w-20 sm:w-32 p-2 border border-gray-300 rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="
+            w-20 sm:w-28 h-10
+            px-3
+            border border-text-primary dark:border-text-secondary
+            bg-transparent
+            text-center text-text-primary dark:text-text-secondary
+            rounded-lg
+            focus:outline-none focus:ring-2 focus:ring-primary
+          "
         />
+
+        {/* ─── “To” token picker ──────────────────────────────────────── */}
         <button
           type="button"
-          className="flex items-center border border-gray-300 rounded-lg px-2 py-1 hover:bg-gray-50"
-          onClick={() => {/* open your “to” token picker */}}
+          onClick={() => {
+            /* open your “to” token picker */
+          }}
+          className="
+            flex items-center h-10
+            px-3
+            border border-text-primary dark:border-text-secondary
+            bg-transparent
+            rounded-lg
+            hover:bg-gray-50 dark:hover:bg-gray-800
+            transition
+          "
         >
           <Image src="/tokens/glu.svg" alt="GLU" width={20} height={20} />
-          <span className="ml-1 text-sm font-medium">$GLU</span>
+          <span className="ml-1 text-text-primary dark:text-text-secondary text-sm">
+            $GLU
+          </span>
         </button>
 
-        {/* ─── Swap button ─── */}
+        {/* ─── “Swap” button ───────────────────────────────────────────── */}
         <button
           onClick={() => router.push('/swap')}
-          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="
+            h-10
+            px-4
+            border border-text-primary dark:border-text-secondary
+            bg-transparent
+            text-text-primary dark:text-text-secondary
+            rounded-lg
+            hover:bg-gray-50 dark:hover:bg-gray-800
+            focus:outline-none focus:ring-2 focus:ring-primary
+            transition
+          "
         >
           Swap
         </button>
@@ -75,4 +142,3 @@ export default function SwapBar() {
     </div>
   )
 }
-
