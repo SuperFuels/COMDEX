@@ -1,3 +1,5 @@
+/* frontend/styles/globals.css */
+
 /* 1) Import Inter before any Tailwind directives */
 @import url('https://rsms.me/inter/inter.css');
 
@@ -6,31 +8,35 @@
 @tailwind utilities;
 
 /* ────────────────────────────────────
-   Now your custom variables, resets, etc.
+   CSS VARIABLES (light & dark mode)
 ───────────────────────────────────── */
 :root {
-  /* Light mode tokens */
+  /* Light mode colors */
   --bg-page:       #ffffff;
-  --bg-header:     #f3f4f6;
-  --text-primary:  #1f2937;
-  --btn-primary:   #4a90e2;
+  --bg-header:     #f3f4f6;  /* light gray */
+  --text-primary:  #1f2937;  /* dark slate */
+  --text-secondary:#374151;  /* medium slate */
+  --btn-primary:   #4a90e2;  /* your brand blue */
   --btn-primary-hover: #357abd;
-  --border-light:  #e5e7eb;
-  --scrollbar-thumb: #4a5568;
+  --border-light:  #e5e7eb;  /* gray-200 */
+  --scrollbar-thumb:#4a5568; /* gray-700 */
 }
 
+/* Dark mode overrides */
 .dark {
-  /* Dark mode overrides */
-  --bg-page:       #111827;
-  --bg-header:     #1f2937;
-  --text-primary:  #f9fafb;
-  --btn-primary:   #374151;
+  --bg-page:       #111827;  /* deep gray */
+  --bg-header:     #1f2937;  /* dark slate */
+  --text-primary:  #f9fafb;  /* off-white */
+  --text-secondary:#d1d5db;  /* light gray */
+  --btn-primary:   #374151;  /* dark button bg */
   --btn-primary-hover: #4b5563;
-  --border-light:  #4b5563;
-  --scrollbar-thumb: #9ca3af;
+  --border-light:  #4b5563;  /* gray-600 */
+  --scrollbar-thumb:#9ca3af; /* gray-400 */
 }
 
-/* Reset + base */
+/* -----------------------------------
+   RESET + GLOBALS
+----------------------------------- */
 * {
   margin: 0;
   padding: 0;
@@ -57,58 +63,71 @@ body {
   background: var(--bg-header);
 }
 
-/* Utility classes */
+/* -----------------------------------
+   CONTAINERS & CARDS
+----------------------------------- */
 .container {
   max-width: 1280px;
   margin: 0 auto;
   padding: 0 1rem;
 }
 
-/* Cards */
 .card {
   background: var(--bg-page);
   border: 1px solid var(--border-light);
   border-radius: 8px;
   padding: 1.5rem;
-  transition: box-shadow .3s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.3s ease;
 }
 .card:hover {
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-/* Buttons */
+/* -----------------------------------
+   BUTTONS
+----------------------------------- */
 .btn {
-  padding: .5rem 1rem;
+  padding: 0.5rem 1rem;
   border-radius: 6px;
   font-weight: 600;
-  transition: background-color .3s, filter .2s;
+  transition: background-color 0.3s ease, filter 0.2s ease;
 }
+
 .btn-primary {
-  background: var(--btn-primary);
+  background-color: var(--btn-primary);
   color: white;
 }
 .btn-primary:hover {
-  background: var(--btn-primary-hover);
+  background-color: var(--btn-primary-hover);
 }
+
 .btn-secondary {
-  background: var(--border-light);
+  background-color: var(--border-light);
   color: var(--text-primary);
 }
 .btn-secondary:hover {
   filter: brightness(0.9);
 }
 
-/* Forms */
-input, select, textarea {
+/* -----------------------------------
+   FORMS
+----------------------------------- */
+input,
+select,
+textarea {
   width: 100%;
-  padding: .5rem;
+  padding: 0.5rem;
   border: 1px solid var(--border-light);
   border-radius: 6px;
   background: var(--bg-page);
   color: var(--text-primary);
 }
-input:focus, select:focus, textarea:focus {
+
+input:focus,
+select:focus,
+textarea:focus {
   outline: none;
   border-color: var(--btn-primary);
-  box-shadow: 0 0 0 2px rgba(74,144,226,0.2);
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
 }
