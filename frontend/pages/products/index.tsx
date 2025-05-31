@@ -1,7 +1,6 @@
 // frontend/pages/products/index.tsx
 
 import { useEffect, useState } from 'react'
-import Sidebar from '@/components/Sidebar'
 import api from '@/lib/api'
 
 interface Product {
@@ -35,13 +34,11 @@ export default function ProductList() {
   }, [])
 
   return (
-    <div className="flex min-h-screen bg-bg-page">
-      {/* ── Sidebar (self‐contained open/close) ─────────────────────────────── */}
-      <Sidebar />
-
-      {/* ── Main Content Area ────────────────────────────────────────────────── */}
-      <div className="flex-1 p-8">
-        <h1 className="text-2xl font-semibold text-text mb-4">Product Listing</h1>
+    <div className="bg-bg-page min-h-screen">
+      <div className="max-w-7xl mx-auto p-8">
+        <h1 className="text-2xl font-semibold text-text mb-4">
+          Product Listing
+        </h1>
 
         {loading && (
           <p className="text-text-secondary">Loading products…</p>
@@ -57,22 +54,35 @@ export default function ProductList() {
 
         {!loading && !error && products.length > 0 && (
           <div className="overflow-x-auto">
-            <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
+            <table className="min-w-full bg-white shadow rounded-lg overflow-hidden">
               <thead className="bg-gray-100">
                 <tr>
-                  <th className="px-4 py-2 text-left text-text-secondary">Title</th>
-                  <th className="px-4 py-2 text-left text-text-secondary">Category</th>
-                  <th className="px-4 py-2 text-left text-text-secondary">Origin</th>
-                  <th className="px-4 py-2 text-right text-text-secondary">Price / kg</th>
+                  <th className="px-4 py-2 text-left text-text-secondary">
+                    Title
+                  </th>
+                  <th className="px-4 py-2 text-left text-text-secondary">
+                    Category
+                  </th>
+                  <th className="px-4 py-2 text-left text-text-secondary">
+                    Origin
+                  </th>
+                  <th className="px-4 py-2 text-right text-text-secondary">
+                    Price / kg
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {products.map((p) => (
-                  <tr key={p.id} className="border-t border-border-light dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
+                  <tr
+                    key={p.id}
+                    className="border-t border-border-light dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800"
+                  >
                     <td className="px-4 py-2 text-text">{p.title}</td>
                     <td className="px-4 py-2 text-text">{p.category}</td>
                     <td className="px-4 py-2 text-text">{p.origin_country}</td>
-                    <td className="px-4 py-2 text-right text-text">£{p.price_per_kg.toFixed(2)}</td>
+                    <td className="px-4 py-2 text-right text-text">
+                      £{p.price_per_kg.toFixed(2)}
+                    </td>
                   </tr>
                 ))}
               </tbody>

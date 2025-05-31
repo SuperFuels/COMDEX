@@ -95,10 +95,11 @@ const Home: NextPage = () => {
                         onClick={() => setSelected(p)}
                       >
                         <td className="px-4 py-2">
-                          <Link href={`/products/${p.id}`}>
-                            <a className="text-blue-600 hover:underline">
-                              {p.title}
-                            </a>
+                          <Link
+                            href={`/products/${p.id}`}
+                            className="text-blue-600 hover:underline"
+                          >
+                            {p.title}
                           </Link>
                         </td>
                         <td className="px-4 py-2">{p.origin_country}</td>
