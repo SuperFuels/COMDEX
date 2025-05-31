@@ -1,0 +1,27 @@
+[debug] [2025-05-31T18:04:43.824Z] ----------------------------------------------------------------------
+[debug] [2025-05-31T18:04:43.828Z] Command:       /nix/store/ixbb20farqh1f4fqbmsn6b1ixn8mc8ij-nodejs-20.18.1/bin/node /home/user/.global_modules/bin/firebase deploy --only hosting --debug
+[debug] [2025-05-31T18:04:43.829Z] CLI Version:   14.5.1
+[debug] [2025-05-31T18:04:43.830Z] Platform:      linux
+[debug] [2025-05-31T18:04:43.830Z] Node Version:  v20.18.1
+[debug] [2025-05-31T18:04:43.830Z] Time:          Sat May 31 2025 18:04:43 GMT+0000 (Coordinated Universal Time)
+[debug] [2025-05-31T18:04:43.830Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-05-31T18:04:44.601Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-05-31T18:04:51.823Z] Running auto auth
+[debug] [2025-05-31T18:04:51.849Z] [iam] checking project swift-area-459514-d1 for permissions ["firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2025-05-31T18:04:51.855Z] No OAuth tokens found
+[debug] [2025-05-31T18:04:51.862Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/swift-area-459514-d1:testIamPermissions [none]
+[debug] [2025-05-31T18:04:51.863Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/swift-area-459514-d1:testIamPermissions x-goog-quota-user=projects/swift-area-459514-d1
+[debug] [2025-05-31T18:04:51.864Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/swift-area-459514-d1:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2025-05-31T18:04:52.699Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/swift-area-459514-d1:testIamPermissions 200
+[debug] [2025-05-31T18:04:52.702Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/swift-area-459514-d1:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2025-05-31T18:04:52.704Z] No OAuth tokens found
+[debug] [2025-05-31T18:04:52.706Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/swift-area-459514-d1 [none]
+[debug] [2025-05-31T18:04:53.033Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/swift-area-459514-d1 200
+[debug] [2025-05-31T18:04:53.034Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/swift-area-459514-d1 {"projectId":"swift-area-459514-d1","projectNumber":"375760843948","displayName":"My First Project","name":"projects/swift-area-459514-d1","resources":{"hostingSite":"swift-area-459514-d1"},"state":"ACTIVE","etag":"1_1a367835-d262-4734-9cc1-dd04ca9936cf"}
+[info] 
+[info] === Deploying to 'swift-area-459514-d1'...
+[info] 
+[info] i  deploying hosting 
+[info] Running command: npm --prefix frontend install
+[info] Running command: npm --prefix frontend run build
