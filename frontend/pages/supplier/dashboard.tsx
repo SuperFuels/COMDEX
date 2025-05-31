@@ -3,8 +3,10 @@
 import { useEffect, useState } from 'react'
 import useAuthRedirect from '@/hooks/useAuthRedirect'
 import useSupplierDashboard from '@/hooks/useSupplierDashboard'
-import { Chart } from '@/components/Chart' // optional, if you want real chart placeholders
 import Link from 'next/link'
+
+// If you do have a Chart component as a default export, uncomment this line instead:
+// import Chart from '@/components/Chart'
 
 const METRICS = [
   { key: 'totalSalesToday', label: 'Sales Today' },
@@ -15,13 +17,15 @@ const METRICS = [
 ]
 
 export default function SupplierDashboard() {
+  // Redirect any non-suppliers away
   useAuthRedirect('supplier')
+
   const { data, loading, error } = useSupplierDashboard()
   const [selectedMetric, setSelectedMetric] = useState(METRICS[0].key)
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-bg-page">
         <p className="text-text-secondary">Loading dashboard…</p>
       </div>
     )
@@ -29,39 +33,42 @@ export default function SupplierDashboard() {
 
   if (error || !data) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-bg-page">
         <p className="text-red-600">{error || 'Unknown error'}</p>
       </div>
     )
   }
 
-  // Find the label and value of the selected metric
-  const currentMetric = METRICS.find(m => m.key === selectedMetric)!
+  // Find the label + raw value for the selected metric
+  const currentMetric = METRICS.find((m) => m.key === selectedMetric)!
   let rawValue = (data as any)[currentMetric.key]
   let displayValue: string | number = rawValue
 
-  // If proceeds30d, prefix with “£”
+  // If “30d Proceeds”, prefix with “£”
   if (selectedMetric === 'proceeds30d') {
     displayValue = `£${rawValue}`
   }
 
   return (
-    <div className="bg-bg-page">
+    <div className="min-h-screen bg-bg-page">
       <main className="max-w-7xl mx-auto px-4 py-6 space-y-6">
-        {/* ─── Terminal‐Style “Metric” Container ─────────────────────────────────── */}
+        {/* ─── Terminal-Style “Metric” Container ────────────────────────────────── */}
         <div className="bg-background-header dark:bg-background-dark border border-border-light dark:border-gray-700 rounded-lg">
           <div className="p-4 flex flex-col md:flex-row md:items-center md:justify-between">
             <div className="flex items-center space-x-2">
-              <label htmlFor="metricSelect" className="text-text-secondary font-medium">
+              <label
+                htmlFor="metricSelect"
+                className="text-text-secondary font-medium"
+              >
                 Metric:
               </label>
               <select
                 id="metricSelect"
                 className="bg-bg-page dark:bg-bg-page border border-border-light dark:border-gray-600 rounded px-2 py-1 text-text text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                 value={selectedMetric}
-                onChange={e => setSelectedMetric(e.target.value)}
+                onChange={(e) => setSelectedMetric(e.target.value)}
               >
-                {METRICS.map(m => (
+                {METRICS.map((m) => (
                   <option key={m.key} value={m.key}>
                     {m.label}
                   </option>
@@ -69,27 +76,26 @@ export default function SupplierDashboard() {
               </select>
             </div>
           </div>
-          <div className="border-t border-border-light dark:border-gray-700 px-4 py-2 font-mono bg-white dark:bg-gray-800 text-text-dark dark:text-text-secondary text-sm">
-            {/* “terminal” line */}
-            <span className="font-mono"> 
-              {currentMetric.label}: 
-            </span>{' '}
+
+          {/* “Terminal” output line */}
+          <div className="border-t border-border-light dark:border-gray-700 px-4 py-2 font-mono bg-white dark:bg-gray-800 text-text dark:text-text-secondary text-sm">
+            <span className="font-mono">{currentMetric.label}:</span>{' '}
             <span
               className={`font-mono ${
                 selectedMetric === 'feedbackRating'
                   ? 'text-purple-600'
-                  : ['totalSalesToday','proceeds30d'].includes(selectedMetric)
-                    ? 'text-blue-600'
-                    : 'text-green-600'
+                  : ['totalSalesToday', 'proceeds30d'].includes(selectedMetric)
+                  ? 'text-blue-600'
+                  : 'text-green-600'
               }`}
-              style={{ fontWeight: 400 }} /* ensure not bold */
+              style={{ fontWeight: 400 /* ensure not bold */ }}
             >
               {displayValue}
             </span>
           </div>
         </div>
 
-        {/* ─── Dummy Chart Placeholders ───────────────────────────────────────────── */}
+        {/* ─── Dummy Chart Placeholders ─────────────────────────────────────────── */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="bg-white border border-border-light dark:border-gray-700 rounded-lg h-64 flex items-center justify-center text-text-secondary">
             Chart placeholder
@@ -99,9 +105,9 @@ export default function SupplierDashboard() {
           </div>
         </div>
 
-        {/* ─── “My Listings” Table ───────────────────────────────────────────────── */}
+        {/* ─── “My Listings” Table ──────────────────────────────────────────────── */}
         <div className="bg-white border border-border-light dark:border-gray-700 rounded-lg p-4">
-          <h2 className="text-lg font-semibold text-text mb-2">My Listings</h2>
+          <h2 className="text-xl font-semibold text-text mb-2">My Listings</h2>
           {data.products.length === 0 ? (
             <p className="text-text-secondary">You have no active listings yet.</p>
           ) : (
@@ -117,8 +123,11 @@ export default function SupplierDashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {data.products.map(p => (
-                    <tr key={p.id} className="border-t border-border-light dark:border-gray-700">
+                  {data.products.map((p) => (
+                    <tr
+                      key={p.id}
+                      className="border-t border-border-light dark:border-gray-700"
+                    >
                       <td className="px-4 py-2">{p.title}</td>
                       <td className="px-4 py-2">{p.category}</td>
                       <td className="px-4 py-2">{p.origin_country}</td>
@@ -138,7 +147,7 @@ export default function SupplierDashboard() {
           )}
         </div>
 
-        {/* ─── Sell Product CTA ─────────────────────────────────────────────────────── */}
+        {/* ─── Sell Product CTA ────────────────────────────────────────────────── */}
         <div className="text-right">
           <Link href="/products/new" prefetch={false}>
             <a className="inline-block bg-primary hover:bg-primaryHover text-white px-4 py-2 rounded text-sm">
