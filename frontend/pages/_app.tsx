@@ -1,6 +1,6 @@
 // frontend/pages/_app.tsx
-import '@/lib/api'                // ← configure your axios instance first
-import '@/styles/globals.css'     // ← pull in Tailwind + your custom globals
+import '@/lib/api'                // configure your axios instance first
+import '@/styles/globals.css'     // pull in Tailwind + your custom globals
 import type { AppProps } from 'next/app'
 import { useEffect } from 'react'
 import Navbar from '@/components/Navbar'
