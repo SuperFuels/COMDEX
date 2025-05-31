@@ -35,7 +35,7 @@ npm ci
 npm run build
 npm run export    
 cd ..
-irebase deploy --only hostingf
+firebase deploy --only hosting
 
 gcloud builds submit --config cloudbuild.yaml .
 
