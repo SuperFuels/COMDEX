@@ -24,15 +24,15 @@ export default function MyApp({ Component, pageProps }: AppProps) {
       {/* We do NOT render <Sidebar /> here, because Navbar controls it. */}
 
       <div className="flex-1 flex flex-col">
-        {/* Global Navbar (white background in light mode) */}
+        {/* ─── Global Navbar (white bg in light mode / dark bg in dark mode) ─── */}
         <Navbar />
 
-        {/* Sticky swap controls (just below the header) */}
+        {/* ─── Sticky SwapBar (immediately below the header) ────────────────── */}
         <div className="sticky top-16 z-20 bg-background-header dark:bg-background-dark">
           <SwapBar />
         </div>
 
-        {/* Page content */}
+        {/* ─── Page Content ─────────────────────────────────────────────────── */}
         <main className="flex-1 bg-bg-page">
           <Component {...pageProps} />
         </main>

@@ -14,7 +14,10 @@ const METRICS = [
 ]
 
 export default function SupplierDashboard() {
+  // Redirect if not a supplier
   useAuthRedirect('supplier')
+
+  // Fetch dashboard data
   const { data, loading, error } = useSupplierDashboard()
   const [selectedMetric, setSelectedMetric] = useState(METRICS[0].key)
 
@@ -34,7 +37,7 @@ export default function SupplierDashboard() {
     )
   }
 
-  // Find the selected metric’s label/value
+  // Determine the current metric label + value
   const currentMetric = METRICS.find((m) => m.key === selectedMetric)!
   let rawValue = (data as any)[currentMetric.key]
   let displayValue: string | number = rawValue
@@ -46,7 +49,7 @@ export default function SupplierDashboard() {
   return (
     <div className="bg-bg-page min-h-screen pb-8">
       <main className="max-w-7xl mx-auto px-4 pt-6 space-y-8">
-        {/* ── Terminal‐Style Metric Container (FULL WIDTH) ─────────────── */}
+        {/* ── Terminal‐Style Metric Container (full‐width) ────────────────────── */}
         <div className="bg-white dark:bg-gray-800 border border-border-light dark:border-gray-700 rounded-lg">
           <div className="p-4 flex flex-col md:flex-row md:items-center md:justify-between">
             <div className="flex items-center space-x-2">
@@ -90,7 +93,7 @@ export default function SupplierDashboard() {
           </div>
         </div>
 
-        {/* ── Chart Placeholders (two columns, responsive) ───────────────── */}
+        {/* ── Chart + AI Analysis Placeholders ───────────────────────────────── */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="bg-white dark:bg-gray-800 border border-border-light dark:border-gray-700 rounded-lg h-64 flex items-center justify-center text-text-secondary">
             Chart placeholder
@@ -100,13 +103,13 @@ export default function SupplierDashboard() {
           </div>
         </div>
 
-        {/* ── “My Listings” Table ───────────────────────────────────────────────── */}
+        {/* ── “My Listings” Table ─────────────────────────────────────────────── */}
         <div className="bg-white dark:bg-gray-800 border border-border-light dark:border-gray-700 rounded-lg p-4">
-          <h2 className="text-lg font-semibold text-text mb-2">
-            My Listings
-          </h2>
+          <h2 className="text-lg font-semibold text-text mb-2">My Listings</h2>
           {data.products.length === 0 ? (
-            <p className="text-text-secondary">You have no active listings yet.</p>
+            <p className="text-text-secondary">
+              You have no active listings yet.
+            </p>
           ) : (
             <div className="overflow-x-auto">
               <table className="min-w-full table-auto">
@@ -143,7 +146,7 @@ export default function SupplierDashboard() {
                       </td>
                       <td className="px-4 py-2 text-right">
                         <Link href={`/products/edit/${p.id}`} prefetch={false}>
-                          <a className="text-primary hover:underline text-sm">
+                          <a className="px-3 py-1 border border-text rounded text-text text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition">
                             Edit
                           </a>
                         </Link>
@@ -156,10 +159,12 @@ export default function SupplierDashboard() {
           )}
         </div>
 
-        {/* ── Sell Product CTA ──────────────────────────────────────────────────── */}
+        {/* ── Sell Product CTA ─────────────────────────────────────────────────── */}
         <div className="text-right">
           <Link href="/products/new" prefetch={false}>
-            <a className="btn-filled">+ Sell Product</a>
+            <a className="px-3 py-1 border border-text rounded text-text text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+              + Sell Product
+            </a>
           </Link>
         </div>
       </main>
