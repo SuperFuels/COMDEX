@@ -3,11 +3,6 @@ COMDEX digital commodity marketplace
 ./deploy.sh
 ./deploy-frontend.sh
 
-git add .
-git commit -m "chore: deploy 🚀"
-git push origin main
-
-
 # 1. Authenticate
 gcloud auth login
 gcloud config set project swift-area-459514-d1
@@ -28,25 +23,21 @@ gcloud run deploy comdex-api \
   --env-vars-file=env.yaml \
   --timeout=300s
 
+git add .
+git commit -m "chore: deploy 🚀"
+git push origin main
 
 # from repo root
-npm ci
-npm run build       # builds root (for any root scripts)
-npm run export      # exports frontend if you like
-
-# or:
-npm run deploy:all  # builds+deploys both backend and frontend
-
 firebase use production
 
 cd frontend
 npm ci
 npm run build
-npm run export    # produces `frontend/out`
-
+npm run export    
+cd ..
+firebase deploy --only hosting
 
 gcloud builds submit --config cloudbuild.yaml .
-
 
 # 1. Double-check you’re on main
 git checkout main
@@ -64,11 +55,5 @@ git commit -m "Bring main back to dd80390 + re-apply local fixes (Dockerfile, .d
 git push origin main --force
 
 
-# 1. Build your Next.js frontend
-cd frontend
-npm install
-npm run build
-cd ..
-# 2. Deploy only the hosting portion to Firebase
-firebase deploy --only hosting
+
 
