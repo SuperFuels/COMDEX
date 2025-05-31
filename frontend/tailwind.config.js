@@ -1,20 +1,19 @@
-// frontend/tailwind.config.js
 /** @type {import('tailwindcss').Config} */
 export default {
   darkMode: 'class',
   content: [
+    // ← your pages & components
     "./pages/**/*.{js,ts,jsx,tsx}",
     "./components/**/*.{js,ts,jsx,tsx}",
     "./app/**/*.{js,ts,jsx,tsx}",
 
-    // ← include your global CSS here:
+    // ← include the styles folder so Tailwind picks up your custom utilities
     "./styles/**/*.{css,js,ts,jsx,tsx}"
   ],
   theme: {
     extend: {
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
-        mono: ['"Fira Code"', 'Menlo', 'Monaco', 'Courier New', 'monospace'],
       },
       colors: {
         /* Primary brand blue */
@@ -25,18 +24,19 @@ export default {
         text: {
           DEFAULT: '#1F2937',    // dark slate
           light:   '#374151',    // medium slate
+          muted:   '#6B7280',    // gray-500 for secondary text
         },
 
         /* Header / navbar background */
         background: {
-          header: '#F3F4F6',     // light gray (ChatGPT-style)
-          dark:   '#111827',     // deep gray for dark-mode header
+          header: '#FFFFFF',     // pure white
+          dark:   '#111827',     // deep gray for dark-mode
         },
 
         /* Button backgrounds */
         btn: {
           dark: '#111827',       // dark-mode primary button
-        }
+        },
       },
       boxShadow: {
         dropdown: '0 4px 6px rgba(0,0,0,0.1)',

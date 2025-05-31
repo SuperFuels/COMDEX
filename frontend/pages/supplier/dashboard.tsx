@@ -1,207 +1,152 @@
 // frontend/pages/supplier/dashboard.tsx
+
 import { useEffect, useState } from 'react'
-import Link from 'next/link'
 import useAuthRedirect from '@/hooks/useAuthRedirect'
 import useSupplierDashboard from '@/hooks/useSupplierDashboard'
-import Image from 'next/image'
+import { Chart } from '@/components/Chart' // optional, if you want real chart placeholders
+import Link from 'next/link'
+
+const METRICS = [
+  { key: 'totalSalesToday', label: 'Sales Today' },
+  { key: 'activeListings',   label: 'Active Listings' },
+  { key: 'openOrders',       label: 'Open Orders' },
+  { key: 'proceeds30d',      label: '30d Proceeds' },
+  { key: 'feedbackRating',   label: 'Feedback' },
+]
 
 export default function SupplierDashboard() {
-  // Only suppliers may see this page:
   useAuthRedirect('supplier')
-
   const { data, loading, error } = useSupplierDashboard()
-
-  // Local state: which metric is selected
-  type MetricKey = 'Sales Today' | 'Active Listings' | 'Open Orders' | '30d Proceeds' | 'Feedback'
-  const metricOptions: MetricKey[] = [
-    'Sales Today',
-    'Active Listings',
-    'Open Orders',
-    '30d Proceeds',
-    'Feedback'
-  ]
-  const [selectedMetric, setSelectedMetric] = useState<MetricKey>('Sales Today')
-
-  // Helper: get the numeric value as a string for each metric
-  const getMetricValue = () => {
-    if (!data) return '0'
-    switch (selectedMetric) {
-      case 'Sales Today':
-        return String(data.totalSalesToday)
-      case 'Active Listings':
-        return String(data.activeListings)
-      case 'Open Orders':
-        return String(data.openOrders)
-      case '30d Proceeds':
-        return `£${data.proceeds30d}`
-      case 'Feedback':
-        return String(data.feedbackRating)
-      default:
-        return '0'
-    }
-  }
+  const [selectedMetric, setSelectedMetric] = useState(METRICS[0].key)
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background-page dark:bg-background-dark">
-        <p className="text-text-light">Loading dashboard…</p>
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-text-secondary">Loading dashboard…</p>
       </div>
     )
   }
 
   if (error || !data) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background-page dark:bg-background-dark">
+      <div className="min-h-screen flex items-center justify-center">
         <p className="text-red-600">{error || 'Unknown error'}</p>
       </div>
     )
   }
 
+  // Find the label and value of the selected metric
+  const currentMetric = METRICS.find(m => m.key === selectedMetric)!
+  let rawValue = (data as any)[currentMetric.key]
+  let displayValue: string | number = rawValue
+
+  // If proceeds30d, prefix with “£”
+  if (selectedMetric === 'proceeds30d') {
+    displayValue = `£${rawValue}`
+  }
+
   return (
-    <div className="min-h-screen bg-background-page dark:bg-background-dark pb-8">
-      {/* ===== Sticky SwapBar + Navbar are rendered in _app.tsx ===== */}
-
-      {/* ===== “Terminal‐style” metric container ===== */}
-      <div className="max-w-7xl mx-auto px-4 pt-6">
-        <div className="bg-white dark:bg-background-dark border border-border-light dark:border-border-light-dark rounded-lg shadow p-4">
-          <div className="flex items-center mb-2">
-            {/* Dropdown icon on the left using g.svg */}
-            <Image
-              src="/g.svg"
-              alt="Toggle"
-              width={20}
-              height={20}
-              className="mr-2"
-            />
-
-            {/* “Metric:” label */}
-            <label htmlFor="metric-select" className="text-text dark:text-text-light font-medium">
-              Metric:
-            </label>
-
-            {/* Native <select> styled to match theme */}
-            <select
-              id="metric-select"
-              value={selectedMetric}
-              onChange={(e) => setSelectedMetric(e.target.value as MetricKey)}
-              className="
-                ml-2
-                border border-gray-300 dark:border-border-light-dark
-                bg-white dark:bg-background-dark
-                text-text dark:text-text-light
-                rounded px-2 py-1
-                focus:outline-none focus:ring-2 focus:ring-primary
-                transition
-              "
-            >
-              {metricOptions.map((m) => (
-                <option key={m} value={m}>
-                  {m}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* “Terminal‐style” output: use <pre> with font-mono, light grey background */}
-          <pre className="
-            w-full
-            font-mono text-text-dark dark:text-text-light
-            bg-gray-50 dark:bg-gray-800
-            border border-gray-200 dark:border-border-light-dark
-            rounded
-            p-4
-            whitespace-pre-wrap
-            text-sm
-            overflow-x-auto
-          ">
-            {/* Show the text “Sales Today: 0” (or whatever metric) */}
-            <span className="text-text dark:text-text-light">
-              {selectedMetric}:
-            </span>{' '}
-            <span className="text-blue-600 font-normal">
-              {getMetricValue()}
-            </span>
-          </pre>
-        </div>
-      </div>
-
-      {/* ===== Dummy chart placeholders (2 side by side on large screens) ===== */}
-      <div className="max-w-7xl mx-auto px-4 mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="
-          bg-white dark:bg-background-dark
-          border border-border-light dark:border-border-light-dark
-          rounded-lg shadow
-          h-64 flex items-center justify-center text-gray-400 dark:text-gray-500
-        ">
-          Chart placeholder
-        </div>
-        <div className="
-          bg-white dark:bg-background-dark
-          border border-border-light dark:border-border-light-dark
-          rounded-lg shadow
-          h-64 flex items-center justify-center text-gray-400 dark:text-gray-500
-        ">
-          Chart placeholder
-        </div>
-      </div>
-
-      {/* ===== “My Listings” table + Sell Product button ===== */}
-      <div className="max-w-7xl mx-auto px-4 mt-8">
-        <div className="bg-white dark:bg-background-dark border border-border-light dark:border-border-light-dark rounded-lg shadow p-4">
-          <h2 className="text-lg font-semibold text-text dark:text-text-light mb-4">
-            My Listings
-          </h2>
-          {data.products.length === 0 ? (
-            <p className="text-text-light">You have no active listings yet.</p>
-          ) : (
-            <table className="min-w-full table-auto">
-              <thead className="bg-gray-100 dark:bg-gray-700">
-                <tr>
-                  <th className="px-4 py-2 text-left text-text dark:text-text-light">Title</th>
-                  <th className="px-4 py-2 text-left text-text dark:text-text-light">Category</th>
-                  <th className="px-4 py-2 text-left text-text dark:text-text-light">Origin</th>
-                  <th className="px-4 py-2 text-right text-text dark:text-text-light">Price / kg</th>
-                  <th className="px-4 py-2 text-right text-text dark:text-text-light">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.products.map((p) => (
-                  <tr key={p.id} className="border-t border-border-light dark:border-border-light-dark">
-                    <td className="px-4 py-2 text-text dark:text-text-light">{p.title}</td>
-                    <td className="px-4 py-2 text-text dark:text-text-light">{p.category}</td>
-                    <td className="px-4 py-2 text-text dark:text-text-light">{p.origin_country}</td>
-                    <td className="px-4 py-2 text-right text-text dark:text-text-light">
-                      £{p.price_per_kg.toFixed(2)}
-                    </td>
-                    <td className="px-4 py-2 text-right">
-                      <Link href={`/products/edit/${p.id}`} prefetch={false}>
-                        <a className="text-blue-600 hover:underline dark:text-blue-400">
-                          Edit
-                        </a>
-                      </Link>
-                    </td>
-                  </tr>
+    <div className="bg-bg-page">
+      <main className="max-w-7xl mx-auto px-4 py-6 space-y-6">
+        {/* ─── Terminal‐Style “Metric” Container ─────────────────────────────────── */}
+        <div className="bg-background-header dark:bg-background-dark border border-border-light dark:border-gray-700 rounded-lg">
+          <div className="p-4 flex flex-col md:flex-row md:items-center md:justify-between">
+            <div className="flex items-center space-x-2">
+              <label htmlFor="metricSelect" className="text-text-secondary font-medium">
+                Metric:
+              </label>
+              <select
+                id="metricSelect"
+                className="bg-bg-page dark:bg-bg-page border border-border-light dark:border-gray-600 rounded px-2 py-1 text-text text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                value={selectedMetric}
+                onChange={e => setSelectedMetric(e.target.value)}
+              >
+                {METRICS.map(m => (
+                  <option key={m.key} value={m.key}>
+                    {m.label}
+                  </option>
                 ))}
-              </tbody>
-            </table>
+              </select>
+            </div>
+          </div>
+          <div className="border-t border-border-light dark:border-gray-700 px-4 py-2 font-mono bg-white dark:bg-gray-800 text-text-dark dark:text-text-secondary text-sm">
+            {/* “terminal” line */}
+            <span className="font-mono"> 
+              {currentMetric.label}: 
+            </span>{' '}
+            <span
+              className={`font-mono ${
+                selectedMetric === 'feedbackRating'
+                  ? 'text-purple-600'
+                  : ['totalSalesToday','proceeds30d'].includes(selectedMetric)
+                    ? 'text-blue-600'
+                    : 'text-green-600'
+              }`}
+              style={{ fontWeight: 400 }} /* ensure not bold */
+            >
+              {displayValue}
+            </span>
+          </div>
+        </div>
+
+        {/* ─── Dummy Chart Placeholders ───────────────────────────────────────────── */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="bg-white border border-border-light dark:border-gray-700 rounded-lg h-64 flex items-center justify-center text-text-secondary">
+            Chart placeholder
+          </div>
+          <div className="bg-white border border-border-light dark:border-gray-700 rounded-lg h-64 flex items-center justify-center text-text-secondary">
+            Chart placeholder
+          </div>
+        </div>
+
+        {/* ─── “My Listings” Table ───────────────────────────────────────────────── */}
+        <div className="bg-white border border-border-light dark:border-gray-700 rounded-lg p-4">
+          <h2 className="text-lg font-semibold text-text mb-2">My Listings</h2>
+          {data.products.length === 0 ? (
+            <p className="text-text-secondary">You have no active listings yet.</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full table-auto">
+                <thead className="bg-gray-100 dark:bg-gray-800">
+                  <tr>
+                    <th className="px-4 py-2 text-left text-text-secondary">Title</th>
+                    <th className="px-4 py-2 text-left text-text-secondary">Category</th>
+                    <th className="px-4 py-2 text-left text-text-secondary">Origin</th>
+                    <th className="px-4 py-2 text-right text-text-secondary">Price / kg</th>
+                    <th className="px-4 py-2 text-right text-text-secondary">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.products.map(p => (
+                    <tr key={p.id} className="border-t border-border-light dark:border-gray-700">
+                      <td className="px-4 py-2">{p.title}</td>
+                      <td className="px-4 py-2">{p.category}</td>
+                      <td className="px-4 py-2">{p.origin_country}</td>
+                      <td className="px-4 py-2 text-right">
+                        £{p.price_per_kg.toFixed(2)}
+                      </td>
+                      <td className="px-4 py-2 text-right">
+                        <Link href={`/products/edit/${p.id}`} prefetch={false}>
+                          <a className="text-primary hover:underline">Edit</a>
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
 
-        <div className="text-right mt-4">
+        {/* ─── Sell Product CTA ─────────────────────────────────────────────────────── */}
+        <div className="text-right">
           <Link href="/products/new" prefetch={false}>
-            <a className="
-              bg-blue-600 hover:bg-blue-700
-              text-white
-              px-4 py-2
-              rounded
-              focus:outline-none focus:ring-2 focus:ring-primary
-              transition
-            ">
+            <a className="inline-block bg-primary hover:bg-primaryHover text-white px-4 py-2 rounded text-sm">
               + Sell Product
             </a>
           </Link>
         </div>
-      </div>
+      </main>
     </div>
   )
 }
