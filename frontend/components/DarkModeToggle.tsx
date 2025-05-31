@@ -1,31 +1,28 @@
-// components/DarkModeToggle.tsx
+// frontend/components/DarkModeToggle.tsx
 import { useEffect, useState } from 'react';
 
 export function DarkModeToggle() {
-  // don't read localStorage until we're in the browser
-  const [isDark, setIsDark] = useState(false);
+  const [isDark, setDark] = useState(
+    () => typeof window !== 'undefined' && localStorage.theme === 'dark'
+  );
 
   useEffect(() => {
-    // now that we're definitely in the browser:
-    const stored = localStorage.getItem('theme');
-    const initial = stored === 'dark';
-    setIsDark(initial);
-
-    // apply the class
-    document.documentElement.classList.toggle('dark', initial);
-  }, []);
-
-  useEffect(() => {
-    document.documentElement.classList.toggle('dark', isDark);
-    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    if (isDark) {
+      document.documentElement.classList.add('dark');
+      localStorage.theme = 'dark';
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.theme = 'light';
+    }
   }, [isDark]);
 
   return (
     <button
-      onClick={() => setIsDark(d => !d)}
-      className="ml-4 text-text-light dark:text-gray-300"
+      onClick={() => setDark(d => !d)}
+      className="ml-2 text-text hover:text-primary transition"
+      aria-label="Toggle dark mode"
     >
-      {isDark ? 'Light Mode' : 'Dark Mode'}
+      {isDark ? '☀️ Light' : '🌙 Dark'}
     </button>
   );
 }

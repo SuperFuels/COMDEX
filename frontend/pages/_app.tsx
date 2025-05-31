@@ -1,10 +1,12 @@
 // frontend/pages/_app.tsx
-import '@/lib/api'                // configure your axios instance first
-import '@/styles/globals.css'     // pull in Tailwind + your custom globals
+
+import '@/lib/api'                // ← configure your axios instance first
+import '@/styles/globals.css'     // ← pull in Tailwind + your custom globals
 import type { AppProps } from 'next/app'
 import { useEffect } from 'react'
 import Navbar from '@/components/Navbar'
 import SwapBar from '@/components/SwapBar'
+import Sidebar from '@/components/Sidebar'
 
 export default function MyApp({ Component, pageProps }: AppProps) {
   useEffect(() => {
@@ -19,17 +21,25 @@ export default function MyApp({ Component, pageProps }: AppProps) {
   }, [])
 
   return (
-    <>
-      {/* Global Navbar */}
-      <Navbar />
+    <div className="flex min-h-screen">
+      {/* Sidebar will slide in/out by CSS class */}
+      <Sidebar />
 
-      {/* Sticky swap controls (just below the header) */}
-      <div className="sticky top-16 z-20 bg-background-header dark:bg-background-dark">
-        <SwapBar />
+      {/* Main app area */}
+      <div className="flex-1 flex flex-col">
+        {/* Global Navbar (white bg) */}
+        <Navbar />
+
+        {/* Sticky swap controls (just below the header) */}
+        <div className="sticky top-16 z-20 bg-background-header dark:bg-background-dark">
+          <SwapBar />
+        </div>
+
+        {/* Page content */}
+        <main className="flex-1 bg-bg-page">
+          <Component {...pageProps} />
+        </main>
       </div>
-
-      {/* Your page content */}
-      <Component {...pageProps} />
-    </>
+    </div>
   )
 }
