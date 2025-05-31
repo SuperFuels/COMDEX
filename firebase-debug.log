@@ -25,3 +25,5 @@
 [info] i  deploying hosting 
 [info] Running command: npm --prefix frontend install
 [info] Running command: npm --prefix frontend run build
+[error] 
+[error] Error: hosting predeploy error: Command terminated with non-zero exit code 1
