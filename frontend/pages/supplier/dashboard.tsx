@@ -6,7 +6,7 @@ import useSupplierDashboard from '@/hooks/useSupplierDashboard'
 import Chart, { ChartPoint } from '@/components/Chart'
 
 // ----------------------------------------------------------------
-// Metrics used at the top
+// Metrics used at the top (we'll print all of them instead of choosing one)
 // ----------------------------------------------------------------
 const METRICS = [
   { key: 'totalSalesToday', label: 'Sales Today' },
@@ -30,7 +30,7 @@ const INVENTORY_TABS = [
 ]
 
 // ----------------------------------------------------------------
-// Inline "Create Product" form (adapted from pages/products/create.tsx)
+// Inline "Create Product" form (exactly as before)
 // ----------------------------------------------------------------
 function CreateProductForm({ onSuccess }: { onSuccess: () => void }) {
   const [formData, setFormData] = useState({
@@ -46,9 +46,9 @@ function CreateProductForm({ onSuccess }: { onSuccess: () => void }) {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, files } = e.target as any
     if (name === 'image' && files && files.length > 0) {
-      setFormData((f) => ({ ...f, image: files[0] }))
+      setFormData(f => ({ ...f, image: files[0] }))
     } else {
-      setFormData((f) => ({ ...f, [name]: value }))
+      setFormData(f => ({ ...f, [name]: value }))
     }
   }
 
@@ -266,7 +266,6 @@ export default function SupplierDashboard() {
 
   // 2) Fetch supplier‐specific data (e.g. sales, listings, etc.)
   const { data, loading, error } = useSupplierDashboard()
-  const [selectedMetric, setSelectedMetric] = useState(METRICS[0].key)
 
   // 3) Track which inventory tab is active
   const [activeTab, setActiveTab] = useState<string>('create')
@@ -293,22 +292,29 @@ export default function SupplierDashboard() {
     )
   }
 
-  // Calculate the metric to display
-  const currentMetric = METRICS.find((m) => m.key === selectedMetric)!
-  let rawValue = (data as any)[currentMetric.key]
-  let displayValue: string | number = rawValue
-  if (selectedMetric === 'proceeds30d') {
-    displayValue = `£${rawValue}`
-  }
+  // Extract all metric values
+  const metricsOutput = METRICS.map((m) => {
+    const rawValue = (data as any)[m.key]
+    // Format proceeds30d with “£”
+    if (m.key === 'proceeds30d') {
+      return { label: m.label, value: `£${rawValue}`, color: 'text-blue-600' }
+    }
+    // Color‐code “Feedback” as purple, “Sales Today” as blue, “Active Listings” & “Open Orders” as green
+    if (m.key === 'feedbackRating') {
+      return { label: m.label, value: rawValue, color: 'text-purple-600' }
+    }
+    if (m.key === 'totalSalesToday') {
+      return { label: m.label, value: rawValue, color: 'text-blue-600' }
+    }
+    // activeListings and openOrders are green
+    return { label: m.label, value: rawValue, color: 'text-green-600' }
+  })
 
   // Build a dummy 24‐point time series to feed into <Chart>
   const sampleChartData: ChartPoint[] = Array.from({ length: 24 }, (_, i) => ({
     time: Math.floor(Date.now() / 1000) - (23 - i) * 3600,
     value:
-      (data.products.length > 0
-        ? data.products[0].price_per_kg
-        : 1) *
-        1000 +
+      (data.products.length > 0 ? data.products[0].price_per_kg : 1) * 1000 +
       (Math.random() - 0.5) * 500,
   }))
 
@@ -318,70 +324,31 @@ export default function SupplierDashboard() {
       <div className="h-16" />
 
       <main className="max-w-7xl mx-auto px-4 pt-5 space-y-8">
-        {/* ── Global Snapshot Container ─────────────────────────────────── */}
+        {/* ── Global Snapshot + AI Analysis (all in one card) ─────────────────────────────────── */}
         <div className="bg-white dark:bg-gray-800 border border-border-light dark:border-gray-700 rounded-lg">
-          <div className="p-4 flex flex-col md:flex-row md:items-center md:justify-between">
-            <div className="flex items-center space-x-2">
-              <label
-                htmlFor="metricSelect"
-                className="text-text-secondary font-medium"
-              >
-                Global Snapshot:
-              </label>
-              <select
-                id="metricSelect"
-                className="
-                  bg-white dark:bg-gray-800
-                  border border-border-light dark:border-gray-600
-                  rounded px-2 py-1
-                  text-text text-sm
-                  focus:outline-none focus:ring-2 focus:ring-primary
-                "
-                value={selectedMetric}
-                onChange={(e) => setSelectedMetric(e.target.value)}
-              >
-                {METRICS.map((m) => (
-                  <option key={m.key} value={m.key}>
-                    {m.label}
-                  </option>
-                ))}
-              </select>
-            </div>
+          <div className="p-4">
+            <h2 className="text-lg font-semibold text-text dark:text-text-secondary">
+              Global Snapshot
+            </h2>
           </div>
 
-          <div className="border-t border-border-light dark:border-gray-700 px-4 py-2 font-mono bg-white dark:bg-gray-800 text-text dark:text-text-secondary text-sm">
-            <span className="font-mono">{currentMetric.label}:</span>{' '}
-            <span
-              className={`font-mono ${
-                selectedMetric === 'feedbackRating'
-                  ? 'text-purple-600'
-                  : ['totalSalesToday', 'proceeds30d'].includes(selectedMetric)
-                  ? 'text-blue-600'
-                  : 'text-green-600'
-              }`}
-              style={{ fontWeight: 400 /* Not bold */ }}
-            >
-              {displayValue}
-            </span>
-          </div>
-        </div>
+          <div className="border-t border-border-light dark:border-gray-700 px-4 py-4 font-mono bg-white dark:bg-gray-800 text-text dark:text-text-secondary text-sm space-y-2">
+            {/* ——— Print each metric value in code style ——— */}
+            {metricsOutput.map((m) => (
+              <p key={m.label}>
+                <span>{`“${m.label}”: `}</span>
+                <span className={`${m.color}`}>{m.value}</span>
+              </p>
+            ))}
 
-        {/* ── Chart + AI Analysis Placeholders ─────────────────────────────── */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Chart */}
-          <div className="bg-white dark:bg-gray-800 border border-border-light dark:border-gray-700 rounded-lg h-64 overflow-hidden">
-            <Chart data={sampleChartData} height={256} />
-          </div>
-
-          {/* AI Analysis */}
-          <div className="bg-white dark:bg-gray-800 border border-border-light dark:border-gray-700 rounded-lg h-64 p-4 overflow-auto font-sans text-black dark:text-text-secondary text-sm">
-            <p className="mb-2">→ Fetching latest metrics…</p>
-            <p className="mb-2">→ Analyzing sales trends for last 30 days…</p>
-            <p className="mb-2">→ Generating insights…</p>
-            <p className="mb-2">“Sales Today” shows a 5% uptick vs. yesterday.</p>
-            <p className="mb-2">“30d Proceeds” have increased by £1,320.</p>
-            <p className="mb-2">“Feedback Rating” stays steady at 4.7/5.</p>
-            <p className="mb-2">[ More AI insights to come… ]</p>
+            {/* ——— AI “terminal” lines right after metrics ——— */}
+            <p className="mt-2">→ Fetching latest metrics…</p>
+            <p>→ Analyzing sales trends for last 30 days…</p>
+            <p>→ Generating insights…</p>
+            <p className="text-blue-600">“Sales Today” shows a 5% uptick vs. yesterday.</p>
+            <p className="text-green-600">“30d Proceeds” have increased by £1,320.</p>
+            <p className="text-purple-600">“Feedback Rating” stays steady at 4.7/5.</p>
+            <p>[ More AI insights to come… ]</p>
           </div>
         </div>
 
@@ -452,11 +419,11 @@ export default function SupplierDashboard() {
               </p>
             )}
 
-            {/* ── Reports Tab ───────────────────────────────────────────────── */}
+            {/* ── Reports Tab: now shows the <Chart> ────────────────────────── */}
             {activeTab === 'reports' && (
-              <p className="text-text-secondary italic">
-                “Reports” analytics go here.
-              </p>
+              <div className="h-64 overflow-hidden">
+                <Chart data={sampleChartData} height={256} />
+              </div>
             )}
 
             {/* ── Shipments Tab ──────────────────────────────────────────────── */}
