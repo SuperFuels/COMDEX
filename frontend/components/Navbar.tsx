@@ -1,4 +1,3 @@
-// frontend/components/Navbar.tsx
 'use client'
 
 import Link from 'next/link'
@@ -18,9 +17,7 @@ export default function Navbar() {
   const [sidebarOpen, setSidebarOpen]   = useState(false)
   const wrapperRef = useRef<HTMLDivElement>(null)
 
-  //
   // 1) Handle “Connect Wallet”
-  //
   const handleConnect = useCallback(async () => {
     localStorage.removeItem('manualDisconnect')
     try {
@@ -35,9 +32,7 @@ export default function Navbar() {
     }
   }, [router])
 
-  //
   // 2) Handle “Disconnect / Logout”
-  //
   const handleDisconnect = useCallback(() => {
     localStorage.setItem('manualDisconnect', 'true')
     logout()
@@ -47,9 +42,7 @@ export default function Navbar() {
     router.push('/')
   }, [router])
 
-  //
   // 3) On‐mount: hydrate JWT and/or wallet
-  //
   useEffect(() => {
     const token = localStorage.getItem('token')
     if (token) {
@@ -91,9 +84,7 @@ export default function Navbar() {
     }
   }, [handleDisconnect])
 
-  //
   // 4) Close account dropdown on outside click
-  //
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (
@@ -110,18 +101,18 @@ export default function Navbar() {
     }
   }, [dropdownOpen])
 
-  // Shorten the address for display (e.g. 0x1234…abcd)
+  // Shorten the address for display
   const shortAddr = account
     ? `${account.slice(0, 6)}…${account.slice(-4)}`
     : ''
 
-  // Inline swap amounts (shown in desktop header)
+  // Inline swap amounts
   const [amountIn, setAmountIn]   = useState('')
   const [amountOut, setAmountOut] = useState('')
 
   return (
     <>
-      {/* ─── Slide‐in Sidebar (controlled by the “G” button) ──────────────────────── */}
+      {/* ─── Slide‐in Sidebar (controlled by the “G” button) ──────────────── */}
       <Sidebar
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
@@ -130,11 +121,11 @@ export default function Navbar() {
         onLogout={handleDisconnect}
       />
 
-      {/* ─── “G” Toggle (far left, vertically centered within the h-16 Navbar) ─────── */}
+      {/* ─── “G” Toggle (far left, vertically centered within h-16 Navbar) ─── */}
       <button
         onClick={() => setSidebarOpen(true)}
         className="
-          fixed top-6 left-4         /* 1.5rem down from top (centers within 4rem height) */
+          fixed top-4 left-4            /* changed from top-6 to top-4, centers inside 4rem-high navbar */
           p-2
           border border-gray-300 dark:border-gray-700
           rounded-lg
@@ -146,12 +137,15 @@ export default function Navbar() {
         <Image src="/G.svg" alt="Menu" width={24} height={24} />
       </button>
 
-      {/* ─── Top Bar / Navbar ─────────────────────────────────────────────────────── */}
+      {/* ─── Top Bar / Navbar ─────────────────────────────────────────────────── */}
       <header className="sticky top-0 z-40 bg-background-header dark:bg-background-dark border-b border-border-light dark:border-gray-700 h-16">
-        <div className="max-w-7xl mx-auto flex items-center justify-between h-full px-4">
-
-          {/* ── (1) Left: Stickey.ai Logo (slightly shifted right) ───────────────────── */}
-          <div className="flex items-center pl-8"> 
+        {/*
+          Removed the `max-w-7xl mx-auto` wrapper so that “Live” and “Connect Wallet”
+          can sit flush all the way to the right, next to the scrollbar.
+        */}
+        <div className="flex items-center justify-between h-full px-4">
+          {/* ── (1) Left: Stickey.ai Logo ────────────────────────────────────────────── */}
+          <div className="flex items-center pl-8">
             <Link href="/" className="logo-link flex items-center">
               <Image
                 src="/Stickeyai.svg"
@@ -164,7 +158,7 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* ── (2) Center: Search + Swap (desktop only) ─────────────────────────────── */}
+          {/* ── (2) Center: Search + Swap (desktop only) ────────────────────────────── */}
           <div className="hidden md:flex flex-1 justify-center items-center space-x-3">
             {/* Search Input */}
             <input
@@ -185,7 +179,7 @@ export default function Navbar() {
             <input
               type="number"
               value={amountIn}
-              onChange={(e) => setAmountIn(e.target.value)}
+              onChange={e => setAmountIn(e.target.value)}
               placeholder="0"
               className="
                 w-24 sm:w-28
@@ -224,7 +218,7 @@ export default function Navbar() {
             <input
               type="number"
               value={amountOut}
-              onChange={(e) => setAmountOut(e.target.value)}
+              onChange={e => setAmountOut(e.target.value)}
               placeholder="0"
               className="
                 w-24 sm:w-28
@@ -318,7 +312,7 @@ export default function Navbar() {
             ) : (
               <div ref={wrapperRef} className="relative">
                 <button
-                  onClick={() => setDropdownOpen((o) => !o)}
+                  onClick={() => setDropdownOpen(o => !o)}
                   className="
                     py-1 px-3
                     border border-black
@@ -338,8 +332,7 @@ export default function Navbar() {
                     absolute right-0 mt-2 w-40
                     bg-white dark:bg-gray-800
                     border border-border-light dark:border-gray-700
-                    rounded-lg shadow-lg
-                    z-50
+                    rounded-lg shadow-lg z-50
                   ">
                     <button
                       onClick={handleDisconnect}
@@ -384,7 +377,7 @@ export default function Navbar() {
           <input
             type="number"
             value={amountIn}
-            onChange={(e) => setAmountIn(e.target.value)}
+            onChange={e => setAmountIn(e.target.value)}
             placeholder="0"
             className="
               w-16
@@ -423,7 +416,7 @@ export default function Navbar() {
           <input
             type="number"
             value={amountOut}
-            onChange={(e) => setAmountOut(e.target.value)}
+            onChange={e => setAmountOut(e.target.value)}
             placeholder="0"
             className="
               w-16
