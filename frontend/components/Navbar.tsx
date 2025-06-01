@@ -115,44 +115,111 @@ export default function Navbar() {
     ? `${account.slice(0, 6)}…${account.slice(-4)}`
     : ''
 
-  // Inline swap amounts (shown in desktop header)
+  // Inline swap amounts (desktop only)
   const [amountIn, setAmountIn]   = useState('')
   const [amountOut, setAmountOut] = useState('')
 
   return (
     <>
-      {/* ─── Slide‐in Sidebar ─────────────────────────────────────────────── */}
-      <Sidebar
-        isOpen={sidebarOpen}
-        onClose={() => setSidebarOpen(false)}
-        role={role}
-        account={account}
-        onLogout={handleDisconnect}
-      />
+      {/* ─── (A) Full‐Width Top Bar: “G” + (flush‐right) Live & Wallet ───────────── */}
+      <div className="fixed inset-x-0 top-0 z-50 bg-background-header dark:bg-background-dark border-b border-border-light dark:border-gray-700 h-16 flex items-center">
+        {/* ‣ (A1) “G” Toggle on the far left */}
+        <button
+          onClick={() => setSidebarOpen(true)}
+          className="
+            ml-4
+            p-2
+            border border-gray-300 dark:border-gray-700
+            rounded-lg
+            bg-white dark:bg-gray-900
+            focus:outline-none
+          "
+          aria-label="Open menu"
+        >
+          <Image src="/G.svg" alt="Menu" width={24} height={24} />
+        </button>
 
-      {/* ─── “G” Toggle (far left, always visible) ────────────────────────────── */}
-      <button
-        onClick={() => setSidebarOpen(true)}
-        className="
-          fixed top-4 left-4
-          p-2
-          border border-gray-300 dark:border-gray-700
-          rounded-lg
-          bg-white dark:bg-gray-900
-          z-50
-        "
-        aria-label="Open menu"
-      >
-        <Image src="/G.svg" alt="Menu" width={24} height={24} />
-      </button>
+        {/* ‣ (A2) Spacer to push the right items flush to the far right */}
+        <div className="flex-grow" />
 
-      {/* ─── Top Bar / Navbar ────────────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-40 bg-background-header dark:bg-background-dark border-b border-border-light dark:border-gray-700">
+        {/* ‣ (A3) “Live” + “Connect Wallet” flush-right */}
+        <div className="flex items-center space-x-3 mr-4">
+          {/* “Live” Indicator (black border) */}
+          <div className="flex items-center space-x-1 border border-black rounded-lg py-1 px-3">
+            <span className="inline-block w-2 h-2 bg-green-500 rounded-full" />
+            <span className="text-text font-medium text-sm">Live</span>
+          </div>
+
+          {/* Wallet / Connect Wallet */}
+          {!account ? (
+            <button
+              onClick={handleConnect}
+              className="
+                py-1 px-4
+                border border-black
+                rounded-lg
+                bg-transparent
+                text-black dark:text-white
+                text-sm
+                hover:bg-gray-100 dark:hover:bg-gray-700
+                focus:outline-none
+                transition
+              "
+            >
+              Connect Wallet
+            </button>
+          ) : (
+            <div ref={wrapperRef} className="relative">
+              <button
+                onClick={() => setDropdownOpen(o => !o)}
+                className="
+                  py-1 px-4
+                  border border-black
+                  rounded-lg
+                  bg-transparent
+                  text-black dark:text-white
+                  text-sm
+                  hover:bg-gray-100 dark:hover:bg-gray-700
+                  focus:outline-none
+                  transition
+                "
+              >
+                {shortAddr}
+              </button>
+              {dropdownOpen && (
+                <div className="
+                  absolute right-0 mt-2 w-40
+                  bg-white dark:bg-gray-800
+                  border border-border-light dark:border-gray-700
+                  rounded-lg shadow-lg
+                  z-50
+                ">
+                  <button
+                    onClick={handleDisconnect}
+                    className="
+                      w-full text-left px-4 py-2
+                      text-text-primary dark:text-text-secondary
+                      text-sm
+                      hover:bg-gray-100 dark:hover:bg-gray-700
+                      focus:outline-none
+                      transition
+                    "
+                  >
+                    Disconnect
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ─── (B) Centered Second Row: Logo + (desktop) Search/Swap ───────────────── */}
+      <header className="pt-16 z-40">
         <div className="max-w-7xl mx-auto flex items-center justify-between h-16 px-4">
-
-          {/* ── (1) Left: Stickey.ai Logo (no border) ───────────────────────────────── */}
-          <div className="flex items-center">
-            <Link href="/" className="logo-link flex items-center -ml-2">
+          {/* ‣ (B1) Logo, shifted right by ~15px via extra padding */}
+          <div className="flex items-center pl-4">
+            <Link href="/" className="logo-link flex items-center">
               <Image
                 src="/Stickeyai.svg"
                 alt="Stickey.ai"
@@ -163,14 +230,14 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* ── (2) Center: Search + Swap (desktop only) ────────────────────────────── */}
-          <div className="hidden md:flex flex-1 justify-center items-center space-x-3">
+          {/* ‣ (B2) Desktop Search + Swap (centered) */}
+          <div className="hidden md:flex flex-1 justify-center items-center space-x-4 px-4">
             {/* Search Input (rounded-lg, reduced height) */}
             <input
               type="text"
               placeholder="Search by title or category…"
               className="
-                w-full max-w-md
+                w-full max-w-lg
                 py-1.5 px-3
                 border border-gray-300 dark:border-gray-600
                 rounded-lg
@@ -204,7 +271,7 @@ export default function Navbar() {
                 flex items-center
                 border border-gray-300 dark:border-gray-600
                 rounded-lg
-                py-1 px-2
+                py-1 px-3
                 bg-white dark:bg-gray-800
                 text-sm text-text
                 hover:bg-gray-50 dark:hover:bg-gray-700
@@ -243,7 +310,7 @@ export default function Navbar() {
                 flex items-center
                 border border-gray-300 dark:border-gray-600
                 rounded-lg
-                py-1 px-2
+                py-1 px-3
                 bg-white dark:bg-gray-800
                 text-sm text-text
                 hover:bg-gray-50 dark:hover:bg-gray-700
@@ -259,7 +326,7 @@ export default function Navbar() {
             <button
               onClick={() => router.push('/swap')}
               className="
-                py-1 px-3
+                py-1 px-4
                 border border-black
                 rounded-lg
                 bg-transparent
@@ -274,80 +341,12 @@ export default function Navbar() {
             </button>
           </div>
 
-          {/* ── (3) Right: Live Indicator + Wallet ─────────────────────────────────── */}
-          <div className="flex items-center space-x-3">
-            {/* “Live” Indicator */}
-            <div className="flex items-center space-x-1">
-              <span className="inline-block w-2 h-2 bg-green-500 rounded-full" />
-              <span className="text-text font-medium text-sm">Live</span>
-            </div>
-
-            {/* Wallet / Connect Wallet */}
-            {!account ? (
-              <button
-                onClick={handleConnect}
-                className="
-                  py-1 px-3
-                  border border-black
-                  rounded-lg
-                  bg-transparent
-                  text-black dark:text-white
-                  text-sm
-                  hover:bg-gray-100 dark:hover:bg-gray-700
-                  focus:outline-none
-                  transition
-                "
-              >
-                Connect Wallet
-              </button>
-            ) : (
-              <div ref={wrapperRef} className="relative">
-                <button
-                  onClick={() => setDropdownOpen(o => !o)}
-                  className="
-                    py-1 px-3
-                    border border-black
-                    rounded-lg
-                    bg-transparent
-                    text-black dark:text-white
-                    text-sm
-                    hover:bg-gray-100 dark:hover:bg-gray-700
-                    focus:outline-none
-                    transition
-                  "
-                >
-                  {shortAddr}
-                </button>
-                {dropdownOpen && (
-                  <div className="
-                    absolute right-0 mt-2 w-40
-                    bg-white dark:bg-gray-800
-                    border border-border-light dark:border-gray-700
-                    rounded-lg shadow-lg
-                    z-50
-                  ">
-                    <button
-                      onClick={handleDisconnect}
-                      className="
-                        w-full text-left px-4 py-2
-                        text-text-primary dark:text-text-secondary
-                        text-sm
-                        hover:bg-gray-100 dark:hover:bg-gray-700
-                        focus:outline-none
-                        transition
-                      "
-                    >
-                      Disconnect
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
+          {/* ‣ (B3) Empty spacer on right so the centered content doesn’t bump into anything */}
+          <div className="w-16" />
         </div>
       </header>
 
-      {/* ─── Lower Swap Bar (mobile only) ─────────────────────────────────────── */}
+      {/* ─── (C) Lower Swap Bar for Mobile Only ───────────────────────────────── */}
       <div className="md:hidden sticky top-16 z-30 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 py-2 flex items-center space-x-2">
           {/* Mobile Search Input */}
@@ -417,7 +416,7 @@ export default function Navbar() {
               rounded-lg
               text-center text-sm text-text
               bg-white dark:bg-gray-800
-              focus:outline none focus:ring-2 focus:ring-blue-500
+              focus:outline-none focus:ring-2 focus:ring-blue-500
             "
           />
 
