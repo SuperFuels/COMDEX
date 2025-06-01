@@ -1,4 +1,5 @@
 // frontend/pages/supplier/dashboard.tsx
+
 import { useEffect, useState } from 'react'
 import useAuthRedirect from '@/hooks/useAuthRedirect'
 import useSupplierDashboard from '@/hooks/useSupplierDashboard'
@@ -16,7 +17,7 @@ const METRICS = [
 ]
 
 // ----------------------------------------------------------------
-// Inventory tabs—including the new "Create Product" and "Shipments"
+// Inventory tabs—including "Create Product" and "Shipments"
 // ----------------------------------------------------------------
 const INVENTORY_TABS = [
   { key: 'create',     label: 'Create Product' },
@@ -29,8 +30,7 @@ const INVENTORY_TABS = [
 ]
 
 // ----------------------------------------------------------------
-// We will inline the Create Product form here (adjusted from:
-// frontend/pages/products/create.tsx)
+// Inline "Create Product" form (adapted from pages/products/create.tsx)
 // ----------------------------------------------------------------
 function CreateProductForm({ onSuccess }: { onSuccess: () => void }) {
   const [formData, setFormData] = useState({
@@ -62,26 +62,23 @@ function CreateProductForm({ onSuccess }: { onSuccess: () => void }) {
     data.append('category', formData.category)
     data.append('description', formData.description)
     data.append('price_per_kg', formData.price_per_kg)
-    if (formData.image) data.append('image', formData.image)
+    if (formData.image) {
+      data.append('image', formData.image)
+    }
 
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/products`,
-        {
-          method: 'POST',
-          headers: {
-            // Note: For multipart/form-data, do NOT set Content-Type manually.
-            Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
-          },
-          body: data,
-        }
-      )
-
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products`, {
+        method: 'POST',
+        headers: {
+          // When using multipart/form-data, do NOT set Content-Type manually.
+          Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
+        },
+        body: data,
+      })
       if (!res.ok) {
         const json = await res.json()
         throw new Error(json.detail || 'Upload failed.')
       }
-
       // Clear form fields and notify parent to refresh dashboard data
       setFormData({
         title: '',
@@ -234,7 +231,7 @@ function CreateProductForm({ onSuccess }: { onSuccess: () => void }) {
           type="file"
           accept="image/*"
           onChange={handleChange}
-          className="block w-full text-gray-700 text-sm border border-gray-300 rounded-md"
+          className="block w-full text-gray-700 text-sm"
           required
         />
       </div>
@@ -267,7 +264,7 @@ export default function SupplierDashboard() {
   // 1) If user is not a supplier, they will be redirected
   useAuthRedirect('supplier')
 
-  // 2) Fetch supplier-specific data (e.g. sales, listings, etc.)
+  // 2) Fetch supplier‐specific data (e.g. sales, listings, etc.)
   const { data, loading, error } = useSupplierDashboard()
   const [selectedMetric, setSelectedMetric] = useState(METRICS[0].key)
 
@@ -304,7 +301,7 @@ export default function SupplierDashboard() {
     displayValue = `£${rawValue}`
   }
 
-  // Build a dummy 24-point time series to feed into <Chart>
+  // Build a dummy 24‐point time series to feed into <Chart>
   const sampleChartData: ChartPoint[] = Array.from({ length: 24 }, (_, i) => ({
     time: Math.floor(Date.now() / 1000) - (23 - i) * 3600,
     value:
@@ -317,11 +314,11 @@ export default function SupplierDashboard() {
 
   return (
     <div className="bg-bg-page min-h-screen">
-      {/* ─── Spacer to account for sticky navbar height ─────────────────────── */}
+      {/* ─── Spacer to account for sticky navbar height ──────────────── */}
       <div className="h-16" />
 
-      <main className="max-w-7xl mx-auto px-4 pt-0 space-y-8">
-        {/* ── Global Snapshot Container ───────────────────────────────────────── */}
+      <main className="max-w-7xl mx-auto px-4 pt-5 space-y-8">
+        {/* ── Global Snapshot Container ─────────────────────────────────── */}
         <div className="bg-white dark:bg-gray-800 border border-border-light dark:border-gray-700 rounded-lg">
           <div className="p-4 flex flex-col md:flex-row md:items-center md:justify-between">
             <div className="flex items-center space-x-2">
@@ -333,7 +330,13 @@ export default function SupplierDashboard() {
               </label>
               <select
                 id="metricSelect"
-                className="bg-white dark:bg-gray-800 border border-border-light dark:border-gray-600 rounded px-2 py-1 text-text text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                className="
+                  bg-white dark:bg-gray-800
+                  border border-border-light dark:border-gray-600
+                  rounded px-2 py-1
+                  text-text text-sm
+                  focus:outline-none focus:ring-2 focus:ring-primary
+                "
                 value={selectedMetric}
                 onChange={(e) => setSelectedMetric(e.target.value)}
               >
@@ -363,7 +366,7 @@ export default function SupplierDashboard() {
           </div>
         </div>
 
-        {/* ── Chart + AI Analysis Placeholders ───────────────────────────────── */}
+        {/* ── Chart + AI Analysis Placeholders ─────────────────────────────── */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Chart */}
           <div className="bg-white dark:bg-gray-800 border border-border-light dark:border-gray-700 rounded-lg h-64 overflow-hidden">
@@ -382,7 +385,7 @@ export default function SupplierDashboard() {
           </div>
         </div>
 
-        {/* ── “Manage Inventory” Tabbed Container ────────────────────────────────── */}
+        {/* ── “Manage Inventory” Tabbed Container ────────────────────────────── */}
         <div className="bg-white dark:bg-gray-800 border border-border-light dark:border-gray-700 rounded-lg">
           {/* Header */}
           <div className="px-4 py-3 border-b border-border-light dark:border-gray-700">
@@ -418,63 +421,49 @@ export default function SupplierDashboard() {
           <div className="p-4">
             {/* ── Create Product Tab ──────────────────────────────────────────── */}
             {activeTab === 'create' && (
-              <div>
-                <CreateProductForm onSuccess={refreshDashboard} />
-              </div>
+              <CreateProductForm onSuccess={refreshDashboard} />
             )}
 
             {/* ── Edit Product Tab ───────────────────────────────────────────── */}
             {activeTab === 'edit' && (
-              <div>
-                <p className="text-text-secondary italic">
-                  “Edit Product” form goes here.
-                </p>
-              </div>
+              <p className="text-text-secondary italic">
+                “Edit Product” form goes here.
+              </p>
             )}
 
             {/* ── Active Products Tab ───────────────────────────────────────── */}
             {activeTab === 'active' && (
-              <div>
-                <p className="text-text-secondary italic">
-                  “Active Products” listing goes here.
-                </p>
-              </div>
+              <p className="text-text-secondary italic">
+                “Active Products” listing goes here.
+              </p>
             )}
 
             {/* ── Messages Tab ───────────────────────────────────────────────── */}
             {activeTab === 'messages' && (
-              <div>
-                <p className="text-text-secondary italic">
-                  “Messages” inbox/chat goes here.
-                </p>
-              </div>
+              <p className="text-text-secondary italic">
+                “Messages” inbox/chat goes here.
+              </p>
             )}
 
             {/* ── Compliance Tab ─────────────────────────────────────────────── */}
             {activeTab === 'compliance' && (
-              <div>
-                <p className="text-text-secondary italic">
-                  “Compliance” section goes here.
-                </p>
-              </div>
+              <p className="text-text-secondary italic">
+                “Compliance” section goes here.
+              </p>
             )}
 
             {/* ── Reports Tab ───────────────────────────────────────────────── */}
             {activeTab === 'reports' && (
-              <div>
-                <p className="text-text-secondary italic">
-                  “Reports” analytics go here.
-                </p>
-              </div>
+              <p className="text-text-secondary italic">
+                “Reports” analytics go here.
+              </p>
             )}
 
             {/* ── Shipments Tab ──────────────────────────────────────────────── */}
             {activeTab === 'shipments' && (
-              <div>
-                <p className="text-text-secondary italic">
-                  “Shipments” tracking goes here.
-                </p>
-              </div>
+              <p className="text-text-secondary italic">
+                “Shipments” tracking goes here.
+              </p>
             )}
           </div>
         </div>
