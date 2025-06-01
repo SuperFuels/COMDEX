@@ -3,8 +3,11 @@ import { useEffect, useState } from 'react'
 import useAuthRedirect from '@/hooks/useAuthRedirect'
 import useSupplierDashboard from '@/hooks/useSupplierDashboard'
 import Link from 'next/link'
-import Chart, { ChartPoint } from '@/components/Chart' // reuse your existing Chart
+import Chart, { ChartPoint } from '@/components/Chart'
 
+// ----------------------------------------------------------------
+// Metrics used at the top
+// ----------------------------------------------------------------
 const METRICS = [
   { key: 'totalSalesToday', label: 'Sales Today' },
   { key: 'activeListings',   label: 'Active Listings' },
@@ -13,27 +16,175 @@ const METRICS = [
   { key: 'feedbackRating',   label: 'Feedback' },
 ]
 
-// New tabs for “Manage Inventory”
+// ----------------------------------------------------------------
+// Inventory tabs—including the new "Create Product" and "Shipments"
+// ----------------------------------------------------------------
 const INVENTORY_TABS = [
-  { key: 'sell',    label: 'Sell Product' },
-  { key: 'edit',    label: 'Edit Product' },
-  { key: 'active',  label: 'Active Products' },
-  { key: 'messages',label: 'Messages' },
+  { key: 'create',   label: 'Create Product' },
+  { key: 'edit',     label: 'Edit Product' },
+  { key: 'active',   label: 'Active Products' },
+  { key: 'messages', label: 'Messages' },
   { key: 'compliance', label: 'Compliance' },
-  { key: 'reports', label: 'Reports' },
+  { key: 'reports',  label: 'Reports' },
+  { key: 'shipments', label: 'Shipments' },
 ]
 
+// ----------------------------------------------------------------
+// We will inline the Create Product form here (copied/adjusted from:
+// frontend/pages/products/create.tsx )
+// ----------------------------------------------------------------
+function CreateProductForm({ onSuccess }: { onSuccess: () => void }) {
+  const [formData, setFormData] = useState({
+    title: '',
+    origin_country: '',
+    category: '',
+    description: '',
+    price_per_kg: '',
+    image: null as File | null,
+  })
+  const [error, setError] = useState('')
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value, files } = e.target
+    if (name === 'image' && files && files.length > 0) {
+      setFormData((f) => ({ ...f, image: files[0] }))
+    } else {
+      setFormData((f) => ({ ...f, [name]: value }))
+    }
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError('')
+
+    const data = new FormData()
+    data.append('title', formData.title)
+    data.append('origin_country', formData.origin_country)
+    data.append('category', formData.category)
+    data.append('description', formData.description)
+    data.append('price_per_kg', formData.price_per_kg)
+    if (formData.image) data.append('image', formData.image)
+
+    try {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products`, {
+        method: 'POST',
+        headers: {
+          // Note: When using `multipart/form-data`, we do NOT set a Content-Type header here;
+          //       the browser will produce the correct `boundary=...` automatically.
+          Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
+        },
+        body: data,
+      }).then(async (res) => {
+        if (!res.ok) {
+          const json = await res.json()
+          throw new Error(json.detail || 'Upload failed')
+        }
+      })
+
+      // If successful, clear fields and inform parent so it can refresh if desired
+      setFormData({
+        title: '',
+        origin_country: '',
+        category: '',
+        description: '',
+        price_per_kg: '',
+        image: null,
+      })
+      onSuccess()
+    } catch (err: any) {
+      setError(err.message || 'Upload failed')
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      {error && <p className="text-red-600">{error}</p>}
+
+      <input
+        name="title"
+        placeholder="Title"
+        onChange={handleChange}
+        value={formData.title}
+        className="w-full border border-gray-300 p-2 rounded"
+        required
+      />
+
+      <input
+        name="origin_country"
+        placeholder="Country of Origin"
+        onChange={handleChange}
+        value={formData.origin_country}
+        className="w-full border border-gray-300 p-2 rounded"
+        required
+      />
+
+      <input
+        name="category"
+        placeholder="Category (e.g. Whey)"
+        onChange={handleChange}
+        value={formData.category}
+        className="w-full border border-gray-300 p-2 rounded"
+        required
+      />
+
+      <input
+        name="description"
+        placeholder="Description"
+        onChange={handleChange}
+        value={formData.description}
+        className="w-full border border-gray-300 p-2 rounded"
+        required
+      />
+
+      <input
+        name="price_per_kg"
+        type="number"
+        step="0.01"
+        placeholder="Price per KG"
+        onChange={handleChange}
+        value={formData.price_per_kg}
+        className="w-full border border-gray-300 p-2 rounded"
+        required
+      />
+
+      <input
+        name="image"
+        type="file"
+        accept="image/*"
+        onChange={handleChange}
+        className="w-full"
+        required
+      />
+
+      <button
+        type="submit"
+        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+      >
+        Upload
+      </button>
+    </form>
+  )
+}
+
+// ----------------------------------------------------------------
+// Main SupplierDashboard component
+// ----------------------------------------------------------------
 export default function SupplierDashboard() {
-  // Redirect if not a supplier
+  // 1) If user is not a supplier, they will be redirected
   useAuthRedirect('supplier')
 
-  // Fetch dashboard data
+  // 2) Fetch supplier-specific data (e.g. sales, listings, etc.)
   const { data, loading, error } = useSupplierDashboard()
   const [selectedMetric, setSelectedMetric] = useState(METRICS[0].key)
 
-  // State to track which Inventory tab is active:
-  const [activeTab, setActiveTab] = useState<string>('sell')
+  // 3) Track which inventory tab is active
+  const [activeTab, setActiveTab] = useState<string>('create')
 
+  // 4) For reloading the dashboard after creating a product
+  const [refreshFlag, setRefreshFlag] = useState<number>(0)
+  const refreshDashboard = () => setRefreshFlag((f) => f + 1)
+
+  // Show spinner if loading
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-bg-page">
@@ -42,6 +193,7 @@ export default function SupplierDashboard() {
     )
   }
 
+  // Show error if any
   if (error || !data) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-bg-page">
@@ -50,7 +202,7 @@ export default function SupplierDashboard() {
     )
   }
 
-  // Determine the current metric label + value
+  // Calculate the metric to display
   const currentMetric = METRICS.find((m) => m.key === selectedMetric)!
   let rawValue = (data as any)[currentMetric.key]
   let displayValue: string | number = rawValue
@@ -58,20 +210,27 @@ export default function SupplierDashboard() {
     displayValue = `£${rawValue}`
   }
 
-  // Build some dummy chart data if you want to display something
+  // Build a dummy 24-point time series to feed into <Chart>
   const sampleChartData: ChartPoint[] = Array.from({ length: 24 }, (_, i) => ({
-    time:  Math.floor(Date.now() / 1000) - (23 - i) * 3600,
-    value: (data.products.length > 0 ? data.products[0].price_per_kg : 1) * 1000 + (Math.random() - 0.5) * 500,
+    time: Math.floor(Date.now() / 1000) - (23 - i) * 3600,
+    value:
+      (data.products.length > 0
+        ? data.products[0].price_per_kg
+        : 1) *
+        1000 +
+      (Math.random() - 0.5) * 500,
   }))
 
   return (
-    <div className="bg-bg-page min-h-screen pb-8">
-      <main className="max-w-7xl mx-auto px-4 pt-6 space-y-8">
-        {/* ── Global Snapshot Container (full-width) ─────────────────────────────── */}
+    <div className="bg-bg-page min-h-screen">
+      {/* ─── Spacer to account for sticky navbar height ─────────────────────── */}
+      <div className="h-16" />
+
+      <main className="max-w-7xl mx-auto px-4 pt-5 space-y-8">
+        {/* ── Global Snapshot Container ───────────────────────────────────────── */}
         <div className="bg-white dark:bg-gray-800 border border-border-light dark:border-gray-700 rounded-lg">
           <div className="p-4 flex flex-col md:flex-row md:items-center md:justify-between">
             <div className="flex items-center space-x-2">
-              {/* Changed label here */}
               <label
                 htmlFor="metricSelect"
                 className="text-text-secondary font-medium"
@@ -110,14 +269,14 @@ export default function SupplierDashboard() {
           </div>
         </div>
 
-        {/* ── Chart + AI Analysis Placeholders ─────────────────────────────────── */}
+        {/* ── Chart + AI Analysis Placeholders ───────────────────────────────── */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* (A) Chart area */}
+          {/* Chart */}
           <div className="bg-white dark:bg-gray-800 border border-border-light dark:border-gray-700 rounded-lg h-64 overflow-hidden">
             <Chart data={sampleChartData} height={256} />
           </div>
 
-          {/* (B) AI Analysis area */}
+          {/* AI Analysis */}
           <div className="bg-white dark:bg-gray-800 border border-border-light dark:border-gray-700 rounded-lg h-64 p-4 overflow-auto font-sans text-black dark:text-text-secondary text-sm">
             <p className="mb-2">→ Fetching latest metrics…</p>
             <p className="mb-2">→ Analyzing sales trends for last 30 days…</p>
@@ -138,7 +297,7 @@ export default function SupplierDashboard() {
             </h2>
           </div>
 
-          {/* Tab Buttons */}
+          {/* Tabs */}
           <div className="px-4 pt-2">
             <nav className="flex space-x-4 overflow-x-auto">
               {INVENTORY_TABS.map((tab) => (
@@ -146,7 +305,7 @@ export default function SupplierDashboard() {
                   key={tab.key}
                   onClick={() => setActiveTab(tab.key)}
                   className={`
-                    py-2 px-4 text-sm font-medium
+                    py-2 px-4 text-sm font-medium whitespace-nowrap
                     ${
                       activeTab === tab.key
                         ? 'border-b-2 border-black dark:border-white text-black dark:text-white'
@@ -161,58 +320,65 @@ export default function SupplierDashboard() {
             </nav>
           </div>
 
-          {/* Tab Content Placeholder */}
+          {/* Tab Content */}
           <div className="p-4">
-            {activeTab === 'sell' && (
+            {/* ── Create Product Tab ──────────────────────────────────────────── */}
+            {activeTab === 'create' && (
               <div>
-                {/* TODO: Place your “Sell Product” form/component here */}
-                <p className="text-text-secondary italic">
-                  “Sell Product” tab content goes here.
-                </p>
+                <CreateProductForm onSuccess={refreshDashboard} />
               </div>
             )}
 
+            {/* ── Edit Product Tab ───────────────────────────────────────────── */}
             {activeTab === 'edit' && (
               <div>
-                {/* TODO: Place your “Edit Product” form/component here */}
                 <p className="text-text-secondary italic">
-                  “Edit Product” tab content goes here.
+                  “Edit Product” form goes here.
                 </p>
               </div>
             )}
 
+            {/* ── Active Products Tab ───────────────────────────────────────── */}
             {activeTab === 'active' && (
               <div>
-                {/* TODO: List of active products */}
                 <p className="text-text-secondary italic">
-                  “Active Products” list goes here.
+                  “Active Products” listing goes here.
                 </p>
               </div>
             )}
 
+            {/* ── Messages Tab ───────────────────────────────────────────────── */}
             {activeTab === 'messages' && (
               <div>
-                {/* TODO: Buyer Messages inbox/chat */}
                 <p className="text-text-secondary italic">
-                  “Messages” panel goes here.
+                  “Messages” inbox/chat goes here.
                 </p>
               </div>
             )}
 
+            {/* ── Compliance Tab ─────────────────────────────────────────────── */}
             {activeTab === 'compliance' && (
               <div>
-                {/* TODO: Compliance documents / checks */}
                 <p className="text-text-secondary italic">
                   “Compliance” section goes here.
                 </p>
               </div>
             )}
 
+            {/* ── Reports Tab ───────────────────────────────────────────────── */}
             {activeTab === 'reports' && (
               <div>
-                {/* TODO: Reports / analytics */}
                 <p className="text-text-secondary italic">
-                  “Reports” section goes here.
+                  “Reports” analytics go here.
+                </p>
+              </div>
+            )}
+
+            {/* ── Shipments Tab ──────────────────────────────────────────────── */}
+            {activeTab === 'shipments' && (
+              <div>
+                <p className="text-text-secondary italic">
+                  “Shipments” tracking goes here.
                 </p>
               </div>
             )}
