@@ -1,4 +1,3 @@
-// frontend/components/Navbar.tsx
 'use client'
 
 import Link from 'next/link'
@@ -12,10 +11,10 @@ import Sidebar from './Sidebar'
 
 export default function Navbar() {
   const router = useRouter()
-  const [account, setAccount] = useState<string | null>(null)
-  const [role, setRole] = useState<UserRole | null>(null)
+  const [account, setAccount]           = useState<string | null>(null)
+  const [role, setRole]                 = useState<UserRole | null>(null)
   const [dropdownOpen, setDropdownOpen] = useState(false)
-  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [sidebarOpen, setSidebarOpen]   = useState(false)
   const wrapperRef = useRef<HTMLDivElement>(null)
 
   //
@@ -116,7 +115,7 @@ export default function Navbar() {
     : ''
 
   // Inline swap amounts (shown in desktop header)
-  const [amountIn, setAmountIn] = useState('')
+  const [amountIn, setAmountIn]   = useState('')
   const [amountOut, setAmountOut] = useState('')
 
   return (
@@ -131,23 +130,22 @@ export default function Navbar() {
       />
 
       {/* ─── Top Bar / Navbar ────────────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-50 bg-background-header dark:bg-background-dark border-b border-border-light dark:border-gray-700 h-16">
-        <div className="max-w-7xl mx-auto h-full px-4 flex items-center justify-between">
-
-          {/* ── (1) LEFT: G Toggle + Logo ──────────────────────────────────────────── */}
-          <div className="flex items-center space-x-3 h-full">
+      <header className="sticky top-0 z-40 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+        <div className="max-w-7xl mx-auto flex items-center justify-between h-16 px-4">
+          
+          {/* ── (1) Left: “G” Toggle + Logo ──────────────────────────────────────────── */}
+          <div className="flex items-center space-x-4">
             {/* “G” Toggle */}
             <button
               onClick={() => setSidebarOpen(true)}
               className="
-                flex-shrink-0
                 p-2
                 border border-gray-300 dark:border-gray-700
                 rounded-lg
                 bg-white dark:bg-gray-900
-                hover:bg-gray-100 dark:hover:bg-gray-800
-                transition
+                flex-shrink-0
                 focus:outline-none
+                transition
               "
               aria-label="Open menu"
             >
@@ -155,11 +153,11 @@ export default function Navbar() {
             </button>
 
             {/* Stickey.ai Logo (no border) */}
-            <Link href="/" className="logo-link flex items-center ml-2 h-full">
+            <Link href="/" className="flex items-center">
               <Image
                 src="/Stickeyai.svg"
                 alt="Stickey.ai"
-                width={140}
+                width={128}
                 height={40}
                 priority
                 className="border-none"
@@ -167,7 +165,7 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* ── (2) CENTER: Search + Swap (desktop only) ───────────────────────────────── */}
+          {/* ── (2) Center: Search + Swap (desktop only) ───────────────────────────────── */}
           <div className="hidden md:flex flex-1 justify-center items-center space-x-3">
             {/* Search Input */}
             <input
@@ -175,12 +173,12 @@ export default function Navbar() {
               placeholder="Search by title or category…"
               className="
                 w-full max-w-lg
-                py-1.5 px-3
+                py-2 px-3
                 border border-black dark:border-white
                 rounded-lg
-                text-sm font-medium text-text dark:text-text-primary
-                bg-white dark:bg-gray-800
-                focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent
+                text-sm text-gray-800 dark:text-gray-100
+                focus:outline-none focus:ring-2 focus:ring-blue-500
+                bg-white dark:bg-gray-900
               "
             />
 
@@ -191,13 +189,13 @@ export default function Navbar() {
               onChange={(e) => setAmountIn(e.target.value)}
               placeholder="0"
               className="
-                w-20 sm:w-28
-                py-1 px-2
+                w-24 sm:w-32
+                py-2 px-2
                 border border-black dark:border-white
                 rounded-lg
-                text-center text-sm font-medium text-text dark:text-text-primary
-                bg-white dark:bg-gray-800
-                focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent
+                text-center text-sm text-gray-800 dark:text-gray-100
+                focus:outline-none focus:ring-2 focus:ring-blue-500
+                bg-white dark:bg-gray-900
               "
             />
 
@@ -208,23 +206,21 @@ export default function Navbar() {
                 flex items-center
                 border border-black dark:border-white
                 rounded-lg
-                py-1 px-2
-                bg-white dark:bg-gray-800
-                text-sm font-medium text-text dark:text-text-primary
+                py-2 px-3
+                bg-white dark:bg-gray-900
+                text-sm text-gray-800 dark:text-gray-100
                 hover:bg-gray-100 dark:hover:bg-gray-700
-                focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent
+                focus:outline-none
                 transition
               "
               onClick={() => { /* open “from” token picker */ }}
             >
-              <Image src="/tokens/usdt.svg" alt="USDT" width={18} height={18} />
-              <span className="ml-1">$USDT</span>
+              <Image src="/tokens/usdt.svg" alt="USDT" width={16} height={16} />
+              <span className="ml-1">USDT</span>
             </button>
 
             {/* Arrow Icon */}
-            <span className="text-lg text-gray-500 dark:text-gray-400 select-none">
-              →
-            </span>
+            <span className="text-lg text-gray-400 select-none">→</span>
 
             {/* Amount Out Input */}
             <input
@@ -233,13 +229,13 @@ export default function Navbar() {
               onChange={(e) => setAmountOut(e.target.value)}
               placeholder="0"
               className="
-                w-20 sm:w-28
-                py-1 px-2
+                w-24 sm:w-32
+                py-2 px-2
                 border border-black dark:border-white
                 rounded-lg
-                text-center text-sm font-medium text-text dark:text-text-primary
-                bg-white dark:bg-gray-800
-                focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent
+                text-center text-sm text-gray-800 dark:text-gray-100
+                focus:outline-none focus:ring-2 focus:ring-blue-500
+                bg-white dark:bg-gray-900
               "
             />
 
@@ -250,16 +246,16 @@ export default function Navbar() {
                 flex items-center
                 border border-black dark:border-white
                 rounded-lg
-                py-1 px-2
-                bg-white dark:bg-gray-800
-                text-sm font-medium text-text dark:text-text-primary
+                py-2 px-3
+                bg-white dark:bg-gray-900
+                text-sm text-gray-800 dark:text-gray-100
                 hover:bg-gray-100 dark:hover:bg-gray-700
-                focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent
+                focus:outline-none
                 transition
               "
               onClick={() => { /* open “to” token picker */ }}
             >
-              <Image src="/tokens/glu.svg" alt="GLU" width={18} height={18} />
+              <Image src="/tokens/glu.svg" alt="GLU" width={16} height={16} />
               <span className="ml-1">$GLU</span>
             </button>
 
@@ -267,13 +263,14 @@ export default function Navbar() {
             <button
               onClick={() => router.push('/swap')}
               className="
-                py-1 px-3
+                py-2 px-4
                 border border-black dark:border-white
                 rounded-lg
-                text-sm font-medium text-text dark:text-text-primary
                 bg-transparent
+                text-black dark:text-white
+                text-sm
                 hover:bg-gray-100 dark:hover:bg-gray-700
-                focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent
+                focus:outline-none
                 transition
               "
             >
@@ -281,39 +278,41 @@ export default function Navbar() {
             </button>
           </div>
 
-          {/* ── (3) RIGHT: Live Indicator + Wallet ────────────────────────────────────── */}
-          <div className="flex items-center justify-end space-x-3 w-full md:w-auto">
-            {/* “Live” Indicator (clickable, aligned right) */}
+          {/* ── (3) Right: Live Indicator + Wallet ────────────────────────────────────── */}
+          <div className="flex items-center space-x-4">
+            {/* “Live” Indicator (clickable) */}
             <button
-              onClick={() => router.push('/')}
+              onClick={() => router.push('/products')}
               className="
                 flex items-center space-x-1
-                py-1 px-3
+                py-2 px-4
                 border border-black dark:border-white
                 rounded-lg
                 bg-transparent
-                text-sm font-medium text-text dark:text-text-primary
+                text-black dark:text-white
+                text-sm
                 hover:bg-gray-100 dark:hover:bg-gray-700
-                focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent
+                focus:outline-none
                 transition
               "
             >
               <span className="inline-block w-2 h-2 bg-green-500 rounded-full" />
-              <span>Live</span>
+              <span className="font-medium">Live</span>
             </button>
 
-            {/* Wallet / Connect Wallet (aligned far right) */}
+            {/* Wallet / Connect Wallet */}
             {!account ? (
               <button
                 onClick={handleConnect}
                 className="
-                  py-1 px-3
+                  py-2 px-4
                   border border-black dark:border-white
                   rounded-lg
                   bg-transparent
-                  text-sm font-medium text-text dark:text-text-primary
+                  text-black dark:text-white
+                  text-sm
                   hover:bg-gray-100 dark:hover:bg-gray-700
-                  focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent
+                  focus:outline-none
                   transition
                 "
               >
@@ -324,13 +323,14 @@ export default function Navbar() {
                 <button
                   onClick={() => setDropdownOpen(o => !o)}
                   className="
-                    py-1 px-3
+                    py-2 px-4
                     border border-black dark:border-white
                     rounded-lg
                     bg-transparent
-                    text-sm font-medium text-text dark:text-text-primary
+                    text-black dark:text-white
+                    text-sm
                     hover:bg-gray-100 dark:hover:bg-gray-700
-                    focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent
+                    focus:outline-none
                     transition
                   "
                 >
@@ -338,9 +338,9 @@ export default function Navbar() {
                 </button>
                 {dropdownOpen && (
                   <div className="
-                    absolute right-0 mt-2 w-48
+                    absolute right-0 mt-2 w-40
                     bg-white dark:bg-gray-800
-                    border border-border-light dark:border-gray-700
+                    border border-gray-200 dark:border-gray-700
                     rounded-lg shadow-lg
                     z-50
                   ">
@@ -348,8 +348,8 @@ export default function Navbar() {
                       onClick={handleDisconnect}
                       className="
                         w-full text-left px-4 py-2
-                        text-text dark:text-text-secondary
-                        text-sm font-medium
+                        text-gray-800 dark:text-gray-200
+                        text-sm
                         hover:bg-gray-100 dark:hover:bg-gray-700
                         focus:outline-none
                         transition
