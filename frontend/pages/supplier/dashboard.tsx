@@ -1,4 +1,3 @@
-// frontend/pages/supplier/dashboard.tsx
 import { useEffect, useState } from 'react'
 import useAuthRedirect from '@/hooks/useAuthRedirect'
 import useSupplierDashboard from '@/hooks/useSupplierDashboard'
@@ -29,8 +28,7 @@ const INVENTORY_TABS = [
 ]
 
 // ----------------------------------------------------------------
-// We will inline the Create Product form here (adjusted from:
-// frontend/pages/products/create.tsx)
+// Inline “Create Product” form (adjusted to use white inputs + black borders)
 // ----------------------------------------------------------------
 function CreateProductForm({ onSuccess }: { onSuccess: () => void }) {
   const [formData, setFormData] = useState({
@@ -70,7 +68,7 @@ function CreateProductForm({ onSuccess }: { onSuccess: () => void }) {
         {
           method: 'POST',
           headers: {
-            // Note: For multipart/form-data, do NOT set Content-Type manually.
+            // When using multipart/form-data, DO NOT set Content-Type manually.
             Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
           },
           body: data,
@@ -98,9 +96,14 @@ function CreateProductForm({ onSuccess }: { onSuccess: () => void }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      {error && <p className="text-red-600">{error}</p>}
+    <form onSubmit={handleSubmit} className="space-y-5">
+      {error && (
+        <p className="text-red-600 text-sm border border-red-200 bg-red-50 rounded-md p-2">
+          {error}
+        </p>
+      )}
 
+      {/* Title */}
       <div className="space-y-1">
         <label htmlFor="title" className="block text-sm font-medium text-gray-700">
           Title
@@ -114,8 +117,8 @@ function CreateProductForm({ onSuccess }: { onSuccess: () => void }) {
           className="
             block w-full
             px-4 py-2
-            bg-gray-100
-            border border-gray-200
+            bg-white
+            border border-black
             rounded-md
             text-gray-800 text-sm
             placeholder-gray-400
@@ -125,6 +128,7 @@ function CreateProductForm({ onSuccess }: { onSuccess: () => void }) {
         />
       </div>
 
+      {/* Country of Origin */}
       <div className="space-y-1">
         <label htmlFor="origin_country" className="block text-sm font-medium text-gray-700">
           Country of Origin
@@ -138,8 +142,8 @@ function CreateProductForm({ onSuccess }: { onSuccess: () => void }) {
           className="
             block w-full
             px-4 py-2
-            bg-gray-100
-            border border-gray-200
+            bg-white
+            border border-black
             rounded-md
             text-gray-800 text-sm
             placeholder-gray-400
@@ -149,6 +153,7 @@ function CreateProductForm({ onSuccess }: { onSuccess: () => void }) {
         />
       </div>
 
+      {/* Category */}
       <div className="space-y-1">
         <label htmlFor="category" className="block text-sm font-medium text-gray-700">
           Category (e.g. Whey)
@@ -162,8 +167,8 @@ function CreateProductForm({ onSuccess }: { onSuccess: () => void }) {
           className="
             block w-full
             px-4 py-2
-            bg-gray-100
-            border border-gray-200
+            bg-white
+            border border-black
             rounded-md
             text-gray-800 text-sm
             placeholder-gray-400
@@ -173,6 +178,7 @@ function CreateProductForm({ onSuccess }: { onSuccess: () => void }) {
         />
       </div>
 
+      {/* Description */}
       <div className="space-y-1">
         <label htmlFor="description" className="block text-sm font-medium text-gray-700">
           Description
@@ -187,8 +193,8 @@ function CreateProductForm({ onSuccess }: { onSuccess: () => void }) {
           className="
             block w-full
             px-4 py-2
-            bg-gray-100
-            border border-gray-200
+            bg-white
+            border border-black
             rounded-md
             text-gray-800 text-sm
             placeholder-gray-400
@@ -198,6 +204,7 @@ function CreateProductForm({ onSuccess }: { onSuccess: () => void }) {
         />
       </div>
 
+      {/* Price per KG */}
       <div className="space-y-1">
         <label htmlFor="price_per_kg" className="block text-sm font-medium text-gray-700">
           Price per KG (£)
@@ -213,8 +220,8 @@ function CreateProductForm({ onSuccess }: { onSuccess: () => void }) {
           className="
             block w-full
             px-4 py-2
-            bg-gray-100
-            border border-gray-200
+            bg-white
+            border border-black
             rounded-md
             text-gray-800 text-sm
             placeholder-gray-400
@@ -224,6 +231,7 @@ function CreateProductForm({ onSuccess }: { onSuccess: () => void }) {
         />
       </div>
 
+      {/* Image Upload */}
       <div className="space-y-1">
         <label htmlFor="image" className="block text-sm font-medium text-gray-700">
           Product Image
@@ -239,6 +247,7 @@ function CreateProductForm({ onSuccess }: { onSuccess: () => void }) {
         />
       </div>
 
+      {/* Submit Button */}
       <div>
         <button
           type="submit"
@@ -267,14 +276,14 @@ export default function SupplierDashboard() {
   // 1) If user is not a supplier, they will be redirected
   useAuthRedirect('supplier')
 
-  // 2) Fetch supplier-specific data (e.g. sales, listings, etc.)
+  // 2) Fetch supplier-specific data (sales, listings, etc.)
   const { data, loading, error } = useSupplierDashboard()
   const [selectedMetric, setSelectedMetric] = useState(METRICS[0].key)
 
-  // 3) Track which inventory tab is active
+  // 3) Which inventory tab is active?
   const [activeTab, setActiveTab] = useState<string>('create')
 
-  // 4) For reloading the dashboard after creating a product
+  // 4) Trigger to refresh dashboard after creating a product
   const [refreshFlag, setRefreshFlag] = useState<number>(0)
   const refreshDashboard = () => setRefreshFlag((f) => f + 1)
 
@@ -296,7 +305,7 @@ export default function SupplierDashboard() {
     )
   }
 
-  // Calculate the metric to display
+  // Determine which metric to display
   const currentMetric = METRICS.find((m) => m.key === selectedMetric)!
   let rawValue = (data as any)[currentMetric.key]
   let displayValue: string | number = rawValue
@@ -304,7 +313,7 @@ export default function SupplierDashboard() {
     displayValue = `£${rawValue}`
   }
 
-  // Build a dummy 24-point time series to feed into <Chart>
+  // Dummy 24‐point time series for <Chart>
   const sampleChartData: ChartPoint[] = Array.from({ length: 24 }, (_, i) => ({
     time: Math.floor(Date.now() / 1000) - (23 - i) * 3600,
     value:
@@ -317,7 +326,7 @@ export default function SupplierDashboard() {
 
   return (
     <div className="bg-bg-page min-h-screen">
-      {/* ─── Spacer to account for sticky navbar height ─────────────────────── */}
+      {/* ─── Spacer so navbar (h-16) does not overlap content ───────────────── */}
       <div className="h-16" />
 
       <main className="max-w-7xl mx-auto px-4 pt-5 space-y-8">
@@ -356,7 +365,7 @@ export default function SupplierDashboard() {
                   ? 'text-blue-600'
                   : 'text-green-600'
               }`}
-              style={{ fontWeight: 400 /* Not bold */ }}
+              style={{ fontWeight: 400 }}
             >
               {displayValue}
             </span>
@@ -382,7 +391,7 @@ export default function SupplierDashboard() {
           </div>
         </div>
 
-        {/* ── “Manage Inventory” Tabbed Container ────────────────────────────────── */}
+        {/* ── “Manage Inventory” Tabbed Container ───────────────────────────────── */}
         <div className="bg-white dark:bg-gray-800 border border-border-light dark:border-gray-700 rounded-lg">
           {/* Header */}
           <div className="px-4 py-3 border-b border-border-light dark:border-gray-700">
@@ -416,65 +425,51 @@ export default function SupplierDashboard() {
 
           {/* Tab Content */}
           <div className="p-4">
-            {/* ── Create Product Tab ──────────────────────────────────────────── */}
+            {/* Create Product */}
             {activeTab === 'create' && (
-              <div>
-                <CreateProductForm onSuccess={refreshDashboard} />
-              </div>
+              <CreateProductForm onSuccess={refreshDashboard} />
             )}
 
-            {/* ── Edit Product Tab ───────────────────────────────────────────── */}
+            {/* Edit Product */}
             {activeTab === 'edit' && (
-              <div>
-                <p className="text-text-secondary italic">
-                  “Edit Product” form goes here.
-                </p>
-              </div>
+              <p className="text-text-secondary italic">
+                “Edit Product” form goes here.
+              </p>
             )}
 
-            {/* ── Active Products Tab ───────────────────────────────────────── */}
+            {/* Active Products */}
             {activeTab === 'active' && (
-              <div>
-                <p className="text-text-secondary italic">
-                  “Active Products” listing goes here.
-                </p>
-              </div>
+              <p className="text-text-secondary italic">
+                “Active Products” listing goes here.
+              </p>
             )}
 
-            {/* ── Messages Tab ───────────────────────────────────────────────── */}
+            {/* Messages */}
             {activeTab === 'messages' && (
-              <div>
-                <p className="text-text-secondary italic">
-                  “Messages” inbox/chat goes here.
-                </p>
-              </div>
+              <p className="text-text-secondary italic">
+                “Messages” inbox/chat goes here.
+              </p>
             )}
 
-            {/* ── Compliance Tab ─────────────────────────────────────────────── */}
+            {/* Compliance */}
             {activeTab === 'compliance' && (
-              <div>
-                <p className="text-text-secondary italic">
-                  “Compliance” section goes here.
-                </p>
-              </div>
+              <p className="text-text-secondary italic">
+                “Compliance” section goes here.
+              </p>
             )}
 
-            {/* ── Reports Tab ───────────────────────────────────────────────── */}
+            {/* Reports */}
             {activeTab === 'reports' && (
-              <div>
-                <p className="text-text-secondary italic">
-                  “Reports” analytics go here.
-                </p>
-              </div>
+              <p className="text-text-secondary italic">
+                “Reports” analytics go here.
+              </p>
             )}
 
-            {/* ── Shipments Tab ──────────────────────────────────────────────── */}
+            {/* Shipments */}
             {activeTab === 'shipments' && (
-              <div>
-                <p className="text-text-secondary italic">
-                  “Shipments” tracking goes here.
-                </p>
-              </div>
+              <p className="text-text-secondary italic">
+                “Shipments” tracking goes here.
+              </p>
             )}
           </div>
         </div>
