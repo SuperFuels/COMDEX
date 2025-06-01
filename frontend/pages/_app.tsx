@@ -5,7 +5,6 @@ import '@/styles/globals.css'     // ← Tailwind + your custom globals
 import type { AppProps } from 'next/app'
 import { useEffect } from 'react'
 import Navbar from '@/components/Navbar'
-// (We have removed the SwapBar import because the mobile swap‐bar is no longer needed)
 
 export default function MyApp({ Component, pageProps }: AppProps) {
   useEffect(() => {
@@ -21,7 +20,7 @@ export default function MyApp({ Component, pageProps }: AppProps) {
 
   return (
     <div className="flex min-h-screen">
-      {/* We do NOT render <Sidebar /> here, because Navbar controls it. */}
+      {/* Sidebar is controlled by Navbar itself, so we do NOT render <Sidebar /> here */}
 
       <div className="flex-1 flex flex-col">
         {/* ─── Global Navbar (sticky at top) ─────────────────────────── */}
@@ -29,7 +28,7 @@ export default function MyApp({ Component, pageProps }: AppProps) {
 
         {/*
           ─── Page Content ───────────────────────────────────────────
-          We add padding‐top so that the <Navbar> (which is height h-16 = 4rem)
+          We add padding‐top so that the <Navbar> (height = h-16 = 4rem)
           does not cover up the page content beneath it.
         */}
         <main className="flex-1 bg-bg-page pt-16">
