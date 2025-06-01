@@ -121,13 +121,14 @@ export default function Navbar() {
 
   return (
     <>
-      {/* ─── (A) Full‐Width Top Bar: “G” + (flush‐right) Live & Wallet ───────────── */}
-      <div className="fixed inset-x-0 top-0 z-50 bg-background-header dark:bg-background-dark border-b border-border-light dark:border-gray-700 h-16 flex items-center">
-        {/* ‣ (A1) “G” Toggle on the far left */}
+      {/* ─── Fixed Top Bar (all in one row) ────────────────────────────────────────────────────────── */}
+      <div className="fixed inset-x-0 top-0 z-50 h-16 bg-background-header dark:bg-background-dark border-b border-border-light dark:border-gray-700 flex items-center px-4">
+
+        {/* ───────────── (1) “G” Toggle (Far Left) ───────────── */}
         <button
           onClick={() => setSidebarOpen(true)}
           className="
-            ml-4
+            mr-4
             p-2
             border border-gray-300 dark:border-gray-700
             rounded-lg
@@ -139,18 +140,139 @@ export default function Navbar() {
           <Image src="/G.svg" alt="Menu" width={24} height={24} />
         </button>
 
-        {/* ‣ (A2) Spacer to push the right items flush to the far right */}
-        <div className="flex-grow" />
+        {/* ───────────── (2) Center Section (Logo + Search + Swap) ───────────── */}
+        <div className="flex-1 flex justify-center items-center space-x-4">
 
-        {/* ‣ (A3) “Live” + “Connect Wallet” flush-right */}
-        <div className="flex items-center space-x-3 mr-4">
-          {/* “Live” Indicator (black border) */}
+          {/* (2a) Logo: shifted left by 10px => give a small negative margin */}
+          <Link href="/" className="logo-link -ml-2">
+            <Image
+              src="/Stickeyai.svg"
+              alt="Stickey.ai"
+              width={128}
+              height={40}
+              priority
+            />
+          </Link>
+
+          {/* (2b) Search Input (reduced height, same shape as buttons) */}
+          <input
+            type="text"
+            placeholder="Search by title or category…"
+            className="
+              w-full max-w-md
+              py-1.5 px-3
+              border border-gray-300 dark:border-gray-600
+              rounded-lg
+              text-sm text-text
+              bg-white dark:bg-gray-800
+              focus:outline-none focus:ring-2 focus:ring-blue-500
+            "
+          />
+
+          {/* (2c) Amount In Input */}
+          <input
+            type="number"
+            value={amountIn}
+            onChange={(e) => setAmountIn(e.target.value)}
+            placeholder="0"
+            className="
+              w-20 sm:w-28
+              py-1 px-2
+              border border-gray-300 dark:border-gray-600
+              rounded-lg
+              text-center text-sm text-text
+              bg-white dark:bg-gray-800
+              focus:outline-none focus:ring-2 focus:ring-blue-500
+            "
+          />
+
+          {/* (2d) From Token Selector */}
+          <button
+            type="button"
+            className="
+              flex items-center
+              border border-gray-300 dark:border-gray-600
+              rounded-lg
+              py-1 px-3
+              bg-white dark:bg-gray-800
+              text-sm text-text
+              hover:bg-gray-50 dark:hover:bg-gray-700
+              focus:outline-none
+            "
+            onClick={() => { /* open “from” token picker */ }}
+          >
+            <Image src="/tokens/usdt.svg" alt="USDT" width={16} height={16} />
+            <span className="ml-1">USDT</span>
+          </button>
+
+          {/* (2e) Arrow Icon */}
+          <span className="text-lg text-gray-400 select-none">→</span>
+
+          {/* (2f) Amount Out Input */}
+          <input
+            type="number"
+            value={amountOut}
+            onChange={(e) => setAmountOut(e.target.value)}
+            placeholder="0"
+            className="
+              w-20 sm:w-28
+              py-1 px-2
+              border border-gray-300 dark:border-gray-600
+              rounded-lg
+              text-center text-sm text-text
+              bg-white dark:bg-gray-800
+              focus:outline-none focus:ring-2 focus:ring-blue-500
+            "
+          />
+
+          {/* (2g) To Token Selector */}
+          <button
+            type="button"
+            className="
+              flex items-center
+              border border-gray-300 dark:border-gray-600
+              rounded-lg
+              py-1 px-3
+              bg-white dark:bg-gray-800
+              text-sm text-text
+              hover:bg-gray-50 dark:hover:bg-gray-700
+              focus:outline-none
+            "
+            onClick={() => { /* open “to” token picker */ }}
+          >
+            <Image src="/tokens/glu.svg" alt="GLU" width={16} height={16} />
+            <span className="ml-1">$GLU</span>
+          </button>
+
+          {/* (2h) Swap Button */}
+          <button
+            onClick={() => router.push('/swap')}
+            className="
+              py-1 px-4
+              border border-black
+              rounded-lg
+              bg-transparent
+              text-black dark:text-white
+              text-sm
+              hover:bg-gray-100 dark:hover:bg-gray-700
+              focus:outline-none
+              transition
+            "
+          >
+            Swap
+          </button>
+        </div>
+
+        {/* ───────────── (3) Far Right Section (Live + Wallet) ───────────── */}
+        <div className="flex items-center space-x-3">
+
+          {/* (3a) Live Indicator (black border) */}
           <div className="flex items-center space-x-1 border border-black rounded-lg py-1 px-3">
             <span className="inline-block w-2 h-2 bg-green-500 rounded-full" />
             <span className="text-text font-medium text-sm">Live</span>
           </div>
 
-          {/* Wallet / Connect Wallet */}
+          {/* (3b) Wallet / Connect Wallet */}
           {!account ? (
             <button
               onClick={handleConnect}
@@ -214,139 +336,16 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* ─── (B) Centered Second Row: Logo + (desktop) Search/Swap ───────────────── */}
-      <header className="pt-16 z-40">
-        <div className="max-w-7xl mx-auto flex items-center justify-between h-16 px-4">
-          {/* ‣ (B1) Logo, shifted right by ~15px via extra padding */}
-          <div className="flex items-center pl-4">
-            <Link href="/" className="logo-link flex items-center">
-              <Image
-                src="/Stickeyai.svg"
-                alt="Stickey.ai"
-                width={128}
-                height={40}
-                priority
-              />
-            </Link>
-          </div>
+      {/* ─── Slide‐in Sidebar ───────────────────────────────────────────────────────────── */}
+      <Sidebar
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+        role={role}
+        account={account}
+        onLogout={handleDisconnect}
+      />
 
-          {/* ‣ (B2) Desktop Search + Swap (centered) */}
-          <div className="hidden md:flex flex-1 justify-center items-center space-x-4 px-4">
-            {/* Search Input (rounded-lg, reduced height) */}
-            <input
-              type="text"
-              placeholder="Search by title or category…"
-              className="
-                w-full max-w-lg
-                py-1.5 px-3
-                border border-gray-300 dark:border-gray-600
-                rounded-lg
-                text-sm text-text
-                bg-white dark:bg-gray-800
-                focus:outline-none focus:ring-2 focus:ring-blue-500
-              "
-            />
-
-            {/* Amount In Input */}
-            <input
-              type="number"
-              value={amountIn}
-              onChange={(e) => setAmountIn(e.target.value)}
-              placeholder="0"
-              className="
-                w-20 sm:w-28
-                py-1 px-2
-                border border-gray-300 dark:border-gray-600
-                rounded-lg
-                text-center text-sm
-                bg-white dark:bg-gray-800
-                focus:outline-none focus:ring-2 focus:ring-blue-500
-              "
-            />
-
-            {/* From Token Selector */}
-            <button
-              type="button"
-              className="
-                flex items-center
-                border border-gray-300 dark:border-gray-600
-                rounded-lg
-                py-1 px-3
-                bg-white dark:bg-gray-800
-                text-sm text-text
-                hover:bg-gray-50 dark:hover:bg-gray-700
-                focus:outline-none
-              "
-              onClick={() => { /* open “from” token picker */ }}
-            >
-              <Image src="/tokens/usdt.svg" alt="USDT" width={16} height={16} />
-              <span className="ml-1">USDT</span>
-            </button>
-
-            {/* Arrow Icon */}
-            <span className="text-lg text-gray-400 select-none">→</span>
-
-            {/* Amount Out Input */}
-            <input
-              type="number"
-              value={amountOut}
-              onChange={(e) => setAmountOut(e.target.value)}
-              placeholder="0"
-              className="
-                w-20 sm:w-28
-                py-1 px-2
-                border border-gray-300 dark:border-gray-600
-                rounded-lg
-                text-center text-sm
-                bg-white dark:bg-gray-800
-                focus:outline-none focus:ring-2 focus:ring-blue-500
-              "
-            />
-
-            {/* To Token Selector */}
-            <button
-              type="button"
-              className="
-                flex items-center
-                border border-gray-300 dark:border-gray-600
-                rounded-lg
-                py-1 px-3
-                bg-white dark:bg-gray-800
-                text-sm text-text
-                hover:bg-gray-50 dark:hover:bg-gray-700
-                focus:outline-none
-              "
-              onClick={() => { /* open “to” token picker */ }}
-            >
-              <Image src="/tokens/glu.svg" alt="GLU" width={16} height={16} />
-              <span className="ml-1">$GLU</span>
-            </button>
-
-            {/* Swap Button */}
-            <button
-              onClick={() => router.push('/swap')}
-              className="
-                py-1 px-4
-                border border-black
-                rounded-lg
-                bg-transparent
-                text-black dark:text-white
-                text-sm
-                hover:bg-gray-100 dark:hover:bg-gray-700
-                focus:outline-none
-                transition
-              "
-            >
-              Swap
-            </button>
-          </div>
-
-          {/* ‣ (B3) Empty spacer on right so the centered content doesn’t bump into anything */}
-          <div className="w-16" />
-        </div>
-      </header>
-
-      {/* ─── (C) Lower Swap Bar for Mobile Only ───────────────────────────────── */}
+      {/* ─── Lower Swap Bar for Mobile Only (remains unchanged) ───────────────────────── */}
       <div className="md:hidden sticky top-16 z-30 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 py-2 flex items-center space-x-2">
           {/* Mobile Search Input */}
