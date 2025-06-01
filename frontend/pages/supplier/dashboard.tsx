@@ -30,8 +30,7 @@ const INVENTORY_TABS = [
 ]
 
 // ----------------------------------------------------------------
-// We will inline the Create Product form here (adjusted from:
-// frontend/pages/products/create.tsx)
+// CreateProductForm component (inlined and adjusted styling)
 // ----------------------------------------------------------------
 function CreateProductForm({ onSuccess }: { onSuccess: () => void }) {
   const [formData, setFormData] = useState({
@@ -102,7 +101,7 @@ function CreateProductForm({ onSuccess }: { onSuccess: () => void }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      {error && <p className="text-red-600">{error}</p>}
+      {error && <p className="text-red-600 text-sm">{error}</p>}
 
       <div className="space-y-1">
         <label htmlFor="title" className="block text-sm font-medium text-gray-700">
@@ -320,8 +319,7 @@ export default function SupplierDashboard() {
 
   return (
     <div className="bg-bg-page min-h-screen">
-      {/* Notice: We removed the extra h-16 spacer here,
-          because _app.tsx already added pt-16 on <main>. */}
+      {/* Notice: The <main> wrapper in _app.tsx already has `pt-16` to offset the navbar height */}
 
       <main className="max-w-7xl mx-auto px-4 pt-0 space-y-8">
         {/* ── Global Snapshot Container ───────────────────────────────────────── */}
