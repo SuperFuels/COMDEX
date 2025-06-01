@@ -2,7 +2,6 @@
 import { useEffect, useState } from 'react'
 import useAuthRedirect from '@/hooks/useAuthRedirect'
 import useSupplierDashboard from '@/hooks/useSupplierDashboard'
-import Link from 'next/link'
 import Chart, { ChartPoint } from '@/components/Chart'
 
 // ----------------------------------------------------------------
@@ -20,18 +19,18 @@ const METRICS = [
 // Inventory tabs—including the new "Create Product" and "Shipments"
 // ----------------------------------------------------------------
 const INVENTORY_TABS = [
-  { key: 'create',   label: 'Create Product' },
-  { key: 'edit',     label: 'Edit Product' },
-  { key: 'active',   label: 'Active Products' },
-  { key: 'messages', label: 'Messages' },
+  { key: 'create',     label: 'Create Product' },
+  { key: 'edit',       label: 'Edit Product' },
+  { key: 'active',     label: 'Active Products' },
+  { key: 'messages',   label: 'Messages' },
   { key: 'compliance', label: 'Compliance' },
-  { key: 'reports',  label: 'Reports' },
-  { key: 'shipments', label: 'Shipments' },
+  { key: 'reports',    label: 'Reports' },
+  { key: 'shipments',  label: 'Shipments' },
 ]
 
 // ----------------------------------------------------------------
-// We will inline the Create Product form here (copied/adjusted from:
-// frontend/pages/products/create.tsx )
+// We will inline the Create Product form here (adjusted from:
+// frontend/pages/products/create.tsx)
 // ----------------------------------------------------------------
 function CreateProductForm({ onSuccess }: { onSuccess: () => void }) {
   const [formData, setFormData] = useState({
@@ -44,8 +43,8 @@ function CreateProductForm({ onSuccess }: { onSuccess: () => void }) {
   })
   const [error, setError] = useState('')
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, files } = e.target
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value, files } = e.target as any
     if (name === 'image' && files && files.length > 0) {
       setFormData((f) => ({ ...f, image: files[0] }))
     } else {
@@ -66,22 +65,24 @@ function CreateProductForm({ onSuccess }: { onSuccess: () => void }) {
     if (formData.image) data.append('image', formData.image)
 
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products`, {
-        method: 'POST',
-        headers: {
-          // Note: When using `multipart/form-data`, we do NOT set a Content-Type header here;
-          //       the browser will produce the correct `boundary=...` automatically.
-          Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
-        },
-        body: data,
-      }).then(async (res) => {
-        if (!res.ok) {
-          const json = await res.json()
-          throw new Error(json.detail || 'Upload failed')
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/products`,
+        {
+          method: 'POST',
+          headers: {
+            // Note: For multipart/form-data, do NOT set Content-Type manually.
+            Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
+          },
+          body: data,
         }
-      })
+      )
 
-      // If successful, clear fields and inform parent so it can refresh if desired
+      if (!res.ok) {
+        const json = await res.json()
+        throw new Error(json.detail || 'Upload failed.')
+      }
+
+      // Clear form fields and notify parent to refresh dashboard data
       setFormData({
         title: '',
         origin_country: '',
@@ -92,7 +93,7 @@ function CreateProductForm({ onSuccess }: { onSuccess: () => void }) {
       })
       onSuccess()
     } catch (err: any) {
-      setError(err.message || 'Upload failed')
+      setError(err.message || 'Upload failed.')
     }
   }
 
@@ -100,68 +101,161 @@ function CreateProductForm({ onSuccess }: { onSuccess: () => void }) {
     <form onSubmit={handleSubmit} className="space-y-4">
       {error && <p className="text-red-600">{error}</p>}
 
-      <input
-        name="title"
-        placeholder="Title"
-        onChange={handleChange}
-        value={formData.title}
-        className="w-full border border-gray-300 p-2 rounded"
-        required
-      />
+      <div className="space-y-1">
+        <label htmlFor="title" className="block text-sm font-medium text-gray-700">
+          Title
+        </label>
+        <input
+          id="title"
+          name="title"
+          value={formData.title}
+          onChange={handleChange}
+          placeholder="e.g. Organic Whey Protein"
+          className="
+            block w-full
+            px-4 py-2
+            bg-gray-100
+            border border-gray-200
+            rounded-md
+            text-gray-800 text-sm
+            placeholder-gray-400
+            focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent
+          "
+          required
+        />
+      </div>
 
-      <input
-        name="origin_country"
-        placeholder="Country of Origin"
-        onChange={handleChange}
-        value={formData.origin_country}
-        className="w-full border border-gray-300 p-2 rounded"
-        required
-      />
+      <div className="space-y-1">
+        <label htmlFor="origin_country" className="block text-sm font-medium text-gray-700">
+          Country of Origin
+        </label>
+        <input
+          id="origin_country"
+          name="origin_country"
+          value={formData.origin_country}
+          onChange={handleChange}
+          placeholder="e.g. USA"
+          className="
+            block w-full
+            px-4 py-2
+            bg-gray-100
+            border border-gray-200
+            rounded-md
+            text-gray-800 text-sm
+            placeholder-gray-400
+            focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent
+          "
+          required
+        />
+      </div>
 
-      <input
-        name="category"
-        placeholder="Category (e.g. Whey)"
-        onChange={handleChange}
-        value={formData.category}
-        className="w-full border border-gray-300 p-2 rounded"
-        required
-      />
+      <div className="space-y-1">
+        <label htmlFor="category" className="block text-sm font-medium text-gray-700">
+          Category (e.g. Whey)
+        </label>
+        <input
+          id="category"
+          name="category"
+          value={formData.category}
+          onChange={handleChange}
+          placeholder="e.g. Whey Protein"
+          className="
+            block w-full
+            px-4 py-2
+            bg-gray-100
+            border border-gray-200
+            rounded-md
+            text-gray-800 text-sm
+            placeholder-gray-400
+            focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent
+          "
+          required
+        />
+      </div>
 
-      <input
-        name="description"
-        placeholder="Description"
-        onChange={handleChange}
-        value={formData.description}
-        className="w-full border border-gray-300 p-2 rounded"
-        required
-      />
+      <div className="space-y-1">
+        <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+          Description
+        </label>
+        <textarea
+          id="description"
+          name="description"
+          value={formData.description}
+          onChange={handleChange}
+          rows={3}
+          placeholder="Short description of your product"
+          className="
+            block w-full
+            px-4 py-2
+            bg-gray-100
+            border border-gray-200
+            rounded-md
+            text-gray-800 text-sm
+            placeholder-gray-400
+            focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent
+          "
+          required
+        />
+      </div>
 
-      <input
-        name="price_per_kg"
-        type="number"
-        step="0.01"
-        placeholder="Price per KG"
-        onChange={handleChange}
-        value={formData.price_per_kg}
-        className="w-full border border-gray-300 p-2 rounded"
-        required
-      />
+      <div className="space-y-1">
+        <label htmlFor="price_per_kg" className="block text-sm font-medium text-gray-700">
+          Price per KG (£)
+        </label>
+        <input
+          id="price_per_kg"
+          name="price_per_kg"
+          type="number"
+          step="0.01"
+          value={formData.price_per_kg}
+          onChange={handleChange}
+          placeholder="e.g. 12.50"
+          className="
+            block w-full
+            px-4 py-2
+            bg-gray-100
+            border border-gray-200
+            rounded-md
+            text-gray-800 text-sm
+            placeholder-gray-400
+            focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent
+          "
+          required
+        />
+      </div>
 
-      <input
-        name="image"
-        type="file"
-        accept="image/*"
-        onChange={handleChange}
-        className="w-full"
-        required
-      />
+      <div className="space-y-1">
+        <label htmlFor="image" className="block text-sm font-medium text-gray-700">
+          Product Image
+        </label>
+        <input
+          id="image"
+          name="image"
+          type="file"
+          accept="image/*"
+          onChange={handleChange}
+          className="block w-full text-gray-700 text-sm"
+          required
+        />
+      </div>
 
-      <button
-        type="submit"
-        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-      >
-        Upload
-      </button>
+      <div>
+        <button
+          type="submit"
+          className="
+            inline-flex justify-center items-center
+            px-6 py-2
+            bg-blue-600 text-white
+            font-medium text-sm
+            rounded-md
+            hover:bg-blue-700
+            focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2
+            transition
+          "
+        >
+          Upload
+        </button>
+      </div>
     </form>
   )
 }

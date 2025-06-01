@@ -1,4 +1,3 @@
-// frontend/components/Navbar.tsx
 'use client'
 
 import Link from 'next/link'
@@ -115,13 +114,13 @@ export default function Navbar() {
     ? `${account.slice(0, 6)}…${account.slice(-4)}`
     : ''
 
-  // Inline swap amounts (shown in desktop header)
+  // Inline swap amounts (desktop only)
   const [amountIn, setAmountIn]   = useState('')
   const [amountOut, setAmountOut] = useState('')
 
   return (
     <>
-      {/* ─── Slide‐in Sidebar ─────────────────────────────────────────────── */}
+      {/* ─── Sidebar Drawer ───────────────────────────────────────────────── */}
       <Sidebar
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
@@ -130,11 +129,11 @@ export default function Navbar() {
         onLogout={handleDisconnect}
       />
 
-      {/* ─── “G” Toggle (far left, always visible) ───────────────────────────────── */}
+      {/* ─── “G” Toggle (opens sidebar; vertically centered at left) ────── */}
       <button
         onClick={() => setSidebarOpen(true)}
         className="
-          fixed top-4 left-4
+          fixed left-4 top-1/2 transform -translate-y-1/2
           p-2
           border border-gray-300 dark:border-gray-700
           rounded-lg
@@ -146,11 +145,10 @@ export default function Navbar() {
         <Image src="/G.svg" alt="Menu" width={24} height={24} />
       </button>
 
-      {/* ─── Top Bar / Navbar ────────────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-40 bg-background-header dark:bg-background-dark border-b border-border-light dark:border-gray-700">
-        <div className="max-w-7xl mx-auto flex items-center justify-between h-16 px-4">
-
-          {/* ── (1) Left: Stickey.ai Logo ─────────────────────────────────────────────── */}
+      {/* ─── Top Bar / Navbar ───────────────────────────────────────────────── */}
+      <header className="sticky top-0 z-40 w-full bg-background-header dark:bg-background-dark border-b border-border-light dark:border-gray-700">
+        <div className="max-w-7xl mx-auto flex items-center h-16 px-4">
+          {/* ── (1) Left: Stickey.ai Logo & gap ───────────────────────────────── */}
           <div className="flex items-center">
             <Link href="/" className="logo-link flex items-center -ml-2">
               <Image
@@ -162,16 +160,18 @@ export default function Navbar() {
                 className="border-none"
               />
             </Link>
+            {/* tiny spacer so search never touches logo */}
+            <div className="w-4" />
           </div>
 
-          {/* ── (2) Center: Search + Swap (desktop only) ───────────────────────────────── */}
-          <div className="hidden md:flex flex-1 justify-center items-center space-x-3">
+          {/* ── (2) Center: Search + Swap (desktop only) ───────────────────── */}
+          <div className="hidden md:flex flex-1 items-center space-x-3">
             {/* Search Input */}
             <input
               type="text"
               placeholder="Search by title or category…"
               className="
-                w-full max-w-md
+                w-full max-w-lg
                 py-1.5 px-3
                 border border-gray-300 dark:border-gray-600
                 rounded-lg
@@ -188,11 +188,11 @@ export default function Navbar() {
               onChange={(e) => setAmountIn(e.target.value)}
               placeholder="0"
               className="
-                w-20 sm:w-28
+                w-24 sm:w-32
                 py-1 px-2
                 border border-gray-300 dark:border-gray-600
                 rounded-lg
-                text-center text-sm
+                text-center text-sm text-text
                 bg-white dark:bg-gray-800
                 focus:outline-none focus:ring-2 focus:ring-blue-500
               "
@@ -218,7 +218,7 @@ export default function Navbar() {
             </button>
 
             {/* Arrow Icon */}
-            <span className="text-lg text-gray-400 select-none">→</span>
+            <span className="text-2xl text-gray-400 select-none">→</span>
 
             {/* Amount Out Input */}
             <input
@@ -227,11 +227,11 @@ export default function Navbar() {
               onChange={(e) => setAmountOut(e.target.value)}
               placeholder="0"
               className="
-                w-20 sm:w-28
+                w-24 sm:w-32
                 py-1 px-2
                 border border-gray-300 dark:border-gray-600
                 rounded-lg
-                text-center text-sm
+                text-center text-sm text-text
                 bg-white dark:bg-gray-800
                 focus:outline-none focus:ring-2 focus:ring-blue-500
               "
@@ -275,9 +275,9 @@ export default function Navbar() {
             </button>
           </div>
 
-          {/* ── (3) Right: Live Indicator + Wallet ────────────────────────────────────── */}
-          <div className="flex items-center space-x-3">
-            {/* “Live” Indicator (now clickable) */}
+          {/* ── (3) Right: Live Button + Connect Wallet ──────────────────────── */}
+          <div className="ml-auto flex items-center space-x-3">
+            {/* “Live” Indicator (clickable → /products) */}
             <button
               onClick={() => router.push('/products')}
               className="
@@ -318,7 +318,7 @@ export default function Navbar() {
             ) : (
               <div ref={wrapperRef} className="relative">
                 <button
-                  onClick={() => setDropdownOpen(o => !o)}
+                  onClick={() => setDropdownOpen((o) => !o)}
                   className="
                     py-1 px-3
                     border border-black
@@ -362,7 +362,7 @@ export default function Navbar() {
         </div>
       </header>
 
-      {/* ─── Lower Swap Bar (mobile only) ─────────────────────────────────────── */}
+      {/* ─── Lower Swap Bar (mobile only) ─────────────────────────────────── */}
       <div className="md:hidden sticky top-16 z-30 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 py-2 flex items-center space-x-2">
           {/* Mobile Search Input */}
