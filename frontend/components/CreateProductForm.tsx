@@ -44,7 +44,7 @@ export default function CreateProductForm() {
   }
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 space-y-6">
+    <div className="bg-white border border-black rounded-lg shadow-sm p-6 space-y-6">
       <h1 className="text-2xl font-semibold text-gray-800">Create Product</h1>
 
       {error && (
@@ -68,8 +68,8 @@ export default function CreateProductForm() {
             className="
               block w-full
               px-4 py-2
-              bg-gray-100
-              border border-gray-200
+              bg-white
+              border border-black
               rounded-md
               text-gray-800 text-sm
               placeholder-gray-400
@@ -93,8 +93,8 @@ export default function CreateProductForm() {
             className="
               block w-full
               px-4 py-2
-              bg-gray-100
-              border border-gray-200
+              bg-white
+              border border-black
               rounded-md
               text-gray-800 text-sm
               placeholder-gray-400
@@ -118,8 +118,8 @@ export default function CreateProductForm() {
             className="
               block w-full
               px-4 py-2
-              bg-gray-100
-              border border-gray-200
+              bg-white
+              border border-black
               rounded-md
               text-gray-800 text-sm
               placeholder-gray-400
@@ -144,8 +144,8 @@ export default function CreateProductForm() {
             className="
               block w-full
               px-4 py-2
-              bg-gray-100
-              border border-gray-200
+              bg-white
+              border border-black
               rounded-md
               text-gray-800 text-sm
               placeholder-gray-400
@@ -171,8 +171,8 @@ export default function CreateProductForm() {
             className="
               block w-full
               px-4 py-2
-              bg-gray-100
-              border border-gray-200
+              bg-white
+              border border-black
               rounded-md
               text-gray-800 text-sm
               placeholder-gray-400

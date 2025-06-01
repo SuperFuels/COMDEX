@@ -148,7 +148,7 @@ export default function Navbar() {
       {/* ─── Top Bar / Navbar ───────────────────────────────────────────────── */}
       <header className="sticky top-0 z-40 w-full bg-background-header dark:bg-background-dark border-b border-border-light dark:border-gray-700">
         <div className="max-w-7xl mx-auto flex items-center h-16 px-4">
-          {/* ── (1) Left: Stickey.ai Logo & gap ───────────────────────────────── */}
+          {/* ── (1) Left: Stickey.ai Logo + small gap ─────────────────────────── */}
           <div className="flex items-center">
             <Link href="/" className="logo-link flex items-center -ml-2">
               <Image
