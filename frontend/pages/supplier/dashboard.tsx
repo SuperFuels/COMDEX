@@ -1,5 +1,4 @@
 // frontend/pages/supplier/dashboard.tsx
-
 import { useEffect, useState } from 'react'
 import useAuthRedirect from '@/hooks/useAuthRedirect'
 import useSupplierDashboard from '@/hooks/useSupplierDashboard'
@@ -30,7 +29,8 @@ const INVENTORY_TABS = [
 ]
 
 // ----------------------------------------------------------------
-// CreateProductForm component (inlined and adjusted styling)
+// We will inline the Create Product form here (adjusted from:
+// frontend/pages/products/create.tsx)
 // ----------------------------------------------------------------
 function CreateProductForm({ onSuccess }: { onSuccess: () => void }) {
   const [formData, setFormData] = useState({
@@ -43,9 +43,7 @@ function CreateProductForm({ onSuccess }: { onSuccess: () => void }) {
   })
   const [error, setError] = useState('')
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, files } = e.target as any
     if (name === 'image' && files && files.length > 0) {
       setFormData((f) => ({ ...f, image: files[0] }))
@@ -72,7 +70,7 @@ function CreateProductForm({ onSuccess }: { onSuccess: () => void }) {
         {
           method: 'POST',
           headers: {
-            // For multipart/form-data uploads, do NOT set Content-Type manually.
+            // Note: For multipart/form-data, do NOT set Content-Type manually.
             Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
           },
           body: data,
@@ -101,7 +99,7 @@ function CreateProductForm({ onSuccess }: { onSuccess: () => void }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      {error && <p className="text-red-600 text-sm">{error}</p>}
+      {error && <p className="text-red-600">{error}</p>}
 
       <div className="space-y-1">
         <label htmlFor="title" className="block text-sm font-medium text-gray-700">
@@ -117,7 +115,7 @@ function CreateProductForm({ onSuccess }: { onSuccess: () => void }) {
             block w-full
             px-4 py-2
             bg-white
-            border border-black
+            border border-gray-300
             rounded-md
             text-gray-800 text-sm
             placeholder-gray-400
@@ -141,7 +139,7 @@ function CreateProductForm({ onSuccess }: { onSuccess: () => void }) {
             block w-full
             px-4 py-2
             bg-white
-            border border-black
+            border border-gray-300
             rounded-md
             text-gray-800 text-sm
             placeholder-gray-400
@@ -165,7 +163,7 @@ function CreateProductForm({ onSuccess }: { onSuccess: () => void }) {
             block w-full
             px-4 py-2
             bg-white
-            border border-black
+            border border-gray-300
             rounded-md
             text-gray-800 text-sm
             placeholder-gray-400
@@ -190,7 +188,7 @@ function CreateProductForm({ onSuccess }: { onSuccess: () => void }) {
             block w-full
             px-4 py-2
             bg-white
-            border border-black
+            border border-gray-300
             rounded-md
             text-gray-800 text-sm
             placeholder-gray-400
@@ -216,7 +214,7 @@ function CreateProductForm({ onSuccess }: { onSuccess: () => void }) {
             block w-full
             px-4 py-2
             bg-white
-            border border-black
+            border border-gray-300
             rounded-md
             text-gray-800 text-sm
             placeholder-gray-400
@@ -236,7 +234,7 @@ function CreateProductForm({ onSuccess }: { onSuccess: () => void }) {
           type="file"
           accept="image/*"
           onChange={handleChange}
-          className="block w-full text-gray-700 text-sm"
+          className="block w-full text-gray-700 text-sm border border-gray-300 rounded-md"
           required
         />
       </div>
@@ -319,7 +317,8 @@ export default function SupplierDashboard() {
 
   return (
     <div className="bg-bg-page min-h-screen">
-      {/* Notice: The <main> wrapper in _app.tsx already has `pt-16` to offset the navbar height */}
+      {/* ─── Spacer to account for sticky navbar height ─────────────────────── */}
+      <div className="h-16" />
 
       <main className="max-w-7xl mx-auto px-4 pt-0 space-y-8">
         {/* ── Global Snapshot Container ───────────────────────────────────────── */}
