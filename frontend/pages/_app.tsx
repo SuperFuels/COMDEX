@@ -1,19 +1,19 @@
 // frontend/pages/_app.tsx
 
 import '@/lib/api'                // ← configure your axios instance first
-import '@/styles/globals.css'     // ← pull in Tailwind + your custom globals
+import '@/styles/globals.css'     // ← Tailwind + your custom globals
 import type { AppProps } from 'next/app'
 import { useEffect } from 'react'
 import Navbar from '@/components/Navbar'
-import SwapBar from '@/components/SwapBar'
+// (We have removed the SwapBar import because the mobile swap‐bar is no longer needed)
 
 export default function MyApp({ Component, pageProps }: AppProps) {
   useEffect(() => {
     // Debug your API URL
     console.log('🔍 NEXT_PUBLIC_API_URL =', process.env.NEXT_PUBLIC_API_URL)
 
-    // If user still has a JWT, clear the manual-disconnect flag
-    // so they’ll auto-reconnect their wallet on page reload
+    // If user still has a JWT, clear the manual‐disconnect flag
+    // so they’ll auto‐reconnect their wallet on page reload
     if (typeof window !== 'undefined' && localStorage.getItem('token')) {
       localStorage.removeItem('manualDisconnect')
     }
@@ -24,20 +24,15 @@ export default function MyApp({ Component, pageProps }: AppProps) {
       {/* We do NOT render <Sidebar /> here, because Navbar controls it. */}
 
       <div className="flex-1 flex flex-col">
-        {/* ─── Global Navbar (white bg in light mode / dark bg in dark mode) ─── */}
+        {/* ─── Global Navbar (sticky at top) ─────────────────────────── */}
         <Navbar />
 
-        {/* 
-          ─── Sticky SwapBar (only shown on mobile) ──────────────────────────
-          We hide this at md: and above so that desktop no longer has
-          the duplicated swap row. On smaller viewports, it remains visible.
+        {/*
+          ─── Page Content ───────────────────────────────────────────
+          We add padding‐top so that the <Navbar> (which is height h-16 = 4rem)
+          does not cover up the page content beneath it.
         */}
-        <div className="sticky top-16 z-20 bg-background-header dark:bg-background-dark md:hidden">
-          <SwapBar />
-        </div>
-
-        {/* ─── Page Content ─────────────────────────────────────────────────── */}
-        <main className="flex-1 bg-bg-page">
+        <main className="flex-1 bg-bg-page pt-16">
           <Component {...pageProps} />
         </main>
       </div>
