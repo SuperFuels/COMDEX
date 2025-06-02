@@ -57,7 +57,7 @@ export default function SupplierDashboard() {
     return { label: m.label, value: rawValue, color: 'text-green-600' }
   })
 
-  // Dummy 24‐point time series for <Chart>
+  // Dummy 24-point time series for <Chart>
   const sampleChartData: ChartPoint[] = Array.from({ length: 24 }, (_, i) => ({
     time: Math.floor(Date.now() / 1000) - (23 - i) * 3600,
     value:
@@ -76,10 +76,7 @@ export default function SupplierDashboard() {
       <main className="flex-1 max-w-[calc(100%-40px)] mx-auto px-2">
         <div className="flex h-[calc(100vh-4rem-4rem)]">
           {/* ── Left Pane: Text / “Terminal” ──────────────────────────── */}
-          <div
-            ref={leftPaneRef}
-            className="flex-1 overflow-auto pr-2"
-          >
+          <div ref={leftPaneRef} className="flex-1 overflow-auto pr-2">
             <div className="h-full font-mono text-text dark:text-text-secondary text-sm">
               {/* Greeting + Metric Lines */}
               <p className="mb-2">Hello, Kevin — welcome to Central Command.</p>
@@ -98,7 +95,7 @@ export default function SupplierDashboard() {
                   </p>
                 ) : (
                   <div>
-                    {/* Example dummy response for “Sales” */}
+                    {/* Example dummy response for each tab */}
                     {selectedTab === 'Sales' && (
                       <>
                         <p className="mb-2">→ Here is your sales summary for today:</p>
@@ -163,9 +160,9 @@ export default function SupplierDashboard() {
       {/* ─── Fixed Bottom Bar ───────────────────────────────────────────── */}
       <footer className="fixed bottom-0 left-0 w-full bg-white dark:bg-gray-800 border-t border-border-light dark:border-gray-700 py-4">
         <div className="max-w-[calc(100%-40px)] mx-auto px-2">
-          <div className="flex items-center">
-            {/* ── Left: Text Input + Send Button (flex-1 so it stays under left pane) ───── */}
-            <div className="flex-1 flex items-center space-x-2">
+          <div className="flex">
+            {/* ── Left: Constrain to 50% − 20px so “Send” never crosses divider ───── */}
+            <div className="w-[calc(50%-20px)] flex items-center space-x-2">
               <input
                 type="text"
                 placeholder="Type a question (e.g. “Build my sales report”)"
@@ -181,11 +178,10 @@ export default function SupplierDashboard() {
               <button
                 className="
                   py-2 px-4
+                  bg-black text-white
                   border border-black rounded
-                  bg-transparent
-                  text-black dark:text-white
                   text-sm
-                  hover:bg-gray-100 dark:hover:bg-gray-700
+                  hover:bg-gray-900
                   focus:outline-none focus:ring-2 focus:ring-blue-500
                   transition
                 "
@@ -194,8 +190,8 @@ export default function SupplierDashboard() {
               </button>
             </div>
 
-            {/* ── Right: Shortcut Buttons (gap from input, sits under right pane) ────────── */}
-            <div className="flex space-x-2 ml-4">
+            {/* ── Right: Shortcut Buttons (occupies remaining 50%) ─────────────────── */}
+            <div className="w-[50%] flex justify-start space-x-2 pl-4">
               {['Sales', 'Marketing', 'Operations', 'Shipments', 'Financials', 'Clients'].map(
                 (tab) => (
                   <button
