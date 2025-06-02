@@ -1,12 +1,12 @@
 // frontend/pages/supplier/dashboard.tsx
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import useAuthRedirect from '@/hooks/useAuthRedirect'
 import useSupplierDashboard from '@/hooks/useSupplierDashboard'
 import Chart, { ChartPoint } from '@/components/Chart'
 
 // ----------------------------------------------------------------
-// Metrics used at the top (print all inside the terminal)
+// Metrics used at the top
 // ----------------------------------------------------------------
 const METRICS = [
   { key: 'totalSalesToday', label: 'Sales Today' },
@@ -30,7 +30,7 @@ const INVENTORY_TABS = [
 ]
 
 // ----------------------------------------------------------------
-// Inline "Create Product" form (unchanged)
+// Inline "Create Product" form (unchanged from before)
 // ----------------------------------------------------------------
 function CreateProductForm({ onSuccess }: { onSuccess: () => void }) {
   const [formData, setFormData] = useState({
@@ -259,23 +259,20 @@ function CreateProductForm({ onSuccess }: { onSuccess: () => void }) {
 // Main SupplierDashboard component
 // ----------------------------------------------------------------
 export default function SupplierDashboard() {
-  // 1) If user is not a supplier, they will be redirected
+  // Redirect non-suppliers
   useAuthRedirect('supplier')
 
-  // 2) Fetch supplier‐specific data (e.g. sales, listings, etc.)
+  // Fetch supplier data
   const { data, loading, error } = useSupplierDashboard()
 
-  // 3) Track which inventory tab is active
+  // Inventory tab state
   const [activeTab, setActiveTab] = useState<string>('create')
-
-  // 4) For reloading the dashboard after creating a product
   const [refreshFlag, setRefreshFlag] = useState<number>(0)
   const refreshDashboard = () => setRefreshFlag((f) => f + 1)
 
-  // 5) Track AI terminal input
+  // AI terminal input state
   const [aiInput, setAiInput] = useState('')
 
-  // Show spinner if loading
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-bg-page">
@@ -284,7 +281,6 @@ export default function SupplierDashboard() {
     )
   }
 
-  // Show error if any
   if (error || !data) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-bg-page">
@@ -293,7 +289,7 @@ export default function SupplierDashboard() {
     )
   }
 
-  // Extract all metric values + assign color classes
+  // Map each metric to a {label, value, color}
   const metricsOutput = METRICS.map((m) => {
     const rawValue = (data as any)[m.key]
     if (m.key === 'proceeds30d') {
@@ -305,11 +301,11 @@ export default function SupplierDashboard() {
     if (m.key === 'totalSalesToday') {
       return { label: m.label, value: rawValue, color: 'text-blue-600' }
     }
-    // For activeListings & openOrders
+    // activeListings & openOrders
     return { label: m.label, value: rawValue, color: 'text-green-600' }
   })
 
-  // Build a dummy 24‐point time series to feed into <Chart>
+  // A dummy 24-point time series for the “Reports” chart
   const sampleChartData: ChartPoint[] = Array.from({ length: 24 }, (_, i) => ({
     time: Math.floor(Date.now() / 1000) - (23 - i) * 3600,
     value:
@@ -319,13 +315,12 @@ export default function SupplierDashboard() {
 
   return (
     <div className="bg-bg-page min-h-screen">
-      {/* No extra spacer here; _app.tsx already gives pt-16 for the navbar */}
-
       <main className="max-w-7xl mx-auto px-4 pt-5 space-y-8">
-        {/* ── Global Snapshot + AI Central Command ─────────────────────────────────── */}
+
+        {/* ─── AI “Central Command” Terminal ───────────────────────────────────────── */}
         <div className="bg-white dark:bg-gray-800 border border-border-light dark:border-gray-700 rounded-lg overflow-hidden">
-          {/* (1) Greeting + metrics at the top */}
-          <div className="px-4 pt-4 pb-2 font-mono text-base text-text dark:text-text-secondary space-y-1 border-b border-border-light dark:border-gray-700 overflow-y-auto">
+          {/* (1) Metrics + Greeting at top */}
+          <div className="px-4 pt-4 pb-2 font-mono text-lg text-text dark:text-text-secondary space-y-1 bg-gray-50 dark:bg-gray-900">
             <p className="mb-1 text-gray-600 dark:text-gray-400">
               Hello, Kevin — welcome to Central Command.
             </p>
@@ -337,24 +332,34 @@ export default function SupplierDashboard() {
             ))}
           </div>
 
-          {/* (2) Scrolling conversation area, full width */}
-          <div className="h-48 p-4 overflow-auto font-mono text-base text-text dark:text-text-secondary space-y-2">
-            <p>→ Type a question below, or select a button.</p>
-            {/* Placeholder for AI responses */}
-            <p className="text-gray-500 dark:text-gray-500">
-              […AI will respond here…]
-            </p>
+          {/* (2) Conversation + Visual Pane (side by side) */}
+          <div className="flex border-t border-border-light dark:border-gray-700">
+            {/* Left: Text Conversation (scrollable) */}
+            <div className="w-1/2 h-80 p-4 overflow-auto font-mono text-lg text-text dark:text-text-secondary space-y-2">
+              <p>→ Type a question below, or select a button.</p>
+              <p className="text-gray-500 dark:text-gray-500">
+                […AI will respond here…]
+              </p>
+            </div>
+
+            {/* Right: Visual Pane (empty placeholder) */}
+            <div className="w-1/2 h-80 p-4 bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
+              {/* Example placeholder text; later you can render charts, images, downloads, etc. */}
+              <p className="text-gray-400 dark:text-gray-500 italic">
+                [Visual output will appear here]
+              </p>
+            </div>
           </div>
 
-          {/* (3) Buttons + Input at the bottom */}
-          <div className="px-4 pt-2 pb-4 border-t border-border-light dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
-            {/* ——— Horizontal Buttons ——— */}
-            <div className="flex flex-wrap gap-2 mb-3">
+          {/* (3) Buttons + Input at bottom */}
+          <div className="px-4 pt-4 pb-4 bg-gray-50 dark:bg-gray-900">
+            {/* Horizontal Buttons */}
+            <div className="flex flex-wrap gap-2 mb-4">
               {['Sales', 'Marketing', 'Operations', 'Shipments', 'Financials', 'Clients'].map((btn) => (
                 <button
                   key={btn}
                   onClick={() => {
-                    // TODO: call AI for `${btn}` report
+                    // TODO: trigger AI fetch for “btn” category
                   }}
                   className="
                     px-3 py-1
@@ -371,7 +376,7 @@ export default function SupplierDashboard() {
               ))}
             </div>
 
-            {/* ——— Input + Send Button ——— */}
+            {/* Input + Send Button */}
             <div className="flex items-center space-x-2">
               <input
                 type="text"
@@ -380,21 +385,21 @@ export default function SupplierDashboard() {
                 placeholder="e.g. build my sales report"
                 className="
                   flex-1
-                  px-3 py-2
+                  px-4 py-3
                   bg-white dark:bg-gray-800
                   border border-black
                   rounded-lg
-                  text-base text-text dark:text-text-secondary
+                  text-lg text-text dark:text-text-secondary
                   placeholder-gray-400 dark:placeholder-gray-500
                   focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
                 "
               />
               <button
                 onClick={() => {
-                  // TODO: trigger send logic
+                  // TODO: trigger AI send logic
                 }}
                 className="
-                  px-4 py-2
+                  px-5 py-3
                   bg-white dark:bg-gray-800
                   border border-black
                   rounded-lg
@@ -403,14 +408,14 @@ export default function SupplierDashboard() {
                 "
                 aria-label="Send message"
               >
-                {/* You can swap this text with an icon */}
                 Send
               </button>
             </div>
           </div>
         </div>
+        {/* ────────────────────────────────────────────────────────────────────────── */}
 
-        {/* ── “Manage Inventory” Tabbed Container ────────────────────────────── */}
+        {/* ── “Manage Inventory” Tabbed Container ─────────────────────────────────── */}
         <div className="bg-white dark:bg-gray-800 border border-border-light dark:border-gray-700 rounded-lg">
           {/* Header */}
           <div className="px-4 py-3 border-b border-border-light dark:border-gray-700">
@@ -444,47 +449,47 @@ export default function SupplierDashboard() {
 
           {/* Tab Content */}
           <div className="p-4">
-            {/* ── Create Product Tab ──────────────────────────────────────────── */}
+            {/* Create Product */}
             {activeTab === 'create' && (
               <CreateProductForm onSuccess={refreshDashboard} />
             )}
 
-            {/* ── Edit Product Tab ───────────────────────────────────────────── */}
+            {/* Edit Product */}
             {activeTab === 'edit' && (
               <p className="text-text-secondary italic">
                 “Edit Product” form goes here.
               </p>
             )}
 
-            {/* ── Active Products Tab ───────────────────────────────────────── */}
+            {/* Active Products */}
             {activeTab === 'active' && (
               <p className="text-text-secondary italic">
                 “Active Products” listing goes here.
               </p>
             )}
 
-            {/* ── Messages Tab ───────────────────────────────────────────────── */}
+            {/* Messages */}
             {activeTab === 'messages' && (
               <p className="text-text-secondary italic">
                 “Messages” inbox/chat goes here.
               </p>
             )}
 
-            {/* ── Compliance Tab ─────────────────────────────────────────────── */}
+            {/* Compliance */}
             {activeTab === 'compliance' && (
               <p className="text-text-secondary italic">
                 “Compliance” section goes here.
               </p>
             )}
 
-            {/* ── Reports Tab: now shows the <Chart> ────────────────────────── */}
+            {/* Reports (now shows the <Chart>) */}
             {activeTab === 'reports' && (
               <div className="h-64 overflow-hidden">
                 <Chart data={sampleChartData} height={256} />
               </div>
             )}
 
-            {/* ── Shipments Tab ──────────────────────────────────────────────── */}
+            {/* Shipments */}
             {activeTab === 'shipments' && (
               <p className="text-text-secondary italic">
                 “Shipments” tracking goes here.
