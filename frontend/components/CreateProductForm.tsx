@@ -1,9 +1,13 @@
+// frontend/components/CreateProductForm.tsx
 import { useState } from 'react'
 import api from '@/lib/api'
-import { useRouter } from 'next/router'
 
-export default function CreateProductForm() {
-  const router = useRouter()
+interface CreateProductFormProps {
+  /** Called after a successful create; parent page can refresh or navigate */
+  onSuccess: () => void
+}
+
+export default function CreateProductForm({ onSuccess }: CreateProductFormProps) {
   const [formData, setFormData] = useState({
     title: '',
     origin_country: '',
@@ -16,10 +20,10 @@ export default function CreateProductForm() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, files } = e.target as any
-    if (name === 'image' && files) {
-      setFormData(f => ({ ...f, image: files[0] }))
+    if (name === 'image' && files && files.length > 0) {
+      setFormData((f) => ({ ...f, image: files[0] }))
     } else {
-      setFormData(f => ({ ...f, [name]: value }))
+      setFormData((f) => ({ ...f, [name]: value }))
     }
   }
 
@@ -33,11 +37,14 @@ export default function CreateProductForm() {
     data.append('category', formData.category)
     data.append('description', formData.description)
     data.append('price_per_kg', formData.price_per_kg)
-    if (formData.image) data.append('image', formData.image)
+    if (formData.image) {
+      data.append('image', formData.image)
+    }
 
     try {
       await api.post('/products', data)
-      router.push('/supplier/dashboard')
+      // Notify parent that creation succeeded
+      onSuccess()
     } catch (err: any) {
       setError(err.response?.data?.detail || '❌ Upload failed.')
     }

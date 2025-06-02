@@ -2,8 +2,6 @@
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { DarkModeToggle } from './DarkModeToggle'
-
-// We need to import UserRole so SidebarProps can type the `role` prop
 import { UserRole } from '@/hooks/useAuthRedirect'
 
 interface SidebarProps {
@@ -45,7 +43,7 @@ export default function Sidebar({
         ref={containerRef}
         className={`
           fixed inset-y-0 left-0 z-40 w-64 max-w-full
-          bg-white dark:bg-gray-900 border-r border-black 
+          bg-white dark:bg-gray-900 border-r border-black
           transform transition-transform duration-300 ease-in-out
           ${isOpen ? 'translate-x-0' : '-translate-x-full'}
         `}
@@ -109,6 +107,17 @@ export default function Sidebar({
                 className="block py-2 px-3 border border-black rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-black dark:text-text-secondary text-left"
               >
                 Dashboard
+              </Link>
+            )}
+
+            {/* If user is a supplier, show a “Manage Inventory” link */}
+            {role === 'supplier' && (
+              <Link
+                href="/supplier/inventory"
+                onClick={onClose}
+                className="block py-2 px-3 border border-black rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-black dark:text-text-secondary text-left"
+              >
+                Manage Inventory
               </Link>
             )}
 
