@@ -4,25 +4,21 @@ import { useEffect, useState, useRef } from 'react'
 import useAuthRedirect from '@/hooks/useAuthRedirect'
 import useSupplierDashboard from '@/hooks/useSupplierDashboard'
 import Chart, { ChartPoint } from '@/components/Chart'
-import { UserRole } from '@/hooks/useAuthRedirect'
-import { signInWithEthereum, logout } from '@/utils/auth'
 
 export default function SupplierDashboard() {
-  // 1) Ensure only suppliers see this page
+  // 1) Ensure only suppliers can view this page
   useAuthRedirect('supplier')
 
-  // 2) Fetch supplier data (metrics, products, etc.)
+  // 2) Fetch supplier data
   const { data, loading, error } = useSupplierDashboard()
 
-  // 3) Track which “button” was clicked (Sales / Marketing / Operations / …)
-  //    For now we’re only showing static text; hooking up these buttons to real AI calls
-  //    will come later.
+  // 3) Track which “tab” (Sales, Marketing, etc.) was clicked
   const [selectedTab, setSelectedTab] = useState<string>('')
 
-  // 4) Reference for the scrollable left‐pane, if you ever need to programmatically scroll
+  // 4) A ref in case we want to scroll the left pane later
   const leftPaneRef = useRef<HTMLDivElement>(null)
 
-  // Loading / Error states
+  // Loading or error states
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-bg-page">
@@ -38,7 +34,7 @@ export default function SupplierDashboard() {
     )
   }
 
-  // Format all five metrics for display in the “terminal” pane
+  // Prepare metrics for display
   const METRICS = [
     { key: 'totalSalesToday', label: 'Sales Today' },
     { key: 'activeListings',   label: 'Active Listings' },
@@ -46,7 +42,7 @@ export default function SupplierDashboard() {
     { key: 'proceeds30d',      label: '30d Proceeds' },
     { key: 'feedbackRating',   label: 'Feedback' },
   ]
-  const metricsOutput = METRICS.map(m => {
+  const metricsOutput = METRICS.map((m) => {
     const rawValue = (data as any)[m.key]
     if (m.key === 'proceeds30d') {
       return { label: m.label, value: `£${rawValue}`, color: 'text-blue-600' }
@@ -61,7 +57,7 @@ export default function SupplierDashboard() {
     return { label: m.label, value: rawValue, color: 'text-green-600' }
   })
 
-  // Build a dummy time‐series for the <Chart> on the right
+  // Dummy 24‐point time series for <Chart>
   const sampleChartData: ChartPoint[] = Array.from({ length: 24 }, (_, i) => ({
     time: Math.floor(Date.now() / 1000) - (23 - i) * 3600,
     value:
@@ -73,35 +69,28 @@ export default function SupplierDashboard() {
 
   return (
     <div className="bg-bg-page min-h-screen flex flex-col">
-      {/* ─── Spacer to account for sticky navbar height ─────────────────── */}
+      {/* ─── Spacer for sticky Navbar (height = 4rem) ────────────────── */}
       <div className="h-16" />
 
-      {/* ─── Main Content: “Text | Visual” panes side by side ─────────────── */}
+      {/* ─── Main “Text | Visual” Area ───────────────────────────────────── */}
       <main className="flex-1 max-w-[calc(100%-40px)] mx-auto px-2">
-        <div className="flex h-[calc(100vh-4rem-4rem)]"> 
-          {/**
-           *   - 100vh minus 4rem (navbar) minus approx. 4rem (bottom input)
-           *   - We allow each pane to scroll internally if content overflows.
-           */}
-
-          {/* ── Left Pane: “Terminal” Text Area ─────────────────────────── */}
+        <div className="flex h-[calc(100vh-4rem-4rem)]">
+          {/* ── Left Pane: Text / “Terminal” ──────────────────────────── */}
           <div
             ref={leftPaneRef}
             className="flex-1 overflow-auto pr-2"
           >
             <div className="h-full font-mono text-text dark:text-text-secondary text-sm">
-              {/* Greeting + Metrics */}
-              <p className="mb-2">
-                Hello, Kevin — welcome to Central Command.
-              </p>
-              {metricsOutput.map(m => (
+              {/* Greeting + Metric Lines */}
+              <p className="mb-2">Hello, Kevin — welcome to Central Command.</p>
+              {metricsOutput.map((m) => (
                 <p key={m.label} className="mb-1">
                   <span>{`“${m.label}”: `}</span>
                   <span className={`${m.color}`}>{m.value}</span>
                 </p>
               ))}
 
-              {/* AI Response Placeholder */}
+              {/* AI Response / Instructions */}
               <div className="mt-4">
                 {selectedTab === '' ? (
                   <p className="italic text-text-secondary">
@@ -109,12 +98,10 @@ export default function SupplierDashboard() {
                   </p>
                 ) : (
                   <div>
-                    {/* Example dummy response */}
+                    {/* Example dummy response for “Sales” */}
                     {selectedTab === 'Sales' && (
                       <>
-                        <p className="mb-2">
-                          → Here is your sales summary for today:
-                        </p>
+                        <p className="mb-2">→ Here is your sales summary for today:</p>
                         <p className="mb-1">{`• “Sales Today”: ${ (data as any).totalSalesToday }`}</p>
                         <p className="mb-1">{`• “Active Listings”: ${ (data as any).activeListings }`}</p>
                         <p className="mb-1">{`• “Open Orders”: ${ (data as any).openOrders }`}</p>
@@ -143,10 +130,10 @@ export default function SupplierDashboard() {
             </div>
           </div>
 
-          {/* ── Vertical Divider ─────────────────────────────────────────── */}
-          <div className="w-px bg-border-light dark:bg-gray-700"></div>
+          {/* ── Vertical Divider ───────────────────────────────────────── */}
+          <div className="w-px bg-border-light dark:bg-gray-700" />
 
-          {/* ── Right Pane: “Visual” Area ───────────────────────────────── */}
+          {/* ── Right Pane: Visual Output ───────────────────────────────── */}
           <div className="flex-1 overflow-auto pl-2">
             {selectedTab === '' ? (
               <div className="h-full flex items-center justify-center text-text-secondary">
@@ -155,9 +142,12 @@ export default function SupplierDashboard() {
             ) : (
               <div className="h-full">
                 {selectedTab === 'Sales' && (
-                  <Chart data={sampleChartData} height={Math.floor(window.innerHeight - 4 * 16 - 64)} />
+                  <Chart
+                    data={sampleChartData}
+                    height={Math.floor(window.innerHeight - 4 * 16 - 64)}
+                  />
                 )}
-                {(selectedTab !== 'Sales') && (
+                {selectedTab !== 'Sales' && (
                   <div className="h-full flex items-center justify-center">
                     <p className="text-text-secondary italic">
                       [ Visual output for “{selectedTab}” would appear here ]
@@ -170,30 +160,11 @@ export default function SupplierDashboard() {
         </div>
       </main>
 
-      {/* ─── Bottom Input Bar (fixed) ─────────────────────────────────── */}
+      {/* ─── Fixed Bottom Bar ───────────────────────────────────────────── */}
       <footer className="fixed bottom-0 left-0 w-full bg-white dark:bg-gray-800 border-t border-border-light dark:border-gray-700 py-4">
         <div className="max-w-[calc(100%-40px)] mx-auto px-2">
-          <div className="flex space-x-2 items-center">
-            {/* Shortcut Buttons */}
-            <div className="flex space-x-2">
-              {['Sales','Marketing','Operations','Shipments','Financials','Clients'].map(tab => (
-                <button
-                  key={tab}
-                  onClick={() => setSelectedTab(tab)}
-                  className={`
-                    py-2 px-4 text-sm font-medium
-                    border border-black rounded
-                    bg-white dark:bg-gray-900 text-black dark:text-white
-                    hover:bg-gray-100 dark:hover:bg-gray-700
-                    focus:outline-none
-                  `}
-                >
-                  {tab}
-                </button>
-              ))}
-            </div>
-
-            {/* Chat Input + Send Button */}
+          <div className="flex items-center">
+            {/* ── Left: Text Input + Send Button (flex-1 so it stays under left pane) ───── */}
             <div className="flex-1 flex items-center space-x-2">
               <input
                 type="text"
@@ -221,6 +192,27 @@ export default function SupplierDashboard() {
               >
                 Send
               </button>
+            </div>
+
+            {/* ── Right: Shortcut Buttons (gap from input, sits under right pane) ────────── */}
+            <div className="flex space-x-2 ml-4">
+              {['Sales', 'Marketing', 'Operations', 'Shipments', 'Financials', 'Clients'].map(
+                (tab) => (
+                  <button
+                    key={tab}
+                    onClick={() => setSelectedTab(tab)}
+                    className={`
+                      py-2 px-4 text-sm font-medium whitespace-nowrap
+                      border border-black rounded
+                      bg-white dark:bg-gray-900 text-black dark:text-white
+                      hover:bg-gray-100 dark:hover:bg-gray-700
+                      focus:outline-none
+                    `}
+                  >
+                    {tab}
+                  </button>
+                )
+              )}
             </div>
           </div>
         </div>
