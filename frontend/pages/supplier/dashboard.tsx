@@ -1,34 +1,28 @@
 // frontend/pages/supplier/dashboard.tsx
 
-import { useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import useAuthRedirect from '@/hooks/useAuthRedirect'
 import useSupplierDashboard from '@/hooks/useSupplierDashboard'
 import Chart, { ChartPoint } from '@/components/Chart'
+import { UserRole } from '@/hooks/useAuthRedirect'
+import { signInWithEthereum, logout } from '@/utils/auth'
 
-// ----------------------------------------------------------------
-// Metrics used at the top
-// ----------------------------------------------------------------
-const METRICS = [
-  { key: 'totalSalesToday', label: 'Sales Today' },
-  { key: 'activeListings',   label: 'Active Listings' },
-  { key: 'openOrders',       label: 'Open Orders' },
-  { key: 'proceeds30d',      label: '30d Proceeds' },
-  { key: 'feedbackRating',   label: 'Feedback' },
-]
-
-// ----------------------------------------------------------------
-// Main SupplierDashboard component
-// ----------------------------------------------------------------
 export default function SupplierDashboard() {
-  // 1) If user is not a supplier, they will be redirected
+  // 1) Ensure only suppliers see this page
   useAuthRedirect('supplier')
 
-  // 2) Fetch supplier-specific data
+  // 2) Fetch supplier data (metrics, products, etc.)
   const { data, loading, error } = useSupplierDashboard()
 
-  // 3) AI terminal input state
-  const [aiInput, setAiInput] = useState('')
+  // 3) Track which “button” was clicked (Sales / Marketing / Operations / …)
+  //    For now we’re only showing static text; hooking up these buttons to real AI calls
+  //    will come later.
+  const [selectedTab, setSelectedTab] = useState<string>('')
 
+  // 4) Reference for the scrollable left‐pane, if you ever need to programmatically scroll
+  const leftPaneRef = useRef<HTMLDivElement>(null)
+
+  // Loading / Error states
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-bg-page">
@@ -36,7 +30,6 @@ export default function SupplierDashboard() {
       </div>
     )
   }
-
   if (error || !data) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-bg-page">
@@ -45,8 +38,15 @@ export default function SupplierDashboard() {
     )
   }
 
-  // Map each metric to a {label, value, color}
-  const metricsOutput = METRICS.map((m) => {
+  // Format all five metrics for display in the “terminal” pane
+  const METRICS = [
+    { key: 'totalSalesToday', label: 'Sales Today' },
+    { key: 'activeListings',   label: 'Active Listings' },
+    { key: 'openOrders',       label: 'Open Orders' },
+    { key: 'proceeds30d',      label: '30d Proceeds' },
+    { key: 'feedbackRating',   label: 'Feedback' },
+  ]
+  const metricsOutput = METRICS.map(m => {
     const rawValue = (data as any)[m.key]
     if (m.key === 'proceeds30d') {
       return { label: m.label, value: `£${rawValue}`, color: 'text-blue-600' }
@@ -57,121 +57,174 @@ export default function SupplierDashboard() {
     if (m.key === 'totalSalesToday') {
       return { label: m.label, value: rawValue, color: 'text-blue-600' }
     }
-    // activeListings & openOrders
+    // activeListings & openOrders → green
     return { label: m.label, value: rawValue, color: 'text-green-600' }
   })
 
-  // A dummy 24-point time series for the “Sales” chart
+  // Build a dummy time‐series for the <Chart> on the right
   const sampleChartData: ChartPoint[] = Array.from({ length: 24 }, (_, i) => ({
     time: Math.floor(Date.now() / 1000) - (23 - i) * 3600,
     value:
-      (data.products.length > 0 ? data.products[0].price_per_kg : 1) * 1000 +
+      (data.products.length > 0
+        ? data.products[0].price_per_kg
+        : 1) * 1000 +
       (Math.random() - 0.5) * 500,
   }))
 
   return (
-    <div className="bg-bg-page min-h-screen">
-      <main className="max-w-7xl mx-auto px-4 pt-5 space-y-8">
+    <div className="bg-bg-page min-h-screen flex flex-col">
+      {/* ─── Spacer to account for sticky navbar height ─────────────────── */}
+      <div className="h-16" />
 
-        {/* ─── AI “Central Command” Terminal (Text | Visual) ───────────────────────── */}
-        <div className="bg-white dark:bg-gray-800 border border-border-light dark:border-gray-700 rounded-lg overflow-hidden">
-          {/* (1) Side-by-side panes */}
-          <div className="flex border-b border-border-light dark:border-gray-700">
-            {/* Left: Text Conversation + Metrics */}
-            <div className="w-1/2 h-96 p-6 overflow-auto font-mono text-lg text-text dark:text-text-secondary space-y-4">
-              {/* Inject metrics at top */}
-              <div className="space-y-1">
-                <p className="text-gray-600 dark:text-gray-400">
-                  Hello, Kevin — welcome to Central Command.
+      {/* ─── Main Content: “Text | Visual” panes side by side ─────────────── */}
+      <main className="flex-1 max-w-[calc(100%-40px)] mx-auto px-2">
+        <div className="flex h-[calc(100vh-4rem-4rem)]"> 
+          {/**
+           *   - 100vh minus 4rem (navbar) minus approx. 4rem (bottom input)
+           *   - We allow each pane to scroll internally if content overflows.
+           */}
+
+          {/* ── Left Pane: “Terminal” Text Area ─────────────────────────── */}
+          <div
+            ref={leftPaneRef}
+            className="flex-1 overflow-auto pr-2"
+          >
+            <div className="h-full font-mono text-text dark:text-text-secondary text-sm">
+              {/* Greeting + Metrics */}
+              <p className="mb-2">
+                Hello, Kevin — welcome to Central Command.
+              </p>
+              {metricsOutput.map(m => (
+                <p key={m.label} className="mb-1">
+                  <span>{`“${m.label}”: `}</span>
+                  <span className={`${m.color}`}>{m.value}</span>
                 </p>
-                {metricsOutput.map((m) => (
-                  <p key={m.label}>
-                    <span>{`“${m.label}”: `}</span>
-                    <span className={m.color}>{m.value}</span>
-                  </p>
-                ))}
-              </div>
+              ))}
 
-              {/* Placeholder for AI’s dynamic response */}
+              {/* AI Response Placeholder */}
               <div className="mt-4">
-                <p>[…] AI response will appear here […]</p>
+                {selectedTab === '' ? (
+                  <p className="italic text-text-secondary">
+                    Select one of the buttons below, or type a question in the input bar.
+                  </p>
+                ) : (
+                  <div>
+                    {/* Example dummy response */}
+                    {selectedTab === 'Sales' && (
+                      <>
+                        <p className="mb-2">
+                          → Here is your sales summary for today:
+                        </p>
+                        <p className="mb-1">{`• “Sales Today”: ${ (data as any).totalSalesToday }`}</p>
+                        <p className="mb-1">{`• “Active Listings”: ${ (data as any).activeListings }`}</p>
+                        <p className="mb-1">{`• “Open Orders”: ${ (data as any).openOrders }`}</p>
+                        <p className="mb-1">{`• “30d Proceeds”: £${ (data as any).proceeds30d }`}</p>
+                        <p className="mb-1">{`• “Feedback”: ${ (data as any).feedbackRating }`}</p>
+                      </>
+                    )}
+                    {selectedTab === 'Marketing' && (
+                      <p>→ Generating your marketing plan… (placeholder text)</p>
+                    )}
+                    {selectedTab === 'Operations' && (
+                      <p>→ Fetching operations metrics… (placeholder text)</p>
+                    )}
+                    {selectedTab === 'Shipments' && (
+                      <p>→ Retrieving shipment statuses… (placeholder text)</p>
+                    )}
+                    {selectedTab === 'Financials' && (
+                      <p>→ Compiling financial report… (placeholder text)</p>
+                    )}
+                    {selectedTab === 'Clients' && (
+                      <p>→ Listing top clients… (placeholder text)</p>
+                    )}
+                  </div>
+                )}
               </div>
-            </div>
-
-            {/* Right: Dummy “Sales” Chart */}
-            <div className="w-1/2 h-96 p-6 bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
-              <Chart data={sampleChartData} height={320} />
             </div>
           </div>
 
-          {/* (2) Buttons + Input at bottom */}
-          <div className="px-6 pt-6 pb-6 bg-gray-50 dark:bg-gray-900">
-            {/* Horizontal Buttons */}
-            <div className="flex flex-wrap gap-2 mb-6">
-              {['Sales', 'Marketing', 'Operations', 'Shipments', 'Financials', 'Clients'].map((btn) => (
+          {/* ── Vertical Divider ─────────────────────────────────────────── */}
+          <div className="w-px bg-border-light dark:bg-gray-700"></div>
+
+          {/* ── Right Pane: “Visual” Area ───────────────────────────────── */}
+          <div className="flex-1 overflow-auto pl-2">
+            {selectedTab === '' ? (
+              <div className="h-full flex items-center justify-center text-text-secondary">
+                <p>Select a button or ask a question to see visual output here.</p>
+              </div>
+            ) : (
+              <div className="h-full">
+                {selectedTab === 'Sales' && (
+                  <Chart data={sampleChartData} height={Math.floor(window.innerHeight - 4 * 16 - 64)} />
+                )}
+                {(selectedTab !== 'Sales') && (
+                  <div className="h-full flex items-center justify-center">
+                    <p className="text-text-secondary italic">
+                      [ Visual output for “{selectedTab}” would appear here ]
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      </main>
+
+      {/* ─── Bottom Input Bar (fixed) ─────────────────────────────────── */}
+      <footer className="fixed bottom-0 left-0 w-full bg-white dark:bg-gray-800 border-t border-border-light dark:border-gray-700 py-4">
+        <div className="max-w-[calc(100%-40px)] mx-auto px-2">
+          <div className="flex space-x-2 items-center">
+            {/* Shortcut Buttons */}
+            <div className="flex space-x-2">
+              {['Sales','Marketing','Operations','Shipments','Financials','Clients'].map(tab => (
                 <button
-                  key={btn}
-                  onClick={() => {
-                    // TODO: trigger AI fetch for “btn” category
-                  }}
-                  className="
-                    px-3 py-1
-                    bg-white dark:bg-gray-800
-                    border border-black
-                    rounded-md
-                    text-sm text-text dark:text-text-secondary
+                  key={tab}
+                  onClick={() => setSelectedTab(tab)}
+                  className={`
+                    py-2 px-4 text-sm font-medium
+                    border border-black rounded
+                    bg-white dark:bg-gray-900 text-black dark:text-white
                     hover:bg-gray-100 dark:hover:bg-gray-700
                     focus:outline-none
-                  "
+                  `}
                 >
-                  {btn}
+                  {tab}
                 </button>
               ))}
             </div>
 
-            {/* Single Input + Send Button */}
-            <div className="flex items-center space-x-3">
+            {/* Chat Input + Send Button */}
+            <div className="flex-1 flex items-center space-x-2">
               <input
                 type="text"
-                value={aiInput}
-                onChange={(e) => setAiInput(e.target.value)}
-                placeholder="Type a question (e.g. build my sales report), or click a button"
+                placeholder="Type a question (e.g. “Build my sales report”)"
                 className="
                   flex-1
-                  px-4 py-4
-                  bg-white dark:bg-gray-800
-                  border border-black
-                  rounded-lg
-                  text-lg text-text dark:text-text-secondary
-                  placeholder-gray-400 dark:placeholder-gray-500
-                  focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                  py-2 px-4
+                  border border-black rounded
+                  bg-white dark:bg-gray-900
+                  text-sm text-text dark:text-text-secondary
+                  focus:outline-none focus:ring-2 focus:ring-blue-500
                 "
               />
               <button
-                onClick={() => {
-                  // TODO: trigger AI send logic
-                }}
                 className="
-                  px-5 py-4
-                  bg-white dark:bg-gray-800
-                  border border-black
-                  rounded-lg
+                  py-2 px-4
+                  border border-black rounded
+                  bg-transparent
+                  text-black dark:text-white
+                  text-sm
                   hover:bg-gray-100 dark:hover:bg-gray-700
-                  focus:outline-none
+                  focus:outline-none focus:ring-2 focus:ring-blue-500
+                  transition
                 "
-                aria-label="Send message"
               >
                 Send
               </button>
             </div>
           </div>
         </div>
-        {/* ────────────────────────────────────────────────────────────────────────── */}
-
-        {/* ── “Manage Inventory” has been removed from this page ────────────────────── */}
-        {/* You can link to a new “Manage Inventory” page via the sidebar. */}
-
-      </main>
+      </footer>
     </div>
   )
 }
