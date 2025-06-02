@@ -43,7 +43,9 @@ function CreateProductForm({ onSuccess }: { onSuccess: () => void }) {
   })
   const [error, setError] = useState('')
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value, files } = e.target as any
     if (name === 'image' && files && files.length > 0) {
       setFormData(f => ({ ...f, image: files[0] }))
@@ -336,18 +338,13 @@ export default function SupplierDashboard() {
           <div className="flex border-t border-border-light dark:border-gray-700">
             {/* Left: Text Conversation (scrollable) */}
             <div className="w-1/2 h-80 p-4 overflow-auto font-mono text-lg text-text dark:text-text-secondary space-y-2">
-              <p>→ Type a question below, or select a button.</p>
-              <p className="text-gray-500 dark:text-gray-500">
-                […AI will respond here…]
-              </p>
+              {/* This is where AI would respond with text. For now, it’s a placeholder. */}
+              <p>[…] AI response will appear here […]</p>
             </div>
 
-            {/* Right: Visual Pane (empty placeholder) */}
+            {/* Right: Dummy “Sales” Chart */}
             <div className="w-1/2 h-80 p-4 bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
-              {/* Example placeholder text; later you can render charts, images, downloads, etc. */}
-              <p className="text-gray-400 dark:text-gray-500 italic">
-                [Visual output will appear here]
-              </p>
+              <Chart data={sampleChartData} height={300} />
             </div>
           </div>
 
@@ -376,13 +373,13 @@ export default function SupplierDashboard() {
               ))}
             </div>
 
-            {/* Input + Send Button */}
+            {/* Single Input + Send Button */}
             <div className="flex items-center space-x-2">
               <input
                 type="text"
                 value={aiInput}
                 onChange={(e) => setAiInput(e.target.value)}
-                placeholder="e.g. build my sales report"
+                placeholder="Type a question (e.g. build my sales report), or click a button"
                 className="
                   flex-1
                   px-4 py-3
