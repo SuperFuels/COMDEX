@@ -121,31 +121,28 @@ export default function Navbar() {
         onLogout={handleDisconnect}
       />
 
-      {/* ─── “G” Toggle (far left, vertically centered within h-16 Navbar) ─── */}
-      <button
-        onClick={() => setSidebarOpen(true)}
-        className="
-          fixed top-4 left-4            /* changed from top-6 to top-4, centers inside 4rem-high navbar */
-          p-2
-          border border-gray-300 dark:border-gray-700
-          rounded-lg
-          bg-white dark:bg-gray-900
-          z-50
-        "
-        aria-label="Open menu"
-      >
-        <Image src="/G.svg" alt="Menu" width={24} height={24} />
-      </button>
-
       {/* ─── Top Bar / Navbar ─────────────────────────────────────────────────── */}
       <header className="sticky top-0 z-40 bg-background-header dark:bg-background-dark border-b border-border-light dark:border-gray-700 h-16">
-        {/*
-          Removed the `max-w-7xl mx-auto` wrapper so that “Live” and “Connect Wallet”
-          can sit flush all the way to the right, next to the scrollbar.
-        */}
-        <div className="flex items-center justify-between h-full px-4">
-          {/* ── (1) Left: Stickey.ai Logo ────────────────────────────────────────────── */}
-          <div className="flex items-center pl-8">
+        <div className="flex items-center justify-between h-full">
+
+          {/* ── (1) Left: “G” Toggle + Logo ────────────────────────────────────────────── */}
+          <div className="flex items-center pl-4 space-x-2">
+            {/* “G” Toggle—now inside the header, vertically centered */}
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="
+                p-2
+                border border-gray-300 dark:border-gray-700
+                rounded-lg
+                bg-white dark:bg-gray-900
+                focus:outline-none
+              "
+              aria-label="Open menu"
+            >
+              <Image src="/G.svg" alt="Menu" width={24} height={24} />
+            </button>
+
+            {/* Stickey.ai Logo (shifted right to make room for “G”) */}
             <Link href="/" className="logo-link flex items-center">
               <Image
                 src="/Stickeyai.svg"
@@ -159,7 +156,7 @@ export default function Navbar() {
           </div>
 
           {/* ── (2) Center: Search + Swap (desktop only) ────────────────────────────── */}
-          <div className="hidden md:flex flex-1 justify-center items-center space-x-3">
+          <div className="hidden md:flex flex-1 justify-center items-center space-x-3 px-4">
             {/* Search Input */}
             <input
               type="text"
@@ -270,7 +267,7 @@ export default function Navbar() {
           </div>
 
           {/* ── (3) Right: Live Indicator + Wallet ────────────────────────────────────── */}
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-3 pr-4">
             {/* “Live” Indicator */}
             <button
               onClick={() => router.push('/products')}

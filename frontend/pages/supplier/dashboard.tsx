@@ -320,35 +320,64 @@ export default function SupplierDashboard() {
 
   return (
     <div className="bg-bg-page min-h-screen">
-      {/* ─── Spacer to account for sticky navbar height ──────────────── */}
-      <div className="h-16" />
+      {/* ─── (NO EXTRA SPACER) ──────────────────────────────────── */}
+      {/* _app.tsx already has pt-16 for the sticky navbar, so we do NOT need a div.h-16 here */}
 
       <main className="max-w-7xl mx-auto px-4 pt-5 space-y-8">
-        {/* ── Global Snapshot + AI Analysis (all in one card) ─────────────────────────────────── */}
+        {/* ── Global Snapshot + AI “Central Command” ─────────────────────────────────── */}
         <div className="bg-white dark:bg-gray-800 border border-border-light dark:border-gray-700 rounded-lg">
+          {/* Card Header */}
           <div className="p-4">
             <h2 className="text-lg font-semibold text-text dark:text-text-secondary">
               Global Snapshot
             </h2>
           </div>
 
-          <div className="border-t border-border-light dark:border-gray-700 px-4 py-4 font-mono bg-white dark:bg-gray-800 text-text dark:text-text-secondary text-sm space-y-2">
-            {/* ——— Print each metric value in code style ——— */}
+          {/* All Metrics (monospace, color‐coded) */}
+          <div className="border-t border-border-light dark:border-gray-700 px-4 pt-4 font-mono bg-white dark:bg-gray-800 text-text dark:text-text-secondary text-sm space-y-1">
             {metricsOutput.map((m) => (
               <p key={m.label}>
                 <span>{`“${m.label}”: `}</span>
                 <span className={`${m.color}`}>{m.value}</span>
               </p>
             ))}
+          </div>
 
-            {/* ——— AI “terminal” lines right after metrics ——— */}
-            <p className="mt-2">→ Fetching latest metrics…</p>
-            <p>→ Analyzing sales trends for last 30 days…</p>
-            <p>→ Generating insights…</p>
-            <p className="text-blue-600">“Sales Today” shows a 5% uptick vs. yesterday.</p>
-            <p className="text-green-600">“30d Proceeds” have increased by £1,320.</p>
-            <p className="text-purple-600">“Feedback Rating” stays steady at 4.7/5.</p>
-            <p>[ More AI insights to come… ]</p>
+          {/* Divider */}
+          <hr className="border-border-light dark:border-gray-700" />
+
+          {/* Left/Right Split: Buttons (left) + AI Terminal (right) */}
+          <div className="flex h-48 overflow-hidden">
+            {/* ——— Left Column: Vertical Buttons ——— */}
+            <div className="w-1/4 border-r border-border-light dark:border-gray-700 bg-gray-50 dark:bg-gray-900 p-2 space-y-2 overflow-y-auto">
+              {['Sales', 'Marketing', 'Operations', 'Shipments', 'Financials', 'Clients'].map((btn) => (
+                <button
+                  key={btn}
+                  onClick={() => {
+                    /* TODO: hook into AI to fetch “${btn}” report */
+                  }}
+                  className="
+                    w-full text-left
+                    px-3 py-2
+                    bg-white dark:bg-gray-800
+                    border border-gray-300 dark:border-gray-700
+                    rounded-md
+                    text-sm text-text dark:text-text-secondary
+                    hover:bg-gray-100 dark:hover:bg-gray-700
+                    focus:outline-none
+                  "
+                >
+                  {btn}
+                </button>
+              ))}
+            </div>
+
+            {/* ——— Right Column: AI “Terminal” ——— */}
+            <div className="flex-1 p-4 bg-white dark:bg-gray-800 overflow-auto font-mono text-text dark:text-text-secondary text-sm space-y-2">
+              <p>→ Welcome to Central Command</p>
+              <p>→ Type a question or click one of the buttons on the left</p>
+              <p>[…AI will respond here…]</p>
+            </div>
           </div>
         </div>
 
