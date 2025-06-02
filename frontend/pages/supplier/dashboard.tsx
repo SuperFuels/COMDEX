@@ -6,7 +6,7 @@ import useSupplierDashboard from '@/hooks/useSupplierDashboard'
 import Chart, { ChartPoint } from '@/components/Chart'
 
 // ----------------------------------------------------------------
-// Metrics used at the top (we'll print all of them instead of choosing one)
+// Metrics used at the top (print all inside the terminal)
 // ----------------------------------------------------------------
 const METRICS = [
   { key: 'totalSalesToday', label: 'Sales Today' },
@@ -30,7 +30,7 @@ const INVENTORY_TABS = [
 ]
 
 // ----------------------------------------------------------------
-// Inline "Create Product" form (exactly as before)
+// Inline "Create Product" form (unchanged)
 // ----------------------------------------------------------------
 function CreateProductForm({ onSuccess }: { onSuccess: () => void }) {
   const [formData, setFormData] = useState({
@@ -70,7 +70,6 @@ function CreateProductForm({ onSuccess }: { onSuccess: () => void }) {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products`, {
         method: 'POST',
         headers: {
-          // When using multipart/form-data, do NOT set Content-Type manually.
           Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
         },
         body: data,
@@ -79,7 +78,6 @@ function CreateProductForm({ onSuccess }: { onSuccess: () => void }) {
         const json = await res.json()
         throw new Error(json.detail || 'Upload failed.')
       }
-      // Clear form fields and notify parent to refresh dashboard data
       setFormData({
         title: '',
         origin_country: '',
@@ -274,6 +272,9 @@ export default function SupplierDashboard() {
   const [refreshFlag, setRefreshFlag] = useState<number>(0)
   const refreshDashboard = () => setRefreshFlag((f) => f + 1)
 
+  // 5) Track AI terminal input
+  const [aiInput, setAiInput] = useState('')
+
   // Show spinner if loading
   if (loading) {
     return (
@@ -292,21 +293,19 @@ export default function SupplierDashboard() {
     )
   }
 
-  // Extract all metric values
+  // Extract all metric values + assign color classes
   const metricsOutput = METRICS.map((m) => {
     const rawValue = (data as any)[m.key]
-    // Format proceeds30d with “£”
     if (m.key === 'proceeds30d') {
       return { label: m.label, value: `£${rawValue}`, color: 'text-blue-600' }
     }
-    // Color‐code “Feedback” as purple, “Sales Today” as blue, “Active Listings” & “Open Orders” as green
     if (m.key === 'feedbackRating') {
       return { label: m.label, value: rawValue, color: 'text-purple-600' }
     }
     if (m.key === 'totalSalesToday') {
       return { label: m.label, value: rawValue, color: 'text-blue-600' }
     }
-    // activeListings and openOrders are green
+    // For activeListings & openOrders
     return { label: m.label, value: rawValue, color: 'text-green-600' }
   })
 
@@ -320,47 +319,47 @@ export default function SupplierDashboard() {
 
   return (
     <div className="bg-bg-page min-h-screen">
-      {/* ─── (NO EXTRA SPACER) ──────────────────────────────────── */}
-      {/* _app.tsx already has pt-16 for the sticky navbar, so we do NOT need a div.h-16 here */}
+      {/* No extra spacer here; _app.tsx already gives pt-16 for the navbar */}
 
       <main className="max-w-7xl mx-auto px-4 pt-5 space-y-8">
-        {/* ── Global Snapshot + AI “Central Command” ─────────────────────────────────── */}
-        <div className="bg-white dark:bg-gray-800 border border-border-light dark:border-gray-700 rounded-lg">
-          {/* Card Header */}
-          <div className="p-4">
-            <h2 className="text-lg font-semibold text-text dark:text-text-secondary">
-              Global Snapshot
-            </h2>
-          </div>
-
-          {/* All Metrics (monospace, color‐coded) */}
-          <div className="border-t border-border-light dark:border-gray-700 px-4 pt-4 font-mono bg-white dark:bg-gray-800 text-text dark:text-text-secondary text-sm space-y-1">
+        {/* ── Global Snapshot + AI Central Command ─────────────────────────────────── */}
+        <div className="bg-white dark:bg-gray-800 border border-border-light dark:border-gray-700 rounded-lg overflow-hidden">
+          {/* (1) Greeting + metrics at the top */}
+          <div className="px-4 pt-4 pb-2 font-mono text-base text-text dark:text-text-secondary space-y-1 border-b border-border-light dark:border-gray-700 overflow-y-auto">
+            <p className="mb-1 text-gray-600 dark:text-gray-400">
+              Hello, Kevin — welcome to Central Command.
+            </p>
             {metricsOutput.map((m) => (
               <p key={m.label}>
                 <span>{`“${m.label}”: `}</span>
-                <span className={`${m.color}`}>{m.value}</span>
+                <span className={m.color}>{m.value}</span>
               </p>
             ))}
           </div>
 
-          {/* Divider */}
-          <hr className="border-border-light dark:border-gray-700" />
+          {/* (2) Scrolling conversation area, full width */}
+          <div className="h-48 p-4 overflow-auto font-mono text-base text-text dark:text-text-secondary space-y-2">
+            <p>→ Type a question below, or select a button.</p>
+            {/* Placeholder for AI responses */}
+            <p className="text-gray-500 dark:text-gray-500">
+              […AI will respond here…]
+            </p>
+          </div>
 
-          {/* Left/Right Split: Buttons (left) + AI Terminal (right) */}
-          <div className="flex h-48 overflow-hidden">
-            {/* ——— Left Column: Vertical Buttons ——— */}
-            <div className="w-1/4 border-r border-border-light dark:border-gray-700 bg-gray-50 dark:bg-gray-900 p-2 space-y-2 overflow-y-auto">
+          {/* (3) Buttons + Input at the bottom */}
+          <div className="px-4 pt-2 pb-4 border-t border-border-light dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+            {/* ——— Horizontal Buttons ——— */}
+            <div className="flex flex-wrap gap-2 mb-3">
               {['Sales', 'Marketing', 'Operations', 'Shipments', 'Financials', 'Clients'].map((btn) => (
                 <button
                   key={btn}
                   onClick={() => {
-                    /* TODO: hook into AI to fetch “${btn}” report */
+                    // TODO: call AI for `${btn}` report
                   }}
                   className="
-                    w-full text-left
-                    px-3 py-2
+                    px-3 py-1
                     bg-white dark:bg-gray-800
-                    border border-gray-300 dark:border-gray-700
+                    border border-black
                     rounded-md
                     text-sm text-text dark:text-text-secondary
                     hover:bg-gray-100 dark:hover:bg-gray-700
@@ -372,11 +371,41 @@ export default function SupplierDashboard() {
               ))}
             </div>
 
-            {/* ——— Right Column: AI “Terminal” ——— */}
-            <div className="flex-1 p-4 bg-white dark:bg-gray-800 overflow-auto font-mono text-text dark:text-text-secondary text-sm space-y-2">
-              <p>→ Welcome to Central Command</p>
-              <p>→ Type a question or click one of the buttons on the left</p>
-              <p>[…AI will respond here…]</p>
+            {/* ——— Input + Send Button ——— */}
+            <div className="flex items-center space-x-2">
+              <input
+                type="text"
+                value={aiInput}
+                onChange={(e) => setAiInput(e.target.value)}
+                placeholder="e.g. build my sales report"
+                className="
+                  flex-1
+                  px-3 py-2
+                  bg-white dark:bg-gray-800
+                  border border-black
+                  rounded-lg
+                  text-base text-text dark:text-text-secondary
+                  placeholder-gray-400 dark:placeholder-gray-500
+                  focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                "
+              />
+              <button
+                onClick={() => {
+                  // TODO: trigger send logic
+                }}
+                className="
+                  px-4 py-2
+                  bg-white dark:bg-gray-800
+                  border border-black
+                  rounded-lg
+                  hover:bg-gray-100 dark:hover:bg-gray-700
+                  focus:outline-none
+                "
+                aria-label="Send message"
+              >
+                {/* You can swap this text with an icon */}
+                Send
+              </button>
             </div>
           </div>
         </div>
