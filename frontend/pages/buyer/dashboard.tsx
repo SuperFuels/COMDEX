@@ -1,5 +1,6 @@
+// frontend/pages/buyer/dashboard.tsx
+
 import { useEffect, useState } from 'react'
-import { NextPage } from 'next'
 import useAuthRedirect from '@/hooks/useAuthRedirect'
 import api from '@/lib/api'
 import Chart, { ChartPoint } from '@/components/Chart'
@@ -13,8 +14,8 @@ type Tab =
   | 'supplierList'
   | 'products'
 
-const BuyerDashboard: NextPage = () => {
-  // 1) enforce login + buyer role
+export default function BuyerDashboard() {
+  // 1) enforce that only “buyer” can view this page
   useAuthRedirect('buyer')
 
   // 2) local state
@@ -34,7 +35,6 @@ const BuyerDashboard: NextPage = () => {
         try {
           const chartRes = await api.get<{ price_per_kg: number }[]>('/products')
           pts = chartRes.data.map(p => ({
-            // must match ChartPoint: time:number, value:number
             time:  Math.floor(Date.now() / 1000),
             value: p.price_per_kg,
           }))
@@ -71,14 +71,14 @@ const BuyerDashboard: NextPage = () => {
   // 4) loading / error states
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <p className="text-gray-600">Loading dashboard…</p>
       </div>
     )
   }
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <p className="text-red-500">{error}</p>
       </div>
     )
@@ -91,7 +91,7 @@ const BuyerDashboard: NextPage = () => {
       {/* Main content (we add pb-16 so content doesn't get hidden behind the fixed bar) */}
       {/* ───────────────────────────────────────────────────────────────────────────── */}
       <main className="max-w-7xl mx-auto px-5 pt-6 pb-16 space-y-6">
-        {/* live pricing chart */}
+        {/* ─── 1) Live Ask Price Chart ───────────────────────────────────────────────── */}
         <div className="bg-white p-4 rounded shadow">
           <h2 className="text-lg font-semibold mb-2">
             Live Ask Price (per tonne)
@@ -99,125 +99,147 @@ const BuyerDashboard: NextPage = () => {
           <Chart data={chartData} />
         </div>
 
-        {/* TAB NAV + CONTENT */}
-        <div className="bg-white p-4 rounded shadow space-y-4">
-          {/* ─── Tab Navigation ────────────────────────────────────────────────────── */}
-          <nav className="flex flex-wrap gap-2 border-b pb-2">
-            {[
-              ['Deal Flow', 'dealFlow'],
-              ['Notifications', 'notifications'],
-              ['Escrow', 'escrow'],
-              ['Deliveries', 'deliveries'],
-              ['Orders', 'orders'],
-              ['Supplier List', 'supplierList'],
-              ['Available Products', 'products'],
-            ].map(([label, id]) => (
-              <button
-                key={id}
-                onClick={() => setTab(id as Tab)}
-                className={`
-                  px-4 py-2 -mb-px
-                  ${
-                    tab === id
-                      ? 'border-b-2 border-blue-600 font-semibold'
-                      : 'text-gray-600 hover:text-gray-800'
-                  }
-                `}
-              >
-                {label}
-              </button>
-            ))}
-          </nav>
+        {/* ─── 2) Two‐Pane “Text | Visual” Split ────────────────────────────────────────── */}
+        <div className="flex bg-white rounded shadow overflow-hidden">
+          {/* Left Pane: Text / Metrics / Tabbed Content */}
+          <div className="w-1/2 border-r border-gray-200 p-6 space-y-4">
+            {/* Greeting & Metrics */}
+            <div className="font-mono text-base text-gray-800 space-y-1">
+              <p>Hello, Buyer — welcome to Central Command.</p>
+              <p>“Sales Today”: 0</p>
+              <p>“Open Orders”: 0</p>
+              <p>“Pending Escrow”: 0</p>
+              <p>“Available Products”: {products.length}</p>
+              <p>“Active Deals”: {deals.length}</p>
+            </div>
 
-          {/* ─── Tab Panels ────────────────────────────────────────────────────────── */}
-          {tab === 'dealFlow' && (
-            <section>
-              {deals.length === 0 ? (
-                <p className="text-gray-500">🤝 No active deals.</p>
-              ) : (
-                <ul>
-                  {deals.map(d => (
-                    <li key={d.id} className="mb-2">
-                      Deal #{d.id}: {d.product_title} – {d.status}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </section>
-          )}
+            <div className="pt-4 border-t border-gray-200">
+              <p className="italic text-gray-600">
+                Select one of the buttons below, or type a question in the input bar.
+              </p>
+            </div>
 
-          {tab === 'notifications' && (
-            <section>
-              <p className="text-gray-500">🔔 No notifications.</p>
-            </section>
-          )}
-
-          {tab === 'escrow' && (
-            <section>
-              <p className="text-gray-500">🔒 Escrow empty.</p>
-            </section>
-          )}
-
-          {tab === 'deliveries' && (
-            <section>
-              <p className="text-gray-500">🚚 No deliveries.</p>
-            </section>
-          )}
-
-          {tab === 'orders' && (
-            <section>
-              <p className="text-gray-500">📦 No orders.</p>
-            </section>
-          )}
-
-          {tab === 'supplierList' && (
-            <section>
-              <p className="text-gray-500">🏷️ No suppliers found.</p>
-            </section>
-          )}
-
-          {tab === 'products' && (
-            <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {products.map(p => (
-                <div
-                  key={p.id}
-                  className="bg-white p-4 rounded shadow flex flex-col"
+            {/* Tab Navigation */}
+            <nav className="flex flex-wrap gap-2 border-b pb-2 pt-2">
+              {[
+                ['Deal Flow', 'dealFlow'],
+                ['Notifications', 'notifications'],
+                ['Escrow', 'escrow'],
+                ['Deliveries', 'deliveries'],
+                ['Orders', 'orders'],
+                ['Supplier List', 'supplierList'],
+                ['Available Products', 'products'],
+              ].map(([label, id]) => (
+                <button
+                  key={id}
+                  onClick={() => setTab(id as Tab)}
+                  className={`
+                    px-3 py-1 -mb-px text-sm
+                    ${
+                      tab === id
+                        ? 'border-b-2 border-blue-600 font-semibold text-gray-800'
+                        : 'text-gray-600 hover:text-gray-800'
+                    }
+                  `}
                 >
-                  <img
-                    src={`${process.env.NEXT_PUBLIC_API_URL}${p.image_url}`}
-                    alt={p.title}
-                    className="h-40 w-full object-cover rounded mb-2"
-                    onError={e => { (e.target as any).src = '/placeholder.jpg' }}
-                  />
-                  <h3 className="text-lg font-semibold">{p.title}</h3>
-                  <p className="text-sm text-gray-700 mt-1">{p.description}</p>
-                  <p className="text-sm text-gray-500 mt-1">{p.origin_country}</p>
-                  <p className="text-lg font-bold mt-2">${p.price_per_kg}/kg</p>
-                  <button
-                    onClick={() => window.location.href = `/deals/create/${p.id}`}
-                    className="mt-auto bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-                  >
-                    Contact Supplier
-                  </button>
-                </div>
+                  {label}
+                </button>
               ))}
-            </section>
-          )}
+            </nav>
+
+            {/* Tab Panels */}
+            <div className="pt-4">
+              {tab === 'dealFlow' && (
+                <section>
+                  {deals.length === 0 ? (
+                    <p className="text-gray-500">🤝 No active deals.</p>
+                  ) : (
+                    <ul className="space-y-2">
+                      {deals.map(d => (
+                        <li key={d.id} className="text-gray-800">
+                          Deal #{d.id}: {d.product_title} – {d.status}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </section>
+              )}
+
+              {tab === 'notifications' && (
+                <section>
+                  <p className="text-gray-500">🔔 No notifications.</p>
+                </section>
+              )}
+
+              {tab === 'escrow' && (
+                <section>
+                  <p className="text-gray-500">🔒 Escrow empty.</p>
+                </section>
+              )}
+
+              {tab === 'deliveries' && (
+                <section>
+                  <p className="text-gray-500">🚚 No deliveries.</p>
+                </section>
+              )}
+
+              {tab === 'orders' && (
+                <section>
+                  <p className="text-gray-500">📦 No orders.</p>
+                </section>
+              )}
+
+              {tab === 'supplierList' && (
+                <section>
+                  <p className="text-gray-500">🏷️ No suppliers found.</p>
+                </section>
+              )}
+
+              {tab === 'products' && (
+                <section className="grid grid-cols-1 gap-4">
+                  {products.map(p => (
+                    <div key={p.id} className="flex items-center space-x-4">
+                      <img
+                        src={`${process.env.NEXT_PUBLIC_API_URL}${p.image_url}`}
+                        alt={p.title}
+                        className="h-16 w-16 object-cover rounded"
+                        onError={e => { (e.target as any).src = '/placeholder.jpg' }}
+                      />
+                      <div className="flex-1">
+                        <h3 className="text-gray-800 font-medium">{p.title}</h3>
+                        <p className="text-gray-600 text-sm">£{p.price_per_kg}/kg</p>
+                      </div>
+                      <button
+                        onClick={() => window.location.href = `/deals/create/${p.id}`}
+                        className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 text-sm"
+                      >
+                        Contact
+                      </button>
+                    </div>
+                  ))}
+                </section>
+              )}
+            </div>
+          </div>
+
+          {/* Right Pane: Visual Output Placeholder */}
+          <div className="w-1/2 p-6 flex items-center justify-center text-gray-500">
+            <p>Select a button or ask a question to see visual output here.</p>
+          </div>
         </div>
       </main>
 
       {/* ───────────────────────────────────────────────────────────────────────────── */}
-      {/* FIXED TERMINAL BAR (matches supplier exactly) */}
+      {/* FIXED TERMINAL BAR (identical to supplier) */}
       {/* ───────────────────────────────────────────────────────────────────────────── */}
       <div
         className="
-          fixed bottom-0 left-0 right-0        /* full viewport width */
+          fixed bottom-0 left-0 right-0
           bg-white
           border-t border-gray-300
           flex items-center
-          h-12                                /* exactly 3rem */
-          px-5                                /* 20px on left + right */
-          space-x-3
+          h-12
+          px-5
           z-50
         "
       >
@@ -252,11 +274,11 @@ const BuyerDashboard: NextPage = () => {
           </button>
         </div>
 
-        {/* VERTICAL DIVIDER at EXACTLY halfway across content */}
+        {/* Vertical divider down the middle */}
         <div className="w-px bg-gray-300 h-6 mx-3 self-center"></div>
 
-        {/* ── RIGHT SIDE: Static Buttons (no scroll) ─────────────────────────────── */}
-        <div className="flex items-center space-x-2 flex-wrap">
+        {/* ── RIGHT SIDE: Static Buttons (no horizontal scroll) ─────────────────── */}
+        <div className="flex items-center space-x-2">
           <button className="px-3 py-1 border border-black rounded text-sm whitespace-nowrap">
             Deal Flow
           </button>
@@ -283,5 +305,3 @@ const BuyerDashboard: NextPage = () => {
     </div>
   )
 }
-
-export default BuyerDashboard
