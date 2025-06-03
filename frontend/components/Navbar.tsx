@@ -1,4 +1,3 @@
-// frontend/components/Navbar.tsx
 'use client'
 
 import Link from 'next/link'
@@ -126,7 +125,7 @@ export default function Navbar() {
       <button
         onClick={() => setSidebarOpen(true)}
         className="
-          fixed top-4 left-4            /* 1rem from top, 1rem from left */
+          fixed top-4 left-4            /* top-4 centers inside a 4rem-high (h-16) navbar */
           p-2
           border border-gray-300 dark:border-gray-700
           rounded-lg
@@ -140,9 +139,10 @@ export default function Navbar() {
 
       {/* ─── Top Bar / Navbar ─────────────────────────────────────────────────── */}
       <header className="sticky top-0 z-40 bg-background-header dark:bg-background-dark border-b border-border-light dark:border-gray-700 h-16">
+        {/* We removed the search box. Now Swap is centered in the middle area. */}
         <div className="flex items-center justify-between h-full px-4">
-          {/* ── (1) Left: Stickey.ai Logo ───────────────────────────────────── */}
-          <div className="flex items-center pl-8">
+          {/* ── (1) Left: Stickey.ai Logo ────────────────────────────────────────────── */}
+          <div className="flex items-center ml-12"> {/* ml-12 gives ~48px gap from the “G” button */}
             <Link href="/" className="logo-link flex items-center">
               <Image
                 src="/Stickeyai.svg"
@@ -155,105 +155,95 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* ── (2) Center: SWAP (desktop only) ───────────────────────────── */}
-          <div className="hidden md:flex flex-1 justify-center items-center">
-            {/* Amount In Input */}
-            <input
-              type="number"
-              value={amountIn}
-              onChange={e => setAmountIn(e.target.value)}
-              placeholder="0"
-              className="
-                w-24 sm:w-28
-                py-1 px-2
-                border border-gray-300 dark:border-gray-600
-                rounded-lg
-                text-center text-sm
-                bg-white dark:bg-gray-800
-                focus:outline-none focus:ring-2 focus:ring-blue-500
-              "
-            />
-
-            {/* From Token Selector */}
-            <button
-              type="button"
-              className="
-                flex items-center
-                border border-gray-300 dark:border-gray-600
-                rounded-lg
-                py-1 px-2
-                bg-white dark:bg-gray-800
-                text-sm text-text
-                hover:bg-gray-50 dark:hover:bg-gray-700
-                focus:outline-none
-                mx-2
-              "
-              onClick={() => { /* open “from” token picker */ }}
-            >
-              <Image src="/tokens/usdt.svg" alt="USDT" width={16} height={16} />
-              <span className="ml-1">USDT</span>
-            </button>
-
-            {/* Arrow Icon */}
-            <span className="text-lg text-gray-400 select-none">→</span>
-
-            {/* Amount Out Input */}
-            <input
-              type="number"
-              value={amountOut}
-              onChange={e => setAmountOut(e.target.value)}
-              placeholder="0"
-              className="
-                w-24 sm:w-28
-                py-1 px-2
-                border border-gray-300 dark:border-gray-600
-                rounded-lg
-                text-center text-sm
-                bg-white dark:bg-gray-800
-                focus:outline-none focus:ring-2 focus:ring-blue-500
-              "
-            />
-
-            {/* To Token Selector */}
-            <button
-              type="button"
-              className="
-                flex items-center
-                border border-gray-300 dark:border-gray-600
-                rounded-lg
-                py-1 px-2
-                bg-white dark:bg-gray-800
-                text-sm text-text
-                hover:bg-gray-50 dark:hover:bg-gray-700
-                focus:outline-none
-                mx-2
-              "
-              onClick={() => { /* open “to” token picker */ }}
-            >
-              <Image src="/tokens/glu.svg" alt="GLU" width={16} height={16} />
-              <span className="ml-1">$GLU</span>
-            </button>
-
-            {/* Swap Button (now centered) */}
-            <button
-              onClick={() => router.push('/swap')}
-              className="
-                py-1 px-3
-                border border-black
-                rounded-lg
-                bg-transparent
-                text-black dark:text-white
-                text-sm
-                hover:bg-gray-100 dark:hover:bg-gray-700
-                focus:outline-none
-                transition
-              "
-            >
-              Swap
-            </button>
+          {/* ── (2) Center: Swap Button Only ────────────────────────────────────────── */}
+          <div className="flex-1 flex justify-center">
+            <div className="flex items-center space-x-2">
+              {/* Inline swap amounts and tokens (optional) */}
+              <input
+                type="number"
+                value={amountIn}
+                onChange={e => setAmountIn(e.target.value)}
+                placeholder="0"
+                className="
+                  w-24 sm:w-28
+                  py-1 px-2
+                  border border-gray-300 dark:border-gray-600
+                  rounded-lg
+                  text-center text-sm
+                  bg-white dark:bg-gray-800
+                  focus:outline-none focus:ring-2 focus:ring-blue-500
+                "
+              />
+              <button
+                type="button"
+                className="
+                  flex items-center
+                  border border-gray-300 dark:border-gray-600
+                  rounded-lg
+                  py-1 px-2
+                  bg-white dark:bg-gray-800
+                  text-sm text-text
+                  hover:bg-gray-50 dark:hover:bg-gray-700
+                  focus:outline-none
+                "
+                onClick={() => { /* open “from” token picker */ }}
+              >
+                <Image src="/tokens/usdt.svg" alt="USDT" width={16} height={16} />
+                <span className="ml-1">USDT</span>
+              </button>
+              <span className="text-lg text-gray-400 select-none">→</span>
+              <input
+                type="number"
+                value={amountOut}
+                onChange={e => setAmountOut(e.target.value)}
+                placeholder="0"
+                className="
+                  w-24 sm:w-28
+                  py-1 px-2
+                  border border-gray-300 dark:border-gray-600
+                  rounded-lg
+                  text-center text-sm
+                  bg-white dark:bg-gray-800
+                  focus:outline-none focus:ring-2 focus:ring-blue-500
+                "
+              />
+              <button
+                type="button"
+                className="
+                  flex items-center
+                  border border-gray-300 dark:border-gray-600
+                  rounded-lg
+                  py-1 px-2
+                  bg-white dark:bg-gray-800
+                  text-sm text-text
+                  hover:bg-gray-50 dark:hover:bg-gray-700
+                  focus:outline-none
+                "
+                onClick={() => { /* open “to” token picker */ }}
+              >
+                <Image src="/tokens/glu.svg" alt="GLU" width={16} height={16} />
+                <span className="ml-1">$GLU</span>
+              </button>
+              <button
+                onClick={() => router.push('/swap')}
+                className="
+                  py-1 px-3
+                  border border-black
+                  rounded-lg
+                  bg-transparent
+                  text-black dark:text-white
+                  text-sm
+                  hover:bg-gray-100 dark:hover:bg-gray-700
+                  focus:outline-none
+                  transition
+                "
+              >
+                Swap
+              </button>
+            </div>
           </div>
 
-          {/* ── (3) Right: Live Indicator + Wallet ───────────────────────── */}
+          {/* ── (3) Right: Live Indicator + Wallet ────────────────────────────────────── */}
           <div className="flex items-center space-x-3">
             {/* “Live” Indicator */}
             <button
@@ -329,7 +319,7 @@ export default function Navbar() {
                         transition
                       "
                     >
-                      Disconnect
+                      Logout
                     </button>
                   </div>
                 )}
@@ -338,69 +328,6 @@ export default function Navbar() {
           </div>
         </div>
       </header>
-
-      {/* ─── Lower Swap Bar (mobile only) ─────────────────────────────────────── */}
-      <div className="md:hidden sticky top-16 z-30 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
-        <div className="max-w-7xl mx-auto px-4 py-2 flex items-center space-x-2">
-          {/* Mobile Swap (centered) */}
-          <button
-            onClick={() => router.push('/swap')}
-            className="
-              flex-1
-              py-1 px-2
-              border border-black
-              rounded-lg
-              bg-transparent
-              text-black dark:text-white
-              text-sm
-              hover:bg-gray-100 dark:hover:bg-gray-700
-              focus:outline-none
-              transition
-            "
-          >
-            Swap
-          </button>
-          {/*
-            Wallet / Connect Wallet (mobile):
-            [We keep the same as desktop, just smaller/truncated]
-          */}
-          {!account ? (
-            <button
-              onClick={handleConnect}
-              className="
-                py-1 px-2
-                border border-black
-                rounded-lg
-                bg-transparent
-                text-black dark:text-white
-                text-sm
-                hover:bg-gray-100 dark:hover:bg-gray-700
-                focus:outline-none
-                transition
-              "
-            >
-              Connect
-            </button>
-          ) : (
-            <button
-              onClick={handleDisconnect}
-              className="
-                py-1 px-2
-                border border-black
-                rounded-lg
-                bg-transparent
-                text-black dark:text-white
-                text-sm
-                hover:bg-gray-100 dark:hover:bg-gray-700
-                focus:outline-none
-                transition
-              "
-            >
-              {`${shortAddr.slice(0, 6)}…`}
-            </button>
-          )}
-        </div>
-      </div>
     </>
   )
 }
