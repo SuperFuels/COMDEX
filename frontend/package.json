@@ -38,7 +38,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@metamask/providers": "^22.1.0",
-    "@types/node": "^20",
+    "@types/node": "^20.17.57",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "autoprefixer": "^10.4.21",

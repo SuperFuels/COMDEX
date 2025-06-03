@@ -1,10 +1,22 @@
 // frontend/pages/deals/[id].tsx
-
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import api from '@/lib/api'
 import SwapPanel from '@/components/SwapPanel'
-import { Deal } from '@/types'
+
+/**
+ * Locally define a minimal Deal interface so we no longer
+ * need to import from “@/types” (which did not exist).
+ */
+interface Deal {
+  id: number
+  product_title: string
+  quantity_kg: number
+  total_price: number
+  status: 'negotiation' | 'confirmed' | string
+  created_at: string
+  supplier_wallet_address?: string
+}
 
 export default function DealDetailPage() {
   const router = useRouter()
@@ -14,13 +26,14 @@ export default function DealDetailPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError]     = useState<string | null>(null)
 
-  // fetch / refetch the deal
+  // Fetch (or re‐fetch) the deal whenever `id` becomes available
   useEffect(() => {
     const fetchDeal = async () => {
       if (!id) return
       setLoading(true)
       setError(null)
       try {
+        // GET /deals/:id → must return an object matching our Deal interface
         const { data } = await api.get<Deal>(`/deals/${id}`)
         setDeal(data)
       } catch (err: any) {
@@ -35,8 +48,9 @@ export default function DealDetailPage() {
   const handleEscrowSuccess = async () => {
     if (!id) return
     try {
+      // PUT /deals/:id/status { status: "confirmed" }
       await api.put(`/deals/${id}/status`, { status: 'confirmed' })
-      // refetch to get updated status
+      // Re-fetch to get the updated status
       const { data } = await api.get<Deal>(`/deals/${id}`)
       setDeal(data)
     } catch (err: any) {
@@ -47,8 +61,9 @@ export default function DealDetailPage() {
   const handleRelease = async () => {
     if (!id) return
     try {
+      // POST /deals/:id/release
       await api.post(`/deals/${id}/release`)
-      // refetch to get updated status
+      // Re-fetch to get the updated status
       const { data } = await api.get<Deal>(`/deals/${id}`)
       setDeal(data)
     } catch (err: any) {
@@ -91,4 +106,3 @@ export default function DealDetailPage() {
     </div>
   )
 }
-

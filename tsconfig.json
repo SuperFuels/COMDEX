@@ -1,8 +1,41 @@
-// /tsconfig.json
-// (monorepo root) – references the frontend project
 {
-  "files": [],
-  "references": [
-    { "path": "frontend" }
-  ]
+  "compilerOptions": {
+    /** ───────────────────────────────────────────────────────────
+     * 1) Language / Module Settings
+     * ─────────────────────────────────────────────────────────── */
+    "target":            "ES2020",
+    "lib":               ["dom", "dom.iterable", "esnext"],
+    "module":            "ESNext",
+    "moduleResolution":  "Node",
+    "jsx":               "preserve",
+
+    /** ───────────────────────────────────────────────────────────
+     * 2) Interop / Resolution / Strictness
+     * ─────────────────────────────────────────────────────────── */
+    "esModuleInterop":           true,
+    "resolveJsonModule":         true,
+    "skipLibCheck":              true,
+    "forceConsistentCasingInFileNames": true,
+    "strict":                    true,
+    "isolatedModules":           true,
+    "noEmit":                    true,
+    "incremental":               true,
+
+    /** ───────────────────────────────────────────────────────────
+     * 3) Type Definitions
+     * ─────────────────────────────────────────────────────────── */
+    "types": ["node", "next", "react", "react-dom"],
+
+    /** ───────────────────────────────────────────────────────────
+     * 4) Path Aliases
+     *    Make "@/types" resolve to "types/index.ts" under frontend/
+     * ─────────────────────────────────────────────────────────── */
+    "baseUrl": ".",
+    "paths": {
+      "@/types":     ["types/index.ts"],
+      "@/types/*":   ["types/*"]
+    }
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
+  "exclude": ["node_modules"]
 }
