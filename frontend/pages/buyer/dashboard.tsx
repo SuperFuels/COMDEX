@@ -13,7 +13,7 @@ type Tab =
   | 'supplierList'
   | 'products'
 
-export default function BuyerDashboard(): JSX.Element {
+export default function BuyerDashboard() {
   // 1) enforce login + buyer role
   useAuthRedirect('buyer')
 
@@ -24,6 +24,7 @@ export default function BuyerDashboard(): JSX.Element {
   const [products, setProducts]   = useState<any[]>([])
   const [loading, setLoading]     = useState(true)
   const [error, setError]         = useState<string | null>(null)
+
 
   // 3) fetch chart / deals / products
   useEffect(() => {
