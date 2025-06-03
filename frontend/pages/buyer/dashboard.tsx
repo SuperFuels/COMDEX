@@ -1,72 +1,85 @@
 // frontend/pages/buyer/dashboard.tsx
 import { useEffect, useState } from 'react'
+import { NextPage } from 'next'
 import useAuthRedirect from '@/hooks/useAuthRedirect'
 import api from '@/lib/api'
-import Chart, { ChartPoint } from '@/components/Chart'
+import { ChartPoint } from '@/components/Chart'
 
-type Tab =
-  | 'dealFlow'
-  | 'notifications'
-  | 'escrow'
-  | 'deliveries'
-  | 'orders'
-  | 'supplierList'
-  | 'products'
+// ----------------------------------------------------------------
+// Buyer-specific metrics for the “Global Snapshot” section
+// ----------------------------------------------------------------
+const METRICS = [
+  { key: 'totalSalesToday',    label: 'Sales Today',        colorClass: 'text-blue-600' },
+  { key: 'openOrders',         label: 'Open Orders',        colorClass: 'text-green-600' },
+  { key: 'pendingEscrow',      label: 'Pending Escrow',     colorClass: 'text-purple-600' },
+  { key: 'availableProducts',  label: 'Available Products', colorClass: 'text-green-600' },
+  { key: 'activeDeals',        label: 'Active Deals',       colorClass: 'text-blue-600' },
+]
 
-export default function BuyerDashboard() {
+// ----------------------------------------------------------------
+// Buyer dashboard buttons for the “Central Command” section
+// ----------------------------------------------------------------
+const COMMAND_BUTTONS = [
+  'Deal Flow',
+  'Shipments',
+  'Messages',
+  'Escrow',
+  'Contracts',
+  'Suppliers',
+  'Products',
+]
+
+interface SupplierDashboardData {
+  totalSalesToday: number
+  openOrders: number
+  pendingEscrow: number
+  availableProducts: number
+  activeDeals: number
+  // (we’re not actually using real endpoints beyond metrics, so if you fetch
+  // extra fields, feel free to add them here)
+}
+
+const BuyerDashboard: NextPage = () => {
   // 1) enforce login + buyer role
   useAuthRedirect('buyer')
 
-  // 2) local state
-  const [tab, setTab]             = useState<Tab>('dealFlow')
-  const [chartData, setChartData] = useState<ChartPoint[]>([])
-  const [deals, setDeals]         = useState<any[]>([])
-  const [products, setProducts]   = useState<any[]>([])
-  const [loading, setLoading]     = useState(true)
-  const [error, setError]         = useState<string | null>(null)
+  // 2) state for “global snapshot” data
+  const [data, setData]       = useState<SupplierDashboardData | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError]     = useState<string | null>(null)
 
-
-  // 3) fetch chart / deals / products
+  // 3) on‐mount: fetch whatever metrics endpoints exist
   useEffect(() => {
-    async function load() {
+    let isMounted = true
+
+    async function loadMetrics() {
       try {
-        // • chart data (if endpoint exists)
-        let pts: ChartPoint[] = []
-        try {
-          const chartRes = await api.get<{ price_per_kg: number }[]>('/products')
-          pts = chartRes.data.map(p => ({
-            // must match ChartPoint: time:number, value:number
-            time:  Math.floor(Date.now() / 1000),
-            value: p.price_per_kg,
-          }))
-        } catch {
-          console.warn('No chart endpoint; skipping chart')
-        }
-        setChartData(pts)
-
-        // • active deals
-        try {
-          const dealsRes = await api.get<any[]>('/deals')
-          setDeals(dealsRes.data)
-        } catch {
-          console.warn('Failed to fetch deals; continuing')
-        }
-
-        // • marketplace listings
-        try {
-          const prodRes = await api.get<any[]>('/products')
-          setProducts(prodRes.data)
-        } catch {
-          console.warn('Failed to fetch products; continuing')
+        // -- Suppose we have an endpoint `/buyer/dashboard` returning the five metrics.
+        const res = await api.get<SupplierDashboardData>('/buyer/dashboard')
+        if (isMounted) {
+          setData(res.data)
         }
       } catch (e) {
-        console.error('❌ Error loading buyer data', e)
-        setError('Failed to load dashboard.')
+        console.warn('Failed to fetch buyer dashboard metrics; using zeros fallback.')
+        if (isMounted) {
+          // fallback to zeros if endpoint doesn’t exist
+          setData({
+            totalSalesToday: 0,
+            openOrders: 0,
+            pendingEscrow: 0,
+            availableProducts: 0,
+            activeDeals: 0,
+          })
+        }
       } finally {
-        setLoading(false)
+        if (isMounted) setLoading(false)
       }
     }
-    load()
+
+    loadMetrics()
+    return () => {
+      isMounted = false
+    }
   }, [])
 
   // 4) loading / error states
@@ -85,211 +98,97 @@ export default function BuyerDashboard() {
     )
   }
 
-  // 5) render
+  // At this point `data` is guaranteed to be non-null
+  const snapshot = data!
+
   return (
     <div className="min-h-screen bg-gray-50 relative">
-      {/*
-        ─────────────────────────────────────────────────────────────────────────────
-        Main content (we add pb-16 so content doesn't get hidden behind the fixed bar)
-        ─────────────────────────────────────────────────────────────────────────────
-      */}
+      {/* ───────────────────────────────────────────────────────────────────────────── */}
+      {/* Main content: Add pb-16 so we don’t hide behind the fixed terminal bar */}
+      {/* ───────────────────────────────────────────────────────────────────────────── */}
       <main className="max-w-7xl mx-auto px-5 pt-6 pb-16 space-y-6">
-        {/* live pricing chart */}
-        <div className="bg-white p-4 rounded shadow">
-          <h2 className="text-lg font-semibold mb-2">
-            Live Ask Price (per tonne)
-          </h2>
-          <Chart data={chartData} />
-        </div>
+        {/* ── Global Snapshot + Central Command (two-column split) ─────────────────────────── */}
+        <div className="bg-white border border-border-light dark:border-gray-700 rounded-lg overflow-hidden">
+          <div className="grid grid-cols-1 md:grid-cols-2">
+            {/* Left column: Text / Metrics / Buttons */}
+            <div className="p-4 pr-6 border-r border-border-light dark:border-gray-700">
+              {/* “Hello, Buyer — welcome to Central Command.” */}
+              <p className="font-mono text-base text-gray-800 dark:text-text-secondary">
+                Hello, Buyer — welcome to Central Command.
+              </p>
 
-        {/*
-          ─────────────────────────────────────────────────────────────────────────────
-          “Central Command” Two-Pane Layout (Text | Visual)
-          ─────────────────────────────────────────────────────────────────────────────
-        */}
-        <div className="bg-white rounded shadow flex">
-          {/* LEFT PANE: Text + Metrics + Buttons */}
-          <div className="w-1/2 border-r border-gray-200 p-6 font-mono text-sm text-gray-800">
-            <p className="mb-2">Hello, Buyer — welcome to Central Command.</p>
-            <p className="mb-1">
-              “Sales Today”: <span className="text-blue-600">0</span>
-            </p>
-            <p className="mb-1">
-              “Open Orders”: <span className="text-green-600">0</span>
-            </p>
-            <p className="mb-1">
-              “Pending Escrow”: <span className="text-purple-600">0</span>
-            </p>
-            <p className="mb-1">
-              “Available Products”: <span className="text-blue-600">{products.length}</span>
-            </p>
-            <p className="mb-1">
-              “Active Deals”: <span className="text-green-600">{deals.length}</span>
-            </p>
+              {/* Metrics lines */}
+              <div className="mt-2 space-y-1 font-mono text-base text-gray-800 dark:text-text-secondary">
+                {METRICS.map((m) => {
+                  // compute the raw value from `snapshot`
+                  const rawValue = (snapshot as any)[m.key] ?? 0
+                  // prefix currency for “Available Products”? (if needed)
+                  let display = rawValue
+                  if (m.key === 'availableProducts') {
+                    display = rawValue // or format if currency is needed
+                  }
+                  return (
+                    <p key={m.key}>
+                      <span>“{m.label}”: </span>
+                      <span className={m.colorClass}>{display}</span>
+                    </p>
+                  )
+                })}
+              </div>
 
-            <div className="mt-4 border-t border-gray-200 pt-3 italic text-gray-600">
-              Select one of the buttons below, or type a question in the terminal bar.
-            </div>
+              {/* Divider between metrics and “instructions” */}
+              <div className="border-t border-border-light dark:border-gray-700 mt-4 pt-2">
+                <p className="italic text-sm text-gray-600 dark:text-text-secondary">
+                  Select one of the buttons below, or type a question in the input bar.
+                </p>
+              </div>
 
-            <div className="mt-3 flex flex-wrap gap-2">
-              <button
-                onClick={() => setTab('dealFlow')}
-                className={`px-3 py-1 border border-black rounded text-sm ${
-                  tab === 'dealFlow' ? 'bg-gray-100' : ''
-                }`}
-              >
-                Deal Flow
-              </button>
-              <button
-                onClick={() => setTab('notifications')}
-                className={`px-3 py-1 border border-black rounded text-sm ${
-                  tab === 'notifications' ? 'bg-gray-100' : ''
-                }`}
-              >
-                Notifications
-              </button>
-              <button
-                onClick={() => setTab('escrow')}
-                className={`px-3 py-1 border border-black rounded text-sm ${
-                  tab === 'escrow' ? 'bg-gray-100' : ''
-                }`}
-              >
-                Escrow
-              </button>
-              <button
-                onClick={() => setTab('deliveries')}
-                className={`px-3 py-1 border border-black rounded text-sm ${
-                  tab === 'deliveries' ? 'bg-gray-100' : ''
-                }`}
-              >
-                Deliveries
-              </button>
-              <button
-                onClick={() => setTab('orders')}
-                className={`px-3 py-1 border border-black rounded text-sm ${
-                  tab === 'orders' ? 'bg-gray-100' : ''
-                }`}
-              >
-                Orders
-              </button>
-              <button
-                onClick={() => setTab('supplierList')}
-                className={`px-3 py-1 border border-black rounded text-sm ${
-                  tab === 'supplierList' ? 'bg-gray-100' : ''
-                }`}
-              >
-                Supplier List
-              </button>
-              <button
-                onClick={() => setTab('products')}
-                className={`px-3 py-1 border border-black rounded text-sm ${
-                  tab === 'products' ? 'bg-gray-100' : ''
-                }`}
-              >
-                Available Products
-              </button>
-            </div>
-          </div>
-
-          {/* RIGHT PANE: Placeholder for Visual Output */}
-          <div className="w-1/2 p-6 flex items-center justify-center text-gray-500">
-            <span>Select a button or ask a question to see visual output here.</span>
-          </div>
-        </div>
-
-        {/*
-          Below the two‐pane card, we can optionally show the “active tab” content:
-          (For simplicity, you can render each <section> only when that tab is active.)
-        */}
-        <div>
-          {tab === 'dealFlow' && (
-            <section className="bg-white p-4 rounded shadow mt-4">
-              {deals.length === 0 ? (
-                <p className="text-gray-500">🤝 No active deals.</p>
-              ) : (
-                <ul>
-                  {deals.map(d => (
-                    <li key={d.id} className="mb-2">
-                      Deal #{d.id}: {d.product_title} – {d.status}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </section>
-          )}
-          {tab === 'notifications' && (
-            <section className="bg-white p-4 rounded shadow mt-4">
-              <p className="text-gray-500">🔔 No notifications.</p>
-            </section>
-          )}
-          {tab === 'escrow' && (
-            <section className="bg-white p-4 rounded shadow mt-4">
-              <p className="text-gray-500">🔒 Escrow empty.</p>
-            </section>
-          )}
-          {tab === 'deliveries' && (
-            <section className="bg-white p-4 rounded shadow mt-4">
-              <p className="text-gray-500">🚚 No deliveries.</p>
-            </section>
-          )}
-          {tab === 'orders' && (
-            <section className="bg-white p-4 rounded shadow mt-4">
-              <p className="text-gray-500">📦 No orders.</p>
-            </section>
-          )}
-          {tab === 'supplierList' && (
-            <section className="bg-white p-4 rounded shadow mt-4">
-              <p className="text-gray-500">🏷️ No suppliers found.</p>
-            </section>
-          )}
-          {tab === 'products' && (
-            <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
-              {products.map(p => (
-                <div
-                  key={p.id}
-                  className="bg-white p-4 rounded shadow flex flex-col"
-                >
-                  <img
-                    src={`${process.env.NEXT_PUBLIC_API_URL}${p.image_url}`}
-                    alt={p.title}
-                    className="h-40 w-full object-cover rounded mb-2"
-                    onError={e => { (e.target as any).src = '/placeholder.jpg' }}
-                  />
-                  <h3 className="text-lg font-semibold">{p.title}</h3>
-                  <p className="text-sm text-gray-700 mt-1">{p.description}</p>
-                  <p className="text-sm text-gray-500 mt-1">{p.origin_country}</p>
-                  <p className="text-lg font-bold mt-2">${p.price_per_kg}/kg</p>
+              {/* Command buttons (left column) */}
+              <div className="mt-2 space-x-2 space-y-2">
+                {COMMAND_BUTTONS.map((label) => (
                   <button
-                    onClick={() => window.location.href = `/deals/create/${p.id}`}
-                    className="mt-auto bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+                    key={label}
+                    className="
+                      px-3 py-1
+                      border border-black dark:border-gray-600
+                      rounded-md
+                      text-sm text-black dark:text-white
+                      hover:bg-gray-100 dark:hover:bg-gray-700
+                      focus:outline-none
+                    "
                   >
-                    Contact Supplier
+                    {label}
                   </button>
-                </div>
-              ))}
-            </section>
-          )}
+                ))}
+              </div>
+            </div>
+
+            {/* Right column: “Visual” placeholder */}
+            <div className="p-4 pl-6 flex items-center justify-center">
+              <p className="text-gray-500 dark:text-text-secondary">
+                Select a button or ask a question to see visual output here.
+              </p>
+            </div>
+          </div>
         </div>
       </main>
 
-      {/*
-        ─────────────────────────────────────────────────────────────────────────────
-        FIXED TERMINAL BAR (identical sizing/positioning to the supplier’s version)
-        ─────────────────────────────────────────────────────────────────────────────
-      */}
+      {/* ───────────────────────────────────────────────────────────────────────────── */}
+      {/* FIXED TERMINAL BAR (identical to supplier) */}
+      {/* ───────────────────────────────────────────────────────────────────────────── */}
       <div
         className="
-          fixed bottom-0 left-5 right-5      /* 20px margin on left & right; matches supplier */
+          fixed bottom-0 left-5 right-5      /* exactly 20px margin on left & right */
           bg-white
-          border-t border-gray-300
+          border-t border-border-light dark:border-gray-700
           flex items-center
-          h-12                                /* 3rem tall exactly */
-          px-3                                /* horizontal padding */
+          h-12                              /* exactly 3rem tall */
+          px-3
           space-x-2
           z-50
         "
       >
-        {/* LEFT HALF: Input + Send button */}
+        {/* ── LEFT HALF: Input + Send button ───────────────────────────────────────── */}
         <div className="flex items-center space-x-2 flex-1">
           <input
             type="text"
@@ -298,9 +197,9 @@ export default function BuyerDashboard() {
               flex-1
               h-10
               px-3
-              border border-black rounded
-              text-gray-700 text-sm
-              placeholder-gray-400
+              border border-black dark:border-gray-600 rounded-md
+              text-gray-700 dark:text-text-secondary text-sm
+              placeholder-gray-400 dark:placeholder-gray-500
               focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent
             "
           />
@@ -310,7 +209,7 @@ export default function BuyerDashboard() {
               px-4
               bg-black text-white
               font-medium text-sm
-              rounded
+              rounded-md
               hover:bg-gray-800
               focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1
               transition
@@ -320,31 +219,27 @@ export default function BuyerDashboard() {
           </button>
         </div>
 
-        {/* RIGHT HALF: Tab Buttons (static, no horizontal scrollbar) */}
-        <div className="flex space-x-2">
-          <button className="px-3 py-1 border border-black rounded text-sm whitespace-nowrap">
-            Deal Flow
-          </button>
-          <button className="px-3 py-1 border border-black rounded text-sm whitespace-nowrap">
-            Shipments
-          </button>
-          <button className="px-3 py-1 border border-black rounded text-sm whitespace-nowrap">
-            Messages
-          </button>
-          <button className="px-3 py-1 border border-black rounded text-sm whitespace-nowrap">
-            Escrow
-          </button>
-          <button className="px-3 py-1 border border-black rounded text-sm whitespace-nowrap">
-            Contracts
-          </button>
-          <button className="px-3 py-1 border border-black rounded text-sm whitespace-nowrap">
-            Suppliers
-          </button>
-          <button className="px-3 py-1 border border-black rounded text-sm whitespace-nowrap">
-            Products
-          </button>
+        {/* ── RIGHT HALF: Command Buttons (no scrollbar; wrap to next line if needed) ─────── */}
+        <div className="flex items-center space-x-2 flex-shrink-0 flex-wrap">
+          {COMMAND_BUTTONS.map((label) => (
+            <button
+              key={label}
+              className="
+                px-3 py-1
+                border border-black dark:border-gray-600
+                rounded-md
+                text-sm text-black dark:text-white
+                hover:bg-gray-100 dark:hover:bg-gray-700
+                focus:outline-none
+              "
+            >
+              {label}
+            </button>
+          ))}
         </div>
       </div>
     </div>
   )
 }
+
+export default BuyerDashboard
