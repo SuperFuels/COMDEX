@@ -1,13 +1,8 @@
+// /tsconfig.json
+// (monorepo root) – references the frontend project
 {
-  "compilerOptions": {
-    "target":           "ES2020",
-    "module":           "NodeNext",
-    "moduleResolution": "NodeNext",
-    "esModuleInterop":  true,
-    "resolveJsonModule": true,
-    "strict":           true,
-    "skipLibCheck":     true,
-    "types":            ["node", "hardhat"]
-  },
-  "include": ["hardhat.config.ts", "scripts", "test"]
+  "files": [],
+  "references": [
+    { "path": "frontend" }
+  ]
 }

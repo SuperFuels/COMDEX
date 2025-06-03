@@ -1,44 +1,34 @@
+// /frontend/tsconfig.json
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "ES2020",
     "lib": ["dom", "dom.iterable", "esnext"],
-    "allowJs": true,
-    "skipLibCheck": true,
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "jsx": "preserve",
+
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
-    "esModuleInterop": true,
-    "module": "esnext",
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "preserve",
-    "incremental": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "allowJs": true,
+    "skipLibCheck": true,
 
-    // ─── BASE URL + PATHS ─────────────────────────────────────────────
+    "incremental": true,
+    "types": ["next", "next/types", "react", "react-dom", "node"],
+
+    /** ─────── Add these two so alias imports (e.g. "@/hooks/...") work ─────── */
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"]
-    },
-
-    // ─── TYPE ROOTS ──────────────────────────────────────────────────
-    // only look in ./types (for your global.d.ts) and node_modules/@types
-    "typeRoots": ["./types", "./node_modules/@types"],
-
-    // ─── EXPLICIT TYPES ───────────────────────────────────────────────
-    // if you want to pull in any @types/* by name, list them here;
-    // an empty array means "don't auto-load every folder under types/"
-    "types": []
+      "@/components/*": ["components/*"],
+      "@/hooks/*":      ["hooks/*"],
+      "@/lib/*":        ["lib/*"],
+      "@/utils/*":      ["utils/*"],
+      "@/constants/*":  ["constants/*"]
+    }
   },
-
-  // include your next-env + everything under pages/components/lib/hooks/etc
-  // plus your top-level global.d.ts
-  "include": [
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    "global.d.ts"
-  ],
-
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules"]
 }
