@@ -31,7 +31,14 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # env files (can opt-in for committing if needed)
-.env*
+/.env*
+/.env.*.local
+
+# Cloud Run environment file (contains secrets)
+cloudrun-env.yaml
+
+# firebase cache files
+.firebase/
 
 # vercel
 .vercel
