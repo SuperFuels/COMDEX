@@ -53,11 +53,11 @@ app = FastAPI(
 raw = os.getenv("CORS_ALLOWED_ORIGINS", "")
 allowed_origins = [o.strip() for o in raw.split(",") if o.strip()]
 
-# Include localhost in non‐prod
+# Include localhost in non-prod
 if os.getenv("ENV", "").lower() != "production":
     allowed_origins.append("http://localhost:3000")
 
-# And your Firebase‐hosted front end
+# And your Firebase-hosted front end
 allowed_origins.append("https://swift-area-459514-d1.web.app")
 
 if not allowed_origins:
@@ -85,12 +85,15 @@ app.mount(
 )
 
 # 12) serve Next.js “out” folder as static at the root path
-#     (the Dockerfile copies `frontend/out/` → `backend/static/`)
-app.mount(
-    "/",
-    StaticFiles(directory="static", html=True),
-    name="frontend",
-)
+#     (the Dockerfile must copy `frontend/out/` → `backend/static/`)
+if os.path.isdir("static"):
+    app.mount(
+        "/",
+        StaticFiles(directory="static", html=True),
+        name="frontend",
+    )
+else:
+    logger.warning("⚠️ 'static' directory not found: frontend/out must be copied to backend/static")
 
 # 13) include your routers (they will be mounted under /auth, /products, etc.)
 from .routes.auth import router as auth_router
@@ -107,7 +110,7 @@ app.include_router(contracts_router, tags=["Contracts"])
 app.include_router(admin_router, tags=["Admin"])
 app.include_router(user_router, tags=["Users"])
 
-# 14) Example: redirect no‐slash /products → /products/
+# 14) Example: redirect no-slash /products → /products/
 @app.get("/products", include_in_schema=False)
 def products_no_slash():
     return RedirectResponse(url="/products/", status_code=307)
