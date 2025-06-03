@@ -101,7 +101,7 @@ export default function Navbar() {
     }
   }, [dropdownOpen])
 
-  // Shorten the address for display (e.g. 0x1234…abcd)
+  // Shorten the address for display
   const shortAddr = account
     ? `${account.slice(0, 6)}…${account.slice(-4)}`
     : ''
@@ -125,7 +125,8 @@ export default function Navbar() {
       <button
         onClick={() => setSidebarOpen(true)}
         className="
-          fixed top-4 left-4            /* top-4 centers inside a 4rem-high (h-16) navbar */
+          fixed top-1/2 left-4            /* 1/2 of navbar height (4rem) ⇒ vertical center */
+          transform -translate-y-1/2      /* shift up half of its own height */
           p-2
           border border-gray-300 dark:border-gray-700
           rounded-lg
@@ -138,11 +139,14 @@ export default function Navbar() {
       </button>
 
       {/* ─── Top Bar / Navbar ─────────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-40 bg-background-header dark:bg-background-dark border-b border-border-light dark:border-gray-700 h-16">
-        {/* We removed the search box. Now Swap is centered in the middle area. */}
-        <div className="flex items-center justify-between h-full px-4">
-          {/* ── (1) Left: Stickey.ai Logo ────────────────────────────────────────────── */}
-          <div className="flex items-center ml-12"> {/* ml-12 gives ~48px gap from the “G” button */}
+      <header className="sticky top-0 z-40 bg-background-header dark:bg-background-dark border-b border-border-light dark:border-gray-700 h-16 flex items-center">
+        <div className="flex items-center justify-between w-full">
+          {/* ── (1) Left: Stickey.ai Logo (moved 40px right of “G”) ─────────── */}
+          <div className="flex items-center" style={{ marginLeft: '64px' }}>
+            {/* 
+              marginLeft:64px = (left:4px for button + button width ~32px + 4px padding + 24px icon + ~ maybe 8px extra). 
+              Adjust as needed so that logo sits ~40px to the right of the “G” toggle.
+            */}
             <Link href="/" className="logo-link flex items-center">
               <Image
                 src="/Stickeyai.svg"
@@ -155,96 +159,62 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* ── (2) Center: Swap Button Only ────────────────────────────────────────── */}
-          <div className="flex-1 flex justify-center">
-            <div className="flex items-center space-x-2">
-              {/* Inline swap amounts and tokens (optional) */}
-              <input
-                type="number"
-                value={amountIn}
-                onChange={e => setAmountIn(e.target.value)}
-                placeholder="0"
-                className="
-                  w-24 sm:w-28
-                  py-1 px-2
-                  border border-gray-300 dark:border-gray-600
-                  rounded-lg
-                  text-center text-sm
-                  bg-white dark:bg-gray-800
-                  focus:outline-none focus:ring-2 focus:ring-blue-500
-                "
-              />
-              <button
-                type="button"
-                className="
-                  flex items-center
-                  border border-gray-300 dark:border-gray-600
-                  rounded-lg
-                  py-1 px-2
-                  bg-white dark:bg-gray-800
-                  text-sm text-text
-                  hover:bg-gray-50 dark:hover:bg-gray-700
-                  focus:outline-none
-                "
-                onClick={() => { /* open “from” token picker */ }}
-              >
-                <Image src="/tokens/usdt.svg" alt="USDT" width={16} height={16} />
-                <span className="ml-1">USDT</span>
-              </button>
-              <span className="text-lg text-gray-400 select-none">→</span>
-              <input
-                type="number"
-                value={amountOut}
-                onChange={e => setAmountOut(e.target.value)}
-                placeholder="0"
-                className="
-                  w-24 sm:w-28
-                  py-1 px-2
-                  border border-gray-300 dark:border-gray-600
-                  rounded-lg
-                  text-center text-sm
-                  bg-white dark:bg-gray-800
-                  focus:outline-none focus:ring-2 focus:ring-blue-500
-                "
-              />
-              <button
-                type="button"
-                className="
-                  flex items-center
-                  border border-gray-300 dark:border-gray-600
-                  rounded-lg
-                  py-1 px-2
-                  bg-white dark:bg-gray-800
-                  text-sm text-text
-                  hover:bg-gray-50 dark:hover:bg-gray-700
-                  focus:outline-none
-                "
-                onClick={() => { /* open “to” token picker */ }}
-              >
-                <Image src="/tokens/glu.svg" alt="GLU" width={16} height={16} />
-                <span className="ml-1">$GLU</span>
-              </button>
-              <button
-                onClick={() => router.push('/swap')}
-                className="
-                  py-1 px-3
-                  border border-black
-                  rounded-lg
-                  bg-transparent
-                  text-black dark:text-white
-                  text-sm
-                  hover:bg-gray-100 dark:hover:bg-gray-700
-                  focus:outline-none
-                  transition
-                "
-              >
-                Swap
-              </button>
-            </div>
-          </div>
+          {/* ── (2) Center: (removed search—now blank) ─────────────────────────── */}
+          <div className="flex-1" />
 
-          {/* ── (3) Right: Live Indicator + Wallet ────────────────────────────────────── */}
-          <div className="flex items-center space-x-3">
+          {/* ── (3) Right: Swap + Live + Wallet ───────────────────────────────── */}
+          <div className="flex items-center space-x-3 pr-4">
+            {/* Inline swap amounts */}
+            <input
+              type="number"
+              value={amountIn}
+              onChange={e => setAmountIn(e.target.value)}
+              placeholder="0"
+              className="
+                w-24 sm:w-28
+                py-1 px-2
+                border border-gray-300 dark:border-gray-600
+                rounded-lg
+                text-center text-sm
+                bg-white dark:bg-gray-800
+                text-text
+                focus:outline-none focus:ring-2 focus:ring-blue-500
+              "
+            />
+            <span className="text-lg text-gray-400 select-none">→</span>
+            <input
+              type="number"
+              value={amountOut}
+              onChange={e => setAmountOut(e.target.value)}
+              placeholder="0"
+              className="
+                w-24 sm:w-28
+                py-1 px-2
+                border border-gray-300 dark:border-gray-600
+                rounded-lg
+                text-center text-sm
+                bg-white dark:bg-gray-800
+                text-text
+                focus:outline-none focus:ring-2 focus:ring-blue-500
+              "
+            />
+            <button
+              onClick={() => router.push('/swap')}
+              className="
+                py-1 px-3
+                border border-black
+                rounded-lg
+                bg-transparent
+                text-black dark:text-white
+                text-sm
+                hover:bg-gray-100 dark:hover:bg-gray-700
+                focus:outline-none
+                transition
+              "
+            >
+              Swap
+            </button>
+
             {/* “Live” Indicator */}
             <button
               onClick={() => router.push('/products')}
@@ -319,7 +289,7 @@ export default function Navbar() {
                         transition
                       "
                     >
-                      Logout
+                      Disconnect
                     </button>
                   </div>
                 )}
@@ -328,6 +298,119 @@ export default function Navbar() {
           </div>
         </div>
       </header>
+
+      {/* ─── Lower Swap Bar (mobile only) ─────────────────────────────────────── */}
+      <div className="md:hidden sticky top-16 z-30 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+        <div className="max-w-7xl mx-auto px-4 py-2 flex items-center space-x-2">
+          {/* Mobile Search Input */}
+          <input
+            type="text"
+            placeholder="Search by title or category…"
+            className="
+              flex-1
+              py-1 px-2
+              border border-gray-300 dark:border-gray-600
+              rounded-lg
+              text-sm text-text
+              bg-white dark:bg-gray-800
+              focus:outline-none focus:ring-2 focus:ring-blue-500
+            "
+          />
+
+          {/* Mobile Amount In Input */}
+          <input
+            type="number"
+            value={amountIn}
+            onChange={e => setAmountIn(e.target.value)}
+            placeholder="0"
+            className="
+              w-16
+              py-1 px-1
+              border border-gray-300 dark:border-gray-600
+              rounded-lg
+              text-center text-sm text-text
+              bg-white dark:bg-gray-800
+              focus:outline-none focus:ring-2 focus:ring-blue-500
+            "
+          />
+
+          {/* Mobile “From” Token */}
+          <button
+            type="button"
+            className="
+              flex items-center
+              border border-gray-300 dark:border-gray-600
+              rounded-lg
+              py-1 px-2
+              bg-white dark:bg-gray-800
+              text-sm text-text
+              hover:bg-gray-50 dark:hover:bg-gray-700
+              focus:outline-none
+            "
+            onClick={() => { /* open “from” token picker */ }}
+          >
+            <Image src="/tokens/usdt.svg" alt="USDT" width={16} height={16} />
+            <span className="ml-1">USDT</span>
+          </button>
+
+          {/* Mobile Arrow */}
+          <span className="text-xl text-gray-400 select-none">→</span>
+
+          {/* Mobile Amount Out Input */}
+          <input
+            type="number"
+            value={amountOut}
+            onChange={e => setAmountOut(e.target.value)}
+            placeholder="0"
+            className="
+              w-16
+              py-1 px-1
+              border border-gray-300 dark:border-gray-600
+              rounded-lg
+              text-center text-sm text-text
+              bg-white dark:bg-gray-800
+              focus:outline-none focus:ring-2 focus:ring-blue-500
+            "
+          />
+
+          {/* Mobile “To” Token */}
+          <button
+            type="button"
+            className="
+              flex items-center
+              border border-gray-300 dark:border-gray-600
+              rounded-lg
+              py-1 px-2
+              bg-white dark:bg-gray-800
+              text-sm text-text
+              hover:bg-gray-50 dark:hover:bg-gray-700
+              focus:outline-none
+            "
+            onClick={() => { /* open “to” token picker */ }}
+          >
+            <Image src="/tokens/glu.svg" alt="GLU" width={16} height={16} />
+            <span className="ml-1">$GLU</span>
+          </button>
+
+          {/* Mobile Swap Button */}
+          <button
+            onClick={() => router.push('/swap')}
+            className="
+              py-1 px-3
+              border border-black
+              rounded-lg
+              bg-transparent
+              text-black dark:text-white
+              text-sm
+              hover:bg-gray-100 dark:hover:bg-gray-700
+              focus:outline-none
+              transition
+            "
+          >
+            Swap
+          </button>
+        </div>
+      </div>
     </>
   )
 }
