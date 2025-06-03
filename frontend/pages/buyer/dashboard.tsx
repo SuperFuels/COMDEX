@@ -1,91 +1,79 @@
 // frontend/pages/buyer/dashboard.tsx
+
 import { useEffect, useState, useRef } from 'react'
 import useAuthRedirect from '@/hooks/useAuthRedirect'
 import api from '@/lib/api'
 import Chart, { ChartPoint } from '@/components/Chart'
 
-interface BuyerMetrics {
-  totalSalesToday: number
-  openOrders: number
-  pendingEscrow: number
-  availableProducts: number
-  activeDeals: number
-}
-
-const METRICS = [
-  { key: 'totalSalesToday',   label: 'Sales Today',        color: 'text-blue-600' },
-  { key: 'openOrders',        label: 'Open Orders',        color: 'text-green-600' },
-  { key: 'pendingEscrow',     label: 'Pending Escrow',     color: 'text-purple-600' },
-  { key: 'availableProducts', label: 'Available Products', color: 'text-green-600' },
-  { key: 'activeDeals',       label: 'Active Deals',       color: 'text-blue-600' },
-]
-
-const COMMAND_TABS = [
-  'Deal Flow',
-  'Shipments',
-  'Messages',
-  'Escrow',
-  'Contracts',
-  'Suppliers',
-  'Products',
-]
+type SelectedTab = 
+  | 'Deal Flow'
+  | 'Shipments'
+  | 'Messages'
+  | 'Escrow'
+  | 'Contracts'
+  | 'Suppliers'
+  | 'Products'
+  | ''  // no tab selected
 
 export default function BuyerDashboard() {
-  // 1) Only “buyer” can view this page
+  // 1) enforce buyer role
   useAuthRedirect('buyer')
 
-  // 2) Fetch buyer‐specific metrics
-  const [data, setData]       = useState<BuyerMetrics | null>(null)
+  // 2) local state for deals/products/chart
+  const [deals, setDeals] = useState<any[]>([])
+  const [products, setProducts] = useState<any[]>([])
+  const [chartData, setChartData] = useState<ChartPoint[]>([])
   const [loading, setLoading] = useState(true)
-  const [error, setError]     = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
-  // 3) Track which command tab is selected (for dummy responses)
-  const [selectedTab, setSelectedTab] = useState<string>('')
+  // 3) which shortcut‐tab was clicked (e.g. “Deal Flow”, “Shipments”, etc.)
+  const [selectedTab, setSelectedTab] = useState<SelectedTab>('')
 
-  // 4) Build a dummy chart time‐series (24 points) for the “Visual” pane if needed
-  const [sampleChartData, setSampleChartData] = useState<ChartPoint[]>([])
+  // 4) ref for left pane if needed in future
+  const leftPaneRef = useRef<HTMLDivElement>(null)
 
-  // 5) On‐mount: fetch metrics
   useEffect(() => {
-    let isMounted = true
-
-    async function fetchMetrics() {
+    async function loadBuyerData() {
       try {
-        // Suppose endpoint `/buyer/dashboard` returns { totalSalesToday, openOrders, pendingEscrow, availableProducts, activeDeals }
-        const res = await api.get<BuyerMetrics>('/buyer/dashboard')
-        if (isMounted) {
-          setData(res.data)
+        // • Attempt to fetch “live” chart data (e.g. price_per_kg)
+        let pts: ChartPoint[] = []
+        try {
+          const chartRes = await api.get<{ price_per_kg: number }[]>('/products')
+          pts = chartRes.data.map(p => ({
+            time: Math.floor(Date.now() / 1000),
+            value: p.price_per_kg,
+          }))
+        } catch {
+          console.warn('No chart endpoint; skipping.')
         }
-      } catch {
-        console.warn('Failed to fetch buyer metrics; using zeros fallback.')
-        if (isMounted) {
-          setData({
-            totalSalesToday: 0,
-            openOrders: 0,
-            pendingEscrow: 0,
-            availableProducts: 0,
-            activeDeals: 0,
-          })
+        setChartData(pts)
+
+        // • Fetch active deals
+        try {
+          const dealsRes = await api.get<any[]>('/deals')
+          setDeals(dealsRes.data)
+        } catch {
+          console.warn('❌ Failed to fetch deals; continuing.')
         }
+
+        // • Fetch marketplace listings (buyer sees available products)
+        try {
+          const prodRes = await api.get<any[]>('/products')
+          setProducts(prodRes.data)
+        } catch {
+          console.warn('❌ Failed to fetch products; continuing.')
+        }
+      } catch (e) {
+        console.error('❌ Error loading buyer data', e)
+        setError('Failed to load buyer dashboard.')
       } finally {
-        if (isMounted) setLoading(false)
+        setLoading(false)
       }
     }
-
-    // Build dummy 24‐point chart (for “Deal Flow” visual, for example)
-    const pts: ChartPoint[] = Array.from({ length: 24 }, (_, i) => ({
-      time: Math.floor(Date.now() / 1000) - (23 - i) * 3600,
-      value:  1000 + (Math.random() - 0.5) * 500,
-    }))
-    setSampleChartData(pts)
-
-    fetchMetrics()
-    return () => {
-      isMounted = false
-    }
+    loadBuyerData()
   }, [])
 
-  // 6) Loading / error states
+  // 5) loading / error states
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -101,115 +89,98 @@ export default function BuyerDashboard() {
     )
   }
 
-  // Data is now non‐null
-  const metrics = data!
+  // 6) Prepare metrics (left‐pane)
+  const METRICS = [
+    { label: 'Sales Today',       value: 0,                        color: 'text-blue-600' }, 
+    { label: 'Open Orders',       value: 0,                        color: 'text-green-600' },
+    { label: 'Pending Escrow',    value: 0,                        color: 'text-purple-600' },
+    { label: 'Available Products',value: products.length,          color: 'text-blue-600' },
+    { label: 'Active Deals',      value: deals.length,             color: 'text-green-600' },
+  ]
+
+  // 7) Dummy 24-point series for right‐pane “Sales” chart
+  const sampleChartData: ChartPoint[] = Array.from({ length: 24 }, (_, i) => ({
+    time: Math.floor(Date.now() / 1000) - (23 - i) * 3600,
+    value: chartData.length > 0 ? chartData[0].value : 0,
+  }))
 
   return (
     <div className="bg-gray-50 min-h-screen flex flex-col">
-      {/* ─── Spacer for Sticky Navbar (height = 4rem) ─────────────────────────── */}
+      {/* ─── Spacer for sticky navbar (height = 4rem) ───────────────── */}
       <div className="h-16" />
 
-      {/* ─── Main “Text | Visual” Area ────────────────────────────────────────── */}
-      <main className="flex-1 max-w-[calc(100%-40px)] mx-auto px-2">
+      {/* ─── Main “Text | Visual” Area ───────────────────────────────────── */}
+      <main className="flex-1 max-w-[calc(100%-0px)] mx-auto px-2">
         <div className="flex h-[calc(100vh-4rem-4rem)]">
-          {/* ── Left Pane: Buyer Greeting, Metrics & Command Buttons ──────────── */}
-          <div className="flex-1 overflow-y-auto pr-2">
-            <div className="h-full font-mono text-gray-800 dark:text-gray-200 text-sm">
-              {/* Greeting */}
+          {/* ── Left Pane: Text/“Terminal” ─────────────────────────────── */}
+          <div
+            ref={leftPaneRef}
+            className="flex-1 overflow-auto pr-2 bg-white border-r border-gray-200"
+          >
+            <div className="h-full font-mono text-gray-900 text-sm p-4">
+              {/* Greeting + Metric Lines */}
               <p className="mb-2">Hello, Buyer — welcome to Central Command.</p>
-
-              {/* Metrics */}
-              <div className="space-y-1">
-                {METRICS.map((m) => {
-                  const raw = (metrics as any)[m.key] ?? 0
-                  return (
-                    <p key={m.key}>
-                      <span>“{m.label}”: </span>
-                      <span className={m.color}>{raw}</span>
-                    </p>
-                  )
-                })}
-              </div>
-
-              {/* Divider + Instructions */}
-              <div className="border-t border-gray-300 dark:border-gray-700 mt-4 pt-2">
-                <p className="italic text-sm text-gray-600 dark:text-gray-400">
-                  Select one of the buttons below, or type a question in the input bar.
+              {METRICS.map(m => (
+                <p key={m.label} className="mb-1">
+                  <span>{`“${m.label}”: `}</span>
+                  <span className={`${m.color} font-medium`}>{m.value}</span>
                 </p>
-              </div>
+              ))}
 
-              {/* Command Buttons */}
-              <div className="mt-2 space-x-2">
-                {COMMAND_TABS.map((label) => (
-                  <button
-                    key={label}
-                    onClick={() => setSelectedTab(label)}
-                    className="
-                      px-3 py-1
-                      border border-black dark:border-gray-600
-                      rounded-md
-                      text-sm text-black dark:text-white
-                      hover:bg-gray-100 dark:hover:bg-gray-700
-                      focus:outline-none
-                    "
-                  >
-                    {label}
-                  </button>
-                ))}
+              {/* AI instructions / placeholder */}
+              <div className="mt-4">
+                {selectedTab === '' ? (
+                  <p className="italic text-gray-500">
+                    Select one of the buttons below, or type a question in the input bar.
+                  </p>
+                ) : (
+                  <div>
+                    {/* Example dummy response for each selectedTab */}
+                    {selectedTab === 'Deal Flow' && (
+                      <p>→ Fetching your active deals… (placeholder text)</p>
+                    )}
+                    {selectedTab === 'Shipments' && (
+                      <p>→ Retrieving shipment statuses… (placeholder text)</p>
+                    )}
+                    {selectedTab === 'Messages' && (
+                      <p>→ Opening your inbox… (placeholder text)</p>
+                    )}
+                    {selectedTab === 'Escrow' && (
+                      <p>→ Checking pending escrow… (placeholder text)</p>
+                    )}
+                    {selectedTab === 'Contracts' && (
+                      <p>→ Loading contracts… (placeholder text)</p>
+                    )}
+                    {selectedTab === 'Suppliers' && (
+                      <p>→ Listing available suppliers… (placeholder text)</p>
+                    )}
+                    {selectedTab === 'Products' && (
+                      <p>→ Displaying available products… (placeholder text)</p>
+                    )}
+                  </div>
+                )}
               </div>
-
-              {/* If a tab is selected, show a dummy textual “response” below */}
-              {selectedTab !== '' && (
-                <div className="mt-4 space-y-2">
-                  {selectedTab === 'Deal Flow' && (
-                    <>
-                      <p>→ Here is a summary of your deals:</p>
-                      <p className="pl-2">• You currently have {metrics.activeDeals} active deals.</p>
-                    </>
-                  )}
-                  {selectedTab === 'Shipments' && (
-                    <p>→ Retrieving shipment statuses… (placeholder text)</p>
-                  )}
-                  {selectedTab === 'Messages' && (
-                    <p>→ Opening message inbox… (placeholder text)</p>
-                  )}
-                  {selectedTab === 'Escrow' && (
-                    <p>→ Showing your pending escrow balance: {metrics.pendingEscrow}</p>
-                  )}
-                  {selectedTab === 'Contracts' && (
-                    <p>→ Fetching contract list… (placeholder text)</p>
-                  )}
-                  {selectedTab === 'Suppliers' && (
-                    <p>→ Listing your suppliers… (placeholder text)</p>
-                  )}
-                  {selectedTab === 'Products' && (
-                    <p>→ Showing available products: {metrics.availableProducts}</p>
-                  )}
-                </div>
-              )}
             </div>
           </div>
 
-          {/* ── Vertical Divider ───────────────────────────────────────────── */}
-          <div className="w-px bg-gray-300 dark:bg-gray-700" />
+          {/* ── Vertical Divider ───────────────────────────────────────── */}
+          <div className="w-px bg-gray-200" />
 
-          {/* ── Right Pane: Visual Output ─────────────────────────────────────── */}
-          <div className="flex-1 overflow-y-auto pl-2">
+          {/* ── Right Pane: Visual Output ───────────────────────────────── */}
+          <div className="flex-1 overflow-auto pl-2 bg-white">
             {selectedTab === '' ? (
-              <div className="h-full flex items-center justify-center text-gray-500 dark:text-gray-400">
+              <div className="h-full flex items-center justify-center text-gray-500">
                 <p>Select a button or ask a question to see visual output here.</p>
               </div>
             ) : (
-              <div className="h-full">
-                {selectedTab === 'Deal Flow' ? (
-                  <Chart
-                    data={sampleChartData}
-                    height={Math.floor(window.innerHeight - 4 * 16 - 64)}
-                  />
-                ) : (
+              <div className="h-full p-4">
+                {selectedTab === 'Deal Flow' && (
+                  <Chart data={sampleChartData} height={Math.floor(window.innerHeight - 4 * 16 - 64)} />
+                )}
+                {selectedTab !== 'Deal Flow' && (
                   <div className="h-full flex items-center justify-center">
-                    <p className="italic text-gray-500 dark:text-gray-400">
-                      [Visual output for “{selectedTab}” will appear here.]
+                    <p className="italic text-gray-500">
+                      [ Visual output for “{selectedTab}” would appear here ]
                     </p>
                   </div>
                 )}
@@ -219,11 +190,11 @@ export default function BuyerDashboard() {
         </div>
       </main>
 
-      {/* ─── Fixed Bottom “Terminal” Bar ───────────────────────────────────── */}
-      <footer className="fixed bottom-0 left-0 w-full bg-white dark:bg-gray-800 border-t border-gray-300 dark:border-gray-700 py-4">
-        <div className="max-w-[calc(100%-40px)] mx-auto px-2">
+      {/* ─── Fixed Bottom Terminal Bar ───────────────────────────────────── */}
+      <footer className="fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 py-4 z-50">
+        <div className="max-w-[100%] mx-auto px-2">
           <div className="flex">
-            {/* ── Left Half: Input + Send ────────────────────────────────── */}
+            {/* ── Left Side: Input + Send (exactly 50% minus 20px) ────────────── */}
             <div className="w-[calc(50%-20px)] flex items-center space-x-2">
               <input
                 type="text"
@@ -231,10 +202,9 @@ export default function BuyerDashboard() {
                 className="
                   flex-1
                   py-2 px-4
-                  border border-black dark:border-gray-600 rounded
-                  bg-white dark:bg-gray-900
-                  text-sm text-black dark:text-gray-200
-                  placeholder-gray-400 dark:placeholder-gray-500
+                  border border-black rounded
+                  text-sm text-gray-700
+                  placeholder-gray-400
                   focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
                 "
               />
@@ -242,10 +212,9 @@ export default function BuyerDashboard() {
                 className="
                   py-2 px-4
                   bg-black text-white
-                  border border-black
-                  rounded
-                  text-sm
-                  hover:bg-gray-900
+                  border border-black rounded
+                  text-sm font-medium
+                  hover:bg-gray-800
                   focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1
                   transition
                 "
@@ -254,22 +223,30 @@ export default function BuyerDashboard() {
               </button>
             </div>
 
-            {/* ── Right Half: Buyer Command Buttons ─────────────────────── */}
-            <div className="w-[50%] flex flex-wrap items-center space-x-2 pl-4">
-              {COMMAND_TABS.map((label) => (
+            {/* ── Right Side: Shortcut Buttons ─────────────────────────────── */}
+            <div className="w-[50%] flex items-center pl-4 space-x-2">
+              {[
+                'Deal Flow',
+                'Shipments',
+                'Messages',
+                'Escrow',
+                'Contracts',
+                'Suppliers',
+                'Products',
+              ].map((tabName) => (
                 <button
-                  key={label}
-                  onClick={() => setSelectedTab(label)}
+                  key={tabName}
+                  onClick={() => setSelectedTab(tabName as SelectedTab)}
                   className="
-                    px-3 py-1
-                    border border-black dark:border-gray-600
-                    rounded-md
-                    text-sm text-black dark:text-white
-                    hover:bg-gray-100 dark:hover:bg-gray-700
+                    py-2 px-4
+                    border border-black rounded
+                    bg-white text-black
+                    text-sm font-medium whitespace-nowrap
+                    hover:bg-gray-100
                     focus:outline-none
                   "
                 >
-                  {label}
+                  {tabName}
                 </button>
               ))}
             </div>
