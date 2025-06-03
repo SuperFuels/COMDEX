@@ -1,3 +1,4 @@
+// frontend/components/Navbar.tsx
 'use client'
 
 import Link from 'next/link'
@@ -11,10 +12,10 @@ import Sidebar from './Sidebar'
 
 export default function Navbar() {
   const router = useRouter()
-  const [account, setAccount]           = useState<string | null>(null)
-  const [role, setRole]                 = useState<UserRole | null>(null)
+  const [account, setAccount] = useState<string | null>(null)
+  const [role, setRole] = useState<UserRole | null>(null)
   const [dropdownOpen, setDropdownOpen] = useState(false)
-  const [sidebarOpen, setSidebarOpen]   = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   const wrapperRef = useRef<HTMLDivElement>(null)
 
   // 1) Handle “Connect Wallet”
@@ -107,7 +108,7 @@ export default function Navbar() {
     : ''
 
   // Inline swap amounts
-  const [amountIn, setAmountIn]   = useState('')
+  const [amountIn, setAmountIn] = useState('')
   const [amountOut, setAmountOut] = useState('')
 
   return (
@@ -121,12 +122,13 @@ export default function Navbar() {
         onLogout={handleDisconnect}
       />
 
-      {/* ─── “G” Toggle (far left, vertically centered within h-16 Navbar) ─── */}
+      {/* ─── “G” Toggle (far left, vertically centered within 64px‐tall header) ─── */}
       <button
         onClick={() => setSidebarOpen(true)}
         className="
-          fixed top-1/2 left-4            /* 1/2 of navbar height (4rem) ⇒ vertical center */
-          transform -translate-y-1/2      /* shift up half of its own height */
+          fixed
+          top-1/2 left-4          /* 16px from left, vertically center via translate */
+          transform -translate-y-1/2
           p-2
           border border-gray-300 dark:border-gray-700
           rounded-lg
@@ -141,12 +143,16 @@ export default function Navbar() {
       {/* ─── Top Bar / Navbar ─────────────────────────────────────────────────── */}
       <header className="sticky top-0 z-40 bg-background-header dark:bg-background-dark border-b border-border-light dark:border-gray-700 h-16 flex items-center">
         <div className="flex items-center justify-between w-full">
-          {/* ── (1) Left: Stickey.ai Logo (moved 40px right of “G”) ─────────── */}
-          <div className="flex items-center" style={{ marginLeft: '64px' }}>
-            {/* 
-              marginLeft:64px = (left:4px for button + button width ~32px + 4px padding + 24px icon + ~ maybe 8px extra). 
-              Adjust as needed so that logo sits ~40px to the right of the “G” toggle.
-            */}
+          {/* ── (1) Left: Stickey.ai Logo (moved ≈40px right of “G”) ─────────── */}
+          <div
+            className="flex items-center"
+            style={{ marginLeft: '64px' }} 
+            /* 
+              We want 40px gap between “G” and the logo. 
+              “G” sits at left-4 (16px) + its own ~32px width + 4px padding. 
+              By giving the logo container margin-left:64px, we ensure ≈40px spacing. 
+            */
+          >
             <Link href="/" className="logo-link flex items-center">
               <Image
                 src="/Stickeyai.svg"
@@ -159,12 +165,16 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* ── (2) Center: (removed search—now blank) ─────────────────────────── */}
+          {/* ── (2) Center: <Removed Search> ─────────────────────────────────────────── */}
           <div className="flex-1" />
+          {/* 
+            We completely removed the desktop “Search by title or category...” input.
+            This div simply flex-grows to fill the center.
+          */}
 
-          {/* ── (3) Right: Swap + Live + Wallet ───────────────────────────────── */}
+          {/* ── (3) Right: Swap + Live + Wallet ────────────────────────────────────── */}
           <div className="flex items-center space-x-3 pr-4">
-            {/* Inline swap amounts */}
+            {/* Inline amount‐in input */}
             <input
               type="number"
               value={amountIn}
@@ -181,7 +191,9 @@ export default function Navbar() {
                 focus:outline-none focus:ring-2 focus:ring-blue-500
               "
             />
+            {/* Arrow */}
             <span className="text-lg text-gray-400 select-none">→</span>
+            {/* Inline amount‐out input */}
             <input
               type="number"
               value={amountOut}
@@ -198,6 +210,7 @@ export default function Navbar() {
                 focus:outline-none focus:ring-2 focus:ring-blue-500
               "
             />
+            {/* Swap button */}
             <button
               onClick={() => router.push('/swap')}
               className="
@@ -215,7 +228,7 @@ export default function Navbar() {
               Swap
             </button>
 
-            {/* “Live” Indicator */}
+            {/* “Live” Indicator button */}
             <button
               onClick={() => router.push('/products')}
               className="
