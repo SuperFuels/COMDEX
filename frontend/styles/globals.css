@@ -1,41 +1,54 @@
+/* ======================================================================
+   GLOBAL STYLES FOR STICKEY.ai
+   (This file is processed by Tailwind’s PostCSS pipeline.)
+   If your editor flags “@tailwind” or “@apply” as “unknown at rule,”
+   you can either install Tailwind CSS IntelliSense or disable CSS linting
+   for this file.  (See comments just below.)
+   ====================================================================== */
+
+/* ── Disable CSS linting for unknown Tailwind at-rules (for most editors) ── */
+/* stylelint-disable */
+/* prettier-ignore-start */
+/* eslint-disable */
+/* ↑↑↑ If your editor still warns, you can remove these once IntelliSense is installed. */
+
 /* ── 1) Import Inter BEFORE any Tailwind directives ───────────────────────── */
 @import url('https://rsms.me/inter/inter.css');
 
+/* ── 2) Tailwind’s “base”, “components”, “utilities” layers ───────────────── */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* ───────────────────────────────────────────────────────────────
-   CSS VARIABLES (light & dark mode)
-──────────────────────────────────────────────────────────────── */
+/* ── 3) CSS VARIABLES (light & dark mode) ────────────────────────────────── */
 :root {
   /* Light mode tokens */
-  --bg-page:        #F9FAFB;    /* gray-50 */
-  --bg-header:      #FFFFFF;    /* pure white */
-  --text-primary:   #1F2937;    /* dark slate */
-  --text-secondary: #6B7280;    /* gray-500 */
-  --border-light:   #E5E7EB;    /* gray-200 */
-  --scrollbar-thumb: #4A5568;   /* gray-700 */
+  --bg-page:         #F9FAFB;    /* gray-50 */
+  --bg-header:       #FFFFFF;    /* pure white */
+  --text-primary:    #1F2937;    /* dark slate */
+  --text-secondary:  #6B7280;    /* gray-500 */
+  --border-light:    #E5E7EB;    /* gray-200 */
+  --scrollbar-thumb: #4A5568;    /* gray-700 */
 
   /* Brand colors */
-  --primary:       #4A90E2;
-  --primary-hover: #357ABD;
+  --primary:        #4A90E2;
+  --primary-hover:  #357ABD;
 }
 
 /* Dark mode overrides */
 .dark {
-  --bg-page:        #111827;    /* deep gray */
-  --bg-header:      #1F2937;    /* dark slate */
-  --text-primary:   #F9FAFB;    /* off-white */
-  --text-secondary: #D1D5DB;    /* light gray */
-  --border-light:   #4B5563;    /* gray-600 */
-  --scrollbar-thumb: #9CA3AF;   /* gray-400 */
+  --bg-page:         #111827;    /* deep gray */
+  --bg-header:       #1F2937;    /* dark slate */
+  --text-primary:    #F9FAFB;    /* off-white */
+  --text-secondary:  #D1D5DB;    /* light gray */
+  --border-light:    #4B5563;    /* gray-600 */
+  --scrollbar-thumb: #9CA3AF;    /* gray-400 */
 
-  --primary:       #374151;     /* dark-mode button bg */
-  --primary-hover: #4B5563;
+  --primary:        #374151;     /* dark-mode button bg */
+  --primary-hover:  #4B5563;     /* dark-mode hover */
 }
 
-/* ── RESET + GLOBALS ──────────────────────────────────────────────────────── */
+/* ── 4) RESET + GLOBALS ───────────────────────────────────────────────────── */
 * {
   margin: 0;
   padding: 0;
@@ -62,7 +75,7 @@ body {
   background: var(--bg-page);
 }
 
-/* ── CONTAINERS & CARDS ──────────────────────────────────────────────────── */
+/* ── 5) CONTAINERS & CARDS ───────────────────────────────────────────────── */
 .container {
   max-width: 1280px;
   margin: 0 auto;
@@ -81,8 +94,7 @@ body {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-/* ── BUTTONS ────────────────────────────────────────────────────────────── */
-/* All buttons (by default) should be: transparent bg, thin black outline, centered text */
+/* ── 6) BUTTON STYLES ─────────────────────────────────────────────────────── */
 button,
 .btn,
 a {
@@ -104,8 +116,7 @@ a:hover {
   background-color: rgba(0, 0, 0, 0.05);
 }
 
-/* If you want a “primary” (filled) button variant, add a class .btn-filled:
-   e.g. <button class="btn-filled">…</button> */
+/* “Primary” (filled) button variant */
 .btn-filled {
   background-color: var(--primary);
   color: white;
@@ -116,7 +127,7 @@ a:hover {
   border-color: var(--primary-hover);
 }
 
-/* ── FORMS ──────────────────────────────────────────────────────────────── */
+/* ── 7) FORM ELEMENTS ───────────────────────────────────────────────────── */
 input,
 select,
 textarea {
@@ -136,23 +147,18 @@ textarea:focus {
   box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
 }
 
-/* ── HEADINGS (slightly smaller than default to match ChatGPT’s scale) ───── */
-h1 {
-  @apply text-2xl font-semibold; /* approx ChatGPT H1 */
-}
-h2 {
-  @apply text-xl font-semibold;
-}
-h3 {
-  @apply text-lg font-semibold;
-}
-p {
-  @apply text-base;
-}
+/* ── 8) TYPESCALING (use @apply for Tailwind classes) ─────────────────────── */
+h1 { @apply text-2xl font-semibold; }
+h2 { @apply text-xl font-semibold; }
+h3 { @apply text-lg font-semibold; }
+p  { @apply text-base; }
 
-/* ── EXCEPTION: Remove border on the “logo-link” class ──────────────────── */
-/* Any <a class="logo-link">…</a> will not inherit the global a { border: … }. */
+/* ── 9) EXCEPTION: Remove border on “logo-link” ⎯────────────────────────── */
 a.logo-link {
   border: none !important;
   padding: 0 !important;
 }
+
+/* prettier-ignore-end */
+/* stylelint-enable */
+/* eslint-enable */
