@@ -1,3 +1,4 @@
+// frontend/components/Navbar.tsx
 'use client'
 
 import Link from 'next/link'
@@ -101,7 +102,7 @@ export default function Navbar() {
     }
   }, [dropdownOpen])
 
-  // Shorten the address for display
+  // Shorten the address for display (e.g. 0x1234…abcd)
   const shortAddr = account
     ? `${account.slice(0, 6)}…${account.slice(-4)}`
     : ''
@@ -121,28 +122,27 @@ export default function Navbar() {
         onLogout={handleDisconnect}
       />
 
+      {/* ─── “G” Toggle (far left, vertically centered within h-16 Navbar) ─── */}
+      <button
+        onClick={() => setSidebarOpen(true)}
+        className="
+          fixed top-4 left-4            /* 1rem from top, 1rem from left */
+          p-2
+          border border-gray-300 dark:border-gray-700
+          rounded-lg
+          bg-white dark:bg-gray-900
+          z-50
+        "
+        aria-label="Open menu"
+      >
+        <Image src="/G.svg" alt="Menu" width={24} height={24} />
+      </button>
+
       {/* ─── Top Bar / Navbar ─────────────────────────────────────────────────── */}
       <header className="sticky top-0 z-40 bg-background-header dark:bg-background-dark border-b border-border-light dark:border-gray-700 h-16">
-        <div className="flex items-center justify-between h-full">
-
-          {/* ── (1) Left: “G” Toggle + Logo ────────────────────────────────────────────── */}
-          <div className="flex items-center pl-4 space-x-2">
-            {/* “G” Toggle—now inside the header, vertically centered */}
-            <button
-              onClick={() => setSidebarOpen(true)}
-              className="
-                p-2
-                border border-gray-300 dark:border-gray-700
-                rounded-lg
-                bg-white dark:bg-gray-900
-                focus:outline-none
-              "
-              aria-label="Open menu"
-            >
-              <Image src="/G.svg" alt="Menu" width={24} height={24} />
-            </button>
-
-            {/* Stickey.ai Logo (shifted right to make room for “G”) */}
+        <div className="flex items-center justify-between h-full px-4">
+          {/* ── (1) Left: Stickey.ai Logo ───────────────────────────────────── */}
+          <div className="flex items-center pl-8">
             <Link href="/" className="logo-link flex items-center">
               <Image
                 src="/Stickeyai.svg"
@@ -155,23 +155,8 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* ── (2) Center: Search + Swap (desktop only) ────────────────────────────── */}
-          <div className="hidden md:flex flex-1 justify-center items-center space-x-3 px-4">
-            {/* Search Input */}
-            <input
-              type="text"
-              placeholder="Search by title or category…"
-              className="
-                w-full max-w-md
-                py-1.5 px-3
-                border border-gray-300 dark:border-gray-600
-                rounded-lg
-                text-sm text-text
-                bg-white dark:bg-gray-800
-                focus:outline-none focus:ring-2 focus:ring-blue-500
-              "
-            />
-
+          {/* ── (2) Center: SWAP (desktop only) ───────────────────────────── */}
+          <div className="hidden md:flex flex-1 justify-center items-center">
             {/* Amount In Input */}
             <input
               type="number"
@@ -201,6 +186,7 @@ export default function Navbar() {
                 text-sm text-text
                 hover:bg-gray-50 dark:hover:bg-gray-700
                 focus:outline-none
+                mx-2
               "
               onClick={() => { /* open “from” token picker */ }}
             >
@@ -240,6 +226,7 @@ export default function Navbar() {
                 text-sm text-text
                 hover:bg-gray-50 dark:hover:bg-gray-700
                 focus:outline-none
+                mx-2
               "
               onClick={() => { /* open “to” token picker */ }}
             >
@@ -247,7 +234,7 @@ export default function Navbar() {
               <span className="ml-1">$GLU</span>
             </button>
 
-            {/* Swap Button */}
+            {/* Swap Button (now centered) */}
             <button
               onClick={() => router.push('/swap')}
               className="
@@ -266,8 +253,8 @@ export default function Navbar() {
             </button>
           </div>
 
-          {/* ── (3) Right: Live Indicator + Wallet ────────────────────────────────────── */}
-          <div className="flex items-center space-x-3 pr-4">
+          {/* ── (3) Right: Live Indicator + Wallet ───────────────────────── */}
+          <div className="flex items-center space-x-3">
             {/* “Live” Indicator */}
             <button
               onClick={() => router.push('/products')}
@@ -355,101 +342,12 @@ export default function Navbar() {
       {/* ─── Lower Swap Bar (mobile only) ─────────────────────────────────────── */}
       <div className="md:hidden sticky top-16 z-30 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 py-2 flex items-center space-x-2">
-          {/* Mobile Search Input */}
-          <input
-            type="text"
-            placeholder="Search by title or category…"
-            className="
-              flex-1
-              py-1 px-2
-              border border-gray-300 dark:border-gray-600
-              rounded-lg
-              text-sm text-text
-              bg-white dark:bg-gray-800
-              focus:outline-none focus:ring-2 focus:ring-blue-500
-            "
-          />
-
-          {/* Mobile Amount In Input */}
-          <input
-            type="number"
-            value={amountIn}
-            onChange={e => setAmountIn(e.target.value)}
-            placeholder="0"
-            className="
-              w-16
-              py-1 px-1
-              border border-gray-300 dark:border-gray-600
-              rounded-lg
-              text-center text-sm text-text
-              bg-white dark:bg-gray-800
-              focus:outline-none focus:ring-2 focus:ring-blue-500
-            "
-          />
-
-          {/* Mobile “From” Token */}
-          <button
-            type="button"
-            className="
-              flex items-center
-              border border-gray-300 dark:border-gray-600
-              rounded-lg
-              py-1 px-2
-              bg-white dark:bg-gray-800
-              text-sm text-text
-              hover:bg-gray-50 dark:hover:bg-gray-700
-              focus:outline-none
-            "
-            onClick={() => { /* open “from” token picker */ }}
-          >
-            <Image src="/tokens/usdt.svg" alt="USDT" width={16} height={16} />
-            <span className="ml-1">USDT</span>
-          </button>
-
-          {/* Mobile Arrow */}
-          <span className="text-xl text-gray-400 select-none">→</span>
-
-          {/* Mobile Amount Out Input */}
-          <input
-            type="number"
-            value={amountOut}
-            onChange={e => setAmountOut(e.target.value)}
-            placeholder="0"
-            className="
-              w-16
-              py-1 px-1
-              border border-gray-300 dark:border-gray-600
-              rounded-lg
-              text-center text-sm text-text
-              bg-white dark:bg-gray-800
-              focus:outline-none focus:ring-2 focus:ring-blue-500
-            "
-          />
-
-          {/* Mobile “To” Token */}
-          <button
-            type="button"
-            className="
-              flex items-center
-              border border-gray-300 dark:border-gray-600
-              rounded-lg
-              py-1 px-2
-              bg-white dark:bg-gray-800
-              text-sm text-text
-              hover:bg-gray-50 dark:hover:bg-gray-700
-              focus:outline-none
-            "
-            onClick={() => { /* open “to” token picker */ }}
-          >
-            <Image src="/tokens/glu.svg" alt="GLU" width={16} height={16} />
-            <span className="ml-1">$GLU</span>
-          </button>
-
-          {/* Mobile Swap Button */}
+          {/* Mobile Swap (centered) */}
           <button
             onClick={() => router.push('/swap')}
             className="
-              py-1 px-3
+              flex-1
+              py-1 px-2
               border border-black
               rounded-lg
               bg-transparent
@@ -462,6 +360,45 @@ export default function Navbar() {
           >
             Swap
           </button>
+          {/*
+            Wallet / Connect Wallet (mobile):
+            [We keep the same as desktop, just smaller/truncated]
+          */}
+          {!account ? (
+            <button
+              onClick={handleConnect}
+              className="
+                py-1 px-2
+                border border-black
+                rounded-lg
+                bg-transparent
+                text-black dark:text-white
+                text-sm
+                hover:bg-gray-100 dark:hover:bg-gray-700
+                focus:outline-none
+                transition
+              "
+            >
+              Connect
+            </button>
+          ) : (
+            <button
+              onClick={handleDisconnect}
+              className="
+                py-1 px-2
+                border border-black
+                rounded-lg
+                bg-transparent
+                text-black dark:text-white
+                text-sm
+                hover:bg-gray-100 dark:hover:bg-gray-700
+                focus:outline-none
+                transition
+              "
+            >
+              {`${shortAddr.slice(0, 6)}…`}
+            </button>
+          )}
         </div>
       </div>
     </>
