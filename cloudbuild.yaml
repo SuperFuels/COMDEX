@@ -5,9 +5,36 @@ substitutions:
   _REGION: us-central1
 
 steps:
-  # 1) Build the container from your Dockerfile, no cache,
-  #    and tag it with $BUILD_ID and also :latest
+  # ─────────────────────────────────────────────────────────────────────────────
+  # STEP 1: Build & export the frontend into "frontend/out"
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  # 1a) Install frontend dependencies (inside frontend/)
+  - name: 'gcr.io/cloud-builders/npm'
+    id: 'frontend-npm-install'
+    dir: 'frontend'
+    args: ['ci']
+
+  # 1b) Build the Next.js app (generates .next/)
+  - name: 'gcr.io/cloud-builders/npm'
+    id: 'frontend-build'
+    dir: 'frontend'
+    args: ['run', 'build']
+
+  # 1c) Export the Next.js site to static HTML in frontend/out/
+  - name: 'gcr.io/cloud-builders/npm'
+    id: 'frontend-export'
+    dir: 'frontend'
+    args: ['run', 'export']
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # STEP 2: Build and push the backend Docker image
+  #         (which must include the prebuilt frontend/out/)
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  # 2a) Build the Docker image (no-cache) and tag with both $BUILD_ID and :latest.
   - name: 'gcr.io/cloud-builders/docker'
+    id: 'docker-build'
     args:
       [
         'build',
@@ -18,24 +45,30 @@ steps:
         '.'
       ]
 
-  # 2) Push the build-ID tag
+  # 2b) Push the "$BUILD_ID" tag
   - name: 'gcr.io/cloud-builders/docker'
+    id: 'docker-push-buildid'
     args:
       [
         'push',
         'gcr.io/$PROJECT_ID/${_SERVICE}:$BUILD_ID'
       ]
 
-  # 3) Push the :latest tag
+  # 2c) Push the ":latest" tag
   - name: 'gcr.io/cloud-builders/docker'
+    id: 'docker-push-latest'
     args:
       [
         'push',
         'gcr.io/$PROJECT_ID/${_SERVICE}:latest'
       ]
 
-  # 4) Deploy to Cloud Run using the fresh $BUILD_ID image
+  # ─────────────────────────────────────────────────────────────────────────────
+  # STEP 3: Deploy the newly pushed image to Cloud Run
+  # ─────────────────────────────────────────────────────────────────────────────
+
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'deploy-cloud-run'
     entrypoint: gcloud
     args:
       [
@@ -52,7 +85,7 @@ steps:
         '--port=8080'
       ]
 
-# tell Cloud Build which images you’ve produced
+# Tell Cloud Build which images were produced
 images:
   - 'gcr.io/$PROJECT_ID/${_SERVICE}:$BUILD_ID'
   - 'gcr.io/$PROJECT_ID/${_SERVICE}:latest'
