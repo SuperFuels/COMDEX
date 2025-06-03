@@ -3,7 +3,7 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { useRouter } from 'next/navigation'
+import { useRouter } from 'next/router'      // ← use Pages-Router here
 import { useEffect, useState, useRef, useCallback } from 'react'
 import api from '@/lib/api'
 import { UserRole } from '@/hooks/useAuthRedirect'
@@ -13,9 +13,9 @@ import Sidebar from './Sidebar'
 export default function Navbar() {
   const router = useRouter()
   const [account, setAccount] = useState<string | null>(null)
-  const [role, setRole] = useState<UserRole | null>(null)
+  const [role, setRole]       = useState<UserRole | null>(null)
   const [dropdownOpen, setDropdownOpen] = useState(false)
-  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [sidebarOpen, setSidebarOpen]   = useState(false)
   const wrapperRef = useRef<HTMLDivElement>(null)
 
   // 1) Handle “Connect Wallet”
@@ -43,7 +43,7 @@ export default function Navbar() {
     router.push('/')
   }, [router])
 
-  // 3) On‐mount: hydrate JWT and/or wallet
+  // 3) On-mount: hydrate JWT and/or wallet
   useEffect(() => {
     const token = localStorage.getItem('token')
     if (token) {
@@ -102,18 +102,18 @@ export default function Navbar() {
     }
   }, [dropdownOpen])
 
-  // Shorten the address for display
+  // Shorten the address for display (e.g. 0x1234…abcd)
   const shortAddr = account
     ? `${account.slice(0, 6)}…${account.slice(-4)}`
     : ''
 
   // Inline swap amounts
-  const [amountIn, setAmountIn] = useState('')
+  const [amountIn, setAmountIn]   = useState('')
   const [amountOut, setAmountOut] = useState('')
 
   return (
     <>
-      {/* ─── Slide‐in Sidebar (controlled by the “G” button) ──────────────── */}
+      {/* ─── Slide-in Sidebar (controlled by the “G” button) ──────────────── */}
       <Sidebar
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
@@ -122,12 +122,12 @@ export default function Navbar() {
         onLogout={handleDisconnect}
       />
 
-      {/* ─── “G” Toggle (far left, vertically centered within 64px‐tall header) ─── */}
+      {/* ─── “G” Toggle (far left, vertically centered within 64px-tall header) ─── */}
       <button
         onClick={() => setSidebarOpen(true)}
         className="
           fixed
-          top-1/2 left-4          /* 16px from left, vertically center via translate */
+          top-1/2 left-4          /* 16px from left, vertically center by translate */
           transform -translate-y-1/2
           p-2
           border border-gray-300 dark:border-gray-700
@@ -146,11 +146,10 @@ export default function Navbar() {
           {/* ── (1) Left: Stickey.ai Logo (moved ≈40px right of “G”) ─────────── */}
           <div
             className="flex items-center"
-            style={{ marginLeft: '64px' }} 
+            style={{ marginLeft: '64px' }}
             /* 
-              We want 40px gap between “G” and the logo. 
-              “G” sits at left-4 (16px) + its own ~32px width + 4px padding. 
-              By giving the logo container margin-left:64px, we ensure ≈40px spacing. 
+              We want ~40px between “G” (at left-4 plus its own width) and this logo.
+              By giving marginLeft:64px, we achieve roughly that gap on desktop.
             */
           >
             <Link href="/" className="logo-link flex items-center">
@@ -165,16 +164,16 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* ── (2) Center: <Removed Search> ─────────────────────────────────────────── */}
+          {/* ── (2) Center: (removed desktop search entirely) ─────────────────────── */}
           <div className="flex-1" />
           {/* 
-            We completely removed the desktop “Search by title or category...” input.
-            This div simply flex-grows to fill the center.
+            By leaving this <div className="flex-1" /> empty, we consume the center
+            space where the search bar used to live—no search input on desktop anymore.
           */}
 
           {/* ── (3) Right: Swap + Live + Wallet ────────────────────────────────────── */}
           <div className="flex items-center space-x-3 pr-4">
-            {/* Inline amount‐in input */}
+            {/* Inline “amount in” */}
             <input
               type="number"
               value={amountIn}
@@ -193,7 +192,7 @@ export default function Navbar() {
             />
             {/* Arrow */}
             <span className="text-lg text-gray-400 select-none">→</span>
-            {/* Inline amount‐out input */}
+            {/* Inline “amount out” */}
             <input
               type="number"
               value={amountOut}
@@ -228,7 +227,7 @@ export default function Navbar() {
               Swap
             </button>
 
-            {/* “Live” Indicator button */}
+            {/* “Live” Indicator */}
             <button
               onClick={() => router.push('/products')}
               className="
@@ -330,7 +329,7 @@ export default function Navbar() {
             "
           />
 
-          {/* Mobile Amount In Input */}
+          {/* Mobile amount-in */}
           <input
             type="number"
             value={amountIn}
@@ -347,7 +346,7 @@ export default function Navbar() {
             "
           />
 
-          {/* Mobile “From” Token */}
+          {/* Mobile “From” Token selector */}
           <button
             type="button"
             className="
@@ -369,7 +368,7 @@ export default function Navbar() {
           {/* Mobile Arrow */}
           <span className="text-xl text-gray-400 select-none">→</span>
 
-          {/* Mobile Amount Out Input */}
+          {/* Mobile amount-out */}
           <input
             type="number"
             value={amountOut}
@@ -386,7 +385,7 @@ export default function Navbar() {
             "
           />
 
-          {/* Mobile “To” Token */}
+          {/* Mobile “To” Token selector */}
           <button
             type="button"
             className="
@@ -405,7 +404,7 @@ export default function Navbar() {
             <span className="ml-1">$GLU</span>
           </button>
 
-          {/* Mobile Swap Button */}
+          {/* Mobile Swap button */}
           <button
             onClick={() => router.push('/swap')}
             className="
