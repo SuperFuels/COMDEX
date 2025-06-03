@@ -1,9 +1,8 @@
-// frontend/pages/buyer/dashboard.tsx
 import { useEffect, useState } from 'react'
 import { NextPage } from 'next'
 import useAuthRedirect from '@/hooks/useAuthRedirect'
 import api from '@/lib/api'
-import { ChartPoint } from '@/components/Chart'
+import Chart, { ChartPoint } from '@/components/Chart'
 
 type Tab =
   | 'dealFlow'
@@ -35,7 +34,7 @@ const BuyerDashboard: NextPage = () => {
         try {
           const chartRes = await api.get<{ price_per_kg: number }[]>('/products')
           pts = chartRes.data.map(p => ({
-            // must match ChartPoint: { time: number; value: number }
+            // must match ChartPoint: time:number, value:number
             time:  Math.floor(Date.now() / 1000),
             value: p.price_per_kg,
           }))
@@ -72,14 +71,14 @@ const BuyerDashboard: NextPage = () => {
   // 4) loading / error states
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center">
         <p className="text-gray-600">Loading dashboard…</p>
       </div>
     )
   }
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center">
         <p className="text-red-500">{error}</p>
       </div>
     )
@@ -89,137 +88,196 @@ const BuyerDashboard: NextPage = () => {
   return (
     <div className="min-h-screen bg-gray-50 relative">
       {/* ───────────────────────────────────────────────────────────────────────────── */}
-      {/* Spacer for sticky navbar (height = 4rem) */}
+      {/* Main content (we add pb-16 so content doesn't get hidden behind the fixed bar) */}
       {/* ───────────────────────────────────────────────────────────────────────────── */}
-      <div className="h-16" />
-
-      {/* ───────────────────────────────────────────────────────────────────────────── */}
-      {/* Two‐Panel “Terminal” Section (Text | Visual) */}
-      {/* ───────────────────────────────────────────────────────────────────────────── */}
-      <div className="flex max-w-7xl mx-auto px-6 py-4">
-        {/* ── Left Panel: Monospace “Text” Output ─────────────────────────────────── */}
-        <div className="flex-1 pr-4">
-          <div className="font-mono text-text dark:text-text-secondary text-sm leading-relaxed">
-            <p className="mb-2">Hello, Kevin — welcome to Buyer Central Command.</p>
-            <p>“Active Deals”: <span className="text-green-600">{deals.length}</span></p>
-            <p>“Available Products”: <span className="text-blue-600">{products.length}</span></p>
-            <p>
-              “Latest Price”:{' '}
-              <span className="text-purple-600">
-                {chartData.length > 0 ? `$${chartData[chartData.length - 1].value}` : '$0'}
-              </span>
-            </p>
-            <p className="mt-2 italic text-text-secondary dark:text-text-secondary">
-              Select one of the buttons below, or type a question in the input bar.
-            </p>
-          </div>
+      <main className="max-w-7xl mx-auto px-5 pt-6 pb-16 space-y-6">
+        {/* live pricing chart */}
+        <div className="bg-white p-4 rounded shadow">
+          <h2 className="text-lg font-semibold mb-2">
+            Live Ask Price (per tonne)
+          </h2>
+          <Chart data={chartData} />
         </div>
 
-        {/* ── Vertical Divider ─────────────────────────────────────────────────────── */}
-        <div className="border-l border-gray-300"></div>
+        {/* TAB NAV + CONTENT */}
+        <div className="bg-white p-4 rounded shadow space-y-4">
+          {/* ─── Tab Navigation ────────────────────────────────────────────────────── */}
+          <nav className="flex flex-wrap gap-2 border-b pb-2">
+            {[
+              ['Deal Flow', 'dealFlow'],
+              ['Notifications', 'notifications'],
+              ['Escrow', 'escrow'],
+              ['Deliveries', 'deliveries'],
+              ['Orders', 'orders'],
+              ['Supplier List', 'supplierList'],
+              ['Available Products', 'products'],
+            ].map(([label, id]) => (
+              <button
+                key={id}
+                onClick={() => setTab(id as Tab)}
+                className={`
+                  px-4 py-2 -mb-px
+                  ${
+                    tab === id
+                      ? 'border-b-2 border-blue-600 font-semibold'
+                      : 'text-gray-600 hover:text-gray-800'
+                  }
+                `}
+              >
+                {label}
+              </button>
+            ))}
+          </nav>
 
-        {/* ── Right Panel: Visual Output Placeholder ───────────────────────────────── */}
-        <div className="flex-1 pl-4">
-          <div className="flex h-full items-center justify-center text-text-secondary dark:text-text-secondary text-sm">
-            Select a button or ask a question to see visual output here.
-          </div>
+          {/* ─── Tab Panels ────────────────────────────────────────────────────────── */}
+          {tab === 'dealFlow' && (
+            <section>
+              {deals.length === 0 ? (
+                <p className="text-gray-500">🤝 No active deals.</p>
+              ) : (
+                <ul>
+                  {deals.map(d => (
+                    <li key={d.id} className="mb-2">
+                      Deal #{d.id}: {d.product_title} – {d.status}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+          )}
+
+          {tab === 'notifications' && (
+            <section>
+              <p className="text-gray-500">🔔 No notifications.</p>
+            </section>
+          )}
+
+          {tab === 'escrow' && (
+            <section>
+              <p className="text-gray-500">🔒 Escrow empty.</p>
+            </section>
+          )}
+
+          {tab === 'deliveries' && (
+            <section>
+              <p className="text-gray-500">🚚 No deliveries.</p>
+            </section>
+          )}
+
+          {tab === 'orders' && (
+            <section>
+              <p className="text-gray-500">📦 No orders.</p>
+            </section>
+          )}
+
+          {tab === 'supplierList' && (
+            <section>
+              <p className="text-gray-500">🏷️ No suppliers found.</p>
+            </section>
+          )}
+
+          {tab === 'products' && (
+            <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {products.map(p => (
+                <div
+                  key={p.id}
+                  className="bg-white p-4 rounded shadow flex flex-col"
+                >
+                  <img
+                    src={`${process.env.NEXT_PUBLIC_API_URL}${p.image_url}`}
+                    alt={p.title}
+                    className="h-40 w-full object-cover rounded mb-2"
+                    onError={e => { (e.target as any).src = '/placeholder.jpg' }}
+                  />
+                  <h3 className="text-lg font-semibold">{p.title}</h3>
+                  <p className="text-sm text-gray-700 mt-1">{p.description}</p>
+                  <p className="text-sm text-gray-500 mt-1">{p.origin_country}</p>
+                  <p className="text-lg font-bold mt-2">${p.price_per_kg}/kg</p>
+                  <button
+                    onClick={() => window.location.href = `/deals/create/${p.id}`}
+                    className="mt-auto bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+                  >
+                    Contact Supplier
+                  </button>
+                </div>
+              ))}
+            </section>
+          )}
         </div>
-      </div>
+      </main>
 
       {/* ───────────────────────────────────────────────────────────────────────────── */}
-      {/* FIXED TERMINAL BAR (Buyer) */}
+      {/* FIXED TERMINAL BAR (matches supplier exactly) */}
       {/* ───────────────────────────────────────────────────────────────────────────── */}
       <div
         className="
-          fixed bottom-0 left-0 right-0
+          fixed bottom-0 left-0 right-0        /* full viewport width */
           bg-white
           border-t border-gray-300
           flex items-center
-          h-14                    /* 3.5rem = 56px total height */
-          px-6
+          h-12                                /* exactly 3rem */
+          px-5                                /* 20px on left + right */
+          space-x-3
           z-50
         "
       >
-        <div className="w-full max-w-7xl mx-auto flex items-center justify-between">
-          {/* ── LEFT HALF: Input + Send ─────────────────────────────────────────── */}
-          <div className="flex items-center w-full max-w-[calc(50%_-_1rem)] pr-4">
-            <input
-              type="text"
-              placeholder="Type a question (e.g. “Build my report”)"
-              className="
-                flex-1
-                h-10
-                px-3
-                border border-black rounded-l-md
-                text-gray-700 text-sm
-                placeholder-gray-400
-                focus:outline-none focus:ring-2 focus:ring-blue-500
-              "
-            />
-            <button
-              onClick={() => {
-                /* TODO: wire up AI‐submit logic with the input’s value */
-              }}
-              className="
-                h-10
-                px-4
-                bg-black text-white
-                font-medium text-sm
-                rounded-r-md
-                hover:bg-gray-800
-                focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1
-                transition
-              "
-            >
-              Send
-            </button>
-          </div>
+        {/* ── LEFT SIDE: Text Input + Send Button ───────────────────────────────── */}
+        <div className="flex items-center space-x-2 flex-1">
+          <input
+            type="text"
+            placeholder="Type a question (e.g. “Build my sales report”)"
+            className="
+              flex-1
+              h-10
+              px-3
+              border border-black rounded
+              text-gray-700 text-sm
+              placeholder-gray-400
+              focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent
+            "
+          />
+          <button
+            className="
+              h-10
+              px-4
+              bg-black text-white
+              font-medium text-sm
+              rounded
+              hover:bg-gray-800
+              focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1
+              transition
+            "
+          >
+            Send
+          </button>
+        </div>
 
-          {/* ── RIGHT HALF: Buyer Buttons Row ───────────────────────────────────── */}
-          <div className="flex space-x-2 overflow-x-auto">
-            <button
-              onClick={() => setTab('dealFlow')}
-              className="px-3 py-1.5 border border-black rounded text-sm whitespace-nowrap"
-            >
-              Deal Flow
-            </button>
-            <button
-              onClick={() => setTab('deliveries')}
-              className="px-3 py-1.5 border border-black rounded text-sm whitespace-nowrap"
-            >
-              Shipments
-            </button>
-            <button
-              onClick={() => setTab('notifications')}
-              className="px-3 py-1.5 border border-black rounded text-sm whitespace-nowrap"
-            >
-              Messages
-            </button>
-            <button
-              onClick={() => setTab('escrow')}
-              className="px-3 py-1.5 border border-black rounded text-sm whitespace-nowrap"
-            >
-              Escrow
-            </button>
-            <button
-              onClick={() => setTab('orders')}
-              className="px-3 py-1.5 border border-black rounded text-sm whitespace-nowrap"
-            >
-              Contracts
-            </button>
-            <button
-              onClick={() => setTab('supplierList')}
-              className="px-3 py-1.5 border border-black rounded text-sm whitespace-nowrap"
-            >
-              Suppliers
-            </button>
-            <button
-              onClick={() => setTab('products')}
-              className="px-3 py-1.5 border border-black rounded text-sm whitespace-nowrap"
-            >
-              Products
-            </button>
-          </div>
+        {/* VERTICAL DIVIDER at EXACTLY halfway across content */}
+        <div className="w-px bg-gray-300 h-6 mx-3 self-center"></div>
+
+        {/* ── RIGHT SIDE: Static Buttons (no scroll) ─────────────────────────────── */}
+        <div className="flex items-center space-x-2 flex-wrap">
+          <button className="px-3 py-1 border border-black rounded text-sm whitespace-nowrap">
+            Deal Flow
+          </button>
+          <button className="px-3 py-1 border border-black rounded text-sm whitespace-nowrap">
+            Shipments
+          </button>
+          <button className="px-3 py-1 border border-black rounded text-sm whitespace-nowrap">
+            Messages
+          </button>
+          <button className="px-3 py-1 border border-black rounded text-sm whitespace-nowrap">
+            Escrow
+          </button>
+          <button className="px-3 py-1 border border-black rounded text-sm whitespace-nowrap">
+            Contracts
+          </button>
+          <button className="px-3 py-1 border border-black rounded text-sm whitespace-nowrap">
+            Suppliers
+          </button>
+          <button className="px-3 py-1 border border-black rounded text-sm whitespace-nowrap">
+            Products
+          </button>
         </div>
       </div>
     </div>
