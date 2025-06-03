@@ -5,9 +5,9 @@ substitutions:
   _REGION: us-central1
 
 steps:
-  # ─── 0) Build the FRONTEND with Node 18 ─────────────────────────────
+  # ─── 0) Build the FRONTEND with Node 18 (from Docker Hub) ─────────────────────────────
   - id: "frontend-build"
-    name: "gcr.io/cloud-builders/nodejs:18"
+    name: "node:18"
     entrypoint: "bash"
     args:
       - "-c"
@@ -16,12 +16,12 @@ steps:
         npm ci
         npm run build
         npm run export
-        # Copy the `out/` directory into backend/static so backend can serve it
+        # Copy the static export into backend/static
         rm -rf ../backend/static
         mkdir -p ../backend/static
         cp -r out/* ../backend/static/
 
-  # ─── 1) Build the Docker image (no-cache) and tag it with $BUILD_ID & latest ─
+  # ─── 1) Build the Docker image for the Python backend (no cache) ──────────────────────
   - id: "docker-build"
     name: "gcr.io/cloud-builders/docker"
     args:
@@ -34,7 +34,7 @@ steps:
         "."
       ]
 
-  # ─── 2) Push the build-ID tag ──────────────────────────────────────────
+  # ─── 2) Push the build-ID tag ─────────────────────────────────────────────────────────
   - id: "docker-push-buildid"
     name: "gcr.io/cloud-builders/docker"
     args:
@@ -43,7 +43,7 @@ steps:
         "gcr.io/$PROJECT_ID/${_SERVICE}:$BUILD_ID"
       ]
 
-  # ─── 3) Push the latest tag ───────────────────────────────────────────
+  # ─── 3) Push the latest tag ───────────────────────────────────────────────────────────
   - id: "docker-push-latest"
     name: "gcr.io/cloud-builders/docker"
     args:
@@ -52,7 +52,7 @@ steps:
         "gcr.io/$PROJECT_ID/${_SERVICE}:latest"
       ]
 
-  # ─── 4) Deploy to Cloud Run ────────────────────────────────────────────
+  # ─── 4) Deploy to Cloud Run ───────────────────────────────────────────────────────────
   - id: "deploy-cloud-run"
     name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
     entrypoint: "gcloud"
