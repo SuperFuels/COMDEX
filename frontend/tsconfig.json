@@ -1,6 +1,4 @@
-// ─────────────────────────────────────────────────────────────────────────────
-// File: frontend/tsconfig.json
-// ─────────────────────────────────────────────────────────────────────────────
+// frontend/tsconfig.json
 {
   "compilerOptions": {
     // ── 1) Target / Module / JSX settings ──────────────────────────────────────
@@ -24,15 +22,15 @@
     // ── 3) Type Definitions ───────────────────────────────────────────────────
     "types": ["node", "next", "react", "react-dom"],
 
-    // ── 4) Path Aliases (uncommented) ─────────────────────────────────────────
+    // ── 4) Path Aliases ───────────────────────────────────────────────────────
     "baseUrl": ".",
     "paths": {
       "@/components/*": ["components/*"],
-      "@/hooks/*":      ["hooks/*"],
-      "@/lib/*":        ["lib/*"],
-      "@/utils/*":      ["utils/*"],
-      "@/types":        ["types/index.ts"],
-      "@/types/*":      ["types/*"]
+      "@/hooks/*": ["hooks/*"],
+      "@/lib/*": ["lib/*"],
+      "@/utils/*": ["utils/*"],
+      "@/constants/*": ["constants/*"],
+      "@/types/*": ["types/*"]
     }
   },
   "include": [
@@ -40,7 +38,5 @@
     "**/*.ts",
     "**/*.tsx"
   ],
-  "exclude": [
-    "node_modules"
-  ]
+  "exclude": ["node_modules"]
 }
