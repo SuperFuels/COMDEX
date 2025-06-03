@@ -1,201 +1,280 @@
 // frontend/pages/buyer/dashboard.tsx
+
 import { useEffect, useState } from 'react'
 import { NextPage } from 'next'
 import useAuthRedirect from '@/hooks/useAuthRedirect'
 import api from '@/lib/api'
-import Chart, { ChartPoint } from '@/components/Chart'
+import { ChartPoint } from '@/components/Chart'
 
-type Tab =
+// NOTE: We are not actually rendering the Chart here anymore; 
+// the “visual” pane is a placeholder. If you want to render real charts,
+// you can re‐import Chart and pass it data to the right‐hand pane.
+ 
+type BuyerTab =
   | 'dealFlow'
-  | 'notifications'
+  | 'shipments'
+  | 'messages'
   | 'escrow'
-  | 'deliveries'
-  | 'orders'
-  | 'supplierList'
+  | 'contracts'
+  | 'suppliers'
   | 'products'
 
+const BUYER_BUTTONS: { key: BuyerTab; label: string }[] = [
+  { key: 'dealFlow',  label: 'Deal Flow' },
+  { key: 'shipments', label: 'Shipments' },
+  { key: 'messages',  label: 'Messages' },
+  { key: 'escrow',    label: 'Escrow' },
+  { key: 'contracts', label: 'Contracts' },
+  { key: 'suppliers', label: 'Suppliers' },
+  { key: 'products',  label: 'Products' },
+]
+
 const BuyerDashboard: NextPage = () => {
-  // 1) enforce login + buyer role
+  // 1) Enforce login + buyer role
   useAuthRedirect('buyer')
 
-  // 2) local state
-  const [tab, setTab]             = useState<Tab>('dealFlow')
-  const [chartData, setChartData] = useState<ChartPoint[]>([])
-  const [deals, setDeals]         = useState<any[]>([])
-  const [products, setProducts]   = useState<any[]>([])
-  const [loading, setLoading]     = useState(true)
-  const [error, setError]         = useState<string | null>(null)
+  // 2) We’ll fetch some dummy data so we can display a greeting and metrics.
+  //    In a real app, you might fetch buyer‐specific stats like “Active Orders Today” etc.
+  const [loading, setLoading] = useState(true)
+  const [error, setError]     = useState<string | null>(null)
+  const [metrics, setMetrics] = useState<{
+    salesToday: number
+    openOrders: number
+    activeShipments: number
+    escrowBalance: number
+  }>({
+    salesToday: 0,
+    openOrders: 0,
+    activeShipments: 0,
+    escrowBalance: 0,
+  })
 
-  // 3) fetch chart / deals / products
   useEffect(() => {
-    async function load() {
+    async function loadBuyerMetrics() {
       try {
-        // • chart data (if endpoint exists)
-        let pts: ChartPoint[] = []
-        try {
-          const chartRes = await api.get<{ price_per_kg: number }[]>('/products')
-          pts = chartRes.data.map(p => ({
-            // must match ChartPoint: time:number, value:number
-            time:  Math.floor(Date.now() / 1000),
-            value: p.price_per_kg,
-          }))
-        } catch {
-          console.warn('No chart endpoint; skipping chart')
-        }
-        setChartData(pts)
-
-        // • active deals
-        try {
-          const dealsRes = await api.get<any[]>('/deals')
-          setDeals(dealsRes.data)
-        } catch {
-          console.warn('Failed to fetch deals; continuing')
-        }
-
-        // • marketplace listings
-        try {
-          const prodRes = await api.get<any[]>('/products')
-          setProducts(prodRes.data)
-        } catch {
-          console.warn('Failed to fetch products; continuing')
-        }
+        // Example of fetching buyer‐specific data; replace with your real endpoints:
+        // const res = await api.get('/buyer/metrics')
+        // setMetrics(res.data)
+        // For now, we’ll leave dummy zeroes:
+        setMetrics({
+          salesToday: 0,
+          openOrders: 0,
+          activeShipments: 0,
+          escrowBalance: 0,
+        })
       } catch (e) {
-        console.error('❌ Error loading buyer data', e)
-        setError('Failed to load dashboard.')
+        console.error('Failed to load buyer metrics', e)
+        setError('Failed to load dashboard data.')
       } finally {
         setLoading(false)
       }
     }
-    load()
+    loadBuyerMetrics()
   }, [])
 
-  // 4) loading / error states
+  // 3) Terminal state:
+  const [terminalInput, setTerminalInput]   = useState('')
+  const [terminalOutput, setTerminalOutput] = useState<string>(
+    `Hello, Buyer — welcome to Central Command.\n` +
+    `“Sales Today”: ${metrics.salesToday}\n` +
+    `“Open Orders”: ${metrics.openOrders}\n` +
+    `“Active Shipments”: ${metrics.activeShipments}\n` +
+    `“Escrow Balance”: £${metrics.escrowBalance}\n\n` +
+    `Select one of the buttons below, or type a question in the input bar.`
+  )
+
+  // 4) “Visual” side placeholder:
+  const [visualContent, setVisualContent] = useState<string>(
+    'Select a button or ask a question to see visual output here.'
+  )
+
+  // 5) When a buyer‐button is clicked, update terminal & visual panes:
+  const handleButtonClick = (tabKey: BuyerTab) => {
+    // In a full implementation, you’d fetch real data & render. Here we just stub:
+    switch (tabKey) {
+      case 'dealFlow':
+        setTerminalOutput(
+          `→ Fetching Deal Flow…\n` +
+          `You have no active deals right now.`
+        )
+        setVisualContent('📈 No active deals to visualize.')
+        break
+      case 'shipments':
+        setTerminalOutput(
+          `→ Checking active shipments…\n` +
+          `You have ${metrics.activeShipments} shipments in progress.`
+        )
+        setVisualContent('📦 No shipments to display graph of.')
+        break
+      case 'messages':
+        setTerminalOutput(
+          `→ Opening your messages…\n` +
+          `You have no new messages.`
+        )
+        setVisualContent('✉️ Inbox is empty.')
+        break
+      case 'escrow':
+        setTerminalOutput(
+          `→ Checking escrow balance…\n` +
+          `Your current escrow balance is £${metrics.escrowBalance}.`
+        )
+        setVisualContent('🔒 Escrow: £' + metrics.escrowBalance)
+        break
+      case 'contracts':
+        setTerminalOutput(
+          `→ Fetching contracts…\n` +
+          `No contracts available.`
+        )
+        setVisualContent('📝 No contracts to show.')
+        break
+      case 'suppliers':
+        setTerminalOutput(
+          `→ Fetching supplier list…\n` +
+          `No suppliers found.`
+        )
+        setVisualContent('🏷️ Supplier list is empty.')
+        break
+      case 'products':
+        setTerminalOutput(
+          `→ Fetching available products…\n` +
+          `No products currently listed.`
+        )
+        setVisualContent('🛍️ No products to display.')
+        break
+      default:
+        setTerminalOutput(`Unknown button clicked.`)
+        setVisualContent('')
+        break
+    }
+  }
+
+  // 6) When “Send” is clicked, pretend to send the terminalInput to an AI, then clear input:
+  const handleSend = () => {
+    if (!terminalInput.trim()) return
+    // Stub: in a real app, send `terminalInput` to an AI endpoint.
+    const userText = terminalInput.trim()
+    setTerminalOutput((prev) =>
+      prev +
+      `\n\n> ${userText}\n` +
+      `AI: Sorry, I can’t actually process that in this stub.`
+    )
+    setTerminalInput('')
+    // Optionally update visualContent if needed:
+    setVisualContent('🤖 (AI visual output stub)')
+  }
+
+  // 7) Loading / error states:
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <p className="text-gray-600">Loading dashboard…</p>
       </div>
     )
   }
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <p className="text-red-500">{error}</p>
       </div>
     )
   }
 
-  // 5) render
   return (
-    <main className="min-h-screen bg-gray-50 p-6 max-w-7xl mx-auto">
-      {/* live pricing chart */}
-      <div className="bg-white p-4 rounded shadow mb-6">
-        <h2 className="text-lg font-semibold mb-2">
-          Live Ask Price (per tonne)
-        </h2>
-        <Chart data={chartData} />
+    // Outer wrapper ensures we can have a fixed bottom bar overlapping content.
+    <div className="bg-gray-50 min-h-screen relative">
+
+      {/* Spacer for sticky navbar (height: 4rem) */}
+      <div className="h-16" />
+
+      {/* ───────────────────────────────────────────────────────────────────────── */}
+      {/* Main split area: Text Terminal (left) | Visual Output (right)            */}
+      {/* We add 20px padding on either side to widen the usable area by 40px total */}
+      <div className="flex" style={{ margin: '0 20px' }}>
+        {/* Left half: Text terminal output */}
+        <div className="flex-1 border-r border-gray-300 p-4 overflow-auto" style={{ height: 'calc(100vh - 4rem - 4rem)' }}>
+          {/* “calc(100vh - navbarHeight - terminalBarHeight)” */}
+          <pre className="font-mono text-sm whitespace-pre-wrap text-gray-800">
+            {terminalOutput}
+          </pre>
+        </div>
+
+        {/* Right half: Visual area */}
+        <div className="flex-1 p-4 overflow-auto" style={{ height: 'calc(100vh - 4rem - 4rem)' }}>
+          <div className="h-full flex items-center justify-center text-gray-500 text-sm">
+            {visualContent}
+          </div>
+        </div>
       </div>
 
-      {/* tab nav */}
-      <nav className="mb-4 border-b">
-        {[
-          ['Deal Flow', 'dealFlow'],
-          ['Notifications', 'notifications'],
-          ['Escrow', 'escrow'],
-          ['Deliveries', 'deliveries'],
-          ['Orders', 'orders'],
-          ['Supplier List', 'supplierList'],
-          ['Available Products', 'products'],
-        ].map(([label, id]) => (
+      {/* ───────────────────────────────────────────────────────────────────────── */}
+      {/* Fixed terminal bar at bottom */}
+      <div
+        className="fixed bottom-0 left-0 w-full bg-white border-t border-gray-300 p-4 flex items-center"
+        style={{ margin: '0 20px', height: '4rem' }}
+      >
+        {/* Left: Text input + Send button */}
+        <div className="flex items-center flex-1">
+          <input
+            type="text"
+            placeholder={`Type a question (e.g. “Build my sales report”)`}
+            value={terminalInput}
+            onChange={(e) => setTerminalInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                handleSend()
+              }
+            }}
+            className="
+              flex-1
+              h-12
+              px-4
+              border border-black
+              rounded-l-md
+              text-gray-700
+              placeholder-gray-400
+              focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent
+            "
+          />
           <button
-            key={id}
-            onClick={() => setTab(id as Tab)}
-            className={`px-4 py-2 -mb-px ${
-              tab === id
-                ? 'border-b-2 border-blue-600 font-semibold'
-                : 'text-gray-600 hover:text-gray-800'
-            }`}
+            onClick={handleSend}
+            className="
+              h-12
+              px-6
+              bg-black
+              text-white
+              font-medium
+              rounded-r-md
+              hover:bg-gray-800
+              focus:outline-none focus:ring-2 focus:ring-blue-400
+              ml-2
+            "
           >
-            {label}
+            Send
           </button>
-        ))}
-      </nav>
+        </div>
 
-      {/* tab panels */}
-      {tab === 'dealFlow' && (
-        <section className="bg-white p-4 rounded shadow">
-          {deals.length === 0 ? (
-            <p className="text-gray-500">🤝 No active deals.</p>
-          ) : (
-            <ul>
-              {deals.map(d => (
-                <li key={d.id} className="mb-2">
-                  Deal #{d.id}: {d.product_title} – {d.status}
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
-      )}
-
-      {tab === 'notifications' && (
-        <section className="bg-white p-4 rounded shadow">
-          <p className="text-gray-500">🔔 No notifications.</p>
-        </section>
-      )}
-
-      {tab === 'escrow' && (
-        <section className="bg-white p-4 rounded shadow">
-          <p className="text-gray-500">🔒 Escrow empty.</p>
-        </section>
-      )}
-
-      {tab === 'deliveries' && (
-        <section className="bg-white p-4 rounded shadow">
-          <p className="text-gray-500">🚚 No deliveries.</p>
-        </section>
-      )}
-
-      {tab === 'orders' && (
-        <section className="bg-white p-4 rounded shadow">
-          <p className="text-gray-500">📦 No orders.</p>
-        </section>
-      )}
-
-      {tab === 'supplierList' && (
-        <section className="bg-white p-4 rounded shadow">
-          <p className="text-gray-500">🏷️ No suppliers found.</p>
-        </section>
-      )}
-
-      {tab === 'products' && (
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {products.map(p => (
-            <div
-              key={p.id}
-              className="bg-white p-4 rounded shadow flex flex-col"
+        {/* Right: Buyer‐specific buttons */}
+        <div className="flex space-x-2 ml-4">
+          {BUYER_BUTTONS.map((btn) => (
+            <button
+              key={btn.key}
+              onClick={() => handleButtonClick(btn.key)}
+              className="
+                border border-black
+                rounded-md
+                px-3 py-2
+                bg-white
+                text-gray-800
+                hover:bg-gray-100
+                focus:outline-none focus:ring-2 focus:ring-blue-400
+              "
             >
-              <img
-                src={`${process.env.NEXT_PUBLIC_API_URL}${p.image_url}`}
-                alt={p.title}
-                className="h-40 w-full object-cover rounded mb-2"
-                onError={e => { (e.target as any).src = '/placeholder.jpg' }}
-              />
-              <h3 className="text-lg font-semibold">{p.title}</h3>
-              <p className="text-sm text-gray-700 mt-1">{p.description}</p>
-              <p className="text-sm text-gray-500 mt-1">{p.origin_country}</p>
-              <p className="text-lg font-bold mt-2">${p.price_per_kg}/kg</p>
-              <button
-                onClick={() => window.location.href = `/deals/create/${p.id}`}
-                className="mt-auto bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-              >
-                Contact Supplier
-              </button>
-            </div>
+              {btn.label}
+            </button>
           ))}
-        </section>
-      )}
-    </main>
+        </div>
+      </div>
+    </div>
   )
 }
 
