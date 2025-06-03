@@ -37,5 +37,4 @@ __pycache__/
 .firebase/**/hosting.*.cache
 # Ignore local and production env files
 .env.local
-cloudrun-env.yaml
 env.yaml
