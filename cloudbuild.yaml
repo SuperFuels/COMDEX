@@ -5,87 +5,72 @@ substitutions:
   _REGION: us-central1
 
 steps:
-  # ─────────────────────────────────────────────────────────────────────────────
-  # STEP 1: Build & export the frontend into "frontend/out"
-  # ─────────────────────────────────────────────────────────────────────────────
+  # ─── 0) Build the FRONTEND with Node 18 ─────────────────────────────
+  - id: "frontend-build"
+    name: "gcr.io/cloud-builders/nodejs:18"
+    entrypoint: "bash"
+    args:
+      - "-c"
+      - |
+        cd frontend
+        npm ci
+        npm run build
+        npm run export
+        # Copy the `out/` directory into backend/static so backend can serve it
+        rm -rf ../backend/static
+        mkdir -p ../backend/static
+        cp -r out/* ../backend/static/
 
-  # 1a) Install frontend dependencies (inside frontend/)
-  - name: 'gcr.io/cloud-builders/npm'
-    id: 'frontend-npm-install'
-    dir: 'frontend'
-    args: ['ci']
-
-  # 1b) Build the Next.js app (generates .next/)
-  - name: 'gcr.io/cloud-builders/npm'
-    id: 'frontend-build'
-    dir: 'frontend'
-    args: ['run', 'build']
-
-  # 1c) Export the Next.js site to static HTML in frontend/out/
-  - name: 'gcr.io/cloud-builders/npm'
-    id: 'frontend-export'
-    dir: 'frontend'
-    args: ['run', 'export']
-
-  # ─────────────────────────────────────────────────────────────────────────────
-  # STEP 2: Build and push the backend Docker image
-  #         (which must include the prebuilt frontend/out/)
-  # ─────────────────────────────────────────────────────────────────────────────
-
-  # 2a) Build the Docker image (no-cache) and tag with both $BUILD_ID and :latest.
-  - name: 'gcr.io/cloud-builders/docker'
-    id: 'docker-build'
+  # ─── 1) Build the Docker image (no-cache) and tag it with $BUILD_ID & latest ─
+  - id: "docker-build"
+    name: "gcr.io/cloud-builders/docker"
     args:
       [
-        'build',
-        '--no-cache',
-        '-f', 'Dockerfile',
-        '-t', 'gcr.io/$PROJECT_ID/${_SERVICE}:$BUILD_ID',
-        '-t', 'gcr.io/$PROJECT_ID/${_SERVICE}:latest',
-        '.'
+        "build",
+        "--no-cache",
+        "-f", "Dockerfile",
+        "-t", "gcr.io/$PROJECT_ID/${_SERVICE}:$BUILD_ID",
+        "-t", "gcr.io/$PROJECT_ID/${_SERVICE}:latest",
+        "."
       ]
 
-  # 2b) Push the "$BUILD_ID" tag
-  - name: 'gcr.io/cloud-builders/docker'
-    id: 'docker-push-buildid'
+  # ─── 2) Push the build-ID tag ──────────────────────────────────────────
+  - id: "docker-push-buildid"
+    name: "gcr.io/cloud-builders/docker"
     args:
       [
-        'push',
-        'gcr.io/$PROJECT_ID/${_SERVICE}:$BUILD_ID'
+        "push",
+        "gcr.io/$PROJECT_ID/${_SERVICE}:$BUILD_ID"
       ]
 
-  # 2c) Push the ":latest" tag
-  - name: 'gcr.io/cloud-builders/docker'
-    id: 'docker-push-latest'
+  # ─── 3) Push the latest tag ───────────────────────────────────────────
+  - id: "docker-push-latest"
+    name: "gcr.io/cloud-builders/docker"
     args:
       [
-        'push',
-        'gcr.io/$PROJECT_ID/${_SERVICE}:latest'
+        "push",
+        "gcr.io/$PROJECT_ID/${_SERVICE}:latest"
       ]
 
-  # ─────────────────────────────────────────────────────────────────────────────
-  # STEP 3: Deploy the newly pushed image to Cloud Run
-  # ─────────────────────────────────────────────────────────────────────────────
-
-  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    id: 'deploy-cloud-run'
-    entrypoint: gcloud
+  # ─── 4) Deploy to Cloud Run ────────────────────────────────────────────
+  - id: "deploy-cloud-run"
+    name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    entrypoint: "gcloud"
     args:
       [
-        'run', 'deploy', '${_SERVICE}',
-        '--image', 'gcr.io/$PROJECT_ID/${_SERVICE}:$BUILD_ID',
-        '--region', '$_REGION',
-        '--platform', 'managed',
-        '--allow-unauthenticated',
-        '--add-cloudsql-instances=swift-area-459514-d1:us-central1:comdex-db',
-        '--vpc-connector=comdex-connector',
-        '--vpc-egress=private-ranges-only',
-        '--env-vars-file=cloudrun-env.yaml',
-        '--timeout=300s',
-        '--port=8080'
+        "run", "deploy", "${_SERVICE}",
+        "--image", "gcr.io/$PROJECT_ID/${_SERVICE}:$BUILD_ID",
+        "--region", "${_REGION}",
+        "--platform", "managed",
+        "--allow-unauthenticated",
+        "--add-cloudsql-instances=swift-area-459514-d1:us-central1:comdex-db",
+        "--vpc-connector=comdex-connector",
+        "--vpc-egress=private-ranges-only",
+        "--env-vars-file=cloudrun-env.yaml",
+        "--timeout=300s",
+        "--port=8080"
       ]
 
-# Tell Cloud Build which images were produced
 images:
-  - 'gcr.io/$PROJECT_ID/${_SERVICE}:$BUILD_ID'
-  - 'gcr.io/$PROJECT_ID/${_SERVICE}:latest'
+  - "gcr.io/$PROJECT_ID/${_SERVICE}:$BUILD_ID"
+  - "gcr.io/$PROJECT_ID/${_SERVICE}:latest"
