@@ -2,23 +2,22 @@
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // → this makes `next build` also produce an `out/` folder
-  output: 'export',
+  // Remove `output: 'export'` so that Vercel deploys your /api routes as serverless functions
 
-  // ensure every route ends with a slash so static files land in folders
+  // Ensure every route ends with a slash if you prefer that style
   trailingSlash: true,
 
-  // if you’re using next/image, you need this to avoid the image‐optimization API
+  // If you’re using next/image, disable the built-in optimizer
   images: {
     unoptimized: true,
   },
 
-  // keep ESLint from failing your build
+  // Let ESLint warnings/errors pass during builds
   eslint: {
     ignoreDuringBuilds: true,
   },
 
-  // expose your API URL to the client
+  // Expose your API URL (set this in .env.local)
   env: {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
   },

@@ -10,8 +10,13 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 
-from eth_account import Account
-from eth_account.messages import encode_defunct
+# ─── Attempt to import eth_account; if unavailable, fall back to None ────
+try:
+    from eth_account import Account
+    from eth_account.messages import encode_defunct
+except ImportError:
+    Account = None
+    encode_defunct = None
 
 from ..database import get_db
 from ..models.user import User
@@ -90,6 +95,12 @@ def verify_siwe(
     Validate a SIWE message + signature. Auto-provision a 'buyer' user
     if wallet_address not in DB. Returns (user, jwt_token).
     """
+    if Account is None or encode_defunct is None:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="SIWE functionality is not available on this server."
+        )
+
     # 1) parse & recover address
     msg = encode_defunct(text=message)
     signer = Account.recover_message(msg, signature=signature).lower()
