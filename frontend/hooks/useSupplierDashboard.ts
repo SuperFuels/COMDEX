@@ -1,58 +1,29 @@
-// frontend/hooks/useSupplierDashboard.ts
+// File: frontend/hooks/useSupplierDashboard.ts
+
 import { useState, useEffect } from 'react'
 import api from '@/lib/api'
 
-export interface Product {
-  id: number
-  title: string
-  category: string
-  origin_country: string
-  price_per_kg: number
-  image_url: string
-}
-
-export interface SupplierDashboardData {
-  totalSalesToday: number
-  activeListings: number
-  openOrders: number
-  proceeds30d: number
-  feedbackRating: number
-  products: Product[]
-}
-
 export default function useSupplierDashboard() {
-  const [data, setData] = useState<SupplierDashboardData | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [data, setData] = useState<any>(null)
+  const [loading, setLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    async function load() {
-      setLoading(true)
+    async function fetchDashboard() {
       try {
-        // fetch only your own products
-        const res = await api.get<Product[]>('/products/me')
-        const products = res.data
-
-        // derive stub metrics — you can wire these up to real endpoints later
-        const dashboard: SupplierDashboardData = {
-          totalSalesToday: 0,
-          activeListings: products.length,
-          openOrders: 0,
-          proceeds30d: 0,
-          feedbackRating: 0,
-          products
-        }
-
-        setData(dashboard)
-      } catch (err) {
-        console.error('useSupplierDashboard failed', err)
-        setError('Unable to load dashboard data.')
+        // Explicitly call your Cloud Run backend via the NEXT_PUBLIC_API_URL
+        // For example, if NEXT_PUBLIC_API_URL="https://comdex-api-XXXX.us-central1.run.app/api"
+        const endpoint = `${process.env.NEXT_PUBLIC_API_URL}/supplier/dashboard`
+        const resp = await api.get(endpoint)
+        setData(resp.data)
+      } catch (err: any) {
+        setError(err.message || 'Error fetching data')
       } finally {
         setLoading(false)
       }
     }
 
-    load()
+    fetchDashboard()
   }, [])
 
   return { data, loading, error }

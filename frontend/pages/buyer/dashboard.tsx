@@ -1,10 +1,10 @@
-// pages/buyer/dashboard.tsx
-import { useEffect, useState, useRef } from 'react'
+// File: frontend/pages/buyer/dashboard.tsx
+
+import { useEffect, useState } from 'react'
 import useAuthRedirect from '@/hooks/useAuthRedirect'
 import api from '@/lib/api'
 import Chart, { ChartPoint } from '@/components/Chart'
 
-// ─── BuyerMetrics type definition ─────────────────────────────────────
 interface BuyerMetrics {
   totalSalesToday: number
   openOrders: number
@@ -13,7 +13,6 @@ interface BuyerMetrics {
   activeDeals: number
 }
 
-// ─── Five metrics with labels/colors ──────────────────────────────────
 const METRICS = [
   { key: 'totalSalesToday',   label: 'Sales Today',        color: 'text-blue-600' },
   { key: 'openOrders',        label: 'Open Orders',        color: 'text-green-600' },
@@ -22,7 +21,6 @@ const METRICS = [
   { key: 'activeDeals',       label: 'Active Deals',       color: 'text-blue-600' },
 ]
 
-// ─── Command‐button labels (will prefill+send) ───────────────────────
 const COMMAND_TABS = [
   'Deal Flow',
   'Shipments',
@@ -38,24 +36,26 @@ export default function BuyerDashboard() {
   useAuthRedirect('buyer')
 
   // 2) State for buyer metrics
-  const [metrics, setMetrics]             = useState<BuyerMetrics | null>(null)
-  const [loadingMetrics, setLoadingMetrics] = useState(true)
-  const [errorMetrics, setErrorMetrics]     = useState<string | null>(null)
+  const [metrics, setMetrics]                 = useState<BuyerMetrics | null>(null)
+  const [loadingMetrics, setLoadingMetrics]   = useState(true)
+  const [errorMetrics, setErrorMetrics]       = useState<string | null>(null)
 
   // 3) State for AI terminal
-  const [queryText, setQueryText]         = useState('')
-  const [analysisText, setAnalysisText]   = useState<string>('')
-  const [chartData, setChartData]         = useState<ChartPoint[] | null>(null)
-  const [searchResults, setSearchResults] = useState<any[] | null>(null)
-  const [nextPage, setNextPage]           = useState<number | null>(null)
-  const [isProcessing, setIsProcessing]   = useState(false)
+  const [queryText, setQueryText]             = useState('')
+  const [analysisText, setAnalysisText]       = useState<string>('')
+  const [chartData, setChartData]             = useState<ChartPoint[] | null>(null)
+  const [searchResults, setSearchResults]     = useState<any[] | null>(null)
+  const [nextPage, setNextPage]               = useState<number | null>(null)
+  const [isProcessing, setIsProcessing]       = useState(false)
 
-  // 4) On‐mount: fetch buyer metrics
+  // ─── 4) On‐mount: fetch buyer metrics from backend
   useEffect(() => {
     let isMounted = true
+
     async function fetchMetrics() {
       try {
-        // Suppose your backend has GET /api/buyer/dashboard → BuyerMetrics
+        // Because lib/api.ts has baseURL = NEXT_PUBLIC_API_URL,
+        // api.get('/buyer/dashboard') actually requests `${NEXT_PUBLIC_API_URL}/buyer/dashboard`
         const res = await api.get<BuyerMetrics>('/buyer/dashboard')
         if (isMounted) {
           setMetrics(res.data)
@@ -75,15 +75,17 @@ export default function BuyerDashboard() {
         if (isMounted) setLoadingMetrics(false)
       }
     }
+
     fetchMetrics()
     return () => {
       isMounted = false
     }
   }, [])
 
-  // 5) Send / Enter handler
+  // ─── 5) Send / Enter handler: call Cloud Run via NEXT_PUBLIC_API_URL
   const handleSend = async () => {
     if (!queryText.trim()) return
+
     setIsProcessing(true)
     setAnalysisText('')
     setChartData(null)
@@ -91,17 +93,20 @@ export default function BuyerDashboard() {
     setNextPage(null)
 
     try {
-      const resp = await fetch('/api/terminal/query', {
+      // POST directly to `${NEXT_PUBLIC_API_URL}/terminal/query`
+      const endpoint = `${process.env.NEXT_PUBLIC_API_URL}/terminal/query`
+      const resp = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt: queryText.trim() }),
       })
+
       const json = await resp.json()
 
       // Always show analysisText on the left
       setAnalysisText(json.analysisText || '')
 
-      // If this is a product search, json.visualPayload.products is an array
+      // If this is a product search, visualPayload.products is an array
       if (Array.isArray((json.visualPayload as any).products)) {
         setSearchResults((json.visualPayload as any).products)
         setNextPage((json.visualPayload as any).nextPage ?? null)
@@ -139,7 +144,10 @@ export default function BuyerDashboard() {
   const loadNextPage = async () => {
     if (!nextPage) return
     setIsProcessing(true)
+
     try {
+      // api.get uses the baseURL = NEXT_PUBLIC_API_URL, so this calls
+      // `${NEXT_PUBLIC_API_URL}/products?search=...&limit=10&page=${nextPage}`
       const resp = await api.get<any[]>(
         `/products?search=${encodeURIComponent(queryText.trim())}&limit=10&page=${nextPage}`
       )
@@ -174,10 +182,10 @@ export default function BuyerDashboard() {
 
   return (
     <div className="bg-gray-50 min-h-screen flex flex-col">
-      {/* ─── Spacer for sticky Navbar (height = 4rem) ────────────────── */}
+      {/* ─── Spacer for sticky Navbar (height = 4rem) ───────────────── */}
       <div className="h-16" />
 
-      {/* ─── Main “Text | Visual” area ──────────────────────────────── */}
+      {/* ─── Main “Text | Visual” area ────────────────────────────── */}
       <main className="flex-1 max-w-[calc(100%-40px)] mx-auto px-2">
         <div className="flex h-[calc(100vh-4rem-4rem)]">
           {/* ── Left Pane: Greeting, metrics, AI analysis ─────────── */}
@@ -185,6 +193,7 @@ export default function BuyerDashboard() {
             <div className="h-full font-mono text-gray-800 text-sm">
               {/* Greeting */}
               <p className="mb-2">Hello, Buyer — welcome to Central Command.</p>
+
               {/* Metrics */}
               {METRICS.map((mt) => {
                 const rawVal = (m as any)[mt.key] ?? 0
@@ -207,10 +216,10 @@ export default function BuyerDashboard() {
             </div>
           </div>
 
-          {/* ── Vertical Divider ─────────────────────────────────────── */}
+          {/* ── Vertical Divider ─────────────────────────────────── */}
           <div className="w-px bg-gray-300" />
 
-          {/* ── Right Pane: Chart or Product List ───────────────────── */}
+          {/* ── Right Pane: Chart or Product List ───────────────── */}
           <div className="flex-1 overflow-y-auto pl-2">
             {searchResults ? (
               <div className="space-y-4">
@@ -266,7 +275,7 @@ export default function BuyerDashboard() {
         </div>
       </main>
 
-      {/* ─── Fixed Bottom “Terminal” Bar ───────────────────────────────── */}
+      {/* ─── Fixed Bottom “Terminal” Bar ───────────────────────── */}
       <footer className="fixed bottom-0 left-0 w-full bg-white border-t border-gray-300 py-4">
         <div className="max-w-[calc(100%-40px)] mx-auto px-2">
           <div className="flex">
