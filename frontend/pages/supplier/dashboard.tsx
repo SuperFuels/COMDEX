@@ -1,23 +1,72 @@
-// frontend/pages/supplier/dashboard.tsx
+// File: frontend/pages/supplier/dashboard.tsx
+
 import { useEffect, useState, useRef } from 'react'
 import useAuthRedirect from '@/hooks/useAuthRedirect'
-import useSupplierDashboard from '@/hooks/useSupplierDashboard'
 import Chart, { ChartPoint } from '@/components/Chart'
+import api from '@/lib/api'
+
+type SupplierData = {
+  totalSalesToday: number
+  activeListings: number
+  openOrders: number
+  proceeds30d: number
+  feedbackRating: number
+  products: {
+    id: number
+    title: string
+    description: string
+    price_per_kg: number
+    origin_country: string
+    image_url: string
+  }[]
+}
 
 export default function SupplierDashboard() {
   // 1) Ensure only suppliers can view this page
   useAuthRedirect('supplier')
 
-  // 2) Fetch supplier data (metrics + products)
-  const { data, loading, error } = useSupplierDashboard()
+  // 2) Local state for supplier data, loading, error
+  const [data, setData] = useState<SupplierData | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   // 3) Track which tab was clicked
   const [selectedTab, setSelectedTab] = useState<string>('')
 
-  // 4) A ref for scrolling left pane if desired in the future
+  // 4) A ref for scrolling the left pane if needed
   const leftPaneRef = useRef<HTMLDivElement>(null)
 
-  // Show loading / error if needed
+  // 5) On‐mount: fetch supplier data from Cloud Run via NEXT_PUBLIC_API_URL
+  useEffect(() => {
+    let isMounted = true
+
+    async function fetchDashboard() {
+      try {
+        // Build the full Cloud Run endpoint
+        const endpoint = `${process.env.NEXT_PUBLIC_API_URL}/supplier/dashboard`
+        const resp = await api.get<SupplierData>(endpoint)
+        if (isMounted) {
+          setData(resp.data)
+        }
+      } catch (err: any) {
+        console.error('[SupplierDashboard] fetch failed:', err)
+        if (isMounted) {
+          setError(err.message || 'Error fetching supplier data')
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false)
+        }
+      }
+    }
+
+    fetchDashboard()
+    return () => {
+      isMounted = false
+    }
+  }, [])
+
+  // 6) Show loading / error states
   if (loading || !data) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-bg-page">
@@ -25,6 +74,7 @@ export default function SupplierDashboard() {
       </div>
     )
   }
+
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-bg-page">
@@ -33,57 +83,58 @@ export default function SupplierDashboard() {
     )
   }
 
-  // 5) Prepare metrics for display
-  const METRICS = [
-    { key: 'totalSalesToday', label: 'Sales Today' },
-    { key: 'activeListings',   label: 'Active Listings' },
-    { key: 'openOrders',       label: 'Open Orders' },
-    { key: 'proceeds30d',      label: '30d Proceeds' },
-    { key: 'feedbackRating',   label: 'Feedback' },
+  // 7) At this point, data is non‐null
+  //    Extract metrics + products
+  const metricsOutput = [
+    {
+      label: 'Sales Today',
+      value: data.totalSalesToday,
+      color: 'text-blue-600',
+    },
+    {
+      label: 'Active Listings',
+      value: data.activeListings,
+      color: 'text-green-600',
+    },
+    {
+      label: 'Open Orders',
+      value: data.openOrders,
+      color: 'text-green-600',
+    },
+    {
+      label: '30d Proceeds',
+      value: `£${data.proceeds30d}`,
+      color: 'text-blue-600',
+    },
+    {
+      label: 'Feedback',
+      value: data.feedbackRating,
+      color: 'text-purple-600',
+    },
   ]
 
-  const metricsOutput = METRICS.map((m) => {
-    const rawValue = (data as any)[m.key]
-    if (m.key === 'proceeds30d') {
-      return {
-        label: m.label,
-        value: `£${rawValue}`,
-        color: 'text-blue-600',
-      }
-    }
-    if (m.key === 'feedbackRating') {
-      return { label: m.label, value: rawValue, color: 'text-purple-600' }
-    }
-    if (m.key === 'totalSalesToday') {
-      return { label: m.label, value: rawValue, color: 'text-blue-600' }
-    }
-    // activeListings & openOrders → green
-    return { label: m.label, value: rawValue, color: 'text-green-600' }
-  })
-
-  // 6) Dummy 24‐point time series for <Chart>
-  const sampleChartData: ChartPoint[] = Array.from({ length: 24 }, (_, i) => ({
+  // 8) Dummy 24‐point time series for the “Sales” chart
+  const sampleChartData: ChartPoint[] = Array.from({ length: 24 }, (_ , i) => ({
     time: Math.floor(Date.now() / 1000) - (23 - i) * 3600,
     value:
       (data.products.length > 0
         ? data.products[0].price_per_kg
-        : 1) * 1000 +
-      (Math.random() - 0.5) * 500,
+        : 1) * 1000 + (Math.random() - 0.5) * 500,
   }))
 
   return (
     <div className="bg-bg-page min-h-screen flex flex-col">
-      {/* ─── Spacer for sticky Navbar (height = 4rem) ─────────────────── */}
+      {/* Spacer for sticky Navbar (height = 4rem) */}
       <div className="h-16" />
 
-      {/* ─── Main “Text | Visual” area ──────────────────────────── */}
+      {/* Main “Text | Visual” area */}
       <main className="flex-1 max-w-[calc(100%-40px)] mx-auto px-2">
         <div className="flex h-[calc(100vh-4rem-4rem)]">
           {/* ── Left Pane: Text / Terminal ──────────────────────── */}
           <div ref={leftPaneRef} className="flex-1 overflow-auto pr-2">
             <div className="h-full font-mono text-text dark:text-text-secondary text-sm">
               {/* Greeting + Metrics */}
-              <p className="mb-2">Hello, Kevin — welcome to Central Command.</p>
+              <p className="mb-2">Hello, Supplier — welcome to Central Command.</p>
               {metricsOutput.map((m) => (
                 <p key={m.label} className="mb-1">
                   <span>{`“${m.label}”: `}</span>
@@ -91,7 +142,7 @@ export default function SupplierDashboard() {
                 </p>
               ))}
 
-              {/* AI Response / Instructions */}
+              {/* AI / Instructional Text */}
               <div className="mt-4">
                 {selectedTab === '' ? (
                   <p className="italic text-text-secondary">
@@ -102,11 +153,11 @@ export default function SupplierDashboard() {
                     {selectedTab === 'Sales' && (
                       <>
                         <p className="mb-2">→ Here is your sales summary for today:</p>
-                        <p className="mb-1">{`• “Sales Today”: ${ (data as any).totalSalesToday }`}</p>
-                        <p className="mb-1">{`• “Active Listings”: ${ (data as any).activeListings }`}</p>
-                        <p className="mb-1">{`• “Open Orders”: ${ (data as any).openOrders }`}</p>
-                        <p className="mb-1">{`• “30d Proceeds”: £${ (data as any).proceeds30d }`}</p>
-                        <p className="mb-1">{`• “Feedback”: ${ (data as any).feedbackRating }`}</p>
+                        <p className="mb-1">{`• “Sales Today”: ${data.totalSalesToday}`}</p>
+                        <p className="mb-1">{`• “Active Listings”: ${data.activeListings}`}</p>
+                        <p className="mb-1">{`• “Open Orders”: ${data.openOrders}`}</p>
+                        <p className="mb-1">{`• “30d Proceeds”: £${data.proceeds30d}`}</p>
+                        <p className="mb-1">{`• “Feedback”: ${data.feedbackRating}`}</p>
                       </>
                     )}
                     {selectedTab === 'Marketing' && (
@@ -177,6 +228,7 @@ export default function SupplierDashboard() {
                   text-sm text-text dark:text-text-secondary
                   focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
                 "
+                disabled
               />
               <button
                 className="
@@ -188,6 +240,7 @@ export default function SupplierDashboard() {
                   focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1
                   transition
                 "
+                disabled
               >
                 Send
               </button>
