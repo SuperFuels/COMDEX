@@ -20,9 +20,8 @@
     "incremental": true,                        // build incrementally
 
     // ── 3) Type Definitions ───────────────────────────────────────────────────
-    //   “types” array tells TS exactly which ambient type packages to include.
-    //   Here we explicitly include “node”, “next”, “react”, “react-dom”.
-    "types": ["node", "next", "react", "react-dom"],
+    //    We only need “node”, “next”, and “react” here. Next.js already provides react-dom types internally.
+    "types": ["node", "next", "react"],
 
     // ── 4) Path Aliases (so imports like "@/components/..." work) ─────────────
     "baseUrl": ".",
