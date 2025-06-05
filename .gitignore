@@ -38,3 +38,4 @@ __pycache__/
 # Ignore local and production env files
 .env.local
 env.yaml
+backend/.venv/
