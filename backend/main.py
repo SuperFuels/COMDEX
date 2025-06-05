@@ -11,53 +11,57 @@ from starlette.responses import RedirectResponse
 from sqlalchemy import text
 from sqlalchemy.exc import OperationalError
 
-# 1) ensure uploads folder exists
+# ─── 1) Ensure uploads folder exists ─────────────────────────────────────
+# If you serve user‐uploaded images/files under "/uploaded_images", create that dir.
 os.makedirs("uploaded_images", exist_ok=True)
 
-# 2) load .env locally (only when ENV != "production")
+# ─── 2) Load .env locally (only when ENV != "production") ───────────────
 if os.getenv("ENV", "").lower() != "production":
     from dotenv import load_dotenv
 
     load_dotenv()
 
-# 3) give Cloud SQL socket & VPC connector time on cold start
+# ─── 3) Give Cloud SQL socket & VPC connector time on cold start ───────
+# (Adjust the sleep time if your Cloud SQL takes longer on cold start.)
 time.sleep(3)
 
-# 4) set up logging
+# ─── 4) Set up logging ───────────────────────────────────────────────────
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("comdex")
 
-# 5) log the actual DB URL
-from .config import SQLALCHEMY_DATABASE_URL
+# ─── 5) Log the actual DB URL (for troubleshooting) ─────────────────────
+from .config import SQLALCHEMY_DATABASE_URL  # noqa: F401
 
 logger.info(f"🔍 SQLALCHEMY_DATABASE_URL = {SQLALCHEMY_DATABASE_URL}")
 
-# 6) import engine, Base, session dependency
+# ─── 6) Import engine, Base, get_db dependency ──────────────────────────
 from .database import engine, Base, get_db  # noqa: F401
 
-# 7) import models so all ORM classes register
+# ─── 7) Import models so all ORM classes register ───────────────────────
 import backend.models  # noqa: F401
 
-# 8) auto-create missing tables
+# ─── 8) Auto‐create missing tables ──────────────────────────────────────
 Base.metadata.create_all(bind=engine)
 logger.info("✅ Database tables checked/created.")
 
-# 9) instantiate FastAPI
+# ─── 9) Instantiate FastAPI ─────────────────────────────────────────────
 app = FastAPI(
     title="COMDEX API",
     version="1.0.0",
     description="Global Commodity Marketplace API",
 )
 
-# ─── 10) GLOBAL CORS ────────────────────────────────────────────────
+# ─── 10) GLOBAL CORS ─────────────────────────────────────────────────────
+# Read comma‐separated CORS_ALLOWED_ORIGINS from environment (e.g.:
+# CORS_ALLOWED_ORIGINS="https://your‐front.app,https://your‐preview.vercel.app")
 raw = os.getenv("CORS_ALLOWED_ORIGINS", "")
 allowed_origins = [o.strip() for o in raw.split(",") if o.strip()]
 
-# Include localhost in non-prod
+# In non‐production, allow localhost:3000 by default
 if os.getenv("ENV", "").lower() != "production":
     allowed_origins.append("http://localhost:3000")
 
-# And your Firebase-hosted front end
+# Always allow your Firebase‐hosted front end (if applicable)
 allowed_origins.append("https://swift-area-459514-d1.web.app")
 
 if not allowed_origins:
@@ -70,22 +74,24 @@ logger.info(f"✅ CORS allowed_origins = {allowed_origins}")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allowed_origins,
+    allow_origins=allowed_origins,       # Only these origins can make requests
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["*"],                 # GET, POST, PUT, DELETE, etc.
+    allow_headers=["*"],                 # Any headers (e.g. Content-Type, Authorization)
 )
-# ──────────────────────────────────────────────────────────────────
+# ──────────────────────────────────────────────────────────────────────────
 
-# 11) serve user uploads
+# ─── 11) Serve user uploads at /uploaded_images ─────────────────────────
 app.mount(
     "/uploaded_images",
     StaticFiles(directory="uploaded_images"),
     name="uploaded_images",
 )
 
-# 12) serve Next.js “out” folder as static at the root path
-#     (the Dockerfile must copy `frontend/out/` → `backend/static/`)
+# ─── 12) Serve Next.js “out” folder as static at the root path ──────────
+# The Dockerfile (or your deployment script) must copy:
+#   frontend/out/ → backend/static/
+# so that a “static” folder exists here at runtime.
 if os.path.isdir("static"):
     app.mount(
         "/",
@@ -93,9 +99,11 @@ if os.path.isdir("static"):
         name="frontend",
     )
 else:
-    logger.warning("⚠️ 'static' directory not found: frontend/out must be copied to backend/static")
+    logger.warning(
+        "⚠️ 'static' directory not found: frontend/out must be copied to backend/static"
+    )
 
-# 13) include your routers (they will be mounted under /auth, /products, etc.)
+# ─── 13) Include your routers (mounted under /auth, /products, etc.) ─────
 from .routes.auth import router as auth_router
 from .routes.products import router as products_router
 from .routes.deal import router as deal_router
@@ -110,12 +118,12 @@ app.include_router(contracts_router, tags=["Contracts"])
 app.include_router(admin_router, tags=["Admin"])
 app.include_router(user_router, tags=["Users"])
 
-# 14) Example: redirect no-slash /products → /products/
+# ─── 14) Redirect no‐slash endpoints (example: /products → /products/) ────
 @app.get("/products", include_in_schema=False)
 def products_no_slash():
     return RedirectResponse(url="/products/", status_code=307)
 
-# 15) health check
+# ─── 15) Health check endpoint ───────────────────────────────────────────
 @app.get("/health", tags=["Health"])
 def health_check():
     try:
