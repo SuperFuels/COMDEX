@@ -1,20 +1,10 @@
 {
   "compilerOptions": {
-    /** ───────────────────────────────────────────────────────────
-     * 1) Language / Module Settings
-     * ─────────────────────────────────────────────────────────── */
     "target": "ES2020",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "module": "ESNext",
     "moduleResolution": "Node",
     "jsx": "preserve",
-    /** ───────────────────────────────────────────────────────────
-     * 2) Interop / Resolution / Strictness
-     * ─────────────────────────────────────────────────────────── */
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
@@ -23,36 +13,22 @@
     "isolatedModules": true,
     "noEmit": true,
     "incremental": true,
-    /** ───────────────────────────────────────────────────────────
-     * 3) Type Definitions
-     * ─────────────────────────────────────────────────────────── */
+
+    // <— No "react-dom" here anymore
     "types": [
       "node",
       "next",
-      "react",
-      "react-dom"
+      "react"
     ],
-    /** ───────────────────────────────────────────────────────────
-     * 4) Path Aliases
-     *    Make "@/types" resolve to "types/index.ts" under frontend/
-     * ─────────────────────────────────────────────────────────── */
+
     "baseUrl": ".",
     "paths": {
-      "@/types": [
-        "types/index.ts"
-      ],
-      "@/types/*": [
-        "types/*"
-      ]
+      "@/types": ["types/index.ts"],
+      "@/types/*": ["types/*"]
     },
     "allowJs": true
   },
-  "include": [
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+
+  "include": [ "next-env.d.ts", "**/*.ts", "**/*.tsx" ],
+  "exclude": [ "node_modules" ]
 }
