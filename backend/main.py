@@ -17,7 +17,6 @@ os.makedirs("uploaded_images", exist_ok=True)
 # ─── 2) Load .env locally (only when ENV != "production") ───────────────
 if os.getenv("ENV", "").lower() != "production":
     from dotenv import load_dotenv
-
     load_dotenv()
 
 # ─── 3) Give Cloud SQL socket & VPC connector time on cold start ───────
@@ -29,7 +28,6 @@ logger = logging.getLogger("comdex")
 
 # ─── 5) Log the actual DB URL (for troubleshooting) ─────────────────────
 from .config import SQLALCHEMY_DATABASE_URL  # noqa: F401
-
 logger.info(f"🔍 SQLALCHEMY_DATABASE_URL = {SQLALCHEMY_DATABASE_URL}")
 
 # ─── 6) Import engine, Base, get_db dependency ──────────────────────────
@@ -100,7 +98,7 @@ else:
         "⚠️ 'static' directory not found: frontend/out must be copied to backend/static"
     )
 
-# ─── 13) Include your routers (mounted under /auth, /products, etc.) ─────
+# ─── 13) Include your routers (mounted under /api/auth, /products, etc.) ─
 from .routes.auth import router as auth_router
 from .routes.products import router as products_router
 from .routes.deal import router as deal_router
@@ -108,7 +106,8 @@ from .routes.contracts import router as contracts_router
 from .routes.admin import router as admin_router
 from .routes.user import router as user_router
 
-app.include_router(auth_router, tags=["Auth"])
+# Mount auth_router under /api/auth (not just /auth)
+app.include_router(auth_router, prefix="/api/auth", tags=["Auth"])
 app.include_router(products_router, tags=["Products"])
 app.include_router(deal_router, tags=["Deals"])
 app.include_router(contracts_router, tags=["Contracts"])
