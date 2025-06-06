@@ -26,13 +26,13 @@ class RegisterBody(BaseModel):
     role: Literal["buyer", "supplier"]
     wallet_address: Optional[str] = None
 
-    # supplier fields
+    # supplier‐specific fields
     business_name: Optional[str] = None
     address: Optional[str] = None
     delivery_address: Optional[str] = None
-    products: Optional[list[str]] = None  # list of slugs
+    products: Optional[list[str]] = None  # list of product slugs
 
-    # buyer fields
+    # buyer‐specific fields
     monthly_spend: Optional[str] = None
 
 
@@ -64,7 +64,7 @@ class ProfileOut(BaseModel):
 
 # ─── Router Setup ────────────────────────────────────────────────────────
 
-# We prefix every route here with "/api/auth"
+# Prefix all routes here with "/api/auth"
 router = APIRouter(prefix="/api/auth", tags=["Auth"])
 
 
@@ -92,13 +92,12 @@ def register(
     """
     Register a new user (buyer or supplier).
     POST /api/auth/register
-    Body: { name, email, password, role, (wallet_address), (supplier fields), (buyer fields) }
     """
-    # 1) Prevent duplicate email
+    # 1) Ensure email isn’t already taken
     if db.query(User).filter_by(email=body.email).first():
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Email already registered")
 
-    # 2) Normalize wallet if provided
+    # 2) If wallet_address provided, normalize it
     wallet = None
     if body.wallet_address:
         from web3 import Web3
@@ -107,7 +106,7 @@ def register(
         except Exception:
             raise HTTPException(status.HTTP_400_BAD_REQUEST, "Invalid wallet address format")
 
-    # 3) Create user record
+    # 3) Create User instance
     user = User(
         name            = body.name,
         email           = body.email,
@@ -115,10 +114,9 @@ def register(
         role            = body.role,
         wallet_address  = wallet,
         created_at      = datetime.utcnow(),
-        # updated_at set automatically by your model
     )
 
-    # 4) Apply role-specific fields
+    # 4) Set extra fields by role
     if body.role == "supplier":
         if not body.business_name or not body.products:
             raise HTTPException(
@@ -132,7 +130,7 @@ def register(
     else:  # buyer
         user.monthly_spend = body.monthly_spend or ""
 
-    # 5) Persist & issue JWT
+    # 5) Save and return JWT
     db.add(user)
     db.commit()
     db.refresh(user)
@@ -147,9 +145,8 @@ def login(
     db: Session = Depends(get_db),
 ):
     """
-    Log in an existing user using email + password.
+    Log in an existing user with email + password.
     POST /api/auth/login
-    Body: { email, password }
     """
     user = db.query(User).filter_by(email=body.email).first()
     if not user or not verify_password(body.password, user.password_hash):
@@ -167,7 +164,6 @@ def siwe_login(
     """
     Log in via SIWE (Sign-In With Ethereum).
     POST /api/auth/siwe
-    Body: { message, signature }
     """
     user, token = verify_siwe(body.message, body.signature, db)
     return {"token": token, "role": user.role}
@@ -178,7 +174,7 @@ def profile(
     current_user: User = Depends(get_current_user),
 ):
     """
-    Retrieve the current user’s profile (must send Authorization: Bearer <token> header).
+    Get current user’s profile (Authorization: Bearer <token>).
     GET /api/auth/profile
     """
     return current_user
