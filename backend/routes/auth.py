@@ -1,13 +1,6 @@
 # backend/routes/auth.py
 
-from fastapi import (
-    APIRouter,
-    Depends,
-    HTTPException,
-    Body,
-    status,
-    Query
-)
+from fastapi import APIRouter, Depends, HTTPException, Body, status, Query
 from typing import Literal, Optional
 from pydantic import BaseModel, EmailStr, Field
 from datetime import datetime
@@ -24,7 +17,7 @@ from ..utils.auth import (
     verify_siwe,
 )
 
-# ─── Schemas ────────────────────────────────────────────────────────────
+# ─── 1) Define Pydantic Schemas ──────────────────────────────────────────
 
 class RegisterBody(BaseModel):
     name: str = Field(..., min_length=1)
@@ -33,13 +26,13 @@ class RegisterBody(BaseModel):
     role: Literal["buyer", "supplier"]
     wallet_address: Optional[str] = None
 
-    # supplier fields
+    # supplier‐only fields
     business_name: Optional[str] = None
     address: Optional[str] = None
     delivery_address: Optional[str] = None
-    products: Optional[list[str]] = None  # list of slugs
+    products: Optional[list[str]] = None  # list of product slugs
 
-    # buyer fields
+    # buyer‐only fields
     monthly_spend: Optional[str] = None
 
 
@@ -69,9 +62,7 @@ class ProfileOut(BaseModel):
         from_attributes = True
 
 
-# ─── Router Setup ────────────────────────────────────────────────────────
-
-# We prefix every route here with "/api/auth"
+# ─── 2) Create APIRouter with prefix="/api/auth" ─────────────────────────
 router = APIRouter(prefix="/api/auth", tags=["Auth"])
 
 
@@ -81,7 +72,7 @@ def get_siwe_nonce(
 ) -> dict:
     """
     Generate and return a nonce for SIWE login.
-    GET /api/auth/nonce?address=<wallet_address>
+    GET  /api/auth/nonce?address=<wallet_address>
     """
     nonce = generate_nonce()
     return {"nonce": nonce}
@@ -98,7 +89,7 @@ def register(
 ):
     """
     Register a new user (buyer or supplier).
-    POST /api/auth/register
+    POST  /api/auth/register
     Body: { name, email, password, role, (wallet_address), (supplier fields), (buyer fields) }
     """
     # 1) Prevent duplicate email
@@ -122,7 +113,7 @@ def register(
         role            = body.role,
         wallet_address  = wallet,
         created_at      = datetime.utcnow(),
-        # updated_at is set automatically by your model’s onupdate
+        # updated_at set automatically by your SQLAlchemy model
     )
 
     # 4) Apply role-specific fields
@@ -154,8 +145,8 @@ def login(
     db: Session = Depends(get_db),
 ):
     """
-    Log in an existing user using email + password.
-    POST /api/auth/login
+    Log in an existing user via email + password.
+    POST  /api/auth/login
     Body: { email, password }
     """
     user = db.query(User).filter_by(email=body.email).first()
@@ -172,8 +163,8 @@ def siwe_login(
     db: Session = Depends(get_db),
 ):
     """
-    Log in via SIWE (Sign-In With Ethereum).
-    POST /api/auth/siwe
+    Log in via SIWE (Sign‐In With Ethereum).
+    POST  /api/auth/siwe
     Body: { message, signature }
     """
     user, token = verify_siwe(body.message, body.signature, db)
@@ -185,7 +176,7 @@ def profile(
     current_user: User = Depends(get_current_user),
 ):
     """
-    Retrieve the current user’s profile (requires Authorization: Bearer <token> header).
-    GET /api/auth/profile
+    Retrieve the current user’s profile (must send Authorization: Bearer <token> header).
+    GET  /api/auth/profile
     """
     return current_user
