@@ -47,35 +47,17 @@ app = FastAPI(
     description="Global Commodity Marketplace API",
 )
 
-# ─── 10) GLOBAL CORS ─────────────────────────────────────────────────────
-raw = os.getenv("CORS_ALLOWED_ORIGINS", "")
-allowed_origins = [o.strip() for o in raw.split(",") if o.strip()]
-
-# In non‐production, allow localhost:3000 by default
-if os.getenv("ENV", "").lower() != "production":
-    allowed_origins.append("http://localhost:3000")
-
-# Always allow your Firebase‐hosted front end
-allowed_origins.append("https://swift-area-459514-d1.web.app")
-
-if not allowed_origins:
-    raise RuntimeError(
-        "CORS_ALLOWED_ORIGINS must be set to at least one origin "
-        "(e.g. https://your-frontend.app)"
-    )
-
-logger.info(f"✅ CORS allowed_origins = {allowed_origins}")
-
+# ─── 10) GLOBAL CORS (DEBUG: allow all origins) ───────────────────────────
+logger.warning("⚠️  DEBUG CORS: allowing all origins temporarily")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allowed_origins,       # Only these origins can make requests
+    allow_origins=["*"],    # ← allow every origin (only for debugging)
     allow_credentials=True,
-    allow_methods=["*"],                 # GET, POST, PUT, DELETE, etc.
-    allow_headers=["*"],                 # Any headers (e.g. Content-Type, Authorization)
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
-# ─── 11) Include your routers (mounted under /api/auth, /products, etc.) ─────
-# Import them here:
+# ─── 11) Include your routers (mounted under /api/auth, /products, etc.) ─
 from .routes.auth import router as auth_router
 from .routes.products import router as products_router
 from .routes.deal import router as deal_router
@@ -83,7 +65,7 @@ from .routes.contracts import router as contracts_router
 from .routes.admin import router as admin_router
 from .routes.user import router as user_router
 
-# Mount each router.  auth_router already has prefix="/api/auth"
+# auth_router already has prefix="/api/auth"
 app.include_router(auth_router)
 app.include_router(products_router, tags=["Products"])
 app.include_router(deal_router, tags=["Deals"])
@@ -113,7 +95,7 @@ else:
         "⚠️ 'static' directory not found: frontend/out must be copied to backend/static"
     )
 
-# ─── 14) Redirect no‐slash endpoints (example: /products → /products/) ────
+# ─── 14) Redirect no‐slash endpoints (example: /products → /products/) ──
 @app.get("/products", include_in_schema=False)
 def products_no_slash():
     return RedirectResponse(url="/products/", status_code=307)
