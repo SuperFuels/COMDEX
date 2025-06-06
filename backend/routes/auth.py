@@ -64,7 +64,7 @@ class ProfileOut(BaseModel):
 
 # ─── Router Setup ────────────────────────────────────────────────────────
 
-# We prefix every route here with “/api/auth”
+# We prefix every route here with "/api/auth"
 router = APIRouter(prefix="/api/auth", tags=["Auth"])
 
 
