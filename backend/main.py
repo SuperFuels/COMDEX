@@ -11,52 +11,71 @@ from starlette.responses import RedirectResponse
 from sqlalchemy import text
 from sqlalchemy.exc import OperationalError
 
-# ─── 1) Create “uploaded_images” folder for user uploads ────────────────
+# ─── 1) Ensure “uploaded_images” folder exists (for static serving) ───────
 os.makedirs("uploaded_images", exist_ok=True)
 
-# ─── 2) Load .env in non-production ─────────────────────────────────────
+# ─── 2) Load .env locally if not in production ────────────────────────────
 if os.getenv("ENV", "").lower() != "production":
     from dotenv import load_dotenv
     load_dotenv()
 
-# ─── 3) Give Cloud SQL socket a few seconds on cold start ───────────────
+# ─── 3) Give Cloud SQL socket & VPC connector time on cold start ───────────
 time.sleep(3)
 
-# ─── 4) Set up logging ───────────────────────────────────────────────────
+# ─── 4) Set up logging ────────────────────────────────────────────────────
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("comdex")
 
-# ─── 5) Log the real database URL for debugging ─────────────────────────
+# ─── 5) Log the actual DB URL (for troubleshooting) ───────────────────────
 from .config import SQLALCHEMY_DATABASE_URL  # noqa: F401
 logger.info(f"🔍 SQLALCHEMY_DATABASE_URL = {SQLALCHEMY_DATABASE_URL}")
 
-# ─── 6) Import engine, Base, get_db ─────────────────────────────────────
+# ─── 6) Import engine, Base, and get_db dependency ─────────────────────────
 from .database import engine, Base, get_db  # noqa: F401
 
-# ─── 7) Import all ORM models so SQLAlchemy knows about them ─────────────
+# ─── 7) Import models so ORM tables register ───────────────────────────────
 import backend.models  # noqa: F401
 
-# ─── 8) Create any missing tables automatically ─────────────────────────
+# ─── 8) Auto-create missing tables ────────────────────────────────────────
 Base.metadata.create_all(bind=engine)
 logger.info("✅ Database tables checked/created.")
 
-# ─── 9) Instantiate FastAPI ─────────────────────────────────────────────
+# ─── 9) Instantiate FastAPI ───────────────────────────────────────────────
 app = FastAPI(
     title="COMDEX API",
     version="1.0.0",
     description="Global Commodity Marketplace API",
 )
 
-# ─── 10) GLOBAL CORS (allow everything for now) ──────────────────────────
+# ─── 10) GLOBAL CORS ──────────────────────────────────────────────────────
+# Read comma-separated CORS_ALLOWED_ORIGINS
+raw = os.getenv("CORS_ALLOWED_ORIGINS", "")
+allowed_origins = [o.strip() for o in raw.split(",") if o.strip()]
+
+# In non-production, allow localhost:3000 by default
+if os.getenv("ENV", "").lower() != "production":
+    allowed_origins.append("http://localhost:3000")
+
+# Always allow Firebase-hosted front end (if you still use it)
+allowed_origins.append("https://swift-area-459514-d1.web.app")
+
+if not allowed_origins:
+    raise RuntimeError(
+        "CORS_ALLOWED_ORIGINS must be set to at least one origin "
+        "(e.g. https://your-frontend.app)"
+    )
+
+logger.info(f"✅ CORS allowed_origins = {allowed_origins}")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],      # For production change this to specific origins
+    allow_origins=allowed_origins,
     allow_credentials=True,
-    allow_methods=["*"],      # GET, POST, PUT, DELETE, OPTIONS…
-    allow_headers=["*"],      # Any header
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
-# ─── 11) Include your routers under /api/auth, etc. ─────────────────────
+# ─── 11) Mount routers ────────────────────────────────────────────────────
 from .routes.auth import router as auth_router
 from .routes.products import router as products_router
 from .routes.deal import router as deal_router
@@ -66,21 +85,22 @@ from .routes.user import router as user_router
 
 # auth_router already has prefix="/api/auth"
 app.include_router(auth_router)
+
 app.include_router(products_router, tags=["Products"])
 app.include_router(deal_router, tags=["Deals"])
 app.include_router(contracts_router, tags=["Contracts"])
 app.include_router(admin_router, tags=["Admin"])
 app.include_router(user_router, tags=["Users"])
 
-# ─── 12) Serve user uploads at /uploaded_images ─────────────────────────
+# ─── 12) Serve user uploads at /uploaded_images ───────────────────────────
 app.mount(
     "/uploaded_images",
     StaticFiles(directory="uploaded_images"),
     name="uploaded_images",
 )
 
-# ─── 13) Serve Next.js “out” folder under “/” ───────────────────────────
-# (Your Dockerfile must copy frontend/out/ → backend/static/)
+# ─── 13) Serve Next.js “out” folder at the root path ──────────────────────
+# Your Dockerfile (or deployment) must copy frontend/out/ → backend/static/
 if os.path.isdir("static"):
     app.mount(
         "/",
@@ -92,12 +112,12 @@ else:
         "⚠️ 'static' directory not found: frontend/out must be copied to backend/static"
     )
 
-# ─── 14) Redirect no‐slash endpoints (e.g., /products → /products/) ─────
+# ─── 14) Redirect no-slash endpoints (example: /products → /products/) ─────
 @app.get("/products", include_in_schema=False)
 def products_no_slash():
     return RedirectResponse(url="/products/", status_code=307)
 
-# ─── 15) Health check endpoint ───────────────────────────────────────────
+# ─── 15) Health check endpoint ─────────────────────────────────────────────
 @app.get("/health", tags=["Health"])
 def health_check():
     try:
