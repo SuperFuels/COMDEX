@@ -1,3 +1,5 @@
+# backend/routes/auth.py
+
 from fastapi import APIRouter, Depends, HTTPException, Body, status, Query
 from typing import Literal, Optional
 from pydantic import BaseModel, EmailStr, Field
@@ -62,13 +64,18 @@ class ProfileOut(BaseModel):
 
 # ─── Router Setup ────────────────────────────────────────────────────────
 
-router = APIRouter(prefix="/auth", tags=["Auth"])
+# We prefix every route here with "/api/auth"
+router = APIRouter(prefix="/api/auth", tags=["Auth"])
 
 
 @router.get("/nonce")
 def get_siwe_nonce(
     address: str = Query(..., description="Wallet address for SIWE")
 ) -> dict:
+    """
+    Generate and return a nonce for SIWE login.
+    GET /api/auth/nonce?address=<wallet_address>
+    """
     nonce = generate_nonce()
     return {"nonce": nonce}
 
@@ -82,6 +89,11 @@ def register(
     body: RegisterBody = Body(...),
     db: Session = Depends(get_db),
 ):
+    """
+    Register a new user (buyer or supplier).
+    POST /api/auth/register
+    Body: { name, email, password, role, (wallet_address), (supplier fields), (buyer fields) }
+    """
     # 1) Prevent duplicate email
     if db.query(User).filter_by(email=body.email).first():
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Email already registered")
@@ -103,7 +115,7 @@ def register(
         role            = body.role,
         wallet_address  = wallet,
         created_at      = datetime.utcnow(),
-        # updated_at will be set automatically by your model's onupdate
+        # updated_at set automatically by your model
     )
 
     # 4) Apply role-specific fields
@@ -114,7 +126,7 @@ def register(
                 "Suppliers must provide both business_name and products"
             )
         user.business_name    = body.business_name
-        user.address          = body.address     or ""
+        user.address          = body.address or ""
         user.delivery_address = body.delivery_address or ""
         user.products         = body.products
     else:  # buyer
@@ -134,9 +146,15 @@ def login(
     body: LoginBody = Body(...),
     db: Session = Depends(get_db),
 ):
+    """
+    Log in an existing user using email + password.
+    POST /api/auth/login
+    Body: { email, password }
+    """
     user = db.query(User).filter_by(email=body.email).first()
     if not user or not verify_password(body.password, user.password_hash):
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid email or password")
+
     token = create_access_token(subject=user.id, role=user.role)
     return {"token": token, "role": user.role}
 
@@ -146,6 +164,11 @@ def siwe_login(
     body: SIWELogin = Body(...),
     db: Session = Depends(get_db),
 ):
+    """
+    Log in via SIWE (Sign-In With Ethereum).
+    POST /api/auth/siwe
+    Body: { message, signature }
+    """
     user, token = verify_siwe(body.message, body.signature, db)
     return {"token": token, "role": user.role}
 
@@ -154,4 +177,8 @@ def siwe_login(
 def profile(
     current_user: User = Depends(get_current_user),
 ):
+    """
+    Retrieve the current user’s profile (must send Authorization: Bearer <token> header).
+    GET /api/auth/profile
+    """
     return current_user

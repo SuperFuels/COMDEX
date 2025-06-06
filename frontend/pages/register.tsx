@@ -1,10 +1,11 @@
 // frontend/pages/register.tsx
+
 import { useState, FormEvent } from 'react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
 import Select, { OnChangeValue, MultiValue } from 'react-select'
 import { ethers } from 'ethers'
-import api from '@/lib/api'
+import api from '@/lib/api' // assumes api is preconfigured with NEXT_PUBLIC_API_URL
 
 type Role = 'buyer' | 'supplier'
 
@@ -92,19 +93,20 @@ export default function RegisterPage() {
 
     try {
       const payload: any = {
-        name:           fullName,
+        name:            fullName,
         email,
         password,
         role,
-        wallet_address: walletAddress,
-        business_name:  businessName,
+        wallet_address:  walletAddress,
+        business_name:   businessName,
         address,
         delivery_address: deliveryAddress,
-        products:       products.map((p) => p.value),
+        products:        products.map((p) => p.value),
       }
       if (role === 'buyer') {
         payload.monthly_spend = monthlySpend
       }
+      // Note: do NOT prefix with "/api" — FastAPI now listens on "/auth"
       await api.post('/auth/register', payload)
       router.push('/login')
     } catch (err: any) {
@@ -169,7 +171,7 @@ export default function RegisterPage() {
                 />
               </div>
 
-              {/* Confirm */}
+              {/* Confirm Password */}
               <div>
                 <label className="block font-medium mb-1">
                   Confirm Password
@@ -183,7 +185,7 @@ export default function RegisterPage() {
                 />
               </div>
 
-              {/* Role */}
+              {/* Role Selector */}
               <div>
                 <label className="block font-medium mb-1">I am a</label>
                 <select
@@ -211,7 +213,7 @@ export default function RegisterPage() {
                 </button>
               </div>
 
-              {/* Next */}
+              {/* Next Step */}
               <div className="flex justify-end">
                 <button
                   type="submit"
@@ -260,7 +262,7 @@ export default function RegisterPage() {
                 />
               </div>
 
-              {/* Products */}
+              {/* Products Selector */}
               <div>
                 <label className="block font-medium mb-1">
                   Products you {role === 'buyer' ? 'purchase' : 'sell'}
@@ -276,7 +278,7 @@ export default function RegisterPage() {
                 />
               </div>
 
-              {/* Monthly Spend */}
+              {/* Monthly Spend for Buyers */}
               {role === 'buyer' && (
                 <div>
                   <label className="block font-medium mb-1">
@@ -291,7 +293,7 @@ export default function RegisterPage() {
                 </div>
               )}
 
-              {/* Back & Activate */}
+              {/* Back & Activate Buttons */}
               <div className="flex justify-between items-center">
                 <button
                   type="button"
