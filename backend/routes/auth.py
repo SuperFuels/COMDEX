@@ -1,6 +1,13 @@
 # backend/routes/auth.py
 
-from fastapi import APIRouter, Depends, HTTPException, Body, status, Query
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    Body,
+    status,
+    Query
+)
 from typing import Literal, Optional
 from pydantic import BaseModel, EmailStr, Field
 from datetime import datetime
@@ -73,6 +80,7 @@ def get_siwe_nonce(
     address: str = Query(..., description="Wallet address for SIWE")
 ) -> dict:
     """
+    Generate and return a nonce for SIWE login.
     GET /api/auth/nonce?address=<wallet_address>
     """
     nonce = generate_nonce()
@@ -89,7 +97,9 @@ def register(
     db: Session = Depends(get_db),
 ):
     """
+    Register a new user (buyer or supplier).
     POST /api/auth/register
+    Body: { name, email, password, role, (wallet_address), (supplier fields), (buyer fields) }
     """
     # 1) Prevent duplicate email
     if db.query(User).filter_by(email=body.email).first():
@@ -112,9 +122,10 @@ def register(
         role            = body.role,
         wallet_address  = wallet,
         created_at      = datetime.utcnow(),
+        # updated_at is set automatically by your model’s onupdate
     )
 
-    # 4) Role-specific fields
+    # 4) Apply role-specific fields
     if body.role == "supplier":
         if not body.business_name or not body.products:
             raise HTTPException(
@@ -143,7 +154,9 @@ def login(
     db: Session = Depends(get_db),
 ):
     """
+    Log in an existing user using email + password.
     POST /api/auth/login
+    Body: { email, password }
     """
     user = db.query(User).filter_by(email=body.email).first()
     if not user or not verify_password(body.password, user.password_hash):
@@ -159,7 +172,9 @@ def siwe_login(
     db: Session = Depends(get_db),
 ):
     """
+    Log in via SIWE (Sign-In With Ethereum).
     POST /api/auth/siwe
+    Body: { message, signature }
     """
     user, token = verify_siwe(body.message, body.signature, db)
     return {"token": token, "role": user.role}
@@ -170,6 +185,7 @@ def profile(
     current_user: User = Depends(get_current_user),
 ):
     """
+    Retrieve the current user’s profile (requires Authorization: Bearer <token> header).
     GET /api/auth/profile
     """
     return current_user
