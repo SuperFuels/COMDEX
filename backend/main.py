@@ -36,7 +36,7 @@ from .database import engine, Base, get_db  # noqa: F401
 # ─── 7) Import models so all ORM classes register ───────────────────────
 import backend.models  # noqa: F401
 
-# ─── 8) Auto-create missing tables ──────────────────────────────────────
+# ─── 8) Auto‐create missing tables ──────────────────────────────────────
 Base.metadata.create_all(bind=engine)
 logger.info("✅ Database tables checked/created.")
 
@@ -48,16 +48,14 @@ app = FastAPI(
 )
 
 # ─── 10) GLOBAL CORS ─────────────────────────────────────────────────────
-# Read comma-separated CORS_ALLOWED_ORIGINS from environment (e.g.:
-# CORS_ALLOWED_ORIGINS="https://your-front.app,https://your-preview.vercel.app")
 raw = os.getenv("CORS_ALLOWED_ORIGINS", "")
 allowed_origins = [o.strip() for o in raw.split(",") if o.strip()]
 
-# In non-production, allow localhost:3000 by default
+# In non‐production, allow localhost:3000 by default
 if os.getenv("ENV", "").lower() != "production":
     allowed_origins.append("http://localhost:3000")
 
-# Always allow your Firebase-hosted front end
+# Always allow your Firebase‐hosted front end
 allowed_origins.append("https://swift-area-459514-d1.web.app")
 
 if not allowed_origins:
@@ -70,20 +68,37 @@ logger.info(f"✅ CORS allowed_origins = {allowed_origins}")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allowed_origins,
+    allow_origins=allowed_origins,       # Only these origins can make requests
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["*"],                 # GET, POST, PUT, DELETE, etc.
+    allow_headers=["*"],                 # Any headers (e.g. Content-Type, Authorization)
 )
 
-# ─── 11) Serve user uploads at /uploaded_images ─────────────────────────
+# ─── 11) Include your routers (mounted under /api/auth, /products, etc.) ─────
+# Import them here:
+from .routes.auth import router as auth_router
+from .routes.products import router as products_router
+from .routes.deal import router as deal_router
+from .routes.contracts import router as contracts_router
+from .routes.admin import router as admin_router
+from .routes.user import router as user_router
+
+# Mount each router.  auth_router already has prefix="/api/auth"
+app.include_router(auth_router)
+app.include_router(products_router, tags=["Products"])
+app.include_router(deal_router, tags=["Deals"])
+app.include_router(contracts_router, tags=["Contracts"])
+app.include_router(admin_router, tags=["Admin"])
+app.include_router(user_router, tags=["Users"])
+
+# ─── 12) Serve user uploads at /uploaded_images ─────────────────────────
 app.mount(
     "/uploaded_images",
     StaticFiles(directory="uploaded_images"),
     name="uploaded_images",
 )
 
-# ─── 12) Serve Next.js “out” folder as static at the root path ──────────
+# ─── 13) Serve Next.js “out” folder as static at the root path ──────────
 # The Dockerfile (or your deployment script) must copy:
 #   frontend/out/ → backend/static/
 # so that a “static” folder exists here at runtime.
@@ -98,24 +113,7 @@ else:
         "⚠️ 'static' directory not found: frontend/out must be copied to backend/static"
     )
 
-# ─── 13) Include your routers (mounted under /api/auth, /products, etc.) ─
-from .routes.auth import router as auth_router
-from .routes.products import router as products_router
-from .routes.deal import router as deal_router
-from .routes.contracts import router as contracts_router
-from .routes.admin import router as admin_router
-from .routes.user import router as user_router
-
-# Only this line—no extra prefix—because auth_router already has prefix="/api/auth"
-app.include_router(auth_router)
-
-app.include_router(products_router, tags=["Products"])
-app.include_router(deal_router, tags=["Deals"])
-app.include_router(contracts_router, tags=["Contracts"])
-app.include_router(admin_router, tags=["Admin"])
-app.include_router(user_router, tags=["Users"])
-
-# ─── 14) Redirect no-slash endpoints (example: /products → /products/) ───
+# ─── 14) Redirect no‐slash endpoints (example: /products → /products/) ────
 @app.get("/products", include_in_schema=False)
 def products_no_slash():
     return RedirectResponse(url="/products/", status_code=307)
