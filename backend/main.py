@@ -12,7 +12,6 @@ from sqlalchemy import text
 from sqlalchemy.exc import OperationalError
 
 # ─── 1) Ensure uploads folder exists ─────────────────────────────────────
-# If you serve user‐uploaded images/files under "/uploaded_images", create that dir.
 os.makedirs("uploaded_images", exist_ok=True)
 
 # ─── 2) Load .env locally (only when ENV != "production") ───────────────
@@ -22,7 +21,6 @@ if os.getenv("ENV", "").lower() != "production":
     load_dotenv()
 
 # ─── 3) Give Cloud SQL socket & VPC connector time on cold start ───────
-# (Adjust the sleep time if your Cloud SQL takes longer on cold start.)
 time.sleep(3)
 
 # ─── 4) Set up logging ───────────────────────────────────────────────────
@@ -61,7 +59,7 @@ allowed_origins = [o.strip() for o in raw.split(",") if o.strip()]
 if os.getenv("ENV", "").lower() != "production":
     allowed_origins.append("http://localhost:3000")
 
-# Always allow your Firebase‐hosted front end (if applicable)
+# Always allow your Firebase‐hosted front end
 allowed_origins.append("https://swift-area-459514-d1.web.app")
 
 if not allowed_origins:
@@ -79,7 +77,6 @@ app.add_middleware(
     allow_methods=["*"],                 # GET, POST, PUT, DELETE, etc.
     allow_headers=["*"],                 # Any headers (e.g. Content-Type, Authorization)
 )
-# ──────────────────────────────────────────────────────────────────────────
 
 # ─── 11) Serve user uploads at /uploaded_images ─────────────────────────
 app.mount(
