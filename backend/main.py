@@ -48,6 +48,8 @@ app = FastAPI(
 )
 
 # ─── 10) GLOBAL CORS ─────────────────────────────────────────────────────
+# Read comma-separated CORS_ALLOWED_ORIGINS from environment (e.g.:
+# CORS_ALLOWED_ORIGINS="https://your-front.app,https://your-preview.vercel.app")
 raw = os.getenv("CORS_ALLOWED_ORIGINS", "")
 allowed_origins = [o.strip() for o in raw.split(",") if o.strip()]
 
