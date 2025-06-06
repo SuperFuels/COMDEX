@@ -17,6 +17,7 @@ os.makedirs("uploaded_images", exist_ok=True)
 # ─── 2) Load .env locally (only when ENV != "production") ───────────────
 if os.getenv("ENV", "").lower() != "production":
     from dotenv import load_dotenv
+
     load_dotenv()
 
 # ─── 3) Give Cloud SQL socket & VPC connector time on cold start ───────
@@ -28,6 +29,7 @@ logger = logging.getLogger("comdex")
 
 # ─── 5) Log the actual DB URL (for troubleshooting) ─────────────────────
 from .config import SQLALCHEMY_DATABASE_URL  # noqa: F401
+
 logger.info(f"🔍 SQLALCHEMY_DATABASE_URL = {SQLALCHEMY_DATABASE_URL}")
 
 # ─── 6) Import engine, Base, get_db dependency ──────────────────────────
@@ -36,7 +38,7 @@ from .database import engine, Base, get_db  # noqa: F401
 # ─── 7) Import models so all ORM classes register ───────────────────────
 import backend.models  # noqa: F401
 
-# ─── 8) Auto-create missing tables ──────────────────────────────────────
+# ─── 8) Auto‐create missing tables ──────────────────────────────────────
 Base.metadata.create_all(bind=engine)
 logger.info("✅ Database tables checked/created.")
 
@@ -48,16 +50,15 @@ app = FastAPI(
 )
 
 # ─── 10) GLOBAL CORS ─────────────────────────────────────────────────────
-# Read comma-separated CORS_ALLOWED_ORIGINS from env (e.g.:
-#   CORS_ALLOWED_ORIGINS="https://frontend.app,https://preview.vercel.app"
+# Read comma‐separated CORS_ALLOWED_ORIGINS (e.g.: "https://a.app,https://b.app")
 raw = os.getenv("CORS_ALLOWED_ORIGINS", "")
 allowed_origins = [o.strip() for o in raw.split(",") if o.strip()]
 
-# In non-production, allow localhost:3000 by default
+# In non‐production, allow localhost:3000 by default
 if os.getenv("ENV", "").lower() != "production":
     allowed_origins.append("http://localhost:3000")
 
-# Always allow your Firebase-hosted front end (if you still use it)
+# Always allow your Firebase‐hosted front end (if applicable)
 allowed_origins.append("https://swift-area-459514-d1.web.app")
 
 if not allowed_origins:
@@ -70,10 +71,10 @@ logger.info(f"✅ CORS allowed_origins = {allowed_origins}")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allowed_origins,    # Only these origins may make requests
+    allow_origins=allowed_origins,
     allow_credentials=True,
-    allow_methods=["*"],              # All HTTP methods: GET, POST, OPTIONS, etc.
-    allow_headers=["*"],              # All headers permitted
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # ─── 11) Include your routers (mounted under /api/auth, /api/products, etc.) ─
@@ -84,16 +85,15 @@ from .routes.contracts import router as contracts_router
 from .routes.admin import router as admin_router
 from .routes.user import router as user_router
 
-# The auth_router already has prefix="/api/auth"
+# auth_router already has prefix="/api/auth"
 app.include_router(auth_router)
 
-# If your other routers have no prefix inside their files,
-# you can mount them under e.g. "/api/products", etc.:
-app.include_router(products_router, prefix="/api/products", tags=["Products"])
-app.include_router(deal_router, prefix="/api/deals", tags=["Deals"])
-app.include_router(contracts_router, prefix="/api/contracts", tags=["Contracts"])
-app.include_router(admin_router, prefix="/api/admin", tags=["Admin"])
-app.include_router(user_router, prefix="/api/users", tags=["Users"])
+# The other routers (adjust prefixes inside those files if needed)
+app.include_router(products_router, tags=["Products"])
+app.include_router(deal_router, tags=["Deals"])
+app.include_router(contracts_router, tags=["Contracts"])
+app.include_router(admin_router, tags=["Admin"])
+app.include_router(user_router, tags=["Users"])
 
 # ─── 12) Serve user uploads at /uploaded_images ─────────────────────────
 app.mount(
@@ -117,7 +117,7 @@ else:
         "⚠️ 'static' directory not found: frontend/out must be copied to backend/static"
     )
 
-# ─── 14) Redirect no-slash endpoints (example: /products → /products/) ───
+# ─── 14) Redirect no‐slash endpoints (example: /products → /products/) ────
 @app.get("/products", include_in_schema=False)
 def products_no_slash():
     return RedirectResponse(url="/products/", status_code=307)
