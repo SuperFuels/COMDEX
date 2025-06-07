@@ -5,19 +5,19 @@ metadata:
   namespace: swift-area-459514-d1
 spec:
   template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/minScale: "1"
     spec:
       containers:
-        - image: gcr.io/swift-area-459514-d1/comdex-api
+        - image: gcr.io/swift-area-459514-d1/comdex-api:latest
           ports:
             - containerPort: 8080
           env:
-            # ─── 0) Twelve-Factor DATABASE_URL ────────────────────────────
             - name: DATABASE_URL
               value: "postgresql+psycopg2://comdex:Wn8smx123@/comdex?host=/cloudsql/swift-area-459514-d1:us-central1:comdex-db"
-            # ─── 1) Production mode ────────────────────────────────────────
             - name: ENV
               value: "production"
-            # ─── 2) Cloud SQL creds & socket ───────────────────────────────
             - name: DB_USER
               value: "comdex"
             - name: DB_PASS
@@ -26,26 +26,19 @@ spec:
               value: "comdex"
             - name: INSTANCE_CONNECTION_NAME
               value: "swift-area-459514-d1:us-central1:comdex-db"
-            # ─── 3) SQLAlchemy ────────────────────────────────────────────
             - name: SQLALCHEMY_DATABASE_URL
               value: "postgresql+psycopg2://comdex:Wn8smx123@/comdex?host=/cloudsql/swift-area-459514-d1:us-central1:comdex-db"
-            # ─── 4) Ethereum / SIWE ───────────────────────────────────────
             - name: WEB3_PROVIDER_URL
               value: "https://polygon-amoy.g.alchemy.com/v2/2iHliTT_b-chEgTBquOv_HRRVnKbKrow"
             - name: ESCROW_CONTRACT_ADDRESS
               value: "0xe7f1725e7734ce288f8367e1bb143e90bb3f0512"
             - name: DEPLOYER_PRIVATE_KEY
               value: "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efca…"
-            # ─── 5) JWT / Auth ────────────────────────────────────────────
             - name: SECRET_KEY
               value: "super-secret-123"
             - name: ALGORITHM
               value: "HS256"
             - name: ACCESS_TOKEN_EXPIRE_MINUTES
               value: "60"
-            # ─── 6) CORS (only your front-end hosts) ───────────────────────
             - name: CORS_ALLOWED_ORIGINS
               value: "https://swift-area-459514-d1.web.app,https://comdex-fawn.vercel.app,https://comdex-kevins-projects-e296122e.vercel.app"
-            # ─── 7) Cloud Run port binding ────────────────────────────────
-            - name: PORT
-              value: "8080"
