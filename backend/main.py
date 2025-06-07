@@ -58,7 +58,7 @@ else:
     allow_origins = [o.strip() for o in raw.split(",") if o.strip()]
     if not allow_origins:
         raise RuntimeError(
-            "CORS_ALLOWED_ORIGINS must be set in production (e.g. https://your-front.app)"
+            "CORS_ALLOWED_ORIGINS must be set in production (e.g. https://your-frontend.app)"
         )
 
 logger.info(f"✅ CORS allowed_origins = {allow_origins}")
@@ -78,6 +78,7 @@ from .routes.deal import router as deal_router
 from .routes.contracts import router as contracts_router
 from .routes.admin import router as admin_router
 from .routes.user import router as user_router
+from .routes.terminal import router as terminal_router  # ← new
 
 # auth_router already has prefix="/api/auth"
 app.include_router(auth_router)
@@ -88,6 +89,7 @@ app.include_router(deal_router, tags=["Deals"])
 app.include_router(contracts_router, tags=["Contracts"])
 app.include_router(admin_router, tags=["Admin"])
 app.include_router(user_router, tags=["Users"])
+app.include_router(terminal_router, tags=["Terminal"])  # ← new
 
 # ─── 12) Serve user uploads ──────────────────────────────────────────────
 app.mount(
