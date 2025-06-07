@@ -5,6 +5,7 @@ from typing import Literal, Optional
 from pydantic import BaseModel, EmailStr, Field
 from datetime import datetime
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 
 from ..database import get_db
 from ..models.user import User
@@ -96,23 +97,27 @@ def register(
     if db.query(User).filter_by(email=body.email).first():
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Email already registered")
 
-    # 2) Normalize wallet if provided
+    # 2) Normalize wallet if provided & prevent duplicate wallet
     wallet = None
     if body.wallet_address:
         from web3 import Web3
+
         try:
             wallet = Web3.to_checksum_address(body.wallet_address)
         except Exception:
             raise HTTPException(status.HTTP_400_BAD_REQUEST, "Invalid wallet address format")
 
+        if db.query(User).filter_by(wallet_address=wallet).first():
+            raise HTTPException(status.HTTP_400_BAD_REQUEST, "Wallet address already registered")
+
     # 3) Create user record
     user = User(
-        name            = body.name,
-        email           = body.email,
-        password_hash   = hash_password(body.password),
-        role            = body.role,
-        wallet_address  = wallet,
-        created_at      = datetime.utcnow(),
+        name           = body.name,
+        email          = body.email,
+        password_hash  = hash_password(body.password),
+        role           = body.role,
+        wallet_address = wallet,
+        created_at     = datetime.utcnow(),
         # updated_at set automatically by your SQLAlchemy model
     )
 
@@ -132,9 +137,13 @@ def register(
 
     # 5) Persist & issue JWT
     db.add(user)
-    db.commit()
-    db.refresh(user)
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Registration failed: duplicate data")
 
+    db.refresh(user)
     token = create_access_token(subject=user.id, role=user.role)
     return {"token": token, "role": user.role}
 
