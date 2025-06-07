@@ -37,8 +37,7 @@ npm run export
 cd ..
 firebase deploy --only hosting
 
-gcloud run services replace cloudrun-env.yaml \
-  --region us-central1
+gcloud builds submit --config cloudbuild.yaml .
 
 # 1. Double-check you’re on main
 git checkout main
