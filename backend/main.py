@@ -15,9 +15,9 @@ from sqlalchemy.exc import OperationalError
 os.makedirs("uploaded_images", exist_ok=True)
 
 # ─── 2) Load .env locally (only when ENV != "production") ───────────────
-if os.getenv("ENV", "").lower() != "production":
+ENV = os.getenv("ENV", "").lower()
+if ENV != "production":
     from dotenv import load_dotenv
-
     load_dotenv()
 
 # ─── 3) Give Cloud SQL socket & VPC connector time on cold start ───────
@@ -29,7 +29,6 @@ logger = logging.getLogger("comdex")
 
 # ─── 5) Log the actual DB URL (for troubleshooting) ─────────────────────
 from .config import SQLALCHEMY_DATABASE_URL  # noqa: F401
-
 logger.info(f"🔍 SQLALCHEMY_DATABASE_URL = {SQLALCHEMY_DATABASE_URL}")
 
 # ─── 6) Import engine, Base, get_db dependency ──────────────────────────
@@ -50,34 +49,29 @@ app = FastAPI(
 )
 
 # ─── 10) GLOBAL CORS ─────────────────────────────────────────────────────
-# Read comma‐separated CORS_ALLOWED_ORIGINS (e.g.: "https://a.app,https://b.app")
-raw = os.getenv("CORS_ALLOWED_ORIGINS", "")
-allowed_origins = [o.strip() for o in raw.split(",") if o.strip()]
+if ENV != "production":
+    # DEV: allow every origin
+    allow_origins = ["*"]
+else:
+    # PRODUCTION: lock down to your list
+    raw = os.getenv("CORS_ALLOWED_ORIGINS", "")
+    allow_origins = [o.strip() for o in raw.split(",") if o.strip()]
+    if not allow_origins:
+        raise RuntimeError(
+            "CORS_ALLOWED_ORIGINS must be set in production (e.g. https://your-front.app)"
+        )
 
-# In non‐production, allow localhost:3000 by default
-if os.getenv("ENV", "").lower() != "production":
-    allowed_origins.append("http://localhost:3000")
-
-# Always allow your Firebase‐hosted front end (if applicable)
-allowed_origins.append("https://swift-area-459514-d1.web.app")
-
-if not allowed_origins:
-    raise RuntimeError(
-        "CORS_ALLOWED_ORIGINS must be set to at least one origin "
-        "(e.g. https://your-frontend.app)"
-    )
-
-logger.info(f"✅ CORS allowed_origins = {allowed_origins}")
+logger.info(f"✅ CORS allowed_origins = {allow_origins}")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allowed_origins,
+    allow_origins=allow_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# ─── 11) Include your routers (mounted under /api/auth, /api/products, etc.) ─
+# ─── 11) Include your routers ────────────────────────────────────────────
 from .routes.auth import router as auth_router
 from .routes.products import router as products_router
 from .routes.deal import router as deal_router
@@ -88,24 +82,21 @@ from .routes.user import router as user_router
 # auth_router already has prefix="/api/auth"
 app.include_router(auth_router)
 
-# The other routers (adjust prefixes inside those files if needed)
+# other routers (ensure their prefixes/tags are set inside each file)
 app.include_router(products_router, tags=["Products"])
 app.include_router(deal_router, tags=["Deals"])
 app.include_router(contracts_router, tags=["Contracts"])
 app.include_router(admin_router, tags=["Admin"])
 app.include_router(user_router, tags=["Users"])
 
-# ─── 12) Serve user uploads at /uploaded_images ─────────────────────────
+# ─── 12) Serve user uploads ──────────────────────────────────────────────
 app.mount(
     "/uploaded_images",
     StaticFiles(directory="uploaded_images"),
     name="uploaded_images",
 )
 
-# ─── 13) Serve Next.js “out” folder as static at the root path ──────────
-# The Dockerfile (or your deployment script) must copy:
-#   frontend/out/ → backend/static/
-# so that a “static” folder exists here at runtime.
+# ─── 13) Serve Next.js “out” folder as static ───────────────────────────
 if os.path.isdir("static"):
     app.mount(
         "/",
@@ -117,12 +108,12 @@ else:
         "⚠️ 'static' directory not found: frontend/out must be copied to backend/static"
     )
 
-# ─── 14) Redirect no‐slash endpoints (example: /products → /products/) ────
+# ─── 14) Redirect no‐slash endpoints ────────────────────────────────────
 @app.get("/products", include_in_schema=False)
 def products_no_slash():
     return RedirectResponse(url="/products/", status_code=307)
 
-# ─── 15) Health check endpoint ───────────────────────────────────────────
+# ─── 15) Health check ────────────────────────────────────────────────────
 @app.get("/health", tags=["Health"])
 def health_check():
     try:
