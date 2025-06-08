@@ -1,86 +1,71 @@
 # backend/utils/terminal.py
 
 from sqlalchemy.orm import Session
-from datetime import datetime, timedelta
-
-# adjust these imports to your real model locations
-from .models.product import Product  
-# from .models.shipment import Shipment  
+from datetime import datetime
+from ..models.product import Product
+from ..models.user import User
 
 def run_query(prompt: str, db: Session) -> dict:
     """
-    Maps a simple text prompt into:
-      - a sales chart if prompt == "sales"
-      - a shipments list if prompt == "shipments"
-      - otherwise a product lookup + price history
+    AI + DB stub.  Replace the sections marked “TODO” with your OpenAI logic
+    and real SQLAlchemy queries.
+    Must return a dict with keys:
+      - analysisText: str
+      - visualPayload: { products: list, chartData: list, suppliers?: list }
     """
     low = prompt.strip().lower()
 
     # ─── SALES REPORT ───────────────────────
     if low == "sales":
-        text = "📊 Here’s your sales summary for the past 30 days…"
-        # example: build a fake 30-day time series chart
-        now = datetime.utcnow()
-        chart = []
-        for i in range(30):
-            day = now - timedelta(days=29 - i)
-            # stub: randomish values; replace with real DB query
-            chart.append({
-                "time": int(day.timestamp()),
-                "value": float(1000 + i * 10)
-            })
+        analysis = "📊 Here’s your sales summary for today…"
+        # TODO: real DB aggregation for today’s sales
+        chartData = [
+            {"time": datetime.utcnow().timestamp(), "value": 100},
+            {"time": datetime.utcnow().timestamp() - 3600, "value": 120},
+        ]
         return {
-            "analysisText": text,
-            "visualPayload": {"chartData": chart}
+            "analysisText": analysis,
+            "visualPayload": { "chartData": chartData }
         }
 
     # ─── SHIPMENTS ──────────────────────────
     if low == "shipments":
-        text = "🚚 Here are your in-flight shipments:"
-        # stub: replace with real Shipment model query
-        # rows = db.query(Shipment).filter_by(status="in_transit").all()
-        rows = []  # placeholder list
-        shipments = []
-        for r in rows:
-            shipments.append({
-                "id": r.id,
-                "eta": r.eta.isoformat(),
-                "origin": r.origin,
-                "destination": r.destination,
-                # …any other fields…
-            })
+        analysis = "🚚 Your in‐flight shipments:"
+        # TODO: swap in your Shipment model
+        shipments = []  # e.g. db.query(Shipment).all()
+        suppliers = [s.__dict__ for s in shipments]
         return {
-            "analysisText": text,
-            "visualPayload": {"products": shipments}
+            "analysisText": analysis,
+            "visualPayload": { "products": suppliers }
         }
 
     # ─── PRODUCT MARKET ANALYSIS ───────────
-    # fallback: look up by title matching prompt
-    text = f"🔍 Market lookup for “{prompt}”"
+    # fallback to product lookup by title
+    analysis = f"🔍 Market look-up for “{prompt}”"
     prods = (
         db.query(Product)
-        .filter(Product.title.ilike(f"%{prompt}%"))
-        .limit(10)
-        .all()
+          .filter(Product.title.ilike(f"%{prompt}%"))
+          .limit(10)
+          .all()
     )
-    chart = [
-        {"time": int(p.created_at.timestamp()), "value": p.price_per_kg}
+    chartData = [
+        {"time": p.created_at.timestamp(), "value": p.price_per_kg}
         for p in prods
     ]
-    products = []
-    for p in prods:
-        products.append({
-            "id": p.id,
-            "title": p.title,
-            "description": p.description or "",
-            "price_per_kg": p.price_per_kg,
-            "origin_country": p.origin_country or "",
-            "image_url": p.image_url or ""
-        })
     return {
-        "analysisText": text,
+        "analysisText": analysis,
         "visualPayload": {
-            "products": products,
-            "chartData": chart,
-        },
+            "products": [
+                {
+                  "id": p.id,
+                  "title": p.title,
+                  "description": p.description,
+                  "price_per_kg": p.price_per_kg,
+                  "origin_country": p.origin_country,
+                  "image_url": p.image_url,
+                }
+                for p in prods
+            ],
+            "chartData": chartData,
+        }
     }

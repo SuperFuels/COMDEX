@@ -3,7 +3,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
-
 from ..database import get_db
 from ..utils.terminal import run_query
 
@@ -24,13 +23,11 @@ def terminal_query(
     req: QueryRequest,
     db: Session = Depends(get_db),
 ):
-    """
-    Run an “AI + DB” pipeline for a free-form query.
-    POST /api/terminal/query
-    Body: { prompt: "..." }
-    """
     try:
-        return run_query(req.prompt, db)
+        result = run_query(req.prompt, db)
     except Exception as e:
-        # surface any errors as a 500
-        raise HTTPException(500, f"Terminal error: {e}")
+        raise HTTPException(500, f"Terminal pipeline failed: {e}")
+    return QueryResponse(
+        analysisText=result["analysisText"],
+        visualPayload=result["visualPayload"]
+    )
