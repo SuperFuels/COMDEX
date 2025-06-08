@@ -11,222 +11,187 @@ type SupplierData = {
   openOrders: number
   proceeds30d: number
   feedbackRating: number
-  // you may have other fields here...
+  products: {
+    id: number
+    title: string
+    description: string
+    price_per_kg: number
+    origin_country: string
+    image_url: string
+  }[]
 }
 
-type TableRow = Record<string, any>
-
 export default function SupplierDashboard() {
-  // ─── Auth & initial data ────────────────────────────────────────────────
   useAuthRedirect('supplier')
-  const [data, setData]     = useState<SupplierData | null>(null)
+
+  const [data, setData] = useState<SupplierData | null>(null)
   const [loading, setLoading] = useState(true)
-  const [error, setError]     = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
+
+  // terminal state
+  const [queryText, setQueryText] = useState('')
+  const [analysisText, setAnalysisText] = useState('')
+  const [chartData, setChartData] = useState<ChartPoint[] | null>(null)
+  const [searchResults, setSearchResults] = useState<any[] | null>(null)
+  const [isProcessing, setIsProcessing] = useState(false)
+
+  // which tab
+  const [selectedTab, setSelectedTab] = useState<string>('')
 
   useEffect(() => {
-    let isMounted = true
+    let mounted = true
     api.get<SupplierData>('/supplier/dashboard')
-      .then(res => { if (isMounted) setData(res.data) })
-      .catch(err => { if (isMounted) setError(err.message) })
-      .finally(() => { if (isMounted) setLoading(false) })
-    return () => { isMounted = false }
+      .then(r => mounted && setData(r.data))
+      .catch(e => mounted && setError(e.message))
+      .finally(() => mounted && setLoading(false))
+    return () => { mounted = false }
   }, [])
 
-  if (loading || !data) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-bg-page">
-        <p className="text-text-secondary">Loading dashboard…</p>
-      </div>
-    )
-  }
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-bg-page">
-        <p className="text-red-600">{error}</p>
-      </div>
-    )
-  }
-
-  // ─── Metrics output ─────────────────────────────────────────────────────
-  const metricsOutput = [
-    { label: 'Sales Today',    value: data.totalSalesToday, color: 'text-blue-600' },
-    { label: 'Active Listings', value: data.activeListings, color: 'text-green-600' },
-    { label: 'Open Orders',     value: data.openOrders,    color: 'text-green-600' },
-    { label: '30d Proceeds',    value: `£${data.proceeds30d}`, color: 'text-blue-600' },
-    { label: 'Feedback',        value: data.feedbackRating,   color: 'text-purple-600' },
-  ]
-
-  // ─── Terminal state ─────────────────────────────────────────────────────
-  const COMMAND_TABS = [
-    'Sales',
-    'Marketing',
-    'Operations',
-    'Shipments',
-    'Financials',
-    'Clients',
-  ]
-  const [queryText, setQueryText]         = useState('')
-  const [analysisText, setAnalysisText]   = useState('')
-  const [chartData, setChartData]         = useState<ChartPoint[]|null>(null)
-  const [tableData, setTableData]         = useState<TableRow[]|null>(null)
-  const [isProcessing, setIsProcessing]   = useState(false)
-  const leftPaneRef = useRef<HTMLDivElement>(null)
-
-  // ─── Send prompt to backend ─────────────────────────────────────────────
   const handleSend = async () => {
     if (!queryText.trim()) return
     setIsProcessing(true)
     setAnalysisText('')
     setChartData(null)
-    setTableData(null)
-
+    setSearchResults(null)
     try {
-      const resp = await fetch(
+      const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/terminal/query`,
         {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt: queryText.trim() }),
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ prompt: queryText.trim() })
         }
       )
-      const json = await resp.json()
-      setAnalysisText(json.text || '')
-
-      // decide which visual to show
-      if (Array.isArray(json.visualPayload?.products)) {
-        setTableData(json.visualPayload.products)
-      } else if (Array.isArray(json.visualPayload?.chartData)) {
+      const json = await res.json()
+      setAnalysisText(json.analysisText || '')
+      // if visualPayload.products
+      if (Array.isArray(json.visualPayload.products)) {
+        setSearchResults(json.visualPayload.products)
+      } else if (Array.isArray(json.visualPayload.chartData)) {
         setChartData(json.visualPayload.chartData)
-      } else if (Array.isArray(json.visualPayload?.suppliers)) {
-        setTableData(json.visualPayload.suppliers)
       }
-    } catch (err) {
-      console.error(err)
-      setAnalysisText('❌ Sorry, something went wrong. Please try again.')
+    } catch {
+      setAnalysisText('❌ Something went wrong. Please try again.')
     } finally {
       setIsProcessing(false)
-      // scroll left pane to bottom to show analysis
-      setTimeout(() => leftPaneRef.current?.scrollTo(0, leftPaneRef.current.scrollHeight), 50)
     }
   }
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       e.preventDefault()
       handleSend()
     }
   }
 
-  const handleTab = (tab: string) => {
-    setQueryText(tab)
-    setTimeout(handleSend, 50)
-  }
+  const tabs = ['Sales','Marketing','Operations','Shipments','Financials','Clients']
 
-  // ─── Render ──────────────────────────────────────────────────────────────
+  const metricsOutput = data ? [
+    { label:'Sales Today', value:data.totalSalesToday, color:'text-blue-600' },
+    { label:'Active Listings', value:data.activeListings, color:'text-green-600' },
+    { label:'Open Orders', value:data.openOrders, color:'text-green-600' },
+    { label:'30d Proceeds', value:`£${data.proceeds30d}`, color:'text-blue-600' },
+    { label:'Feedback', value:data.feedbackRating, color:'text-purple-600' },
+  ] : []
+
+  if (loading) return <div className="min-h-screen flex items-center justify-center bg-bg-page"><p className="text-text-secondary">Loading…</p></div>
+  if (error || !data) return <div className="min-h-screen flex items-center justify-center bg-bg-page"><p className="text-red-600">{error}</p></div>
+
+  // sample fallback chart if needed:
+  const sampleChart: ChartPoint[] = data.products.map((p,i)=>({
+    time: Math.floor(Date.now()/1000) - (data.products.length - i)*3600,
+    value: p.price_per_kg
+  }))
+
   return (
     <div className="bg-bg-page min-h-screen flex flex-col">
       <div className="h-16" />
-
       <main className="flex-1 max-w-[calc(100%-40px)] mx-auto px-2">
         <div className="flex h-[calc(100vh-4rem-4rem)]">
-          {/* ── Left Pane ─────────────────────────────────────── */}
-          <div
-            ref={leftPaneRef}
-            className="flex-1 overflow-auto pr-2 font-mono text-text-secondary text-sm"
-          >
+          {/* left */}
+          <div className="flex-1 overflow-auto pr-2 font-mono text-text dark:text-text-secondary text-sm">
             <p className="mb-2">Hello, Supplier — welcome to Central Command.</p>
-            {metricsOutput.map(m => (
+            {metricsOutput.map((m)=>(
               <p key={m.label} className="mb-1">
-                <span>“{m.label}”: </span>
+                <span>{`“${m.label}”: `}</span>
                 <span className={m.color}>{m.value}</span>
               </p>
             ))}
 
-            {/* AI analysis text */}
-            {analysisText ? (
-              <div className="mt-4 space-y-1">
-                {analysisText.split('\n').map((line, i) => (
-                  <p key={i} className="mb-1">{line}</p>
-                ))}
+            {/* AI text */}
+            {selectedTab && !queryText && (
+              <div className="mt-4">
+                <p className="italic text-text-secondary">Select a tab or type a question…</p>
               </div>
-            ) : (
-              <p className="italic text-text-secondary mt-4">
-                Select a button or type a question below…
-              </p>
+            )}
+            {analysisText && (
+              <div className="mt-4 space-y-1">
+                {analysisText.split('\n').map((l,i)=><p key={i} className="mb-1">{l}</p>)}
+              </div>
             )}
           </div>
 
-          {/* ── Divider ───────────────────────────────────────── */}
           <div className="w-px bg-border-light dark:bg-gray-700" />
 
-          {/* ── Right Pane ────────────────────────────────────── */}
+          {/* right */}
           <div className="flex-1 overflow-auto pl-2">
-            {chartData && chartData.length > 0 ? (
+            {searchResults ? (
+              <div className="space-y-4">
+                {searchResults.map((item,i)=>(
+                  <pre key={i} className="bg-white p-3 rounded shadow text-xs">
+                    {JSON.stringify(item,null,2)}
+                  </pre>
+                ))}
+              </div>
+            ) : (chartData || sampleChart).length > 0 ? (
               <Chart
-                data={chartData}
-                height={Math.floor(window.innerHeight - 4 * 16 - 64)}
+                data={chartData || sampleChart}
+                height={Math.floor(window.innerHeight - 4*16 - 64)}
               />
-            ) : tableData && tableData.length > 0 ? (
-              <table className="min-w-full bg-white">
-                <thead>
-                  <tr>
-                    {Object.keys(tableData[0]).map(h => (
-                      <th key={h} className="p-2 border">{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {tableData.map((row, i) => (
-                    <tr key={i} className="hover:bg-gray-100">
-                      {Object.values(row).map((v, j) => (
-                        <td key={j} className="p-2 border">{String(v)}</td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
             ) : (
-              <div className="h-full flex items-center justify-center text-text-secondary italic">
-                No visual output yet.
+              <div className="h-full flex items-center justify-center text-text-secondary">
+                <p>Select a tab or ask a question to see visual output here.</p>
               </div>
             )}
           </div>
         </div>
       </main>
 
-      {/* ─── Bottom Bar ───────────────────────────────────────────── */}
       <footer className="fixed bottom-0 left-0 w-full bg-white dark:bg-gray-800 border-t border-border-light dark:border-gray-700 py-4">
-        <div className="max-w-[calc(100%-40px)] mx-auto px-2 flex">
-          {/* Input + Send */}
-          <div className="w-[calc(50%-20px)] flex items-center space-x-2">
-            <input
-              type="text"
-              placeholder="Type a question (e.g. “Build my sales report”)"
-              className="flex-1 py-2 px-4 border rounded bg-white dark:bg-gray-900"
-              value={queryText}
-              onChange={e => setQueryText(e.target.value)}
-              onKeyDown={handleKeyDown}
-            />
-            <button
-              onClick={handleSend}
-              disabled={isProcessing}
-              className="py-2 px-4 bg-black text-white rounded disabled:opacity-50"
-            >
-              {isProcessing ? 'Working…' : 'Send'}
-            </button>
-          </div>
-
-          {/* Command Buttons */}
-          <div className="w-[50%] flex flex-wrap items-center space-x-2 pl-4">
-            {COMMAND_TABS.map(tab => (
+        <div className="max-w-[calc(100%-40px)] mx-auto px-2">
+          <div className="flex">
+            <div className="w-[calc(50%-20px)] flex items-center space-x-2">
+              <input
+                type="text"
+                placeholder="Type a question (e.g. “Build my report”)"
+                value={queryText}
+                onKeyDown={handleKeyDown}
+                onChange={e=>setQueryText(e.target.value)}
+                className="flex-1 py-2 px-4 border border-black rounded bg-white dark:bg-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
               <button
-                key={tab}
-                onClick={() => handleTab(tab)}
-                className="py-2 px-4 text-sm border rounded bg-white dark:bg-gray-900"
+                onClick={handleSend}
+                disabled={isProcessing}
+                className="py-2 px-4 bg-black text-white border border-black rounded hover:bg-gray-900 disabled:opacity-50"
               >
-                {tab}
+                {isProcessing ? 'Working…' : 'Send'}
               </button>
-            ))}
+            </div>
+            <div className="w-[50%] flex space-x-2 pl-4">
+              {tabs.map(tab=>(
+                <button
+                  key={tab}
+                  onClick={()=>{
+                    setSelectedTab(tab)
+                    setQueryText(tab.toLowerCase())
+                    setTimeout(handleSend,50)
+                  }}
+                  className="py-2 px-4 text-sm font-medium border border-black rounded bg-white dark:bg-gray-900 hover:bg-gray-100"
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </footer>
