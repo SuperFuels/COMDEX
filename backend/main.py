@@ -1,3 +1,5 @@
+# backend/main.py
+
 import os
 import time
 import logging
@@ -16,7 +18,6 @@ os.makedirs("uploaded_images", exist_ok=True)
 ENV = os.getenv("ENV", "").lower()
 if ENV != "production":
     from dotenv import load_dotenv
-
     load_dotenv()
 
 # ──3) Give Cloud SQL socket & VPC connector time on cold start ────
@@ -77,18 +78,20 @@ from .routes.deal import router as deal_router
 from .routes.contracts import router as contracts_router
 from .routes.admin import router as admin_router
 from .routes.user import router as user_router
-from .routes.terminal import router as terminal_router  # ← added
+from .routes.terminal import router as terminal_router
+from .routes.supplier import router as supplier_router  # ← new
 
 # auth_router already has prefix="/api/auth"
 app.include_router(auth_router)
 
-# other routers (ensure their prefixes/tags are set inside each file)
-app.include_router(products_router, tags=["Products"])
-app.include_router(deal_router, tags=["Deals"])
+# other routers
+app.include_router(products_router,   tags=["Products"])
+app.include_router(deal_router,       tags=["Deals"])
 app.include_router(contracts_router, tags=["Contracts"])
-app.include_router(admin_router, tags=["Admin"])
-app.include_router(user_router, tags=["Users"])
-app.include_router(terminal_router, tags=["Terminal"])  # ← added
+app.include_router(admin_router,     tags=["Admin"])
+app.include_router(user_router,      tags=["Users"])
+app.include_router(terminal_router,  tags=["Terminal"])
+app.include_router(supplier_router,  tags=["Supplier"])  # ← new
 
 # ──12) Serve user uploads ─────────────
 app.mount(
