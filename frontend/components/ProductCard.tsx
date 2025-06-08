@@ -7,32 +7,36 @@ import { StarIcon as SolidStar } from '@heroicons/react/24/solid'
 import { StarIcon as OutlineStar } from '@heroicons/react/24/outline'
 
 export interface ProductCardProps {
-  id: number
-  imageUrl: string
-  pricePerTn: number          // price per metric tonne
-  title: string
-  rating: number              // 0–5
-  reviewCount: number
-  origin: string
-  stockLocations: string[]    // e.g. ['Europe','Asia','Americas']
-  tags: string[]              // e.g. ['Organic','Vegan']
-  changePct: number           // e.g. +1.2 or -0.5
+  product: {
+    id: number
+    image_url?: string
+    price_per_kg: number
+    title: string
+    rating?: number      // 0–5 (you can default this)
+    review_count?: number
+    origin_country?: string
+    stockLocations?: string[]
+    tags?: string[]
+    change_pct?: number
+  }
 }
 
-export default function ProductCard({
-  id,
-  imageUrl,
-  pricePerTn,
-  title,
-  rating,
-  reviewCount,
-  origin,
-  stockLocations,
-  tags,
-  changePct,
-}: ProductCardProps) {
+export default function ProductCard({ product }: ProductCardProps) {
+  const {
+    id,
+    image_url,
+    price_per_kg,
+    title,
+    rating = 0,
+    review_count = 0,
+    origin_country = '—',
+    stockLocations = [],
+    tags = [],
+    change_pct = 0,
+  } = product
+
   // track current image src, fall back if load fails
-  const [imgSrc, setImgSrc] = useState(imageUrl)
+  const [imgSrc, setImgSrc] = useState(image_url || '/placeholder.jpg')
 
   // build star icons
   const stars = Array.from({ length: 5 }, (_, i) =>
@@ -42,6 +46,9 @@ export default function ProductCard({
       <OutlineStar key={i} className="w-4 h-4 text-gray-300" />
     )
   )
+
+  // convert price/kg to price/tonne
+  const pricePerTn = price_per_kg * 1000
 
   return (
     <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition">
@@ -69,31 +76,35 @@ export default function ProductCard({
         {/* Rating */}
         <div className="flex items-center space-x-1">
           {stars}
-          <span className="text-sm text-gray-600">({reviewCount})</span>
+          <span className="text-sm text-gray-600">({review_count})</span>
         </div>
 
         {/* Origin & Stock */}
-        <p className="text-sm text-gray-700">Origin: {origin}</p>
-        <p className="text-sm text-gray-700">
-          Stock in: {stockLocations.join(', ')}
-        </p>
+        <p className="text-sm text-gray-700">Origin: {origin_country}</p>
+        {stockLocations.length > 0 && (
+          <p className="text-sm text-gray-700">
+            Stock in: {stockLocations.join(', ')}
+          </p>
+        )}
 
         {/* Tags */}
-        <div className="flex flex-wrap gap-1">
-          {tags.map(tag => (
-            <span
-              key={tag}
-              className="text-xs bg-gray-100 text-gray-800 px-2 py-0.5 rounded-full"
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
+        {tags.length > 0 && (
+          <div className="flex flex-wrap gap-1">
+            {tags.map((tag) => (
+              <span
+                key={tag}
+                className="text-xs bg-gray-100 text-gray-800 px-2 py-0.5 rounded-full"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
 
         {/* Change % & Chart Link */}
         <div className="flex items-center justify-between">
-          <span className={changePct >= 0 ? 'text-green-600' : 'text-red-600'}>
-            {changePct >= 0 ? '↑' : '↓'} {Math.abs(changePct).toFixed(1)}%
+          <span className={change_pct >= 0 ? 'text-green-600' : 'text-red-600'}>
+            {change_pct >= 0 ? '↑' : '↓'} {Math.abs(change_pct).toFixed(1)}%
           </span>
           <Link
             href={`/products/${id}/chart`}
@@ -106,4 +117,3 @@ export default function ProductCard({
     </div>
   )
 }
-
