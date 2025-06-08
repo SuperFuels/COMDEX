@@ -1,5 +1,3 @@
-# backend/main.py
-
 import os
 import time
 import logging
@@ -72,26 +70,28 @@ app.add_middleware(
 )
 
 # ──11) Include your routers ───────────
-from .routes.auth import router as auth_router
-from .routes.products import router as products_router
-from .routes.deal import router as deal_router
+from .routes.auth      import router as auth_router
+from .routes.products  import router as products_router
+from .routes.deal      import router as deal_router
 from .routes.contracts import router as contracts_router
-from .routes.admin import router as admin_router
-from .routes.user import router as user_router
-from .routes.terminal import router as terminal_router
-from .routes.supplier import router as supplier_router  # ← new
+from .routes.admin     import router as admin_router
+from .routes.user      import router as user_router
+from .routes.terminal  import router as terminal_router
+from .routes.buyer     import router as buyer_router
+from .routes.supplier  import router as supplier_router
 
 # auth_router already has prefix="/api/auth"
 app.include_router(auth_router)
 
-# other routers
+# other routers (ensure their prefixes/tags are set inside each file)
 app.include_router(products_router,   tags=["Products"])
 app.include_router(deal_router,       tags=["Deals"])
-app.include_router(contracts_router, tags=["Contracts"])
-app.include_router(admin_router,     tags=["Admin"])
-app.include_router(user_router,      tags=["Users"])
-app.include_router(terminal_router,  tags=["Terminal"])
-app.include_router(supplier_router,  tags=["Supplier"])  # ← new
+app.include_router(contracts_router,  tags=["Contracts"])
+app.include_router(admin_router,      tags=["Admin"])
+app.include_router(user_router,       tags=["Users"])
+app.include_router(terminal_router,   tags=["Terminal"])
+app.include_router(buyer_router,      tags=["Buyer"])
+app.include_router(supplier_router,   tags=["Supplier"])
 
 # ──12) Serve user uploads ─────────────
 app.mount(
