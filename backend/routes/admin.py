@@ -1,4 +1,4 @@
-# backend/routes/admin.py
+# File: backend/routes/admin.py
 
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -12,9 +12,10 @@ from ..schemas.admin import UserOut, ProductOut, DealOut
 from ..utils.auth import get_current_user
 
 router = APIRouter(
-    prefix="/admin",
-    tags=["Admin"]
+    prefix="/api/admin",
+    tags=["Admin"],
 )
+
 def _ensure_admin(user: User):
     if user.role != "admin":
         raise HTTPException(

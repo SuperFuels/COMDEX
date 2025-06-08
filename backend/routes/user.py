@@ -1,4 +1,4 @@
-# backend/routes/user.py
+# File: backend/routes/user.py
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
@@ -9,7 +9,7 @@ from ..schemas.user import WalletUpdate, UserOut
 from ..utils.auth import get_current_user
 
 router = APIRouter(
-    prefix="/users",
+    prefix="/api/users",
     tags=["Users"]
 )
 

@@ -16,11 +16,15 @@ from ..schemas.contract import ContractCreate, ContractOut
 from ..utils.auth import get_current_user
 
 router = APIRouter(
-    prefix="/contracts",
-    tags=["Contracts"]
+    prefix="/api/contracts",   # ← add `/api` here
+    tags=["Contracts"],
 )
 
-@router.get("/", response_model=List[ContractOut], summary="List my contracts")
+@router.get(
+    "/",
+    response_model=List[ContractOut],
+    summary="List my contracts",
+)
 def list_contracts(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -34,7 +38,6 @@ def list_contracts(
         .filter(Contract.owner_id == current_user.id)
         .all()
     )
-
 
 @router.post(
     "/generate",
@@ -79,15 +82,18 @@ def generate_contract(
         prompt=data.prompt,
         generated_contract=f"<div>{generated_text}</div>",
         status="draft",
-        owner_id=current_user.id,            # ← associate with user
+        owner_id=current_user.id,
     )
     db.add(new_contract)
     db.commit()
     db.refresh(new_contract)
     return new_contract
 
-
-@router.get("/{contract_id}", response_model=ContractOut, summary="Get a single contract")
+@router.get(
+    "/{contract_id}",
+    response_model=ContractOut,
+    summary="Get a single contract",
+)
 def get_contract(
     contract_id: int,
     db: Session = Depends(get_db),
@@ -112,8 +118,10 @@ def get_contract(
         )
     return contract
 
-
-@router.get("/{contract_id}/pdf", summary="Download contract as PDF")
+@router.get(
+    "/{contract_id}/pdf",
+    summary="Download contract as PDF",
+)
 def download_contract_pdf(
     contract_id: int,
     db: Session = Depends(get_db),
@@ -138,7 +146,6 @@ def download_contract_pdf(
             detail="Contract not found.",
         )
 
-    # lazy-import WeasyPrint so startup won’t fail if libs are missing
     try:
         from weasyprint import HTML
     except ImportError as e:

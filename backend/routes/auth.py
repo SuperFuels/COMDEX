@@ -1,4 +1,4 @@
-# backend/routes/auth.py
+# File: backend/routes/auth.py
 
 from fastapi import APIRouter, Depends, HTTPException, Body, status, Query
 from typing import Literal, Optional
@@ -36,21 +36,17 @@ class RegisterBody(BaseModel):
     # buyer‐only fields
     monthly_spend: Optional[str] = None
 
-
 class LoginBody(BaseModel):
     email: EmailStr
     password: str = Field(..., min_length=8)
-
 
 class SIWELogin(BaseModel):
     message: str
     signature: str
 
-
 class TokenRoleOut(BaseModel):
     token: str
     role: str
-
 
 class ProfileOut(BaseModel):
     id: int
@@ -62,10 +58,8 @@ class ProfileOut(BaseModel):
     class Config:
         from_attributes = True
 
-
 # ─── 2) Create APIRouter with prefix="/api/auth" ─────────────────────────
 router = APIRouter(prefix="/api/auth", tags=["Auth"])
-
 
 @router.get("/nonce")
 def get_siwe_nonce(
@@ -75,9 +69,7 @@ def get_siwe_nonce(
     Generate and return a nonce for SIWE login.
     GET  /api/auth/nonce?address=<wallet_address>
     """
-    nonce = generate_nonce()
-    return {"nonce": nonce}
-
+    return {"nonce": generate_nonce()}
 
 @router.post(
     "/register",
@@ -91,13 +83,12 @@ def register(
     """
     Register a new user (buyer or supplier).
     POST  /api/auth/register
-    Body: { name, email, password, role, (wallet_address), (supplier fields), (buyer fields) }
     """
-    # 1) Prevent duplicate email
+    # Prevent duplicate email
     if db.query(User).filter_by(email=body.email).first():
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Email already registered")
 
-    # 2) Normalize wallet if provided & prevent duplicate wallet
+    # Normalize wallet if provided, and prevent duplicate wallet
     wallet = None
     if body.wallet_address:
         from web3 import Web3
@@ -105,12 +96,18 @@ def register(
         try:
             wallet = Web3.to_checksum_address(body.wallet_address)
         except Exception:
-            raise HTTPException(status.HTTP_400_BAD_REQUEST, "Invalid wallet address format")
+            raise HTTPException(
+                status.HTTP_400_BAD_REQUEST,
+                "Invalid wallet address format"
+            )
 
         if db.query(User).filter_by(wallet_address=wallet).first():
-            raise HTTPException(status.HTTP_400_BAD_REQUEST, "Wallet address already registered")
+            raise HTTPException(
+                status.HTTP_400_BAD_REQUEST,
+                "Wallet address already registered"
+            )
 
-    # 3) Create user record
+    # Create user record
     user = User(
         name           = body.name,
         email          = body.email,
@@ -118,10 +115,9 @@ def register(
         role           = body.role,
         wallet_address = wallet,
         created_at     = datetime.utcnow(),
-        # updated_at set automatically by your SQLAlchemy model
     )
 
-    # 4) Apply role-specific fields
+    # Apply role-specific fields
     if body.role == "supplier":
         if not body.business_name or not body.products:
             raise HTTPException(
@@ -135,18 +131,20 @@ def register(
     else:  # buyer
         user.monthly_spend = body.monthly_spend or ""
 
-    # 5) Persist & issue JWT
+    # Persist & issue JWT
     db.add(user)
     try:
         db.commit()
     except IntegrityError:
         db.rollback()
-        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Registration failed: duplicate data")
+        raise HTTPException(
+            status.HTTP_400_BAD_REQUEST,
+            "Registration failed: duplicate data"
+        )
 
     db.refresh(user)
     token = create_access_token(subject=user.id, role=user.role)
     return {"token": token, "role": user.role}
-
 
 @router.post("/login", response_model=TokenRoleOut)
 def login(
@@ -154,17 +152,18 @@ def login(
     db: Session = Depends(get_db),
 ):
     """
-    Log in an existing user via email + password.
+    Log in via email + password.
     POST  /api/auth/login
-    Body: { email, password }
     """
     user = db.query(User).filter_by(email=body.email).first()
     if not user or not verify_password(body.password, user.password_hash):
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid email or password")
+        raise HTTPException(
+            status.HTTP_401_UNAUTHORIZED,
+            "Invalid email or password"
+        )
 
     token = create_access_token(subject=user.id, role=user.role)
     return {"token": token, "role": user.role}
-
 
 @router.post("/siwe", response_model=TokenRoleOut)
 def siwe_login(
@@ -172,20 +171,18 @@ def siwe_login(
     db: Session = Depends(get_db),
 ):
     """
-    Log in via SIWE (Sign‐In With Ethereum).
+    Log in via SIWE.
     POST  /api/auth/siwe
-    Body: { message, signature }
     """
     user, token = verify_siwe(body.message, body.signature, db)
     return {"token": token, "role": user.role}
-
 
 @router.get("/profile", response_model=ProfileOut)
 def profile(
     current_user: User = Depends(get_current_user),
 ):
     """
-    Retrieve the current user’s profile (must send Authorization: Bearer <token> header).
+    Retrieve the current user’s profile.
     GET  /api/auth/profile
     """
     return current_user

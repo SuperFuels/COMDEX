@@ -1,3 +1,5 @@
+# backend/routes/products.py
+
 import os
 import uuid
 import logging
@@ -19,6 +21,7 @@ router = APIRouter(
 )
 logger = logging.getLogger(__name__)
 
+# ensure upload directory exists
 UPLOAD_DIR = "uploaded_images"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
@@ -26,14 +29,23 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 @router.get("/me", response_model=List[ProductOut])
 def get_my_products(
     current_user: User = Depends(get_current_user),
-    db: Session         = Depends(get_db),
+    db: Session = Depends(get_db),
 ):
+    """
+    GET /products/me
+    List all products owned by the current supplier.
+    """
     if current_user.role != "supplier":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Only suppliers can view their products",
         )
-    prods = db.query(Product).filter(Product.owner_email == current_user.email).all()
+    prods = (
+        db
+        .query(Product)
+        .filter(Product.owner_email == current_user.email)
+        .all()
+    )
     for p in prods:
         p.owner_wallet_address = current_user.wallet_address or ""
     return prods
@@ -41,9 +53,18 @@ def get_my_products(
 
 @router.get("/", response_model=List[ProductOut])
 def get_all_products(db: Session = Depends(get_db)):
+    """
+    GET /products/
+    Public: list all products.
+    """
     prods = db.query(Product).all()
     for p in prods:
-        owner = db.query(User).filter(User.email == p.owner_email).first()
+        owner = (
+            db
+            .query(User)
+            .filter(User.email == p.owner_email)
+            .first()
+        )
         p.owner_wallet_address = owner.wallet_address if owner and owner.wallet_address else ""
     return prods
 
@@ -54,31 +75,37 @@ def get_all_products(db: Session = Depends(get_db)):
     status_code=status.HTTP_201_CREATED,
 )
 def create_product(
-    # form fields
-    title: str               = Form(...),
+    title: str = Form(...),
     description: Optional[str] = Form(None),
-    price_per_kg: float      = Form(...),
+    price_per_kg: float = Form(...),
     origin_country: Optional[str] = Form(None),
-    category: Optional[str]      = Form(None),
-    image: UploadFile        = File(...),
+    category: Optional[str] = Form(None),
+    image: UploadFile = File(...),
 
-    current_user: User       = Depends(get_current_user),
-    db: Session              = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
 ):
+    """
+    POST /products/
+    Create a new product (supplier only).
+    Expects a multipart/form-data with:
+      - title, description, price_per_kg, origin_country, category
+      - image file
+    """
     if current_user.role != "supplier":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Only suppliers can create products",
         )
 
-    # 1) Save the uploaded file
+    # 1) Save uploaded image
     ext = os.path.splitext(image.filename)[1]
     unique_name = f"{uuid.uuid4().hex}{ext}"
     dest_path = os.path.join(UPLOAD_DIR, unique_name)
     with open(dest_path, "wb") as f:
         shutil.copyfileobj(image.file, f)
 
-    # 2) Build the new Product
+    # 2) Create Product record
     product = Product(
         title=title,
         description=description,
@@ -92,7 +119,7 @@ def create_product(
     db.commit()
     db.refresh(product)
 
-    # 3) Attach owner_wallet_address before returning
+    # 3) Attach owner wallet before returning
     product.owner_wallet_address = current_user.wallet_address or ""
     return product
 
@@ -102,15 +129,23 @@ def update_product(
     product_id: int,
     payload: ProductUpdate,
     current_user: User = Depends(get_current_user),
-    db: Session       = Depends(get_db),
+    db: Session = Depends(get_db),
 ):
+    """
+    PUT /products/{product_id}
+    Update fields on an existing product (supplier only).
+    """
     product = (
-        db.query(Product)
-          .filter_by(id=product_id, owner_email=current_user.email)
-          .first()
+        db
+        .query(Product)
+        .filter_by(id=product_id, owner_email=current_user.email)
+        .first()
     )
     if not product:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Product not found"
+        )
 
     for field, value in payload.dict(exclude_unset=True).items():
         setattr(product, field, value)
@@ -125,22 +160,34 @@ def update_product(
 def delete_product(
     product_id: int,
     current_user: User = Depends(get_current_user),
-    db: Session       = Depends(get_db),
+    db: Session = Depends(get_db),
 ):
+    """
+    DELETE /products/{product_id}
+    Remove a product (supplier only), and delete its image file.
+    """
     product = (
-        db.query(Product)
-          .filter_by(id=product_id, owner_email=current_user.email)
-          .first()
+        db
+        .query(Product)
+        .filter_by(id=product_id, owner_email=current_user.email)
+        .first()
     )
     if not product:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
-    # (Optionally) remove the image file:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Product not found"
+        )
+
+    # remove image file
     try:
         filepath = product.image_url.lstrip("/")
         if os.path.exists(filepath):
             os.remove(filepath)
     except Exception:
-        logger.warning(f"Failed to delete image file for product {product_id}", exc_info=True)
+        logger.warning(
+            f"Failed to delete image file for product {product_id}",
+            exc_info=True
+        )
 
     db.delete(product)
     db.commit()

@@ -11,7 +11,6 @@ from ..utils.auth import get_current_user
 
 router = APIRouter(prefix="/api/buyer", tags=["Buyer"])
 
-
 @router.get("/dashboard")
 def buyer_dashboard(
     current_user: User = Depends(get_current_user),
