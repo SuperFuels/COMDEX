@@ -34,10 +34,12 @@ const COMMAND_TABS = [
 export default function BuyerDashboard() {
   useAuthRedirect('buyer')
 
+  // metrics state
   const [metrics, setMetrics]               = useState<BuyerMetrics | null>(null)
   const [loadingMetrics, setLoadingMetrics] = useState(true)
   const [errorMetrics, setErrorMetrics]     = useState<string | null>(null)
 
+  // terminal state
   const [queryText, setQueryText]           = useState('')
   const [analysisText, setAnalysisText]     = useState<string>('')
   const [chartData, setChartData]           = useState<ChartPoint[] | null>(null)
@@ -45,53 +47,55 @@ export default function BuyerDashboard() {
   const [nextPage, setNextPage]             = useState<number | null>(null)
   const [isProcessing, setIsProcessing]     = useState(false)
 
-  // ─── Fetch buyer metrics ─────────────────────────────────────
+  // ── fetch metrics
   useEffect(() => {
-    let isMounted = true
-    async function fetchMetrics() {
-      try {
-        const res = await api.get<BuyerMetrics>('/buyer/dashboard')
-        if (isMounted) setMetrics(res.data)
-      } catch {
+    let mounted = true
+    api.get<BuyerMetrics>('/buyer/dashboard')
+      .then(r => mounted && setMetrics(r.data))
+      .catch(() => {
         console.warn('Failed to fetch buyer metrics; using zeros fallback.')
-        if (isMounted) setMetrics({
-          totalSalesToday: 0,
-          openOrders: 0,
-          pendingEscrow: 0,
-          availableProducts: 0,
-          activeDeals: 0,
-        })
-      } finally {
-        if (isMounted) setLoadingMetrics(false)
-      }
-    }
-    fetchMetrics()
-    return () => { isMounted = false }
+        if (mounted) {
+          setMetrics({
+            totalSalesToday: 0,
+            openOrders: 0,
+            pendingEscrow: 0,
+            availableProducts: 0,
+            activeDeals: 0,
+          })
+        }
+      })
+      .finally(() => mounted && setLoadingMetrics(false))
+    return () => { mounted = false }
   }, [])
 
-  // ─── AI terminal handler ──────────────────────────────────────
+  // ── terminal send
   const handleSend = async () => {
     if (!queryText.trim()) return
 
     setIsProcessing(true)
-    setAnalysisText(''); setChartData(null); setSearchResults(null); setNextPage(null)
+    setAnalysisText('')
+    setChartData(null)
+    setSearchResults(null)
+    setNextPage(null)
 
     try {
-      const endpoint = `${process.env.NEXT_PUBLIC_API_URL}/terminal/query`
-      const resp = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: queryText.trim() }),
-      })
+      const resp = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/terminal/query`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt: queryText.trim() }),
+        }
+      )
       const json = await resp.json()
 
       setAnalysisText(json.analysisText || '')
 
       if (Array.isArray(json.visualPayload.products)) {
         setSearchResults(json.visualPayload.products)
-        setNextPage(json.visualPayload.nextPage ?? null)
+        setNextPage((json.visualPayload as any).nextPage ?? null)
       } else if (Array.isArray(json.visualPayload.chartData)) {
-        setChartData(json.visualPayload.chartData)
+        setChartData(json.visualPayload.chartData!)
       }
     } catch (err) {
       console.error('Terminal query failed', err)
@@ -102,7 +106,10 @@ export default function BuyerDashboard() {
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') { e.preventDefault(); handleSend() }
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      handleSend()
+    }
   }
 
   const handleCommandTab = (label: string) => {
@@ -127,27 +134,32 @@ export default function BuyerDashboard() {
     }
   }
 
+  // ── loading / error
   if (loadingMetrics) {
-    return <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <p className="text-gray-600">Loading dashboard…</p>
-    </div>
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <p className="text-gray-600">Loading dashboard…</p>
+      </div>
+    )
   }
   if (errorMetrics) {
-    return <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <p className="text-red-500">{errorMetrics}</p>
-    </div>
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <p className="text-red-500">{errorMetrics}</p>
+      </div>
+    )
   }
 
   const m = metrics!
 
   return (
     <div className="bg-gray-50 min-h-screen flex flex-col">
-      {/* spacer for navbar */}
+      {/* navbar spacer */}
       <div className="h-16" />
 
       <main className="flex-1 max-w-[calc(100%-40px)] mx-auto px-4">
         <div className="flex h-[calc(100vh-4rem-4rem)]">
-          {/* Left Pane */}
+          {/* ── Left Pane */}
           <div className="flex-1 overflow-y-auto pr-4 font-mono text-gray-800 text-sm">
             <p className="mb-2">Hello, Buyer — welcome to Central Command.</p>
             {METRICS.map(mt => {
@@ -159,6 +171,7 @@ export default function BuyerDashboard() {
                 </p>
               )
             })}
+
             {analysisText && (
               <div className="mt-4 space-y-1">
                 {analysisText.split('\n').map((line, i) => (
@@ -168,15 +181,18 @@ export default function BuyerDashboard() {
             )}
           </div>
 
-          {/* Divider */}
+          {/* divider */}
           <div className="w-px bg-gray-300" />
 
-          {/* Right Pane */}
+          {/* ── Right Pane */}
           <div className="flex-1 overflow-y-auto pl-4">
             {searchResults ? (
               <div className="space-y-4">
                 {searchResults.map((prod, i) => (
-                  <div key={i} className="bg-white p-3 rounded shadow flex items-center space-x-3">
+                  <div
+                    key={i}
+                    className="bg-white p-3 rounded shadow flex items-center space-x-3"
+                  >
                     <img
                       src={`${process.env.NEXT_PUBLIC_API_URL}${prod.image_url}`}
                       alt={prod.title}
@@ -205,7 +221,10 @@ export default function BuyerDashboard() {
                 )}
               </div>
             ) : chartData && chartData.length > 0 ? (
-              <Chart data={chartData} height={Math.floor(window.innerHeight - 4*16 - 64)} />
+              <Chart
+                data={chartData}
+                height={Math.floor(window.innerHeight - 4*16 - 64)}
+              />
             ) : (
               <div className="h-full flex items-center justify-center text-gray-500">
                 <p>Select a button or ask a question to see visual output here.</p>
@@ -215,10 +234,11 @@ export default function BuyerDashboard() {
         </div>
       </main>
 
-      {/* Bottom Terminal Bar */}
+      {/* ── Footer Terminal */}
       <footer className="fixed bottom-0 left-0 w-full bg-white border-t border-gray-300 py-4">
         <div className="max-w-[calc(100%-40px)] mx-auto px-4">
           <div className="flex">
+            {/* input */}
             <div className="w-[calc(50%-20px)] flex items-center space-x-2">
               <input
                 type="text"
@@ -236,6 +256,7 @@ export default function BuyerDashboard() {
                 {isProcessing ? 'Working…' : 'Send'}
               </button>
             </div>
+            {/* tabs */}
             <div className="w-[50%] flex flex-wrap items-center space-x-2 pl-8">
               {COMMAND_TABS.map(label => (
                 <button
