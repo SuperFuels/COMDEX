@@ -10,6 +10,7 @@ from fastapi.staticfiles import StaticFiles
 from starlette.responses import RedirectResponse
 from sqlalchemy import text
 from sqlalchemy.exc import OperationalError
+import uvicorn
 
 # ── 1) Ensure uploads folder exists ───────────────────────────────────
 os.makedirs("uploaded_images", exist_ok=True)
@@ -83,17 +84,17 @@ from .routes.supplier  import router as supplier_router
 # ── 12) Create a single “/api” sub-application and mount all routers there
 api = APIRouter(prefix="/api")
 
-# auth_router already has prefix="/api/auth", so mount it at “/api”
-api.include_router(auth_router)        # GET /api/auth/…
-# for all the others, their own prefixes (without “/api”) will be nested:
-api.include_router(products_router)    # GET/POST /api/products/…
-api.include_router(deal_router)        # GET/POST /api/deals/…
-api.include_router(contracts_router)   # GET/POST /api/contracts/…
-api.include_router(admin_router)       # GET /api/admin/…
-api.include_router(user_router)        # PATCH/GET /api/users/…
-api.include_router(terminal_router)    # POST /api/terminal/…
-api.include_router(buyer_router)       # GET /api/buyer/dashboard
-api.include_router(supplier_router)    # GET /api/supplier/dashboard
+# auth_router has its own prefix="/api/auth"
+api.include_router(auth_router)
+# the rest have prefixes like "/products", "/deals", etc.
+api.include_router(products_router)
+api.include_router(deal_router)
+api.include_router(contracts_router)
+api.include_router(admin_router)
+api.include_router(user_router)
+api.include_router(terminal_router)
+api.include_router(buyer_router)
+api.include_router(supplier_router)
 
 app.include_router(api)
 
@@ -132,3 +133,15 @@ def health_check():
     except OperationalError:
         logger.error("❌ Database connection failed.", exc_info=True)
         return {"status": "error", "database": "not connected"}
+
+# ── 17) Run with Uvicorn if executed directly ────────────────────────
+if __name__ == "__main__":
+    uvicorn.run(
+        "backend.main:app",
+        host="0.0.0.0",
+        port=int(os.environ.get("PORT", 8000)),
+        reload=(ENV != "production"),
+        forwarded_allow_ips="*",
+        # Disable automatic trailing‐slash redirects
+        redirect_slashes=False,
+    )
