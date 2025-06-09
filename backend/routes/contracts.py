@@ -16,7 +16,7 @@ from ..schemas.contract import ContractCreate, ContractOut
 from ..utils.auth import get_current_user
 
 router = APIRouter(
-    prefix="/api/contracts",
+    prefix="/contracts",
     tags=["Contracts"],
 )
 

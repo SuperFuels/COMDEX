@@ -11,51 +11,55 @@ from starlette.responses import RedirectResponse
 from sqlalchemy import text
 from sqlalchemy.exc import OperationalError
 
-# 1) Ensure uploads folder exists
+# ── 1) Ensure uploads folder exists ───────────────────────────────────
 os.makedirs("uploaded_images", exist_ok=True)
 
-# 2) Load .env locally (only when ENV != "production")
+# ── 2) Load .env locally (only when ENV != "production") ─────────────
 ENV = os.getenv("ENV", "").lower()
 if ENV != "production":
     from dotenv import load_dotenv
     load_dotenv()
 
-# 3) Give Cloud SQL socket a moment on cold start
+# ── 3) Warm up Cloud SQL socket on cold starts ────────────────────────
 time.sleep(3)
 
-# 4) Logging
+# ── 4) Logging setup ─────────────────────────────────────────────────
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("comdex")
 
-# 5) Log DB URL for troubleshooting
+# ── 5) Log the DB URL for troubleshooting ────────────────────────────
 from .config import SQLALCHEMY_DATABASE_URL  # noqa: F401
 logger.info(f"🔍 SQLALCHEMY_DATABASE_URL = {SQLALCHEMY_DATABASE_URL}")
 
-# 6) Bring in engine, Base, get_db
+# ── 6) Import engine, Base, get_db ───────────────────────────────────
 from .database import engine, Base, get_db  # noqa: F401
 
-# 7) Register all models
+# ── 7) Register all ORM models ───────────────────────────────────────
 import backend.models  # noqa: F401
 
-# 8) Create tables
+# ── 8) Auto-create tables ────────────────────────────────────────────
 Base.metadata.create_all(bind=engine)
 logger.info("✅ Database tables checked/created.")
 
-# 9) Instantiate app
+# ── 9) Instantiate FastAPI ──────────────────────────────────────────
 app = FastAPI(
     title="COMDEX API",
     version="1.0.0",
     description="Global Commodity Marketplace API",
 )
 
-# 10) CORS
+# ── 10) GLOBAL CORS ──────────────────────────────────────────────────
 if ENV != "production":
     allow_origins = ["*"]
 else:
     raw = os.getenv("CORS_ALLOWED_ORIGINS", "")
     allow_origins = [o.strip() for o in raw.split(",") if o.strip()]
     if not allow_origins:
-        raise RuntimeError("CORS_ALLOWED_ORIGINS must be set in production")
+        raise RuntimeError(
+            "CORS_ALLOWED_ORIGINS must be set in production "
+            "(e.g. https://your-frontend.app)"
+        )
+logger.info(f"✅ CORS allowed_origins = {allow_origins}")
 
 app.add_middleware(
     CORSMiddleware,
@@ -64,58 +68,60 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-logger.info(f"✅ CORS allowed_origins = {allow_origins}")
 
-# 11) Bring in all routers
-from .routes.auth      import router as auth_router      # prefix="/api/auth"
-from .routes.products  import router as products_router  # prefix="/products"
-from .routes.deal      import router as deal_router      # prefix="/deals"
-from .routes.contracts import router as contracts_router# prefix="/contracts"
-from .routes.admin     import router as admin_router     # prefix="/admin"
-from .routes.user      import router as user_router      # prefix="/users"
-from .routes.terminal  import router as terminal_router  # prefix="/terminal"
-from .routes.buyer     import router as buyer_router     # prefix="/buyer"
-from .routes.supplier  import router as supplier_router  # prefix="/supplier"
+# ── 11) Import your routers ──────────────────────────────────────────
+from .routes.auth      import router as auth_router
+from .routes.products  import router as products_router
+from .routes.deal      import router as deal_router
+from .routes.contracts import router as contracts_router
+from .routes.admin     import router as admin_router
+from .routes.user      import router as user_router
+from .routes.terminal  import router as terminal_router
+from .routes.buyer     import router as buyer_router
+from .routes.supplier  import router as supplier_router
 
-# mount auth directly (its own `/api/auth` prefix)
-app.include_router(auth_router)
+# ── 12) Create a single “/api” sub-application and mount all routers there
+api = APIRouter(prefix="/api")
 
-# now create a single `/api` namespace for everything else
-api_router = APIRouter(prefix="/api")
+# auth_router already has prefix="/api/auth", so mount it at “/api”
+api.include_router(auth_router)        # GET /api/auth/…
+# for all the others, their own prefixes (without “/api”) will be nested:
+api.include_router(products_router)    # GET/POST /api/products/…
+api.include_router(deal_router)        # GET/POST /api/deals/…
+api.include_router(contracts_router)   # GET/POST /api/contracts/…
+api.include_router(admin_router)       # GET /api/admin/…
+api.include_router(user_router)        # PATCH/GET /api/users/…
+api.include_router(terminal_router)    # POST /api/terminal/…
+api.include_router(buyer_router)       # GET /api/buyer/dashboard
+api.include_router(supplier_router)    # GET /api/supplier/dashboard
 
-api_router.include_router(products_router,   tags=["Products"])
-api_router.include_router(deal_router,       tags=["Deals"])
-api_router.include_router(contracts_router,  tags=["Contracts"])
-api_router.include_router(admin_router,      tags=["Admin"])
-api_router.include_router(user_router,       tags=["Users"])
-api_router.include_router(terminal_router,   tags=["Terminal"])
-api_router.include_router(buyer_router,      tags=["Buyer"])
-api_router.include_router(supplier_router,   tags=["Supplier"])
+app.include_router(api)
 
-app.include_router(api_router)
-
-
-# 12) Serve uploaded images
+# ── 13) Serve user uploads ───────────────────────────────────────────
 app.mount(
     "/uploaded_images",
     StaticFiles(directory="uploaded_images"),
     name="uploaded_images",
 )
 
-# 13) Serve frontend `static/` if present
+# ── 14) Serve Next.js static if present ──────────────────────────────
 if os.path.isdir("static"):
-    app.mount("/", StaticFiles(directory="static", html=True), name="frontend")
+    app.mount(
+        "/",
+        StaticFiles(directory="static", html=True),
+        name="frontend",
+    )
 else:
     logger.warning(
-        "⚠️ 'static' directory not found: copy your built Next.js into `backend/static`"
+        "⚠️ 'static' directory not found: frontend/out must be copied to backend/static"
     )
 
-# 14) Redirect no‐slash for /products
+# ── 15) Redirect no-slash `/products` ───────────────────────────────
 @app.get("/products", include_in_schema=False)
 def products_no_slash():
     return RedirectResponse(url="/products/", status_code=307)
 
-# 15) Health‐check
+# ── 16) Health check ─────────────────────────────────────────────────
 @app.get("/health", tags=["Health"])
 def health_check():
     try:

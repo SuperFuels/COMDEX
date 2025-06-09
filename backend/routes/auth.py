@@ -59,7 +59,7 @@ class ProfileOut(BaseModel):
         from_attributes = True
 
 # ─── 2) Create APIRouter with prefix="/api/auth" ─────────────────────────
-router = APIRouter(prefix="/api/auth", tags=["Auth"])
+router = APIRouter(prefix="/auth", tags=["Auth"])
 
 @router.get("/nonce")
 def get_siwe_nonce(

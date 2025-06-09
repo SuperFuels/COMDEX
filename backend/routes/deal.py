@@ -25,7 +25,7 @@ from ..schemas.deal import DealCreate, DealOut, DealStatusUpdate
 from ..utils.auth import get_current_user
 
 router = APIRouter(
-    prefix="/api/deals",    # ← all routes now under /api/deals
+    prefix="/deals",    # ← all routes now under /api/deals
     tags=["Deals"],
 )
 

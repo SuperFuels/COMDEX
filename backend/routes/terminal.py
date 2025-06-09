@@ -8,7 +8,7 @@ from ..database import get_db
 from ..utils.terminal import run_query
 
 router = APIRouter(
-    prefix="/api/terminal",
+    prefix="/terminal",
     tags=["Terminal"],
 )
 

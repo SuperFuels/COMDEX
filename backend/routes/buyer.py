@@ -10,7 +10,7 @@ from ..models.user import User
 from ..utils.auth import get_current_user
 
 router = APIRouter(
-    prefix="/api/buyer",
+    prefix="/buyer",
     tags=["Buyer"],
 )
 
