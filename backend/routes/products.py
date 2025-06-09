@@ -24,7 +24,7 @@ from ..models.user import User
 from ..schemas.product import ProductOut, ProductUpdate
 
 router = APIRouter(
-    prefix="/api/products",
+    prefix="/products",
     tags=["Products"],
 )
 logger = logging.getLogger(__name__)

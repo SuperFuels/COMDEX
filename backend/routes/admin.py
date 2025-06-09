@@ -12,7 +12,7 @@ from ..schemas.admin import UserOut, ProductOut, DealOut
 from ..utils.auth import get_current_user
 
 router = APIRouter(
-    prefix="/api/admin",   # all endpoints now under /api/admin/*
+    prefix="/admin",   # all endpoints now under /api/admin/*
     tags=["Admin"],
 )
 
