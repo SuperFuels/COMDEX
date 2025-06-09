@@ -13,52 +13,49 @@ router = APIRouter(
     tags=["Supplier"],
 )
 
-
-@router.get("/dashboard")
+@router.get(
+    "/dashboard",
+    summary="Supplier dashboard: metrics + products",
+)
 def supplier_dashboard(
     current_user: User = Depends(get_current_user),
     db: Session        = Depends(get_db),
 ):
     """
-    Supplier dashboard metrics:
-      - totalSalesToday
-      - activeListings
-      - openOrders
-      - proceeds30d
-      - feedbackRating
-      - products (list of this supplier's products)
+    Returns:
+      - totalSalesToday: int
+      - activeListings: int
+      - openOrders: int
+      - proceeds30d: float
+      - feedbackRating: float
+      - products: list of { id, title, description, price_per_kg, origin_country, image_url }
     """
-    # 1) Only suppliers allowed
     if current_user.role != "supplier":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Only suppliers can access this endpoint"
         )
 
-    # 2) TODO: Replace these stubs with real, per-supplier calculations
+    # TODO: hook up real aggregates here
     total_sales     = 0
     open_orders     = 0
     proceeds_30d    = 0.0
     feedback_rating = 0.0
 
-    # 3) Active listings = number of products this supplier owns
-    products_q = (
-        db.query(Product)
-          .filter(Product.owner_email == current_user.email)
-    )
-    active_listings = products_q.count()
+    q = db.query(Product).filter(Product.owner_email == current_user.email)
+    active_listings = q.count()
 
-    # 4) Build the products array
-    products = []
-    for p in products_q.all():
-        products.append({
+    products = [
+        {
             "id":             p.id,
             "title":          p.title,
             "description":    p.description,
             "price_per_kg":   p.price_per_kg,
             "origin_country": p.origin_country,
             "image_url":      p.image_url or "",
-        })
+        }
+        for p in q.all()
+    ]
 
     return {
         "totalSalesToday": total_sales,
@@ -68,3 +65,38 @@ def supplier_dashboard(
         "feedbackRating":  feedback_rating,
         "products":        products,
     }
+
+@router.get(
+    "/products",
+    summary="List this supplier’s products",
+)
+def list_my_products(
+    current_user: User = Depends(get_current_user),
+    db: Session        = Depends(get_db),
+):
+    """
+    GET /api/supplier/products
+    Just returns the `products` array for the current supplier (no metrics).
+    """
+    if current_user.role != "supplier":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only suppliers can access this endpoint"
+        )
+
+    prods = (
+        db.query(Product)
+          .filter(Product.owner_email == current_user.email)
+          .all()
+    )
+    return [
+        {
+            "id":             p.id,
+            "title":          p.title,
+            "description":    p.description,
+            "price_per_kg":   p.price_per_kg,
+            "origin_country": p.origin_country,
+            "image_url":      p.image_url or "",
+        }
+        for p in prods
+    ]

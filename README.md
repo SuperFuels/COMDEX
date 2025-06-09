@@ -37,6 +37,8 @@ npm run export
 cd ..
 firebase deploy --only hosting§
 
+gcloud builds submit --config cloudbuild.yaml .
+
 # 1. Double-check you’re on main
 git checkout main
 

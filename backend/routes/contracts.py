@@ -1,4 +1,4 @@
-# backend/routes/contracts.py
+# File: backend/routes/contracts.py
 
 import os
 from io import BytesIO
@@ -16,7 +16,7 @@ from ..schemas.contract import ContractCreate, ContractOut
 from ..utils.auth import get_current_user
 
 router = APIRouter(
-    prefix="/api/contracts",   # ← add `/api` here
+    prefix="/api/contracts",
     tags=["Contracts"],
 )
 
