@@ -6,7 +6,15 @@ import logging
 import shutil
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Form
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    status,
+    UploadFile,
+    File,
+    Form,
+)
 from sqlalchemy.orm import Session
 
 from ..database import get_db
@@ -16,7 +24,7 @@ from ..models.user import User
 from ..schemas.product import ProductOut, ProductUpdate
 
 router = APIRouter(
-    prefix="/products",
+    prefix="/api/products",    # ← changed to include `/api`
     tags=["Products"],
 )
 logger = logging.getLogger(__name__)
@@ -32,7 +40,7 @@ def get_my_products(
     db: Session = Depends(get_db),
 ):
     """
-    GET /products/me
+    GET /api/products/me
     List all products owned by the current supplier.
     """
     if current_user.role != "supplier":
@@ -41,8 +49,7 @@ def get_my_products(
             detail="Only suppliers can view their products",
         )
     prods = (
-        db
-        .query(Product)
+        db.query(Product)
         .filter(Product.owner_email == current_user.email)
         .all()
     )
@@ -54,18 +61,15 @@ def get_my_products(
 @router.get("/", response_model=List[ProductOut])
 def get_all_products(db: Session = Depends(get_db)):
     """
-    GET /products/
+    GET /api/products/
     Public: list all products.
     """
     prods = db.query(Product).all()
     for p in prods:
-        owner = (
-            db
-            .query(User)
-            .filter(User.email == p.owner_email)
-            .first()
+        owner = db.query(User).filter(User.email == p.owner_email).first()
+        p.owner_wallet_address = (
+            owner.wallet_address if owner and owner.wallet_address else ""
         )
-        p.owner_wallet_address = owner.wallet_address if owner and owner.wallet_address else ""
     return prods
 
 
@@ -86,9 +90,9 @@ def create_product(
     db: Session = Depends(get_db),
 ):
     """
-    POST /products/
+    POST /api/products/
     Create a new product (supplier only).
-    Expects a multipart/form-data with:
+    Expects multipart/form-data:
       - title, description, price_per_kg, origin_country, category
       - image file
     """
@@ -132,19 +136,18 @@ def update_product(
     db: Session = Depends(get_db),
 ):
     """
-    PUT /products/{product_id}
-    Update fields on an existing product (supplier only).
+    PUT /api/products/{product_id}
+    Update an existing product (supplier only).
     """
     product = (
-        db
-        .query(Product)
+        db.query(Product)
         .filter_by(id=product_id, owner_email=current_user.email)
         .first()
     )
     if not product:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Product not found"
+            detail="Product not found",
         )
 
     for field, value in payload.dict(exclude_unset=True).items():
@@ -163,19 +166,18 @@ def delete_product(
     db: Session = Depends(get_db),
 ):
     """
-    DELETE /products/{product_id}
-    Remove a product (supplier only), and delete its image file.
+    DELETE /api/products/{product_id}
+    Remove a product (supplier only), deleting its image file too.
     """
     product = (
-        db
-        .query(Product)
+        db.query(Product)
         .filter_by(id=product_id, owner_email=current_user.email)
         .first()
     )
     if not product:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Product not found"
+            detail="Product not found",
         )
 
     # remove image file
@@ -186,7 +188,7 @@ def delete_product(
     except Exception:
         logger.warning(
             f"Failed to delete image file for product {product_id}",
-            exc_info=True
+            exc_info=True,
         )
 
     db.delete(product)
