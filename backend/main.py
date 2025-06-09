@@ -12,44 +12,47 @@ from sqlalchemy import text
 from sqlalchemy.exc import OperationalError
 import uvicorn
 
-# ── 1) Ensure uploads folder exists ───────────────────────────────────
+# ── 1) Ensure uploads folder exists
 os.makedirs("uploaded_images", exist_ok=True)
 
-# ── 2) Load .env locally (only when ENV != "production") ─────────────
+# ── 2) Load .env locally (only when ENV != "production")
 ENV = os.getenv("ENV", "").lower()
 if ENV != "production":
     from dotenv import load_dotenv
     load_dotenv()
 
-# ── 3) Warm up Cloud SQL socket on cold starts ────────────────────────
+# ── 3) Warm up Cloud SQL socket on cold starts
 time.sleep(3)
 
-# ── 4) Logging setup ─────────────────────────────────────────────────
+# ── 4) Logging setup
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("comdex")
 
-# ── 5) Log the DB URL for troubleshooting ────────────────────────────
+# ── 5) Log the DB URL for troubleshooting
 from .config import SQLALCHEMY_DATABASE_URL  # noqa: F401
 logger.info(f"🔍 SQLALCHEMY_DATABASE_URL = {SQLALCHEMY_DATABASE_URL}")
 
-# ── 6) Import engine, Base, get_db ───────────────────────────────────
+# ── 6) Import engine, Base, get_db
 from .database import engine, Base, get_db  # noqa: F401
 
-# ── 7) Register all ORM models ───────────────────────────────────────
+# ── 7) Register all ORM models
 import backend.models  # noqa: F401
 
-# ── 8) Auto-create tables ────────────────────────────────────────────
+# ── 8) Auto-create tables
 Base.metadata.create_all(bind=engine)
 logger.info("✅ Database tables checked/created.")
 
-# ── 9) Instantiate FastAPI ──────────────────────────────────────────
+# ── 9) Instantiate FastAPI
 app = FastAPI(
     title="COMDEX API",
     version="1.0.0",
     description="Global Commodity Marketplace API",
 )
 
-# ── 10) GLOBAL CORS ──────────────────────────────────────────────────
+# ⏬ **Disable automatic trailing-slash redirects**  
+app.router.redirect_slashes = False
+
+# ── 10) GLOBAL CORS
 if ENV != "production":
     allow_origins = ["*"]
 else:
@@ -70,7 +73,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ── 11) Import your routers ──────────────────────────────────────────
+# ── 11) Import routers
 from .routes.auth      import router as auth_router
 from .routes.products  import router as products_router
 from .routes.deal      import router as deal_router
@@ -81,12 +84,9 @@ from .routes.terminal  import router as terminal_router
 from .routes.buyer     import router as buyer_router
 from .routes.supplier  import router as supplier_router
 
-# ── 12) Create a single “/api” sub-application and mount all routers there
+# ── 12) Mount under /api
 api = APIRouter(prefix="/api")
-
-# auth_router has its own prefix="/api/auth"
 api.include_router(auth_router)
-# the rest have prefixes like "/products", "/deals", etc.
 api.include_router(products_router)
 api.include_router(deal_router)
 api.include_router(contracts_router)
@@ -95,17 +95,16 @@ api.include_router(user_router)
 api.include_router(terminal_router)
 api.include_router(buyer_router)
 api.include_router(supplier_router)
-
 app.include_router(api)
 
-# ── 13) Serve user uploads ───────────────────────────────────────────
+# ── 13) Serve uploaded images
 app.mount(
     "/uploaded_images",
     StaticFiles(directory="uploaded_images"),
     name="uploaded_images",
 )
 
-# ── 14) Serve Next.js static if present ──────────────────────────────
+# ── 14) (Optional) Serve Next.js static output
 if os.path.isdir("static"):
     app.mount(
         "/",
@@ -117,12 +116,12 @@ else:
         "⚠️ 'static' directory not found: frontend/out must be copied to backend/static"
     )
 
-# ── 15) Redirect no-slash `/products` ───────────────────────────────
+# ── 15) Legacy redirect (not strictly needed now)
 @app.get("/products", include_in_schema=False)
 def products_no_slash():
     return RedirectResponse(url="/products/", status_code=307)
 
-# ── 16) Health check ─────────────────────────────────────────────────
+# ── 16) Health check
 @app.get("/health", tags=["Health"])
 def health_check():
     try:
@@ -134,7 +133,7 @@ def health_check():
         logger.error("❌ Database connection failed.", exc_info=True)
         return {"status": "error", "database": "not connected"}
 
-# ── 17) Run with Uvicorn if executed directly ────────────────────────
+# ── 17) Uvicorn entrypoint
 if __name__ == "__main__":
     uvicorn.run(
         "backend.main:app",
@@ -142,6 +141,5 @@ if __name__ == "__main__":
         port=int(os.environ.get("PORT", 8000)),
         reload=(ENV != "production"),
         forwarded_allow_ips="*",
-        # Disable automatic trailing‐slash redirects
         redirect_slashes=False,
     )
