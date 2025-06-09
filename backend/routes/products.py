@@ -24,7 +24,7 @@ from ..models.user import User
 from ..schemas.product import ProductOut, ProductUpdate
 
 router = APIRouter(
-    prefix="/api/products",    # ← changed to include `/api`
+    prefix="/api/products",
     tags=["Products"],
 )
 logger = logging.getLogger(__name__)
@@ -49,7 +49,8 @@ def get_my_products(
             detail="Only suppliers can view their products",
         )
     prods = (
-        db.query(Product)
+        db
+        .query(Product)
         .filter(Product.owner_email == current_user.email)
         .all()
     )
@@ -66,10 +67,13 @@ def get_all_products(db: Session = Depends(get_db)):
     """
     prods = db.query(Product).all()
     for p in prods:
-        owner = db.query(User).filter(User.email == p.owner_email).first()
-        p.owner_wallet_address = (
-            owner.wallet_address if owner and owner.wallet_address else ""
+        owner = (
+            db
+            .query(User)
+            .filter(User.email == p.owner_email)
+            .first()
         )
+        p.owner_wallet_address = owner.wallet_address if owner and owner.wallet_address else ""
     return prods
 
 
@@ -140,7 +144,8 @@ def update_product(
     Update an existing product (supplier only).
     """
     product = (
-        db.query(Product)
+        db
+        .query(Product)
         .filter_by(id=product_id, owner_email=current_user.email)
         .first()
     )
@@ -170,7 +175,8 @@ def delete_product(
     Remove a product (supplier only), deleting its image file too.
     """
     product = (
-        db.query(Product)
+        db
+        .query(Product)
         .filter_by(id=product_id, owner_email=current_user.email)
         .first()
     )

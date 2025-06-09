@@ -1,4 +1,4 @@
-# backend/routes/deal.py
+# File: backend/routes/deal.py
 
 import os
 import json
@@ -25,7 +25,7 @@ from ..schemas.deal import DealCreate, DealOut, DealStatusUpdate
 from ..utils.auth import get_current_user
 
 router = APIRouter(
-    prefix="/api/deals",
+    prefix="/api/deals",    # ← all routes now under /api/deals
     tags=["Deals"],
 )
 
@@ -70,15 +70,15 @@ def get_web3_contract() -> Tuple[Web3, any, any]:
     status_code=status.HTTP_201_CREATED,
 )
 def create_deal(
-    deal_data: DealCreate,
+    deal_data: DealCreate = Body(...),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    product = db.query(Product).get(deal_data.product_id)
+    product = db.query(Product).filter(Product.id == deal_data.product_id).first()
     if not product:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Product not found")
 
-    supplier = db.query(User).filter_by(email=product.owner_email).first()
+    supplier = db.query(User).filter(User.email == product.owner_email).first()
     if not supplier:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Supplier not found")
 
@@ -126,7 +126,7 @@ def list_deals(
           .all()
     )
     for d in deals:
-        sup = db.query(User).filter_by(email=d.supplier_email).first()
+        sup = db.query(User).filter(User.email == d.supplier_email).first()
         d.supplier_wallet_address = sup.wallet_address or ""
     return deals
 
@@ -140,12 +140,12 @@ def get_deal(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    deal = db.query(Deal).get(deal_id)
+    deal = db.query(Deal).filter(Deal.id == deal_id).first()
     if not deal:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Deal not found")
     if current_user.email not in (deal.buyer_email, deal.supplier_email):
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Not authorized")
-    sup = db.query(User).filter_by(email=deal.supplier_email).first()
+    sup = db.query(User).filter(User.email == deal.supplier_email).first()
     deal.supplier_wallet_address = sup.wallet_address or ""
     return deal
 
@@ -160,7 +160,7 @@ def update_status(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    deal = db.query(Deal).get(deal_id)
+    deal = db.query(Deal).filter(Deal.id == deal_id).first()
     if not deal:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Deal not found")
     if current_user.email not in (deal.buyer_email, deal.supplier_email):
@@ -172,7 +172,7 @@ def update_status(
     db.commit()
     db.refresh(deal)
 
-    sup = db.query(User).filter_by(email=deal.supplier_email).first()
+    sup = db.query(User).filter(User.email == deal.supplier_email).first()
     deal.supplier_wallet_address = sup.wallet_address or ""
     return deal
 
@@ -183,7 +183,7 @@ def get_deal_pdf(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    deal = db.query(Deal).get(deal_id)
+    deal = db.query(Deal).filter(Deal.id == deal_id).first()
     if not deal:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Deal not found")
     if current_user.email not in (deal.buyer_email, deal.supplier_email):
@@ -223,7 +223,7 @@ def release_deal(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    deal = db.query(Deal).get(deal_id)
+    deal = db.query(Deal).filter(Deal.id == deal_id).first()
     if not deal:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Deal not found")
     if current_user.email != deal.supplier_email:

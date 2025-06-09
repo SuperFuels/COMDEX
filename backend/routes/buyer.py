@@ -9,7 +9,10 @@ from ..models.product import Product
 from ..models.user import User
 from ..utils.auth import get_current_user
 
-router = APIRouter(prefix="/api/buyer", tags=["Buyer"])
+router = APIRouter(
+    prefix="/api/buyer",
+    tags=["Buyer"],
+)
 
 @router.get("/dashboard")
 def buyer_dashboard(
@@ -24,22 +27,22 @@ def buyer_dashboard(
       - availableProducts
       - activeDeals
     """
-    # 1) Ensure only buyers can access
+    # 1) Only buyers may call this
     if current_user.role != "buyer":
         raise HTTPException(
-            status.HTTP_403_FORBIDDEN,
+            status_code=status.HTTP_403_FORBIDDEN,
             detail="Only buyers can access this endpoint"
         )
 
-    # 2) TODO: Replace with real calculations
+    # 2) Stub data – replace with real logic as needed
     total_sales     = 0
     open_orders     = 0
     pending_escrow  = 0
 
-    # Available products = count of all products in the marketplace
-    available = db.query(Product).count()
+    # Available products in marketplace
+    available_products = db.query(Product).count()
 
-    # Active deals where this user is the buyer
+    # Active deals for this buyer
     active_deals = (
         db.query(Deal)
           .filter(Deal.buyer_id == current_user.id, Deal.status == "active")
@@ -50,6 +53,6 @@ def buyer_dashboard(
         "totalSalesToday":   total_sales,
         "openOrders":        open_orders,
         "pendingEscrow":     pending_escrow,
-        "availableProducts": available,
+        "availableProducts": available_products,
         "activeDeals":       active_deals,
     }
