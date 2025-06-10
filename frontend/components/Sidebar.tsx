@@ -1,4 +1,6 @@
 // frontend/components/Sidebar.tsx
+"use client"
+
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { DarkModeToggle } from './DarkModeToggle'

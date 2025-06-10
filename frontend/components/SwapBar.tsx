@@ -1,4 +1,6 @@
 // frontend/components/SwapBar.tsx
+"use client"
+
 import { useRouter } from 'next/router'
 import { useState, FormEvent } from 'react'
 import Image from 'next/image'

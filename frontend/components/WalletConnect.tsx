@@ -1,4 +1,5 @@
 // frontend/components/WalletConnect.tsx
+"use client"
 
 import { useState } from 'react'
 import api from '../lib/api'

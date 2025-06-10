@@ -1,4 +1,5 @@
 // frontend/pages/deals/index.tsx
+"use client"
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'

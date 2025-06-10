@@ -1,4 +1,6 @@
 // frontend/components/DarkModeToggle.tsx
+"use client"
+
 import { useEffect, useState } from 'react';
 
 export function DarkModeToggle() {
