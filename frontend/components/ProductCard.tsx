@@ -19,9 +19,10 @@ export interface ProductCardProps {
     tags?: string[]
     change_pct?: number
   }
+  onClick?: () => void
 }
 
-export default function ProductCard({ product }: ProductCardProps) {
+export default function ProductCard({ product, onClick }: ProductCardProps) {
   const {
     id,
     image_url,
@@ -51,7 +52,10 @@ export default function ProductCard({ product }: ProductCardProps) {
   const pricePerTn = price_per_kg * 1000
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition">
+    <div
+      onClick={onClick}
+      className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition cursor-pointer"
+    >
       {/* Image */}
       <div className="relative w-full h-48">
         <Image
