@@ -1,4 +1,6 @@
 // frontend/components/CreateProductForm.tsx
+"use client"
+
 import { useState } from 'react'
 import api from '@/lib/api'
 

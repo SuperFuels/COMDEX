@@ -1,3 +1,5 @@
+"use client"
+
 import { useState } from 'react';
 import useEscrowContract from '@/hooks/useEscrowContract';
 

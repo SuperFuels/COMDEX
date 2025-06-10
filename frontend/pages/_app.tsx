@@ -1,4 +1,5 @@
 // frontend/pages/_app.tsx
+"use client"
 
 import '@/lib/api'                // ← configure your axios instance first
 import '@/styles/globals.css'     // ← Tailwind + your custom globals

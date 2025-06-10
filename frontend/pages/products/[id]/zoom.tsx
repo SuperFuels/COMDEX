@@ -1,4 +1,6 @@
 // frontend/pages/products/[id]/zoom.tsx
+"use client"
+
 import { useRouter } from 'next/router'
 import { useState } from 'react'
 import Link from 'next/link'

@@ -1,4 +1,5 @@
 // frontend/components/SwapPanel.tsx
+"use client"
 
 import React, { useState, useEffect } from 'react'
 import { ethers } from 'ethers'

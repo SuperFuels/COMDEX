@@ -1,4 +1,6 @@
 // pages/admin/dashboard.tsx
+"use client"
+
 import { useEffect, useState } from 'react'
 import useAuthRedirect from '@/hooks/useAuthRedirect'
 import api from '@/lib/api'
