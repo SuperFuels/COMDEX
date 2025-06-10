@@ -1,4 +1,5 @@
 // File: frontend/pages/products/[id].tsx
+"use client"
 
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
