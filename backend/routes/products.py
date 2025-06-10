@@ -75,6 +75,31 @@ def get_all_products(db: Session = Depends(get_db)):
     return prods
 
 
+@router.get(
+    "/{product_id}",
+    response_model=ProductOut,
+    status_code=status.HTTP_200_OK,
+)
+def get_product(
+    product_id: int,
+    db: Session = Depends(get_db),
+):
+    """
+    GET /api/products/{product_id}
+    Public: fetch a single product by ID.
+    """
+    product = db.query(Product).filter_by(id=product_id).first()
+    if not product:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Product not found",
+        )
+
+    owner = db.query(User).filter_by(email=product.owner_email).first()
+    product.owner_wallet_address = owner.wallet_address if owner and owner.wallet_address else ""
+    return product
+
+
 @router.post(
     "",
     response_model=ProductOut,
@@ -104,14 +129,12 @@ def create_product(
             detail="Only suppliers can create products",
         )
 
-    # 1) Save uploaded image
     ext = os.path.splitext(image.filename)[1]
     unique_name = f"{uuid.uuid4().hex}{ext}"
     dest_path = os.path.join(UPLOAD_DIR, unique_name)
     with open(dest_path, "wb") as f:
         shutil.copyfileobj(image.file, f)
 
-    # 2) Create Product record
     product = Product(
         title=title,
         description=description,
@@ -125,7 +148,6 @@ def create_product(
     db.commit()
     db.refresh(product)
 
-    # 3) Attach owner wallet before returning
     product.owner_wallet_address = current_user.wallet_address or ""
     return product
 
@@ -184,7 +206,6 @@ def delete_product(
             detail="Product not found",
         )
 
-    # remove image file
     try:
         filepath = product.image_url.lstrip("/")
         if os.path.exists(filepath):
