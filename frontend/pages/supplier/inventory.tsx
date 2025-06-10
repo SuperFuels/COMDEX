@@ -3,8 +3,7 @@
 import { useEffect, useState } from 'react'
 import useAuthRedirect from '@/hooks/useAuthRedirect'
 import api from '@/lib/api'
-import CreateProductForm from '@/components/CreateProductForm'
-import ProductCard from '@/components/ProductCard'    // <-- assume you have one
+import ProductCard from '@/components/ProductCard'
 
 // ----------------------------------------------------------------
 // Only the four tabs we want to expose on the standalone Inventory page
@@ -17,46 +16,44 @@ const INVENTORY_TABS = [
 ]
 
 export default function SupplierInventory() {
-  // 1) Enforce that only “supplier” can view this page
   useAuthRedirect('supplier')
 
-  // 2) Fetch supplier‐specific data
   const [data,    setData]    = useState<any>(null)
   const [loading,setLoading] = useState(true)
   const [error,  setError]   = useState<string | null>(null)
 
-  // 3) Track which inventory tab is active
+  // Tab state
   const [activeTab,    setActiveTab]    = useState<string>('create')
-  // 4) Flag to trigger a refresh (after Create → re‐fetch dashboard data)
   const [refreshFlag,  setRefreshFlag]  = useState(0)
-  const refreshDashboard = () => setRefreshFlag((f) => f + 1)
+  const refreshDashboard = () => setRefreshFlag(f => f + 1)
 
-  // Re-fetch any time `refreshFlag` changes
+  // Form state
+  const [title, setTitle] = useState('')
+  const [description, setDescription] = useState('')
+  const [price, setPrice] = useState('')
+  const [origin, setOrigin] = useState('')
+  const [category, setCategory] = useState('')
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [formError, setFormError] = useState<string | null>(null)
+
+  // Fetch dashboard/inventory data
   useEffect(() => {
-    let isMounted = true
-
+    let mounted = true
     setLoading(true)
-    api.get('/supplier/dashboard')
-      .then((res) => {
-        if (isMounted) {
-          setData(res.data)
-        }
+    api
+      .get('/supplier/dashboard')
+      .then(res => {
+        if (mounted) setData(res.data)
       })
-      .catch((err) => {
-        if (isMounted) {
-          setError(err.message || 'Error loading inventory')
-        }
+      .catch(err => {
+        if (mounted) setError(err.message || 'Error loading inventory')
       })
       .finally(() => {
-        if (isMounted) setLoading(false)
+        if (mounted) setLoading(false)
       })
-
-    return () => {
-      isMounted = false
-    }
+    return () => { mounted = false }
   }, [refreshFlag])
 
-  // 5) Show loading / error states
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-bg-page">
@@ -72,14 +69,47 @@ export default function SupplierInventory() {
     )
   }
 
+  const handleCreateSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setFormError(null)
+    if (!imageFile) {
+      setFormError('Please select an image.')
+      return
+    }
+
+    const formData = new FormData()
+    formData.append('title', title)
+    formData.append('description', description)
+    formData.append('price_per_kg', price)
+    formData.append('origin_country', origin)
+    formData.append('category', category)
+    formData.append('image', imageFile)
+
+    try {
+      await api.post('products', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      // Clear form and refresh list
+      setTitle('')
+      setDescription('')
+      setPrice('')
+      setOrigin('')
+      setCategory('')
+      setImageFile(null)
+      refreshDashboard()
+      setActiveTab('active')
+    } catch (err: any) {
+      console.error(err)
+      const detail = err.response?.data?.detail
+      setFormError(typeof detail === 'string' ? detail : JSON.stringify(err.response?.data))
+    }
+  }
+
   return (
     <div className="bg-bg-page min-h-screen">
-      {/* Spacer for sticky navbar */}
       <div className="h-16" />
-
       <main className="max-w-7xl mx-auto px-4 pt-5 space-y-8">
         <div className="bg-white dark:bg-gray-800 border border-border-light dark:border-gray-700 rounded-lg">
-          {/* Header */}
           <div className="px-4 py-3 border-b border-border-light dark:border-gray-700">
             <h2 className="text-2xl font-semibold text-text dark:text-text-secondary">
               Manage Inventory
@@ -89,16 +119,18 @@ export default function SupplierInventory() {
           {/* Tabs */}
           <div className="px-4 pt-2">
             <nav className="flex space-x-4 overflow-x-auto">
-              {INVENTORY_TABS.map((tab) => {
+              {INVENTORY_TABS.map(tab => {
                 const isActive = activeTab === tab.key
-                const baseClasses = 'py-2 px-4 text-sm font-medium whitespace-nowrap focus:outline-none'
-                const activeClasses   = 'border-b-2 border-black dark:border-white text-black dark:text-white'
-                const inactiveClasses = 'text-text-secondary dark:text-text-secondary'
                 return (
                   <button
                     key={tab.key}
                     onClick={() => setActiveTab(tab.key)}
-                    className={`${baseClasses} ${isActive ? activeClasses : inactiveClasses}`}
+                    className={
+                      `py-2 px-4 text-sm font-medium whitespace-nowrap focus:outline-none ` +
+                      (isActive
+                        ? 'border-b-2 border-black dark:border-white text-black dark:text-white'
+                        : 'text-text-secondary dark:text-text-secondary')
+                    }
                   >
                     {tab.label}
                   </button>
@@ -107,21 +139,74 @@ export default function SupplierInventory() {
             </nav>
           </div>
 
-          {/* Tab Content */}
+          {/* Content */}
           <div className="p-4">
-            {/* — Create Product Tab — */}
             {activeTab === 'create' && (
-              <CreateProductForm onSuccess={refreshDashboard} />
+              <form onSubmit={handleCreateSubmit} className="space-y-4">
+                {formError && <div className="text-red-600">{formError}</div>}
+
+                <input
+                  type="text"
+                  placeholder="Title"
+                  value={title}
+                  onChange={e => setTitle(e.currentTarget.value)}
+                  required
+                  className="w-full p-2 border rounded"
+                />
+
+                <input
+                  type="number"
+                  placeholder="Price per kg"
+                  value={price}
+                  onChange={e => setPrice(e.currentTarget.value)}
+                  required
+                  className="w-full p-2 border rounded"
+                />
+
+                <input
+                  type="text"
+                  placeholder="Origin country"
+                  value={origin}
+                  onChange={e => setOrigin(e.currentTarget.value)}
+                  className="w-full p-2 border rounded"
+                />
+
+                <input
+                  type="text"
+                  placeholder="Category"
+                  value={category}
+                  onChange={e => setCategory(e.currentTarget.value)}
+                  className="w-full p-2 border rounded"
+                />
+
+                <textarea
+                  placeholder="Description"
+                  value={description}
+                  onChange={e => setDescription(e.currentTarget.value)}
+                  className="w-full p-2 border rounded"
+                />
+
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={e => setImageFile(e.target.files?.[0] ?? null)}
+                  required
+                  className="w-full"
+                />
+
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                >
+                  Create Product
+                </button>
+              </form>
             )}
 
-            {/* — Edit Product Tab — */}
             {activeTab === 'edit' && (
-              <p className="text-text-secondary italic">
-                “Edit Product” form goes here. (Coming soon)
-              </p>
+              <p className="text-text-secondary italic">“Edit Product” form coming soon.</p>
             )}
 
-            {/* — Active Products Tab — */}
             {activeTab === 'active' && (
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {data.products.map((prod: any) => (
@@ -130,11 +215,8 @@ export default function SupplierInventory() {
               </div>
             )}
 
-            {/* — Compliance Tab — */}
             {activeTab === 'compliance' && (
-              <p className="text-text-secondary italic">
-                “Compliance” section goes here. (Coming soon)
-              </p>
+              <p className="text-text-secondary italic">“Compliance” section coming soon.</p>
             )}
           </div>
         </div>
