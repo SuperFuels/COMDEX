@@ -1,5 +1,3 @@
-# backend/routes/products.py
-
 import os
 import uuid
 import logging
@@ -59,10 +57,10 @@ def get_my_products(
     return prods
 
 
-@router.get("/", response_model=List[ProductOut])
+@router.get("", response_model=List[ProductOut])
 def get_all_products(db: Session = Depends(get_db)):
     """
-    GET /api/products/
+    GET /api/products
     Public: list all products.
     """
     prods = db.query(Product).all()
@@ -78,7 +76,7 @@ def get_all_products(db: Session = Depends(get_db)):
 
 
 @router.post(
-    "/",
+    "",
     response_model=ProductOut,
     status_code=status.HTTP_201_CREATED,
 )
@@ -94,7 +92,7 @@ def create_product(
     db: Session = Depends(get_db),
 ):
     """
-    POST /api/products/
+    POST /api/products
     Create a new product (supplier only).
     Expects multipart/form-data:
       - title, description, price_per_kg, origin_country, category
