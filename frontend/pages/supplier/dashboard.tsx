@@ -1,4 +1,5 @@
 // File: frontend/pages/supplier/dashboard.tsx
+"use client"
 
 import { useEffect, useState } from 'react'
 import useAuthRedirect from '@/hooks/useAuthRedirect'

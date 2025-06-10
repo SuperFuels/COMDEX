@@ -1,4 +1,6 @@
 // frontend/pages/products/new.tsx
+"use client"
+
 import { useState } from 'react'
 import api from '@/lib/api'
 import { useRouter } from 'next/router'
