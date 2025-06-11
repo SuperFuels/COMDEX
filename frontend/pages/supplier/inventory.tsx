@@ -1,6 +1,5 @@
 // File: frontend/pages/supplier/inventory.tsx
 import { useEffect, useState } from 'react'
-import Link from 'next/link'
 import useAuthRedirect from '@/hooks/useAuthRedirect'
 import api from '@/lib/api'
 import ProductCard from '@/components/ProductCard'
