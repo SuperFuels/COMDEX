@@ -1,6 +1,4 @@
 // File: frontend/pages/supplier/inventory.tsx
-"use client"
-
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import useAuthRedirect from '@/hooks/useAuthRedirect'
