@@ -1,3 +1,4 @@
+// File: frontend/pages/supplier/inventory/edit/[id].tsx
 "use client"
 
 import { useRouter } from 'next/router'
@@ -31,8 +32,9 @@ export default function EditInventoryItem() {
   useEffect(() => {
     if (!id) return
     setLoading(true)
-    api.get<Product>(\`/products/\${id}\`)
-      .then(({ data }) => {
+    api.get(`/products/${id}`)
+      .then((res) => {
+        const data = res.data as Product
         setProduct(data)
         setForm({
           title: data.title,
@@ -55,7 +57,7 @@ export default function EditInventoryItem() {
     if (!id) return
     setError(null)
     try {
-      await api.put(\`/products/\${id}\`, {
+      await api.put(`/products/${id}`, {
         title: form.title,
         description: form.description,
         price_per_kg: parseFloat(form.price_per_kg),
