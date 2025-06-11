@@ -1,4 +1,5 @@
 // frontend/pages/deals/create/[product_id].tsx
+"use client"
 
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
