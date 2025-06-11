@@ -1,8 +1,6 @@
 // File: frontend/pages/supplier/inventory.tsx
-"use client"
 
 import { useEffect, useState } from 'react'
-import Link from 'next/link'
 import useAuthRedirect from '@/hooks/useAuthRedirect'
 import api from '@/lib/api'
 import ProductCard from '@/components/ProductCard'
@@ -20,7 +18,6 @@ const INVENTORY_TABS = [
 export default function SupplierInventory() {
   useAuthRedirect('supplier')
 
-  // Dashboard data
   const [data,    setData]    = useState<any>(null)
   const [loading,setLoading] = useState(true)
   const [error,  setError]   = useState<string | null>(null)
@@ -30,7 +27,7 @@ export default function SupplierInventory() {
   const [refreshFlag,  setRefreshFlag]  = useState(0)
   const refreshDashboard = () => setRefreshFlag(f => f + 1)
 
-  // Create form state
+  // Form state
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [price, setPrice] = useState('')
@@ -39,24 +36,22 @@ export default function SupplierInventory() {
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [formError, setFormError] = useState<string | null>(null)
 
-  // Edit form state
-  const [editId, setEditId]                   = useState<number | null>(null)
-  const [editTitle, setEditTitle]             = useState('')
-  const [editDescription, setEditDescription] = useState('')
-  const [editPrice, setEditPrice]             = useState('')
-  const [editOrigin, setEditOrigin]           = useState('')
-  const [editCategory, setEditCategory]       = useState('')
-  const [editFormError, setEditFormError]     = useState<string | null>(null)
-
-  // Fetch dashboard data
+  // Fetch dashboard/inventory data
   useEffect(() => {
-    let m = true
+    let mounted = true
     setLoading(true)
-    api.get('/supplier/dashboard')
-      .then(res => { if (m) setData(res.data) })
-      .catch(err => { if (m) setError(err.message) })
-      .finally(() => { if (m) setLoading(false) })
-    return () => { m = false }
+    api
+      .get('/supplier/dashboard')
+      .then(res => {
+        if (mounted) setData(res.data)
+      })
+      .catch(err => {
+        if (mounted) setError(err.message || 'Error loading inventory')
+      })
+      .finally(() => {
+        if (mounted) setLoading(false)
+      })
+    return () => { mounted = false }
   }, [refreshFlag])
 
   if (loading) {
@@ -74,58 +69,39 @@ export default function SupplierInventory() {
     )
   }
 
-  // Pre-fill edit form
-  useEffect(() => {
-    if (editId != null) {
-      const prod = data.products.find((p: any) => p.id === editId)
-      if (prod) {
-        setEditTitle(prod.title)
-        setEditDescription(prod.description || '')
-        setEditPrice(String(prod.price_per_kg))
-        setEditOrigin(prod.origin_country || '')
-        setEditCategory(prod.category || '')
-      }
-    }
-  }, [editId, data])
-
-  // Handlers (reuse your existing logic)
   const handleCreateSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setFormError(null)
-    if (!imageFile) return setFormError('Please select an image.')
-    const fd = new FormData()
-    fd.append('title', title)
-    fd.append('description', description)
-    fd.append('price_per_kg', price)
-    fd.append('origin_country', origin)
-    fd.append('category', category)
-    fd.append('image', imageFile)
-    try {
-      await api.post('products', fd, { headers: { 'Content-Type': 'multipart/form-data' }})
-      setTitle(''); setDescription(''); setPrice(''); setOrigin(''); setCategory(''); setImageFile(null)
-      refreshDashboard()
-      setActiveTab('active')
-    } catch (err: any) {
-      setFormError(err.response?.data?.detail || 'Error creating product.')
+    if (!imageFile) {
+      setFormError('Please select an image.')
+      return
     }
-  }
-  const handleEditSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (editId == null) return
-    setEditFormError(null)
+
+    const formData = new FormData()
+    formData.append('title', title)
+    formData.append('description', description)
+    formData.append('price_per_kg', price)
+    formData.append('origin_country', origin)
+    formData.append('category', category)
+    formData.append('image', imageFile)
+
     try {
-      await api.put(`products/${editId}`, {
-        title: editTitle,
-        description: editDescription,
-        price_per_kg: Number(editPrice),
-        origin_country: editOrigin,
-        category: editCategory,
+      await api.post('products', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
       })
+      // Clear form and refresh list
+      setTitle('')
+      setDescription('')
+      setPrice('')
+      setOrigin('')
+      setCategory('')
+      setImageFile(null)
       refreshDashboard()
-      setEditId(null)
       setActiveTab('active')
     } catch (err: any) {
-      setEditFormError(err.response?.data?.detail || 'Error updating product.')
+      console.error(err)
+      const detail = err.response?.data?.detail
+      setFormError(typeof detail === 'string' ? detail : JSON.stringify(err.response?.data))
     }
   }
 
@@ -134,7 +110,6 @@ export default function SupplierInventory() {
       <div className="h-16" />
       <main className="max-w-7xl mx-auto px-4 pt-5 space-y-8">
         <div className="bg-white dark:bg-gray-800 border border-border-light dark:border-gray-700 rounded-lg">
-          {/* Header */}
           <div className="px-4 py-3 border-b border-border-light dark:border-gray-700">
             <h2 className="text-2xl font-semibold text-text dark:text-text-secondary">
               Manage Inventory
@@ -149,7 +124,7 @@ export default function SupplierInventory() {
                 return (
                   <button
                     key={tab.key}
-                    onClick={() => { setActiveTab(tab.key); setEditId(null) }}
+                    onClick={() => setActiveTab(tab.key)}
                     className={
                       `py-2 px-4 text-sm font-medium whitespace-nowrap focus:outline-none ` +
                       (isActive
@@ -166,62 +141,82 @@ export default function SupplierInventory() {
 
           {/* Content */}
           <div className="p-4">
-            {/* CREATE */}
             {activeTab === 'create' && (
               <form onSubmit={handleCreateSubmit} className="space-y-4">
                 {formError && <div className="text-red-600">{formError}</div>}
-                {/* ... your create inputs ... */}
+
+                <input
+                  type="text"
+                  placeholder="Title"
+                  value={title}
+                  onChange={e => setTitle(e.currentTarget.value)}
+                  required
+                  className="w-full p-2 border rounded"
+                />
+
+                <input
+                  type="number"
+                  placeholder="Price per kg"
+                  value={price}
+                  onChange={e => setPrice(e.currentTarget.value)}
+                  required
+                  className="w-full p-2 border rounded"
+                />
+
+                <input
+                  type="text"
+                  placeholder="Origin country"
+                  value={origin}
+                  onChange={e => setOrigin(e.currentTarget.value)}
+                  className="w-full p-2 border rounded"
+                />
+
+                <input
+                  type="text"
+                  placeholder="Category"
+                  value={category}
+                  onChange={e => setCategory(e.currentTarget.value)}
+                  className="w-full p-2 border rounded"
+                />
+
+                <textarea
+                  placeholder="Description"
+                  value={description}
+                  onChange={e => setDescription(e.currentTarget.value)}
+                  className="w-full p-2 border rounded"
+                />
+
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={e => setImageFile(e.target.files?.[0] ?? null)}
+                  required
+                  className="w-full"
+                />
+
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                >
+                  Create Product
+                </button>
               </form>
             )}
 
-            {/* EDIT */}
             {activeTab === 'edit' && (
-              <div className="space-y-4">
-                <p className="font-semibold">Select product to edit:</p>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {data.products.map((prod: any) => (
-                    <button
-                      key={prod.id}
-                      onClick={() => setEditId(prod.id)}
-                      className="border p-4 rounded hover:shadow cursor-pointer"
-                    >
-                      <img
-                        src={`${process.env.NEXT_PUBLIC_API_URL}${prod.image_url}`}
-                        alt={prod.title}
-                        className="h-32 w-full object-cover mb-2"
-                      />
-                      <h3 className="font-medium">{prod.title}</h3>
-                      <p className="text-sm text-text-secondary">
-                        £{prod.price_per_kg}/kg
-                      </p>
-                    </button>
-                  ))}
-                </div>
-                {editId != null && (
-                  <form onSubmit={handleEditSubmit} className="mt-6 space-y-3">
-                    {editFormError && <p className="text-red-600">{editFormError}</p>}
-                    {/* ... your edit inputs ... */}
-                  </form>
-                )}
-              </div>
+              <p className="text-text-secondary italic">“Edit Product” form coming soon.</p>
             )}
 
-            {/* ACTIVE */}
             {activeTab === 'active' && (
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {data.products.map((prod: any) => (
-                  <Link key={prod.id} href={`/products/${prod.id}`}>
-                    <a className="cursor-pointer">
-                      <ProductCard product={prod} />
-                    </a>
-                  </Link>
+                  <ProductCard key={prod.id} product={prod} />
                 ))}
               </div>
             )}
 
-            {/* COMPLIANCE */}
             {activeTab === 'compliance' && (
-              <p className="text-text-secondary italic">Compliance coming soon.</p>
+              <p className="text-text-secondary italic">“Compliance” section coming soon.</p>
             )}
           </div>
         </div>
