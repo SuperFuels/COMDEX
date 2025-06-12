@@ -1,4 +1,3 @@
-// frontend/pages/_app.tsx
 "use client"
 
 import '@/lib/api'                // ← configure your axios instance first
@@ -29,10 +28,9 @@ export default function MyApp({ Component, pageProps }: AppProps) {
 
         {/*
           ─── Page Content ───────────────────────────────────────────
-          We add padding‐top so that the <Navbar> (height = h-16 = 4rem)
-          does not cover up the page content beneath it.
+          We no longer need a hard-coded pt-16 shim here.
         */}
-        <main className="flex-1 bg-bg-page pt-16">
+        <main className="flex-1 bg-bg-page">
           <Component {...pageProps} />
         </main>
       </div>

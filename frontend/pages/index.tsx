@@ -1,4 +1,4 @@
-// frontend/pages/index.tsx
+// File: frontend/pages/index.tsx
 "use client"
 
 import { useEffect, useState } from 'react'
@@ -54,7 +54,7 @@ const Home: NextPage = () => {
 
   return (
     <div className="min-h-screen bg-bg-page">
-      <main className="max-w-7xl mx-auto grid grid-cols-12 gap-6 px-4 py-6">
+      <main className="pt-0 max-w-7xl mx-auto grid grid-cols-12 gap-6 px-4 py-6">
         {/* ─── Main Column ─────────────────────────────────────────────── */}
         <div className="col-span-12 md:col-span-9 space-y-6">
           {loading ? (

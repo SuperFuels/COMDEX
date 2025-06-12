@@ -1,4 +1,3 @@
-// File: frontend/pages/buyer/dashboard.tsx
 "use client"
 
 import { useEffect, useState } from 'react'
@@ -155,11 +154,8 @@ export default function BuyerDashboard() {
 
   return (
     <div className="bg-gray-50 min-h-screen flex flex-col">
-      {/* navbar spacer */}
-      <div className="h-16" />
-
       <main className="flex-1 max-w-[calc(100%-40px)] mx-auto px-4">
-        <div className="flex h-[calc(100vh-4rem-4rem)]">
+        <div className="flex h-full">
           {/* ── Left Pane */}
           <div className="flex-1 overflow-y-auto pr-4 font-mono text-gray-800 text-sm">
             <p className="mb-2">Hello, Buyer — welcome to Central Command.</p>

@@ -1,10 +1,9 @@
-// frontend/pages/products/edit/[id].tsx
+// File: frontend/pages/products/edit/[id].tsx
 "use client"
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import api from '@/lib/api'
-import Navbar from '@/components/Navbar'
 
 interface ProductForm {
   title: string
@@ -34,7 +33,6 @@ export default function EditProductPage() {
     const fetchProduct = async () => {
       setLoading(true)
       try {
-        // api is preconfigured with baseURL = NEXT_PUBLIC_API_URL
         const { data } = await api.get(`/products/${id}`)
         setForm({
           title: data.title,
@@ -78,20 +76,13 @@ export default function EditProductPage() {
     }
   }
 
-  if (loading) {
-    return (
-      <div className="p-6 text-center">
-        Loading product details…
-      </div>
-    )
-  }
+  if (loading) return <p className="p-6 text-center">Loading product details…</p>
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <Navbar />
-      <div className="max-w-xl mx-auto p-6">
+    <main className="min-h-screen bg-gray-100 pt-0">
+      <div className="max-w-xl mx-auto mt-4 p-6 bg-white rounded shadow">
         <h1 className="text-2xl font-bold mb-4">✏️ Edit Product</h1>
-        {error && <p className="text-red-500 mb-2">{error}</p>}
+        {error && <p className="text-red-500 mb-4">{error}</p>}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
@@ -102,6 +93,7 @@ export default function EditProductPage() {
             required
             className="w-full border p-2 rounded"
           />
+
           <textarea
             name="description"
             value={form.description}
@@ -111,6 +103,7 @@ export default function EditProductPage() {
             required
             className="w-full border p-2 rounded"
           />
+
           <input
             name="category"
             value={form.category}
@@ -119,6 +112,7 @@ export default function EditProductPage() {
             required
             className="w-full border p-2 rounded"
           />
+
           <input
             name="origin_country"
             value={form.origin_country}
@@ -127,6 +121,7 @@ export default function EditProductPage() {
             required
             className="w-full border p-2 rounded"
           />
+
           <input
             name="price_per_kg"
             type="number"
@@ -137,6 +132,7 @@ export default function EditProductPage() {
             required
             className="w-full border p-2 rounded"
           />
+
           <button
             type="submit"
             className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
@@ -145,7 +141,6 @@ export default function EditProductPage() {
           </button>
         </form>
       </div>
-    </div>
+    </main>
   )
 }
-

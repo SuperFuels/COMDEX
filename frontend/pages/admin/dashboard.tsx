@@ -1,4 +1,3 @@
-// pages/admin/dashboard.tsx
 "use client"
 
 import { useEffect, useState } from 'react'
@@ -62,7 +61,7 @@ export default function AdminDashboard() {
   // 4) Loading state
   if (!users || !products || !deals) {
     return (
-      <main className="p-6 max-w-4xl mx-auto text-center">
+      <main className="pt-6 px-6 pb-6 max-w-4xl mx-auto text-center">
         {error
           ? <p className="text-red-500">{error}</p>
           : <p>Loading admin dashboard…</p>
@@ -72,7 +71,7 @@ export default function AdminDashboard() {
   }
 
   return (
-    <main className="p-6 max-w-6xl mx-auto space-y-10">
+    <main className="pt-6 px-6 pb-6 max-w-6xl mx-auto space-y-10">
       <h1 className="text-3xl font-bold mb-6 text-center">🛠️ Admin Dashboard</h1>
 
       {/* Users Table */}

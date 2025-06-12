@@ -18,8 +18,8 @@ export default function SampleRequestPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-md mx-auto bg-white p-6 rounded shadow">
+    <main className="bg-gray-50 min-h-screen pt-0">
+      <div className="max-w-md mx-auto mt-4 bg-white p-6 rounded shadow">
         <h1 className="text-xl font-bold mb-4">Order Sample</h1>
         {!submitted ? (
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -56,13 +56,12 @@ export default function SampleRequestPage() {
               The supplier will confirm cost & delivery, then send you a quote under
               Notifications.
             </p>
-            <Link legacyBehavior href={`/products/${id}`} className="text-blue-600 hover:underline">
+            <Link href={`/products/${id}`} className="text-blue-600 hover:underline">
               ← Back to product
             </Link>
           </div>
         )}
       </div>
-    </div>
+    </main>
   )
 }
-

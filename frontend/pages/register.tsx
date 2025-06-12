@@ -1,4 +1,4 @@
-// frontend/pages/register.tsx
+// File: frontend/pages/register.tsx
 "use client"
 
 import { useState, FormEvent } from 'react'
@@ -94,15 +94,15 @@ export default function RegisterPage() {
 
     try {
       const payload: any = {
-        name:            fullName,
+        name:             fullName,
         email,
         password,
         role,
-        wallet_address:  walletAddress,
-        business_name:   businessName,
+        wallet_address:   walletAddress,
+        business_name:    businessName,
         address,
         delivery_address: deliveryAddress,
-        products:        products.map((p) => p.value),
+        products:         products.map((p) => p.value),
       }
       if (role === 'buyer') {
         payload.monthly_spend = monthlySpend
@@ -120,7 +120,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
+    <main className="pt-0 min-h-screen bg-gray-100 flex items-center justify-center px-4">
       <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-2xl">
         <h1 className="text-2xl font-bold text-center mb-6">
           New User Activation
@@ -272,9 +272,9 @@ export default function RegisterPage() {
                   isMulti
                   options={PRODUCT_OPTIONS}
                   value={products}
-                  onChange={(opts: OnChangeValue<ProductOption, true>) =>
-                    setProducts([...(opts as MultiValue<ProductOption>)])
-                  }
+                  onChange={(opts: OnChangeValue<ProductOption, true>) => {
+                    setProducts([...(opts as readonly ProductOption[])])
+                  }}
                   placeholder="Select product categories…"
                 />
               </div>
@@ -317,11 +317,11 @@ export default function RegisterPage() {
 
         <p className="mt-6 text-center text-sm text-gray-600">
           Already have an account?{' '}
-          <Link href="/login">
-            <a className="text-blue-600 hover:underline">Login</a>
+          <Link href="/login" className="text-blue-600 hover:underline">
+            Login
           </Link>
         </p>
       </div>
-    </div>
+    </main>
   )
 }
