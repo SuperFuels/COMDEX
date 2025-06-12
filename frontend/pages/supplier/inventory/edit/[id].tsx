@@ -32,9 +32,8 @@ export default function EditInventoryItem() {
   useEffect(() => {
     if (!id) return
     setLoading(true)
-    api.get(`/products/${id}`)
-      .then((res) => {
-        const data = res.data as Product
+    api.get<Product>(`/products/${id}`)
+      .then(({ data }) => {
         setProduct(data)
         setForm({
           title: data.title,
@@ -48,8 +47,10 @@ export default function EditInventoryItem() {
       .finally(() => setLoading(false))
   }, [id])
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setForm(f => ({ ...f, [e.target.name]: e.target.value }))
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -70,60 +71,68 @@ export default function EditInventoryItem() {
     }
   }
 
-  if (loading) return <p className="p-8 text-center">Loading…</p>
-  if (error)   return <p className="p-8 text-center text-red-600">{error}</p>
-  if (!product) return <p className="p-8 text-center">Product not found</p>
+  if (loading) {
+    return <p className="p-8 text-center">Loading…</p>
+  }
+  if (error) {
+    return <p className="p-8 text-center text-red-600">{error}</p>
+  }
+  if (!product) {
+    return <p className="p-8 text-center">Product not found</p>
+  }
 
   return (
-    <div className="min-h-screen bg-bg-page p-6">
-      <h1 className="text-2xl font-bold mb-4">Edit Product #{product.id}</h1>
-      <form onSubmit={handleSubmit} className="space-y-4 max-w-lg">
-        <input
-          name="title"
-          value={form.title}
-          onChange={handleChange}
-          placeholder="Title"
-          required
-          className="w-full p-2 border rounded"
-        />
-        <textarea
-          name="description"
-          value={form.description}
-          onChange={handleChange}
-          placeholder="Description"
-          className="w-full p-2 border rounded"
-        />
-        <input
-          name="price_per_kg"
-          type="number"
-          step="0.01"
-          value={form.price_per_kg}
-          onChange={handleChange}
-          placeholder="Price per kg"
-          required
-          className="w-full p-2 border rounded"
-        />
-        <input
-          name="origin_country"
-          value={form.origin_country}
-          onChange={handleChange}
-          placeholder="Origin country"
-          className="w-full p-2 border rounded"
-        />
-        <input
-          name="category"
-          value={form.category}
-          onChange={handleChange}
-          placeholder="Category"
-          className="w-full p-2 border rounded"
-        />
-        <button
-          type="submit"
-          className="px-4 py-2 bg-green-600 text-white rounded"
-        >
-          Save Changes
-        </button>
-      </form>
-    </div>
+    <main className="flex-1 bg-bg-page px-4 pt-0">
+      <div className="max-w-lg mx-auto py-6">
+        <h1 className="text-2xl font-bold mb-4">Edit Product #{product.id}</h1>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <input
+            name="title"
+            value={form.title}
+            onChange={handleChange}
+            placeholder="Title"
+            required
+            className="w-full p-2 border rounded"
+          />
+          <textarea
+            name="description"
+            value={form.description}
+            onChange={handleChange}
+            placeholder="Description"
+            className="w-full p-2 border rounded"
+          />
+          <input
+            name="price_per_kg"
+            type="number"
+            step="0.01"
+            value={form.price_per_kg}
+            onChange={handleChange}
+            placeholder="Price per kg"
+            required
+            className="w-full p-2 border rounded"
+          />
+          <input
+            name="origin_country"
+            value={form.origin_country}
+            onChange={handleChange}
+            placeholder="Origin country"
+            className="w-full p-2 border rounded"
+          />
+          <input
+            name="category"
+            value={form.category}
+            onChange={handleChange}
+            placeholder="Category"
+            className="w-full p-2 border rounded"
+          />
+          <button
+            type="submit"
+            className="w-full py-2 bg-green-600 text-white rounded hover:bg-green-700"
+          >
+            Save Changes
+          </button>
+        </form>
+      </div>
+    </main>
   )
 }

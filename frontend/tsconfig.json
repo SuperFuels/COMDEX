@@ -2,28 +2,28 @@
 {
   "compilerOptions": {
     // ── 1) Target / Module / JSX settings ──────────────────────────────────────
-    "target": "ES2020",                        // modern browsers + Node 14+
-    "lib": ["dom", "dom.iterable", "esnext"],  // include browser + ES2022 libs
-    "module": "ESNext",                        // ESM modules
-    "moduleResolution": "Node",                // locate modules via Node rules
-    "jsx": "preserve",                         // let Next.js handle .tsx → React.createElement
+    "target": "ES2020",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "jsx": "preserve",
 
     // ── 2) Strictness / Interop / No Emission ────────────────────────────────
-    "strict": true,                             // enable all strict checks
-    "forceConsistentCasingInFileNames": true,   // enforce consistent casing
-    "noEmit": true,                             // don’t emit .js—Next.js does that
-    "isolatedModules": true,                    // each file is isolated (Next.js requirement)
-    "esModuleInterop": true,                    // for CommonJS → ESM compatibility
-    "resolveJsonModule": true,                  // allow `import data from "./data.json"`
-    "allowJs": true,                            // allow .js files to be used
-    "skipLibCheck": true,                       // skip type checking for node_modules
-    "incremental": true,                        // build incrementally
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "allowJs": true,
+    "skipLibCheck": true,
+    "incremental": true,
 
     // ── 3) Type Definitions ───────────────────────────────────────────────────
-    //    We only need “node”, “next”, and “react” here. Next.js already provides react-dom types internally.
-    "types": ["node", "next", "react"],
+    //    Include Node, Next.js, React, and React-DOM
+    "types": ["node", "next", "react", "react-dom"],
 
-    // ── 4) Path Aliases (so imports like "@/components/..." work) ─────────────
+    // ── 4) Path Aliases ───────────────────────────────────────────────────────
     "baseUrl": ".",
     "paths": {
       "@/constants/*":   ["constants/*"],
@@ -39,7 +39,7 @@
 
   // ── 5) Which files to include / exclude ────────────────────────────────────
   "include": [
-    "next-env.d.ts",   // required so Next.js can inject its own types
+    "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx"
   ],

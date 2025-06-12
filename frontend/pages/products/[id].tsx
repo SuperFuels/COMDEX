@@ -30,11 +30,9 @@ export default function ProductDetailPage() {
   const [error, setError] = useState(false)
   const [mainImage, setMainImage] = useState<string | null>(null)
 
-  // Helper to build full URL for image_url
   const getImageSrc = (path?: string) => {
     if (!path) return '/placeholder.jpg'
-    // strip any trailing slash on the base URL
-    const base = process.env.NEXT_PUBLIC_API_URL?.replace(/\/+$/,'') || ''
+    const base = process.env.NEXT_PUBLIC_API_URL?.replace(/\/+$/, '') || ''
     return `${base}${path}`
   }
 
@@ -45,7 +43,6 @@ export default function ProductDetailPage() {
       .get<Product>(`/products/${id}`)
       .then(({ data }) => {
         setProduct(data)
-        // initialize mainImage to the one URL we have
         setMainImage(getImageSrc(data.image_url))
       })
       .catch(() => setError(true))
@@ -55,13 +52,8 @@ export default function ProductDetailPage() {
   if (loading) {
     return <p className="p-8 text-center">Loading product…</p>
   }
-
   if (error || !product) {
-    return (
-      <p className="p-8 text-center text-red-500">
-        Failed to load product.
-      </p>
-    )
+    return <p className="p-8 text-center text-red-500">Failed to load product.</p>
   }
 
   const stars = Array.from({ length: 5 }, (_, i) =>
@@ -73,7 +65,7 @@ export default function ProductDetailPage() {
   )
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto bg-white shadow rounded-lg overflow-hidden">
         {/* Breadcrumb */}
         <nav className="px-6 py-3 text-sm text-gray-600" aria-label="Breadcrumb">
@@ -127,11 +119,13 @@ export default function ProductDetailPage() {
               <span className="text-3xl font-extrabold text-gray-900">
                 £{(product.price_per_kg * 1000).toFixed(2)}/t
               </span>
-              <span className={`text-sm font-medium ${
+              <span
+                className={`text-sm font-medium ${
                   product.change_pct >= 0 ? 'text-green-600' : 'text-red-600'
                 }`}
               >
-                {product.change_pct >= 0 ? '↑' : '↓'} {Math.abs(product.change_pct).toFixed(2)}%
+                {product.change_pct >= 0 ? '↑' : '↓'}{' '}
+                {Math.abs(product.change_pct).toFixed(2)}%
               </span>
             </div>
 

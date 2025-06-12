@@ -1,4 +1,3 @@
-// frontend/components/Navbar.tsx
 "use client"
 
 import Link from 'next/link'
@@ -14,17 +13,13 @@ export default function Navbar() {
     const { ethereum } = window as any
     if (!ethereum) return
 
-    // On load: get any connected account
     ethereum
       .request({ method: 'eth_accounts' })
       .then((accounts: string[]) => {
-        if (accounts[0]) {
-          setAccount(accounts[0])
-        }
+        if (accounts[0]) setAccount(accounts[0])
       })
       .catch(console.error)
 
-    // Listen for account changes
     const handleAccountsChanged = (accounts: string[]) => {
       setAccount(accounts[0] || null)
     }
@@ -50,16 +45,16 @@ export default function Navbar() {
 
   const handleDisconnect = () => {
     setAccount(null)
-    router.push('/')   // send them home
+    router.push('/')
   }
 
   const shortAddr = account
-    ? `${account.slice(0, 6)}…${account.slice(-4)}`
+    ? `${account.slice(0,6)}…${account.slice(-4)}`
     : ''
 
   return (
-    <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
-      <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
+    <header className="sticky top-0 z-50 h-16 bg-white border-b border-gray-200">
+      <div className="max-w-7xl mx-auto flex h-full items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Logo */}
         <Link legacyBehavior href="/">
           <Image src="/stickey.png" alt="Stickey Logo" width={144} height={48} priority />
@@ -80,13 +75,10 @@ export default function Navbar() {
             </button>
           ) : (
             <div className="relative inline-block group">
-              {/* Address Button */}
               <button className="px-3 py-1 bg-gray-100 rounded-full text-sm font-medium border border-gray-300">
                 {shortAddr}
               </button>
-
-              {/* Dropdown: stays visible on hover */}
-              <div className="absolute right-0 mt-2 hidden group-hover:block hover:block bg-white border border-gray-200 rounded shadow-lg z-50">
+              <div className="absolute right-0 mt-2 hidden group-hover:block bg-white border border-gray-200 rounded shadow-lg z-50">
                 <button
                   onClick={handleDisconnect}
                   className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -101,4 +93,3 @@ export default function Navbar() {
     </header>
   )
 }
-

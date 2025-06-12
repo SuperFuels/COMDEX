@@ -1,4 +1,4 @@
-// frontend/pages/products/index.tsx
+// File: frontend/pages/products/index.tsx
 "use client"
 
 import { useEffect, useState } from 'react'
@@ -35,7 +35,7 @@ export default function ProductList() {
   }, [])
 
   return (
-    <div className="bg-bg-page min-h-screen">
+    <main className="bg-bg-page min-h-screen pt-0">
       <div className="max-w-7xl mx-auto p-8">
         <h1 className="text-2xl font-semibold text-text mb-4">
           Product Listing
@@ -91,6 +91,6 @@ export default function ProductList() {
           </div>
         )}
       </div>
-    </div>
+    </main>
   )
 }

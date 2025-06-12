@@ -50,9 +50,9 @@ export default function SupplierInventory() {
             key={t}
             onClick={() => setTab(t)}
             className={
-              tab === t
-                ? 'px-4 py-2 bg-gray-200 rounded'
-                : 'px-4 py-2 rounded'
+              `px-4 py-2 rounded ${
+                tab === t ? 'bg-gray-200' : 'bg-white'
+              }`
             }
           >
             {t.charAt(0).toUpperCase() + t.slice(1)}
@@ -62,9 +62,7 @@ export default function SupplierInventory() {
 
       {/* Active Tab Panel */}
       <div className="bg-white rounded-lg p-6 shadow">
-        {tab === 'create' && (
-          <InventoryCreate onCreated={reload} />
-        )}
+        {tab === 'create' && <InventoryCreate onCreated={reload} />}
 
         {tab === 'edit' && (
           <InventoryEdit products={products} onEdited={reload} />

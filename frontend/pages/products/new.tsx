@@ -1,4 +1,4 @@
-// frontend/pages/products/new.tsx
+// File: frontend/pages/products/new.tsx
 "use client"
 
 import { useState } from 'react'
@@ -23,7 +23,7 @@ export default function NewProduct() {
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    setForm({ ...form, [e.target.name]: e.target.value })
+    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
   }
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -34,19 +34,13 @@ export default function NewProduct() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    const token = localStorage.getItem('token')
     const formData = new FormData()
-
     Object.entries(form).forEach(([key, value]) => {
       formData.append(key, value)
     })
-
-    if (imageFile) {
-      formData.append('image', imageFile)
-    }
+    if (imageFile) formData.append('image', imageFile)
 
     try {
-      // post to your FastAPI endpoint at POST /products
       await api.post('/products', formData)
       router.push('/supplier/dashboard')
     } catch (err) {
@@ -56,7 +50,7 @@ export default function NewProduct() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
+    <main className="bg-gray-100 flex-1 flex items-center justify-center px-4 pt-0">
       <form
         onSubmit={handleSubmit}
         className="bg-white p-6 rounded shadow-md w-full max-w-lg space-y-4"
@@ -117,7 +111,7 @@ export default function NewProduct() {
           type="file"
           accept="image/*"
           onChange={handleImageChange}
-          className="w-full border border-gray-300 rounded p-2"
+          className="w-full"
           required
         />
 
@@ -128,6 +122,6 @@ export default function NewProduct() {
           Submit Product
         </button>
       </form>
-    </div>
+    </main>
   )
 }

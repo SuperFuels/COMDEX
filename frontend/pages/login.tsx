@@ -1,9 +1,9 @@
-// frontend/pages/login.tsx
+// File: frontend/pages/login.tsx
 "use client"
 
 import React, { useState } from 'react'
 import { useRouter } from 'next/router'
-import Link from 'next/link'      // ← Add this import
+import Link from 'next/link'
 import api from '@/lib/api'
 
 export default function LoginPage() {
@@ -19,95 +19,90 @@ export default function LoginPage() {
     setError('')
 
     try {
-      // Send credentials as JSON
       const payload = { email, password }
-
-      // Hit /auth/login with JSON body
       const { data } = await api.post(
         '/auth/login',
         payload,
         { headers: { 'Content-Type': 'application/json' } }
       )
 
-      // Store token and set Authorization header on axios
-      const token = data.token
-      localStorage.setItem('token', token)
-      api.defaults.headers.common.Authorization = `Bearer ${token}`
+      localStorage.setItem('token', data.token)
+      api.defaults.headers.common.Authorization = `Bearer ${data.token}`
 
-      // Redirect based on role returned by backend
-      const role = data.role
-      if (role === 'admin') {
+      // Redirect based on role
+      if (data.role === 'admin') {
         router.push('/admin/dashboard')
-      } else if (role === 'supplier') {
+      } else if (data.role === 'supplier') {
         router.push('/supplier/dashboard')
-      } else if (role === 'buyer') {
+      } else if (data.role === 'buyer') {
         router.push('/buyer/dashboard')
       } else {
         router.push('/')
       }
     } catch (err: any) {
       const detail = err.response?.data?.detail
-      if (detail) {
-        setError(
-          Array.isArray(detail)
+      setError(
+        detail
+          ? Array.isArray(detail)
             ? detail.map((d: any) => d.msg).join(', ')
             : detail
-        )
-      } else {
-        setError('Login failed. Please try again.')
-      }
+          : 'Login failed. Please try again.'
+      )
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <form
-        onSubmit={handleLogin}
-        className="bg-white p-6 rounded shadow-md w-full max-w-sm"
-      >
-        <h1 className="text-2xl font-bold mb-4 text-center">Login</h1>
-
-        {error && (
-          <p className="text-red-500 mb-4 text-sm text-center">{error}</p>
-        )}
-
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          className="border p-2 w-full mb-4 rounded"
-        />
-
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          className="border p-2 w-full mb-4 rounded"
-        />
-
-        <button
-          type="submit"
-          disabled={loading}
-          className={`w-full py-2 rounded text-white ${
-            loading ? 'bg-blue-400' : 'bg-blue-600 hover:bg-blue-700'
-          }`}
+    // override the global pt-16 on <main> so we don't get that gap here
+    <main className="mt-[-4rem] pt-0">
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <form
+          onSubmit={handleLogin}
+          className="bg-white p-6 rounded shadow-md w-full max-w-sm"
         >
-          {loading ? 'Logging in…' : 'Login'}
-        </button>
+          <h1 className="text-2xl font-bold mb-4 text-center">Login</h1>
 
-        <p className="mt-4 text-center text-sm">
-          Don’t have an account?{' '}
-          <Link href="/register" className="text-blue-600 hover:underline">
-            Register here
-          </Link>
-        </p>
-      </form>
-    </div>
+          {error && (
+            <p className="text-red-500 mb-4 text-sm text-center">{error}</p>
+          )}
+
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            required
+            className="border p-2 w-full mb-4 rounded"
+          />
+
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            required
+            className="border p-2 w-full mb-4 rounded"
+          />
+
+          <button
+            type="submit"
+            disabled={loading}
+            className={`w-full py-2 rounded text-white ${
+              loading ? 'bg-blue-400' : 'bg-blue-600 hover:bg-blue-700'
+            }`}
+          >
+            {loading ? 'Logging in…' : 'Login'}
+          </button>
+
+          <p className="mt-4 text-center text-sm">
+            Don’t have an account?{' '}
+            <Link href="/register" className="text-blue-600 hover:underline">
+              Register here
+            </Link>
+          </p>
+        </form>
+      </div>
+    </main>
   )
 }

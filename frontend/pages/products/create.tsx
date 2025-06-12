@@ -1,11 +1,10 @@
-// frontend/pages/products/create.tsx
+// File: frontend/pages/products/create.tsx
 "use client"
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import useAuthRedirect from '@/hooks/useAuthRedirect'
 import api from '@/lib/api'
-import Navbar from '@/components/Navbar'
 
 export default function CreateProductPage() {
   const router = useRouter()
@@ -53,72 +52,69 @@ export default function CreateProductPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navbar />
-      <main className="max-w-2xl mx-auto p-6">
-        <h1 className="text-2xl font-bold mb-4">Upload New Product</h1>
-        {error && <p className="text-red-600 mb-2">{error}</p>}
+    <main className="min-h-screen bg-gray-50 max-w-2xl mx-auto p-6">
+      <h1 className="text-2xl font-bold mb-4">Upload New Product</h1>
+      {error && <p className="text-red-600 mb-4">{error}</p>}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            name="title"
-            placeholder="Title"
-            onChange={handleChange}
-            className="w-full border border-gray-300 p-2 rounded"
-            required
-          />
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <input
+          name="title"
+          placeholder="Title"
+          onChange={handleChange}
+          className="w-full border border-gray-300 p-2 rounded"
+          required
+        />
 
-          <input
-            name="origin_country"
-            placeholder="Country of Origin"
-            onChange={handleChange}
-            className="w-full border border-gray-300 p-2 rounded"
-            required
-          />
+        <input
+          name="origin_country"
+          placeholder="Country of Origin"
+          onChange={handleChange}
+          className="w-full border border-gray-300 p-2 rounded"
+          required
+        />
 
-          <input
-            name="category"
-            placeholder="Category (e.g. whey)"
-            onChange={handleChange}
-            className="w-full border border-gray-300 p-2 rounded"
-            required
-          />
+        <input
+          name="category"
+          placeholder="Category (e.g. whey)"
+          onChange={handleChange}
+          className="w-full border border-gray-300 p-2 rounded"
+          required
+        />
 
-          <input
-            name="description"
-            placeholder="Description"
-            onChange={handleChange}
-            className="w-full border border-gray-300 p-2 rounded"
-            required
-          />
+        <input
+          name="description"
+          placeholder="Description"
+          onChange={handleChange}
+          className="w-full border border-gray-300 p-2 rounded"
+          required
+        />
 
-          <input
-            name="price_per_kg"
-            type="number"
-            step="0.01"
-            placeholder="Price per KG"
-            onChange={handleChange}
-            className="w-full border border-gray-300 p-2 rounded"
-            required
-          />
+        <input
+          name="price_per_kg"
+          type="number"
+          step="0.01"
+          placeholder="Price per KG"
+          onChange={handleChange}
+          className="w-full border border-gray-300 p-2 rounded"
+          required
+        />
 
-          <input
-            name="image"
-            type="file"
-            accept="image/*"
-            onChange={handleChange}
-            className="w-full"
-            required
-          />
+        <input
+          name="image"
+          type="file"
+          accept="image/*"
+          onChange={handleChange}
+          className="w-full"
+          required
+        />
 
-          <button
-            type="submit"
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-          >
-            Upload
-          </button>
-        </form>
-      </main>
-    </div>
+        <button
+          type="submit"
+          className="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+        >
+          Upload
+        </button>
+      </form>
+    </main>
   )
 }

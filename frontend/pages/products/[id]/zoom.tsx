@@ -1,4 +1,3 @@
-// frontend/pages/products/[id]/zoom.tsx
 "use client"
 
 import { useRouter } from 'next/router'
@@ -22,8 +21,8 @@ export default function ZoomRequestPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-md mx-auto bg-white p-6 rounded shadow">
+    <main className="bg-gray-50 min-h-screen pt-0">
+      <div className="max-w-md mx-auto mt-4 bg-white p-6 rounded shadow">
         <h1 className="text-xl font-bold mb-4">Request a Zoom Call</h1>
 
         {!submitted ? (
@@ -49,7 +48,7 @@ export default function ZoomRequestPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium">Preferred Date & Time</label>
+              <label className="block text-sm font-medium">Preferred Date &amp; Time</label>
               <input
                 type="datetime-local"
                 value={datetime}
@@ -79,13 +78,12 @@ export default function ZoomRequestPage() {
             <p className="text-sm text-gray-600">
               The supplier will reach out to confirm and share the meeting link.
             </p>
-            <Link legacyBehavior href={`/products/${id}`} className="text-blue-600 hover:underline">
+            <Link href={`/products/${id}`} className="text-blue-600 hover:underline">
               ← Back to product
             </Link>
           </div>
         )}
       </div>
-    </div>
+    </main>
   )
 }
-

@@ -1,4 +1,4 @@
-// frontend/pages/deals/[id].tsx
+// File: frontend/pages/deals/[id].tsx
 "use client"
 
 import { useRouter } from 'next/router'
@@ -35,7 +35,6 @@ export default function DealDetailPage() {
       setLoading(true)
       setError(null)
       try {
-        // GET /deals/:id → must return an object matching our Deal interface
         const { data } = await api.get<Deal>(`/deals/${id}`)
         setDeal(data)
       } catch (err: any) {
@@ -50,9 +49,7 @@ export default function DealDetailPage() {
   const handleEscrowSuccess = async () => {
     if (!id) return
     try {
-      // PUT /deals/:id/status { status: "confirmed" }
       await api.put(`/deals/${id}/status`, { status: 'confirmed' })
-      // Re-fetch to get the updated status
       const { data } = await api.get<Deal>(`/deals/${id}`)
       setDeal(data)
     } catch (err: any) {
@@ -63,9 +60,7 @@ export default function DealDetailPage() {
   const handleRelease = async () => {
     if (!id) return
     try {
-      // POST /deals/:id/release
       await api.post(`/deals/${id}/release`)
-      // Re-fetch to get the updated status
       const { data } = await api.get<Deal>(`/deals/${id}`)
       setDeal(data)
     } catch (err: any) {
@@ -73,38 +68,40 @@ export default function DealDetailPage() {
     }
   }
 
-  if (loading) return <p>Loading…</p>
-  if (error)   return <p className="text-red-600">{error}</p>
-  if (!deal)   return <p>Deal not found</p>
+  if (loading) return <p className="p-6 text-center">Loading…</p>
+  if (error)   return <p className="p-6 text-center text-red-600">{error}</p>
+  if (!deal)   return <p className="p-6 text-center">Deal not found</p>
 
   return (
-    <div className="max-w-xl mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Deal #{deal.id}</h1>
-      <p><strong>Product:</strong> {deal.product_title}</p>
-      <p><strong>Quantity:</strong> {deal.quantity_kg} kg</p>
-      <p><strong>Total:</strong> ${deal.total_price}</p>
-      <p><strong>Status:</strong> {deal.status}</p>
-      <p>
-        <strong>Created at:</strong>{' '}
-        {new Date(deal.created_at).toLocaleString()}
-      </p>
+    <main className="pt-0"> {/* cancel the global pt-16 here */}
+      <div className="max-w-xl mx-auto p-4">
+        <h1 className="text-2xl font-bold mb-4">Deal #{deal.id}</h1>
+        <p><strong>Product:</strong> {deal.product_title}</p>
+        <p><strong>Quantity:</strong> {deal.quantity_kg} kg</p>
+        <p><strong>Total:</strong> ${deal.total_price}</p>
+        <p><strong>Status:</strong> {deal.status}</p>
+        <p>
+          <strong>Created at:</strong>{' '}
+          {new Date(deal.created_at).toLocaleString()}
+        </p>
 
-      {deal.status === 'negotiation' && (
-        <SwapPanel
-          supplierAddress={deal.supplier_wallet_address!}
-          pricePerKg={deal.total_price / deal.quantity_kg}
-          onSuccess={handleEscrowSuccess}
-        />
-      )}
+        {deal.status === 'negotiation' && (
+          <SwapPanel
+            supplierAddress={deal.supplier_wallet_address!}
+            pricePerKg={deal.total_price / deal.quantity_kg}
+            onSuccess={handleEscrowSuccess}
+          />
+        )}
 
-      {deal.status === 'confirmed' && (
-        <button
-          className="mt-4 bg-red-500 text-white px-4 py-2 rounded"
-          onClick={handleRelease}
-        >
-          Release Funds
-        </button>
-      )}
-    </div>
+        {deal.status === 'confirmed' && (
+          <button
+            className="mt-4 bg-red-500 text-white px-4 py-2 rounded"
+            onClick={handleRelease}
+          >
+            Release Funds
+          </button>
+        )}
+      </div>
+    </main>
   )
 }
