@@ -1,9 +1,11 @@
+// File: frontend/pages/buyer/dashboard.tsx
 "use client"
 
-import { useEffect, useRef, useState } from 'react'
-import useAuthRedirect from '@/hooks/useAuthRedirect'
-import api from '@/lib/api'
-import Chart, { ChartPoint } from '@/components/Chart'
+import { useEffect, useState, useRef } from "react"
+import Draggable, { DraggableData, DraggableEvent } from "react-draggable"
+import useAuthRedirect from "@/hooks/useAuthRedirect"
+import api from "@/lib/api"
+import Chart, { ChartPoint } from "@/components/Chart"
 
 interface BuyerMetrics {
   totalSalesToday: number
@@ -14,246 +16,224 @@ interface BuyerMetrics {
 }
 
 const METRICS = [
-  { key: 'totalSalesToday',   label: 'Sales Today',        color: 'text-blue-600' },
-  { key: 'openOrders',        label: 'Open Orders',        color: 'text-green-600' },
-  { key: 'pendingEscrow',     label: 'Pending Escrow',     color: 'text-purple-600' },
-  { key: 'availableProducts', label: 'Available Products', color: 'text-green-600' },
-  { key: 'activeDeals',       label: 'Active Deals',       color: 'text-blue-600' },
+  { key: "totalSalesToday",   label: "Sales Today",        color: "text-blue-600" },
+  { key: "openOrders",        label: "Open Orders",        color: "text-green-600" },
+  { key: "pendingEscrow",     label: "Pending Escrow",     color: "text-purple-600" },
+  { key: "availableProducts", label: "Available Products", color: "text-green-600" },
+  { key: "activeDeals",       label: "Active Deals",       color: "text-blue-600" },
 ]
 
 const COMMAND_TABS = [
-  'Deal Flow','Shipments','Messages','Escrow',
-  'Contracts','Suppliers','Products',
+  "Deal Flow","Shipments","Messages","Escrow",
+  "Contracts","Suppliers","Products",
 ]
 
 export default function BuyerDashboard() {
-  useAuthRedirect('buyer')
+  useAuthRedirect("buyer")
 
-  // ── Metrics ────────────────────────────────────────────────────
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [minX, setMinX]         = useState(0)
+  const [maxX, setMaxX]         = useState(0)
+  const [dividerX, setDividerX] = useState(0)
+
   const [metrics, setMetrics]               = useState<BuyerMetrics | null>(null)
   const [loadingMetrics, setLoadingMetrics] = useState(true)
   const [errorMetrics, setErrorMetrics]     = useState<string | null>(null)
 
-  // ── Terminal state ────────────────────────────────────────────
-  const [queryText, setQueryText]         = useState('')
-  const [analysisText, setAnalysisText]   = useState('')
-  const [chartData, setChartData]         = useState<ChartPoint[] | null>(null)
+  const [queryText, setQueryText]       = useState("")
+  const [analysisText, setAnalysisText] = useState("")
+  const [chartData, setChartData]       = useState<ChartPoint[] | null>(null)
   const [searchResults, setSearchResults] = useState<any[] | null>(null)
-  const [nextPage, setNextPage]           = useState<number | null>(null)
-  const [isProcessing, setIsProcessing]   = useState(false)
+  const [nextPage, setNextPage]         = useState<number | null>(null)
+  const [isProcessing, setIsProcessing] = useState(false)
 
-  // ── Split-pane refs & state ───────────────────────────────────
-  const containerRef = useRef<HTMLDivElement>(null)
-  const [dividerX, setDividerX] = useState(0)
-  const dragging = useRef(false)
-
-  // measure initial divider (50%)
+  // measure & init
   useEffect(() => {
-    const w = containerRef.current?.clientWidth
-    if (w) setDividerX(w / 2)
+    const rect = containerRef.current?.getBoundingClientRect()
+    if (!rect) return
+    const W = rect.width
+    const quarter = W * 0.25
+    setMinX(quarter)
+    setMaxX(W - quarter)
+    setDividerX(W / 2)
   }, [])
 
-  // global mouse handlers for dragging
+  // fetch metrics
   useEffect(() => {
-    const onMove = (e: MouseEvent) => {
-      if (!dragging.current || !containerRef.current) return
-      const { left, width } = containerRef.current.getBoundingClientRect()
-      let x = e.clientX - left
-      x = Math.max(150, Math.min(width - 150, x))
-      setDividerX(x)
-    }
-    const onUp = () => { dragging.current = false }
-    window.addEventListener('mousemove', onMove)
-    window.addEventListener('mouseup', onUp)
-    return () => {
-      window.removeEventListener('mousemove', onMove)
-      window.removeEventListener('mouseup', onUp)
-    }
-  }, [])
-
-  const onDividerDown = (e: React.MouseEvent) => {
-    e.preventDefault()
-    dragging.current = true
-  }
-
-  // ── Fetch metrics ──────────────────────────────────────────────
-  useEffect(() => {
-    let active = true
-    api.get<BuyerMetrics>('/buyer/dashboard')
-      .then(r => active && setMetrics(r.data))
+    let mounted = true
+    api.get<BuyerMetrics>("/buyer/dashboard")
+      .then(r => mounted && setMetrics(r.data))
       .catch(() => {
-        if (active) {
-          console.warn('Metrics fetch failed; defaulting zeros.')
+        if (mounted) {
+          console.warn("Failed to fetch buyer metrics; using zeros.")
           setMetrics({
-            totalSalesToday: 0,
-            openOrders: 0,
-            pendingEscrow: 0,
+            totalSalesToday:   0,
+            openOrders:        0,
+            pendingEscrow:     0,
             availableProducts: 0,
-            activeDeals: 0,
+            activeDeals:       0,
           })
         }
       })
-      .finally(() => active && setLoadingMetrics(false))
-    return () => { active = false }
+      .finally(() => mounted && setLoadingMetrics(false))
+    return () => { mounted = false }
   }, [])
 
-  // ── Terminal send ─────────────────────────────────────────────
-  const sendQuery = async () => {
+  const handleSend = async () => {
     if (!queryText.trim()) return
     setIsProcessing(true)
-    setAnalysisText('')
+    setAnalysisText("")
     setChartData(null)
     setSearchResults(null)
     setNextPage(null)
 
     try {
-      const resp = await fetch(
+      const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/terminal/query`,
-        { method:'POST', headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({ prompt: queryText.trim() }) }
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ prompt: queryText.trim() }),
+        }
       )
-      const json = await resp.json()
-      setAnalysisText(json.analysisText || '')
+      const json = await res.json()
+      setAnalysisText(json.analysisText || "")
       if (Array.isArray(json.visualPayload.products)) {
         setSearchResults(json.visualPayload.products)
-        setNextPage((json.visualPayload as any).nextPage ?? null)
+        setNextPage((json.visualPayload as any).nextPage || null)
       } else if (Array.isArray(json.visualPayload.chartData)) {
         setChartData(json.visualPayload.chartData!)
       }
     } catch {
-      setAnalysisText('❌ Something went wrong. Please try again.')
-    } finally {
-      setIsProcessing(false)
-    }
-  }
-  const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') { e.preventDefault(); sendQuery() }
-  }
-  const onTabClick = (label: string) => {
-    setQueryText(label)
-    setTimeout(sendQuery, 50)
-  }
-  const loadMore = async () => {
-    if (!nextPage) return
-    setIsProcessing(true)
-    try {
-      const resp = await api.get<any[]>(
-        `/products?search=${encodeURIComponent(queryText)}&limit=10&page=${nextPage}`
-      )
-      const more = resp.data || []
-      setSearchResults(prev => prev ? [...prev, ...more] : more)
-      setNextPage(more.length===10 ? nextPage+1 : null)
+      setAnalysisText("❌ Something went wrong. Please try again.")
     } finally {
       setIsProcessing(false)
     }
   }
 
-  // ── Render ─────────────────────────────────────────────────────
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault()
+      handleSend()
+    }
+  }
+  const handleTab = (label: string) => {
+    setQueryText(label)
+    setTimeout(handleSend, 50)
+  }
+
   if (loadingMetrics) {
-    return <div className="min-h-screen flex items-center justify-center bg-gray-50"><p>Loading…</p></div>
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <p className="text-gray-600">Loading dashboard…</p>
+      </div>
+    )
   }
   if (errorMetrics || !metrics) {
-    return <div className="min-h-screen flex items-center justify-center bg-gray-50"><p className="text-red-500">{errorMetrics}</p></div>
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <p className="text-red-500">{errorMetrics || "Error loading metrics"}</p>
+      </div>
+    )
   }
+
   const m = metrics
+  const fallbackChart: ChartPoint[] = METRICS.map(({ key }) => ({
+    time:  Math.floor(Date.now() / 1000),
+    value: (m as any)[key] as number,
+  }))
 
   return (
     <div className="bg-gray-50 min-h-screen flex flex-col">
-      <main className="flex-1 max-w-[calc(100%-40px)] mx-auto px-4">
-        <div ref={containerRef} className="relative flex h-[calc(100vh-4rem-4rem)]">
-
-          {/* Left Pane */}
-          <div
-            className="overflow-auto pr-4 font-mono text-gray-800 text-sm"
-            style={{ width: dividerX }}
+      <main ref={containerRef} className="flex-1 max-w-[calc(100%-40px)] mx-auto px-4">
+        <div className="relative h-full">
+          <Draggable
+            axis="x"
+            bounds={{ left: minX, right: maxX }}
+            position={{ x: dividerX, y: 0 }}
+            onDrag={(_, d: DraggableData) => {
+              const x = Math.min(maxX, Math.max(minX, d.x))
+              setDividerX(x)
+            }}
           >
-            <p className="mb-2">Hello, Buyer — welcome.</p>
-            {METRICS.map(mt => (
-              <p key={mt.key} className="mb-1">
-                <span>“{mt.label}”: </span>
-                <span className={mt.color}>{(m as any)[mt.key]}</span>
-              </p>
-            ))}
-            {analysisText && (
-              <div className="mt-4 space-y-1">
-                {analysisText.split('\n').map((l,i)=><p key={i}>{l}</p>)}
-              </div>
-            )}
-          </div>
+            <div
+              className="absolute top-0 bottom-0 z-10 w-[6px] bg-gray-300 hover:bg-blue-500 cursor-col-resize transition-colors"
+              style={{ left: dividerX }}
+            />
+          </Draggable>
 
-          {/* Divider */}
-          <div
-            onMouseDown={onDividerDown}
-            className="bg-gray-300 hover:bg-blue-500"
-            style={{ cursor:'col-resize', width:6, marginLeft:-3, zIndex:10 }}
-          />
-
-          {/* Right Pane */}
-          <div className="flex-1 overflow-auto pl-4">
-            {searchResults ? (
-              <>
-                {searchResults.map((p,i)=>(
-                  <div key={i} className="bg-white p-3 rounded shadow mb-2 flex items-center space-x-3">
-                    <img
-                      src={`${process.env.NEXT_PUBLIC_API_URL}${p.image_url}`}
-                      alt={p.title}
-                      className="h-16 w-16 object-cover rounded"
-                      onError={e=>{(e.target as any).src='/placeholder.jpg'}}
-                    />
-                    <div>
-                      <h3 className="font-semibold">{p.title}</h3>
-                      <p className="text-sm">{p.description}</p>
-                      <p className="text-sm">£{p.price_per_kg}/kg · {p.origin_country}</p>
-                    </div>
-                  </div>
-                ))}
-                {nextPage && (
-                  <button
-                    onClick={loadMore}
-                    disabled={isProcessing}
-                    className="px-4 py-2 border rounded"
-                  >
-                    {isProcessing ? 'Loading…' : 'Next Page'}
-                  </button>
-                )}
-              </>
-            ) : chartData && chartData.length > 0 ? (
-              <Chart data={chartData} height={containerRef.current!.clientHeight - 64} />
-            ) : (
-              <div className="h-full flex items-center justify-center text-gray-500">
-                <p>Ask a question or pick a tab to see data here.</p>
-              </div>
-            )}
+          <div className="flex h-full">
+            <div
+              className="pr-4 font-mono text-gray-800 text-sm overflow-auto"
+              style={{ width: dividerX }}
+            >
+              <p className="mb-2">Hello, Buyer — welcome to Central Command.</p>
+              {METRICS.map(({ key, label, color }) => {
+                const val = (m as any)[key] || 0
+                return (
+                  <p key={key} className="mb-1">
+                    <span>“{label}”: </span>
+                    <span className={color}>{val}</span>
+                  </p>
+                )
+              })}
+              {analysisText && (
+                <div className="mt-4 space-y-1">
+                  {analysisText.split("\n").map((line, i) => (
+                    <p key={i} className="mb-1">{line}</p>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div className="flex-1 pl-4 overflow-auto">
+              {searchResults ? (
+                <div className="space-y-4">
+                  {searchResults.map((item, i) => (
+                    <pre key={i} className="bg-white p-3 rounded shadow text-xs">
+                      {JSON.stringify(item, null, 2)}
+                    </pre>
+                  ))}
+                </div>
+              ) : (chartData || fallbackChart).length > 0 ? (
+                <Chart
+                  data={chartData || fallbackChart}
+                  height={Math.max(200, (containerRef.current?.clientHeight || 400) - 32)}
+                />
+              ) : (
+                <div className="h-full flex items-center justify-center text-gray-500">
+                  <p>Select a button or ask a question to see visual output here.</p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="fixed bottom-0 left-0 w-full bg-white border-t py-4">
+      <footer className="fixed bottom-0 left-0 w-full bg-white border-t border-gray-300 py-4">
         <div className="max-w-[calc(100%-40px)] mx-auto px-4 flex">
           <div className="w-[calc(50%-20px)] flex items-center space-x-2">
             <input
               type="text"
               placeholder="Type a question…"
               value={queryText}
-              onChange={e=>setQueryText(e.target.value)}
-              onKeyDown={onKeyDown}
-              className="flex-1 py-2 px-4 border rounded"
+              onChange={e => setQueryText(e.target.value)}
+              onKeyDown={handleKeyDown}
+              className="flex-1 py-2 px-4 border rounded bg-white text-sm"
             />
             <button
-              onClick={sendQuery}
+              onClick={handleSend}
               disabled={isProcessing}
-              className="py-2 px-4 bg-black text-white rounded"
+              className="py-2 px-4 bg-black text-white border rounded hover:bg-gray-900 disabled:opacity-50"
             >
-              {isProcessing ? 'Working…' : 'Send'}
+              {isProcessing ? "Working…" : "Send"}
             </button>
           </div>
-          <div className="flex-1 flex justify-end space-x-2">
+          <div className="w-[50%] flex flex-wrap items-center space-x-2 pl-8">
             {COMMAND_TABS.map(label => (
               <button
                 key={label}
-                onClick={()=>onTabClick(label)}
-                className="px-3 py-1 border rounded text-sm"
+                onClick={() => handleTab(label)}
+                className="px-3 py-1 border rounded-md text-sm hover:bg-gray-100"
               >
                 {label}
               </button>
