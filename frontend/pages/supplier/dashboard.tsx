@@ -25,8 +25,9 @@ type TerminalPayload = {
 export default function SupplierDashboard() {
   useAuthRedirect("supplier")
 
+  // Metrics / terminal state
   const [metrics, setMetrics]       = useState<SupplierMetrics | null>(null)
-  const [loadingMetrics, setLoading] = useState(true)
+  const [loading, setLoading]       = useState(true)
   const [error, setError]           = useState<string | null>(null)
 
   const [queryText, setQueryText]   = useState("")
@@ -35,24 +36,26 @@ export default function SupplierDashboard() {
   const [searchResults, setResults] = useState<any[] | null>(null)
   const [isWorking, setWorking]     = useState(false)
 
+  // Tabs
   const TABS = ["Sales","Marketing","Operations","Shipments","Financials","Clients"]
 
-  // ─── Divider state ─────────────────────────────────────────
-  const initialX = typeof window !== "undefined" ? window.innerWidth * 0.5 : 300
+  // Draggable divider state
+  // start 50% of viewport
+  const initialX = typeof window !== "undefined" ? window.innerWidth / 2 : 300
   const [dividerX, setDividerX] = useState(initialX)
   const dragRef = useRef<HTMLDivElement>(null!)
 
-  // ─── Fetch metrics ─────────────────────────────────────────
+  // Fetch metrics
   useEffect(() => {
-    let active = true
+    let alive = true
     api.get<SupplierMetrics>("/supplier/dashboard")
-      .then(r => active && setMetrics(r.data))
-      .catch(e => active && setError(e.message))
-      .finally(() => active && setLoading(false))
-    return () => { active = false }
+      .then(r => { if (alive) setMetrics(r.data) })
+      .catch(e => { if (alive) setError(e.message) })
+      .finally(() => { if (alive) setLoading(false) })
+    return () => { alive = false }
   }, [])
 
-  // ─── Send terminal query ───────────────────────────────────
+  // Terminal query
   const handleSend = async () => {
     if (!queryText.trim()) return
     setWorking(true)
@@ -65,7 +68,7 @@ export default function SupplierDashboard() {
         `${process.env.NEXT_PUBLIC_API_URL}/terminal/query`,
         {
           method: "POST",
-          headers: { "Content-Type":"application/json" },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ prompt: queryText.trim() }),
         }
       )
@@ -77,7 +80,7 @@ export default function SupplierDashboard() {
         setChartData(json.visualPayload.chartData!)
       }
     } catch {
-      setAnalysis("❌ Something went wrong. Please try again.")
+      setAnalysis("❌ Something went wrong.")
     } finally {
       setWorking(false)
     }
@@ -90,11 +93,19 @@ export default function SupplierDashboard() {
     }
   }
 
-  if (loadingMetrics) {
-    return <div className="min-h-screen flex items-center justify-center bg-bg-page"><p className="text-text-secondary">Loading…</p></div>
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-bg-page">
+        <p className="text-text-secondary">Loading…</p>
+      </div>
+    )
   }
   if (error || !metrics) {
-    return <div className="min-h-screen flex items-center justify-center bg-bg-page"><p className="text-red-600">{error}</p></div>
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-bg-page">
+        <p className="text-red-600">{error}</p>
+      </div>
+    )
   }
 
   const m = metrics
@@ -105,8 +116,10 @@ export default function SupplierDashboard() {
     { label: "30d Proceeds",    value: `£${m.proceeds30d}`, color: "text-blue-600" },
     { label: "Feedback",        value: m.feedbackRating,    color: "text-purple-600" },
   ]
+
+  // Fallback chart
   const fallbackChart: ChartPoint[] = METRICS.map((_, i) => ({
-    time:  Math.floor(Date.now()/1000) - (METRICS.length - i) * 3600,
+    time:  Math.floor(Date.now()/1000) - (METRICS.length - i)*3600,
     value: typeof METRICS[i].value === "number" ? METRICS[i].value as number : 0
   }))
 
@@ -120,25 +133,31 @@ export default function SupplierDashboard() {
             bounds="parent"
             nodeRef={dragRef}
             position={{ x: dividerX, y: 0 }}
-            onDrag={(_, d) => setDividerX(d.x)}
+            onDrag={(_, data) => setDividerX(data.x)}
           >
             <div
               ref={dragRef}
               style={{
-                position: "absolute", top: 0, bottom: 0, left: dividerX,
-                width: "6px", cursor: "col-resize",
-                background: "#3B82F6", zIndex: 10,
+                position: "absolute",
+                top: 0, bottom: 0,
+                left: dividerX,
+                width: "6px",
+                cursor: "col-resize",
+                background: "#3B82F6",
+                zIndex: 10,
               }}
             />
           </Draggable>
 
           <div className="flex h-full">
             {/* Left */}
-            <div style={{ width: dividerX, overflow: "auto" }} className="pr-2 font-mono text-text dark:text-text-secondary text-sm">
+            <div style={{ width: dividerX, overflow: "auto" }}
+                 className="pr-2 font-mono text-text dark:text-text-secondary text-sm">
               <p className="mb-2">Hello, Supplier — welcome to Central Command.</p>
               {METRICS.map(mt => (
                 <p key={mt.label} className="mb-1">
-                  <span>“{mt.label}”: </span><span className={mt.color}>{mt.value}</span>
+                  <span>“{mt.label}”: </span>
+                  <span className={mt.color}>{mt.value}</span>
                 </p>
               ))}
               {analysisText && (
@@ -149,18 +168,20 @@ export default function SupplierDashboard() {
             </div>
 
             {/* Right */}
-            <div style={{ flex: 1, overflow: "auto" }} className="pl-2">
+            <div style={{ flex:1, overflow:"auto" }} className="pl-2">
               {searchResults ? (
                 <div className="space-y-4">
                   {searchResults.map((item,i)=>(
-                    <pre key={i} className="bg-white dark:bg-gray-800 p-3 rounded shadow text-xs">
-                      {JSON.stringify(item,null,2)}
-                    </pre>
+                    <pre key={i}
+                      className="bg-white dark:bg-gray-800 p-3 rounded shadow text-xs"
+                    >{JSON.stringify(item, null, 2)}</pre>
                   ))}
                 </div>
-              ) : (chartData||fallbackChart).length>0 ? (
-                <Chart data={chartData||fallbackChart}
-                       height={Math.floor(window.innerHeight - 4*16 - 64)} />
+              ) : (chartData||fallbackChart).length > 0 ? (
+                <Chart
+                  data={chartData||fallbackChart}
+                  height={Math.floor(window.innerHeight - 4*16 - 64)}
+                />
               ) : (
                 <div className="h-full flex items-center justify-center text-text-secondary">
                   <p>Select a tab or ask a question to see visual output here.</p>
@@ -171,6 +192,7 @@ export default function SupplierDashboard() {
         </div>
       </main>
 
+      {/* Footer */}
       <footer className="fixed bottom-0 left-0 w-full bg-white dark:bg-gray-800 border-t border-border-light dark:border-gray-700 py-4">
         <div className="max-w-[calc(100%-40px)] mx-auto px-2 flex">
           <div className="w-[calc(50%-20px)] flex items-center space-x-2">
@@ -178,13 +200,13 @@ export default function SupplierDashboard() {
               type="text"
               placeholder="Type a question…"
               value={queryText}
-              onChange={e=>setQueryText(e.target.value)}
+              onChange={e => setQueryText(e.target.value)}
               onKeyDown={onKey}
               className="flex-1 py-2 px-4 border rounded bg-white dark:bg-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <button onClick={handleSend} disabled={isWorking}
               className="py-2 px-4 bg-black text-white border rounded hover:bg-gray-900 disabled:opacity-50">
-              {isWorking?"Working…":"Send"}
+              {isWorking ? "Working…" : "Send"}
             </button>
           </div>
           <div className="w-[50%] flex space-x-2 pl-4">
