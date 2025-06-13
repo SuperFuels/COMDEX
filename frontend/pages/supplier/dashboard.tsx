@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import useAuthRedirect from '@/hooks/useAuthRedirect'
 import api from '@/lib/api'
 import Chart, { ChartPoint } from '@/components/Chart'
+import styles from './dashboard.module.css'
 
 type SupplierMetrics = {
   totalSalesToday: number
@@ -38,25 +39,22 @@ export default function SupplierDashboard() {
   const [searchResults, setResults] = useState<any[] | null>(null)
   const [isWorking, setWorking]     = useState(false)
 
-  // ── Split-pane ─────────────────────────────────────────
+  // ── Split‐pane ─────────────────────────────────────────
   const containerRef = useRef<HTMLDivElement>(null)
   const [dividerX, setDividerX] = useState(0)
   const dragging = useRef(false)
 
-  // center on mount
   useEffect(() => {
     const w = containerRef.current?.clientWidth ?? 0
     setDividerX(w / 2)
   }, [])
 
-  // handle drag, clamp to 25%–75%
   useEffect(() => {
     const onMove = (e: MouseEvent) => {
       if (!dragging.current || !containerRef.current) return
       const { left, width } = containerRef.current.getBoundingClientRect()
       let x = e.clientX - left
-      const min = width * 0.25
-      const max = width * 0.75
+      const min = width * 0.25, max = width * 0.75
       x = Math.max(min, Math.min(max, x))
       setDividerX(x)
     }
@@ -74,7 +72,7 @@ export default function SupplierDashboard() {
     dragging.current = true
   }
 
-  // ── Fetch supplier metrics ─────────────────────────────
+  // ── Fetch metrics ──────────────────────────────────────
   useEffect(() => {
     let active = true
     api.get<SupplierMetrics>('/supplier/dashboard')
@@ -122,7 +120,6 @@ export default function SupplierDashboard() {
     setTimeout(sendQuery, 50)
   }
 
-  // ── Loading / error screens ─────────────────────────────
   if (loadingMetrics) {
     return <div className="h-screen flex items-center justify-center bg-gray-50"><p>Loading…</p></div>
   }
@@ -138,15 +135,15 @@ export default function SupplierDashboard() {
 
           {/* Left Pane */}
           <div
-            className="left-pane overflow-auto pr-4 font-mono text-gray-800 text-sm"
+            className={styles.leftPane}
             style={{ width: dividerX }}
           >
             <p className="mb-2">Hello, Supplier — welcome.</p>
-            <p>“Sales Today”: <span className="text-blue-600">{m.totalSalesToday}</span></p>
-            <p>“Active Listings”: <span className="text-green-600">{m.activeListings}</span></p>
-            <p>“Open Orders”: <span className="text-green-600">{m.openOrders}</span></p>
-            <p>“30d Proceeds”: <span className="text-blue-600">£{m.proceeds30d}</span></p>
-            <p>“Feedback”: <span className="text-purple-600">{m.feedbackRating}</span></p>
+            <p>Sales Today: <span className="text-blue-600">{m.totalSalesToday}</span></p>
+            <p>Active Listings: <span className="text-green-600">{m.activeListings}</span></p>
+            <p>Open Orders: <span className="text-green-600">{m.openOrders}</span></p>
+            <p>30d Proceeds: <span className="text-blue-600">£{m.proceeds30d}</span></p>
+            <p>Feedback: <span className="text-purple-600">{m.feedbackRating}</span></p>
 
             {analysisText && (
               <div className="mt-4 space-y-1">
@@ -158,24 +155,18 @@ export default function SupplierDashboard() {
           {/* Divider */}
           <div
             onMouseDown={onDividerDown}
-            className="splitter bg-gray-300 hover:bg-blue-500 absolute top-0"
-            style={{
-              cursor: 'col-resize',
-              width: 6,
-              height: '100%',
-              left: dividerX - 3,
-              zIndex: 10
-            }}
+            className={styles.splitter}
+            style={{ left: dividerX - 3 }}
           />
 
           {/* Right Pane */}
           <div
-            className="right-pane flex-1 overflow-auto pl-4"
+            className={styles.rightPane}
             style={{ marginLeft: dividerX }}
           >
             {searchResults ? (
               searchResults.map((item,i)=>(
-                <div key={i} className="message-container">
+                <div key={i} className={styles.messageContainer}>
                   <pre className="text-xs">{JSON.stringify(item,null,2)}</pre>
                 </div>
               ))
@@ -194,7 +185,7 @@ export default function SupplierDashboard() {
       </main>
 
       {/* Fixed Bottom Bar */}
-      <footer className="bottom-bar">
+      <footer className={styles.bottomBar}>
         <div className="flex items-center space-x-2" style={{ width: dividerX - 20 }}>
           <input
             type="text"
@@ -207,7 +198,6 @@ export default function SupplierDashboard() {
           <button
             onClick={sendQuery}
             disabled={isWorking}
-            className="py-2 px-4 bg-black text-white rounded"
           >
             {isWorking ? 'Working…' : 'Send'}
           </button>
