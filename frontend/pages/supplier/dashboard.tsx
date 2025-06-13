@@ -28,33 +28,35 @@ export default function SupplierDashboard() {
   useAuthRedirect('supplier')
 
   // ── Metrics fetch ─────────────────────────────────────────────
-  const [metrics, setMetrics]     = useState<SupplierMetrics|null>(null)
-  const [loading, setLoading]     = useState(true)
-  const [error, setError]         = useState<string|null>(null)
+  const [metrics, setMetrics] = useState<SupplierMetrics | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError]     = useState<string | null>(null)
 
   // ── Terminal state ────────────────────────────────────────────
   const [queryText, setQueryText]   = useState('')
   const [analysisText, setAnalysis] = useState('')
-  const [chartData, setChartData]   = useState<ChartPoint[]|null>(null)
-  const [searchResults, setResults] = useState<any[]|null>(null)
+  const [chartData, setChartData]   = useState<ChartPoint[] | null>(null)
+  const [searchResults, setResults] = useState<any[] | null>(null)
   const [isWorking, setWorking]     = useState(false)
 
-  // ── Split-pane state ──────────────────────────────────────────
+  // ── Split‐pane ref & state ────────────────────────────────────
   const containerRef = useRef<HTMLDivElement>(null)
-  const [dividerX, setDividerX] = useState(window.innerWidth / 2)
+  const [dividerX, setDividerX] = useState(0)
   const dragging = useRef(false)
 
-  // init 50%
+  // on mount, set initial divider to container midpoint
   useEffect(() => {
-    const el = containerRef.current
-    if (el) setDividerX(el.clientWidth/2)
-  }, [containerRef.current])
+    const w = containerRef.current?.clientWidth
+    if (w) setDividerX(w / 2)
+  }, [])
 
+  // handle document‐level mouse events
   useEffect(() => {
     const onMouseMove = (e: MouseEvent) => {
       if (!dragging.current || !containerRef.current) return
       const { left, width } = containerRef.current.getBoundingClientRect()
       let x = e.clientX - left
+      // enforce min 120px per pane
       x = Math.max(120, Math.min(width - 120, x))
       setDividerX(x)
     }
@@ -72,7 +74,7 @@ export default function SupplierDashboard() {
     dragging.current = true
   }
 
-  // ── Fetch metrics ──────────────────────────────────────────────
+  // ── Fetch supplier metrics ─────────────────────────────────────
   useEffect(() => {
     let active = true
     api.get<SupplierMetrics>('/supplier/dashboard')
@@ -82,7 +84,7 @@ export default function SupplierDashboard() {
     return () => { active = false }
   }, [])
 
-  // ── Terminal “Send” ───────────────────────────────────────────
+  // ── Terminal query ────────────────────────────────────────────
   const handleSend = async () => {
     if (!queryText.trim()) return
     setWorking(true)
@@ -93,12 +95,12 @@ export default function SupplierDashboard() {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/terminal/query`,
         {
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
+          method: 'POST',
+          headers: { 'Content-Type':'application/json' },
           body: JSON.stringify({ prompt: queryText.trim() }),
         }
       )
-      const json = await res.json() as TerminalPayload
+      const json = (await res.json()) as TerminalPayload
       setAnalysis(json.analysisText || '')
       if (Array.isArray(json.visualPayload.products)) {
         setResults(json.visualPayload.products)
@@ -112,14 +114,14 @@ export default function SupplierDashboard() {
     }
   }
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key==='Enter') { e.preventDefault(); handleSend() }
+    if (e.key === 'Enter') { e.preventDefault(); handleSend() }
   }
   const handleTab = (tab: string) => {
     setQueryText(tab)
-    setTimeout(handleSend,50)
+    setTimeout(handleSend, 50)
   }
 
-  // ── Loading / Error ───────────────────────────────────────────
+  // ── Loading / error UI ───────────────────────────────────────
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -135,31 +137,33 @@ export default function SupplierDashboard() {
     )
   }
 
-  // build small summary‐chart fallback
+  // build fallback spark-chart
   const m = metrics
   const SUMMARY = [
-    { label:'Sales Today',    value: m.totalSalesToday,  color:'text-blue-600' },
-    { label:'Active Listings', value: m.activeListings, color:'text-green-600' },
-    { label:'Open Orders',     value: m.openOrders,      color:'text-green-600' },
-    { label:'30d Proceeds',    value:`£${m.proceeds30d}`,color:'text-blue-600' },
-    { label:'Feedback',        value: m.feedbackRating,  color:'text-purple-600' },
+    { label: 'Sales Today',    value: m.totalSalesToday,  color: 'text-blue-600' },
+    { label: 'Active Listings', value: m.activeListings, color: 'text-green-600' },
+    { label: 'Open Orders',     value: m.openOrders,      color: 'text-green-600' },
+    { label: '30d Proceeds',    value: `£${m.proceeds30d}`, color: 'text-blue-600' },
+    { label: 'Feedback',        value: m.feedbackRating,  color: 'text-purple-600' },
   ]
-  const fallback: ChartPoint[] = SUMMARY.map((_,i)=>({
-    time: Math.floor(Date.now()/1000) - (SUMMARY.length-i)*3600,
-    value: typeof SUMMARY[i].value==='number' ? SUMMARY[i].value as number : 0,
+  const fallback: ChartPoint[] = SUMMARY.map((_, i) => ({
+    time:  Math.floor(Date.now()/1000) - (SUMMARY.length - i) * 3600,
+    value: typeof SUMMARY[i].value === 'number'
+      ? (SUMMARY[i].value as number)
+      : 0
   }))
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
       <main className="flex-1 max-w-[calc(100%-40px)] mx-auto px-4">
-        <div ref={containerRef} className="flex h-[calc(100vh-4rem-4rem)] relative">
+        <div ref={containerRef} className="relative flex h-[calc(100vh-4rem-4rem)]">
           {/* Left Pane */}
           <div
             className="overflow-auto pr-2 font-mono text-gray-800 text-sm"
             style={{ width: dividerX }}
           >
             <p className="mb-2">Hello, Supplier — welcome to Central Command.</p>
-            {SUMMARY.map((it) => (
+            {SUMMARY.map(it => (
               <p key={it.label} className="mb-1">
                 <span>“{it.label}”: </span>
                 <span className={it.color}>{it.value}</span>
@@ -167,7 +171,9 @@ export default function SupplierDashboard() {
             ))}
             {analysisText && (
               <div className="mt-4 space-y-1">
-                {analysisText.split('\n').map((l,i)=><p key={i} className="mb-1">{l}</p>)}
+                {analysisText.split('\n').map((l,i)=>
+                  <p key={i} className="mb-1">{l}</p>
+                )}
               </div>
             )}
           </div>
@@ -177,10 +183,10 @@ export default function SupplierDashboard() {
             onMouseDown={onDividerMouseDown}
             className="bg-gray-300 hover:bg-blue-500"
             style={{
-              cursor:'col-resize',
-              width:6,
-              marginLeft:-3,
-              zIndex:10
+              cursor: 'col-resize',
+              width: 6,
+              marginLeft: -3,
+              zIndex: 10
             }}
           />
 
@@ -188,13 +194,13 @@ export default function SupplierDashboard() {
           <div className="overflow-auto pl-2 flex-1">
             {searchResults ? (
               <div className="space-y-4">
-                {searchResults.map((item,i)=>(
-                  <pre key={i}
-                    className="bg-white p-3 rounded shadow text-xs"
-                  >{JSON.stringify(item,null,2)}</pre>
-                ))}
+                {searchResults.map((item,i)=>
+                  <pre key={i} className="bg-white p-3 rounded shadow text-xs">
+                    {JSON.stringify(item,null,2)}
+                  </pre>
+                )}
               </div>
-            ) : (chartData||fallback).length>0 ? (
+            ) : (chartData||fallback).length > 0 ? (
               <Chart
                 data={chartData||fallback}
                 height={window.innerHeight - (4*16) - 64}
