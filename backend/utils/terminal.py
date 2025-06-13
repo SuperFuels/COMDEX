@@ -1,18 +1,17 @@
 import os
 from datetime import datetime, timedelta
-from typing import Any, Dict, List
+from typing import Dict, Any, List
 
 import openai
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from ..models.product import Product
-from ..models.deal import Deal
 from ..models.shipment import Shipment
+from ..models.deal import Deal
 from ..utils.news import fetch_headlines
 
-# configure OpenAI
-openai.api_key = os.getenv("OPENAI_API_KEY", "")
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 
 def run_query(prompt: str, db: Session) -> Dict[str, Any]:
@@ -20,18 +19,12 @@ def run_query(prompt: str, db: Session) -> Dict[str, Any]:
     AI + DB integration for your “terminal” endpoint.
     Returns a dict with:
       - analysisText: str
-      - visualPayload: {
-          products: List[...],
-          chartData: List[{"time": int, "value": float}],
-          suppliers: int,
-          volumes: float
-        }
+      - visualPayload: { products, chartData, suppliers, volumes }
     """
     term = prompt.strip()
-    thirty_days_ago = datetime.utcnow() - timedelta(days=30)
 
-    # ─── 1) PRODUCTS ───────────────────────────────────────────────
-    prods = (
+    # 1) Fetch matching products
+    prods: List[Product] = (
         db.query(Product)
           .filter(Product.title.ilike(f"%{term}%"))
           .limit(10)
@@ -49,8 +42,9 @@ def run_query(prompt: str, db: Session) -> Dict[str, Any]:
         for p in prods
     ]
 
-    # ─── 2) PRICE‐HISTORY CHART ───────────────────────────────────
-    deals = (
+    # 2) Build price‐history chart (last 30 days)
+    thirty_days_ago = datetime.utcnow() - timedelta(days=30)
+    deals: List[Deal] = (
         db.query(Deal)
           .filter(Deal.product_title.ilike(f"%{term}%"))
           .filter(Deal.created_at >= thirty_days_ago)
@@ -60,17 +54,16 @@ def run_query(prompt: str, db: Session) -> Dict[str, Any]:
     chart_payload = [
         {"time": int(d.created_at.timestamp()), "value": d.total_price / d.quantity_kg}
         for d in deals
-        if d.quantity_kg and d.total_price is not None
     ]
 
-    # ─── 3) SUPPLIERS COUNT & VOLUME ──────────────────────────────
+    # 3) Compute active suppliers & volume
     suppliers_count = (
-        db.query(func.count(func.distinct(Product.owner_id)))
+        db.query(Product.owner_id)
           .filter(Product.title.ilike(f"%{term}%"))
-          .scalar()
-        or 0
+          .distinct()
+          .count()
     )
-    volume_sum = (
+    volumes_sum = (
         db.query(func.sum(Deal.quantity_kg))
           .filter(Deal.product_title.ilike(f"%{term}%"))
           .filter(Deal.created_at >= thirty_days_ago)
@@ -78,23 +71,23 @@ def run_query(prompt: str, db: Session) -> Dict[str, Any]:
         or 0
     )
 
-    # ─── 4) TOP‐3 NEWS HEADLINES ─────────────────────────────────
+    # 4) Fetch top-3 headlines
     try:
         headlines = fetch_headlines(term, limit=3)
     except Exception:
         headlines = []
 
-    # ─── 5) LLM MARKET OVERVIEW ─────────────────────────────────
-    system_msg = (
+    # 5) Call the LLM
+    system_prompt = (
         "You are a senior commodity market analyst. "
-        "Provide concise bullet‐point summaries."
+        "Provide concise bullet-point summaries."
     )
-    user_msg = (
+    user_prompt = (
         f"Market overview for “{term}”:\n"
-        f"- Price points (last 30d): {len(chart_payload)} entries\n"
+        f"- {len(chart_payload)} points over last 30d\n"
         f"- Active suppliers: {suppliers_count}\n"
-        f"- Trading volume (30d): {volume_sum:.0f} kg\n"
-        f"- Key headlines: {headlines}\n\n"
+        f"- Volume last 30d: {volumes_sum:.0f} kg\n"
+        f"- Headlines: {headlines}\n\n"
         "Summarize in clear bullet points."
     )
 
@@ -102,22 +95,22 @@ def run_query(prompt: str, db: Session) -> Dict[str, Any]:
         resp = openai.ChatCompletion.create(
             model="gpt-4",
             messages=[
-                {"role": "system",  "content": system_msg},
-                {"role": "user",    "content": user_msg},
+                {"role": "system", "content": system_prompt},
+                {"role": "user",   "content": user_prompt},
             ],
             temperature=0.7,
             max_tokens=300,
         )
         analysis = resp.choices[0].message.content.strip()
     except Exception as e:
-        analysis = f"⚠️ LLM generation failed: {e}"
+        analysis = f"⚠️ LLM error: {e}"
 
     return {
         "analysisText": analysis,
         "visualPayload": {
-            "products": products_payload,
+            "products":  products_payload,
             "chartData": chart_payload,
             "suppliers": suppliers_count,
-            "volumes": volume_sum,
+            "volumes":   volumes_sum,
         },
     }
