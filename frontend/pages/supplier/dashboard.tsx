@@ -39,16 +39,18 @@ export default function SupplierDashboard() {
   const [searchResults, setResults] = useState<any[] | null>(null)
   const [isWorking, setWorking]     = useState(false)
 
-  // ── Split‐pane ─────────────────────────────────────────
+  // ── Split-pane ─────────────────────────────────────────
   const containerRef = useRef<HTMLDivElement>(null)
   const [dividerX, setDividerX] = useState(0)
   const dragging = useRef(false)
 
+  // center on mount
   useEffect(() => {
     const w = containerRef.current?.clientWidth ?? 0
     setDividerX(w / 2)
   }, [])
 
+  // drag logic
   useEffect(() => {
     const onMove = (e: MouseEvent) => {
       if (!dragging.current || !containerRef.current) return
@@ -147,7 +149,7 @@ export default function SupplierDashboard() {
 
             {analysisText && (
               <div className="mt-4 space-y-1">
-                {analysisText.split('\n').map((l,i)=><p key={i}>{l}</p>)}
+                {analysisText.split('\n').map((l,i) => <p key={i}>{l}</p>)}
               </div>
             )}
           </div>
@@ -159,20 +161,26 @@ export default function SupplierDashboard() {
             style={{ left: dividerX - 3 }}
           />
 
-          {/* Right Pane */}
+          {/* Right Pane (absolutely positioned to fill remaining space) */}
           <div
             className={styles.rightPane}
-            style={{ marginLeft: dividerX }}
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: dividerX,
+              width: `calc(100% - ${dividerX}px)`,
+              height: '100%',
+            }}
           >
             {searchResults ? (
-              searchResults.map((item,i)=>(
+              searchResults.map((item,i) => (
                 <div key={i} className={styles.messageContainer}>
                   <pre className="text-xs">{JSON.stringify(item,null,2)}</pre>
                 </div>
               ))
             ) : chartData && chartData.length > 0 ? (
               <Chart
-                data={chartData!}
+                data={chartData}
                 height={(containerRef.current?.clientHeight ?? 0) - 64}
               />
             ) : (
@@ -186,22 +194,25 @@ export default function SupplierDashboard() {
 
       {/* Fixed Bottom Bar */}
       <footer className={styles.bottomBar}>
-        <div className="flex items-center space-x-2" style={{ width: dividerX - 20 }}>
+        {/* match width of right-pane minus 20px gutter */}
+        <div
+          className="flex items-center space-x-2"
+          style={{ width: `calc(100% - ${dividerX + 20}px)` }}
+        >
           <input
             type="text"
             placeholder="Type a question…"
             value={queryText}
-            onChange={e=>setQueryText(e.target.value)}
+            onChange={e => setQueryText(e.target.value)}
             onKeyDown={onKey}
             className="flex-1 py-2 px-4 border rounded"
           />
-          <button
-            onClick={sendQuery}
-            disabled={isWorking}
-          >
+          <button onClick={sendQuery} disabled={isWorking}>
             {isWorking ? 'Working…' : 'Send'}
           </button>
         </div>
+
+        {/* bottom tabs */}
         <div className="flex-1 flex justify-end space-x-2">
           {COMMAND_TABS.map(label=>(
             <button
