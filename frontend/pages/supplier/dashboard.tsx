@@ -5,8 +5,22 @@ import useAuthRedirect from '@/hooks/useAuthRedirect'
 import api from '@/lib/api'
 import Chart, { ChartPoint } from '@/components/Chart'
 
-type SupplierMetrics = { /* … */ }
-type TerminalPayload = { /* … */ }
+type SupplierMetrics = {
+  totalSalesToday: number
+  activeListings: number
+  openOrders: number
+  proceeds30d: number
+  feedbackRating: number
+}
+
+type TerminalPayload = {
+  analysisText: string
+  visualPayload: {
+    products?: any[]
+    chartData?: ChartPoint[]
+  }
+}
+
 const COMMAND_TABS = ['Sales','Marketing','Operations','Shipments','Financials','Clients']
 
 export default function SupplierDashboard() {
@@ -127,7 +141,6 @@ export default function SupplierDashboard() {
             className="left-pane overflow-auto pr-4 font-mono text-gray-800 text-sm"
             style={{ width: dividerX }}
           >
-            {/* metrics + analysis */}
             <p className="mb-2">Hello, Supplier — welcome.</p>
             <p>“Sales Today”: <span className="text-blue-600">{m.totalSalesToday}</span></p>
             <p>“Active Listings”: <span className="text-green-600">{m.activeListings}</span></p>
