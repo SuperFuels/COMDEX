@@ -1,5 +1,3 @@
-# File: backend/routes/terminal.py
-
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
@@ -23,6 +21,8 @@ class ChartPoint(BaseModel):
 class VisualPayload(BaseModel):
     products: List[Dict[str, Any]]
     chartData: List[ChartPoint]
+    suppliers: int
+    volumes: float
 
 
 class QueryResponse(BaseModel):
@@ -31,37 +31,28 @@ class QueryResponse(BaseModel):
 
 
 @router.post("/query", response_model=QueryResponse)
-def terminal_query(req: QueryRequest, db: Session = Depends(get_db)):
+def terminal_query(
+    req: QueryRequest,
+    db: Session = Depends(get_db),
+):
     """
-    Run your full “AI + DB” pipeline via `run_query`.
-    Returns the LLM analysis text plus structured visual data.
+    Run an “AI + DB” pipeline for a free-form query.
+    Returns analysisText and structured visual data.
     """
-    term = req.prompt.strip()
-    if not term:
-        raise HTTPException(400, detail="Prompt cannot be empty")
-
     try:
-        # run_query does all of:
-        #  • product lookup     (db.fetch_products_like or direct SQLAlchemy)
-        #  • price-history      (last 30d via Deal)
-        #  • supplier & volume  (distinct count & sum)
-        #  • top headlines      (via fetch_headlines)
-        #  • LLM call           (via openai.ChatCompletion)
-        result: Dict[str, Any] = run_query(term, db)
+        result = run_query(req.prompt, db)
     except Exception as e:
-        raise HTTPException(500, detail=f"Terminal pipeline failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Terminal pipeline failed: {e}")
 
-    analysis = result.get("analysisText", "")
-    vp       = result.get("visualPayload", {})
-
-    products  = vp.get("products", [])
-    chartData = vp.get("chartData", [])
-
-    # Validate & return
+    # Ensure it matches our Pydantic model
     return QueryResponse(
-        analysisText=analysis,
+        analysisText=result["analysisText"],
         visualPayload=VisualPayload(
-            products=products,
-            chartData=[ChartPoint(**pt) for pt in chartData],
+            products=result["visualPayload"].get("products", []),
+            chartData=[
+                ChartPoint(**pt) for pt in result["visualPayload"].get("chartData", [])
+            ],
+            suppliers=result["visualPayload"].get("suppliers", 0),
+            volumes=result["visualPayload"].get("volumes", 0.0),
         ),
     )
