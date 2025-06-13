@@ -162,3 +162,54 @@ a.logo-link {
 /* prettier-ignore-end */
 /* stylelint-enable */
 /* eslint-enable */
+
+/* ── 10) DASHBOARD SPECIFIC OVERRIDES ────────────────────────────────────── */
+
+/* 10.1 Pane backgrounds */
+.left-pane,
+.right-pane {
+  background-color: #ffffff !important;
+}
+
+/* 10.2 ChatGPT-style cards for each message/data block */
+.message-container {
+  @apply bg-white border border-gray-200 rounded-lg p-4 mb-4 shadow-sm;
+}
+
+/* 10.3 Constrain panes to at most 50% each */
+.left-pane {
+  max-width: 50vw;
+  min-width: 25vw;
+}
+.right-pane {
+  max-width: 50vw;
+  min-width: 25vw;
+}
+
+/* Ensure the divider can’t push panes beyond center */
+.splitter {
+  /* no width change needed here; drag logic will respect pane max-width */
+}
+
+/* 10.4 Fixed bottom input bar in right half */
+.bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: calc(50% + 10px);    /* 10px gap from center */
+  right: 0;
+  background-color: var(--bg-page);
+  padding: 0.5rem 1rem;
+  border-top: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  z-index: 50;
+}
+
+/* If you have an <input> + button wrapper there */
+.bottom-bar input[type="text"] {
+  flex: 1;
+  margin-right: 0.5rem;
+}
+.bottom-bar button {
+  @apply btn-filled;
+}
