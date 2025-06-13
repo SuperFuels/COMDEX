@@ -1,3 +1,5 @@
+# backend/models/user.py
+
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, DateTime, JSON
 from sqlalchemy.orm import relationship
@@ -22,14 +24,12 @@ class User(Base):
 
     # ─── Relationships ────────────────────────────────────────────────────────────
 
-    # Products owned by this supplier
     products_owned = relationship(
         "Product",
         back_populates="owner",
         cascade="all, delete-orphan",
     )
 
-    # Deals where this user is the buyer
     buyer_deals = relationship(
         "Deal",
         back_populates="buyer",
@@ -37,7 +37,6 @@ class User(Base):
         cascade="all, delete-orphan",
     )
 
-    # Deals where this user is the supplier
     supplier_deals = relationship(
         "Deal",
         back_populates="supplier",
