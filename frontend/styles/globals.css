@@ -23,12 +23,12 @@
 /* ── 3) CSS VARIABLES (light & dark mode) ────────────────────────────────── */
 :root {
   /* Light mode tokens */
-  --bg-page:         #F9FAFB;    /* gray-50 */
-  --bg-header:       #FFFFFF;    /* pure white */
-  --text-primary:    #1F2937;    /* dark slate */
-  --text-secondary:  #6B7280;    /* gray-500 */
-  --border-light:    #E5E7EB;    /* gray-200 */
-  --scrollbar-thumb: #4A5568;    /* gray-700 */
+  --bg-page:         #FFFFFF;    /* white page background */
+  --bg-header:       #FFFFFF;
+  --text-primary:    #1F2937;
+  --text-secondary:  #6B7280;
+  --border-light:    #E5E7EB;
+  --scrollbar-thumb: #4A5568;
 
   /* Brand colors */
   --primary:        #4A90E2;
@@ -37,15 +37,15 @@
 
 /* Dark mode overrides */
 .dark {
-  --bg-page:         #111827;    /* deep gray */
-  --bg-header:       #1F2937;    /* dark slate */
-  --text-primary:    #F9FAFB;    /* off-white */
-  --text-secondary:  #D1D5DB;    /* light gray */
-  --border-light:    #4B5563;    /* gray-600 */
-  --scrollbar-thumb: #9CA3AF;    /* gray-400 */
+  --bg-page:         #111827;
+  --bg-header:       #1F2937;
+  --text-primary:    #F9FAFB;
+  --text-secondary:  #D1D5DB;
+  --border-light:    #4B5563;
+  --scrollbar-thumb: #9CA3AF;
 
-  --primary:        #374151;     /* dark-mode button bg */
-  --primary-hover:  #4B5563;     /* dark-mode hover */
+  --primary:        #374151;
+  --primary-hover:  #4B5563;
 }
 
 /* ── 4) RESET + GLOBALS ───────────────────────────────────────────────────── */
@@ -116,6 +116,14 @@ a:hover {
   background-color: rgba(0, 0, 0, 0.05);
 }
 
+/* Primary filled variant stays for other parts still using */
+.btn-filled {
+  @apply bg-primary text-white;
+}
+.btn-filled:hover {
+  @apply bg-primary-hover;
+}
+
 /* ── 7) FORM ELEMENTS ───────────────────────────────────────────────────── */
 input,
 select,
@@ -127,7 +135,6 @@ textarea {
   background: var(--bg-page);
   color: var(--text-primary);
 }
-
 input:focus,
 select:focus,
 textarea:focus {
@@ -154,18 +161,18 @@ a.logo-link {
 
 /* ── 10) DASHBOARD SPECIFIC OVERRIDES ────────────────────────────────────── */
 
-/* 10.1 Pane backgrounds */
+/* Pane backgrounds and full-height split */
 .left-pane,
 .right-pane {
   background-color: #ffffff !important;
 }
 
-/* 10.2 ChatGPT-style cards for each message/data block */
+/* ChatGPT-like containers */
 .message-container {
   @apply bg-white border border-gray-200 rounded-lg p-4 mb-4 shadow-sm;
 }
 
-/* 10.3 Constrain panes to at most 50% each */
+/* Pane sizing */
 .left-pane {
   max-width: 50vw;
   min-width: 25vw;
@@ -173,16 +180,18 @@ a.logo-link {
 .right-pane {
   max-width: 50vw;
   min-width: 25vw;
+  margin-left: auto;
 }
 
-/* 10.4 Splitter full height */
+/* Splitter full height */
 .splitter {
   position: absolute;
   top: 0;
   bottom: 0;
+  width: 6px;
 }
 
-/* 10.5 Fixed bottom input bar in right half */
+/* Bottom-bar styling */
 .bottom-bar {
   position: fixed;
   bottom: 0;
@@ -195,17 +204,19 @@ a.logo-link {
   align-items: center;
   z-index: 50;
 }
-
 .bottom-bar input[type="text"] {
   flex: 1;
   margin-right: 0.5rem;
 }
-
 .bottom-bar button {
-  @apply border-transparent bg-transparent text-current !important;
-  border: none;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-primary);
   box-shadow: none;
   padding: 0.4rem 0.8rem;
   font-weight: 500;
   cursor: pointer;
+}
+.bottom-bar button:hover {
+  background-color: rgba(0,0,0,0.05);
 }

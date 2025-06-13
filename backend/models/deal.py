@@ -1,5 +1,3 @@
-# backend/models/deal.py
-
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
@@ -13,12 +11,12 @@ class Deal(Base):
     buyer_id    = Column(Integer, ForeignKey("users.id",      ondelete="CASCADE"), nullable=False, index=True)
     supplier_id = Column(Integer, ForeignKey("users.id",      ondelete="CASCADE"), nullable=False, index=True)
 
-    # ─── New fields for volumes & price‐history ─────────────────────────────
+    # ─── New fields for volumes & price-history ─────────────────────────────
     quantity_kg = Column(Float,   nullable=False, default=0.0)
     total_price = Column(Float,   nullable=False, default=0.0)
 
     # ─── Existing price/status/timestamps ──────────────────────────────────
-    price       = Column(Float,   nullable=False)  # e.g. per‐kg price
+    price       = Column(Float,   nullable=False)  # e.g. per-kg price
     status      = Column(String,  nullable=False, server_default="pending")
     created_at  = Column(DateTime, nullable=False, default=datetime.utcnow)
 
