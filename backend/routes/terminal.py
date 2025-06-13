@@ -3,12 +3,10 @@
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
-from datetime import datetime, timedelta
-from typing import List, Dict, Any
+from typing import Any, Dict, List
 
 from ..database import get_db
-from ..utils.terminal import run_query              # your LLM+DB glue
-from ..utils.news import fetch_headlines             # optional RSS/news wrapper
+from ..utils.terminal import run_query
 
 router = APIRouter(prefix="/terminal", tags=["Terminal"])
 
@@ -33,63 +31,37 @@ class QueryResponse(BaseModel):
 
 
 @router.post("/query", response_model=QueryResponse)
-def terminal_query(
-    req: QueryRequest,
-    db: Session = Depends(get_db),
-):
+def terminal_query(req: QueryRequest, db: Session = Depends(get_db)):
     """
-    Run an “AI + DB” pipeline for a free-form query.
-    Returns both an analysis text and structured visual data.
+    Run your full “AI + DB” pipeline via `run_query`.
+    Returns the LLM analysis text plus structured visual data.
     """
     term = req.prompt.strip()
+    if not term:
+        raise HTTPException(400, detail="Prompt cannot be empty")
 
-    # ─── 1) Fetch matching products
     try:
-        prods: List[Dict[str, Any]] = db.fetch_products_like(term)
+        # run_query does all of:
+        #  • product lookup     (db.fetch_products_like or direct SQLAlchemy)
+        #  • price-history      (last 30d via Deal)
+        #  • supplier & volume  (distinct count & sum)
+        #  • top headlines      (via fetch_headlines)
+        #  • LLM call           (via openai.ChatCompletion)
+        result: Dict[str, Any] = run_query(term, db)
     except Exception as e:
-        raise HTTPException(500, detail=f"DB lookup failed: {e}")
+        raise HTTPException(500, detail=f"Terminal pipeline failed: {e}")
 
-    # ─── 2) Compute on-chain / deal metrics
-    try:
-        suppliers_count: int = db.count_suppliers_for(term)
-        one_month_ago = datetime.utcnow() - timedelta(days=30)
-        monthly_volume: float = db.sum_deals_volume(term, since=one_month_ago)
-    except Exception as e:
-        raise HTTPException(500, detail=f"Metrics calculation failed: {e}")
+    analysis = result.get("analysisText", "")
+    vp       = result.get("visualPayload", {})
 
-    # ─── 3) Pull top-3 headlines (optional)
-    try:
-        headlines: List[str] = fetch_headlines(term, limit=3)
-    except Exception:
-        headlines = []
+    products  = vp.get("products", [])
+    chartData = vp.get("chartData", [])
 
-    # ─── 4) Build LLM prompt and run chain
-    llm_prompt = (
-        f"Market overview for “{term}”:\n"
-        f"- Price trends (last 30d)\n"
-        f"- Active suppliers: {suppliers_count}\n"
-        f"- Trading volume last 30d: {monthly_volume} kg\n"
-        f"- Key headlines: {headlines}\n\n"
-        "Please summarize in concise bullet points."
-    )
-    try:
-        # assume run_query returns a dict with "analysisText" + optional visuals
-        llm_result = run_query(llm_prompt, db)
-        analysis: str = llm_result.get("analysisText", "").strip()
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"LLM pipeline failed: {e}")
-
-    # ─── 5) Build price-history chart payload
-    try:
-        history = db.get_price_history(term, days=30)
-        chart = [
-            ChartPoint(time=int(pt.timestamp()), value=pt.price)
-            for pt in history
-        ]
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Price history fetch failed: {e}")
-
+    # Validate & return
     return QueryResponse(
         analysisText=analysis,
-        visualPayload=VisualPayload(products=prods, chartData=chart),
+        visualPayload=VisualPayload(
+            products=products,
+            chartData=[ChartPoint(**pt) for pt in chartData],
+        ),
     )

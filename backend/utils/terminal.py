@@ -1,18 +1,16 @@
-# backend/utils/terminal.py
-
 import os
 from datetime import datetime, timedelta
-from typing import Dict, Any, List
+from typing import Any, Dict, List
 
 import openai
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from ..models.product import Product
-from ..models.shipment import Shipment  # assume you have a Shipment model
-from ..models.deal import Deal            # for volumes
+from ..models.deal import Deal
 from ..utils.news import fetch_headlines
 
-# configure OpenAI once
+# 1) Configure OpenAI from your env
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 
@@ -21,11 +19,11 @@ def run_query(prompt: str, db: Session) -> Dict[str, Any]:
     AI + DB integration for your “terminal” endpoint.
     Returns a dict with:
       - analysisText: str
-      - visualPayload: { products: list, chartData: list, suppliers: list, volumes: list }
+      - visualPayload: { products: list, chartData: list, suppliers: int, volumes: float }
     """
     term = prompt.strip()
 
-    # ─── 1) Fetch matching products ─────────────────────────────
+    # ─── 1) Product lookup ────────────────────────────────────────
     prods: List[Product] = (
         db.query(Product)
           .filter(Product.title.ilike(f"%{term}%"))
@@ -44,65 +42,70 @@ def run_query(prompt: str, db: Session) -> Dict[str, Any]:
         for p in prods
     ]
 
-    # ─── 2) Build price‐history chart (last 30 days) ───────────
+    # ─── 2) Price-history (last 30d) ───────────────────────────────
     thirty_days_ago = datetime.utcnow() - timedelta(days=30)
     history_points = (
-        db.query(Deal)  # assume Deal.timestamp + price_per_kg fields
+        db.query(Deal)
           .filter(Deal.product_title.ilike(f"%{term}%"))
           .filter(Deal.created_at >= thirty_days_ago)
           .order_by(Deal.created_at)
           .all()
     )
     chart_payload = [
-        {"time": int(d.created_at.timestamp()), "value": d.total_price / d.quantity_kg}
+        {
+          "time": int(d.created_at.timestamp()),
+          "value": (d.total_price / d.quantity_kg) if d.quantity_kg else 0
+        }
         for d in history_points
     ]
 
-    # ─── 3) Compute supplier count & monthly volume ─────────────
-    suppliers_count = (
-        db.query(Product.owner_id)  # or however you relate supplier
+    # ─── 3) Supplier count & volume sum ────────────────────────────
+    suppliers_count: int = (
+        db.query(Product.owner_id)
           .filter(Product.title.ilike(f"%{term}%"))
           .distinct()
           .count()
     )
-    volume_sum = (
-        db.query(Deal)
+    volume_sum: float = (
+        db.query(func.sum(Deal.quantity_kg))
           .filter(Deal.product_title.ilike(f"%{term}%"))
           .filter(Deal.created_at >= thirty_days_ago)
-          .with_entities(func.sum(Deal.quantity_kg))
-          .scalar() or 0
+          .scalar()
+        or 0.0
     )
 
-    # ─── 4) Fetch top‐3 headlines ───────────────────────────────
+    # ─── 4) Headlines (optional) ──────────────────────────────────
     try:
-        headlines = fetch_headlines(term, limit=3)
+        headlines: List[str] = fetch_headlines(term, limit=3)
     except Exception:
         headlines = []
 
-    # ─── 5) Ask the LLM for a market overview ───────────────────
-    llm_system = "You are a senior commodity market analyst. " \
-                 "Provide concise bullet‐point summaries."
-    llm_user = (
+    # ─── 5) LLM call ──────────────────────────────────────────────
+    system_msg = (
+        "You are a senior commodity market analyst.\n"
+        "Provide concise, bullet-point market overviews."
+    )
+    user_msg = (
         f"Market overview for “{term}”:\n"
-        f"- Price history over last 30 days: {len(chart_payload)} points\n"
+        f"- Price points: {len(chart_payload)} in last 30d\n"
         f"- Active suppliers: {suppliers_count}\n"
-        f"- Trading volume last 30 days: {volume_sum:.0f} kg\n"
+        f"- Volume 30d: {volume_sum:.0f} kg\n"
         f"- Key headlines: {headlines}\n\n"
-        "Please summarize in clear bullet points."
+        "Summarize as bullet points."
     )
     try:
-        completion = openai.ChatCompletion.create(
+        resp = openai.ChatCompletion.create(
             model="gpt-4",
             messages=[
-                {"role": "system", "content": llm_system},
-                {"role": "user",   "content": llm_user}
+                {"role": "system", "content": system_msg},
+                {"role": "user",   "content": user_msg}
             ],
             temperature=0.7,
             max_tokens=300,
         )
-        analysis = completion.choices[0].message.content.strip()
+        analysis = resp.choices[0].message.content.strip()
     except Exception as e:
-        analysis = f"⚠️ LLM generation failed: {e}"
+        analysis = f"⚠️ LLM error: {e}"
 
     return {
         "analysisText": analysis,
