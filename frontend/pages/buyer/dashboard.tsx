@@ -1,10 +1,10 @@
+// File: frontend/pages/buyer/dashboard.tsx
 "use client"
 
-import { useEffect, useState } from "react"
-import Draggable from "react-draggable"
-import useAuthRedirect from "@/hooks/useAuthRedirect"
-import api from "@/lib/api"
-import Chart, { ChartPoint } from "@/components/Chart"
+import { useEffect, useRef, useState } from 'react'
+import useAuthRedirect from '@/hooks/useAuthRedirect'
+import api from '@/lib/api'
+import Chart, { ChartPoint } from '@/components/Chart'
 
 interface BuyerMetrics {
   totalSalesToday: number
@@ -15,45 +15,78 @@ interface BuyerMetrics {
 }
 
 const METRICS = [
-  { key: "totalSalesToday",   label: "Sales Today",        color: "text-blue-600" },
-  { key: "openOrders",        label: "Open Orders",        color: "text-green-600" },
-  { key: "pendingEscrow",     label: "Pending Escrow",     color: "text-purple-600" },
-  { key: "availableProducts", label: "Available Products", color: "text-green-600" },
-  { key: "activeDeals",       label: "Active Deals",       color: "text-blue-600" },
+  { key: 'totalSalesToday',   label: 'Sales Today',        color: 'text-blue-600' },
+  { key: 'openOrders',        label: 'Open Orders',        color: 'text-green-600' },
+  { key: 'pendingEscrow',     label: 'Pending Escrow',     color: 'text-purple-600' },
+  { key: 'availableProducts', label: 'Available Products', color: 'text-green-600' },
+  { key: 'activeDeals',       label: 'Active Deals',       color: 'text-blue-600' },
 ]
 
 const COMMAND_TABS = [
-  "Deal Flow","Shipments","Messages","Escrow",
-  "Contracts","Suppliers","Products",
+  'Deal Flow','Shipments','Messages','Escrow',
+  'Contracts','Suppliers','Products',
 ]
 
 export default function BuyerDashboard() {
-  useAuthRedirect("buyer")
+  useAuthRedirect('buyer')
 
-  // ── Metrics ─────────────────────────────────────
+  // metrics
   const [metrics, setMetrics]               = useState<BuyerMetrics | null>(null)
   const [loadingMetrics, setLoadingMetrics] = useState(true)
+  const [errorMetrics, setErrorMetrics]     = useState<string | null>(null)
 
-  // ── Terminal state ────────────────────────────
-  const [queryText, setQueryText]         = useState("")
-  const [analysisText, setAnalysisText]   = useState("")
+  // terminal
+  const [queryText, setQueryText]         = useState('')
+  const [analysisText, setAnalysisText]   = useState('')
   const [chartData, setChartData]         = useState<ChartPoint[] | null>(null)
   const [searchResults, setSearchResults] = useState<any[] | null>(null)
   const [nextPage, setNextPage]           = useState<number | null>(null)
   const [isProcessing, setIsProcessing]   = useState(false)
 
-  // ── Split‐pane state ─────────────────────────
-  const [dividerX, setDividerX] = useState(
-    typeof window !== "undefined" ? window.innerWidth * 0.5 : 300
-  )
+  // split-pane
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [dividerX, setDividerX] = useState(0)
+  const dragging = useRef(false)
 
-  // ── Fetch metrics ────────────────────────────
+  // initialize divider at 50% on mount
   useEffect(() => {
-    let mounted = true
-    api.get<BuyerMetrics>("/buyer/dashboard")
-      .then(r => mounted && setMetrics(r.data))
+    if (containerRef.current) {
+      setDividerX(containerRef.current.clientWidth / 2)
+    }
+  }, [containerRef.current])
+
+  // mouse event handlers
+  const onMouseMove = (e: MouseEvent) => {
+    if (!dragging.current || !containerRef.current) return
+    const rect = containerRef.current.getBoundingClientRect()
+    let x = e.clientX - rect.left
+    x = Math.max(50, Math.min(rect.width - 50, x))
+    setDividerX(x)
+  }
+  const onMouseUp = () => { dragging.current = false }
+
+  const onMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault()
+    dragging.current = true
+  }
+
+  useEffect(() => {
+    window.addEventListener('mousemove', onMouseMove)
+    window.addEventListener('mouseup', onMouseUp)
+    return () => {
+      window.removeEventListener('mousemove', onMouseMove)
+      window.removeEventListener('mouseup', onMouseUp)
+    }
+  }, [])
+
+  // fetch metrics
+  useEffect(() => {
+    let active = true
+    api.get<BuyerMetrics>('/buyer/dashboard')
+      .then(r => active && setMetrics(r.data))
       .catch(() => {
-        if (mounted) {
+        if (active) {
+          console.warn('Failed to fetch buyer metrics; fallback to zeros.')
           setMetrics({
             totalSalesToday: 0,
             openOrders: 0,
@@ -63,25 +96,15 @@ export default function BuyerDashboard() {
           })
         }
       })
-      .finally(() => mounted && setLoadingMetrics(false))
-    return () => { mounted = false }
+      .finally(() => active && setLoadingMetrics(false))
+    return () => { active = false }
   }, [])
 
-  if (loadingMetrics || !metrics) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <p className="text-gray-600">Loading dashboard…</p>
-      </div>
-    )
-  }
-
-  const m = metrics
-
-  // ── Send terminal query ──────────────────────
+  // terminal query
   const handleSend = async () => {
     if (!queryText.trim()) return
     setIsProcessing(true)
-    setAnalysisText("")
+    setAnalysisText('')
     setChartData(null)
     setSearchResults(null)
     setNextPage(null)
@@ -90,13 +113,13 @@ export default function BuyerDashboard() {
       const resp = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/terminal/query`,
         {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+          method: 'POST',
+          headers: { 'Content-Type':'application/json' },
           body: JSON.stringify({ prompt: queryText.trim() }),
         }
       )
       const json = await resp.json()
-      setAnalysisText(json.analysisText || "")
+      setAnalysisText(json.analysisText || '')
       if (Array.isArray(json.visualPayload.products)) {
         setSearchResults(json.visualPayload.products)
         setNextPage((json.visualPayload as any).nextPage ?? null)
@@ -104,24 +127,20 @@ export default function BuyerDashboard() {
         setChartData(json.visualPayload.chartData!)
       }
     } catch {
-      setAnalysisText("❌ Something went wrong. Please try again.")
+      setAnalysisText('❌ Something went wrong. Please try again.')
     } finally {
       setIsProcessing(false)
     }
   }
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      e.preventDefault()
-      handleSend()
-    }
+  const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') { e.preventDefault(); handleSend() }
   }
 
   const handleCommandTab = (label: string) => {
     setQueryText(label)
     setTimeout(handleSend, 50)
   }
-
   const loadNextPage = async () => {
     if (!nextPage) return
     setIsProcessing(true)
@@ -131,81 +150,92 @@ export default function BuyerDashboard() {
       )
       const more = resp.data || []
       setSearchResults(prev => prev ? [...prev, ...more] : more)
-      setNextPage(more.length === 10 ? nextPage + 1 : null)
+      setNextPage(more.length===10 ? nextPage+1 : null)
     } catch {
-      console.error("Next page fetch failed")
+      console.error('Next page fetch failed')
     } finally {
       setIsProcessing(false)
     }
   }
 
-  const fallbackChart: ChartPoint[] = METRICS.map((_, i) => ({
-    time:  Math.floor(Date.now() / 1000) - (METRICS.length - i) * 3600,
-    value: typeof (m as any)[METRICS[i].key] === "number"
-      ? (m as any)[METRICS[i].key]
-      : 0,
-  }))
+  // loading / error
+  if (loadingMetrics) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <p className="text-gray-600">Loading dashboard…</p>
+      </div>
+    )
+  }
+  if (errorMetrics) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <p className="text-red-500">{errorMetrics}</p>
+      </div>
+    )
+  }
+
+  const m = metrics!
 
   return (
     <div className="bg-gray-50 min-h-screen flex flex-col">
       <main className="flex-1 max-w-[calc(100%-40px)] mx-auto px-4">
-        <div className="relative h-full">
-
-          {/* Draggable Divider */}
-          <Draggable
-            axis="x"
-            bounds="parent"
-            position={{ x: dividerX, y: 0 }}
-            onDrag={(_, data) => setDividerX(data.x)}
-          >
+        <div ref={containerRef} className="relative h-[calc(100vh-4rem-4rem)]">
+          {/* left / divider / right */}
+          <div className="absolute inset-0 flex">
+            {/* Left Pane */}
             <div
-              style={{
-                position: "absolute",
-                top: 0, bottom: 0,
-                left: dividerX,
-                width: "6px",
-                cursor: "col-resize",
-                background: "#ccc",
-                zIndex: 10,
-              }}
-            />
-          </Draggable>
-
-          {/* Split panes */}
-          <div className="flex h-full">
-            <div
-              style={{ width: dividerX, overflow: "auto" }}
-              className="pr-4 font-mono text-gray-800 text-sm"
+              className="overflow-y-auto pr-4 font-mono text-gray-800 text-sm"
+              style={{ width: dividerX }}
             >
               <p className="mb-2">Hello, Buyer — welcome to Central Command.</p>
-              {METRICS.map(mt => (
-                <p key={mt.key} className="mb-1">
-                  <span>“{mt.label}”: </span>
-                  <span className={mt.color}>{(m as any)[mt.key]}</span>
-                </p>
-              ))}
+              {METRICS.map(mt => {
+                const val = (m as any)[mt.key] ?? 0
+                return (
+                  <p key={mt.key} className="mb-1">
+                    <span>“{mt.label}”: </span>
+                    <span className={mt.color}>{val}</span>
+                  </p>
+                )
+              })}
               {analysisText && (
                 <div className="mt-4 space-y-1">
-                  {analysisText.split("\n").map((l, i) => (
-                    <p key={i} className="mb-1">{l}</p>
+                  {analysisText.split('\n').map((line,i)=>(
+                    <p key={i} className="mb-1">{line}</p>
                   ))}
                 </div>
               )}
             </div>
 
-            <div style={{ flex: 1, overflow: "auto" }} className="pl-4">
+            {/* Divider */}
+            <div
+              className="bg-gray-300"
+              onMouseDown={onMouseDown}
+              style={{
+                position: 'absolute',
+                left: dividerX - 3,
+                width: 6,
+                top: 0,
+                bottom: 0,
+                cursor: 'col-resize',
+                background: '#BBB',
+                zIndex: 20,
+              }}
+            />
+
+            {/* Right Pane */}
+            <div
+              className="overflow-y-auto pl-4"
+              style={{ flex: 1, marginLeft: dividerX + 3 }}
+            >
               {searchResults ? (
                 <div className="space-y-4">
-                  {searchResults.map((prod, i) => (
-                    <div
-                      key={i}
-                      className="bg-white p-3 rounded shadow flex items-center space-x-3"
-                    >
+                  {searchResults.map((prod,i)=>(
+                    <div key={i} className="bg-white p-3 rounded shadow flex items-center space-x-3">
                       <img
                         src={`${process.env.NEXT_PUBLIC_API_URL}${prod.image_url}`}
                         alt={prod.title}
                         className="h-16 w-16 object-cover rounded"
-                        onError={e => { (e.target as any).src = "/placeholder.jpg" }}
+                        onError={e=>{(e.target as any).src='/placeholder.jpg'}}
                       />
                       <div>
                         <h3 className="font-semibold">{prod.title}</h3>
@@ -221,18 +251,21 @@ export default function BuyerDashboard() {
                       <button
                         onClick={loadNextPage}
                         disabled={isProcessing}
-                        className="px-4 py-2 border rounded text-sm hover:bg-gray-100 disabled:opacity-50"
+                        className="px-4 py-2 border border-black rounded text-sm hover:bg-gray-100 disabled:opacity-50"
                       >
-                        {isProcessing ? "Loading…" : "Next Page"}
+                        {isProcessing ? 'Loading…' : 'Next Page'}
                       </button>
                     </div>
                   )}
                 </div>
-              ) : chartData && chartData.length > 0 ? (
-                <Chart data={chartData} height={Math.floor(window.innerHeight - 4*16 - 64)} />
+              ) : chartData && chartData.length>0 ? (
+                <Chart
+                  data={chartData}
+                  height={window.innerHeight - 4*16 - 64}
+                />
               ) : (
                 <div className="h-full flex items-center justify-center text-gray-500">
-                  <p>Select a button or ask a question to see visual output here.</p>
+                  <p>Select a tab or ask a question...</p>
                 </div>
               )}
             </div>
@@ -240,38 +273,36 @@ export default function BuyerDashboard() {
         </div>
       </main>
 
-      {/* Footer */}
+      {/* footer */}
       <footer className="fixed bottom-0 left-0 w-full bg-white border-t border-gray-300 py-4">
-        <div className="max-w-[calc(100%-40px)] mx-auto px-4">
-          <div className="flex">
-            <div className="w-[calc(50%-20px)] flex items-center space-x-2">
-              <input
-                type="text"
-                placeholder="Type a question…"
-                value={queryText}
-                onChange={e => setQueryText(e.target.value)}
-                onKeyDown={handleKeyDown}
-                className="flex-1 py-2 px-4 border rounded bg-white text-sm"
-              />
+        <div className="max-w-[calc(100%-40px)] mx-auto px-4 flex">
+          <div className="w-[calc(50%-20px)] flex items-center space-x-2">
+            <input
+              type="text"
+              placeholder="Type a question…"
+              value={queryText}
+              onChange={e=>setQueryText(e.target.value)}
+              onKeyDown={onKeyDown}
+              className="flex-1 border rounded py-2 px-4 text-sm"
+            />
+            <button
+              onClick={handleSend}
+              disabled={isProcessing}
+              className="bg-black text-white border rounded py-2 px-4 hover:bg-gray-900 disabled:opacity-50"
+            >
+              {isProcessing ? 'Working…' : 'Send'}
+            </button>
+          </div>
+          <div className="w-[50%] flex space-x-2 pl-4">
+            {COMMAND_TABS.map(tab=>(
               <button
-                onClick={handleSend}
-                disabled={isProcessing}
-                className="py-2 px-4 bg-black text-white border rounded text-sm hover:bg-gray-900 disabled:opacity-50"
+                key={tab}
+                onClick={()=>{ setQueryText(tab); setTimeout(handleSend,50) }}
+                className="border rounded px-3 py-1 text-sm hover:bg-gray-100"
               >
-                {isProcessing ? "Working…" : "Send"}
+                {tab}
               </button>
-            </div>
-            <div className="w-[50%] flex flex-wrap items-center space-x-2 pl-8">
-              {COMMAND_TABS.map(lbl => (
-                <button
-                  key={lbl}
-                  onClick={() => handleCommandTab(lbl)}
-                  className="px-3 py-1 border rounded text-sm hover:bg-gray-100"
-                >
-                  {lbl}
-                </button>
-              ))}
-            </div>
+            ))}
           </div>
         </div>
       </footer>
