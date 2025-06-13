@@ -19,40 +19,41 @@ class ChartPoint(BaseModel):
 
 
 class VisualPayload(BaseModel):
-    products: List[Dict[str, Any]]
+    products:  List[Dict[str, Any]]
     chartData: List[ChartPoint]
     suppliers: int
-    volumes: float
+    volumes:   float
 
 
 class QueryResponse(BaseModel):
-    analysisText: str
+    analysisText:  str
     visualPayload: VisualPayload
 
 
 @router.post("/query", response_model=QueryResponse)
-def terminal_query(
-    req: QueryRequest,
-    db: Session = Depends(get_db),
-):
-    """
-    Run an “AI + DB” pipeline for a free-form query.
-    Returns analysisText and structured visual data.
-    """
-    try:
-        result = run_query(req.prompt, db)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Terminal pipeline failed: {e}")
+def terminal_query(req: QueryRequest, db: Session = Depends(get_db)):
+    term = req.prompt.strip()
+    if not term:
+        raise HTTPException(400, "Prompt must not be empty")
 
-    # Ensure it matches our Pydantic model
+    try:
+        result = run_query(term, db)
+    except Exception as e:
+        raise HTTPException(500, f"Terminal pipeline failed: {e}")
+
+    analysis = result.get("analysisText", "")
+    vp       = result.get("visualPayload", {})
+    products = vp.get("products", [])
+    chart    = vp.get("chartData", [])
+    suppliers = vp.get("suppliers", 0)
+    volumes   = vp.get("volumes", 0.0)
+
     return QueryResponse(
-        analysisText=result["analysisText"],
-        visualPayload=VisualPayload(
-            products=result["visualPayload"].get("products", []),
-            chartData=[
-                ChartPoint(**pt) for pt in result["visualPayload"].get("chartData", [])
-            ],
-            suppliers=result["visualPayload"].get("suppliers", 0),
-            volumes=result["visualPayload"].get("volumes", 0.0),
-        ),
+        analysisText  = analysis,
+        visualPayload = VisualPayload(
+            products  = products,
+            chartData = [ChartPoint(**pt) for pt in chart],
+            suppliers = suppliers,
+            volumes   = volumes,
+        )
     )
