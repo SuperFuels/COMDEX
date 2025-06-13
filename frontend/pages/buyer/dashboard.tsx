@@ -1,4 +1,3 @@
-// File: frontend/pages/buyer/dashboard.tsx
 "use client"
 
 import { useEffect, useRef, useState } from 'react'
@@ -30,7 +29,7 @@ const COMMAND_TABS = [
 export default function BuyerDashboard() {
   useAuthRedirect('buyer')
 
-  // ── Metrics fetch ─────────────────────────────────────────────
+  // ── Metrics ────────────────────────────────────────────────────
   const [metrics, setMetrics]               = useState<BuyerMetrics | null>(null)
   const [loadingMetrics, setLoadingMetrics] = useState(true)
   const [errorMetrics, setErrorMetrics]     = useState<string | null>(null)
@@ -43,49 +42,48 @@ export default function BuyerDashboard() {
   const [nextPage, setNextPage]           = useState<number | null>(null)
   const [isProcessing, setIsProcessing]   = useState(false)
 
-  // ── Split-pane ref/state ───────────────────────────────────────
+  // ── Split-pane refs & state ───────────────────────────────────
   const containerRef = useRef<HTMLDivElement>(null)
   const [dividerX, setDividerX] = useState(0)
   const dragging = useRef(false)
 
-  // set initial dividerX to 50% of container width
+  // measure initial divider (50%)
   useEffect(() => {
     const w = containerRef.current?.clientWidth
     if (w) setDividerX(w / 2)
   }, [])
 
-  // handle global mouse move/up for dragging
+  // global mouse handlers for dragging
   useEffect(() => {
-    const onMouseMove = (e: MouseEvent) => {
+    const onMove = (e: MouseEvent) => {
       if (!dragging.current || !containerRef.current) return
       const { left, width } = containerRef.current.getBoundingClientRect()
       let x = e.clientX - left
-      // enforce min 150px per pane
       x = Math.max(150, Math.min(width - 150, x))
       setDividerX(x)
     }
-    const onMouseUp = () => { dragging.current = false }
-    window.addEventListener('mousemove', onMouseMove)
-    window.addEventListener('mouseup', onMouseUp)
+    const onUp = () => { dragging.current = false }
+    window.addEventListener('mousemove', onMove)
+    window.addEventListener('mouseup', onUp)
     return () => {
-      window.removeEventListener('mousemove', onMouseMove)
-      window.removeEventListener('mouseup', onMouseUp)
+      window.removeEventListener('mousemove', onMove)
+      window.removeEventListener('mouseup', onUp)
     }
   }, [])
 
-  const onDividerMouseDown = (e: React.MouseEvent) => {
+  const onDividerDown = (e: React.MouseEvent) => {
     e.preventDefault()
     dragging.current = true
   }
 
-  // ── Fetch buyer metrics ────────────────────────────────────────
+  // ── Fetch metrics ──────────────────────────────────────────────
   useEffect(() => {
-    let m = true
+    let active = true
     api.get<BuyerMetrics>('/buyer/dashboard')
-      .then(r => m && setMetrics(r.data))
+      .then(r => active && setMetrics(r.data))
       .catch(() => {
-        if (m) {
-          console.warn('Failed to fetch buyer metrics; using zeros.')
+        if (active) {
+          console.warn('Metrics fetch failed; defaulting zeros.')
           setMetrics({
             totalSalesToday: 0,
             openOrders: 0,
@@ -95,12 +93,12 @@ export default function BuyerDashboard() {
           })
         }
       })
-      .finally(() => m && setLoadingMetrics(false))
-    return () => { m = false }
+      .finally(() => active && setLoadingMetrics(false))
+    return () => { active = false }
   }, [])
 
-  // ── Terminal send ──────────────────────────────────────────────
-  const handleSend = async () => {
+  // ── Terminal send ─────────────────────────────────────────────
+  const sendQuery = async () => {
     if (!queryText.trim()) return
     setIsProcessing(true)
     setAnalysisText('')
@@ -111,11 +109,8 @@ export default function BuyerDashboard() {
     try {
       const resp = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/terminal/query`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt: queryText.trim() }),
-        }
+        { method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ prompt: queryText.trim() }) }
       )
       const json = await resp.json()
       setAnalysisText(json.analysisText || '')
@@ -125,182 +120,144 @@ export default function BuyerDashboard() {
       } else if (Array.isArray(json.visualPayload.chartData)) {
         setChartData(json.visualPayload.chartData!)
       }
-    } catch (err) {
-      console.error('Terminal query failed', err)
-      setAnalysisText('❌ Sorry, something went wrong. Please try again.')
+    } catch {
+      setAnalysisText('❌ Something went wrong. Please try again.')
     } finally {
       setIsProcessing(false)
     }
   }
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      e.preventDefault()
-      handleSend()
-    }
+  const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') { e.preventDefault(); sendQuery() }
   }
-
-  const handleCommandTab = (label: string) => {
+  const onTabClick = (label: string) => {
     setQueryText(label)
-    setTimeout(handleSend, 50)
+    setTimeout(sendQuery, 50)
   }
-
-  const loadNextPage = async () => {
+  const loadMore = async () => {
     if (!nextPage) return
     setIsProcessing(true)
     try {
       const resp = await api.get<any[]>(
-        `/products?search=${encodeURIComponent(queryText.trim())}&limit=10&page=${nextPage}`
+        `/products?search=${encodeURIComponent(queryText)}&limit=10&page=${nextPage}`
       )
       const more = resp.data || []
       setSearchResults(prev => prev ? [...prev, ...more] : more)
-      setNextPage(more.length === 10 ? nextPage + 1 : null)
-    } catch (err) {
-      console.error('Next page fetch failed', err)
+      setNextPage(more.length===10 ? nextPage+1 : null)
     } finally {
       setIsProcessing(false)
     }
   }
 
-  // ── Loading / error ────────────────────────────────────────────
+  // ── Render ─────────────────────────────────────────────────────
   if (loadingMetrics) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <p className="text-gray-600">Loading dashboard…</p>
-      </div>
-    )
+    return <div className="min-h-screen flex items-center justify-center bg-gray-50"><p>Loading…</p></div>
   }
   if (errorMetrics || !metrics) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <p className="text-red-500">{errorMetrics}</p>
-      </div>
-    )
+    return <div className="min-h-screen flex items-center justify-center bg-gray-50"><p className="text-red-500">{errorMetrics}</p></div>
   }
-
   const m = metrics
+
   return (
     <div className="bg-gray-50 min-h-screen flex flex-col">
       <main className="flex-1 max-w-[calc(100%-40px)] mx-auto px-4">
         <div ref={containerRef} className="relative flex h-[calc(100vh-4rem-4rem)]">
 
-          {/* ── Left Pane */}
+          {/* Left Pane */}
           <div
             className="overflow-auto pr-4 font-mono text-gray-800 text-sm"
             style={{ width: dividerX }}
           >
-            <p className="mb-2">Hello, Buyer — welcome to Central Command.</p>
-            {METRICS.map(mt => {
-              const val = (m as any)[mt.key] ?? 0
-              return (
-                <p key={mt.key} className="mb-1">
-                  <span>“{mt.label}”: </span>
-                  <span className={mt.color}>{val}</span>
-                </p>
-              )
-            })}
+            <p className="mb-2">Hello, Buyer — welcome.</p>
+            {METRICS.map(mt => (
+              <p key={mt.key} className="mb-1">
+                <span>“{mt.label}”: </span>
+                <span className={mt.color}>{(m as any)[mt.key]}</span>
+              </p>
+            ))}
             {analysisText && (
               <div className="mt-4 space-y-1">
-                {analysisText.split('\n').map((line,i)=>(
-                  <p key={i} className="mb-1">{line}</p>
-                ))}
+                {analysisText.split('\n').map((l,i)=><p key={i}>{l}</p>)}
               </div>
             )}
           </div>
 
-          {/* ── Draggable Divider */}
+          {/* Divider */}
           <div
-            onMouseDown={onDividerMouseDown}
+            onMouseDown={onDividerDown}
             className="bg-gray-300 hover:bg-blue-500"
-            style={{
-              cursor: 'col-resize',
-              width: 6,
-              marginLeft: -3,
-              zIndex: 10,
-            }}
+            style={{ cursor:'col-resize', width:6, marginLeft:-3, zIndex:10 }}
           />
 
-          {/* ── Right Pane */}
+          {/* Right Pane */}
           <div className="flex-1 overflow-auto pl-4">
             {searchResults ? (
-              <div className="space-y-4">
-                {searchResults.map((prod,i)=>(
-                  <div key={i} className="bg-white p-3 rounded shadow flex items-center space-x-3">
+              <>
+                {searchResults.map((p,i)=>(
+                  <div key={i} className="bg-white p-3 rounded shadow mb-2 flex items-center space-x-3">
                     <img
-                      src={`${process.env.NEXT_PUBLIC_API_URL}${prod.image_url}`}
-                      alt={prod.title}
+                      src={`${process.env.NEXT_PUBLIC_API_URL}${p.image_url}`}
+                      alt={p.title}
                       className="h-16 w-16 object-cover rounded"
-                      onError={e => { (e.target as any).src = '/placeholder.jpg' }}
+                      onError={e=>{(e.target as any).src='/placeholder.jpg'}}
                     />
                     <div>
-                      <h3 className="font-semibold">{prod.title}</h3>
-                      <p className="text-sm text-gray-600">{prod.description}</p>
-                      <p className="text-sm text-gray-500">
-                        £{prod.price_per_kg}/kg · {prod.origin_country}
-                      </p>
+                      <h3 className="font-semibold">{p.title}</h3>
+                      <p className="text-sm">{p.description}</p>
+                      <p className="text-sm">£{p.price_per_kg}/kg · {p.origin_country}</p>
                     </div>
                   </div>
                 ))}
                 {nextPage && (
-                  <div className="text-center">
-                    <button
-                      onClick={loadNextPage}
-                      disabled={isProcessing}
-                      className="px-4 py-2 border border-black rounded text-sm hover:bg-gray-100 disabled:opacity-50"
-                    >
-                      {isProcessing ? 'Loading…' : 'Next Page'}
-                    </button>
-                  </div>
+                  <button
+                    onClick={loadMore}
+                    disabled={isProcessing}
+                    className="px-4 py-2 border rounded"
+                  >
+                    {isProcessing ? 'Loading…' : 'Next Page'}
+                  </button>
                 )}
-              </div>
+              </>
             ) : chartData && chartData.length > 0 ? (
-              <Chart
-                data={chartData}
-                height={Math.floor(containerRef.current!.clientHeight - 64)}
-              />
+              <Chart data={chartData} height={containerRef.current!.clientHeight - 64} />
             ) : (
               <div className="h-full flex items-center justify-center text-gray-500">
-                <p>Select a button or ask a question to see visual output here.</p>
+                <p>Ask a question or pick a tab to see data here.</p>
               </div>
             )}
           </div>
         </div>
       </main>
 
-      {/* ── Footer Terminal */}
-      <footer className="fixed bottom-0 left-0 w-full bg-white border-t border-gray-300 py-4">
-        <div className="max-w-[calc(100%-40px)] mx-auto px-4">
-          <div className="flex">
-            {/* input */}
-            <div className="w-[calc(50%-20px)] flex items-center space-x-2">
-              <input
-                type="text"
-                placeholder="Type a question (e.g. “Build my report”)"
-                value={queryText}
-                onKeyDown={handleKeyDown}
-                onChange={e => setQueryText(e.target.value)}
-                className="flex-1 py-2 px-4 border border-black rounded bg-white text-sm"
-              />
+      {/* Footer */}
+      <footer className="fixed bottom-0 left-0 w-full bg-white border-t py-4">
+        <div className="max-w-[calc(100%-40px)] mx-auto px-4 flex">
+          <div className="w-[calc(50%-20px)] flex items-center space-x-2">
+            <input
+              type="text"
+              placeholder="Type a question…"
+              value={queryText}
+              onChange={e=>setQueryText(e.target.value)}
+              onKeyDown={onKeyDown}
+              className="flex-1 py-2 px-4 border rounded"
+            />
+            <button
+              onClick={sendQuery}
+              disabled={isProcessing}
+              className="py-2 px-4 bg-black text-white rounded"
+            >
+              {isProcessing ? 'Working…' : 'Send'}
+            </button>
+          </div>
+          <div className="flex-1 flex justify-end space-x-2">
+            {COMMAND_TABS.map(label => (
               <button
-                onClick={handleSend}
-                disabled={isProcessing}
-                className="py-2 px-4 bg-black text-white border border-black rounded text-sm hover:bg-gray-900 disabled:opacity-50"
+                key={label}
+                onClick={()=>onTabClick(label)}
+                className="px-3 py-1 border rounded text-sm"
               >
-                {isProcessing ? 'Working…' : 'Send'}
+                {label}
               </button>
-            </div>
-            {/* tabs */}
-            <div className="w-[50%] flex flex-wrap items-center space-x-2 pl-8">
-              {COMMAND_TABS.map(label => (
-                <button
-                  key={label}
-                  onClick={() => handleCommandTab(label)}
-                  className="px-3 py-1 border border-black rounded-md text-sm hover:bg-gray-100"
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
+            ))}
           </div>
         </div>
       </footer>
