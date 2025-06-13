@@ -1,41 +1,33 @@
 /* ======================================================================
    GLOBAL STYLES FOR STICKEY.ai
    (This file is processed by Tailwind’s PostCSS pipeline.)
-   If your editor flags “@tailwind” or “@apply” as “unknown at rule,”
-   you can either install Tailwind CSS IntelliSense or disable CSS linting
-   for this file (see the comments just below).
    ====================================================================== */
 
-/* ── Disable CSS linting for unknown Tailwind at-rules (for most editors) ── */
 /* stylelint-disable */
 /* prettier-ignore-start */
 /* eslint-disable */
-/* ↑↑↑ If your editor still warns, you can remove these once IntelliSense is installed. */
 
-/* ── 1) Import Inter BEFORE any Tailwind directives ───────────────────────── */
+/* 1) Import Inter BEFORE any Tailwind directives */
 @import url('https://rsms.me/inter/inter.css');
 
-/* ── 2) Tailwind’s “base”, “components”, “utilities” layers ───────────────── */
+/* 2) Tailwind’s layers */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* ── 3) CSS VARIABLES (light & dark mode) ────────────────────────────────── */
+/* 3) CSS VARIABLES */
 :root {
-  /* Light mode tokens */
-  --bg-page:         #FFFFFF;    /* white page background */
+  --bg-page:         #FFFFFF;
   --bg-header:       #FFFFFF;
   --text-primary:    #1F2937;
   --text-secondary:  #6B7280;
   --border-light:    #E5E7EB;
   --scrollbar-thumb: #4A5568;
 
-  /* Brand colors */
   --primary:        #4A90E2;
   --primary-hover:  #357ABD;
 }
 
-/* Dark mode overrides */
 .dark {
   --bg-page:         #111827;
   --bg-header:       #1F2937;
@@ -48,21 +40,18 @@
   --primary-hover:  #4B5563;
 }
 
-/* ── 4) RESET + GLOBALS ───────────────────────────────────────────────────── */
+/* 4) RESET + GLOBALS */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
-
 body {
   font-family: 'Inter', sans-serif;
   background-color: var(--bg-page);
   color: var(--text-primary);
   line-height: 1.6;
 }
-
-/* Scrollbar styling */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -75,26 +64,25 @@ body {
   background: var(--bg-page);
 }
 
-/* ── 5) CONTAINERS & CARDS ───────────────────────────────────────────────── */
+/* 5) CONTAINERS & CARDS */
 .container {
   max-width: 1280px;
   margin: 0 auto;
   padding: 0 1rem;
 }
-
 .card {
   background: var(--bg-page);
   border: 1px solid var(--border-light);
   border-radius: 8px;
   padding: 1.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
   transition: box-shadow 0.3s ease;
 }
 .card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
-/* ── 6) BUTTON STYLES ─────────────────────────────────────────────────────── */
+/* 6) BUTTON STYLES */
 button,
 .btn,
 a {
@@ -105,26 +93,26 @@ a {
   font-size: 0.875rem;
   font-weight: 500;
   color: var(--text-primary);
-  text-align: center;
   cursor: pointer;
   transition: background-color 0.2s ease;
 }
-
 button:hover,
 .btn:hover,
 a:hover {
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: rgba(0,0,0,0.05);
 }
-
-/* Primary filled variant stays for other parts still using */
+/* Primary filled variant */
 .btn-filled {
-  @apply bg-primary text-white;
+  background-color: var(--primary);
+  color: white;
+  border-color: var(--primary);
 }
 .btn-filled:hover {
-  @apply bg-primary-hover;
+  background-color: var(--primary-hover);
+  border-color: var(--primary-hover);
 }
 
-/* ── 7) FORM ELEMENTS ───────────────────────────────────────────────────── */
+/* 7) FORM ELEMENTS */
 input,
 select,
 textarea {
@@ -140,16 +128,16 @@ select:focus,
 textarea:focus {
   outline: none;
   border-color: var(--primary);
-  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+  box-shadow: 0 0 0 2px rgba(74,144,226,0.2);
 }
 
-/* ── 8) TYPESCALING (use @apply for Tailwind classes) ─────────────────────── */
+/* 8) TYPESCALING */
 h1 { @apply text-2xl font-semibold; }
 h2 { @apply text-xl font-semibold; }
 h3 { @apply text-lg font-semibold; }
 p  { @apply text-base; }
 
-/* ── 9) EXCEPTION: Remove border on “logo-link” ⎯────────────────────────── */
+/* 9) EXCEPTION: logo-link */
 a.logo-link {
   border: none !important;
   padding: 0 !important;
@@ -159,15 +147,15 @@ a.logo-link {
 /* stylelint-enable */
 /* eslint-enable */
 
-/* ── 10) DASHBOARD SPECIFIC OVERRIDES ────────────────────────────────────── */
+/* 10) DASHBOARD OVERRIDES */
 
-/* Pane backgrounds and full-height split */
+/* Pane backgrounds */
 .left-pane,
 .right-pane {
   background-color: #ffffff !important;
 }
 
-/* ChatGPT-like containers */
+/* ChatGPT-style cards */
 .message-container {
   @apply bg-white border border-gray-200 rounded-lg p-4 mb-4 shadow-sm;
 }
@@ -212,10 +200,10 @@ a.logo-link {
   background: transparent;
   border: 1px solid transparent;
   color: var(--text-primary);
-  box-shadow: none;
   padding: 0.4rem 0.8rem;
   font-weight: 500;
   cursor: pointer;
+  box-shadow: none;
 }
 .bottom-bar button:hover {
   background-color: rgba(0,0,0,0.05);
