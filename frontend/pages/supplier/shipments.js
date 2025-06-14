@@ -1,14 +1,14 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react';
 
 export default function SupplierShipments() {
-  const [shipments, setShipments] = useState([])
+  const [shipments, setShipments] = useState([]);
 
   useEffect(() => {
     fetch('/api/shipments')
       .then((res) => res.json())
       .then(setShipments)
-      .catch(console.error)
-  }, [])
+      .catch(console.error);
+  }, []);
 
   return (
     <div style={{ padding: '2rem' }}>
@@ -38,5 +38,5 @@ export default function SupplierShipments() {
         </tbody>
       </table>
     </div>
-  )
+  );
 }
