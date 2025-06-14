@@ -132,7 +132,8 @@ export default function SupplierDashboard() {
 
   return (
     <div className="bg-gray-50 min-h-screen flex flex-col">
-      <main className="flex-1 max-w-[calc(100%-40px)] mx-auto px-4">
+      {/* Remove max-w + mx-auto so it spans edge to edge */}
+      <main className="flex-1 w-full">
         <div ref={containerRef} className="relative flex h-[calc(100vh-8rem)]">
 
           {/* Left Pane */}
@@ -178,9 +179,9 @@ export default function SupplierDashboard() {
                   <pre className="text-xs">{JSON.stringify(item,null,2)}</pre>
                 </div>
               ))
-            ) : chartData && chartData.length > 0 ? (
+            ) : chartData?.length ? (
               <Chart
-                data={chartData}
+                data={chartData!}
                 height={(containerRef.current?.clientHeight ?? 0) - 64}
               />
             ) : (
@@ -192,7 +193,7 @@ export default function SupplierDashboard() {
         </div>
       </main>
 
-      {/* Fixed Bottom Bar */}
+      {/* Fixed Bottom Bar spans full width */}
       <footer className={styles.bottomBar}>
         <div className={styles.inputGroup}>
           <input

@@ -1,9 +1,14 @@
-.leftPane,
-.rightPane {
-  width: 50%;           /* always take exactly half */
+.leftPane {
+  background-color: #ffffff;
   padding: 1rem;
   overflow: auto;
+  /* no more min/max widths so inline style controls fluid width */
+}
+
+.rightPane {
   background-color: #ffffff;
+  padding: 1rem;
+  overflow: auto;
 }
 
 .splitter {
@@ -28,24 +33,23 @@
 .bottomBar {
   position: fixed;
   bottom: 0;
-  left: 0;
+  left: 0;     /* full width */
   right: 0;
   background-color: #ffffff;
   padding: 0.5rem 1rem;
   border-top: 1px solid #e5e7eb;
   display: flex;
   align-items: center;
-  justify-content: space-between;
   z-index: 50;
 }
 
-/* center and constrain the input/send group */
+/* input + button wrapper in footer */
 .inputGroup {
-  flex: 1;
-  max-width: 800px;
-  margin: 0 auto;
   display: flex;
-  gap: 0.5rem;
+  align-items: center;
+  flex: 1;
+  max-width: 600px;  /* optional cap */
+  margin-right: 1rem;
 }
 
 .inputGroup input {
@@ -53,6 +57,7 @@
   padding: 0.5rem;
   border: 1px solid #e5e7eb;
   border-radius: 4px;
+  margin-right: 0.5rem;
 }
 
 .inputGroup button {
