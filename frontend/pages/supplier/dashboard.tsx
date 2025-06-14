@@ -26,33 +26,33 @@ const COMMAND_TABS = ['Sales','Marketing','Operations','Shipments','Financials',
 export default function SupplierDashboard() {
   useAuthRedirect('supplier')
 
-  // Metrics
-  const [metrics, setMetrics] = useState<SupplierMetrics|null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string|null>(null)
+  // ── Metrics ────────────────────────────────────────────
+  const [metrics, setMetrics]   = useState<SupplierMetrics|null>(null)
+  const [loading, setLoading]   = useState(true)
+  const [error, setError]       = useState<string|null>(null)
 
-  // Terminal
+  // ── Terminal state ────────────────────────────────────
   const [queryText, setQueryText]   = useState('')
   const [analysisText, setAnalysis] = useState('')
   const [chartData, setChartData]   = useState<ChartPoint[]|null>(null)
   const [searchResults, setResults] = useState<any[]|null>(null)
   const [working, setWorking]       = useState(false)
 
-  // Split-pane
+  // ── Split-pane ─────────────────────────────────────────
   const containerRef = useRef<HTMLDivElement>(null)
   const [dividerX, setDividerX] = useState(0)
   const dragging = useRef(false)
 
-  // center on mount
+  // center divider on mount
   useEffect(() => {
-    const w = containerRef.current?.clientWidth||0
-    setDividerX(w/2)
+    const width = containerRef.current?.clientWidth ?? 0
+    setDividerX(width / 2)
   }, [])
 
-  // drag handlers
+  // drag logic
   useEffect(() => {
     const onMove = (e: MouseEvent) => {
-      if (!dragging.current||!containerRef.current) return
+      if (!dragging.current || !containerRef.current) return
       const { left, width } = containerRef.current.getBoundingClientRect()
       let x = e.clientX - left
       const min = width * 0.2, max = width * 0.8
@@ -73,21 +73,26 @@ export default function SupplierDashboard() {
     dragging.current = true
   }
 
-  // fetch metrics
+  // ── Fetch metrics ──────────────────────────────────────
   useEffect(() => {
+    let active = true
     api.get<SupplierMetrics>('/supplier/dashboard')
-      .then(r=>setMetrics(r.data))
-      .catch(e=>setError(e.message))
-      .finally(()=>setLoading(false))
+      .then(r => active && setMetrics(r.data))
+      .catch(e => active && setError(e.message))
+      .finally(() => active && setLoading(false))
+    return () => { active = false }
   }, [])
 
-  // query terminal
+  // ── Send terminal query ────────────────────────────────
   const sendQuery = async () => {
     if (!queryText.trim()) return
     setWorking(true)
-    setAnalysis(''); setResults(null); setChartData(null)
+    setAnalysis('')
+    setResults(null)
+    setChartData(null)
+
     try {
-      const res = await fetch(
+      const resp = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/terminal/query`,
         {
           method: 'POST',
@@ -95,10 +100,13 @@ export default function SupplierDashboard() {
           body: JSON.stringify({ prompt: queryText.trim() })
         }
       )
-      const j = await res.json() as TerminalPayload
-      setAnalysis(j.analysisText||'')
-      if (Array.isArray(j.visualPayload.products)) setResults(j.visualPayload.products)
-      else if (Array.isArray(j.visualPayload.chartData)) setChartData(j.visualPayload.chartData)
+      const json = (await resp.json()) as TerminalPayload
+      setAnalysis(json.analysisText || '')
+      if (Array.isArray(json.visualPayload.products)) {
+        setResults(json.visualPayload.products)
+      } else if (Array.isArray(json.visualPayload.chartData)) {
+        setChartData(json.visualPayload.chartData)
+      }
     } catch {
       setAnalysis('❌ Something went wrong.')
     } finally {
@@ -107,16 +115,25 @@ export default function SupplierDashboard() {
   }
 
   const onKey = (e: React.KeyboardEvent) => {
-    if (e.key==='Enter') { e.preventDefault(); sendQuery() }
+    if (e.key === 'Enter') { e.preventDefault(); sendQuery() }
   }
 
-  const onTabClick = (lbl: string) => {
-    setQueryText(lbl)
+  const onTabClick = (label: string) => {
+    setQueryText(label)
     setTimeout(sendQuery, 50)
   }
 
-  if (loading) return <div className="h-screen flex items-center justify-center">Loading…</div>
-  if (error||!metrics) return <div className="h-screen flex items-center justify-center text-red-500">{error||'Error'}</div>
+  // ── Loading / Error states ────────────────────────────
+  if (loading) return (
+    <div className="h-screen flex items-center justify-center bg-gray-50">
+      <p>Loading…</p>
+    </div>
+  )
+  if (error || !metrics) return (
+    <div className="h-screen flex items-center justify-center bg-gray-50">
+      <p className="text-red-500">{error || 'Error loading dashboard.'}</p>
+    </div>
+  )
 
   return (
     <div className="relative flex flex-col h-screen bg-gray-50">
@@ -135,16 +152,18 @@ export default function SupplierDashboard() {
           <p>Feedback: <span className="text-purple-600">{metrics.feedbackRating}</span></p>
           {analysisText && (
             <div className="mt-6 space-y-1">
-              {analysisText.split('\n').map((l,i)=><p key={i}>{l}</p>)}
+              {analysisText.split('\n').map((line,i) =>
+                <p key={i}>{line}</p>
+              )}
             </div>
           )}
         </div>
 
-        {/* Draggable Divider */}
+        {/* Divider */}
         <div
           onMouseDown={onDividerDown}
           className="absolute top-0 h-full bg-gray-200 cursor-col-resize"
-          style={{ left: dividerX-3, width: 6, zIndex: 20 }}
+          style={{ left: dividerX - 3, width: 6, zIndex: 20 }}
         />
 
         {/* Right Pane */}
@@ -153,15 +172,15 @@ export default function SupplierDashboard() {
           style={{ marginLeft: dividerX }}
         >
           {searchResults ? (
-            searchResults.map((item,i)=>(
+            searchResults.map((item,i) => (
               <div key={i} className="bg-white border border-gray-200 rounded p-4 mb-4 shadow-sm">
-                <pre className="text-xs">{JSON.stringify(item,null,2)}</pre>
+                <pre className="text-xs">{JSON.stringify(item, null, 2)}</pre>
               </div>
             ))
           ) : chartData?.length ? (
             <Chart
               data={chartData}
-              height={(containerRef.current?.clientHeight||0)-64}
+              height={(containerRef.current?.clientHeight ?? 0) - 64}
             />
           ) : (
             <div className="h-full flex items-center justify-center text-gray-500">
@@ -178,7 +197,7 @@ export default function SupplierDashboard() {
           className="flex-1 border border-gray-300 rounded px-4 py-2"
           placeholder="Type a question…"
           value={queryText}
-          onChange={e=>setQueryText(e.target.value)}
+          onChange={e => setQueryText(e.target.value)}
           onKeyDown={onKey}
         />
         <button
@@ -189,10 +208,10 @@ export default function SupplierDashboard() {
           {working ? 'Working…' : 'Send'}
         </button>
         <div className="flex space-x-2">
-          {COMMAND_TABS.map(label=>(
+          {COMMAND_TABS.map(label => (
             <button
               key={label}
-              onClick={()=>onTabClick(label)}
+              onClick={() => onTabClick(label)}
               className="px-3 py-1 border rounded text-sm"
             >
               {label}
