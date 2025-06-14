@@ -1,6 +1,7 @@
+// app/supplier/dashboard/page.tsx  (or wherever your dashboard component lives)
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import useAuthRedirect from '@/hooks/useAuthRedirect'
 import api from '@/lib/api'
 import Chart, { ChartPoint } from '@/components/Chart'
@@ -13,15 +14,67 @@ type SupplierMetrics = {
   feedbackRating: number
 }
 
+type TerminalPayload = {
+  analysisText: string
+  visualPayload: {
+    products?: any[]
+    chartData?: ChartPoint[]
+  }
+}
+
 const COMMAND_TABS = ['Sales','Marketing','Operations','Shipments','Financials','Clients']
 
 export default function SupplierDashboard() {
   useAuthRedirect('supplier')
 
-  const [metrics, setMetrics] = useState<SupplierMetrics | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string|null>(null)
+  // ── Metrics ────────────────────────────────────────────
+  const [metrics, setMetrics] = useState<SupplierMetrics|null>(null)
+  const [loading, setLoading]   = useState(true)
+  const [error, setError]       = useState<string|null>(null)
 
+  // ── Terminal state ───────────────────────────────────
+  const [queryText, setQueryText]   = useState('')
+  const [analysisText, setAnalysis] = useState('')
+  const [chartData, setChartData]   = useState<ChartPoint[]|null>(null)
+  const [searchResults, setResults] = useState<any[]|null>(null)
+  const [isWorking, setWorking]     = useState(false)
+
+  // ── Split-pane logic ───────────────────────────────────
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [dividerX, setDividerX] = useState(0)
+  const dragging = useRef(false)
+
+  // center on mount
+  useEffect(() => {
+    const w = containerRef.current?.clientWidth ?? 0
+    setDividerX(w / 2)
+  }, [])
+
+  // dragging
+  useEffect(() => {
+    const onMove = (e: MouseEvent) => {
+      if (!dragging.current || !containerRef.current) return
+      const { left, width } = containerRef.current.getBoundingClientRect()
+      let x = e.clientX - left
+      const min = width * 0.2, max = width * 0.8
+      x = Math.max(min, Math.min(max, x))
+      setDividerX(x)
+    }
+    const onUp = () => { dragging.current = false }
+    window.addEventListener('mousemove', onMove)
+    window.addEventListener('mouseup', onUp)
+    return () => {
+      window.removeEventListener('mousemove', onMove)
+      window.removeEventListener('mouseup', onUp)
+    }
+  }, [])
+
+  const onDividerDown = (e: React.MouseEvent) => {
+    e.preventDefault()
+    dragging.current = true
+  }
+
+  // ── Fetch metrics ─────────────────────────────────────
   useEffect(() => {
     api.get<SupplierMetrics>('/supplier/dashboard')
       .then(r => setMetrics(r.data))
@@ -29,46 +82,127 @@ export default function SupplierDashboard() {
       .finally(() => setLoading(false))
   }, [])
 
-  if (loading) return <div className="h-screen flex items-center justify-center">Loading…</div>
-  if (error || !metrics) return <div className="h-screen flex items-center justify-center text-red-500">{error||'Unknown error'}</div>
+  // ── Send terminal query ───────────────────────────────
+  const sendQuery = async () => {
+    if (!queryText.trim()) return
+    setWorking(true)
+    setAnalysis('')
+    setResults(null)
+    setChartData(null)
+
+    try {
+      const resp = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/terminal/query`,
+        {
+          method:'POST',
+          headers:{ 'Content-Type':'application/json' },
+          body:JSON.stringify({ prompt: queryText.trim() })
+        }
+      )
+      const json = await resp.json() as TerminalPayload
+      setAnalysis(json.analysisText||'')
+      if (Array.isArray(json.visualPayload.products))      setResults(json.visualPayload.products)
+      else if (Array.isArray(json.visualPayload.chartData)) setChartData(json.visualPayload.chartData)
+    } catch {
+      setAnalysis('❌ Something went wrong.')
+    } finally {
+      setWorking(false)
+    }
+  }
+
+  const onKey = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') { e.preventDefault(); sendQuery() }
+  }
+  const onTabClick = (label:string) => {
+    setQueryText(label)
+    setTimeout(sendQuery,50)
+  }
+
+  if (loading)   return <div className="h-screen flex items-center justify-center">Loading…</div>
+  if (error||!metrics) return <div className="h-screen flex items-center justify-center text-red-500">{error||'Error'}</div>
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col pb-16"> {/* pb-16 reserves space for fixed footer */}
+    <div className="min-h-screen flex flex-col bg-gray-50 pb-16">
+
       <main className="flex-1">
-        <div className="flex h-[calc(100vh-4rem)]"> {/* 4rem = footer height */}
-          
-          {/* ── Left Pane */}
-          <div className="w-1/2 bg-white p-6 overflow-auto border-r border-gray-200">
+        <div ref={containerRef} className="relative flex h-[calc(100vh-4rem)]">
+
+          {/* Left Pane */}
+          <div
+            className="absolute top-0 left-0 h-full bg-white p-6 overflow-auto"
+            style={{ width: dividerX }}
+          >
             <h2 className="text-xl font-semibold mb-4">Hello, Supplier — welcome.</h2>
             <p>Sales Today: <span className="text-blue-600">{metrics.totalSalesToday}</span></p>
             <p>Active Listings: <span className="text-green-600">{metrics.activeListings}</span></p>
             <p>Open Orders: <span className="text-green-600">{metrics.openOrders}</span></p>
             <p>30d Proceeds: <span className="text-blue-600">£{metrics.proceeds30d}</span></p>
             <p>Feedback: <span className="text-purple-600">{metrics.feedbackRating}</span></p>
+            {!!analysisText && (
+              <div className="mt-6 space-y-1">
+                {analysisText.split('\n').map((l,i)=><p key={i}>{l}</p>)}
+              </div>
+            )}
           </div>
 
-          {/* ── Right Pane */}
-          <div className="w-1/2 bg-white p-6 overflow-auto">
-            <div className="h-full flex items-center justify-center text-gray-500">
-              <p>Select a tab or ask a question to see visual output here.</p>
-            </div>
+          {/* Divider */}
+          <div
+            onMouseDown={onDividerDown}
+            className="absolute top-0 h-full bg-gray-200 cursor-col-resize"
+            style={{ left: dividerX-3, width: 6 }}
+          />
+
+          {/* Right Pane */}
+          <div
+            className="absolute top-0 h-full bg-white p-6 overflow-auto"
+            style={{ left: dividerX, width: `calc(100% - ${dividerX}px)` }}
+          >
+            {searchResults ? (
+              searchResults.map((item,i)=>(
+                <div key={i} className="bg-white border border-gray-200 rounded p-4 mb-4 shadow-sm">
+                  <pre className="text-xs">{JSON.stringify(item,null,2)}</pre>
+                </div>
+              ))
+            ) : chartData?.length ? (
+              <Chart data={chartData} height={(containerRef.current?.clientHeight||0)-64}/>
+            ) : (
+              <div className="h-full flex items-center justify-center text-gray-500">
+                <p>Select a tab or ask a question to see visual output here.</p>
+              </div>
+            )}
           </div>
+
         </div>
       </main>
 
-      {/* ── Fixed Footer */}
-      <footer className="fixed bottom-0 left-0 w-full h-16 bg-white border-t border-gray-200 flex items-center px-6 space-x-4 z-50">
+      {/* Fixed Footer */}
+      <footer className="fixed bottom-0 left-0 w-full h-16 bg-white border-t border-gray-200 flex items-center px-6 space-x-3 z-50">
         <input
           type="text"
-          className="flex-1 border rounded px-4 py-2"
+          className="flex-1 border border-gray-300 rounded px-4 py-2"
           placeholder="Type a question…"
+          value={queryText}
+          onChange={e=>setQueryText(e.target.value)}
+          onKeyDown={onKey}
         />
-        <button className="px-4 py-2 bg-blue-600 text-white rounded">Send</button>
-        {COMMAND_TABS.map(tab => (
-          <button key={tab} className="px-3 py-1 border rounded text-sm">
-            {tab}
-          </button>
-        ))}
+        <button
+          onClick={sendQuery}
+          disabled={isWorking}
+          className="bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50"
+        >
+          {isWorking ? 'Working…' : 'Send'}
+        </button>
+        <div className="flex space-x-2">
+          {COMMAND_TABS.map(label=>(
+            <button
+              key={label}
+              onClick={()=>onTabClick(label)}
+              className="px-3 py-1 border rounded text-sm"
+            >
+              {label}
+            </button>
+          ))}
+        </div>
       </footer>
     </div>
   )
