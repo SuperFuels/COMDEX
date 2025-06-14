@@ -32,14 +32,14 @@ export default function SupplierDashboard() {
   const [loadingMetrics, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  // ── Terminal state ────────────────────────────────────
+  // ── Terminal state ───────────────────────────────────
   const [queryText, setQueryText]   = useState('')
   const [analysisText, setAnalysis] = useState('')
   const [chartData, setChartData]   = useState<ChartPoint[] | null>(null)
   const [searchResults, setResults] = useState<any[] | null>(null)
   const [isWorking, setWorking]     = useState(false)
 
-  // ── Split-pane ─────────────────────────────────────────
+  // ── Split-pane ───────────────────────────────────────
   const containerRef = useRef<HTMLDivElement>(null)
   const [dividerX, setDividerX] = useState(0)
   const dragging = useRef(false)
@@ -74,7 +74,7 @@ export default function SupplierDashboard() {
     dragging.current = true
   }
 
-  // ── Fetch metrics ──────────────────────────────────────
+  // ── Fetch metrics ─────────────────────────────────────
   useEffect(() => {
     let active = true
     api.get<SupplierMetrics>('/supplier/dashboard')
@@ -84,7 +84,7 @@ export default function SupplierDashboard() {
     return () => { active = false }
   }, [])
 
-  // ── Send terminal query ─────────────────────────────────
+  // ── Send terminal query ───────────────────────────────
   const sendQuery = async () => {
     if (!queryText.trim()) return
     setWorking(true)
@@ -161,7 +161,7 @@ export default function SupplierDashboard() {
             style={{ left: dividerX - 3 }}
           />
 
-          {/* Right Pane (absolutely positioned to fill remaining space) */}
+          {/* Right Pane */}
           <div
             className={styles.rightPane}
             style={{
@@ -194,26 +194,19 @@ export default function SupplierDashboard() {
 
       {/* Fixed Bottom Bar */}
       <footer className={styles.bottomBar}>
-        {/* match width of right-pane minus 20px gutter */}
-        <div
-          className="flex items-center space-x-2"
-          style={{ width: `calc(100% - ${dividerX + 20}px)` }}
-        >
+        <div className={styles.inputGroup}>
           <input
             type="text"
             placeholder="Type a question…"
             value={queryText}
             onChange={e => setQueryText(e.target.value)}
             onKeyDown={onKey}
-            className="flex-1 py-2 px-4 border rounded"
           />
           <button onClick={sendQuery} disabled={isWorking}>
             {isWorking ? 'Working…' : 'Send'}
           </button>
         </div>
-
-        {/* bottom tabs */}
-        <div className="flex-1 flex justify-end space-x-2">
+        <div className="flex space-x-2">
           {COMMAND_TABS.map(label=>(
             <button
               key={label}

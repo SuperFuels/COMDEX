@@ -1,20 +1,9 @@
-/* dashboard.module.css */
-
-.leftPane {
-  background-color: #ffffff;
-  max-width: 50vw;
-  min-width: 25vw;
-  padding: 1rem;
-  overflow: auto;
-}
-
+.leftPane,
 .rightPane {
-  background-color: #ffffff;
-  max-width: 50vw;
-  min-width: 25vw;
+  width: 50%;           /* always take exactly half */
   padding: 1rem;
   overflow: auto;
-  margin-left: auto;
+  background-color: #ffffff;
 }
 
 .splitter {
@@ -39,25 +28,34 @@
 .bottomBar {
   position: fixed;
   bottom: 0;
-  left: calc(50% + 10px);
+  left: 0;
   right: 0;
   background-color: #ffffff;
   padding: 0.5rem 1rem;
   border-top: 1px solid #e5e7eb;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   z-index: 50;
 }
 
-.bottomBar input {
+/* center and constrain the input/send group */
+.inputGroup {
   flex: 1;
-  margin-right: 0.5rem;
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.inputGroup input {
+  flex: 1;
   padding: 0.5rem;
   border: 1px solid #e5e7eb;
   border-radius: 4px;
 }
 
-.bottomBar button {
+.inputGroup button {
   background: transparent;
   border: 1px solid #1f2937;
   color: #1f2937;
@@ -66,6 +64,6 @@
   cursor: pointer;
 }
 
-.bottomBar button:hover {
+.inputGroup button:hover {
   background-color: rgba(0, 0, 0, 0.05);
 }
