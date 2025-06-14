@@ -1,5 +1,3 @@
-# backend/models/deal.py
-
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
@@ -29,7 +27,12 @@ class Deal(Base):
     contract   = relationship("Contract", back_populates="deal", uselist=False)
 
     # ←── reciprocal side of Shipment⇄Deal
-    shipments  = relationship("Shipment", back_populates="deal")
+    shipments  = relationship(
+        "Shipment",
+        back_populates="deal",
+        cascade="all, delete-orphan",
+        passive_deletes=True
+    )
 
     def __repr__(self):
         return (

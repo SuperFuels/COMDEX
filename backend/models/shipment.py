@@ -1,5 +1,3 @@
-# backend/models/shipment.py
-
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
@@ -14,7 +12,7 @@ class Shipment(Base):
 
     quantity_kg  = Column(Float,   nullable=False)
     shipped_at   = Column(DateTime, nullable=False, default=datetime.utcnow)
-    status       = Column(String,  nullable=False, server_default="pending")  # e.g. pending, in_transit, delivered
+    status       = Column(String,  nullable=False, server_default="pending")
 
     # ─── Relationships ─────────────────────────────────────────────────────────
     deal         = relationship("Deal",    back_populates="shipments")

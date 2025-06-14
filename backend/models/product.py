@@ -1,47 +1,38 @@
-# backend/models/product.py
-
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, Float, Text, ForeignKey, DateTime
+from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
 from ..database import Base
 
-class Product(Base):
-    __tablename__ = "products"
+class Deal(Base):
+    __tablename__ = "deals"
 
-    id                 = Column(Integer, primary_key=True, index=True)
-    owner_email        = Column(String, ForeignKey("users.email", ondelete="CASCADE"), nullable=False, index=True)
-    title              = Column(String, nullable=False)
-    description        = Column(Text, nullable=True)
-    price_per_kg       = Column(Float, nullable=False)
-    origin_country     = Column(String, nullable=True)
-    category           = Column(String, nullable=True)
-    image_url          = Column(String, nullable=True)
-    change_pct         = Column(Float, nullable=False, default=0.0)
-    rating             = Column(Float, nullable=False, default=0.0)
-    batch_number       = Column(String, nullable=True)
-    trace_id           = Column(String, nullable=True)
-    certificate_url    = Column(String, nullable=True)
-    blockchain_tx_hash = Column(String, nullable=True)
-    created_at         = Column(DateTime, nullable=False, default=datetime.utcnow)
+    id          = Column(Integer, primary_key=True, index=True)
+    product_id  = Column(Integer, ForeignKey("products.id", ondelete="CASCADE"), nullable=False, index=True)
+    buyer_id    = Column(Integer, ForeignKey("users.id",   ondelete="CASCADE"), nullable=False, index=True)
+    supplier_id = Column(Integer, ForeignKey("users.id",   ondelete="CASCADE"), nullable=False, index=True)
 
-    # ─── Relationships ─────────────────────────────────────────────────────────
-    owner     = relationship("User",    back_populates="products_owned")
-    deals     = relationship(
-        "Deal",
-        back_populates="product",
-        cascade="all, delete-orphan",
-        passive_deletes=True
-    )
-    shipments = relationship(
-        "Shipment",
-        back_populates="product",
-        cascade="all, delete-orphan",
-        passive_deletes=True
-    )
+    quantity_kg = Column(Float, nullable=False, default=0.0)
+    total_price = Column(Float, nullable=False, default=0.0)
+
+    price       = Column(Float,   nullable=False)
+    status      = Column(String,  nullable=False, server_default="pending")
+    created_at  = Column(DateTime, nullable=False, default=datetime.utcnow)
+
+    # ─── ORM relationships ────────────────────────────────────────────────
+    product    = relationship("Product",  back_populates="deals")
+    buyer      = relationship("User",     back_populates="buyer_deals",    foreign_keys=[buyer_id])
+    supplier   = relationship("User",     back_populates="supplier_deals", foreign_keys=[supplier_id])
+    contract   = relationship("Contract", back_populates="deal", uselist=False)
+
+    # ←── reciprocal side of Shipment⇄Deal
+    shipments  = relationship("Shipment", back_populates="deal", cascade="all, delete-orphan")
 
     def __repr__(self):
         return (
-            f"<Product("
-            f"id={self.id!r}, title={self.title!r}, owner_email={self.owner_email!r}"
+            f"<Deal("
+            f"id={self.id!r}, product_id={self.product_id!r}, "
+            f"buyer_id={self.buyer_id!r}, supplier_id={self.supplier_id!r}, "
+            f"quantity_kg={self.quantity_kg!r}, total_price={self.total_price!r}, "
+            f"price={self.price!r}, status={self.status!r}"
             f")>"
         )
