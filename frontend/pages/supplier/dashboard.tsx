@@ -1,4 +1,3 @@
-// app/supplier/dashboard/page.tsx  (or wherever your dashboard component lives)
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
@@ -32,7 +31,7 @@ export default function SupplierDashboard() {
   const [loading, setLoading]   = useState(true)
   const [error, setError]       = useState<string|null>(null)
 
-  // ── Terminal state ───────────────────────────────────
+  // ── Terminal state ────────────────────────────────────
   const [queryText, setQueryText]   = useState('')
   const [analysisText, setAnalysis] = useState('')
   const [chartData, setChartData]   = useState<ChartPoint[]|null>(null)
@@ -44,16 +43,16 @@ export default function SupplierDashboard() {
   const [dividerX, setDividerX] = useState(0)
   const dragging = useRef(false)
 
-  // center on mount
+  // center divider on mount
   useEffect(() => {
-    const w = containerRef.current?.clientWidth ?? 0
-    setDividerX(w / 2)
-  }, [])
+    const w = containerRef.current?.clientWidth||0
+    setDividerX(w/2)
+  },[])
 
-  // dragging
+  // handle dragging
   useEffect(() => {
     const onMove = (e: MouseEvent) => {
-      if (!dragging.current || !containerRef.current) return
+      if (!dragging.current||!containerRef.current) return
       const { left, width } = containerRef.current.getBoundingClientRect()
       let x = e.clientX - left
       const min = width * 0.2, max = width * 0.8
@@ -67,7 +66,7 @@ export default function SupplierDashboard() {
       window.removeEventListener('mousemove', onMove)
       window.removeEventListener('mouseup', onUp)
     }
-  }, [])
+  },[])
 
   const onDividerDown = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -77,31 +76,28 @@ export default function SupplierDashboard() {
   // ── Fetch metrics ─────────────────────────────────────
   useEffect(() => {
     api.get<SupplierMetrics>('/supplier/dashboard')
-      .then(r => setMetrics(r.data))
-      .catch(e => setError(e.message))
-      .finally(() => setLoading(false))
-  }, [])
+      .then(r=>setMetrics(r.data))
+      .catch(e=>setError(e.message))
+      .finally(()=>setLoading(false))
+  },[])
 
   // ── Send terminal query ───────────────────────────────
   const sendQuery = async () => {
     if (!queryText.trim()) return
     setWorking(true)
-    setAnalysis('')
-    setResults(null)
-    setChartData(null)
-
+    setAnalysis(''); setResults(null); setChartData(null)
     try {
-      const resp = await fetch(
+      const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/terminal/query`,
         {
           method:'POST',
-          headers:{ 'Content-Type':'application/json' },
-          body:JSON.stringify({ prompt: queryText.trim() })
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ prompt: queryText.trim() })
         }
       )
-      const json = await resp.json() as TerminalPayload
+      const json = await res.json() as TerminalPayload
       setAnalysis(json.analysisText||'')
-      if (Array.isArray(json.visualPayload.products))      setResults(json.visualPayload.products)
+      if (Array.isArray(json.visualPayload.products)) setResults(json.visualPayload.products)
       else if (Array.isArray(json.visualPayload.chartData)) setChartData(json.visualPayload.chartData)
     } catch {
       setAnalysis('❌ Something went wrong.')
@@ -109,74 +105,72 @@ export default function SupplierDashboard() {
       setWorking(false)
     }
   }
-
-  const onKey = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') { e.preventDefault(); sendQuery() }
+  const onKey = (e:React.KeyboardEvent) => {
+    if (e.key==='Enter') { e.preventDefault(); sendQuery() }
   }
-  const onTabClick = (label:string) => {
-    setQueryText(label)
+  const onTabClick = (lbl:string) => {
+    setQueryText(lbl)
     setTimeout(sendQuery,50)
   }
 
-  if (loading)   return <div className="h-screen flex items-center justify-center">Loading…</div>
+  if (loading) return <div className="h-screen flex items-center justify-center">Loading…</div>
   if (error||!metrics) return <div className="h-screen flex items-center justify-center text-red-500">{error||'Error'}</div>
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50 pb-16">
-
-      <main className="flex-1">
-        <div ref={containerRef} className="relative flex h-[calc(100vh-4rem)]">
-
-          {/* Left Pane */}
-          <div
-            className="absolute top-0 left-0 h-full bg-white p-6 overflow-auto"
-            style={{ width: dividerX }}
-          >
-            <h2 className="text-xl font-semibold mb-4">Hello, Supplier — welcome.</h2>
-            <p>Sales Today: <span className="text-blue-600">{metrics.totalSalesToday}</span></p>
-            <p>Active Listings: <span className="text-green-600">{metrics.activeListings}</span></p>
-            <p>Open Orders: <span className="text-green-600">{metrics.openOrders}</span></p>
-            <p>30d Proceeds: <span className="text-blue-600">£{metrics.proceeds30d}</span></p>
-            <p>Feedback: <span className="text-purple-600">{metrics.feedbackRating}</span></p>
-            {!!analysisText && (
-              <div className="mt-6 space-y-1">
-                {analysisText.split('\n').map((l,i)=><p key={i}>{l}</p>)}
-              </div>
-            )}
-          </div>
-
-          {/* Divider */}
-          <div
-            onMouseDown={onDividerDown}
-            className="absolute top-0 h-full bg-gray-200 cursor-col-resize"
-            style={{ left: dividerX-3, width: 6 }}
-          />
-
-          {/* Right Pane */}
-          <div
-            className="absolute top-0 h-full bg-white p-6 overflow-auto"
-            style={{ left: dividerX, width: `calc(100% - ${dividerX}px)` }}
-          >
-            {searchResults ? (
-              searchResults.map((item,i)=>(
-                <div key={i} className="bg-white border border-gray-200 rounded p-4 mb-4 shadow-sm">
-                  <pre className="text-xs">{JSON.stringify(item,null,2)}</pre>
-                </div>
-              ))
-            ) : chartData?.length ? (
-              <Chart data={chartData} height={(containerRef.current?.clientHeight||0)-64}/>
-            ) : (
-              <div className="h-full flex items-center justify-center text-gray-500">
-                <p>Select a tab or ask a question to see visual output here.</p>
-              </div>
-            )}
-          </div>
-
+    <div className="relative flex flex-col h-screen bg-gray-50">
+      {/* ── Panes ──────────────────────────────────────────── */}
+      <div ref={containerRef} className="relative flex-1 flex overflow-hidden">
+        {/* Left Pane */}
+        <div
+          className="bg-white p-6 overflow-auto"
+          style={{ flexBasis: dividerX, flexShrink: 0 }}
+        >
+          <h2 className="text-xl font-semibold mb-4">Hello, Supplier — welcome.</h2>
+          <p>Sales Today: <span className="text-blue-600">{metrics.totalSalesToday}</span></p>
+          <p>Active Listings: <span className="text-green-600">{metrics.activeListings}</span></p>
+          <p>Open Orders: <span className="text-green-600">{metrics.openOrders}</span></p>
+          <p>30d Proceeds: <span className="text-blue-600">£{metrics.proceeds30d}</span></p>
+          <p>Feedback: <span className="text-purple-600">{metrics.feedbackRating}</span></p>
+          {analysisText && (
+            <div className="mt-6 space-y-1">
+              {analysisText.split('\n').map((l,i)=><p key={i}>{l}</p>)}
+            </div>
+          )}
         </div>
-      </main>
 
-      {/* Fixed Footer */}
-      <footer className="fixed bottom-0 left-0 w-full h-16 bg-white border-t border-gray-200 flex items-center px-6 space-x-3 z-50">
+        {/* Divider */}
+        <div
+          onMouseDown={onDividerDown}
+          className="absolute top-0 h-full bg-gray-200 cursor-col-resize"
+          style={{ left: dividerX - 3, width: 6, zIndex: 20 }}
+        />
+
+        {/* Right Pane */}
+        <div
+          className="bg-white p-6 overflow-auto flex-1"
+          style={{ marginLeft: dividerX }}
+        >
+          {searchResults ? (
+            searchResults.map((item,i)=>(
+              <div key={i} className="bg-white border border-gray-200 rounded p-4 mb-4 shadow-sm">
+                <pre className="text-xs">{JSON.stringify(item,null,2)}</pre>
+              </div>
+            ))
+          ) : chartData?.length ? (
+            <Chart
+              data={chartData}
+              height={(containerRef.current?.clientHeight||0)-64}
+            />
+          ) : (
+            <div className="h-full flex items-center justify-center text-gray-500">
+              <p>Select a tab or ask a question to see visual output here.</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ── Fixed Footer ───────────────────────────────────── */}
+      <footer className="absolute bottom-0 left-0 w-full bg-white border-t border-gray-200 px-6 py-3 flex items-center space-x-3">
         <input
           type="text"
           className="flex-1 border border-gray-300 rounded px-4 py-2"
