@@ -26,30 +26,30 @@ const COMMAND_TABS = ['Sales','Marketing','Operations','Shipments','Financials',
 export default function SupplierDashboard() {
   useAuthRedirect('supplier')
 
-  // ── Metrics ────────────────────────────────────────────
+  // Metrics
   const [metrics, setMetrics] = useState<SupplierMetrics|null>(null)
-  const [loading, setLoading]   = useState(true)
-  const [error, setError]       = useState<string|null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string|null>(null)
 
-  // ── Terminal state ────────────────────────────────────
+  // Terminal
   const [queryText, setQueryText]   = useState('')
   const [analysisText, setAnalysis] = useState('')
   const [chartData, setChartData]   = useState<ChartPoint[]|null>(null)
   const [searchResults, setResults] = useState<any[]|null>(null)
-  const [isWorking, setWorking]     = useState(false)
+  const [working, setWorking]       = useState(false)
 
-  // ── Split-pane logic ───────────────────────────────────
+  // Split-pane
   const containerRef = useRef<HTMLDivElement>(null)
   const [dividerX, setDividerX] = useState(0)
   const dragging = useRef(false)
 
-  // center divider on mount
+  // center on mount
   useEffect(() => {
     const w = containerRef.current?.clientWidth||0
     setDividerX(w/2)
-  },[])
+  }, [])
 
-  // handle dragging
+  // drag handlers
   useEffect(() => {
     const onMove = (e: MouseEvent) => {
       if (!dragging.current||!containerRef.current) return
@@ -66,22 +66,22 @@ export default function SupplierDashboard() {
       window.removeEventListener('mousemove', onMove)
       window.removeEventListener('mouseup', onUp)
     }
-  },[])
+  }, [])
 
   const onDividerDown = (e: React.MouseEvent) => {
     e.preventDefault()
     dragging.current = true
   }
 
-  // ── Fetch metrics ─────────────────────────────────────
+  // fetch metrics
   useEffect(() => {
     api.get<SupplierMetrics>('/supplier/dashboard')
       .then(r=>setMetrics(r.data))
       .catch(e=>setError(e.message))
       .finally(()=>setLoading(false))
-  },[])
+  }, [])
 
-  // ── Send terminal query ───────────────────────────────
+  // query terminal
   const sendQuery = async () => {
     if (!queryText.trim()) return
     setWorking(true)
@@ -90,27 +90,29 @@ export default function SupplierDashboard() {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/terminal/query`,
         {
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ prompt: queryText.trim() })
         }
       )
-      const json = await res.json() as TerminalPayload
-      setAnalysis(json.analysisText||'')
-      if (Array.isArray(json.visualPayload.products)) setResults(json.visualPayload.products)
-      else if (Array.isArray(json.visualPayload.chartData)) setChartData(json.visualPayload.chartData)
+      const j = await res.json() as TerminalPayload
+      setAnalysis(j.analysisText||'')
+      if (Array.isArray(j.visualPayload.products)) setResults(j.visualPayload.products)
+      else if (Array.isArray(j.visualPayload.chartData)) setChartData(j.visualPayload.chartData)
     } catch {
       setAnalysis('❌ Something went wrong.')
     } finally {
       setWorking(false)
     }
   }
-  const onKey = (e:React.KeyboardEvent) => {
+
+  const onKey = (e: React.KeyboardEvent) => {
     if (e.key==='Enter') { e.preventDefault(); sendQuery() }
   }
-  const onTabClick = (lbl:string) => {
+
+  const onTabClick = (lbl: string) => {
     setQueryText(lbl)
-    setTimeout(sendQuery,50)
+    setTimeout(sendQuery, 50)
   }
 
   if (loading) return <div className="h-screen flex items-center justify-center">Loading…</div>
@@ -118,7 +120,7 @@ export default function SupplierDashboard() {
 
   return (
     <div className="relative flex flex-col h-screen bg-gray-50">
-      {/* ── Panes ──────────────────────────────────────────── */}
+      {/* Panes container */}
       <div ref={containerRef} className="relative flex-1 flex overflow-hidden">
         {/* Left Pane */}
         <div
@@ -138,11 +140,11 @@ export default function SupplierDashboard() {
           )}
         </div>
 
-        {/* Divider */}
+        {/* Draggable Divider */}
         <div
           onMouseDown={onDividerDown}
           className="absolute top-0 h-full bg-gray-200 cursor-col-resize"
-          style={{ left: dividerX - 3, width: 6, zIndex: 20 }}
+          style={{ left: dividerX-3, width: 6, zIndex: 20 }}
         />
 
         {/* Right Pane */}
@@ -169,7 +171,7 @@ export default function SupplierDashboard() {
         </div>
       </div>
 
-      {/* ── Fixed Footer ───────────────────────────────────── */}
+      {/* Fixed Footer */}
       <footer className="absolute bottom-0 left-0 w-full bg-white border-t border-gray-200 px-6 py-3 flex items-center space-x-3">
         <input
           type="text"
@@ -181,10 +183,10 @@ export default function SupplierDashboard() {
         />
         <button
           onClick={sendQuery}
-          disabled={isWorking}
+          disabled={working}
           className="bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50"
         >
-          {isWorking ? 'Working…' : 'Send'}
+          {working ? 'Working…' : 'Send'}
         </button>
         <div className="flex space-x-2">
           {COMMAND_TABS.map(label=>(
