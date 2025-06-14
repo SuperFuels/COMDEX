@@ -1,5 +1,3 @@
-# backend/models/product.py
-
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, Float, Text, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
@@ -25,19 +23,18 @@ class Product(Base):
     created_at         = Column(DateTime, nullable=False, default=datetime.utcnow)
 
     # Relationships
-    owner = relationship(
-        "User",
-        back_populates="products_owned"
-    )
-    deals = relationship(
+    owner     = relationship("User", back_populates="products_owned")
+    deals     = relationship(
         "Deal",
         back_populates="product",
-        cascade="all, delete-orphan"
+        cascade="all, delete-orphan",
+        passive_deletes=True
     )
     shipments = relationship(
         "Shipment",
         back_populates="product",
-        cascade="all, delete-orphan"
+        cascade="all, delete-orphan",
+        passive_deletes=True
     )
 
     def __repr__(self):
