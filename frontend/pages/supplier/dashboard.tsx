@@ -27,29 +27,25 @@ const COMMAND_TABS = ['Sales','Marketing','Operations','Shipments','Financials',
 export default function SupplierDashboard() {
   useAuthRedirect('supplier')
 
-  // ── Metrics ────────────────────────────────────────────
   const [metrics, setMetrics] = useState<SupplierMetrics | null>(null)
-  const [loadingMetrics, setLoading] = useState(true)
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  // ── Terminal state ───────────────────────────────────
   const [queryText, setQueryText]   = useState('')
   const [analysisText, setAnalysis] = useState('')
   const [chartData, setChartData]   = useState<ChartPoint[] | null>(null)
-  const [searchResults, setResults] = useState<any[] | null>(null)
-  const [isWorking, setWorking]     = useState(false)
+  const [results, setResults]       = useState<any[] | null>(null)
+  const [working, setWorking]       = useState(false)
 
-  // ── Split-pane ───────────────────────────────────────
+  // Split‐pane
   const containerRef = useRef<HTMLDivElement>(null)
   const [dividerX, setDividerX] = useState(0)
   const dragging = useRef(false)
-  const [mounted, setMounted] = useState(false)
 
-  // center on mount
+  // center divider on mount
   useEffect(() => {
     const w = containerRef.current?.clientWidth ?? 0
     setDividerX(w / 2)
-    setMounted(true)
   }, [])
 
   // drag logic
@@ -76,7 +72,7 @@ export default function SupplierDashboard() {
     dragging.current = true
   }
 
-  // ── Fetch metrics ─────────────────────────────────────
+  // fetch metrics
   useEffect(() => {
     let active = true
     api.get<SupplierMetrics>('/supplier/dashboard')
@@ -86,7 +82,7 @@ export default function SupplierDashboard() {
     return () => { active = false }
   }, [])
 
-  // ── Send terminal query ───────────────────────────────
+  // terminal query
   const sendQuery = async () => {
     if (!queryText.trim()) return
     setWorking(true)
@@ -103,12 +99,12 @@ export default function SupplierDashboard() {
           body: JSON.stringify({ prompt: queryText.trim() })
         }
       )
-      const json = (await resp.json()) as TerminalPayload
+      const json = await resp.json() as TerminalPayload
       setAnalysis(json.analysisText || '')
       if (Array.isArray(json.visualPayload.products)) {
         setResults(json.visualPayload.products)
       } else if (Array.isArray(json.visualPayload.chartData)) {
-        setChartData(json.visualPayload.chartData!)
+        setChartData(json.visualPayload.chartData)
       }
     } catch {
       setAnalysis('❌ Something went wrong.')
@@ -116,6 +112,7 @@ export default function SupplierDashboard() {
       setWorking(false)
     }
   }
+
   const onKey = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') { e.preventDefault(); sendQuery() }
   }
@@ -124,7 +121,7 @@ export default function SupplierDashboard() {
     setTimeout(sendQuery, 50)
   }
 
-  if (loadingMetrics) {
+  if (loading) {
     return (
       <div className="h-screen flex items-center justify-center bg-gray-50">
         <p>Loading…</p>
@@ -138,28 +135,23 @@ export default function SupplierDashboard() {
       </div>
     )
   }
-  const m = metrics!
 
   return (
     <div className="bg-gray-50 min-h-screen flex flex-col">
-
-      {/* full-width main */}
+      {/* edge-to-edge main */}
       <main className="flex-1 w-full">
         <div ref={containerRef} className="relative flex h-[calc(100vh-8rem)]">
-
           {/* Left Pane */}
           <div
             className={styles.leftPane}
-            style={{
-              width: mounted ? dividerX : '50%',
-            }}
+            style={{ width: dividerX }}
           >
             <p className="mb-2">Hello, Supplier — welcome.</p>
-            <p>Sales Today: <span className="text-blue-600">{m.totalSalesToday}</span></p>
-            <p>Active Listings: <span className="text-green-600">{m.activeListings}</span></p>
-            <p>Open Orders: <span className="text-green-600">{m.openOrders}</span></p>
-            <p>30d Proceeds: <span className="text-blue-600">£{m.proceeds30d}</span></p>
-            <p>Feedback: <span className="text-purple-600">{m.feedbackRating}</span></p>
+            <p>Sales Today: <span className="text-blue-600">{metrics.totalSalesToday}</span></p>
+            <p>Active Listings: <span className="text-green-600">{metrics.activeListings}</span></p>
+            <p>Open Orders: <span className="text-green-600">{metrics.openOrders}</span></p>
+            <p>30d Proceeds: <span className="text-blue-600">£{metrics.proceeds30d}</span></p>
+            <p>Feedback: <span className="text-purple-600">{metrics.feedbackRating}</span></p>
 
             {analysisText && (
               <div className="mt-4 space-y-1">
@@ -172,9 +164,7 @@ export default function SupplierDashboard() {
           <div
             onMouseDown={onDividerDown}
             className={styles.splitter}
-            style={{
-              left: mounted ? dividerX - 3 : 'calc(50% - 3px)'
-            }}
+            style={{ left: dividerX - 3 }}
           />
 
           {/* Right Pane */}
@@ -183,20 +173,18 @@ export default function SupplierDashboard() {
             style={{
               position: 'absolute',
               top: 0,
-              left: mounted ? dividerX : '50%',
-              width: mounted
-                ? `calc(100% - ${dividerX}px)`
-                : '50%',
+              left: dividerX,
+              width: `calc(100% - ${dividerX}px)`,
               height: '100%',
             }}
           >
-            {searchResults ? (
-              searchResults.map((item,i) => (
+            {results ? (
+              results.map((item,i) => (
                 <div key={i} className={styles.messageContainer}>
-                  <pre className="text-xs">{JSON.stringify(item,null,2)}</pre>
+                  <pre className="text-xs">{JSON.stringify(item, null, 2)}</pre>
                 </div>
               ))
-            ) : chartData?.length ? (
+            ) : chartData && chartData.length ? (
               <Chart
                 data={chartData}
                 height={(containerRef.current?.clientHeight ?? 0) - 64}
@@ -210,7 +198,7 @@ export default function SupplierDashboard() {
         </div>
       </main>
 
-      {/* Fixed Bottom Bar spans full width */}
+      {/* bottom bar */}
       <footer className={styles.bottomBar}>
         <div className={styles.inputGroup}>
           <input
@@ -220,15 +208,15 @@ export default function SupplierDashboard() {
             onChange={e => setQueryText(e.target.value)}
             onKeyDown={onKey}
           />
-          <button onClick={sendQuery} disabled={isWorking}>
-            {isWorking ? 'Working…' : 'Send'}
+          <button onClick={sendQuery} disabled={working}>
+            {working ? 'Working…' : 'Send'}
           </button>
         </div>
         <div className="flex space-x-2">
-          {COMMAND_TABS.map(label=>(
+          {COMMAND_TABS.map(label => (
             <button
               key={label}
-              onClick={()=>onTabClick(label)}
+              onClick={() => onTabClick(label)}
               className="px-3 py-1 border rounded text-sm"
             >
               {label}
