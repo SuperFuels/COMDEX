@@ -1,5 +1,3 @@
-# backend/models/shipment.py
-
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
@@ -17,6 +15,7 @@ class Shipment(Base):
     status       = Column(String, default="pending")  # e.g. pending, in_transit, delivered
 
     deal         = relationship("Deal", back_populates="shipments")
+    # link back to Product
     product      = relationship("Product", back_populates="shipments")
 
     def __repr__(self):
