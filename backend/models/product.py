@@ -1,3 +1,5 @@
+# backend/models/product.py
+
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, Float, Text, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
@@ -22,8 +24,8 @@ class Product(Base):
     blockchain_tx_hash = Column(String, nullable=True)
     created_at         = Column(DateTime, nullable=False, default=datetime.utcnow)
 
-    # Relationships
-    owner     = relationship("User", back_populates="products_owned")
+    # ─── Relationships ─────────────────────────────────────────────────────────
+    owner     = relationship("User",    back_populates="products_owned")
     deals     = relationship(
         "Deal",
         back_populates="product",
@@ -39,6 +41,7 @@ class Product(Base):
 
     def __repr__(self):
         return (
-            f"<Product(id={self.id!r}, title={self.title!r}, "
-            f"owner_email={self.owner_email!r})>"
+            f"<Product("
+            f"id={self.id!r}, title={self.title!r}, owner_email={self.owner_email!r}"
+            f")>"
         )

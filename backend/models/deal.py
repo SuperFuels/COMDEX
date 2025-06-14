@@ -1,3 +1,5 @@
+# backend/models/deal.py
+
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
@@ -7,13 +9,13 @@ class Deal(Base):
     __tablename__ = "deals"
 
     id          = Column(Integer, primary_key=True, index=True)
-    product_id  = Column(Integer, ForeignKey("products.id",   ondelete="CASCADE"), nullable=False, index=True)
-    buyer_id    = Column(Integer, ForeignKey("users.id",      ondelete="CASCADE"), nullable=False, index=True)
-    supplier_id = Column(Integer, ForeignKey("users.id",      ondelete="CASCADE"), nullable=False, index=True)
+    product_id  = Column(Integer, ForeignKey("products.id", ondelete="CASCADE"), nullable=False, index=True)
+    buyer_id    = Column(Integer, ForeignKey("users.id",   ondelete="CASCADE"), nullable=False, index=True)
+    supplier_id = Column(Integer, ForeignKey("users.id",   ondelete="CASCADE"), nullable=False, index=True)
 
     # ─── New fields for volumes & price-history ─────────────────────────────
-    quantity_kg = Column(Float,   nullable=False, default=0.0)
-    total_price = Column(Float,   nullable=False, default=0.0)
+    quantity_kg = Column(Float, nullable=False, default=0.0)
+    total_price = Column(Float, nullable=False, default=0.0)
 
     # ─── Existing price/status/timestamps ──────────────────────────────────
     price       = Column(Float,   nullable=False)  # e.g. per-kg price
@@ -21,10 +23,13 @@ class Deal(Base):
     created_at  = Column(DateTime, nullable=False, default=datetime.utcnow)
 
     # ─── ORM relationships ────────────────────────────────────────────────
-    product      = relationship("Product",  back_populates="deals")
-    buyer        = relationship("User",     back_populates="buyer_deals",    foreign_keys=[buyer_id])
-    supplier     = relationship("User",     back_populates="supplier_deals", foreign_keys=[supplier_id])
-    contract     = relationship("Contract", back_populates="deal", uselist=False)
+    product    = relationship("Product",  back_populates="deals")
+    buyer      = relationship("User",     back_populates="buyer_deals",    foreign_keys=[buyer_id])
+    supplier   = relationship("User",     back_populates="supplier_deals", foreign_keys=[supplier_id])
+    contract   = relationship("Contract", back_populates="deal", uselist=False)
+
+    # ←── reciprocal side of Shipment⇄Deal
+    shipments  = relationship("Shipment", back_populates="deal")
 
     def __repr__(self):
         return (
