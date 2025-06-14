@@ -43,11 +43,13 @@ export default function SupplierDashboard() {
   const containerRef = useRef<HTMLDivElement>(null)
   const [dividerX, setDividerX] = useState(0)
   const dragging = useRef(false)
+  const [mounted, setMounted] = useState(false)
 
   // center on mount
   useEffect(() => {
     const w = containerRef.current?.clientWidth ?? 0
     setDividerX(w / 2)
+    setMounted(true)
   }, [])
 
   // drag logic
@@ -123,23 +125,34 @@ export default function SupplierDashboard() {
   }
 
   if (loadingMetrics) {
-    return <div className="h-screen flex items-center justify-center bg-gray-50"><p>Loading…</p></div>
+    return (
+      <div className="h-screen flex items-center justify-center bg-gray-50">
+        <p>Loading…</p>
+      </div>
+    )
   }
   if (error || !metrics) {
-    return <div className="h-screen flex items-center justify-center bg-gray-50"><p className="text-red-500">{error}</p></div>
+    return (
+      <div className="h-screen flex items-center justify-center bg-gray-50">
+        <p className="text-red-500">{error}</p>
+      </div>
+    )
   }
   const m = metrics!
 
   return (
     <div className="bg-gray-50 min-h-screen flex flex-col">
-      {/* Remove max-w + mx-auto so it spans edge to edge */}
+
+      {/* full-width main */}
       <main className="flex-1 w-full">
         <div ref={containerRef} className="relative flex h-[calc(100vh-8rem)]">
 
           {/* Left Pane */}
           <div
             className={styles.leftPane}
-            style={{ width: dividerX }}
+            style={{
+              width: mounted ? dividerX : '50%',
+            }}
           >
             <p className="mb-2">Hello, Supplier — welcome.</p>
             <p>Sales Today: <span className="text-blue-600">{m.totalSalesToday}</span></p>
@@ -159,7 +172,9 @@ export default function SupplierDashboard() {
           <div
             onMouseDown={onDividerDown}
             className={styles.splitter}
-            style={{ left: dividerX - 3 }}
+            style={{
+              left: mounted ? dividerX - 3 : 'calc(50% - 3px)'
+            }}
           />
 
           {/* Right Pane */}
@@ -168,8 +183,10 @@ export default function SupplierDashboard() {
             style={{
               position: 'absolute',
               top: 0,
-              left: dividerX,
-              width: `calc(100% - ${dividerX}px)`,
+              left: mounted ? dividerX : '50%',
+              width: mounted
+                ? `calc(100% - ${dividerX}px)`
+                : '50%',
               height: '100%',
             }}
           >
@@ -181,7 +198,7 @@ export default function SupplierDashboard() {
               ))
             ) : chartData?.length ? (
               <Chart
-                data={chartData!}
+                data={chartData}
                 height={(containerRef.current?.clientHeight ?? 0) - 64}
               />
             ) : (

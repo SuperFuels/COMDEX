@@ -1,14 +1,9 @@
-.leftPane {
-  background-color: #ffffff;
-  padding: 1rem;
-  overflow: auto;
-  /* no more min/max widths so inline style controls fluid width */
-}
-
+.leftPane,
 .rightPane {
   background-color: #ffffff;
   padding: 1rem;
   overflow: auto;
+  flex-shrink: 0;    /* never collapse below assigned width */
 }
 
 .splitter {
@@ -33,7 +28,7 @@
 .bottomBar {
   position: fixed;
   bottom: 0;
-  left: 0;     /* full width */
+  left: 0;
   right: 0;
   background-color: #ffffff;
   padding: 0.5rem 1rem;
@@ -43,12 +38,11 @@
   z-index: 50;
 }
 
-/* input + button wrapper in footer */
 .inputGroup {
   display: flex;
   align-items: center;
   flex: 1;
-  max-width: 600px;  /* optional cap */
+  max-width: 600px;
   margin-right: 1rem;
 }
 
