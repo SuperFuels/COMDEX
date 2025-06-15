@@ -1,0 +1,5 @@
+[console_scripts]
+dbaugment = pyrseas.dbaugment:main
+dbtoyaml = pyrseas.dbtoyaml:main
+yamltodb = pyrseas.yamltodb:main
+
