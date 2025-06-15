@@ -1,9 +1,11 @@
 # backend/models/product.py
 
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime
+from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime, select
 from sqlalchemy.orm import relationship
+from sqlalchemy.ext.hybrid import hybrid_property
 from ..database import Base
+from .user import User  # ensure User is importable for expression
 
 class Product(Base):
     __tablename__ = "products"
@@ -44,8 +46,18 @@ class Product(Base):
         cascade="all, delete-orphan",
     )
 
+    # ─── Hybrid property for owner's email ─────────────────────────────────────
+    @hybrid_property
+    def owner_email(self):
+        return self.owner.email
+
+    @owner_email.expression
+    def owner_email(cls):
+        # produces: (SELECT users.email FROM users WHERE users.id = products.owner_id)
+        return select(User.email).where(User.id == cls.owner_id).scalar_subquery()
+
     def __repr__(self):
         return (
             f"<Product(id={self.id!r}, title={self.title!r}, "
-            f"price_per_kg={self.price_per_kg!r})>"
+            f"price_per_kg={self.price_per_kg!r}, owner_email={self.owner_email!r})>"
         )
