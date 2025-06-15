@@ -52,7 +52,7 @@ app = FastAPI(
 # ⏬ **Disable automatic trailing-slash redirects**  
 app.router.redirect_slashes = False
 
-# ── 10) GLOBAL CORS
+# ── 10) GLOBAL CORS (must come before including any routers)
 if ENV != "production":
     allow_origins = ["*"]
 else:

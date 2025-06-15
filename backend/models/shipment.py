@@ -5,6 +5,7 @@ from ..database import Base
 
 class Shipment(Base):
     __tablename__ = "shipments"
+    __table_args__ = { "extend_existing": True }
 
     id           = Column(Integer, primary_key=True, index=True)
     deal_id      = Column(Integer, ForeignKey("deals.id",    ondelete="CASCADE"), nullable=False, index=True)
