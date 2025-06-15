@@ -20,10 +20,16 @@ class Product(Base):
     created_at     = Column(DateTime, nullable=False, default=datetime.utcnow)
 
     # ─── Foreign key & relationship to User ────────────────────────────────────
-    owner_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    owner_id = Column(
+        Integer,
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True
+    )
     owner    = relationship(
         "User",
-        back_populates="products_owned",     # <-- matches User.products_owned
+        back_populates="products_owned",     # <-- make sure your User model has `products_owned`
+        passive_deletes=True
     )
 
     # ─── Relationships to Deal & Shipment ───────────────────────────────────────
