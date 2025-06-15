@@ -1,5 +1,3 @@
-# backend/models/product.py
-
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime, select
 from sqlalchemy.orm import relationship
@@ -49,12 +47,17 @@ class Product(Base):
     # ─── Hybrid property for owner's email ─────────────────────────────────────
     @hybrid_property
     def owner_email(self):
+        # return the related User.email when accessing on ORM instances
         return self.owner.email
 
     @owner_email.expression
     def owner_email(cls):
-        # produces: (SELECT users.email FROM users WHERE users.id = products.owner_id)
-        return select(User.email).where(User.id == cls.owner_id).scalar_subquery()
+        # produces a correlated subquery for filtering by email
+        return (
+            select(User.email)
+            .where(User.id == cls.owner_id)
+            .scalar_subquery()
+        )
 
     def __repr__(self):
         return (
