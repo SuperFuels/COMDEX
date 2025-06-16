@@ -1,5 +1,3 @@
-# File: backend/routes/supplier.py
-
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -16,6 +14,10 @@ router = APIRouter(
 @router.get(
     "/dashboard",
     summary="Supplier dashboard: metrics + products",
+)
+@router.get(
+    "/dashboard/",
+    include_in_schema=False,
 )
 def supplier_dashboard(
     current_user: User = Depends(get_current_user),
