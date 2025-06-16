@@ -1,4 +1,3 @@
-// pages/supplier/dashboard.tsx
 'use client'
 
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
@@ -43,13 +42,13 @@ export default function SupplierDashboard() {
   const [dividerX, setDividerX] = useState(0)
   const dragging = useRef(false)
 
-  // 1) Center divider at 50% BEFORE first paint
+  // Center divider on mount (before paint)
   useLayoutEffect(() => {
     const w = containerRef.current?.clientWidth ?? 0
     setDividerX(w / 2)
   }, [])
 
-  // 2) Drag handlers
+  // Drag handlers
   useEffect(() => {
     const onMove = (e: MouseEvent) => {
       if (!dragging.current || !containerRef.current) return
@@ -73,13 +72,10 @@ export default function SupplierDashboard() {
     dragging.current = true
   }
 
-  // 3) Fetch metrics (with credentials)
+  // Fetch metrics
   useEffect(() => {
     let active = true
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/supplier/dashboard`, {
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' }
-    })
+    fetch('/api/supplier/dashboard')
       .then(r => r.json())
       .then((data: SupplierMetrics) => active && setMetrics(data))
       .catch(err => active && setError(err.message))
@@ -87,7 +83,7 @@ export default function SupplierDashboard() {
     return () => { active = false }
   }, [])
 
-  // 4) Send terminal query (with error logging)
+  // Send terminal query
   const sendQuery = async () => {
     if (!queryText.trim()) return
     setWorking(true)
@@ -100,18 +96,12 @@ export default function SupplierDashboard() {
         `${process.env.NEXT_PUBLIC_API_URL}/terminal/query`,
         {
           method: 'POST',
-          credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
           body: JSON.stringify({ prompt: queryText.trim() })
         }
       )
-      if (!resp.ok) {
-        const text = await resp.text()
-        console.error('🚨 /terminal/query failed:', resp.status, text)
-        setAnalysis(`❌ Something went wrong (${resp.status})`)
-        return
-      }
-
+      if (!resp.ok) throw new Error(`Status ${resp.status}`)
       const json = (await resp.json()) as TerminalPayload
       setAnalysis(json.analysisText || '')
       if (Array.isArray(json.visualPayload.products)) {
@@ -119,8 +109,7 @@ export default function SupplierDashboard() {
       } else if (Array.isArray(json.visualPayload.chartData)) {
         setChartData(json.visualPayload.chartData)
       }
-    } catch (e) {
-      console.error(e)
+    } catch {
       setAnalysis('❌ Something went wrong.')
     } finally {
       setWorking(false)
@@ -146,14 +135,18 @@ export default function SupplierDashboard() {
     </div>
   )
 
-  // Compute right-pane width
+  // compute right pane width
   const totalW = containerRef.current?.clientWidth ?? 0
   const rightWidth = Math.max(0, totalW - dividerX)
 
   return (
     <div className="relative flex flex-col h-screen bg-gray-50">
+
       {/* Split Panes */}
-      <div ref={containerRef} className="relative flex-1 flex overflow-hidden min-h-0">
+      <div
+        ref={containerRef}
+        className="relative flex-1 flex overflow-hidden min-h-0"
+      >
         {/* Left Pane */}
         <div
           className="bg-white p-6 overflow-auto min-w-0"
@@ -169,12 +162,12 @@ export default function SupplierDashboard() {
           <p>Feedback: <span className="text-purple-600">{metrics.feedbackRating}</span></p>
           {analysisText && (
             <div className="mt-6 space-y-1">
-              {analysisText.split('\n').map((l,i)=><p key={i}>{l}</p>)}
+              {analysisText.split('\n').map((l,i)=> <p key={i}>{l}</p> )}
             </div>
           )}
         </div>
 
-        {/* Divider */}
+        {/* Draggable Divider */}
         <div
           onMouseDown={onDividerDown}
           className="absolute top-0 h-full w-1 bg-gray-300 cursor-col-resize z-20"
@@ -188,14 +181,20 @@ export default function SupplierDashboard() {
         >
           {searchResults ? (
             searchResults.map((item,i)=>(
-              <div key={i} className="bg-white border border-gray-200 rounded p-4 mb-4 shadow-sm">
+              <div
+                key={i}
+                className="bg-white border border-gray-200 rounded p-4 mb-4 shadow-sm"
+              >
                 <pre className="text-xs">
                   {JSON.stringify(item,null,2)}
                 </pre>
               </div>
             ))
           ) : chartData?.length ? (
-            <Chart data={chartData} height={(containerRef.current?.clientHeight ?? 0) - 64} />
+            <Chart
+              data={chartData}
+              height={(containerRef.current?.clientHeight ?? 0) - 64}
+            />
           ) : (
             <div className="h-full flex items-center justify-center text-gray-500">
               <p>Select a tab or ask a question to see visual output here.</p>

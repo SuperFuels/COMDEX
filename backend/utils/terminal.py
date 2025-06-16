@@ -1,3 +1,5 @@
+# utils/terminal.py
+
 import os
 from datetime import datetime, timedelta
 from typing import Dict, Any, List
@@ -32,31 +34,37 @@ def run_query(prompt: str, db: Session) -> Dict[str, Any]:
     )
     products_payload = [
         {
-            "id": p.id,
-            "title": p.title,
-            "description": p.description,
-            "price_per_kg": p.price_per_kg,
+            "id":             p.id,
+            "title":          p.title,
+            "description":    p.description,
+            "price_per_kg":   p.price_per_kg,
             "origin_country": p.origin_country,
-            "image_url": p.image_url,
+            "image_url":      p.image_url,
         }
         for p in prods
     ]
 
     # 2) Build price‐history chart (last 30 days)
     thirty_days_ago = datetime.utcnow() - timedelta(days=30)
+
+    # join Deal → Product so we can filter on Product.title instead of a missing Deal.product_title
     deals: List[Deal] = (
         db.query(Deal)
-          .filter(Deal.product_title.ilike(f"%{term}%"))
+          .join(Product, Deal.product_id == Product.id)
+          .filter(Product.title.ilike(f"%{term}%"))
           .filter(Deal.created_at >= thirty_days_ago)
           .order_by(Deal.created_at)
           .all()
     )
     chart_payload = [
-        {"time": int(d.created_at.timestamp()), "value": d.total_price / d.quantity_kg}
+        {
+            "time":  int(d.created_at.timestamp()),
+            "value": d.total_price / d.quantity_kg
+        }
         for d in deals
     ]
 
-    # 3) Compute active suppliers & volume
+    # 3) Compute active suppliers & volume (same join trick)
     suppliers_count = (
         db.query(Product.owner_id)
           .filter(Product.title.ilike(f"%{term}%"))
@@ -65,7 +73,8 @@ def run_query(prompt: str, db: Session) -> Dict[str, Any]:
     )
     volumes_sum = (
         db.query(func.sum(Deal.quantity_kg))
-          .filter(Deal.product_title.ilike(f"%{term}%"))
+          .join(Product, Deal.product_id == Product.id)
+          .filter(Product.title.ilike(f"%{term}%"))
           .filter(Deal.created_at >= thirty_days_ago)
           .scalar()
         or 0
@@ -95,8 +104,8 @@ def run_query(prompt: str, db: Session) -> Dict[str, Any]:
         resp = openai.ChatCompletion.create(
             model="gpt-4",
             messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user",   "content": user_prompt},
+                {"role": "system",  "content": system_prompt},
+                {"role": "user",    "content": user_prompt},
             ],
             temperature=0.7,
             max_tokens=300,
