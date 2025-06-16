@@ -142,3 +142,31 @@ a.logo-link {
 /* prettier-ignore-end */
 /* stylelint-enable */
 /* eslint-enable */
+
+/* ───────────────────────────────────────────────────────────────────────────
+   Split-pane + fixed footer tweaks
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* Make sure the main split container doesn’t scroll the whole page */
+.split-container {
+  display: flex;
+  height: 100%;
+}
+
+/* Each pane is white and scrolls internally */
+.split-container > .pane {
+  background: white;
+  overflow: auto;
+}
+
+/* The draggable divider */
+.splitter {
+  width: 4px;
+  background-color: var(--border-light);
+  cursor: col-resize;
+}
+
+/* Force the body to never scroll (all scrolling happens inside panes) */
+body {
+  overflow: hidden;
+}
