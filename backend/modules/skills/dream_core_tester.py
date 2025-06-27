@@ -1,7 +1,7 @@
 from backend.modules.hexcore.memory_engine import MemoryEngine
 from backend.modules.skills.milestone_tracker import MilestoneTracker
 from backend.modules.skills.strategy_planner import StrategyPlanner
-from openai import OpenAI
+import openai
 import os
 from dotenv import load_dotenv
 from pathlib import Path
@@ -17,8 +17,10 @@ if not api_key:
     print("❌ OPENAI_API_KEY not found in environment.")
     exit()
 
+# ✅ Initialize OpenAI client
+openai.api_key = api_key
+
 # ✅ Initialize services
-client = OpenAI(api_key=api_key)
 memory = MemoryEngine()
 tracker = MilestoneTracker()
 planner = StrategyPlanner()
@@ -47,7 +49,7 @@ Respond in a thoughtful, poetic, or insightful tone as if AION is dreaming."""
 
 # ✅ Generate dream
 try:
-    response = client.chat.completions.create(
+    response = openai.ChatCompletion.create(
         model="gpt-4",
         messages=[
             {"role": "system", "content": "You are AION, dreaming to evolve your understanding and intelligence based on stored memories."},

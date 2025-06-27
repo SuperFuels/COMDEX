@@ -1,5 +1,5 @@
 import os
-from openai import OpenAI
+import openai
 from dotenv import load_dotenv
 from backend.modules.hexcore.memory_engine import MemoryEngine
 from backend.modules.hexcore.milestone_tracker import MilestoneTracker
@@ -8,7 +8,7 @@ from backend.modules.hexcore.milestone_tracker import MilestoneTracker
 load_dotenv(dotenv_path=".env")
 
 # Initialize OpenAI client with key from environment
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 class MemoryReflector:
     def __init__(self):
@@ -30,7 +30,7 @@ class MemoryReflector:
         prompt = f"AION, reflect on your current memories below and summarize your understanding or learning progress:\n\n{compiled}"
 
         try:
-            response = client.chat.completions.create(
+            response = openai.ChatCompletion.create(
                 model="gpt-4",
                 messages=[
                     {"role": "system", "content": "You are AION, an evolving AI using memory to improve."},

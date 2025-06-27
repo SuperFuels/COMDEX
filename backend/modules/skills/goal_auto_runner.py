@@ -1,16 +1,18 @@
 import os
-from openai import OpenAI
-from dotenv import load_dotenv
 from pathlib import Path
+from dotenv import load_dotenv
+import openai
 
 from backend.modules.skills.goal_engine import GoalEngine
 from backend.modules.skills.boot_loader import load_boot_goals
 from backend.modules.hexcore.ai_wallet import AIWallet
 
+# Load environment variables from .env.local if present
 env_path = Path(__file__).resolve().parents[3] / ".env.local"
 load_dotenv(dotenv_path=env_path)
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+# Set OpenAI API key for old SDK style
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 load_boot_goals()
 
@@ -32,7 +34,7 @@ class AutoGoalRunner:
         prompt = f"Complete this task for AION:\n{goal['description']}\n\nRespond concisely and clearly."
 
         try:
-            response = client.chat.completions.create(
+            response = openai.ChatCompletion.create(
                 model="gpt-4",
                 messages=[
                     {"role": "system", "content": "You are AION, an AI learning to complete tasks to unlock skills and tokens."},

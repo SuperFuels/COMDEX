@@ -1,19 +1,19 @@
 import os
-from openai import OpenAI
+import openai
 from dotenv import load_dotenv
 from backend.modules.hexcore.memory_engine import MemoryEngine
 
 load_dotenv()
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 class NLPParser:
     def __init__(self):
         self.memory = MemoryEngine()
 
     def parse_and_store(self, sentence):
-        prompt = f"Extract entities and intent from: '{sentence}'\\nFormat as JSON with 'entities' and 'intent' keys."
+        prompt = f"Extract entities and intent from: '{sentence}'\nFormat as JSON with 'entities' and 'intent' keys."
 
-        response = client.chat.completions.create(
+        response = openai.ChatCompletion.create(
             model="gpt-4",
             messages=[
                 {"role": "system", "content": "You extract structured data from natural language."},
@@ -22,7 +22,7 @@ class NLPParser:
         )
 
         result = response.choices[0].message.content.strip()
-        print("\\n🔍 Parsed NLP Output:\\n", result)
+        print("\n🔍 Parsed NLP Output:\n", result)
 
         self.memory.store({
             "label": "nlp_extraction",

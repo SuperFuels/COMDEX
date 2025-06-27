@@ -1,5 +1,3 @@
-// frontend/components/AIONTerminal.tsx
-
 import { useState } from "react";
 
 export default function AIONTerminal() {
@@ -13,7 +11,7 @@ export default function AIONTerminal() {
     setResponse("");
 
     try {
-      const res = await fetch("/api/aion", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/aion`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -22,9 +20,14 @@ export default function AIONTerminal() {
       });
 
       const data = await res.json();
-      setResponse(data.reply);
+
+      if (!res.ok) {
+        setResponse(`❌ AION error: ${data.detail || "Unknown error"}`);
+      } else {
+        setResponse(data.reply);
+      }
     } catch (err) {
-      setResponse("❌ Error talking to AION.");
+      setResponse("❌ AION error: Backend unreachable.");
     } finally {
       setLoading(false);
     }

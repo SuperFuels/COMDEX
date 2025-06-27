@@ -32,7 +32,6 @@ TRIGGER_PATTERNS = {
     "nova_connection": ["frontend", "interface", "nova"]
 }
 
-
 class MilestoneTracker:
     def __init__(self):
         if MILESTONE_FILE.exists():

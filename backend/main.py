@@ -1,3 +1,5 @@
+# backend/main.py
+
 import os
 import time
 import logging
@@ -83,7 +85,7 @@ from .routes.buyer     import router as buyer_router
 from .routes.supplier  import router as supplier_router
 from .routes.aion      import router as aion_router  # ✅ NEW AION route
 
-# ── 12) Mount under /api
+# ── 12) Mount all routers under /api with correct prefixes
 api = APIRouter(prefix="/api")
 api.include_router(auth_router)
 api.include_router(products_router)
@@ -94,7 +96,7 @@ api.include_router(user_router)
 api.include_router(terminal_router)
 api.include_router(buyer_router)
 api.include_router(supplier_router)
-api.include_router(aion_router)  # ✅ Mount AION endpoint
+api.include_router(aion_router, prefix="/aion")  # ✅ Mount AION router under /api/aion
 app.include_router(api)
 
 # ── 13) Serve uploaded images
@@ -138,8 +140,15 @@ if __name__ == "__main__":
     uvicorn.run(
         "backend.main:app",
         host="0.0.0.0",
-        port=int(os.environ.get("PORT", 8000)),
+        port=int(os.environ.get("PORT", 8080)),  # <-- Listen on PORT env var or 8080
         reload=(ENV != "production"),
         forwarded_allow_ips="*",
         redirect_slashes=False,
     )
+
+# ── 18) 💤 Start AION dream scheduler
+try:
+    from backend.tasks.scheduler import start_scheduler
+    start_scheduler()
+except Exception as e:
+    logger.warning(f"⚠️ Dream scheduler could not start: {e}")

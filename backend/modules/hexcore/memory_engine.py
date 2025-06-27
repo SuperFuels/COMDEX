@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+from datetime import datetime  # ⬅️ Required for timestamp
 
 MEMORY_FILE = Path(__file__).parent / "aion_memory.json"
 
@@ -58,10 +59,18 @@ class MemoryEngine:
             tags = self.detect_tags(content)
             if tags:
                 memory_obj["milestone_tags"] = tags
+            memory_obj["timestamp"] = datetime.now().isoformat()  # Add timestamp
             self.memory.append(memory_obj)
             self.save_memory()
+            print(f"✅ Memory stored: {memory_obj['label']}")
         else:
             raise ValueError("Memory object must include 'label' and 'content' keys.")
+
+    def save(self, label: str, content: str):
+        """
+        Alias for store() – save memory by label and content directly.
+        """
+        self.store({"label": label, "content": content})
 
     def get_all(self):
         """Return all stored memories."""

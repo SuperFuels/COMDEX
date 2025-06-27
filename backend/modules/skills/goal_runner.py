@@ -1,5 +1,5 @@
 import os
-from openai import OpenAI
+import openai
 from dotenv import load_dotenv
 from pathlib import Path
 
@@ -13,7 +13,7 @@ env_path = Path(__file__).resolve().parents[3] / ".env.local"
 load_dotenv(dotenv_path=env_path)
 
 # ✅ Initialize OpenAI client
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # ✅ Load boot goals if none exist
 load_boot_goals()
@@ -33,7 +33,7 @@ class GoalRunner:
         prompt = f"Complete this task for AION:\n{goal['description']}\n\nRespond concisely and clearly."
 
         try:
-            response = client.chat.completions.create(
+            response = openai.ChatCompletion.create(
                 model="gpt-4",
                 messages=[
                     {"role": "system", "content": "You are AION, an AI learning to complete tasks to unlock skills and tokens."},
