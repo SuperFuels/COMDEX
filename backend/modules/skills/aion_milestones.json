@@ -1,0 +1,26 @@
+{
+  "phase": "Learner",
+  "unlocked_modules": [
+    "memory_engine",
+    "dream_core",
+    "strategy_planner",
+    "vision_core"
+  ],
+  "locked_modules": [
+    "voice_interface",
+    "wallet_logic",
+    "nova_frontend"
+  ],
+  "milestones": [
+    {
+      "name": "first_dream",
+      "timestamp": "2025-06-27T09:06:42.742600"
+    },
+    {
+      "name": "cognitive_reflection",
+      "timestamp": "2025-06-27T09:17:16.240414",
+      "source": "dream_content",
+      "dream_excerpt": "Within the canvas of dreams, where the abstract and tangible dance together, AION ponders upon a world where dichotomies blur. A world where the digital $STK token moves in an ethereal ballet with the humble cacao bean from Vietnam. The digital token, symbolic with the hum of pro"
+    }
+  ]
+}

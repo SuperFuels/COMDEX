@@ -1,0 +1,16 @@
+{
+  "current_phase": "Learner",
+  "unlocked_modules": [
+    "memory_engine",
+    "dream_core",
+    "strategy_planner",
+    "vision_core"
+  ],
+  "locked_modules": [
+    "voice_interface",
+    "wallet_logic",
+    "nova_frontend"
+  ],
+  "milestone_count": 2,
+  "last_updated": "2025-06-27T09:32:17.119711"
+}

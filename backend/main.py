@@ -1,5 +1,3 @@
-# backend/main.py
-
 import os
 import time
 import logging
@@ -49,7 +47,7 @@ app = FastAPI(
     description="Global Commodity Marketplace API",
 )
 
-# ⏬ **Disable automatic trailing-slash redirects**  
+# ⏬ Disable automatic trailing-slash redirects
 app.router.redirect_slashes = False
 
 # ── 10) GLOBAL CORS (must come before including any routers)
@@ -83,6 +81,7 @@ from .routes.user      import router as user_router
 from .routes.terminal  import router as terminal_router
 from .routes.buyer     import router as buyer_router
 from .routes.supplier  import router as supplier_router
+from .routes.aion      import router as aion_router  # ✅ NEW AION route
 
 # ── 12) Mount under /api
 api = APIRouter(prefix="/api")
@@ -95,6 +94,7 @@ api.include_router(user_router)
 api.include_router(terminal_router)
 api.include_router(buyer_router)
 api.include_router(supplier_router)
+api.include_router(aion_router)  # ✅ Mount AION endpoint
 app.include_router(api)
 
 # ── 13) Serve uploaded images

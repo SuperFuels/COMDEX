@@ -11,13 +11,12 @@ import Sidebar from './Sidebar'
 
 export default function Navbar() {
   const router = useRouter()
-  const [account, setAccount]           = useState<string | null>(null)
-  const [role, setRole]                 = useState<UserRole | null>(null)
+  const [account, setAccount] = useState<string | null>(null)
+  const [role, setRole] = useState<UserRole | null>(null)
   const [dropdownOpen, setDropdownOpen] = useState(false)
-  const [sidebarOpen, setSidebarOpen]   = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   const wrapperRef = useRef<HTMLDivElement>(null)
 
-  // 1) Handle “Connect Wallet”
   const handleConnect = useCallback(async () => {
     localStorage.removeItem('manualDisconnect')
     try {
@@ -32,7 +31,6 @@ export default function Navbar() {
     }
   }, [router])
 
-  // 2) Handle “Disconnect / Logout”
   const handleDisconnect = useCallback(() => {
     localStorage.setItem('manualDisconnect', 'true')
     logout()
@@ -42,7 +40,6 @@ export default function Navbar() {
     router.push('/')
   }, [router])
 
-  // 3) On‐mount: hydrate JWT and/or wallet
   useEffect(() => {
     const token = localStorage.getItem('token')
     if (token) {
@@ -84,7 +81,6 @@ export default function Navbar() {
     }
   }, [handleDisconnect])
 
-  // 4) Close account dropdown on outside click
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (
@@ -101,18 +97,15 @@ export default function Navbar() {
     }
   }, [dropdownOpen])
 
-  // Shorten the address for display (e.g. 0x1234…abcd)
   const shortAddr = account
     ? `${account.slice(0, 6)}…${account.slice(-4)}`
     : ''
 
-  // Inline swap amounts
-  const [amountIn, setAmountIn]   = useState('')
+  const [amountIn, setAmountIn] = useState('')
   const [amountOut, setAmountOut] = useState('')
 
   return (
     <>
-      {/* ─── Slide‐in Sidebar (controlled by the “G” button) ──────────────── */}
       <Sidebar
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
@@ -121,11 +114,10 @@ export default function Navbar() {
         onLogout={handleDisconnect}
       />
 
-      {/* ─── “G” Toggle (far left, vertically centered within h-16 Navbar) ─── */}
       <button
         onClick={() => setSidebarOpen(true)}
         className="
-          fixed top-4 left-4            /* 1rem from top of page (centers inside 4rem-high navbar) */
+          fixed top-4 left-4
           p-2
           border border-gray-300 dark:border-gray-700
           rounded-lg
@@ -137,11 +129,9 @@ export default function Navbar() {
         <Image src="/G.svg" alt="Menu" width={24} height={24} />
       </button>
 
-      {/* ─── Top Bar / Navbar ─────────────────────────────────────────────────── */}
       <header className="sticky top-0 z-40 bg-background-header dark:bg-background-dark border-b border-border-light dark:border-gray-700 h-16">
         <div className="flex items-center justify-between h-full px-4">
-          {/* ── (1) Left: Stickey.ai Logo ────────────────────────────────────────────── */}
-          <div className="flex items-center ml-12"> {/* ml-12 ≈48px from the “G” button */}
+          <div className="flex items-center ml-12">
             <Link href="/" className="logo-link flex items-center">
               <Image
                 src="/Stickeyai.svg"
@@ -154,141 +144,68 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* ── (2) Center: Swap Widget Only ────────────────────────────────────────── */}
           <div className="flex-1 flex justify-center">
             <div className="flex items-center space-x-2">
-              {/* Amount In */}
               <input
                 type="number"
                 value={amountIn}
                 onChange={e => setAmountIn(e.target.value)}
                 placeholder="0"
-                className="
-                  w-24 sm:w-28
-                  py-1 px-2
-                  border border-gray-300 dark:border-gray-600
-                  rounded-lg
-                  text-center text-sm
-                  bg-white dark:bg-gray-800
-                  focus:outline-none focus:ring-2 focus:ring-blue-500
-                "
+                className="w-24 sm:w-28 py-1 px-2 border border-gray-300 dark:border-gray-600 rounded-lg text-center text-sm bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
-
-              {/* From‐token Picker (USDT) */}
               <button
                 type="button"
-                className="
-                  flex items-center
-                  border border-gray-300 dark:border-gray-600
-                  rounded-lg
-                  py-1 px-2
-                  bg-white dark:bg-gray-800
-                  text-sm text-text
-                  hover:bg-gray-50 dark:hover:bg-gray-700
-                  focus:outline-none
-                "
-                onClick={() => { /* open “from” token picker */ }}
+                className="flex items-center border border-gray-300 dark:border-gray-600 rounded-lg py-1 px-2 bg-white dark:bg-gray-800 text-sm text-text hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none"
               >
                 <Image src="/tokens/usdt.svg" alt="USDT" width={16} height={16} />
                 <span className="ml-1">USDT</span>
               </button>
-
-              {/* Arrow */}
               <span className="text-lg text-gray-400 select-none">→</span>
-
-              {/* Amount Out */}
               <input
                 type="number"
                 value={amountOut}
                 onChange={e => setAmountOut(e.target.value)}
                 placeholder="0"
-                className="
-                  w-24 sm:w-28
-                  py-1 px-2
-                  border border-gray-300 dark:border-gray-600
-                  rounded-lg
-                  text-center text-sm
-                  bg-white dark:bg-gray-800
-                  focus:outline-none focus:ring-2 focus:ring-blue-500
-                "
+                className="w-24 sm:w-28 py-1 px-2 border border-gray-300 dark:border-gray-600 rounded-lg text-center text-sm bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
-
-              {/* To‐token Picker (GLU) */}
               <button
                 type="button"
-                className="
-                  flex items-center
-                  border border-gray-300 dark:border-gray-600
-                  rounded-lg
-                  py-1 px-2
-                  bg-white dark:bg-gray-800
-                  text-sm text-text
-                  hover:bg-gray-50 dark:hover:bg-gray-700
-                  focus:outline-none
-                "
-                onClick={() => { /* open “to” token picker */ }}
+                className="flex items-center border border-gray-300 dark:border-gray-600 rounded-lg py-1 px-2 bg-white dark:bg-gray-800 text-sm text-text hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none"
               >
                 <Image src="/tokens/glu.svg" alt="GLU" width={16} height={16} />
                 <span className="ml-1">$GLU</span>
               </button>
-
-              {/* Swap Button */}
               <button
                 onClick={() => router.push('/swap')}
-                className="
-                  py-1 px-3
-                  border border-black
-                  rounded-lg
-                  bg-transparent
-                  text-black dark:text-white
-                  text-sm
-                  hover:bg-gray-100 dark:hover:bg-gray-700
-                  focus:outline-none
-                  transition
-                "
+                className="py-1 px-3 border border-black rounded-lg bg-transparent text-black dark:text-white text-sm hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none transition"
               >
                 Swap
               </button>
             </div>
           </div>
 
-          {/* ── (3) Right: Live Indicator + Wallet ────────────────────────────────────── */}
           <div className="flex items-center space-x-3">
-            {/* “Live” Indicator */}
             <button
               onClick={() => router.push('/products')}
-              className="
-                flex items-center space-x-1
-                py-1 px-3
-                border border-black
-                rounded-lg
-                bg-transparent
-                text-black dark:text-white
-                text-sm
-                hover:bg-gray-100 dark:hover:bg-gray-700
-                focus:outline-none
-                transition
-              "
+              className="flex items-center space-x-1 py-1 px-3 border border-black rounded-lg bg-transparent text-black dark:text-white text-sm hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none transition"
             >
               <span className="inline-block w-2 h-2 bg-green-500 rounded-full" />
               <span className="font-medium text-sm">Live</span>
             </button>
 
-            {/* Wallet / Connect Wallet */}
+            {/* ✅ AION Button - Updated */}
+            <button
+              onClick={() => router.push('/aion/dashboard')}
+              className="flex items-center space-x-1 py-1 px-3 border border-blue-500 text-blue-600 rounded-lg bg-white dark:bg-gray-900 text-sm hover:bg-blue-50 dark:hover:bg-gray-700 focus:outline-none transition"
+            >
+              <Image src="/aion-icon.svg" alt="AION" width={16} height={16} />
+              <span className="font-medium">AION</span>
+            </button>
+
             {!account ? (
               <button
                 onClick={handleConnect}
-                className="
-                  py-1 px-3
-                  border border-black
-                  rounded-lg
-                  bg-transparent
-                  text-black dark:text-white
-                  text-sm
-                  hover:bg-gray-100 dark:hover:bg-gray-700
-                  focus:outline-none
-                  transition
-                "
+                className="py-1 px-3 border border-black rounded-lg bg-transparent text-black dark:text-white text-sm hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none transition"
               >
                 Connect Wallet
               </button>
@@ -296,37 +213,15 @@ export default function Navbar() {
               <div ref={wrapperRef} className="relative">
                 <button
                   onClick={() => setDropdownOpen(o => !o)}
-                  className="
-                    py-1 px-3
-                    border border-black
-                    rounded-lg
-                    bg-transparent
-                    text-black dark:text-white
-                    text-sm
-                    hover:bg-gray-100 dark:hover:bg-gray-700
-                    focus:outline-none
-                    transition
-                  "
+                  className="py-1 px-3 border border-black rounded-lg bg-transparent text-black dark:text-white text-sm hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none transition"
                 >
                   {shortAddr}
                 </button>
                 {dropdownOpen && (
-                  <div className="
-                    absolute right-0 mt-2 w-40
-                    bg-white dark:bg-gray-800
-                    border border-border-light dark:border-gray-700
-                    rounded-lg shadow-lg z-50
-                  ">
+                  <div className="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 border border-border-light dark:border-gray-700 rounded-lg shadow-lg z-50">
                     <button
                       onClick={handleDisconnect}
-                      className="
-                        w-full text-left px-4 py-2
-                        text-text-primary dark:text-text-secondary
-                        text-sm
-                        hover:bg-gray-100 dark:hover:bg-gray-700
-                        focus:outline-none
-                        transition
-                      "
+                      className="w-full text-left px-4 py-2 text-text-primary dark:text-text-secondary text-sm hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none transition"
                     >
                       Logout
                     </button>

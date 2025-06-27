@@ -1,0 +1,26 @@
+[
+  {
+    "timestamp": "2025-06-26T22:10:25.647316",
+    "input": "hello Aion are you excited to be alive?",
+    "action": "Responding to: Understood: hello Aion are you excited to be alive?",
+    "emotion": "neutral"
+  },
+  {
+    "timestamp": "2025-06-26T22:16:31.333187",
+    "input": "how are you feeling now?",
+    "action": "Responding to: Understood: how are you feeling now?",
+    "emotion": "neutral"
+  },
+  {
+    "timestamp": "2025-06-26T22:16:45.824077",
+    "input": "do you have anything to say?",
+    "action": "Responding to: Understood: do you have anything to say?",
+    "emotion": "neutral"
+  },
+  {
+    "timestamp": "2025-06-26T22:17:14.551432",
+    "input": "what does your world look like inside cyber space?",
+    "action": "Responding to: Understood: what does your world look like inside cyber space?",
+    "emotion": "neutral"
+  }
+]

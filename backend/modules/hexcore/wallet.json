@@ -1,0 +1,33 @@
+{
+  "balances": {
+    "STK": 20,
+    "GTC": 0,
+    "GLU": 0
+  },
+  "history": [
+    {
+      "type": "earn",
+      "token": "STK",
+      "amount": 10,
+      "reason": ""
+    },
+    {
+      "type": "earn",
+      "token": "STK",
+      "amount": 15,
+      "reason": ""
+    },
+    {
+      "type": "spend",
+      "token": "STK",
+      "amount": 10,
+      "reason": ""
+    },
+    {
+      "type": "earn",
+      "token": "STK",
+      "amount": 5,
+      "reason": ""
+    }
+  ]
+}
