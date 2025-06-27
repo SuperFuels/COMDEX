@@ -20,7 +20,7 @@ class NLPTester:
             "'Find me a supplier in Vietnam for 5 tonnes of organic cacao beans.'"
         )
         try:
-            response = openai.ChatCompletion.create(
+            response = openai.chat.completions.create(
                 model="gpt-4",
                 messages=[
                     {"role": "system", "content": "You are an AI specialized in language parsing and understanding."},

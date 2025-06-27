@@ -13,7 +13,7 @@ class NLPParser:
     def parse_and_store(self, sentence):
         prompt = f"Extract entities and intent from: '{sentence}'\nFormat as JSON with 'entities' and 'intent' keys."
 
-        response = openai.ChatCompletion.create(
+        response = openai.chat.completions.create(
             model="gpt-4",
             messages=[
                 {"role": "system", "content": "You extract structured data from natural language."},

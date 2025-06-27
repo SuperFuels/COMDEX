@@ -6,14 +6,14 @@ import openai
 from backend.modules.hexcore.memory_engine import MemoryEngine
 from backend.modules.skills.milestone_tracker import MilestoneTracker
 
-# 🔐 Load environment variables
+# 🔐 Load environment variables from project root .env.local
 env_path = Path(__file__).resolve().parents[3] / ".env.local"
 load_dotenv(dotenv_path=env_path)
 
-# Set OpenAI API key for old SDK style
+# Set OpenAI API key for SDK
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-# 🚀 Initialize engines
+# 🚀 Initialize core engines
 memory = MemoryEngine()
 tracker = MilestoneTracker()
 
@@ -23,7 +23,7 @@ if not memories:
     print("🧠 No memories found.")
     exit()
 
-# 🧠 Format memories for dreaming
+# 🧠 Prepare memory summary for dreaming prompt
 summary = "\n".join([f"{m['label']}: {m['content']}" for m in memories if 'label' in m and 'content' in m])
 prompt = (
     "AION is reflecting during a dream cycle. Based on the following stored memories, "
@@ -32,14 +32,16 @@ prompt = (
     "Respond in a thoughtful and creative style."
 )
 
-# 🌙 Generate the dream
+# 🌙 Generate the dream using OpenAI ChatCompletion
 try:
-    response = openai.ChatCompletion.create(
-        model="gpt-4",
+    response = openai.chat.completions.create(
+        model="gpt-4o-mini",
         messages=[
             {"role": "system", "content": "You are AION, dreaming to evolve your understanding and intelligence based on stored memories."},
             {"role": "user", "content": prompt}
-        ]
+        ],
+        temperature=0.7,
+        max_tokens=600
     )
     dream = response.choices[0].message.content.strip()
 
@@ -48,10 +50,10 @@ try:
     # 💾 Save the dream to memory
     memory.save(label="dream_reflection", content=dream)
 
-    # 🧠 Check for milestone triggers
+    # 🧠 Detect milestone triggers from dream text
     tracker.detect_milestones_from_dream(dream)
 
-    # 📊 Save updated summary
+    # 📊 Export updated milestone summary
     tracker.export_summary()
 
 except Exception as e:

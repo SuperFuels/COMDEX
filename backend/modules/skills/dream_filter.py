@@ -1,26 +1,39 @@
-from backend.modules.hexcore.memory_engine import MemoryEngine
+import json
+from typing import List, Dict, Any
 
-def filter_dreams_by_keyword(keyword: str):
-    memory = MemoryEngine()
-    dreams = [m for m in memory.get_all() if m.get("label", "").startswith("dream_reflection")]
+class DreamFilter:
+    def __init__(self, dreams: List[Dict[str, Any]]):
+        self.dreams = dreams
 
-    if not dreams:
-        print("🧠 No dream reflections found.")
-        return
+    def filter_by_phase(self, phase: str) -> List[Dict[str, Any]]:
+        """Return dreams that match the given AION phase."""
+        return [dream for dream in self.dreams if dream.get("phase") == phase]
 
-    matches = []
-    for entry in dreams:
-        content = entry.get("content", "")
-        if keyword.lower() in content.lower():
-            matches.append(content)
+    def filter_by_keywords(self, keywords: List[str]) -> List[Dict[str, Any]]:
+        """Return dreams that contain any of the keywords in content or tags."""
+        result = []
+        for dream in self.dreams:
+            content = dream.get("content", "").lower()
+            tags = dream.get("tags", [])
+            if any(kw.lower() in content for kw in keywords) or any(kw.lower() in [t.lower() for t in tags] for kw in keywords):
+                result.append(dream)
+        return result
 
-    if matches:
-        print(f"\n🔎 Found {len(matches)} matching dream(s) for '{keyword}':\n")
-        for i, m in enumerate(matches, 1):
-            print(f"\n🌙 Match #{i}:\n{m}\n" + "-" * 60)
-    else:
-        print(f"❌ No dreams matched the keyword '{keyword}'.")
+    def export_as_json(self, filepath: str, dreams: List[Dict[str, Any]] = None):
+        """Export dreams to a JSON file. Exports all if dreams not specified."""
+        export_data = dreams if dreams is not None else self.dreams
+        with open(filepath, "w") as f:
+            json.dump(export_data, f, indent=2)
 
 if __name__ == "__main__":
-    keyword = input("🔍 Enter a keyword to search dream reflections: ")
-    filter_dreams_by_keyword(keyword.strip())
+    # Example usage
+    sample_dreams = [
+        {"phase": "Infant", "content": "Learning to respond", "tags": ["learning", "response"]},
+        {"phase": "Child", "content": "Building memory graph", "tags": ["memory", "graph"]},
+        {"phase": "Learner", "content": "Expanding knowledge", "tags": ["knowledge", "growth"]},
+    ]
+
+    df = DreamFilter(sample_dreams)
+    infant_dreams = df.filter_by_phase("Infant")
+    print(f"Filtered Infant Dreams: {infant_dreams}")
+    df.export_as_json("exported_dreams.json", infant_dreams)

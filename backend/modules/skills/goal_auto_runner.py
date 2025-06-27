@@ -11,7 +11,7 @@ from backend.modules.hexcore.ai_wallet import AIWallet
 env_path = Path(__file__).resolve().parents[3] / ".env.local"
 load_dotenv(dotenv_path=env_path)
 
-# Set OpenAI API key for old SDK style
+# Set OpenAI API key for new SDK style
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 load_boot_goals()
@@ -34,7 +34,7 @@ class AutoGoalRunner:
         prompt = f"Complete this task for AION:\n{goal['description']}\n\nRespond concisely and clearly."
 
         try:
-            response = openai.ChatCompletion.create(
+            response = openai.chat.completions.create(
                 model="gpt-4",
                 messages=[
                     {"role": "system", "content": "You are AION, an AI learning to complete tasks to unlock skills and tokens."},

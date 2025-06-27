@@ -30,7 +30,7 @@ class MemoryReflector:
         prompt = f"AION, reflect on your current memories below and summarize your understanding or learning progress:\n\n{compiled}"
 
         try:
-            response = openai.ChatCompletion.create(
+            response = openai.chat.completions.create(
                 model="gpt-4",
                 messages=[
                     {"role": "system", "content": "You are AION, an evolving AI using memory to improve."},

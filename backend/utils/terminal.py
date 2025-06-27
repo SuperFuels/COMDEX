@@ -101,7 +101,7 @@ def run_query(prompt: str, db: Session) -> Dict[str, Any]:
     )
 
     try:
-        resp = openai.ChatCompletion.create(
+        resp = openai.chat.completions.create(
             model="gpt-4",
             messages=[
                 {"role": "system",  "content": system_prompt},

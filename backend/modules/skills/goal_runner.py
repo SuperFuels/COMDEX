@@ -33,7 +33,7 @@ class GoalRunner:
         prompt = f"Complete this task for AION:\n{goal['description']}\n\nRespond concisely and clearly."
 
         try:
-            response = openai.ChatCompletion.create(
+            response = openai.chat.completions.create(
                 model="gpt-4",
                 messages=[
                     {"role": "system", "content": "You are AION, an AI learning to complete tasks to unlock skills and tokens."},

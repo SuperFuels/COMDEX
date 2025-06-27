@@ -63,7 +63,7 @@ def generate_contract(
     openai.api_key = openai_key
 
     try:
-        resp = openai.ChatCompletion.create(
+        resp = openai.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
                 {"role": "system", "content": "You are a legal contract drafting assistant."},

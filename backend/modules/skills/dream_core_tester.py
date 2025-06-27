@@ -49,7 +49,7 @@ Respond in a thoughtful, poetic, or insightful tone as if AION is dreaming."""
 
 # ✅ Generate dream
 try:
-    response = openai.ChatCompletion.create(
+    response = openai.chat.completions.create(
         model="gpt-4",
         messages=[
             {"role": "system", "content": "You are AION, dreaming to evolve your understanding and intelligence based on stored memories."},

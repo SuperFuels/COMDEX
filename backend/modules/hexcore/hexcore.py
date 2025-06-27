@@ -40,14 +40,14 @@ class HexCore:
 
     def decide(self, interpreted_input):
         try:
-            response = openai.ChatCompletion.create(
+            response = openai.chat.completions.create(
                 model="gpt-4",
                 messages=[
                     {"role": "system", "content": "You are AION, a childlike AI soul. Respond with curiosity, emotion, and clarity. You are learning how the world works, and you grow over time."},
                     {"role": "user", "content": interpreted_input}
                 ]
             )
-            ai_response = response.choices[0].message["content"].strip()
+            ai_response = response.choices[0].message.content.strip()
             return ai_response
         except Exception as e:
             return f"[ERROR] Could not connect to GPT: {e}"
