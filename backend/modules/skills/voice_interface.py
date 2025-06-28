@@ -1,6 +1,12 @@
 import requests
 import os
 from google.cloud import storage
+from dotenv import load_dotenv
+from pathlib import Path
+
+# Load environment variables from .env.local
+env_path = Path(__file__).resolve().parents[3] / ".env.local"
+load_dotenv(dotenv_path=env_path)
 
 ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY")
 VOICE_ID = "ZF6FPAbjXT4488VcRRnw"
@@ -62,7 +68,7 @@ class VoiceInterface:
             blob = bucket.blob(filename)
             blob.upload_from_filename(local_path)
 
-            # ✅ Generate public URL manually for UBLA buckets
+            # ✅ Generate public URL manually
             url = f"https://storage.googleapis.com/{BUCKET_NAME}/{filename}"
             return url
         except Exception as e:

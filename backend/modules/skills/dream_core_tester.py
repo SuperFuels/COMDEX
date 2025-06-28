@@ -16,31 +16,31 @@ api_key = os.getenv("OPENAI_API_KEY")
 if not api_key:
     print("❌ OPENAI_API_KEY not found in environment.")
     exit()
-
-# ✅ Initialize OpenAI client
 openai.api_key = api_key
 
-# ✅ Initialize services
+# ✅ Initialize core services
 memory = MemoryEngine()
 tracker = MilestoneTracker()
 planner = StrategyPlanner()
 memories = memory.get_all()
 
-# ✅ Ensure memories exist
+# ✅ Validate memory
 if not memories:
     print("🧠 No memories found.")
     exit()
 
-# ✅ Format memory summary
+# ✅ Format and trim memory (token-safe)
 formatted = []
-for item in memories:
+MAX_MEMORIES = 20  # limit to latest 20 for token safety
+for item in memories[-MAX_MEMORIES:]:
     label = item.get("label", "unknown")
     content = item.get("content", str(item))
-    formatted.append(f"{label}: {content}")
+    snippet = content[:500]  # prevent long memories from causing overuse
+    formatted.append(f"{label}: {snippet}")
 
 summary = "\n".join(formatted)
 
-# ✅ Dream prompt
+# ✅ Build prompt
 prompt = f"""AION is reflecting during a dream cycle. Based on the following stored memories, generate a dream-like insight, hypothesis, or philosophical reflection:
 
 {summary}
@@ -49,12 +49,14 @@ Respond in a thoughtful, poetic, or insightful tone as if AION is dreaming."""
 
 # ✅ Generate dream
 try:
-    response = openai.chat.completions.create(
+    response = openai.ChatCompletion.create(
         model="gpt-4",
         messages=[
             {"role": "system", "content": "You are AION, dreaming to evolve your understanding and intelligence based on stored memories."},
             {"role": "user", "content": prompt}
-        ]
+        ],
+        temperature=0.7,
+        max_tokens=800
     )
     dream = response.choices[0].message.content.strip()
     print(f"\n💭 AION Dream:\n{dream}\n")
@@ -64,7 +66,8 @@ try:
 
     # ✅ Detect milestone tags
     detected_tags = []
-    for tag, keywords in tracker.TRIGGER_PATTERNS.items():
+    trigger_patterns = getattr(tracker, "trigger_patterns", getattr(tracker, "TRIGGER_PATTERNS", {}))
+    for tag, keywords in trigger_patterns.items():
         if any(kw.lower() in dream.lower() for kw in keywords):
             detected_tags.append(tag)
 
@@ -76,11 +79,9 @@ try:
     })
     print("🧠 Dream stored in MemoryEngine.\n")
 
-    # ✅ Process milestone detection
+    # ✅ Process milestone and strategy logic
     tracker.detect_milestones_from_dream(dream)
     tracker.export_summary()
-
-    # ✅ Trigger new strategies
     planner.generate()
 
 except Exception as e:

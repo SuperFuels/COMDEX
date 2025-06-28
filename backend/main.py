@@ -74,16 +74,18 @@ app.add_middleware(
 )
 
 # ── 11) Import routers
-from .routes.auth      import router as auth_router
-from .routes.products  import router as products_router
-from .routes.deal      import router as deal_router
-from .routes.contracts import router as contracts_router
-from .routes.admin     import router as admin_router
-from .routes.user      import router as user_router
-from .routes.terminal  import router as terminal_router
-from .routes.buyer     import router as buyer_router
-from .routes.supplier  import router as supplier_router
-from .routes.aion      import router as aion_router  # ✅ NEW AION route
+from .routes.auth         import router as auth_router
+from .routes.products     import router as products_router
+from .routes.deal         import router as deal_router
+from .routes.contracts    import router as contracts_router
+from .routes.admin        import router as admin_router
+from .routes.user         import router as user_router
+from .routes.terminal     import router as terminal_router
+from .routes.buyer        import router as buyer_router
+from .routes.supplier     import router as supplier_router
+from .routes.aion         import router as aion_router
+from backend.routes import aion_goals as aion_goals_router
+from .routes.aion_plan    import router as aion_plan_router   # ✅ NEW route for strategy plan
 
 # ── 12) Mount all routers under /api with correct prefixes
 api = APIRouter(prefix="/api")
@@ -96,7 +98,9 @@ api.include_router(user_router)
 api.include_router(terminal_router)
 api.include_router(buyer_router)
 api.include_router(supplier_router)
-api.include_router(aion_router, prefix="/aion")  # ✅ Mount AION router under /api/aion
+api.include_router(aion_router, prefix="/aion")
+app.include_router(aion_goals_router, prefix="/api")
+api.include_router(aion_plan_router, prefix="/aion")  # ✅ Strategy planner route
 app.include_router(api)
 
 # ── 13) Serve uploaded images
@@ -140,7 +144,7 @@ if __name__ == "__main__":
     uvicorn.run(
         "backend.main:app",
         host="0.0.0.0",
-        port=int(os.environ.get("PORT", 8080)),  # <-- Listen on PORT env var or 8080
+        port=int(os.environ.get("PORT", 8080)),
         reload=(ENV != "production"),
         forwarded_allow_ips="*",
         redirect_slashes=False,
