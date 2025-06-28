@@ -39,3 +39,4 @@ __pycache__/
 .env.local
 env.yaml
 backend/.venv/
+COMDEX_restore/
