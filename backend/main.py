@@ -1,5 +1,3 @@
-# backend/main.py
-
 import os
 import time
 import logging
@@ -15,11 +13,14 @@ import uvicorn
 # ── 1) Ensure uploads folder exists
 os.makedirs("uploaded_images", exist_ok=True)
 
-# ── 2) Load .env locally (only when ENV != "production")
+# ── 2) Load .env.local (only when ENV != "production")
 ENV = os.getenv("ENV", "").lower()
 if ENV != "production":
     from dotenv import load_dotenv
-    load_dotenv()
+    if os.path.exists(".env.local"):
+        load_dotenv(".env.local")
+    else:
+        print("⚠️ Warning: .env.local not found.")
 
 # ── 3) Warm up Cloud SQL socket on cold starts
 time.sleep(3)
@@ -29,14 +30,14 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("comdex")
 
 # ── 5) Log the DB URL for troubleshooting
-from .config import SQLALCHEMY_DATABASE_URL  # noqa: F401
+from backend.config import SQLALCHEMY_DATABASE_URL
 logger.info(f"🔍 SQLALCHEMY_DATABASE_URL = {SQLALCHEMY_DATABASE_URL}")
 
 # ── 6) Import engine, Base, get_db
-from .database import engine, Base, get_db  # noqa: F401
+from backend.database import engine, Base, get_db
 
 # ── 7) Register all ORM models
-import backend.models  # noqa: F401
+import backend.models
 
 # ── 8) Auto-create tables
 Base.metadata.create_all(bind=engine)
@@ -49,7 +50,7 @@ app = FastAPI(
     description="Global Commodity Marketplace API",
 )
 
-# ⏬ Disable automatic trailing-slash redirects
+# Disable automatic trailing-slash redirects
 app.router.redirect_slashes = False
 
 # ── 10) GLOBAL CORS (must come before including any routers)
@@ -74,18 +75,22 @@ app.add_middleware(
 )
 
 # ── 11) Import routers
-from .routes.auth         import router as auth_router
-from .routes.products     import router as products_router
-from .routes.deal         import router as deal_router
-from .routes.contracts    import router as contracts_router
-from .routes.admin        import router as admin_router
-from .routes.user         import router as user_router
-from .routes.terminal     import router as terminal_router
-from .routes.buyer        import router as buyer_router
-from .routes.supplier     import router as supplier_router
-from .routes.aion         import router as aion_router
-from backend.routes import aion_goals as aion_goals_router
-from .routes.aion_plan    import router as aion_plan_router   # ✅ NEW route for strategy plan
+from backend.routes.auth         import router as auth_router
+from backend.routes.products     import router as products_router
+from backend.routes.deal         import router as deal_router
+from backend.routes.contracts    import router as contracts_router
+from backend.routes.admin        import router as admin_router
+from backend.routes.user         import router as user_router
+from backend.routes.terminal     import router as terminal_router
+from backend.routes.buyer        import router as buyer_router
+from backend.routes.supplier     import router as supplier_router
+from backend.routes.aion         import router as aion_router
+from backend.routes.aion_goals   import router as aion_goals_router
+from backend.routes.aion_plan    import router as aion_plan_router
+from backend.routes.aion_dream   import router as aion_dream_router
+from backend.routes.aion_gridworld import router as aion_gridworld_router
+from backend.routes              import aion_grid_progress
+from backend.api.aion            import status, grid_progress
 
 # ── 12) Mount all routers under /api with correct prefixes
 api = APIRouter(prefix="/api")
@@ -99,9 +104,16 @@ api.include_router(terminal_router)
 api.include_router(buyer_router)
 api.include_router(supplier_router)
 api.include_router(aion_router, prefix="/aion")
+api.include_router(aion_plan_router, prefix="/aion")
+
+# 🔁 Mount special-case AION routers (external)
 app.include_router(aion_goals_router, prefix="/api")
-api.include_router(aion_plan_router, prefix="/aion")  # ✅ Strategy planner route
+app.include_router(aion_dream_router, prefix="/api")
 app.include_router(api)
+app.include_router(aion_gridworld_router, prefix="/api")
+app.include_router(aion_grid_progress.router)
+app.include_router(status.router)
+app.include_router(grid_progress.router)
 
 # ── 13) Serve uploaded images
 app.mount(
@@ -110,7 +122,7 @@ app.mount(
     name="uploaded_images",
 )
 
-# ── 14) (Optional) Serve Next.js static output
+# ── 14) Serve static Next.js build if exists
 if os.path.isdir("static"):
     app.mount(
         "/",
@@ -118,11 +130,9 @@ if os.path.isdir("static"):
         name="frontend",
     )
 else:
-    logger.warning(
-        "⚠️ 'static' directory not found: frontend/out must be copied to backend/static"
-    )
+    logger.warning("⚠️ 'static' directory not found: frontend/out must be copied to backend/static")
 
-# ── 15) Legacy redirect (not strictly needed now)
+# ── 15) Legacy redirect
 @app.get("/products", include_in_schema=False)
 def products_no_slash():
     return RedirectResponse(url="/products/", status_code=307)

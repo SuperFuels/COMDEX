@@ -24,7 +24,7 @@ gcloud run deploy comdex-api \
   --timeout=300s
 
 git add .
-git commit -m "chore: deploy 🚀"
+git commit -m "Full update to AION"
 git push origin main
 
 # from repo root

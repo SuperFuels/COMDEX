@@ -1,6 +1,6 @@
-import json
 from pathlib import Path
 from datetime import datetime
+import json
 from sentence_transformers import SentenceTransformer, util
 
 # 📁 File paths
@@ -33,7 +33,8 @@ MILESTONE_UNLOCK_MAP = {
     "cognitive_reflection": ["vision_core"],
     "voice_activation": ["voice_interface"],
     "wallet_integration": ["wallet_logic"],
-    "nova_connection": ["nova_frontend"]
+    "nova_connection": ["nova_frontend"],
+    "grid_world_complete": ["memory_access"]
 }
 
 # 🧠 Semantic triggers (used for embedding matching)
@@ -42,7 +43,8 @@ TRIGGER_PATTERNS = {
     "cognitive_reflection": ["self-awareness", "introspection", "echoes of existence"],
     "voice_activation": ["speak", "vocal", "communication interface"],
     "wallet_integration": ["wallet", "crypto storage", "store of value"],
-    "nova_connection": ["frontend", "interface", "nova"]
+    "nova_connection": ["frontend", "interface", "nova"],
+    "grid_world_complete": ["grid complete", "navigation mastery", "learned environment"]
 }
 
 class MilestoneTracker:
@@ -194,12 +196,14 @@ class MilestoneTracker:
                 print(f"  {i}. {m['name']} @ {m['timestamp']} (via {m.get('source', 'manual')})")
 
     def list_saved_goals(self) -> list:
-        """
-        Extracts saved goals or objectives from dream excerpts or milestone notes.
-        """
         saved_goals = []
         for milestone in self.state.get("milestones", []):
             excerpt = milestone.get("dream_excerpt", "")
             if "goal" in excerpt.lower() or "objective" in excerpt.lower():
                 saved_goals.append(excerpt.strip())
         return saved_goals
+
+    def detect_gridworld_completion(self, grid_data: dict):
+        if grid_data.get("percent_complete", 0) >= 100:
+            print("🏁 Grid World completed! Milestone will be recorded.")
+            self.add_milestone("grid_world_complete", source="grid_world")

@@ -5,7 +5,7 @@ import openai
 import os
 
 from backend.modules.skills.aion_prompt_engine import build_prompt_context
-from backend.modules.milestones.tracker import MilestoneTracker
+from backend.modules.skills.milestone_tracker import MilestoneTracker
 from backend.modules.skills.goal_tracker import GoalTracker  # ✅ NEW
 
 router = APIRouter()

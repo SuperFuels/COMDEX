@@ -36,3 +36,17 @@ class AgentManager:
 
     def get_log(self):
         return self.log
+
+    def perform_action(self, prompt: str = "What should I do next?"):
+        """
+        Trigger an action decision cycle using HexCore logic.
+        """
+        print("🛠️ AION is performing an action via HexCore...")
+
+        try:
+            from backend.modules.hexcore.hexcore import HexCore  # Local import to avoid circular issues
+            hex_instance = HexCore()
+            hex_instance.run_loop(prompt)
+            print("✅ Action completed.")
+        except Exception as e:
+            print(f"[ERROR] Failed to perform action: {e}")

@@ -100,6 +100,14 @@ class StrategyPlanner:
                         "priority": importance_score
                     }
                     new_strategies.append(idea)
+                elif tag == "grid_mastery":
+                    idea = {
+                        "goal": "Expand embodied cognition",
+                        "action": "Use lessons from Grid World to prepare for next-level simulation and dynamic interaction space.",
+                        "timestamp": datetime.now().isoformat(),
+                        "priority": importance_score
+                    }
+                    new_strategies.append(idea)
 
         if new_strategies:
             self.strategies.extend(new_strategies)

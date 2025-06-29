@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
-from backend.modules.milestones.tracker import MilestoneTracker
+from backend.modules.skills.milestone_tracker import MilestoneTracker
 
 router = APIRouter()
 

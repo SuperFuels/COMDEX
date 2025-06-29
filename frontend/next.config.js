@@ -1,35 +1,34 @@
-// frontend/next.config.js
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Remove `output: 'export'` so that Vercel deploys your /api routes as serverless functions
+  // ✅ Enable static HTML export
+  output: 'export',
 
-  // Ensure every route ends with a slash if you prefer that style
+  // Optional: add trailing slashes to all URLs
   trailingSlash: true,
 
-  // If you’re using next/image, disable the built-in optimizer
+  // Disable image optimization (if you're not using next/image CDN)
   images: {
     unoptimized: true,
   },
 
-  // Let ESLint warnings/errors pass during builds
+  // Ignore ESLint build errors (optional for CI/CD)
   eslint: {
     ignoreDuringBuilds: true,
   },
 
-  // Expose your API URL (set this in .env.local)
+  // ✅ Make env variables accessible in the browser
   env: {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
   },
 
-  // Proxy all /api/* calls to your real backend
+  // ✅ Rewrite API routes to external backend (e.g. Cloud Run)
   async rewrites() {
     return [
       {
         source: '/api/:path*',
-        destination: `${process.env.NEXT_PUBLIC_API_URL}/api/:path*`
-      }
-    ]
+        destination: `${process.env.NEXT_PUBLIC_API_URL}/api/:path*`,
+      },
+    ];
   },
 };
 
