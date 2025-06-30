@@ -1,0 +1,99 @@
+<!-- public/aion-game/index.html -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>AION Simulated World</title>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.js"></script>
+    <style>
+      body { margin: 0; overflow: hidden; }
+      canvas { display: block; }
+    </style>
+  </head>
+  <body>
+    <script>
+      const config = {
+        type: Phaser.AUTO,
+        width: 800,
+        height: 600,
+        physics: {
+          default: 'arcade',
+          arcade: {
+            gravity: { y: 300 },
+            debug: false
+          }
+        },
+        scene: {
+          preload: preload,
+          create: create,
+          update: update
+        }
+      };
+
+      const game = new Phaser.Game(config);
+      let player, cursors, platforms, tasksText, taskGoal;
+
+      async function sendEvent(event, metadata = {}) {
+        await fetch('/api/aion/game-event', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ event, metadata })
+        });
+      }
+
+      async function fetchGoal() {
+        const res = await fetch('/api/aion/goal');
+        const data = await res.json();
+        taskGoal = data.goal || 'Explore the world';
+        tasksText.setText('🎯 Goal: ' + taskGoal);
+      }
+
+      function preload () {
+        this.load.image('sky', 'https://labs.phaser.io/assets/skies/sky1.png');
+        this.load.image('ground', 'https://labs.phaser.io/assets/platforms/platform.png');
+        this.load.image('dude', 'https://labs.phaser.io/assets/sprites/phaser-dude.png');
+      }
+
+      function create () {
+        this.add.image(400, 300, 'sky');
+
+        platforms = this.physics.add.staticGroup();
+        platforms.create(400, 568, 'ground').setScale(2).refreshBody();
+
+        player = this.physics.add.sprite(100, 450, 'dude');
+        player.setBounce(0.2);
+        player.setCollideWorldBounds(true);
+        this.physics.add.collider(player, platforms);
+
+        cursors = this.input.keyboard.createCursorKeys();
+
+        tasksText = this.add.text(16, 16, '🎯 Goal: Fetching...', {
+          fontSize: '18px',
+          fill: '#fff',
+          backgroundColor: 'rgba(0,0,0,0.5)',
+          padding: { x: 10, y: 5 }
+        });
+
+        fetchGoal();
+        sendEvent('game_started');
+      }
+
+      function update () {
+        if (cursors.left.isDown) {
+          player.setVelocityX(-160);
+          sendEvent('move', { direction: 'left' });
+        } else if (cursors.right.isDown) {
+          player.setVelocityX(160);
+          sendEvent('move', { direction: 'right' });
+        } else {
+          player.setVelocityX(0);
+        }
+
+        if (cursors.up.isDown && player.body.touching.down) {
+          player.setVelocityY(-330);
+          sendEvent('jump');
+        }
+      }
+    </script>
+  </body>
+</html>

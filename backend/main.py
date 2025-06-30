@@ -91,6 +91,8 @@ from backend.routes.aion_dream   import router as aion_dream_router
 from backend.routes.aion_gridworld import router as aion_gridworld_router
 from backend.routes              import aion_grid_progress
 from backend.api.aion            import status, grid_progress
+from routers.aion_router import router as aion_router  # Adjust path as needed
+from modules.aion import loop_planner  # triggers scheduler start
 
 # ── 12) Mount all routers under /api with correct prefixes
 api = APIRouter(prefix="/api")
@@ -105,6 +107,7 @@ api.include_router(buyer_router)
 api.include_router(supplier_router)
 api.include_router(aion_router, prefix="/aion")
 api.include_router(aion_plan_router, prefix="/aion")
+app.include_router(aion_router, prefix="/api/aion")
 
 # 🔁 Mount special-case AION routers (external)
 app.include_router(aion_goals_router, prefix="/api")

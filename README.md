@@ -1,8 +1,3 @@
-# COMDEX
-COMDEX digital commodity marketplace
-./deploy.sh
-./deploy-frontend.sh
-
 # 1. Authenticate
 gcloud auth login
 gcloud config set project swift-area-459514-d1
@@ -27,15 +22,6 @@ git add .
 git commit -m "Full update to AION"
 git push origin main
 
-# from repo root
-firebase use production
-
-cd frontend
-npm ci
-npm run build
-npm run export    
-cd ..
-firebase deploy --only hosting§
 
 gcloud builds submit --config cloudbuild.yaml .
 
@@ -53,8 +39,4 @@ git commit -m "Bring main back to dd80390 + re-apply local fixes (Dockerfile, .d
 
 # 5. Push up to GitHub
 git push origin main --force
-
-
-hello world
-
 
