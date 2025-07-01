@@ -1,0 +1,25 @@
+# ─── Python venvs ───────────────────────────────────────────
+.venv/
+venv/
+
+# ─── ignore only the repo-root local env & yaml ────────────
+/.env.local
+/env.yaml
+
+# ─── re-include the root .env so Docker can COPY it ─────────
+!/.env
+
+# ─── Git metadata ──────────────────────────────────────────
+.git
+.gitignore
+
+# ─── Python bytecode ───────────────────────────────────────
+__pycache__/
+*.py[cod]
+
+# ─── pip build artifacts ───────────────────────────────────
+pip-wheel-metadata/
+
+# ─── editor temp files ────────────────────────────────────
+*.swp
+.DS_Store

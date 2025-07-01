@@ -1,0 +1,190 @@
+import os
+import time
+import logging
+import subprocess
+
+from fastapi import FastAPI, APIRouter
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from starlette.responses import RedirectResponse
+from sqlalchemy import text
+from sqlalchemy.exc import OperationalError
+import uvicorn
+
+# ── 1) Ensure uploads folder exists
+os.makedirs("uploaded_images", exist_ok=True)
+
+# ── 2) Load .env.local (only when ENV != "production")
+ENV = os.getenv("ENV", "").lower()
+if ENV != "production":
+    from dotenv import load_dotenv
+    if os.path.exists(".env.local"):
+        load_dotenv(".env.local")
+    else:
+        print("⚠️ Warning: .env.local not found.")
+
+# ── 3) Warm up Cloud SQL socket on cold starts
+time.sleep(3)
+
+# ── 4) Logging setup
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("comdex")
+
+# ── 5) Log the DB URL for troubleshooting
+from config import SQLALCHEMY_DATABASE_URL
+logger.info(f"🔍 SQLALCHEMY_DATABASE_URL = {SQLALCHEMY_DATABASE_URL}")
+
+# ── 6) Import engine, Base, get_db
+from database import engine, Base, get_db
+
+# ── 7) Register all ORM models
+import models
+
+# ── 8) Auto-create tables
+Base.metadata.create_all(bind=engine)
+logger.info("✅ Database tables checked/created.")
+
+# ── 9) Instantiate FastAPI
+app = FastAPI(
+    title="COMDEX API",
+    version="1.0.0",
+    description="Global Commodity Marketplace API",
+)
+
+# Disable automatic trailing-slash redirects
+app.router.redirect_slashes = False
+
+# ── 10) GLOBAL CORS (must come before any routers)
+if ENV != "production":
+    allow_origins = ["http://localhost:3000", "*"]
+else:
+    raw = os.getenv("CORS_ALLOWED_ORIGINS", "")
+    allow_origins = [o.strip() for o in raw.split(",") if o.strip()]
+    if not allow_origins:
+        raise RuntimeError("CORS_ALLOWED_ORIGINS must be set in production.")
+
+logger.info(f"✅ CORS allowed_origins = {allow_origins}")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=allow_origins,
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+    allow_headers=["Authorization", "Content-Type", "Set-Cookie"],
+)
+
+# ── 11) Import routers
+from routes.auth              import router as auth_router
+from routes.products          import router as products_router
+from routes.deal              import router as deal_router
+from routes.contracts         import router as contracts_router
+from routes.admin             import router as admin_router
+from routes.user              import router as user_router
+from routes.terminal          import router as terminal_router
+from routes.buyer             import router as buyer_router
+from routes.supplier          import router as supplier_router
+from routes.aion              import router as aion_router
+from routes.aion_goals        import router as aion_goals_router
+from routes.aion_plan         import router as aion_plan_router
+from routes.aion_dream        import router as aion_dream_router
+from routes.aion_gridworld    import router as aion_gridworld_router
+from routes.aion_game_dream   import router as aion_game_dream_router  # ✅ NEW
+from routes.aion_grid_progress import router as aion_grid_progress_router
+from backend.api.aion          import status, grid_progress
+from modules.aion             import loop_planner  # triggers scheduler start
+from routes.game              import router as game_router
+from routes.game_event        import router as game_event_router
+
+# ── 12) Mount all routers under /api
+api = APIRouter(prefix="/api")
+api.include_router(auth_router)
+api.include_router(products_router)
+api.include_router(deal_router)
+api.include_router(contracts_router)
+api.include_router(admin_router)
+api.include_router(user_router)
+api.include_router(terminal_router)
+api.include_router(buyer_router)
+api.include_router(supplier_router)
+api.include_router(aion_router, prefix="/aion")
+api.include_router(aion_plan_router, prefix="/aion")
+api.include_router(aion_goals_router)
+api.include_router(aion_dream_router)
+api.include_router(aion_gridworld_router)
+api.include_router(aion_game_dream_router)  # Mount route for Game ↔ Dream test
+
+# ── 13) Include API router and game events
+app.include_router(api)
+app.include_router(game_router, prefix="/api")
+app.include_router(game_event_router)
+
+# ── 14) Standalone routers
+app.include_router(aion_grid_progress_router)
+app.include_router(status.router)
+app.include_router(grid_progress.router)
+
+# ── 15) Serve uploaded images
+app.mount("/uploaded_images", StaticFiles(directory="uploaded_images"), name="uploaded_images")
+
+# ── 16) Serve static frontend (if exists)
+if os.path.isdir("static"):
+    app.mount("/", StaticFiles(directory="static", html=True), name="frontend")
+else:
+    logger.warning("⚠️ 'static' directory not found. Frontend must be built into /backend/static")
+
+# ── 17) Legacy redirect
+@app.get("/products", include_in_schema=False)
+def products_no_slash():
+    return RedirectResponse(url="/products/", status_code=307)
+
+# ── 18) Health check
+@app.get("/health", tags=["Health"])
+def health_check():
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+        logger.info("✅ Database connection successful.")
+        return {"status": "ok", "database": "connected"}
+    except OperationalError:
+        logger.error("❌ Database connection failed.", exc_info=True)
+        return {"status": "error", "database": "not connected"}
+
+# ── 19) Run via Uvicorn
+if __name__ == "__main__":
+    uvicorn.run(
+        "main:app",
+        host="0.0.0.0",
+        port=int(os.environ.get("PORT", 8080)),
+        reload=(ENV != "production"),
+        forwarded_allow_ips="*",
+        redirect_slashes=False,
+    )
+
+# ── 20) 💤 Start AION scheduler
+try:
+    from tasks.scheduler import start_scheduler
+    start_scheduler()
+except Exception as e:
+    logger.warning(f"⚠️ Dream scheduler could not start: {e}")
+
+# ── 21) Cloud Function: Stop Cloud Run if over budget
+def shutdown_service(event, context):
+    logger.info("🔔 Budget alert Pub/Sub triggered.")
+    try:
+        service = "comdex-api"
+        region = "us-central1"
+
+        result = subprocess.run([
+            "gcloud", "run", "services", "update", service,
+            "--region", region,
+            "--platform", "managed",
+            "--no-traffic"
+        ], check=True, capture_output=True, text=True)
+
+        logger.info("✅ Successfully disabled Cloud Run traffic.")
+        logger.debug(result.stdout)
+    except subprocess.CalledProcessError as e:
+        logger.error("❌ Error disabling Cloud Run traffic.")
+        logger.error(e.stderr)
+    except Exception as e:
+        logger.exception("❌ Unexpected error during Cloud Function shutdown.")

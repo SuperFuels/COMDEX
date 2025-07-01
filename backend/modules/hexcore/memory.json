@@ -1,0 +1,11 @@
+[
+  {
+    "timestamp": "2025-06-28T08:39:50.125712",
+    "input": "hello aion",
+    "action": "[ERROR] Could not connect to GPT: module 'openai' has no attribute 'chat'",
+    "emotion": "neutral",
+    "thought": "This was a neutral exchange. I will store it for context.",
+    "maturity_score": 0.5,
+    "milestone_unlocked": null
+  }
+]

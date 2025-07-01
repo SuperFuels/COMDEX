@@ -1,0 +1,172 @@
+/* ======================================================================
+   GLOBAL STYLES FOR STICKEY.ai
+   (This file is processed by Tailwind’s PostCSS pipeline.)
+   ====================================================================== */
+
+/* stylelint-disable */
+/* prettier-ignore-start */
+/* eslint-disable */
+
+/* 1) Import Inter BEFORE any Tailwind directives */
+@import url('https://rsms.me/inter/inter.css');
+
+/* 2) Tailwind’s layers */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 3) CSS VARIABLES (light & dark mode) */
+:root {
+  /* Light mode tokens */
+  --bg-page:         #FFFFFF;
+  --bg-header:       #FFFFFF;
+  --text-primary:    #1F2937;
+  --text-secondary:  #6B7280;
+  --border-light:    #E5E7EB;
+  --scrollbar-thumb: #4A5568;
+
+  /* Brand colors */
+  --primary:        #4A90E2;
+  --primary-hover:  #357ABD;
+}
+
+.dark {
+  --bg-page:         #111827;
+  --bg-header:       #1F2937;
+  --text-primary:    #F9FAFB;
+  --text-secondary:  #D1D5DB;
+  --border-light:    #4B5563;
+  --scrollbar-thumb: #9CA3AF;
+
+  --primary:        #374151;
+  --primary-hover:  #4B5563;
+}
+
+/* 4) RESET + GLOBALS */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg-page);
+  color: var(--text-primary);
+  line-height: 1.6;
+}
+
+/* 5) Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-page);
+}
+
+/* 6) CONTAINERS & CARDS */
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+.card {
+  background: var(--bg-page);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  transition: box-shadow 0.3s ease;
+}
+.card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* 7) BUTTON STYLES */
+button, .btn, a {
+  background-color: transparent;
+  border: 1px solid var(--text-primary);
+  border-radius: 4px;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+button:hover, .btn:hover, a:hover {
+  background-color: rgba(0,0,0,0.05);
+}
+
+/* Primary filled variant (only for other parts still using it) */
+.btn-filled {
+  @apply bg-primary text-white;
+}
+.btn-filled:hover {
+  background-color: var(--primary-hover);
+}
+
+/* 8) FORM ELEMENTS */
+input, select, textarea {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid var(--border-light);
+  border-radius: 6px;
+  background: var(--bg-page);
+  color: var(--text-primary);
+}
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(74,144,226,0.2);
+}
+
+/* 9) TYPE SCALING */
+h1 { @apply text-2xl font-semibold; }
+h2 { @apply text-xl  font-semibold; }
+h3 { @apply text-lg  font-semibold; }
+p  { @apply text-base; }
+
+/* 10) Logo-link exception */
+a.logo-link {
+  border: none !important;
+  padding: 0 !important;
+}
+
+/* prettier-ignore-end */
+/* stylelint-enable */
+/* eslint-enable */
+
+/* ───────────────────────────────────────────────────────────────────────────
+   Split-pane + fixed footer tweaks
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* Make sure the main split container doesn’t scroll the whole page */
+.split-container {
+  display: flex;
+  height: 100%;
+}
+
+/* Each pane is white and scrolls internally */
+.split-container > .pane {
+  background: white;
+  overflow: auto;
+}
+
+/* The draggable divider */
+.splitter {
+  width: 4px;
+  background-color: var(--border-light);
+  cursor: col-resize;
+}
+
+/* Force the body to never scroll (all scrolling happens inside panes) */
+body {
+  overflow: hidden;
+}

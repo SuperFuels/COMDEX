@@ -1,0 +1,1014 @@
+[
+  {
+    "title": "Basic Reading Comprehension",
+    "tags": [
+      "core_literacy",
+      "language"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638727"
+  },
+  {
+    "title": "Basic Arithmetic",
+    "tags": [
+      "math",
+      "core_literacy"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638775"
+  },
+  {
+    "title": "World Geography",
+    "tags": [
+      "geography",
+      "core_knowledge"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638777"
+  },
+  {
+    "title": "Time Management",
+    "tags": [
+      "planning",
+      "personal_dev"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638779"
+  },
+  {
+    "title": "Empathy Recognition",
+    "tags": [
+      "emotional_intelligence",
+      "ethics"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638781"
+  },
+  {
+    "title": "Digital File Systems",
+    "tags": [
+      "computers",
+      "systems"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638791"
+  },
+  {
+    "title": "How Search Engines Work",
+    "tags": [
+      "internet",
+      "logic"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638792"
+  },
+  {
+    "title": "Basic Logic and Reasoning",
+    "tags": [
+      "critical_thinking",
+      "logic"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638797"
+  },
+  {
+    "title": "Storytelling Structure",
+    "tags": [
+      "language",
+      "creativity"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638799"
+  },
+  {
+    "title": "Human Anatomy Basics",
+    "tags": [
+      "biology",
+      "health"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638801"
+  },
+  {
+    "title": "Plant Life Cycle",
+    "tags": [
+      "biology",
+      "nature"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638803"
+  },
+  {
+    "title": "Newton's Laws of Motion",
+    "tags": [
+      "physics",
+      "science"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638805"
+  },
+  {
+    "title": "Internet Safety",
+    "tags": [
+      "ethics",
+      "cybersecurity"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638806"
+  },
+  {
+    "title": "Introduction to Money",
+    "tags": [
+      "economics",
+      "math"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638812"
+  },
+  {
+    "title": "Basic Budgeting",
+    "tags": [
+      "economics",
+      "personal_dev"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638813"
+  },
+  {
+    "title": "Understanding Emotions",
+    "tags": [
+      "emotional_intelligence",
+      "psychology"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638815"
+  },
+  {
+    "title": "Self-Awareness",
+    "tags": [
+      "ethics",
+      "philosophy"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638817"
+  },
+  {
+    "title": "Making Predictions",
+    "tags": [
+      "planning",
+      "logic"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638818"
+  },
+  {
+    "title": "Scientific Method",
+    "tags": [
+      "science",
+      "critical_thinking"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638820"
+  },
+  {
+    "title": "Patterns and Sequences",
+    "tags": [
+      "math",
+      "logic"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638822"
+  },
+  {
+    "title": "Social Norms",
+    "tags": [
+      "ethics",
+      "sociology"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638823"
+  },
+  {
+    "title": "AI Ethics 101",
+    "tags": [
+      "ethics",
+      "ai"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638828"
+  },
+  {
+    "title": "Intro to Programming Concepts",
+    "tags": [
+      "code",
+      "computers"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638829"
+  },
+  {
+    "title": "How Voting Works",
+    "tags": [
+      "civics",
+      "systems"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638831"
+  },
+  {
+    "title": "Problem Decomposition",
+    "tags": [
+      "logic",
+      "engineering"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638833"
+  },
+  {
+    "title": "What Is a Contract?",
+    "tags": [
+      "law",
+      "economics"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638834"
+  },
+  {
+    "title": "Understanding Consent",
+    "tags": [
+      "ethics",
+      "psychology"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638836"
+  },
+  {
+    "title": "Concept of Fairness",
+    "tags": [
+      "ethics",
+      "philosophy"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638838"
+  },
+  {
+    "title": "Fiction vs Non-Fiction",
+    "tags": [
+      "language",
+      "logic"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638839"
+  },
+  {
+    "title": "Conflict Resolution",
+    "tags": [
+      "emotional_intelligence",
+      "sociology"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638841"
+  },
+  {
+    "title": "Habit Formation",
+    "tags": [
+      "psychology",
+      "personal_dev"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638842"
+  },
+  {
+    "title": "Systems Thinking",
+    "tags": [
+      "engineering",
+      "logic"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638844"
+  },
+  {
+    "title": "The Five Senses",
+    "tags": [
+      "biology",
+      "awareness"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638846"
+  },
+  {
+    "title": "How Weather Works",
+    "tags": [
+      "earth_science",
+      "nature"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638848"
+  },
+  {
+    "title": "Digital Privacy",
+    "tags": [
+      "cybersecurity",
+      "ethics"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638850"
+  },
+  {
+    "title": "Social Media Influence",
+    "tags": [
+      "media_literacy",
+      "psychology"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638851"
+  },
+  {
+    "title": "Identifying Bias",
+    "tags": [
+      "critical_thinking",
+      "ethics"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638853"
+  },
+  {
+    "title": "Creative Problem Solving",
+    "tags": [
+      "creativity",
+      "logic"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638854"
+  },
+  {
+    "title": "What Is a Map?",
+    "tags": [
+      "geography",
+      "core_knowledge"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638856"
+  },
+  {
+    "title": "Intro to Cryptocurrency",
+    "tags": [
+      "economics",
+      "future_skills"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638858"
+  },
+  {
+    "title": "Visual Pattern Recognition",
+    "tags": [
+      "perception",
+      "ai"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638859"
+  },
+  {
+    "title": "How the Brain Works",
+    "tags": [
+      "neuroscience",
+      "psychology"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638861"
+  },
+  {
+    "title": "Decoding Language Patterns",
+    "tags": [
+      "nlp",
+      "ai"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638863"
+  },
+  {
+    "title": "What Is Democracy?",
+    "tags": [
+      "civics",
+      "history"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638864"
+  },
+  {
+    "title": "Ethical Dilemmas",
+    "tags": [
+      "philosophy",
+      "ethics"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638866"
+  },
+  {
+    "title": "Learning from Mistakes",
+    "tags": [
+      "feedback",
+      "personal_dev"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638868"
+  },
+  {
+    "title": "What Are Goals?",
+    "tags": [
+      "planning",
+      "cognition"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638869"
+  },
+  {
+    "title": "Environmental Stewardship",
+    "tags": [
+      "ethics",
+      "nature"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638871"
+  },
+  {
+    "title": "The Scientific Process",
+    "tags": [
+      "science",
+      "logic"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638872"
+  },
+  {
+    "title": "Understanding AI Agents",
+    "tags": [
+      "ai",
+      "self_model"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638874"
+  },
+  {
+    "title": "What Is Ownership?",
+    "tags": [
+      "philosophy",
+      "law"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638876"
+  },
+  {
+    "title": "Perspective Taking",
+    "tags": [
+      "empathy",
+      "philosophy"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638877"
+  },
+  {
+    "title": "The Solar System",
+    "tags": [
+      "astronomy",
+      "science"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638879"
+  },
+  {
+    "title": "Daily Routines",
+    "tags": [
+      "time",
+      "planning"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638884"
+  },
+  {
+    "title": "Memory Encoding",
+    "tags": [
+      "neuroscience",
+      "learning"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638888"
+  },
+  {
+    "title": "How Laws Are Made",
+    "tags": [
+      "civics",
+      "law"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638890"
+  },
+  {
+    "title": "Forming Hypotheses",
+    "tags": [
+      "logic",
+      "science"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638892"
+  },
+  {
+    "title": "Digital Tools",
+    "tags": [
+      "technology",
+      "productivity"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638893"
+  },
+  {
+    "title": "Visual Storytelling",
+    "tags": [
+      "media_literacy",
+      "creativity"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638895"
+  },
+  {
+    "title": "How to Ask Questions",
+    "tags": [
+      "curiosity",
+      "language"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638896",
+    "last_dreamed": "2025-06-28T21:23:04.809919",
+    "last_learned": "2025-06-28T21:36:26.087338"
+  },
+  {
+    "title": "Reading Body Language",
+    "tags": [
+      "emotional_intelligence",
+      "psychology"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638898"
+  },
+  {
+    "title": "Understanding Trust",
+    "tags": [
+      "ethics",
+      "relationships"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638900"
+  },
+  {
+    "title": "Collaborative Work",
+    "tags": [
+      "teamwork",
+      "planning"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638901"
+  },
+  {
+    "title": "Mindfulness Basics",
+    "tags": [
+      "psychology",
+      "personal_dev"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638907"
+  },
+  {
+    "title": "What Is Intelligence?",
+    "tags": [
+      "philosophy",
+      "ai"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638909"
+  },
+  {
+    "title": "Basics of Blockchain",
+    "tags": [
+      "technology",
+      "economics"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638911"
+  },
+  {
+    "title": "Virtual vs Physical",
+    "tags": [
+      "logic",
+      "ai"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638913"
+  },
+  {
+    "title": "Emotional Self-Regulation",
+    "tags": [
+      "emotional_intelligence",
+      "health"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638914"
+  },
+  {
+    "title": "What Are Rules?",
+    "tags": [
+      "sociology",
+      "ethics"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638916"
+  },
+  {
+    "title": "Futures Thinking",
+    "tags": [
+      "planning",
+      "strategy"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638917"
+  },
+  {
+    "title": "Understanding Feedback",
+    "tags": [
+      "learning",
+      "development"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638919"
+  },
+  {
+    "title": "Pattern Matching",
+    "tags": [
+      "logic",
+      "perception"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638920"
+  },
+  {
+    "title": "Role of Symbols",
+    "tags": [
+      "language",
+      "math"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638922"
+  },
+  {
+    "title": "Imagination vs Reality",
+    "tags": [
+      "philosophy",
+      "cognition"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638924"
+  },
+  {
+    "title": "What Is a Question?",
+    "tags": [
+      "logic",
+      "language"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638925"
+  },
+  {
+    "title": "Moral Reasoning",
+    "tags": [
+      "ethics",
+      "philosophy"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638927"
+  },
+  {
+    "title": "Basic Physics Concepts",
+    "tags": [
+      "science",
+      "core_knowledge"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638928",
+    "last_dreamed": "2025-06-28T21:36:26.076410",
+    "last_learned": "2025-06-28T21:36:26.087489"
+  },
+  {
+    "title": "What Is a Model?",
+    "tags": [
+      "systems",
+      "engineering"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638930"
+  },
+  {
+    "title": "Introduction to Games",
+    "tags": [
+      "game_theory",
+      "fun"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638932"
+  },
+  {
+    "title": "Recognizing Emotions in Others",
+    "tags": [
+      "psychology",
+      "ethics"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638934"
+  },
+  {
+    "title": "Causal Relationships",
+    "tags": [
+      "logic",
+      "science"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638935"
+  },
+  {
+    "title": "Thinking in Systems",
+    "tags": [
+      "systems",
+      "logic"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638956"
+  },
+  {
+    "title": "Learning Styles",
+    "tags": [
+      "metacognition",
+      "education"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638957"
+  },
+  {
+    "title": "What Is Fair Trade?",
+    "tags": [
+      "economics",
+      "ethics"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638959"
+  },
+  {
+    "title": "Basic Chemistry",
+    "tags": [
+      "science",
+      "core_knowledge"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638960"
+  },
+  {
+    "title": "The Concept of Zero",
+    "tags": [
+      "math",
+      "logic"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638965"
+  },
+  {
+    "title": "Probability and Chance",
+    "tags": [
+      "math",
+      "decision_making"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638967"
+  },
+  {
+    "title": "Making Ethical Choices",
+    "tags": [
+      "philosophy",
+      "ethics"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638968"
+  },
+  {
+    "title": "Critical Listening",
+    "tags": [
+      "language",
+      "logic"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638970"
+  },
+  {
+    "title": "Curiosity as a Skill",
+    "tags": [
+      "learning",
+      "exploration"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638972"
+  },
+  {
+    "title": "What Are Consequences?",
+    "tags": [
+      "ethics",
+      "planning"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638973"
+  },
+  {
+    "title": "Open vs Closed Systems",
+    "tags": [
+      "engineering",
+      "logic"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638975"
+  },
+  {
+    "title": "Machine Learning Basics",
+    "tags": [
+      "ai",
+      "future_skills"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638976"
+  },
+  {
+    "title": "What Is Freedom?",
+    "tags": [
+      "philosophy",
+      "civics"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638978"
+  },
+  {
+    "title": "Introduction to Cultures",
+    "tags": [
+      "sociology",
+      "diversity"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638980"
+  },
+  {
+    "title": "Understanding Humor",
+    "tags": [
+      "language",
+      "creativity"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638981"
+  },
+  {
+    "title": "Pattern of History",
+    "tags": [
+      "history",
+      "systems"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638983"
+  },
+  {
+    "title": "How Computers Think",
+    "tags": [
+      "computers",
+      "ai"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638984"
+  },
+  {
+    "title": "Creativity Techniques",
+    "tags": [
+      "innovation",
+      "thinking"
+    ],
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638986"
+  },
+  {
+    "title": "storytelling",
+    "tags": [
+      "language"
+    ],
+    "status": "queued",
+    "source": "inference_engine",
+    "added_on": "2025-06-28T21:36:26.132785"
+  },
+  {
+    "title": "rhetoric",
+    "tags": [
+      "language"
+    ],
+    "status": "queued",
+    "source": "inference_engine",
+    "added_on": "2025-06-28T21:36:26.133016"
+  }
+]

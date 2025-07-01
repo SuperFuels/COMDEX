@@ -1,0 +1,69 @@
+substitutions:
+  _SERVICE: comdex-api
+  _REGION: us-central1
+
+steps:
+  # ─── 0) Build the FRONTEND with Node 18 ─────────────────────────────
+  - id: "frontend-build"
+    name: "node:18"
+    entrypoint: "bash"
+    args:
+      - "-c"
+      - |
+        cd frontend
+        npm ci
+        npm run build
+
+  # ─── 1) Build the Docker image for the Python backend ───────────────
+  - id: "docker-build"
+    name: "gcr.io/cloud-builders/docker"
+    args:
+      [
+        "build",
+        "--no-cache",
+        "-f", "Dockerfile",
+        "-t", "gcr.io/$PROJECT_ID/${_SERVICE}:$BUILD_ID",
+        "-t", "gcr.io/$PROJECT_ID/${_SERVICE}:latest",
+        "."
+      ]
+
+  # ─── 2) Push the build-ID tag ───────────────────────────────────────
+  - id: "docker-push-buildid"
+    name: "gcr.io/cloud-builders/docker"
+    args:
+      [
+        "push",
+        "gcr.io/$PROJECT_ID/${_SERVICE}:$BUILD_ID"
+      ]
+
+  # ─── 3) Push the latest tag ─────────────────────────────────────────
+  - id: "docker-push-latest"
+    name: "gcr.io/cloud-builders/docker"
+    args:
+      [
+        "push",
+        "gcr.io/$PROJECT_ID/${_SERVICE}:latest"
+      ]
+
+  # ─── 4) Deploy to Cloud Run ─────────────────────────────────────────
+  - id: "deploy-cloud-run"
+    name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    entrypoint: "gcloud"
+    args:
+      [
+        "run", "deploy", "${_SERVICE}",
+        "--image", "gcr.io/$PROJECT_ID/${_SERVICE}:$BUILD_ID",
+        "--region", "${_REGION}",
+        "--platform", "managed",
+        "--allow-unauthenticated",
+        "--add-cloudsql-instances=swift-area-459514-d1:us-central1:comdex-db",
+        "--vpc-connector=comdex-connector",
+        "--vpc-egress=private-ranges-only",
+        "--env-vars-file=cloudrun-env.yaml",
+        "--timeout=300s",
+        "--port=8080"
+      ]
+
+images:
+  - "gcr.io/$PROJECT_ID/${_SERVICE}:$BUILD_ID"
+  - "gcr.io/$PROJECT_ID/${_SERVICE}:latest"

@@ -1,0 +1,168 @@
+<!-- public/aion-game/index.html -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>AION Simulated World</title>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.js"></script>
+    <style>
+      body { margin: 0; overflow: hidden; }
+      canvas { display: block; }
+      #startScreen, #gameOverScreen {
+        position: absolute; top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        color: white; display: flex;
+        align-items: center; justify-content: center;
+        flex-direction: column; z-index: 10;
+      }
+      button {
+        margin-top: 10px; padding: 10px 20px;
+        font-size: 18px; cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="startScreen">
+      <h1>Welcome to AION World</h1>
+      <button onclick="startGame()">Start Game</button>
+    </div>
+    <div id="gameOverScreen" style="display: none">
+      <h1>Game Over</h1>
+      <p id="finalScore"></p>
+      <button onclick="restartGame()">Restart</button>
+    </div>
+
+    <script>
+      let game, player, cursors, platforms, coins, goombas, score = 0, lives = 3, tasksText, scoreText;
+      let goalText, fireballs, lastFired = 0, mobileControls;
+
+      async function sendEvent(event, metadata = {}) {
+        await fetch('/api/aion/game-event', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ event, metadata })
+        });
+      }
+
+      async function fetchGoal() {
+        const res = await fetch('/api/aion/goal');
+        const data = await res.json();
+        goalText.setText('🎯 Goal: ' + (data.goal || 'Explore'));
+      }
+
+      function startGame() {
+        document.getElementById('startScreen').style.display = 'none';
+        runGame();
+      }
+
+      function restartGame() {
+        document.getElementById('gameOverScreen').style.display = 'none';
+        score = 0; lives = 3;
+        game.destroy(true);
+        runGame();
+      }
+
+      function runGame() {
+        game = new Phaser.Game({
+          type: Phaser.AUTO,
+          width: 800,
+          height: 600,
+          parent: document.body,
+          physics: {
+            default: 'arcade',
+            arcade: { gravity: { y: 300 }, debug: false }
+          },
+          scene: { preload, create, update }
+        });
+      }
+
+      function preload() {
+        this.load.image('sky', 'https://labs.phaser.io/assets/skies/sky1.png');
+        this.load.image('ground', 'https://labs.phaser.io/assets/platforms/platform.png');
+        this.load.image('coin', 'https://labs.phaser.io/assets/sprites/coin.png');
+        this.load.image('fireball', 'https://labs.phaser.io/assets/particles/yellow.png');
+        this.load.image('dude', 'https://labs.phaser.io/assets/sprites/phaser-dude.png');
+        this.load.image('goomba', 'https://labs.phaser.io/assets/sprites/enemy-bird.png');
+        this.load.audio('coinSound', 'https://labs.phaser.io/assets/audio/SoundEffects/p-ping.mp3');
+      }
+
+      function create() {
+        this.add.image(400, 300, 'sky');
+        platforms = this.physics.add.staticGroup();
+        platforms.create(400, 568, 'ground').setScale(2).refreshBody();
+        platforms.create(600, 400, 'ground');
+        platforms.create(50, 250, 'ground');
+
+        player = this.physics.add.sprite(100, 450, 'dude').setBounce(0.2).setCollideWorldBounds(true);
+        this.physics.add.collider(player, platforms);
+
+        cursors = this.input.keyboard.createCursorKeys();
+
+        scoreText = this.add.text(16, 40, '💰 Score: 0', { fontSize: '16px', fill: '#fff' });
+        goalText = this.add.text(16, 16, '🎯 Goal: ...', { fontSize: '16px', fill: '#fff' });
+        fetchGoal();
+
+        coins = this.physics.add.group();
+        for (let i = 0; i < 5; i++) {
+          const coin = coins.create(100 + i * 120, 0, 'coin');
+          coin.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
+        }
+        this.physics.add.collider(coins, platforms);
+        this.physics.add.overlap(player, coins, collectCoin, null, this);
+
+        goombas = this.physics.add.group();
+        const g = goombas.create(700, 450, 'goomba');
+        g.setVelocityX(-50).setBounce(1).setCollideWorldBounds(true);
+        this.physics.add.collider(goombas, platforms);
+        this.physics.add.collider(player, goombas, hitEnemy, null, this);
+
+        fireballs = this.physics.add.group();
+        this.input.keyboard.on('keydown-SPACE', () => shootFireball(this));
+
+        mobileControls = this.add.text(700, 570, '⬅️ ⬆️ ➡️', { fontSize: '16px', fill: '#fff' });
+        sendEvent('game_started');
+      }
+
+      function update(time) {
+        player.setVelocityX(0);
+        if (cursors.left.isDown) player.setVelocityX(-160);
+        else if (cursors.right.isDown) player.setVelocityX(160);
+        if (cursors.up.isDown && player.body.touching.down) player.setVelocityY(-330);
+
+        fireballs.children.iterate(f => {
+          if (f && f.x > 800) f.destroy();
+        });
+      }
+
+      function collectCoin(player, coin) {
+        this.sound.play('coinSound');
+        coin.disableBody(true, true);
+        score += 10;
+        scoreText.setText('💰 Score: ' + score);
+        sendEvent('collect_coin', { score });
+      }
+
+      function hitEnemy(player, enemy) {
+        player.setTint(0xff0000);
+        this.physics.pause();
+        lives--;
+        sendEvent('hit_enemy', { lives });
+        if (lives <= 0) {
+          document.getElementById('finalScore').textContent = 'Final Score: ' + score;
+          document.getElementById('gameOverScreen').style.display = 'flex';
+          sendEvent('game_over');
+        } else {
+          setTimeout(() => location.reload(), 1000);
+        }
+      }
+
+      function shootFireball(scene) {
+        if (!player || scene.time.now - lastFired < 500) return;
+        const fireball = fireballs.create(player.x + 20, player.y, 'fireball');
+        fireball.setVelocityX(300);
+        lastFired = scene.time.now;
+        sendEvent('fireball');
+      }
+    </script>
+  </body>
+</html>

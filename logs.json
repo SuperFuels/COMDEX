@@ -1,0 +1,2014 @@
+[
+  {
+    "insertId": "68630c00000691052b48912e",
+    "labels": {
+      "instanceId": "0069c7a988077e8e5e24ca36ffeb0b5ccdbab1dd3871da46befa89381d6fd417e7b751223b79189d30fa6cf1865fb44c4fc384be1993cc726342a3d49a9c4c1df72bb90ee5486d593c8592"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fvarlog%2Fsystem",
+    "receiveTimestamp": "2025-06-30T22:13:20.579033710Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "ERROR",
+    "textPayload": "Default STARTUP TCP probe failed 1 time consecutively for container \"comdex-api-1\" on port 8080. The instance was not started.\nConnection failed with status CANCELLED.",
+    "timestamp": "2025-06-30T22:13:20.430341Z"
+  },
+  {
+    "insertId": "68630c00000399f37dc77e56",
+    "labels": {
+      "container_name": "comdex-api-1",
+      "instanceId": "0069c7a988077e8e5e24ca36ffeb0b5ccdbab1dd3871da46befa89381d6fd417e7b751223b79189d30fa6cf1865fb44c4fc384be1993cc726342a3d49a9c4c1df72bb90ee5486d593c8592"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fvarlog%2Fsystem",
+    "receiveTimestamp": "2025-06-30T22:13:20.245947063Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "WARNING",
+    "textPayload": "Container called exit(1).",
+    "timestamp": "2025-06-30T22:13:20.236008430Z"
+  },
+  {
+    "insertId": "68630bfe000d6972f4a64841",
+    "labels": {
+      "instanceId": "0069c7a988077e8e5e24ca36ffeb0b5ccdbab1dd3871da46befa89381d6fd417e7b751223b79189d30fa6cf1865fb44c4fc384be1993cc726342a3d49a9c4c1df72bb90ee5486d593c8592"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:13:19.056093521Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "ModuleNotFoundError: No module named 'backend'",
+    "timestamp": "2025-06-30T22:13:18.878962Z"
+  },
+  {
+    "insertId": "68630bfd000d47d063a555fe",
+    "labels": {
+      "instanceId": "0069c7a988077e8e5e24ca36ffeb0b5ccdbab1dd3871da46befa89381d6fd417e7b751223b79189d30fa6cf1865fb44c4fc384be1993cc726342a3d49a9c4c1df72bb90ee5486d593c8592"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:13:18.057117724Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "    from backend.api.aion          import status, grid_progress",
+    "timestamp": "2025-06-30T22:13:17.870352Z"
+  },
+  {
+    "insertId": "68630bfd000d42f4c1d8c319",
+    "labels": {
+      "instanceId": "0069c7a988077e8e5e24ca36ffeb0b5ccdbab1dd3871da46befa89381d6fd417e7b751223b79189d30fa6cf1865fb44c4fc384be1993cc726342a3d49a9c4c1df72bb90ee5486d593c8592"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:13:18.057117724Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "  File \"/srv/main.py\", line 93, in <module>",
+    "timestamp": "2025-06-30T22:13:17.869108Z"
+  },
+  {
+    "insertId": "68630bfd000d42cf0cbee3e5",
+    "labels": {
+      "instanceId": "0069c7a988077e8e5e24ca36ffeb0b5ccdbab1dd3871da46befa89381d6fd417e7b751223b79189d30fa6cf1865fb44c4fc384be1993cc726342a3d49a9c4c1df72bb90ee5486d593c8592"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:13:18.057117724Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "  File \"<frozen importlib._bootstrap>\", line 241, in _call_with_frames_removed",
+    "timestamp": "2025-06-30T22:13:17.869071Z"
+  },
+  {
+    "insertId": "68630bfd000d42b819c45eb3",
+    "labels": {
+      "instanceId": "0069c7a988077e8e5e24ca36ffeb0b5ccdbab1dd3871da46befa89381d6fd417e7b751223b79189d30fa6cf1865fb44c4fc384be1993cc726342a3d49a9c4c1df72bb90ee5486d593c8592"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:13:18.057117724Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "  File \"<frozen importlib._bootstrap_external>\", line 940, in exec_module",
+    "timestamp": "2025-06-30T22:13:17.869048Z"
+  },
+  {
+    "insertId": "68630bfd000d429b56f96f81",
+    "labels": {
+      "instanceId": "0069c7a988077e8e5e24ca36ffeb0b5ccdbab1dd3871da46befa89381d6fd417e7b751223b79189d30fa6cf1865fb44c4fc384be1993cc726342a3d49a9c4c1df72bb90ee5486d593c8592"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:13:18.057117724Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "  File \"<frozen importlib._bootstrap>\", line 690, in _load_unlocked",
+    "timestamp": "2025-06-30T22:13:17.869019Z"
+  },
+  {
+    "insertId": "68630bfd000d429729627fe9",
+    "labels": {
+      "instanceId": "0069c7a988077e8e5e24ca36ffeb0b5ccdbab1dd3871da46befa89381d6fd417e7b751223b79189d30fa6cf1865fb44c4fc384be1993cc726342a3d49a9c4c1df72bb90ee5486d593c8592"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:13:18.057117724Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "  File \"<frozen importlib._bootstrap>\", line 1147, in _find_and_load_unlocked",
+    "timestamp": "2025-06-30T22:13:17.869015Z"
+  },
+  {
+    "insertId": "68630bfd000d4294b25b4aa4",
+    "labels": {
+      "instanceId": "0069c7a988077e8e5e24ca36ffeb0b5ccdbab1dd3871da46befa89381d6fd417e7b751223b79189d30fa6cf1865fb44c4fc384be1993cc726342a3d49a9c4c1df72bb90ee5486d593c8592"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:13:18.057117724Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "  File \"<frozen importlib._bootstrap>\", line 1176, in _find_and_load",
+    "timestamp": "2025-06-30T22:13:17.869012Z"
+  },
+  {
+    "insertId": "68630bfd000d428f765b5899",
+    "labels": {
+      "instanceId": "0069c7a988077e8e5e24ca36ffeb0b5ccdbab1dd3871da46befa89381d6fd417e7b751223b79189d30fa6cf1865fb44c4fc384be1993cc726342a3d49a9c4c1df72bb90ee5486d593c8592"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:13:18.057117724Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "  File \"<frozen importlib._bootstrap>\", line 1204, in _gcd_import",
+    "timestamp": "2025-06-30T22:13:17.869007Z"
+  },
+  {
+    "insertId": "68630bfd000d426c8b5fbecf",
+    "labels": {
+      "instanceId": "0069c7a988077e8e5e24ca36ffeb0b5ccdbab1dd3871da46befa89381d6fd417e7b751223b79189d30fa6cf1865fb44c4fc384be1993cc726342a3d49a9c4c1df72bb90ee5486d593c8592"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:13:18.057117724Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+    "timestamp": "2025-06-30T22:13:17.868972Z"
+  },
+  {
+    "insertId": "68630bfd000d3f3c36184c53",
+    "labels": {
+      "instanceId": "0069c7a988077e8e5e24ca36ffeb0b5ccdbab1dd3871da46befa89381d6fd417e7b751223b79189d30fa6cf1865fb44c4fc384be1993cc726342a3d49a9c4c1df72bb90ee5486d593c8592"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:13:18.057117724Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "    return _bootstrap._gcd_import(name[level:], package, level)",
+    "timestamp": "2025-06-30T22:13:17.868156Z"
+  },
+  {
+    "insertId": "68630bfd000d3cc32a822bec",
+    "labels": {
+      "instanceId": "0069c7a988077e8e5e24ca36ffeb0b5ccdbab1dd3871da46befa89381d6fd417e7b751223b79189d30fa6cf1865fb44c4fc384be1993cc726342a3d49a9c4c1df72bb90ee5486d593c8592"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:13:18.057117724Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "  File \"/usr/local/lib/python3.11/importlib/__init__.py\", line 126, in import_module",
+    "timestamp": "2025-06-30T22:13:17.867523Z"
+  },
+  {
+    "insertId": "68630bfd000d3cbd3c661044",
+    "labels": {
+      "instanceId": "0069c7a988077e8e5e24ca36ffeb0b5ccdbab1dd3871da46befa89381d6fd417e7b751223b79189d30fa6cf1865fb44c4fc384be1993cc726342a3d49a9c4c1df72bb90ee5486d593c8592"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:13:18.057117724Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+    "timestamp": "2025-06-30T22:13:17.867517Z"
+  },
+  {
+    "insertId": "68630bfd000d3a4b91da734a",
+    "labels": {
+      "instanceId": "0069c7a988077e8e5e24ca36ffeb0b5ccdbab1dd3871da46befa89381d6fd417e7b751223b79189d30fa6cf1865fb44c4fc384be1993cc726342a3d49a9c4c1df72bb90ee5486d593c8592"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:13:18.057117724Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "    module = importlib.import_module(module_str)",
+    "timestamp": "2025-06-30T22:13:17.866891Z"
+  },
+  {
+    "insertId": "68630bfd000d398af854c11a",
+    "labels": {
+      "instanceId": "0069c7a988077e8e5e24ca36ffeb0b5ccdbab1dd3871da46befa89381d6fd417e7b751223b79189d30fa6cf1865fb44c4fc384be1993cc726342a3d49a9c4c1df72bb90ee5486d593c8592"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:13:18.057117724Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "  File \"/usr/local/lib/python3.11/site-packages/uvicorn/importer.py\", line 21, in import_from_string",
+    "timestamp": "2025-06-30T22:13:17.866698Z"
+  },
+  {
+    "insertId": "68630bfd000d39649fe09135",
+    "labels": {
+      "instanceId": "0069c7a988077e8e5e24ca36ffeb0b5ccdbab1dd3871da46befa89381d6fd417e7b751223b79189d30fa6cf1865fb44c4fc384be1993cc726342a3d49a9c4c1df72bb90ee5486d593c8592"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:13:18.057117724Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "    raise exc from None",
+    "timestamp": "2025-06-30T22:13:17.866660Z"
+  },
+  {
+    "insertId": "68630bfd000d36e0cdebc07e",
+    "labels": {
+      "instanceId": "0069c7a988077e8e5e24ca36ffeb0b5ccdbab1dd3871da46befa89381d6fd417e7b751223b79189d30fa6cf1865fb44c4fc384be1993cc726342a3d49a9c4c1df72bb90ee5486d593c8592"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:13:18.057117724Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "  File \"/usr/local/lib/python3.11/site-packages/uvicorn/importer.py\", line 24, in import_from_string",
+    "timestamp": "2025-06-30T22:13:17.866016Z"
+  },
+  {
+    "insertId": "68630bfd000d36bf16c92595",
+    "labels": {
+      "instanceId": "0069c7a988077e8e5e24ca36ffeb0b5ccdbab1dd3871da46befa89381d6fd417e7b751223b79189d30fa6cf1865fb44c4fc384be1993cc726342a3d49a9c4c1df72bb90ee5486d593c8592"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:13:18.057117724Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+    "timestamp": "2025-06-30T22:13:17.865983Z"
+  },
+  {
+    "insertId": "68630bfd000d34566c08bba9",
+    "labels": {
+      "instanceId": "0069c7a988077e8e5e24ca36ffeb0b5ccdbab1dd3871da46befa89381d6fd417e7b751223b79189d30fa6cf1865fb44c4fc384be1993cc726342a3d49a9c4c1df72bb90ee5486d593c8592"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:13:18.057117724Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "    self.loaded_app = import_from_string(self.app)",
+    "timestamp": "2025-06-30T22:13:17.865366Z"
+  },
+  {
+    "insertId": "68630bfd000d3330e63a279a",
+    "labels": {
+      "instanceId": "0069c7a988077e8e5e24ca36ffeb0b5ccdbab1dd3871da46befa89381d6fd417e7b751223b79189d30fa6cf1865fb44c4fc384be1993cc726342a3d49a9c4c1df72bb90ee5486d593c8592"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:13:18.057117724Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "  File \"/usr/local/lib/python3.11/site-packages/uvicorn/config.py\", line 473, in load",
+    "timestamp": "2025-06-30T22:13:17.865072Z"
+  },
+  {
+    "insertId": "68630bfd000d330a484812aa",
+    "labels": {
+      "instanceId": "0069c7a988077e8e5e24ca36ffeb0b5ccdbab1dd3871da46befa89381d6fd417e7b751223b79189d30fa6cf1865fb44c4fc384be1993cc726342a3d49a9c4c1df72bb90ee5486d593c8592"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:13:18.057117724Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "    config.load()",
+    "timestamp": "2025-06-30T22:13:17.865034Z"
+  },
+  {
+    "insertId": "68630bfd000d3282855c8c63",
+    "labels": {
+      "instanceId": "0069c7a988077e8e5e24ca36ffeb0b5ccdbab1dd3871da46befa89381d6fd417e7b751223b79189d30fa6cf1865fb44c4fc384be1993cc726342a3d49a9c4c1df72bb90ee5486d593c8592"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:13:18.057117724Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "  File \"/usr/local/lib/python3.11/site-packages/uvicorn/server.py\", line 68, in serve",
+    "timestamp": "2025-06-30T22:13:17.864898Z"
+  },
+  {
+    "insertId": "68630bfd000d327b23ce7a82",
+    "labels": {
+      "instanceId": "0069c7a988077e8e5e24ca36ffeb0b5ccdbab1dd3871da46befa89381d6fd417e7b751223b79189d30fa6cf1865fb44c4fc384be1993cc726342a3d49a9c4c1df72bb90ee5486d593c8592"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:13:18.057117724Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "           ^^^^^^^^^^^^^^^",
+    "timestamp": "2025-06-30T22:13:17.864891Z"
+  },
+  {
+    "insertId": "68630bfd000d31306cd94df0",
+    "labels": {
+      "instanceId": "0069c7a988077e8e5e24ca36ffeb0b5ccdbab1dd3871da46befa89381d6fd417e7b751223b79189d30fa6cf1865fb44c4fc384be1993cc726342a3d49a9c4c1df72bb90ee5486d593c8592"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:13:18.057117724Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "    return future.result()",
+    "timestamp": "2025-06-30T22:13:17.864560Z"
+  },
+  {
+    "insertId": "68630bfd000d2f9d675d6b3d",
+    "labels": {
+      "instanceId": "0069c7a988077e8e5e24ca36ffeb0b5ccdbab1dd3871da46befa89381d6fd417e7b751223b79189d30fa6cf1865fb44c4fc384be1993cc726342a3d49a9c4c1df72bb90ee5486d593c8592"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:13:18.057117724Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "  File \"/usr/local/lib/python3.11/asyncio/base_events.py\", line 654, in run_until_complete",
+    "timestamp": "2025-06-30T22:13:17.864157Z"
+  },
+  {
+    "insertId": "68630bfd000d2f97f857c999",
+    "labels": {
+      "instanceId": "0069c7a988077e8e5e24ca36ffeb0b5ccdbab1dd3871da46befa89381d6fd417e7b751223b79189d30fa6cf1865fb44c4fc384be1993cc726342a3d49a9c4c1df72bb90ee5486d593c8592"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:13:18.057117724Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+    "timestamp": "2025-06-30T22:13:17.864151Z"
+  },
+  {
+    "insertId": "68630bfd000d2d27c2982eea",
+    "labels": {
+      "instanceId": "0069c7a988077e8e5e24ca36ffeb0b5ccdbab1dd3871da46befa89381d6fd417e7b751223b79189d30fa6cf1865fb44c4fc384be1993cc726342a3d49a9c4c1df72bb90ee5486d593c8592"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:13:18.057117724Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "    return self._loop.run_until_complete(task)",
+    "timestamp": "2025-06-30T22:13:17.863527Z"
+  },
+  {
+    "insertId": "68630bfd000d2c9185abe8a6",
+    "labels": {
+      "instanceId": "0069c7a988077e8e5e24ca36ffeb0b5ccdbab1dd3871da46befa89381d6fd417e7b751223b79189d30fa6cf1865fb44c4fc384be1993cc726342a3d49a9c4c1df72bb90ee5486d593c8592"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:13:18.057117724Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "  File \"/usr/local/lib/python3.11/asyncio/runners.py\", line 118, in run",
+    "timestamp": "2025-06-30T22:13:17.863377Z"
+  },
+  {
+    "insertId": "68630bfd000d2c6acdd5a69f",
+    "labels": {
+      "instanceId": "0069c7a988077e8e5e24ca36ffeb0b5ccdbab1dd3871da46befa89381d6fd417e7b751223b79189d30fa6cf1865fb44c4fc384be1993cc726342a3d49a9c4c1df72bb90ee5486d593c8592"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:13:18.057117724Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "           ^^^^^^^^^^^^^^^^",
+    "timestamp": "2025-06-30T22:13:17.863338Z"
+  },
+  {
+    "insertId": "68630bfd000d2b111c73db34",
+    "labels": {
+      "instanceId": "0069c7a988077e8e5e24ca36ffeb0b5ccdbab1dd3871da46befa89381d6fd417e7b751223b79189d30fa6cf1865fb44c4fc384be1993cc726342a3d49a9c4c1df72bb90ee5486d593c8592"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:13:18.057117724Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "    return runner.run(main)",
+    "timestamp": "2025-06-30T22:13:17.862993Z"
+  },
+  {
+    "insertId": "68630bfd000d290d1700d5fa",
+    "labels": {
+      "instanceId": "0069c7a988077e8e5e24ca36ffeb0b5ccdbab1dd3871da46befa89381d6fd417e7b751223b79189d30fa6cf1865fb44c4fc384be1993cc726342a3d49a9c4c1df72bb90ee5486d593c8592"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:13:18.057117724Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "  File \"/usr/local/lib/python3.11/asyncio/runners.py\", line 190, in run",
+    "timestamp": "2025-06-30T22:13:17.862477Z"
+  },
+  {
+    "insertId": "68630bfd000d290297d151c6",
+    "labels": {
+      "instanceId": "0069c7a988077e8e5e24ca36ffeb0b5ccdbab1dd3871da46befa89381d6fd417e7b751223b79189d30fa6cf1865fb44c4fc384be1993cc726342a3d49a9c4c1df72bb90ee5486d593c8592"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:13:18.057117724Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+    "timestamp": "2025-06-30T22:13:17.862466Z"
+  },
+  {
+    "insertId": "68630bfd000d268cc323ee17",
+    "labels": {
+      "instanceId": "0069c7a988077e8e5e24ca36ffeb0b5ccdbab1dd3871da46befa89381d6fd417e7b751223b79189d30fa6cf1865fb44c4fc384be1993cc726342a3d49a9c4c1df72bb90ee5486d593c8592"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:13:18.057117724Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "    return asyncio.run(self.serve(sockets=sockets))",
+    "timestamp": "2025-06-30T22:13:17.861836Z"
+  },
+  {
+    "insertId": "68630bfd000d24db3ec7a1f2",
+    "labels": {
+      "instanceId": "0069c7a988077e8e5e24ca36ffeb0b5ccdbab1dd3871da46befa89381d6fd417e7b751223b79189d30fa6cf1865fb44c4fc384be1993cc726342a3d49a9c4c1df72bb90ee5486d593c8592"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:13:18.057117724Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "  File \"/usr/local/lib/python3.11/site-packages/uvicorn/server.py\", line 61, in run",
+    "timestamp": "2025-06-30T22:13:17.861403Z"
+  },
+  {
+    "insertId": "68630bfd000d24bcfb723060",
+    "labels": {
+      "instanceId": "0069c7a988077e8e5e24ca36ffeb0b5ccdbab1dd3871da46befa89381d6fd417e7b751223b79189d30fa6cf1865fb44c4fc384be1993cc726342a3d49a9c4c1df72bb90ee5486d593c8592"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:13:18.057117724Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "    server.run()",
+    "timestamp": "2025-06-30T22:13:17.861372Z"
+  },
+  {
+    "insertId": "68630bfd000d23f2f24495b9",
+    "labels": {
+      "instanceId": "0069c7a988077e8e5e24ca36ffeb0b5ccdbab1dd3871da46befa89381d6fd417e7b751223b79189d30fa6cf1865fb44c4fc384be1993cc726342a3d49a9c4c1df72bb90ee5486d593c8592"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:13:18.057117724Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "  File \"/usr/local/lib/python3.11/site-packages/uvicorn/main.py\", line 578, in run",
+    "timestamp": "2025-06-30T22:13:17.861170Z"
+  },
+  {
+    "insertId": "68630bfd000d23cb89063506",
+    "labels": {
+      "instanceId": "0069c7a988077e8e5e24ca36ffeb0b5ccdbab1dd3871da46befa89381d6fd417e7b751223b79189d30fa6cf1865fb44c4fc384be1993cc726342a3d49a9c4c1df72bb90ee5486d593c8592"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:13:18.057117724Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "    run(",
+    "timestamp": "2025-06-30T22:13:17.861131Z"
+  },
+  {
+    "insertId": "68630bfd000d218ac7c18e51",
+    "labels": {
+      "instanceId": "0069c7a988077e8e5e24ca36ffeb0b5ccdbab1dd3871da46befa89381d6fd417e7b751223b79189d30fa6cf1865fb44c4fc384be1993cc726342a3d49a9c4c1df72bb90ee5486d593c8592"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:13:18.057117724Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "  File \"/usr/local/lib/python3.11/site-packages/uvicorn/main.py\", line 410, in main",
+    "timestamp": "2025-06-30T22:13:17.860554Z"
+  },
+  {
+    "insertId": "68630bfd000d2171987bfe41",
+    "labels": {
+      "instanceId": "0069c7a988077e8e5e24ca36ffeb0b5ccdbab1dd3871da46befa89381d6fd417e7b751223b79189d30fa6cf1865fb44c4fc384be1993cc726342a3d49a9c4c1df72bb90ee5486d593c8592"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:13:18.057117724Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "           ^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+    "timestamp": "2025-06-30T22:13:17.860529Z"
+  },
+  {
+    "insertId": "68630bfd000d1f9bfd8e6183",
+    "labels": {
+      "instanceId": "0069c7a988077e8e5e24ca36ffeb0b5ccdbab1dd3871da46befa89381d6fd417e7b751223b79189d30fa6cf1865fb44c4fc384be1993cc726342a3d49a9c4c1df72bb90ee5486d593c8592"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:13:18.057117724Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "    return __callback(*args, **kwargs)",
+    "timestamp": "2025-06-30T22:13:17.860059Z"
+  },
+  {
+    "insertId": "68630bfd000d1e8565c47976",
+    "labels": {
+      "instanceId": "0069c7a988077e8e5e24ca36ffeb0b5ccdbab1dd3871da46befa89381d6fd417e7b751223b79189d30fa6cf1865fb44c4fc384be1993cc726342a3d49a9c4c1df72bb90ee5486d593c8592"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:13:18.057117724Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "  File \"/usr/local/lib/python3.11/site-packages/click/core.py\", line 788, in invoke",
+    "timestamp": "2025-06-30T22:13:17.859781Z"
+  },
+  {
+    "insertId": "68630bfd000d1e7c77524aef",
+    "labels": {
+      "instanceId": "0069c7a988077e8e5e24ca36ffeb0b5ccdbab1dd3871da46befa89381d6fd417e7b751223b79189d30fa6cf1865fb44c4fc384be1993cc726342a3d49a9c4c1df72bb90ee5486d593c8592"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:13:18.057117724Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+    "timestamp": "2025-06-30T22:13:17.859772Z"
+  },
+  {
+    "insertId": "68630bfd000d1c165a9b7c8b",
+    "labels": {
+      "instanceId": "0069c7a988077e8e5e24ca36ffeb0b5ccdbab1dd3871da46befa89381d6fd417e7b751223b79189d30fa6cf1865fb44c4fc384be1993cc726342a3d49a9c4c1df72bb90ee5486d593c8592"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:13:18.057117724Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "    return ctx.invoke(self.callback, **ctx.params)",
+    "timestamp": "2025-06-30T22:13:17.859158Z"
+  },
+  {
+    "insertId": "68630bfd000d1a9b353fa5e8",
+    "labels": {
+      "instanceId": "0069c7a988077e8e5e24ca36ffeb0b5ccdbab1dd3871da46befa89381d6fd417e7b751223b79189d30fa6cf1865fb44c4fc384be1993cc726342a3d49a9c4c1df72bb90ee5486d593c8592"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:13:18.057117724Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "  File \"/usr/local/lib/python3.11/site-packages/click/core.py\", line 1443, in invoke",
+    "timestamp": "2025-06-30T22:13:17.858779Z"
+  },
+  {
+    "insertId": "68630bfd000d1a8eda8061b2",
+    "labels": {
+      "instanceId": "0069c7a988077e8e5e24ca36ffeb0b5ccdbab1dd3871da46befa89381d6fd417e7b751223b79189d30fa6cf1865fb44c4fc384be1993cc726342a3d49a9c4c1df72bb90ee5486d593c8592"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:13:18.057117724Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "         ^^^^^^^^^^^^^^^^",
+    "timestamp": "2025-06-30T22:13:17.858766Z"
+  },
+  {
+    "insertId": "68630bfd000d1942a9af34b3",
+    "labels": {
+      "instanceId": "0069c7a988077e8e5e24ca36ffeb0b5ccdbab1dd3871da46befa89381d6fd417e7b751223b79189d30fa6cf1865fb44c4fc384be1993cc726342a3d49a9c4c1df72bb90ee5486d593c8592"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:13:18.057117724Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "    rv = self.invoke(ctx)",
+    "timestamp": "2025-06-30T22:13:17.858434Z"
+  },
+  {
+    "insertId": "68630bfd000d17dd0b498ea2",
+    "labels": {
+      "instanceId": "0069c7a988077e8e5e24ca36ffeb0b5ccdbab1dd3871da46befa89381d6fd417e7b751223b79189d30fa6cf1865fb44c4fc384be1993cc726342a3d49a9c4c1df72bb90ee5486d593c8592"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:13:18.057117724Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "  File \"/usr/local/lib/python3.11/site-packages/click/core.py\", line 1082, in main",
+    "timestamp": "2025-06-30T22:13:17.858077Z"
+  },
+  {
+    "insertId": "68630bfd000d17d8b782b21f",
+    "labels": {
+      "instanceId": "0069c7a988077e8e5e24ca36ffeb0b5ccdbab1dd3871da46befa89381d6fd417e7b751223b79189d30fa6cf1865fb44c4fc384be1993cc726342a3d49a9c4c1df72bb90ee5486d593c8592"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:13:18.057117724Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "           ^^^^^^^^^^^^^^^^^^^^^^^^^^",
+    "timestamp": "2025-06-30T22:13:17.858072Z"
+  },
+  {
+    "insertId": "68630bfd000d16221d758dce",
+    "labels": {
+      "instanceId": "0069c7a988077e8e5e24ca36ffeb0b5ccdbab1dd3871da46befa89381d6fd417e7b751223b79189d30fa6cf1865fb44c4fc384be1993cc726342a3d49a9c4c1df72bb90ee5486d593c8592"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:13:18.057117724Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "    return self.main(*args, **kwargs)",
+    "timestamp": "2025-06-30T22:13:17.857634Z"
+  },
+  {
+    "insertId": "68630bfd000d12f8ed9e1432",
+    "labels": {
+      "instanceId": "0069c7a988077e8e5e24ca36ffeb0b5ccdbab1dd3871da46befa89381d6fd417e7b751223b79189d30fa6cf1865fb44c4fc384be1993cc726342a3d49a9c4c1df72bb90ee5486d593c8592"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:13:18.057117724Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "  File \"/usr/local/lib/python3.11/site-packages/click/core.py\", line 1161, in __call__",
+    "timestamp": "2025-06-30T22:13:17.856824Z"
+  },
+  {
+    "insertId": "68630bfd000d12f36a294da5",
+    "labels": {
+      "instanceId": "0069c7a988077e8e5e24ca36ffeb0b5ccdbab1dd3871da46befa89381d6fd417e7b751223b79189d30fa6cf1865fb44c4fc384be1993cc726342a3d49a9c4c1df72bb90ee5486d593c8592"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:13:18.057117724Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "             ^^^^^^",
+    "timestamp": "2025-06-30T22:13:17.856819Z"
+  },
+  {
+    "errorGroups": [
+      {
+        "id": "COv40r3t68fvkQE"
+      }
+    ],
+    "insertId": "68630bfd000d12e85c6f27e7",
+    "labels": {
+      "instanceId": "0069c7a988077e8e5e24ca36ffeb0b5ccdbab1dd3871da46befa89381d6fd417e7b751223b79189d30fa6cf1865fb44c4fc384be1993cc726342a3d49a9c4c1df72bb90ee5486d593c8592"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:13:18.057117724Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/usr/local/bin/uvicorn\", line 8, in <module>\n    sys.exit(main())",
+    "timestamp": "2025-06-30T22:13:17.856808Z"
+  },
+  {
+    "insertId": "68630bee000661b92d60c8a7",
+    "labels": {
+      "instanceId": "0069c7a988077e8e5e24ca36ffeb0b5ccdbab1dd3871da46befa89381d6fd417e7b751223b79189d30fa6cf1865fb44c4fc384be1993cc726342a3d49a9c4c1df72bb90ee5486d593c8592"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:13:02.738340904Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "  warnings.warn(message, UserWarning)",
+    "timestamp": "2025-06-30T22:13:02.418233Z"
+  },
+  {
+    "insertId": "68630bee000661b0f97ba69c",
+    "labels": {
+      "instanceId": "0069c7a988077e8e5e24ca36ffeb0b5ccdbab1dd3871da46befa89381d6fd417e7b751223b79189d30fa6cf1865fb44c4fc384be1993cc726342a3d49a9c4c1df72bb90ee5486d593c8592"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:13:02.738340904Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "* 'orm_mode' has been renamed to 'from_attributes'",
+    "timestamp": "2025-06-30T22:13:02.418224Z"
+  },
+  {
+    "insertId": "68630bee000661a21784bbff",
+    "labels": {
+      "instanceId": "0069c7a988077e8e5e24ca36ffeb0b5ccdbab1dd3871da46befa89381d6fd417e7b751223b79189d30fa6cf1865fb44c4fc384be1993cc726342a3d49a9c4c1df72bb90ee5486d593c8592"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:13:02.738340904Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "/usr/local/lib/python3.11/site-packages/pydantic/_internal/_config.py:373: UserWarning: Valid config keys have changed in V2:",
+    "timestamp": "2025-06-30T22:13:02.418210Z"
+  },
+  {
+    "insertId": "68630bec000efd050df6ebe8",
+    "labels": {
+      "instanceId": "0069c7a988077e8e5e24ca36ffeb0b5ccdbab1dd3871da46befa89381d6fd417e7b751223b79189d30fa6cf1865fb44c4fc384be1993cc726342a3d49a9c4c1df72bb90ee5486d593c8592"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:13:01.072528499Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "INFO:comdex:✅ CORS allowed_origins = ['https://swift-area-459514-d1.web.app', 'https://comdex-fawn.vercel.app', 'https://comdex-kevins-projects-e296122e.vercel.app']",
+    "timestamp": "2025-06-30T22:13:00.982277Z"
+  },
+  {
+    "insertId": "68630bec000efb288c6e8715",
+    "labels": {
+      "instanceId": "0069c7a988077e8e5e24ca36ffeb0b5ccdbab1dd3871da46befa89381d6fd417e7b751223b79189d30fa6cf1865fb44c4fc384be1993cc726342a3d49a9c4c1df72bb90ee5486d593c8592"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:13:01.072528499Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "INFO:comdex:✅ Database tables checked/created.",
+    "timestamp": "2025-06-30T22:13:00.981800Z"
+  },
+  {
+    "insertId": "68630bec0007d82db1c7adce",
+    "labels": {
+      "instanceId": "0069c7a988077e8e5e24ca36ffeb0b5ccdbab1dd3871da46befa89381d6fd417e7b751223b79189d30fa6cf1865fb44c4fc384be1993cc726342a3d49a9c4c1df72bb90ee5486d593c8592"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:13:00.739156545Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "INFO:root:🔍 SQLALCHEMY_DATABASE_URL = postgresql+psycopg2://comdex:Wn8smx123@/comdex?host=/cloudsql/swift-area-459514-d1:us-central1:comdex-db",
+    "timestamp": "2025-06-30T22:13:00.514093Z"
+  },
+  {
+    "insertId": "68630bec000551771fe87a96",
+    "labels": {
+      "instanceId": "0069c7a988077e8e5e24ca36ffeb0b5ccdbab1dd3871da46befa89381d6fd417e7b751223b79189d30fa6cf1865fb44c4fc384be1993cc726342a3d49a9c4c1df72bb90ee5486d593c8592"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:13:00.408169813Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "INFO:comdex:🔍 SQLALCHEMY_DATABASE_URL = postgresql+psycopg2://comdex:Wn8smx123@/comdex?host=/cloudsql/swift-area-459514-d1:us-central1:comdex-db",
+    "timestamp": "2025-06-30T22:13:00.348535Z"
+  },
+  {
+    "insertId": "68630be600064ed343adf97a",
+    "labels": {
+      "instanceId": "0069c7a98806ee367c3aecd6efa882972289bf9a685875ed890aaec85c7da3365a5fc1d0ecd3b9a765bfa5f1c1446f1375fa3651b67e85cf44da7a4bcc9884dcc891b7600cbbb46212ef96"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fvarlog%2Fsystem",
+    "receiveTimestamp": "2025-06-30T22:12:54.589269252Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "ERROR",
+    "textPayload": "Default STARTUP TCP probe failed 1 time consecutively for container \"comdex-api-1\" on port 8080. The instance was not started.\nConnection failed with status CANCELLED.",
+    "timestamp": "2025-06-30T22:12:54.413395Z"
+  },
+  {
+    "insertId": "68630be60003d7b5b934348a",
+    "labels": {
+      "container_name": "comdex-api-1",
+      "instanceId": "0069c7a98806ee367c3aecd6efa882972289bf9a685875ed890aaec85c7da3365a5fc1d0ecd3b9a765bfa5f1c1446f1375fa3651b67e85cf44da7a4bcc9884dcc891b7600cbbb46212ef96"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fvarlog%2Fsystem",
+    "receiveTimestamp": "2025-06-30T22:12:54.256978536Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "WARNING",
+    "textPayload": "Container called exit(1).",
+    "timestamp": "2025-06-30T22:12:54.251819203Z"
+  },
+  {
+    "insertId": "68630be4000c3e262686aee2",
+    "labels": {
+      "instanceId": "0069c7a98806ee367c3aecd6efa882972289bf9a685875ed890aaec85c7da3365a5fc1d0ecd3b9a765bfa5f1c1446f1375fa3651b67e85cf44da7a4bcc9884dcc891b7600cbbb46212ef96"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:12:53.082226922Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "ModuleNotFoundError: No module named 'backend'",
+    "timestamp": "2025-06-30T22:12:52.802342Z"
+  },
+  {
+    "insertId": "68630be3000b90fa838d64be",
+    "labels": {
+      "instanceId": "0069c7a98806ee367c3aecd6efa882972289bf9a685875ed890aaec85c7da3365a5fc1d0ecd3b9a765bfa5f1c1446f1375fa3651b67e85cf44da7a4bcc9884dcc891b7600cbbb46212ef96"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:12:52.082064512Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "    from backend.api.aion          import status, grid_progress",
+    "timestamp": "2025-06-30T22:12:51.758010Z"
+  },
+  {
+    "insertId": "68630be3000b8db7d8381f51",
+    "labels": {
+      "instanceId": "0069c7a98806ee367c3aecd6efa882972289bf9a685875ed890aaec85c7da3365a5fc1d0ecd3b9a765bfa5f1c1446f1375fa3651b67e85cf44da7a4bcc9884dcc891b7600cbbb46212ef96"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:12:52.082064512Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "  File \"/srv/main.py\", line 93, in <module>",
+    "timestamp": "2025-06-30T22:12:51.757175Z"
+  },
+  {
+    "insertId": "68630be3000b8d9fac68a78f",
+    "labels": {
+      "instanceId": "0069c7a98806ee367c3aecd6efa882972289bf9a685875ed890aaec85c7da3365a5fc1d0ecd3b9a765bfa5f1c1446f1375fa3651b67e85cf44da7a4bcc9884dcc891b7600cbbb46212ef96"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:12:52.082064512Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "  File \"<frozen importlib._bootstrap>\", line 241, in _call_with_frames_removed",
+    "timestamp": "2025-06-30T22:12:51.757151Z"
+  },
+  {
+    "insertId": "68630be3000b8d9a5548d3a0",
+    "labels": {
+      "instanceId": "0069c7a98806ee367c3aecd6efa882972289bf9a685875ed890aaec85c7da3365a5fc1d0ecd3b9a765bfa5f1c1446f1375fa3651b67e85cf44da7a4bcc9884dcc891b7600cbbb46212ef96"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:12:52.082064512Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "  File \"<frozen importlib._bootstrap_external>\", line 940, in exec_module",
+    "timestamp": "2025-06-30T22:12:51.757146Z"
+  },
+  {
+    "insertId": "68630be3000b8d800a46ce31",
+    "labels": {
+      "instanceId": "0069c7a98806ee367c3aecd6efa882972289bf9a685875ed890aaec85c7da3365a5fc1d0ecd3b9a765bfa5f1c1446f1375fa3651b67e85cf44da7a4bcc9884dcc891b7600cbbb46212ef96"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:12:52.082064512Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "  File \"<frozen importlib._bootstrap>\", line 690, in _load_unlocked",
+    "timestamp": "2025-06-30T22:12:51.757120Z"
+  },
+  {
+    "insertId": "68630be3000b8d7cc0481904",
+    "labels": {
+      "instanceId": "0069c7a98806ee367c3aecd6efa882972289bf9a685875ed890aaec85c7da3365a5fc1d0ecd3b9a765bfa5f1c1446f1375fa3651b67e85cf44da7a4bcc9884dcc891b7600cbbb46212ef96"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:12:52.082064512Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "  File \"<frozen importlib._bootstrap>\", line 1147, in _find_and_load_unlocked",
+    "timestamp": "2025-06-30T22:12:51.757116Z"
+  },
+  {
+    "insertId": "68630be3000b8d5b36d2dbb8",
+    "labels": {
+      "instanceId": "0069c7a98806ee367c3aecd6efa882972289bf9a685875ed890aaec85c7da3365a5fc1d0ecd3b9a765bfa5f1c1446f1375fa3651b67e85cf44da7a4bcc9884dcc891b7600cbbb46212ef96"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:12:52.082064512Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "  File \"<frozen importlib._bootstrap>\", line 1176, in _find_and_load",
+    "timestamp": "2025-06-30T22:12:51.757083Z"
+  },
+  {
+    "insertId": "68630be3000b8d466d06b970",
+    "labels": {
+      "instanceId": "0069c7a98806ee367c3aecd6efa882972289bf9a685875ed890aaec85c7da3365a5fc1d0ecd3b9a765bfa5f1c1446f1375fa3651b67e85cf44da7a4bcc9884dcc891b7600cbbb46212ef96"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:12:52.082064512Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "  File \"<frozen importlib._bootstrap>\", line 1204, in _gcd_import",
+    "timestamp": "2025-06-30T22:12:51.757062Z"
+  },
+  {
+    "insertId": "68630be3000b8d3f9ac235b9",
+    "labels": {
+      "instanceId": "0069c7a98806ee367c3aecd6efa882972289bf9a685875ed890aaec85c7da3365a5fc1d0ecd3b9a765bfa5f1c1446f1375fa3651b67e85cf44da7a4bcc9884dcc891b7600cbbb46212ef96"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:12:52.082064512Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+    "timestamp": "2025-06-30T22:12:51.757055Z"
+  },
+  {
+    "insertId": "68630be3000b8a437a325bcf",
+    "labels": {
+      "instanceId": "0069c7a98806ee367c3aecd6efa882972289bf9a685875ed890aaec85c7da3365a5fc1d0ecd3b9a765bfa5f1c1446f1375fa3651b67e85cf44da7a4bcc9884dcc891b7600cbbb46212ef96"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:12:52.082064512Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "    return _bootstrap._gcd_import(name[level:], package, level)",
+    "timestamp": "2025-06-30T22:12:51.756291Z"
+  },
+  {
+    "insertId": "68630be3000b8853cb1f5293",
+    "labels": {
+      "instanceId": "0069c7a98806ee367c3aecd6efa882972289bf9a685875ed890aaec85c7da3365a5fc1d0ecd3b9a765bfa5f1c1446f1375fa3651b67e85cf44da7a4bcc9884dcc891b7600cbbb46212ef96"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:12:52.082064512Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "  File \"/usr/local/lib/python3.11/importlib/__init__.py\", line 126, in import_module",
+    "timestamp": "2025-06-30T22:12:51.755795Z"
+  },
+  {
+    "insertId": "68630be3000b884d419a0ba2",
+    "labels": {
+      "instanceId": "0069c7a98806ee367c3aecd6efa882972289bf9a685875ed890aaec85c7da3365a5fc1d0ecd3b9a765bfa5f1c1446f1375fa3651b67e85cf44da7a4bcc9884dcc891b7600cbbb46212ef96"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:12:52.082064512Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+    "timestamp": "2025-06-30T22:12:51.755789Z"
+  },
+  {
+    "insertId": "68630be3000b85f1b5128305",
+    "labels": {
+      "instanceId": "0069c7a98806ee367c3aecd6efa882972289bf9a685875ed890aaec85c7da3365a5fc1d0ecd3b9a765bfa5f1c1446f1375fa3651b67e85cf44da7a4bcc9884dcc891b7600cbbb46212ef96"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:12:52.082064512Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "    module = importlib.import_module(module_str)",
+    "timestamp": "2025-06-30T22:12:51.755185Z"
+  },
+  {
+    "insertId": "68630be3000b855c0695ca25",
+    "labels": {
+      "instanceId": "0069c7a98806ee367c3aecd6efa882972289bf9a685875ed890aaec85c7da3365a5fc1d0ecd3b9a765bfa5f1c1446f1375fa3651b67e85cf44da7a4bcc9884dcc891b7600cbbb46212ef96"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:12:52.082064512Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "  File \"/usr/local/lib/python3.11/site-packages/uvicorn/importer.py\", line 21, in import_from_string",
+    "timestamp": "2025-06-30T22:12:51.755036Z"
+  },
+  {
+    "insertId": "68630be3000b8535fd2607cc",
+    "labels": {
+      "instanceId": "0069c7a98806ee367c3aecd6efa882972289bf9a685875ed890aaec85c7da3365a5fc1d0ecd3b9a765bfa5f1c1446f1375fa3651b67e85cf44da7a4bcc9884dcc891b7600cbbb46212ef96"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:12:52.082064512Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "    raise exc from None",
+    "timestamp": "2025-06-30T22:12:51.754997Z"
+  },
+  {
+    "insertId": "68630be3000b82e8e6b70901",
+    "labels": {
+      "instanceId": "0069c7a98806ee367c3aecd6efa882972289bf9a685875ed890aaec85c7da3365a5fc1d0ecd3b9a765bfa5f1c1446f1375fa3651b67e85cf44da7a4bcc9884dcc891b7600cbbb46212ef96"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:12:52.082064512Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "  File \"/usr/local/lib/python3.11/site-packages/uvicorn/importer.py\", line 24, in import_from_string",
+    "timestamp": "2025-06-30T22:12:51.754408Z"
+  },
+  {
+    "insertId": "68630be3000b82e13d0ef476",
+    "labels": {
+      "instanceId": "0069c7a98806ee367c3aecd6efa882972289bf9a685875ed890aaec85c7da3365a5fc1d0ecd3b9a765bfa5f1c1446f1375fa3651b67e85cf44da7a4bcc9884dcc891b7600cbbb46212ef96"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:12:52.082064512Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+    "timestamp": "2025-06-30T22:12:51.754401Z"
+  },
+  {
+    "insertId": "68630be3000b807d88a984c6",
+    "labels": {
+      "instanceId": "0069c7a98806ee367c3aecd6efa882972289bf9a685875ed890aaec85c7da3365a5fc1d0ecd3b9a765bfa5f1c1446f1375fa3651b67e85cf44da7a4bcc9884dcc891b7600cbbb46212ef96"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:12:52.082064512Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "    self.loaded_app = import_from_string(self.app)",
+    "timestamp": "2025-06-30T22:12:51.753789Z"
+  },
+  {
+    "insertId": "68630be3000b7b87540b0ebe",
+    "labels": {
+      "instanceId": "0069c7a98806ee367c3aecd6efa882972289bf9a685875ed890aaec85c7da3365a5fc1d0ecd3b9a765bfa5f1c1446f1375fa3651b67e85cf44da7a4bcc9884dcc891b7600cbbb46212ef96"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:12:52.082064512Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "  File \"/usr/local/lib/python3.11/site-packages/uvicorn/config.py\", line 473, in load",
+    "timestamp": "2025-06-30T22:12:51.752519Z"
+  },
+  {
+    "insertId": "68630be3000b7b6617685dbf",
+    "labels": {
+      "instanceId": "0069c7a98806ee367c3aecd6efa882972289bf9a685875ed890aaec85c7da3365a5fc1d0ecd3b9a765bfa5f1c1446f1375fa3651b67e85cf44da7a4bcc9884dcc891b7600cbbb46212ef96"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:12:52.082064512Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "    config.load()",
+    "timestamp": "2025-06-30T22:12:51.752486Z"
+  },
+  {
+    "insertId": "68630be3000b7aa55ba1bf75",
+    "labels": {
+      "instanceId": "0069c7a98806ee367c3aecd6efa882972289bf9a685875ed890aaec85c7da3365a5fc1d0ecd3b9a765bfa5f1c1446f1375fa3651b67e85cf44da7a4bcc9884dcc891b7600cbbb46212ef96"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:12:52.082064512Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "  File \"/usr/local/lib/python3.11/site-packages/uvicorn/server.py\", line 68, in serve",
+    "timestamp": "2025-06-30T22:12:51.752293Z"
+  },
+  {
+    "insertId": "68630be3000b7a8f2de8acc5",
+    "labels": {
+      "instanceId": "0069c7a98806ee367c3aecd6efa882972289bf9a685875ed890aaec85c7da3365a5fc1d0ecd3b9a765bfa5f1c1446f1375fa3651b67e85cf44da7a4bcc9884dcc891b7600cbbb46212ef96"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:12:52.082064512Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "           ^^^^^^^^^^^^^^^",
+    "timestamp": "2025-06-30T22:12:51.752271Z"
+  },
+  {
+    "insertId": "68630be3000b794ccc207f15",
+    "labels": {
+      "instanceId": "0069c7a98806ee367c3aecd6efa882972289bf9a685875ed890aaec85c7da3365a5fc1d0ecd3b9a765bfa5f1c1446f1375fa3651b67e85cf44da7a4bcc9884dcc891b7600cbbb46212ef96"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:12:52.082064512Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "    return future.result()",
+    "timestamp": "2025-06-30T22:12:51.751948Z"
+  },
+  {
+    "insertId": "68630be3000b76f5f58b3460",
+    "labels": {
+      "instanceId": "0069c7a98806ee367c3aecd6efa882972289bf9a685875ed890aaec85c7da3365a5fc1d0ecd3b9a765bfa5f1c1446f1375fa3651b67e85cf44da7a4bcc9884dcc891b7600cbbb46212ef96"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:12:52.082064512Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "  File \"/usr/local/lib/python3.11/asyncio/base_events.py\", line 654, in run_until_complete",
+    "timestamp": "2025-06-30T22:12:51.751349Z"
+  },
+  {
+    "insertId": "68630be3000b76efe230c430",
+    "labels": {
+      "instanceId": "0069c7a98806ee367c3aecd6efa882972289bf9a685875ed890aaec85c7da3365a5fc1d0ecd3b9a765bfa5f1c1446f1375fa3651b67e85cf44da7a4bcc9884dcc891b7600cbbb46212ef96"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:12:52.082064512Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+    "timestamp": "2025-06-30T22:12:51.751343Z"
+  },
+  {
+    "insertId": "68630be3000b74d0044c13c1",
+    "labels": {
+      "instanceId": "0069c7a98806ee367c3aecd6efa882972289bf9a685875ed890aaec85c7da3365a5fc1d0ecd3b9a765bfa5f1c1446f1375fa3651b67e85cf44da7a4bcc9884dcc891b7600cbbb46212ef96"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:12:52.082064512Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "    return self._loop.run_until_complete(task)",
+    "timestamp": "2025-06-30T22:12:51.750800Z"
+  },
+  {
+    "insertId": "68630be3000b74431667cd88",
+    "labels": {
+      "instanceId": "0069c7a98806ee367c3aecd6efa882972289bf9a685875ed890aaec85c7da3365a5fc1d0ecd3b9a765bfa5f1c1446f1375fa3651b67e85cf44da7a4bcc9884dcc891b7600cbbb46212ef96"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:12:52.082064512Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "  File \"/usr/local/lib/python3.11/asyncio/runners.py\", line 118, in run",
+    "timestamp": "2025-06-30T22:12:51.750659Z"
+  },
+  {
+    "insertId": "68630be3000b7429392057d9",
+    "labels": {
+      "instanceId": "0069c7a98806ee367c3aecd6efa882972289bf9a685875ed890aaec85c7da3365a5fc1d0ecd3b9a765bfa5f1c1446f1375fa3651b67e85cf44da7a4bcc9884dcc891b7600cbbb46212ef96"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:12:52.082064512Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "           ^^^^^^^^^^^^^^^^",
+    "timestamp": "2025-06-30T22:12:51.750633Z"
+  },
+  {
+    "insertId": "68630be3000b72bf95c4ccae",
+    "labels": {
+      "instanceId": "0069c7a98806ee367c3aecd6efa882972289bf9a685875ed890aaec85c7da3365a5fc1d0ecd3b9a765bfa5f1c1446f1375fa3651b67e85cf44da7a4bcc9884dcc891b7600cbbb46212ef96"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:12:52.082064512Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "    return runner.run(main)",
+    "timestamp": "2025-06-30T22:12:51.750271Z"
+  },
+  {
+    "insertId": "68630be3000b70feb3a68cbc",
+    "labels": {
+      "instanceId": "0069c7a98806ee367c3aecd6efa882972289bf9a685875ed890aaec85c7da3365a5fc1d0ecd3b9a765bfa5f1c1446f1375fa3651b67e85cf44da7a4bcc9884dcc891b7600cbbb46212ef96"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:12:52.082064512Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "  File \"/usr/local/lib/python3.11/asyncio/runners.py\", line 190, in run",
+    "timestamp": "2025-06-30T22:12:51.749822Z"
+  },
+  {
+    "insertId": "68630be3000b70ef8cf69528",
+    "labels": {
+      "instanceId": "0069c7a98806ee367c3aecd6efa882972289bf9a685875ed890aaec85c7da3365a5fc1d0ecd3b9a765bfa5f1c1446f1375fa3651b67e85cf44da7a4bcc9884dcc891b7600cbbb46212ef96"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:12:52.082064512Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+    "timestamp": "2025-06-30T22:12:51.749807Z"
+  },
+  {
+    "insertId": "68630be3000b6e9740c52efd",
+    "labels": {
+      "instanceId": "0069c7a98806ee367c3aecd6efa882972289bf9a685875ed890aaec85c7da3365a5fc1d0ecd3b9a765bfa5f1c1446f1375fa3651b67e85cf44da7a4bcc9884dcc891b7600cbbb46212ef96"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:12:52.082064512Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "    return asyncio.run(self.serve(sockets=sockets))",
+    "timestamp": "2025-06-30T22:12:51.749207Z"
+  },
+  {
+    "insertId": "68630be3000b6d1685f769e8",
+    "labels": {
+      "instanceId": "0069c7a98806ee367c3aecd6efa882972289bf9a685875ed890aaec85c7da3365a5fc1d0ecd3b9a765bfa5f1c1446f1375fa3651b67e85cf44da7a4bcc9884dcc891b7600cbbb46212ef96"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:12:52.082064512Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "  File \"/usr/local/lib/python3.11/site-packages/uvicorn/server.py\", line 61, in run",
+    "timestamp": "2025-06-30T22:12:51.748822Z"
+  },
+  {
+    "insertId": "68630be3000b6d008d07789f",
+    "labels": {
+      "instanceId": "0069c7a98806ee367c3aecd6efa882972289bf9a685875ed890aaec85c7da3365a5fc1d0ecd3b9a765bfa5f1c1446f1375fa3651b67e85cf44da7a4bcc9884dcc891b7600cbbb46212ef96"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:12:52.082064512Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "    server.run()",
+    "timestamp": "2025-06-30T22:12:51.748800Z"
+  },
+  {
+    "insertId": "68630be3000b6c1da7a37c13",
+    "labels": {
+      "instanceId": "0069c7a98806ee367c3aecd6efa882972289bf9a685875ed890aaec85c7da3365a5fc1d0ecd3b9a765bfa5f1c1446f1375fa3651b67e85cf44da7a4bcc9884dcc891b7600cbbb46212ef96"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:12:52.082064512Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "  File \"/usr/local/lib/python3.11/site-packages/uvicorn/main.py\", line 578, in run",
+    "timestamp": "2025-06-30T22:12:51.748573Z"
+  },
+  {
+    "insertId": "68630be3000b6c0b53f6de83",
+    "labels": {
+      "instanceId": "0069c7a98806ee367c3aecd6efa882972289bf9a685875ed890aaec85c7da3365a5fc1d0ecd3b9a765bfa5f1c1446f1375fa3651b67e85cf44da7a4bcc9884dcc891b7600cbbb46212ef96"
+    },
+    "logName": "projects/swift-area-459514-d1/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-06-30T22:12:52.082064512Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "comdex-api",
+        "location": "us-central1",
+        "project_id": "swift-area-459514-d1",
+        "revision_name": "comdex-api-00297-5lx",
+        "service_name": "comdex-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "    run(",
+    "timestamp": "2025-06-30T22:12:51.748555Z"
+  }
+]

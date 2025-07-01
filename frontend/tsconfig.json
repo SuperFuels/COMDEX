@@ -1,0 +1,49 @@
+// File: frontend/tsconfig.json
+{
+  "compilerOptions": {
+    // ── 1) Target / Module / JSX settings ──────────────────────────────────────
+    "target": "ES2020",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "jsx": "preserve",
+
+    // ── 2) Strictness / Interop / No Emission ────────────────────────────────
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "allowJs": true,
+    "skipLibCheck": true,
+    "incremental": true,
+
+    // ── 3) Type Definitions ───────────────────────────────────────────────────
+    //    Include Node, Next.js, React, and React-DOM
+    "types": ["node", "next", "react", "react-dom"],
+
+    // ── 4) Path Aliases ───────────────────────────────────────────────────────
+    "baseUrl": ".",
+    "paths": {
+      "@/constants/*":   ["constants/*"],
+      "@/types":         ["types/index.ts"],
+      "@/types/*":       ["types/*"],
+      "@/lib/*":         ["lib/*"],
+      "@/components/*":  ["components/*"],
+      "@/hooks/*":       ["hooks/*"],
+      "@/utils/*":       ["utils/*"],
+      "@/styles/*":      ["styles/*"]
+    }
+  },
+
+  // ── 5) Which files to include / exclude ────────────────────────────────────
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "memory_access": {
+    "description": "Can recall and reflect on long-term memory.",
+    "unlocked": true
+  },
+  "language_understanding": {
+    "description": "Understands and interprets human language accurately.",
+    "unlocked": true
+  },
+  "vision_module": {
+    "description": "Processes and reacts to visual input.",
+    "unlocked": false
+  }
+}

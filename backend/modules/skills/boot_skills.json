@@ -1,0 +1,24 @@
+{
+  "goals": [
+    {
+      "name": "learn_crypto_terms",
+      "description": "Understand key terms in cryptocurrency and trading.",
+      "reward": 10
+    },
+    {
+      "name": "study_market_making",
+      "description": "Learn how to act as a market maker in GLU swaps.",
+      "reward": 15
+    },
+    {
+      "name": "explain_stk_token",
+      "description": "Summarize the purpose of $STK in one paragraph.",
+      "reward": 5
+    },
+    {
+      "name": "understand_gov_config",
+      "description": "Read and explain parent override system and maturity logic.",
+      "reward": 5
+    }
+  ]
+}
