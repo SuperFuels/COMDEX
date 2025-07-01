@@ -1,27 +1,30 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // ✅ Enable static HTML export
+  // ✅ Enable static HTML export via new config system
   output: 'export',
 
-  // Optional: add trailing slashes to all URLs
+  // Optional: add trailing slashes to all URLs (helps with static hosting)
   trailingSlash: true,
 
-  // Disable image optimization (if you're not using next/image CDN)
+  // Disable image optimization (since static export can't use next/image CDN)
   images: {
     unoptimized: true,
   },
 
-  // Ignore ESLint build errors (optional for CI/CD)
+  // Ignore ESLint errors during build (useful in CI/CD)
   eslint: {
     ignoreDuringBuilds: true,
   },
 
-  // ✅ Make env variables accessible in the browser
+  // ✅ Expose env vars to browser, e.g. frontend API base URL
   env: {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
   },
 
-  // ✅ Rewrite API routes to external backend (e.g. Cloud Run)
+  // ⚠️ NOTE: rewrites are ignored in static export mode.
+  // Static export disables API routes and middleware,
+  // so rewrites won't work as usual.
+  // You might want to remove this or handle API proxy differently.
   async rewrites() {
     return [
       {

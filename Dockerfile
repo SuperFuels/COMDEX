@@ -15,10 +15,13 @@ RUN apt-get update && \
 COPY backend/requirements.txt ./
 RUN pip install --upgrade pip && pip install --no-cache-dir -r requirements.txt
 
-COPY backend/ ./backend
-COPY frontend/out/ ./backend/static/
+COPY backend/ ./
 
+# Create upload folder and static folder (static will be filled by next line)
 RUN mkdir -p /srv/backend/static /srv/uploaded_images
+
+# Copy the frontend static build into /srv/backend/static (must match FastAPI mount path)
+COPY frontend/out/ ./static/
 
 ENV PYTHONPATH=/srv/backend
 
