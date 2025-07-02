@@ -1,33 +1,35 @@
-from PIL import Image, ImageDraw
+import json
+from pathlib import Path
+
+STATE_PATH = Path("backend/modules/aion/grid_world_state.json")
 
 class GridWorld:
     def __init__(self, size=10):
         self.size = size
-        # Simulated exploration state
         self.grid = [[False for _ in range(size)] for _ in range(size)]
-        self.grid[0][0] = True
-        self.grid[1][0] = True
-        self.grid[2][0] = True
-        self.grid[2][1] = True
-        self.grid[3][1] = True
-        self.grid[4][1] = True  # Example path
+        # Try to load saved state
+        if STATE_PATH.exists():
+            with open(STATE_PATH, "r") as f:
+                saved = json.load(f)
+                self.grid = saved.get("grid", self.grid)
+
+    def save_state(self):
+        with open(STATE_PATH, "w") as f:
+            json.dump({"grid": self.grid}, f)
 
     def step(self):
-        # Placeholder step logic
+        # Your logic here, mark cells explored, e.g.
+        # self.grid[x][y] = True
+        self.save_state()
+        # Return status dict as needed
         return {"complete": False, "message": "Step taken"}
 
-    def render_tile_map(self):
-        tile_size = 20
-        img_size = self.size * tile_size
-        img = Image.new("RGB", (img_size, img_size), color="black")
-        draw = ImageDraw.Draw(img)
-
-        for y in range(self.size):
-            for x in range(self.size):
-                top_left = (x * tile_size, y * tile_size)
-                bottom_right = ((x + 1) * tile_size, (y + 1) * tile_size)
-
-                color = "#00ff00" if self.grid[y][x] else "#333333"
-                draw.rectangle([top_left, bottom_right], fill=color, outline="gray")
-
-        return img
+    def get_progress(self):
+        total_tiles = self.size * self.size
+        explored = sum(sum(1 for cell in row if cell) for row in self.grid)
+        progress_percent = explored / total_tiles
+        return {
+            "explored_tiles": explored,
+            "total_tiles": total_tiles,
+            "progress": progress_percent
+        }

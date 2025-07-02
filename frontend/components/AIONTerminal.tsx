@@ -1,4 +1,17 @@
+"use client";
+
 import { useState, useEffect } from "react";
+
+type TraitMap = Record<string, number>;
+type ImpactSummary = {
+  positive: number;
+  neutral: number;
+  negative: number;
+};
+type Awareness = {
+  recent_summary: ImpactSummary;
+  current_risk: string;
+};
 
 export default function AIONTerminal() {
   const [prompt, setPrompt] = useState("");
@@ -9,19 +22,25 @@ export default function AIONTerminal() {
   const [goal, setGoal] = useState<string>("Loading...");
   const [recentEvents, setRecentEvents] = useState<any[]>([]);
   const [eventCount, setEventCount] = useState<number>(0);
-
   const [gameDreamLoading, setGameDreamLoading] = useState(false);
   const [gameDreamResult, setGameDreamResult] = useState("");
   const [gameDreams, setGameDreams] = useState<string[]>([]);
+  const [bootSkills, setBootSkills] = useState<any[]>([]);
+  const [bootLoading, setBootLoading] = useState(false);
+  const [reflecting, setReflecting] = useState(false);
+  const [identityDesc, setIdentityDesc] = useState<string>("");
+  const [traits, setTraits] = useState<TraitMap>({});
+  const [awareness, setAwareness] = useState<Awareness | null>(null);
 
   useEffect(() => {
     fetchStatus();
     fetchTileMap();
     fetchGoal();
     fetchRecentEvents();
-    const interval = setInterval(() => {
-      fetchRecentEvents();
-    }, 3000);
+    fetchBootSkills();
+    fetchIdentity();
+    fetchAwareness();
+    const interval = setInterval(fetchRecentEvents, 3000);
     return () => clearInterval(interval);
   }, []);
 
@@ -67,28 +86,79 @@ export default function AIONTerminal() {
     }
   };
 
+  const fetchAwareness = async () => {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/aion/situation`);
+      const data = await res.json();
+      setAwareness(data.awareness || null);
+    } catch {
+      setAwareness(null);
+    }
+  };
+
+  const fetchBootSkills = async () => {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/aion/boot-skills`);
+      const data = await res.json();
+      setBootSkills(data.skills || []);
+    } catch {
+      setBootSkills([]);
+    }
+  };
+
+  const fetchIdentity = async () => {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/aion/identity`);
+      const data = await res.json();
+      setIdentityDesc(data.description || "No identity data.");
+      setTraits(data.personality_traits || {});
+    } catch {
+      setIdentityDesc("❌ Failed to fetch identity.");
+      setTraits({});
+    }
+  };
+
+  const handleBootSkill = async () => {
+    setBootLoading(true);
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/aion/boot-skill`, { method: "POST" });
+      const data = await res.json();
+      setResponse(`📦 Boot Skill: ${data.message || data.title || "No skill loaded."}`);
+      fetchBootSkills();
+    } catch {
+      setResponse("❌ Error loading skill.");
+    } finally {
+      setBootLoading(false);
+    }
+  };
+
+  const handleSkillReflect = async () => {
+    setReflecting(true);
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/aion/skill-reflect`, { method: "POST" });
+      const data = await res.json();
+      setResponse(`🧠 Reflection: ${data.message || data.result || "No reflection result."}`);
+    } catch {
+      setResponse("❌ Reflection failed.");
+    } finally {
+      setReflecting(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!prompt.trim()) return;
-
     setLoading(true);
     setResponse("");
-
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/aion`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt }),
       });
-
       const data = await res.json();
-
-      if (!res.ok) {
-        setResponse(`❌ AION error: ${data.detail || "Unknown error"}`);
-      } else {
-        setResponse(data.reply);
-      }
-    } catch (err) {
+      setResponse(data.reply || "No reply.");
+    } catch {
       setResponse("❌ AION error: Backend unreachable.");
     } finally {
       setLoading(false);
@@ -105,7 +175,7 @@ export default function AIONTerminal() {
       });
       const data = await res.json();
       setResponse(`✅ Dream Result:\n\n${data.result || data.message || "Dream complete."}`);
-    } catch (err) {
+    } catch {
       setResponse("❌ Dream scheduler error: Could not reach backend.");
     }
   };
@@ -124,7 +194,7 @@ export default function AIONTerminal() {
       } else {
         setGameDreamResult("❌ No dream returned.");
       }
-    } catch (err) {
+    } catch {
       setGameDreamResult("❌ Error triggering game dream.");
     } finally {
       setGameDreamLoading(false);
@@ -159,101 +229,77 @@ export default function AIONTerminal() {
         </div>
       )}
 
-      {status && (
-        <div className="mt-6 p-4 bg-gray-800 rounded-lg shadow space-y-4">
-          <h3 className="text-lg font-semibold">📊 AION Progress Summary</h3>
-          <p>🧬 <strong>Phase:</strong> {status.phase}</p>
-          <p>📈 <strong>Strategy Count:</strong> {status.strategy_count}</p>
-          <p>🔓 <strong>Unlocked:</strong> {status.unlocked.join(", ") || "None"}</p>
-          <p>🔒 <strong>Locked:</strong> {status.locked.join(", ") || "None"}</p>
-
-          <div>
-            <h4 className="font-semibold">🏁 Grid World</h4>
-            <p>Progress: {status.grid_progress.percent_explored}%</p>
-            <p>Zones Learned: {status.grid_progress.learned_zones.join(", ") || "None"}</p>
-          </div>
-
-          <div>
-            <h4 className="font-semibold">🏆 Milestones</h4>
-            <ul className="list-disc list-inside text-sm ml-4">
-              {status.milestones.map((m: string, i: number) => (
-                <li key={i}>{m}</li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      )}
-
-      {tileMap && (
-        <div className="mt-6 bg-gray-800 rounded-lg p-4 text-center">
-          <h3 className="text-lg font-semibold mb-2">🗺️ Grid World Tile Map</h3>
-          <img
-            src={`data:image/png;base64,${tileMap}`}
-            alt="Grid World Map"
-            className="rounded border border-gray-700 shadow-md mx-auto"
-          />
-          <button
-            onClick={fetchTileMap}
-            className="mt-4 bg-gray-600 hover:bg-gray-700 text-white py-1 px-4 rounded text-sm"
-          >
-            🔁 Refresh Tile Map
-          </button>
-        </div>
-      )}
-
       <div className="mt-6 p-4 bg-gray-800 rounded-lg shadow">
-        <h3 className="text-lg font-semibold mb-2">🌙 Dream Scheduler</h3>
-        <p className="mb-2 text-sm">
-          Trigger a manual dream cycle to reflect on memory and plan new goals.
-        </p>
-        <button
-          onClick={handleDreamTrigger}
-          className="bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded"
-        >
-          🌙 Run Dream Now
-        </button>
-      </div>
-
-      <div className="mt-6 p-4 bg-gray-800 rounded-lg shadow space-y-2">
-        <h3 className="text-lg font-semibold mb-2">🎮 Game Learning Panel</h3>
-        <p>🎯 <strong>Current Goal:</strong> {goal}</p>
-        <p>📈 <strong>Total Events:</strong> {eventCount}</p>
-        <h4 className="font-semibold mt-2">📜 Recent Events</h4>
-        <ul className="list-disc list-inside text-sm ml-4 max-h-40 overflow-y-auto">
-          {recentEvents.map((evt, idx) => (
-            <li key={idx}>{evt.timestamp} – {evt.event} {evt.metadata?.direction ? `(→ ${evt.metadata.direction})` : ""}</li>
+        <h3 className="text-lg font-semibold mb-2">🪪 Identity & Traits</h3>
+        <pre className="text-sm whitespace-pre-wrap text-gray-300 mb-3">{identityDesc}</pre>
+        <div className="grid grid-cols-2 gap-2">
+          {Object.entries(traits).map(([trait, value]) => (
+            <div key={trait} className="text-sm">
+              <strong>{trait}</strong>: {value.toFixed(2)}
+              <div className="w-full h-2 bg-gray-700 rounded">
+                <div
+                  className="h-2 bg-green-400 rounded"
+                  style={{ width: `${value * 100}%` }}
+                />
+              </div>
+            </div>
           ))}
-        </ul>
+        </div>
       </div>
 
+      {awareness && (
+        <div className="mt-6 p-4 bg-gray-800 rounded-lg shadow">
+          <h3 className="text-lg font-semibold mb-2">🧭 Situational Awareness</h3>
+          <p className="text-sm">Risk: <strong className="text-red-400">{awareness.current_risk}</strong></p>
+          <div className="text-sm mt-2 space-y-1">
+            <p>✅ Positive: {awareness.recent_summary.positive}</p>
+            <p>🟨 Neutral: {awareness.recent_summary.neutral}</p>
+            <p>❌ Negative: {awareness.recent_summary.negative}</p>
+          </div>
+        </div>
+      )}
+
       <div className="mt-6 p-4 bg-gray-800 rounded-lg shadow">
-        <h3 className="text-lg font-semibold mb-2">🎮 Game ↔ Dream ↔ VisionCore</h3>
-        <button
-          onClick={handleGameDreamTrigger}
-          disabled={gameDreamLoading}
-          className="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded"
-        >
-          {gameDreamLoading ? "Dreaming..." : "Trigger Game-Dream Loop"}
-        </button>
-
-        {gameDreamResult && (
-          <div className="mt-4 p-3 bg-gray-700 rounded">
-            <strong>🧠 Game Dream:</strong>
-            <p className="mt-2 whitespace-pre-line text-sm">{gameDreamResult}</p>
-          </div>
-        )}
-
-        {gameDreams.length > 1 && (
-          <div className="mt-4">
-            <h4 className="font-semibold mb-1 text-sm">📚 Past Game Dreams</h4>
-            <ul className="list-disc list-inside text-xs text-gray-300">
-              {gameDreams.slice(1, 5).map((dream, i) => (
-                <li key={i} className="mt-1">{dream}</li>
-              ))}
-            </ul>
-          </div>
-        )}
+        <h3 className="text-lg font-semibold mb-2">📌 Milestone-Linked Goals</h3>
+        <GoalsList />
       </div>
     </div>
+  );
+}
+
+function GoalsList() {
+  const [goals, setGoals] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchGoals = async () => {
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/aion/goals`);
+        const data = await res.json();
+        setGoals(data.goals || []);
+      } catch {
+        setGoals([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchGoals();
+  }, []);
+
+  if (loading) return <p>Loading goals...</p>;
+  if (goals.length === 0) return <p>No milestone-linked goals found.</p>;
+
+  return (
+    <ul className="list-disc list-inside text-sm ml-4 space-y-1 max-h-40 overflow-y-auto">
+      {goals.map((goal, idx) => (
+        <li key={idx}>
+          <strong>{goal.name}</strong> — <span className="text-green-400">{goal.status}</span>
+          <br />
+          <span className="text-xs text-gray-400">
+            {new Date(goal.created_at).toLocaleString()}
+          </span>
+        </li>
+      ))}
+    </ul>
   );
 }

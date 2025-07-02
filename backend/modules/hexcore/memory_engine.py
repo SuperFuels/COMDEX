@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 from datetime import datetime
 from sentence_transformers import SentenceTransformer, util
-import numpy as np
+import torch  # added import for PyTorch
 
 MEMORY_FILE = Path(__file__).parent / "aion_memory.json"
 EMBEDDING_FILE = Path(__file__).parent / "aion_embeddings.json"
@@ -38,7 +38,9 @@ class MemoryEngine:
     def is_duplicate(self, new_embedding):
         if not self.embeddings:
             return False
-        similarities = util.cos_sim(new_embedding, self.embeddings)[0]
+        # Stack embeddings into a single tensor if stored as list
+        embeddings_tensor = torch.stack(self.embeddings) if isinstance(self.embeddings, list) else self.embeddings
+        similarities = util.cos_sim(new_embedding, embeddings_tensor)[0]
         max_sim = float(similarities.max())
         return max_sim > 0.95  # Threshold
 
@@ -65,7 +67,9 @@ class MemoryEngine:
         if EMBEDDING_FILE.exists():
             try:
                 with open(EMBEDDING_FILE, "r") as f:
-                    self.embeddings = [np.array(e) for e in json.load(f)]
+                    loaded = json.load(f)
+                    # convert loaded list of lists to list of float32 tensors
+                    self.embeddings = [torch.tensor(e, dtype=torch.float32) for e in loaded]
             except Exception:
                 self.embeddings = []
         else:
@@ -80,6 +84,7 @@ class MemoryEngine:
 
     def save_embeddings(self):
         try:
+            # Convert tensors back to list for JSON serialization
             with open(EMBEDDING_FILE, "w") as f:
                 json.dump([e.tolist() for e in self.embeddings], f)
         except Exception as e:
@@ -104,7 +109,9 @@ class MemoryEngine:
             raise ValueError("Memory must contain 'label' and 'content' keys.")
 
         content = memory_obj["content"]
-        embedding = self.model.encode(content)
+        # Encode with convert_to_tensor=True to get a PyTorch tensor directly
+        embedding = self.model.encode(content, convert_to_tensor=True)
+        embedding = embedding.to(torch.float32)  # ensure float32 dtype
 
         if self.is_duplicate(embedding):
             print(f"⚠️ Duplicate memory ignored: {memory_obj['label']}")

@@ -5,17 +5,16 @@ from pathlib import Path
 
 from modules.skills.goal_engine import GoalEngine
 from modules.skills.boot_loader import load_boot_goals
-from modules.aion.ai_wallet import AIWallet
-from modules.aion.memory_core import MemoryCore
+from modules.hexcore.ai_wallet import AIWallet
+from modules.hexcore.memory_engine import MemoryEngine as MemoryCore
+from modules.consciousness.personality_engine import PersonalityProfile  # 🔁 Add this
 
-# Load environment variables from .env.local at project root
+# Load env vars
 env_path = Path(__file__).resolve().parents[3] / ".env.local"
 load_dotenv(dotenv_path=env_path)
 
-# Initialize OpenAI client
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-# Ensure boot goals are loaded if none exist
 load_boot_goals()
 
 class GoalRunner:
@@ -23,9 +22,9 @@ class GoalRunner:
         self.engine = GoalEngine()
         self.wallet = AIWallet()
         self.memory = MemoryCore()
+        self.personality = PersonalityProfile()  # 🔁 Initialize personality
 
     def complete_goal(self, goal_name: str):
-        # Select active goals respecting dependencies and priority
         goal = next((g for g in self.engine.get_active_goals() if g.get("name") == goal_name), None)
         if not goal:
             print(f"❌ Goal not found or already completed: {goal_name}")
@@ -46,17 +45,21 @@ class GoalRunner:
             answer = response.choices[0].message.content.strip()
             print(f"\n🧠 GPT Response for '{goal_name}':\n{answer}\n")
 
-            # Store the answer in memory
+            # Store answer in memory
             self.memory.store(f"goal:{goal_name}", answer)
 
-            # Mark the goal complete and reward tokens
+            # Mark goal complete and earn tokens
             self.engine.mark_complete(goal_name)
-            self.wallet.earn("STK", goal.get("reward", 0))
+            reward = goal.get("reward", 0)
+            self.wallet.earn("STK", reward)
             self.wallet.save_wallet()
 
-            print(f"✅ Goal '{goal_name}' marked complete. Earned {goal.get('reward', 0)} $STK.")
+            print(f"✅ Goal '{goal_name}' marked complete. Earned {reward} $STK.")
 
-            # Show current wallet balances
+            # 🔁 Adjust traits based on success
+            self.personality.adjust_trait("ambition", 0.03)  # Pushes growth
+            self.personality.adjust_trait("discipline", min(0.1, reward / 1000))  # Scale with reward
+
             self.show_wallet()
 
         except Exception as e:
@@ -70,6 +73,7 @@ class GoalRunner:
         else:
             for token, amount in balances.items():
                 print(f"  - {token}: {amount}")
+
 
 if __name__ == "__main__":
     runner = GoalRunner()

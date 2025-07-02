@@ -34,6 +34,10 @@ def create_goals_for_milestone(milestone_name):
 
     goal = milestone_goal_map.get(milestone_name)
     if goal:
+        existing_names = [g.get("name") for g in engine.goals]
+        if goal["name"] in existing_names:
+            print(f"⚠️ Goal from milestone '{milestone_name}' already exists.")
+            return
         assigned = engine.assign_goal(goal)
         if assigned:
             print(f"🎯 New goal assigned from milestone '{milestone_name}': {goal['name']}")

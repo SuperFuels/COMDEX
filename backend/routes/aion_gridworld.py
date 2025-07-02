@@ -1,4 +1,4 @@
-# 📁 backend/routes/grid_world_api.py
+# 📁 backend/routes/aion_gridworld.py
 from fastapi import APIRouter
 import subprocess
 

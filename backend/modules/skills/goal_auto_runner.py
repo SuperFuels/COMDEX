@@ -5,7 +5,7 @@ import openai
 
 from modules.skills.goal_engine import GoalEngine
 from modules.skills.boot_loader import load_boot_goals
-from modules.aion.ai_wallet import AIWallet
+from modules.hexcore.ai_wallet import AIWallet
 
 # Load environment variables from .env.local if present
 env_path = Path(__file__).resolve().parents[3] / ".env.local"

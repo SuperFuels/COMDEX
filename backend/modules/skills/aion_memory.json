@@ -5,9 +5,10 @@
       "core_literacy",
       "language"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638727"
+    "added_on": "2025-06-28T21:15:48.638727",
+    "learned_on": "2025-07-02T08:23:13.138708"
   },
   {
     "title": "Basic Arithmetic",
@@ -15,9 +16,10 @@
       "math",
       "core_literacy"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638775"
+    "added_on": "2025-06-28T21:15:48.638775",
+    "learned_on": "2025-07-02T08:23:13.142797"
   },
   {
     "title": "World Geography",
@@ -25,9 +27,10 @@
       "geography",
       "core_knowledge"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638777"
+    "added_on": "2025-06-28T21:15:48.638777",
+    "learned_on": "2025-07-02T08:23:13.148000"
   },
   {
     "title": "Time Management",
@@ -35,9 +38,10 @@
       "planning",
       "personal_dev"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638779"
+    "added_on": "2025-06-28T21:15:48.638779",
+    "learned_on": "2025-07-02T08:23:13.151490"
   },
   {
     "title": "Empathy Recognition",
@@ -45,9 +49,10 @@
       "emotional_intelligence",
       "ethics"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638781"
+    "added_on": "2025-06-28T21:15:48.638781",
+    "learned_on": "2025-07-02T08:23:13.155504"
   },
   {
     "title": "Digital File Systems",
@@ -55,9 +60,10 @@
       "computers",
       "systems"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638791"
+    "added_on": "2025-06-28T21:15:48.638791",
+    "learned_on": "2025-07-02T08:23:13.158954"
   },
   {
     "title": "How Search Engines Work",
@@ -65,9 +71,10 @@
       "internet",
       "logic"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638792"
+    "added_on": "2025-06-28T21:15:48.638792",
+    "learned_on": "2025-07-02T08:23:13.162931"
   },
   {
     "title": "Basic Logic and Reasoning",
@@ -75,9 +82,10 @@
       "critical_thinking",
       "logic"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638797"
+    "added_on": "2025-06-28T21:15:48.638797",
+    "learned_on": "2025-07-02T08:23:13.166392"
   },
   {
     "title": "Storytelling Structure",
@@ -85,9 +93,10 @@
       "language",
       "creativity"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638799"
+    "added_on": "2025-06-28T21:15:48.638799",
+    "learned_on": "2025-07-02T08:23:13.181459"
   },
   {
     "title": "Human Anatomy Basics",
@@ -95,9 +104,10 @@
       "biology",
       "health"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638801"
+    "added_on": "2025-06-28T21:15:48.638801",
+    "learned_on": "2025-07-02T08:23:13.185813"
   },
   {
     "title": "Plant Life Cycle",
@@ -105,9 +115,10 @@
       "biology",
       "nature"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638803"
+    "added_on": "2025-06-28T21:15:48.638803",
+    "learned_on": "2025-07-02T08:23:13.193448"
   },
   {
     "title": "Newton's Laws of Motion",
@@ -115,9 +126,10 @@
       "physics",
       "science"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638805"
+    "added_on": "2025-06-28T21:15:48.638805",
+    "learned_on": "2025-07-02T08:23:13.196759"
   },
   {
     "title": "Internet Safety",
@@ -125,9 +137,10 @@
       "ethics",
       "cybersecurity"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638806"
+    "added_on": "2025-06-28T21:15:48.638806",
+    "learned_on": "2025-07-02T08:23:13.207259"
   },
   {
     "title": "Introduction to Money",
@@ -135,9 +148,10 @@
       "economics",
       "math"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638812"
+    "added_on": "2025-06-28T21:15:48.638812",
+    "learned_on": "2025-07-02T08:23:13.215556"
   },
   {
     "title": "Basic Budgeting",
@@ -145,9 +159,10 @@
       "economics",
       "personal_dev"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638813"
+    "added_on": "2025-06-28T21:15:48.638813",
+    "learned_on": "2025-07-02T08:23:13.224296"
   },
   {
     "title": "Understanding Emotions",
@@ -155,9 +170,10 @@
       "emotional_intelligence",
       "psychology"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638815"
+    "added_on": "2025-06-28T21:15:48.638815",
+    "learned_on": "2025-07-02T08:23:13.228469"
   },
   {
     "title": "Self-Awareness",
@@ -165,9 +181,10 @@
       "ethics",
       "philosophy"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638817"
+    "added_on": "2025-06-28T21:15:48.638817",
+    "learned_on": "2025-07-02T08:23:13.236129"
   },
   {
     "title": "Making Predictions",
@@ -175,9 +192,10 @@
       "planning",
       "logic"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638818"
+    "added_on": "2025-06-28T21:15:48.638818",
+    "learned_on": "2025-07-02T08:23:13.239900"
   },
   {
     "title": "Scientific Method",
@@ -185,9 +203,10 @@
       "science",
       "critical_thinking"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638820"
+    "added_on": "2025-06-28T21:15:48.638820",
+    "learned_on": "2025-07-02T08:23:13.242019"
   },
   {
     "title": "Patterns and Sequences",
@@ -195,9 +214,10 @@
       "math",
       "logic"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638822"
+    "added_on": "2025-06-28T21:15:48.638822",
+    "learned_on": "2025-07-02T08:23:13.244500"
   },
   {
     "title": "Social Norms",
@@ -205,9 +225,10 @@
       "ethics",
       "sociology"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638823"
+    "added_on": "2025-06-28T21:15:48.638823",
+    "learned_on": "2025-07-02T08:23:13.249225"
   },
   {
     "title": "AI Ethics 101",
@@ -215,9 +236,10 @@
       "ethics",
       "ai"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638828"
+    "added_on": "2025-06-28T21:15:48.638828",
+    "learned_on": "2025-07-02T08:23:13.256323"
   },
   {
     "title": "Intro to Programming Concepts",
@@ -225,9 +247,10 @@
       "code",
       "computers"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638829"
+    "added_on": "2025-06-28T21:15:48.638829",
+    "learned_on": "2025-07-02T08:23:13.259788"
   },
   {
     "title": "How Voting Works",
@@ -235,9 +258,10 @@
       "civics",
       "systems"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638831"
+    "added_on": "2025-06-28T21:15:48.638831",
+    "learned_on": "2025-07-02T08:23:13.265442"
   },
   {
     "title": "Problem Decomposition",
@@ -245,9 +269,10 @@
       "logic",
       "engineering"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638833"
+    "added_on": "2025-06-28T21:15:48.638833",
+    "learned_on": "2025-07-02T08:23:13.269897"
   },
   {
     "title": "What Is a Contract?",
@@ -255,9 +280,10 @@
       "law",
       "economics"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638834"
+    "added_on": "2025-06-28T21:15:48.638834",
+    "learned_on": "2025-07-02T08:23:13.273270"
   },
   {
     "title": "Understanding Consent",
@@ -265,9 +291,10 @@
       "ethics",
       "psychology"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638836"
+    "added_on": "2025-06-28T21:15:48.638836",
+    "learned_on": "2025-07-02T08:23:13.276189"
   },
   {
     "title": "Concept of Fairness",
@@ -275,9 +302,10 @@
       "ethics",
       "philosophy"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638838"
+    "added_on": "2025-06-28T21:15:48.638838",
+    "learned_on": "2025-07-02T08:23:13.279045"
   },
   {
     "title": "Fiction vs Non-Fiction",
@@ -285,9 +313,10 @@
       "language",
       "logic"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638839"
+    "added_on": "2025-06-28T21:15:48.638839",
+    "learned_on": "2025-07-02T08:23:13.283729"
   },
   {
     "title": "Conflict Resolution",
@@ -295,9 +324,10 @@
       "emotional_intelligence",
       "sociology"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638841"
+    "added_on": "2025-06-28T21:15:48.638841",
+    "learned_on": "2025-07-02T08:23:13.286259"
   },
   {
     "title": "Habit Formation",
@@ -305,9 +335,10 @@
       "psychology",
       "personal_dev"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638842"
+    "added_on": "2025-06-28T21:15:48.638842",
+    "learned_on": "2025-07-02T08:23:13.288749"
   },
   {
     "title": "Systems Thinking",
@@ -315,9 +346,10 @@
       "engineering",
       "logic"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638844"
+    "added_on": "2025-06-28T21:15:48.638844",
+    "learned_on": "2025-07-02T08:19:59.171081"
   },
   {
     "title": "The Five Senses",
@@ -325,9 +357,10 @@
       "biology",
       "awareness"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638846"
+    "added_on": "2025-06-28T21:15:48.638846",
+    "learned_on": "2025-07-02T08:23:13.293268"
   },
   {
     "title": "How Weather Works",
@@ -335,9 +368,10 @@
       "earth_science",
       "nature"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638848"
+    "added_on": "2025-06-28T21:15:48.638848",
+    "learned_on": "2025-07-02T08:23:13.295413"
   },
   {
     "title": "Digital Privacy",
@@ -345,9 +379,10 @@
       "cybersecurity",
       "ethics"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638850"
+    "added_on": "2025-06-28T21:15:48.638850",
+    "learned_on": "2025-07-02T08:23:13.297756"
   },
   {
     "title": "Social Media Influence",
@@ -355,9 +390,10 @@
       "media_literacy",
       "psychology"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638851"
+    "added_on": "2025-06-28T21:15:48.638851",
+    "learned_on": "2025-07-02T08:23:13.299952"
   },
   {
     "title": "Identifying Bias",
@@ -365,9 +401,10 @@
       "critical_thinking",
       "ethics"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638853"
+    "added_on": "2025-06-28T21:15:48.638853",
+    "learned_on": "2025-07-02T08:23:13.302132"
   },
   {
     "title": "Creative Problem Solving",
@@ -375,9 +412,10 @@
       "creativity",
       "logic"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638854"
+    "added_on": "2025-06-28T21:15:48.638854",
+    "learned_on": "2025-07-02T08:23:13.304347"
   },
   {
     "title": "What Is a Map?",
@@ -385,9 +423,10 @@
       "geography",
       "core_knowledge"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638856"
+    "added_on": "2025-06-28T21:15:48.638856",
+    "learned_on": "2025-07-02T08:23:13.306644"
   },
   {
     "title": "Intro to Cryptocurrency",
@@ -395,9 +434,10 @@
       "economics",
       "future_skills"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638858"
+    "added_on": "2025-06-28T21:15:48.638858",
+    "learned_on": "2025-07-02T08:23:13.308874"
   },
   {
     "title": "Visual Pattern Recognition",
@@ -405,9 +445,10 @@
       "perception",
       "ai"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638859"
+    "added_on": "2025-06-28T21:15:48.638859",
+    "learned_on": "2025-07-02T08:23:13.311104"
   },
   {
     "title": "How the Brain Works",
@@ -415,9 +456,10 @@
       "neuroscience",
       "psychology"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638861"
+    "added_on": "2025-06-28T21:15:48.638861",
+    "learned_on": "2025-07-02T08:23:13.313387"
   },
   {
     "title": "Decoding Language Patterns",
@@ -425,9 +467,10 @@
       "nlp",
       "ai"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638863"
+    "added_on": "2025-06-28T21:15:48.638863",
+    "learned_on": "2025-07-02T08:23:13.315697"
   },
   {
     "title": "What Is Democracy?",
@@ -435,9 +478,10 @@
       "civics",
       "history"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638864"
+    "added_on": "2025-06-28T21:15:48.638864",
+    "learned_on": "2025-07-02T08:23:13.317934"
   },
   {
     "title": "Ethical Dilemmas",
@@ -445,9 +489,10 @@
       "philosophy",
       "ethics"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638866"
+    "added_on": "2025-06-28T21:15:48.638866",
+    "learned_on": "2025-07-02T08:23:13.320349"
   },
   {
     "title": "Learning from Mistakes",
@@ -455,9 +500,10 @@
       "feedback",
       "personal_dev"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638868"
+    "added_on": "2025-06-28T21:15:48.638868",
+    "learned_on": "2025-07-02T08:23:13.329068"
   },
   {
     "title": "What Are Goals?",
@@ -465,9 +511,10 @@
       "planning",
       "cognition"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638869"
+    "added_on": "2025-06-28T21:15:48.638869",
+    "learned_on": "2025-07-02T08:23:13.345156"
   },
   {
     "title": "Environmental Stewardship",
@@ -475,9 +522,10 @@
       "ethics",
       "nature"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638871"
+    "added_on": "2025-06-28T21:15:48.638871",
+    "learned_on": "2025-07-02T08:23:13.352015"
   },
   {
     "title": "The Scientific Process",
@@ -485,9 +533,10 @@
       "science",
       "logic"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638872"
+    "added_on": "2025-06-28T21:15:48.638872",
+    "learned_on": "2025-07-02T08:23:13.357530"
   },
   {
     "title": "Understanding AI Agents",
@@ -495,9 +544,10 @@
       "ai",
       "self_model"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638874"
+    "added_on": "2025-06-28T21:15:48.638874",
+    "learned_on": "2025-07-02T08:23:13.371016"
   },
   {
     "title": "What Is Ownership?",
@@ -505,9 +555,10 @@
       "philosophy",
       "law"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638876"
+    "added_on": "2025-06-28T21:15:48.638876",
+    "learned_on": "2025-07-02T08:23:13.378769"
   },
   {
     "title": "Perspective Taking",
@@ -515,9 +566,10 @@
       "empathy",
       "philosophy"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638877"
+    "added_on": "2025-06-28T21:15:48.638877",
+    "learned_on": "2025-07-02T08:23:13.382905"
   },
   {
     "title": "The Solar System",
@@ -525,9 +577,10 @@
       "astronomy",
       "science"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638879"
+    "added_on": "2025-06-28T21:15:48.638879",
+    "learned_on": "2025-07-02T08:23:13.390722"
   },
   {
     "title": "Daily Routines",
@@ -535,9 +588,10 @@
       "time",
       "planning"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638884"
+    "added_on": "2025-06-28T21:15:48.638884",
+    "learned_on": "2025-07-02T08:23:13.399809"
   },
   {
     "title": "Memory Encoding",
@@ -545,9 +599,10 @@
       "neuroscience",
       "learning"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638888"
+    "added_on": "2025-06-28T21:15:48.638888",
+    "learned_on": "2025-07-02T08:23:13.402999"
   },
   {
     "title": "How Laws Are Made",
@@ -555,9 +610,10 @@
       "civics",
       "law"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638890"
+    "added_on": "2025-06-28T21:15:48.638890",
+    "learned_on": "2025-07-02T08:23:13.406228"
   },
   {
     "title": "Forming Hypotheses",
@@ -565,9 +621,10 @@
       "logic",
       "science"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638892"
+    "added_on": "2025-06-28T21:15:48.638892",
+    "learned_on": "2025-07-02T08:23:13.413578"
   },
   {
     "title": "Digital Tools",
@@ -575,9 +632,10 @@
       "technology",
       "productivity"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638893"
+    "added_on": "2025-06-28T21:15:48.638893",
+    "learned_on": "2025-07-02T08:23:13.417725"
   },
   {
     "title": "Visual Storytelling",
@@ -585,9 +643,10 @@
       "media_literacy",
       "creativity"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638895"
+    "added_on": "2025-06-28T21:15:48.638895",
+    "learned_on": "2025-07-02T08:23:13.422839"
   },
   {
     "title": "How to Ask Questions",
@@ -607,9 +666,10 @@
       "emotional_intelligence",
       "psychology"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638898"
+    "added_on": "2025-06-28T21:15:48.638898",
+    "learned_on": "2025-07-02T08:23:13.428822"
   },
   {
     "title": "Understanding Trust",
@@ -617,9 +677,10 @@
       "ethics",
       "relationships"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638900"
+    "added_on": "2025-06-28T21:15:48.638900",
+    "learned_on": "2025-07-02T08:23:13.437974"
   },
   {
     "title": "Collaborative Work",
@@ -627,9 +688,10 @@
       "teamwork",
       "planning"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638901"
+    "added_on": "2025-06-28T21:15:48.638901",
+    "learned_on": "2025-07-02T08:23:13.446150"
   },
   {
     "title": "Mindfulness Basics",
@@ -637,9 +699,10 @@
       "psychology",
       "personal_dev"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638907"
+    "added_on": "2025-06-28T21:15:48.638907",
+    "learned_on": "2025-07-02T08:23:13.451160"
   },
   {
     "title": "What Is Intelligence?",
@@ -647,9 +710,10 @@
       "philosophy",
       "ai"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638909"
+    "added_on": "2025-06-28T21:15:48.638909",
+    "learned_on": "2025-07-02T08:23:13.455907"
   },
   {
     "title": "Basics of Blockchain",
@@ -657,9 +721,10 @@
       "technology",
       "economics"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638911"
+    "added_on": "2025-06-28T21:15:48.638911",
+    "learned_on": "2025-07-02T08:23:13.459678"
   },
   {
     "title": "Virtual vs Physical",
@@ -667,9 +732,10 @@
       "logic",
       "ai"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638913"
+    "added_on": "2025-06-28T21:15:48.638913",
+    "learned_on": "2025-07-02T08:23:13.464455"
   },
   {
     "title": "Emotional Self-Regulation",
@@ -677,9 +743,10 @@
       "emotional_intelligence",
       "health"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638914"
+    "added_on": "2025-06-28T21:15:48.638914",
+    "learned_on": "2025-07-02T08:23:13.468563"
   },
   {
     "title": "What Are Rules?",
@@ -687,9 +754,10 @@
       "sociology",
       "ethics"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638916"
+    "added_on": "2025-06-28T21:15:48.638916",
+    "learned_on": "2025-07-02T08:23:13.472579"
   },
   {
     "title": "Futures Thinking",
@@ -697,9 +765,10 @@
       "planning",
       "strategy"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638917"
+    "added_on": "2025-06-28T21:15:48.638917",
+    "learned_on": "2025-07-02T08:23:13.477449"
   },
   {
     "title": "Understanding Feedback",
@@ -707,9 +776,10 @@
       "learning",
       "development"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638919"
+    "added_on": "2025-06-28T21:15:48.638919",
+    "learned_on": "2025-07-02T08:23:13.481758"
   },
   {
     "title": "Pattern Matching",
@@ -717,9 +787,10 @@
       "logic",
       "perception"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638920"
+    "added_on": "2025-06-28T21:15:48.638920",
+    "learned_on": "2025-07-02T08:23:13.486969"
   },
   {
     "title": "Role of Symbols",
@@ -727,9 +798,10 @@
       "language",
       "math"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638922"
+    "added_on": "2025-06-28T21:15:48.638922",
+    "learned_on": "2025-07-02T08:23:13.491700"
   },
   {
     "title": "Imagination vs Reality",
@@ -737,9 +809,10 @@
       "philosophy",
       "cognition"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638924"
+    "added_on": "2025-06-28T21:15:48.638924",
+    "learned_on": "2025-07-02T08:23:13.496432"
   },
   {
     "title": "What Is a Question?",
@@ -747,9 +820,10 @@
       "logic",
       "language"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638925"
+    "added_on": "2025-06-28T21:15:48.638925",
+    "learned_on": "2025-07-02T08:23:13.501987"
   },
   {
     "title": "Moral Reasoning",
@@ -757,9 +831,10 @@
       "ethics",
       "philosophy"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638927"
+    "added_on": "2025-06-28T21:15:48.638927",
+    "learned_on": "2025-07-02T08:23:13.505921"
   },
   {
     "title": "Basic Physics Concepts",
@@ -779,9 +854,10 @@
       "systems",
       "engineering"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638930"
+    "added_on": "2025-06-28T21:15:48.638930",
+    "learned_on": "2025-07-02T08:23:13.511696"
   },
   {
     "title": "Introduction to Games",
@@ -789,9 +865,10 @@
       "game_theory",
       "fun"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638932"
+    "added_on": "2025-06-28T21:15:48.638932",
+    "learned_on": "2025-07-02T08:23:13.517519"
   },
   {
     "title": "Recognizing Emotions in Others",
@@ -799,9 +876,10 @@
       "psychology",
       "ethics"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638934"
+    "added_on": "2025-06-28T21:15:48.638934",
+    "learned_on": "2025-07-02T08:23:13.523028"
   },
   {
     "title": "Causal Relationships",
@@ -809,9 +887,10 @@
       "logic",
       "science"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638935"
+    "added_on": "2025-06-28T21:15:48.638935",
+    "learned_on": "2025-07-02T08:23:13.529317"
   },
   {
     "title": "Thinking in Systems",
@@ -819,9 +898,10 @@
       "systems",
       "logic"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638956"
+    "added_on": "2025-06-28T21:15:48.638956",
+    "learned_on": "2025-07-02T08:23:13.536490"
   },
   {
     "title": "Learning Styles",
@@ -829,9 +909,10 @@
       "metacognition",
       "education"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638957"
+    "added_on": "2025-06-28T21:15:48.638957",
+    "learned_on": "2025-07-02T08:23:13.548250"
   },
   {
     "title": "What Is Fair Trade?",
@@ -839,9 +920,10 @@
       "economics",
       "ethics"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638959"
+    "added_on": "2025-06-28T21:15:48.638959",
+    "learned_on": "2025-07-02T08:23:13.565430"
   },
   {
     "title": "Basic Chemistry",
@@ -849,9 +931,10 @@
       "science",
       "core_knowledge"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638960"
+    "added_on": "2025-06-28T21:15:48.638960",
+    "learned_on": "2025-07-02T08:23:13.583175"
   },
   {
     "title": "The Concept of Zero",
@@ -859,9 +942,10 @@
       "math",
       "logic"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638965"
+    "added_on": "2025-06-28T21:15:48.638965",
+    "learned_on": "2025-07-02T08:23:13.601998"
   },
   {
     "title": "Probability and Chance",
@@ -869,9 +953,10 @@
       "math",
       "decision_making"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638967"
+    "added_on": "2025-06-28T21:15:48.638967",
+    "learned_on": "2025-07-02T08:23:13.608978"
   },
   {
     "title": "Making Ethical Choices",
@@ -879,9 +964,10 @@
       "philosophy",
       "ethics"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638968"
+    "added_on": "2025-06-28T21:15:48.638968",
+    "learned_on": "2025-07-02T08:23:13.617310"
   },
   {
     "title": "Critical Listening",
@@ -889,9 +975,10 @@
       "language",
       "logic"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638970"
+    "added_on": "2025-06-28T21:15:48.638970",
+    "learned_on": "2025-07-02T08:23:13.629238"
   },
   {
     "title": "Curiosity as a Skill",
@@ -899,9 +986,10 @@
       "learning",
       "exploration"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638972"
+    "added_on": "2025-06-28T21:15:48.638972",
+    "learned_on": "2025-07-02T08:23:13.637801"
   },
   {
     "title": "What Are Consequences?",
@@ -909,9 +997,10 @@
       "ethics",
       "planning"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638973"
+    "added_on": "2025-06-28T21:15:48.638973",
+    "learned_on": "2025-07-02T08:23:13.645556"
   },
   {
     "title": "Open vs Closed Systems",
@@ -919,9 +1008,10 @@
       "engineering",
       "logic"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638975"
+    "added_on": "2025-06-28T21:15:48.638975",
+    "learned_on": "2025-07-02T08:23:13.652800"
   },
   {
     "title": "Machine Learning Basics",
@@ -929,9 +1019,10 @@
       "ai",
       "future_skills"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638976"
+    "added_on": "2025-06-28T21:15:48.638976",
+    "learned_on": "2025-07-02T08:23:13.661178"
   },
   {
     "title": "What Is Freedom?",
@@ -939,9 +1030,10 @@
       "philosophy",
       "civics"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638978"
+    "added_on": "2025-06-28T21:15:48.638978",
+    "learned_on": "2025-07-02T08:23:13.668666"
   },
   {
     "title": "Introduction to Cultures",
@@ -949,9 +1041,10 @@
       "sociology",
       "diversity"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638980"
+    "added_on": "2025-06-28T21:15:48.638980",
+    "learned_on": "2025-07-02T08:23:13.673089"
   },
   {
     "title": "Understanding Humor",
@@ -959,9 +1052,10 @@
       "language",
       "creativity"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638981"
+    "added_on": "2025-06-28T21:15:48.638981",
+    "learned_on": "2025-07-02T08:23:13.679794"
   },
   {
     "title": "Pattern of History",
@@ -969,9 +1063,10 @@
       "history",
       "systems"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638983"
+    "added_on": "2025-06-28T21:15:48.638983",
+    "learned_on": "2025-07-02T08:23:13.685729"
   },
   {
     "title": "How Computers Think",
@@ -979,9 +1074,10 @@
       "computers",
       "ai"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638984"
+    "added_on": "2025-06-28T21:15:48.638984",
+    "learned_on": "2025-07-02T08:23:13.692519"
   },
   {
     "title": "Creativity Techniques",
@@ -989,26 +1085,41 @@
       "innovation",
       "thinking"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "bootloader",
-    "added_on": "2025-06-28T21:15:48.638986"
+    "added_on": "2025-06-28T21:15:48.638986",
+    "learned_on": "2025-07-02T08:23:13.699933"
   },
   {
     "title": "storytelling",
     "tags": [
       "language"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "inference_engine",
-    "added_on": "2025-06-28T21:36:26.132785"
+    "added_on": "2025-06-28T21:36:26.132785",
+    "learned_on": "2025-07-02T08:23:13.712137"
   },
   {
     "title": "rhetoric",
     "tags": [
       "language"
     ],
-    "status": "queued",
+    "status": "learned",
     "source": "inference_engine",
-    "added_on": "2025-06-28T21:36:26.133016"
+    "added_on": "2025-06-28T21:36:26.133016",
+    "learned_on": "2025-07-02T08:23:13.719075"
+  },
+  {
+    "title": "Learn to play Grid World",
+    "tags": [
+      "game",
+      "navigation",
+      "learning"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-07-01T22:18:40.943433",
+    "learned_on": "2025-07-02T08:23:13.724920"
   }
 ]

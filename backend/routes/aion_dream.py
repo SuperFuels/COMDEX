@@ -3,7 +3,7 @@ import subprocess
 
 router = APIRouter()
 
-@router.post("/aion/run-dream", tags=["AION"])
+@router.post("/run-dream", tags=["AION"])  # remove the duplicated "aion" prefix here
 def run_dream_cycle():
     try:
         result = subprocess.run(
@@ -20,9 +20,7 @@ def run_dream_cycle():
             "status": "error",
             "message": str(e)
         }
-router = APIRouter()
 
-# your route definitions here...
+# No re-declaration of router here!
 
-# expose it at the bottom
 __all__ = ["router"]

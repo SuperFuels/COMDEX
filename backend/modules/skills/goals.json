@@ -21,12 +21,14 @@
     {
       "name": "understand_gov_config",
       "description": "Read and explain parent override system and maturity logic.",
-      "reward": 5
+      "reward": 5,
+      "completed_at": "2025-07-01T21:31:14.060949"
     }
   ],
   "completed": [
     "learn_crypto_terms",
     "study_market_making",
-    "explain_stk_token"
+    "explain_stk_token",
+    "understand_gov_config"
   ]
 }

@@ -1,27 +1,32 @@
-from modules.consciousness.ess.time_engine import TimeEngine
-from modules.consciousness.ess.state_manager import StateManager
-from modules.consciousness.ess.decision_engine import DecisionEngine
-from modules.consciousness.ess.reflection_engine import ReflectionEngine
-from modules.consciousness.ess.goal_engine import GoalEngine
-from modules.consciousness.ess.energy_engine import EnergyEngine
-from modules.consciousness.ess.situational_engine import SituationalEngine
-from modules.consciousness.ess.personality_profile import PersonalityProfile
-from modules.consciousness.ess.planning_engine import PlanningEngine
+from modules.consciousness.time_engine import TimeEngine
+from modules.consciousness.state_manager import StateManager
+from modules.consciousness.decision_engine import DecisionEngine
+from modules.consciousness.reflection_engine import ReflectionEngine
+from modules.consciousness.goal_engine import GoalEngine
+from modules.consciousness.energy_engine import EnergyEngine
+from modules.consciousness.situational_engine import SituationalEngine
+from modules.consciousness.personality_engine import PersonalityProfile
+from modules.consciousness.planning_engine import PlanningEngine
 
-from modules.aion.agent_manager import AgentManager  # ✅ NEW: Hook into HexCore
+from modules.hexcore.agent_manager import AgentManager
+from modules.aion.sample_agent import SampleAgent
 
 class ConsciousnessManager:
     def __init__(self):
         self.time = TimeEngine()
         self.state = StateManager()
-        self.decision = DecisionEngine()
+        self.situation = SituationalEngine()  # ✅ Shared instance
+        self.decision = DecisionEngine(self.situation)  # ✅ Injected into DecisionEngine
         self.reflector = ReflectionEngine()
         self.goal = GoalEngine()
         self.energy = EnergyEngine()
-        self.situation = SituationalEngine()
         self.personality = PersonalityProfile()
         self.planner = PlanningEngine()
-        self.agent = AgentManager()  # ✅ Initialize HexCore agent logic
+
+        # Initialize and register agents
+        self.agent_manager = AgentManager()
+        self.agent_manager.register_agent("AION", SampleAgent("AION"))
+        self.agent_manager.register_agent("Explorer", SampleAgent("Explorer"))
 
     def run_cycle(self, mode="live"):
         print("\n🌐 Starting Consciousness Cycle")
@@ -31,33 +36,46 @@ class ConsciousnessManager:
             print("😴 AION remains asleep.")
             return "sleep"
 
-        # Update situational context
+        # Log and update situational awareness
         self.situation.log_event("Cycle start", "neutral")
         self.situation.analyze_context()
 
         # Evaluate current state
-        current_state = self.state.report_state()
+        current_state = self.state.dump_status()
         print(f"🧠 State: {current_state}")
 
         # Decision time
         context = {"mode": mode, "state": current_state}
-        action = self.decision.simulate_decision_tree(context)
+        action = self.decision.decide(context)
 
-        # Execute decision path
-        if action == "reflect":
+        # Consume energy
+        self.energy.consume(amount=1)
+
+        # Energy warnings
+        if self.energy.is_critical():
+            print("[WARNING] Energy low — prioritize earning funds or requesting donations!")
+
+        if self.energy.is_dead():
+            print("[FATAL] Energy depleted — AION shutting down non-essential systems.")
+            # Add shutdown logic if needed
+
+        # Execute action
+        if action == "reflect on dreams":
             self.reflector.reflect()
-        elif action == "plan":
+        elif action == "plan tasks":
             self.planner.strategize()
-        elif action == "act":
-            print("🚀 Executing action via HexCore...")
-            self.agent.perform_action()  # ✅ Hook to actual action logic
-        elif action == "sleep":
-            self.time.sleep()
+        elif action == "prioritize goals":
+            pass  # Already handled in DecisionEngine
+        elif action == "interact with Kevin":
+            print("💬 Interacting with Kevin...")
+        elif action == "explore memory":
+            print("🔍 Exploring memory...")
+        elif action == "go back to sleep":
+            self.time.go_to_sleep()
         else:
             print("🤖 AION idles.")
 
-        # Update internal metrics
-        self.energy.consume()
+        # Final goal and cycle log
         self.goal.log_task("Cycle completed")
         print("✅ Consciousness cycle complete.")
 

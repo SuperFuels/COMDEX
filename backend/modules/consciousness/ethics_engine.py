@@ -41,3 +41,7 @@ class EthicsEngine:
     def list_rules(self):
         """Return the list of soul law titles."""
         return [law["title"] for law in self.laws]
+
+    def list_laws(self):
+        """Alias for compatibility with dream_core.py"""
+        return self.list_rules()

@@ -4,19 +4,21 @@ import openai
 from datetime import datetime
 from dotenv import load_dotenv
 from modules.hexcore.memory_engine import MemoryEngine
-from modules.skills.milestone_goal_integration import tracker  # Use wired-up tracker
+from modules.skills.milestone_goal_integration import tracker  # Use wired-up tracker instance
 from modules.skills.strategy_planner import StrategyPlanner
 
+# Load environment variables from .env file
 load_dotenv(dotenv_path=".env")
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 class MemoryReflector:
     def __init__(self):
         self.memory = MemoryEngine()
-        self.milestones = tracker  # Use shared instance with goal creation callback
+        self.milestones = tracker  # Shared milestone tracker with goal creation callback
         self.strategy_planner = StrategyPlanner()
 
     def reflect(self):
+        # Check if memory access milestone unlocked
         if not self.milestones.is_unlocked("memory_access"):
             print("❌ AION does not have memory access unlocked.")
             return
@@ -26,7 +28,7 @@ class MemoryReflector:
             print("🧠 No memories to reflect on.")
             return
 
-        # Limit to last 10 memories to avoid token overflow
+        # Take last 10 memories to avoid too long prompt
         recent_memories = memories[-10:]
         compiled = "\n".join([f"- {m['label']}: {m['content']}" for m in recent_memories])
 
@@ -61,10 +63,12 @@ class MemoryReflector:
 
             data = json.loads(output)
 
+            # Save summary to memory if present
             summary = data.get("summary", "")
             if summary:
                 self.memory.save(label="reflection_summary", content=summary)
 
+            # Add new milestones from reflection to milestone tracker
             for milestone in data.get("milestones", []):
                 name = milestone.get("name")
                 desc = milestone.get("description", "")
@@ -72,6 +76,7 @@ class MemoryReflector:
                     print(f"🔍 Adding milestone from reflection: {name}")
                     self.milestones.add_milestone(name, source="reflection", excerpt=desc)
 
+            # Add new strategies to strategy planner
             for strat in data.get("strategies", []):
                 goal = strat.get("goal")
                 action = strat.get("action")

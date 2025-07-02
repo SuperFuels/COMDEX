@@ -1,0 +1,563 @@
+.
+├── Dockerfile
+├── Dockerfile.scheduler
+├── README.md
+├── WHERE
+├── alembic
+│   ├── README
+│   ├── env.py
+│   ├── script.py.mako
+│   └── versions
+│       └── 5a826ef70b3d_add_product_id_fk_to_shipments.py
+├── alembic.ini
+├── auto-fix-imports.py
+├── auto-fix-relative-imports.py
+├── backend
+│   ├── __init__.py
+│   ├── abi
+│   │   ├── GLU.json
+│   │   └── GLUEscrow.json
+│   ├── alembic
+│   │   ├── README
+│   │   ├── env.py
+│   │   ├── script.py.mako
+│   │   └── versions
+│   │       ├── 04e6930d6364_add_product_slugs_to_users.py
+│   │       ├── 0a77370d5d7b_register_models_for_alembic.py
+│   │       ├── 1503c26aa96b_add_product_id_fk_to_shipments.py
+│   │       ├── 178ee1ed534e_merge_products_owner_and_users_branches.py
+│   │       ├── 5f40cc898654_sync_products_schema_to_models.py
+│   │       ├── 718a480d314f_cleanup_duplicates_and_add_unique_index_.py
+│   │       ├── a54affaa2a8e_add_business_name_address_delivery_.py
+│   │       ├── aa5d58481454_baseline_schema.py
+│   │       ├── add_owner_id_to_products.py
+│   │       ├── c8b4d3db34d7_add_supplier_buyer_fields_to_users.py
+│   │       ├── e8e176a9b093_add_product_id_fk_to_shipments.py
+│   │       ├── fa7a1f804df6_add_change_pct_rating_to_products.py
+│   │       ├── fc4dda015f56_add_created_at_to_users.py
+│   │       └── fc8e33aeeef9_add_wallet_address_to_users.py
+│   ├── alembic.ini
+│   ├── api
+│   │   └── aion
+│   │       ├── __init__.py
+│   │       ├── grid_loop.py
+│   │       ├── grid_map.py
+│   │       ├── grid_progress.py
+│   │       ├── grid_tiles.py
+│   │       └── status.py
+│   ├── auto-fix-imports.py
+│   ├── bump_alembic_head.py
+│   ├── config.py
+│   ├── contract_1.pdf
+│   ├── create_tables.py
+│   ├── data
+│   │   └── domain_goals.json
+│   ├── database.py
+│   ├── dev.db
+│   ├── drop_tables.py
+│   ├── generated_pdfs
+│   │   └── 42.pdf
+│   ├── inspect_shipments.py
+│   ├── main.py
+│   ├── models
+│   │   ├── __init__.py
+│   │   ├── contract.py
+│   │   ├── deal.py
+│   │   ├── dream.py
+│   │   ├── product.py
+│   │   ├── shipment.py
+│   │   └── user.py
+│   ├── models.py
+│   ├── modules
+│   │   ├── __init__.py
+│   │   ├── aion
+│   │   │   ├── __init__.py
+│   │   │   ├── agent_init.py
+│   │   │   ├── agent_memory.py
+│   │   │   ├── basic_agents.py
+│   │   │   ├── domain_goal_engine.py
+│   │   │   ├── dream_core.py
+│   │   │   ├── goal_handler.py
+│   │   │   ├── goal_protocol.py
+│   │   │   ├── grid_world.py
+│   │   │   ├── grid_world_state.json
+│   │   │   ├── loop_planner.py
+│   │   │   ├── recursive_learner.py
+│   │   │   ├── sample_agent.py
+│   │   │   └── task_queue.py
+│   │   ├── consciousness
+│   │   │   ├── consciousness_manager.py
+│   │   │   ├── context_engine.py
+│   │   │   ├── decision_engine.py
+│   │   │   ├── emotion_engine.py
+│   │   │   ├── energy_engine.py
+│   │   │   ├── ethics_engine.py
+│   │   │   ├── goal_engine.py
+│   │   │   ├── goals.json
+│   │   │   ├── identity_engine.py
+│   │   │   ├── personality_profile.py
+│   │   │   ├── planning_engine.py
+│   │   │   ├── reflection_engine.py
+│   │   │   ├── situational_engine.py
+│   │   │   ├── state_manager.py
+│   │   │   ├── time_engine.py
+│   │   │   └── vault_engine.py
+│   │   ├── hexcore
+│   │   │   ├── __init__.py
+│   │   │   ├── agent_comm.py
+│   │   │   ├── agent_manager.py
+│   │   │   ├── agent_memory.py
+│   │   │   ├── agent_milestones.py
+│   │   │   ├── ai_wallet.py
+│   │   │   ├── aion_embeddings.json
+│   │   │   ├── aion_memory.json
+│   │   │   ├── aion_phase_log.json
+│   │   │   ├── aion_wallet.json
+│   │   │   ├── dashboard_aion.py
+│   │   │   ├── dream_game_link.py
+│   │   │   ├── governance_config.yaml
+│   │   │   ├── hexcore.py
+│   │   │   ├── memory.json
+│   │   │   ├── memory_core.py
+│   │   │   ├── memory_engine.py
+│   │   │   ├── milestones.json
+│   │   │   ├── sample_agent.py
+│   │   │   ├── soul_laws.yaml
+│   │   │   ├── stk_ledger.json
+│   │   │   ├── test_agent_comm.py
+│   │   │   ├── token_engine.py
+│   │   │   ├── vision_core.py
+│   │   │   └── wallet.json
+│   │   ├── memory
+│   │   │   ├── compression.py
+│   │   │   └── memory_engine.py
+│   │   ├── sim
+│   │   │   └── grid_engine.py
+│   │   └── skills
+│   │       ├── __init__.py
+│   │       ├── ai_nlp_tester.py
+│   │       ├── aion_dream_runner.py
+│   │       ├── aion_inference_engine.py
+│   │       ├── aion_memory.json
+│   │       ├── aion_milestones.json
+│   │       ├── aion_phase_log.json
+│   │       ├── aion_phase_summary.json
+│   │       ├── aion_prompt_engine.py
+│   │       ├── aion_strategies.json
+│   │       ├── aion_visualizer.py
+│   │       ├── aion_voice_output.mp3
+│   │       ├── boot_loader.py
+│   │       ├── boot_skills.json
+│   │       ├── curiosity_engine.py
+│   │       ├── dream_core_tester.py
+│   │       ├── dream_filter.py
+│   │       ├── dream_history_viewer.py
+│   │       ├── dream_loop_runner.py
+│   │       ├── dream_visualizer.py
+│   │       ├── edges_output.jpg
+│   │       ├── embedding_utils.py
+│   │       ├── goal_auto_runner.py
+│   │       ├── goal_engine.py
+│   │       ├── goal_runner.py
+│   │       ├── goal_runner_service.py
+│   │       ├── goal_scheduler.py
+│   │       ├── goal_scheduler_loop.py
+│   │       ├── goal_scheduler_service.py
+│   │       ├── goal_tracker.py
+│   │       ├── goals.json
+│   │       ├── import_boot_goals.py
+│   │       ├── matrix_bootloader.json
+│   │       ├── memory_reflector.py
+│   │       ├── milestone_goal_integration.py
+│   │       ├── milestone_patterns.py
+│   │       ├── milestone_test.py
+│   │       ├── milestone_tracker.py
+│   │       ├── module_unlocker.py
+│   │       ├── nlp_parser.py
+│   │       ├── phase_manager.py
+│   │       ├── recursive_learner.py
+│   │       ├── stk_minter.py
+│   │       ├── strategy_planner.py
+│   │       ├── strategy_planner_test.py
+│   │       ├── test_goal_tracker.py
+│   │       ├── test_image_load.py
+│   │       ├── test_milestone_tracker.py
+│   │       ├── test_vision.py
+│   │       ├── tester_image.jpg
+│   │       ├── unlocked_modules.json
+│   │       ├── vision_core.py
+│   │       ├── voice_interface.py
+│   │       └── voice_interface_test.py
+│   ├── package-lock.json
+│   ├── requirements.txt
+│   ├── requirements.txt.bak
+│   ├── routes
+│   │   ├── __init__.py
+│   │   ├── admin.py
+│   │   ├── aion.py
+│   │   ├── aion_dream.py
+│   │   ├── aion_game.py
+│   │   ├── aion_game_dream.py
+│   │   ├── aion_goals.py
+│   │   ├── aion_grid_progress.py
+│   │   ├── aion_gridworld.py
+│   │   ├── aion_plan.py
+│   │   ├── auth.py
+│   │   ├── buyer.py
+│   │   ├── contract_1.pdf
+│   │   ├── contracts.py
+│   │   ├── deal.py
+│   │   ├── game.py
+│   │   ├── game_event.py
+│   │   ├── products.py
+│   │   ├── supplier.py
+│   │   ├── terminal.py
+│   │   └── user.py
+│   ├── sample.jpg
+│   ├── schemas
+│   │   ├── __init__.py
+│   │   ├── admin.py
+│   │   ├── base.py
+│   │   ├── buyer.py
+│   │   ├── contract.py
+│   │   ├── deal.py
+│   │   ├── product.py
+│   │   ├── supplier.py
+│   │   └── user.py
+│   ├── scripts
+│   │   ├── agent_comm_demo.py
+│   │   ├── agent_demo.py
+│   │   ├── consciousness_scheduler.py
+│   │   └── simulate_goal_run.py
+│   ├── src
+│   │   ├── components
+│   │   │   └── ProductCard.tsx
+│   │   └── crud.py
+│   ├── start.py
+│   ├── static
+│   │   ├── 404
+│   │   │   └── index.html
+│   │   ├── 404.html
+│   │   ├── G.svg
+│   │   ├── Stickeyai.svg
+│   │   ├── _next
+│   │   │   └── static
+│   │   ├── admin
+│   │   │   ├── dashboard
+│   │   │   └── dashboard_aion
+│   │   ├── aion
+│   │   │   └── dashboard
+│   │   ├── buyer
+│   │   │   └── dashboard
+│   │   ├── contracts
+│   │   │   ├── [id]
+│   │   │   ├── index.html
+│   │   │   └── new
+│   │   ├── deals
+│   │   │   ├── [id]
+│   │   │   ├── create
+│   │   │   └── index.html
+│   │   ├── escrow-test
+│   │   │   └── index.html
+│   │   ├── file.svg
+│   │   ├── globe.svg
+│   │   ├── icons
+│   │   │   ├── aion-icon.svg
+│   │   │   ├── glu.svg
+│   │   │   └── usdt.svg
+│   │   ├── index.html
+│   │   ├── login
+│   │   │   └── index.html
+│   │   ├── next.svg
+│   │   ├── placeholder.jpg
+│   │   ├── products
+│   │   │   ├── [id]
+│   │   │   ├── create
+│   │   │   ├── edit
+│   │   │   ├── index.html
+│   │   │   └── new
+│   │   ├── register
+│   │   │   └── index.html
+│   │   ├── search
+│   │   │   └── index.html
+│   │   ├── stickey.png
+│   │   ├── supplier
+│   │   │   ├── dashboard
+│   │   │   ├── inventory
+│   │   │   └── shipments
+│   │   ├── tokens
+│   │   │   ├── glu.svg
+│   │   │   └── usdt.svg
+│   │   ├── vercel.svg
+│   │   └── window.svg
+│   ├── tasks
+│   │   └── scheduler.py
+│   ├── test_milestone_tracker.py
+│   ├── uploaded_images
+│   └── utils
+│       ├── __init__.py
+│       ├── auth.py
+│       ├── auth_guard.py
+│       ├── news.py
+│       └── terminal.py
+├── backup.sql
+├── budget_auto_shutdown
+│   └── budget_auto_shutdown
+│       ├── main.py
+│       └── requirements.txt
+├── check_db.py
+├── check_milestones.py
+├── check_progress.py
+├── clean.sh
+├── cloud_sql_proxy
+├── cloudbuild.yaml
+├── cloudrun-env.yaml
+├── cue-today
+├── database
+│   └── comdex_schema.sql
+├── db_check.py
+├── deploy.sh
+├── dev.db
+├── docs
+│   ├── Aihandover1.md
+│   ├── COMDEX_Project_Summary.md
+│   ├── COMDEX_README.md
+│   ├── How Everything Works - STICKEY Platform.md
+│   ├── SoulEngine_Governance_Charter.md
+│   ├── handover.md
+│   └── stickey.md
+├── eval "$(ssh-agent -s)"
+├── eval "$(ssh-agent -s)".pub
+├── fix_route_imports.py
+├── frontend
+│   ├── abi
+│   │   ├── GLU.json
+│   │   └── GLUEscrow.json
+│   ├── ai.tsx
+│   ├── backend
+│   │   └── utils
+│   │       └── terminal.py
+│   ├── components
+│   │   ├── AIONStatus.tsx
+│   │   ├── AIONTerminal.tsx
+│   │   ├── Chart.tsx
+│   │   ├── CreateProductForm.tsx
+│   │   ├── DarkModeToggle.tsx
+│   │   ├── DreamReflections.tsx
+│   │   ├── EscrowActions.tsx
+│   │   ├── Header.module.css
+│   │   ├── InventoryActive.tsx
+│   │   ├── InventoryCreate.tsx
+│   │   ├── InventoryEdit.tsx
+│   │   ├── Navbar.tsx
+│   │   ├── PdfModal.tsx
+│   │   ├── ProductCard.tsx
+│   │   ├── QuoteModal.module.css
+│   │   ├── QuoteModal.tsx
+│   │   ├── Sidebar.tsx
+│   │   ├── SmartQuote.tsx
+│   │   ├── Swap.module.css
+│   │   ├── Swap.tsx
+│   │   ├── SwapBar.tsx
+│   │   ├── SwapPanel.tsx
+│   │   └── WalletConnect.tsx
+│   ├── constants
+│   │   └── escrow.ts
+│   ├── contracts
+│   │   ├── Escrow.json
+│   │   └── Escrow.sol
+│   ├── eslint.config.mjs
+│   ├── global.d.ts
+│   ├── hooks
+│   │   ├── useAuthRedirect.ts
+│   │   ├── useEscrowContract.ts
+│   │   └── useSupplierDashboard.ts
+│   ├── lib
+│   │   ├── api.ts
+│   │   ├── escrow.ts
+│   │   ├── pdf.ts
+│   │   └── siwe.ts
+│   ├── middleware.ts
+│   ├── next-env.d.ts
+│   ├── next.config.js
+│   ├── out
+│   │   ├── 404
+│   │   │   └── index.html
+│   │   ├── 404.html
+│   │   ├── G.svg
+│   │   ├── Stickeyai.svg
+│   │   ├── _next
+│   │   │   ├── 3kxEF5JB_GcBvoWRU7xgF
+│   │   │   └── static
+│   │   ├── admin
+│   │   │   ├── dashboard
+│   │   │   └── dashboard_aion
+│   │   ├── aion
+│   │   │   └── dashboard
+│   │   ├── buyer
+│   │   │   └── dashboard
+│   │   ├── contracts
+│   │   │   ├── [id]
+│   │   │   ├── index.html
+│   │   │   └── new
+│   │   ├── deals
+│   │   │   ├── [id]
+│   │   │   ├── create
+│   │   │   └── index.html
+│   │   ├── escrow-test
+│   │   │   └── index.html
+│   │   ├── file.svg
+│   │   ├── globe.svg
+│   │   ├── icons
+│   │   │   ├── aion-icon.svg
+│   │   │   ├── glu.svg
+│   │   │   └── usdt.svg
+│   │   ├── index.html
+│   │   ├── login
+│   │   │   └── index.html
+│   │   ├── next.svg
+│   │   ├── placeholder.jpg
+│   │   ├── products
+│   │   │   ├── [id]
+│   │   │   ├── create
+│   │   │   ├── edit
+│   │   │   ├── index.html
+│   │   │   └── new
+│   │   ├── register
+│   │   │   └── index.html
+│   │   ├── search
+│   │   │   └── index.html
+│   │   ├── stickey.png
+│   │   ├── supplier
+│   │   │   ├── dashboard
+│   │   │   ├── inventory
+│   │   │   └── shipments
+│   │   ├── tokens
+│   │   │   ├── glu.svg
+│   │   │   └── usdt.svg
+│   │   ├── vercel.svg
+│   │   └── window.svg
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── pages
+│   │   ├── _app.tsx
+│   │   ├── _document.tsx
+│   │   ├── admin
+│   │   │   ├── dashboard.tsx
+│   │   │   └── dashboard_aion.tsx
+│   │   ├── aion
+│   │   │   └── dashboard
+│   │   ├── api
+│   │   │   ├── aion.ts
+│   │   │   └── shipments.js
+│   │   ├── buyer
+│   │   │   └── dashboard.tsx
+│   │   ├── contracts
+│   │   │   ├── [id].tsx
+│   │   │   ├── index.tsx
+│   │   │   └── new.tsx
+│   │   ├── deals
+│   │   │   ├── [id].tsx
+│   │   │   ├── create
+│   │   │   ├── deal_2_summary.pdf
+│   │   │   └── index.tsx
+│   │   ├── escrow-test.tsx
+│   │   ├── index.tsx
+│   │   ├── login.tsx
+│   │   ├── products
+│   │   │   ├── [id]
+│   │   │   ├── [id].tsx
+│   │   │   ├── create.tsx
+│   │   │   ├── edit
+│   │   │   ├── index.tsx
+│   │   │   └── new.tsx
+│   │   ├── register.tsx
+│   │   ├── search.tsx
+│   │   └── supplier
+│   │       ├── dashboard.tsx
+│   │       ├── inventory
+│   │       ├── inventory.tsx
+│   │       └── shipments.js
+│   ├── postcss.config.js
+│   ├── public
+│   │   ├── G.svg
+│   │   ├── Stickeyai.svg
+│   │   ├── file.svg
+│   │   ├── globe.svg
+│   │   ├── icons
+│   │   │   ├── aion-icon.svg
+│   │   │   ├── glu.svg
+│   │   │   └── usdt.svg
+│   │   ├── next.svg
+│   │   ├── placeholder.jpg
+│   │   ├── stickey.png
+│   │   ├── tokens
+│   │   │   ├── glu.svg
+│   │   │   └── usdt.svg
+│   │   ├── vercel.svg
+│   │   └── window.svg
+│   ├── scripts
+│   │   └── generate_candlestick.py
+│   ├── smart-contracts
+│   │   ├── artifacts
+│   │   │   ├── @openzeppelin
+│   │   │   ├── build-info
+│   │   │   └── contracts
+│   │   ├── cache
+│   │   │   ├── console-history.txt
+│   │   │   └── solidity-files-cache.json
+│   │   ├── contracts
+│   │   │   ├── GLU.sol
+│   │   │   └── GLUEscrow.sol
+│   │   ├── hardhat.config.js
+│   │   ├── package-lock.json
+│   │   ├── package.json
+│   │   └── scripts
+│   │       └── deploy.js
+│   ├── styles
+│   │   └── globals.css
+│   ├── tailwind.config.js
+│   ├── tsconfig.json
+│   ├── types
+│   │   ├── global.d.ts
+│   │   ├── index.ts
+│   │   └── siwe.d.ts
+│   ├── types.ts
+│   ├── utils
+│   │   ├── auth.ts
+│   │   ├── authGuard.ts
+│   │   ├── pdf.ts
+│   │   └── tokenIcons.ts
+│   └── vercel.json
+├── gcloud
+├── hardhat.config.ts
+├── ignition
+│   └── modules
+│       └── Lock.js
+├── inspect_root_db.py
+├── logs.json
+├── next-env.d.ts
+├── package-lock.json
+├── package.json
+├── project_tree.txt
+├── public
+│   └── aion-game
+│       └── index.html
+├── scripts
+│   ├── deploy.ts
+│   └── siwe-debug.py
+├── seed_products.sql
+├── shell.nix
+├── tail-logs.sh
+├── test
+│   └── Lock.js
+├── test_milestone_tracker.py
+├── tree4.txt
+├── types
+│   ├── global.d.ts
+│   ├── index.ts
+│   └── siwe.d.ts
+├── unlock_memory_access.py
+└── verify_pw.py
+
+141 directories, 420 files

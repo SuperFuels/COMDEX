@@ -53,3 +53,17 @@ class PlanningEngine:
         next_step = self.active_plan.pop(0)
         print(f"[PLANNING] Executing step: {next_step}")
         return next_step
+
+    def strategize(self):
+        # If no active plan, generate a new one for a default goal
+        if not self.active_plan:
+            goal = "earn_money"  # This could be dynamic in future enhancements
+            print("[PLANNING] No active plan found. Generating a new plan.")
+            self.generate_plan(goal)
+
+        # Step through the plan
+        step = self.step_through_plan()
+        if step is None:
+            print("[PLANNING] Plan completed.")
+        else:
+            print(f"[PLANNING] Strategy step executed: {step}")

@@ -1,4 +1,8 @@
 [
+  {
+  "title": "Learn to play Grid World",
+  "tags": ["game", "navigation", "learning"],
+  "description": "Master the grid world environment to enhance navigation and decision-making skills."},
   {"title": "Basic Reading Comprehension", "tags": ["core_literacy", "language"]},
   {"title": "Basic Arithmetic", "tags": ["math", "core_literacy"]},
   {"title": "World Geography", "tags": ["geography", "core_knowledge"]},

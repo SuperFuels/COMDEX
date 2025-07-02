@@ -32,3 +32,19 @@ class TimeEngine:
             self.go_to_sleep()
         else:
             self.wake_up()
+
+    def can_wake(self):
+        """
+        Returns True if AION is allowed to wake (i.e., not currently asleep),
+        or if it's time to wake up according to sleep schedule.
+        """
+        if self.state == "awake":
+            return True
+        # If asleep, check if enough time has passed to wake
+        now = datetime.datetime.utcnow()
+        hours_asleep = (now - self.last_sleep).total_seconds() / 3600
+        # Wake if more than 1 hour asleep (adjust as needed)
+        if hours_asleep >= 1:
+            self.wake_up()
+            return True
+        return False

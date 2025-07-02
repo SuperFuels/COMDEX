@@ -80,12 +80,15 @@ class GoalEngine:
                 goal["completed_at"] = datetime.now().isoformat()
                 self.save_goals()
                 print(f"✅ Goal marked complete: {goal_name}")
+                print(f"🔍 Completed goals now: {self.completed}")  # DEBUG
                 return goal
         print(f"⚠️ Goal not found or already completed: {goal_name}")
+        print(f"🔍 Completed goals list: {self.completed}")  # DEBUG
         return None
 
     def assign_goal(self, goal):
         existing_names = [g.get("name") for g in self.goals]
+        print(f"Existing goals when assigning new: {existing_names}")  # DEBUG
         if goal.get("name") in existing_names:
             print(f"⚠️ Goal '{goal.get('name')}' already assigned.")
             return None

@@ -1,11 +1,10 @@
-# backend/modules/aion/grid_world.py
-
+import json
+from pathlib import Path
 import random
 from modules.hexcore.memory_engine import MemoryEngine
 from modules.skills.milestone_tracker import MilestoneTracker
 from modules.skills.strategy_planner import StrategyPlanner
 
-# ── Setup
 GRID_SIZE = 10
 OBJECTS = ['bed', 'desk', 'coffee', 'window']
 DANGERS = ['pit', 'spike']
@@ -16,6 +15,28 @@ memory = MemoryEngine()
 tracker = MilestoneTracker()
 planner = StrategyPlanner()
 
+STATE_PATH = Path("backend/modules/aion/grid_world_state.json")
+
+def save_state(visited):
+    try:
+        with open(STATE_PATH, "w") as f:
+            json.dump({"visited": list(visited)}, f)
+        print(f"Grid state saved: {len(visited)} tiles visited.")
+    except Exception as e:
+        print(f"Failed to save grid state: {e}")
+
+def load_state():
+    if STATE_PATH.exists():
+        try:
+            with open(STATE_PATH, "r") as f:
+                data = json.load(f)
+                print(f"Grid state loaded: {len(data.get('visited', []))} tiles visited.")
+                return set(tuple(pos) for pos in data.get("visited", []))
+        except Exception as e:
+            print(f"Failed to load grid state: {e}")
+    else:
+        print("No saved grid state found.")
+    return set()
 
 class AIONAgent:
     def __init__(self):
@@ -23,7 +44,7 @@ class AIONAgent:
 
     def reset(self):
         self.position = [0, 0]
-        self.visited = set()
+        self.visited = load_state()
         self.collected = set()
         self.steps = 0
         self.score = 0
@@ -45,13 +66,18 @@ class AIONAgent:
 
         obj = world.get(tuple(self.position), None)
         self.visited.add(tuple(self.position))
+        save_state(self.visited)  # Save visited tiles persistently
+
+        print(f"AION moved {direction} to {self.position}. Steps: {self.steps}")
 
         if obj in DANGERS:
             self.alive = False
+            print(f"AION died by stepping on a {obj} at {self.position}.")
             return f"💀 AION stepped on a {obj} and died."
         elif obj in OBJECTS and obj not in self.collected:
             self.collected.add(obj)
             self.score += 10
+            print(f"AION collected {obj} at {self.position}. Score: {self.score}")
             return f"✅ AION collected {obj}."
         else:
             return f"➡️ Moved to {self.position}."
@@ -79,7 +105,6 @@ class AIONAgent:
             "status": "complete" if self.collected == set(OBJECTS) else "failed"
         }
 
-
 def spawn_world():
     layout = {}
     positions = random.sample(
@@ -90,7 +115,6 @@ def spawn_world():
         layout[positions[i]] = obj
     return layout
 
-# ── Simulation Runner
 def run_grid_simulation():
     global world
     world = spawn_world()
@@ -98,12 +122,10 @@ def run_grid_simulation():
     log = []
 
     while not aion.game_over():
-        vision = aion.sense()
         direction = random.choice(['up', 'down', 'left', 'right'])
         outcome = aion.move(direction)
         log.append(outcome)
 
-    # Store memory
     summary = aion.summary()
     memory.store({
         "label": f"grid_world_run_{summary['status']}",

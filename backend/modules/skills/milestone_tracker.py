@@ -21,7 +21,8 @@ DEFAULT_STATE = {
         "wallet_logic",
         "nova_frontend"
     ],
-    "milestones": []
+    "milestones": [],
+    "goals": []
 }
 
 # 🌀 Phase progression order
@@ -37,7 +38,7 @@ MILESTONE_UNLOCK_MAP = {
     "grid_world_complete": ["memory_access"]
 }
 
-# 🧠 Semantic triggers (used for embedding matching)
+# 🧠 Semantic triggers
 TRIGGER_PATTERNS = {
     "first_dream": ["dream_reflection"],
     "cognitive_reflection": ["self-awareness", "introspection", "echoes of existence"],
@@ -53,7 +54,6 @@ class MilestoneTracker:
         self.model = SentenceTransformer("all-MiniLM-L6-v2")
         self.trigger_embeddings = self._embed_triggers()
 
-        # Load state or initialize default
         if MILESTONE_FILE.exists():
             with open(MILESTONE_FILE, "r") as f:
                 self.state = json.load(f)
@@ -62,18 +62,13 @@ class MilestoneTracker:
             self.save()
 
     def _embed_triggers(self):
-        embedded = {}
-        for milestone, phrases in TRIGGER_PATTERNS.items():
-            embedded[milestone] = self.model.encode(phrases)
-        return embedded
+        return {milestone: self.model.encode(phrases) for milestone, phrases in TRIGGER_PATTERNS.items()}
 
     def detect_milestones_from_dream(self, text, threshold=0.75):
         sentences = [s.strip() for s in text.split(".") if len(s.strip()) > 10]
         if not sentences:
             return
-
         sentence_embeddings = self.model.encode(sentences)
-
         for milestone, trigger_vecs in self.trigger_embeddings.items():
             sims = util.cos_sim(sentence_embeddings, trigger_vecs)
             max_score = sims.max().item()
@@ -81,6 +76,11 @@ class MilestoneTracker:
                 excerpt = sentences[sims.argmax(dim=0).item()]
                 print(f"🧠 Milestone '{milestone}' matched with score {max_score:.2f}")
                 self.add_milestone(milestone, source="dream_content", excerpt=excerpt)
+
+    def detect_gridworld_completion(self, grid_data: dict):
+        if grid_data.get("percent_complete", 0) >= 100:
+            print("🏁 Grid World completed! Milestone will be recorded.")
+            self.add_milestone("grid_world_complete", source="grid_world")
 
     def add_milestone(self, name, source="manual", excerpt=None):
         if name in [m["name"] for m in self.state["milestones"]]:
@@ -107,11 +107,10 @@ class MilestoneTracker:
         self.save()
 
     def try_unlock_modules(self, milestone_name):
-        if milestone_name in MILESTONE_UNLOCK_MAP:
-            for module in MILESTONE_UNLOCK_MAP[milestone_name]:
-                if module in self.state["locked_modules"]:
-                    self.state["locked_modules"].remove(module)
-                    self.state["unlocked_modules"].append(module)
+        for module in MILESTONE_UNLOCK_MAP.get(milestone_name, []):
+            if module in self.state["locked_modules"]:
+                self.state["locked_modules"].remove(module)
+                self.state["unlocked_modules"].append(module)
 
     def advance_phase(self, reason=""):
         current_index = PHASE_ORDER.index(self.state["phase"])
@@ -122,22 +121,22 @@ class MilestoneTracker:
             self.log_phase_change(old, self.state["phase"], reason)
 
     def log_phase_change(self, old, new, reason):
-        log_entry = {
+        entry = {
             "from": old,
             "to": new,
             "timestamp": datetime.now().isoformat(),
             "reason": reason
         }
-        existing = []
+        log = []
         if PHASE_LOG_FILE.exists():
             try:
                 with open(PHASE_LOG_FILE, "r") as f:
-                    existing = json.load(f)
+                    log = json.load(f)
             except Exception:
                 pass
-        existing.append(log_entry)
+        log.append(entry)
         with open(PHASE_LOG_FILE, "w") as f:
-            json.dump(existing, f, indent=2)
+            json.dump(log, f, indent=2)
 
     def save(self):
         with open(MILESTONE_FILE, "w") as f:
@@ -171,6 +170,9 @@ class MilestoneTracker:
     def list_milestones(self):
         return self.state.get("milestones", [])
 
+    def list_saved_goals(self):
+        return [m["dream_excerpt"].strip() for m in self.state.get("milestones", []) if "goal" in m.get("dream_excerpt", "").lower() or "objective" in m.get("dream_excerpt", "").lower()]
+
     def is_unlocked(self, module_name):
         return module_name in self.state.get("unlocked_modules", [])
 
@@ -183,6 +185,27 @@ class MilestoneTracker:
         else:
             print(f"⚠️ Module '{module_name}' not found in locked list or already unlocked.")
 
+    def get_goal_state(self):
+        return self.state.get("goals", [])
+
+    def update_goal(self, index, new_name=None, new_status=None):
+        try:
+            if index < 0 or index >= len(self.state["goals"]):
+                raise IndexError("Invalid goal index.")
+            goal = self.state["goals"][index]
+            if new_name:
+                goal["name"] = new_name.strip()
+            if new_status:
+                goal["status"] = new_status
+            self.save()
+        except Exception as e:
+            print(f"⚠️ Goal update failed: {e}")
+
+    def reorder_goals(self, new_order):
+        if isinstance(new_order, list):
+            self.state["goals"] = new_order
+            self.save()
+
     def summary(self):
         print(f"\n📈 AION Growth Phase: {self.get_phase()}")
         print(f"✅ Unlocked Modules: {', '.join(self.list_unlocked_modules())}")
@@ -194,16 +217,3 @@ class MilestoneTracker:
         else:
             for i, m in enumerate(milestones, 1):
                 print(f"  {i}. {m['name']} @ {m['timestamp']} (via {m.get('source', 'manual')})")
-
-    def list_saved_goals(self) -> list:
-        saved_goals = []
-        for milestone in self.state.get("milestones", []):
-            excerpt = milestone.get("dream_excerpt", "")
-            if "goal" in excerpt.lower() or "objective" in excerpt.lower():
-                saved_goals.append(excerpt.strip())
-        return saved_goals
-
-    def detect_gridworld_completion(self, grid_data: dict):
-        if grid_data.get("percent_complete", 0) >= 100:
-            print("🏁 Grid World completed! Milestone will be recorded.")
-            self.add_milestone("grid_world_complete", source="grid_world")

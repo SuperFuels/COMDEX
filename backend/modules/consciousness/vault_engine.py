@@ -1,8 +1,13 @@
-# backend/modules/consciousness/vault_engine.py
+import os
+from dotenv import load_dotenv
+
+# Load .env file to get KEVIN_MASTER_KEY
+load_dotenv()
+KEVIN_MASTER_KEY = os.getenv("KEVIN_MASTER_KEY", "")
 
 class PrivacyVault:
     """
-    PrivacyVault is a placeholder for managing private or sensitive data,
+    PrivacyVault is responsible for managing private or sensitive data,
     such as encrypted memories, access controls, or secure storage.
     """
 
@@ -32,3 +37,10 @@ class PrivacyVault:
             del self._vault[key]
             return True
         return False
+
+    def has_access(self, key: str) -> bool:
+        """
+        Check if the provided key matches the master override key.
+        Used to validate privileged access by Kevin Robinson.
+        """
+        return key == KEVIN_MASTER_KEY

@@ -13,9 +13,9 @@ def get_status():
 
     return {
         "phase": tracker.get_phase(),
-        "milestones": tracker.get_milestones(),
-        "unlocked": tracker.get_unlocked_modules(),
-        "locked": tracker.get_locked_modules(),
+        "milestones": tracker.list_milestones(),
+        "unlocked": tracker.list_unlocked_modules(),  # updated here
+        "locked": tracker.list_locked_modules(),
         "strategy_count": len(planner.strategies),
         "grid_progress": grid.get_progress()
     }

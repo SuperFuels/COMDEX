@@ -1,0 +1,501 @@
+[
+  {
+    "skill": "Systems Thinking",
+    "executed_at": "2025-07-02T08:19:59.172498"
+  },
+  {
+    "title": "Basic Reading Comprehension",
+    "executed_at": "2025-07-02T08:23:13.132415",
+    "status": "completed"
+  },
+  {
+    "title": "Basic Arithmetic",
+    "executed_at": "2025-07-02T08:23:13.140771",
+    "status": "completed"
+  },
+  {
+    "title": "World Geography",
+    "executed_at": "2025-07-02T08:23:13.146270",
+    "status": "completed"
+  },
+  {
+    "title": "Time Management",
+    "executed_at": "2025-07-02T08:23:13.150485",
+    "status": "completed"
+  },
+  {
+    "title": "Empathy Recognition",
+    "executed_at": "2025-07-02T08:23:13.154472",
+    "status": "completed"
+  },
+  {
+    "title": "Digital File Systems",
+    "executed_at": "2025-07-02T08:23:13.157825",
+    "status": "completed"
+  },
+  {
+    "title": "How Search Engines Work",
+    "executed_at": "2025-07-02T08:23:13.161802",
+    "status": "completed"
+  },
+  {
+    "title": "Basic Logic and Reasoning",
+    "executed_at": "2025-07-02T08:23:13.165292",
+    "status": "completed"
+  },
+  {
+    "title": "Storytelling Structure",
+    "executed_at": "2025-07-02T08:23:13.177952",
+    "status": "completed"
+  },
+  {
+    "title": "Human Anatomy Basics",
+    "executed_at": "2025-07-02T08:23:13.184351",
+    "status": "completed"
+  },
+  {
+    "title": "Plant Life Cycle",
+    "executed_at": "2025-07-02T08:23:13.191537",
+    "status": "completed"
+  },
+  {
+    "title": "Newton's Laws of Motion",
+    "executed_at": "2025-07-02T08:23:13.195717",
+    "status": "completed"
+  },
+  {
+    "title": "Internet Safety",
+    "executed_at": "2025-07-02T08:23:13.204888",
+    "status": "completed"
+  },
+  {
+    "title": "Introduction to Money",
+    "executed_at": "2025-07-02T08:23:13.212956",
+    "status": "completed"
+  },
+  {
+    "title": "Basic Budgeting",
+    "executed_at": "2025-07-02T08:23:13.221531",
+    "status": "completed"
+  },
+  {
+    "title": "Understanding Emotions",
+    "executed_at": "2025-07-02T08:23:13.227880",
+    "status": "completed"
+  },
+  {
+    "title": "Self-Awareness",
+    "executed_at": "2025-07-02T08:23:13.232009",
+    "status": "completed"
+  },
+  {
+    "title": "Making Predictions",
+    "executed_at": "2025-07-02T08:23:13.239279",
+    "status": "completed"
+  },
+  {
+    "title": "Scientific Method",
+    "executed_at": "2025-07-02T08:23:13.241445",
+    "status": "completed"
+  },
+  {
+    "title": "Patterns and Sequences",
+    "executed_at": "2025-07-02T08:23:13.243548",
+    "status": "completed"
+  },
+  {
+    "title": "Social Norms",
+    "executed_at": "2025-07-02T08:23:13.248560",
+    "status": "completed"
+  },
+  {
+    "title": "AI Ethics 101",
+    "executed_at": "2025-07-02T08:23:13.250744",
+    "status": "completed"
+  },
+  {
+    "title": "Intro to Programming Concepts",
+    "executed_at": "2025-07-02T08:23:13.258936",
+    "status": "completed"
+  },
+  {
+    "title": "How Voting Works",
+    "executed_at": "2025-07-02T08:23:13.264716",
+    "status": "completed"
+  },
+  {
+    "title": "Problem Decomposition",
+    "executed_at": "2025-07-02T08:23:13.267715",
+    "status": "completed"
+  },
+  {
+    "title": "What Is a Contract?",
+    "executed_at": "2025-07-02T08:23:13.272564",
+    "status": "completed"
+  },
+  {
+    "title": "Understanding Consent",
+    "executed_at": "2025-07-02T08:23:13.275210",
+    "status": "completed"
+  },
+  {
+    "title": "Concept of Fairness",
+    "executed_at": "2025-07-02T08:23:13.278351",
+    "status": "completed"
+  },
+  {
+    "title": "Fiction vs Non-Fiction",
+    "executed_at": "2025-07-02T08:23:13.282929",
+    "status": "completed"
+  },
+  {
+    "title": "Conflict Resolution",
+    "executed_at": "2025-07-02T08:23:13.285617",
+    "status": "completed"
+  },
+  {
+    "title": "Habit Formation",
+    "executed_at": "2025-07-02T08:23:13.288039",
+    "status": "completed"
+  },
+  {
+    "title": "The Five Senses",
+    "executed_at": "2025-07-02T08:23:13.292408",
+    "status": "completed"
+  },
+  {
+    "title": "How Weather Works",
+    "executed_at": "2025-07-02T08:23:13.294746",
+    "status": "completed"
+  },
+  {
+    "title": "Digital Privacy",
+    "executed_at": "2025-07-02T08:23:13.297009",
+    "status": "completed"
+  },
+  {
+    "title": "Social Media Influence",
+    "executed_at": "2025-07-02T08:23:13.299231",
+    "status": "completed"
+  },
+  {
+    "title": "Identifying Bias",
+    "executed_at": "2025-07-02T08:23:13.301383",
+    "status": "completed"
+  },
+  {
+    "title": "Creative Problem Solving",
+    "executed_at": "2025-07-02T08:23:13.303607",
+    "status": "completed"
+  },
+  {
+    "title": "What Is a Map?",
+    "executed_at": "2025-07-02T08:23:13.305876",
+    "status": "completed"
+  },
+  {
+    "title": "Intro to Cryptocurrency",
+    "executed_at": "2025-07-02T08:23:13.308116",
+    "status": "completed"
+  },
+  {
+    "title": "Visual Pattern Recognition",
+    "executed_at": "2025-07-02T08:23:13.310345",
+    "status": "completed"
+  },
+  {
+    "title": "How the Brain Works",
+    "executed_at": "2025-07-02T08:23:13.312639",
+    "status": "completed"
+  },
+  {
+    "title": "Decoding Language Patterns",
+    "executed_at": "2025-07-02T08:23:13.314891",
+    "status": "completed"
+  },
+  {
+    "title": "What Is Democracy?",
+    "executed_at": "2025-07-02T08:23:13.317159",
+    "status": "completed"
+  },
+  {
+    "title": "Ethical Dilemmas",
+    "executed_at": "2025-07-02T08:23:13.319567",
+    "status": "completed"
+  },
+  {
+    "title": "Learning from Mistakes",
+    "executed_at": "2025-07-02T08:23:13.326277",
+    "status": "completed"
+  },
+  {
+    "title": "What Are Goals?",
+    "executed_at": "2025-07-02T08:23:13.343785",
+    "status": "completed"
+  },
+  {
+    "title": "Environmental Stewardship",
+    "executed_at": "2025-07-02T08:23:13.349836",
+    "status": "completed"
+  },
+  {
+    "title": "The Scientific Process",
+    "executed_at": "2025-07-02T08:23:13.355785",
+    "status": "completed"
+  },
+  {
+    "title": "Understanding AI Agents",
+    "executed_at": "2025-07-02T08:23:13.367853",
+    "status": "completed"
+  },
+  {
+    "title": "What Is Ownership?",
+    "executed_at": "2025-07-02T08:23:13.373606",
+    "status": "completed"
+  },
+  {
+    "title": "Perspective Taking",
+    "executed_at": "2025-07-02T08:23:13.380708",
+    "status": "completed"
+  },
+  {
+    "title": "The Solar System",
+    "executed_at": "2025-07-02T08:23:13.386120",
+    "status": "completed"
+  },
+  {
+    "title": "Daily Routines",
+    "executed_at": "2025-07-02T08:23:13.395724",
+    "status": "completed"
+  },
+  {
+    "title": "Memory Encoding",
+    "executed_at": "2025-07-02T08:23:13.401993",
+    "status": "completed"
+  },
+  {
+    "title": "How Laws Are Made",
+    "executed_at": "2025-07-02T08:23:13.405274",
+    "status": "completed"
+  },
+  {
+    "title": "Forming Hypotheses",
+    "executed_at": "2025-07-02T08:23:13.410822",
+    "status": "completed"
+  },
+  {
+    "title": "Digital Tools",
+    "executed_at": "2025-07-02T08:23:13.416277",
+    "status": "completed"
+  },
+  {
+    "title": "Visual Storytelling",
+    "executed_at": "2025-07-02T08:23:13.419998",
+    "status": "completed"
+  },
+  {
+    "title": "Reading Body Language",
+    "executed_at": "2025-07-02T08:23:13.427380",
+    "status": "completed"
+  },
+  {
+    "title": "Understanding Trust",
+    "executed_at": "2025-07-02T08:23:13.435282",
+    "status": "completed"
+  },
+  {
+    "title": "Collaborative Work",
+    "executed_at": "2025-07-02T08:23:13.443483",
+    "status": "completed"
+  },
+  {
+    "title": "Mindfulness Basics",
+    "executed_at": "2025-07-02T08:23:13.449208",
+    "status": "completed"
+  },
+  {
+    "title": "What Is Intelligence?",
+    "executed_at": "2025-07-02T08:23:13.453611",
+    "status": "completed"
+  },
+  {
+    "title": "Basics of Blockchain",
+    "executed_at": "2025-07-02T08:23:13.458200",
+    "status": "completed"
+  },
+  {
+    "title": "Virtual vs Physical",
+    "executed_at": "2025-07-02T08:23:13.462287",
+    "status": "completed"
+  },
+  {
+    "title": "Emotional Self-Regulation",
+    "executed_at": "2025-07-02T08:23:13.466694",
+    "status": "completed"
+  },
+  {
+    "title": "What Are Rules?",
+    "executed_at": "2025-07-02T08:23:13.471177",
+    "status": "completed"
+  },
+  {
+    "title": "Futures Thinking",
+    "executed_at": "2025-07-02T08:23:13.475635",
+    "status": "completed"
+  },
+  {
+    "title": "Understanding Feedback",
+    "executed_at": "2025-07-02T08:23:13.479771",
+    "status": "completed"
+  },
+  {
+    "title": "Pattern Matching",
+    "executed_at": "2025-07-02T08:23:13.485154",
+    "status": "completed"
+  },
+  {
+    "title": "Role of Symbols",
+    "executed_at": "2025-07-02T08:23:13.489460",
+    "status": "completed"
+  },
+  {
+    "title": "Imagination vs Reality",
+    "executed_at": "2025-07-02T08:23:13.494657",
+    "status": "completed"
+  },
+  {
+    "title": "What Is a Question?",
+    "executed_at": "2025-07-02T08:23:13.499250",
+    "status": "completed"
+  },
+  {
+    "title": "Moral Reasoning",
+    "executed_at": "2025-07-02T08:23:13.504416",
+    "status": "completed"
+  },
+  {
+    "title": "What Is a Model?",
+    "executed_at": "2025-07-02T08:23:13.509188",
+    "status": "completed"
+  },
+  {
+    "title": "Introduction to Games",
+    "executed_at": "2025-07-02T08:23:13.514697",
+    "status": "completed"
+  },
+  {
+    "title": "Recognizing Emotions in Others",
+    "executed_at": "2025-07-02T08:23:13.520005",
+    "status": "completed"
+  },
+  {
+    "title": "Causal Relationships",
+    "executed_at": "2025-07-02T08:23:13.527539",
+    "status": "completed"
+  },
+  {
+    "title": "Thinking in Systems",
+    "executed_at": "2025-07-02T08:23:13.533275",
+    "status": "completed"
+  },
+  {
+    "title": "Learning Styles",
+    "executed_at": "2025-07-02T08:23:13.542289",
+    "status": "completed"
+  },
+  {
+    "title": "What Is Fair Trade?",
+    "executed_at": "2025-07-02T08:23:13.563753",
+    "status": "completed"
+  },
+  {
+    "title": "Basic Chemistry",
+    "executed_at": "2025-07-02T08:23:13.575504",
+    "status": "completed"
+  },
+  {
+    "title": "The Concept of Zero",
+    "executed_at": "2025-07-02T08:23:13.594906",
+    "status": "completed"
+  },
+  {
+    "title": "Probability and Chance",
+    "executed_at": "2025-07-02T08:23:13.607441",
+    "status": "completed"
+  },
+  {
+    "title": "Making Ethical Choices",
+    "executed_at": "2025-07-02T08:23:13.615016",
+    "status": "completed"
+  },
+  {
+    "title": "Critical Listening",
+    "executed_at": "2025-07-02T08:23:13.622620",
+    "status": "completed"
+  },
+  {
+    "title": "Curiosity as a Skill",
+    "executed_at": "2025-07-02T08:23:13.633299",
+    "status": "completed"
+  },
+  {
+    "title": "What Are Consequences?",
+    "executed_at": "2025-07-02T08:23:13.641827",
+    "status": "completed"
+  },
+  {
+    "title": "Open vs Closed Systems",
+    "executed_at": "2025-07-02T08:23:13.650490",
+    "status": "completed"
+  },
+  {
+    "title": "Machine Learning Basics",
+    "executed_at": "2025-07-02T08:23:13.657530",
+    "status": "completed"
+  },
+  {
+    "title": "What Is Freedom?",
+    "executed_at": "2025-07-02T08:23:13.666533",
+    "status": "completed"
+  },
+  {
+    "title": "Introduction to Cultures",
+    "executed_at": "2025-07-02T08:23:13.671229",
+    "status": "completed"
+  },
+  {
+    "title": "Understanding Humor",
+    "executed_at": "2025-07-02T08:23:13.676474",
+    "status": "completed"
+  },
+  {
+    "title": "Pattern of History",
+    "executed_at": "2025-07-02T08:23:13.683019",
+    "status": "completed"
+  },
+  {
+    "title": "How Computers Think",
+    "executed_at": "2025-07-02T08:23:13.690365",
+    "status": "completed"
+  },
+  {
+    "title": "Creativity Techniques",
+    "executed_at": "2025-07-02T08:23:13.696688",
+    "status": "completed"
+  },
+  {
+    "title": "storytelling",
+    "executed_at": "2025-07-02T08:23:13.708727",
+    "status": "completed"
+  },
+  {
+    "title": "rhetoric",
+    "executed_at": "2025-07-02T08:23:13.714730",
+    "status": "completed"
+  },
+  {
+    "title": "Learn to play Grid World",
+    "executed_at": "2025-07-02T08:23:13.722256",
+    "status": "completed"
+  }
+]

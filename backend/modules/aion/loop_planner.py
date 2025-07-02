@@ -10,12 +10,12 @@ scheduler = BackgroundScheduler()
 def run_goal_loop():
     print("🔁 Running AION Goal Loop...")
     goal = planner.generate_goal()
-    memory.store_memory({
-        "source": "goal",
-        "type": "generated",
+
+    memory.store({
+        "label": f"auto_goal_{goal[:20].replace(' ', '_')}",  # generate a short unique label
         "content": goal
     })
-    print(f"🎯 New Goal: {goal}")
+    print(f"🎯 Stored Goal: {goal}")
 
 # ⏱️ SAFER INTERVAL: Run every 5 minutes
 scheduler.add_job(run_goal_loop, 'interval', minutes=5)

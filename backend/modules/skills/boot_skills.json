@@ -19,6 +19,12 @@
       "name": "understand_gov_config",
       "description": "Read and explain parent override system and maturity logic.",
       "reward": 5
+    },
+    {
+      "name": "learn_grid_world",
+      "tags": ["game", "learning", "navigation"],
+      "description": "Master navigating and playing the grid world simulation to improve decision-making.",
+      "reward": 20
     }
   ]
 }

@@ -3,7 +3,7 @@ import time
 import logging
 import subprocess
 
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI, APIRouter, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from starlette.responses import RedirectResponse
@@ -90,13 +90,16 @@ from routes.aion_dream        import router as aion_dream_router
 from routes.aion_gridworld    import router as aion_gridworld_router
 from routes.aion_game_dream   import router as aion_game_dream_router  # ✅ NEW
 from routes.aion_grid_progress import router as aion_grid_progress_router
-from backend.api.aion          import status, grid_progress
-from modules.aion             import loop_planner  # triggers scheduler start
-from routes.game              import router as game_router
-from routes.game_event        import router as game_event_router
+from api.aion                import status, grid_progress
+from modules.aion            import loop_planner  # triggers scheduler start
+from routes.game             import router as game_router
+from routes.aion_game        import router as aion_game_router
+from routes.game_event       import router as game_event_router
+from routes import skill
 
 # ── 12) Mount all routers under /api
 api = APIRouter(prefix="/api")
+
 api.include_router(auth_router)
 api.include_router(products_router)
 api.include_router(deal_router)
@@ -106,22 +109,26 @@ api.include_router(user_router)
 api.include_router(terminal_router)
 api.include_router(buyer_router)
 api.include_router(supplier_router)
+
 api.include_router(aion_router, prefix="/aion")
 api.include_router(aion_plan_router, prefix="/aion")
 api.include_router(aion_goals_router)
-api.include_router(aion_dream_router)
+api.include_router(aion_dream_router, prefix="/aion")
 api.include_router(aion_gridworld_router)
-api.include_router(aion_game_dream_router)  # Mount route for Game ↔ Dream test
+api.include_router(aion_game_dream_router)  # Game ↔ Dream test
 
-# ── 13) Include API router and game events
+api.include_router(aion_game_router)
+api.include_router(game_event_router)
+api.include_router(game_router, prefix="/aion")  # If game router is under /aion prefix
+
+# ── 13) Include API router on main app
 app.include_router(api)
-app.include_router(game_router, prefix="/api")
-app.include_router(game_event_router)
 
 # ── 14) Standalone routers
 app.include_router(aion_grid_progress_router)
-app.include_router(status.router)
+app.include_router(status.router, prefix="/api")
 app.include_router(grid_progress.router)
+app.include_router(skill.router)
 
 # ── 15) Serve uploaded images
 app.mount("/uploaded_images", StaticFiles(directory="uploaded_images"), name="uploaded_images")
@@ -149,7 +156,24 @@ def health_check():
         logger.error("❌ Database connection failed.", exc_info=True)
         return {"status": "error", "database": "not connected"}
 
-# ── 19) Run via Uvicorn
+# ── 19) Dream cycle endpoint for Cloud Scheduler
+@app.post("/api/aion/run-dream")
+async def run_dream_from_scheduler(request: Request):
+    from modules.skills.dream_core import DreamCore
+    master_key = os.getenv("KEVIN_MASTER_KEY")
+    auth_header = request.headers.get("X-Master-Key")
+
+    if master_key and auth_header != master_key:
+        raise HTTPException(status_code=403, detail="Unauthorized scheduler trigger")
+
+    try:
+        dream_core = DreamCore()
+        result = dream_core.generate_dream()
+        return {"status": "success", "dream": result or "No valid dream generated"}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+# ── 20) Run via Uvicorn
 if __name__ == "__main__":
     uvicorn.run(
         "main:app",
@@ -160,14 +184,14 @@ if __name__ == "__main__":
         redirect_slashes=False,
     )
 
-# ── 20) 💤 Start AION scheduler
+# ── 21) 💤 Start AION scheduler
 try:
     from tasks.scheduler import start_scheduler
     start_scheduler()
 except Exception as e:
     logger.warning(f"⚠️ Dream scheduler could not start: {e}")
 
-# ── 21) Cloud Function: Stop Cloud Run if over budget
+# ── 22) Cloud Function: Stop Cloud Run if over budget
 def shutdown_service(event, context):
     logger.info("🔔 Budget alert Pub/Sub triggered.")
     try:
