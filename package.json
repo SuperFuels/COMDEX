@@ -2,14 +2,14 @@
   "name": "COMDEX",
   "version": "1.0.0",
   "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "framer-motion": "^12.23.0",
     "lucide-react": "^0.525.0",
-    "framer-motion": "^12.23.0"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "@types/react": "^18.0.38",
-    "@types/node": "^24.0.8"
+    "@types/node": "^24.0.8",
+    "@types/react": "^18.0.38"
   },
   "scripts": {
     "build": "next build",
