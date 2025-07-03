@@ -32,6 +32,8 @@ export default function AIONTerminal() {
   const [traits, setTraits] = useState<TraitMap>({});
   const [awareness, setAwareness] = useState<Awareness | null>(null);
 
+  const API_BASE = process.env.NEXT_PUBLIC_API_URL || "";
+
   useEffect(() => {
     fetchStatus();
     fetchTileMap();
@@ -46,7 +48,7 @@ export default function AIONTerminal() {
 
   const fetchStatus = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/aion/status`);
+      const res = await fetch(`${API_BASE}/aion/status`);
       const data = await res.json();
       setStatus(data);
     } catch {
@@ -56,7 +58,7 @@ export default function AIONTerminal() {
 
   const fetchTileMap = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/aion/grid/map`);
+      const res = await fetch(`${API_BASE}/aion/grid/map`);
       const data = await res.json();
       setTileMap(data.image_base64);
     } catch {
@@ -66,7 +68,7 @@ export default function AIONTerminal() {
 
   const fetchGoal = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/aion/goal`);
+      const res = await fetch(`${API_BASE}/aion/goal`);
       const data = await res.json();
       setGoal(data.goal || "No goal available");
     } catch {
@@ -76,7 +78,7 @@ export default function AIONTerminal() {
 
   const fetchRecentEvents = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/aion/game-event/recent`);
+      const res = await fetch(`${API_BASE}/aion/game-event/recent`);
       const data = await res.json();
       setRecentEvents(data.events || []);
       setEventCount(data.total || 0);
@@ -88,7 +90,7 @@ export default function AIONTerminal() {
 
   const fetchAwareness = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/aion/situation`);
+      const res = await fetch(`${API_BASE}/aion/situation`);
       const data = await res.json();
       setAwareness(data.awareness || null);
     } catch {
@@ -98,7 +100,7 @@ export default function AIONTerminal() {
 
   const fetchBootSkills = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/aion/boot-skills`);
+      const res = await fetch(`${API_BASE}/aion/boot-skills`);
       const data = await res.json();
       setBootSkills(data.skills || []);
     } catch {
@@ -108,7 +110,7 @@ export default function AIONTerminal() {
 
   const fetchIdentity = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/aion/identity`);
+      const res = await fetch(`${API_BASE}/aion/identity`);
       const data = await res.json();
       setIdentityDesc(data.description || "No identity data.");
       setTraits(data.personality_traits || {});
@@ -121,7 +123,7 @@ export default function AIONTerminal() {
   const handleBootSkill = async () => {
     setBootLoading(true);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/aion/boot-skill`, { method: "POST" });
+      const res = await fetch(`${API_BASE}/aion/boot-skill`, { method: "POST" });
       const data = await res.json();
       setResponse(`📦 Boot Skill: ${data.message || data.title || "No skill loaded."}`);
       fetchBootSkills();
@@ -135,7 +137,7 @@ export default function AIONTerminal() {
   const handleSkillReflect = async () => {
     setReflecting(true);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/aion/skill-reflect`, { method: "POST" });
+      const res = await fetch(`${API_BASE}/aion/skill-reflect`, { method: "POST" });
       const data = await res.json();
       setResponse(`🧠 Reflection: ${data.message || data.result || "No reflection result."}`);
     } catch {
@@ -151,7 +153,7 @@ export default function AIONTerminal() {
     setLoading(true);
     setResponse("");
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/aion`, {
+      const res = await fetch(`${API_BASE}/aion`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt }),
@@ -168,7 +170,7 @@ export default function AIONTerminal() {
   const handleDreamTrigger = async () => {
     setResponse("🌙 Triggering dream cycle...");
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/run-dream`, {
+      const res = await fetch(`${API_BASE}/run-dream`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ trigger: "manual" }),
@@ -184,7 +186,7 @@ export default function AIONTerminal() {
     setGameDreamLoading(true);
     setGameDreamResult("");
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/aion/test-game-dream`, {
+      const res = await fetch(`${API_BASE}/aion/test-game-dream`, {
         method: "POST",
       });
       const data = await res.json();
@@ -230,76 +232,8 @@ export default function AIONTerminal() {
       )}
 
       <div className="mt-6 p-4 bg-gray-800 rounded-lg shadow">
-        <h3 className="text-lg font-semibold mb-2">🪪 Identity & Traits</h3>
-        <pre className="text-sm whitespace-pre-wrap text-gray-300 mb-3">{identityDesc}</pre>
-        <div className="grid grid-cols-2 gap-2">
-          {Object.entries(traits).map(([trait, value]) => (
-            <div key={trait} className="text-sm">
-              <strong>{trait}</strong>: {value.toFixed(2)}
-              <div className="w-full h-2 bg-gray-700 rounded">
-                <div
-                  className="h-2 bg-green-400 rounded"
-                  style={{ width: `${value * 100}%` }}
-                />
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {awareness && (
-        <div className="mt-6 p-4 bg-gray-800 rounded-lg shadow">
-          <h3 className="text-lg font-semibold mb-2">🧭 Situational Awareness</h3>
-          <p className="text-sm">Risk: <strong className="text-red-400">{awareness.current_risk}</strong></p>
-          <div className="text-sm mt-2 space-y-1">
-            <p>✅ Positive: {awareness.recent_summary.positive}</p>
-            <p>🟨 Neutral: {awareness.recent_summary.neutral}</p>
-            <p>❌ Negative: {awareness.recent_summary.negative}</p>
-          </div>
-        </div>
-      )}
-
-      <div className="mt-6 p-4 bg-gray-800 rounded-lg shadow">
-        <h3 className="text-lg font-semibold mb-2">📌 Milestone-Linked Goals</h3>
-        <GoalsList />
+        {/* Add your additional content here */}
       </div>
     </div>
-  );
-}
-
-function GoalsList() {
-  const [goals, setGoals] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchGoals = async () => {
-      try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/aion/goals`);
-        const data = await res.json();
-        setGoals(data.goals || []);
-      } catch {
-        setGoals([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchGoals();
-  }, []);
-
-  if (loading) return <p>Loading goals...</p>;
-  if (goals.length === 0) return <p>No milestone-linked goals found.</p>;
-
-  return (
-    <ul className="list-disc list-inside text-sm ml-4 space-y-1 max-h-40 overflow-y-auto">
-      {goals.map((goal, idx) => (
-        <li key={idx}>
-          <strong>{goal.name}</strong> — <span className="text-green-400">{goal.status}</span>
-          <br />
-          <span className="text-xs text-gray-400">
-            {new Date(goal.created_at).toLocaleString()}
-          </span>
-        </li>
-      ))}
-    </ul>
   );
 }

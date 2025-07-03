@@ -2,6 +2,7 @@ from pathlib import Path
 from datetime import datetime
 import json
 from sentence_transformers import SentenceTransformer, util
+from modules.skills.boot_selector import BootSelector  # 🧠 Skill trigger
 
 # 📁 File paths
 MODULE_DIR = Path(__file__).resolve().parent
@@ -53,6 +54,7 @@ class MilestoneTracker:
         self.goal_creation_callback = goal_creation_callback
         self.model = SentenceTransformer("all-MiniLM-L6-v2")
         self.trigger_embeddings = self._embed_triggers()
+        self.boot_selector = BootSelector()
 
         if MILESTONE_FILE.exists():
             with open(MILESTONE_FILE, "r") as f:
@@ -82,7 +84,7 @@ class MilestoneTracker:
             print("🏁 Grid World completed! Milestone will be recorded.")
             self.add_milestone("grid_world_complete", source="grid_world")
 
-    def add_milestone(self, name, source="manual", excerpt=None):
+    def add_milestone(self, name, source="manual", excerpt=None, origin_strategy_id=None):
         if name in [m["name"] for m in self.state["milestones"]]:
             return
         milestone = {
@@ -92,6 +94,9 @@ class MilestoneTracker:
         }
         if excerpt:
             milestone["dream_excerpt"] = excerpt.strip()[:200]
+        if origin_strategy_id:
+            milestone["origin_strategy_id"] = origin_strategy_id  # <-- NEW
+
         self.state["milestones"].append(milestone)
 
         self.try_unlock_modules(name)
@@ -99,10 +104,18 @@ class MilestoneTracker:
 
         if self.goal_creation_callback:
             try:
-                self.goal_creation_callback(name)
-                print(f"🎯 Goal created for milestone: {name}")
+                # Pass origin_strategy_id so GoalEngine can link
+                self.goal_creation_callback(name, origin_strategy_id=origin_strategy_id)
+                print(f"🎯 Goal created for milestone: {name} linked to strategy: {origin_strategy_id}")
             except Exception as e:
                 print(f"⚠️ Goal creation callback failed for '{name}': {e}")
+
+        try:
+            skill = self.boot_selector.find_matching_skill(excerpt or name)
+            if skill:
+                print(f"🚀 Skill '{skill['title']}' triggered from milestone '{name}'.")
+        except Exception as e:
+            print(f"⚠️ Skill boot trigger failed for milestone '{name}': {e}")
 
         self.save()
 
@@ -171,7 +184,11 @@ class MilestoneTracker:
         return self.state.get("milestones", [])
 
     def list_saved_goals(self):
-        return [m["dream_excerpt"].strip() for m in self.state.get("milestones", []) if "goal" in m.get("dream_excerpt", "").lower() or "objective" in m.get("dream_excerpt", "").lower()]
+        return [
+            m["dream_excerpt"].strip()
+            for m in self.state.get("milestones", [])
+            if "goal" in m.get("dream_excerpt", "").lower() or "objective" in m.get("dream_excerpt", "").lower()
+        ]
 
     def is_unlocked(self, module_name):
         return module_name in self.state.get("unlocked_modules", [])
@@ -187,6 +204,14 @@ class MilestoneTracker:
 
     def get_goal_state(self):
         return self.state.get("goals", [])
+
+    def is_milestone_triggered(self, tags):
+        """
+        Check if any milestone was triggered based on provided tags.
+        Returns True if any tag matches an existing milestone name.
+        """
+        milestone_names = [m["name"] for m in self.state.get("milestones", [])]
+        return any(tag in milestone_names for tag in tags)
 
     def update_goal(self, index, new_name=None, new_status=None):
         try:

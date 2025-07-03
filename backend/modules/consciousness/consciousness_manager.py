@@ -2,7 +2,7 @@ from modules.consciousness.time_engine import TimeEngine
 from modules.consciousness.state_manager import StateManager
 from modules.consciousness.decision_engine import DecisionEngine
 from modules.consciousness.reflection_engine import ReflectionEngine
-from modules.consciousness.goal_engine import GoalEngine
+from modules.skills.goal_engine import GoalEngine
 from modules.consciousness.energy_engine import EnergyEngine
 from modules.consciousness.situational_engine import SituationalEngine
 from modules.consciousness.personality_engine import PersonalityProfile

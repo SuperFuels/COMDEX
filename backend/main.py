@@ -88,7 +88,7 @@ from routes.aion_goals        import router as aion_goals_router
 from routes.aion_plan         import router as aion_plan_router
 from routes.aion_dream        import router as aion_dream_router
 from routes.aion_gridworld    import router as aion_gridworld_router
-from routes.aion_game_dream   import router as aion_game_dream_router  # ✅ NEW
+from routes.aion_game_dream   import router as aion_game_dream_router
 from routes.aion_grid_progress import router as aion_grid_progress_router
 from api.aion                import status, grid_progress
 from modules.aion            import loop_planner  # triggers scheduler start
@@ -112,14 +112,14 @@ api.include_router(supplier_router)
 
 api.include_router(aion_router, prefix="/aion")
 api.include_router(aion_plan_router, prefix="/aion")
-api.include_router(aion_goals_router)
+api.include_router(aion_goals_router)  # No prefix, verify route prefix inside routes/aion_goals.py
 api.include_router(aion_dream_router, prefix="/aion")
 api.include_router(aion_gridworld_router)
-api.include_router(aion_game_dream_router)  # Game ↔ Dream test
+api.include_router(aion_game_dream_router)
 
 api.include_router(aion_game_router)
 api.include_router(game_event_router)
-api.include_router(game_router, prefix="/aion")  # If game router is under /aion prefix
+api.include_router(game_router, prefix="/aion")
 
 # ── 13) Include API router on main app
 app.include_router(api)

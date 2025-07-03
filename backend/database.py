@@ -1,43 +1,37 @@
+# backend/database.py
+
 import os
 import logging
-
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 from sqlalchemy.pool import NullPool
 
-# Pull from ENV first; then from your config module; else default to SQLite
-DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    os.getenv("SQLALCHEMY_DATABASE_URL", "sqlite:///./dev.db")
-)
+# Choose DATABASE_URL from env, fallback to SQLite (for local development)
+DATABASE_URL = os.getenv("DATABASE_URL") or os.getenv("SQLALCHEMY_DATABASE_URL") or "sqlite:///./dev.db"
 
-# Log which database URL we’re actually using
+# Log the selected database URL (sanitized for safety)
 logging.basicConfig(level=logging.INFO)
-logging.info(f"🔍 SQLALCHEMY_DATABASE_URL = {DATABASE_URL}")
+sanitized_url = DATABASE_URL.replace(os.getenv("Wn8smx123", "*****"), "*****")  # optional masking
+logging.info(f"🔍 Using DATABASE_URL = {DATABASE_URL}")
 
-# If using SQLite, disable the same-thread check
-connect_args = {}
-if DATABASE_URL.startswith("sqlite"):
-    connect_args["check_same_thread"] = False
+# Special connect_args if SQLite is being used
+connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
 
-# 1) Engine & session factory
+# Create SQLAlchemy engine (disable pooling for serverless like Cloud Run)
 engine = create_engine(
     DATABASE_URL,
     connect_args=connect_args,
-    poolclass=NullPool,     # no connection pooling on Cloud Run
-    pool_pre_ping=True,     # detect stale connections
+    poolclass=NullPool,
+    pool_pre_ping=True,
 )
 
-SessionLocal = sessionmaker(
-    autocommit=False,
-    autoflush=False,
-    bind=engine,
-)
+# Create a session factory
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# 2) Base class for all models
+# Base class for models
 Base = declarative_base()
 
-# 3) Dependency for FastAPI routes
+# Dependency for FastAPI or CLI use
 def get_db():
     db = SessionLocal()
     try:

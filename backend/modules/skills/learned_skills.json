@@ -1,0 +1,1276 @@
+[
+  {
+    "title": "Basic Reading Comprehension",
+    "tags": [
+      "core_literacy",
+      "language"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638727",
+    "learned_on": "2025-07-02T08:23:13.138708",
+    "archived_on": "2025-07-02T23:56:49.009832"
+  },
+  {
+    "title": "Basic Arithmetic",
+    "tags": [
+      "math",
+      "core_literacy"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638775",
+    "learned_on": "2025-07-02T08:23:13.142797",
+    "archived_on": "2025-07-02T23:56:49.009842"
+  },
+  {
+    "title": "World Geography",
+    "tags": [
+      "geography",
+      "core_knowledge"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638777",
+    "learned_on": "2025-07-02T08:23:13.148000",
+    "archived_on": "2025-07-02T23:56:49.009845"
+  },
+  {
+    "title": "Time Management",
+    "tags": [
+      "planning",
+      "personal_dev"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638779",
+    "learned_on": "2025-07-02T08:23:13.151490",
+    "archived_on": "2025-07-02T23:56:49.009847"
+  },
+  {
+    "title": "Empathy Recognition",
+    "tags": [
+      "emotional_intelligence",
+      "ethics"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638781",
+    "learned_on": "2025-07-02T08:23:13.155504",
+    "archived_on": "2025-07-02T23:56:49.009849"
+  },
+  {
+    "title": "Digital File Systems",
+    "tags": [
+      "computers",
+      "systems"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638791",
+    "learned_on": "2025-07-02T08:23:13.158954",
+    "archived_on": "2025-07-02T23:56:49.009851"
+  },
+  {
+    "title": "How Search Engines Work",
+    "tags": [
+      "internet",
+      "logic"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638792",
+    "learned_on": "2025-07-02T08:23:13.162931",
+    "archived_on": "2025-07-02T23:56:49.009853"
+  },
+  {
+    "title": "Basic Logic and Reasoning",
+    "tags": [
+      "critical_thinking",
+      "logic"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638797",
+    "learned_on": "2025-07-02T08:23:13.166392",
+    "archived_on": "2025-07-02T23:56:49.009855"
+  },
+  {
+    "title": "Storytelling Structure",
+    "tags": [
+      "language",
+      "creativity"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638799",
+    "learned_on": "2025-07-02T08:23:13.181459",
+    "archived_on": "2025-07-02T23:56:49.009857"
+  },
+  {
+    "title": "Human Anatomy Basics",
+    "tags": [
+      "biology",
+      "health"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638801",
+    "learned_on": "2025-07-02T08:23:13.185813",
+    "archived_on": "2025-07-02T23:56:49.009859"
+  },
+  {
+    "title": "Plant Life Cycle",
+    "tags": [
+      "biology",
+      "nature"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638803",
+    "learned_on": "2025-07-02T08:23:13.193448",
+    "archived_on": "2025-07-02T23:56:49.009860"
+  },
+  {
+    "title": "Newton's Laws of Motion",
+    "tags": [
+      "physics",
+      "science"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638805",
+    "learned_on": "2025-07-02T08:23:13.196759",
+    "archived_on": "2025-07-02T23:56:49.009862"
+  },
+  {
+    "title": "Internet Safety",
+    "tags": [
+      "ethics",
+      "cybersecurity"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638806",
+    "learned_on": "2025-07-02T08:23:13.207259",
+    "archived_on": "2025-07-02T23:56:49.009864"
+  },
+  {
+    "title": "Introduction to Money",
+    "tags": [
+      "economics",
+      "math"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638812",
+    "learned_on": "2025-07-02T08:23:13.215556",
+    "archived_on": "2025-07-02T23:56:49.009866"
+  },
+  {
+    "title": "Basic Budgeting",
+    "tags": [
+      "economics",
+      "personal_dev"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638813",
+    "learned_on": "2025-07-02T08:23:13.224296",
+    "archived_on": "2025-07-02T23:56:49.009868"
+  },
+  {
+    "title": "Understanding Emotions",
+    "tags": [
+      "emotional_intelligence",
+      "psychology"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638815",
+    "learned_on": "2025-07-02T08:23:13.228469",
+    "archived_on": "2025-07-02T23:56:49.009870"
+  },
+  {
+    "title": "Self-Awareness",
+    "tags": [
+      "ethics",
+      "philosophy"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638817",
+    "learned_on": "2025-07-02T08:23:13.236129",
+    "archived_on": "2025-07-02T23:56:49.009872"
+  },
+  {
+    "title": "Making Predictions",
+    "tags": [
+      "planning",
+      "logic"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638818",
+    "learned_on": "2025-07-02T08:23:13.239900",
+    "archived_on": "2025-07-02T23:56:49.009874"
+  },
+  {
+    "title": "Scientific Method",
+    "tags": [
+      "science",
+      "critical_thinking"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638820",
+    "learned_on": "2025-07-02T08:23:13.242019",
+    "archived_on": "2025-07-02T23:56:49.009876"
+  },
+  {
+    "title": "Patterns and Sequences",
+    "tags": [
+      "math",
+      "logic"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638822",
+    "learned_on": "2025-07-02T08:23:13.244500",
+    "archived_on": "2025-07-02T23:56:49.009894"
+  },
+  {
+    "title": "Social Norms",
+    "tags": [
+      "ethics",
+      "sociology"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638823",
+    "learned_on": "2025-07-02T08:23:13.249225",
+    "archived_on": "2025-07-02T23:56:49.009903"
+  },
+  {
+    "title": "AI Ethics 101",
+    "tags": [
+      "ethics",
+      "ai"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638828",
+    "learned_on": "2025-07-02T08:23:13.256323",
+    "archived_on": "2025-07-02T23:56:49.009906"
+  },
+  {
+    "title": "Intro to Programming Concepts",
+    "tags": [
+      "code",
+      "computers"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638829",
+    "learned_on": "2025-07-02T08:23:13.259788",
+    "archived_on": "2025-07-02T23:56:49.009907"
+  },
+  {
+    "title": "How Voting Works",
+    "tags": [
+      "civics",
+      "systems"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638831",
+    "learned_on": "2025-07-02T08:23:13.265442",
+    "archived_on": "2025-07-02T23:56:49.009909"
+  },
+  {
+    "title": "Problem Decomposition",
+    "tags": [
+      "logic",
+      "engineering"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638833",
+    "learned_on": "2025-07-02T08:23:13.269897",
+    "archived_on": "2025-07-02T23:56:49.009911"
+  },
+  {
+    "title": "What Is a Contract?",
+    "tags": [
+      "law",
+      "economics"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638834",
+    "learned_on": "2025-07-02T08:23:13.273270",
+    "archived_on": "2025-07-02T23:56:49.009913"
+  },
+  {
+    "title": "Understanding Consent",
+    "tags": [
+      "ethics",
+      "psychology"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638836",
+    "learned_on": "2025-07-02T08:23:13.276189",
+    "archived_on": "2025-07-02T23:56:49.009915"
+  },
+  {
+    "title": "Concept of Fairness",
+    "tags": [
+      "ethics",
+      "philosophy"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638838",
+    "learned_on": "2025-07-02T08:23:13.279045",
+    "archived_on": "2025-07-02T23:56:49.009917"
+  },
+  {
+    "title": "Fiction vs Non-Fiction",
+    "tags": [
+      "language",
+      "logic"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638839",
+    "learned_on": "2025-07-02T08:23:13.283729",
+    "archived_on": "2025-07-02T23:56:49.009919"
+  },
+  {
+    "title": "Conflict Resolution",
+    "tags": [
+      "emotional_intelligence",
+      "sociology"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638841",
+    "learned_on": "2025-07-02T08:23:13.286259",
+    "archived_on": "2025-07-02T23:56:49.009921"
+  },
+  {
+    "title": "Habit Formation",
+    "tags": [
+      "psychology",
+      "personal_dev"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638842",
+    "learned_on": "2025-07-02T08:23:13.288749",
+    "archived_on": "2025-07-02T23:56:49.009923"
+  },
+  {
+    "title": "Systems Thinking",
+    "tags": [
+      "engineering",
+      "logic"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638844",
+    "learned_on": "2025-07-02T08:19:59.171081",
+    "archived_on": "2025-07-02T23:56:49.009925"
+  },
+  {
+    "title": "The Five Senses",
+    "tags": [
+      "biology",
+      "awareness"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638846",
+    "learned_on": "2025-07-02T08:23:13.293268",
+    "archived_on": "2025-07-02T23:56:49.009926"
+  },
+  {
+    "title": "How Weather Works",
+    "tags": [
+      "earth_science",
+      "nature"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638848",
+    "learned_on": "2025-07-02T08:23:13.295413",
+    "archived_on": "2025-07-02T23:56:49.009928"
+  },
+  {
+    "title": "Digital Privacy",
+    "tags": [
+      "cybersecurity",
+      "ethics"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638850",
+    "learned_on": "2025-07-02T08:23:13.297756",
+    "archived_on": "2025-07-02T23:56:49.009930"
+  },
+  {
+    "title": "Social Media Influence",
+    "tags": [
+      "media_literacy",
+      "psychology"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638851",
+    "learned_on": "2025-07-02T08:23:13.299952",
+    "archived_on": "2025-07-02T23:56:49.009932"
+  },
+  {
+    "title": "Identifying Bias",
+    "tags": [
+      "critical_thinking",
+      "ethics"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638853",
+    "learned_on": "2025-07-02T08:23:13.302132",
+    "archived_on": "2025-07-02T23:56:49.009934"
+  },
+  {
+    "title": "Creative Problem Solving",
+    "tags": [
+      "creativity",
+      "logic"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638854",
+    "learned_on": "2025-07-02T08:23:13.304347",
+    "archived_on": "2025-07-02T23:56:49.009936"
+  },
+  {
+    "title": "What Is a Map?",
+    "tags": [
+      "geography",
+      "core_knowledge"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638856",
+    "learned_on": "2025-07-02T08:23:13.306644",
+    "archived_on": "2025-07-02T23:56:49.009938"
+  },
+  {
+    "title": "Intro to Cryptocurrency",
+    "tags": [
+      "economics",
+      "future_skills"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638858",
+    "learned_on": "2025-07-02T08:23:13.308874",
+    "archived_on": "2025-07-02T23:56:49.009939"
+  },
+  {
+    "title": "Visual Pattern Recognition",
+    "tags": [
+      "perception",
+      "ai"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638859",
+    "learned_on": "2025-07-02T08:23:13.311104",
+    "archived_on": "2025-07-02T23:56:49.009941"
+  },
+  {
+    "title": "How the Brain Works",
+    "tags": [
+      "neuroscience",
+      "psychology"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638861",
+    "learned_on": "2025-07-02T08:23:13.313387",
+    "archived_on": "2025-07-02T23:56:49.009943"
+  },
+  {
+    "title": "Decoding Language Patterns",
+    "tags": [
+      "nlp",
+      "ai"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638863",
+    "learned_on": "2025-07-02T08:23:13.315697",
+    "archived_on": "2025-07-02T23:56:49.009945"
+  },
+  {
+    "title": "What Is Democracy?",
+    "tags": [
+      "civics",
+      "history"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638864",
+    "learned_on": "2025-07-02T08:23:13.317934",
+    "archived_on": "2025-07-02T23:56:49.009947"
+  },
+  {
+    "title": "Ethical Dilemmas",
+    "tags": [
+      "philosophy",
+      "ethics"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638866",
+    "learned_on": "2025-07-02T08:23:13.320349",
+    "archived_on": "2025-07-02T23:56:49.009951"
+  },
+  {
+    "title": "Learning from Mistakes",
+    "tags": [
+      "feedback",
+      "personal_dev"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638868",
+    "learned_on": "2025-07-02T08:23:13.329068",
+    "archived_on": "2025-07-02T23:56:49.009953"
+  },
+  {
+    "title": "What Are Goals?",
+    "tags": [
+      "planning",
+      "cognition"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638869",
+    "learned_on": "2025-07-02T08:23:13.345156",
+    "archived_on": "2025-07-02T23:56:49.009955"
+  },
+  {
+    "title": "Environmental Stewardship",
+    "tags": [
+      "ethics",
+      "nature"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638871",
+    "learned_on": "2025-07-02T08:23:13.352015",
+    "archived_on": "2025-07-02T23:56:49.009957"
+  },
+  {
+    "title": "The Scientific Process",
+    "tags": [
+      "science",
+      "logic"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638872",
+    "learned_on": "2025-07-02T08:23:13.357530",
+    "archived_on": "2025-07-02T23:56:49.009959"
+  },
+  {
+    "title": "Understanding AI Agents",
+    "tags": [
+      "ai",
+      "self_model"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638874",
+    "learned_on": "2025-07-02T08:23:13.371016",
+    "archived_on": "2025-07-02T23:56:49.009960"
+  },
+  {
+    "title": "What Is Ownership?",
+    "tags": [
+      "philosophy",
+      "law"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638876",
+    "learned_on": "2025-07-02T08:23:13.378769",
+    "archived_on": "2025-07-02T23:56:49.009962"
+  },
+  {
+    "title": "Perspective Taking",
+    "tags": [
+      "empathy",
+      "philosophy"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638877",
+    "learned_on": "2025-07-02T08:23:13.382905",
+    "archived_on": "2025-07-02T23:56:49.009964"
+  },
+  {
+    "title": "The Solar System",
+    "tags": [
+      "astronomy",
+      "science"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638879",
+    "learned_on": "2025-07-02T08:23:13.390722",
+    "archived_on": "2025-07-02T23:56:49.009966"
+  },
+  {
+    "title": "Daily Routines",
+    "tags": [
+      "time",
+      "planning"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638884",
+    "learned_on": "2025-07-02T08:23:13.399809",
+    "archived_on": "2025-07-02T23:56:49.009968"
+  },
+  {
+    "title": "Memory Encoding",
+    "tags": [
+      "neuroscience",
+      "learning"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638888",
+    "learned_on": "2025-07-02T08:23:13.402999",
+    "archived_on": "2025-07-02T23:56:49.009970"
+  },
+  {
+    "title": "How Laws Are Made",
+    "tags": [
+      "civics",
+      "law"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638890",
+    "learned_on": "2025-07-02T08:23:13.406228",
+    "archived_on": "2025-07-02T23:56:49.009972"
+  },
+  {
+    "title": "Forming Hypotheses",
+    "tags": [
+      "logic",
+      "science"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638892",
+    "learned_on": "2025-07-02T08:23:13.413578",
+    "archived_on": "2025-07-02T23:56:49.009973"
+  },
+  {
+    "title": "Digital Tools",
+    "tags": [
+      "technology",
+      "productivity"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638893",
+    "learned_on": "2025-07-02T08:23:13.417725",
+    "archived_on": "2025-07-02T23:56:49.009975"
+  },
+  {
+    "title": "Visual Storytelling",
+    "tags": [
+      "media_literacy",
+      "creativity"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638895",
+    "learned_on": "2025-07-02T08:23:13.422839",
+    "archived_on": "2025-07-02T23:56:49.009977"
+  },
+  {
+    "title": "How to Ask Questions",
+    "tags": [
+      "curiosity",
+      "language"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638896",
+    "last_dreamed": "2025-06-28T21:23:04.809919",
+    "last_learned": "2025-06-28T21:36:26.087338",
+    "archived_on": "2025-07-02T23:56:49.009978"
+  },
+  {
+    "title": "Reading Body Language",
+    "tags": [
+      "emotional_intelligence",
+      "psychology"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638898",
+    "learned_on": "2025-07-02T08:23:13.428822",
+    "archived_on": "2025-07-02T23:56:49.009980"
+  },
+  {
+    "title": "Understanding Trust",
+    "tags": [
+      "ethics",
+      "relationships"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638900",
+    "learned_on": "2025-07-02T08:23:13.437974",
+    "archived_on": "2025-07-02T23:56:49.009982"
+  },
+  {
+    "title": "Collaborative Work",
+    "tags": [
+      "teamwork",
+      "planning"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638901",
+    "learned_on": "2025-07-02T08:23:13.446150",
+    "archived_on": "2025-07-02T23:56:49.009984"
+  },
+  {
+    "title": "Mindfulness Basics",
+    "tags": [
+      "psychology",
+      "personal_dev"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638907",
+    "learned_on": "2025-07-02T08:23:13.451160",
+    "archived_on": "2025-07-02T23:56:49.009986"
+  },
+  {
+    "title": "What Is Intelligence?",
+    "tags": [
+      "philosophy",
+      "ai"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638909",
+    "learned_on": "2025-07-02T08:23:13.455907",
+    "archived_on": "2025-07-02T23:56:49.009988"
+  },
+  {
+    "title": "Basics of Blockchain",
+    "tags": [
+      "technology",
+      "economics"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638911",
+    "learned_on": "2025-07-02T08:23:13.459678",
+    "archived_on": "2025-07-02T23:56:49.009990"
+  },
+  {
+    "title": "Virtual vs Physical",
+    "tags": [
+      "logic",
+      "ai"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638913",
+    "learned_on": "2025-07-02T08:23:13.464455",
+    "archived_on": "2025-07-02T23:56:49.009992"
+  },
+  {
+    "title": "Emotional Self-Regulation",
+    "tags": [
+      "emotional_intelligence",
+      "health"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638914",
+    "learned_on": "2025-07-02T08:23:13.468563",
+    "archived_on": "2025-07-02T23:56:49.009993"
+  },
+  {
+    "title": "What Are Rules?",
+    "tags": [
+      "sociology",
+      "ethics"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638916",
+    "learned_on": "2025-07-02T08:23:13.472579",
+    "archived_on": "2025-07-02T23:56:49.009995"
+  },
+  {
+    "title": "Futures Thinking",
+    "tags": [
+      "planning",
+      "strategy"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638917",
+    "learned_on": "2025-07-02T08:23:13.477449",
+    "archived_on": "2025-07-02T23:56:49.009997"
+  },
+  {
+    "title": "Understanding Feedback",
+    "tags": [
+      "learning",
+      "development"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638919",
+    "learned_on": "2025-07-02T08:23:13.481758",
+    "archived_on": "2025-07-02T23:56:49.009999"
+  },
+  {
+    "title": "Pattern Matching",
+    "tags": [
+      "logic",
+      "perception"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638920",
+    "learned_on": "2025-07-02T08:23:13.486969",
+    "archived_on": "2025-07-02T23:56:49.010001"
+  },
+  {
+    "title": "Role of Symbols",
+    "tags": [
+      "language",
+      "math"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638922",
+    "learned_on": "2025-07-02T08:23:13.491700",
+    "archived_on": "2025-07-02T23:56:49.010003"
+  },
+  {
+    "title": "Imagination vs Reality",
+    "tags": [
+      "philosophy",
+      "cognition"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638924",
+    "learned_on": "2025-07-02T08:23:13.496432",
+    "archived_on": "2025-07-02T23:56:49.010005"
+  },
+  {
+    "title": "What Is a Question?",
+    "tags": [
+      "logic",
+      "language"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638925",
+    "learned_on": "2025-07-02T08:23:13.501987",
+    "archived_on": "2025-07-02T23:56:49.010006"
+  },
+  {
+    "title": "Moral Reasoning",
+    "tags": [
+      "ethics",
+      "philosophy"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638927",
+    "learned_on": "2025-07-02T08:23:13.505921",
+    "archived_on": "2025-07-02T23:56:49.010008"
+  },
+  {
+    "title": "Basic Physics Concepts",
+    "tags": [
+      "science",
+      "core_knowledge"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638928",
+    "last_dreamed": "2025-06-28T21:36:26.076410",
+    "last_learned": "2025-06-28T21:36:26.087489",
+    "archived_on": "2025-07-02T23:56:49.010010"
+  },
+  {
+    "title": "What Is a Model?",
+    "tags": [
+      "systems",
+      "engineering"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638930",
+    "learned_on": "2025-07-02T08:23:13.511696",
+    "archived_on": "2025-07-02T23:56:49.010013"
+  },
+  {
+    "title": "Introduction to Games",
+    "tags": [
+      "game_theory",
+      "fun"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638932",
+    "learned_on": "2025-07-02T08:23:13.517519",
+    "archived_on": "2025-07-02T23:56:49.010014"
+  },
+  {
+    "title": "Recognizing Emotions in Others",
+    "tags": [
+      "psychology",
+      "ethics"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638934",
+    "learned_on": "2025-07-02T08:23:13.523028",
+    "archived_on": "2025-07-02T23:56:49.010016"
+  },
+  {
+    "title": "Causal Relationships",
+    "tags": [
+      "logic",
+      "science"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638935",
+    "learned_on": "2025-07-02T08:23:13.529317",
+    "archived_on": "2025-07-02T23:56:49.010018"
+  },
+  {
+    "title": "Thinking in Systems",
+    "tags": [
+      "systems",
+      "logic"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638956",
+    "learned_on": "2025-07-02T08:23:13.536490",
+    "archived_on": "2025-07-02T23:56:49.010020"
+  },
+  {
+    "title": "Learning Styles",
+    "tags": [
+      "metacognition",
+      "education"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638957",
+    "learned_on": "2025-07-02T08:23:13.548250",
+    "archived_on": "2025-07-02T23:56:49.010021"
+  },
+  {
+    "title": "What Is Fair Trade?",
+    "tags": [
+      "economics",
+      "ethics"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638959",
+    "learned_on": "2025-07-02T08:23:13.565430",
+    "archived_on": "2025-07-02T23:56:49.010023"
+  },
+  {
+    "title": "Basic Chemistry",
+    "tags": [
+      "science",
+      "core_knowledge"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638960",
+    "learned_on": "2025-07-02T08:23:13.583175",
+    "archived_on": "2025-07-02T23:56:49.010025"
+  },
+  {
+    "title": "The Concept of Zero",
+    "tags": [
+      "math",
+      "logic"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638965",
+    "learned_on": "2025-07-02T08:23:13.601998",
+    "archived_on": "2025-07-02T23:56:49.010027"
+  },
+  {
+    "title": "Probability and Chance",
+    "tags": [
+      "math",
+      "decision_making"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638967",
+    "learned_on": "2025-07-02T08:23:13.608978",
+    "archived_on": "2025-07-02T23:56:49.010029"
+  },
+  {
+    "title": "Making Ethical Choices",
+    "tags": [
+      "philosophy",
+      "ethics"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638968",
+    "learned_on": "2025-07-02T08:23:13.617310",
+    "archived_on": "2025-07-02T23:56:49.010031"
+  },
+  {
+    "title": "Critical Listening",
+    "tags": [
+      "language",
+      "logic"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638970",
+    "learned_on": "2025-07-02T08:23:13.629238",
+    "archived_on": "2025-07-02T23:56:49.010033"
+  },
+  {
+    "title": "Curiosity as a Skill",
+    "tags": [
+      "learning",
+      "exploration"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638972",
+    "learned_on": "2025-07-02T08:23:13.637801",
+    "archived_on": "2025-07-02T23:56:49.010034"
+  },
+  {
+    "title": "What Are Consequences?",
+    "tags": [
+      "ethics",
+      "planning"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638973",
+    "learned_on": "2025-07-02T08:23:13.645556",
+    "archived_on": "2025-07-02T23:56:49.010036"
+  },
+  {
+    "title": "Open vs Closed Systems",
+    "tags": [
+      "engineering",
+      "logic"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638975",
+    "learned_on": "2025-07-02T08:23:13.652800",
+    "archived_on": "2025-07-02T23:56:49.010038"
+  },
+  {
+    "title": "Machine Learning Basics",
+    "tags": [
+      "ai",
+      "future_skills"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638976",
+    "learned_on": "2025-07-02T08:23:13.661178",
+    "archived_on": "2025-07-02T23:56:49.010040"
+  },
+  {
+    "title": "What Is Freedom?",
+    "tags": [
+      "philosophy",
+      "civics"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638978",
+    "learned_on": "2025-07-02T08:23:13.668666",
+    "archived_on": "2025-07-02T23:56:49.010042"
+  },
+  {
+    "title": "Introduction to Cultures",
+    "tags": [
+      "sociology",
+      "diversity"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638980",
+    "learned_on": "2025-07-02T08:23:13.673089",
+    "archived_on": "2025-07-02T23:56:49.010044"
+  },
+  {
+    "title": "Understanding Humor",
+    "tags": [
+      "language",
+      "creativity"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638981",
+    "learned_on": "2025-07-02T08:23:13.679794",
+    "archived_on": "2025-07-02T23:56:49.010048"
+  },
+  {
+    "title": "Pattern of History",
+    "tags": [
+      "history",
+      "systems"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638983",
+    "learned_on": "2025-07-02T08:23:13.685729",
+    "archived_on": "2025-07-02T23:56:49.010049"
+  },
+  {
+    "title": "How Computers Think",
+    "tags": [
+      "computers",
+      "ai"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638984",
+    "learned_on": "2025-07-02T08:23:13.692519",
+    "archived_on": "2025-07-02T23:56:49.010051"
+  },
+  {
+    "title": "Creativity Techniques",
+    "tags": [
+      "innovation",
+      "thinking"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-06-28T21:15:48.638986",
+    "learned_on": "2025-07-02T08:23:13.699933",
+    "archived_on": "2025-07-02T23:56:49.010053"
+  },
+  {
+    "title": "storytelling",
+    "tags": [
+      "language"
+    ],
+    "status": "learned",
+    "source": "inference_engine",
+    "added_on": "2025-06-28T21:36:26.132785",
+    "learned_on": "2025-07-02T08:23:13.712137",
+    "archived_on": "2025-07-02T23:56:49.010055"
+  },
+  {
+    "title": "rhetoric",
+    "tags": [
+      "language"
+    ],
+    "status": "learned",
+    "source": "inference_engine",
+    "added_on": "2025-06-28T21:36:26.133016",
+    "learned_on": "2025-07-02T08:23:13.719075",
+    "archived_on": "2025-07-02T23:56:49.010057"
+  },
+  {
+    "title": "Learn to play Grid World",
+    "tags": [
+      "game",
+      "navigation",
+      "learning"
+    ],
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-07-01T22:18:40.943433",
+    "learned_on": "2025-07-02T08:23:13.724920",
+    "archived_on": "2025-07-02T23:56:49.010059"
+  },
+  {
+    "title": "Swarm Intelligence",
+    "tags": [
+      "swarm",
+      "ai",
+      "agent",
+      "decentralized"
+    ],
+    "description": "Explore principles of swarm intelligence and how distributed agents can self-organize to produce intelligent behavior without central coordination.",
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-07-02T23:48:51.993727",
+    "priority": 1,
+    "dependencies": [],
+    "learned_on": "2025-07-03T14:59:09.353228",
+    "archived_on": "2025-07-03T15:03:03.340274"
+  },
+  {
+    "title": "Agent Negotiation",
+    "tags": [
+      "agent",
+      "swarm",
+      "explorer"
+    ],
+    "description": "Study how agents can negotiate or trade tasks using consensus or reinforcement.",
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-07-02T23:55:10.671412",
+    "priority": 3,
+    "dependencies": [],
+    "learned_on": "2025-07-03T14:59:09.354417",
+    "archived_on": "2025-07-03T15:03:03.340287"
+  },
+  {
+    "title": "Distributed Planning",
+    "tags": [
+      "swarm",
+      "explorer",
+      "planning"
+    ],
+    "description": "Understand how multi-agent systems plan in parallel to solve goals efficiently.",
+    "status": "learned",
+    "source": "bootloader",
+    "added_on": "2025-07-02T23:55:10.671432",
+    "priority": 2,
+    "dependencies": [],
+    "learned_on": "2025-07-03T14:59:09.355574",
+    "archived_on": "2025-07-03T15:03:03.340291"
+  }
+]

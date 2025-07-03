@@ -497,5 +497,26 @@
     "title": "Learn to play Grid World",
     "executed_at": "2025-07-02T08:23:13.722256",
     "status": "completed"
+  },
+  {
+    "title": "Swarm Intelligence",
+    "executed_at": "2025-07-03T14:59:09.352305",
+    "status": "completed",
+    "linked_goal": null,
+    "linked_strategy_id": null
+  },
+  {
+    "title": "Agent Negotiation",
+    "executed_at": "2025-07-03T14:59:09.353660",
+    "status": "completed",
+    "linked_goal": null,
+    "linked_strategy_id": null
+  },
+  {
+    "title": "Distributed Planning",
+    "executed_at": "2025-07-03T14:59:09.354802",
+    "status": "completed",
+    "linked_goal": null,
+    "linked_strategy_id": null
   }
 ]

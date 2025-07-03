@@ -1,8 +1,10 @@
+# backend/modules/skills/goal_tracker.py
+
 from typing import List, Dict
 import json
 import os
 
-GOAL_FILE = "aion_goals.json"
+GOAL_FILE = "backend/modules/skills/goals.json"  # full relative path
 
 class GoalTracker:
     def __init__(self):
@@ -12,17 +14,18 @@ class GoalTracker:
     def load_goals(self):
         if os.path.exists(GOAL_FILE):
             with open(GOAL_FILE, "r") as f:
-                self.goals = json.load(f)
+                data = json.load(f)
+                self.goals = data.get("goals", [])
         else:
             self.goals = []
 
     def save_goals(self):
         with open(GOAL_FILE, "w") as f:
-            json.dump(self.goals, f, indent=2)
+            json.dump({"goals": self.goals}, f, indent=2)
 
-    def add_goal(self, title: str, status: str = "pending"):
+    def add_goal(self, name: str, status: str = "pending"):
         goal = {
-            "title": title,
+            "name": name,
             "status": status
         }
         self.goals.append(goal)
@@ -38,5 +41,5 @@ class GoalTracker:
 
     def get_goals(self, status_filter: str = None):
         if status_filter:
-            return [g for g in self.goals if g["status"] == status_filter]
+            return [g for g in self.goals if g.get("status") == status_filter]
         return self.goals

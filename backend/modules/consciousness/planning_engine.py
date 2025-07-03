@@ -1,13 +1,22 @@
 import random
 from datetime import datetime
+from modules.skills.goal_engine import GoalEngine
+from modules.hexcore.memory_engine import MemoryEngine
+from modules.skills.strategy_planner import StrategyPlanner
 
 class PlanningEngine:
     def __init__(self):
         self.active_plan = []
+        self.current_goal = None
         self.last_generated = None
+        self.goal_engine = GoalEngine()
+        self.memory = MemoryEngine()
+        self.strategist = StrategyPlanner()
 
-    def generate_plan(self, goal: str):
-        print(f"[PLANNING] Generating plan for: {goal}")
+    def generate_plan(self, goal_name: str):
+        print(f"[PLANNING] Generating plan for: {goal_name}")
+        self.current_goal = goal_name
+
         plan_templates = {
             "increase_energy": [
                 "Analyze compute usage",
@@ -39,7 +48,14 @@ class PlanningEngine:
             ]
         }
 
-        self.active_plan = plan_templates.get(goal, ["No plan available for that goal"])
+        # Choose matching template or fallback
+        self.active_plan = plan_templates.get(goal_name, [
+            "Understand goal context",
+            "Break down goal into subtasks",
+            "Schedule subtasks in order",
+            "Execute each and reflect on outcome"
+        ])
+
         self.last_generated = datetime.now()
         return self.active_plan
 
@@ -48,22 +64,37 @@ class PlanningEngine:
 
     def step_through_plan(self):
         if not self.active_plan:
-            print("[PLANNING] No plan available.")
+            print("[PLANNING] No active plan available.")
             return None
+
         next_step = self.active_plan.pop(0)
+        timestamp = datetime.now().isoformat()
         print(f"[PLANNING] Executing step: {next_step}")
+
+        # Store in memory for later reflection
+        memory_entry = {
+            "type": "planning_step",
+            "goal": self.current_goal or "unspecified",
+            "step": next_step,
+            "timestamp": timestamp
+        }
+        self.memory.store("plan_step", memory_entry)
         return next_step
 
     def strategize(self):
-        # If no active plan, generate a new one for a default goal
         if not self.active_plan:
-            goal = "earn_money"  # This could be dynamic in future enhancements
-            print("[PLANNING] No active plan found. Generating a new plan.")
-            self.generate_plan(goal)
+            print("[PLANNING] No active plan. Pulling top goal.")
+            top_goals = self.goal_engine.get_active_goals()
+            if not top_goals:
+                print("[PLANNING] No active goals found. Generating default strategy.")
+                default_goal = self.strategist.generate_goal()
+                self.generate_plan(default_goal)
+            else:
+                goal_name = top_goals[0].get("name", "self_optimize")
+                self.generate_plan(goal_name)
 
-        # Step through the plan
         step = self.step_through_plan()
-        if step is None:
-            print("[PLANNING] Plan completed.")
-        else:
+        if step:
             print(f"[PLANNING] Strategy step executed: {step}")
+        else:
+            print("[PLANNING] Plan completed or empty.")

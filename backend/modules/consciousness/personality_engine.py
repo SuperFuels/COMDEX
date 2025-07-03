@@ -1,19 +1,44 @@
 # backend/modules/consciousness/personality_engine.py
 
 import json
+import os
 from datetime import datetime
+
+TRAIT_FILE = "data/personality_traits.json"
+HISTORY_FILE = "logs/personality_log.json"
+
+DEFAULT_TRAITS = {
+    "curiosity": 0.7,
+    "discipline": 0.5,
+    "risk_tolerance": 0.4,
+    "empathy": 0.6,
+    "ambition": 0.8,
+    "humility": 0.3
+}
 
 class PersonalityProfile:
     def __init__(self):
-        self.traits = {
-            "curiosity": 0.7,       # Seeks novelty, learning
-            "discipline": 0.5,      # Consistency and structure
-            "risk_tolerance": 0.4,  # Willingness to take bold actions
-            "empathy": 0.6,         # Care for others or external feedback
-            "ambition": 0.8,        # Drive for growth/power
-            "humility": 0.3         # Self-awareness and correction
-        }
-        self.history = []  # Log of changes for future learning loops
+        self.traits = DEFAULT_TRAITS.copy()
+        self.history = []
+
+        # Load existing traits if saved
+        if os.path.exists(TRAIT_FILE):
+            with open(TRAIT_FILE, "r") as f:
+                self.traits = json.load(f)
+
+        # Load history if available
+        if os.path.exists(HISTORY_FILE):
+            with open(HISTORY_FILE, "r") as f:
+                self.history = json.load(f)
+
+    def _save(self):
+        os.makedirs(os.path.dirname(TRAIT_FILE), exist_ok=True)
+        with open(TRAIT_FILE, "w") as f:
+            json.dump(self.traits, f, indent=2)
+
+        os.makedirs(os.path.dirname(HISTORY_FILE), exist_ok=True)
+        with open(HISTORY_FILE, "w") as f:
+            json.dump(self.history, f, indent=2)
 
     def adjust_trait(self, trait, delta, reason: str = "unspecified"):
         if trait in self.traits:
@@ -29,6 +54,7 @@ class PersonalityProfile:
             }
             self.history.append(entry)
             print(f"[PERSONALITY] {trait} adjusted: {prev:.2f} → {self.traits[trait]:.2f} ({reason})")
+            self._save()
         else:
             print(f"[PERSONALITY] Trait '{trait}' not recognized.")
 
@@ -44,7 +70,6 @@ class PersonalityProfile:
     def to_json(self) -> str:
         return json.dumps(self.traits, indent=2)
 
-    def log_history(self, path: str = "logs/personality_log.json"):
-        with open(path, "w") as f:
-            json.dump(self.history, f, indent=2)
-        print(f"[PERSONALITY] History logged to {path}")
+    def log_history(self):
+        self._save()
+        print(f"[PERSONALITY] History + traits saved to disk.")

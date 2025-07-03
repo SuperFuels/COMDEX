@@ -3,13 +3,16 @@ from datetime import datetime
 from pathlib import Path
 
 GOAL_FILE = Path(__file__).parent / "goals.json"
+LOG_FILE = Path(__file__).parent / "goal_skill_log.json"
 
 class GoalEngine:
     def __init__(self):
         self.goals = []
         self.completed = []
+        self.log = []  # For tracking dream/strategy/goal/skill relationships
         self.agents = []  # For agent communication
         self.load_goals()
+        self.load_log()
 
     # Agent communication methods
     def register_agent(self, agent):
@@ -18,10 +21,6 @@ class GoalEngine:
             print(f"✅ Agent registered: {agent.name}")
 
     def receive_message(self, message):
-        """
-        Handle messages from other agents/modules.
-        Specifically listens for new milestone notifications to create goals dynamically.
-        """
         if isinstance(message, dict):
             msg_type = message.get("type")
             if msg_type == "new_milestone":
@@ -57,11 +56,24 @@ class GoalEngine:
         except Exception as e:
             print(f"⚠️ Failed to save goals file: {e}")
 
+    def load_log(self):
+        if LOG_FILE.exists():
+            try:
+                with open(LOG_FILE, "r") as f:
+                    self.log = json.load(f)
+            except Exception:
+                self.log = []
+        else:
+            self.save_log()
+
+    def save_log(self):
+        try:
+            with open(LOG_FILE, "w") as f:
+                json.dump(self.log, f, indent=2)
+        except Exception as e:
+            print(f"⚠️ Failed to save goal-skill log: {e}")
+
     def get_active_goals(self):
-        """
-        Return goals not completed and whose dependencies are met.
-        Sorted by priority descending.
-        """
         active = []
         completed_set = set(self.completed)
         for g in self.goals:
@@ -73,22 +85,32 @@ class GoalEngine:
         active.sort(key=lambda g: g.get("priority", 0), reverse=True)
         return active
 
-    def mark_complete(self, goal_name):
+    def mark_complete(self, goal_name, learned_skill=None, originating_dream_id=None, originating_strategy_id=None):
         for goal in self.goals:
             if goal.get("name") == goal_name and goal_name not in self.completed:
                 self.completed.append(goal_name)
                 goal["completed_at"] = datetime.now().isoformat()
                 self.save_goals()
                 print(f"✅ Goal marked complete: {goal_name}")
-                print(f"🔍 Completed goals now: {self.completed}")  # DEBUG
+
+                # Log skill learning with links
+                log_entry = {
+                    "goal": goal_name,
+                    "learned_skill": learned_skill,
+                    "dream_id": originating_dream_id,
+                    "strategy_id": originating_strategy_id,
+                    "timestamp": datetime.now().isoformat()
+                }
+                self.log.append(log_entry)
+                self.save_log()
+
+                print(f"🔍 Logged skill learning: {log_entry}")
                 return goal
         print(f"⚠️ Goal not found or already completed: {goal_name}")
-        print(f"🔍 Completed goals list: {self.completed}")  # DEBUG
         return None
 
     def assign_goal(self, goal):
         existing_names = [g.get("name") for g in self.goals]
-        print(f"Existing goals when assigning new: {existing_names}")  # DEBUG
         if goal.get("name") in existing_names:
             print(f"⚠️ Goal '{goal.get('name')}' already assigned.")
             return None
@@ -97,7 +119,7 @@ class GoalEngine:
         print(f"✅ Goal assigned: {goal.get('name')}")
         return goal
 
-    def create_goal_from_milestone(self, milestone_name, description, reward=5, priority=1, dependencies=None):
+    def create_goal_from_milestone(self, milestone_name, description, reward=5, priority=1, dependencies=None, origin_strategy_id=None):
         if dependencies is None:
             dependencies = []
         goal = {
@@ -106,7 +128,22 @@ class GoalEngine:
             "reward": reward,
             "priority": priority,
             "dependencies": dependencies,
-            "created_at": datetime.now().isoformat()
+            "created_at": datetime.now().isoformat(),
+            "origin_strategy_id": origin_strategy_id  # <-- now accepts this param
+        }
+        return self.assign_goal(goal)
+
+    def create_goal_from_strategy(self, goal_name, description, origin_strategy_id, reward=5, priority=1, dependencies=None):
+        if dependencies is None:
+            dependencies = []
+        goal = {
+            "name": goal_name,
+            "description": description,
+            "reward": reward,
+            "priority": priority,
+            "dependencies": dependencies,
+            "created_at": datetime.now().isoformat(),
+            "origin_strategy_id": origin_strategy_id
         }
         return self.assign_goal(goal)
 

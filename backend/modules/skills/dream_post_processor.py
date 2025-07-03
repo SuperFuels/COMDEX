@@ -1,3 +1,5 @@
+# File: modules/skills/dream_post_processor.py
+
 # ✅ TASK: Goal-linked milestone tracking with backend sync
 # ✅ TASK: Boot skill loader from dream phrases
 
@@ -25,31 +27,34 @@ class DreamPostProcessor:
 
         # ✅ 1. Detect milestones
         milestones = self.tracker.detect_milestones_from_dream(dream)
+        if not milestones:
+            print("⚠️ No milestones found in dream.")
+            milestones = []
+
         print(f"📍 Detected Milestones: {[m['type'] for m in milestones]}")
 
         # ✅ 2. Sync to Goal Engine
+        goal_created = False
         for m in milestones:
             linked_goal = {
                 "name": f"Unlock: {m['type']}",
-                "description": m['summary'],
+                "description": m.get("summary", "Milestone triggered."),
                 "reward": 20,
-                "linked_milestone": m['type']
+                "linked_milestone": m["type"]
             }
             self.goals.create_goal(linked_goal)
             print(f"🎯 Goal created: {linked_goal['name']}")
+            goal_created = True
 
         # ✅ 3. Boot Skill Suggestion
-        boot = self.boot_selector.select(dream)
+        boot = self.boot_selector.find_matching_skill(dream)
         if boot:
-            print(f"🚀 Boot Skill Matched: {boot['title']} | Tags: {', '.join(boot['tags'])}")
-            return {
-                "milestones": milestones,
-                "goal_created": True,
-                "boot_skill": boot
-            }
+            print(f"🚀 Boot Skill Matched: {boot['title']} | Tags: {', '.join(boot.get('tags', []))}")
+        else:
+            print("🛑 No boot skill matched from dream.")
 
         return {
             "milestones": milestones,
-            "goal_created": True,
-            "boot_skill": None
+            "goal_created": goal_created,
+            "boot_skill": boot
         }

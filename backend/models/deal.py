@@ -3,6 +3,9 @@ from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
 from database import Base
 
+# ✅ Import Shipment early to resolve relationship()
+from models.shipment import Shipment  # Make sure this path is correct
+
 class Deal(Base):
     __tablename__ = "deals"
     __table_args__ = { "extend_existing": True }
