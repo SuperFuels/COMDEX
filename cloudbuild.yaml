@@ -11,7 +11,7 @@ steps:
       - "-c"
       - |
         cd frontend
-        npm ci
+        npm install   # use npm install instead of npm ci to avoid lockfile sync issues
         npm run build
 
   # ─── 1) Build the Docker image for the Python backend ───────────────
