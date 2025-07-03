@@ -5,7 +5,7 @@ import logging
 from sqlalchemy import create_engine
 
 # Import your shared Base and engine config
-from database import Base
+from backend.database import Base
 # Import every model module so Base.metadata knows about them
 import models.user
 import models.product

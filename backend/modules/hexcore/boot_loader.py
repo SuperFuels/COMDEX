@@ -1,7 +1,7 @@
 import json
 import os
 from datetime import datetime
-from modules.skills.milestone_tracker import MilestoneTracker
+from backend.modules.skills.milestone_tracker import MilestoneTracker
 
 # Paths
 BASE_DIR = os.path.dirname(__file__)

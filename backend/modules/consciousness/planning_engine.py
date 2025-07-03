@@ -1,8 +1,8 @@
 import random
 from datetime import datetime
-from modules.skills.goal_engine import GoalEngine
-from modules.hexcore.memory_engine import MemoryEngine
-from modules.skills.strategy_planner import StrategyPlanner
+from backend.modules.skills.goal_engine import GoalEngine
+from backend.modules.hexcore.memory_engine import MemoryEngine
+from backend.modules.skills.strategy_planner import StrategyPlanner
 
 class PlanningEngine:
     def __init__(self):

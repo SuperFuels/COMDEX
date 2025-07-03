@@ -3,10 +3,10 @@
 # ✅ TASK: Goal-linked milestone tracking with backend sync
 # ✅ TASK: Boot skill loader from dream phrases
 
-from modules.hexcore.memory_engine import MemoryEngine
-from modules.skills.milestone_tracker import MilestoneTracker
-from modules.skills.boot_selector import BootSelector
-from modules.skills.goal_engine import GoalEngine
+from backend.modules.hexcore.memory_engine import MemoryEngine
+from backend.modules.skills.milestone_tracker import MilestoneTracker
+from backend.modules.skills.boot_selector import BootSelector
+from backend.modules.skills.goal_engine import GoalEngine
 
 class DreamPostProcessor:
     """

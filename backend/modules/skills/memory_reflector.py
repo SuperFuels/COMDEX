@@ -3,9 +3,9 @@ import json
 import openai
 from datetime import datetime
 from dotenv import load_dotenv
-from modules.hexcore.memory_engine import MemoryEngine
-from modules.skills.milestone_goal_integration import tracker  # Use wired-up tracker instance
-from modules.skills.strategy_planner import StrategyPlanner
+from backend.modules.hexcore.memory_engine import MemoryEngine
+from backend.modules.skills.milestone_goal_integration import tracker  # Use wired-up tracker instance
+from backend.modules.skills.strategy_planner import StrategyPlanner
 
 # Load environment variables from .env file
 load_dotenv(dotenv_path=".env")

@@ -9,11 +9,11 @@ from fastapi.responses import StreamingResponse
 import openai
 from sqlalchemy.orm import Session
 
-from database import get_db
-from models.contract import Contract
-from models.user import User
-from schemas.contract import ContractCreate, ContractOut
-from utils.auth import get_current_user
+from backend.database import Base, engine, get_db
+from backend.models.contract import Contract
+from backend.models.user import User
+from backend.schemas.contract import ContractCreate, ContractOut
+from backend.utils.auth import get_current_user
 
 router = APIRouter(
     prefix="/contracts",

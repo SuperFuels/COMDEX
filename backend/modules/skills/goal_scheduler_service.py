@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
 import asyncio
-from modules.skills.goal_scheduler_loop import GoalSchedulerLoop
+from backend.modules.skills.goal_scheduler_loop import GoalSchedulerLoop
 
 app = FastAPI()
 scheduler = GoalSchedulerLoop()

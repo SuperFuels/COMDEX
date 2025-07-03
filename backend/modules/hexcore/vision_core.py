@@ -1,6 +1,6 @@
 # modules/hexcore/vision_core.py
 
-from modules.hexcore.memory_engine import MemoryEngine
+from backend.modules.hexcore.memory_engine import MemoryEngine
 
 class VisionCore:
     def __init__(self):

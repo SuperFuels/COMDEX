@@ -1,7 +1,5 @@
 from sqlalchemy import Column, Integer, String, Text, DateTime, func
-from sqlalchemy.ext.declarative import declarative_base
-
-Base = declarative_base()  # Remove if you already have Base imported elsewhere
+from backend.database import Base  # import the shared Base from your database.py
 
 class DreamRecord(Base):
     __tablename__ = "dream_records"

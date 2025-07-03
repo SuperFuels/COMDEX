@@ -1,4 +1,4 @@
-from modules.consciousness.vault_engine import PrivacyVault
+from backend.modules.consciousness.vault_engine import PrivacyVault
 import os
 from dotenv import load_dotenv
 

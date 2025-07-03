@@ -67,3 +67,8 @@ steps:
 images:
   - "gcr.io/$PROJECT_ID/${_SERVICE}:$BUILD_ID"
   - "gcr.io/$PROJECT_ID/${_SERVICE}:latest"
+
+# Environment variables (should be stored securely e.g., Secret Manager and referenced via cloudrun-env.yaml)
+# AION_API_KEY=3f9b7d8e2c1a4f6b9d0e7a5c8f4b2d1e
+# AION_VAULT_KEY=OYtQtzku1XnLo4xOzopc3M7WaMMNN3wvL8ACr-a0gTU=
+# KEVIN_MASTER_KEY=DslajlV0_kKMTSFLSp9MGeaVUIhsULJy8cYDo98BWsc=

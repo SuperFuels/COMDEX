@@ -1,5 +1,5 @@
-from modules.aion.token_engine import TokenEngine
-from modules.aion.milestone_tracker import MilestoneTracker
+from backend.modules.aion.token_engine import TokenEngine
+from backend.modules.aion.milestone_tracker import MilestoneTracker
 
 MODULES = {
     "memory": {"cost": 10, "milestone": "memory_access"},

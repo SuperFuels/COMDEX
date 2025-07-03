@@ -1,7 +1,6 @@
 
-seeding script ;
-
-
+SEEDING SCRIPT - AION LERANING CYCLE
+PYTHONPATH=backend python backend/scripts/aion_learning_cycle.py
 
 
 ✅ To unlock a boot skill automatically, all of these must happen:

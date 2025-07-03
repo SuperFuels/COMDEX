@@ -8,10 +8,10 @@ import openai
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
-from models.product import Product
-from models.shipment import Shipment
-from models.deal import Deal
-from utils.news import fetch_headlines
+from backend.models.product import Product
+from backend.models.shipment import Shipment
+from backend.models.deal import Deal
+from backend.utils.news import fetch_headlines
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
 

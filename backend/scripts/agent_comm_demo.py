@@ -1,8 +1,8 @@
 # backend/scripts/agent_comm_demo.py
 
 import asyncio
-from modules.hexcore.agent_manager import AgentManager 
-from modules.aion.sample_agent import SampleAgent
+from backend.modules.hexcore.agent_manager import AgentManager 
+from backend.modules.aion.sample_agent import SampleAgent
 
 async def main():
     manager = AgentManager()

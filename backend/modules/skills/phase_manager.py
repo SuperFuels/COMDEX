@@ -1,6 +1,6 @@
 import json
 from datetime import datetime
-from modules.skills.milestone_goal_integration import tracker
+from backend.modules.skills.milestone_goal_integration import tracker
 
 PHASE_FILE = "backend/modules/skills/aion_phase_summary.json"
 

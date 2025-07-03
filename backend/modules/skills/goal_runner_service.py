@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from modules.skills.goal_runner import GoalRunner
+from backend.modules.skills.goal_runner import GoalRunner
 
 app = FastAPI(title="AION Goal Runner Service")
 

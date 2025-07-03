@@ -17,12 +17,11 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 from web3 import Web3
 
-from database import get_db
-from models.deal import Deal
-from models.product import Product
-from models.user import User
-from schemas.deal import DealCreate, DealOut, DealStatusUpdate
-from utils.auth import get_current_user
+from backend.database import Base, engine, get_db
+from backend.models.user import User
+from backend.models.product import Product
+from backend.schemas.deal import DealCreate, DealOut, DealStatusUpdate
+from backend.utils.auth import get_current_user
 
 router = APIRouter(
     prefix="/deals",    # ← all routes now under /api/deals

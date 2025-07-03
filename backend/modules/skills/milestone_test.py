@@ -1,4 +1,4 @@
-from modules.skills.milestone_tracker import MilestoneTracker
+from backend.modules.skills.milestone_tracker import MilestoneTracker
 
 tracker = MilestoneTracker()
 tracker.display_progress()

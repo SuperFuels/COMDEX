@@ -1,5 +1,5 @@
 import time
-from modules.skills.goal_runner import GoalRunner
+from backend.modules.skills.goal_runner import GoalRunner
 
 def run_all_goals():
     runner = GoalRunner()

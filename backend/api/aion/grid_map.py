@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from modules.sim.grid_engine import GridWorld
+from backend.modules.sim.grid_engine import GridWorld
 
 import base64
 from io import BytesIO

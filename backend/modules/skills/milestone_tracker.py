@@ -2,7 +2,7 @@ from pathlib import Path
 from datetime import datetime
 import json
 from sentence_transformers import SentenceTransformer, util
-from modules.skills.boot_selector import BootSelector  # 🧠 Skill trigger
+from backend.modules.skills.boot_selector import BootSelector  # 🧠 Skill trigger
 
 # 📁 File paths
 MODULE_DIR = Path(__file__).resolve().parent

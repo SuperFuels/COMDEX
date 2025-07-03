@@ -1,4 +1,4 @@
-from modules.memory.compression import compress_text
+from backend.modules.memory.compression import compress_text
 import numpy as np
 from typing import List, Dict
 

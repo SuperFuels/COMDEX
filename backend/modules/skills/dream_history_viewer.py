@@ -1,4 +1,4 @@
-from modules.hexcore.memory_engine import MemoryEngine
+from backend.modules.hexcore.memory_engine import MemoryEngine
 
 memory = MemoryEngine()
 all_memories = memory.get_all()

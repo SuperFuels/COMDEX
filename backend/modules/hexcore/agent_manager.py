@@ -1,5 +1,5 @@
 import random
-from modules.skills import skill_executor
+from backend.modules.skills import skill_executor
 
 class BaseAgent:
     def __init__(self, name):

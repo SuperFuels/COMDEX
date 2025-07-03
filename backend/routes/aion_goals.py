@@ -3,7 +3,7 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import List, Optional
-from modules.skills.goal_tracker import GoalTracker
+from backend.modules.skills.goal_tracker import GoalTracker
 
 router = APIRouter()
 goal_tracker = GoalTracker()
@@ -18,7 +18,6 @@ class EditGoalRequest(BaseModel):
 @router.get("/aion/goals")
 async def get_goals():
     goals = goal_tracker.get_goals()
-    # Adapt keys for frontend if needed: ensure consistent naming
     adapted_goals = [
         {
             "name": g.get("name"),
@@ -39,7 +38,13 @@ async def complete_goal(req: CompleteGoalRequest):
         if goal.get("name") == req.name:
             updated = goal_tracker.update_goal(idx, "completed")
             if updated:
-                return {"message": f"Goal '{req.name}' marked as completed."}
+                unlocked_skills = goal_tracker.unlock_skills_for_goal(req.name)
+                unlocked_milestones = goal_tracker.unlock_milestones_for_goal(req.name)
+                return {
+                    "message": f"Goal '{req.name}' marked as completed.",
+                    "unlocked_skills": unlocked_skills,
+                    "unlocked_milestones": unlocked_milestones,
+                }
             else:
                 raise HTTPException(status_code=500, detail="Failed to update goal status")
     raise HTTPException(status_code=404, detail="Goal not found")

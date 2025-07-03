@@ -1,5 +1,5 @@
 import re
-from modules.hexcore.memory_engine import MemoryEngine
+from backend.modules.hexcore.memory_engine import MemoryEngine
 
 class BootSelector:
     def __init__(self):

@@ -2,8 +2,8 @@ import random
 from typing import Optional
 from datetime import datetime
 
-from modules.skills.goal_runner import GoalRunner
-from modules.consciousness.situational_engine import SituationalEngine  # 🔄 New
+from backend.modules.skills.goal_runner import GoalRunner
+from backend.modules.consciousness.situational_engine import SituationalEngine  # 🔄 New
 
 class DecisionEngine:
     """

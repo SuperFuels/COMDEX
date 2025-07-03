@@ -5,14 +5,14 @@ from pathlib import Path
 from datetime import datetime
 from dotenv import load_dotenv
 
-from modules.hexcore.memory_engine import MemoryEngine
-from modules.skills.milestone_tracker import MilestoneTracker
-from modules.skills.strategy_planner import StrategyPlanner
-from modules.consciousness.identity_engine import IdentityEngine
-from modules.consciousness.context_engine import ContextEngine
-from modules.consciousness.emotion_engine import EmotionEngine
-from modules.consciousness.ethics_engine import EthicsEngine
-from modules.consciousness.vault_engine import PrivacyVault
+from backend.modules.hexcore.memory_engine import MemoryEngine
+from backend.modules.skills.milestone_tracker import MilestoneTracker
+from backend.modules.skills.strategy_planner import StrategyPlanner
+from backend.modules.consciousness.identity_engine import IdentityEngine
+from backend.modules.consciousness.context_engine import ContextEngine
+from backend.modules.consciousness.emotion_engine import EmotionEngine
+from backend.modules.consciousness.ethics_engine import EthicsEngine
+from backend.modules.consciousness.vault_engine import PrivacyVault
 
 import openai
 

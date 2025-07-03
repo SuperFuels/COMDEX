@@ -1,15 +1,15 @@
-from modules.consciousness.time_engine import TimeEngine
-from modules.consciousness.state_manager import StateManager
-from modules.consciousness.decision_engine import DecisionEngine
-from modules.consciousness.reflection_engine import ReflectionEngine
-from modules.skills.goal_engine import GoalEngine
-from modules.consciousness.energy_engine import EnergyEngine
-from modules.consciousness.situational_engine import SituationalEngine
-from modules.consciousness.personality_engine import PersonalityProfile
-from modules.consciousness.planning_engine import PlanningEngine
+from backend.modules.consciousness.time_engine import TimeEngine
+from backend.modules.consciousness.state_manager import StateManager
+from backend.modules.consciousness.decision_engine import DecisionEngine
+from backend.modules.consciousness.reflection_engine import ReflectionEngine
+from backend.modules.skills.goal_engine import GoalEngine
+from backend.modules.consciousness.energy_engine import EnergyEngine
+from backend.modules.consciousness.situational_engine import SituationalEngine
+from backend.modules.consciousness.personality_engine import PersonalityProfile
+from backend.modules.consciousness.planning_engine import PlanningEngine
 
-from modules.hexcore.agent_manager import AgentManager
-from modules.aion.sample_agent import SampleAgent
+from backend.modules.hexcore.agent_manager import AgentManager
+from backend.modules.aion.sample_agent import SampleAgent
 
 class ConsciousnessManager:
     def __init__(self):

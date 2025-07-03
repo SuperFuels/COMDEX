@@ -1,8 +1,8 @@
 import os
 import json
 from datetime import datetime, timezone
-from modules.skills.strategy_planner import StrategyPlanner
-from modules.hexcore.memory_engine import MemoryEngine
+from backend.modules.skills.strategy_planner import StrategyPlanner
+from backend.modules.hexcore.memory_engine import MemoryEngine
 
 planner = StrategyPlanner()
 memory = MemoryEngine()

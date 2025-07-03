@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
 import openai
-from modules.aion.milestone_tracker import MilestoneTracker
+from backend.modules.aion.milestone_tracker import MilestoneTracker
 
 load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")

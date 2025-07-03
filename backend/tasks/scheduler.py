@@ -6,8 +6,8 @@ import logging
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 
-from modules.hexcore.memory_engine import MemoryEngine
-from modules.skills.strategy_planner import StrategyPlanner
+from backend.modules.hexcore.memory_engine import MemoryEngine
+from backend.modules.skills.strategy_planner import StrategyPlanner
 
 logger = logging.getLogger("comdex.scheduler")
 

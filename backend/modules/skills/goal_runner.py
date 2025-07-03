@@ -3,11 +3,11 @@ import openai
 from dotenv import load_dotenv
 from pathlib import Path
 
-from modules.skills.goal_engine import GoalEngine
-from modules.skills.boot_loader import load_boot_goals
-from modules.hexcore.ai_wallet import AIWallet
-from modules.hexcore.memory_engine import MemoryEngine as MemoryCore
-from modules.consciousness.personality_engine import PersonalityProfile  # 🔁 Add this
+from backend.modules.skills.goal_engine import GoalEngine
+from backend.modules.skills.boot_loader import load_boot_goals
+from backend.modules.hexcore.ai_wallet import AIWallet
+from backend.modules.hexcore.memory_engine import MemoryEngine as MemoryCore
+from backend.modules.consciousness.personality_engine import PersonalityProfile  # 🔁 Add this
 
 # Load env vars
 env_path = Path(__file__).resolve().parents[3] / ".env.local"

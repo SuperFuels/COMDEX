@@ -3,8 +3,8 @@ from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 from typing import Any, Dict, List
 
-from database import get_db
-from utils.terminal import run_query
+from backend.database import get_db
+from backend.utils.terminal import run_query
  
 router = APIRouter(prefix="/terminal", tags=["Terminal"])
 

@@ -1,6 +1,6 @@
 from datetime import datetime
-from modules.hexcore.memory_engine import MemoryEngine
-from modules.consciousness.personality_engine import PersonalityProfile
+from backend.modules.hexcore.memory_engine import MemoryEngine
+from backend.modules.consciousness.personality_engine import PersonalityProfile
 
 class ReflectionEngine:
     """

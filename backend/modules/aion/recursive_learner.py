@@ -1,6 +1,6 @@
 import random
-from modules.memory.memory_engine import MemoryEngine
-from modules.aion.domain_goal_engine import update_goal_status, get_pending_goals
+from backend.modules.memory.memory_engine import MemoryEngine
+from backend.modules.aion.domain_goal_engine import update_goal_status, get_pending_goals
 
 class RecursiveLearner:
     def __init__(self):

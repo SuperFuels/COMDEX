@@ -1,8 +1,8 @@
 # modules/hexcore/dream_game_link.py
 
-from modules.hexcore.memory_engine import MemoryEngine
-from modules.aion.dream_core import DreamCore
-from modules.hexcore.vision_core import VisionCore
+from backend.modules.hexcore.memory_engine import MemoryEngine
+from backend.modules.aion.dream_core import DreamCore
+from backend.modules.hexcore.vision_core import VisionCore
 
 class DreamGameLink:
     def __init__(self):

@@ -4,23 +4,23 @@ from datetime import datetime, timezone
 from dotenv import load_dotenv
 import openai
 
-from modules.hexcore.memory_engine import MemoryEngine
-from modules.skills.milestone_tracker import MilestoneTracker
-from modules.skills.strategy_planner import StrategyPlanner
-from modules.consciousness.identity_engine import IdentityEngine
-from modules.consciousness.context_engine import ContextEngine
-from modules.consciousness.emotion_engine import EmotionEngine
-from modules.consciousness.ethics_engine import EthicsEngine
-from modules.consciousness.privacy_vault import PrivacyVault
-from modules.skills.boot_selector import BootSelector
-from modules.consciousness.state_manager import StateManager
-from modules.consciousness.reflection_engine import ReflectionEngine
-from modules.consciousness.personality_engine import PersonalityProfile
-from modules.consciousness.situational_engine import SituationalEngine
-from modules.skills.dream_post_processor import DreamPostProcessor
+from backend.modules.hexcore.memory_engine import MemoryEngine
+from backend.modules.skills.milestone_tracker import MilestoneTracker
+from backend.modules.skills.strategy_planner import StrategyPlanner
+from backend.modules.consciousness.identity_engine import IdentityEngine
+from backend.modules.consciousness.context_engine import ContextEngine
+from backend.modules.consciousness.emotion_engine import EmotionEngine
+from backend.modules.consciousness.ethics_engine import EthicsEngine
+from backend.modules.consciousness.privacy_vault import PrivacyVault
+from backend.modules.skills.boot_selector import BootSelector
+from backend.modules.consciousness.state_manager import StateManager
+from backend.modules.consciousness.reflection_engine import ReflectionEngine
+from backend.modules.consciousness.personality_engine import PersonalityProfile
+from backend.modules.consciousness.situational_engine import SituationalEngine
+from backend.modules.skills.dream_post_processor import DreamPostProcessor
 
-from database import get_db
-from models.dream import Dream
+from backend.database import get_db
+from backend.models.dream import Dream
 
 
 class DreamCore:

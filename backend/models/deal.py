@@ -1,10 +1,10 @@
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
-from database import Base
+from backend.database import Base, engine, get_db
 
 # ✅ Import Shipment early to resolve relationship()
-from models.shipment import Shipment  # Make sure this path is correct
+from backend.models.shipment import Shipment  # Make sure this path is correct
 
 class Deal(Base):
     __tablename__ = "deals"

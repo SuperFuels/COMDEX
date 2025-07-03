@@ -3,9 +3,9 @@ from pathlib import Path
 from dotenv import load_dotenv
 import openai
 
-from modules.skills.goal_engine import GoalEngine
-from modules.skills.boot_loader import load_boot_goals
-from modules.hexcore.ai_wallet import AIWallet
+from backend.modules.skills.goal_engine import GoalEngine
+from backend.modules.skills.boot_loader import load_boot_goals
+from backend.modules.hexcore.ai_wallet import AIWallet
 
 # Load environment variables from .env.local if present
 env_path = Path(__file__).resolve().parents[3] / ".env.local"

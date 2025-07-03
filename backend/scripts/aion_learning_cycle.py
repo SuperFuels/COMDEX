@@ -8,15 +8,15 @@ env_path = Path(__file__).resolve().parents[2] / ".env.local"
 load_dotenv(dotenv_path=env_path)
 
 # --- AION Modules ---
-from modules.hexcore.memory_engine import MemoryEngine
-from modules.skills.milestone_tracker import MilestoneTracker
-from modules.skills.memory_reflector import MemoryReflector
-from modules.hexcore.ai_wallet import AIWallet
-from modules.skills.boot_selector import BootSelector
-from modules.skills.strategy_planner import StrategyPlanner
-from modules.skills.goal_engine import GoalEngine  # <-- Added GoalEngine import
-from modules.consciousness.reflection_engine import ReflectionEngine
-from modules.skills.boot_archiver import archive_learned_skills
+from backend.modules.hexcore.memory_engine import MemoryEngine
+from backend.modules.skills.milestone_tracker import MilestoneTracker
+from backend.modules.skills.memory_reflector import MemoryReflector
+from backend.modules.hexcore.ai_wallet import AIWallet
+from backend.modules.skills.boot_selector import BootSelector
+from backend.modules.skills.strategy_planner import StrategyPlanner
+from backend.modules.skills.goal_engine import GoalEngine  # <-- Added GoalEngine import
+from backend.modules.consciousness.reflection_engine import ReflectionEngine
+from backend.modules.skills.boot_archiver import archive_learned_skills
 
 # Optional: Seed an idea into memory
 def seed_memory(content: str, label_prefix="manual_seed"):

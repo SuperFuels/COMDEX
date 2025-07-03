@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Request
-from modules.sim.grid_engine import GridWorld
-from modules.skills.milestone_tracker import MilestoneTracker
-from modules.skills.strategy_planner import StrategyPlanner
+from backend.modules.sim.grid_engine import GridWorld
+from backend.modules.skills.milestone_tracker import MilestoneTracker
+from backend.modules.skills.strategy_planner import StrategyPlanner
 
 router = APIRouter()
 

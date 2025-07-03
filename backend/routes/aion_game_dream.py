@@ -1,7 +1,7 @@
 # routes/aion_dream_test.py
 
 from fastapi import APIRouter
-from modules.hexcore.dream_game_link import DreamGameLink
+from backend.modules.hexcore.dream_game_link import DreamGameLink
 
 router = APIRouter()
 

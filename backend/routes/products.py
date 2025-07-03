@@ -15,11 +15,11 @@ from fastapi import (
 )
 from sqlalchemy.orm import Session
 
-from database import get_db
-from utils.auth import get_current_user
-from models.product import Product
-from models.user import User
-from schemas.product import ProductOut, ProductUpdate  # <-- fixed import to absolute
+from backend.database import Base, engine, get_db
+from backend.utils.auth import get_current_user
+from backend.models.product import Product
+from backend.models.user import User
+from backend.schemas.product import ProductOut, ProductUpdate  # <-- fixed import to absolute
 
 router = APIRouter(
     prefix="/products",

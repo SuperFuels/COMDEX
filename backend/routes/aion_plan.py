@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
-from modules.skills.strategy_planner import StrategyPlanner
+from backend.modules.skills.strategy_planner import StrategyPlanner
 
 router = APIRouter()
 

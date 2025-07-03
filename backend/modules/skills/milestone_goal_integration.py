@@ -1,5 +1,5 @@
-from modules.skills.milestone_tracker import MilestoneTracker
-from modules.skills.goal_engine import GoalEngine
+from backend.modules.skills.milestone_tracker import MilestoneTracker
+from backend.modules.skills.goal_engine import GoalEngine
 
 def create_goals_for_milestone(milestone_name):
     engine = GoalEngine()

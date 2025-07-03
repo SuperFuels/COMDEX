@@ -1,45 +1,96 @@
 # backend/modules/skills/goal_tracker.py
 
-from typing import List, Dict
-import json
-import os
+import logging
 
-GOAL_FILE = "backend/modules/skills/goals.json"  # full relative path
+logger = logging.getLogger("comdex")
 
 class GoalTracker:
     def __init__(self):
-        self.goals: List[Dict] = []
-        self.load_goals()
+        # In-memory goal store, use DB in prod
+        self.goals = []
+        self.next_id = 1
 
-    def load_goals(self):
-        if os.path.exists(GOAL_FILE):
-            with open(GOAL_FILE, "r") as f:
-                data = json.load(f)
-                self.goals = data.get("goals", [])
-        else:
-            self.goals = []
-
-    def save_goals(self):
-        with open(GOAL_FILE, "w") as f:
-            json.dump({"goals": self.goals}, f, indent=2)
-
-    def add_goal(self, name: str, status: str = "pending"):
+    def add_goal(self, name: str, status: str = "pending", description: str = None):
+        """
+        Add a new goal with name, status, and optional description.
+        Returns the created goal dict.
+        """
+        # Check if goal already exists by name
+        for goal in self.goals:
+            if goal["name"].lower() == name.lower():
+                logger.info(f"Goal already exists: {goal}")
+                return goal
+        
         goal = {
+            "id": self.next_id,
             "name": name,
-            "status": status
+            "status": status,
+            "description": description,
         }
         self.goals.append(goal)
-        self.save_goals()
+        self.next_id += 1
+
+        logger.info(f"Added goal: {goal}")
         return goal
 
-    def update_goal(self, index: int, status: str):
-        if 0 <= index < len(self.goals):
-            self.goals[index]["status"] = status
-            self.save_goals()
-            return self.goals[index]
+    def create_goal(self, title: str, description: str = None):
+        """
+        Alias for add_goal to match route method name.
+        """
+        return self.add_goal(name=title, description=description)
+
+    def list_goals(self):
+        """
+        Return all goals.
+        """
+        return self.goals
+
+    def list_saved_goals(self):
+        """
+        Alias for list_goals to match route usage.
+        """
+        return self.list_goals()
+
+    def get_goal_by_id(self, goal_id: int):
+        """
+        Retrieve a goal by its ID.
+        """
+        for goal in self.goals:
+            if goal["id"] == goal_id:
+                return goal
         return None
 
-    def get_goals(self, status_filter: str = None):
-        if status_filter:
-            return [g for g in self.goals if g.get("status") == status_filter]
-        return self.goals
+    def update_goal_status(self, goal_id: int, new_status: str):
+        """
+        Update status of a goal by ID.
+        """
+        goal = self.get_goal_by_id(goal_id)
+        if goal:
+            goal["status"] = new_status
+            logger.info(f"Updated goal {goal_id} status to {new_status}")
+            return goal
+        logger.warning(f"Goal {goal_id} not found for update")
+        return None
+
+    def remove_goal(self, goal_id: int):
+        """
+        Remove a goal by ID.
+        """
+        old_len = len(self.goals)
+        self.goals = [g for g in self.goals if g["id"] != goal_id]
+        new_len = len(self.goals)
+        logger.info(f"Removed goal {goal_id}, goals before: {old_len}, after: {new_len}")
+
+    def add_goal_from_text(self, text_line: str):
+        """
+        Parse line 'Goal: Do something' and add goal.
+        """
+        if not text_line.lower().startswith("goal:"):
+            return None
+        parts = text_line.split(":", 1)
+        if len(parts) < 2:
+            return None
+        goal_name = parts[1].strip()
+        if not goal_name:
+            return None
+        return self.add_goal(goal_name)

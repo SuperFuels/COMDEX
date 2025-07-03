@@ -18,8 +18,8 @@ except ImportError:
     Account = None
     encode_defunct = None
 
-from database import get_db
-from models.user import User
+from backend.database import get_db
+from backend.models.user import User
 
 # ─── JWT configuration ───────────────────────────
 SECRET_KEY                  = os.getenv("SECRET_KEY", "super-secret-123")

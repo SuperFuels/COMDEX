@@ -2,9 +2,9 @@ import uuid
 from datetime import datetime
 from pathlib import Path
 import json
-from modules.hexcore.memory_engine import MemoryEngine
-from modules.skills.milestone_tracker import MilestoneTracker
-from modules.skills.goal_engine import GoalEngine  # Added for goal linkage
+from backend.modules.hexcore.memory_engine import MemoryEngine
+from backend.modules.skills.milestone_tracker import MilestoneTracker
+from backend.modules.skills.goal_engine import GoalEngine  # Added for goal linkage
 
 STRATEGY_FILE = Path(__file__).parent / "aion_strategies.json"
 

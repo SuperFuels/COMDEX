@@ -1,6 +1,6 @@
 import time
 import traceback
-from modules.consciousness.consciousness_manager import ConsciousnessManager
+from backend.modules.consciousness.consciousness_manager import ConsciousnessManager
 
 def run_forever(interval_seconds=300):
     manager = ConsciousnessManager()

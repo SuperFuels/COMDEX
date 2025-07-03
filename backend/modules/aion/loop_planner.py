@@ -1,6 +1,6 @@
 from apscheduler.schedulers.background import BackgroundScheduler
-from modules.skills.strategy_planner import StrategyPlanner
-from modules.hexcore.memory_engine import MemoryEngine
+from backend.modules.skills.strategy_planner import StrategyPlanner
+from backend.modules.hexcore.memory_engine import MemoryEngine
 import time
 
 planner = StrategyPlanner()

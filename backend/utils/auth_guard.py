@@ -1,9 +1,9 @@
 from fastapi import Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordBearer, HTTPBearer, HTTPAuthorizationCredentials
 from jose import JWTError, jwt
-from utils.auth import SECRET_KEY, ALGORITHM, decodeJWT
-from database import SessionLocal
-from models.user import User
+from backend.utils.auth import SECRET_KEY, ALGORITHM, decodeJWT
+from backend.database import SessionLocal
+from backend.models.user import User
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 

@@ -7,9 +7,9 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 
-from database import get_db
-from models.user import User
-from utils.auth import (
+from backend.database import Base, engine, get_db
+from backend.models.user import User
+from backend.utils.auth import (
     hash_password,
     create_access_token,
     verify_password,

@@ -4,14 +4,14 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from database import get_db
-from models.user import User
-from models.product import Product
-from models.deal import Deal
-from schemas.user import UserOut
-from schemas.product import ProductOut
-from schemas.deal import DealOut
-from utils.auth import get_current_user
+from backend.database import Base, engine, get_db
+from backend.models.user import User
+from backend.models.product import Product
+from backend.models.deal import Deal
+from backend.schemas.user import UserOut
+from backend.schemas.product import ProductOut
+from backend.schemas.deal import DealOut
+from backend.utils.auth import get_current_user
 
 router = APIRouter(
     prefix="/admin",   # all endpoints now under /api/admin/*

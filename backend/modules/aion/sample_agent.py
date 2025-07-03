@@ -1,5 +1,5 @@
 import asyncio
-from modules.aion.goal_handler import GoalHandler
+from backend.modules.aion.goal_handler import GoalHandler
 
 class SampleAgent:
     def __init__(self, name):

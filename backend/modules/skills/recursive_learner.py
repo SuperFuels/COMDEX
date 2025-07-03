@@ -1,6 +1,6 @@
-from modules.memory.memory_engine import VECTOR_DB
-from modules.memory.compression import decompress_embedding
-from modules.aion.llm_engine import query_gpt4
+from backend.modules.memory.memory_engine import VECTOR_DB
+from backend.modules.memory.compression import decompress_embedding
+from backend.modules.aion.llm_engine import query_gpt4
 import random
 
 def reflect_on_memory(limit: int = 3):
@@ -38,5 +38,5 @@ Reflect on it. What did you learn? How can you go deeper? Simulate mastery.
         print(f"\n🔄 Reflection #{i}:\n{reflection}\n")
 
         # Optionally save this reflection as a new memory
-        # from modules.memory.memory_engine import save_dream_vector
+        # from backend.modules.memory.memory_engine import save_dream_vector
         # save_dream_vector(reflection)

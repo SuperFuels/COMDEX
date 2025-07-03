@@ -1,6 +1,6 @@
 import asyncio
-from modules.aion.agent_manager import AgentManager
-from modules.aion.sample_agent import SampleAgent
+from backend.modules.aion.agent_manager import AgentManager
+from backend.modules.aion.sample_agent import SampleAgent
 
 async def main():
     manager = AgentManager()

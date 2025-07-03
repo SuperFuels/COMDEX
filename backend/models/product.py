@@ -2,7 +2,7 @@ from datetime import datetime
 from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime, select
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.hybrid import hybrid_property
-from database import Base
+from backend.database import Base
 from .user import User  # ensure User is importable for expression
 
 class Product(Base):

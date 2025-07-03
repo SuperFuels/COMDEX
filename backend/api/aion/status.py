@@ -1,7 +1,7 @@
 from fastapi import APIRouter
-from modules.skills.milestone_tracker import MilestoneTracker
-from modules.skills.strategy_planner import StrategyPlanner
-from modules.sim.grid_engine import GridWorld
+from backend.modules.skills.milestone_tracker import MilestoneTracker
+from backend.modules.skills.strategy_planner import StrategyPlanner
+from backend.modules.sim.grid_engine import GridWorld
 
 router = APIRouter()
 
@@ -14,7 +14,7 @@ def get_status():
     return {
         "phase": tracker.get_phase(),
         "milestones": tracker.list_milestones(),
-        "unlocked": tracker.list_unlocked_modules(),  # updated here
+        "unlocked": tracker.list_unlocked_modules(),
         "locked": tracker.list_locked_modules(),
         "strategy_count": len(planner.strategies),
         "grid_progress": grid.get_progress()

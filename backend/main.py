@@ -31,14 +31,14 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("comdex")
 
 # ── 5) Log the DB URL for troubleshooting
-from config import SQLALCHEMY_DATABASE_URL
+from backend.config import SQLALCHEMY_DATABASE_URL
 logger.info(f"🔍 SQLALCHEMY_DATABASE_URL = {SQLALCHEMY_DATABASE_URL}")
 
 # ── 6) Import engine, Base, get_db
-from database import engine, Base, get_db
+from backend.database import engine, Base, get_db
 
 # ── 7) Register all ORM models
-import models
+import backend.models
 
 # ── 8) Auto-create tables
 Base.metadata.create_all(bind=engine)
@@ -51,10 +51,9 @@ app = FastAPI(
     description="Global Commodity Marketplace API",
 )
 
-# Disable automatic trailing-slash redirects
-app.router.redirect_slashes = False
+app.router.redirect_slashes = False  # Disable trailing slash redirects globally
 
-# ── 10) GLOBAL CORS (must come before any routers)
+# ── 10) GLOBAL CORS (must come before routers)
 if ENV != "production":
     allow_origins = ["http://localhost:3000", "*"]
 else:
@@ -73,31 +72,33 @@ app.add_middleware(
     allow_headers=["Authorization", "Content-Type", "Set-Cookie"],
 )
 
-# ── 11) Import routers
-from routes.auth              import router as auth_router
-from routes.products          import router as products_router
-from routes.deal              import router as deal_router
-from routes.contracts         import router as contracts_router
-from routes.admin             import router as admin_router
-from routes.user              import router as user_router
-from routes.terminal          import router as terminal_router
-from routes.buyer             import router as buyer_router
-from routes.supplier          import router as supplier_router
-from routes.aion              import router as aion_router
-from routes.aion_goals        import router as aion_goals_router
-from routes.aion_plan         import router as aion_plan_router
-from routes.aion_dream        import router as aion_dream_router
-from routes.aion_gridworld    import router as aion_gridworld_router
-from routes.aion_game_dream   import router as aion_game_dream_router
-from routes.aion_grid_progress import router as aion_grid_progress_router
-from api.aion                import status, grid_progress
-from modules.aion            import loop_planner  # triggers scheduler start
-from routes.game             import router as game_router
-from routes.aion_game        import router as aion_game_router
-from routes.game_event       import router as game_event_router
-from routes import skill
+# ── 11) Import routers with consistent backend.routes prefix
+from backend.routes.auth               import router as auth_router
+from backend.routes.products           import router as products_router
+from backend.routes.deal               import router as deal_router
+from backend.routes.contracts          import router as contracts_router
+from backend.routes.admin              import router as admin_router
+from backend.routes.user               import router as user_router
+from backend.routes.terminal           import router as terminal_router
+from backend.routes.buyer              import router as buyer_router
+from backend.routes.supplier           import router as supplier_router
+from backend.routes.aion               import router as aion_router
+from backend.routes.aion_goals         import router as aion_goals_router
+from backend.routes.aion_plan          import router as aion_plan_router
+from backend.routes.aion_dream         import router as aion_dream_router
+from backend.routes.aion_gridworld     import router as aion_gridworld_router
+from backend.routes.aion_game_dream    import router as aion_game_dream_router
+from backend.routes.game               import router as game_router
+from backend.routes.aion_game          import router as aion_game_router
+from backend.routes.game_event         import router as game_event_router
+from backend.routes.skill              import router as skill_router
 
-# ── 12) Mount all routers under /api
+# ── 12) Import standalone routers from backend.api (if used)
+from backend.api.aion.status           import router as status_router
+from backend.api.aion.grid_progress    import router as grid_progress_router
+from backend.routes.aion_grid_progress import router as aion_grid_progress_router
+
+# ── 13) Mount all routers under /api prefix
 api = APIRouter(prefix="/api")
 
 api.include_router(auth_router)
@@ -112,7 +113,7 @@ api.include_router(supplier_router)
 
 api.include_router(aion_router, prefix="/aion")
 api.include_router(aion_plan_router, prefix="/aion")
-api.include_router(aion_goals_router)  # No prefix, verify route prefix inside routes/aion_goals.py
+api.include_router(aion_goals_router)  # Check internal prefixes
 api.include_router(aion_dream_router, prefix="/aion")
 api.include_router(aion_gridworld_router)
 api.include_router(aion_game_dream_router)
@@ -121,30 +122,31 @@ api.include_router(aion_game_router)
 api.include_router(game_event_router)
 api.include_router(game_router, prefix="/aion")
 
-# ── 13) Include API router on main app
+api.include_router(skill_router)
+
+# ── 14) Include API router on main app
 app.include_router(api)
 
-# ── 14) Standalone routers
+# ── 15) Include standalone routers
 app.include_router(aion_grid_progress_router)
-app.include_router(status.router, prefix="/api")
-app.include_router(grid_progress.router)
-app.include_router(skill.router)
+app.include_router(status_router, prefix="/api")
+app.include_router(grid_progress_router, prefix="/api")
 
-# ── 15) Serve uploaded images
+# ── 16) Serve uploaded images
 app.mount("/uploaded_images", StaticFiles(directory="uploaded_images"), name="uploaded_images")
 
-# ── 16) Serve static frontend (if exists)
+# ── 17) Serve static frontend if exists
 if os.path.isdir("static"):
     app.mount("/", StaticFiles(directory="static", html=True), name="frontend")
 else:
     logger.warning("⚠️ 'static' directory not found. Frontend must be built into /backend/static")
 
-# ── 17) Legacy redirect
+# ── 18) Legacy redirect for /products without trailing slash
 @app.get("/products", include_in_schema=False)
 def products_no_slash():
     return RedirectResponse(url="/products/", status_code=307)
 
-# ── 18) Health check
+# ── 19) Health check endpoint
 @app.get("/health", tags=["Health"])
 def health_check():
     try:
@@ -156,10 +158,10 @@ def health_check():
         logger.error("❌ Database connection failed.", exc_info=True)
         return {"status": "error", "database": "not connected"}
 
-# ── 19) Dream cycle endpoint for Cloud Scheduler
+# ── 20) Dream cycle endpoint for Cloud Scheduler
 @app.post("/api/aion/run-dream")
 async def run_dream_from_scheduler(request: Request):
-    from modules.skills.dream_core import DreamCore
+    from backend.modules.skills.dream_core import DreamCore
     master_key = os.getenv("KEVIN_MASTER_KEY")
     auth_header = request.headers.get("X-Master-Key")
 
@@ -173,10 +175,10 @@ async def run_dream_from_scheduler(request: Request):
     except Exception as e:
         return {"status": "error", "message": str(e)}
 
-# ── 20) Run via Uvicorn
+# ── 21) Run via Uvicorn when executed directly
 if __name__ == "__main__":
     uvicorn.run(
-        "main:app",
+        "backend.main:app",
         host="0.0.0.0",
         port=int(os.environ.get("PORT", 8080)),
         reload=(ENV != "production"),
@@ -184,14 +186,14 @@ if __name__ == "__main__":
         redirect_slashes=False,
     )
 
-# ── 21) 💤 Start AION scheduler
+# ── 22) 💤 Start AION scheduler (best effort)
 try:
-    from tasks.scheduler import start_scheduler
+    from backend.tasks.scheduler import start_scheduler
     start_scheduler()
 except Exception as e:
     logger.warning(f"⚠️ Dream scheduler could not start: {e}")
 
-# ── 22) Cloud Function: Stop Cloud Run if over budget
+# ── 23) Cloud Function: Stop Cloud Run if over budget
 def shutdown_service(event, context):
     logger.info("🔔 Budget alert Pub/Sub triggered.")
     try:

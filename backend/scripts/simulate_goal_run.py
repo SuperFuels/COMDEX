@@ -1,4 +1,4 @@
-from modules.skills.goal_engine import GoalEngine
+from backend.modules.skills.goal_engine import GoalEngine
 
 def simulate_goal_running():
     engine = GoalEngine()

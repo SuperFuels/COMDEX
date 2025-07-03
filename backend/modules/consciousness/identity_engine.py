@@ -1,4 +1,4 @@
-from modules.consciousness.personality_engine import PersonalityProfile
+from backend.modules.consciousness.personality_engine import PersonalityProfile
 
 class IdentityEngine:
     """
