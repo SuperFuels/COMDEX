@@ -195,7 +195,7 @@ export default function Navbar() {
 
             {/* ✅ AION Button - Updated */}
             <button
-              onClick={() => router.push('/aion/dashboard')}
+              onClick={() => router.push('/aion/AIONDashboard')}
               className="flex items-center space-x-1 py-1 px-3 border border-blue-500 text-blue-600 rounded-lg bg-white dark:bg-gray-900 text-sm hover:bg-blue-50 dark:hover:bg-gray-700 focus:outline-none transition"
             >
               <Image src="/aion-icon.svg" alt="AION" width={16} height={16} />
