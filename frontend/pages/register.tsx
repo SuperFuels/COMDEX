@@ -4,11 +4,11 @@
 import { useState, FormEvent } from 'react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
-import Select, { OnChangeValue, MultiValue } from 'react-select'
+import Select, { OnChangeValue } from 'react-select'
 import { ethers } from 'ethers'
-import api from '@/lib/api' // assumes api is preconfigured with NEXT_PUBLIC_API_URL
+import api from '@/lib/api'
 
-type Role = 'buyer' | 'supplier'
+type Role = 'buyer' | 'supplier' | 'admi'
 
 interface ProductOption {
   value: string
@@ -16,45 +16,35 @@ interface ProductOption {
 }
 
 const PRODUCT_OPTIONS: ProductOption[] = [
-  { value: 'olive_oil',    label: 'Olive Oil'    },
-  { value: 'butter',       label: 'Butter'       },
+  { value: 'olive_oil', label: 'Olive Oil' },
+  { value: 'butter', label: 'Butter' },
   { value: 'whey_protein', label: 'Whey Protein' },
-  // …add more here
+  // Add more if needed
 ]
 
 export default function RegisterPage() {
   const router = useRouter()
-
-  // ─── Step control ──────────────────────────────────────────────
-  const [step, setStep]       = useState<1 | 2>(1)
+  const [step, setStep] = useState<1 | 2>(1)
   const [loading, setLoading] = useState(false)
-  const [error, setError]     = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
-  // ─── Step 1 fields ─────────────────────────────────────────────
-  const [fullName, setFullName]           = useState('')
-  const [email, setEmail]                 = useState('')
-  const [password, setPassword]           = useState('')
-  const [confirm, setConfirm]             = useState('')
-  const [role, setRole]                   = useState<Role>('buyer')
+  const [fullName, setFullName] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirm, setConfirm] = useState('')
+  const [role, setRole] = useState<Role>('buyer')
   const [walletAddress, setWalletAddress] = useState<string | null>(null)
 
-  // ─── Step 2 fields ─────────────────────────────────────────────
-  const [businessName, setBusinessName]       = useState('')
-  const [address, setAddress]                 = useState('')
+  const [businessName, setBusinessName] = useState('')
+  const [address, setAddress] = useState('')
   const [deliveryAddress, setDeliveryAddress] = useState('')
-  const [products, setProducts]               = useState<ProductOption[]>([])
-  const [monthlySpend, setMonthlySpend]       = useState('')
+  const [products, setProducts] = useState<ProductOption[]>([])
+  const [monthlySpend, setMonthlySpend] = useState('')
 
-  // 1) Connect wallet (pure client-side)
   const handleConnectWallet = async () => {
     try {
-      if (!(window as any).ethereum) {
-        throw new Error('No Ethereum provider found')
-      }
-      const provider = new ethers.providers.Web3Provider(
-        (window as any).ethereum,
-        'any'
-      )
+      if (!(window as any).ethereum) throw new Error('No Ethereum provider found')
+      const provider = new ethers.providers.Web3Provider((window as any).ethereum, 'any')
       await provider.send('eth_requestAccounts', [])
       const signer = provider.getSigner()
       const addr = await signer.getAddress()
@@ -65,17 +55,10 @@ export default function RegisterPage() {
     }
   }
 
-  // 2) Validate step 1 & advance
   const handleStep1 = (e: FormEvent) => {
     e.preventDefault()
     setError(null)
-    if (
-      !fullName ||
-      !email ||
-      !password ||
-      !confirm ||
-      password !== confirm
-    ) {
+    if (!fullName || !email || !password || !confirm || password !== confirm) {
       setError('Please fill all fields & ensure passwords match.')
       return
     }
@@ -86,7 +69,6 @@ export default function RegisterPage() {
     setStep(2)
   }
 
-  // 3) Final submission
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     setError(null)
@@ -94,20 +76,22 @@ export default function RegisterPage() {
 
     try {
       const payload: any = {
-        name:             fullName,
+        name: fullName,
         email,
         password,
         role,
-        wallet_address:   walletAddress,
-        business_name:    businessName,
-        address,
-        delivery_address: deliveryAddress,
-        products:         products.map((p) => p.value),
+        wallet_address: walletAddress,
       }
-      if (role === 'buyer') {
+
+      if (role === 'supplier') {
+        payload.business_name = businessName
+        payload.address = address
+        payload.delivery_address = deliveryAddress
+        payload.products = products.map((p) => p.value)
+      } else if (role === 'buyer') {
         payload.monthly_spend = monthlySpend
       }
-      // Note: do NOT prefix with "/api" — FastAPI now listens on "/auth"
+
       await api.post('/auth/register', payload)
       router.push('/login')
     } catch (err: any) {
@@ -122,19 +106,13 @@ export default function RegisterPage() {
   return (
     <main className="pt-0 min-h-screen bg-gray-100 flex items-center justify-center px-4">
       <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-2xl">
-        <h1 className="text-2xl font-bold text-center mb-6">
-          New User Activation
-        </h1>
+        <h1 className="text-2xl font-bold text-center mb-6">New User Activation</h1>
 
         {error && <p className="text-red-600 text-center mb-4">{error}</p>}
 
-        <form
-          onSubmit={step === 1 ? handleStep1 : handleSubmit}
-          className="space-y-6"
-        >
+        <form onSubmit={step === 1 ? handleStep1 : handleSubmit} className="space-y-6">
           {step === 1 ? (
             <>
-              {/* Full Name */}
               <div>
                 <label className="block font-medium mb-1">Full Name</label>
                 <input
@@ -146,11 +124,8 @@ export default function RegisterPage() {
                 />
               </div>
 
-              {/* Email */}
               <div>
-                <label className="block font-medium mb-1">
-                  Email Address
-                </label>
+                <label className="block font-medium mb-1">Email Address</label>
                 <input
                   type="email"
                   value={email}
@@ -160,7 +135,6 @@ export default function RegisterPage() {
                 />
               </div>
 
-              {/* Password */}
               <div>
                 <label className="block font-medium mb-1">Password</label>
                 <input
@@ -172,11 +146,8 @@ export default function RegisterPage() {
                 />
               </div>
 
-              {/* Confirm Password */}
               <div>
-                <label className="block font-medium mb-1">
-                  Confirm Password
-                </label>
+                <label className="block font-medium mb-1">Confirm Password</label>
                 <input
                   type="password"
                   value={confirm}
@@ -186,7 +157,6 @@ export default function RegisterPage() {
                 />
               </div>
 
-              {/* Role Selector */}
               <div>
                 <label className="block font-medium mb-1">I am a</label>
                 <select
@@ -196,10 +166,10 @@ export default function RegisterPage() {
                 >
                   <option value="buyer">Buyer</option>
                   <option value="supplier">Supplier</option>
+                  <option value="admi">Admin</option>
                 </select>
               </div>
 
-              {/* Wallet Connect */}
               <div>
                 <button
                   type="button"
@@ -214,7 +184,6 @@ export default function RegisterPage() {
                 </button>
               </div>
 
-              {/* Next Step */}
               <div className="flex justify-end">
                 <button
                   type="submit"
@@ -226,64 +195,57 @@ export default function RegisterPage() {
             </>
           ) : (
             <>
-              {/* Business Name */}
-              <div>
-                <label className="block font-medium mb-1">
-                  Business Name
-                </label>
-                <input
-                  type="text"
-                  value={businessName}
-                  onChange={(e) => setBusinessName(e.target.value)}
-                  className="w-full border rounded px-3 py-2 focus:outline-none focus:ring"
-                />
-              </div>
+              {role === 'supplier' && (
+                <>
+                  <div>
+                    <label className="block font-medium mb-1">Business Name</label>
+                    <input
+                      type="text"
+                      value={businessName}
+                      onChange={(e) => setBusinessName(e.target.value)}
+                      className="w-full border rounded px-3 py-2 focus:outline-none focus:ring"
+                    />
+                  </div>
 
-              {/* Address */}
-              <div>
-                <label className="block font-medium mb-1">Address</label>
-                <input
-                  type="text"
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                  className="w-full border rounded px-3 py-2 focus:outline-none focus:ring"
-                />
-              </div>
+                  <div>
+                    <label className="block font-medium mb-1">Address</label>
+                    <input
+                      type="text"
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
+                      className="w-full border rounded px-3 py-2 focus:outline-none focus:ring"
+                    />
+                  </div>
 
-              {/* Delivery Address */}
-              <div>
-                <label className="block font-medium mb-1">
-                  Delivery Address (if different)
-                </label>
-                <input
-                  type="text"
-                  value={deliveryAddress}
-                  onChange={(e) => setDeliveryAddress(e.target.value)}
-                  className="w-full border rounded px-3 py-2 focus:outline-none focus:ring"
-                />
-              </div>
+                  <div>
+                    <label className="block font-medium mb-1">Delivery Address</label>
+                    <input
+                      type="text"
+                      value={deliveryAddress}
+                      onChange={(e) => setDeliveryAddress(e.target.value)}
+                      className="w-full border rounded px-3 py-2 focus:outline-none focus:ring"
+                    />
+                  </div>
 
-              {/* Products Selector */}
-              <div>
-                <label className="block font-medium mb-1">
-                  Products you {role === 'buyer' ? 'purchase' : 'sell'}
-                </label>
-                <Select<ProductOption, true>
-                  isMulti
-                  options={PRODUCT_OPTIONS}
-                  value={products}
-                  onChange={(opts: OnChangeValue<ProductOption, true>) => {
-                    setProducts([...(opts as readonly ProductOption[])])
-                  }}
-                  placeholder="Select product categories…"
-                />
-              </div>
+                  <div>
+                    <label className="block font-medium mb-1">
+                      Products you sell
+                    </label>
+                    <Select<ProductOption, true>
+                      isMulti
+                      options={PRODUCT_OPTIONS}
+                      value={products}
+                      onChange={(opts) => setProducts(opts as ProductOption[])}
+                      placeholder="Select product categories…"
+                    />
+                  </div>
+                </>
+              )}
 
-              {/* Monthly Spend for Buyers */}
               {role === 'buyer' && (
                 <div>
                   <label className="block font-medium mb-1">
-                    Current monthly spend on commodities
+                    Monthly Spend
                   </label>
                   <input
                     type="text"
@@ -294,7 +256,6 @@ export default function RegisterPage() {
                 </div>
               )}
 
-              {/* Back & Activate Buttons */}
               <div className="flex justify-between items-center">
                 <button
                   type="button"

@@ -1,14 +1,12 @@
-// frontend/hooks/useAuthRedirect.ts
+// File: frontend/hooks/useAuthRedirect.ts
 
 import { useEffect } from 'react'
 import { useRouter } from 'next/router'
 import api from '@/lib/api'
 import { getToken, logout } from '@/utils/auth'
 
-// our roles
 export type UserRole = 'supplier' | 'buyer' | 'admin'
 
-// publicly‐accessible routes
 const PUBLIC_PATHS = ['/login', '/register']
 
 export default function useAuthRedirect(requiredRole?: UserRole) {
@@ -18,7 +16,7 @@ export default function useAuthRedirect(requiredRole?: UserRole) {
   useEffect(() => {
     const token = getToken()
 
-    // 1) If no token, and this isn’t a public page, send to /login
+    // 1) No token + not on a public route → redirect to login
     if (!token) {
       if (!PUBLIC_PATHS.includes(pathname)) {
         router.replace('/login')
@@ -26,17 +24,16 @@ export default function useAuthRedirect(requiredRole?: UserRole) {
       return
     }
 
-    // 2) We have a token: set it on axios
+    // 2) Set token on API for authenticated requests
     api.defaults.headers.common.Authorization = `Bearer ${token}`
 
-    // 3) Fetch the actual role from the server
+    // 3) Validate token by hitting profile endpoint
     api
       .get<{ role: UserRole }>('/auth/profile')
       .then(({ data }) => {
         const userRole = data.role
 
-        // 3a) If we’re on a public page (login/register),
-        //     send them to their dashboard immediately
+        // 3a) On public pages (login/register), redirect to appropriate dashboard
         if (PUBLIC_PATHS.includes(pathname)) {
           switch (userRole) {
             case 'supplier':
@@ -45,19 +42,21 @@ export default function useAuthRedirect(requiredRole?: UserRole) {
               return router.replace('/buyer/dashboard')
             case 'admin':
               return router.replace('/admin/dashboard')
+            default:
+              return router.replace('/login')
           }
         }
 
-        // 3b) If this page requires a role, enforce it
+        // 3b) Enforce required role if provided
         if (requiredRole && userRole !== requiredRole) {
+          console.warn(`Access denied: ${userRole} trying to access ${pathname}`)
           return router.replace('/login')
         }
 
-        // Otherwise: allowed, stay put
+        // ✅ Otherwise: role is allowed, stay on page
       })
       .catch((err) => {
-        console.error('[useAuthRedirect] token validation failed', err)
-        // Invalid token → clear & force to login
+        console.error('[useAuthRedirect] token invalid or expired', err)
         logout()
         router.replace('/login')
       })

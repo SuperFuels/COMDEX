@@ -24,16 +24,16 @@ class RegisterBody(BaseModel):
     name: str = Field(..., min_length=1)
     email: EmailStr
     password: str = Field(..., min_length=8)
-    role: Literal["buyer", "supplier"]
+    role: Literal["buyer", "supplier", "admi"]
     wallet_address: Optional[str] = None
 
-    # supplier‐only fields
+    # supplier-only fields
     business_name: Optional[str] = None
     address: Optional[str] = None
     delivery_address: Optional[str] = None
-    products: Optional[list[str]] = None  # list of product slugs
+    products: Optional[list[str]] = None  # product slugs
 
-    # buyer‐only fields
+    # buyer-only fields
     monthly_spend: Optional[str] = None
 
 class LoginBody(BaseModel):
@@ -58,17 +58,13 @@ class ProfileOut(BaseModel):
     class Config:
         from_attributes = True
 
-# ─── 2) Create APIRouter with prefix="/api/auth" ─────────────────────────
+# ─── 2) Create APIRouter ─────────────────────────────────────────────────
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
 @router.get("/nonce")
 def get_siwe_nonce(
     address: str = Query(..., description="Wallet address for SIWE")
 ) -> dict:
-    """
-    Generate and return a nonce for SIWE login.
-    GET  /api/auth/nonce?address=<wallet_address>
-    """
     return {"nonce": generate_nonce()}
 
 @router.post(
@@ -80,67 +76,61 @@ def register(
     body: RegisterBody = Body(...),
     db: Session = Depends(get_db),
 ):
-    """
-    Register a new user (buyer or supplier).
-    POST  /api/auth/register
-    """
     # Prevent duplicate email
     if db.query(User).filter_by(email=body.email).first():
-        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Email already registered")
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Email already registered")
 
-    # Normalize wallet if provided, and prevent duplicate wallet
+    # Normalize wallet and check uniqueness
     wallet = None
     if body.wallet_address:
         from web3 import Web3
-
         try:
             wallet = Web3.to_checksum_address(body.wallet_address)
         except Exception:
-            raise HTTPException(
-                status.HTTP_400_BAD_REQUEST,
-                "Invalid wallet address format"
-            )
+            raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Invalid wallet address format")
 
         if db.query(User).filter_by(wallet_address=wallet).first():
-            raise HTTPException(
-                status.HTTP_400_BAD_REQUEST,
-                "Wallet address already registered"
-            )
+            raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Wallet address already registered")
 
-    # Create user record
+    # Create user base fields
     user = User(
-        name           = body.name,
-        email          = body.email,
-        password_hash  = hash_password(body.password),
-        role           = body.role,
-        wallet_address = wallet,
-        created_at     = datetime.utcnow(),
+        name=body.name,
+        email=body.email,
+        password_hash=hash_password(body.password),
+        role=body.role,
+        wallet_address=wallet,
+        created_at=datetime.utcnow(),
     )
 
-    # Apply role-specific fields
+    # Role-specific validation
     if body.role == "supplier":
         if not body.business_name or not body.products:
             raise HTTPException(
                 status.HTTP_400_BAD_REQUEST,
-                "Suppliers must provide both business_name and products"
+                detail="Suppliers must provide business_name and products"
             )
-        user.business_name    = body.business_name
-        user.address          = body.address or ""
+        user.business_name = body.business_name
+        user.address = body.address or ""
         user.delivery_address = body.delivery_address or ""
-        user.products         = body.products
-    else:  # buyer
+        user.products = body.products
+
+    elif body.role == "buyer":
         user.monthly_spend = body.monthly_spend or ""
 
-    # Persist & issue JWT
+    elif body.role == "admi":
+        # No extra fields required for admin
+        pass
+
+    else:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Invalid role")
+
+    # Persist user
     db.add(user)
     try:
         db.commit()
     except IntegrityError:
         db.rollback()
-        raise HTTPException(
-            status.HTTP_400_BAD_REQUEST,
-            "Registration failed: duplicate data"
-        )
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Registration failed: duplicate data")
 
     db.refresh(user)
     token = create_access_token(subject=user.id, role=user.role)
@@ -151,16 +141,9 @@ def login(
     body: LoginBody = Body(...),
     db: Session = Depends(get_db),
 ):
-    """
-    Log in via email + password.
-    POST  /api/auth/login
-    """
     user = db.query(User).filter_by(email=body.email).first()
     if not user or not verify_password(body.password, user.password_hash):
-        raise HTTPException(
-            status.HTTP_401_UNAUTHORIZED,
-            "Invalid email or password"
-        )
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Invalid email or password")
 
     token = create_access_token(subject=user.id, role=user.role)
     return {"token": token, "role": user.role}
@@ -170,10 +153,6 @@ def siwe_login(
     body: SIWELogin = Body(...),
     db: Session = Depends(get_db),
 ):
-    """
-    Log in via SIWE.
-    POST  /api/auth/siwe
-    """
     user, token = verify_siwe(body.message, body.signature, db)
     return {"token": token, "role": user.role}
 
@@ -181,8 +160,4 @@ def siwe_login(
 def profile(
     current_user: User = Depends(get_current_user),
 ):
-    """
-    Retrieve the current user’s profile.
-    GET  /api/auth/profile
-    """
     return current_user
