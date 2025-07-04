@@ -21,18 +21,9 @@ const nextConfig = {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
   },
 
-  // ⚠️ NOTE: rewrites are ignored in static export mode.
-  // Static export disables API routes and middleware,
-  // so rewrites won't work as usual.
-  // You might want to remove this or handle API proxy differently.
-  async rewrites() {
-    return [
-      {
-        source: '/api/:path*',
-        destination: `${process.env.NEXT_PUBLIC_API_URL}/api/:path*`,
-      },
-    ];
-  },
+  // ⚠️ rewrites are disabled in static export mode.
+  // If you need API proxying, consider using a separate proxy server or
+  // setting up rewrites at your hosting provider (e.g., Vercel, Netlify).
 };
 
 module.exports = nextConfig;
