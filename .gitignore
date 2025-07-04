@@ -49,3 +49,5 @@ backend/venv/
 backend/venv_test/
 backend/venv_test/*
 backend/venv_test/**/*
+google-cloud-sdk/
+google-cloud-sdk-448.0.0-linux-x86_64.tar.gz
