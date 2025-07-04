@@ -53,3 +53,6 @@ google-cloud-sdk/
 google-cloud-sdk-448.0.0-linux-x86_64.tar.gz
 google-cloud-sdk/
 google-cloud-sdk-448.0.0-linux-x86_64.tar.gz
+google-cloud-sdk/
+*.tar.gz
+*.zip

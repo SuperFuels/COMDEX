@@ -43,7 +43,6 @@ export default function AIONDashboard() {
   const [strategies, setStrategies] = useState<Strategy[]>([]);
   const [learnedSkills, setLearnedSkills] = useState<LearnedSkill[]>([]);
 
-  // API base URL from environment
   const API_BASE = process.env.NEXT_PUBLIC_API_URL || "";
 
   useEffect(() => {
@@ -67,13 +66,12 @@ export default function AIONDashboard() {
       .then((data) => setStrategies(data.strategy || []))
       .catch(console.error);
 
-    fetch(`${API_BASE}/aion/learned-skills`) // Adjust if your API endpoint differs
+    fetch(`${API_BASE}/aion/learned-skills`)
       .then((res) => res.json())
       .then(setLearnedSkills)
       .catch(() => setLearnedSkills([]));
   }, [API_BASE]);
 
-  // Mark goal complete
   const markComplete = (goalName: string) => {
     fetch(`${API_BASE}/aion/goals/complete`, {
       method: "POST",
@@ -89,7 +87,6 @@ export default function AIONDashboard() {
       .catch(console.error);
   };
 
-  // Inline edit goal name
   const editGoalName = (oldName: string, newName: string) => {
     fetch(`${API_BASE}/aion/goals/edit`, {
       method: "POST",
@@ -106,7 +103,7 @@ export default function AIONDashboard() {
   };
 
   return (
-    <div className="p-6 max-w-5xl mx-auto font-sans text-white bg-gray-900 rounded-xl shadow-xl">
+    <div className="p-6 max-w-5xl mx-auto font-sans text-black bg-white rounded-xl shadow-xl overflow-y-auto max-h-screen">
       <h1 className="text-3xl font-bold mb-6">🧠 AION Dashboard</h1>
 
       <section className="mb-6">
@@ -127,9 +124,11 @@ export default function AIONDashboard() {
               {status.milestones.map((m, i) => (
                 <li key={i}>
                   <strong>{m.name}</strong> —{" "}
-                  <span className="text-gray-400">{new Date(m.timestamp).toLocaleString()}</span>
+                  <span className="text-gray-500">
+                    {new Date(m.timestamp).toLocaleString()}
+                  </span>
                   {m.dream_excerpt && (
-                    <p className="italic text-gray-300 mt-1">{m.dream_excerpt}</p>
+                    <p className="italic text-gray-600 mt-1">{m.dream_excerpt}</p>
                   )}
                 </li>
               ))}
@@ -240,7 +239,7 @@ function EditableGoal({
       ) : (
         <>
           <span
-            className={`cursor-pointer ${goal.completed_at ? "line-through text-gray-400" : ""}`}
+            className={`cursor-pointer ${goal.completed_at ? "line-through text-gray-500" : ""}`}
             onDoubleClick={() => setEditing(true)}
           >
             {goal.name}
@@ -254,8 +253,8 @@ function EditableGoal({
           </button>
         </>
       )}
-      {goal.description && <div className="text-sm text-gray-300">{goal.description}</div>}
-      {goal.reward && <div className="text-sm text-yellow-400">Reward: {goal.reward} $STK</div>}
+      {goal.description && <div className="text-sm text-gray-600">{goal.description}</div>}
+      {goal.reward && <div className="text-sm text-yellow-600">Reward: {goal.reward} $STK</div>}
     </div>
   );
 }
