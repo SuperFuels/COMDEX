@@ -1,7 +1,21 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import useAuthRedirect from "@/hooks/useAuthRedirect";
+import Chart, { ChartPoint } from "@/components/Chart";
 
+// Types
+
+// Supplier
+type SupplierMetrics = {
+  totalSalesToday: number;
+  activeListings: number;
+  openOrders: number;
+  proceeds30d: number;
+  feedbackRating: number;
+};
+
+// AION
 type Milestone = {
   name: string;
   timestamp: string;
@@ -30,231 +44,226 @@ type LearnedSkill = {
   learned_on: string;
 };
 
-export default function AIONDashboard() {
-  const [status, setStatus] = useState<{
-    phase: string;
-    milestones: Milestone[];
-    unlocked: string[];
-    locked: string[];
-  } | null>(null);
+type TerminalPayload = {
+  analysisText: string;
+  visualPayload: {
+    products?: any[];
+    chartData?: ChartPoint[];
+  };
+};
 
-  const [goals, setGoals] = useState<Goal[]>([]);
-  const [currentGoal, setCurrentGoal] = useState<string | null>(null);
-  const [strategies, setStrategies] = useState<Strategy[]>([]);
-  const [learnedSkills, setLearnedSkills] = useState<LearnedSkill[]>([]);
+const COMMAND_TABS = ["Sales", "Marketing", "Operations", "Shipments", "Financials", "Clients"];
+
+export default function AIONDashboard() {
+  useAuthRedirect("supplier");
 
   const API_BASE = process.env.NEXT_PUBLIC_API_URL || "";
 
+  // Supplier Metrics
+  const [metrics, setMetrics] = useState<SupplierMetrics | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Split Pane
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [dividerX, setDividerX] = useState(0);
+  const dragging = useRef(false);
+
+  useLayoutEffect(() => {
+    const w = containerRef.current?.clientWidth ?? 0;
+    setDividerX(w / 2);
+  }, []);
+
   useEffect(() => {
-    fetch(`${API_BASE}/aion/status`)
-      .then((res) => res.json())
-      .then(setStatus)
-      .catch(console.error);
+    const onMove = (e: MouseEvent) => {
+      if (!dragging.current || !containerRef.current) return;
+      const { left, width } = containerRef.current.getBoundingClientRect();
+      let x = e.clientX - left;
+      const min = width * 0.2,
+        max = width * 0.8;
+      x = Math.max(min, Math.min(max, x));
+      setDividerX(x);
+    };
+    const onUp = () => {
+      dragging.current = false;
+    };
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+    };
+  }, []);
 
-    fetch(`${API_BASE}/aion/goals`)
-      .then((res) => res.json())
-      .then((data) => setGoals(data.goals || []))
-      .catch(console.error);
-
-    fetch(`${API_BASE}/aion/current-goal`)
-      .then((res) => res.json())
-      .then((data) => setCurrentGoal(data.current_goal || null))
-      .catch(console.error);
-
-    fetch(`${API_BASE}/aion/strategy-plan`)
-      .then((res) => res.json())
-      .then((data) => setStrategies(data.strategy || []))
-      .catch(console.error);
-
-    fetch(`${API_BASE}/aion/learned-skills`)
-      .then((res) => res.json())
-      .then(setLearnedSkills)
-      .catch(() => setLearnedSkills([]));
-  }, [API_BASE]);
-
-  const markComplete = (goalName: string) => {
-    fetch(`${API_BASE}/aion/goals/complete`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: goalName }),
-    })
-      .then((res) => res.json())
-      .then(() => {
-        fetch(`${API_BASE}/aion/goals`)
-          .then((res) => res.json())
-          .then((data) => setGoals(data.goals || []));
-      })
-      .catch(console.error);
+  const onDividerDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    dragging.current = true;
   };
 
-  const editGoalName = (oldName: string, newName: string) => {
-    fetch(`${API_BASE}/aion/goals/edit`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ old_name: oldName, new_name: newName }),
-    })
-      .then((res) => res.json())
-      .then(() => {
-        fetch(`${API_BASE}/aion/goals`)
-          .then((res) => res.json())
-          .then((data) => setGoals(data.goals || []));
-      })
-      .catch(console.error);
+  // Terminal
+  const [queryText, setQueryText] = useState("");
+  const [analysisText, setAnalysis] = useState("");
+  const [chartData, setChartData] = useState<ChartPoint[] | null>(null);
+  const [searchResults, setResults] = useState<any[] | null>(null);
+  const [working, setWorking] = useState(false);
+
+  const sendQuery = async () => {
+    if (!queryText.trim()) return;
+    setWorking(true);
+    setAnalysis("");
+    setResults(null);
+    setChartData(null);
+
+    try {
+      const resp = await fetch(`${API_BASE}/terminal/query`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ prompt: queryText.trim() }),
+      });
+      if (!resp.ok) throw new Error(`Status ${resp.status}`);
+      const json = (await resp.json()) as TerminalPayload;
+      setAnalysis(json.analysisText || "");
+      if (Array.isArray(json.visualPayload.products)) {
+        setResults(json.visualPayload.products);
+      } else if (Array.isArray(json.visualPayload.chartData)) {
+        setChartData(json.visualPayload.chartData);
+      }
+    } catch {
+      setAnalysis("❌ Something went wrong.");
+    } finally {
+      setWorking(false);
+    }
   };
+
+  const onKey = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      sendQuery();
+    }
+  };
+  const onTabClick = (label: string) => {
+    setQueryText(label);
+    setTimeout(sendQuery, 50);
+  };
+
+  // Fetch supplier metrics
+  useEffect(() => {
+    let active = true;
+    fetch("/api/supplier/dashboard")
+      .then((r) => r.json())
+      .then((data: SupplierMetrics) => active && setMetrics(data))
+      .catch((err) => active && setError(err.message))
+      .finally(() => active && setLoading(false));
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const totalW = containerRef.current?.clientWidth ?? 0;
+  const rightWidth = Math.max(0, totalW - dividerX);
+
+  if (loading)
+    return (
+      <div className="h-screen flex items-center justify-center bg-gray-50">
+        <p>Loading…</p>
+      </div>
+    );
+  if (error || !metrics)
+    return (
+      <div className="h-screen flex items-center justify-center bg-gray-50">
+        <p className="text-red-500">{error || "Error loading metrics"}</p>
+      </div>
+    );
 
   return (
-    <div className="p-6 max-w-5xl mx-auto font-sans text-black bg-white rounded-xl shadow-xl overflow-y-auto max-h-screen">
-      <h1 className="text-3xl font-bold mb-6">🧠 AION Dashboard</h1>
-
-      <section className="mb-6">
-        <h2 className="text-2xl font-semibold mb-2">Status</h2>
-        {status ? (
-          <>
-            <p>
-              <strong>Phase:</strong> {status.phase}
-            </p>
-            <p>
-              <strong>Unlocked Modules:</strong> {status.unlocked.join(", ")}
-            </p>
-            <p>
-              <strong>Locked Modules:</strong> {status.locked.join(", ")}
-            </p>
-            <h3 className="mt-4 text-xl font-semibold">Milestones</h3>
-            <ul className="list-disc list-inside ml-4 space-y-2">
-              {status.milestones.map((m, i) => (
-                <li key={i}>
-                  <strong>{m.name}</strong> —{" "}
-                  <span className="text-gray-500">
-                    {new Date(m.timestamp).toLocaleString()}
-                  </span>
-                  {m.dream_excerpt && (
-                    <p className="italic text-gray-600 mt-1">{m.dream_excerpt}</p>
-                  )}
-                </li>
+    <div className="relative flex flex-col h-screen bg-gray-50">
+      {/* Split Panes */}
+      <div ref={containerRef} className="relative flex-1 flex overflow-hidden min-h-0">
+        {/* Left Pane */}
+        <div className="bg-white p-6 overflow-auto min-w-0" style={{ flexBasis: dividerX }}>
+          <h2 className="text-xl font-semibold mb-4">Hello, Supplier — welcome.</h2>
+          <p>
+            Sales Today: <span className="text-blue-600">{metrics.totalSalesToday}</span>
+          </p>
+          <p>
+            Active Listings: <span className="text-green-600">{metrics.activeListings}</span>
+          </p>
+          <p>
+            Open Orders: <span className="text-green-600">{metrics.openOrders}</span>
+          </p>
+          <p>
+            30d Proceeds: <span className="text-blue-600">£{metrics.proceeds30d}</span>
+          </p>
+          <p>
+            Feedback: <span className="text-purple-600">{metrics.feedbackRating}</span>
+          </p>
+          {analysisText && (
+            <div className="mt-6 space-y-1">
+              {analysisText.split("\n").map((l, i) => (
+                <p key={i}>{l}</p>
               ))}
-            </ul>
-          </>
-        ) : (
-          <p>Loading status...</p>
-        )}
-      </section>
+            </div>
+          )}
+        </div>
 
-      <section className="mb-6">
-        <h2 className="text-2xl font-semibold mb-2">Current Goal</h2>
-        {currentGoal ? <p>{currentGoal}</p> : <p>Loading current goal...</p>}
-      </section>
+        {/* Draggable Divider */}
+        <div
+          onMouseDown={onDividerDown}
+          className="absolute top-0 h-full w-1 bg-gray-300 cursor-col-resize z-20"
+          style={{ left: dividerX - 0.5 }}
+        />
 
-      <section className="mb-6">
-        <h2 className="text-2xl font-semibold mb-2">Goals</h2>
-        {goals.length === 0 ? (
-          <p>No goals loaded.</p>
-        ) : (
-          <ul className="space-y-4">
-            {goals.map((goal) => (
-              <li key={goal.name}>
-                <EditableGoal
-                  goal={goal}
-                  onComplete={() => markComplete(goal.name)}
-                  onEdit={editGoalName}
-                />
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+        {/* Right Pane */}
+        <div className="bg-white p-6 overflow-auto min-w-0" style={{ flexBasis: rightWidth }}>
+          {searchResults ? (
+            searchResults.map((item, i) => (
+              <div
+                key={i}
+                className="bg-white border border-gray-200 rounded p-4 mb-4 shadow-sm"
+              >
+                <pre className="text-xs">{JSON.stringify(item, null, 2)}</pre>
+              </div>
+            ))
+          ) : chartData?.length ? (
+            <Chart data={chartData} height={(containerRef.current?.clientHeight ?? 0) - 64} />
+          ) : (
+            <div className="h-full flex items-center justify-center text-gray-500">
+              <p>Select a tab or ask a question to see visual output here.</p>
+            </div>
+          )}
+        </div>
+      </div>
 
-      <section className="mb-6">
-        <h2 className="text-2xl font-semibold mb-2">Top Strategies</h2>
-        {strategies.length === 0 ? (
-          <p>No strategies loaded.</p>
-        ) : (
-          <ul className="list-disc list-inside ml-4 space-y-2">
-            {strategies.map((s) => (
-              <li key={s.id}>
-                <strong>{s.goal}</strong>: {s.action} (Priority: {s.priority})
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-
-      <section>
-        <h2 className="text-2xl font-semibold mb-2">Learned Skills</h2>
-        {learnedSkills.length === 0 ? (
-          <p>No learned skills found.</p>
-        ) : (
-          <ul className="list-disc list-inside ml-4 space-y-2">
-            {learnedSkills.map((skill, i) => (
-              <li key={i}>
-                <strong>{skill.title}</strong> [{skill.status}] — Learned on:{" "}
-                {new Date(skill.learned_on).toLocaleString()}
-                <br />
-                Tags: {skill.tags.join(", ")}
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-    </div>
-  );
-}
-
-function EditableGoal({
-  goal,
-  onComplete,
-  onEdit,
-}: {
-  goal: Goal;
-  onComplete: () => void;
-  onEdit: (oldName: string, newName: string) => void;
-}) {
-  const [editing, setEditing] = useState(false);
-  const [newName, setNewName] = useState(goal.name);
-
-  return (
-    <div>
-      {editing ? (
-        <>
-          <input
-            value={newName}
-            onChange={(e) => setNewName(e.target.value)}
-            className="border border-gray-600 rounded px-2 py-1 mr-2 text-black"
-          />
-          <button
-            onClick={() => {
-              onEdit(goal.name, newName);
-              setEditing(false);
-            }}
-            className="bg-green-600 px-3 py-1 rounded text-white"
-          >
-            Save
-          </button>
-          <button
-            onClick={() => setEditing(false)}
-            className="ml-2 px-3 py-1 rounded border border-gray-600"
-          >
-            Cancel
-          </button>
-        </>
-      ) : (
-        <>
-          <span
-            className={`cursor-pointer ${goal.completed_at ? "line-through text-gray-500" : ""}`}
-            onDoubleClick={() => setEditing(true)}
-          >
-            {goal.name}
-          </span>{" "}
-          <button
-            onClick={onComplete}
-            disabled={!!goal.completed_at}
-            className="ml-2 px-2 py-1 rounded bg-blue-600 text-white disabled:opacity-50"
-          >
-            Complete
-          </button>
-        </>
-      )}
-      {goal.description && <div className="text-sm text-gray-600">{goal.description}</div>}
-      {goal.reward && <div className="text-sm text-yellow-600">Reward: {goal.reward} $STK</div>}
+      {/* Sticky Footer */}
+      <footer className="sticky bottom-0 left-0 w-full bg-white border-t border-gray-200 px-6 py-3 flex items-center space-x-3">
+        <input
+          type="text"
+          className="flex-1 border border-gray-300 rounded px-4 py-2"
+          placeholder="Type a question…"
+          value={queryText}
+          onChange={(e) => setQueryText(e.target.value)}
+          onKeyDown={onKey}
+        />
+        <button
+          onClick={sendQuery}
+          disabled={working}
+          className="bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50"
+        >
+          {working ? "Working…" : "Send"}
+        </button>
+        <div className="flex space-x-2">
+          {COMMAND_TABS.map((label) => (
+            <button
+              key={label}
+              onClick={() => onTabClick(label)}
+              className="px-3 py-1 border rounded text-sm"
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </footer>
     </div>
   );
 }
