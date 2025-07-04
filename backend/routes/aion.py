@@ -4,6 +4,7 @@ from fastapi.responses import JSONResponse
 import openai
 import os
 import logging
+import json
 
 from backend.modules.skills.aion_prompt_engine import build_prompt_context
 from backend.modules.skills.milestone_tracker import MilestoneTracker
@@ -107,3 +108,13 @@ async def create_goal(goal: GoalCreateRequest):
         return {"status": "success", "goal": created_goal}
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": str(e)})
+
+@router.get("/learned-skills")
+async def get_learned_skills():
+    try:
+        skills_path = os.path.join("backend", "modules", "skills", "learned_skills.json")
+        with open(skills_path, "r", encoding="utf-8") as f:
+            skills = json.load(f)
+        return JSONResponse(content=skills)
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"error": f"Failed to load learned skills: {str(e)}"})

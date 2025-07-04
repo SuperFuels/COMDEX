@@ -5,16 +5,19 @@ from dotenv import load_dotenv
 from cryptography.fernet import Fernet
 from datetime import datetime
 
-# Load .env for master key
+# Load .env if available
 load_dotenv()
-KEVIN_MASTER_KEY = os.getenv("KEVIN_MASTER_KEY", "")
-AION_VAULT_KEY = os.getenv("AION_VAULT_KEY", "")
 
-if not AION_VAULT_KEY:
-    raise ValueError("Missing AION_VAULT_KEY in environment.")
-
-FERNET = Fernet(AION_VAULT_KEY)
 VAULT_FILE = Path("backend/data/privacy_vault.json")
+
+def get_vault_key():
+    key = os.getenv("AION_VAULT_KEY", "")
+    if not key:
+        print("⚠️ Warning: AION_VAULT_KEY not found. Vault will remain locked.")
+    return key
+
+def get_master_key():
+    return os.getenv("KEVIN_MASTER_KEY", "")
 
 class PrivacyVault:
     """
@@ -24,22 +27,30 @@ class PrivacyVault:
 
     def __init__(self):
         self._vault = {}
+        self._fernet = None
         self._load()
 
     def _load(self):
-        if VAULT_FILE.exists():
-            try:
+        key = get_vault_key()
+        if not key:
+            return
+        try:
+            self._fernet = Fernet(key)
+            if VAULT_FILE.exists():
                 encrypted = VAULT_FILE.read_bytes()
-                decrypted = FERNET.decrypt(encrypted).decode("utf-8")
+                decrypted = self._fernet.decrypt(encrypted).decode("utf-8")
                 self._vault = json.loads(decrypted)
-            except Exception as e:
-                print(f"⚠️ Failed to decrypt vault: {e}")
-                self._vault = {}
+        except Exception as e:
+            print(f"⚠️ Failed to load/decrypt vault: {e}")
+            self._vault = {}
 
     def _save(self):
+        if not self._fernet:
+            print("⚠️ Cannot save: AION_VAULT_KEY not set.")
+            return
         try:
             raw = json.dumps(self._vault, indent=2)
-            encrypted = FERNET.encrypt(raw.encode("utf-8"))
+            encrypted = self._fernet.encrypt(raw.encode("utf-8"))
             VAULT_FILE.write_bytes(encrypted)
         except Exception as e:
             print(f"⚠️ Vault save failed: {e}")
@@ -65,7 +76,7 @@ class PrivacyVault:
         return False
 
     def has_access(self, provided_key: str) -> bool:
-        return provided_key == KEVIN_MASTER_KEY
+        return provided_key == get_master_key()
 
     def list_keys(self):
         return list(self._vault.keys())

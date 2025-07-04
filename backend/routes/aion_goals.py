@@ -1,11 +1,11 @@
-# routes/aion_goals.py
+# backend/routes/aion_goals.py
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import List, Optional
 from backend.modules.skills.goal_tracker import GoalTracker
 
-router = APIRouter()
+router = APIRouter(prefix="/aion", tags=["AION Goals"])
 goal_tracker = GoalTracker()
 
 class CompleteGoalRequest(BaseModel):
@@ -15,23 +15,26 @@ class EditGoalRequest(BaseModel):
     old_name: str
     new_name: str
 
-@router.get("/aion/goals")
+@router.get("/goals")
 async def get_goals():
     goals = goal_tracker.get_goals()
-    adapted_goals = [
-        {
-            "name": g.get("name"),
-            "status": g.get("status"),
-            "description": g.get("description", ""),
-            "reward": g.get("reward"),
-            "completed_at": g.get("completed_at", None),
-            "created_at": g.get("created_at", None),
-        }
-        for g in goals
-    ]
-    return {"goals": adapted_goals}
+    return {"goals": goals}
 
-@router.post("/aion/goals/complete")
+@router.get("/current-goal")
+async def get_current_goal():
+    goals = goal_tracker.get_goals()
+    for g in goals:
+        if g.get("status") != "completed":
+            return {
+                "name": g.get("name"),
+                "status": g.get("status"),
+                "description": g.get("description", ""),
+                "reward": g.get("reward"),
+                "created_at": g.get("created_at", None),
+            }
+    return {"message": "🎉 All goals completed."}
+
+@router.post("/goals/complete")
 async def complete_goal(req: CompleteGoalRequest):
     goals = goal_tracker.get_goals()
     for idx, goal in enumerate(goals):
@@ -49,7 +52,7 @@ async def complete_goal(req: CompleteGoalRequest):
                 raise HTTPException(status_code=500, detail="Failed to update goal status")
     raise HTTPException(status_code=404, detail="Goal not found")
 
-@router.post("/aion/goals/edit")
+@router.post("/goals/edit")
 async def edit_goal(req: EditGoalRequest):
     goals = goal_tracker.get_goals()
     for goal in goals:

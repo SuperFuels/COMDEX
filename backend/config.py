@@ -22,3 +22,4 @@ else:
         f"postgresql+psycopg2://{DB_USER}:{DB_PASS}@/{DB_NAME}"
         f"?host=/cloudsql/{INSTANCE_CONNECTION_NAME}"
     )
+    

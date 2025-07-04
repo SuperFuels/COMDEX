@@ -1,9 +1,10 @@
+# cloudbuild.yaml
 substitutions:
   _SERVICE: comdex-api
   _REGION: us-central1
 
 steps:
-  # ─── 0) Build the FRONTEND with Node 18 ─────────────────────────────
+  # ─── 0) Build frontend ──────────────────────────────────────────────
   - id: "frontend-build"
     name: "node:18"
     entrypoint: "bash"
@@ -11,41 +12,25 @@ steps:
       - "-c"
       - |
         cd frontend
-        npm install   # use npm install instead of npm ci to avoid lockfile sync issues
+        npm install
         npm run build
 
-  # ─── 1) Build the Docker image for the Python backend ───────────────
+  # ─── 1) Build Docker image ──────────────────────────────────────────
   - id: "docker-build"
     name: "gcr.io/cloud-builders/docker"
-    args:
-      [
-        "build",
-        "--no-cache",
-        "-f", "Dockerfile",
-        "-t", "gcr.io/$PROJECT_ID/${_SERVICE}:$BUILD_ID",
-        "-t", "gcr.io/$PROJECT_ID/${_SERVICE}:latest",
-        "."
-      ]
+    args: ["build", "--no-cache", "-f", "Dockerfile", "-t", "gcr.io/$PROJECT_ID/${_SERVICE}:$BUILD_ID", "-t", "gcr.io/$PROJECT_ID/${_SERVICE}:latest", "."]
 
-  # ─── 2) Push the build-ID tag ───────────────────────────────────────
+  # ─── 2) Push image with build ID ────────────────────────────────────
   - id: "docker-push-buildid"
     name: "gcr.io/cloud-builders/docker"
-    args:
-      [
-        "push",
-        "gcr.io/$PROJECT_ID/${_SERVICE}:$BUILD_ID"
-      ]
+    args: ["push", "gcr.io/$PROJECT_ID/${_SERVICE}:$BUILD_ID"]
 
-  # ─── 3) Push the latest tag ─────────────────────────────────────────
+  # ─── 3) Push latest tag ─────────────────────────────────────────────
   - id: "docker-push-latest"
     name: "gcr.io/cloud-builders/docker"
-    args:
-      [
-        "push",
-        "gcr.io/$PROJECT_ID/${_SERVICE}:latest"
-      ]
+    args: ["push", "gcr.io/$PROJECT_ID/${_SERVICE}:latest"]
 
-  # ─── 4) Deploy to Cloud Run ─────────────────────────────────────────
+  # ─── 4) Deploy using env-vars-file ONLY ─────────────────────────────
   - id: "deploy-cloud-run"
     name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
     entrypoint: "gcloud"
@@ -67,8 +52,3 @@ steps:
 images:
   - "gcr.io/$PROJECT_ID/${_SERVICE}:$BUILD_ID"
   - "gcr.io/$PROJECT_ID/${_SERVICE}:latest"
-
-# Environment variables (should be stored securely e.g., Secret Manager and referenced via cloudrun-env.yaml)
-# AION_API_KEY=3f9b7d8e2c1a4f6b9d0e7a5c8f4b2d1e
-# AION_VAULT_KEY=OYtQtzku1XnLo4xOzopc3M7WaMMNN3wvL8ACr-a0gTU=
-# KEVIN_MASTER_KEY=DslajlV0_kKMTSFLSp9MGeaVUIhsULJy8cYDo98BWsc=

@@ -1,7 +1,13 @@
+import sys
 import os
 import time
 import logging
 import subprocess
+
+# Fix for ModuleNotFoundError: ensure /srv/backend is in sys.path and PYTHONPATH env var is set
+os.environ['PYTHONPATH'] = '/srv/backend'
+if '/srv/backend' not in sys.path:
+    sys.path.insert(0, '/srv/backend')
 
 from fastapi import FastAPI, APIRouter, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -92,6 +98,7 @@ from backend.routes.game               import router as game_router
 from backend.routes.aion_game          import router as aion_game_router
 from backend.routes.game_event         import router as game_event_router
 from backend.routes.skill              import router as skill_router
+from backend.routes.aion_strategy_plan import router as strategy_plan_router
 
 # ── 12) Import standalone routers from backend.api (if used)
 from backend.api.aion.status           import router as status_router
@@ -117,6 +124,7 @@ api.include_router(aion_goals_router)  # Check internal prefixes
 api.include_router(aion_dream_router, prefix="/aion")
 api.include_router(aion_gridworld_router)
 api.include_router(aion_game_dream_router)
+api.include_router(strategy_plan_router)
 
 api.include_router(aion_game_router)
 api.include_router(game_event_router)

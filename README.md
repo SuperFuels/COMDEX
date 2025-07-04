@@ -40,3 +40,12 @@ git commit -m "Bring main back to dd80390 + re-apply local fixes (Dockerfile, .d
 # 5. Push up to GitHub
 git push origin main --force
 
+
+rm -rf node_modules package-lock.json yarn.lock
+npm cache clean --force
+
+docker container prune
+docker volume prune
+docker image prune -a
+docker system prune -a --volumes
+docker builder prune

@@ -1,0 +1,11 @@
+{
+  "goals": [],
+  "skills": [
+    {"name": "SkillA", "linked_goals": ["Goal 1"], "unlocked": false},
+    {"name": "SkillB", "linked_goals": ["Goal 2"], "unlocked": false}
+  ],
+  "milestones": [
+    {"name": "MilestoneA", "linked_goals": ["Goal 1"], "unlocked": false},
+    {"name": "MilestoneB", "linked_goals": ["Goal 2"], "unlocked": false}
+  ]
+}

@@ -3,7 +3,7 @@ from backend.modules.skills.milestone_tracker import MilestoneTracker
 from backend.modules.skills.strategy_planner import StrategyPlanner
 from backend.modules.sim.grid_engine import GridWorld
 
-router = APIRouter()
+router = APIRouter(prefix="/aion", tags=["AION Status"])
 
 @router.get("/aion/status")
 def get_status():

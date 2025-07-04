@@ -1,29 +1,24 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // ✅ Enable static HTML export via new config system
-  output: 'export',
-
-  // Optional: add trailing slashes to all URLs (helps with static hosting)
+  // ✅ Trailing slashes can help with consistent routing
   trailingSlash: true,
 
-  // Disable image optimization (since static export can't use next/image CDN)
+  // ✅ Disable Next.js image optimization (ok if using <img> tags)
   images: {
     unoptimized: true,
   },
 
-  // Ignore ESLint errors during build (useful in CI/CD)
+  // ✅ Skip ESLint during CI builds to prevent breaking deployments
   eslint: {
     ignoreDuringBuilds: true,
   },
 
-  // ✅ Expose env vars to browser, e.g. frontend API base URL
+  // ✅ Expose environment variable(s) to browser
   env: {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
   },
 
-  // ⚠️ rewrites are disabled in static export mode.
-  // If you need API proxying, consider using a separate proxy server or
-  // setting up rewrites at your hosting provider (e.g., Vercel, Netlify).
+  // ❌ DO NOT use output: 'export' — disables API routes and SSR
 };
 
 module.exports = nextConfig;
