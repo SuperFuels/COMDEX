@@ -1,7 +1,7 @@
 // AIONTerminal.tsx
 import React, { useState, useEffect } from 'react';
 import {
-  FaPlay, FaBolt, FaCogs, FaBrain, FaBullseye, FaSync, FaChevronDown
+  FaBolt, FaPlay, FaCogs, FaBrain, FaBullseye, FaSync, FaTerminal
 } from 'react-icons/fa';
 import useAION from '../hooks/useAION';
 
@@ -20,8 +20,7 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
     bottomRef,
   } = useAION();
 
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [selectedLabel, setSelectedLabel] = useState('Select AION Preset');
+  const [command, setCommand] = useState('');
 
   const presets = [
     { label: 'Run Full Learning Cycle', value: 'run-learning-cycle', icon: <FaPlay className="text-blue-600" /> },
@@ -32,12 +31,19 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
     { label: 'System Status', value: 'status', icon: <FaSync className="text-indigo-600" /> },
   ];
 
-  const runPreset = async (value: string, label: string) => {
-    setDropdownOpen(false);
-    setSelectedLabel(label);
-    const method: 'get' | 'post' = value === 'goal' || value === 'status' ? 'get' : 'post';
-    const url = `/api/aion/${value}`;
-    await callEndpoint(url, label, method);
+  const handleCommand = async () => {
+    if (!command.trim()) return;
+
+    const method: 'get' | 'post' = command === 'goal' || command === 'status' ? 'get' : 'post';
+    const url = `/api/aion/${command}`;
+    await callEndpoint(url, `Command: ${command}`, method);
+    setCommand('');
+  };
+
+  const handlePresetClick = async (presetValue: string) => {
+    const method: 'get' | 'post' = presetValue === 'goal' || presetValue === 'status' ? 'get' : 'post';
+    const url = `/api/aion/${presetValue}`;
+    await callEndpoint(url, `Preset: ${presetValue}`, method);
   };
 
   useEffect(() => {
@@ -46,58 +52,47 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
 
   return (
     <div className="flex flex-col h-full">
-      {/* Left terminal only: show dropdown */}
-      {side === 'left' && (
-        <div className="relative px-2 py-1">
-          <button
-            onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="w-full border border-gray-300 rounded px-3 py-1 flex justify-between items-center text-sm bg-white hover:shadow"
-          >
-            <span>{selectedLabel}</span>
-            <FaChevronDown className="ml-2 text-gray-400" />
-          </button>
-          {dropdownOpen && (
-            <div className="absolute mt-1 w-full bg-white border border-gray-200 rounded shadow-lg z-10 max-h-60 overflow-auto">
-              {presets.map((preset) => (
-                <button
-                  key={preset.value}
-                  onClick={() => runPreset(preset.value, preset.label)}
-                  className="flex items-center w-full px-3 py-2 text-sm hover:bg-gray-100"
-                >
-                  {preset.icon}
-                  <span className="ml-2">{preset.label}</span>
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Input Bar */}
-      <div className="flex px-2 gap-2 mb-2">
+      {/* Unified Command + Presets */}
+      <div className="flex gap-2 px-2 py-1">
         <input
           className="flex-1 border border-gray-300 px-3 py-1 rounded text-sm"
-          placeholder="Ask AION something..."
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && sendPrompt()}
+          placeholder="Type command (e.g. run-dream) or choose preset below..."
+          value={command}
+          onChange={(e) => setCommand(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && handleCommand()}
         />
         <button
-          onClick={sendPrompt}
+          onClick={handleCommand}
           disabled={loading}
           className="bg-blue-600 text-white px-4 py-1 rounded text-sm"
         >
-          Ask
+          <FaTerminal />
         </button>
       </div>
 
-      {/* Output */}
+      {/* Presets */}
+      <div className="grid grid-cols-3 gap-2 px-2 py-1">
+        {presets.map((preset) => (
+          <button
+            key={preset.value}
+            onClick={() => handlePresetClick(preset.value)}
+            className="flex items-center px-2 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded shadow-sm"
+          >
+            {preset.icon}
+            <span className="ml-2">{preset.label}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* Output Terminal */}
       <div className="flex-1 bg-gray-50 p-3 rounded overflow-y-auto text-sm whitespace-pre-wrap">
         {messages.length === 0 ? (
           <p className="text-gray-400">Waiting for AION...</p>
         ) : (
           messages.map((msg: any, idx: number) => (
-            <div key={idx}>{typeof msg === 'string' ? msg : msg?.content ?? '[Invalid message]'}</div>
+            <div key={idx}>
+              {typeof msg === 'string' ? msg : msg?.content ?? '[Invalid message]'}
+            </div>
           ))
         )}
         <div ref={bottomRef} />
