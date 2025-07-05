@@ -1,3 +1,4 @@
+// AIONTerminal.tsx
 import React, { useState, useEffect } from 'react';
 import {
   FaPlay, FaBolt, FaCogs, FaBrain, FaBullseye, FaSync, FaChevronDown
@@ -45,30 +46,32 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
 
   return (
     <div className="flex flex-col h-full">
-      {/* Custom Dropdown Bar */}
-      <div className="relative px-2 py-1">
-        <button
-          onClick={() => setDropdownOpen(!dropdownOpen)}
-          className="w-full border border-gray-300 rounded px-3 py-1 flex justify-between items-center text-sm bg-white hover:shadow"
-        >
-          <span>{selectedLabel}</span>
-          <FaChevronDown className="ml-2 text-gray-400" />
-        </button>
-        {dropdownOpen && (
-          <div className="absolute mt-1 w-full bg-white border border-gray-200 rounded shadow-lg z-10 max-h-60 overflow-auto">
-            {presets.map((preset) => (
-              <button
-                key={preset.value}
-                onClick={() => runPreset(preset.value, preset.label)}
-                className="flex items-center w-full px-3 py-2 text-sm hover:bg-gray-100"
-              >
-                {preset.icon}
-                <span className="ml-2">{preset.label}</span>
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
+      {/* Left terminal only: show dropdown */}
+      {side === 'left' && (
+        <div className="relative px-2 py-1">
+          <button
+            onClick={() => setDropdownOpen(!dropdownOpen)}
+            className="w-full border border-gray-300 rounded px-3 py-1 flex justify-between items-center text-sm bg-white hover:shadow"
+          >
+            <span>{selectedLabel}</span>
+            <FaChevronDown className="ml-2 text-gray-400" />
+          </button>
+          {dropdownOpen && (
+            <div className="absolute mt-1 w-full bg-white border border-gray-200 rounded shadow-lg z-10 max-h-60 overflow-auto">
+              {presets.map((preset) => (
+                <button
+                  key={preset.value}
+                  onClick={() => runPreset(preset.value, preset.label)}
+                  className="flex items-center w-full px-3 py-2 text-sm hover:bg-gray-100"
+                >
+                  {preset.icon}
+                  <span className="ml-2">{preset.label}</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Input Bar */}
       <div className="flex px-2 gap-2 mb-2">
