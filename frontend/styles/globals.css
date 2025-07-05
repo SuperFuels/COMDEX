@@ -1,13 +1,12 @@
 /* ======================================================================
    GLOBAL STYLES FOR STICKEY.ai
-   (This file is processed by Tailwind’s PostCSS pipeline.)
    ====================================================================== */
 
 /* stylelint-disable */
 /* prettier-ignore-start */
 /* eslint-disable */
 
-/* 1) Import Inter BEFORE any Tailwind directives */
+/* 1) Import Inter BEFORE Tailwind */
 @import url('https://rsms.me/inter/inter.css');
 
 /* 2) Tailwind’s layers */
@@ -15,19 +14,16 @@
 @tailwind components;
 @tailwind utilities;
 
-/* 3) CSS VARIABLES (light & dark mode) */
+/* 3) CSS VARIABLES (light & dark) */
 :root {
-  /* Light mode tokens */
   --bg-page:         #FFFFFF;
   --bg-header:       #FFFFFF;
   --text-primary:    #1F2937;
   --text-secondary:  #6B7280;
   --border-light:    #E5E7EB;
   --scrollbar-thumb: #4A5568;
-
-  /* Brand colors */
-  --primary:        #4A90E2;
-  --primary-hover:  #357ABD;
+  --primary:         #4A90E2;
+  --primary-hover:   #357ABD;
 }
 
 .dark {
@@ -37,9 +33,8 @@
   --text-secondary:  #D1D5DB;
   --border-light:    #4B5563;
   --scrollbar-thumb: #9CA3AF;
-
-  --primary:        #374151;
-  --primary-hover:  #4B5563;
+  --primary:         #374151;
+  --primary-hover:   #4B5563;
 }
 
 /* 4) RESET + GLOBALS */
@@ -48,7 +43,10 @@
   padding: 0;
   box-sizing: border-box;
 }
-
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
 body {
   font-family: 'Inter', sans-serif;
   background-color: var(--bg-page);
@@ -56,7 +54,7 @@ body {
   line-height: 1.6;
 }
 
-/* 5) Scrollbar styling */
+/* 5) Scrollbars */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -69,7 +67,7 @@ body {
   background: var(--bg-page);
 }
 
-/* 6) CONTAINERS & CARDS */
+/* 6) Containers & Cards */
 .container {
   max-width: 1280px;
   margin: 0 auto;
@@ -87,7 +85,7 @@ body {
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
-/* 7) BUTTON STYLES */
+/* 7) Buttons */
 button, .btn, a {
   background-color: transparent;
   border: 1px solid var(--text-primary);
@@ -103,8 +101,6 @@ button, .btn, a {
 button:hover, .btn:hover, a:hover {
   background-color: rgba(0,0,0,0.05);
 }
-
-/* Primary filled variant (only for other parts still using it) */
 .btn-filled {
   @apply bg-primary text-white;
 }
@@ -112,7 +108,7 @@ button:hover, .btn:hover, a:hover {
   background-color: var(--primary-hover);
 }
 
-/* 8) FORM ELEMENTS */
+/* 8) Form Inputs */
 input, select, textarea {
   width: 100%;
   padding: 0.5rem;
@@ -127,46 +123,57 @@ input:focus, select:focus, textarea:focus {
   box-shadow: 0 0 0 2px rgba(74,144,226,0.2);
 }
 
-/* 9) TYPE SCALING */
+/* 9) Typography */
 h1 { @apply text-2xl font-semibold; }
 h2 { @apply text-xl  font-semibold; }
 h3 { @apply text-lg  font-semibold; }
 p  { @apply text-base; }
 
-/* 10) Logo-link exception */
+/* 10) Logo link fix */
 a.logo-link {
   border: none !important;
   padding: 0 !important;
 }
 
-/* prettier-ignore-end */
-/* stylelint-enable */
-/* eslint-enable */
+/* ───────────────────────────────────────────────────────
+   Split Pane Layout (AION dashboard specific)
+─────────────────────────────────────────────────────────── */
 
-/* ───────────────────────────────────────────────────────────────────────────
-   Split-pane + fixed footer tweaks
-   ─────────────────────────────────────────────────────────────────────────── */
-
-/* Make sure the main split container doesn’t scroll the whole page */
 .split-container {
   display: flex;
   height: 100%;
+  width: 100%;
+  overflow: hidden;
 }
-
-/* Each pane is white and scrolls internally */
 .split-container > .pane {
-  background: white;
-  overflow: auto;
+  flex: 1;
+  background: var(--bg-page);
+  overflow-y: auto;
+  padding: 1rem;
 }
-
-/* The draggable divider */
 .splitter {
   width: 4px;
   background-color: var(--border-light);
   cursor: col-resize;
 }
 
-/* Force the body to never scroll (all scrolling happens inside panes) */
+/* Fix edge case where page scrolls */
 body {
   overflow: hidden;
+  height: 100vh;
 }
+
+/* Footer anchor (fixed terminal) */
+.footer-terminal {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: var(--bg-header);
+  border-top: 1px solid var(--border-light);
+  z-index: 10;
+}
+
+/* prettier-ignore-end */
+/* stylelint-enable */
+/* eslint-enable */

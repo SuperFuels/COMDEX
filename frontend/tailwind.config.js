@@ -1,4 +1,3 @@
-// frontend/tailwind.config.js
 /** @type {import('tailwindcss').Config} */
 export default {
   darkMode: 'class',
@@ -6,7 +5,7 @@ export default {
     "./pages/**/*.{js,ts,jsx,tsx}",
     "./components/**/*.{js,ts,jsx,tsx}",
     "./app/**/*.{js,ts,jsx,tsx}",
-    "./styles/**/*.{css,js,ts,jsx,tsx}"  // ← make sure this is here
+    "./styles/**/*.{css,js,ts,jsx,tsx}"  // ✅ Required for global CSS or CSS modules
   ],
   theme: {
     extend: {
@@ -14,24 +13,17 @@ export default {
         sans: ['Inter', 'system-ui', 'sans-serif'],
       },
       colors: {
-        /* Primary/hover */
         primary: '#4A90E2',
         primaryHover: '#357ABD',
-
-        /* Text colors */
         text: {
           DEFAULT: '#1F2937',
           light: '#374151',
           muted: '#6B7280',
         },
-
-        /* Header background */
         background: {
           header: '#FFFFFF',
           dark: '#111827',
         },
-
-        /* Borders/drops */
         'border-light': '#E5E7EB',
       },
       boxShadow: {
@@ -39,5 +31,8 @@ export default {
       },
     },
   },
-  plugins: [],
+  plugins: [
+  require('@tailwindcss/forms'),
+  require('@tailwindcss/typography'),
+],
 }
