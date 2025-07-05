@@ -14,10 +14,10 @@ type Awareness = {
 };
 
 export default function AIONTerminal() {
+  const [activeTab, setActiveTab] = useState<'chat' | 'dreams'>('chat');
   const [prompt, setPrompt] = useState("");
   const [response, setResponse] = useState("");
   const [loading, setLoading] = useState(false);
-  const [status, setStatus] = useState<any>(null);
   const [goal, setGoal] = useState<string>("Loading...");
   const [bootSkills, setBootSkills] = useState<any[]>([]);
   const [reflecting, setReflecting] = useState(false);
@@ -32,22 +32,11 @@ export default function AIONTerminal() {
   const API_BASE = process.env.NEXT_PUBLIC_API_URL || "";
 
   useEffect(() => {
-    fetchStatus();
     fetchGoal();
     fetchBootSkills();
     fetchIdentity();
     fetchAwareness();
   }, []);
-
-  const fetchStatus = async () => {
-    try {
-      const res = await fetch(`${API_BASE}/aion/status`);
-      const data = await res.json();
-      setStatus(data);
-    } catch {
-      setStatus(null);
-    }
-  };
 
   const fetchGoal = async () => {
     try {
@@ -174,62 +163,82 @@ export default function AIONTerminal() {
 
   return (
     <div className="fixed bottom-0 left-0 w-full bg-white border-t border-gray-300 shadow-inner z-50">
+      <div className="flex space-x-4 border-b px-4 pt-2 text-sm">
+        <button onClick={() => setActiveTab('chat')} className={`pb-2 ${activeTab === 'chat' ? 'border-b-2 border-blue-500 font-semibold' : ''}`}>💬 Chat</button>
+        <button onClick={() => setActiveTab('dreams')} className={`pb-2 ${activeTab === 'dreams' ? 'border-b-2 border-blue-500 font-semibold' : ''}`}>🌙 Dream Visualizer</button>
+      </div>
       <div className="p-4 max-h-[60vh] overflow-y-auto text-sm font-mono text-gray-800">
-        <form onSubmit={handleSubmit} className="flex gap-2 mb-3">
-          <input
-            type="text"
-            className="flex-1 p-2 border border-gray-300 rounded focus:outline-none"
-            placeholder="Ask AION anything..."
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-          />
-          <button
-            type="submit"
-            disabled={loading}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-          >
-            {loading ? "Thinking..." : "Ask"}
-          </button>
-        </form>
+        {activeTab === 'chat' && (
+          <>
+            <form onSubmit={handleSubmit} className="flex gap-2 mb-3">
+              <input
+                type="text"
+                className="flex-1 p-2 border border-gray-300 rounded focus:outline-none"
+                placeholder="Ask AION anything..."
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+              />
+              <button
+                type="submit"
+                disabled={loading}
+                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+              >
+                {loading ? "Thinking..." : "Ask"}
+              </button>
+            </form>
 
-        {response && (
-          <div className="bg-gray-100 p-3 rounded mb-4 whitespace-pre-wrap">
-            <strong>💬 AION:</strong>
-            <div>{response}</div>
+            {response && (
+              <div className="bg-gray-100 p-3 rounded mb-4 whitespace-pre-wrap">
+                <strong>💬 AION:</strong>
+                <div>{response}</div>
+              </div>
+            )}
+
+            <div className="flex flex-wrap gap-2 mb-2">
+              <button
+                onClick={handleBootSkill}
+                disabled={bootLoading}
+                className="bg-purple-600 text-white px-3 py-1 rounded hover:bg-purple-700"
+              >
+                {bootLoading ? "Loading..." : "🔁 Boot Skill"}
+              </button>
+              <button
+                onClick={handleSkillReflect}
+                disabled={reflecting}
+                className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600"
+              >
+                {reflecting ? "Reflecting..." : "🪞 Reflect"}
+              </button>
+              <button
+                onClick={handleDreamTrigger}
+                className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
+              >
+                🌙 Run Dream
+              </button>
+              <button
+                onClick={handleGameDreamTrigger}
+                disabled={gameDreamLoading}
+                className="bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-700"
+              >
+                {gameDreamLoading ? "Dreaming..." : "🎮 Game Dream"}
+              </button>
+            </div>
+          </>
+        )}
+
+        {activeTab === 'dreams' && (
+          <div className="space-y-2">
+            {gameDreams.length === 0 && <p className="text-gray-500">No dreams visualized yet.</p>}
+            {gameDreams.map((dream, index) => (
+              <div key={index} className="bg-gray-100 border border-gray-300 p-3 rounded">
+                <strong>Dream {index + 1}:</strong>
+                <pre className="whitespace-pre-wrap mt-1">{dream}</pre>
+              </div>
+            ))}
           </div>
         )}
 
-        <div className="flex flex-wrap gap-2 mb-2">
-          <button
-            onClick={handleBootSkill}
-            disabled={bootLoading}
-            className="bg-purple-600 text-white px-3 py-1 rounded hover:bg-purple-700"
-          >
-            {bootLoading ? "Loading..." : "🔁 Boot Skill"}
-          </button>
-          <button
-            onClick={handleSkillReflect}
-            disabled={reflecting}
-            className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600"
-          >
-            {reflecting ? "Reflecting..." : "🪞 Reflect"}
-          </button>
-          <button
-            onClick={handleDreamTrigger}
-            className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
-          >
-            🌙 Run Dream
-          </button>
-          <button
-            onClick={handleGameDreamTrigger}
-            disabled={gameDreamLoading}
-            className="bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-700"
-          >
-            {gameDreamLoading ? "Dreaming..." : "🎮 Game Dream"}
-          </button>
-        </div>
-
-        {gameDreamResult && (
+        {gameDreamResult && activeTab === 'chat' && (
           <div className="bg-gray-100 p-2 rounded mt-2 whitespace-pre-wrap">
             <strong>🎮 Game Dream Result:</strong>
             <p>{gameDreamResult}</p>
