@@ -1,29 +1,25 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import useAuthRedirect from "@/hooks/useAuthRedirect";
 
-export default function AIONDashboard() {
-  const loading = useAuthRedirect("admin"); // Wait for auth check before rendering
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "";
 
-  const API_BASE = process.env.NEXT_PUBLIC_API_URL || "";
+export default function AIONDashboardClient() {
   const [status, setStatus] = useState<any>(null);
   const [terminalInput, setTerminalInput] = useState("");
   const [response, setResponse] = useState("");
-  const [sending, setSending] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!loading) {
-      fetch(`${API_BASE}/aion/status`)
-        .then((res) => res.json())
-        .then(setStatus)
-        .catch(console.error);
-    }
-  }, [loading]);
+    fetch(`${API_BASE}/aion/status`)
+      .then((res) => res.json())
+      .then(setStatus)
+      .catch(console.error);
+  }, []);
 
   const sendPrompt = async () => {
     if (!terminalInput.trim()) return;
-    setSending(true);
+    setLoading(true);
     setResponse("Thinking...");
     try {
       const res = await fetch(`${API_BASE}/aion/prompt`, {
@@ -37,62 +33,43 @@ export default function AIONDashboard() {
       setResponse("❌ Error talking to AION.");
       console.error(err);
     } finally {
-      setSending(false);
+      setLoading(false);
       setTerminalInput("");
     }
   };
 
-  if (loading) {
-    return (
-      <div className="h-screen flex items-center justify-center text-gray-500 text-lg">
-        ⏳ Loading dashboard...
-      </div>
-    );
-  }
-
   return (
-    <div className="flex flex-col h-screen text-black font-sans bg-white">
-      {/* Header */}
-      <div className="p-4 border-b bg-white">
+    <div className="flex flex-col h-screen text-black font-sans">
+      <div className="p-4 border-b">
         <h1 className="text-3xl font-bold">🧠 AION Dashboard</h1>
         <p className="text-sm text-gray-600">Phase: {status?.phase || "Loading..."}</p>
-        <p>
-          <strong>Unlocked Modules:</strong> {status?.unlocked?.join(", ") || "Loading..."}
-        </p>
-        <p>
-          <strong>Locked Modules:</strong> {status?.locked?.join(", ") || "Loading..."}
-        </p>
+        <p><strong>Unlocked:</strong> {status?.unlocked?.join(", ") || "Loading..."}</p>
+        <p><strong>Locked:</strong> {status?.locked?.join(", ") || "Loading..."}</p>
       </div>
 
-      {/* Main Terminal */}
       <div className="flex flex-1 overflow-hidden">
-        {/* Input */}
         <div className="w-1/2 p-4 border-r overflow-y-auto">
           <h2 className="text-xl font-semibold mb-2">Ask AION</h2>
-          <p className="text-gray-500 text-sm mb-4">Enter any prompt or command below.</p>
           <textarea
             value={terminalInput}
             onChange={(e) => setTerminalInput(e.target.value)}
-            placeholder="e.g., What milestones did I unlock this week?"
+            placeholder="e.g., What milestones did I unlock?"
             rows={10}
             className="w-full border p-2 rounded bg-white text-black resize-none"
           />
         </div>
-
-        {/* Output */}
         <div className="w-1/2 p-4 overflow-y-auto">
           <h2 className="text-xl font-semibold mb-2">🧠 AION Says</h2>
           <div className="whitespace-pre-wrap text-gray-800">
-            {sending ? <p>⏳ Thinking...</p> : <p>{response || "Awaiting input..."}</p>}
+            {loading ? <p>⏳ Thinking...</p> : <p>{response || "Awaiting input..."}</p>}
           </div>
         </div>
       </div>
 
-      {/* Bottom Bar */}
       <div className="border-t p-4 flex items-center space-x-2 bg-gray-100">
         <input
           type="text"
-          placeholder="Type a command for AION..."
+          placeholder="Type a command..."
           value={terminalInput}
           onChange={(e) => setTerminalInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && sendPrompt()}
@@ -100,22 +77,11 @@ export default function AIONDashboard() {
         />
         <button
           onClick={sendPrompt}
-          disabled={sending}
+          disabled={loading}
           className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
         >
           Send
         </button>
-        <div className="flex space-x-2">
-          {["Sales", "Marketing", "Operations", "Shipments", "Financials", "Clients"].map((ctx) => (
-            <button
-              key={ctx}
-              onClick={() => setTerminalInput(`Focus on ${ctx.toLowerCase()} this week.`)}
-              className="px-2 py-1 text-sm bg-gray-300 rounded hover:bg-gray-400"
-            >
-              {ctx}
-            </button>
-          ))}
-        </div>
       </div>
     </div>
   );
