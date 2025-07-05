@@ -1,4 +1,3 @@
-// hooks/useAION.ts
 import { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 
@@ -33,11 +32,24 @@ export default function useAION() {
     setInput('');
   };
 
-  const callEndpoint = async (endpoint: string, label: string) => {
+  const callEndpoint = async (
+    endpoint: string,
+    label: string,
+    method: 'get' | 'post' = 'post' // ✅ now supports third param
+  ) => {
     append('system', `📡 Fetching ${label}...`);
     try {
-      const res = await axios.get(endpoint);
-      append('aion', `✅ ${label}:\n${JSON.stringify(res.data, null, 2)}`);
+      const res =
+        method === 'post'
+          ? await axios.post(endpoint)
+          : await axios.get(endpoint);
+
+      const dataString =
+        typeof res.data === 'object'
+          ? JSON.stringify(res.data, null, 2)
+          : String(res.data);
+
+      append('aion', `✅ ${label}:\n${dataString}`);
     } catch (err: any) {
       append('system', `❌ ${label} error: ${err.message}`);
     }
