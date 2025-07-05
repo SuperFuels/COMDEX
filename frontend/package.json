@@ -21,8 +21,10 @@
     "date-fns": "^4.1.0",
     "ethers": "^5.8.0",
     "file-saver": "^2.0.5",
+    "framer-motion": "^12.23.0",
     "jspdf": "^3.0.1",
     "lightweight-charts": "^5.0.7",
+    "lucide-react": "^0.525.0",
     "next": "15.3.1",
     "openai": "^5.1.0",
     "react": "^18.2.0",
@@ -31,11 +33,10 @@
     "react-modal": "^3.16.3",
     "react-pdf": "^9.2.1",
     "react-select": "^5.10.1",
+    "react-split": "^2.0.14",
     "recharts": "^2.15.3",
     "siwe": "^3.0.0",
-    "web3": "^4.16.0",
-    "lucide-react": "^0.525.0",
-    "framer-motion": "^12.23.0"
+    "web3": "^4.16.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
@@ -44,6 +45,7 @@
     "@types/react": "^18.0.38",
     "@types/react-dom": "^18.0.11",
     "@types/react-select": "^5.0.0",
+    "@types/react-split-pane": "^0.1.67",
     "autoprefixer": "^10.4.21",
     "eslint": "^9",
     "eslint-config-next": "15.3.1",
