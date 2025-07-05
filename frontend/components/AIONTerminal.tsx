@@ -1,7 +1,11 @@
 import React, { useEffect, useState, FormEvent } from "react";
-import { TraitMap, Awareness } from "../../types";
+import { TraitMap, Awareness } from "@/types";
 
-export default function AIONTerminal() {
+interface AIONTerminalProps {
+  side?: "left" | "right";
+}
+
+export default function AIONTerminal({ side }: AIONTerminalProps) {
   const [prompt, setPrompt] = useState("");
   const [response, setResponse] = useState("");
   const [loading, setLoading] = useState(false);
@@ -16,7 +20,9 @@ export default function AIONTerminal() {
     try {
       const res = await fetch(`${API_BASE}${path}`);
       const data = await res.json();
-      setResponse(`✅ ${label}:\n\n${extract(data)}`);
+      setResponse(`✅ ${label}:
+
+${extract(data)}`);
     } catch {
       setResponse(`❌ Failed to fetch ${label}`);
     }
@@ -34,7 +40,9 @@ export default function AIONTerminal() {
         body: JSON.stringify({ prompt }),
       });
       const data = await res.json();
-      setResponse(`💬 AION:\n\n${data.reply || "No reply."}`);
+      setResponse(`💬 AION:
+
+${data.reply || "No reply."}`);
     } catch {
       setResponse("❌ AION error: Backend unreachable.");
     } finally {
@@ -77,7 +85,9 @@ export default function AIONTerminal() {
         body: JSON.stringify({ trigger: "manual" }),
       });
       const data = await res.json();
-      setResponse(`✅ Dream Result:\n\n${data.result || data.message || "Dream complete."}`);
+      setResponse(`✅ Dream Result:
+
+${data.result || data.message || "Dream complete."}`);
     } catch {
       setResponse("❌ Dream scheduler error: Could not reach backend.");
     }
@@ -88,7 +98,9 @@ export default function AIONTerminal() {
     try {
       const res = await fetch(`${API_BASE}/aion/test-game-dream`, { method: "POST" });
       const data = await res.json();
-      setResponse(`🎮 Game Dream:\n\n${data.dream || "No dream returned."}`);
+      setResponse(`🎮 Game Dream:
+
+${data.dream || "No dream returned."}`);
     } catch {
       setResponse("❌ Error triggering game dream.");
     } finally {
@@ -97,7 +109,7 @@ export default function AIONTerminal() {
   };
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className={`flex flex-col h-screen ${side === "left" ? "bg-gray-50" : "bg-gray-100"}`}>
       <div className="flex-1 grid grid-cols-2 gap-2 p-4">
         {/* LEFT: Terminal Output */}
         <div className="border rounded p-4 bg-white whitespace-pre-wrap text-sm font-mono overflow-y-auto">

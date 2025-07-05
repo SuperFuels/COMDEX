@@ -1,7 +1,6 @@
 // frontend/types/index.ts
 // ────────────────────────────────────────────────────────────────────────────
-// This file defines the shape of a “Deal” exactly as your backend returns it.
-// Adjust field names/types if your API returns something different.
+// Shared types across COMDEX + AION UI
 // ────────────────────────────────────────────────────────────────────────────
 
 export interface Deal {
@@ -14,4 +13,13 @@ export interface Deal {
   supplier_wallet_address: string | null;
   created_at: string;
   // (Add any other fields your API returns here)
+}
+
+export interface TraitMap {
+  [trait: string]: number; // e.g. { "curiosity": 0.8 }
+}
+
+export interface Awareness {
+  summary: string;
+  context?: string;
 }
