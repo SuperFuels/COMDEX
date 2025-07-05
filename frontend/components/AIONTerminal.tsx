@@ -1,4 +1,3 @@
-// components/AIONTerminal.tsx
 import React, { useState } from 'react';
 import styles from '@/styles/AIONDashboard.module.css';
 
@@ -7,8 +6,9 @@ interface AIONTerminalProps {
 }
 
 export default function AIONTerminal({ side }: AIONTerminalProps) {
-  const [input, setInput] = useState('');
-  const [output, setOutput] = useState(side === 'left' ? 'Awaiting command...' : 'Ask me something...');
+  const [output, setOutput] = useState(
+    side === 'left' ? 'Awaiting command...' : 'No response from AION.'
+  );
   const [loading, setLoading] = useState(false);
 
   const sendCommand = async (prompt: string) => {
@@ -30,26 +30,29 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
     }
   };
 
-  const handleAsk = () => {
-    sendCommand(input);
-    setInput('');
-  };
+  // Footer ask handler if wired externally
+  React.useEffect(() => {
+    if (side === 'right') {
+      const askBtn = document.getElementById('aion-footer-ask');
+      const inputBox = document.getElementById('aion-footer-input') as HTMLInputElement;
+      if (askBtn && inputBox) {
+        askBtn.onclick = () => {
+          const prompt = inputBox.value;
+          inputBox.value = '';
+          sendCommand(prompt);
+        };
+        inputBox.onkeydown = (e: KeyboardEvent) => {
+          if (e.key === 'Enter') {
+            askBtn.click();
+          }
+        };
+      }
+    }
+  }, [side]);
 
   return (
     <div className={styles.terminalWrapper}>
-      <div className={styles.terminalOutput}>{output}</div>
-      <div className={styles.terminalControls}>
-        <input
-          className={styles.promptInput}
-          value={input}
-          placeholder="Type your command..."
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && handleAsk()}
-        />
-        <button onClick={handleAsk} className={styles.askButton} disabled={loading}>
-          Ask
-        </button>
-      </div>
+      <div className={styles.terminalOutput}>{loading ? 'Loading...' : output}</div>
     </div>
   );
 }
