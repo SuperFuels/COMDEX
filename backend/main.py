@@ -99,6 +99,7 @@ from backend.routes.aion_game          import router as aion_game_router
 from backend.routes.game_event         import router as game_event_router
 from backend.routes.skill              import router as skill_router
 from backend.routes.aion_strategy_plan import router as strategy_plan_router
+from backend.routes import aion_prompt
 
 # ── 12) Import standalone routers from backend.api (if used)
 from backend.api.aion.status           import router as status_router
@@ -139,6 +140,7 @@ app.include_router(api)
 app.include_router(aion_grid_progress_router)
 app.include_router(status_router, prefix="/api")
 app.include_router(grid_progress_router, prefix="/api")
+app.include_router(aion_prompt.router)
 
 # ── 16) Serve uploaded images
 app.mount("/uploaded_images", StaticFiles(directory="uploaded_images"), name="uploaded_images")
