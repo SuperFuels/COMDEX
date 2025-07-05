@@ -1,0 +1,62 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.split {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.leftPane, .rightPane {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.visualizer {
+  padding: 1rem;
+  border-bottom: 1px solid #ccc;
+}
+
+.logBox {
+  flex: 1;
+  background: black;
+  color: #00ffcc;
+  font-family: monospace;
+  padding: 0.5rem;
+  overflow-y: auto;
+  white-space: pre-wrap;
+}
+
+.logLine {
+  margin-bottom: 0.25rem;
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background: #f9f9f9;
+  border-top: 1px solid #ccc;
+}
+
+.footerLeft button {
+  margin-right: 0.5rem;
+}
+
+.footerRight {
+  display: flex;
+  align-items: center;
+}
+
+.inputBar {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-family: monospace;
+}
