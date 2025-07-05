@@ -4,7 +4,7 @@ import styles from '@/styles/AIONTerminal.module.css';
 export default function AIONTerminal() {
   const [input, setInput] = useState('');
   const [response, setResponse] = useState('');
-  const [commandLog, setCommandLog] = useState([]);
+  const [commandLog, setCommandLog] = useState<string[]>([]); // ✅ Fix: Set type
   const [leftOutput, setLeftOutput] = useState('Awaiting command...');
   const [rightOutput, setRightOutput] = useState('Ask me something...');
 
@@ -29,7 +29,7 @@ export default function AIONTerminal() {
     setInput('');
   };
 
-  const handleKeyDown = (e) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') handleAsk();
   };
 
