@@ -224,7 +224,8 @@ export default function AIONTerminal() {
             <>
               <p>Risk: {awareness.current_risk}</p>
               <p>
-                Impact Summary: ✅ {awareness.recent_summary.positive} / ⚪ {awareness.recent_summary.neutral} / ❌{" "}
+                Impact Summary: ✅ {awareness.recent_summary.positive} / ⚪{" "}
+                {awareness.recent_summary.neutral} / ❌{" "}
                 {awareness.recent_summary.negative}
               </p>
             </>

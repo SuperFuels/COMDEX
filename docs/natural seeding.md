@@ -38,6 +38,62 @@ You’re not just building a single AI — you’re crafting a modular, learning
 
 ⸻
 
+
+Feature
+Status
+🔁 Boot Skill button → calls /aion/boot-skill and refreshes boot skills
+✅ Implemented
+🪞 Reflect Skill button → calls /aion/skill-reflect
+✅ Implemented
+🌙 Run Dream → calls /run-dream with "manual" trigger
+✅ Implemented
+🎮 Game Dream → calls /aion/test-game-dream and stores result
+✅ Implemented
+🧬 Identity module → shows description and traits
+✅ Implemented
+🧠 Awareness module → shows risk and impact summary
+✅ Implemented
+🎯 Goal fetch → from /aion/goal
+✅ Implemented
+🚀 Boot skills list → from /aion/boot-skills
+✅ Implemented
+💬 Prompt submission → sends to /aion with response shown cleanly
+✅ Implemented
+🔁 All data fetched on load via useEffect
+✅ Implemented
+💄 Styling & layout matching your screenshots
+✅ Implemented
+
+
+🧠 Memory Engine
+Stores long-term memory (skills, dreams, goals)
+Implicitly used in dreams/reflections
+🧪 DreamCore
+Reflects on memory, creates insights + milestones
+/run-dream, /aion/test-game-dream
+🚀 Bootloader
+Queued skills waiting to be learned
+/aion/boot-skills, /aion/boot-skill
+🪞 Skill Reflection
+Reflects on a learned skill (stores feedback)
+/aion/skill-reflect
+🎯 Goal Engine
+Tracks and updates internal goals
+/aion/goal
+🧬 Identity Engine
+Describes who AION thinks it is
+/aion/identity
+👁️ Situational Engine
+Tracks risk and world interaction impact
+/aion/situation
+📊 Status Summary
+Full snapshot of current AION state
+/aion/status
+💬 Main Prompt Engine
+GPT-powered LLM replies to direct prompts
+/aion
+
+
 🔗 So yes, you need:
 
 ✅ 1. matrix_bootloader.json to contain:

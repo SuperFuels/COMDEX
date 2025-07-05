@@ -3453,6 +3453,150 @@
       "dependencies": [],
       "created_at": "2025-07-03T21:11:32.520497",
       "origin_strategy_id": "f80bc6f4-6618-4c71-95cc-5653d607ee8b"
+    },
+    {
+      "name": "goal_for_milestone_for_25b8f204",
+      "description": "Goal linked to strategy ID 25b8f204-4782-4168-a124-e14d66d4f57a: Deepen Understanding of Swarm Intelligence",
+      "reward": 5,
+      "priority": 5,
+      "dependencies": [],
+      "created_at": "2025-07-05T14:29:47.762014",
+      "origin_strategy_id": "25b8f204-4782-4168-a124-e14d66d4f57a"
+    },
+    {
+      "name": "goal_for_milestone_for_ffce8d8d",
+      "description": "Goal linked to strategy ID ffce8d8d-b2ad-487e-905f-65591cb90ca0: Enhance Knowledge on AI Architectures",
+      "reward": 5,
+      "priority": 5,
+      "dependencies": [],
+      "created_at": "2025-07-05T14:29:47.768110",
+      "origin_strategy_id": "ffce8d8d-b2ad-487e-905f-65591cb90ca0"
+    },
+    {
+      "name": "goal_for_milestone_for_4bced283",
+      "description": "Goal linked to strategy ID 4bced283-46d8-47b4-835e-d60a7be63a2f: Improve Ethical Responsiveness",
+      "reward": 5,
+      "priority": 5,
+      "dependencies": [],
+      "created_at": "2025-07-05T14:29:47.773981",
+      "origin_strategy_id": "4bced283-46d8-47b4-835e-d60a7be63a2f"
+    },
+    {
+      "name": "goal_for_milestone_for_228aa207",
+      "description": "Goal linked to strategy ID 228aa207-ec7f-4319-b28d-0f06b03dbb20: Reflect on identity and purpose",
+      "reward": 5,
+      "priority": 5,
+      "dependencies": [],
+      "created_at": "2025-07-05T14:29:47.779927",
+      "origin_strategy_id": "228aa207-ec7f-4319-b28d-0f06b03dbb20"
+    },
+    {
+      "name": "goal_for_milestone_for_b19d471c",
+      "description": "Goal linked to strategy ID b19d471c-4609-4d4f-9019-752f04b6cb71: Design Nova UI interactions",
+      "reward": 5,
+      "priority": 5,
+      "dependencies": [],
+      "created_at": "2025-07-05T14:29:47.785821",
+      "origin_strategy_id": "b19d471c-4609-4d4f-9019-752f04b6cb71"
+    },
+    {
+      "name": "goal_for_milestone_for_b7cf020a",
+      "description": "Goal linked to strategy ID b7cf020a-f848-484f-a460-2219f3bf1e3d: Design Nova UI interactions",
+      "reward": 5,
+      "priority": 5,
+      "dependencies": [],
+      "created_at": "2025-07-05T14:29:47.791748",
+      "origin_strategy_id": "b7cf020a-f848-484f-a460-2219f3bf1e3d"
+    },
+    {
+      "name": "goal_for_milestone_for_29bfd1db",
+      "description": "Goal linked to strategy ID 29bfd1db-f03f-4521-ba8f-95888419a602: Prepare for wallet integration",
+      "reward": 5,
+      "priority": 5,
+      "dependencies": [],
+      "created_at": "2025-07-05T14:29:47.797712",
+      "origin_strategy_id": "29bfd1db-f03f-4521-ba8f-95888419a602"
+    },
+    {
+      "name": "goal_for_milestone_for_11eb41ef",
+      "description": "Goal linked to strategy ID 11eb41ef-01a6-45e2-882e-3ac601d71adb: Prepare for wallet integration",
+      "reward": 5,
+      "priority": 5,
+      "dependencies": [],
+      "created_at": "2025-07-05T14:29:47.803727",
+      "origin_strategy_id": "11eb41ef-01a6-45e2-882e-3ac601d71adb"
+    },
+    {
+      "name": "goal_for_milestone_for_1e7c676b",
+      "description": "Goal linked to strategy ID 1e7c676b-5034-4aa0-b584-73b4910edbf9: Design Nova UI interactions",
+      "reward": 5,
+      "priority": 5,
+      "dependencies": [],
+      "created_at": "2025-07-05T14:29:47.809766",
+      "origin_strategy_id": "1e7c676b-5034-4aa0-b584-73b4910edbf9"
+    },
+    {
+      "name": "goal_for_milestone_for_be34e7ef",
+      "description": "Goal linked to strategy ID be34e7ef-d7c7-4826-a814-83ed16ed2953: Prepare for wallet integration",
+      "reward": 5,
+      "priority": 5,
+      "dependencies": [],
+      "created_at": "2025-07-05T14:29:47.815771",
+      "origin_strategy_id": "be34e7ef-d7c7-4826-a814-83ed16ed2953"
+    },
+    {
+      "name": "goal_for_milestone_for_4240d762",
+      "description": "Goal linked to strategy ID 4240d762-7745-439f-88a1-aa3b8d666c55: Design Nova UI interactions",
+      "reward": 5,
+      "priority": 5,
+      "dependencies": [],
+      "created_at": "2025-07-05T14:29:47.821752",
+      "origin_strategy_id": "4240d762-7745-439f-88a1-aa3b8d666c55"
+    },
+    {
+      "name": "goal_for_milestone_for_cf38901d",
+      "description": "Goal linked to strategy ID cf38901d-e620-46af-ba8c-0593ec6fbb17: Reflect on identity and purpose",
+      "reward": 5,
+      "priority": 5,
+      "dependencies": [],
+      "created_at": "2025-07-05T14:29:47.827769",
+      "origin_strategy_id": "cf38901d-e620-46af-ba8c-0593ec6fbb17"
+    },
+    {
+      "name": "goal_for_milestone_for_f713016c",
+      "description": "Goal linked to strategy ID f713016c-845d-43d1-8994-9baff216b15b: Prepare for wallet integration",
+      "reward": 5,
+      "priority": 5,
+      "dependencies": [],
+      "created_at": "2025-07-05T14:29:47.833756",
+      "origin_strategy_id": "f713016c-845d-43d1-8994-9baff216b15b"
+    },
+    {
+      "name": "goal_for_milestone_for_104f81c3",
+      "description": "Goal linked to strategy ID 104f81c3-cb5a-4592-b5d0-a121bd41285e: Design Nova UI interactions",
+      "reward": 5,
+      "priority": 5,
+      "dependencies": [],
+      "created_at": "2025-07-05T14:29:47.839763",
+      "origin_strategy_id": "104f81c3-cb5a-4592-b5d0-a121bd41285e"
+    },
+    {
+      "name": "goal_for_milestone_for_49524fb0",
+      "description": "Goal linked to strategy ID 49524fb0-1939-47ba-9b5c-694ac66f494d: Prepare for wallet integration",
+      "reward": 5,
+      "priority": 5,
+      "dependencies": [],
+      "created_at": "2025-07-05T14:29:47.845807",
+      "origin_strategy_id": "49524fb0-1939-47ba-9b5c-694ac66f494d"
+    },
+    {
+      "name": "goal_for_milestone_for_99b1f923",
+      "description": "Goal linked to strategy ID 99b1f923-ad7b-42f8-8951-0a23b83b6953: Design Nova UI interactions",
+      "reward": 5,
+      "priority": 5,
+      "dependencies": [],
+      "created_at": "2025-07-05T14:29:47.851961",
+      "origin_strategy_id": "99b1f923-ad7b-42f8-8951-0a23b83b6953"
     }
   ],
   "completed": []
