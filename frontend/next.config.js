@@ -18,7 +18,8 @@ const nextConfig = {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
   },
 
-  // ❌ DO NOT use output: 'export' — disables API routes and SSR
+  // ✅ Enable static export mode for Docker copy to work
+  output: 'export',
 };
 
 module.exports = nextConfig;
