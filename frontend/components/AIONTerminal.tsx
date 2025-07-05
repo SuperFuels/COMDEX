@@ -46,10 +46,21 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
     setDropdownOpen(false);
   };
 
-  // ✅ Inject boot message only once for the left terminal
+  // ✅ Inject boot message only once for the left terminal (and never duplicate)
   useEffect(() => {
-    if (side === 'left' && messages.length === 0) {
-      callEndpoint('', `🟢 Booting AION Terminal...\nProvide me with an update on your overall progress & how you are feeling.`);
+    if (
+      side === 'left' &&
+      messages.length === 0 &&
+      !messages.some((msg: any) =>
+        typeof msg === 'string'
+          ? msg.includes('Booting AION Terminal')
+          : msg?.content?.includes('Booting AION Terminal')
+      )
+    ) {
+      callEndpoint(
+        '',
+        `🟢 Booting AION Terminal...\nProvide me with an update on your overall progress & how you are feeling.`
+      );
     }
   }, [side, messages.length]);
 
