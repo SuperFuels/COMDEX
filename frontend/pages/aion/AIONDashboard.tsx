@@ -3,9 +3,6 @@
 import React, { useEffect, useState } from "react";
 import useAuthRedirect from '@/hooks/useAuthRedirect';
 
-// Enforce admin-only access
-useAuthRedirect("admin");
-
 type Milestone = {
   name: string;
   timestamp: string;
@@ -35,6 +32,7 @@ type LearnedSkill = {
 };
 
 export default function AIONDashboard() {
+  // ✅ Correctly placed inside the component
   useAuthRedirect("admin");
 
   const [status, setStatus] = useState<{
@@ -116,23 +114,15 @@ export default function AIONDashboard() {
         <h2 className="text-2xl font-semibold mb-2">Status</h2>
         {status ? (
           <>
-            <p>
-              <strong>Phase:</strong> {status.phase}
-            </p>
-            <p>
-              <strong>Unlocked Modules:</strong> {status.unlocked.join(", ")}
-            </p>
-            <p>
-              <strong>Locked Modules:</strong> {status.locked.join(", ")}
-            </p>
+            <p><strong>Phase:</strong> {status.phase}</p>
+            <p><strong>Unlocked Modules:</strong> {status.unlocked.join(", ")}</p>
+            <p><strong>Locked Modules:</strong> {status.locked.join(", ")}</p>
             <h3 className="mt-4 text-xl font-semibold">Milestones</h3>
             <ul className="list-disc list-inside ml-4 space-y-2">
               {status.milestones.map((m, i) => (
                 <li key={i}>
-                  <strong>{m.name}</strong> — {" "}
-                  <span className="text-gray-500">
-                    {new Date(m.timestamp).toLocaleString()}
-                  </span>
+                  <strong>{m.name}</strong> —{" "}
+                  <span className="text-gray-500">{new Date(m.timestamp).toLocaleString()}</span>
                   {m.dream_excerpt && (
                     <p className="italic text-gray-600 mt-1">{m.dream_excerpt}</p>
                   )}
@@ -192,7 +182,7 @@ export default function AIONDashboard() {
           <ul className="list-disc list-inside ml-4 space-y-2">
             {learnedSkills.map((skill, i) => (
               <li key={i}>
-                <strong>{skill.title}</strong> [{skill.status}] — Learned on: {" "}
+                <strong>{skill.title}</strong> [{skill.status}] — Learned on:{" "}
                 {new Date(skill.learned_on).toLocaleString()}
                 <br />
                 Tags: {skill.tags.join(", ")}
