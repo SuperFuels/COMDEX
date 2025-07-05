@@ -1,104 +1,115 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 
-type Side = 'left' | 'right';
-
 interface AIONTerminalProps {
-  side: Side;
+  side: 'left' | 'right';
 }
 
-const AIONTerminal: React.FC<AIONTerminalProps> = ({ side }) => {
+export default function AIONTerminal({ side }: AIONTerminalProps) {
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  const terminalStyle =
-    side === 'left'
-      ? 'bg-gray-100 p-4 rounded-md overflow-y-auto h-96'
-      : 'bg-gray-100 p-4 rounded-md overflow-y-auto h-96';
-
-  const label = side === 'left' ? 'left' : 'right';
-
-  const print = (text: string) => {
-    setMessages((prev) => [...prev, text]);
+  const appendMessage = (msg: string) => {
+    setMessages((prev) => [...prev, msg]);
   };
 
-  const fetchData = async (endpoint: string, label: string) => {
-    try {
-      const res = await axios.get(`/api/aion/${endpoint}`);
-      print(`🧠 AION (${label}):\n${JSON.stringify(res.data, null, 2)}`);
-    } catch (err) {
-      print(`❌ AION error: ${err}`);
-    }
-  };
-
-  const handleSend = async () => {
+  const sendPrompt = async () => {
     if (!input.trim()) return;
-    print(`💬 You: ${input}`);
+    appendMessage(`🗨️ You: ${input}`);
+    setLoading(true);
+
     try {
       const res = await axios.post('/api/aion/prompt', { prompt: input });
-      print(`🤖 AION:\n${res.data.response || 'No reply.'}`);
-    } catch (err) {
-      print(`❌ AION error: ${err}`);
+      appendMessage(`🤖 AION: ${res.data.reply || '(no response)'}`);
+    } catch (err: any) {
+      appendMessage(`❌ AION error: ${err.message || 'Unknown error'}`);
     }
+
+    setLoading(false);
     setInput('');
   };
 
-  // 📦 Listen for footer button events
-  useEffect(() => {
-    if (side !== 'left') return;
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') sendPrompt();
+  };
 
-    const listener = (e: Event) => {
-      const detail = (e as CustomEvent).detail;
-      switch (detail) {
-        case 'status':
-        case 'goal':
-        case 'identity':
-        case 'situation':
-        case 'boot-skill':
-        case 'reflect':
-        case 'run-dream':
-        case 'game-dream':
-          fetchData(detail, detail);
-          break;
-        default:
-          print(`⚠️ Unknown command: ${detail}`);
-      }
-    };
-
-    window.addEventListener('aion-command', listener);
-    return () => window.removeEventListener('aion-command', listener);
-  }, [side]);
+  const callEndpoint = async (endpoint: string, label: string) => {
+    appendMessage(`📡 Fetching ${label}...`);
+    try {
+      const res = await axios.get(endpoint);
+      appendMessage(`✅ ${label}: ${JSON.stringify(res.data)}`);
+    } catch (err: any) {
+      appendMessage(`❌ ${label} error: ${err.message}`);
+    }
+  };
 
   return (
-    <div className="w-full">
-      <div className="text-xs italic text-gray-500 mb-1">Terminal Side: {label}</div>
-      <div className="flex space-x-2 mb-2">
+    <div className="flex flex-col h-full">
+      {/* Terminal Header */}
+      <div className="text-xs text-gray-500 italic p-2">
+        Terminal Side: <strong>{side}</strong>
+      </div>
+
+      {/* Input Field */}
+      <div className="flex px-2 gap-2 mb-2">
         <input
+          className="flex-1 border border-gray-300 px-3 py-1 rounded text-sm"
+          placeholder="Ask AION something..."
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          className="flex-1 px-3 py-2 border border-gray-300 rounded"
-          placeholder="hello aion"
+          onKeyDown={handleKeyDown}
         />
         <button
-          onClick={handleSend}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          onClick={sendPrompt}
+          disabled={loading}
+          className="bg-blue-600 text-white px-4 py-1 rounded text-sm"
         >
           Ask
         </button>
       </div>
-      <div className={terminalStyle}>
+
+      {/* Output */}
+      <div className="flex-1 bg-gray-50 p-3 rounded overflow-y-auto text-sm whitespace-pre-wrap">
         {messages.length === 0 ? (
           <p className="text-gray-400">No reply.</p>
         ) : (
-          messages.map((msg, i) => (
-            <pre key={i} className="whitespace-pre-wrap text-sm mb-2">
-              {msg}
-            </pre>
-          ))
+          messages.map((msg, idx) => <div key={idx}>{msg}</div>)
         )}
       </div>
+
+      {/* Inline Actions (optional for side="left" only or both) */}
+      {side === 'left' && (
+        <div className="mt-2 flex flex-wrap gap-2 p-2 text-xs">
+          <button onClick={() => callEndpoint('/api/aion/status', 'Status')} className="bg-blue-600 text-white px-3 py-1 rounded">
+            Status
+          </button>
+          <button onClick={() => callEndpoint('/api/aion/goal', 'Goal')} className="bg-blue-600 text-white px-3 py-1 rounded">
+            Goal
+          </button>
+          <button onClick={() => callEndpoint('/api/aion/identity', 'Identity')} className="bg-blue-600 text-white px-3 py-1 rounded">
+            Identity
+          </button>
+          <button onClick={() => callEndpoint('/api/aion/situation', 'Situation')} className="bg-blue-600 text-white px-3 py-1 rounded">
+            Situation
+          </button>
+          <button onClick={() => callEndpoint('/api/aion/boot-skill', 'Boot Skill')} className="bg-purple-600 text-white px-3 py-1 rounded">
+            Boot Skill
+          </button>
+          <button onClick={() => callEndpoint('/api/aion/skill-reflect', 'Reflect')} className="bg-yellow-400 text-white px-3 py-1 rounded">
+            Reflect
+          </button>
+          <button onClick={() => callEndpoint('/api/aion/run-dream', 'Run Dream')} className="bg-green-600 text-white px-3 py-1 rounded">
+            Run Dream
+          </button>
+          <button onClick={() => callEndpoint('/api/aion/game-dream', 'Game Dream')} className="bg-indigo-600 text-white px-3 py-1 rounded">
+            Game Dream
+          </button>
+          <button disabled className="border border-gray-400 px-3 py-1 rounded text-gray-500">
+            Dream Visualizer
+          </button>
+        </div>
+      )}
     </div>
   );
-};
-
-export default AIONTerminal;
+}
