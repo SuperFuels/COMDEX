@@ -1,5 +1,4 @@
 import React, { useEffect, useState, FormEvent } from "react";
-import { TraitMap, Awareness } from "@/types";
 
 interface AIONTerminalProps {
   side?: "left" | "right";
@@ -15,14 +14,16 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
 
   const API_BASE = process.env.NEXT_PUBLIC_API_URL || "";
 
-  const fetchAndSet = async (path: string, label: string, extract: (data: any) => string) => {
+  const fetchAndSet = async (
+    path: string,
+    label: string,
+    extract: (data: any) => string
+  ) => {
     setResponse(`⏳ Fetching ${label}...`);
     try {
       const res = await fetch(`${API_BASE}${path}`);
       const data = await res.json();
-      setResponse(`✅ ${label}:
-
-${extract(data)}`);
+      setResponse(`✅ ${label}:\n\n${extract(data)}`);
     } catch {
       setResponse(`❌ Failed to fetch ${label}`);
     }
@@ -40,9 +41,7 @@ ${extract(data)}`);
         body: JSON.stringify({ prompt }),
       });
       const data = await res.json();
-      setResponse(`💬 AION:
-
-${data.reply || "No reply."}`);
+      setResponse(`💬 AION:\n\n${data.reply || "No reply."}`);
     } catch {
       setResponse("❌ AION error: Backend unreachable.");
     } finally {
@@ -55,7 +54,9 @@ ${data.reply || "No reply."}`);
     try {
       const res = await fetch(`${API_BASE}/aion/boot-skill`, { method: "POST" });
       const data = await res.json();
-      setResponse(`📦 Boot Skill: ${data.message || data.title || "No skill loaded."}`);
+      setResponse(
+        `📦 Boot Skill: ${data.message || data.title || "No skill loaded."}`
+      );
     } catch {
       setResponse("❌ Error loading skill.");
     } finally {
@@ -66,9 +67,13 @@ ${data.reply || "No reply."}`);
   const handleSkillReflect = async () => {
     setReflecting(true);
     try {
-      const res = await fetch(`${API_BASE}/aion/skill-reflect`, { method: "POST" });
+      const res = await fetch(`${API_BASE}/aion/skill-reflect`, {
+        method: "POST",
+      });
       const data = await res.json();
-      setResponse(`🪞 Reflection: ${data.message || data.result || "No reflection result."}`);
+      setResponse(
+        `🪞 Reflection: ${data.message || data.result || "No reflection result."}`
+      );
     } catch {
       setResponse("❌ Reflection failed.");
     } finally {
@@ -85,9 +90,9 @@ ${data.reply || "No reply."}`);
         body: JSON.stringify({ trigger: "manual" }),
       });
       const data = await res.json();
-      setResponse(`✅ Dream Result:
-
-${data.result || data.message || "Dream complete."}`);
+      setResponse(
+        `✅ Dream Result:\n\n${data.result || data.message || "Dream complete."}`
+      );
     } catch {
       setResponse("❌ Dream scheduler error: Could not reach backend.");
     }
@@ -96,11 +101,11 @@ ${data.result || data.message || "Dream complete."}`);
   const handleGameDreamTrigger = async () => {
     setGameDreamLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/aion/test-game-dream`, { method: "POST" });
+      const res = await fetch(`${API_BASE}/aion/test-game-dream`, {
+        method: "POST",
+      });
       const data = await res.json();
-      setResponse(`🎮 Game Dream:
-
-${data.dream || "No dream returned."}`);
+      setResponse(`🎮 Game Dream:\n\n${data.dream || "No dream returned."}`);
     } catch {
       setResponse("❌ Error triggering game dream.");
     } finally {
@@ -109,14 +114,18 @@ ${data.dream || "No dream returned."}`);
   };
 
   return (
-    <div className={`flex flex-col h-screen ${side === "left" ? "bg-gray-50" : "bg-gray-100"}`}>
+    <div
+      className={`flex flex-col h-full ${
+        side === "left" ? "bg-gray-50" : "bg-gray-100"
+      }`}
+    >
       <div className="flex-1 grid grid-cols-2 gap-2 p-4">
         {/* LEFT: Terminal Output */}
         <div className="border rounded p-4 bg-white whitespace-pre-wrap text-sm font-mono overflow-y-auto">
           {response || "Awaiting command..."}
         </div>
 
-        {/* RIGHT: Prompt Input */}
+        {/* RIGHT: Prompt Input and Controls */}
         <div className="flex flex-col">
           <form onSubmit={handleSubmit} className="flex gap-2 mb-3">
             <input
@@ -136,18 +145,91 @@ ${data.dream || "No dream returned."}`);
           </form>
 
           <div className="flex flex-wrap gap-2 mb-2">
-            <button onClick={() => fetchAndSet("/aion/status", "Status", d => `Unlocked: ${d.unlocked?.join(", ") || "-"}\nLocked: ${d.locked?.join(", ") || "-"}`)} className="bg-blue-500 text-white px-3 py-1 rounded">Status</button>
-            <button onClick={() => fetchAndSet("/aion/goal", "Goal", d => d.goal || "No goal")} className="bg-blue-500 text-white px-3 py-1 rounded">Goal</button>
-            <button onClick={() => fetchAndSet("/aion/identity", "Identity", d => `${d.description}\nTraits: ${JSON.stringify(d.personality_traits, null, 2)}`)} className="bg-blue-500 text-white px-3 py-1 rounded">Identity</button>
-            <button onClick={() => fetchAndSet("/aion/situation", "Situation", d => JSON.stringify(d.awareness, null, 2))} className="bg-blue-500 text-white px-3 py-1 rounded">Situation</button>
+            <button
+              onClick={() =>
+                fetchAndSet(
+                  "/aion/status",
+                  "Status",
+                  (d) =>
+                    `Unlocked: ${d.unlocked?.join(", ") || "-"}\nLocked: ${
+                      d.locked?.join(", ") || "-"
+                    }`
+                )
+              }
+              className="bg-blue-500 text-white px-3 py-1 rounded"
+            >
+              Status
+            </button>
+            <button
+              onClick={() =>
+                fetchAndSet("/aion/goal", "Goal", (d) => d.goal || "No goal")
+              }
+              className="bg-blue-500 text-white px-3 py-1 rounded"
+            >
+              Goal
+            </button>
+            <button
+              onClick={() =>
+                fetchAndSet(
+                  "/aion/identity",
+                  "Identity",
+                  (d) =>
+                    `${d.description}\nTraits: ${JSON.stringify(
+                      d.personality_traits,
+                      null,
+                      2
+                    )}`
+                )
+              }
+              className="bg-blue-500 text-white px-3 py-1 rounded"
+            >
+              Identity
+            </button>
+            <button
+              onClick={() =>
+                fetchAndSet(
+                  "/aion/situation",
+                  "Situation",
+                  (d) => JSON.stringify(d.awareness, null, 2)
+                )
+              }
+              className="bg-blue-500 text-white px-3 py-1 rounded"
+            >
+              Situation
+            </button>
           </div>
 
           <div className="flex flex-wrap gap-2 mb-2">
-            <button onClick={handleBootSkill} disabled={bootLoading} className="bg-purple-600 text-white px-3 py-1 rounded">{bootLoading ? "Loading..." : "🔁 Boot Skill"}</button>
-            <button onClick={handleSkillReflect} disabled={reflecting} className="bg-yellow-500 text-white px-3 py-1 rounded">{reflecting ? "Reflecting..." : "🪞 Reflect"}</button>
-            <button onClick={handleDreamTrigger} className="bg-green-600 text-white px-3 py-1 rounded">🌙 Run Dream</button>
-            <button onClick={handleGameDreamTrigger} disabled={gameDreamLoading} className="bg-indigo-600 text-white px-3 py-1 rounded">{gameDreamLoading ? "Dreaming..." : "🎮 Game Dream"}</button>
-            <button className="bg-gray-200 px-3 py-1 rounded">Dream Visualizer</button>
+            <button
+              onClick={handleBootSkill}
+              disabled={bootLoading}
+              className="bg-purple-600 text-white px-3 py-1 rounded"
+            >
+              {bootLoading ? "Loading..." : "🔁 Boot Skill"}
+            </button>
+            <button
+              onClick={handleSkillReflect}
+              disabled={reflecting}
+              className="bg-yellow-500 text-white px-3 py-1 rounded"
+            >
+              {reflecting ? "Reflecting..." : "🪞 Reflect"}
+            </button>
+            <button
+              onClick={handleDreamTrigger}
+              className="bg-green-600 text-white px-3 py-1 rounded"
+            >
+              🌙 Run Dream
+            </button>
+            <button
+              onClick={handleGameDreamTrigger}
+              disabled={gameDreamLoading}
+              className="bg-indigo-600 text-white px-3 py-1 rounded"
+            >
+              {gameDreamLoading ? "Dreaming..." : "🎮 Game Dream"}
+            </button>
+            <button className="bg-gray-200 px-3 py-1 rounded">
+              Dream Visualizer
+            </button>
           </div>
         </div>
       </div>
