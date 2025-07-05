@@ -1,67 +1,113 @@
+/* styles/AIONDashboard.module.css */
+
 .dashboardContainer {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background-color: #f9f9f9;
+  background-color: #000;
+  color: #00ff00;
+  font-family: 'Courier New', monospace;
 }
 
-.mainContent {
+.splitView {
+  display: flex;
   flex: 1;
-  display: flex;
-  flex-direction: row;
   overflow: hidden;
-}
-
-.leftPanel {
-  width: 50%;
-  display: flex;
-  flex-direction: column;
-  border-right: 1px solid #ddd;
-  background: #ffffff;
-}
-
-.visualizerSection {
-  padding: 1rem;
-  border-bottom: 1px solid #e5e5e5;
-  background-color: #fff;
-}
-
-.heading {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #222;
-}
-
-.subtitle {
-  font-size: 0.875rem;
-  color: #666;
-}
-
-.divider {
-  width: 1px;
-  background-color: #ccc;
+  position: relative;
 }
 
 .terminalPanel {
   flex: 1;
-  background-color: #ffffff;
-  color: #000000;
+  display: flex;
+  flex-direction: column;
   padding: 1rem;
-  font-family: monospace;
-  font-size: 0.9rem;
   overflow-y: auto;
 }
 
+.divider {
+  width: 6px;
+  background-color: #333;
+  cursor: col-resize;
+  z-index: 10;
+}
+
+.terminalContainer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
 .terminalText {
+  flex: 1;
+  background-color: #000;
+  color: #00ff00;
+  padding: 1rem;
+  border: 1px solid #444;
+  overflow-y: auto;
   white-space: pre-wrap;
+  word-wrap: break-word;
 }
 
 .footerTerminal {
+  background-color: #111;
   padding: 0.75rem;
-  background-color: #ffffff;
-  border-top: 1px solid #ddd;
+  border-top: 1px solid #333;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  gap: 0.5rem;
+  position: sticky;
+  bottom: 0;
+  z-index: 50;
+}
+
+.presetButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.footerButton {
+  background-color: #000;
+  color: #00ff00;
+  border: 1px solid #00ff00;
+  padding: 4px 8px;
+  font-size: 0.75rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.footerButton:hover {
+  background-color: #002200;
+}
+
+.promptRow {
+  display: flex;
+  gap: 0.5rem;
   align-items: center;
-  gap: 1rem;
+}
+
+.promptInput {
+  flex: 1;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  border-radius: 6px;
+  background-color: #000;
+  border: 1px solid #00ff00;
+  color: #00ff00;
+}
+
+.askButton {
+  background-color: #00ff00;
+  color: #000;
+  padding: 6px 12px;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.askButton:hover {
+  background-color: #00dd00;
 }

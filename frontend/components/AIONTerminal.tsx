@@ -1,39 +1,47 @@
-import React, { useState, useEffect } from 'react';
-import styles from '@/styles/AIONTerminal.module.css';
+// components/AIONTerminal.tsx
 
-export default function AIONTerminal() {
+import React, { useState } from 'react';
+import styles from '@/styles/AIONDashboard.module.css';
+
+interface AIONTerminalProps {
+  side: 'left' | 'right';
+}
+
+export default function AIONTerminal({ side }: AIONTerminalProps) {
   const [input, setInput] = useState('');
-  const [response, setResponse] = useState('');
-  const [commandLog, setCommandLog] = useState<string[]>([]); // ✅ Fix: Set type
-  const [leftOutput, setLeftOutput] = useState('Awaiting command...');
-  const [rightOutput, setRightOutput] = useState('Ask me something...');
+  const [output, setOutput] = useState(side === 'left' ? 'Awaiting command...' : 'Ask me something...');
+  const [loading, setLoading] = useState(false);
 
-  const handleAsk = async () => {
-    if (!input.trim()) return;
-    setCommandLog((prev) => [...prev, `> ${input}`]);
-    setLeftOutput(`Sending command: ${input}`);
+  const sendCommand = async (prompt: string) => {
+    if (!prompt.trim()) return;
+    setLoading(true);
+    setOutput(`Sending command: ${prompt}`);
     try {
       const res = await fetch('/api/aion', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: input }),
+        body: JSON.stringify({ prompt }),
       });
       const data = await res.json();
-      const output = data?.response || 'No response from AION.';
-      setRightOutput(output);
-      setResponse(output);
-      setCommandLog((prev) => [...prev, output]);
-    } catch (err) {
-      setRightOutput('Error communicating with AION.');
+      const result = data?.response || 'No response from AION.';
+      setOutput(result);
+    } catch (error) {
+      setOutput('Error communicating with AION.');
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const handleAsk = () => {
+    sendCommand(input);
     setInput('');
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') handleAsk();
   };
 
-  const presetButtons = [
+  const presets = [
     { label: 'Status', cmd: 'Show current status' },
     { label: 'Goal', cmd: 'What is your current goal?' },
     { label: 'Identity', cmd: 'Who are you?' },
@@ -44,39 +52,41 @@ export default function AIONTerminal() {
   ];
 
   return (
-    <div className={styles.terminalWrapper}>
-      <div className={styles.leftTerminal}>
-        <pre className={styles.terminalText}>{leftOutput}</pre>
-      </div>
-      <div className={styles.rightTerminal}>
-        <pre className={styles.terminalText}>{rightOutput}</pre>
-      </div>
-      <div className={styles.footerTerminal}>
-        <div className={styles.presetButtons}>
-          {presetButtons.map(({ label, cmd }) => (
+    <div className={styles.terminalContainer}>
+      <pre className={styles.terminalText}>{output}</pre>
+      {side === 'right' && (
+        <div className={styles.footerTerminal}>
+          <div className={styles.presetButtons}>
+            {presets.map(({ label, cmd }) => (
+              <button
+                key={label}
+                className={styles.footerButton}
+                onClick={() => sendCommand(cmd)}
+                disabled={loading}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          <div className={styles.promptRow}>
+            <input
+              className={styles.promptInput}
+              placeholder="Ask AION something..."
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              disabled={loading}
+            />
             <button
-              key={label}
-              onClick={() => {
-                setInput(cmd);
-                setTimeout(() => handleAsk(), 100);
-              }}
-              className={styles.footerButton}
+              className={styles.askButton}
+              onClick={handleAsk}
+              disabled={loading}
             >
-              {label}
+              Ask
             </button>
-          ))}
+          </div>
         </div>
-        <input
-          className={styles.promptInput}
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="Ask AION something..."
-        />
-        <button onClick={handleAsk} className={styles.askButton}>
-          Ask
-        </button>
-      </div>
+      )}
     </div>
   );
 }
