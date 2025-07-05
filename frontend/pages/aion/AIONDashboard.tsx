@@ -1,156 +1,66 @@
-"use client";
-
-import React, { useEffect, useRef, useState } from "react";
-import useAuthRedirect from "@/hooks/useAuthRedirect";
+import React, { useState } from 'react';
+import AIONTerminal from '@/components/AIONTerminal';
 
 export default function AIONDashboard() {
-  useAuthRedirect("admin");
+  const [leftWidth, setLeftWidth] = useState(400);
+  const [isDragging, setIsDragging] = useState(false);
 
-  const API_BASE = process.env.NEXT_PUBLIC_API_URL || "";
-  const [status, setStatus] = useState<any>(null);
-  const [input, setInput] = useState("");
-  const [output, setOutput] = useState("");
-  const [loading, setLoading] = useState(false);
-  const outputRef = useRef<HTMLDivElement>(null);
+  const handleMouseDown = () => {
+    setIsDragging(true);
+  };
 
-  const fetchStatus = async () => {
-    try {
-      const res = await fetch(`${API_BASE}/aion/status`);
-      const data = await res.json();
-      setStatus(data);
-    } catch (err) {
-      console.error("Failed to fetch status", err);
+  const handleMouseMove = (e: MouseEvent) => {
+    if (isDragging) {
+      const newWidth = Math.max(200, Math.min(e.clientX, window.innerWidth - 300));
+      setLeftWidth(newWidth);
     }
   };
 
-  useEffect(() => {
-    fetchStatus();
-  }, []);
-
-  useEffect(() => {
-    outputRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [output]);
-
-  const sendPrompt = async () => {
-    if (!input.trim()) return;
-    setLoading(true);
-    setOutput("⏳ Thinking...");
-    try {
-      const res = await fetch(`${API_BASE}/aion/prompt`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: input }),
-      });
-      const data = await res.json();
-      setOutput(data.response || "No response.");
-    } catch (err) {
-      console.error(err);
-      setOutput("❌ Error talking to AION.");
-    } finally {
-      setLoading(false);
-      setInput("");
-    }
+  const handleMouseUp = () => {
+    setIsDragging(false);
   };
 
-  const presetPrompts = [
-    "Summarize unlocked skills",
-    "Show goal progress",
-    "Reflect on recent dreams",
-    "List bootloader queue",
-    "What is my current personality profile?",
-  ];
+  React.useEffect(() => {
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDragging]);
 
   return (
-    <div className="flex flex-col h-screen bg-white text-black">
-      {/* Header */}
-      <div className="p-4 border-b bg-gray-50">
-        <h1 className="text-3xl font-bold">🧠 AION Dashboard</h1>
-        <p className="text-sm text-gray-600">Phase: {status?.phase || "Loading..."}</p>
-        <div className="mt-2 text-sm">
-          <strong>Unlocked Modules:</strong>{" "}
-          <span className="text-green-600">{status?.unlocked?.join(", ") || "..."}</span>
-          <br />
-          <strong>Locked Modules:</strong>{" "}
-          <span className="text-red-600">{status?.locked?.join(", ") || "..."}</span>
+    <div className="flex h-screen overflow-hidden">
+      {/* Left Panel: Controls and Endpoints */}
+      <div style={{ width: leftWidth }} className="bg-white p-4 overflow-y-auto border-r">
+        <h2 className="text-xl font-semibold mb-4">🛠️ Controls</h2>
+        <div className="space-y-2">
+          <button className="w-full bg-blue-500 text-white py-2 rounded">Trigger Dream</button>
+          <button className="w-full bg-blue-500 text-white py-2 rounded">Boot Next Skill</button>
+          <button className="w-full bg-blue-500 text-white py-2 rounded">Reflect Skills</button>
+          <button className="w-full bg-blue-500 text-white py-2 rounded">Run Scheduled Dream</button>
+        </div>
+
+        <h2 className="text-xl font-semibold mt-6 mb-4">📡 Endpoints</h2>
+        <div className="space-y-2">
+          <button className="w-full bg-gray-200 py-2 rounded">Summarize unlocked skills</button>
+          <button className="w-full bg-gray-200 py-2 rounded">Show goal progress</button>
+          <button className="w-full bg-gray-200 py-2 rounded">Reflect on recent dreams</button>
+          <button className="w-full bg-gray-200 py-2 rounded">List bootloader queue</button>
+          <button className="w-full bg-gray-200 py-2 rounded">What is my current personality profile?</button>
         </div>
       </div>
 
-      {/* Main content split */}
-      <div className="flex flex-1 overflow-hidden divide-x">
-        {/* Left: Controls */}
-        <div className="w-1/3 p-4 space-y-4 overflow-y-auto">
-          <h2 className="text-xl font-semibold mb-2">🛠️ Controls</h2>
-          <button className="block w-full p-2 bg-blue-600 text-white rounded hover:bg-blue-700" onClick={() => fetch('/api/aion/dream')}>Trigger Dream</button>
-          <button className="block w-full p-2 bg-blue-600 text-white rounded hover:bg-blue-700" onClick={() => fetch('/api/aion/boot-skill')}>Boot Next Skill</button>
-          <button className="block w-full p-2 bg-blue-600 text-white rounded hover:bg-blue-700" onClick={() => fetch('/api/aion/skill-reflect')}>Reflect Skills</button>
-          <button className="block w-full p-2 bg-blue-600 text-white rounded hover:bg-blue-700" onClick={() => fetch('/api/aion/run-dream')}>Run Scheduled Dream</button>
-        </div>
+      {/* Divider */}
+      <div
+        onMouseDown={handleMouseDown}
+        className="w-1 bg-gray-300 cursor-col-resize"
+        style={{ zIndex: 10 }}
+      />
 
-        {/* Right: Terminal & Output */}
-        <div className="flex-1 flex flex-col">
-          <div className="flex-1 p-4 overflow-y-auto">
-            <h2 className="text-xl font-semibold mb-2">🧠 AION Responds</h2>
-            <div className="whitespace-pre-wrap text-gray-800">
-              {loading ? "⏳ Thinking..." : output}
-              <div ref={outputRef} />
-            </div>
-
-            {status?.goals?.length > 0 && (
-              <div className="mt-6">
-                <h3 className="font-semibold text-lg mb-1">🎯 Goals</h3>
-                <ul className="list-disc list-inside text-sm text-gray-700">
-                  {status.goals.map((g: any, idx: number) => (
-                    <li key={idx}>{g.name} — {g.status}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {status?.bootSkills?.length > 0 && (
-              <div className="mt-6">
-                <h3 className="font-semibold text-lg mb-1">🚀 Bootloader Skills</h3>
-                <ul className="list-disc list-inside text-sm text-gray-700">
-                  {status.bootSkills.map((b: any, idx: number) => (
-                    <li key={idx}>{b.name} — {b.status}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
-
-          {/* Terminal input fixed at bottom */}
-          <footer className="w-full bg-black text-white border-t border-gray-800 p-4">
-            <h2 className="text-lg font-semibold mb-2">💬 Terminal</h2>
-            <textarea
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              rows={4}
-              placeholder="Ask AION anything..."
-              className="w-full border p-2 rounded mb-2 text-black resize-none"
-            />
-            <div className="flex items-center space-x-2">
-              <button
-                onClick={sendPrompt}
-                disabled={loading}
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
-              >
-                Send
-              </button>
-              <button onClick={fetchStatus} className="text-sm underline text-gray-300">
-                Refresh Status
-              </button>
-              {presetPrompts.map((p) => (
-                <button
-                  key={p}
-                  onClick={() => setInput(p)}
-                  className="px-3 py-1 text-xs bg-gray-700 rounded hover:bg-gray-600"
-                >
-                  {p}
-                </button>
-              ))}
-            </div>
-          </footer>
-        </div>
+      {/* Right Panel: Terminal only */}
+      <div className="flex-1 h-full">
+        <AIONTerminal />
       </div>
     </div>
   );
