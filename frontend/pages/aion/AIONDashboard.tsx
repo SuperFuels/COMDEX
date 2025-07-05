@@ -1,120 +1,147 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import useAuthRedirect from "@/hooks/useAuthRedirect";
 
 export default function AIONDashboard() {
-  const loading = useAuthRedirect("admin"); // Wait for auth check before rendering
+  useAuthRedirect("admin");
 
   const API_BASE = process.env.NEXT_PUBLIC_API_URL || "";
   const [status, setStatus] = useState<any>(null);
-  const [terminalInput, setTerminalInput] = useState("");
-  const [response, setResponse] = useState("");
-  const [sending, setSending] = useState(false);
+  const [input, setInput] = useState("");
+  const [output, setOutput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const outputRef = useRef<HTMLDivElement>(null);
+
+  const fetchStatus = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/aion/status`);
+      const data = await res.json();
+      setStatus(data);
+    } catch (err) {
+      console.error("Failed to fetch status", err);
+    }
+  };
 
   useEffect(() => {
-    if (!loading) {
-      fetch(`${API_BASE}/aion/status`)
-        .then((res) => res.json())
-        .then(setStatus)
-        .catch(console.error);
-    }
-  }, [loading]);
+    fetchStatus();
+  }, []);
+
+  useEffect(() => {
+    outputRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [output]);
 
   const sendPrompt = async () => {
-    if (!terminalInput.trim()) return;
-    setSending(true);
-    setResponse("Thinking...");
+    if (!input.trim()) return;
+    setLoading(true);
+    setOutput("⏳ Thinking...");
     try {
       const res = await fetch(`${API_BASE}/aion/prompt`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: terminalInput }),
+        body: JSON.stringify({ prompt: input }),
       });
       const data = await res.json();
-      setResponse(data.response || "No response received.");
+      setOutput(data.response || "No response.");
     } catch (err) {
-      setResponse("❌ Error talking to AION.");
       console.error(err);
+      setOutput("❌ Error talking to AION.");
     } finally {
-      setSending(false);
-      setTerminalInput("");
+      setLoading(false);
+      setInput("");
     }
   };
 
-  if (loading) {
-    return (
-      <div className="h-screen flex items-center justify-center text-gray-500 text-lg">
-        ⏳ Loading dashboard...
-      </div>
-    );
-  }
+  const presetPrompts = [
+    "Summarize unlocked skills",
+    "Show goal progress",
+    "Reflect on recent dreams",
+    "List bootloader queue",
+    "What is my current personality profile?",
+  ];
 
   return (
-    <div className="flex flex-col h-screen text-black font-sans bg-white">
+    <div className="flex flex-col h-screen bg-white text-black">
       {/* Header */}
-      <div className="p-4 border-b bg-white">
+      <div className="p-4 border-b bg-gray-50">
         <h1 className="text-3xl font-bold">🧠 AION Dashboard</h1>
         <p className="text-sm text-gray-600">Phase: {status?.phase || "Loading..."}</p>
-        <p>
-          <strong>Unlocked Modules:</strong> {status?.unlocked?.join(", ") || "Loading..."}
-        </p>
-        <p>
-          <strong>Locked Modules:</strong> {status?.locked?.join(", ") || "Loading..."}
-        </p>
+        <div className="mt-2 text-sm">
+          <strong>Unlocked Modules:</strong>{" "}
+          <span className="text-green-600">{status?.unlocked?.join(", ") || "..."}</span>
+          <br />
+          <strong>Locked Modules:</strong>{" "}
+          <span className="text-red-600">{status?.locked?.join(", ") || "..."}</span>
+        </div>
       </div>
 
-      {/* Main Terminal */}
+      {/* Main content */}
       <div className="flex flex-1 overflow-hidden">
-        {/* Input */}
-        <div className="w-1/2 p-4 border-r overflow-y-auto">
-          <h2 className="text-xl font-semibold mb-2">Ask AION</h2>
-          <p className="text-gray-500 text-sm mb-4">Enter any prompt or command below.</p>
+        {/* Left: Terminal Input */}
+        <div className="w-1/2 p-4 border-r flex flex-col">
+          <h2 className="text-xl font-semibold mb-2">Terminal</h2>
           <textarea
-            value={terminalInput}
-            onChange={(e) => setTerminalInput(e.target.value)}
-            placeholder="e.g., What milestones did I unlock this week?"
-            rows={10}
-            className="w-full border p-2 rounded bg-white text-black resize-none"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            rows={8}
+            placeholder="Ask AION anything..."
+            className="w-full border p-2 rounded mb-4 resize-none bg-white"
           />
-        </div>
-
-        {/* Output */}
-        <div className="w-1/2 p-4 overflow-y-auto">
-          <h2 className="text-xl font-semibold mb-2">🧠 AION Says</h2>
-          <div className="whitespace-pre-wrap text-gray-800">
-            {sending ? <p>⏳ Thinking...</p> : <p>{response || "Awaiting input..."}</p>}
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={sendPrompt}
+              disabled={loading}
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+            >
+              Send
+            </button>
+            <button onClick={fetchStatus} className="text-sm underline text-gray-600">
+              Refresh Status
+            </button>
+          </div>
+          <div className="mt-4 space-y-2">
+            {presetPrompts.map((p) => (
+              <button
+                key={p}
+                onClick={() => setInput(p)}
+                className="px-3 py-1 text-sm bg-gray-200 rounded hover:bg-gray-300"
+              >
+                {p}
+              </button>
+            ))}
           </div>
         </div>
-      </div>
 
-      {/* Bottom Bar */}
-      <div className="border-t p-4 flex items-center space-x-2 bg-gray-100">
-        <input
-          type="text"
-          placeholder="Type a command for AION..."
-          value={terminalInput}
-          onChange={(e) => setTerminalInput(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && sendPrompt()}
-          className="flex-1 border px-3 py-2 rounded text-black"
-        />
-        <button
-          onClick={sendPrompt}
-          disabled={sending}
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
-        >
-          Send
-        </button>
-        <div className="flex space-x-2">
-          {["Sales", "Marketing", "Operations", "Shipments", "Financials", "Clients"].map((ctx) => (
-            <button
-              key={ctx}
-              onClick={() => setTerminalInput(`Focus on ${ctx.toLowerCase()} this week.`)}
-              className="px-2 py-1 text-sm bg-gray-300 rounded hover:bg-gray-400"
-            >
-              {ctx}
-            </button>
-          ))}
+        {/* Right: Output */}
+        <div className="w-1/2 p-4 overflow-y-auto">
+          <h2 className="text-xl font-semibold mb-2">🧠 AION Responds</h2>
+          <div className="whitespace-pre-wrap text-gray-800">
+            {loading ? "⏳ Thinking..." : output}
+            <div ref={outputRef} />
+          </div>
+
+          {/* Optionally: display other components like goals, skills, etc. */}
+          {status?.goals?.length > 0 && (
+            <div className="mt-6">
+              <h3 className="font-semibold text-lg mb-1">🎯 Goals</h3>
+              <ul className="list-disc list-inside text-sm text-gray-700">
+                {status.goals.map((g: any, idx: number) => (
+                  <li key={idx}>{g.name} — {g.status}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {status?.bootSkills?.length > 0 && (
+            <div className="mt-6">
+              <h3 className="font-semibold text-lg mb-1">🚀 Bootloader Skills</h3>
+              <ul className="list-disc list-inside text-sm text-gray-700">
+                {status.bootSkills.map((b: any, idx: number) => (
+                  <li key={idx}>{b.name} — {b.status}</li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       </div>
     </div>
