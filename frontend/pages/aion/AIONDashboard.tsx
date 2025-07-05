@@ -75,100 +75,73 @@ export default function AIONDashboard() {
         </div>
       </div>
 
-      {/* Main content with adjustable split */}
+      {/* Main content */}
       <div className="flex flex-1 overflow-hidden">
-        {/* Left Side Terminal Section */}
-        <div className="w-1/2 flex flex-col border-r p-4 space-y-4 overflow-y-auto">
-          <div>
-            <h2 className="text-lg font-semibold mb-2">💬 AION:</h2>
-            <p className="text-green-700 font-medium">✅ Dream Result:</p>
-            <p className="text-sm text-gray-800">Dream complete.</p>
+        {/* Left: Terminal Input */}
+        <div className="w-1/2 p-4 border-r flex flex-col">
+          <h2 className="text-xl font-semibold mb-2">Terminal</h2>
+          <textarea
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            rows={8}
+            placeholder="Ask AION anything..."
+            className="w-full border p-2 rounded mb-4 resize-none bg-white"
+          />
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={sendPrompt}
+              disabled={loading}
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+            >
+              Send
+            </button>
+            <button onClick={fetchStatus} className="text-sm underline text-gray-600">
+              Refresh Status
+            </button>
           </div>
-          <div>
-            <h3 className="font-semibold">🎯 Current Goal</h3>
-            <p className="text-sm">Explore the world and collect coins</p>
-          </div>
-          <div>
-            <h3 className="font-semibold">🧬 Identity</h3>
-            <p className="text-sm text-gray-500">No identity data.</p>
-          </div>
-          <div>
-            <h3 className="font-semibold">🧠 Awareness</h3>
-            <p className="text-sm text-gray-500">No awareness data</p>
-          </div>
-          <div className="flex flex-wrap gap-2 mt-2">
-            <button className="bg-purple-600 text-white px-3 py-1 rounded">🟣 Boot Skill</button>
-            <button className="bg-yellow-500 text-white px-3 py-1 rounded">💠 Reflect Skill</button>
-            <button className="bg-green-600 text-white px-3 py-1 rounded">🌙 Run Dream</button>
-            <button className="bg-indigo-600 text-white px-3 py-1 rounded">🎮 Game Dream</button>
+          <div className="mt-4 space-y-2">
+            {presetPrompts.map((p) => (
+              <button
+                key={p}
+                onClick={() => setInput(p)}
+                className="px-3 py-1 text-sm bg-gray-200 rounded hover:bg-gray-300"
+              >
+                {p}
+              </button>
+            ))}
           </div>
         </div>
 
-        {/* Right Side Output Terminal */}
-        <div className="w-1/2 flex flex-col justify-between">
-          <div className="flex-1 p-4 overflow-y-auto">
-            <h2 className="text-xl font-semibold mb-2">🧠 AION Responds</h2>
-            <div className="whitespace-pre-wrap text-gray-800">
-              {loading ? "⏳ Thinking..." : output}
-              <div ref={outputRef} />
-            </div>
-
-            {status?.goals?.length > 0 && (
-              <div className="mt-6">
-                <h3 className="font-semibold text-lg mb-1">🎯 Goals</h3>
-                <ul className="list-disc list-inside text-sm text-gray-700">
-                  {status.goals.map((g: any, idx: number) => (
-                    <li key={idx}>{g.name} — {g.status}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {status?.bootSkills?.length > 0 && (
-              <div className="mt-6">
-                <h3 className="font-semibold text-lg mb-1">🚀 Bootloader Skills</h3>
-                <ul className="list-disc list-inside text-sm text-gray-700">
-                  {status.bootSkills.map((b: any, idx: number) => (
-                    <li key={idx}>{b.name} — {b.status}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
+        {/* Right: Output */}
+        <div className="w-1/2 p-4 overflow-y-auto">
+          <h2 className="text-xl font-semibold mb-2">🧠 AION Responds</h2>
+          <div className="whitespace-pre-wrap text-gray-800">
+            {loading ? "⏳ Thinking..." : output}
+            <div ref={outputRef} />
           </div>
 
-          {/* Fixed Input Bar at Bottom */}
-          <div className="p-4 border-t bg-white">
-            <textarea
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask AION anything..."
-              rows={2}
-              className="w-full border p-2 rounded mb-2 resize-none bg-white"
-            />
-            <div className="flex items-center justify-between">
-              <button
-                onClick={sendPrompt}
-                disabled={loading}
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
-              >
-                Send
-              </button>
-              <button onClick={fetchStatus} className="text-sm underline text-gray-600">
-                Refresh Status
-              </button>
+          {/* Optionally: display other components like goals, skills, etc. */}
+          {status?.goals?.length > 0 && (
+            <div className="mt-6">
+              <h3 className="font-semibold text-lg mb-1">🎯 Goals</h3>
+              <ul className="list-disc list-inside text-sm text-gray-700">
+                {status.goals.map((g: any, idx: number) => (
+                  <li key={idx}>{g.name} — {g.status}</li>
+                ))}
+              </ul>
             </div>
-            <div className="flex flex-wrap gap-2 mt-3">
-              {presetPrompts.map((p) => (
-                <button
-                  key={p}
-                  onClick={() => setInput(p)}
-                  className="px-3 py-1 text-sm bg-gray-200 rounded hover:bg-gray-300"
-                >
-                  {p}
-                </button>
-              ))}
+          )}
+
+          {status?.bootSkills?.length > 0 && (
+            <div className="mt-6">
+              <h3 className="font-semibold text-lg mb-1">🚀 Bootloader Skills</h3>
+              <ul className="list-disc list-inside text-sm text-gray-700">
+                {status.bootSkills.map((b: any, idx: number) => (
+                  <li key={idx}>{b.name} — {b.status}</li>
+                ))}
+              </ul>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>
