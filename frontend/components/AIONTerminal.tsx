@@ -1,14 +1,15 @@
+// components/AIONTerminal.tsx
 import React, { useState } from 'react';
 import styles from '@/styles/AIONDashboard.module.css';
 
 interface AIONTerminalProps {
   side: 'left' | 'right';
+  endpoint?: string;
 }
 
-export default function AIONTerminal({ side }: AIONTerminalProps) {
-  const [output, setOutput] = useState(
-    side === 'left' ? 'Awaiting command...' : 'No response from AION.'
-  );
+export default function AIONTerminal({ side, endpoint = '/api/aion' }: AIONTerminalProps) {
+  const [input, setInput] = useState('');
+  const [output, setOutput] = useState(side === 'left' ? 'Awaiting command...' : 'Ask me something...');
   const [loading, setLoading] = useState(false);
 
   const sendCommand = async (prompt: string) => {
@@ -16,7 +17,7 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
     setLoading(true);
     setOutput(`Sending command: ${prompt}`);
     try {
-      const res = await fetch('/api/aion', {
+      const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt }),
@@ -30,29 +31,9 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
     }
   };
 
-  // Footer ask handler if wired externally
-  React.useEffect(() => {
-    if (side === 'right') {
-      const askBtn = document.getElementById('aion-footer-ask');
-      const inputBox = document.getElementById('aion-footer-input') as HTMLInputElement;
-      if (askBtn && inputBox) {
-        askBtn.onclick = () => {
-          const prompt = inputBox.value;
-          inputBox.value = '';
-          sendCommand(prompt);
-        };
-        inputBox.onkeydown = (e: KeyboardEvent) => {
-          if (e.key === 'Enter') {
-            askBtn.click();
-          }
-        };
-      }
-    }
-  }, [side]);
-
   return (
     <div className={styles.terminalWrapper}>
-      <div className={styles.terminalOutput}>{loading ? 'Loading...' : output}</div>
+      <div className={styles.terminalOutput}>{output}</div>
     </div>
   );
 }
