@@ -1,84 +1,82 @@
-'use client';
-
-import React, { useState } from 'react';
-import styles from '@/styles/AIONDashboard.module.css';
-import { Button } from '@/components/ui/button';
+import React, { useState, useEffect } from 'react';
+import styles from '@/styles/AIONTerminal.module.css';
 
 export default function AIONTerminal() {
-  const [leftOutput, setLeftOutput] = useState('Left terminal output...');
-  const [rightOutput, setRightOutput] = useState('');
-  const [askInput, setAskInput] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [input, setInput] = useState('');
+  const [response, setResponse] = useState('');
+  const [commandLog, setCommandLog] = useState([]);
+  const [leftOutput, setLeftOutput] = useState('Awaiting command...');
+  const [rightOutput, setRightOutput] = useState('Ask me something...');
 
-  const callEndpoint = async (endpoint: string) => {
-    setLeftOutput(prev => prev + `\n> Calling ${endpoint}...\n`);
+  const handleAsk = async () => {
+    if (!input.trim()) return;
+    setCommandLog((prev) => [...prev, `> ${input}`]);
+    setLeftOutput(`Sending command: ${input}`);
     try {
-      const res = await fetch(`/api/aion/${endpoint}`);
-      const json = await res.json();
-      setLeftOutput(prev => prev + JSON.stringify(json, null, 2) + '\n');
-    } catch (err) {
-      setLeftOutput(prev => prev + `Error: ${err}\n`);
-    }
-  };
-
-  const handleAsk = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!askInput.trim()) return;
-    setLoading(true);
-    setRightOutput(prev => prev + `\n> You: ${askInput}\n`);
-    try {
-      const res = await fetch('/api/aion/prompt', {
+      const res = await fetch('/api/aion', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: askInput }),
+        body: JSON.stringify({ prompt: input }),
       });
-      const json = await res.json();
-      setRightOutput(prev => prev + `AION: ${json.response}\n`);
+      const data = await res.json();
+      const output = data?.response || 'No response from AION.';
+      setRightOutput(output);
+      setResponse(output);
+      setCommandLog((prev) => [...prev, output]);
     } catch (err) {
-      setRightOutput(prev => prev + `Error: ${err}\n`);
-    } finally {
-      setAskInput('');
-      setLoading(false);
+      setRightOutput('Error communicating with AION.');
     }
+    setInput('');
   };
 
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') handleAsk();
+  };
+
+  const presetButtons = [
+    { label: 'Status', cmd: 'Show current status' },
+    { label: 'Goal', cmd: 'What is your current goal?' },
+    { label: 'Identity', cmd: 'Who are you?' },
+    { label: 'Situation', cmd: 'What is your situation?' },
+    { label: 'Boot Skill', cmd: 'Load next boot skill' },
+    { label: 'Reflect', cmd: 'Reflect on your recent activity' },
+    { label: 'Run Dream', cmd: 'Generate a dream' },
+  ];
+
   return (
-    <>
-      {/* Visible output injected directly into the two terminals */}
-      <script
-        dangerouslySetInnerHTML={{
-          __html: `
-            document.getElementById("aion-left-terminal")?.replaceChildren(document.createTextNode(${JSON.stringify(leftOutput)}));
-            document.getElementById("aion-right-terminal")?.replaceChildren(document.createTextNode(${JSON.stringify(rightOutput)}));
-          `,
-        }}
-      />
-
-      <div className={styles.footerTerminal}>
-        {/* Buttons for left terminal */}
-        <div className={styles.footerLeft}>
-          <Button onClick={() => callEndpoint('status')}>Status</Button>
-          <Button onClick={() => callEndpoint('goal')}>Goal</Button>
-          <Button onClick={() => callEndpoint('identity')}>Identity</Button>
-          <Button onClick={() => callEndpoint('situation')}>Situation</Button>
-          <Button onClick={() => callEndpoint('boot-skill')}>Boot Skill</Button>
-          <Button onClick={() => callEndpoint('skill-reflect')}>Skill Reflect</Button>
-          <Button onClick={() => callEndpoint('run-dream')}>Run Dream</Button>
-        </div>
-
-        {/* Ask form for right terminal */}
-        <form className={styles.askForm} onSubmit={handleAsk}>
-          <input
-            className={styles.askInput}
-            value={askInput}
-            onChange={e => setAskInput(e.target.value)}
-            placeholder="Ask AION something..."
-          />
-          <Button type="submit" disabled={loading}>
-            {loading ? '...' : 'Ask'}
-          </Button>
-        </form>
+    <div className={styles.terminalWrapper}>
+      <div className={styles.leftTerminal}>
+        <pre className={styles.terminalText}>{leftOutput}</pre>
       </div>
-    </>
+      <div className={styles.rightTerminal}>
+        <pre className={styles.terminalText}>{rightOutput}</pre>
+      </div>
+      <div className={styles.footerTerminal}>
+        <div className={styles.presetButtons}>
+          {presetButtons.map(({ label, cmd }) => (
+            <button
+              key={label}
+              onClick={() => {
+                setInput(cmd);
+                setTimeout(() => handleAsk(), 100);
+              }}
+              className={styles.footerButton}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+        <input
+          className={styles.promptInput}
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder="Ask AION something..."
+        />
+        <button onClick={handleAsk} className={styles.askButton}>
+          Ask
+        </button>
+      </div>
+    </div>
   );
 }
