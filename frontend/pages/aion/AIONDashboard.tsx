@@ -1,14 +1,11 @@
 // pages/aion/AIONDashboard.tsx
 
 import React, { useState } from "react";
-import dynamic from "next/dynamic";
-
-const AIONTerminal = dynamic(() => import("@/components/AIONTerminal"), { ssr: false });
 
 export default function AIONDashboard() {
   const [leftLog, setLeftLog] = useState<string[]>([]);
-  const [askInput, setAskInput] = useState("");
   const [rightLog, setRightLog] = useState<string[]>([]);
+  const [askInput, setAskInput] = useState("");
 
   const handleLeftAction = async (endpoint: string) => {
     try {
@@ -39,10 +36,9 @@ export default function AIONDashboard() {
 
   return (
     <div className="flex h-screen overflow-hidden">
-      {/* LEFT TERMINAL */}
-      <div className="w-1/2 border-r border-gray-300 flex flex-col bg-white">
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          {/* Dream Visualizer */}
+      {/* LEFT SIDE */}
+      <div className="w-1/2 flex flex-col border-r border-gray-300 bg-white">
+        <div className="flex-1 overflow-y-auto p-3 space-y-4">
           <div className="border rounded p-3 bg-gray-50">
             <h3 className="font-semibold mb-2">🌌 Dream Visualizer</h3>
             <div className="h-64 bg-gray-100 text-gray-600 text-sm p-2 rounded overflow-auto">
@@ -50,7 +46,6 @@ export default function AIONDashboard() {
             </div>
           </div>
 
-          {/* Terminal for endpoint results */}
           <div className="border rounded p-3 bg-black text-green-400 text-sm h-64 overflow-auto">
             {leftLog.map((line, idx) => (
               <pre key={idx} className="whitespace-pre-wrap mb-2">{line}</pre>
@@ -58,8 +53,8 @@ export default function AIONDashboard() {
           </div>
         </div>
 
-        {/* Sticky footer – Control buttons */}
-        <div className="bg-white p-3 border-t border-gray-300 flex justify-between items-center space-x-2">
+        {/* LEFT FOOTER */}
+        <div className="sticky bottom-0 z-10 bg-white border-t border-gray-300 flex justify-between items-center p-3 space-x-2">
           <button onClick={() => handleLeftAction("boot-skill")} className="bg-purple-600 text-white px-3 py-2 rounded w-full">🔄 Boot Skill</button>
           <button onClick={() => handleLeftAction("skill-reflect")} className="bg-yellow-500 text-white px-3 py-2 rounded w-full">💠 Reflect</button>
           <button onClick={() => handleLeftAction("run-dream")} className="bg-green-600 text-white px-3 py-2 rounded w-full">🌙 Run Dream</button>
@@ -67,7 +62,7 @@ export default function AIONDashboard() {
         </div>
       </div>
 
-      {/* RIGHT TERMINAL */}
+      {/* RIGHT SIDE */}
       <div className="w-1/2 flex flex-col bg-gray-50">
         <div className="flex-1 overflow-y-auto p-4 bg-gray-100">
           <div className="border rounded p-3 bg-black text-green-400 text-sm h-full overflow-auto">
@@ -77,8 +72,8 @@ export default function AIONDashboard() {
           </div>
         </div>
 
-        {/* Sticky footer – Ask AION */}
-        <div className="bg-white p-3 border-t border-gray-300 flex items-center space-x-2">
+        {/* RIGHT FOOTER */}
+        <div className="sticky bottom-0 z-10 bg-white border-t border-gray-300 flex items-center space-x-2 p-3">
           <input
             type="text"
             value={askInput}
