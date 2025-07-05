@@ -1,10 +1,10 @@
 import React, { useEffect, useState, FormEvent } from "react";
 
-type AIONTerminalProps = {
+type Props = {
   side: "left" | "right";
 };
 
-export default function AIONTerminal({ side }: AIONTerminalProps) {
+export default function AIONTerminal({ side }: Props) {
   const [prompt, setPrompt] = useState("");
   const [response, setResponse] = useState("");
   const [loading, setLoading] = useState(false);
@@ -104,104 +104,32 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
   };
 
   return (
-    <div className="fixed bottom-0 left-0 w-full bg-white shadow-md border-t z-50">
-      <div className="max-w-screen-xl mx-auto px-4 py-2 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-        <div className="text-xs text-gray-500 italic mb-1">
-          Terminal Side: {side}
-        </div>
-
-        <form onSubmit={handleSubmit} className="flex flex-1 gap-2">
-          <input
-            type="text"
-            className="flex-1 p-2 border border-gray-300 rounded focus:outline-none"
-            placeholder="Ask AION anything..."
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-          />
-          <button
-            type="submit"
-            disabled={loading}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-          >
-            {loading ? "Thinking..." : "Ask"}
-          </button>
-        </form>
-
-        <div className="flex flex-wrap gap-2">
-          <button
-            onClick={() =>
-              fetchAndSet("/aion/status", "Status", (d) =>
-                `Unlocked: ${d.unlocked?.join(", ") || "-"}\nLocked: ${d.locked?.join(", ") || "-"}`
-              )
-            }
-            className="bg-blue-500 text-white px-3 py-1 rounded"
-          >
-            Status
-          </button>
-          <button
-            onClick={() =>
-              fetchAndSet("/aion/goal", "Goal", (d) => d.goal || "No goal")
-            }
-            className="bg-blue-500 text-white px-3 py-1 rounded"
-          >
-            Goal
-          </button>
-          <button
-            onClick={() =>
-              fetchAndSet("/aion/identity", "Identity", (d) =>
-                `${d.description}\nTraits: ${JSON.stringify(d.personality_traits, null, 2)}`
-              )
-            }
-            className="bg-blue-500 text-white px-3 py-1 rounded"
-          >
-            Identity
-          </button>
-          <button
-            onClick={() =>
-              fetchAndSet("/aion/situation", "Situation", (d) =>
-                JSON.stringify(d.awareness, null, 2)
-              )
-            }
-            className="bg-blue-500 text-white px-3 py-1 rounded"
-          >
-            Situation
-          </button>
-          <button
-            onClick={handleBootSkill}
-            disabled={bootLoading}
-            className="bg-purple-600 text-white px-3 py-1 rounded"
-          >
-            {bootLoading ? "Loading..." : "🔁 Boot Skill"}
-          </button>
-          <button
-            onClick={handleSkillReflect}
-            disabled={reflecting}
-            className="bg-yellow-500 text-white px-3 py-1 rounded"
-          >
-            {reflecting ? "Reflecting..." : "🪞 Reflect"}
-          </button>
-          <button
-            onClick={handleDreamTrigger}
-            className="bg-green-600 text-white px-3 py-1 rounded"
-          >
-            🌙 Run Dream
-          </button>
-          <button
-            onClick={handleGameDreamTrigger}
-            disabled={gameDreamLoading}
-            className="bg-indigo-600 text-white px-3 py-1 rounded"
-          >
-            {gameDreamLoading ? "Dreaming..." : "🎮 Game Dream"}
-          </button>
-          <button className="bg-gray-300 px-3 py-1 rounded">Dream Visualizer</button>
-        </div>
+    <div className="w-full h-full flex flex-col gap-2">
+      <div className="text-xs text-gray-500 italic">
+        Terminal Side: <b>{side}</b>
       </div>
+      <form onSubmit={handleSubmit} className="flex gap-2">
+        <input
+          type="text"
+          className="flex-1 p-2 border border-gray-300 rounded"
+          placeholder="Ask AION anything..."
+          value={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
+        />
+        <button
+          type="submit"
+          disabled={loading}
+          className="bg-blue-600 text-white px-4 py-2 rounded"
+        >
+          {loading ? "Thinking..." : "Ask"}
+        </button>
+      </form>
 
-      {response && (
-        <div className="bg-gray-50 border-t mt-2 p-4 text-sm whitespace-pre-wrap max-h-96 overflow-auto">
-          {response}
-        </div>
-      )}
+      <div className="bg-gray-100 p-3 rounded shadow-inner whitespace-pre-wrap text-sm overflow-auto h-[250px]">
+        <strong>💬 AION:</strong>
+        <br />
+        {response || "No reply."}
+      </div>
     </div>
   );
 }
