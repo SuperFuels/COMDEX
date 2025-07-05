@@ -1,125 +1,104 @@
-import React, { useEffect, useRef, useState } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect } from 'react';
+import {
+  FaPlay, FaBolt, FaCogs, FaBrain, FaBullseye, FaSync, FaChevronDown
+} from 'react-icons/fa';
+import useAION from '../hooks/useAION';
 
 interface AIONTerminalProps {
   side: 'left' | 'right';
 }
 
 export default function AIONTerminal({ side }: AIONTerminalProps) {
-  const [input, setInput] = useState('');
-  const [messages, setMessages] = useState<string[]>([]);
-  const [loading, setLoading] = useState(false);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const {
+    input,
+    setInput,
+    loading,
+    messages,
+    sendPrompt,
+    callEndpoint,
+    bottomRef,
+  } = useAION();
 
-  const appendMessage = (msg: string) => {
-    setMessages((prev) => [...prev, msg]);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [selectedLabel, setSelectedLabel] = useState('Select AION Preset');
+
+  const presets = [
+    { label: 'Run Full Learning Cycle', value: 'run-learning-cycle', icon: <FaPlay className="text-blue-600" /> },
+    { label: 'Nightly Dream Trigger', value: 'run-dream', icon: <FaBolt className="text-yellow-500" /> },
+    { label: 'Boot Next Skill', value: 'boot-skill', icon: <FaCogs className="text-gray-600" /> },
+    { label: 'Reflect on Skills', value: 'skill-reflect', icon: <FaBrain className="text-purple-500" /> },
+    { label: 'Check Goals', value: 'goal', icon: <FaBullseye className="text-green-600" /> },
+    { label: 'System Status', value: 'status', icon: <FaSync className="text-indigo-600" /> },
+  ];
+
+  const runPreset = async (value: string, label: string) => {
+    setDropdownOpen(false);
+    setSelectedLabel(label);
+    const method: 'get' | 'post' = value === 'goal' || value === 'status' ? 'get' : 'post';
+    const url = `/api/aion/${value}`;
+    await callEndpoint(url, label, method);
   };
 
-  const sendPrompt = async () => {
-    if (!input.trim()) return;
-    appendMessage(`🗨️ You: ${input}`);
-    setLoading(true);
-
-    try {
-      const res = await axios.post('/api/aion/prompt', { prompt: input });
-      appendMessage(`🤖 AION: ${res.data.reply || '(no response)'}`);
-    } catch (err: any) {
-      appendMessage(`❌ Error: ${err?.response?.data?.error || err.message}`);
-    }
-
-    setLoading(false);
-    setInput('');
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') sendPrompt();
-  };
-
-  const callEndpoint = async (endpoint: string, label: string) => {
-    appendMessage(`📡 Fetching ${label}...`);
-    try {
-      const res = await axios.get(endpoint);
-      appendMessage(`✅ ${label}: ${JSON.stringify(res.data, null, 2)}`);
-    } catch (err: any) {
-      appendMessage(`❌ ${label} error: ${err?.response?.data?.error || err.message}`);
-    }
-  };
-
-  // Auto-scroll to bottom on new message
   useEffect(() => {
-    scrollRef.current?.scrollTo(0, scrollRef.current.scrollHeight);
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
   return (
     <div className="flex flex-col h-full">
-      <div className="text-xs text-gray-500 italic p-2 border-b bg-white">
-        Terminal Side: <strong>{side}</strong>
-      </div>
-
-      {/* Input (for right terminal only) */}
-      {side === 'right' && (
-        <div className="flex px-2 gap-2 mt-2 mb-1">
-          <input
-            className="flex-1 border border-gray-300 px-3 py-1 rounded text-sm"
-            placeholder="Ask AION something..."
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-          />
-          <button
-            onClick={sendPrompt}
-            disabled={loading}
-            className="bg-blue-600 text-white px-4 py-1 rounded text-sm"
-          >
-            Ask
-          </button>
-        </div>
-      )}
-
-      {/* Output */}
-      <div
-        ref={scrollRef}
-        className="flex-1 bg-gray-50 p-3 rounded overflow-y-auto text-sm whitespace-pre-wrap border border-gray-300 m-2"
-      >
-        {messages.length === 0 ? (
-          <p className="text-gray-400">No reply yet.</p>
-        ) : (
-          messages.map((msg, idx) => <div key={idx}>{msg}</div>)
+      {/* Custom Dropdown Bar */}
+      <div className="relative px-2 py-1">
+        <button
+          onClick={() => setDropdownOpen(!dropdownOpen)}
+          className="w-full border border-gray-300 rounded px-3 py-1 flex justify-between items-center text-sm bg-white hover:shadow"
+        >
+          <span>{selectedLabel}</span>
+          <FaChevronDown className="ml-2 text-gray-400" />
+        </button>
+        {dropdownOpen && (
+          <div className="absolute mt-1 w-full bg-white border border-gray-200 rounded shadow-lg z-10 max-h-60 overflow-auto">
+            {presets.map((preset) => (
+              <button
+                key={preset.value}
+                onClick={() => runPreset(preset.value, preset.label)}
+                className="flex items-center w-full px-3 py-2 text-sm hover:bg-gray-100"
+              >
+                {preset.icon}
+                <span className="ml-2">{preset.label}</span>
+              </button>
+            ))}
+          </div>
         )}
       </div>
 
-      {/* Action Buttons (left side only) */}
-      {side === 'left' && (
-        <div className="flex flex-wrap gap-2 px-2 pb-3 text-xs">
-          <button onClick={() => callEndpoint('/api/aion/status', 'Status')} className="bg-blue-600 text-white px-3 py-1 rounded">
-            Status
-          </button>
-          <button onClick={() => callEndpoint('/api/aion/goal', 'Goal')} className="bg-blue-600 text-white px-3 py-1 rounded">
-            Goal
-          </button>
-          <button onClick={() => callEndpoint('/api/aion/identity', 'Identity')} className="bg-blue-600 text-white px-3 py-1 rounded">
-            Identity
-          </button>
-          <button onClick={() => callEndpoint('/api/aion/situation', 'Situation')} className="bg-blue-600 text-white px-3 py-1 rounded">
-            Situation
-          </button>
-          <button onClick={() => callEndpoint('/api/aion/boot-skill', 'Boot Skill')} className="bg-purple-600 text-white px-3 py-1 rounded">
-            Boot Skill
-          </button>
-          <button onClick={() => callEndpoint('/api/aion/skill-reflect', 'Reflect')} className="bg-yellow-500 text-white px-3 py-1 rounded">
-            Reflect
-          </button>
-          <button onClick={() => callEndpoint('/api/aion/run-dream', 'Run Dream')} className="bg-green-600 text-white px-3 py-1 rounded">
-            Run Dream
-          </button>
-          <button onClick={() => callEndpoint('/api/aion/game-dream', 'Game Dream')} className="bg-indigo-600 text-white px-3 py-1 rounded">
-            Game Dream
-          </button>
-          <button disabled className="border border-gray-300 px-3 py-1 rounded text-gray-500 bg-white">
-            🌙 Dream Visualizer (coming soon)
-          </button>
-        </div>
-      )}
+      {/* Input Bar */}
+      <div className="flex px-2 gap-2 mb-2">
+        <input
+          className="flex-1 border border-gray-300 px-3 py-1 rounded text-sm"
+          placeholder="Ask AION something..."
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && sendPrompt()}
+        />
+        <button
+          onClick={sendPrompt}
+          disabled={loading}
+          className="bg-blue-600 text-white px-4 py-1 rounded text-sm"
+        >
+          Ask
+        </button>
+      </div>
+
+      {/* Output */}
+      <div className="flex-1 bg-gray-50 p-3 rounded overflow-y-auto text-sm whitespace-pre-wrap">
+        {messages.length === 0 ? (
+          <p className="text-gray-400">Waiting for AION...</p>
+        ) : (
+          messages.map((msg: any, idx: number) => (
+            <div key={idx}>{typeof msg === 'string' ? msg : msg?.content ?? '[Invalid message]'}</div>
+          ))
+        )}
+        <div ref={bottomRef} />
+      </div>
     </div>
   );
 }

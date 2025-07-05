@@ -5,6 +5,7 @@ import openai
 import os
 import logging
 import json
+import subprocess  # ✅ Added for learning-cycle execution
 
 from backend.modules.skills.aion_prompt_engine import build_prompt_context
 from backend.modules.skills.milestone_tracker import MilestoneTracker
@@ -118,3 +119,23 @@ async def get_learned_skills():
         return JSONResponse(content=skills)
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": f"Failed to load learned skills: {str(e)}"})
+
+# ✅ NEW: POST endpoint to run the full AION learning cycle script
+@router.post("/learning-cycle")
+async def run_learning_cycle():
+    try:
+        result = subprocess.run(
+            ["python", "backend/scripts/aion_learning_cycle.py"],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        return JSONResponse(content={
+            "status": "success",
+            "output": result.stdout
+        })
+    except subprocess.CalledProcessError as e:
+        return JSONResponse(status_code=500, content={
+            "status": "error",
+            "error": e.stderr or str(e)
+        })
