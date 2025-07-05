@@ -1,15 +1,15 @@
-// components/AIONTerminal.tsx
-
 import React, { useState } from 'react';
 import styles from '@/styles/AIONDashboard.module.css';
 
 interface AIONTerminalProps {
-  side: 'left' | 'right';
+  side?: 'left' | 'right'; // Now optional to fix build error
 }
 
-export default function AIONTerminal({ side }: AIONTerminalProps) {
+export default function AIONTerminal({ side = 'left' }: AIONTerminalProps) {
   const [input, setInput] = useState('');
-  const [output, setOutput] = useState(side === 'left' ? 'Awaiting command...' : 'Ask me something...');
+  const [output, setOutput] = useState(
+    side === 'left' ? 'Awaiting command...' : 'Ask me something...'
+  );
   const [loading, setLoading] = useState(false);
 
   const sendCommand = async (prompt: string) => {
