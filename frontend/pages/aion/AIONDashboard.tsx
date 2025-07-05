@@ -1,6 +1,5 @@
 import React, { useRef, useState } from 'react';
 import AIONTerminal from '@/components/AIONTerminal';
-import styles from '@/styles/AIONDashboard.module.css';
 
 export default function Dashboard() {
   const [leftWidth, setLeftWidth] = useState(50);
