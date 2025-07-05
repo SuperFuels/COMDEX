@@ -25,9 +25,8 @@ export default function AIONDashboard() {
       onMouseMove={handleDrag}
       onMouseUp={stopDrag}
     >
-      {/* Main split view */}
       <div className="flex flex-1 overflow-hidden">
-        <div className="overflow-auto p-4" style={{ width: `${leftWidth}%` }}>
+        <div className="overflow-auto" style={{ width: `${leftWidth}%` }}>
           <AIONTerminal side="left" />
         </div>
         <div
@@ -35,23 +34,22 @@ export default function AIONDashboard() {
           onMouseDown={startDrag}
           onMouseUp={stopDrag}
         />
-        <div className="overflow-auto p-4" style={{ width: `${100 - leftWidth}%` }}>
+        <div className="overflow-auto" style={{ width: `${100 - leftWidth}%` }}>
           <AIONTerminal side="right" />
         </div>
       </div>
 
-      {/* Fixed Footer with Controls */}
-      <footer className="flex justify-between items-center bg-white border-t p-3 text-sm fixed bottom-0 left-0 w-full z-50">
+      <footer className="flex justify-between items-center bg-white border-t p-3 text-sm">
         <div className="flex gap-2 items-center">
-          <button className="bg-blue-600 text-white px-3 py-1 rounded">Status</button>
-          <button className="bg-blue-600 text-white px-3 py-1 rounded">Goal</button>
-          <button className="bg-blue-600 text-white px-3 py-1 rounded">Identity</button>
-          <button className="bg-blue-600 text-white px-3 py-1 rounded">Situation</button>
-          <button className="bg-purple-600 text-white px-3 py-1 rounded">🔁 Boot Skill</button>
-          <button className="bg-yellow-500 text-white px-3 py-1 rounded">🪞 Reflect</button>
-          <button className="bg-green-600 text-white px-3 py-1 rounded">🌙 Run Dream</button>
-          <button className="bg-indigo-600 text-white px-3 py-1 rounded">🎮 Game Dream</button>
-          <button className="bg-gray-300 px-3 py-1 rounded">Dream Visualizer</button>
+          <button className="bg-blue-600 text-white px-3 py-1 rounded" onClick={() => window.dispatchEvent(new CustomEvent('aion-command', { detail: 'status' }))}>Status</button>
+          <button className="bg-blue-600 text-white px-3 py-1 rounded" onClick={() => window.dispatchEvent(new CustomEvent('aion-command', { detail: 'goal' }))}>Goal</button>
+          <button className="bg-blue-600 text-white px-3 py-1 rounded" onClick={() => window.dispatchEvent(new CustomEvent('aion-command', { detail: 'identity' }))}>Identity</button>
+          <button className="bg-blue-600 text-white px-3 py-1 rounded" onClick={() => window.dispatchEvent(new CustomEvent('aion-command', { detail: 'situation' }))}>Situation</button>
+          <button className="bg-purple-600 text-white px-3 py-1 rounded" onClick={() => window.dispatchEvent(new CustomEvent('aion-command', { detail: 'boot-skill' }))}>🧠 Boot Skill</button>
+          <button className="bg-yellow-500 text-white px-3 py-1 rounded" onClick={() => window.dispatchEvent(new CustomEvent('aion-command', { detail: 'reflect' }))}>🪞 Reflect</button>
+          <button className="bg-green-600 text-white px-3 py-1 rounded" onClick={() => window.dispatchEvent(new CustomEvent('aion-command', { detail: 'run-dream' }))}>💤 Run Dream</button>
+          <button className="bg-indigo-600 text-white px-3 py-1 rounded" onClick={() => window.dispatchEvent(new CustomEvent('aion-command', { detail: 'game-dream' }))}>🎮 Game Dream</button>
+          <span className="ml-2 px-2 py-1 border rounded text-gray-600">Dream Visualizer</span>
         </div>
       </footer>
     </div>

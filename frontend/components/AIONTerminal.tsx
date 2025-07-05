@@ -1,135 +1,104 @@
-import React, { useEffect, useState, FormEvent } from "react";
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 
-type Props = {
-  side: "left" | "right";
-};
+type Side = 'left' | 'right';
 
-export default function AIONTerminal({ side }: Props) {
-  const [prompt, setPrompt] = useState("");
-  const [response, setResponse] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [bootLoading, setBootLoading] = useState(false);
-  const [reflecting, setReflecting] = useState(false);
-  const [gameDreamLoading, setGameDreamLoading] = useState(false);
+interface AIONTerminalProps {
+  side: Side;
+}
 
-  const API_BASE = process.env.NEXT_PUBLIC_API_URL || "";
+const AIONTerminal: React.FC<AIONTerminalProps> = ({ side }) => {
+  const [input, setInput] = useState('');
+  const [messages, setMessages] = useState<string[]>([]);
 
-  const fetchAndSet = async (
-    path: string,
-    label: string,
-    extract: (data: any) => string
-  ) => {
-    setResponse(`⏳ Fetching ${label}...`);
+  const terminalStyle =
+    side === 'left'
+      ? 'bg-gray-100 p-4 rounded-md overflow-y-auto h-96'
+      : 'bg-gray-100 p-4 rounded-md overflow-y-auto h-96';
+
+  const label = side === 'left' ? 'left' : 'right';
+
+  const print = (text: string) => {
+    setMessages((prev) => [...prev, text]);
+  };
+
+  const fetchData = async (endpoint: string, label: string) => {
     try {
-      const res = await fetch(`${API_BASE}${path}`);
-      const data = await res.json();
-      setResponse(`✅ ${label}:\n\n${extract(data)}`);
-    } catch {
-      setResponse(`❌ Failed to fetch ${label}`);
+      const res = await axios.get(`/api/aion/${endpoint}`);
+      print(`🧠 AION (${label}):\n${JSON.stringify(res.data, null, 2)}`);
+    } catch (err) {
+      print(`❌ AION error: ${err}`);
     }
   };
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!prompt.trim()) return;
-    setLoading(true);
-    setResponse("");
+  const handleSend = async () => {
+    if (!input.trim()) return;
+    print(`💬 You: ${input}`);
     try {
-      const res = await fetch(`${API_BASE}/aion`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt }),
-      });
-      const data = await res.json();
-      setResponse(`💬 AION:\n\n${data.reply || "No reply."}`);
-    } catch {
-      setResponse("❌ AION error: Backend unreachable.");
-    } finally {
-      setLoading(false);
+      const res = await axios.post('/api/aion/prompt', { prompt: input });
+      print(`🤖 AION:\n${res.data.response || 'No reply.'}`);
+    } catch (err) {
+      print(`❌ AION error: ${err}`);
     }
+    setInput('');
   };
 
-  const handleBootSkill = async () => {
-    setBootLoading(true);
-    try {
-      const res = await fetch(`${API_BASE}/aion/boot-skill`, { method: "POST" });
-      const data = await res.json();
-      setResponse(`📦 Boot Skill: ${data.message || data.title || "No skill loaded."}`);
-    } catch {
-      setResponse("❌ Error loading skill.");
-    } finally {
-      setBootLoading(false);
-    }
-  };
+  // 📦 Listen for footer button events
+  useEffect(() => {
+    if (side !== 'left') return;
 
-  const handleSkillReflect = async () => {
-    setReflecting(true);
-    try {
-      const res = await fetch(`${API_BASE}/aion/skill-reflect`, { method: "POST" });
-      const data = await res.json();
-      setResponse(`🪞 Reflection: ${data.message || data.result || "No reflection result."}`);
-    } catch {
-      setResponse("❌ Reflection failed.");
-    } finally {
-      setReflecting(false);
-    }
-  };
+    const listener = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      switch (detail) {
+        case 'status':
+        case 'goal':
+        case 'identity':
+        case 'situation':
+        case 'boot-skill':
+        case 'reflect':
+        case 'run-dream':
+        case 'game-dream':
+          fetchData(detail, detail);
+          break;
+        default:
+          print(`⚠️ Unknown command: ${detail}`);
+      }
+    };
 
-  const handleDreamTrigger = async () => {
-    setResponse("🌙 Triggering dream cycle...");
-    try {
-      const res = await fetch(`${API_BASE}/run-dream`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ trigger: "manual" }),
-      });
-      const data = await res.json();
-      setResponse(`✅ Dream Result:\n\n${data.result || data.message || "Dream complete."}`);
-    } catch {
-      setResponse("❌ Dream scheduler error: Could not reach backend.");
-    }
-  };
-
-  const handleGameDreamTrigger = async () => {
-    setGameDreamLoading(true);
-    try {
-      const res = await fetch(`${API_BASE}/aion/test-game-dream`, { method: "POST" });
-      const data = await res.json();
-      setResponse(`🎮 Game Dream:\n\n${data.dream || "No dream returned."}`);
-    } catch {
-      setResponse("❌ Error triggering game dream.");
-    } finally {
-      setGameDreamLoading(false);
-    }
-  };
+    window.addEventListener('aion-command', listener);
+    return () => window.removeEventListener('aion-command', listener);
+  }, [side]);
 
   return (
-    <div className="w-full h-full flex flex-col gap-2">
-      <div className="text-xs text-gray-500 italic">
-        Terminal Side: <b>{side}</b>
-      </div>
-      <form onSubmit={handleSubmit} className="flex gap-2">
+    <div className="w-full">
+      <div className="text-xs italic text-gray-500 mb-1">Terminal Side: {label}</div>
+      <div className="flex space-x-2 mb-2">
         <input
-          type="text"
-          className="flex-1 p-2 border border-gray-300 rounded"
-          placeholder="Ask AION anything..."
-          value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          className="flex-1 px-3 py-2 border border-gray-300 rounded"
+          placeholder="hello aion"
         />
         <button
-          type="submit"
-          disabled={loading}
-          className="bg-blue-600 text-white px-4 py-2 rounded"
+          onClick={handleSend}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
         >
-          {loading ? "Thinking..." : "Ask"}
+          Ask
         </button>
-      </form>
-
-      <div className="bg-gray-100 p-3 rounded shadow-inner whitespace-pre-wrap text-sm overflow-auto h-[250px]">
-        <strong>💬 AION:</strong>
-        <br />
-        {response || "No reply."}
+      </div>
+      <div className={terminalStyle}>
+        {messages.length === 0 ? (
+          <p className="text-gray-400">No reply.</p>
+        ) : (
+          messages.map((msg, i) => (
+            <pre key={i} className="whitespace-pre-wrap text-sm mb-2">
+              {msg}
+            </pre>
+          ))
+        )}
       </div>
     </div>
   );
-}
+};
+
+export default AIONTerminal;
