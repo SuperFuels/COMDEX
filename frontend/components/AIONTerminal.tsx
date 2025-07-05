@@ -1,31 +1,82 @@
-import React, { useEffect, useState, FormEvent } from "react";
+"use client";
 
-interface AIONTerminalProps {
-  side?: "left" | "right";
-}
+import { useState, useEffect, FormEvent } from "react";
 
-export default function AIONTerminal({ side }: AIONTerminalProps) {
+type TraitMap = Record<string, number>;
+type ImpactSummary = {
+  positive: number;
+  neutral: number;
+  negative: number;
+};
+type Awareness = {
+  recent_summary: ImpactSummary;
+  current_risk: string;
+};
+
+export default function AIONTerminal() {
+  const [activeTab, setActiveTab] = useState<'chat' | 'dreams'>('chat');
   const [prompt, setPrompt] = useState("");
   const [response, setResponse] = useState("");
   const [loading, setLoading] = useState(false);
-  const [bootLoading, setBootLoading] = useState(false);
+  const [goal, setGoal] = useState<string>("Loading...");
+  const [bootSkills, setBootSkills] = useState<any[]>([]);
   const [reflecting, setReflecting] = useState(false);
+  const [bootLoading, setBootLoading] = useState(false);
+  const [identityDesc, setIdentityDesc] = useState<string>("");
+  const [traits, setTraits] = useState<TraitMap>({});
+  const [awareness, setAwareness] = useState<Awareness | null>(null);
+  const [gameDreamResult, setGameDreamResult] = useState("");
+  const [gameDreams, setGameDreams] = useState<string[]>([]);
   const [gameDreamLoading, setGameDreamLoading] = useState(false);
 
   const API_BASE = process.env.NEXT_PUBLIC_API_URL || "";
 
-  const fetchAndSet = async (
-    path: string,
-    label: string,
-    extract: (data: any) => string
-  ) => {
-    setResponse(`⏳ Fetching ${label}...`);
+  useEffect(() => {
+    fetchGoal();
+    fetchBootSkills();
+    fetchIdentity();
+    fetchAwareness();
+  }, []);
+
+  const fetchGoal = async () => {
     try {
-      const res = await fetch(`${API_BASE}${path}`);
+      const res = await fetch(`${API_BASE}/aion/goal`);
       const data = await res.json();
-      setResponse(`✅ ${label}:\n\n${extract(data)}`);
+      setGoal(data.goal || "No goal available");
     } catch {
-      setResponse(`❌ Failed to fetch ${label}`);
+      setGoal("Error fetching goal");
+    }
+  };
+
+  const fetchBootSkills = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/aion/boot-skills`);
+      const data = await res.json();
+      setBootSkills(data.skills || []);
+    } catch {
+      setBootSkills([]);
+    }
+  };
+
+  const fetchIdentity = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/aion/identity`);
+      const data = await res.json();
+      setIdentityDesc(data.description || "No identity data.");
+      setTraits(data.personality_traits || {});
+    } catch {
+      setIdentityDesc("❌ Failed to fetch identity.");
+      setTraits({});
+    }
+  };
+
+  const fetchAwareness = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/aion/situation`);
+      const data = await res.json();
+      setAwareness(data.awareness || null);
+    } catch {
+      setAwareness(null);
     }
   };
 
@@ -41,7 +92,7 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
         body: JSON.stringify({ prompt }),
       });
       const data = await res.json();
-      setResponse(`💬 AION:\n\n${data.reply || "No reply."}`);
+      setResponse(data.reply || "No reply.");
     } catch {
       setResponse("❌ AION error: Backend unreachable.");
     } finally {
@@ -54,9 +105,8 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
     try {
       const res = await fetch(`${API_BASE}/aion/boot-skill`, { method: "POST" });
       const data = await res.json();
-      setResponse(
-        `📦 Boot Skill: ${data.message || data.title || "No skill loaded."}`
-      );
+      setResponse(`📦 Boot Skill: ${data.message || data.title || "No skill loaded."}`);
+      fetchBootSkills();
     } catch {
       setResponse("❌ Error loading skill.");
     } finally {
@@ -67,13 +117,9 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
   const handleSkillReflect = async () => {
     setReflecting(true);
     try {
-      const res = await fetch(`${API_BASE}/aion/skill-reflect`, {
-        method: "POST",
-      });
+      const res = await fetch(`${API_BASE}/aion/skill-reflect`, { method: "POST" });
       const data = await res.json();
-      setResponse(
-        `🪞 Reflection: ${data.message || data.result || "No reflection result."}`
-      );
+      setResponse(`🧠 Reflection: ${data.message || data.result || "No reflection result."}`);
     } catch {
       setResponse("❌ Reflection failed.");
     } finally {
@@ -90,9 +136,7 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
         body: JSON.stringify({ trigger: "manual" }),
       });
       const data = await res.json();
-      setResponse(
-        `✅ Dream Result:\n\n${data.result || data.message || "Dream complete."}`
-      );
+      setResponse(`✅ Dream Result:\n\n${data.result || data.message || "Dream complete."}`);
     } catch {
       setResponse("❌ Dream scheduler error: Could not reach backend.");
     }
@@ -100,138 +144,48 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
 
   const handleGameDreamTrigger = async () => {
     setGameDreamLoading(true);
+    setGameDreamResult("");
     try {
-      const res = await fetch(`${API_BASE}/aion/test-game-dream`, {
-        method: "POST",
-      });
+      const res = await fetch(`${API_BASE}/aion/test-game-dream`, { method: "POST" });
       const data = await res.json();
-      setResponse(`🎮 Game Dream:\n\n${data.dream || "No dream returned."}`);
+      if (data?.dream) {
+        setGameDreamResult(data.dream);
+        setGameDreams((prev) => [data.dream, ...prev]);
+      } else {
+        setGameDreamResult("❌ No dream returned.");
+      }
     } catch {
-      setResponse("❌ Error triggering game dream.");
+      setGameDreamResult("❌ Error triggering game dream.");
     } finally {
       setGameDreamLoading(false);
     }
   };
 
   return (
-    <div
-      className={`flex flex-col h-full ${
-        side === "left" ? "bg-gray-50" : "bg-gray-100"
-      }`}
-    >
-      <div className="flex-1 grid grid-cols-2 gap-2 p-4">
-        {/* LEFT: Terminal Output */}
-        <div className="border rounded p-4 bg-white whitespace-pre-wrap text-sm font-mono overflow-y-auto">
-          {response || "Awaiting command..."}
-        </div>
-
-        {/* RIGHT: Prompt Input and Controls */}
-        <div className="flex flex-col">
-          <form onSubmit={handleSubmit} className="flex gap-2 mb-3">
-            <input
-              type="text"
-              className="flex-1 p-2 border border-gray-300 rounded focus:outline-none"
-              placeholder="Ask AION anything..."
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-            />
-            <button
-              type="submit"
-              disabled={loading}
-              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-            >
-              {loading ? "Thinking..." : "Ask"}
-            </button>
-          </form>
-
-          <div className="flex flex-wrap gap-2 mb-2">
-            <button
-              onClick={() =>
-                fetchAndSet(
-                  "/aion/status",
-                  "Status",
-                  (d) =>
-                    `Unlocked: ${d.unlocked?.join(", ") || "-"}\nLocked: ${
-                      d.locked?.join(", ") || "-"
-                    }`
-                )
-              }
-              className="bg-blue-500 text-white px-3 py-1 rounded"
-            >
-              Status
-            </button>
-            <button
-              onClick={() =>
-                fetchAndSet("/aion/goal", "Goal", (d) => d.goal || "No goal")
-              }
-              className="bg-blue-500 text-white px-3 py-1 rounded"
-            >
-              Goal
-            </button>
-            <button
-              onClick={() =>
-                fetchAndSet(
-                  "/aion/identity",
-                  "Identity",
-                  (d) =>
-                    `${d.description}\nTraits: ${JSON.stringify(
-                      d.personality_traits,
-                      null,
-                      2
-                    )}`
-                )
-              }
-              className="bg-blue-500 text-white px-3 py-1 rounded"
-            >
-              Identity
-            </button>
-            <button
-              onClick={() =>
-                fetchAndSet(
-                  "/aion/situation",
-                  "Situation",
-                  (d) => JSON.stringify(d.awareness, null, 2)
-                )
-              }
-              className="bg-blue-500 text-white px-3 py-1 rounded"
-            >
-              Situation
-            </button>
-          </div>
-
-          <div className="flex flex-wrap gap-2 mb-2">
-            <button
-              onClick={handleBootSkill}
-              disabled={bootLoading}
-              className="bg-purple-600 text-white px-3 py-1 rounded"
-            >
-              {bootLoading ? "Loading..." : "🔁 Boot Skill"}
-            </button>
-            <button
-              onClick={handleSkillReflect}
-              disabled={reflecting}
-              className="bg-yellow-500 text-white px-3 py-1 rounded"
-            >
-              {reflecting ? "Reflecting..." : "🪞 Reflect"}
-            </button>
-            <button
-              onClick={handleDreamTrigger}
-              className="bg-green-600 text-white px-3 py-1 rounded"
-            >
-              🌙 Run Dream
-            </button>
-            <button
-              onClick={handleGameDreamTrigger}
-              disabled={gameDreamLoading}
-              className="bg-indigo-600 text-white px-3 py-1 rounded"
-            >
-              {gameDreamLoading ? "Dreaming..." : "🎮 Game Dream"}
-            </button>
-            <button className="bg-gray-200 px-3 py-1 rounded">
-              Dream Visualizer
-            </button>
-          </div>
-        </div>
+    <div className="fixed bottom-0 left-0 w-full bg-white border-t border-gray-300 shadow-inner z-50">
+      <div className="flex space-x-4 border-b px-4 pt-2 text-sm">
+        <button onClick={() => setActiveTab('chat')} className={`pb-2 ${activeTab === 'chat' ? 'border-b-2 border-blue-500 font-semibold' : ''}`}>💬 Chat</button>
+        <button onClick={() => setActiveTab('dreams')} className={`pb-2 ${activeTab === 'dreams' ? 'border-b-2 border-blue-500 font-semibold' : ''}`}>🌙 Dream Visualizer</button>
+      </div>
+      <div className="p-4 max-h-[60vh] overflow-y-auto text-sm font-mono text-gray-800">
+        {activeTab === 'chat' && (
+          <>
+            <div className="mb-2">{response || "Awaiting command..."}</div>
+            <form onSubmit={handleSubmit} className="flex gap-2 mb-3">
+              <input type="text" className="flex-1 p-2 border border-gray-300 rounded" placeholder="Ask AION anything..." value={prompt} onChange={(e) => setPrompt(e.target.value)} />
+              <button type="submit" disabled={loading} className="bg-blue-600 text-white px-4 py-2 rounded">{loading ? "Thinking..." : "Ask"}</button>
+            </form>
+            <div className="flex flex-wrap gap-2 mb-2">
+              <button onClick={handleBootSkill} disabled={bootLoading} className="bg-purple-600 text-white px-3 py-1 rounded">{bootLoading ? "Loading..." : "🔁 Boot Skill"}</button>
+              <button onClick={handleSkillReflect} disabled={reflecting} className="bg-yellow-500 text-white px-3 py-1 rounded">{reflecting ? "Reflecting..." : "🪞 Reflect"}</button>
+              <button onClick={handleDreamTrigger} className="bg-green-600 text-white px-3 py-1 rounded">🌙 Run Dream</button>
+              <button onClick={handleGameDreamTrigger} disabled={gameDreamLoading} className="bg-indigo-600 text-white px-3 py-1 rounded">{gameDreamLoading ? "Dreaming..." : "🎮 Game Dream"}</button>
+            </div>
+          </>
+        )}
+        {activeTab === 'dreams' && (
+          <div className="text-gray-500 italic">🚧 Dream Visualizer coming soon...</div>
+        )}
       </div>
     </div>
   );
