@@ -3,11 +3,10 @@
 import React, { useEffect, useState } from "react";
 import useAuthRedirect from "@/hooks/useAuthRedirect";
 
-useAuthRedirect("admin");
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "";
-
 export default function AIONDashboard() {
+  useAuthRedirect("admin");
+
+  const API_BASE = process.env.NEXT_PUBLIC_API_URL || "";
   const [status, setStatus] = useState<any>(null);
   const [terminalInput, setTerminalInput] = useState("");
   const [response, setResponse] = useState("");
@@ -44,14 +43,14 @@ export default function AIONDashboard() {
   return (
     <div className="flex flex-col h-screen text-black font-sans">
       {/* Top Header */}
-      <div className="p-4 border-b">
+      <div className="p-4 border-b bg-white">
         <h1 className="text-3xl font-bold">🧠 AION Dashboard</h1>
         <p className="text-sm text-gray-600">Phase: {status?.phase || "Loading..."}</p>
         <p>
-          <strong>Unlocked:</strong> {status?.unlocked?.join(", ") || "Loading..."}
+          <strong>Unlocked Modules:</strong> {status?.unlocked?.join(", ") || "Loading..."}
         </p>
         <p>
-          <strong>Locked:</strong> {status?.locked?.join(", ") || "Loading..."}
+          <strong>Locked Modules:</strong> {status?.locked?.join(", ") || "Loading..."}
         </p>
       </div>
 
