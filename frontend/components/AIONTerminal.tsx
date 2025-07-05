@@ -173,102 +173,64 @@ export default function AIONTerminal() {
   };
 
   return (
-    <div className="p-6 max-w-5xl mx-auto bg-white text-black rounded-xl shadow-xl h-screen overflow-y-auto">
-      <h2 className="text-2xl font-bold mb-4">🧠 AION Terminal</h2>
+    <div className="fixed bottom-0 left-0 w-full bg-white border-t border-gray-300 shadow-inner z-50">
+      <div className="p-4 max-h-[60vh] overflow-y-auto text-sm font-mono text-gray-800">
+        <form onSubmit={handleSubmit} className="flex gap-2 mb-3">
+          <input
+            type="text"
+            className="flex-1 p-2 border border-gray-300 rounded focus:outline-none"
+            placeholder="Ask AION anything..."
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+          />
+          <button
+            type="submit"
+            disabled={loading}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          >
+            {loading ? "Thinking..." : "Ask"}
+          </button>
+        </form>
 
-      <form onSubmit={handleSubmit} className="flex gap-2 mb-4">
-        <input
-          type="text"
-          className="flex-1 p-2 border border-gray-300 rounded focus:outline-none"
-          placeholder="Ask AION anything..."
-          value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
-        />
-        <button
-          type="submit"
-          disabled={loading}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-        >
-          {loading ? "Thinking..." : "Ask AION"}
-        </button>
-      </form>
+        {response && (
+          <div className="bg-gray-100 p-3 rounded mb-4 whitespace-pre-wrap">
+            <strong>💬 AION:</strong>
+            <div>{response}</div>
+          </div>
+        )}
 
-      {response && (
-        <div className="bg-gray-100 border border-gray-300 rounded p-4 whitespace-pre-line mb-4">
-          <strong>💬 AION:</strong>
-          <p>{response}</p>
-        </div>
-      )}
-
-      <div className="space-y-4">
-        <div className="bg-gray-100 p-4 rounded shadow">
-          <h3 className="font-semibold">🎯 Current Goal</h3>
-          <p>{goal}</p>
-        </div>
-
-        <div className="bg-gray-100 p-4 rounded shadow">
-          <h3 className="font-semibold">🧬 Identity</h3>
-          <p>{identityDesc}</p>
-          <ul className="mt-2">
-            {Object.entries(traits).map(([trait, value]) => (
-              <li key={trait}>
-                {trait}: {value}
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div className="bg-gray-100 p-4 rounded shadow">
-          <h3 className="font-semibold">🧠 Awareness</h3>
-          {awareness ? (
-            <>
-              <p>Risk: {awareness.current_risk}</p>
-              <p>
-                Impact Summary: ✅ {awareness.recent_summary.positive} / ⚪{" "}
-                {awareness.recent_summary.neutral} / ❌{" "}
-                {awareness.recent_summary.negative}
-              </p>
-            </>
-          ) : (
-            <p>No awareness data</p>
-          )}
-        </div>
-
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2 mb-2">
           <button
             onClick={handleBootSkill}
             disabled={bootLoading}
-            className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700"
+            className="bg-purple-600 text-white px-3 py-1 rounded hover:bg-purple-700"
           >
-            {bootLoading ? "Loading skill..." : "🔁 Boot Skill"}
+            {bootLoading ? "Loading..." : "🔁 Boot Skill"}
           </button>
-
           <button
             onClick={handleSkillReflect}
             disabled={reflecting}
-            className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
+            className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600"
           >
-            {reflecting ? "Reflecting..." : "🪞 Reflect Skill"}
+            {reflecting ? "Reflecting..." : "🪞 Reflect"}
           </button>
-
           <button
             onClick={handleDreamTrigger}
-            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+            className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
           >
             🌙 Run Dream
           </button>
-
           <button
             onClick={handleGameDreamTrigger}
             disabled={gameDreamLoading}
-            className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
+            className="bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-700"
           >
             {gameDreamLoading ? "Dreaming..." : "🎮 Game Dream"}
           </button>
         </div>
 
         {gameDreamResult && (
-          <div className="mt-4 bg-gray-100 p-4 rounded whitespace-pre-line">
+          <div className="bg-gray-100 p-2 rounded mt-2 whitespace-pre-wrap">
             <strong>🎮 Game Dream Result:</strong>
             <p>{gameDreamResult}</p>
           </div>
