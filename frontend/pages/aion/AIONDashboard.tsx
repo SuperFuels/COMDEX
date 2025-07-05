@@ -1,34 +1,31 @@
-// frontend/pages/aion/AIONDashboard.tsx
-
 import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
-import Split from 'react-split';
 import styles from '@/styles/AIONDashboard.module.css';
 import { Button } from '@/components/ui/button';
 
 const AIONTerminal = dynamic(() => import('@/components/AIONTerminal'), { ssr: false });
 
 export default function AIONDashboard() {
-  const [leftLogs, setLeftLogs] = useState<string[]>([]);
-  const [rightLogs, setRightLogs] = useState<string[]>([]);
-  const [input, setInput] = useState('');
+  const [leftOutput, setLeftOutput] = useState('');
+  const [rightOutput, setRightOutput] = useState('');
 
-  const appendLeft = (msg: string) => setLeftLogs((prev) => [...prev, msg]);
-  const appendRight = (msg: string) => setRightLogs((prev) => [...prev, msg]);
-
-  const runEndpoint = async (endpoint: string) => {
-    appendLeft(`▶️ ${endpoint}...`);
+  const handleButtonClick = async (endpoint: string) => {
     try {
       const res = await fetch(`/api/aion/${endpoint}`);
       const data = await res.json();
-      appendLeft(`✅ ${endpoint}: ${JSON.stringify(data)}`);
-    } catch (e) {
-      appendLeft(`❌ ${endpoint} failed`);
+      setLeftOutput((prev) => `${prev}\n> /${endpoint}\n${JSON.stringify(data, null, 2)}`);
+    } catch (err) {
+      setLeftOutput((prev) => `${prev}\n> /${endpoint}\n[ERROR] ${err}`);
     }
   };
 
-  const sendPrompt = async () => {
-    appendRight(`🧠 ${input}`);
+  const handleAsk = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const input = e.currentTarget.ask.value;
+    if (!input) return;
+    setRightOutput((prev) => `${prev}\n> ${input}`);
+    e.currentTarget.reset();
+
     try {
       const res = await fetch('/api/aion', {
         method: 'POST',
@@ -36,55 +33,56 @@ export default function AIONDashboard() {
         body: JSON.stringify({ prompt: input }),
       });
       const data = await res.json();
-      appendRight(`💬 ${data.response}`);
-    } catch (e) {
-      appendRight('❌ Prompt failed');
+      setRightOutput((prev) => `${prev}\n${data.response}`);
+    } catch (err) {
+      setRightOutput((prev) => `${prev}\n[ERROR] ${err}`);
     }
-    setInput('');
   };
 
   return (
-    <div className={styles.container}>
-      <Split className={styles.split} minSize={200} gutterSize={10}>
-        <div className={styles.leftPane}>
-          <div className={styles.visualizer}>
-            <h2 className="font-semibold text-lg">🧠 Dream Visualizer</h2>
-            <div className="p-4 bg-gray-100 rounded">Coming soon: Visualized dreams & memory maps</div>
-          </div>
-          <div className={styles.logBox}>
-            {leftLogs.map((log, i) => (
-              <div key={i} className={styles.logLine}>{log}</div>
-            ))}
-          </div>
-        </div>
+    <div className={styles.dashboardContainer}>
+      {/* Top Bar */}
+      <div className={styles.topBar}>
+        <h2 className={styles.heading}>🧠 Dream Visualizer</h2>
+        <div className={styles.subtitle}>Coming soon: Visualized dreams & memory maps</div>
+      </div>
 
-        <div className={styles.rightPane}>
-          <div className={styles.logBox}>
-            {rightLogs.map((log, i) => (
-              <div key={i} className={styles.logLine}>{log}</div>
-            ))}
-          </div>
+      {/* Split Terminal Panels */}
+      <div className={styles.terminalSection}>
+        <div className={styles.terminalPanel}>
+          <pre className={styles.terminalText}>{leftOutput || 'Awaiting command...'}</pre>
         </div>
-      </Split>
-
-      <div className={styles.footer}>
-        <div className={styles.footerLeft}>
-          <Button className="bg-purple-600" onClick={() => runEndpoint('boot-skill')}>🚀 Boot Skill</Button>
-          <Button className="bg-yellow-500" onClick={() => runEndpoint('skill-reflect')}>✨ Reflect</Button>
-          <Button className="bg-green-600" onClick={() => runEndpoint('run-dream')}>🌙 Run Dream</Button>
-          <Button className="bg-indigo-600" onClick={() => runEndpoint('game-dream')}>🎮 Game Dream</Button>
-        </div>
-        <div className={styles.footerRight}>
-          <input
-            type="text"
-            className={styles.inputBar}
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask AION something..."
-          />
-          <Button className="ml-2 bg-black text-white" onClick={sendPrompt}>Ask</Button>
+        <div className={styles.divider}></div>
+        <div className={styles.terminalPanel}>
+          <pre className={styles.terminalText}>{rightOutput || 'Ask me something...'}</pre>
         </div>
       </div>
+
+      {/* Sticky Footer Terminal Controls */}
+      <div className={styles.footerTerminal}>
+        <div className={styles.footerLeft}>
+          <Button onClick={() => handleButtonClick('identity')}>Identity</Button>
+          <Button onClick={() => handleButtonClick('goal')}>Goal</Button>
+          <Button onClick={() => handleButtonClick('situation')}>Situation</Button>
+          <Button onClick={() => handleButtonClick('boot-skill')}>Boot Skill</Button>
+          <Button onClick={() => handleButtonClick('skill-reflect')}>Skill Reflect</Button>
+          <Button onClick={() => handleButtonClick('run-dream')}>Run Dream</Button>
+        </div>
+        <div className={styles.footerRight}>
+          <form onSubmit={handleAsk} className={styles.askForm}>
+            <input
+              type="text"
+              name="ask"
+              placeholder="Ask AION anything..."
+              className={styles.askInput}
+            />
+            <Button type="submit">Send</Button>
+          </form>
+        </div>
+      </div>
+
+      {/* Hidden Terminal Engine (mounts real-time terminal) */}
+      <AIONTerminal />
     </div>
   );
 }
