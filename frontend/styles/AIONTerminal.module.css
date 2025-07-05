@@ -1,0 +1,86 @@
+/* styles/AIONTerminal.module.css */
+
+.terminalWrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: #111;
+  color: #0f0;
+  font-family: 'Courier New', Courier, monospace;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+.leftTerminal,
+.rightTerminal {
+  flex: 1;
+  padding: 1rem;
+  margin-bottom: 0.5rem;
+  border: 1px solid #444;
+  background-color: #000;
+  overflow-y: auto;
+  height: 150px;
+}
+
+.terminalText {
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 0.875rem;
+}
+
+.footerTerminal {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #333;
+}
+
+.presetButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.footerButton {
+  background-color: #222;
+  color: #0f0;
+  border: 1px solid #0f0;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.75rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.footerButton:hover {
+  background-color: #0f0;
+  color: #000;
+}
+
+.promptInput {
+  flex: 1;
+  padding: 0.5rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  border: 1px solid #555;
+  background-color: #000;
+  color: #0f0;
+  font-family: monospace;
+}
+
+.askButton {
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  background-color: #0f0;
+  color: #000;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+.askButton:hover {
+  background-color: #afffaf;
+}
