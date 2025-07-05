@@ -27,7 +27,7 @@ export default function AIONDashboard() {
     >
       <div className="flex flex-1 overflow-hidden">
         <div className="overflow-auto" style={{ width: `${leftWidth}%` }}>
-          <AIONTerminal side="left" />
+          <AIONTerminal />
         </div>
         <div
           className="w-1 bg-gray-300 cursor-col-resize"
@@ -35,7 +35,7 @@ export default function AIONDashboard() {
           onMouseUp={stopDrag}
         />
         <div className="overflow-auto" style={{ width: `${100 - leftWidth}%` }}>
-          <AIONTerminal side="right" />
+          <AIONTerminal />
         </div>
       </div>
 
