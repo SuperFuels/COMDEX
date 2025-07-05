@@ -1,4 +1,3 @@
-// frontend/components/AIONTerminal.tsx
 import React, { useState, useEffect } from 'react';
 import {
   FaBolt, FaPlay, FaCogs, FaBrain, FaBullseye, FaSync, FaChevronDown
@@ -46,6 +45,13 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
     setInput('');
     setDropdownOpen(false);
   };
+
+  // ✅ Inject boot message only once for the left terminal
+  useEffect(() => {
+    if (side === 'left' && messages.length === 0) {
+      callEndpoint('', `🟢 Booting AION Terminal...\nProvide me with an update on your overall progress & how you are feeling.`);
+    }
+  }, [side, messages.length]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });

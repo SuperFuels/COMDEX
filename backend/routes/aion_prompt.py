@@ -1,11 +1,13 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
 from backend.modules.skills.aion_prompt_engine import build_prompt_context
-from openai import OpenAI
+import openai
 import os
 
 router = APIRouter()
-openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+# Set API key (for SDK v0.x)
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 class PromptRequest(BaseModel):
     prompt: str
@@ -18,13 +20,13 @@ async def prompt_aion(req: PromptRequest):
     try:
         messages = build_prompt_context(req.prompt)
 
-        response = openai_client.chat.completions.create(
-            model="gpt-4-1106-preview",
+        response = openai.ChatCompletion.create(
+            model="gpt-4",  # or "gpt-4-0613" if needed
             messages=messages,
             temperature=0.8
         )
 
-        aion_reply = response.choices[0].message.content.strip()
+        aion_reply = response.choices[0].message['content'].strip()
         return {"reply": aion_reply}
 
     except Exception as e:
