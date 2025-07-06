@@ -6,7 +6,7 @@ interface Message {
   content: string;
 }
 
-export default function useAION() {
+export default function useAION(side: 'left' | 'right') {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -35,7 +35,7 @@ export default function useAION() {
   const callEndpoint = async (
     endpoint: string,
     label: string,
-    method: 'get' | 'post' = 'post' // ✅ now supports third param
+    method: 'get' | 'post' = 'post'
   ) => {
     append('system', `📡 Fetching ${label}...`);
     try {
@@ -59,14 +59,16 @@ export default function useAION() {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  // 🛑 Only run boot message on left side
   useEffect(() => {
     const startup = async () => {
-      append('system', '🟢 Booting AION Terminal...');
-      await sendInitialPrompt();
+      if (side === 'left') {
+        append('system', '🟢 Booting AION Terminal...');
+        await sendInitialPrompt();
+      }
     };
     startup();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [side]);
 
   const sendInitialPrompt = async () => {
     append('user', 'Provide me with an update on your overall progress & how you are feeling.');

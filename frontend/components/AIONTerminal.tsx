@@ -17,7 +17,7 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
     sendPrompt,
     callEndpoint,
     bottomRef,
-  } = useAION();
+  } = useAION(side); // ✅ PASS SIDE
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
@@ -45,24 +45,6 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
     setInput('');
     setDropdownOpen(false);
   };
-
-  // ✅ Inject boot message only once for the left terminal (and never duplicate)
-  useEffect(() => {
-    if (
-      side === 'left' &&
-      messages.length === 0 &&
-      !messages.some((msg: any) =>
-        typeof msg === 'string'
-          ? msg.includes('Booting AION Terminal')
-          : msg?.content?.includes('Booting AION Terminal')
-      )
-    ) {
-      callEndpoint(
-        '',
-        `🟢 Booting AION Terminal...\nProvide me with an update on your overall progress & how you are feeling.`
-      );
-    }
-  }, [side, messages.length]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
