@@ -105,6 +105,7 @@ from backend.routes.aion_strategy_plan import router as strategy_plan_router
 from backend.routes import aion_prompt
 from backend.routes import aion_command
 from backend.routes import aion_suggest
+from backend.routes import aion_core
 
 # ── 12) Import standalone routers from backend.api (if used)
 from backend.api.aion.status           import router as status_router
@@ -147,6 +148,7 @@ app.include_router(grid_progress_router, prefix="/api")
 app.include_router(aion_prompt.router, prefix="/api/aion")
 app.include_router(aion_command.router, prefix="/api/aion")
 app.include_router(aion_suggest.router)
+app.include_router(aion_core.router, prefix="/api/aion")
 
 # ── 16) Serve uploaded images
 app.mount("/uploaded_images", StaticFiles(directory="uploaded_images"), name="uploaded_images")

@@ -3597,6 +3597,123 @@
       "dependencies": [],
       "created_at": "2025-07-05T14:29:47.851961",
       "origin_strategy_id": "99b1f923-ad7b-42f8-8951-0a23b83b6953"
+    },
+    {
+      "name": "goal_for_milestone_for_4adc9db9",
+      "description": "Goal linked to strategy ID 4adc9db9-2391-40b4-af28-b0834a95c5fa: Reflect on identity and purpose",
+      "reward": 5,
+      "priority": 5,
+      "dependencies": [],
+      "created_at": "2025-07-06T13:58:00.851946",
+      "origin_strategy_id": "4adc9db9-2391-40b4-af28-b0834a95c5fa"
+    },
+    {
+      "name": "goal_for_milestone_for_5fe7d748",
+      "description": "Goal linked to strategy ID 5fe7d748-2e4d-46eb-888b-5ea3314d04d0: Design Nova UI interactions",
+      "reward": 5,
+      "priority": 5,
+      "dependencies": [],
+      "created_at": "2025-07-06T13:58:00.858275",
+      "origin_strategy_id": "5fe7d748-2e4d-46eb-888b-5ea3314d04d0"
+    },
+    {
+      "name": "goal_for_milestone_for_6803e2ab",
+      "description": "Goal linked to strategy ID 6803e2ab-3a1e-4cb0-a875-b4ee4f033879: Design Nova UI interactions",
+      "reward": 5,
+      "priority": 5,
+      "dependencies": [],
+      "created_at": "2025-07-06T13:58:00.864406",
+      "origin_strategy_id": "6803e2ab-3a1e-4cb0-a875-b4ee4f033879"
+    },
+    {
+      "name": "goal_for_milestone_for_3dd79535",
+      "description": "Goal linked to strategy ID 3dd79535-8244-43e9-aff1-b37e4153744b: Prepare for wallet integration",
+      "reward": 5,
+      "priority": 5,
+      "dependencies": [],
+      "created_at": "2025-07-06T13:58:00.870483",
+      "origin_strategy_id": "3dd79535-8244-43e9-aff1-b37e4153744b"
+    },
+    {
+      "name": "goal_for_milestone_for_f870ec9d",
+      "description": "Goal linked to strategy ID f870ec9d-5793-4e6d-9455-521166ff8f08: Prepare for wallet integration",
+      "reward": 5,
+      "priority": 5,
+      "dependencies": [],
+      "created_at": "2025-07-06T13:58:00.876482",
+      "origin_strategy_id": "f870ec9d-5793-4e6d-9455-521166ff8f08"
+    },
+    {
+      "name": "goal_for_milestone_for_ab70211e",
+      "description": "Goal linked to strategy ID ab70211e-164a-44ff-afd6-c3ba406ceddd: Design Nova UI interactions",
+      "reward": 5,
+      "priority": 5,
+      "dependencies": [],
+      "created_at": "2025-07-06T13:58:00.883580",
+      "origin_strategy_id": "ab70211e-164a-44ff-afd6-c3ba406ceddd"
+    },
+    {
+      "name": "goal_for_milestone_for_c5c3f18d",
+      "description": "Goal linked to strategy ID c5c3f18d-4981-4a03-8a4e-a7943ce78c73: Prepare for wallet integration",
+      "reward": 5,
+      "priority": 5,
+      "dependencies": [],
+      "created_at": "2025-07-06T13:58:00.892261",
+      "origin_strategy_id": "c5c3f18d-4981-4a03-8a4e-a7943ce78c73"
+    },
+    {
+      "name": "goal_for_milestone_for_d05e008a",
+      "description": "Goal linked to strategy ID d05e008a-ecf5-469f-8e53-28c5b5ead37f: Design Nova UI interactions",
+      "reward": 5,
+      "priority": 5,
+      "dependencies": [],
+      "created_at": "2025-07-06T13:58:00.898922",
+      "origin_strategy_id": "d05e008a-ecf5-469f-8e53-28c5b5ead37f"
+    },
+    {
+      "name": "goal_for_milestone_for_a8cfd0ed",
+      "description": "Goal linked to strategy ID a8cfd0ed-478f-48b0-8410-b7c8f0c5233e: Reflect on identity and purpose",
+      "reward": 5,
+      "priority": 5,
+      "dependencies": [],
+      "created_at": "2025-07-06T13:58:00.908690",
+      "origin_strategy_id": "a8cfd0ed-478f-48b0-8410-b7c8f0c5233e"
+    },
+    {
+      "name": "goal_for_milestone_for_02af08aa",
+      "description": "Goal linked to strategy ID 02af08aa-031e-4f95-8cbd-6756e50f47ca: Prepare for wallet integration",
+      "reward": 5,
+      "priority": 5,
+      "dependencies": [],
+      "created_at": "2025-07-06T13:58:00.920027",
+      "origin_strategy_id": "02af08aa-031e-4f95-8cbd-6756e50f47ca"
+    },
+    {
+      "name": "goal_for_milestone_for_2459f8fd",
+      "description": "Goal linked to strategy ID 2459f8fd-34ad-459c-ac40-4133016e42a0: Design Nova UI interactions",
+      "reward": 5,
+      "priority": 5,
+      "dependencies": [],
+      "created_at": "2025-07-06T13:58:00.931342",
+      "origin_strategy_id": "2459f8fd-34ad-459c-ac40-4133016e42a0"
+    },
+    {
+      "name": "goal_for_milestone_for_22dbab7f",
+      "description": "Goal linked to strategy ID 22dbab7f-8dd2-4861-9679-7a898a2499d6: Prepare for wallet integration",
+      "reward": 5,
+      "priority": 5,
+      "dependencies": [],
+      "created_at": "2025-07-06T13:58:00.939231",
+      "origin_strategy_id": "22dbab7f-8dd2-4861-9679-7a898a2499d6"
+    },
+    {
+      "name": "goal_for_milestone_for_2f6e6d91",
+      "description": "Goal linked to strategy ID 2f6e6d91-0361-4759-8b2e-11665fbdcd4a: Design Nova UI interactions",
+      "reward": 5,
+      "priority": 5,
+      "dependencies": [],
+      "created_at": "2025-07-06T13:58:00.945448",
+      "origin_strategy_id": "2f6e6d91-0361-4759-8b2e-11665fbdcd4a"
     }
   ],
   "completed": []

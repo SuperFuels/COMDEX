@@ -1,3 +1,4 @@
+// hooks/useAION.ts
 import { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 
@@ -24,7 +25,7 @@ export default function useAION(side: 'left' | 'right') {
     setLoading(true);
 
     try {
-      const res = await axios.post(`${API_URL}/aion/prompt`, { prompt: input });
+      const res = await axios.post(`${API_URL}/api/aion/prompt`, { prompt: input });
       append('aion', res.data.reply || '(no response)');
     } catch (err: any) {
       append('system', `❌ AION error: ${err.message}`);
@@ -41,17 +42,14 @@ export default function useAION(side: 'left' | 'right') {
   ) => {
     append('system', `📡 Fetching ${label}...`);
     try {
-      const url = `${API_URL}/${endpoint.replace(/^\/+/, '')}`; // remove any leading slash from endpoint
+      const url = `${API_URL}/api/aion/${endpoint.replace(/^\/+/, '')}`; // ensure clean path
+      const res = method === 'post'
+        ? await axios.post(url)
+        : await axios.get(url);
 
-      const res =
-        method === 'post'
-          ? await axios.post(url)
-          : await axios.get(url);
-
-      const dataString =
-        typeof res.data === 'object'
-          ? JSON.stringify(res.data, null, 2)
-          : String(res.data);
+      const dataString = typeof res.data === 'object'
+        ? JSON.stringify(res.data, null, 2)
+        : String(res.data);
 
       append('aion', `✅ ${label}:\n${dataString}`);
     } catch (err: any) {
@@ -63,23 +61,22 @@ export default function useAION(side: 'left' | 'right') {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // 🛑 Only run boot message on left side
+  // 🔁 Boot message only for left terminal
   useEffect(() => {
-    const startup = async () => {
+    const boot = async () => {
       if (side === 'left') {
         append('system', '🟢 Booting AION Terminal...');
         await sendInitialPrompt();
       }
     };
-    startup();
+    boot();
   }, [side]);
 
   const sendInitialPrompt = async () => {
-    append('user', 'Provide me with an update on your overall progress & how you are feeling.');
+    const prompt = 'Provide me with an update on your overall progress & how you are feeling.';
+    append('user', prompt);
     try {
-      const res = await axios.post(`${API_URL}/aion/prompt`, {
-        prompt: 'Provide me with an update on your overall progress & how you are feeling.',
-      });
+      const res = await axios.post(`${API_URL}/api/aion/prompt`, { prompt });
       append('aion', res.data.reply || '(no response)');
     } catch (err: any) {
       append('system', `❌ Startup failed: ${err.message}`);
