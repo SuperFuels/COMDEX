@@ -1,7 +1,14 @@
-# ✅ STEP 1: Central Command Registry (Python)
+# ✅ AION Central Command Registry
 # File: backend/modules/command_registry.py
 
-COMMANDS = [
+from difflib import get_close_matches
+from typing import Optional, Dict, List
+
+# ------------------------------------------
+# 🧠 Primary Command Definitions
+# ------------------------------------------
+
+COMMANDS: List[Dict] = [
     {
         "name": "run-learning-cycle",
         "description": "Run full memory → dream → goal → skill cycle",
@@ -70,18 +77,22 @@ COMMANDS = [
     }
 ]
 
-# -------------------------
-# 🔍 Fuzzy Matching Utility
-# -------------------------
+# ------------------------------------------
+# 🔍 Fuzzy Command Matching
+# ------------------------------------------
 
-from difflib import get_close_matches
-
-def resolve_command(input_cmd: str):
-    names = [cmd['name'] for cmd in COMMANDS]
-    match = get_close_matches(input_cmd, names, n=1, cutoff=0.6)
+def resolve_command(input_cmd: str) -> Optional[Dict]:
+    """
+    Fuzzy match a user command to the closest valid command in the registry.
+    """
+    names = [cmd["name"] for cmd in COMMANDS]
+    match = get_close_matches(input_cmd.strip(), names, n=1, cutoff=0.6)
     if match:
-        return next((cmd for cmd in COMMANDS if cmd['name'] == match[0]), None)
+        return next((cmd for cmd in COMMANDS if cmd["name"] == match[0]), None)
     return None
 
-def list_commands():
+def list_commands() -> List[Dict]:
+    """
+    Return the full list of available AION commands.
+    """
     return COMMANDS

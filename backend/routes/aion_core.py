@@ -1,5 +1,3 @@
-# backend/routes/aion_core.py
-
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 import traceback
@@ -16,8 +14,16 @@ from backend.modules.skills.boot_archiver import archive_learned_skills
 
 router = APIRouter()
 
+# ------------------------------
+# Request Models
+# ------------------------------
+
 class SeedRequest(BaseModel):
     seed: str = "AION should explore swarm intelligence for decentralized agent coordination."
+
+# ------------------------------
+# API Endpoints
+# ------------------------------
 
 @router.post("/run-learning-cycle")
 async def run_learning_cycle(seed_req: SeedRequest):
@@ -120,3 +126,43 @@ async def get_status():
         "wallet": wallet.get_all_balances(),
         "memory_count": len(memory.get_all())
     }
+
+# ------------------------------
+# 🔁 Catch-All Command Dispatcher
+# ------------------------------
+
+@router.post("/command")
+async def command_handler(payload: dict):
+    command = payload.get("command", "").strip()
+
+    if command == "run-dream":
+        return await run_dream()
+
+    elif command == "run-learning-cycle":
+        return await run_learning_cycle(SeedRequest())
+
+    elif command == "boot-skill":
+        return await boot_skill()
+
+    elif command == "skill-reflect":
+        return await skill_reflect()
+
+    elif command == "goal":
+        return await get_goals()
+
+    elif command == "status":
+        return await get_status()
+
+    else:
+        raise HTTPException(status_code=404, detail=f"Unknown command: {command}")
+
+# ------------------------------
+# Optional: Suggest Commands for Autocomplete
+# ------------------------------
+
+@router.post("/suggest")
+async def suggest_commands(payload: dict):
+    query = payload.get("query", "").lower()
+    commands = ["run-dream", "run-learning-cycle", "boot-skill", "skill-reflect", "goal", "status", "help"]
+    filtered = [cmd for cmd in commands if query in cmd]
+    return {"suggestions": filtered}

@@ -10,7 +10,7 @@ import subprocess  # ✅ For learning-cycle execution
 from backend.modules.skills.aion_prompt_engine import build_prompt_context
 from backend.modules.skills.milestone_tracker import MilestoneTracker
 from backend.modules.skills.goal_tracker import GoalTracker
-from backend.modules.commands_registry import get_command_registry  # ✅ NEW
+from backend.modules.command_registry import resolve_command, list_commands
 
 router = APIRouter()
 logger = logging.getLogger("comdex")

@@ -1,5 +1,7 @@
+// components/CommandBar.tsx
+
 import React, { useState, useEffect } from 'react';
-import { ChevronDown, Star, Clock } from 'lucide-react';
+import { ChevronDown, Star, Clock, CheckCircle, XCircle, Loader } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -28,6 +30,7 @@ export default function CommandBar({
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [history, setHistory] = useState<string[]>([]);
   const [favorites, setFavorites] = useState<string[]>([]);
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 
   useEffect(() => {
     const storedHistory = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
@@ -55,13 +58,20 @@ export default function CommandBar({
     return () => clearTimeout(delayDebounce);
   }, [input]);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!input.trim()) return;
     const newHistory = [input, ...history.filter((h) => h !== input)].slice(0, MAX_HISTORY);
     setHistory(newHistory);
     localStorage.setItem(HISTORY_KEY, JSON.stringify(newHistory));
     setSuggestions([]);
-    onSubmit();
+
+    setStatus('loading');
+    try {
+      await onSubmit();
+      setStatus('success');
+    } catch {
+      setStatus('error');
+    }
   };
 
   const toggleFavorite = (cmd: string) => {
@@ -113,6 +123,7 @@ export default function CommandBar({
                   onClick={() => {
                     setInputFromPreset(preset);
                     setShowDropdown(false);
+                    setTimeout(() => onSubmit(), 100); // ✅ Submit after preset selected
                   }}
                 >
                   {preset}
@@ -147,6 +158,12 @@ export default function CommandBar({
         >
           Run
         </Button>
+
+        <div className="w-5">
+          {status === 'loading' && <Loader className="animate-spin text-gray-400" size={20} />}
+          {status === 'success' && <CheckCircle className="text-green-500" size={20} />}
+          {status === 'error' && <XCircle className="text-red-500" size={20} />}
+        </div>
       </div>
 
       {/* History & Favorites Section */}
