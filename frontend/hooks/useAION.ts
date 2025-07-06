@@ -13,6 +13,7 @@ export default function useAION(side: 'left' | 'right') {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [tokenUsage, setTokenUsage] = useState<number | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const append = (role: Message['role'], content: string) => {
@@ -26,7 +27,19 @@ export default function useAION(side: 'left' | 'right') {
 
     try {
       const res = await axios.post(`${API_URL}/api/aion/prompt`, { prompt: input });
-      append('aion', res.data.reply || '(no response)');
+
+      const reply = res.data.reply || '(no response)';
+      const tokens = res.data.tokens_used;
+      const cost = res.data.cost_estimate;
+
+      if (tokens) setTokenUsage(tokens);
+
+      let formatted = reply;
+      if (tokens || cost) {
+        formatted += `\n\n🧮 Tokens used: ${tokens || 'N/A'}\n💸 Estimated cost: $${cost || 'N/A'}`;
+      }
+
+      append('aion', formatted);
     } catch (err: any) {
       append('system', `❌ AION error: ${err.message}`);
     }
@@ -42,16 +55,23 @@ export default function useAION(side: 'left' | 'right') {
   ) => {
     append('system', `📡 Fetching ${label}...`);
     try {
-      const url = `${API_URL}/api/aion/${endpoint.replace(/^\/+/, '')}`; // ensure clean path
+      const url = `${API_URL}/api/aion/${endpoint.replace(/^\/+/, '')}`;
       const res = method === 'post'
         ? await axios.post(url)
         : await axios.get(url);
 
-      const dataString = typeof res.data === 'object'
-        ? JSON.stringify(res.data, null, 2)
-        : String(res.data);
+      const data = res.data;
+      if (data.tokens_used) setTokenUsage(data.tokens_used);
 
-      append('aion', `✅ ${label}:\n${dataString}`);
+      let formatted = typeof data === 'object'
+        ? JSON.stringify(data, null, 2)
+        : String(data);
+
+      if (data.tokens_used || data.cost_estimate) {
+        formatted += `\n\n🧮 Tokens used: ${data.tokens_used || 'N/A'}\n💸 Estimated cost: $${data.cost_estimate || 'N/A'}`;
+      }
+
+      append('aion', `✅ ${label}:\n${formatted}`);
     } catch (err: any) {
       append('system', `❌ ${label} error: ${err.message}`);
     }
@@ -61,7 +81,6 @@ export default function useAION(side: 'left' | 'right') {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // 🔁 Boot message only for left terminal
   useEffect(() => {
     const boot = async () => {
       if (side === 'left') {
@@ -77,7 +96,19 @@ export default function useAION(side: 'left' | 'right') {
     append('user', prompt);
     try {
       const res = await axios.post(`${API_URL}/api/aion/prompt`, { prompt });
-      append('aion', res.data.reply || '(no response)');
+
+      const reply = res.data.reply || '(no response)';
+      const tokens = res.data.tokens_used;
+      const cost = res.data.cost_estimate;
+
+      if (tokens) setTokenUsage(tokens);
+
+      let formatted = reply;
+      if (tokens || cost) {
+        formatted += `\n\n🧮 Tokens used: ${tokens || 'N/A'}\n💸 Estimated cost: $${cost || 'N/A'}`;
+      }
+
+      append('aion', formatted);
     } catch (err: any) {
       append('system', `❌ Startup failed: ${err.message}`);
     }
@@ -91,5 +122,6 @@ export default function useAION(side: 'left' | 'right') {
     sendPrompt,
     callEndpoint,
     bottomRef,
+    tokenUsage,
   };
 }

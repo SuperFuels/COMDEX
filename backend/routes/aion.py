@@ -18,12 +18,15 @@ logger = logging.getLogger("comdex")
 openai.api_key = os.getenv("OPENAI_API_KEY")
 logger.info(f"OpenAI API Key loaded: {'Yes' if openai.api_key else 'No'}")
 
+
 class AIONRequest(BaseModel):
     prompt: str
+
 
 class GoalCreateRequest(BaseModel):
     title: str
     description: str
+
 
 @router.post("/")
 async def ask_aion(request: AIONRequest):
@@ -38,21 +41,32 @@ async def ask_aion(request: AIONRequest):
 
         reply = response.choices[0].message["content"]
 
-        # Detect milestones from reply
+        # ✅ Token usage info
+        usage = response.usage
+        tokens_used = usage.total_tokens if usage else None
+        cost_per_1k = 0.03  # GPT-4 estimated cost per 1K tokens
+        estimated_cost = round((tokens_used / 1000) * cost_per_1k, 4) if tokens_used else None
+
+        # ✅ Track milestones and goals
         tracker = MilestoneTracker()
         tracker.detect_milestones_from_dream(reply)
 
-        # Extract goals from reply lines
         goal_tracker = GoalTracker()
         for line in reply.splitlines():
             if line.strip().lower().startswith("goal:"):
                 goal_text = line.split(":", 1)[1].strip()
                 goal_tracker.add_goal(goal_text)
 
-        return {"reply": reply}
+        return {
+            "reply": reply,
+            "tokens_used": tokens_used,
+            "cost_estimate": f"${estimated_cost}",
+            "model": response.model,
+        }
 
     except Exception as e:
         return {"reply": f"❌ AION error: {str(e)}"}
+
 
 @router.get("/status")
 async def get_aion_status():
@@ -68,6 +82,7 @@ async def get_aion_status():
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": str(e)})
 
+
 @router.get("/strategy-plan")
 async def get_strategy_plan():
     try:
@@ -77,6 +92,7 @@ async def get_strategy_plan():
         return JSONResponse(content={"strategy": planner.strategies})
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": str(e)})
+
 
 @router.get("/current-goal")
 async def get_current_goal():
@@ -88,6 +104,7 @@ async def get_current_goal():
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": str(e)})
 
+
 @router.get("/goals")
 async def get_saved_goals():
     try:
@@ -96,6 +113,7 @@ async def get_saved_goals():
         return JSONResponse(content={"goals": goals})
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": str(e)})
+
 
 @router.post("/goals/")
 async def create_goal(goal: GoalCreateRequest):
@@ -110,6 +128,7 @@ async def create_goal(goal: GoalCreateRequest):
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": str(e)})
 
+
 @router.get("/learned-skills")
 async def get_learned_skills():
     try:
@@ -119,6 +138,7 @@ async def get_learned_skills():
         return JSONResponse(content=skills)
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": f"Failed to load learned skills: {str(e)}"})
+
 
 # ✅ NEW: POST endpoint to run the full AION learning cycle script
 @router.post("/learning-cycle")

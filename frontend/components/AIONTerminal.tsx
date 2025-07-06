@@ -17,6 +17,7 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
     sendPrompt,
     callEndpoint,
     bottomRef,
+    tokenUsage
   } = useAION(side); // ✅ PASS SIDE
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -54,7 +55,7 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
     <div className="flex flex-col h-full">
       {side === 'left' ? (
         // 🔧 LEFT: Command Bar with Presets
-        <div className="relative flex px-2 gap-2 py-1">
+        <div className="relative flex px-4 gap-2 py-2">
           <div className="relative flex-1">
             <input
               className="w-full border border-gray-300 px-3 py-1 rounded text-sm"
@@ -95,7 +96,7 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
         </div>
       ) : (
         // 💬 RIGHT: Prompt Bar with Ask button
-        <div className="relative flex px-2 gap-2 py-1">
+        <div className="relative flex px-4 gap-2 py-2">
           <input
             className="w-full border border-gray-300 px-3 py-1 rounded text-sm"
             placeholder="Ask AION something..."
@@ -123,6 +124,9 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
               {typeof msg === 'string' ? msg : msg?.content ?? '[Invalid message]'}
             </div>
           ))
+        )}
+        {tokenUsage && (
+          <div className="mt-2 text-xs text-gray-400">🧠 Token usage: {tokenUsage} tokens</div>
         )}
         <div ref={bottomRef} />
       </div>
