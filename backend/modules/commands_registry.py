@@ -38,6 +38,7 @@ COMMANDS = [
         "endpoint": "/api/aion/status",
         "method": "GET"
     },
+
     # 🪄 Stubbed Commands
     {
         "name": "show-boot-progress",
@@ -69,7 +70,10 @@ COMMANDS = [
     }
 ]
 
-# Fuzzy matcher helper
+# -------------------------
+# 🔍 Fuzzy Matching Utility
+# -------------------------
+
 from difflib import get_close_matches
 
 def resolve_command(input_cmd: str):

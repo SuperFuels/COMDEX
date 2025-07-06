@@ -2,9 +2,12 @@ from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
 import subprocess
 from backend.modules.command_registry import resolve_command
-from backend.modules.aion_core import AIONEngine  # your internal AION engine interface
+from backend.modules.aion_core import AIONEngine  # internal interface
+from backend.modules.hexcore.memory_engine import MemoryEngine  # ✅ added
+from backend.modules.command_registry import COMMANDS  # ✅ added
 
 router = APIRouter()
+memory = MemoryEngine()  # ✅ instantiate memory once
 
 # -------------------------
 # 1. Fuzzy Smart Command
@@ -32,6 +35,10 @@ async def execute_command(request: Request):
     stub = command_info.get("stub", False)
 
     if stub:
+        memory.store({
+            "label": f"command:{label}",
+            "content": f"🛠️ Stub command '{label}' triggered (no real execution)."
+        })
         return {"message": f"🛠️ This is a stubbed command: {label}", "stub": True}
 
     try:
@@ -39,7 +46,15 @@ async def execute_command(request: Request):
             result = await AIONEngine.get(route)
         else:
             result = await AIONEngine.post(route)
+
+        # ✅ Log successful execution to memory
+        memory.store({
+            "label": f"command:{label}",
+            "content": f"✅ Command '{label}' executed successfully.\nResult: {str(result)[:300]}"
+        })
+
         return {"message": result, "label": label}
+
     except Exception as e:
         return {"error": f"Failed to run {label}: {str(e)}"}
 
@@ -64,6 +79,22 @@ async def run_static_shell(input: CommandInput):
     cmd = ALLOWED_COMMANDS[cmd_key]
     try:
         result = subprocess.run(cmd, shell=True, check=True, text=True, capture_output=True)
-        return {"output": result.stdout.strip() or "✅ Shell command executed successfully."}
+        output = result.stdout.strip() or "✅ Shell command executed successfully."
+
+        # ✅ Log shell command
+        memory.store({
+            "label": f"shell:{cmd_key}",
+            "content": f"✅ Static shell command '{cmd_key}' executed.\nOutput: {output[:300]}"
+        })
+
+        return {"output": output}
     except subprocess.CalledProcessError as e:
         return {"error": f"❌ Execution failed: {e.stderr.strip()}"}
+
+# -------------------------
+# 3. Command Registry (GET)
+# -------------------------
+
+@router.get("/api/aion/command/registry")
+async def get_command_registry():
+    return {"commands": COMMANDS}

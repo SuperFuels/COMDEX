@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-  FaBolt, FaPlay, FaCogs, FaBrain, FaBullseye, FaSync, FaChevronDown
+  FaPlay, FaChevronDown
 } from 'react-icons/fa';
 import useAION from '../hooks/useAION';
 
@@ -18,22 +18,12 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
     callEndpoint,
     sendCommand,
     bottomRef,
-    tokenUsage
+    tokenUsage,
+    availableCommands,
   } = useAION(side);
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [activeFilter, setActiveFilter] = useState<'all' | 'aion' | 'user' | 'system' | 'data' | 'stub'>('all');
-
-  const presets = [
-    { label: 'Run Full Learning Cycle', value: 'run_learning_cycle', icon: <FaPlay className="text-blue-600" />, desc: 'Triggers the full AION learning script' },
-    { label: 'Nightly Dream Trigger', value: 'run_dream', icon: <FaBolt className="text-yellow-500" />, desc: 'Runs a simulated dream cycle' },
-    { label: 'Boot Next Skill', value: 'boot_skill', icon: <FaCogs className="text-gray-600" />, desc: 'Boots the next queued skill from bootloader' },
-    { label: 'Reflect on Skills', value: 'skill-reflect', icon: <FaBrain className="text-purple-500" />, desc: 'Generates a reflection on current skill progress' },
-    { label: 'Check Goals', value: 'goal', icon: <FaBullseye className="text-green-600" />, desc: 'Shows current goals and milestones' },
-    { label: 'System Status', value: 'status', icon: <FaSync className="text-indigo-600" />, desc: 'Returns current engine status' },
-    { label: 'Show Boot Progress', value: 'show-boot-progress', icon: <FaCogs className="text-gray-500" />, desc: 'Displays bootloader learning queue', stub: true },
-    { label: 'Sync State', value: 'sync-state', icon: <FaSync className="text-blue-400" />, desc: 'Resyncs internal state tracker', stub: true }
-  ];
 
   const handleSubmit = async () => {
     if (!input.trim()) return;
@@ -47,15 +37,27 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
     setDropdownOpen(false);
   };
 
-  const getMessageColor = (role: string) => {
-    switch (role) {
-      case 'aion': return 'text-black';
-      case 'user': return 'text-blue-600';
-      case 'system': return 'text-purple-600';
-      case 'data': return 'text-green-600';
-      case 'stub': return 'text-gray-500 italic';
-      default: return 'text-gray-700';
-    }
+  const getMessageColor = (role: string, status?: string) => {
+    const base =
+      role === 'aion' ? 'text-black' :
+      role === 'user' ? 'text-blue-600' :
+      role === 'system' ? 'text-purple-600' :
+      role === 'data' ? 'text-green-600' :
+      role === 'stub' ? 'text-gray-500 italic' :
+      'text-gray-700';
+
+    const statusStyle =
+      status === 'error' ? 'text-red-500' :
+      status === 'pending' ? 'animate-pulse text-yellow-600' :
+      '';
+
+    return `${base} ${statusStyle}`;
+  };
+
+  const getStatusIcon = (status?: string) => {
+    return status === 'pending' ? '🟡' :
+           status === 'error' ? '❌' :
+           status === 'success' ? '✅' : '';
   };
 
   const filteredMessages = messages.filter((msg) => {
@@ -86,17 +88,18 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
           </button>
           {dropdownOpen && (
             <div className="absolute left-0 top-10 w-full bg-white border border-gray-200 rounded shadow-lg z-10 max-h-60 overflow-auto">
-              {presets.map((preset) => (
+              {availableCommands.map((cmd) => (
                 <button
-                  key={preset.value}
-                  onClick={() => handlePresetClick(preset.value)}
+                  key={cmd.name}
+                  onClick={() => handlePresetClick(cmd.name)}
                   className="flex flex-col items-start w-full px-3 py-2 text-sm hover:bg-gray-100 text-left"
                 >
                   <div className="flex items-center gap-2">
-                    {preset.icon}
-                    <span className="font-medium">{preset.label}</span>
+                    <FaPlay className="text-blue-500" />
+                    <span className="font-medium">{cmd.name}</span>
+                    {cmd.stub && <span className="ml-2 text-xs text-orange-500">[stub]</span>}
                   </div>
-                  <div className="text-xs text-gray-500 ml-6">{preset.desc}</div>
+                  <div className="text-xs text-gray-500 ml-6">{cmd.description || cmd.endpoint}</div>
                 </button>
               ))}
             </div>
@@ -129,9 +132,9 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
         {filteredMessages.length === 0 ? (
           <p className="text-gray-400">Waiting for AION...</p>
         ) : (
-          filteredMessages.map((msg: any, idx: number) => (
-            <div key={idx} className={getMessageColor(msg.role)}>
-              {typeof msg === 'string' ? msg : msg?.content ?? '[Invalid message]'}
+          filteredMessages.map((msg, idx) => (
+            <div key={idx} className={`${getMessageColor(msg.role, msg.status)} transition-opacity duration-300`}>
+              {getStatusIcon(msg.status)} {msg.content ?? '[Invalid message]'}
             </div>
           ))
         )}
