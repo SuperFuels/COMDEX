@@ -61,7 +61,10 @@ app.router.redirect_slashes = False  # Disable trailing slash redirects globally
 
 # ── 10) GLOBAL CORS (must come before routers)
 if ENV != "production":
-    allow_origins = ["http://localhost:3000", "*"]
+    allow_origins = [
+        "http://localhost:3000",
+        "https://comdex-fawn.vercel.app",  # your frontend
+    ]
 else:
     raw = os.getenv("CORS_ALLOWED_ORIGINS", "")
     allow_origins = [o.strip() for o in raw.split(",") if o.strip()]
@@ -74,8 +77,8 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=allow_origins,
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
-    allow_headers=["Authorization", "Content-Type", "Set-Cookie"],
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # ── 11) Import routers with consistent backend.routes prefix
