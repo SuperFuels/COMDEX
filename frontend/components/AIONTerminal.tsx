@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  FaPlay, FaChevronDown
-} from 'react-icons/fa';
+import { FaPlay, FaChevronDown } from 'react-icons/fa';
 import useAION from '../hooks/useAION';
 
 interface AIONTerminalProps {
@@ -71,7 +69,7 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="relative flex px-4 gap-2 py-2">
+      <div className="relative flex items-center px-4 gap-2 py-2">
         <div className="relative flex-1">
           <input
             className="w-full border border-gray-300 px-3 py-1 rounded text-sm"
@@ -106,19 +104,22 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
           )}
         </div>
 
+        {/* Compact Filter Dropdown */}
         <select
-          className="border border-gray-300 rounded text-sm px-2"
+          className="border border-gray-300 rounded text-sm px-2 py-1 w-28 text-gray-700 bg-white"
           value={activeFilter}
           onChange={(e) => setActiveFilter(e.target.value as any)}
+          title="Filter messages"
         >
           <option value="all">All</option>
           <option value="aion">AION</option>
           <option value="user">User</option>
           <option value="system">System</option>
-          <option value="data">Data Output</option>
-          <option value="stub">Boot / Stub</option>
+          <option value="data">Data</option>
+          <option value="stub">Stub</option>
         </select>
 
+        {/* Run / Ask Button */}
         <button
           onClick={side === 'left' ? handleSubmit : sendPrompt}
           disabled={loading}
@@ -128,6 +129,7 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
         </button>
       </div>
 
+      {/* Output Panel */}
       <div className="flex-1 bg-gray-50 px-4 pt-4 pb-4 rounded overflow-y-auto text-sm whitespace-pre-wrap border border-gray-200 mx-2">
         {filteredMessages.length === 0 ? (
           <p className="text-gray-400">Waiting for AION...</p>
