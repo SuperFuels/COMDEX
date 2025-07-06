@@ -18,9 +18,10 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
     callEndpoint,
     bottomRef,
     tokenUsage
-  } = useAION(side); // ✅ PASS SIDE
+  } = useAION(side);
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [activeFilter, setActiveFilter] = useState<'all' | 'aion' | 'user' | 'system'>('all');
 
   const presets = [
     { label: 'Run Full Learning Cycle', value: 'run-learning-cycle', icon: <FaPlay className="text-blue-600" /> },
@@ -47,6 +48,22 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
     setDropdownOpen(false);
   };
 
+  const getMessageColor = (role: string) => {
+    switch (role) {
+      case 'aion': return 'text-black';
+      case 'user': return 'text-blue-600';
+      case 'system':
+        return 'text-purple-600';
+      default:
+        return 'text-green-600';
+    }
+  };
+
+  const filteredMessages = messages.filter((msg) => {
+    if (activeFilter === 'all') return true;
+    return msg.role === activeFilter;
+  });
+
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
@@ -54,7 +71,6 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
   return (
     <div className="flex flex-col h-full">
       {side === 'left' ? (
-        // 🔧 LEFT: Command Bar with Presets
         <div className="relative flex px-4 gap-2 py-2">
           <div className="relative flex-1">
             <input
@@ -95,7 +111,6 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
           </button>
         </div>
       ) : (
-        // 💬 RIGHT: Prompt Bar with Ask button
         <div className="relative flex px-4 gap-2 py-2">
           <input
             className="w-full border border-gray-300 px-3 py-1 rounded text-sm"
@@ -114,13 +129,30 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
         </div>
       )}
 
-      {/* 🖥 Output Terminal with consistent padding */}
-      <div className="flex-1 bg-gray-50 px-4 pt-2 pb-4 rounded overflow-y-auto text-sm whitespace-pre-wrap border border-gray-200 mx-2">
-        {messages.length === 0 ? (
+      {/* 🔍 Filter Tabs */}
+      <div className="flex justify-start gap-2 px-4 mt-1 text-sm">
+        {['all', 'aion', 'user', 'system'].map((filter) => (
+          <button
+            key={filter}
+            onClick={() => setActiveFilter(filter as any)}
+            className={`px-2 py-0.5 rounded ${
+              activeFilter === filter
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-100 text-gray-700'
+            }`}
+          >
+            {filter.toUpperCase()}
+          </button>
+        ))}
+      </div>
+
+      {/* 🖥 Output Terminal */}
+      <div className="flex-1 bg-gray-50 px-4 pt-4 pb-4 rounded overflow-y-auto text-sm whitespace-pre-wrap border border-gray-200 mx-2">
+        {filteredMessages.length === 0 ? (
           <p className="text-gray-400">Waiting for AION...</p>
         ) : (
-          messages.map((msg: any, idx: number) => (
-            <div key={idx}>
+          filteredMessages.map((msg: any, idx: number) => (
+            <div key={idx} className={getMessageColor(msg.role)}>
               {typeof msg === 'string' ? msg : msg?.content ?? '[Invalid message]'}
             </div>
           ))

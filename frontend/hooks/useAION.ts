@@ -7,8 +7,6 @@ interface Message {
   content: string;
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
-
 export default function useAION(side: 'left' | 'right') {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -26,7 +24,7 @@ export default function useAION(side: 'left' | 'right') {
     setLoading(true);
 
     try {
-      const res = await axios.post(`${API_URL}/api/aion/prompt`, { prompt: input });
+      const res = await axios.post(`/aion/prompt`, { prompt: input });
 
       const reply = res.data.reply || '(no response)';
       const tokens = res.data.tokens_used;
@@ -55,7 +53,7 @@ export default function useAION(side: 'left' | 'right') {
   ) => {
     append('system', `📡 Fetching ${label}...`);
     try {
-      const url = `${API_URL}/api/aion/${endpoint.replace(/^\/+/, '')}`;
+      const url = `/aion/${endpoint.replace(/^\/+/, '')}`;
       const res = method === 'post'
         ? await axios.post(url)
         : await axios.get(url);
@@ -95,7 +93,7 @@ export default function useAION(side: 'left' | 'right') {
     const prompt = 'Provide me with an update on your overall progress & how you are feeling.';
     append('user', prompt);
     try {
-      const res = await axios.post(`${API_URL}/api/aion/prompt`, { prompt });
+      const res = await axios.post(`/aion/prompt`, { prompt });
 
       const reply = res.data.reply || '(no response)';
       const tokens = res.data.tokens_used;
