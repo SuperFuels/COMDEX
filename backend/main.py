@@ -63,7 +63,7 @@ app.router.redirect_slashes = False  # Disable trailing slash redirects globally
 if ENV != "production":
     allow_origins = [
         "http://localhost:3000",
-        "https://comdex-fawn.vercel.app",  # your frontend
+        "https://comdex-fawn.vercel.app",  # your frontend (Vercel)
     ]
 else:
     raw = os.getenv("CORS_ALLOWED_ORIGINS", "")
@@ -126,7 +126,7 @@ api.include_router(supplier_router)
 
 api.include_router(aion_router, prefix="/aion")
 api.include_router(aion_plan_router, prefix="/aion")
-api.include_router(aion_goals_router)  # Check internal prefixes
+api.include_router(aion_goals_router)
 api.include_router(aion_dream_router, prefix="/aion")
 api.include_router(aion_gridworld_router)
 api.include_router(aion_game_dream_router)
@@ -135,7 +135,6 @@ api.include_router(strategy_plan_router)
 api.include_router(aion_game_router)
 api.include_router(game_event_router)
 api.include_router(game_router, prefix="/aion")
-
 api.include_router(skill_router)
 
 # ── 14) Include API router on main app
@@ -145,7 +144,7 @@ app.include_router(api)
 app.include_router(aion_grid_progress_router)
 app.include_router(status_router, prefix="/api")
 app.include_router(grid_progress_router, prefix="/api")
-app.include_router(aion_prompt.router)
+app.include_router(aion_prompt.router, prefix="/api/aion")
 app.include_router(aion_command.router, prefix="/api/aion")
 app.include_router(aion_suggest.router)
 
