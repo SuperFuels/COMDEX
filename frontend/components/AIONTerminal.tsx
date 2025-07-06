@@ -65,7 +65,7 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
             />
             <button
               onClick={() => setDropdownOpen(!dropdownOpen)}
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400"
+              className="absolute right-1.5 top-1/2 transform -translate-y-1/2 text-gray-400"
             >
               <FaChevronDown />
             </button>
@@ -113,8 +113,8 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
         </div>
       )}
 
-      {/* 🖥 Output Terminal */}
-      <div className="flex-1 bg-gray-50 p-3 rounded overflow-y-auto text-sm whitespace-pre-wrap">
+      {/* 🖥 Output Terminal with consistent padding */}
+      <div className="flex-1 bg-gray-50 px-4 pt-2 pb-4 rounded overflow-y-auto text-sm whitespace-pre-wrap border border-gray-200 mx-2">
         {messages.length === 0 ? (
           <p className="text-gray-400">Waiting for AION...</p>
         ) : (
