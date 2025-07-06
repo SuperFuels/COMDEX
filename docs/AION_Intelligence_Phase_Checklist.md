@@ -6,7 +6,10 @@
 - [ ] Build monitoring & logging for LLM responses and errors
 - [ ] Design prompt templates to optimize memory and skill invocation
 - [ ] Research and plan for eventual autonomous LLM self-building by AION
-
+4. 🔒 Command Permissions (Future)
+	•	Restrict certain commands (e.g. system upgrades) to Kevin only via wallet or key
+	•	Add locked 🔒 indicator in the dropdown
+	
 ## 2. Skill Evolution & Mutation System
 - [ ] Design skill metadata schema including versioning, dependencies, tags
 - [ ] Implement milestone detection triggering skill mutation and evolution

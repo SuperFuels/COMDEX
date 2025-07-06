@@ -5,14 +5,14 @@ import openai
 import os
 import logging
 import json
-import subprocess  # ✅ Added for learning-cycle execution
+import subprocess  # ✅ For learning-cycle execution
 
 from backend.modules.skills.aion_prompt_engine import build_prompt_context
 from backend.modules.skills.milestone_tracker import MilestoneTracker
 from backend.modules.skills.goal_tracker import GoalTracker
+from backend.modules.commands_registry import get_command_registry  # ✅ NEW
 
 router = APIRouter()
-
 logger = logging.getLogger("comdex")
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -41,13 +41,11 @@ async def ask_aion(request: AIONRequest):
 
         reply = response.choices[0].message["content"]
 
-        # ✅ Token usage info
         usage = response.usage
         tokens_used = usage.total_tokens if usage else None
-        cost_per_1k = 0.03  # GPT-4 estimated cost per 1K tokens
+        cost_per_1k = 0.03
         estimated_cost = round((tokens_used / 1000) * cost_per_1k, 4) if tokens_used else None
 
-        # ✅ Track milestones and goals
         tracker = MilestoneTracker()
         tracker.detect_milestones_from_dream(reply)
 
@@ -140,7 +138,6 @@ async def get_learned_skills():
         return JSONResponse(status_code=500, content={"error": f"Failed to load learned skills: {str(e)}"})
 
 
-# ✅ NEW: POST endpoint to run the full AION learning cycle script
 @router.post("/learning-cycle")
 async def run_learning_cycle():
     try:
@@ -159,3 +156,9 @@ async def run_learning_cycle():
             "status": "error",
             "error": e.stderr or str(e)
         })
+
+
+# ✅ NEW: Return global command registry
+@router.get("/commands")
+async def list_commands():
+    return get_command_registry()
