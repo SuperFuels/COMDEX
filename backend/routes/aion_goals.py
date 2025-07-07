@@ -5,6 +5,10 @@ from pydantic import BaseModel
 from typing import List, Optional
 from backend.modules.skills.goal_tracker import GoalTracker
 
+# ✅ DNA Switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 router = APIRouter(prefix="/aion", tags=["AION Goals"])
 goal_tracker = GoalTracker()
 

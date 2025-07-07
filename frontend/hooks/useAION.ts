@@ -1,6 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 
+type Command = {
+  name: string;
+  description?: string;
+  endpoint?: string;
+  stub?: boolean;
+};
+
 interface Message {
   role: 'user' | 'aion' | 'system' | 'data' | 'stub';
   content: string;
@@ -20,11 +27,19 @@ export default function useAION(side: 'left' | 'right') {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [tokenUsage, setTokenUsage] = useState<number | null>(null);
-  const [availableCommands, setAvailableCommands] = useState<CommandMeta[]>([]);
+  const [availableCommands, setAvailableCommands] = useState<Command[]>([]);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const append = (role: Message['role'], content: string, status?: Message['status']) => {
     setMessages((prev) => [...prev, { role, content, status }]);
+  };
+
+  const syncMessagesToBackend = async () => {
+    try {
+      await axios.post('/api/aion/sync-messages', { messages });
+    } catch (err: any) {
+      append('system', `⚠️ Failed to sync messages: ${err.message}`, 'error');
+    }
   };
 
   const sendPrompt = async () => {
@@ -46,6 +61,7 @@ export default function useAION(side: 'left' | 'right') {
       }
 
       append('aion', formatted, 'success');
+      await syncMessagesToBackend();
     } catch (err: any) {
       append('system', `❌ AION error: ${err.message}`, 'error');
     }
@@ -72,6 +88,8 @@ export default function useAION(side: 'left' | 'right') {
       } else {
         append('aion', message || `✅ ${label || command} completed.`, 'success');
       }
+
+      await syncMessagesToBackend();
     } catch (err: any) {
       append('system', `❌ Command failed: ${err.message}`, 'error');
     }
@@ -131,6 +149,7 @@ export default function useAION(side: 'left' | 'right') {
       }
 
       append('aion', formatted, 'success');
+      await syncMessagesToBackend();
     } catch (err: any) {
       append('system', `❌ Startup failed: ${err.message}`, 'error');
     }
@@ -164,14 +183,15 @@ export default function useAION(side: 'left' | 'right') {
   return {
     input,
     setInput,
-    messages,
     loading,
+    messages,
+    setMessages,
     sendPrompt,
     sendCommand,
     callEndpoint,
     bottomRef,
     tokenUsage,
     availableCommands,
-    fetchCommandRegistry,
+    setAvailableCommands,
   };
 }

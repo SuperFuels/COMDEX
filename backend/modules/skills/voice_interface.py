@@ -4,6 +4,10 @@ from google.cloud import storage
 from dotenv import load_dotenv
 from pathlib import Path
 
+# ✅ DNA Switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 # Load environment variables from .env.local
 env_path = Path(__file__).resolve().parents[3] / ".env.local"
 load_dotenv(dotenv_path=env_path)

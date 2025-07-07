@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import DnaLogViewer from "./DnaLogViewer"; // ⬅️ New import
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "";
 
@@ -39,14 +40,16 @@ export default function AIONDashboardClient() {
   };
 
   return (
-    <div className="flex flex-col h-screen text-black font-sans">
-      <div className="p-4 border-b">
+    <div className="flex flex-col min-h-screen text-black font-sans">
+      {/* Header */}
+      <div className="p-4 border-b bg-white">
         <h1 className="text-3xl font-bold">🧠 AION Dashboard</h1>
         <p className="text-sm text-gray-600">Phase: {status?.phase || "Loading..."}</p>
         <p><strong>Unlocked:</strong> {status?.unlocked?.join(", ") || "Loading..."}</p>
         <p><strong>Locked:</strong> {status?.locked?.join(", ") || "Loading..."}</p>
       </div>
 
+      {/* Terminal Interface */}
       <div className="flex flex-1 overflow-hidden">
         <div className="w-1/2 p-4 border-r overflow-y-auto">
           <h2 className="text-xl font-semibold mb-2">Ask AION</h2>
@@ -66,6 +69,7 @@ export default function AIONDashboardClient() {
         </div>
       </div>
 
+      {/* Command Input */}
       <div className="border-t p-4 flex items-center space-x-2 bg-gray-100">
         <input
           type="text"
@@ -82,6 +86,11 @@ export default function AIONDashboardClient() {
         >
           Send
         </button>
+      </div>
+
+      {/* 🧬 DNA Mutation Log Viewer */}
+      <div className="p-4 bg-gray-50 border-t">
+        <DnaLogViewer />
       </div>
     </div>
   );

@@ -3,6 +3,10 @@ from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from backend.database import Base
 
+# ✅ DNA Switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 class Shipment(Base):
     __tablename__ = "shipments"
     __table_args__ = { "extend_existing": True }

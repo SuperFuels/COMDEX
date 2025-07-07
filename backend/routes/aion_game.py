@@ -3,6 +3,10 @@ from pydantic import BaseModel
 from datetime import datetime
 import logging
 
+# ✅ DNA Switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 router = APIRouter()
 
 # In-memory log (can be replaced with DB later)

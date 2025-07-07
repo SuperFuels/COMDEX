@@ -2,6 +2,10 @@ import asyncio
 from backend.modules.aion.agent_manager import AgentManager
 from backend.modules.aion.sample_agent import SampleAgent
 
+# ✅ DNA Switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 async def main():
     manager = AgentManager()
 

@@ -3,6 +3,10 @@
 from fastapi import APIRouter
 from backend.modules.hexcore.dream_game_link import DreamGameLink
 
+# ✅ DNA Switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 router = APIRouter()
 
 @router.post("/aion/test-game-dream")

@@ -5,6 +5,10 @@ import openai
 import os
 import logging
 
+# ✅ DNA Switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 router = APIRouter()
 logger = logging.getLogger("aion_prompt")
 
@@ -30,9 +34,19 @@ async def prompt_aion(req: PromptRequest):
         )
 
         aion_reply = response.choices[0].message["content"].strip()
+        usage = response["usage"]
+        tokens_used = usage["total_tokens"]
+        estimated_cost = round((tokens_used / 1000) * 0.03, 4)  # GPT-4 8k input cost estimate
+
         logger.info(f"💬 AION replied: {aion_reply}")
-        return {"reply": aion_reply}
+        return {
+            "reply": aion_reply,
+            "tokens_used": tokens_used,
+            "cost_estimate": estimated_cost
+        }
 
     except Exception as e:
         logger.error("❌ AION prompt error", exc_info=True)
-        return {"error": f"AION error: {type(e).__name__}: {str(e)}"}
+        return {
+            "error": f"AION error: {type(e).__name__}: {str(e)}"
+        }

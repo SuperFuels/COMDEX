@@ -5,6 +5,10 @@ Quickly dump tables, columns & FKs from the root dev.db
 import os
 from sqlalchemy import create_engine, inspect
 
+# ✅ DNA Switch
+from backend.modules.dna.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 # point at the root dev.db
 HERE    = os.path.dirname(os.path.abspath(__file__))
 db_path = os.path.join(HERE, "dev.db")

@@ -3,6 +3,10 @@
 import os
 import uvicorn
 
+# ✅ DNA Switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 # import the FastAPI instance from main.py
 from main import app
 

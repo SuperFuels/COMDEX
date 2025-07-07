@@ -2,6 +2,10 @@ import json
 from pathlib import Path
 from datetime import datetime
 
+# ✅ DNA Switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 MEMORY_FILE = Path(__file__).parent / "aion_memory.json"
 
 class MemoryCore:

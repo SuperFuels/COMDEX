@@ -2,6 +2,10 @@ import json
 import os
 from datetime import datetime
 
+# ✅ DNA Switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 REFLECTED_SKILLS_FILE = os.path.join(os.path.dirname(__file__), "reflected_skills.json")
 
 def load_reflected():

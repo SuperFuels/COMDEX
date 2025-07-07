@@ -1,6 +1,10 @@
 import cv2
 import os
 
+# ✅ DNA Switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 # Path to the image
 file_path = os.path.join(os.path.dirname(__file__), "tester_image.jpg")
 

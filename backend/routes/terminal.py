@@ -5,6 +5,10 @@ from typing import Any, Dict, List
 
 from backend.database import get_db
 from backend.utils.terminal import run_query
+
+# ✅ DNA Switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
  
 router = APIRouter(prefix="/terminal", tags=["Terminal"])
 

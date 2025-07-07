@@ -161,14 +161,7 @@ What:
 
 ⸻
 
-6. 🕹️ Command Playground
 
-Why: Let humans test AION’s brain
-What:
-	•	Live command bar (already done)
-	•	Autocomplete
-	•	Execution logs
-	•	Suggestions based on memory state
 
 ⸻
 
@@ -179,18 +172,6 @@ What:
 	•	Tabs for each agent (e.g. “Explorer”, “Artist”, “Analyst”)
 	•	Show each agent’s goals, memory, behavior
 	•	Split-terminal view to chat with each
-
-⸻
-
-8. 📊 Dashboard Summary (Overview Panel)
-
-Why: Let Kevin and users see AION’s mind at a glance
-What:
-	•	Current goal
-	•	Dream summary
-	•	Trait change delta
-	•	Energy level (future compute tracker)
-	•	Module status (TimeEngine: awake/sleep, PlanningEngine: active/idle)
 
 ⸻
 

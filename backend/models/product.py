@@ -5,6 +5,10 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from backend.database import Base
 from .user import User  # ensure User is importable for expression
 
+# ✅ DNA Switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 class Product(Base):
     __tablename__ = "products"
     __table_args__ = {"extend_existing": True}

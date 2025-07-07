@@ -4,6 +4,10 @@ from backend.modules.hexcore.memory_engine import MemoryEngine
 from backend.modules.aion.dream_core import DreamCore
 from backend.modules.hexcore.vision_core import VisionCore
 
+# ✅ DNA Switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 class DreamGameLink:
     def __init__(self):
         self.memory = MemoryEngine()

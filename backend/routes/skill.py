@@ -3,6 +3,10 @@ from backend.modules.skills.boot_loader import load_json, save_json
 from backend.modules.skills.reflector import reflect_on_skill
 import os
 
+# ✅ DNA Switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 router = APIRouter()
 
 MEMORY_FILE = os.path.join(os.path.dirname(__file__), "../../modules/skills/aion_memory.json")

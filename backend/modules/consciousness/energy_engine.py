@@ -1,6 +1,10 @@
 import random
 from datetime import datetime
 
+# ✅ DNA Switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 class EnergyEngine:
     def __init__(self):
         self.power_level = 100  # 0 to 100

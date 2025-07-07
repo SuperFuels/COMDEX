@@ -4,6 +4,10 @@ import json
 import os
 from datetime import datetime
 
+# ✅ DNA Switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 TRAIT_FILE = "data/personality_traits.json"
 HISTORY_FILE = "logs/personality_log.json"
 

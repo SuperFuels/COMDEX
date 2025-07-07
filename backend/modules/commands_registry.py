@@ -4,6 +4,10 @@
 from difflib import get_close_matches
 from typing import Optional, Dict, List
 
+# ✅ DNA Switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 # ------------------------------------------
 # 🧠 Primary Command Definitions
 # ------------------------------------------
@@ -26,6 +30,24 @@ COMMANDS: List[Dict] = [
         "description": "Boot the next queued skill from bootloader",
         "endpoint": "/api/aion/boot-skill",
         "method": "POST"
+    },
+        {
+        "name": "run-cycle",
+        "description": "Run a full consciousness cycle (awareness, decision, action)",
+        "endpoint": "/api/aion/run-cycle",
+        "method": "POST"
+    },
+    {
+        "name": "awareness",
+        "description": "Check AION's awareness status",
+        "endpoint": "/api/aion/awareness",
+        "method": "GET"
+    },
+    {
+        "name": "identity",
+        "description": "Get AION's current identity and personality",
+        "endpoint": "/api/aion/identity",
+        "method": "GET"
     },
     {
         "name": "skill-reflect",

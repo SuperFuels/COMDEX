@@ -1,6 +1,10 @@
 import os
 import re
 
+# ✅ DNA Switch
+from backend.modules.dna.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 def fix_route_imports(file_path):
     with open(file_path, "r", encoding="utf-8") as f:
         content = f.read()

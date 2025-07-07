@@ -4,6 +4,10 @@ import json
 from sentence_transformers import SentenceTransformer, util
 from backend.modules.skills.boot_selector import BootSelector  # 🧠 Skill trigger
 
+# ✅ DNA Switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 # 📁 File paths
 MODULE_DIR = Path(__file__).resolve().parent
 MILESTONE_FILE = MODULE_DIR / "aion_milestones.json"

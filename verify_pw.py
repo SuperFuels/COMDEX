@@ -2,6 +2,10 @@
 import os
 import sys
 
+# ✅ DNA Switch
+from backend.modules.dna.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 # make sure your venv is activated and your PYTHONPATH is set so
 # that “backend.utils.auth” is importable.
 from backend.utils.auth import verify_password

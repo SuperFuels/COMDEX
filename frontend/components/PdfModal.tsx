@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from 'react';
-import { Document, Page, pdfjs } from 'react-pdf';
-import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
+import { useState } from "react";
+import { Document, Page, pdfjs } from "react-pdf";
+import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
@@ -23,19 +23,27 @@ export default function PdfModal({ url, onClose }: Props) {
         >
           ✖
         </button>
-        <h2 className="text-xl font-semibold mb-4">📄 Deal PDF Preview</h2>
+        <h2 className="text-xl font-semibold mb-4">📄 PDF Preview</h2>
+
         <div className="overflow-auto max-h-[75vh]">
           <Document
             file={url}
             onLoadSuccess={({ numPages }) => setNumPages(numPages)}
+            onLoadError={(err) =>
+              console.error("Failed to load PDF:", err.message)
+            }
           >
-            {Array.from(new Array(numPages), (el, i) => (
-              <Page key={`page_${i + 1}`} pageNumber={i + 1} />
-            ))}
+            {numPages &&
+              Array.from(new Array(numPages), (_, i) => (
+                <Page
+                  key={`page_${i + 1}`}
+                  pageNumber={i + 1}
+                  width={600} // Optional: better sizing
+                />
+              ))}
           </Document>
         </div>
       </div>
     </div>
   );
 }
-

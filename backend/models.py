@@ -1,6 +1,10 @@
 from sqlalchemy import Column, Integer, String, Text, DateTime, func
 from backend.database import Base  # import the shared Base from your database.py
 
+# ✅ DNA Switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 class DreamRecord(Base):
     __tablename__ = "dream_records"
 

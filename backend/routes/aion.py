@@ -10,7 +10,11 @@ import subprocess  # ✅ For learning-cycle execution
 from backend.modules.skills.aion_prompt_engine import build_prompt_context
 from backend.modules.skills.milestone_tracker import MilestoneTracker
 from backend.modules.skills.goal_tracker import GoalTracker
-from backend.modules.command_registry import resolve_command, list_commands
+from backend.modules.commands_registry import resolve_command, list_commands
+
+# ✅ DNA Switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
 
 router = APIRouter()
 logger = logging.getLogger("comdex")
@@ -162,3 +166,30 @@ async def run_learning_cycle():
 @router.get("/commands")
 async def list_commands():
     return get_command_registry()
+
+from fastapi import Request, HTTPException
+from backend.modules.hexcore.memory_engine import MemoryEngine
+
+@router.post("/sync-messages")
+async def sync_terminal_messages(request: Request):
+    """
+    Accepts a list of messages from the frontend terminal and logs them to AION memory.
+    Each message should include: role, content, and optional status.
+    """
+    body = await request.json()
+    messages = body.get("messages", [])
+
+    if not messages or not isinstance(messages, list):
+        raise HTTPException(status_code=400, detail="No valid messages provided")
+
+    for msg in messages:
+        role = msg.get("role", "unknown")
+        content = msg.get("content")
+        if content:
+            MemoryEngine.store({
+                "content": content,
+                "role": role,
+                "tags": ["terminal_sync"]
+            })
+
+    return {"status": "success", "message_count": len(messages)}

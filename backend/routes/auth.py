@@ -18,6 +18,10 @@ from backend.utils.auth import (
     verify_siwe,
 )
 
+# ✅ DNA Switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 # ─── 1) Define Pydantic Schemas ──────────────────────────────────────────
 
 class RegisterBody(BaseModel):

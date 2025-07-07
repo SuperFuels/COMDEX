@@ -3,6 +3,10 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 from typing import List
 
+# ✅ DNA Switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 router = APIRouter()
 
 # Sample static suggestions – later this can be dynamic based on AION state or memory

@@ -2,6 +2,10 @@ from typing import List, Dict
 import json
 import os
 
+# ✅ DNA Switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 DOMAIN_GOALS_PATH = "backend/data/domain_goals.json"
 
 # Sample structure

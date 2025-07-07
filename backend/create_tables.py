@@ -4,6 +4,10 @@ import os
 import logging
 from sqlalchemy import create_engine
 
+# ✅ DNA Switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 # Import your shared Base and engine config
 from backend.database import Base
 # Import every model module so Base.metadata knows about them

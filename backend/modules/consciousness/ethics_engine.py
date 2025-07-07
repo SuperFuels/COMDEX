@@ -5,6 +5,10 @@ import os
 from datetime import datetime
 from dotenv import load_dotenv
 
+# ✅ DNA Switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 # Load .env for KEVIN_MASTER_KEY
 load_dotenv()
 KEVIN_MASTER_KEY = os.getenv("KEVIN_MASTER_KEY", "")

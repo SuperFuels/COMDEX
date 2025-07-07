@@ -1,0 +1,20 @@
+[
+  {
+    "proposal_id": "tsx-frontend_components_AIONDashboardClient_tsx-1",
+    "file": "frontend/components/AIONDashboardClient.tsx",
+    "replaced_code": "<h1 className=\"text-3xl font-bold\">\ud83e\udde0 AION Neural Terminal</h1>",
+    "new_code": "<h1 className=\"text-3xl font-bold\">\ud83e\udde0 AION Dashboard</h1>",
+    "reason": "Revert terminal heading back to AION Dashboard.",
+    "approved": false,
+    "timestamp": "2025-07-06T23:24:09.703269"
+  },
+  {
+    "proposal_id": "tsx-frontend_components_AIONDashboardClient_tsx-2",
+    "file": "frontend/components/AIONDashboardClient.tsx",
+    "replaced_code": "<h1 className=\"text-3xl font-bold\">\ud83e\udde0 AION Neural Terminal</h1>",
+    "new_code": "<h1 className=\"text-3xl font-bold\">\ud83e\udde0 AION Dashboard</h1>",
+    "reason": "Revert terminal title to original for clarity.",
+    "approved": true,
+    "timestamp": "2025-07-07T00:04:35.672596"
+  }
+]

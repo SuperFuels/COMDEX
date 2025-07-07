@@ -2,6 +2,10 @@
 import os
 import pg8000
 
+# ✅ DNA Switch
+from backend.modules.dna.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 # — configure (or override with env vars) —
 USER = os.getenv("DB_USER", "comdex")
 PASS = os.getenv("DB_PASS", "Wn8smx123")

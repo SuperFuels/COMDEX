@@ -5,6 +5,10 @@ from datetime import datetime
 from backend.modules.skills.goal_runner import GoalRunner
 from backend.modules.consciousness.situational_engine import SituationalEngine  # 🔄 New
 
+# ✅ DNA Switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 class DecisionEngine:
     """
     AION's basic free will engine. Responsible for making decisions

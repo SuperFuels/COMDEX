@@ -2,6 +2,10 @@
 
 from typing import Dict, List
 
+# ✅ DNA Switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 def get_aion_personality() -> Dict[str, str]:
     """
     Defines AION's core identity and tone.

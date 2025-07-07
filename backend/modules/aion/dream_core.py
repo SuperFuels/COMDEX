@@ -22,6 +22,10 @@ from backend.modules.skills.dream_post_processor import DreamPostProcessor
 from backend.database import get_db
 from backend.models.dream import Dream
 
+# ✅ DNA Switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 
 class DreamCore:
     def __init__(self):

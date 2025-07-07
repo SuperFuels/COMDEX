@@ -6,6 +6,10 @@ Inspect the 'shipments' table (and list all tables) via SQLAlchemy reflection.
 import os
 from sqlalchemy import create_engine, inspect
 
+# ✅ DNA Switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 # point at the same dev.db your Alembic uses
 HERE = os.path.dirname(os.path.abspath(__file__))
 db_path = os.path.join(HERE, "dev.db")

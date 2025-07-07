@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaPlay, FaChevronDown } from 'react-icons/fa';
+import { FaPlay, FaChevronDown, FaSave, FaSync, FaFileExport, FaEdit } from 'react-icons/fa';
 import useAION from '../hooks/useAION';
 
 interface AIONTerminalProps {
@@ -12,16 +12,20 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
     setInput,
     loading,
     messages,
+    setMessages,
     sendPrompt,
     callEndpoint,
     sendCommand,
     bottomRef,
     tokenUsage,
     availableCommands,
+    setAvailableCommands, // <-- Required if your hook uses useState
   } = useAION(side);
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [activeFilter, setActiveFilter] = useState<'all' | 'aion' | 'user' | 'system' | 'data' | 'stub'>('all');
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [editedContent, setEditedContent] = useState<string>("");
 
   const handleSubmit = async () => {
     if (!input.trim()) return;
@@ -33,6 +37,38 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
     await sendCommand(value);
     setInput('');
     setDropdownOpen(false);
+  };
+
+  const handleExport = () => {
+    const exportText = messages.map((m) => `[${m.role}] ${m.content}`).join('\n');
+    const blob = new Blob([exportText], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "aion_terminal_export.txt";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const syncMemory = async () => {
+    try {
+      const res = await fetch("/api/aion/sync-messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages }),
+      });
+      const result = await res.json();
+      alert("✅ Synced to memory.");
+    } catch (err) {
+      alert("❌ Sync failed.");
+    }
+  };
+
+  const handleEditSave = (index: number) => {
+    const newMessages = [...messages];
+    newMessages[index].content = editedContent;
+    setMessages(newMessages);
+    setEditingIndex(null);
   };
 
   const getMessageColor = (role: string, status?: string) => {
@@ -67,9 +103,27 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  // 🔁 Fetch command registry on mount
+  useEffect(() => {
+    const fetchCommands = async () => {
+      try {
+        const res = await fetch('/api/aion/command/registry');
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          setAvailableCommands(data); // requires your hook to expose setAvailableCommands
+        }
+      } catch (err) {
+        console.error('Failed to fetch command registry', err);
+      }
+    };
+
+    fetchCommands();
+  }, []);
+
   return (
     <div className="flex flex-col h-full">
       <div className="relative flex items-center px-4 gap-2 py-2">
+        {/* Input */}
         <div className="relative flex-1">
           <input
             className="w-full border border-gray-300 px-3 py-1 rounded text-sm"
@@ -104,7 +158,7 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
           )}
         </div>
 
-        {/* Compact Filter Dropdown */}
+        {/* Filter */}
         <select
           className="border border-gray-300 rounded text-sm px-2 py-1 w-28 text-gray-700 bg-white"
           value={activeFilter}
@@ -119,7 +173,15 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
           <option value="stub">Stub</option>
         </select>
 
-        {/* Run / Ask Button */}
+        {/* Action Buttons */}
+        <button onClick={syncMemory} title="Sync to memory" className="text-blue-600 text-sm">
+          <FaSync />
+        </button>
+        <button onClick={handleExport} title="Export log" className="text-gray-600 text-sm">
+          <FaFileExport />
+        </button>
+
+        {/* Submit Button */}
         <button
           onClick={side === 'left' ? handleSubmit : sendPrompt}
           disabled={loading}
@@ -129,14 +191,65 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
         </button>
       </div>
 
-      {/* Output Panel */}
+      {/* Output */}
       <div className="flex-1 bg-gray-50 px-4 pt-4 pb-4 rounded overflow-y-auto text-sm whitespace-pre-wrap border border-gray-200 mx-2">
         {filteredMessages.length === 0 ? (
           <p className="text-gray-400">Waiting for AION...</p>
         ) : (
           filteredMessages.map((msg, idx) => (
-            <div key={idx} className={`${getMessageColor(msg.role, msg.status)} transition-opacity duration-300`}>
-              {getStatusIcon(msg.status)} {msg.content ?? '[Invalid message]'}
+            <div key={idx} className={`${getMessageColor(msg.role, msg.status)} flex items-start justify-between mb-2`}>
+              <div className="flex-1">
+                {getStatusIcon(msg.status)}{" "}
+                {editingIndex === idx ? (
+                  <div className="flex gap-2 items-center">
+                    <input
+                      value={editedContent}
+                      onChange={(e) => setEditedContent(e.target.value)}
+                      className="border px-2 py-1 rounded text-sm w-full"
+                    />
+                    <button onClick={() => handleEditSave(idx)} className="text-green-600 text-sm"><FaSave /></button>
+                  </div>
+                ) : (
+                  <>
+                    <div>{msg.content ?? '[Invalid message]'}</div>
+                    {(msg.role === 'aion' || msg.role === 'system' || msg.role === 'data') && (
+                      <div className="mt-1 flex gap-2 text-xs">
+                        <button
+                          onClick={() => alert('✅ Approved!')}
+                          className="bg-green-100 hover:bg-green-200 text-green-700 px-2 py-1 rounded"
+                        >
+                          ✅ Approve
+                        </button>
+                        <button
+                          onClick={() => {
+                            const blob = new Blob([msg.content || ''], { type: 'application/pdf' });
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement("a");
+                            a.href = url;
+                            a.download = `aion_message_${idx}.pdf`;
+                            a.click();
+                            URL.revokeObjectURL(url);
+                          }}
+                          className="bg-blue-100 hover:bg-blue-200 text-blue-700 px-2 py-1 rounded"
+                        >
+                          📥 Download
+                        </button>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+              {editingIndex !== idx && (
+                <button
+                  onClick={() => {
+                    setEditingIndex(idx);
+                    setEditedContent(msg.content || "");
+                  }}
+                  className="ml-2 text-gray-500 text-xs"
+                >
+                  <FaEdit />
+                </button>
+              )}
             </div>
           ))
         )}

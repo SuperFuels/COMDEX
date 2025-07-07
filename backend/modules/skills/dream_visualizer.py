@@ -2,6 +2,10 @@ from backend.modules.hexcore.memory_engine import MemoryEngine
 from rich import print
 import sys
 
+# ✅ DNA Switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 def list_dreams(filter_keyword=None):
     memory = MemoryEngine()
     dreams = [m for m in memory.get_all() if m["label"].startswith("dream")]

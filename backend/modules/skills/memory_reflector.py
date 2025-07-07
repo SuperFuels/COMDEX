@@ -7,6 +7,10 @@ from backend.modules.hexcore.memory_engine import MemoryEngine
 from backend.modules.skills.milestone_goal_integration import tracker  # Use wired-up tracker instance
 from backend.modules.skills.strategy_planner import StrategyPlanner
 
+# ✅ DNA Switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 # Load environment variables from .env file
 load_dotenv(dotenv_path=".env")
 openai.api_key = os.getenv("OPENAI_API_KEY")

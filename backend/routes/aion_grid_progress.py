@@ -2,6 +2,10 @@ from fastapi import APIRouter
 from pathlib import Path
 import json
 
+# ✅ DNA Switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 router = APIRouter()
 
 GRID_STATE_PATH = Path("backend/modules/aion/grid_world_state.json")

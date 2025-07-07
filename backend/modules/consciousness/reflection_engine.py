@@ -2,6 +2,10 @@ from datetime import datetime
 from backend.modules.hexcore.memory_engine import MemoryEngine
 from backend.modules.consciousness.personality_engine import PersonalityProfile
 
+# ✅ DNA Switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 class ReflectionEngine:
     """
     The ReflectionEngine allows AION to analyze recent memory patterns

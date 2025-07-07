@@ -2,6 +2,10 @@ import json
 import os
 from datetime import datetime
 
+# ✅ DNA Switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 # File paths
 MEMORY_FILE = os.path.join(os.path.dirname(__file__), "aion_memory.json")
 EXECUTION_LOG = os.path.join(os.path.dirname(__file__), "skill_execution_log.json")

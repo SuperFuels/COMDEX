@@ -1,6 +1,10 @@
 import os
 from dotenv import load_dotenv
 
+# ✅ DNA Switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 # 1) load .env if present
 load_dotenv()
 

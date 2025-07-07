@@ -5,6 +5,10 @@ from backend.modules.hexcore.memory_engine import MemoryEngine
 from backend.modules.skills.milestone_tracker import MilestoneTracker
 from backend.modules.skills.strategy_planner import StrategyPlanner
 
+# ✅ DNA Switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 GRID_SIZE = 10
 OBJECTS = ['bed', 'desk', 'coffee', 'window']
 DANGERS = ['pit', 'spike']

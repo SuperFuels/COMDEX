@@ -13,6 +13,10 @@ from backend.models.shipment import Shipment
 from backend.models.deal import Deal
 from backend.utils.news import fetch_headlines
 
+# ✅ DNA Switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 

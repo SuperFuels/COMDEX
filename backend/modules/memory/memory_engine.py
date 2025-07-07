@@ -2,6 +2,10 @@ from backend.modules.memory.compression import compress_text
 import numpy as np
 from typing import List, Dict
 
+# ✅ DNA Switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 # 🔹 In-memory vector database (temporary – replace with persistent DB later)
 VECTOR_DB: List[Dict] = []
 

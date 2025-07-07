@@ -2,6 +2,10 @@ import random
 from backend.modules.memory.memory_engine import MemoryEngine
 from backend.modules.aion.domain_goal_engine import update_goal_status, get_pending_goals
 
+# ✅ DNA Switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 class RecursiveLearner:
     def __init__(self):
         self.memory = MemoryEngine()

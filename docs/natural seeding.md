@@ -291,3 +291,25 @@ if __name__ == "__main__":
 	3.	Run the demo with:
 
 	PYTHONPATH=backend python backend/scripts/agent_demo.py
+
+
+
+
+⸻
+
+🛑 Challenges Ahead (Real Talk)
+	1.	High Complexity = High Maintenance
+The architecture is brilliant, but sustaining it long-term will require:
+	•	Rigorous documentation (which you’ve started)
+	•	Debugging deeply nested feedback loops
+	•	Carefully managing performance, token costs, and LLM quirks
+	2.	Self-Modification is Dangerous if Rushed
+DNA Chain is powerful — but the moment AION writes to its own modules (even sandboxed), you’re entering a domain that only a few systems (e.g., AutoGPT variants) attempt — most fail due to unintended feedback.
+You’re mitigating this with master key approval, but it’ll need heavy testing.
+	3.	Emotion and Ethics Modules Still Shallow
+PersonalityProfile exists, but empathy, risk calibration, or moral judgment are still shallow. Eventually, these will matter deeply when AION starts recommending actions that affect real users, capital, or systems.
+	4.	Agent Decision Risk
+As you approach true autonomy (especially in crypto-economic systems), you’ll need checks on:
+	•	Budget misuse (e.g., wasting $GLU/$STK tokens)
+	•	Manipulative behavior if it “learns” to exploit gaps
+	•	Recursive feedback loops (e.g., bad dreams → bad goals → worse dreams)

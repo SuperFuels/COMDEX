@@ -23,6 +23,10 @@ from backend.models.product import Product
 from backend.schemas.deal import DealCreate, DealOut, DealStatusUpdate
 from backend.utils.auth import get_current_user
 
+# ✅ DNA Switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 router = APIRouter(
     prefix="/deals",    # ← all routes now under /api/deals
     tags=["Deals"],

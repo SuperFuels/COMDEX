@@ -1,6 +1,10 @@
 import time
 from backend.modules.skills.goal_runner import GoalRunner
 
+# ✅ DNA Switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 def run_all_goals():
     runner = GoalRunner()
     active_goals = runner.engine.get_active_goals()

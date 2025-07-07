@@ -1,5 +1,8 @@
+# backend/modules/consciousness/consciousness_manager.py
+
 from backend.modules.consciousness.time_engine import TimeEngine
 from backend.modules.consciousness.state_manager import StateManager
+from backend.modules.consciousness.awareness_engine import AwarenessEngine
 from backend.modules.consciousness.decision_engine import DecisionEngine
 from backend.modules.consciousness.reflection_engine import ReflectionEngine
 from backend.modules.skills.goal_engine import GoalEngine
@@ -11,19 +14,24 @@ from backend.modules.consciousness.planning_engine import PlanningEngine
 from backend.modules.hexcore.agent_manager import AgentManager
 from backend.modules.aion.sample_agent import SampleAgent
 
+# ✅ DNA Switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 class ConsciousnessManager:
     def __init__(self):
         self.time = TimeEngine()
         self.state = StateManager()
-        self.situation = SituationalEngine()  # ✅ Shared instance
-        self.decision = DecisionEngine(self.situation)  # ✅ Injected into DecisionEngine
+        self.awareness = AwarenessEngine()
+        self.situation = SituationalEngine()
+        self.decision = DecisionEngine(self.situation)
         self.reflector = ReflectionEngine()
         self.goal = GoalEngine()
         self.energy = EnergyEngine()
         self.personality = PersonalityProfile()
         self.planner = PlanningEngine()
 
-        # Initialize and register agents
+        # Agent System
         self.agent_manager = AgentManager()
         self.agent_manager.register_agent("AION", SampleAgent("AION"))
         self.agent_manager.register_agent("Explorer", SampleAgent("Explorer"))
@@ -31,41 +39,36 @@ class ConsciousnessManager:
     def run_cycle(self, mode="live"):
         print("\n🌐 Starting Consciousness Cycle")
 
-        # Wake or Sleep?
         if not self.time.can_wake():
             print("😴 AION remains asleep.")
             return "sleep"
 
-        # Log and update situational awareness
+        awareness_report = self.awareness.check_awareness()
+        print(f"[AWARENESS] {awareness_report['message']} (Boot ID: {awareness_report['boot_id']})")
+
         self.situation.log_event("Cycle start", "neutral")
         self.situation.analyze_context()
 
-        # Evaluate current state
         current_state = self.state.dump_status()
         print(f"🧠 State: {current_state}")
 
-        # Decision time
         context = {"mode": mode, "state": current_state}
         action = self.decision.decide(context)
 
-        # Consume energy
         self.energy.consume(amount=1)
 
-        # Energy warnings
         if self.energy.is_critical():
             print("[WARNING] Energy low — prioritize earning funds or requesting donations!")
-
         if self.energy.is_dead():
             print("[FATAL] Energy depleted — AION shutting down non-essential systems.")
-            # Add shutdown logic if needed
+            return "shutdown"
 
-        # Execute action
         if action == "reflect on dreams":
             self.reflector.reflect()
         elif action == "plan tasks":
             self.planner.strategize()
         elif action == "prioritize goals":
-            pass  # Already handled in DecisionEngine
+            pass
         elif action == "interact with Kevin":
             print("💬 Interacting with Kevin...")
         elif action == "explore memory":
@@ -75,7 +78,6 @@ class ConsciousnessManager:
         else:
             print("🤖 AION idles.")
 
-        # Final goal and cycle log
         self.goal.log_task("Cycle completed")
         print("✅ Consciousness cycle complete.")
 

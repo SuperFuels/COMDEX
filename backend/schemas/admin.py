@@ -2,6 +2,10 @@ from pydantic import BaseModel
 from typing import List
 from datetime import datetime
 
+# ✅ DNA Switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 class UserOut(BaseModel):
     id: int
     name: str

@@ -17,6 +17,10 @@ from sqlalchemy import text
 from sqlalchemy.exc import OperationalError
 import uvicorn
 
+# ✅ DNA Switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 # ── 1) Ensure uploads folder exists
 os.makedirs("uploaded_images", exist_ok=True)
 
@@ -106,6 +110,9 @@ from backend.routes import aion_prompt
 from backend.routes import aion_command
 from backend.routes import aion_suggest
 from backend.routes import aion_core
+from backend.modules.commands_registry import resolve_command, list_commands
+from backend.routes import dna_chain
+from backend.routes import dna_logs
 
 # ── 12) Import standalone routers from backend.api (if used)
 from backend.api.aion.status           import router as status_router
@@ -149,6 +156,8 @@ app.include_router(aion_prompt.router, prefix="/api/aion")
 app.include_router(aion_command.router, prefix="/api/aion")
 app.include_router(aion_suggest.router)
 app.include_router(aion_core.router, prefix="/api/aion")
+app.include_router(dna_chain.router)
+app.include_router(dna_logs.router)
 
 # ── 16) Serve uploaded images
 app.mount("/uploaded_images", StaticFiles(directory="uploaded_images"), name="uploaded_images")

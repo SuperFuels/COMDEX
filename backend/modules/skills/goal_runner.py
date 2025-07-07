@@ -9,6 +9,10 @@ from backend.modules.hexcore.ai_wallet import AIWallet
 from backend.modules.hexcore.memory_engine import MemoryEngine as MemoryCore
 from backend.modules.consciousness.personality_engine import PersonalityProfile  # 🔁 Add this
 
+# ✅ DNA Switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 # Load env vars
 env_path = Path(__file__).resolve().parents[3] / ".env.local"
 load_dotenv(dotenv_path=env_path)

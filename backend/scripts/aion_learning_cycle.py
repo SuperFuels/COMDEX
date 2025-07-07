@@ -20,6 +20,10 @@ from backend.modules.skills.goal_engine import GoalEngine
 from backend.modules.consciousness.reflection_engine import ReflectionEngine
 from backend.modules.skills.boot_archiver import archive_learned_skills
 
+# ✅ DNA Switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 def log(msg: str):
     print(f"[AION-LEARNING] {msg}")
 

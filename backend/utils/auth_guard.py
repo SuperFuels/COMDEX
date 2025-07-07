@@ -5,6 +5,10 @@ from backend.utils.auth import SECRET_KEY, ALGORITHM, decodeJWT
 from backend.database import SessionLocal
 from backend.models.user import User
 
+# ✅ DNA Switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 def get_db():

@@ -1,5 +1,9 @@
 import os
 
+# ✅ DNA Switch
+from backend.modules.dna.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 ROOT_DIR = 'backend'
 OLD_IMPORT_PREFIX = 'modules'
 NEW_IMPORT_PREFIX = 'backend.modules'

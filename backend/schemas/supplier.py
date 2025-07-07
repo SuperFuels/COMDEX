@@ -3,6 +3,10 @@
 from typing import List
 from pydantic import BaseModel
 
+# ✅ DNA Switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 class SupplierProductSummary(BaseModel):
     id:              int
     title:           str

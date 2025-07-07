@@ -1,6 +1,10 @@
 from fastapi import APIRouter
 import subprocess
 
+# ✅ DNA Switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 router = APIRouter()
 
 @router.post("/run-dream", tags=["AION"])  # remove the duplicated "aion" prefix here

@@ -14,6 +14,10 @@ from backend.modules.consciousness.emotion_engine import EmotionEngine
 from backend.modules.consciousness.ethics_engine import EthicsEngine
 from backend.modules.consciousness.vault_engine import PrivacyVault
 
+# ✅ DNA Switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 import openai
 
 # Load env

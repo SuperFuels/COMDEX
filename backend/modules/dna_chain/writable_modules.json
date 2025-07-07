@@ -1,0 +1,25 @@
+{
+  "allowed_dirs": [
+    "frontend/components/",
+    "backend/modules/agents/",
+    "backend/modules/hexcore/",
+    "backend/modules/consciousness/",
+    "backend/modules/dna_chain/"
+  ],
+  "blocked_files": [
+    "main.py",
+    "backend/main.py",
+    "backend/__init__.py",
+    "backend/modules/__init__.py",
+    "backend/modules/dna_chain/governance_config.yaml",
+    "backend/modules/dna_chain/soul_laws.yaml",
+    "backend/modules/dna_chain/dna_switch.py",
+    "backend/scripts/deploy.py",
+    "backend/scripts/approve_proposal.py",
+    "backend/scripts/test_dna_cycle.py",
+    "Dockerfile",
+    "requirements.txt",
+    ".env",
+    ".gitignore"
+  ]
+}

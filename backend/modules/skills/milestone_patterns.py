@@ -1,5 +1,9 @@
 import re
 
+# ✅ DNA Switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 PATTERN_MILESTONES = {
     "cognitive_reflection": r"\b(cognitive reflection|deep understanding|self-aware|awareness)\b",
     "emergent_thought": r"\b(emergent behavior|spontaneous insight|unexpected reasoning)\b",

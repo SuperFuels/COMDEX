@@ -9,6 +9,10 @@ from backend.models.product import Product
 from backend.models.user import User
 from backend.utils.auth import get_current_user
 
+# ✅ DNA Switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 router = APIRouter(
     prefix="/buyer",
     tags=["Buyer"],

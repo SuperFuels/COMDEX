@@ -2,6 +2,10 @@ from backend.modules.consciousness.vault_engine import PrivacyVault
 import os
 from dotenv import load_dotenv
 
+# ✅ DNA Switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 # Load .env.local if not already loaded
 load_dotenv()
 

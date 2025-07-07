@@ -1,6 +1,10 @@
 from typing import Optional, List
 from pydantic import BaseModel, EmailStr
 
+# ✅ DNA Switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 class ProductBase(BaseModel):
     title: str
     origin_country: Optional[str] = None

@@ -2,6 +2,10 @@ import time
 import traceback
 from backend.modules.consciousness.consciousness_manager import ConsciousnessManager
 
+# ✅ DNA Switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 def run_forever(interval_seconds=300):
     manager = ConsciousnessManager()
     print(f"🚀 Starting Consciousness Scheduler with interval {interval_seconds} seconds.")

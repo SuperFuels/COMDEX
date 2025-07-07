@@ -2,6 +2,10 @@ import json
 import os
 from collections import defaultdict
 
+# ✅ DNA Switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 MEMORY_FILE = os.path.join(os.path.dirname(__file__), "aion_memory.json")
 GRAPH_FILE = os.path.join(os.path.dirname(__file__), "memory_graph.json")
 

@@ -3,6 +3,10 @@ from fastapi.responses import JSONResponse
 import asyncio
 from backend.modules.skills.goal_scheduler_loop import GoalSchedulerLoop
 
+# ✅ DNA Switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 app = FastAPI()
 scheduler = GoalSchedulerLoop()
 

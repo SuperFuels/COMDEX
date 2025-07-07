@@ -2,6 +2,10 @@ from datetime import datetime
 from collections import deque
 import random
 
+# ✅ DNA Switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 class SituationalEngine:
     """
     Tracks real-world and internal events to maintain situational awareness.

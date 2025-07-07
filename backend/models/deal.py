@@ -6,6 +6,10 @@ from backend.database import Base, engine, get_db
 # ✅ Import Shipment early to resolve relationship()
 from backend.models.shipment import Shipment  # Make sure this path is correct
 
+# ✅ DNA Switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 class Deal(Base):
     __tablename__ = "deals"
     __table_args__ = { "extend_existing": True }

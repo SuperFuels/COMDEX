@@ -3,6 +3,10 @@ from backend.modules.memory.compression import decompress_embedding
 from backend.modules.aion.llm_engine import query_gpt4
 import random
 
+# ✅ DNA Switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
 def reflect_on_memory(limit: int = 3):
     """
     Reflect on a few past dreams or thoughts and simulate deeper understanding.

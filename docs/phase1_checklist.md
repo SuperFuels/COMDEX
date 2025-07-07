@@ -24,7 +24,7 @@ taskList
     ⬜ Implement minimal Embedding & Vector DB integration for semantic search/compression
 
     section 5. Frontend & Interaction
-    ⬜ Build minimal AION Terminal UI for querying AION and visualizing personality, milestones, goals
+    ✅ Build minimal AION Terminal UI for querying AION and visualizing personality, milestones, goals
     ⬜ Implement real-time updates for dreams, milestones, and skill boots via polling or SSE
 
     section 6. External LLM Integration (Bridging to Future Local LLM)
@@ -65,9 +65,9 @@ taskList
 
     section Priority Summary
     ⬜ Establish core autonomous feedback loop: Dream → Milestone → Skill Evolution → Updated Dream
-    ⬜ Ensure scheduler triggers autonomous cycles reliably
+    ✅ Ensure scheduler triggers autonomous cycles reliably
     ⬜ Implement modular swappable LLM interface for current GPT and future local LLM
-    ⬜ Provide minimal UI for essential interaction and monitoring
+    ✅ Provide minimal UI for essential interaction and monitoring
 
 Failure Analysis and Adaptation Engine (Future Tasks)
 
