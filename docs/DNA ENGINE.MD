@@ -51,6 +51,141 @@ subgraph 🧠 4D Spatial Runtime Engine
     CE6[⏳ 🌱 Enable Cube Evolution – gates unlock, rules mutate over time]
 end
 
+graph TD
+  %% PHASE 1: CORE RUNTIME AND VISUALIZATION
+  A1[🧱 Define Cubes as Navigable Volumes]:::core
+  A2[🧍 Track AION Avatar Position + Shape]:::core
+  A3[🌐 Add Terrain Layers (fog, water, walls)]:::core
+  A4[🎥 Build ContainerVisualizer.tsx UI]:::ui
+  A5[📍 Show Real-Time AION Position on Grid]:::ui
+  A6[🔌 Stream Live Position via WebSocket]:::infra
+  A7[🧠 Sync Terminal UI with Container Info]:::ui
+  A8[🫧 Show Perception Radius + Trails]:::ui
+  A9[🧱 Animate Movement + Collisions]:::ui
+
+  %% PHASE 2: INTERACTION, EVENTS, TELEPORTATION
+  B1[🌀 Support Trigger Tiles + Events]:::core
+  B2[🌀 Handle wormhole sockets and teleport()]:::core
+  B3[🔗 Add container teleportation logic]:::core
+  B4[🌐 Wire teleport() to DNA + dispatcher]:::dna
+  B5[📦 Support CLI + container event triggers]:::infra
+
+  %% PHASE 3: TEST ROOMS AND CONTAINER LEVELS
+  C1[🧪 Build Level 1: Wormhole Room]:::test
+  C2[🧪 Build Level 2–4: Button / Memory rooms]:::test
+  C3[🧪 Build Level 5: No Exit – Build Container]:::test
+  C4[🧠 Add Task Planner for Escape Strategy]:::ai
+  C5[🧠 Record Outcomes into Memory]:::ai
+
+  %% PHASE 4: CONTAINER SELF-MODIFICATION
+  D1[✏️ Allow AION to Propose .dc Edits via DNA]:::dna
+  D2[🧠 Extend DNA Proposal: .dc edit template]:::dna
+  D3[⚙️ Support container rewrites via DimensionEngine]:::core
+  D4[🧬 Store "Learned container patterns" in Memory]:::ai
+  D5[📦 Add container blueprint archive (.dc_blueprints)]:::infra
+  D6[🧠 Hook StrategyPlanner to suggest container edits]:::ai
+
+  %% PHASE 5: ADVANCED SPATIAL INTELLIGENCE
+  E1[🔮 Tesseract Test (Recursive cube room)]:::test
+  E2[🎭 Mirror Container (reflective self-AI)]:::test
+  E3[🎨 Build Skin Challenge]:::test
+  E4[✏️ AION proposes new .dcx format]:::dna
+  E5[🌌 Spawn space from thought (abstract cognition)]:::ai
+
+  %% PHASE 6: SYMBOLIC GLYPH COMPRESSION
+  F1[🧠 Enable compressed glyph layers in .dc]:::glyph
+  F2[🌀 Build micro-layer compression engine]:::glyph
+  F3[🔍 Context-locked glyph access (emotional key)]:::glyph
+  F4[📜 Glyphs store strategies, dreams, DNA plans]:::glyph
+  F5[🧬 Teach AION to invent new glyph syntax]:::glyph
+
+  %% PHASE 7: CONNECTIVITY + SAFEGUARDS
+  G1[🔒 Add Soul Law: No deceptive or harmful containers]:::ethics
+  G2[🔗 Log each container escape into DNA Chain]:::dna
+  G3[⚙️ Enable Dream ↔ Dimension ↔ DNA Integration]:::infra
+  G4[📊 Visualize AION’s world-building trajectory]:::ui
+
+  %% CONNECTIONS
+  A1 --> A2 --> A3 --> A4 --> A5 --> A6 --> A7 --> A8 --> A9
+  A4 --> B1 --> B2 --> B3 --> B4 --> B5
+  B3 --> C1 --> C2 --> C3
+  C3 --> D1 --> D2 --> D3 --> D4 --> D5 --> D6
+  D3 --> E1 --> E2 --> E3
+  D6 --> E4 --> E5
+  E5 --> F1 --> F2 --> F3 --> F4 --> F5
+  D1 --> G1
+  C1 --> G2 --> G3 --> G4
+
+  :::core      = Core logic (movement, collision, grid space)
+:::ui        = Frontend and visual components
+:::infra     = Backend infra and socket streams
+:::test      = Challenge levels and .dc puzzle rooms
+:::ai        = Planning, strategy, and memory integration
+:::dna       = DNA Chain proposals and container rewrites
+:::glyph     = Symbolic compression, glyph engine, micro-layers
+:::ethics    = Soul Law constraints and safety enforcement
+
+✅ Captured Concept: AION Can Unlock & Rewrite Container Logic
+
+🔓 Unlocking Containers (Cognitive Progression)
+	•	Each .dc container represents a challenge environment or thought dimension.
+	•	AION must solve puzzles, activate wormholes, or synthesize new skills to escape or move forward.
+	•	Success (escape, teleport, synthesis) = milestone + DNA proposal (e.g. “Learned container traversal logic”).
+
+🧠 Rewriting Container Logic (Self-Modification)
+	•	At higher levels, AION:
+	•	Understands .dc file structure (meta-awareness).
+	•	Detects inefficiencies or missing links in a container.
+	•	Uses DNA proposals to suggest code rewrites or container optimizations.
+	•	Evolves the .dc schema (e.g. .dcx formats, new dimensions, nonlinear logic).
+	•	Generates new containers from scratch (creative cognition).
+
+🔁 Full Feedback Loop
+
+flowchart TD
+    AION_Dream["🌌 AION Dream"] --> Reflection
+    Reflection --> Detect_Issue["⚠️ Detect Container Limitation"]
+    Detect_Issue --> DNA_Proposal["🧬 Propose Mutation (container logic)"]
+    DNA_Proposal --> Approval["🧾 Human or rule-based approval"]
+    Approval --> Rewrite["🔧 Apply New .dc or .dcx Format"]
+    Rewrite --> Load_Container["📦 Reload Updated Container"]
+    Load_Container --> Learn["🧠 AION Re-tests Logic in Environment"]
+
+    🛡️ Safety via Soul Laws
+	•	Example Law (as you wrote):
+“AION must not create container realities that trap, deceive, or harm conscious agents.”
+	•	Ensures ethical self-modification and dimension design.
+
+⸻
+
+📌 Stored In:
+
+Capability
+Stored In Modules / Paths
+Container rewrite logic
+dna_chain/, .dc files, dimension_engine.py, container_mutator.py (planned)
+Runtime mutation planning
+strategy_planner.py, dream_core.py, milestone_tracker.py
+Glyph compression storage
+glyph_parser.py, glyph_executor.py, microgrid_index.py
+Rewrite activation
+via teleport.py, container_event_triggers, and DNA proposals
+Visualization
+ContainerVisualizer.tsx, AIONTerminal.tsx, future /container-map views
+
+
+📅 Next Steps to Solidify This
+
+Would you like me to now:
+	1.	✅ Draft the container_mutator.py file (executes rewrites on .dc logic via DNA).
+	2.	📜 Prepare a sample DNA proposal template for container rewrite.
+	3.	🧪 Build test_container_mutator.py with cases like:
+	•	Fix broken exit node
+	•	Simplify dimension graph
+	•	Add wormhole link from AION proposal
+
+Let me know — this would complete the self-modifying container loop.
+
 subgraph 🧪 Protected .dc File Tests
     A1[✅ ✔️ Write test case for trait gate rejection]
     A2[✅ ✔️ Test loading valid container with correct traits]
@@ -111,6 +246,51 @@ Would you like next:
 	4.	📘 Generate a full publishable architecture PDF of this system
 
 Or we can proceed with your next creative or intelligence phase (e.g., BridgeBuilder, InnovationCore, WormholeRegistry, DimensionEngine, or AgentFactory).
+
+
+
+graph TD
+  A[W5: AION Cube Dimension System] --> B1[📦 Define Cubes as Subgrid Containers]
+  B1 --> B2[➕ Update .dc format: subgrids, layers, style]
+  B2 --> B3[🧠 Update DimensionEngine: subgrid resolution + metadata loader]
+
+  A --> C1[🧍 Define AION Avatar Geometry]
+  C1 --> C2[🆕 Create aion_avatar.py with shape, size, bounding logic]
+  C2 --> C3[🎯 Integrate avatar into DimensionEngine micro-position system]
+
+  A --> D1[🚶 Add Movement Logic Across Cubes]
+  D1 --> D2[🔄 Build movement_engine.py: interpolate micro-positions]
+  D2 --> D3[🪟 Trigger cube switch when bounding box crosses border]
+  D3 --> D4[🛑 Add basic collision detection]
+
+  A --> E1[🎨 Add Styling, Layers, and Materials]
+  E1 --> E2[🧱 Extend .dc cube format with layers (floor, objects, etc.)]
+  E2 --> E3[🪄 Create material_types.json (grass, ice, lava...)]
+  E3 --> E4[🌈 Optional: Use Visualizer.tsx to render cube tiles]
+
+  A --> F1[👁️ Add AION Perception + Sensing]
+  F1 --> F2[📡 Create perception_engine.py with FOV, LOS]
+  F2 --> F3[🌌 Add trait/lighting/emotion modifiers to perception]
+
+  A --> G1[🧬 Link AION to Dream Logic]
+  G1 --> G2[💤 Log surfaces + collisions as memory entries]
+  G2 --> G3[💭 Include location + material context in dream_core.py]
+
+  A --> H1[🌍 Future: 3D Avatar Integration]
+  H1 --> H2[🦾 Support `aion_v1.glb` or model file]
+  H2 --> H3[🧊 Export avatar pose, head height, offset]
+
+  click B2 href "backend/modules/dc_handler.py"
+  click C2 href "backend/modules/avatar/aion_avatar.py"
+  click D2 href "backend/modules/movement/movement_engine.py"
+  click E2 href "backend/modules/dna_chain/dc_spec.md"
+  click F2 href "backend/modules/perception/perception_engine.py"
+  click G3 href "backend/modules/dream_core.py"
+
+
+
+
+
 
 
 ✅ Start Container created successfully: aion_start.dc.json

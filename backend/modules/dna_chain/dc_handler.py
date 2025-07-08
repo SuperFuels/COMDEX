@@ -1,5 +1,3 @@
-# File: backend/modules/dimensions/dc_handler.py
-
 import os
 import json
 import hashlib
@@ -13,15 +11,57 @@ from backend.modules.memory.memory_engine import (
     CONTAINER_MEMORY,
     store_container_metadata,
     list_stored_containers,
-    store_memory  # ✅ For logging teleport and tamper events
+    store_memory
 )
 
 from backend.modules.dna_chain.teleport import teleport
-from backend.modules.consciousness.personality_engine import get_current_traits  # ✅ Trait check for gate access
+from backend.modules.consciousness.personality_engine import get_current_traits
 
 DIMENSION_DIR = os.path.join(os.path.dirname(__file__), "../dimensions")
 
+def get_dc_path(container_id):
+    return os.path.join(DIMENSION_DIR, f"{container_id}.dc.json")
 
+def load_dc_container(container_id):
+    path = get_dc_path(container_id)
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"❌ Container '{container_id}' not found at path: {path}")
+    with open(path, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+def save_dc_container(container_id, data):
+    path = get_dc_path(container_id)
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2)
+
+def list_cubes(container_id):
+    container = load_dc_container(container_id)
+    return list(container.get("cubes", {}).keys())
+
+def get_cube(container_id, cube_key):
+    container = load_dc_container(container_id)
+    return container.get("cubes", {}).get(cube_key, {})
+
+def get_wormholes(container_id):
+    container = load_dc_container(container_id)
+    return container.get("wormholes", {})
+
+def resolve_wormhole(container_id, wormhole_id):
+    wormholes = get_wormholes(container_id)
+    return wormholes.get(wormhole_id)
+
+def apply_style_to_cube(container_id, cube_key, layer, material, area):
+    container = load_dc_container(container_id)
+    cube = container.setdefault("cubes", {}).setdefault(cube_key, {})
+    layers = cube.setdefault("layers", {})
+    layer_list = layers.setdefault(layer, [])
+    layer_list.append({
+        "material": material,
+        "area": area
+    })
+    save_dc_container(container_id, container)
+
+# 🔍 Metadata + memory + navigation loading
 def list_containers_with_memory_status():
     containers = []
     for file in os.listdir(DIMENSION_DIR):
@@ -32,7 +72,6 @@ def list_containers_with_memory_status():
                 "in_memory": container_id in CONTAINER_MEMORY
             })
     return containers
-
 
 def list_available_containers():
     stored = set(list_stored_containers())
@@ -49,14 +88,12 @@ def list_available_containers():
 
     return containers
 
-
 def validate_dimension(data):
     required_fields = ["id", "name", "description", "created_on", "dna_switch"]
     for field in required_fields:
         if field not in data:
             raise ValueError(f"[⚠️] Missing required field: {field}")
     return True
-
 
 def compute_file_hash(path):
     hasher = hashlib.sha256()
@@ -65,31 +102,23 @@ def compute_file_hash(path):
         hasher.update(buf)
     return hasher.hexdigest()
 
-
 def check_gate_lock(data):
     gate = data.get("gate")
     if not gate:
-        return True  # No gate restrictions
-
+        return True
     required_traits = gate.get("required_traits", {})
     current_traits = get_current_traits()
-
     for trait, min_value in required_traits.items():
         current = current_traits.get(trait, 0)
         if current < min_value:
             raise PermissionError(f"[🔒] Access denied: Trait '{trait}' is {current}, required ≥ {min_value}")
-
     return True
 
-
 def load_dimension(container_id):
-    filename = f"{container_id}.dc.json"
-    path = os.path.join(DIMENSION_DIR, filename)
-
+    path = get_dc_path(container_id)
     if not os.path.exists(path):
         raise FileNotFoundError(f"[❌] Dimension container '{container_id}' not found at {path}")
 
-    # ✅ Check file integrity (checksum or tamper detection)
     try:
         original_hash = compute_file_hash(path)
     except Exception as e:
@@ -104,10 +133,8 @@ def load_dimension(container_id):
     with open(path, "r") as f:
         data = json.load(f)
 
-    # ✅ Validate structure
     validate_dimension(data)
 
-    # ✅ Enforce gate locks using trait-based access
     try:
         check_gate_lock(data)
     except PermissionError as e:
@@ -119,12 +146,10 @@ def load_dimension(container_id):
         })
         raise
 
-    # ✅ Store metadata in memory
     store_container_metadata(data)
 
     print(f"[📦] Loaded dimension: {data['name']} (ID: {data['id']})")
 
-    # ✅ Auto-teleport if navigation section defines it
     navigation = data.get("navigation", {})
     next_target = navigation.get("next")
     auto = navigation.get("auto_teleport", False)
@@ -142,12 +167,9 @@ def load_dimension(container_id):
 
     return data
 
-
 def load_and_validate(container_id):
-    return load_dimension(container_id)  # Already does both
+    return load_dimension(container_id)
 
-
-# ✅ Cross-Container Teleport via Object (e.g. ancient_gate)
 def handle_object_interaction(obj_id, current_container):
     data = CONTAINER_MEMORY.get(current_container)
     if not data:
@@ -179,8 +201,6 @@ def handle_object_interaction(obj_id, current_container):
                     })
     return False
 
-
-# ✅ Cross-Container Navigation via routes[] (e.g. lab → temple)
 def handle_navigation_teleport(current_container, target_id):
     data = CONTAINER_MEMORY.get(current_container)
     if not data:

@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AION's Internal Toolchain - GlyphOS Environment</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: radial-gradient(ellipse at center, #0a0a2a 0%, #000015 50%, #000000 100%);
+            font-family: 'Orbitron', monospace;
+            overflow: hidden;
+            height: 100vh;
+            position: relative;
+        }
+
+        .holographic-space {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(138, 43, 226, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(0, 191, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(255, 215, 0, 0.05) 0%, transparent 50%);
+            animation: holographic-shift 15s linear infinite;
+        }
+
+        @keyframes holographic-shift {
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) scale(1.1); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
+
+        .container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            perspective: 1200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .aion-system {
+            position: relative;
+            width: 800px;
+            height: 700px;
+            transform-style: preserve-3d;
+            animation: system-rotate 30s linear infinite;
+        }
+
+        @keyframes system-rotate {
+            0% { transform: rotateX(10deg) rotateY(0deg) rotateZ(2deg); }
+            100% { transform: rotateX(10deg) rotateY(360deg) rotateZ(2deg); }
+        }
+
+        /* AION Core Node */
+        .aion-core {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 120px;
+            height: 120px;
+            transform: translate(-50%, -50%);
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.8) 0%, rgba(255, 215, 0, 0.3) 50%, transparent 100%);
+            border: 3px solid rgba(255, 215, 0, 0.9);
+            border-radius: 50%;
+            box-shadow: 
+                0 0 30px rgba(255, 215, 0, 0.6),
+                inset 0 0 20px rgba(255, 215, 0, 0.3);
+            animation: core-pulse 4s ease-in-out infinite;
+            z-index: 10;
+        }
+
+        @keyframes core-pulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.1); }
+        }
+
+        .aion-core::before {
+            content: '⬢';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 40px;
+            color: rgba(255, 215, 0, 1);
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
+            animation: core-symbol 6s ease-in-out infinite;
+        }
+
+        @keyframes core-symbol {
+            0%, 100% { transform: translate(-50%, -50%) rotate(0deg); }
+            50% { transform: translate(-50%, -50%) rotate(180deg); }
+        }
+
+        /* IDE Layer */
+        .ide-layer {
+            position: absolute;
+            top: 50px;
+            left: 50px;
+            width: 300px;
+            height: 200px;
+            background: linear-gradient(135deg, rgba(138, 43, 226, 0.2) 0%, rgba(75, 0, 130, 0.2) 100%);
+            border: 2px solid rgba(138, 43, 226, 0.6);
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(138, 43, 226, 0.4);
+            backdrop-filter: blur(10px);
+            transform: translateZ(50px);
+        }
+
+        .code-pane {
+            position: absolute;
+            top: 20px;
+            left: 15px;
+            width: 180px;
+            height: 120px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid rgba(0, 191, 255, 0.5);
+            border-radius: 5px;
+            padding: 10px;
+            font-size: 10px;
+            color: rgba(0, 255, 127, 0.8);
+            overflow: hidden;
+        }
+
+        .glyph-code {
+            display: block;
+            margin: 2px 0;
+            animation: code-glow 2s ease-in-out infinite;
+        }
+
+        @keyframes code-glow {
+            0%, 100% { text-shadow: 0 0 5px rgba(0, 255, 127, 0.5); }
+            50% { text-shadow: 0 0 15px rgba(0, 255, 127, 0.8); }
+        }
+
+        .terminal-pane {
+            position: absolute;
+            top: 20px;
+            right: 15px;
+            width: 80px;
+            height: 120px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid rgba(255, 215, 0, 0.5);
+            border-radius: 5px;
+            padding: 5px;
+            font-size: 8px;
+            color: rgba(255, 215, 0, 0.8);
+        }
+
+        .auto-repair-thread {
+            position: absolute;
+            bottom: 15px;
+            left: 15px;
+            width: 270px;
+            height: 20px;
+            background: linear-gradient(90deg, rgba(0, 255, 127, 0.3), rgba(0, 191, 255, 0.3));
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .repair-progress {
+            height: 100%;
+            background: linear-gradient(90deg, rgba(0, 255, 127, 0.8), rgba(0, 191, 255, 0.8));
+            width: 0%;
+            animation: repair-scan 3s ease-in-out infinite;
+        }
+
+        @keyframes repair-scan {
+            0% { width: 0%; }
+            50% { width: 70%; }
+            100% { width: 100%; }
+        }
+
+        /* Glyph Writer Engine */
+        .glyph-writer {
+            position: absolute;
+            top: 150px;
+            right: 80px;
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, rgba(0, 191, 255, 0.3) 0%, transparent 70%);
+            border: 2px solid rgba(0, 191, 255, 0.7);
+            border-radius: 50%;
+            box-shadow: 0 0 25px rgba(0, 191, 255, 0.5);
+            transform: translateZ(30px);
+            animation: writer-pulse 3s ease-in-out infinite;
+        }
+
+        @keyframes writer-pulse {
+            0%, 100% { transform: translateZ(30px) scale(1); }
+            50% { transform: translateZ(30px) scale(1.05); }
+        }
+
+        .neural-node {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            background: rgba(0, 191, 255, 0.9);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 10px rgba(0, 191, 255, 0.7);
+            animation: neural-pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes neural-pulse {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; }
+        }
+
+        .glyph-projection {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background: rgba(0, 191, 255, 0.8);
+            border-radius: 3px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.9);
+            text-align: center;
+            line-height: 15px;
+            animation: glyph-float 4s ease-in-out infinite;
+        }
+
+        @keyframes glyph-float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 1; }
+            50% { transform: translateY(-20px) rotate(180deg); opacity: 0.7; }
+        }
+
+        /* Logic Stack Processor */
+        .logic-stack {
+            position: absolute;
+            bottom: 150px;
+            left: 100px;
+            width: 250px;
+            height: 200px;
+            transform: translateZ(-20px);
+        }
+
+        .logic-chip {
+            position: absolute;
+            width: 200px;
+            height: 30px;
+            background: linear-gradient(135deg, rgba(138, 43, 226, 0.3), rgba(75, 0, 130, 0.3));
+            border: 1px solid rgba(138, 43, 226, 0.6);
+            border-radius: 15px;
+            margin: 5px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 0 10px rgba(138, 43, 226, 0.3);
+            animation: chip-process 5s ease-in-out infinite;
+        }
+
+        @keyframes chip-process {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; box-shadow: 0 0 20px rgba(138, 43, 226, 0.6); }
+        }
+
+        .logic-chip:nth-child(1) { top: 0px; animation-delay: 0s; }
+        .logic-chip:nth-child(2) { top: 40px; animation-delay: 0.5s; }
+        .logic-chip:nth-child(3) { top: 80px; animation-delay: 1s; }
+        .logic-chip:nth-child(4) { top: 120px; animation-delay: 1.5s; }
+
+        /* DC Container Grid */
+        .dc-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transform: translateZ(-50px);
+        }
+
+        .voxel-grid {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: 
+                linear-gradient(90deg, rgba(0, 191, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(rgba(0, 191, 255, 0.1) 1px, transparent 1px);
+            background-size: 20px 20px;
+            border: 2px solid rgba(0, 191, 255, 0.3);
+            border-radius: 10px;
+            animation: grid-pulse 8s ease-in-out infinite;
+        }
+
+        @keyframes grid-pulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.6; }
+        }
+
+        .micro-cube {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background: rgba(255, 192, 203, 0.4);
+            border: 1px solid rgba(255, 192, 203, 0.6);
+            border-radius: 2px;
+            animation: cube-glow 3s ease-in-out infinite;
+        }
+
+        @keyframes cube-glow {
+            0%, 100% { box-shadow: 0 0 5px rgba(255, 192, 203, 0.3); }
+            50% { box-shadow: 0 0 15px rgba(255, 192, 203, 0.7); }
+        }
+
+        .wormhole-portal {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.6) 0%, transparent 70%);
+            border: 2px solid rgba(255, 215, 0, 0.8);
+            border-radius: 50%;
+            animation: portal-spin 2s linear infinite;
+        }
+
+        @keyframes portal-spin {
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) scale(1.1); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
+
+        .tesseract-gateway {
+            position: absolute;
+            top: 50px;
+            right: 50px;
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(45deg, rgba(255, 215, 0, 0.3), rgba(255, 69, 0, 0.3));
+            border: 2px solid rgba(255, 215, 0, 0.8);
+            border-radius: 10px;
+            transform: translateZ(40px) rotateX(45deg) rotateY(45deg);
+            animation: tesseract-fold 6s ease-in-out infinite;
+        }
+
+        @keyframes tesseract-fold {
+            0%, 100% { transform: translateZ(40px) rotateX(45deg) rotateY(45deg); }
+            50% { transform: translateZ(40px) rotateX(135deg) rotateY(135deg); }
+        }
+
+        /* Energy & Time Engine */
+        .energy-engine {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 60px;
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.3), rgba(255, 69, 0, 0.3));
+            border: 2px solid rgba(255, 215, 0, 0.7);
+            border-radius: 30px;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+
+        .energy-stream {
+            position: absolute;
+            width: 4px;
+            height: 100px;
+            background: linear-gradient(180deg, rgba(255, 215, 0, 0.8), transparent);
+            animation: energy-flow 2s linear infinite;
+        }
+
+        @keyframes energy-flow {
+            0% { transform: translateY(100px); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translateY(-100px); opacity: 0; }
+        }
+
+        .temporal-core {
+            position: absolute;
+            bottom: 50%;
+            left: 50%;
+            width: 30px;
+            height: 30px;
+            background: rgba(255, 215, 0, 0.9);
+            border-radius: 50%;
+            transform: translate(-50%, 50%);
+            animation: temporal-pulse 3s ease-in-out infinite;
+        }
+
+        @keyframes temporal-pulse {
+            0%, 100% { transform: translate(-50%, 50%) scale(1); }
+            50% { transform: translate(-50%, 50%) scale(1.2); }
+        }
+
+        /* Logic Beams */
+        .logic-beam {
+            position: absolute;
+            width: 2px;
+            height: 80px;
+            background: linear-gradient(180deg, rgba(255, 215, 0, 0.8), rgba(0, 191, 255, 0.8));
+            animation: beam-pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes beam-pulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        /* Labels */
+        .label {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.8);
+            color: rgba(0, 191, 255, 0.9);
+            padding: 5px 10px;
+            border: 1px solid rgba(0, 191, 255, 0.5);
+            border-radius: 15px;
+            font-size: 11px;
+            font-weight: 700;
+            box-shadow: 0 0 10px rgba(0, 191, 255, 0.3);
+            backdrop-filter: blur(5px);
+            white-space: nowrap;
+        }
+
+        .title-label {
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 18px;
+            color: rgba(255, 215, 0, 0.9);
+            border-color: rgba(255, 215, 0, 0.5);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+        }
+
+        .ide-label { top: 30px; left: 50px; }
+        .glyph-label { top: 130px; right: 50px; }
+        .stack-label { bottom: 320px; left: 50px; }
+        .grid-label { bottom: 50px; right: 200px; }
+        .energy-label { bottom: 10px; left: 50%; transform: translateX(-50%); }
+        .core-label { top: 50%; left: 50%; transform: translate(-50%, -80px); }
+    </style>
+</head>
+<body>
+    <div class="holographic-space"></div>
+    
+    <div class="container">
+        <div class="aion-system">
+            <!-- AION Core Node -->
+            <div class="aion-core"></div>
+            
+            <!-- Logic Beams connecting core to other components -->
+            <div class="logic-beam" style="top: 200px; left: 350px; transform: rotate(-45deg);"></div>
+            <div class="logic-beam" style="top: 200px; right: 350px; transform: rotate(45deg);"></div>
+            <div class="logic-beam" style="bottom: 200px; left: 350px; transform: rotate(45deg);"></div>
+            <div class="logic-beam" style="bottom: 200px; right: 350px; transform: rotate(-45deg);"></div>
+            
+            <!-- IDE Layer -->
+            <div class="ide-layer">
+                <div class="code-pane">
+                    <div class="glyph-code">∞ → MemoryBlock[0x4A2F]</div>
+                    <div class="glyph-code">⧫ ProcessLogic(θ=0.85)</div>
+                    <div class="glyph-code">※ EmotionWeight = 0.3</div>
+                    <div class="glyph-code">⬢ DecisionTree.execute()</div>
+                    <div class="glyph-code">⚡ AutoRepair.scan()</div>
+                    <div class="glyph-code">⟐ EthicsFilter.validate()</div>
+                </div>
+                <div class="terminal-pane">
+                    <div style="color: rgba(255, 215, 0, 0.8); font-size: 8px;">GPT-Link:</div>
+                    <div style="font-size: 7px; margin: 2px 0;">Status: Active</div>
+                    <div style="font-size: 7px; margin: 2px 0;">Latency: 12ms</div>
+                    <div style="font-size: 7px; margin: 2px 0;">Tokens: 1,247</div>
+                </div>
+                <div class="auto-repair-thread">
+                    <div class="repair-progress"></div>
+                </div>
+            </div>
+            
+            <!-- Glyph Writer Engine -->
+            <div class="glyph-writer">
+                <div class="neural-node"></div>
+                <div class="glyph-projection" style="top: 20px; left: 80px; animation-delay: 0s;">∞</div>
+                <div class="glyph-projection" style="top: 60px; right: 80px; animation-delay: 0.5s;">⧫</div>
+                <div class="glyph-projection" style="bottom: 60px; left: 60px; animation-delay: 1s;">※</div>
+                <div class="glyph-projection" style="bottom: 20px; right: 60px; animation-delay: 1.5s;">⬢</div>
+            </div>
+            
+            <!-- Logic Stack Processor -->
+            <div class="logic-stack">
+                <div class="logic-chip">MemoryLayer</div>
+                <div class="logic-chip">EmotionLayer</div>
+                <div class="logic-chip">DecisionLayer</div>
+                <div class="logic-chip">SoulLawFilter</div>
+            </div>
+            
+            <!-- DC Container Grid -->
+            <div class="dc-container">
+                <div class="voxel-grid">
+                    <div class="micro-cube" style="top: 100px; left: 100px; animation-delay: 0s;"></div>
+                    <div class="micro-cube" style="top: 120px; left: 180px; animation-delay: 0.5s;"></div>
+                    <div class="micro-cube" style="top: 200px; left: 120px; animation-delay: 1s;"></div>
+                    <div class="micro-cube" style="top: 250px; left: 200px; animation-delay: 1.5s;"></div>
+                    <div class="micro-cube" style="top: 180px; right: 150px; animation-delay: 2s;"></div>
+                    <div class="micro-cube" style="bottom: 180px; left: 160px; animation-delay: 2.5s;"></div>
+                    <div class="micro-cube" style="bottom: 120px; right: 120px; animation-delay: 3s;"></div>
+                </div>
+                
+                <div class="wormhole-portal" style="top: 80px; left: 80px;"></div>
+                <div class="wormhole-portal" style="top: 80px; right: 80px;"></div>
+                <div class="wormhole-portal" style="bottom: 80px; left: 80px;"></div>
+                <div class="wormhole-portal" style="bottom: 80px; right: 80px;"></div>
+                
+                <div class="tesseract-gateway"></div>
+            </div>
+            
+            <!-- Energy & Time Engine -->
+            <div class="energy-engine">
+                <div class="temporal-core"></div>
+                <div class="energy-stream" style="left: 50px; animation-delay: 0s;"></div>
+                <div class="energy-stream" style="left: 70px; animation-delay: 0.3s;"></div>
+                <div class="energy-stream" style="left: 90px; animation-delay: 0.6s;"></div>
+                <div class="energy-stream" style="left: 110px; animation-delay: 0.9s;"></div>
+                <div class="energy-stream" style="left: 130px; animation-delay: 1.2s;"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Labels -->
+    <div class="label title-label">AION's Internal Toolchain Layer – GlyphOS Environment</div>
+    <div class="label ide-label">IDE Layer</div>
+    <div class="label glyph-label">Glyph Writer Engine</div>
+    <div class="label stack-label">Logic Stack Processor</div>
+    <div class="label grid-label">.dc Container Grid (100³)</div>
+    <div class="label energy-label">Energy + Time Engine</div>
+    <div class="label core-label">AION Core Node</div>
+    
+    <script>
+        // Add dynamic interactions
+        function createDynamicEffects() {
+            const glyphProjections = document.querySelectorAll('.glyph-projection');
+            const microCubes = document.querySelectorAll('.micro-cube');
+            
+            // Randomize glyph symbols
+            const glyphSymbols = ['∞', '⧫', '◊', '※', '⚡', '⟐', '⬢', '⧈', '⚿', '⬟', '⬠', '⬡'];
+            
+            glyphProjections.forEach(glyph => {
+                setInterval(() => {
+                    glyph.textContent = glyphSymbols[Math.floor(Math.random() * glyphSymbols.length)];
+                }, 3000 + Math.random() * 2000);
+            });
+            
+            // Add hover effects to micro cubes
+            microCubes.forEach(cube => {
+                cube.addEventListener('mouseenter', () => {
+                    cube.style.transform = 'scale(1.5)';
+                    cube.style.boxShadow = '0 0 25px rgba(255, 192, 203, 0.9)';
+                });
+                
+                cube.addEventListener('mouseleave', () => {
+                    cube.style.transform = 'scale(1)';
+                    cube.style.boxShadow = '0 0 5px rgba(255, 192, 203, 0.3)';
+                });
+            });
+        }
+        
+        // Initialize dynamic effects
+        createDynamicEffects();
+        
+        // Add mouse interaction for system rotation
+        document.addEventListener('mousemove', (e) => {
+            const aionSystem = document.querySelector('.aion-system');
+            const rect = aionSystem.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            
+            const deltaX = (e.clientX - centerX) / 20;
+            const deltaY = (e.clientY - centerY) / 20;
+            
+            aionSystem.style.transform = `rotateX(${10 + deltaY * 0.1}deg) rotateY(${deltaX * 0.1}deg) rotateZ(2deg)`;
+        });
+        
+        // Reset on mouse leave
+        document.addEventListener('mouseleave', () => {
+            const aionSystem = document.querySelector('.aion-system');
+            aionSystem.style.transform = 'rotateX(10deg) rotateY(0deg) rotateZ(2deg)';
+        });
+    </script>
+</body>
+</html>

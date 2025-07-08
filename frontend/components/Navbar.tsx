@@ -116,14 +116,7 @@ export default function Navbar() {
 
       <button
         onClick={() => setSidebarOpen(true)}
-        className="
-          fixed top-4 left-4
-          p-2
-          border border-gray-300 dark:border-gray-700
-          rounded-lg
-          bg-white dark:bg-gray-900
-          z-50
-        "
+        className="fixed top-4 left-4 p-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 z-50"
         aria-label="Open menu"
       >
         <Image src="/G.svg" alt="Menu" width={24} height={24} />
@@ -185,7 +178,7 @@ export default function Navbar() {
           </div>
 
           <div className="flex items-center space-x-3">
-            {/* ✅ New Container Map Link */}
+            {/* ✅ Container Map */}
             <Link
               href="/container-map.html"
               target="_blank"
@@ -194,6 +187,39 @@ export default function Navbar() {
             >
               <Image src="/cube.svg" alt="Map" width={16} height={16} />
               <span>Map</span>
+            </Link>
+
+            {/* ✅ Conscious Engine */}
+            <Link
+              href="/conscious_engine.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center space-x-1 py-1 px-3 border border-purple-500 text-purple-600 rounded-lg bg-white dark:bg-gray-900 text-sm hover:bg-purple-50 dark:hover:bg-gray-800 focus:outline-none transition"
+            >
+              <Image src="/cube.svg" alt="Map" width={16} height={16} />
+              <span>Map</span>
+            </Link>
+
+            {/* ✅ Tessaris */}
+            <Link
+              href="/tessaris.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center space-x-1 py-1 px-3 border border-purple-500 text-purple-600 rounded-lg bg-white dark:bg-gray-900 text-sm hover:bg-purple-50 dark:hover:bg-gray-800 focus:outline-none transition"
+            >
+              <Image src="/cube.svg" alt="Map" width={16} height={16} />
+              <span>Map</span>
+            </Link>
+
+            {/* ✅ World Map */}
+            <Link
+              href="/world-map.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center space-x-1 py-1 px-3 border border-green-500 text-green-600 rounded-lg bg-white dark:bg-gray-900 text-sm hover:bg-green-50 dark:hover:bg-gray-800 focus:outline-none transition"
+            >
+              <Image src="/aion-icon.svg" alt="World" width={16} height={16} />
+              <span>World</span>
             </Link>
 
             <button

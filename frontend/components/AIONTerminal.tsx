@@ -1,5 +1,3 @@
-// File: frontend/components/AIONTerminal.tsx
-
 import React, { useState, useEffect } from 'react';
 import {
   FaPlay,
@@ -11,7 +9,9 @@ import {
   FaRedo,
 } from 'react-icons/fa';
 import useAION from '../hooks/useAION';
-import ContainerStatus from '@/components/AION/ContainerStatus';// ✅ Add component import
+import ContainerStatus from '@/components/AION/ContainerStatus';
+import GlyphGrid from './AION/GlyphGrid';
+import GlyphInspector from './AION/GlyphInspector';
 
 interface AIONTerminalProps {
   side: 'left' | 'right';
@@ -40,6 +40,7 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editedContent, setEditedContent] = useState<string>('');
   const [autoRefresh, setAutoRefresh] = useState(true);
+  const [selectedGlyph, setSelectedGlyph] = useState<null | { coord: string; data: any }>(null);
 
   const handleSubmit = async () => {
     if (!input.trim()) return;
@@ -170,7 +171,6 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
   return (
     <div className="flex flex-col h-full">
       <div className="relative flex items-center px-4 gap-2 py-2">
-        {/* Input */}
         <div className="relative flex-1">
           <input
             className="w-full border border-gray-300 px-3 py-1 rounded text-sm"
@@ -207,7 +207,6 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
           )}
         </div>
 
-        {/* Filter */}
         <select
           className="border border-gray-300 rounded text-sm px-2 py-1 w-28 text-gray-700 bg-white"
           value={activeFilter}
@@ -221,7 +220,6 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
           <option value="stub">Stub</option>
         </select>
 
-        {/* Buttons */}
         <button onClick={syncMemory} className="text-blue-600 text-sm" title="Sync">
           <FaSync />
         </button>
@@ -293,6 +291,26 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
               ))}
             </ul>
           </div>
+        )}
+
+        {/* 🧩 Glyph Grid */}
+        {status?.context?.current_container?.cubes && (
+          <>
+            <h3 className="text-sm text-gray-500 mt-4">🧩 Glyph Grid:</h3>
+            <GlyphGrid
+              cubes={status.context.current_container.cubes}
+              onGlyphClick={(coord, data) => setSelectedGlyph({ coord, data })}
+            />
+          </>
+        )}
+
+        {/* 🔍 Glyph Inspector */}
+        {selectedGlyph && (
+          <GlyphInspector
+            coord={selectedGlyph.coord}
+            data={selectedGlyph.data}
+            onClose={() => setSelectedGlyph(null)}
+          />
         )}
 
         {/* 🗺️ Mini Map */}

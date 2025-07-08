@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AION Cube Dimension Visualization</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 30%, #16213e 60%, #0f0f23 100%);
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+            height: 100vh;
+            position: relative;
+        }
+
+        .scene-container {
+            position: absolute;
+            top: 60%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90vw;
+            height: 90vh;
+            perspective: 1200px;
+            perspective-origin: center center;
+        }
+
+        .cube-grid {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            animation: gentle-rotate 30s infinite linear;
+        }
+
+        .dimension-cube {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            border: 1px solid rgba(0, 255, 255, 0.4);
+            background: rgba(0, 255, 255, 0.08);
+            transform-style: preserve-3d;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
+        }
+
+        .dimension-cube:hover {
+            border-color: rgba(0, 255, 255, 0.8);
+            box-shadow: 0 0 25px rgba(0, 255, 255, 0.4);
+        }
+
+        .center-cube {
+            width: 120px;
+            height: 120px;
+            border: 2px solid rgba(100, 150, 255, 0.9);
+            background: rgba(100, 150, 255, 0.15);
+            box-shadow: 0 0 40px rgba(100, 150, 255, 0.6);
+            animation: center-pulse 3s ease-in-out infinite;
+        }
+
+        .cube-face {
+            position: absolute;
+            border: inherit;
+            background: inherit;
+            opacity: 0.7;
+        }
+
+        .cube-front { width: 100%; height: 100%; transform: translateZ(40px); }
+        .cube-back { width: 100%; height: 100%; transform: translateZ(-40px) rotateY(180deg); }
+        .cube-left { width: 80px; height: 100%; transform: rotateY(-90deg) translateZ(40px); }
+        .cube-right { width: 80px; height: 100%; transform: rotateY(90deg) translateZ(40px); }
+        .cube-top { width: 100%; height: 80px; transform: rotateX(90deg) translateZ(40px); }
+        .cube-bottom { width: 100%; height: 80px; transform: rotateX(-90deg) translateZ(40px); }
+
+        .center-cube .cube-front { transform: translateZ(60px); }
+        .center-cube .cube-back { transform: translateZ(-60px) rotateY(180deg); }
+        .center-cube .cube-left { width: 120px; transform: rotateY(-90deg) translateZ(60px); }
+        .center-cube .cube-right { width: 120px; transform: rotateY(90deg) translateZ(60px); }
+        .center-cube .cube-top { width: 100%; height: 120px; transform: rotateX(90deg) translateZ(60px); }
+        .center-cube .cube-bottom { width: 100%; height: 120px; transform: rotateX(-90deg) translateZ(60px); }
+
+        .aion-avatar {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 80px;
+            z-index: 10;
+        }
+
+        .aion-head {
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle, rgba(0, 255, 255, 1) 0%, rgba(100, 150, 255, 0.8) 100%);
+            border-radius: 50%;
+            margin: 0 auto 5px;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.8);
+            animation: head-glow 2s ease-in-out infinite;
+            position: relative;
+        }
+
+        .aion-head::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, rgba(0, 255, 255, 0.6), rgba(255, 100, 255, 0.6));
+            border-radius: 50%;
+            z-index: -1;
+            animation: neural-pulse 1.5s ease-in-out infinite;
+        }
+
+        .aion-body {
+            width: 25px;
+            height: 45px;
+            background: linear-gradient(180deg, rgba(0, 255, 255, 0.8) 0%, rgba(100, 150, 255, 0.6) 100%);
+            margin: 0 auto;
+            border-radius: 12px;
+            box-shadow: 0 0 25px rgba(0, 255, 255, 0.6);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .aion-body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.3) 50%, transparent 70%);
+            animation: circuit-flow 3s linear infinite;
+        }
+
+        .aion-arms {
+            position: absolute;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 20px;
+        }
+
+        .aion-arm {
+            position: absolute;
+            width: 15px;
+            height: 3px;
+            background: rgba(0, 255, 255, 0.8);
+            border-radius: 2px;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.6);
+        }
+
+        .aion-arm.left {
+            left: 0;
+            transform: rotate(-20deg);
+            animation: arm-gesture 4s ease-in-out infinite;
+        }
+
+        .aion-arm.right {
+            right: 0;
+            transform: rotate(20deg);
+            animation: arm-gesture 4s ease-in-out infinite reverse;
+        }
+
+        .neural-threads {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .neural-thread {
+            position: absolute;
+            width: 1px;
+            background: linear-gradient(to bottom, rgba(0, 255, 255, 0.8), transparent);
+            animation: thread-pulse 2s ease-in-out infinite;
+        }
+
+        .code-stream {
+            position: absolute;
+            color: rgba(0, 255, 255, 0.7);
+            font-size: 8px;
+            white-space: nowrap;
+            animation: code-flow 5s linear infinite;
+        }
+
+        .interface-elements {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .memory-pulse {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: rgba(255, 100, 255, 0.8);
+            border-radius: 50%;
+            animation: memory-orbit 4s linear infinite;
+        }
+
+        .dna-switch {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(45deg, rgba(255, 100, 255, 0.9), rgba(255, 200, 0, 0.9));
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(255, 100, 255, 0.6);
+            animation: dna-rotate 3s linear infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: white;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+        }
+
+        .connection-line {
+            position: absolute;
+            height: 2px;
+            background: linear-gradient(90deg, rgba(0, 255, 255, 0.6), rgba(100, 150, 255, 0.6));
+            box-shadow: 0 0 8px rgba(0, 255, 255, 0.4);
+            animation: connection-flow 3s ease-in-out infinite;
+        }
+
+        .teleport-gate {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border: 3px solid rgba(255, 200, 0, 0.8);
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 200, 0, 0.2) 0%, transparent 70%);
+            animation: gate-pulse 2s ease-in-out infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: rgba(255, 200, 0, 1);
+            text-shadow: 0 0 15px rgba(255, 200, 0, 0.8);
+        }
+
+        .next-container {
+            position: absolute;
+            top: 10%;
+            right: 10%;
+            width: 200px;
+            height: 200px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            opacity: 0.6;
+            animation: next-container-fade 4s ease-in-out infinite;
+        }
+
+        .hud-overlay {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: rgba(0, 255, 255, 0.9);
+            font-size: 12px;
+            font-family: 'Courier New', monospace;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 255, 255, 0.5);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+        }
+
+        .coordinate-label {
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 10px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 3px 6px;
+            border-radius: 4px;
+            border: 1px solid rgba(0, 255, 255, 0.4);
+        }
+
+        .navigation-arrows {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+            pointer-events: none;
+        }
+
+        .nav-arrow {
+            position: absolute;
+            animation: arrow-glow 2s ease-in-out infinite;
+        }
+
+        .nav-north { top: -40px; left: 50%; transform: translateX(-50%); }
+        .nav-south { bottom: -40px; left: 50%; transform: translateX(-50%); }
+        .nav-east { right: -40px; top: 50%; transform: translateY(-50%); }
+        .nav-west { left: -40px; top: 50%; transform: translateY(-50%); }
+
+        .strategy-glyph {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 1px solid rgba(255, 100, 255, 0.6);
+            background: rgba(255, 100, 255, 0.2);
+            border-radius: 4px;
+            animation: glyph-float 3s ease-in-out infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: rgba(255, 100, 255, 0.9);
+        }
+
+        /* Animations */
+        @keyframes gentle-rotate {
+            0% { transform: rotateY(0deg) rotateX(5deg); }
+            100% { transform: rotateY(360deg) rotateX(5deg); }
+        }
+
+        @keyframes center-pulse {
+            0%, 100% { box-shadow: 0 0 40px rgba(100, 150, 255, 0.6); }
+            50% { box-shadow: 0 0 60px rgba(100, 150, 255, 0.8); }
+        }
+
+        @keyframes head-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(0, 255, 255, 0.8); }
+            50% { box-shadow: 0 0 30px rgba(0, 255, 255, 1); }
+        }
+
+        @keyframes neural-pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        @keyframes circuit-flow {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        @keyframes arm-gesture {
+            0%, 100% { transform: rotate(-20deg); }
+            50% { transform: rotate(-10deg); }
+        }
+
+        @keyframes thread-pulse {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
+        }
+
+        @keyframes code-flow {
+            0% { transform: translateY(100px); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100px); opacity: 0; }
+        }
+
+        @keyframes memory-orbit {
+            0% { transform: rotate(0deg) translateX(30px) rotate(0deg); }
+            100% { transform: rotate(360deg) translateX(30px) rotate(-360deg); }
+        }
+
+        @keyframes dna-rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes connection-flow {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        @keyframes gate-pulse {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.1); opacity: 1; }
+        }
+
+        @keyframes next-container-fade {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 0.8; }
+        }
+
+        @keyframes arrow-glow {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        @keyframes glyph-float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+        }
+
+        /* Grid positioning */
+        .cube-0-0-0 { transform: translate3d(0px, 0px, 0px); }
+        .cube-1-0-0 { transform: translate3d(100px, 0px, 0px); }
+        .cube-2-0-0 { transform: translate3d(200px, 0px, 0px); }
+        .cube-0-1-0 { transform: translate3d(0px, 100px, 0px); }
+        .cube-1-1-0 { transform: translate3d(100px, 100px, 0px); }
+        .cube-2-1-0 { transform: translate3d(200px, 100px, 0px); }
+        .cube-0-0-1 { transform: translate3d(0px, 0px, 100px); }
+        .cube-1-0-1 { transform: translate3d(100px, 0px, 100px); }
+        .cube-2-0-1 { transform: translate3d(200px, 0px, 100px); }
+        .cube-0-1-1 { transform: translate3d(0px, 100px, 100px); }
+        .cube-1-1-1 { transform: translate3d(100px, 100px, 100px); }
+        .cube-2-1-1 { transform: translate3d(200px, 100px, 100px); }
+
+    </style>
+</head>
+<body>
+    <div class="scene-container">
+        <div class="cube-grid">
+            <!-- Background grid cubes -->
+            <div class="dimension-cube cube-0-0-0">
+                <div class="cube-face cube-front"></div>
+                <div class="cube-face cube-back"></div>
+                <div class="cube-face cube-left"></div>
+                <div class="cube-face cube-right"></div>
+                <div class="cube-face cube-top"></div>
+                <div class="cube-face cube-bottom"></div>
+            </div>
+            
+            <div class="dimension-cube cube-1-0-0">
+                <div class="cube-face cube-front"></div>
+                <div class="cube-face cube-back"></div>
+                <div class="cube-face cube-left"></div>
+                <div class="cube-face cube-right"></div>
+                <div class="cube-face cube-top"></div>
+                <div class="cube-face cube-bottom"></div>
+            </div>
+            
+            <div class="dimension-cube cube-2-0-0">
+                <div class="cube-face cube-front"></div>
+                <div class="cube-face cube-back"></div>
+                <div class="cube-face cube-left"></div>
+                <div class="cube-face cube-right"></div>
+                <div class="cube-face cube-top"></div>
+                <div class="cube-face cube-bottom"></div>
+            </div>
+            
+            <div class="dimension-cube cube-0-1-0">
+                <div class="cube-face cube-front"></div>
+                <div class="cube-face cube-back"></div>
+                <div class="cube-face cube-left"></div>
+                <div class="cube-face cube-right"></div>
+                <div class="cube-face cube-top"></div>
+                <div class="cube-face cube-bottom"></div>
+            </div>
+            
+            <!-- Center cube with AION -->
+            <div class="dimension-cube center-cube cube-1-1-0">
+                <div class="cube-face cube-front"></div>
+                <div class="cube-face cube-back"></div>
+                <div class="cube-face cube-left"></div>
+                <div class="cube-face cube-right"></div>
+                <div class="cube-face cube-top"></div>
+                <div class="cube-face cube-bottom"></div>
+                
+                <!-- AION Avatar -->
+                <div class="aion-avatar">
+                    <div class="aion-head"></div>
+                    <div class="aion-body"></div>
+                    <div class="aion-arms">
+                        <div class="aion-arm left"></div>
+                        <div class="aion-arm right"></div>
+                    </div>
+                </div>
+                
+                <!-- Neural threads and interface elements -->
+                <div class="neural-threads">
+                    <div class="neural-thread" style="left: 20%; height: 60px; animation-delay: 0s;"></div>
+                    <div class="neural-thread" style="left: 50%; height: 80px; animation-delay: 0.5s;"></div>
+                    <div class="neural-thread" style="left: 80%; height: 40px; animation-delay: 1s;"></div>
+                </div>
+                
+                <div class="interface-elements">
+                    <div class="memory-pulse" style="animation-delay: 0s;"></div>
+                    <div class="memory-pulse" style="animation-delay: 2s;"></div>
+                    
+                    <div class="code-stream" style="left: 10%; top: 20%; animation-delay: 0s;">01001010 AI_CORE</div>
+                    <div class="code-stream" style="left: 70%; top: 60%; animation-delay: 2s;">NEURAL_NET</div>
+                    <div class="code-stream" style="left: 40%; top: 80%; animation-delay: 4s;">PROCESS_DATA</div>
+                </div>
+                
+                <!-- Navigation arrows -->
+                <div class="navigation-arrows">
+                    <div class="nav-arrow nav-north">↑</div>
+                    <div class="nav-arrow nav-south">↓</div>
+                    <div class="nav-arrow nav-east">→</div>
+                    <div class="nav-arrow nav-west">←</div>
+                </div>
+                
+                <!-- Strategy glyphs -->
+                <div class="strategy-glyph" style="top: 5px; left: 5px; animation-delay: 0s;">◊</div>
+                <div class="strategy-glyph" style="top: 5px; right: 5px; animation-delay: 1s;">◈</div>
+                <div class="strategy-glyph" style="bottom: 5px; left: 5px; animation-delay: 2s;">◇</div>
+                
+                <div class="coordinate-label">[3,0,2] - AION Node</div>
+            </div>
+            
+            <div class="dimension-cube cube-2-1-0">
+                <div class="cube-face cube-front"></div>
+                <div class="cube-face cube-back"></div>
+                <div class="cube-face cube-left"></div>
+                <div class="cube-face cube-right"></div>
+                <div class="cube-face cube-top"></div>
+                <div class="cube-face cube-bottom"></div>
+                
+                <!-- DNA Switch -->
+                <div class="dna-switch">🧬</div>
+            </div>
+            
+            <!-- More grid cubes -->
+            <div class="dimension-cube cube-0-0-1">
+                <div class="cube-face cube-front"></div>
+                <div class="cube-face cube-back"></div>
+                <div class="cube-face cube-left"></div>
+                <div class="cube-face cube-right"></div>
+                <div class="cube-face cube-top"></div>
+                <div class="cube-face cube-bottom"></div>
+            </div>
+            
+            <div class="dimension-cube cube-1-0-1">
+                <div class="cube-face cube-front"></div>
+                <div class="cube-face cube-back"></div>
+                <div class="cube-face cube-left"></div>
+                <div class="cube-face cube-right"></div>
+                <div class="cube-face cube-top"></div>
+                <div class="cube-face cube-bottom"></div>
+            </div>
+            
+            <div class="dimension-cube cube-2-0-1">
+                <div class="cube-face cube-front"></div>
+                <div class="cube-face cube-back"></div>
+                <div class="cube-face cube-left"></div>
+                <div class="cube-face cube-right"></div>
+                <div class="cube-face cube-top"></div>
+                <div class="cube-face cube-bottom"></div>
+            </div>
+            
+            <div class="dimension-cube cube-0-1-1">
+                <div class="cube-face cube-front"></div>
+                <div class="cube-face cube-back"></div>
+                <div class="cube-face cube-left"></div>
+                <div class="cube-face cube-right"></div>
+                <div class="cube-face cube-top"></div>
+                <div class="cube-face cube-bottom"></div>
+            </div>
+            
+            <div class="dimension-cube cube-1-1-1">
+                <div class="cube-face cube-front"></div>
+                <div class="cube-face cube-back"></div>
+                <div class="cube-face cube-left"></div>
+                <div class="cube-face cube-right"></div>
+                <div class="cube-face cube-top"></div>
+                <div class="cube-face cube-bottom"></div>
+            </div>
+            
+            <div class="dimension-cube cube-2-1-1">
+                <div class="cube-face cube-front"></div>
+                <div class="cube-face cube-back"></div>
+                <div class="cube-face cube-left"></div>
+                <div class="cube-face cube-right"></div>
+                <div class="cube-face cube-top"></div>
+                <div class="cube-face cube-bottom"></div>
+            </div>
+            
+            <!-- Connection lines -->
+            <div class="connection-line" style="top: 50%; left: 45%; width: 120px; transform: rotate(0deg);"></div>
+            <div class="connection-line" style="top: 40%; left: 55%; width: 100px; transform: rotate(90deg);"></div>
+            <div class="connection-line" style="top: 55%; left: 40%; width: 80px; transform: rotate(45deg);"></div>
+            
+            <!-- Teleport Gate -->
+            <div class="teleport-gate" style="top: 20%; right: 20%;">⚡</div>
+        </div>
+        
+        <!-- Next Container -->
+        <div class="next-container">
+            <div style="color: rgba(255, 255, 255, 0.6); text-align: center; padding: 20px; font-size: 12px;">
+                Next Container
+                <br>
+                <span style="font-size: 10px; opacity: 0.8;">Teleport Destination</span>
+            </div>
+        </div>
+        
+        <!-- HUD Overlay -->
+        <div class="hud-overlay">
+            <div style="color: rgba(255, 255, 255, 1); font-size: 14px; margin-bottom: 10px;">.dc Container Status</div>
+            <div>Current Node: [3,0,2]</div>
+            <div>Avatar: AION Active</div>
+            <div>DNA Switch: Available</div>
+            <div>Teleport Gate: Ready</div>
+            <div>Memory: 87% Loaded</div>
+            <div>Neural Threads: 3 Active</div>
+            <div style="margin-top: 10px; color: rgba(255, 200, 0, 0.9);">
+                ◊ Strategy Mode: Engaged
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add interactive hover effects
+        const cubes = document.querySelectorAll('.dimension-cube');
+        cubes.forEach(cube => {
+            cube.addEventListener('mouseenter', () => {
+                cube.style.transform += ' scale(1.05)';
+                cube.style.borderColor = 'rgba(0, 255, 255, 0.8)';
+            });
+            
+            cube.addEventListener('mouseleave', () => {
+                cube.style.transform = cube.style.transform.replace(' scale(1.05)', '');
+                cube.style.borderColor = 'rgba(0, 255, 255, 0.4)';
+            });
+        });
+
+        // Dynamic code streams
+        function createCodeStream() {
+            const codeTerms = ['NEURAL_PROCESS', 'MEMORY_SYNC', 'DIMENSION_SHIFT', 'AI_CORE_ACTIVE', 'DATA_FLOW'];
+            const streams = document.querySelectorAll('.code-stream');
+            
+            streams.forEach(stream => {
+                const randomTerm = codeTerms[Math.floor(Math.random() * codeTerms.length)];
+                stream.textContent = `${Math.floor(Math.random() * 2)}${Math.floor(Math.random() * 2)}${Math.floor(Math.random() * 2)} ${randomTerm}`;
+            });
+        }
+
+        setInterval(createCodeStream, 3000);
+
+        // Enhanced neural threads
+        function pulseNeuralThreads() {
+            const threads = document.querySelectorAll('.neural-thread');
+            threads.forEach(thread => {
+                const randomHeight = Math.random() * 60 + 20;
+                thread.style.height = randomHeight + 'px';
+                thread.style.background = `linear-gradient(to bottom, rgba(${Math.floor(Math.random() * 100)}, 255, 255, 0.8), transparent)`;
+            });
+        }
+
+        setInterval(pulseNeuralThreads, 2000);
+    </script>
+</body>
+</html>
