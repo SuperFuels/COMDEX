@@ -19,10 +19,13 @@ class DNAModuleSwitch:
                 "type": file_type,
                 "registered_at": self._utc_now(),
             }
+
+            filename = os.path.basename(abs_path)
+
             if file_type == "backend":
-                register_backend_path(abs_path)
+                register_backend_path(name=filename, path=abs_path)
             elif file_type == "frontend":
-                register_frontend_path(abs_path)
+                register_frontend_path(name=filename, path=abs_path)
 
     def _utc_now(self):
         from datetime import datetime

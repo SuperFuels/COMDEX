@@ -185,6 +185,17 @@ export default function Navbar() {
           </div>
 
           <div className="flex items-center space-x-3">
+            {/* ✅ New Container Map Link */}
+            <Link
+              href="/container-map.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center space-x-1 py-1 px-3 border border-purple-500 text-purple-600 rounded-lg bg-white dark:bg-gray-900 text-sm hover:bg-purple-50 dark:hover:bg-gray-800 focus:outline-none transition"
+            >
+              <Image src="/cube.svg" alt="Map" width={16} height={16} />
+              <span>Map</span>
+            </Link>
+
             <button
               onClick={() => router.push('/products')}
               className="flex items-center space-x-1 py-1 px-3 border border-black rounded-lg bg-transparent text-black dark:text-white text-sm hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none transition"
@@ -193,7 +204,6 @@ export default function Navbar() {
               <span className="font-medium text-sm">Live</span>
             </button>
 
-            {/* ✅ AION Button - Updated */}
             <button
               onClick={() => router.push('/aion/AIONDashboard')}
               className="flex items-center space-x-1 py-1 px-3 border border-blue-500 text-blue-600 rounded-lg bg-white dark:bg-gray-900 text-sm hover:bg-blue-50 dark:hover:bg-gray-700 focus:outline-none transition"

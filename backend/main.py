@@ -112,6 +112,7 @@ from backend.routes import aion_suggest
 from backend.routes import aion_core
 from backend.routes import dna_chain
 from backend.routes import dna_logs
+from backend.routes import teleport_api
 
 # ✅ WebSocket route
 from backend.api import ws
@@ -161,6 +162,7 @@ app.include_router(aion_core.router, prefix="/api/aion")
 app.include_router(dna_chain.router)
 app.include_router(dna_logs.router)
 app.include_router(ws.router)
+app.include_router(teleport_api.router)
 
 # ── 16) Serve uploaded images
 app.mount("/uploaded_images", StaticFiles(directory="uploaded_images"), name="uploaded_images")

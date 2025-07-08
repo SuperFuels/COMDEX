@@ -1,5 +1,8 @@
+# File: backend/modules/consciousness/state_manager.py
+
 import os
 import json
+import hashlib
 from datetime import datetime
 
 # ✅ DNA Switch
@@ -7,7 +10,7 @@ from backend.modules.dna_chain.switchboard import DNA_SWITCH
 DNA_SWITCH.register(__file__)
 
 # ✅ Memory injection
-from backend.modules.hexcore.memory_engine import MEMORY
+from backend.modules.hexcore.memory_engine import MEMORY, store_memory
 
 # ✅ WebSocket push
 try:
@@ -15,6 +18,10 @@ try:
     WS = WebSocketManager()
 except Exception:
     WS = None  # fallback if not available
+
+# ✅ Secure loading
+from backend.modules.dimensions.dc_handler import load_dimension
+from backend.modules.skills.personality import PERSONALITY
 
 STATE_FILE = "agent_state.json"
 DIMENSION_DIR = os.path.join(os.path.dirname(__file__), "../dimensions")
@@ -67,18 +74,48 @@ class StateManager:
         self.context[key] = value
         print(f"[STATE] Context updated: {key} = {value}")
 
+    def secure_load_and_set(self, container_id: str):
+        try:
+            container = load_dimension(container_id)  # ✅ Includes gate & hash checks
+
+            # 🔐 Optional gate (legacy support)
+            gates = container.get("gates", {})
+            required_traits = gates.get("traits", {})
+
+            for trait, required in required_traits.items():
+                actual = PERSONALITY.get(trait, 0.0)
+                if actual < required:
+                    store_memory({
+                        "type": "access_denied",
+                        "container_id": container_id,
+                        "issue": f"Trait '{trait}' below required: {actual} < {required}",
+                        "timestamp": datetime.utcnow().isoformat()
+                    })
+                    raise PermissionError(f"[🔒] Trait gate locked: {trait} = {actual} < {required}")
+
+            self.set_current_container(container)
+            return True
+
+        except Exception as e:
+            store_memory({
+                "type": "tamper_detected",
+                "container_id": container_id,
+                "issue": str(e),
+                "timestamp": datetime.utcnow().isoformat()
+            })
+            print(f"[SECURITY] Container load blocked: {e}")
+            return False
+
     def set_current_container(self, container: dict):
         self.current_container = container
         print(f"[STATE] Current container set to: {container.get('id', 'unknown')}")
 
-        # ✅ Log container switch to memory
         MEMORY.store({
             "role": "system",
             "type": "container_change",
             "content": f"🧭 AION switched to container: {container.get('id')}"
         })
 
-        # ✅ Log to goal engine (if relevant)
         try:
             from backend.modules.skills.goal_engine import GOALS
             GOALS.log_progress({
@@ -88,15 +125,13 @@ class StateManager:
                 "success": True
             })
         except Exception as e:
-            print(f"[GOAL] No goal logging available: {e}")
+            print(f"[GOAL] Goal logging failed: {e}")
 
-        # ✅ Notify frontend dashboard via context update
         self.update_context("last_teleport", {
             "id": container.get("id"),
             "timestamp": str(datetime.utcnow())
         })
 
-        # ✅ Auto-load child containers (recursively)
         children = container.get("children", [])
         for child_id in children:
             child_path = os.path.join(DIMENSION_DIR, f"{child_id}.dc.json")
@@ -109,7 +144,6 @@ class StateManager:
                         "content": f"📦 Preloaded child container: {child.get('id')}"
                     })
 
-        # 📡 Emit live update via WebSocket
         if WS:
             try:
                 WS.broadcast({
@@ -121,10 +155,9 @@ class StateManager:
                     }
                 })
             except Exception as e:
-                print(f"[WS] Failed to broadcast container switch: {e}")
+                print(f"[WS] Broadcast failed: {e}")
 
     def get_context(self):
-        # ✅ Inject active container for dream/analysis modules
         if self.current_container:
             self.context["active_container"] = self.current_container
         return self.context

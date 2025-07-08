@@ -1,0 +1,10 @@
+📦 TREE 3 – DIMENSION CONTAINERS
+
+├── dimensions/
+│   aion_start.dc.json
+│   default_container.dc.json
+│   dojo_001.dc.json
+│   ├── containers/
+│   │   fallback.dc.json
+│   │   jungle.dc.json
+│   │   lab.dc.json

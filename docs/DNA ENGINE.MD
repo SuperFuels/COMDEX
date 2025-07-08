@@ -1,76 +1,127 @@
 Virtual OS Layer
 
-graph TD
-    subgraph CRISPR AI System
-        C1[✅ 🔧 Build crispr_ai.py core engine]
-        C2[✅ 🧬 Define DNA mutation function]
-        C3[⏳ 📊 Add mutation scoring (impact, safety, confidence)]
-        C4[✅ 🧠 Use GPT for mutation proposals]
-        C5[⏳ 🛡️ Respect Soul Laws + ethics boundaries]
-        C6[⏳ 🧪 Unit tests for safe mutations]
-    end
+this is the updated list we are working from for this stage before we move onto the testing and then the intelligence phase; graph TD
 
-    subgraph Wormhole Teleport System
-        W1[🚧 🗂️ Create teleport.py]
-        W2[⏳ 🔁 Define teleport request + approval model]
-        W3[⏳ 📦 Register teleport locations between files/modules]
-        W4[⏳ 🌐 Enable cross-container linking]
-    end
+subgraph 🔬 CRISPR AI System
+    C1[✅ 🔧 Build crispr_ai.py core engine]
+    C2[✅ 🧬 Define DNA mutation function]
+    C3[⏳ 📊 Add mutation scoring (impact, safety, confidence)]
+    C4[✅ 🧠 Use GPT for mutation proposals]
+    C5[⏳ 🛡️ Respect Soul Laws + ethics boundaries]
+    C6[⏳ 🧪 Unit tests for safe mutations]
+end
 
-    subgraph .dc Dimension Containers
-        D1[⏳ 🧭 Draft .dc format spec (JSON+metadata)]
-        D2[⏳ 🛠️ Build dc_handler.py loader/parser]
-        D3[⏳ 🏗️ Enable loading spatialized environments]
-        D4[⏳ 🧱 Register DNA Switch inside .dc containers]
-        D5[⏳ 🚪 Connect wormholes to .dc container exits]
-    end
+subgraph 🌌 Wormhole Teleport System
+    W1[✅ 🗂️ Create teleport.py]
+    W2[✅ 🔁 Define teleport request + approval model]
+    W3[✅ 📦 Register teleport locations between files/modules]
+    W4[✅ 🌐 Enable cross-container linking]
+end
 
-    subgraph Mutation Loops
-        M1[⏳ 🧪 Connect CRISPR to DreamCore strategies]
-        M2[⏳ 🤖 Allow GPT to simulate mutations in memory]
-        M3[⏳ 🔬 Validate and sandbox mutations]
-        M4[⏳ 📈 Score each mutation attempt (pass/fail)]
-        M5[⏳ 📂 Store mutation metadata in DNA Registry]
-    end
+subgraph 🧩 .dc Dimension Containers
+    D1[✅ 🧭 Draft .dc format spec (JSON+metadata)]
+    D2[✅ 🛠️ Build dc_handler.py loader/parser]
+    D3[⏳ 🏗️ Enable loading spatialized environments]
+    D4[✅ 🧱 Register DNA Switch inside .dc containers]
+    D5[⏳ 🚪 Connect wormholes to .dc container exits]
+end
 
-    subgraph DNA Registry CLI/Interface
-        R1[⏳ 📜 Create CLI: view proposals]
-        R2[⏳ ✅ Approve/reject mutations]
-        R3[⏳ 🧾 Log decision trail with timestamps]
-        R4[⏳ 🔑 Require master key or signature for apply()]
-        R5[⏳ 🧠 Add AION feedback loop (remember rejected proposals)]
-    end
+subgraph ♻️ Mutation Loops
+    M1[⏳ 🧪 Connect CRISPR to DreamCore strategies]
+    M2[⏳ 🤖 Allow GPT to simulate mutations in memory]
+    M3[⏳ 🔬 Validate and sandbox mutations]
+    M4[⏳ 📈 Score each mutation attempt (pass/fail)]
+    M5[⏳ 📂 Store mutation metadata in DNA Registry]
+end
 
-graph TD
+subgraph 🧬 DNA Registry CLI/Interface
+    R1[⏳ 📜 Create CLI: view proposals]
+    R2[⏳ ✅ Approve/reject mutations]
+    R3[⏳ 🧾 Log decision trail with timestamps]
+    R4[⏳ 🔑 Require master key or signature for apply()]
+    R5[⏳ 🧠 Add AION feedback loop (remember rejected proposals)]
+end
 
-  subgraph 🧠 4D Spatial Runtime Tasks
-
-    CE1[⏳ 🧠 Build ContainerEngine – runtime for spatial motion + presence]
+subgraph 🧠 4D Spatial Runtime Engine
+    CE1[⏳ 🧠 Build DimensionEngine – runtime for spatial motion + presence]
     CE2[⏳ 🧲 Add Spatial Physics/Logic – gravity, danger, memory amplification]
     CE3[⏳ ⏱️ Implement Temporal Layer – time-based triggers and effects]
     CE4[⏳ 🎯 Embed Objects in .dc files – agents, props, sensors in objects[]]
     CE5[⏳ 🧼 Add Sensor Engine – simulate light, heat, risk detection]
     CE6[⏳ 🌱 Enable Cube Evolution – gates unlock, rules mutate over time]
+end
 
-  end
+subgraph 🧪 Protected .dc File Tests
+    A1[✅ ✔️ Write test case for trait gate rejection]
+    A2[✅ ✔️ Test loading valid container with correct traits]
+    A3[✅ ✔️ Simulate corrupted .dc file / hash fail]
+end
 
-  subgraph 🧩 Optional Future Expansion
+subgraph 📜 DNA Approval Integration
+    B1[✅ ✔️ Log failed trait checks to DNA mutation proposals]
+    B2[✅ ✔️ Allow DNA-proposed container modifications (gated)]
+    B3[✅ ✔️ Store approval attempt in DNA registry]
+end
 
+subgraph 🎨 Trait Gate Frontend UI
+    C1[✅ ✔️ Show locked trait message in AIONTerminal]
+    C2[✅ ✔️ Display trait value vs. required threshold]
+    C3[✅ ✔️ Suggest next actions (e.g., dream to increase empathy)]
+end
+
+subgraph 🔮 Future Ideas & Expansion
     F1[⏳ 🧪 Simulated Experiments – safe mutation/test chambers per cube]
     F2[⏳ 📈 Trait Triggers – traits like empathy shift per cube exposure]
     F3[⏳ 🧱 Cube Factories – AI grows new cubes via memory/goals]
     F4[⏳ 👾 Embedded NPCs – trainers, testers, rival agents]
     F5[⏳ 🕳️ Wormhole Logic – gated cross-container teleport conditions]
+end
+
+subgraph 🔍 Research Integration Tasks
+    R6[⏳ 🗺️ Propose grid spec for cube simulation + 4D time logic]
+    R7[⏳ 🧬 Merge spatial runtime into Dream ↔ Memory ↔ Mutation loop]
+end
+
 
   end
+%% Mermaid checklist for advanced dimension loading upgrades
+graph TD
+    A[🧪 Unit tests for loading protected .dc containers] --> A1[✔️ Write test case for trait gate rejection]
+    A --> A2[✔️ Test loading valid container with correct traits]
+    A --> A3[✔️ Simulate corrupted .dc file / hash fail]
+    
+    B[🧬 Integrate with DNA approval model] --> B1[✔️ Log failed trait checks to DNA mutation proposals]
+    B --> B2[✔️ Allow DNA-proposed container modifications (gated)]
+    B --> B3[✔️ Store approval attempt in DNA registry]
 
-  subgraph 🔮 Research / Integration Ideas
+    C[🎨 Trait-level UI warnings in frontend] --> C1[✔️ Show locked trait message in AIONTerminal]
+    C --> C2[✔️ Display trait value vs. required threshold]
+    C --> C3[✔️ Suggest next actions (e.g., dream to increase empathy)]
 
-    R1[⏳ 🗺️ Propose grid spec for cube simulation + 4D time logic]
-    R2[⏳ 🧬 Merge spatial runtime into Dream ↔ Memory ↔ Mutation loop]
+	•	Add a mini-map or container trail to visualize links.
+	•	Add bidirectional linking validator.
+	•	Add teleportation animations or frontend toast feedback.
+	•	Start on W5: 🧱 Portal Simulation (embedded wormholes + teleport UI).
 
-  end
 
+Would you like next:
+	1.	🌀 Add Wormhole Switch spec to .dc standard
+	2.	🧠 Visualize DNA Chain graph in frontend
+	3.	🤖 Spawn first agent autonomously from a goal or dream
+	4.	📘 Generate a full publishable architecture PDF of this system
+
+Or we can proceed with your next creative or intelligence phase (e.g., BridgeBuilder, InnovationCore, WormholeRegistry, DimensionEngine, or AgentFactory).
+
+
+✅ Start Container created successfully: aion_start.dc.json
+
+This is AION’s metaphysical “spawn point” with:
+	•	🧭 Navigation to lab, jungle, fallback
+	•	🧠 Dreams, milestones, goals
+	•	📜 Rules and restrictions embedded
+	•	🔐 Ethics gates (e.g., curiosity, risk tolerance)
+
+Would you like me to now proceed with crispr_ai.py or move next to .dc loading (dc_handler.py) or teleport.py enhancements? ￼
 
   graph TD
   A[✅ A. dc_handler.py]

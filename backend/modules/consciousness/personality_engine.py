@@ -1,5 +1,3 @@
-# backend/modules/consciousness/personality_engine.py
-
 import json
 import os
 from datetime import datetime
@@ -65,6 +63,21 @@ class PersonalityProfile:
     def get_profile(self) -> dict:
         return self.traits
 
+    def get_trait(self, trait: str) -> float:
+        return self.traits.get(trait, 0.0)
+
+    def has_required_traits(self, required: dict) -> bool:
+        """
+        Validates if AION's current traits meet or exceed the required levels.
+        Example input: {"risk_tolerance": 0.5, "curiosity": 0.6}
+        """
+        for trait, threshold in required.items():
+            current = self.traits.get(trait, 0.0)
+            if current < threshold:
+                print(f"[GATE] Trait '{trait}' too low: {current:.2f} < {threshold:.2f}")
+                return False
+        return True
+
     def describe(self):
         print("[PERSONALITY] Current trait profile:")
         for k, v in self.traits.items():
@@ -77,3 +90,7 @@ class PersonalityProfile:
     def log_history(self):
         self._save()
         print(f"[PERSONALITY] History + traits saved to disk.")
+
+
+# ✅ Singleton
+PROFILE = PersonalityProfile()
