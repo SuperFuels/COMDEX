@@ -1,0 +1,14 @@
+{
+  "id": "fallback",
+  "title": "Fallback Room",
+  "welcome_message": "Welcome to the Fallback Room. Something went wrong, but you're safe here.",
+  "rules": ["Remain calm", "Await further instructions"],
+  "current_goals": [],
+  "dreams": [],
+  "navigation": {
+    "methods": ["teleport"],
+    "routes": ["aion_start", "lab"]
+  },
+  "ethics_gate": false,
+  "available_containers": ["aion_start", "lab"]
+}

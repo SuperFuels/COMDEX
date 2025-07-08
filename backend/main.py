@@ -110,9 +110,11 @@ from backend.routes import aion_prompt
 from backend.routes import aion_command
 from backend.routes import aion_suggest
 from backend.routes import aion_core
-from backend.modules.commands_registry import resolve_command, list_commands
 from backend.routes import dna_chain
 from backend.routes import dna_logs
+
+# ✅ WebSocket route
+from backend.api import ws
 
 # ── 12) Import standalone routers from backend.api (if used)
 from backend.api.aion.status           import router as status_router
@@ -158,6 +160,7 @@ app.include_router(aion_suggest.router)
 app.include_router(aion_core.router, prefix="/api/aion")
 app.include_router(dna_chain.router)
 app.include_router(dna_logs.router)
+app.include_router(ws.router)
 
 # ── 16) Serve uploaded images
 app.mount("/uploaded_images", StaticFiles(directory="uploaded_images"), name="uploaded_images")
@@ -201,6 +204,14 @@ async def run_dream_from_scheduler(request: Request):
         return {"status": "success", "dream": result or "No valid dream generated"}
     except Exception as e:
         return {"status": "error", "message": str(e)}
+
+# ── 20b) List all .dc containers with status (loaded/unloaded)
+@app.get("/api/aion/containers")
+def list_available_containers():
+    from backend.modules.consciousness.state_manager import STATE
+    containers = STATE.list_containers_with_status()
+    STATE.update_context("container_list", containers)
+    return {"containers": containers}
 
 # ── 21) Run via Uvicorn when executed directly
 if __name__ == "__main__":

@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 import openai
 
 # ✅ DNA Switch
-from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+from backend.modules.dna_chain.switchboard import DNA_SWITCH
 DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
 
 # Load environment variables (OpenAI API key)

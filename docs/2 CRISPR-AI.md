@@ -258,3 +258,31 @@ Title: CRISPR-AI: A Self-Evolving Neural Code Infrastructure
 Let me know if you want the full document drafted immediately, or to start module-by-module. Would you like me to begin writing the Markdown document now?
 
 
+
+
+
+
+
+Purpose:
+
+This module is AION’s mutation brain. It receives a target file (via key or path), a mutation goal, and invokes GPT to propose code changes. The result is saved as a formal DNA proposal (including diff, justification, metadata).
+
+⸻
+
+✅ Features for C1:
+	•	🔍 Accept target module key (or raw path)
+	•	🧠 Use GPT to generate:
+	•	Reason for mutation
+	•	Rewritten code
+	•	Diff summary
+	•	🧬 Store as a proposal in dna_registry.json
+	•	🔐 Support dry-run and write modes
+	•	🧾 Include optional metadata: tokens used, confidence, tests passed (placeholders for now)
+
+⸻
+
+🧠 Improvements I’ve Added:
+	•	✅ Unified interface for AION or CLI to trigger mutations
+	•	✅ Full traceable entry in dna_registry.json
+	•	✅ Optional override for file path if no key is found
+	•	✅ Supports local mutation testing (without approval yet)

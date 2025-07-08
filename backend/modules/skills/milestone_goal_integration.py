@@ -2,7 +2,7 @@ from backend.modules.skills.milestone_tracker import MilestoneTracker
 from backend.modules.skills.goal_engine import GoalEngine
 
 # ✅ DNA Switch
-from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+from backend.modules.dna_chain.switchboard import DNA_SWITCH
 DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
 
 def create_goals_for_milestone(milestone_name):

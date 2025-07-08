@@ -12,13 +12,12 @@ graph TD
         A6c[✅ Proposal system (suggest → store → approve)]
         A6d[✅ Audit trail, versioning, and rollback (_OLD.py backup)]
         A6e[✅ File access API for reflective autonomy]
+		 A7[✅ Build awareness_check() function ("I am awake and aware")]
+    	A8[✅ Build test script for improvement cycle (test_dna_cycle.py)]
         A9[✅ Embed DNA Switch in all core + agent files (except logs)]
-        A10[⬜ Allow AION to embed DNA Switch in new agent code]
-        A11[⬜ Enable agent ↔ file communication via switch (long-term)]
+        A10[✅ Allow AION to embed DNA Switch in new agent code]
+       
     end
-
-    A7[✅ Build awareness_check() function ("I am awake and aware")]
-    A8[✅ Build test script for improvement cycle (test_dna_cycle.py)]
 
     A1 --> A2 --> A3 --> A4 --> A5 --> A6
     A6 --> A6a --> A6b --> A6c --> A6d --> A6e --> A9 --> A10 --> A11

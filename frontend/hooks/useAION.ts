@@ -14,20 +14,22 @@ interface Message {
   status?: 'pending' | 'success' | 'error';
 }
 
-interface CommandMeta {
-  name: string;
-  description: string;
-  endpoint: string;
-  method: 'GET' | 'POST';
-  stub?: boolean;
+export interface AIONStatus {
+  context?: {
+    current_container?: string;
+    available_containers?: string[];
+    [key: string]: any;
+  };
+  [key: string]: any;
 }
 
-export default function useAION(side: 'left' | 'right') {
+export default function useAION(side: 'left' | 'right', label: string = 'AION Terminal') {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [tokenUsage, setTokenUsage] = useState<number | null>(null);
   const [availableCommands, setAvailableCommands] = useState<Command[]>([]);
+  const [status, setStatus] = useState<any>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const append = (role: Message['role'], content: string, status?: Message['status']) => {
@@ -76,8 +78,13 @@ export default function useAION(side: 'left' | 'right') {
     setLoading(true);
 
     try {
-      const res = await axios.post('/api/aion/command', { command });
-      const { message, output, error, stub, label } = res.data;
+      const res = await axios.post('/api/aion/command', {
+        command,
+        side,
+        label,
+      });
+
+      const { message, output, error, stub } = res.data;
 
       if (error) {
         append('system', `❌ ${error}`, 'error');
@@ -100,13 +107,13 @@ export default function useAION(side: 'left' | 'right') {
 
   const callEndpoint = async (
     endpoint: string,
-    label: string,
+    labelText: string,
     method: 'get' | 'post' = 'post'
   ) => {
-    append('system', `📡 Fetching ${label}...`, 'pending');
+    append('system', `📡 Fetching ${labelText}...`, 'pending');
 
     if (endpoint.startsWith('stub:')) {
-      append('stub', `🛠️ Stub command '${label}' not yet implemented.`, 'success');
+      append('stub', `🛠️ Stub command '${labelText}' not yet implemented.`, 'success');
       return;
     }
 
@@ -125,9 +132,9 @@ export default function useAION(side: 'left' | 'right') {
         formatted += `\n\n🧮 Tokens used: ${data.tokens_used || 'N/A'}\n💸 Estimated cost: $${data.cost_estimate || 'N/A'}`;
       }
 
-      append('aion', `✅ ${label}:\n${formatted}`, 'success');
+      append('aion', `✅ ${labelText}:\n${formatted}`, 'success');
     } catch (err: any) {
-      append('system', `❌ ${label} error: ${err.message}`, 'error');
+      append('system', `❌ ${labelText} error: ${err.message}`, 'error');
     }
   };
 
@@ -165,6 +172,15 @@ export default function useAION(side: 'left' | 'right') {
     }
   };
 
+  const fetchStatus = async () => {
+    try {
+      const res = await axios.get('/aion/status');
+      setStatus(res.data);
+    } catch (err: any) {
+      append('system', `⚠️ Failed to fetch status: ${err.message}`, 'error');
+    }
+  };
+
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
@@ -174,6 +190,7 @@ export default function useAION(side: 'left' | 'right') {
       if (side === 'left') {
         append('system', '🟢 Booting AION Terminal...', 'success');
         await fetchCommandRegistry();
+        await fetchStatus();
         await sendInitialPrompt();
       }
     };
@@ -187,11 +204,13 @@ export default function useAION(side: 'left' | 'right') {
     messages,
     setMessages,
     sendPrompt,
-    sendCommand,
     callEndpoint,
+    sendCommand,
     bottomRef,
     tokenUsage,
     availableCommands,
     setAvailableCommands,
+    status,  
+    setStatus, // ✅ <— ADD THIS LINE
   };
 }

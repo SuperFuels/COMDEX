@@ -3,7 +3,7 @@ from datetime import datetime
 from pathlib import Path
 
 # ✅ DNA Switch
-from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+from backend.modules.dna_chain.switchboard import DNA_SWITCH
 DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
 
 GOAL_FILE = Path(__file__).parent / "goals.json"

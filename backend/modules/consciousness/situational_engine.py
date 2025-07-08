@@ -1,9 +1,11 @@
+# File: backend/modules/consciousness/situational_engine.py
+
 from datetime import datetime
 from collections import deque
 import random
 
 # ✅ DNA Switch
-from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+from backend.modules.dna_chain.switchboard import DNA_SWITCH
 DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
 
 class SituationalEngine:
@@ -34,6 +36,13 @@ class SituationalEngine:
         }
         self.events.append(event)
         print(f"[SITUATION] Logged event: '{description}' ({impact}) from {source}")
+
+    def log_container_entry(self, container_id: str):
+        """
+        Shortcut to log a dimension load/entry as a neutral event.
+        """
+        desc = f"Entered container: {container_id}"
+        self.log_event(desc, impact="neutral", source="dimension")
 
     def analyze_context(self) -> dict:
         """

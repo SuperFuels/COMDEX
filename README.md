@@ -49,3 +49,14 @@ docker volume prune
 docker image prune -a
 docker system prune -a --volumes
 docker builder prune
+
+
+
+python backend/scripts/create_agent.py nova 
+
+This will:
+	•	Create a new SampleAgent with the name "nova"
+	•	Register it with the AgentManager
+	•	Auto-inject a DNA Switch trail
+
+

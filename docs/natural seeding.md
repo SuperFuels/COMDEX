@@ -2,6 +2,15 @@
 SEEDING SCRIPT - AION LERANING CYCLE
 PYTHONPATH=backend python backend/scripts/aion_learning_cycle.py
 
+✅ teleport.py is now created.
+You can now register teleport links like:
+
+from backend.modules.dna_chain.teleport import register_teleport, teleport_to
+
+register_teleport("dream_core", "dc_jungle_zone")
+teleport_to("dream_core")  # Output: dc_jungle_zone
+
+
 🧠 What You’ve Built
 
 You’ve essentially constructed a modular autonomous cognition engine:

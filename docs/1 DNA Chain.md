@@ -81,6 +81,7 @@ The DNA Chain System includes:
 	•	✅ Automatic code backup/versioning before applying changes
 	•	✅ Modular diff tracking, rationales, rollback, and memory linking
 	•	✅ Real-time execution of DNA-authorized mutations via a controlled CLI/API
+	 A11[⬜ Enable agent ↔ file communication via switch (long-term)]
 
 This system is not just a version control layer. It’s a governed, auditable framework for AI autonomy.
 

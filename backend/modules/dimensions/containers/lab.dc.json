@@ -1,0 +1,14 @@
+{
+  "id": "lab",
+  "title": "Experimental Lab",
+  "welcome_message": "You've entered the AION Lab. Tinker wisely.",
+  "rules": ["Test carefully", "Record findings"],
+  "current_goals": ["Run experiments", "Document results"],
+  "dreams": [],
+  "navigation": {
+    "methods": ["teleport"],
+    "routes": ["aion_start", "jungle"]
+  },
+  "ethics_gate": false,
+  "available_containers": ["aion_start", "jungle"]
+}

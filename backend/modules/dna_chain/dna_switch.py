@@ -2,6 +2,7 @@ import os
 import shutil
 from backend.modules.dna_chain.proposal_manager import load_proposals, save_proposals
 from backend.modules.dna_chain.switchboard import get_module_path
+from backend.modules.dna_chain.dna_address_lookup import register_backend_path, register_frontend_path
 
 # 🔐 Use environment variable to check for master key
 MASTER_KEY = os.getenv("AION_MASTER_KEY")
@@ -11,13 +12,17 @@ class DNAModuleSwitch:
     def __init__(self):
         self.tracked_files = {}
 
-    def register(self, path):
+    def register(self, path, file_type="backend"):
         abs_path = os.path.abspath(path)
         if abs_path not in self.tracked_files:
             self.tracked_files[abs_path] = {
-                "type": "backend",
+                "type": file_type,
                 "registered_at": self._utc_now(),
             }
+            if file_type == "backend":
+                register_backend_path(abs_path)
+            elif file_type == "frontend":
+                register_frontend_path(abs_path)
 
     def _utc_now(self):
         from datetime import datetime
@@ -76,11 +81,7 @@ def approve_proposal(proposal_id, provided_key):
 
 # 🧠 Track Frontend Files (Optional)
 def register_frontend(filepath: str):
-    abs_path = os.path.abspath(filepath)
-    DNA_SWITCH.tracked_files[abs_path] = {
-        "type": "frontend",
-        "registered_at": DNA_SWITCH._utc_now(),
-    }
+    DNA_SWITCH.register(filepath, file_type="frontend")
 
 
 def get_frontend_status():

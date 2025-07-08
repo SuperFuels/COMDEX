@@ -1,16 +1,27 @@
-import os
-from backend.modules.dna_chain.dna_switch import register_frontend
+backend/modules/dna_chain/dna_registry.py
+# ✅ DNA Registry — Canonical list of registered AION files
+# This file is updated by DNA_SWITCH and used for auditing and mutation tracking
 
-# ✅ Manual registry (optional – legacy, still supported)
-# register_frontend("frontend/components/AIONDashboardClient.tsx")
-
-# ✅ Auto-register all .tsx files in frontend/
-def auto_register_frontend_components(directory="frontend"):
-    for root, _, files in os.walk(directory):
-        for file in files:
-            if file.endswith(".tsx"):
-                path = os.path.join(root, file).replace("\\", "/")  # Normalize Windows/Unix paths
-                register_frontend(path)
-
-# ✅ Call auto-register
-auto_register_frontend_components()
+DNA_REGISTRY = {
+    "backend/modules/aion/sample_agent.py": {
+        "type": "agent",
+        "dna_id": "agent.sample_agent",
+        "registered": True,
+        "last_modified": "2025-07-06T14:32:00Z",
+        "switch": True,
+    },
+    "backend/modules/hexcore/state_manager.py": {
+        "type": "core_module",
+        "dna_id": "core.state_manager",
+        "registered": True,
+        "last_modified": "2025-07-06T13:47:00Z",
+        "switch": True,
+    },
+    "frontend/components/AIONDashboardClient.tsx": {
+        "type": "frontend_ui",
+        "dna_id": "ui.dashboard_client",
+        "registered": True,
+        "last_modified": "2025-07-06T15:10:00Z",
+        "switch": True,
+    },
+}

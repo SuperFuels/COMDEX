@@ -1,0 +1,20 @@
+{
+  "tsx-frontend_components_AIONDashboardClient_tsx": {
+    "type": "frontend",
+    "path": "frontend/components/AIONDashboardClient.tsx",
+    "description": "Main client component for AION dashboard interface",
+    "tags": ["ui", "dashboard", "client"]
+  },
+  "backend_modules_dna_chain_dna_switch_py": {
+    "type": "backend",
+    "path": "backend/modules/dna_chain/dna_switch.py",
+    "description": "DNA Switch logic module",
+    "tags": ["core", "dna", "switch"]
+  },
+  "backend_api_aion_goal_py": {
+    "type": "api",
+    "path": "backend/api/aion/goal.py",
+    "description": "Goal endpoint handler for AION",
+    "tags": ["api", "goals"]
+  }
+}

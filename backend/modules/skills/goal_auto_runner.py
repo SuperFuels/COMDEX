@@ -8,7 +8,7 @@ from backend.modules.skills.boot_loader import load_boot_goals
 from backend.modules.hexcore.ai_wallet import AIWallet
 
 # ✅ DNA Switch
-from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+from backend.modules.dna_chain.switchboard import DNA_SWITCH
 DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
 
 # Load environment variables from .env.local if present

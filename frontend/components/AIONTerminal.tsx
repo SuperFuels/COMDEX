@@ -1,6 +1,17 @@
+// File: frontend/components/AIONTerminal.tsx
+
 import React, { useState, useEffect } from 'react';
-import { FaPlay, FaChevronDown, FaSave, FaSync, FaFileExport, FaEdit } from 'react-icons/fa';
+import {
+  FaPlay,
+  FaChevronDown,
+  FaSave,
+  FaSync,
+  FaFileExport,
+  FaEdit,
+  FaRedo,
+} from 'react-icons/fa';
 import useAION from '../hooks/useAION';
+import ContainerStatus from '@/components/AION/ContainerStatus';// ✅ Add component import
 
 interface AIONTerminalProps {
   side: 'left' | 'right';
@@ -19,13 +30,16 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
     bottomRef,
     tokenUsage,
     availableCommands,
-    setAvailableCommands, // <-- Required if your hook uses useState
-  } = useAION(side);
+    setAvailableCommands,
+    status,
+    setStatus,
+  } = useAION(side, `${side.toUpperCase()} Terminal`);
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [activeFilter, setActiveFilter] = useState<'all' | 'aion' | 'user' | 'system' | 'data' | 'stub'>('all');
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
-  const [editedContent, setEditedContent] = useState<string>("");
+  const [editedContent, setEditedContent] = useState<string>('');
+  const [autoRefresh, setAutoRefresh] = useState(true);
 
   const handleSubmit = async () => {
     if (!input.trim()) return;
@@ -43,24 +57,24 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
     const exportText = messages.map((m) => `[${m.role}] ${m.content}`).join('\n');
     const blob = new Blob([exportText], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
+    const a = document.createElement('a');
     a.href = url;
-    a.download = "aion_terminal_export.txt";
+    a.download = 'aion_terminal_export.txt';
     a.click();
     URL.revokeObjectURL(url);
   };
 
   const syncMemory = async () => {
     try {
-      const res = await fetch("/api/aion/sync-messages", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const res = await fetch('/api/aion/sync-messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messages }),
       });
       const result = await res.json();
-      alert("✅ Synced to memory.");
+      alert('✅ Synced to memory.');
     } catch (err) {
-      alert("❌ Sync failed.");
+      alert('❌ Sync failed.');
     }
   };
 
@@ -73,25 +87,36 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
 
   const getMessageColor = (role: string, status?: string) => {
     const base =
-      role === 'aion' ? 'text-black' :
-      role === 'user' ? 'text-blue-600' :
-      role === 'system' ? 'text-purple-600' :
-      role === 'data' ? 'text-green-600' :
-      role === 'stub' ? 'text-gray-500 italic' :
-      'text-gray-700';
+      role === 'aion'
+        ? 'text-black'
+        : role === 'user'
+        ? 'text-blue-600'
+        : role === 'system'
+        ? 'text-purple-600'
+        : role === 'data'
+        ? 'text-green-600'
+        : role === 'stub'
+        ? 'text-gray-500 italic'
+        : 'text-gray-700';
 
     const statusStyle =
-      status === 'error' ? 'text-red-500' :
-      status === 'pending' ? 'animate-pulse text-yellow-600' :
-      '';
+      status === 'error'
+        ? 'text-red-500'
+        : status === 'pending'
+        ? 'animate-pulse text-yellow-600'
+        : '';
 
     return `${base} ${statusStyle}`;
   };
 
   const getStatusIcon = (status?: string) => {
-    return status === 'pending' ? '🟡' :
-           status === 'error' ? '❌' :
-           status === 'success' ? '✅' : '';
+    return status === 'pending'
+      ? '🟡'
+      : status === 'error'
+      ? '❌'
+      : status === 'success'
+      ? '✅'
+      : '';
   };
 
   const filteredMessages = messages.filter((msg) => {
@@ -103,14 +128,13 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // 🔁 Fetch command registry on mount
   useEffect(() => {
     const fetchCommands = async () => {
       try {
         const res = await fetch('/api/aion/command/registry');
         const data = await res.json();
         if (Array.isArray(data)) {
-          setAvailableCommands(data); // requires your hook to expose setAvailableCommands
+          setAvailableCommands(data);
         }
       } catch (err) {
         console.error('Failed to fetch command registry', err);
@@ -120,6 +144,29 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
     fetchCommands();
   }, []);
 
+  useEffect(() => {
+    if (!autoRefresh) return;
+    const interval = setInterval(() => {
+      callEndpoint('status', 'Refreshing status');
+      fetch('/api/aion/containers')
+        .then((res) => res.json())
+        .then((data) => {
+          if (data?.containers) {
+            setStatus((prev: any) => ({
+              ...prev,
+              context: {
+                ...(prev?.context || {}),
+                available_containers: data.containers,
+              },
+            }));
+          }
+        });
+    }, 10000);
+    return () => clearInterval(interval);
+  }, [autoRefresh]);
+
+  const teleportToContainer = (id: string) => sendCommand(`teleport ${id}`);
+
   return (
     <div className="flex flex-col h-full">
       <div className="relative flex items-center px-4 gap-2 py-2">
@@ -127,10 +174,12 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
         <div className="relative flex-1">
           <input
             className="w-full border border-gray-300 px-3 py-1 rounded text-sm"
-            placeholder={side === 'left' ? "Type command (e.g. run_dream) or select preset..." : "Ask AION something..."}
+            placeholder={side === 'left' ? 'Type command or select preset...' : 'Ask AION...'}
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && (side === 'left' ? handleSubmit() : sendPrompt())}
+            onKeyDown={(e) =>
+              e.key === 'Enter' && (side === 'left' ? handleSubmit() : sendPrompt())
+            }
           />
           <button
             onClick={() => setDropdownOpen(!dropdownOpen)}
@@ -163,7 +212,6 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
           className="border border-gray-300 rounded text-sm px-2 py-1 w-28 text-gray-700 bg-white"
           value={activeFilter}
           onChange={(e) => setActiveFilter(e.target.value as any)}
-          title="Filter messages"
         >
           <option value="all">All</option>
           <option value="aion">AION</option>
@@ -173,15 +221,16 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
           <option value="stub">Stub</option>
         </select>
 
-        {/* Action Buttons */}
-        <button onClick={syncMemory} title="Sync to memory" className="text-blue-600 text-sm">
+        {/* Buttons */}
+        <button onClick={syncMemory} className="text-blue-600 text-sm" title="Sync">
           <FaSync />
         </button>
-        <button onClick={handleExport} title="Export log" className="text-gray-600 text-sm">
+        <button onClick={handleExport} className="text-gray-600 text-sm" title="Export">
           <FaFileExport />
         </button>
-
-        {/* Submit Button */}
+        <button onClick={() => setAutoRefresh((p) => !p)} className="text-gray-600 text-sm" title="Auto Refresh">
+          <FaRedo /> {autoRefresh ? '🔁' : '⏸️'}
+        </button>
         <button
           onClick={side === 'left' ? handleSubmit : sendPrompt}
           disabled={loading}
@@ -193,70 +242,87 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
 
       {/* Output */}
       <div className="flex-1 bg-gray-50 px-4 pt-4 pb-4 rounded overflow-y-auto text-sm whitespace-pre-wrap border border-gray-200 mx-2">
-        {filteredMessages.length === 0 ? (
-          <p className="text-gray-400">Waiting for AION...</p>
-        ) : (
-          filteredMessages.map((msg, idx) => (
-            <div key={idx} className={`${getMessageColor(msg.role, msg.status)} flex items-start justify-between mb-2`}>
-              <div className="flex-1">
-                {getStatusIcon(msg.status)}{" "}
-                {editingIndex === idx ? (
-                  <div className="flex gap-2 items-center">
-                    <input
-                      value={editedContent}
-                      onChange={(e) => setEditedContent(e.target.value)}
-                      className="border px-2 py-1 rounded text-sm w-full"
-                    />
-                    <button onClick={() => handleEditSave(idx)} className="text-green-600 text-sm"><FaSave /></button>
-                  </div>
-                ) : (
-                  <>
-                    <div>{msg.content ?? '[Invalid message]'}</div>
-                    {(msg.role === 'aion' || msg.role === 'system' || msg.role === 'data') && (
-                      <div className="mt-1 flex gap-2 text-xs">
-                        <button
-                          onClick={() => alert('✅ Approved!')}
-                          className="bg-green-100 hover:bg-green-200 text-green-700 px-2 py-1 rounded"
-                        >
-                          ✅ Approve
-                        </button>
-                        <button
-                          onClick={() => {
-                            const blob = new Blob([msg.content || ''], { type: 'application/pdf' });
-                            const url = URL.createObjectURL(blob);
-                            const a = document.createElement("a");
-                            a.href = url;
-                            a.download = `aion_message_${idx}.pdf`;
-                            a.click();
-                            URL.revokeObjectURL(url);
-                          }}
-                          className="bg-blue-100 hover:bg-blue-200 text-blue-700 px-2 py-1 rounded"
-                        >
-                          📥 Download
-                        </button>
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
-              {editingIndex !== idx && (
-                <button
-                  onClick={() => {
-                    setEditingIndex(idx);
-                    setEditedContent(msg.content || "");
-                  }}
-                  className="ml-2 text-gray-500 text-xs"
-                >
-                  <FaEdit />
-                </button>
+        {filteredMessages.map((msg, idx) => (
+          <div key={idx} className={`${getMessageColor(msg.role, msg.status)} flex items-start justify-between mb-2`}>
+            <div className="flex-1">
+              {getStatusIcon(msg.status)}{' '}
+              {editingIndex === idx ? (
+                <div className="flex gap-2 items-center">
+                  <input
+                    value={editedContent}
+                    onChange={(e) => setEditedContent(e.target.value)}
+                    className="border px-2 py-1 rounded text-sm w-full"
+                  />
+                  <button onClick={() => handleEditSave(idx)} className="text-green-600 text-sm">
+                    <FaSave />
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <div>{msg.content ?? '[Invalid message]'}</div>
+                </>
               )}
             </div>
-          ))
+            {editingIndex !== idx && (
+              <button
+                onClick={() => {
+                  setEditingIndex(idx);
+                  setEditedContent(msg.content || '');
+                }}
+                className="ml-2 text-gray-500 text-xs"
+              >
+                <FaEdit />
+              </button>
+            )}
+          </div>
+        ))}
+
+        {/* 📦 Containers */}
+        {status?.context?.available_containers && (
+          <div className="mt-4 text-xs text-gray-500">
+            <p>📦 Available Containers:</p>
+            <ul className="list-disc ml-6">
+              {status.context.available_containers.map((c: any) => (
+                <li
+                  key={c.id}
+                  onClick={() => teleportToContainer(c.id)}
+                  className={`cursor-pointer ${c.id === status?.context?.current_container ? 'font-bold text-blue-600' : ''}`}
+                >
+                  {c.id} {c.in_memory ? '🧠' : '📁'}
+                </li>
+              ))}
+            </ul>
+          </div>
         )}
+
+        {/* 🗺️ Mini Map */}
+        {status?.context?.container_map && (
+          <div className="mt-4 text-xs text-gray-600">
+            <p>🗺️ Container Map:</p>
+            <pre className="ml-4 whitespace-pre-wrap">{JSON.stringify(status.context.container_map, null, 2)}</pre>
+          </div>
+        )}
+
+        {/* 🧭 Breadcrumb Path */}
+        {status?.context?.container_path && (
+          <div className="mt-4 text-xs text-gray-600">
+            <p>🧭 Path: {status.context.container_path.join(' → ')}</p>
+          </div>
+        )}
+
+        {/* 🧠 Token Usage */}
         {tokenUsage && (
-          <div className="mt-2 text-xs text-gray-400">🧠 Token usage: {tokenUsage} tokens</div>
+          <div className="mt-2 text-xs text-gray-400">
+            🧠 Token usage: {tokenUsage} tokens
+          </div>
         )}
+
         <div ref={bottomRef} />
+      </div>
+
+      {/* 🔍 Container Summary Component */}
+      <div className="border-t border-gray-200 p-2">
+        <ContainerStatus />
       </div>
     </div>
   );

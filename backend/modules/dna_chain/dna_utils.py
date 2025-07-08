@@ -1,6 +1,6 @@
 import os
 
-SWITCH_LINE_1 = "from backend.modules.dna_chain.dna_switch import DNA_SWITCH"
+SWITCH_LINE_1 = "from backend.modules.dna_chain.switchboard import DNA_SWITCH"
 SWITCH_LINE_2 = "DNA_SWITCH.register(__file__)  # Auto-injected"
 
 def inject_dna_switch(file_path: str):

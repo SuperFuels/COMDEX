@@ -1,0 +1,29 @@
+{
+  "kitchen.dc": {
+    "name": "Kitchen",
+    "description": "AION's learning kitchen. Tidy, minimal.",
+    "dimensions": [1000, 1000, 1000],
+    "links": {
+      "forward": "bedroom.dc",
+      "left": "pantry.dc",
+      "wormhole": "america/texas/aion_home.dc"
+    },
+    "boot": {
+      "imports": ["aion", "memory", "terminal"],
+      "loader": "kitchen_bootloader.py"
+    }
+  },
+  "bedroom.dc": {
+    "name": "Bedroom",
+    "description": "Sleep and reflection zone. Memory replay environment.",
+    "dimensions": [1000, 1000, 1000],
+    "links": {
+      "back": "kitchen.dc",
+      "wormhole": "dream/temple.dc"
+    },
+    "boot": {
+      "imports": ["aion", "dream_core", "terminal"],
+      "loader": "bedroom_bootloader.py"
+    }
+  }
+}

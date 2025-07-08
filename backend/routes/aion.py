@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Request, HTTPException
 from pydantic import BaseModel
 from fastapi.responses import JSONResponse
 import openai
@@ -7,10 +7,13 @@ import logging
 import json
 import subprocess  # ✅ For learning-cycle execution
 
+# Core modules
 from backend.modules.skills.aion_prompt_engine import build_prompt_context
 from backend.modules.skills.milestone_tracker import MilestoneTracker
 from backend.modules.skills.goal_tracker import GoalTracker
 from backend.modules.commands_registry import resolve_command, list_commands
+from backend.modules.hexcore.memory_engine import MemoryEngine
+from backend.modules.consciousness.state_manager import StateManager  # ✅ For container listing
 
 # ✅ DNA Switch
 from backend.modules.dna_chain.dna_switch import DNA_SWITCH
@@ -162,13 +165,10 @@ async def run_learning_cycle():
         })
 
 
-# ✅ NEW: Return global command registry
 @router.get("/commands")
 async def list_commands():
     return get_command_registry()
 
-from fastapi import Request, HTTPException
-from backend.modules.hexcore.memory_engine import MemoryEngine
 
 @router.post("/sync-messages")
 async def sync_terminal_messages(request: Request):
@@ -193,3 +193,17 @@ async def sync_terminal_messages(request: Request):
             })
 
     return {"status": "success", "message_count": len(messages)}
+
+
+# ✅ NEW: List .dc containers + memory load status
+@router.get("/containers")
+async def list_available_containers():
+    """
+    Returns all known .dc containers from disk, along with their in-memory status.
+    """
+    try:
+        state = StateManager()
+        containers = state.list_containers_with_status()
+        return JSONResponse(content={"containers": containers})
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"error": str(e)})

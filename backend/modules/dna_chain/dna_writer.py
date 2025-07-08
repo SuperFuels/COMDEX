@@ -4,7 +4,7 @@ import argparse
 from datetime import datetime
 from backend.modules.dna_chain.proposal_manager import load_proposals, save_proposals
 from backend.modules.dna_chain.switchboard import get_module_path
-from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+from backend.modules.dna_chain.switchboard import DNA_SWITCH
 from backend.modules.dna_chain.writable_guard import is_write_allowed
 
 
