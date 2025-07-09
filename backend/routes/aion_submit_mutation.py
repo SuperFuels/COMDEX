@@ -2,7 +2,7 @@ from fastapi import APIRouter, Request, HTTPException
 from pydantic import BaseModel
 import uuid
 
-from backend.modules.dna_chain.dna_registry import store_proposal
+from backend.modules.dna_chain.dna_registry import register_proposal as store_proposal
 
 router = APIRouter()
 

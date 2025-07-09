@@ -10,6 +10,9 @@ DNA_SWITCH.register(__file__)
 from backend.modules.hexcore.memory_engine import MEMORY, store_memory, store_container_metadata
 from backend.modules.consciousness.personality_engine import get_current_traits
 
+# ✅ New mutation utilities
+from backend.modules.dna_chain.dna_registry import register_proposal
+
 # ✅ Paths
 DIMENSION_DIR = os.path.join(os.path.dirname(__file__), "../dimensions")
 

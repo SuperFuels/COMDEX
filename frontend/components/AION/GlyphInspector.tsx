@@ -1,53 +1,77 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
+import { mutateGlyph } from "@/lib/api";
+import { Glyph } from "@/types";
 
 interface GlyphInspectorProps {
-  coord: string;
-  data: any;
+  glyph: Glyph;
   onClose: () => void;
 }
 
-const GLYPH_TYPES = ["", "⚙", "🧠", "🔒", "🌐"];
+const GlyphInspector: React.FC<GlyphInspectorProps> = ({ glyph, onClose }) => {
+  const [editedGlyph, setEditedGlyph] = useState(glyph);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-export default function GlyphInspector({ coord, data, onClose }: GlyphInspectorProps) {
-  const [glyph, setGlyph] = useState(data.glyph || "");
+  const handleChange = (field: keyof Glyph, value: string) => {
+    setEditedGlyph({ ...editedGlyph, [field]: value });
+  };
 
-  const handleApplyMutation = async () => {
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
     try {
-      const res = await fetch("/api/aion/mutate-glyph", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ coord, glyph }),
-      });
-      if (!res.ok) throw new Error("Mutation failed");
+      await mutateGlyph(editedGlyph);
       onClose(); // close on success
     } catch (err) {
-      alert("Failed to mutate glyph: " + err.message);
+      const message = err instanceof Error ? err.message : String(err);
+      alert("Failed to mutate glyph: " + message);
     }
+    setIsSubmitting(false);
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-      <div className="bg-white p-6 rounded shadow-md max-w-sm w-full">
-        <h2 className="text-lg font-semibold mb-2">🔍 Glyph Inspector</h2>
-        <p><strong>Coord:</strong> {coord}</p>
-        <div className="mb-2">
-          <label className="block text-sm font-medium mb-1">Glyph Type:</label>
-          <select
-            className="border p-1 rounded w-full text-sm"
-            value={glyph}
-            onChange={(e) => setGlyph(e.target.value)}
-          >
-            {GLYPH_TYPES.map((g) => (
-              <option key={g} value={g}>{g || "[empty]"}</option>
-            ))}
-          </select>
-        </div>
-        <pre className="text-xs mt-2 bg-gray-100 p-2 rounded max-h-32 overflow-auto">{JSON.stringify(data, null, 2)}</pre>
-        <div className="flex justify-between items-center mt-4">
-          <button onClick={onClose} className="px-3 py-1 bg-gray-300 text-sm rounded">Cancel</button>
-          <button onClick={handleApplyMutation} className="px-3 py-1 bg-blue-500 text-white text-sm rounded">Apply Mutation</button>
-        </div>
+    <div className="p-4 border rounded bg-white shadow-md w-full max-w-lg">
+      <h2 className="text-lg font-bold mb-2">Edit Glyph</h2>
+      <label className="block mb-2">
+        Tag:
+        <input
+          className="w-full border px-2 py-1"
+          value={editedGlyph.tag}
+          onChange={(e) => handleChange("tag", e.target.value)}
+        />
+      </label>
+      <label className="block mb-2">
+        Value:
+        <input
+          className="w-full border px-2 py-1"
+          value={editedGlyph.value}
+          onChange={(e) => handleChange("value", e.target.value)}
+        />
+      </label>
+      <label className="block mb-2">
+        Action:
+        <input
+          className="w-full border px-2 py-1"
+          value={editedGlyph.action}
+          onChange={(e) => handleChange("action", e.target.value)}
+        />
+      </label>
+      <div className="flex justify-between mt-4">
+        <button
+          className="bg-gray-300 px-4 py-2 rounded"
+          onClick={onClose}
+          disabled={isSubmitting}
+        >
+          Cancel
+        </button>
+        <button
+          className="bg-blue-600 text-white px-4 py-2 rounded"
+          onClick={handleSubmit}
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? "Submitting..." : "Submit Mutation"}
+        </button>
       </div>
     </div>
   );
-}
+};
+
+export default GlyphInspector;

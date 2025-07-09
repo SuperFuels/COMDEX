@@ -20,8 +20,8 @@ graph TD
   subgraph Integration & Triggers
     C1[✅ Hook glyph logic into .dc simulation loop]
     C2[✅ Teleportation via glyph-inscribed wormholes]
-    C3[⏳ Sync glyph data into .dc files]
-    C4[⏳ Trigger glyph events from AION container awareness]
+    C3[✅ Sync glyph data into .dc files]
+    C4[✅ Trigger glyph events from AION container awareness]
     C5[⏳ Train AION to invent glyph grammar]
     C6[⏳ Glyph reverse loader from compressed cubes]
     C7[✅ test_glyph_compiler.py]
@@ -37,7 +37,7 @@ graph TD
     D4[⏳ Auto-writing + self-rewriting glyphs]
     D5[⏳ Game ↔ Glyph feedback loop]
     D6[✅ Connect to DNA Switch for mutation tracking]
-    D7[⏳ CRISPR mutation proposal from glyphs]
+    D7[✅ CRISPR mutation proposal from glyphs]
   end
 
   subgraph Interfaces
@@ -47,6 +47,14 @@ graph TD
     E4[⏳ Microgrid viewer (3D glyph grid map)]
     E5[⏳ Link to agent state via StateManager]
     E6[✅ Render available containers in frontend UI]
+  end
+
+  subgraph Mutation Pipeline
+    M1[🧠 Log mutation proposals into memory timeline]
+    M2[⚖️ Score mutations (impact/safety/Soul Law)]
+    M3[🔄 Approval workflow for mutation proposals]
+    M4[⏳ Enforce rollback or auto-block via Soul Law]
+    M5[⏳ Timeline visualization of accepted mutations]
   end
 
   subgraph Runtime Enhancements
@@ -81,6 +89,7 @@ graph TD
   F7 --> C2
   F8 --> E2
   E6 --> E3
+  D7 --> M1 --> M2 --> M3 --> M4 --> M5
 
   🟦 Option B: 3D Cube Viewer
 	•	Uses Three.js or React Three Fiber

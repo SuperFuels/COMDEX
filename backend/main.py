@@ -117,8 +117,7 @@ from backend.routes import aion_routes
 from backend.routes import glyph_mutate
 from backend.routes import ws_route
 from backend.api.endpoints import submit_mutation
-from backend.api.routes import aion_submit_mutation
-
+from backend.routes import aion_submit_mutation
 
 # ✅ WebSocket route
 from backend.api import ws
