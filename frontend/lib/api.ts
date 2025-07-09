@@ -44,6 +44,17 @@ api.interceptors.request.use((config) => {
 export default api
 export { axios }
 
+// 🧠 Request backend to score a glyph mutation
+export async function scoreMutation(glyph: {
+  coord: string
+  tag: string
+  value: string
+  action: string
+}) {
+  const res = await api.post('/api/aion/score-mutation', { glyph })
+  return res.data
+}
+
 // 🧬 Send glyph mutation request to backend
 export async function mutateGlyph(glyph: {
   coord: string

@@ -14,7 +14,13 @@ from backend.modules.consciousness.personality_engine import get_current_traits
 from backend.modules.dna_chain.dna_registry import register_proposal
 
 # ✅ Paths
-DIMENSION_DIR = os.path.join(os.path.dirname(__file__), "../dimensions")
+DIMENSION_DIR = os.path.join(os.path.dirname(__file__), "../dimensions/containers")
+
+# ✅ Path resolver for individual container files
+def get_container_path(container_id: str) -> str:
+    """Resolve full file path for a container ID like 'aion_start'."""
+    filename = f"{container_id}.dc.json"
+    return os.path.normpath(os.path.join(DIMENSION_DIR, "containers", filename))
 
 # ✅ In-memory tracking (can be populated elsewhere)
 CONTAINER_MEMORY = {}
@@ -103,10 +109,13 @@ def load_dimension(container_id):
 
     # 🧠 Store teleport event as memory
     MEMORY.store({
-        "role": "event",
-        "type": "teleport",
-        "container": container_id,
-        "timestamp": datetime.utcnow().isoformat()
+        "role": "system",
+        "label": "container_loaded",
+        "content": f"AION teleported to container: {container['id']}",
+        "metadata": {
+            "container_id": container['id'],
+            "cubes": list(container.get('cubes', {}).keys())
+    }
     })
 
     return data
@@ -127,9 +136,12 @@ def load_dimension_by_file(file_path: str):
     if container:
         MEMORY.store({
             "role": "system",
-            "summary": f"AION teleported to container: {container['id']}",
-            "container_id": container['id'],
-            "cubes": list(container.get('cubes', {}).keys())
+            "label": "container_loaded",
+            "content": f"AION teleported to container: {container['id']}",
+            "metadata": {
+                "container_id": container['id'],
+                "cubes": list(container.get('cubes', {}).keys())
+            }
         })
 
     return container
@@ -152,9 +164,12 @@ def load_dc_container(container_id):
     if container:
         MEMORY.store({
             "role": "system",
-            "summary": f"AION teleported to container: {container['id']}",
-            "container_id": container['id'],
-            "cubes": list(container.get("cubes", {}).keys())
+            "label": "container_loaded",
+            "content": f"AION teleported to container: {container['id']}",
+            "metadata": {
+                "container_id": container['id'],
+                "cubes": list(container.get('cubes', {}).keys())
+            }
         })
 
     return container
@@ -179,6 +194,14 @@ def get_wormholes(container_id):
 def resolve_wormhole(container_id, wormhole_id):
     wormholes = get_wormholes(container_id)
     return wormholes.get(wormhole_id)
+
+def save_dimension(path: str, data: dict):
+    """
+    Saves a container (.dc) file to disk with the given data dictionary.
+    Keys should be strings like "x,y,z[,layer]" and values should be glyphs or metadata.
+    """
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2)
 
 def apply_style_to_cube(container_id, cube_key, layer, material, area):
     container = load_dc_container(container_id)

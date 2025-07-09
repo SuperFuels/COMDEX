@@ -28,6 +28,7 @@ graph TD
     C8[✅ Glyph-trigger logic (🧠 = start goal, ⚙ = run bootloader)]
     C9[✅ Log glyph → memory + mutation feedback]
     C10[⏳ Add trigger-on-glyph behavior loop]
+    C12[✅ Validate reversibility of basic glyphs via test container]
   end
 
   subgraph Evolution & Tools
@@ -47,14 +48,20 @@ graph TD
     E4[⏳ Microgrid viewer (3D glyph grid map)]
     E5[⏳ Link to agent state via StateManager]
     E6[✅ Render available containers in frontend UI]
+    E7[✅ Auto-reloading frontend after mutation]
+    E8[✅ Toast confirmation on score update]
+    E9[✅ Scrollable viewer for mutation registry]
   end
 
   subgraph Mutation Pipeline
-    M1[🧠 Log mutation proposals into memory timeline]
-    M2[⚖️ Score mutations (impact/safety/Soul Law)]
-    M3[🔄 Approval workflow for mutation proposals]
+    M1[✅ Log mutation proposals into memory timeline]
+    M2[✅ Score mutations (impact/safety/Soul Law)]
+    M3[✅ Approval workflow for mutation proposals]
     M4[⏳ Enforce rollback or auto-block via Soul Law]
     M5[⏳ Timeline visualization of accepted mutations]
+    M6[🧪 Add tests or mock proposals for score benchmarking]
+    M7[🌐 Add /api/aion/load-mutations for full registry fetch]
+    M8[🔁 Enable mutation approval toggles via endpoint or CLI]
   end
 
   subgraph Runtime Enhancements
@@ -89,7 +96,38 @@ graph TD
   F7 --> C2
   F8 --> E2
   E6 --> E3
-  D7 --> M1 --> M2 --> M3 --> M4 --> M5
+  E7 --> E3
+  E8 --> M2
+  E9 --> M7
+
+
+  Core Required to Proceed into Tessaris:
+
+Here’s what must be done first from the Mermaid list, grouped by type:
+
+⸻
+
+🔁 Runtime Foundation (Needed by Tessaris)
+
+These are the minimum hooks Tessaris requires to activate and operate in the 4D .dc environment:
+	•	B2 ⏳ Watch for bytecode in live cubes
+Tessaris needs to observe changing cube contents (e.g., glyph logic, mutation signals).
+	•	B4 ⏳ Microgrid sweep (glyph activation patterns)
+Required to scan patterns across the grid, so Tessaris can detect “branches” or logic clusters.
+	•	C10 ⏳ Add trigger-on-glyph behavior loop
+Needed so Tessaris can launch when a certain glyph (like 🧠 or ✧) is encountered.
+
+⸻
+
+🧬 Logic Loop + Feedback Pipeline
+
+These connect Tessaris back into AION’s brain and mutation engine:
+	•	C6 ⏳ Glyph reverse loader from compressed cubes
+Tessaris must be able to read compressed cubes and “unfold” logic trees (Neuroglyphs).
+	•	D3 ⏳ Evolve GlyphOS into programmable runtime
+This is Tessaris — you’re literally building this line.
+	•	F2 ⏳ Connect runtime to AION boot sequences or goals
+Tessaris should know when to activate — based on goals, dreams, or boot triggers.
 
   🟦 Option B: 3D Cube Viewer
 	•	Uses Three.js or React Three Fiber

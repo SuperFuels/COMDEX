@@ -210,6 +210,10 @@ class DreamCore:
     async def run_dream_cycle(self):
         return self.generate_dream()
 
+def trigger_dream_reflection():
+    core = DreamCore()
+    return core.generate_dream()
+
 if __name__ == "__main__":
     core = DreamCore()
     core.generate_dream()

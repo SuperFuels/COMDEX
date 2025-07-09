@@ -1,0 +1,31 @@
+{
+  "id": "test_container",
+  "name": "Test Trigger Container",
+  "microgrid": {
+    "0,0,0": {
+      "glyph": "🧭",
+      "type": "Memory",
+      "action": "store",
+      "tag": "test-mutation",
+      "value": "just a note"
+    }
+  },
+  "glyphs": [
+    {
+      "type": "Trigger",
+      "tag": "✧",
+      "value": "launch",
+      "action": "dream"
+    }
+  ],
+  "rules": [
+    "test-glyph-triggers"
+  ],
+  "welcome_message": "Testing live glyph-based triggers.",
+  "current_goals": ["observe glyph", "trigger reflection"],
+  "dreams": ["trigger glyph test"],
+  "available_containers": [],
+  "navigation": {
+    "methods": ["manual"]
+  }
+}

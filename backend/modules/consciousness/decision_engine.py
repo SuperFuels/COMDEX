@@ -3,7 +3,7 @@ from typing import Optional
 from datetime import datetime
 
 from backend.modules.skills.goal_runner import GoalRunner
-from backend.modules.consciousness.situational_engine import SituationalEngine  # 🔄 New
+from backend.modules.consciousness.situational_engine import SituationalEngine
 
 # ✅ DNA Switch
 from backend.modules.dna_chain.switchboard import DNA_SWITCH
@@ -15,11 +15,11 @@ class DecisionEngine:
     based on internal state, goals, and situation.
     """
 
-    def __init__(self):
+    def __init__(self, situation_engine: SituationalEngine):
         self.last_decision: Optional[str] = None
         self.last_timestamp: Optional[str] = None
         self.goal_runner = GoalRunner()
-        self.situation = SituationalEngine()  # 🧠 Load situational awareness
+        self.situation = situation_engine  # Injected instead of creating a new instance
 
     def decide(self, context: Optional[dict] = None) -> str:
         """
@@ -46,15 +46,15 @@ class DecisionEngine:
 
         if risk == "high":
             print("⚠️ High situational risk detected — adjusting decision weights.")
-            weights = [  # prioritize self-checks and reflection
+            weights = [
                 0.05,  # sleep
-                0.2,   # reflect on dreams
+                0.2,   # reflect
                 0.15,  # prioritize goals
-                0.15,  # plan tasks
+                0.15,  # plan
                 0.05,  # interact
                 0.05,  # memory
                 0.05,  # news
-                0.2,   # conserve energy
+                0.2,   # conserve
                 0.1    # self-check
             ]
 
@@ -63,8 +63,6 @@ class DecisionEngine:
         self.last_timestamp = datetime.utcnow().isoformat()
 
         print(f"🧭 AION Decision: {decision}")
-
-        # Log decision
         self.situation.log_event(f"Decision made: {decision}", "neutral")
 
         if decision in ("prioritize goals", "plan tasks"):
@@ -93,5 +91,5 @@ class DecisionEngine:
 
 # Manual test
 if __name__ == "__main__":
-    engine = DecisionEngine()
+    engine = DecisionEngine(SituationalEngine())
     print("🤖 Decision:", engine.decide())

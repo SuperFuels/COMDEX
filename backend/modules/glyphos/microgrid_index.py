@@ -1,4 +1,4 @@
-# microgrid_index.py
+# backend/modules/glyphos/microgrid_index.py
 
 from typing import Dict, Tuple, Optional
 import time
@@ -51,13 +51,27 @@ class MicrogridIndex:
         self.glyph_map.clear()
         for key, meta in data.items():
             parts = key.split(",")
-            x, y, z = map(int, parts[:3])
-            layer = int(parts[3]) if parts[3] != "null" else None
-            self.glyph_map[(x, y, z, layer)] = meta
-        print(f"📦 Imported {len(data)} glyphs into microgrid index")
+            if len(parts) < 3:
+                print(f"⚠️ Skipping malformed glyph key: '{key}'")
+                continue
+            try:
+                x, y, z = map(int, parts[:3])
+                layer = int(parts[3]) if len(parts) == 4 and parts[3] != "null" else None
+                self.glyph_map[(x, y, z, layer)] = meta
+            except Exception as e:
+                print(f"❌ Error importing glyph at key '{key}': {e}")
+        print(f"📦 Imported {len(self.glyph_map)} glyphs into microgrid index")
 
     def query_by_type(self, glyph_type: str) -> Dict[Tuple[int, int, int, Optional[int]], Dict]:
         return {
             coord: meta for coord, meta in self.glyph_map.items()
             if meta.get("type") == glyph_type
         }
+
+def cube_to_coord(cube: dict) -> str:
+    """Convert a cube dictionary to a coordinate string."""
+    x = cube.get("x", "?")
+    y = cube.get("y", "?")
+    z = cube.get("z", "?")
+    t = cube.get("t", "?")
+    return f"{x},{y},{z},{t}"

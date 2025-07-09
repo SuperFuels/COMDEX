@@ -44,6 +44,12 @@ class GlyphParser:
     def dump_json(self) -> str:
         return json.dumps(self.parse(), indent=2)
 
+# ✅ Add this top-level helper for other modules to import
+def parse_glyph(bytecode: str) -> Dict:
+    parsed = GlyphParser(bytecode).parse()
+    return parsed[0] if parsed else {"symbol": bytecode, "error": "Invalid glyph"}
+
+# 🔁 CLI test
 if __name__ == "__main__":
     test_string = "🜁⚛✦🧭⌬⟁"
     parser = GlyphParser(test_string)

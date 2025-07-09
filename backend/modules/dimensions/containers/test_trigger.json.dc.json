@@ -1,0 +1,13 @@
+{
+  "id": "test_container",
+  "name": "Test Trigger Container",
+  "microgrid": {
+    "0,0,0": {
+      "glyph": "\ud83e\udded",
+      "type": "Memory",
+      "action": "store",
+      "tag": "test-mutation",
+      "value": "just a note"
+    }
+  }
+}

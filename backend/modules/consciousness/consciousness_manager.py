@@ -2,6 +2,8 @@
 
 import os
 import json
+import threading
+
 from backend.modules.consciousness.time_engine import TimeEngine
 from backend.modules.consciousness.state_manager import StateManager
 from backend.modules.consciousness.awareness_engine import AwarenessEngine
@@ -19,6 +21,7 @@ from backend.modules.aion.sample_agent import SampleAgent
 from backend.modules.dna_chain.dc_handler import (
     load_dimension,
     list_containers_with_memory_status,
+    load_dimension_by_id,
 )
 
 # ✅ DNA Switch
@@ -27,6 +30,13 @@ DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
 
 # ✅ MemoryEngine logging
 from backend.modules.hexcore.memory_engine import MEMORY
+
+# ✅ Glyph trigger loop
+from backend.modules.glyphos.glyph_trigger_engine import glyph_behavior_loop
+
+# ✅ Trigger system
+from backend.modules.dna_chain.trigger_engine import check_glyph_triggers
+from backend.modules.glyphos.trigger_on_glyph_loop import register_container_for_glyph_triggers
 
 DEFAULT_CONTAINER_ID = "default_container"
 
@@ -48,6 +58,9 @@ class ConsciousnessManager:
         self.agent_manager.register_agent("AION", SampleAgent("AION"))
         self.agent_manager.register_agent("Explorer", SampleAgent("Explorer"))
 
+        # Glyph loop control flag
+        self.glyph_loop_started = False
+
         # 🔁 Boot default container into memory at startup
         self.boot_default_container()
 
@@ -62,6 +75,12 @@ class ConsciousnessManager:
 
     def run_cycle(self, mode="live"):
         print("\n🌐 Starting Consciousness Cycle")
+
+        # ✅ Start glyph behavior loop once
+        if not self.glyph_loop_started:
+            threading.Thread(target=glyph_behavior_loop, daemon=True).start()
+            self.glyph_loop_started = True
+            print("🔁 Glyph trigger loop started.")
 
         if not self.time.can_wake():
             print("😴 AION remains asleep.")
@@ -82,6 +101,10 @@ class ConsciousnessManager:
 
         # ✅ Log the loaded container
         container_id = start_container.get("id", "unknown")
+
+        # ✅ Register for glyph-based triggers
+        register_container_for_glyph_triggers(container_id)
+
         self.situation.log_container_entry(container_id)
 
         # ✅ MemoryEngine log: container state
@@ -94,6 +117,10 @@ class ConsciousnessManager:
 
         # 🔌 Update state + describe loaded container
         self.state.set_current_container(start_container)
+
+        # 🔍 Check for glyph triggers in this container
+        check_glyph_triggers(container_id)
+
         print(f"\n🧭 {start_container.get('welcome_message', 'Welcome.')}")
         print(f"📜 Rules: {', '.join(start_container.get('rules', []))}")
         print(f"🎯 Current Goals: {start_container.get('current_goals', [])}")

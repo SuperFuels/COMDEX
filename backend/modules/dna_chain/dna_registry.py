@@ -1,5 +1,6 @@
 import json
 import os
+import uuid
 from datetime import datetime
 
 DNA_REGISTRY_PATH = os.path.join(
@@ -32,3 +33,17 @@ def load_registry():
         return []
     with open(DNA_REGISTRY_PATH, "r") as f:
         return json.load(f)
+
+
+# ✅ Unified proposal submission helper
+def submit_dna_proposal(file, reason, replaced_code, new_code, diff):
+    proposal = {
+        "proposal_id": str(uuid.uuid4()),
+        "file": file,
+        "reason": reason,
+        "replaced_code": replaced_code,
+        "new_code": new_code,
+        "diff": diff
+    }
+    register_proposal(proposal)
+    return proposal
