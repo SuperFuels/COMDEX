@@ -19,7 +19,7 @@ except Exception:
     WS = None  # fallback if not available
 
 # ✅ Secure loading
-from backend.modules.dna_chain.dc_handler import load_dimension, load_dimension_by_file
+from backend.modules.dna_chain.dc_handler import load_dimension, load_dimension_by_file, get_dc_path
 from backend.modules.consciousness.personality_engine import PROFILE as PERSONALITY
 
 STATE_FILE = "agent_state.json"
@@ -165,6 +165,12 @@ class StateManager:
             except Exception as e:
                 print(f"[WS] Broadcast failed: {e}")
 
+    def get_current_container_path(self):
+        """Return full file path to currently loaded container, if available."""
+        if not self.current_container:
+            return None
+        return get_dc_path(self.current_container)
+
     def get_context(self):
         if self.current_container:
             self.context["active_container"] = self.current_container
@@ -210,7 +216,6 @@ class StateManager:
         self.set_current_container(container)
         self.loaded_containers[container["id"]] = container
         return container
-
 
 # ✅ Singleton
 STATE = StateManager()

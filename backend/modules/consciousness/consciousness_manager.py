@@ -1,5 +1,3 @@
-# File: backend/modules/consciousness/consciousness_manager.py
-
 import os
 import json
 import threading
@@ -38,6 +36,16 @@ from backend.modules.glyphos.glyph_trigger_engine import glyph_behavior_loop
 from backend.modules.dna_chain.trigger_engine import check_glyph_triggers
 from backend.modules.glyphos.trigger_on_glyph_loop import register_container_for_glyph_triggers
 
+# ✅ Bytecode glyph scanner
+from backend.modules.dimensions.glyph_watcher import GlyphWatcher
+
+# ✅ Tessaris Runtime
+from backend.modules.tessaris.tessaris_engine import TessarisEngine
+from backend.modules.tessaris.thought_branch import ThoughtBranch
+
+# ✅ Tessaris Store
+from backend.modules.tessaris.tessaris_store import TESSARIS_STORE
+
 DEFAULT_CONTAINER_ID = "default_container"
 
 class ConsciousnessManager:
@@ -60,6 +68,12 @@ class ConsciousnessManager:
 
         # Glyph loop control flag
         self.glyph_loop_started = False
+
+        # Glyph watcher module (B2)
+        self.glyph_watcher = GlyphWatcher()
+
+        # Tessaris Runtime (F2)
+        self.tessaris = TessarisEngine()
 
         # 🔁 Boot default container into memory at startup
         self.boot_default_container()
@@ -109,14 +123,18 @@ class ConsciousnessManager:
 
         # ✅ MemoryEngine log: container state
         MEMORY.store({
+            "label": "container_load",
             "role": "system",
             "type": "container_loaded",
             "content": f"📦 Entered container: {container_id}",
-            "data": start_container  # Store full dimension context
+            "data": start_container
         })
 
         # 🔌 Update state + describe loaded container
         self.state.set_current_container(start_container)
+
+        # ✅ Run bytecode glyph watcher on this container (B2)
+        self.glyph_watcher.watch_container(start_container)
 
         # 🔍 Check for glyph triggers in this container
         check_glyph_triggers(container_id)
@@ -172,6 +190,20 @@ class ConsciousnessManager:
             self.time.go_to_sleep()
         else:
             print("🤖 AION idles.")
+
+        # ✅ Tessaris trigger from goal
+        active_goals = self.goal.get_active_goals()
+        for g in active_goals:
+            if "glyph_sequence" in g:
+                print(f"🧬 Executing glyph logic from goal: {g['name']}")
+                tb = ThoughtBranch(
+                    glyphs=g["glyph_sequence"],
+                    origin_id=g.get("origin_strategy_id", "unknown"),
+                    position={"source": "goal_engine"},
+                    metadata={"goal_name": g["name"]}
+                )
+                self.tessaris.execute_branch(tb)
+                TESSARIS_STORE.save_branch(tb)
 
         self.goal.log_task("Cycle completed")
         print("✅ Consciousness cycle complete.")

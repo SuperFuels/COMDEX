@@ -1,10 +1,14 @@
+# File: backend/modules/consciousness/goal_engine.py
+
 import json
 from datetime import datetime
 from pathlib import Path
 
-# ✅ DNA Switch
 from backend.modules.dna_chain.switchboard import DNA_SWITCH
 DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
+# ✅ Tessaris trigger import
+from backend.modules.tessaris.tessaris_trigger import trigger_tessaris_from_goal
 
 GOAL_FILE = Path(__file__).parent / "goals.json"
 LOG_FILE = Path(__file__).parent / "goal_skill_log.json"
@@ -33,6 +37,8 @@ class GoalEngine:
                 desc = milestone.get("description", f"Goal related to milestone {name}")
                 print(f"📢 Received milestone notification: {name}, creating goal.")
                 self.create_goal_from_milestone(name, desc)
+            elif msg_type == "glyph_trigger":
+                self.create_goal_from_glyph(message.get("glyph"))
             else:
                 print(f"📬 Unknown message type received: {msg_type}")
         else:
@@ -97,7 +103,6 @@ class GoalEngine:
                 self.save_goals()
                 print(f"✅ Goal marked complete: {goal_name}")
 
-                # Log skill learning with links
                 log_entry = {
                     "goal": goal_name,
                     "learned_skill": learned_skill,
@@ -107,7 +112,6 @@ class GoalEngine:
                 }
                 self.log.append(log_entry)
                 self.save_log()
-
                 print(f"🔍 Logged skill learning: {log_entry}")
                 return goal
         print(f"⚠️ Goal not found or already completed: {goal_name}")
@@ -121,6 +125,14 @@ class GoalEngine:
         self.goals.append(goal)
         self.save_goals()
         print(f"✅ Goal assigned: {goal.get('name')}")
+
+        # ✅ Trigger recursive Tessaris logic
+        try:
+            trigger_tessaris_from_goal(goal)
+            print(f"🧠 Tessaris logic triggered from goal: {goal.get('name')}")
+        except Exception as e:
+            print(f"⚠️ Tessaris trigger from goal failed: {e}")
+
         return goal
 
     def create_goal_from_milestone(self, milestone_name, description, reward=5, priority=1, dependencies=None, origin_strategy_id=None):
@@ -151,10 +163,24 @@ class GoalEngine:
         }
         return self.assign_goal(goal)
 
+    def create_goal_from_glyph(self, glyph, reward=3):
+        """
+        Optional glyph-to-goal bridge.
+        """
+        name = f"glyph_goal_{glyph}"
+        desc = f"Goal triggered by glyph {glyph} in Tessaris runtime."
+        goal = {
+            "name": name,
+            "description": desc,
+            "reward": reward,
+            "priority": 1,
+            "dependencies": [],
+            "created_at": datetime.now().isoformat(),
+            "origin_glyph": glyph
+        }
+        return self.assign_goal(goal)
+
     def log_progress(self, data):
-        """
-        Minimal logger for state/teleport events.
-        """
         log_entry = {
             "type": data.get("type", "progress"),
             "event": data.get("event"),
@@ -163,6 +189,18 @@ class GoalEngine:
             "timestamp": datetime.now().isoformat()
         }
         print(f"[GOAL][LOG] {log_entry}")
+        self.log.append(log_entry)
+        self.save_log()
+
+    def log_task(self, message):
+        log_entry = {
+            "type": "task",
+            "event": "cycle_event",
+            "message": message,
+            "success": True,
+            "timestamp": datetime.now().isoformat()
+        }
+        print(f"[GOAL][TASK] {log_entry}")
         self.log.append(log_entry)
         self.save_log()
 

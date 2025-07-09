@@ -344,5 +344,55 @@
     "label": "container:test_container",
     "content": "[\ud83d\udce6] Container metadata\nContainer ID: test_container\nName: Test Trigger Container\nDescription: \nOrigin: \nCreated On: \nContainer Type: generic\nTotal Cubes: 0\nMutations: 0\nConnections: None\nDNA Switch: none (undefined)",
     "timestamp": "2025-07-09T19:42:50.504917"
+  },
+  {
+    "label": "container:aion_start",
+    "content": "[\ud83d\udce6] Container metadata\nContainer ID: aion_start\nName: AION Startup Zone\nDescription: Boot sequence container for AION's consciousness cycle.\nOrigin: \nCreated On: 2025-07-09T00:00:00Z\nContainer Type: generic\nTotal Cubes: 0\nMutations: 0\nConnections: None\nDNA Switch: none (undefined)",
+    "timestamp": "2025-07-09T20:19:29.883291"
+  },
+  {
+    "role": "system",
+    "label": "container_loaded",
+    "content": "AION teleported to container: aion_start",
+    "metadata": {
+      "container_id": "aion_start",
+      "cubes": []
+    },
+    "timestamp": "2025-07-09T20:22:05.505330"
+  },
+  {
+    "label": "container:aion_start",
+    "content": "[\ud83d\udce6] Container AION Startup Zone activated.",
+    "timestamp": "2025-07-09T20:22:05.529738"
+  },
+  {
+    "label": "container_load",
+    "role": "system",
+    "type": "container_loaded",
+    "content": "\ud83d\udce6 Entered container: aion_start",
+    "data": {
+      "id": "aion_start",
+      "name": "AION Startup Zone",
+      "description": "Boot sequence container for AION's consciousness cycle.",
+      "created_on": "2025-07-09T00:00:00Z",
+      "microgrid": {
+        "0,0,0": {
+          "glyph": "\ud83e\udde0",
+          "type": "Logic",
+          "tag": "bootstrap",
+          "value": "init-sequence",
+          "action": "start"
+        }
+      },
+      "connections": {
+        "test_container": "east"
+      },
+      "dna_switch": {
+        "enabled": true,
+        "last_modified": "2025-07-09T00:00:00Z",
+        "proposals": []
+      }
+    },
+    "timestamp": "2025-07-09T20:33:25.431099"
   }
 ]

@@ -1,3 +1,5 @@
+# File: backend/modules/skills/dream_core.py
+
 import os
 from pathlib import Path
 from datetime import datetime, timezone
@@ -20,6 +22,9 @@ from backend.modules.consciousness.reflection_engine import ReflectionEngine
 from backend.modules.consciousness.personality_engine import PersonalityProfile
 from backend.modules.consciousness.situational_engine import SituationalEngine
 from backend.modules.skills.dream_post_processor import DreamPostProcessor
+from backend.modules.tessaris.tessaris_engine import TessarisEngine
+from backend.modules.tessaris.thought_branch import ThoughtBranch, BranchNode
+from backend.modules.tessaris.tessaris_store import save_snapshot
 
 from backend.database import get_db
 from backend.models.dream import Dream
@@ -27,7 +32,6 @@ from backend.models.dream import Dream
 # ✅ DNA Switch
 from backend.modules.dna_chain.switchboard import DNA_SWITCH
 DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
-
 
 class DreamCore:
     def __init__(self):
@@ -52,6 +56,7 @@ class DreamCore:
         self.reflector = ReflectionEngine()
         self.personality = PersonalityProfile()
         self.situation = SituationalEngine()
+        self.tessaris = TessarisEngine()
 
         self.max_memories = 20
         self.noise_phrases = ["random noise", "nonsense", "irrelevant", "unintelligible"]
@@ -157,7 +162,7 @@ class DreamCore:
 
             if self.master_key and self.vault.has_access(self.master_key):
                 self.vault.store(dream_label, dream)
-                print("🔒 Dream also stored in PrivacyVault.")
+                print("🔐 Dream also stored in PrivacyVault.")
             else:
                 print("🔑 Skipped storing in PrivacyVault (missing or invalid key).")
 
@@ -172,7 +177,7 @@ class DreamCore:
                 db.add(db_dream)
                 db.commit()
                 db.refresh(db_dream)
-                print("💾 Dream saved to database.")
+                print("📂 Dream saved to database.")
             except Exception as db_err:
                 self.situation.log_event(f"Failed to save dream to DB: {db_err}", "negative")
                 print(f"🚨 DB error: {db_err}")
@@ -181,12 +186,12 @@ class DreamCore:
             if selected:
                 print(f"🚀 Selected Boot Skill: {selected['title']} (tags: {', '.join(selected.get('tags', []))})")
             else:
-                print("🛑 No matching boot skill found in dream.")
+                print("😕 No matching boot skill found in dream.")
 
             self.adjust_traits_from_dream(dream)
 
             reflection_output = self.reflector.run(limit=10)
-            print("🪞 Reflection Summary:\n", reflection_output)
+            print("🫮 Reflection Summary:\n", reflection_output)
 
             self.situation.log_event("Dream generated", "positive")
 
@@ -201,12 +206,34 @@ class DreamCore:
                 self.situation.log_event(f"Dream post-processing failed: {e}", "negative")
                 print(f"🚨 Dream post-processing failed: {e}")
 
+            # 🔁 NEW: Trigger Tessaris recursive logic
+            try:
+                root = BranchNode(symbol="Δ", source="dream")
+                children = root.generate_branches()
+                for child in children:
+                    root.add_child(child)
+                branch = ThoughtBranch(glyphs=[node.symbol for node in children], origin_id=dream_label)
+                self.tessaris.execute_branch(branch)
+                print("🌱 Tessaris executed dream logic branch.")
+
+                # 📸 Save Tessaris snapshot (with metadata)
+                save_snapshot(
+                    branch=branch,
+                    label=dream_label,
+                    traits=self.personality.traits,
+                    reflection=reflection_output,
+                    boot_skill=selected
+                )
+                print("📸 Tessaris snapshot saved.")
+            except Exception as e:
+                print(f"⚠️ Tessaris integration failed: {e}")
+
             return dream
         else:
             self.situation.log_event("Dream rejected for quality", "negative")
             print("⚠️ Dream skipped due to quality filters.")
             return None
-        
+
     async def run_dream_cycle(self):
         return self.generate_dream()
 

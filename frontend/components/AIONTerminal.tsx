@@ -16,6 +16,8 @@ import GlyphGrid from './AION/GlyphGrid';
 import GlyphInspector from './AION/GlyphInspector';
 import ContainerMap from './AION/ContainerMap'; // ✅ Added container map component
 import GlyphMutator from './AION/GlyphMutator';
+import TessarisVisualizer from "@/components/AION/TessarisVisualizer";
+
 
 interface AIONTerminalProps {
   side: 'left' | 'right';
@@ -46,7 +48,8 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [selectedGlyph, setSelectedGlyph] = useState<null | { coord: string; data: any }>(null);
   const [showGlyphMutator, setShowGlyphMutator] = useState(false);
-
+  const [showTessarisTree, setShowTessarisTree] = useState(false);
+  
   const handleSubmit = async () => {
     if (!input.trim()) return;
     await sendCommand(input.trim());
@@ -315,6 +318,30 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
                 </li>
               ))}
             </ul>
+          </div>
+        )}
+
+        {/* 🌳 Tessaris Thought Tree Visualizer */}
+        {status?.context?.tessaris_snapshot && (
+          <div className="mt-6">
+            <div
+              className="flex justify-between items-center cursor-pointer bg-gray-100 px-3 py-2 rounded border border-gray-300"
+              onClick={() => setShowTessarisTree(!showTessarisTree)}
+            >
+              <h3 className="text-sm font-semibold text-gray-700">🌳 Tessaris Logic Tree</h3>
+              <span className="text-xs text-blue-600">{showTessarisTree ? 'Hide ▲' : 'Show ▼'}</span>
+            </div>
+
+            {showTessarisTree && (
+              <div className="border border-gray-200 rounded bg-white p-2 mt-2">
+                <TessarisVisualizer
+                  tree={status.context.tessaris_snapshot}
+                  onNodeClick={(node) => {
+                    console.log('🧠 Clicked node:', node);
+                  }}
+                />
+              </div>
+            )}
           </div>
         )}
 

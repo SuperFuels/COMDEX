@@ -65,5 +65,47 @@
     "message": "Teleported to container: test_mutation_container",
     "success": true,
     "timestamp": "2025-07-09T10:54:49.772151"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: aion_start",
+    "success": true,
+    "timestamp": "2025-07-09T20:22:05.546006"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: aion_start",
+    "success": true,
+    "timestamp": "2025-07-09T20:28:15.217113"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: aion_start",
+    "success": true,
+    "timestamp": "2025-07-09T20:31:39.399679"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: aion_start",
+    "success": true,
+    "timestamp": "2025-07-09T20:33:25.395938"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: aion_start",
+    "success": true,
+    "timestamp": "2025-07-09T20:33:25.458620"
+  },
+  {
+    "type": "task",
+    "event": "cycle_event",
+    "message": "Cycle completed",
+    "success": true,
+    "timestamp": "2025-07-09T20:37:21.711498"
   }
 ]

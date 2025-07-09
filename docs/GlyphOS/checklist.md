@@ -11,9 +11,9 @@ graph TD
 
   subgraph Runtime Logic
     B1[✅ Runtime interpreter for glyphs]
-    B2[⏳ Watch for bytecode in live cubes]
+    B2[✅ Watch for bytecode in live cubes]
     B3[✅ Wire executor → dispatcher]
-    B4[⏳ Microgrid sweep (glyph activation patterns)]
+    B4[✅ Microgrid sweep (glyph activation patterns)]
     B5[⏳ Visualize glyph activation in .dc space]
   end
 
@@ -27,7 +27,7 @@ graph TD
     C7[✅ test_glyph_compiler.py]
     C8[✅ Glyph-trigger logic (🧠 = start goal, ⚙ = run bootloader)]
     C9[✅ Log glyph → memory + mutation feedback]
-    C10[⏳ Add trigger-on-glyph behavior loop]
+    C10[✅ Add trigger-on-glyph behavior loop]
     C12[✅ Validate reversibility of basic glyphs via test container]
   end
 

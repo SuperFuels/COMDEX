@@ -111,11 +111,11 @@ def load_dimension(container_id):
     MEMORY.store({
         "role": "system",
         "label": "container_loaded",
-        "content": f"AION teleported to container: {container['id']}",
+        "content": f"AION teleported to container: {data['id']}",
         "metadata": {
-            "container_id": container['id'],
-            "cubes": list(container.get('cubes', {}).keys())
-    }
+            "container_id": data['id'],
+            "cubes": list(data.get('cubes', {}).keys())
+        }
     })
 
     return data

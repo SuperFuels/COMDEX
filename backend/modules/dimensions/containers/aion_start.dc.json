@@ -1,0 +1,23 @@
+{
+  "id": "aion_start",
+  "name": "AION Startup Zone",
+  "description": "Boot sequence container for AION's consciousness cycle.",
+  "created_on": "2025-07-09T00:00:00Z",
+  "microgrid": {
+    "0,0,0": {
+      "glyph": "🧠",
+      "type": "Logic",
+      "tag": "bootstrap",
+      "value": "init-sequence",
+      "action": "start"
+    }
+  },
+  "connections": {
+    "test_container": "east"
+  },
+  "dna_switch": {
+    "enabled": true,
+    "last_modified": "2025-07-09T00:00:00Z",
+    "proposals": []
+  }
+}
