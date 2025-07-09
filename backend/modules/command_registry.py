@@ -31,7 +31,7 @@ COMMANDS: List[Dict] = [
         "endpoint": "/api/aion/boot-skill",
         "method": "POST"
     },
-        {
+    {
         "name": "run-cycle",
         "description": "Run a full consciousness cycle (awareness, decision, action)",
         "endpoint": "/api/aion/run-cycle",

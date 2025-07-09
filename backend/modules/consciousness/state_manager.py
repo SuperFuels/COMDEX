@@ -1,16 +1,15 @@
-# File: backend/modules/consciousness/state_manager.py
-
 import os
 import json
 import hashlib
 from datetime import datetime
+import asyncio  # ✅ Coroutine handling
 
 # ✅ DNA Switch
 from backend.modules.dna_chain.switchboard import DNA_SWITCH
 DNA_SWITCH.register(__file__)
 
 # ✅ Memory injection
-from backend.modules.hexcore.memory_engine import MEMORY, store_memory
+from backend.modules.hexcore.memory_engine import MEMORY, store_memory, store_container_metadata
 
 # ✅ WebSocket push
 try:
@@ -20,8 +19,8 @@ except Exception:
     WS = None  # fallback if not available
 
 # ✅ Secure loading
-from backend.modules.dimensions.dc_handler import load_dimension
-from backend.modules.skills.personality import PERSONALITY
+from backend.modules.dna_chain.dc_handler import load_dimension, load_dimension_by_file
+from backend.modules.consciousness.personality_engine import PROFILE as PERSONALITY
 
 STATE_FILE = "agent_state.json"
 DIMENSION_DIR = os.path.join(os.path.dirname(__file__), "../dimensions")
@@ -44,6 +43,7 @@ class StateManager:
         self.memory_snapshot = {}
         self.agent_states = self.load_agent_states()
         self.current_container = None
+        self.loaded_containers = {}
 
     def load_agent_states(self):
         if os.path.exists(STATE_FILE):
@@ -76,16 +76,14 @@ class StateManager:
 
     def secure_load_and_set(self, container_id: str):
         try:
-            container = load_dimension(container_id)  # ✅ Includes gate & hash checks
+            container = load_dimension(container_id)
 
-            # 🔐 Optional gate (legacy support)
             gates = container.get("gates", {})
             required_traits = gates.get("traits", {})
-
             for trait, required in required_traits.items():
                 actual = PERSONALITY.get(trait, 0.0)
                 if actual < required:
-                    store_memory({
+                    MEMORY({
                         "type": "access_denied",
                         "container_id": container_id,
                         "issue": f"Trait '{trait}' below required: {actual} < {required}",
@@ -97,7 +95,7 @@ class StateManager:
             return True
 
         except Exception as e:
-            store_memory({
+            MEMORY({
                 "type": "tamper_detected",
                 "container_id": container_id,
                 "issue": str(e),
@@ -111,9 +109,8 @@ class StateManager:
         print(f"[STATE] Current container set to: {container.get('id', 'unknown')}")
 
         MEMORY.store({
-            "role": "system",
-            "type": "container_change",
-            "content": f"🧭 AION switched to container: {container.get('id')}"
+            "label": f"container:{container.get('id', 'unknown')}",
+            "content": f"[📦] Container {container.get('name', 'unnamed')} activated."
         })
 
         try:
@@ -138,7 +135,7 @@ class StateManager:
             if os.path.exists(child_path):
                 with open(child_path, "r") as f:
                     child = json.load(f)
-                    MEMORY.store({
+                    MEMORY({
                         "role": "system",
                         "type": "container_prefetch",
                         "content": f"📦 Preloaded child container: {child.get('id')}"
@@ -146,14 +143,25 @@ class StateManager:
 
         if WS:
             try:
-                WS.broadcast({
-                    "event": "container_switch",
-                    "data": {
-                        "id": container.get("id"),
-                        "name": container.get("name", ""),
-                        "timestamp": str(datetime.utcnow())
-                    }
-                })
+                loop = asyncio.get_event_loop()
+                if loop.is_running():
+                    asyncio.create_task(WS.broadcast({
+                        "event": "container_switch",
+                        "data": {
+                            "id": container.get("id"),
+                            "name": container.get("name", ""),
+                            "timestamp": str(datetime.utcnow())
+                        }
+                    }))
+                else:
+                    loop.run_until_complete(WS.broadcast({
+                        "event": "container_switch",
+                        "data": {
+                            "id": container.get("id"),
+                            "name": container.get("name", ""),
+                            "timestamp": str(datetime.utcnow())
+                        }
+                    }))
             except Exception as e:
                 print(f"[WS] Broadcast failed: {e}")
 
@@ -197,11 +205,17 @@ class StateManager:
             print(f"[ERROR] Listing containers failed: {str(e)}")
         return containers
 
+    def load_container_from_file(self, file_path: str):
+        container = load_dimension_by_file(file_path)
+        self.set_current_container(container)
+        self.loaded_containers[container["id"]] = container
+        return container
 
-# ✅ Singleton instance
+
+# ✅ Singleton
 STATE = StateManager()
 
-# 🔄 Exported helpers
+# 🔄 Exports
 def get_agent_state(agent_id):
     return STATE.get_agent_state(agent_id)
 

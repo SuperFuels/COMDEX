@@ -94,3 +94,7 @@ class PersonalityProfile:
 
 # ✅ Singleton
 PROFILE = PersonalityProfile()
+
+# ✅ Export current traits for external modules
+def get_current_traits():
+    return PROFILE.traits

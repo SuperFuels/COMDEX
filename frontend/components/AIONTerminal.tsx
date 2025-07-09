@@ -1,3 +1,5 @@
+// frontend/components/AIONTerminal.tsx
+
 import React, { useState, useEffect } from 'react';
 import {
   FaPlay,
@@ -12,6 +14,8 @@ import useAION from '../hooks/useAION';
 import ContainerStatus from '@/components/AION/ContainerStatus';
 import GlyphGrid from './AION/GlyphGrid';
 import GlyphInspector from './AION/GlyphInspector';
+import ContainerMap from './AION/ContainerMap'; // ✅ Added container map component
+import GlyphMutator from './AION/GlyphMutator';
 
 interface AIONTerminalProps {
   side: 'left' | 'right';
@@ -41,6 +45,7 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
   const [editedContent, setEditedContent] = useState<string>('');
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [selectedGlyph, setSelectedGlyph] = useState<null | { coord: string; data: any }>(null);
+  const [showGlyphMutator, setShowGlyphMutator] = useState(false);
 
   const handleSubmit = async () => {
     if (!input.trim()) return;
@@ -166,7 +171,27 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
     return () => clearInterval(interval);
   }, [autoRefresh]);
 
-  const teleportToContainer = (id: string) => sendCommand(`teleport ${id}`);
+  const teleportToContainer = async (id: string) => {
+    try {
+      const res = await fetch("/api/aion/teleport", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ target: id }),
+      });
+      const result = await res.json();
+      if (res.ok) {
+        console.log(`🌀 Teleported to ${id}`);
+        // Optional feedback toast
+        alert(`🌀 Teleported to ${id}`);
+      } else {
+        console.error("Teleport failed:", result.detail || "Unknown error");
+        alert(`❌ Teleport failed: ${result.detail || 'Unknown error'}`);
+      }
+    } catch (err) {
+      console.error("Teleport error:", err);
+      alert("❌ Teleport error. See console for details.");
+    }
+  };
 
   return (
     <div className="flex flex-col h-full">
@@ -313,11 +338,45 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
           />
         )}
 
-        {/* 🗺️ Mini Map */}
+        {/* 🧬 Glyph Mutator Panel */}
+        {selectedGlyph && status?.context?.current_container?.id && (
+          <div className="mt-4 border-t border-gray-200 pt-4">
+            <h3 className="text-sm text-gray-600">🧬 Glyph Mutator</h3>
+            <GlyphMutator
+              containerId={status.context.current_container.id}
+              coord={selectedGlyph.coord}
+              glyphData={selectedGlyph.data}
+              onMutationComplete={() => {
+                // Optionally refresh status after mutation
+                callEndpoint('status', 'Refreshing after mutation');
+                setSelectedGlyph(null); // Close panel
+              }}
+            />
+          </div>
+        )}
+
+        {showGlyphMutator && selectedGlyph && (
+          <div className="fixed top-0 right-0 w-[420px] h-full bg-white border-l shadow-xl z-50 overflow-y-auto p-4">
+            <GlyphMutator
+              containerId={status.context?.current_container?.id}
+              coord={selectedGlyph.coord}
+              glyphData={selectedGlyph.data}
+              onMutationComplete={() => {
+                callEndpoint('status', 'Refreshing after mutation');
+                setShowGlyphMutator(false);
+              }}
+            />
+          </div>
+        )}
+        
+        {/* 🗺️ Container Map Component */}
         {status?.context?.container_map && (
-          <div className="mt-4 text-xs text-gray-600">
-            <p>🗺️ Container Map:</p>
-            <pre className="ml-4 whitespace-pre-wrap">{JSON.stringify(status.context.container_map, null, 2)}</pre>
+          <div className="mt-4">
+            <ContainerMap
+              mapData={status.context.container_map}
+              activeId={status.context?.current_container?.id}
+              onContainerClick={(id) => teleportToContainer(id)}
+            />
           </div>
         )}
 

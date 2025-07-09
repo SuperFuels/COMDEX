@@ -3,7 +3,7 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from backend.modules.dna_chain.teleport import teleport
-from backend.modules.dimensions.dc_handler import handle_object_interaction
+from backend.modules.dna_chain.dc_handler import handle_object_interaction
 
 router = APIRouter()
 

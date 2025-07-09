@@ -7,93 +7,17 @@ from datetime import datetime
 from backend.modules.dna_chain.switchboard import DNA_SWITCH
 DNA_SWITCH.register(__file__)
 
-from backend.modules.memory.memory_engine import (
-    CONTAINER_MEMORY,
-    store_container_metadata,
-    list_stored_containers,
-    store_memory
-)
-
-from backend.modules.dna_chain.teleport import teleport
+from backend.modules.hexcore.memory_engine import MEMORY, store_memory, store_container_metadata
 from backend.modules.consciousness.personality_engine import get_current_traits
 
+# ✅ Paths
 DIMENSION_DIR = os.path.join(os.path.dirname(__file__), "../dimensions")
+
+# ✅ In-memory tracking (can be populated elsewhere)
+CONTAINER_MEMORY = {}
 
 def get_dc_path(container_id):
     return os.path.join(DIMENSION_DIR, f"{container_id}.dc.json")
-
-def load_dc_container(container_id):
-    path = get_dc_path(container_id)
-    if not os.path.exists(path):
-        raise FileNotFoundError(f"❌ Container '{container_id}' not found at path: {path}")
-    with open(path, "r", encoding="utf-8") as f:
-        return json.load(f)
-
-def save_dc_container(container_id, data):
-    path = get_dc_path(container_id)
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2)
-
-def list_cubes(container_id):
-    container = load_dc_container(container_id)
-    return list(container.get("cubes", {}).keys())
-
-def get_cube(container_id, cube_key):
-    container = load_dc_container(container_id)
-    return container.get("cubes", {}).get(cube_key, {})
-
-def get_wormholes(container_id):
-    container = load_dc_container(container_id)
-    return container.get("wormholes", {})
-
-def resolve_wormhole(container_id, wormhole_id):
-    wormholes = get_wormholes(container_id)
-    return wormholes.get(wormhole_id)
-
-def apply_style_to_cube(container_id, cube_key, layer, material, area):
-    container = load_dc_container(container_id)
-    cube = container.setdefault("cubes", {}).setdefault(cube_key, {})
-    layers = cube.setdefault("layers", {})
-    layer_list = layers.setdefault(layer, [])
-    layer_list.append({
-        "material": material,
-        "area": area
-    })
-    save_dc_container(container_id, container)
-
-# 🔍 Metadata + memory + navigation loading
-def list_containers_with_memory_status():
-    containers = []
-    for file in os.listdir(DIMENSION_DIR):
-        if file.endswith(".dc.json"):
-            container_id = file.replace(".dc.json", "")
-            containers.append({
-                "id": container_id,
-                "in_memory": container_id in CONTAINER_MEMORY
-            })
-    return containers
-
-def list_available_containers():
-    stored = set(list_stored_containers())
-    containers = []
-
-    for file in os.listdir(DIMENSION_DIR):
-        if file.endswith(".dc.json"):
-            container_id = file.replace(".dc.json", "")
-            containers.append({
-                "id": container_id,
-                "loaded": container_id in stored,
-                "in_memory": container_id in CONTAINER_MEMORY
-            })
-
-    return containers
-
-def validate_dimension(data):
-    required_fields = ["id", "name", "description", "created_on", "dna_switch"]
-    for field in required_fields:
-        if field not in data:
-            raise ValueError(f"[⚠️] Missing required field: {field}")
-    return True
 
 def compute_file_hash(path):
     hasher = hashlib.sha256()
@@ -101,6 +25,13 @@ def compute_file_hash(path):
         buf = f.read()
         hasher.update(buf)
     return hasher.hexdigest()
+
+def validate_dimension(data):
+    required_fields = ["id", "name", "description", "created_on", "dna_switch"]
+    for field in required_fields:
+        if field not in data:
+            raise ValueError(f"[⚠️] Missing required field: {field}")
+    return True
 
 def check_gate_lock(data):
     gate = data.get("gate")
@@ -150,12 +81,14 @@ def load_dimension(container_id):
 
     print(f"[📦] Loaded dimension: {data['name']} (ID: {data['id']})")
 
+    # 🖁️ Auto teleport logic
     navigation = data.get("navigation", {})
     next_target = navigation.get("next")
     auto = navigation.get("auto_teleport", False)
 
     if auto and next_target:
-        print(f"[🧭] Auto-teleporting to next dimension: {next_target}")
+        from backend.modules.dna_chain.teleport import teleport
+        print(f"[🤝] Auto-teleporting to next dimension: {next_target}")
         teleport(container_id, next_target, reason="auto_teleport")
         store_memory({
             "type": "teleport_event",
@@ -165,10 +98,110 @@ def load_dimension(container_id):
             "timestamp": datetime.utcnow().isoformat()
         })
 
+    # 🧠 Store teleport event as memory
+    MEMORY.store({
+        "role": "event",
+        "type": "teleport",
+        "container": container_id,
+        "timestamp": datetime.utcnow().isoformat()
+    })
+
     return data
 
-def load_and_validate(container_id):
+def load_dimension_by_file(file_path: str):
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"[dc_handler] File not found: {file_path}")
+
+    with open(file_path, "r", encoding="utf-8") as f:
+        container = json.load(f)
+
+    if "id" not in container:
+        raise ValueError(f"[dc_handler] Invalid container file (missing 'id'): {file_path}")
+
+    DNA_SWITCH.register(file_path)
+    store_container_metadata(container)
+
+    if container:
+        MEMORY.store({
+            "role": "system",
+            "summary": f"AION teleported to container: {container['id']}",
+            "container_id": container['id'],
+            "cubes": list(container.get('cubes', {}).keys())
+        })
+
+    return container
+
+def load_dimension_by_id(container_id: str):
     return load_dimension(container_id)
+
+# 🔁 Utilities
+
+def list_stored_containers():
+    return MEMORY.list_stored_containers()
+
+def load_dc_container(container_id):
+    path = get_dc_path(container_id)
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"❌ Container '{container_id}' not found at path: {path}")
+    with open(path, "r", encoding="utf-8") as f:
+        container = json.load(f)
+
+    if container:
+        MEMORY.store({
+            "role": "system",
+            "summary": f"AION teleported to container: {container['id']}",
+            "container_id": container['id'],
+            "cubes": list(container.get("cubes", {}).keys())
+        })
+
+    return container
+
+def save_dc_container(container_id, data):
+    path = get_dc_path(container_id)
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2)
+
+def list_cubes(container_id):
+    container = load_dc_container(container_id)
+    return list(container.get("cubes", {}).keys())
+
+def get_cube(container_id, cube_key):
+    container = load_dc_container(container_id)
+    return container.get("cubes", {}).get(cube_key, {})
+
+def get_wormholes(container_id):
+    container = load_dc_container(container_id)
+    return container.get("wormholes", {})
+
+def resolve_wormhole(container_id, wormhole_id):
+    wormholes = get_wormholes(container_id)
+    return wormholes.get(wormhole_id)
+
+def apply_style_to_cube(container_id, cube_key, layer, material, area):
+    container = load_dc_container(container_id)
+    cube = container.setdefault("cubes", {}).setdefault(cube_key, {})
+    layers = cube.setdefault("layers", {})
+    layer_list = layers.setdefault(layer, [])
+    layer_list.append({
+        "material": material,
+        "area": area
+    })
+    save_dc_container(container_id, container)
+
+def list_available_containers():
+    stored = set(list_stored_containers())
+    containers = []
+
+    for file in os.listdir(DIMENSION_DIR):
+        if file.endswith(".dc.json"):
+            container_id = file.replace(".dc.json", "")
+            containers.append({
+                "id": container_id,
+                "loaded": container_id in stored,
+                "in_memory": container_id in CONTAINER_MEMORY
+            })
+
+    return containers
 
 def handle_object_interaction(obj_id, current_container):
     data = CONTAINER_MEMORY.get(current_container)
@@ -179,7 +212,8 @@ def handle_object_interaction(obj_id, current_container):
         if obj.get("id") == obj_id and obj.get("type") == "teleporter":
             target = obj.get("teleport_to")
             if target:
-                print(f"[🌀] Teleporting via object '{obj_id}' to '{target}'")
+                print(f"[🔀] Teleporting via object '{obj_id}' to '{target}'")
+                from backend.modules.dna_chain.teleport import teleport
                 try:
                     teleport(current_container, target, reason=f"object_trigger:{obj_id}")
                     store_memory({
@@ -208,7 +242,8 @@ def handle_navigation_teleport(current_container, target_id):
 
     routes = data.get("navigation", {}).get("routes", [])
     if target_id in routes:
-        print(f"[🧭] Navigating from '{current_container}' to '{target_id}' via routes")
+        print(f"[🤍] Navigating from '{current_container}' to '{target_id}' via routes")
+        from backend.modules.dna_chain.teleport import teleport
         try:
             teleport(current_container, target_id, reason="navigation_route")
             store_memory({
@@ -229,3 +264,15 @@ def handle_navigation_teleport(current_container, target_id):
                 "timestamp": datetime.utcnow().isoformat()
             })
     return False
+
+def list_containers_with_memory_status():
+    containers = []
+    for filename in os.listdir(DIMENSION_DIR):
+        if filename.endswith(".dc.json"):
+            container_id = filename.replace(".dc.json", "")
+            in_memory = container_id in CONTAINER_MEMORY
+            containers.append({
+                "id": container_id,
+                "in_memory": in_memory
+            })
+    return containers

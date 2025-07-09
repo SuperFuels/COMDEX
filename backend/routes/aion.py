@@ -11,7 +11,7 @@ import subprocess  # ✅ For learning-cycle execution
 from backend.modules.skills.aion_prompt_engine import build_prompt_context
 from backend.modules.skills.milestone_tracker import MilestoneTracker
 from backend.modules.skills.goal_tracker import GoalTracker
-from backend.modules.commands_registry import resolve_command, list_commands
+from backend.modules.command_registry import resolve_command, list_commands
 from backend.modules.hexcore.memory_engine import MemoryEngine
 from backend.modules.consciousness.state_manager import StateManager  # ✅ For container listing
 

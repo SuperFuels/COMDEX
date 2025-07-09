@@ -2,8 +2,8 @@ import os
 import json
 
 # Paths to mapping data
-ADDRESS_BOOK_PATH = "backend/modules/dna_chain/maps/dna_address_book.json"
-WORLD_MAP_PATH = "backend/modules/dna_chain/maps/dna_world_map.json"
+ADDRESS_BOOK_PATH = "backend/modules/dna_chain/data/dna_address_book.json"
+WORLD_MAP_PATH = "backend/modules/dna_chain/data/dna_world_map.json"
 
 # 🔌 Path registries (used for tracking known backend/frontend modules)
 BACKEND_PATHS = {}

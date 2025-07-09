@@ -1,1 +1,47 @@
-[]
+[
+  {
+    "title": "Swarm Intelligence",
+    "tags": [
+      "swarm",
+      "agent",
+      "collective_learning"
+    ],
+    "description": "Learn how decentralized agents coordinate like ants or bees to solve problems.",
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-07-09T11:03:33.925207",
+    "priority": 2,
+    "dependencies": [],
+    "learned_on": null
+  },
+  {
+    "title": "Agent Negotiation",
+    "tags": [
+      "agent",
+      "swarm",
+      "explorer"
+    ],
+    "description": "Study how agents can negotiate or trade tasks using consensus or reinforcement.",
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-07-09T11:03:33.925248",
+    "priority": 3,
+    "dependencies": [],
+    "learned_on": null
+  },
+  {
+    "title": "Distributed Planning",
+    "tags": [
+      "swarm",
+      "explorer",
+      "planning"
+    ],
+    "description": "Understand how multi-agent systems plan in parallel to solve goals efficiently.",
+    "status": "queued",
+    "source": "bootloader",
+    "added_on": "2025-07-09T11:03:33.925279",
+    "priority": 2,
+    "dependencies": [],
+    "learned_on": null
+  }
+]

@@ -1,11 +1,13 @@
+# File: backend/modules/dna_chain/switchboard.py
+
 import json
 import os
 import datetime
 
 # ===== 🧠 Core DNA SWITCH Implementation =====
 
+SWITCH_INDEX_PATH = os.path.join(os.path.dirname(__file__), "dna_switch_index.json")  # ✅ FIXED PATH
 SWITCHBOARD_PATH = os.path.join(os.path.dirname(__file__), "modules_path_switch.json")
-REGISTRY_PATH = os.path.join(os.path.dirname(__file__), "dna_registry.py")
 
 # In-memory registry
 DNA_REGISTRY = {}
@@ -30,10 +32,8 @@ class DNASwitch:
         self._write_registry()
 
     def _write_registry(self):
-        with open(REGISTRY_PATH, "w", encoding="utf-8") as f:
-            f.write("# ✅ DNA Registry — auto-updated\n")
-            f.write("DNA_REGISTRY = ")
-            f.write(json.dumps(self.registry, indent=4))
+        with open(SWITCH_INDEX_PATH, "w", encoding="utf-8") as f:
+            json.dump(self.registry, f, indent=4)
 
     def get_registry(self):
         return self.registry

@@ -6,7 +6,7 @@ import json
 from backend.modules.dna_chain.switchboard import DNA_SWITCH
 DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
 
-from backend.modules.conciousness.state_manager import StateManager
+from backend.modules.consciousness.state_manager import StateManager
 
 class TimeEngine:
     def __init__(self):

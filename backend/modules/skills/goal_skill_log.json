@@ -16,5 +16,54 @@
     "linked_goal": null,
     "linked_strategy_id": null,
     "executed_at": "2025-07-03T14:59:09.355810"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: test_mutation_container",
+    "success": true,
+    "timestamp": "2025-07-09T10:26:16.481810"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: test_mutation_container",
+    "success": true,
+    "timestamp": "2025-07-09T10:38:35.280003"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: test_mutation_container",
+    "success": true,
+    "timestamp": "2025-07-09T10:42:36.721391"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: test_mutation_container",
+    "success": true,
+    "timestamp": "2025-07-09T10:43:25.056587"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: test_mutation_container",
+    "success": true,
+    "timestamp": "2025-07-09T10:45:52.095361"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: test_mutation_container",
+    "success": true,
+    "timestamp": "2025-07-09T10:50:23.748463"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: test_mutation_container",
+    "success": true,
+    "timestamp": "2025-07-09T10:54:49.772151"
   }
 ]

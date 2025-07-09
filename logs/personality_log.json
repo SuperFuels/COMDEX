@@ -438,5 +438,37 @@
     "from": 1.0,
     "to": 1.0,
     "reason": "unspecified"
+  },
+  {
+    "timestamp": "2025-07-09T10:55:25.298205",
+    "trait": "empathy",
+    "delta": 0.05,
+    "from": 1.0,
+    "to": 1.0,
+    "reason": "unspecified"
+  },
+  {
+    "timestamp": "2025-07-09T10:55:25.298926",
+    "trait": "curiosity",
+    "delta": 0.1,
+    "from": 1.0,
+    "to": 1.0,
+    "reason": "unspecified"
+  },
+  {
+    "timestamp": "2025-07-09T10:55:25.299616",
+    "trait": "ambition",
+    "delta": 0.24000000000000002,
+    "from": 1.0,
+    "to": 1.0,
+    "reason": "unspecified"
+  },
+  {
+    "timestamp": "2025-07-09T10:55:25.300296",
+    "trait": "risk_tolerance",
+    "delta": -0.06,
+    "from": 0.040000000000000036,
+    "to": 0.0,
+    "reason": "unspecified"
   }
 ]

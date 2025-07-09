@@ -16,10 +16,9 @@ from backend.modules.consciousness.planning_engine import PlanningEngine
 from backend.modules.hexcore.agent_manager import AgentManager
 from backend.modules.aion.sample_agent import SampleAgent
 
-from backend.modules.dimensions.dc_handler import (
+from backend.modules.dna_chain.dc_handler import (
     load_dimension,
-    list_containers_with_memory_status,  # ✅ NEW
-    load_dimension_by_id
+    list_containers_with_memory_status,
 )
 
 # ✅ DNA Switch

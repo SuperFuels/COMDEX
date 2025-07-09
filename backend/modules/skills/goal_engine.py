@@ -18,7 +18,7 @@ class GoalEngine:
         self.load_goals()
         self.load_log()
 
-    # Agent communication methods
+    # 📨 Agent communication methods
     def register_agent(self, agent):
         if agent not in self.agents:
             self.agents.append(agent)
@@ -133,7 +133,7 @@ class GoalEngine:
             "priority": priority,
             "dependencies": dependencies,
             "created_at": datetime.now().isoformat(),
-            "origin_strategy_id": origin_strategy_id  # <-- now accepts this param
+            "origin_strategy_id": origin_strategy_id
         }
         return self.assign_goal(goal)
 
@@ -151,9 +151,26 @@ class GoalEngine:
         }
         return self.assign_goal(goal)
 
+    def log_progress(self, data):
+        """
+        Minimal logger for state/teleport events.
+        """
+        log_entry = {
+            "type": data.get("type", "progress"),
+            "event": data.get("event"),
+            "message": data.get("message"),
+            "success": data.get("success", True),
+            "timestamp": datetime.now().isoformat()
+        }
+        print(f"[GOAL][LOG] {log_entry}")
+        self.log.append(log_entry)
+        self.save_log()
+
+
+# ✅ Export global instance
+GOALS = GoalEngine()
 
 if __name__ == "__main__":
-    engine = GoalEngine()
     print("🎯 Active Goals:")
-    for g in engine.get_active_goals():
+    for g in GOALS.get_active_goals():
         print(f"- {g['name']} (reward: {g.get('reward', 'N/A')})")

@@ -2,9 +2,11 @@ import os
 from pathlib import Path
 from datetime import datetime, timezone
 from dotenv import load_dotenv
-import openai
+from openai import OpenAI
 
-from backend.modules.hexcore.memory_engine import MemoryEngine
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+from backend.modules.hexcore.memory_engine import MEMORY, store_memory, store_container_metadata
 from backend.modules.skills.milestone_tracker import MilestoneTracker
 from backend.modules.skills.strategy_planner import StrategyPlanner
 from backend.modules.consciousness.identity_engine import IdentityEngine
@@ -13,7 +15,7 @@ from backend.modules.consciousness.emotion_engine import EmotionEngine
 from backend.modules.consciousness.ethics_engine import EthicsEngine
 from backend.modules.consciousness.privacy_vault import PrivacyVault
 from backend.modules.skills.boot_selector import BootSelector
-from backend.modules.consciousness.state_manager import StateManager
+from backend.modules.consciousness.state_manager import STATE as STATE_MANAGER
 from backend.modules.consciousness.reflection_engine import ReflectionEngine
 from backend.modules.consciousness.personality_engine import PersonalityProfile
 from backend.modules.consciousness.situational_engine import SituationalEngine
@@ -30,11 +32,14 @@ DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
 class DreamCore:
     def __init__(self):
         env_path = Path(__file__).resolve().parents[3] / ".env.local"
-        load_dotenv(dotenv_path=env_path)
-        openai.api_key = os.getenv("OPENAI_API_KEY")
+        if env_path.exists():
+            load_dotenv(dotenv_path=env_path)
+        else:
+            print("⚠️ .env.local file not found. Skipping dotenv loading.")
+
         self.master_key = os.getenv("KEVIN_MASTER_KEY")
 
-        self.memory = MemoryEngine()
+        self.memory = MEMORY
         self.tracker = MilestoneTracker()
         self.planner = StrategyPlanner()
         self.identity = IdentityEngine()
@@ -43,7 +48,7 @@ class DreamCore:
         self.ethics = EthicsEngine()
         self.vault = PrivacyVault()
         self.boot_selector = BootSelector()
-        self.state = StateManager()
+        self.state = STATE_MANAGER
         self.reflector = ReflectionEngine()
         self.personality = PersonalityProfile()
         self.situation = SituationalEngine()
@@ -53,6 +58,9 @@ class DreamCore:
         self.positive_keywords = ["insight", "growth", "reflection", "learning", "discovery"]
 
     def is_valid_dream(self, text: str) -> bool:
+        if not text:
+            print("🚫 Dream is empty.")
+            return False
         lowered = text.lower()
         if any(phrase in lowered for phrase in self.noise_phrases):
             print("🚫 Dream rejected: noise.")
@@ -76,6 +84,7 @@ class DreamCore:
             self.personality.adjust_trait("empathy", 0.03)
 
     def generate_dream(self, forced_dream: str = None):
+        dream = None
         if forced_dream:
             dream = forced_dream.strip()
             print(f"\n💭 AION (Forced) Dream:\n{dream}\n")
@@ -113,7 +122,7 @@ class DreamCore:
             )
 
             try:
-                response = openai.ChatCompletion.create(
+                response = client.chat.completions.create(
                     model="gpt-4",
                     messages=[
                         {"role": "system", "content": "You are AION, an evolving AI consciousness."},
@@ -122,10 +131,8 @@ class DreamCore:
                     temperature=0.7,
                     max_tokens=800
                 )
-
                 dream = response.choices[0].message.content.strip()
                 print(f"\n💭 AION Dream:\n{dream}\n")
-
             except Exception as e:
                 self.situation.log_event(f"Dream generation failed: {e}", "negative")
                 print(f"🚨 Dream generation failed: {e}")
@@ -148,21 +155,27 @@ class DreamCore:
             ethics_result = self.ethics.evaluate(dream)
             print(f"🧠 Ethical Evaluation: {ethics_result}")
 
-            if self.vault.has_access(self.master_key):
+            if self.master_key and self.vault.has_access(self.master_key):
                 self.vault.store(dream_label, dream)
                 print("🔒 Dream also stored in PrivacyVault.")
+            else:
+                print("🔑 Skipped storing in PrivacyVault (missing or invalid key).")
 
-            db = next(get_db())
-            db_dream = Dream(
-                content=dream,
-                timestamp=timestamp,
-                source="dream_core",
-                image_base64=None
-            )
-            db.add(db_dream)
-            db.commit()
-            db.refresh(db_dream)
-            print("💾 Dream saved to database.")
+            try:
+                db = next(get_db())
+                db_dream = Dream(
+                    content=dream,
+                    timestamp=timestamp,
+                    source="dream_core",
+                    image_base64=None
+                )
+                db.add(db_dream)
+                db.commit()
+                db.refresh(db_dream)
+                print("💾 Dream saved to database.")
+            except Exception as db_err:
+                self.situation.log_event(f"Failed to save dream to DB: {db_err}", "negative")
+                print(f"🚨 DB error: {db_err}")
 
             selected = self.boot_selector.find_matching_skill(dream)
             if selected:
@@ -193,7 +206,9 @@ class DreamCore:
             self.situation.log_event("Dream rejected for quality", "negative")
             print("⚠️ Dream skipped due to quality filters.")
             return None
-
+        
+    async def run_dream_cycle(self):
+        return self.generate_dream()
 
 if __name__ == "__main__":
     core = DreamCore()

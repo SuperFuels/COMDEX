@@ -114,6 +114,11 @@ from backend.routes import dna_chain
 from backend.routes import dna_logs
 from backend.routes import teleport_api
 from backend.routes import aion_routes
+from backend.routes import glyph_mutate
+from backend.routes import ws_route
+from backend.api.endpoints import submit_mutation
+from backend.api.routes import aion_submit_mutation
+
 
 # ✅ WebSocket route
 from backend.api import ws
@@ -165,6 +170,10 @@ app.include_router(dna_logs.router)
 app.include_router(ws.router)
 app.include_router(teleport_api.router)
 app.include_router(aion_routes.router)
+app.include_router(glyph_mutate.router)
+app.include_router(ws_route.router)
+app.include_router(submit_mutation.router)
+app.include_router(aion_submit_mutation.router)
 
 # ── 16) Serve uploaded images
 app.mount("/uploaded_images", StaticFiles(directory="uploaded_images"), name="uploaded_images")

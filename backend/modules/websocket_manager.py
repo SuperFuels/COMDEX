@@ -23,3 +23,6 @@ class WebSocketManager:
                 await connection.send_json(message)
             except Exception as e:
                 print(f"[⚠️] Failed to send WebSocket message: {e}")
+
+# ✅ Singleton instance for global import
+websocket_manager = WebSocketManager()

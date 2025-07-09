@@ -1,23 +1,21 @@
 import os
 import json
 import datetime
-from backend.modules.dna_chain.dna_registry import store_proposal
+from backend.modules.dna_chain.dna_registry import register_proposal
 from backend.modules.dna_chain.switchboard import get_module_path
 from backend.modules.dna_chain.dna_switch import DNA_SWITCH
 
-# ✅ Import container loader + state
-from backend.modules.consciousness.state_manager import STATE
-from backend.modules.dimensions.dc_handler import load_dimension_by_id, load_dimension
-from backend.modules.memory.memory_engine import (
-    store_memory,
-    log_gate_lock,
-    log_tamper_detected,
-    log_container_loaded,
-    log_teleport_event
-)
-
 # ✅ DNA Switch Registration
 DNA_SWITCH.register(__file__)
+
+# ✅ Import container loader + state
+from backend.modules.dna_chain.dc_handler import (
+    handle_object_interaction,
+    load_dimension_by_id,
+    load_dimension
+)
+from backend.modules.consciousness.state_manager import STATE
+from backend.modules.hexcore.memory_engine import MEMORY
 
 TELEPORT_DB_PATH = os.path.join(os.path.dirname(__file__), "teleport_registry.json")
 
@@ -49,15 +47,12 @@ def register_teleport(source_key, destination_key, gate_type="code", requires_ap
 
 # --- 🔐 Navigation/Ethical Gate Logic ---
 def ethical_gate_pass(container):
-    # Placeholder for future moral/ethical validation
-    return True
+    return True  # Placeholder for moral/ethical checks
 
 def has_permission(requester, container):
-    # Placeholder for role-based access
-    return True
+    return True  # Placeholder for role-based access
 
 def trait_gate_pass(container, required_traits: dict) -> bool:
-    # Mock enforcement — this can be replaced with real trait checks later
     traits = container.get("traits", {})
     for trait, minimum in required_traits.items():
         if traits.get(trait, 0) < minimum:
@@ -128,22 +123,20 @@ def teleport(source_key, destination_key, reason, requester="AION"):
         if not new_container:
             raise ValueError("Null container")
 
-        # ✅ Check for required traits and enforce lock
         required = new_container.get("gate_lock", {}).get("traits_required", {})
         if required and not trait_gate_pass(new_container, required):
             print(f"[🔐] Gate lock triggered — traits missing.")
-            log_gate_lock(destination_key, required)
+            MEMORY.log_gate_lock(destination_key, required)
             return "gate_lock_failed"
 
-        # ✅ Tamper checksum check (mock logic for now)
         expected_hash = new_container.get("hash", "")
         if expected_hash and not expected_hash.startswith("safe_"):
             print(f"[⚠️] Hash mismatch or unsafe content.")
-            log_tamper_detected(destination_key, "Checksum validation failed")
+            MEMORY.log_tamper_detected(destination_key, "Checksum validation failed")
             return "tamper_detected"
 
         STATE.set_current_container(new_container)
-        log_container_loaded(destination_key)
+        MEMORY.log_container_loaded(destination_key)
 
     except Exception as e:
         print(f"[❌] Teleport error: {e}")
@@ -163,7 +156,7 @@ def teleport(source_key, destination_key, reason, requester="AION"):
         except Exception as e:
             print(f"[⚠️] Could not forward-load: {e}")
 
-    log_teleport_event(source_key, destination_key, trigger="manual")
+    MEMORY.log_teleport_event(source_key, destination_key, trigger="manual")
 
     reverse_key = f"{destination_key}→{source_key}"
     if reverse_key not in registry:

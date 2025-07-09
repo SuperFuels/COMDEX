@@ -1,4 +1,4 @@
-from backend.modules.memory.memory_engine import VECTOR_DB
+from backend.modules.hexcore.memory_engine import VECTOR_DB
 from backend.modules.memory.compression import decompress_embedding
 from backend.modules.aion.llm_engine import query_gpt4
 import random
@@ -42,5 +42,5 @@ Reflect on it. What did you learn? How can you go deeper? Simulate mastery.
         print(f"\n🔄 Reflection #{i}:\n{reflection}\n")
 
         # Optionally save this reflection as a new memory
-        # from backend.modules.memory.memory_engine import save_dream_vector
+        # from backend.modules.hexcore.memory_engine import save_dream_vector
         # save_dream_vector(reflection)

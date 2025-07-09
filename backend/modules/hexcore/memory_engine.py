@@ -42,7 +42,6 @@ class MemoryEngine:
     def is_duplicate(self, new_embedding):
         if not self.embeddings:
             return False
-        # Stack embeddings into a single tensor if stored as list
         embeddings_tensor = torch.stack(self.embeddings) if isinstance(self.embeddings, list) else self.embeddings
         similarities = util.cos_sim(new_embedding, embeddings_tensor)[0]
         max_sim = float(similarities.max())
@@ -72,7 +71,6 @@ class MemoryEngine:
             try:
                 with open(EMBEDDING_FILE, "r") as f:
                     loaded = json.load(f)
-                    # convert loaded list of lists to list of float32 tensors
                     self.embeddings = [torch.tensor(e, dtype=torch.float32) for e in loaded]
             except Exception:
                 self.embeddings = []
@@ -88,7 +86,6 @@ class MemoryEngine:
 
     def save_embeddings(self):
         try:
-            # Convert tensors back to list for JSON serialization
             with open(EMBEDDING_FILE, "w") as f:
                 json.dump([e.tolist() for e in self.embeddings], f)
         except Exception as e:
@@ -113,9 +110,7 @@ class MemoryEngine:
             raise ValueError("Memory must contain 'label' and 'content' keys.")
 
         content = memory_obj["content"]
-        # Encode with convert_to_tensor=True to get a PyTorch tensor directly
-        embedding = self.model.encode(content, convert_to_tensor=True)
-        embedding = embedding.to(torch.float32)  # ensure float32 dtype
+        embedding = self.model.encode(content, convert_to_tensor=True).to(torch.float32)
 
         if self.is_duplicate(embedding):
             print(f"⚠️ Duplicate memory ignored: {memory_obj['label']}")
@@ -136,3 +131,41 @@ class MemoryEngine:
             "type": "new_memory",
             "memory": memory_obj
         })
+
+
+# ✅ Enhanced helper to store container metadata richly
+def store_container_metadata(container):
+    container_id = container.get("id", "unknown")
+    label = f"container:{container_id}"
+
+    exits = container.get("exits", {})
+    connections = ", ".join([f"{k} → {v}" for k, v in exits.items()]) if exits else "None"
+
+    dna = container.get("dna_switch", {})
+    dna_id = dna.get("id", "none")
+    dna_state = dna.get("state", "undefined")
+
+    summary = {
+        "Container ID": container_id,
+        "Name": container.get("name", ""),
+        "Description": container.get("description", ""),
+        "Origin": container.get("origin", ""),
+        "Created On": container.get("created_on", ""),
+        "Container Type": container.get("type", "generic"),
+        "Total Cubes": len(container.get("cubes", [])),
+        "Mutations": len(container.get("mutations", [])),
+        "Connections": connections,
+        "DNA Switch": f"{dna_id} ({dna_state})"
+    }
+
+    readable = "\n".join([f"{k}: {v}" for k, v in summary.items()])
+
+    MEMORY.store({
+        "label": label,
+        "content": f"[📦] Container metadata\n{readable}"
+    })
+
+
+# ✅ Exportable singletons
+MEMORY = MemoryEngine()
+store_memory = MEMORY.store

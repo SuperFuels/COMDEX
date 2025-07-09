@@ -3,10 +3,10 @@ from pydantic import BaseModel
 import subprocess
 import os
 
-from backend.modules.commands_registry import resolve_command
-from backend.modules.aion_core import AIONEngine
+from backend.modules.command_registry import resolve_command
+from backend.modules.consciousness.consciousness_manager import ConsciousnessManager as AIONEngine
 from backend.modules.hexcore.memory_engine import MemoryEngine
-from backend.modules.command_registry import COMMANDS
+from backend.modules.command_registry import resolve_command, list_commands
 
 from fastapi.testclient import TestClient
 from backend.main import app

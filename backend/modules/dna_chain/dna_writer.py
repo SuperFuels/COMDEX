@@ -73,3 +73,24 @@ if __name__ == "__main__":
         new_code=args.new,
         reason=args.reason
     )
+
+def approve_dna_proposal(proposal_id: str) -> bool:
+    """
+    Marks a DNA proposal as approved by its proposal_id.
+    """
+    proposals = load_proposals()
+    found = False
+
+    for proposal in proposals:
+        if proposal["proposal_id"] == proposal_id:
+            proposal["approved"] = True
+            proposal["approved_at"] = datetime.utcnow().isoformat()
+            found = True
+            break
+
+    if not found:
+        raise ValueError(f"❌ Proposal ID not found: {proposal_id}")
+
+    save_proposals(proposals)
+    print(f"✅ Proposal approved: {proposal_id}")
+    return True

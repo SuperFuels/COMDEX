@@ -1,0 +1,86 @@
+{
+  "aion_start\u2192fallback": {
+    "source": "aion_start",
+    "destination": "fallback",
+    "gate_type": "code",
+    "requires_approval": false,
+    "last_used": null
+  },
+  "fallback\u2192aion_start": {
+    "source": "fallback",
+    "destination": "aion_start",
+    "gate_type": "code",
+    "requires_approval": false,
+    "last_used": null
+  },
+  "aion_start\u2192jungle": {
+    "source": "aion_start",
+    "destination": "jungle",
+    "gate_type": "code",
+    "requires_approval": false,
+    "last_used": null
+  },
+  "jungle\u2192aion_start": {
+    "source": "jungle",
+    "destination": "aion_start",
+    "gate_type": "code",
+    "requires_approval": false,
+    "last_used": null
+  },
+  "aion_start\u2192lab": {
+    "source": "aion_start",
+    "destination": "lab",
+    "gate_type": "code",
+    "requires_approval": false,
+    "last_used": null
+  },
+  "lab\u2192aion_start": {
+    "source": "lab",
+    "destination": "aion_start",
+    "gate_type": "code",
+    "requires_approval": false,
+    "last_used": null
+  },
+  "jungle\u2192lab": {
+    "source": "jungle",
+    "destination": "lab",
+    "gate_type": "code",
+    "requires_approval": false,
+    "last_used": null
+  },
+  "lab\u2192jungle": {
+    "source": "lab",
+    "destination": "jungle",
+    "gate_type": "code",
+    "requires_approval": false,
+    "last_used": null
+  },
+  "jungle\u2192fallback": {
+    "source": "jungle",
+    "destination": "fallback",
+    "gate_type": "code",
+    "requires_approval": false,
+    "last_used": null
+  },
+  "lab\u2192fallback": {
+    "source": "lab",
+    "destination": "fallback",
+    "gate_type": "code",
+    "requires_approval": false,
+    "last_used": null
+  },
+  "fallback\u2192jungle": {
+    "source": "fallback",
+    "destination": "jungle",
+    "gate_type": "code",
+    "requires_approval": false,
+    "last_used": null
+  },
+  "fallback\u2192lab": {
+    "source": "fallback",
+    "destination": "lab",
+    "gate_type": "code",
+    "requires_approval": false,
+    "last_used": null
+  }
+}
