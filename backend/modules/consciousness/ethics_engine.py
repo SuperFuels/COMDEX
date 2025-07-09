@@ -77,9 +77,9 @@ class EthicsEngine:
 
         return report
 
-    def evaluate_mutation_text(self, mutation: str) -> dict:
-        """Run lightweight rule-based analysis on mutation string."""
-        return self.evaluate(action_description=mutation)
+    def evaluate_mutation_text(self, mutation_text: str) -> dict:
+        """Run rule-based check using mutation content as input."""
+        return self.evaluate(action_description=mutation_text)
 
     def list_rules(self):
         """Return the list of soul law titles."""

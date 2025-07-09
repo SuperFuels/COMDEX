@@ -3,23 +3,25 @@ import { Glyph } from "@/types";
 import { mutateGlyph } from "@/lib/api"
 
 interface GlyphInspectorProps {
-  glyph: Glyph;
+  coord: string;
+  data: any;
   onClose: () => void;
 }
 
-const GlyphInspector: React.FC<GlyphInspectorProps> = ({ glyph, onClose }) => {
-  const [editedGlyph, setEditedGlyph] = useState(glyph);
+const GlyphInspector: React.FC<GlyphInspectorProps> = ({ coord, data, onClose }) => {
+  const [editedGlyph, setEditedGlyph] = useState(data);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleChange = (field: keyof Glyph, value: string) => {
+  const handleChange = (field: string, value: string) => {
     setEditedGlyph({ ...editedGlyph, [field]: value });
   };
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
     try {
-      await mutateGlyph(editedGlyph); // includes coord
-      onClose(); // close on success
+      // Assuming mutateGlyph is imported and expects the glyph data
+      await mutateGlyph(editedGlyph);
+      onClose();
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       alert("Failed to mutate glyph: " + message);
@@ -29,7 +31,7 @@ const GlyphInspector: React.FC<GlyphInspectorProps> = ({ glyph, onClose }) => {
 
   return (
     <div className="p-4 border rounded bg-white shadow-md w-full max-w-lg">
-      <h2 className="text-lg font-bold mb-2">Edit Glyph at {glyph.coord}</h2>
+      <h2 className="text-lg font-bold mb-2">Edit Glyph: {coord}</h2>
       <label className="block mb-2">
         Tag:
         <input
