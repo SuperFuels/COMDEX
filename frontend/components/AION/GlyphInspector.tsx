@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { mutateGlyph } from "@/lib/api";
 import { Glyph } from "@/types";
+import { mutateGlyph } from "@/lib/api"
 
 interface GlyphInspectorProps {
   glyph: Glyph;
@@ -18,7 +18,7 @@ const GlyphInspector: React.FC<GlyphInspectorProps> = ({ glyph, onClose }) => {
   const handleSubmit = async () => {
     setIsSubmitting(true);
     try {
-      await mutateGlyph(editedGlyph);
+      await mutateGlyph(editedGlyph); // includes coord
       onClose(); // close on success
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
@@ -29,7 +29,7 @@ const GlyphInspector: React.FC<GlyphInspectorProps> = ({ glyph, onClose }) => {
 
   return (
     <div className="p-4 border rounded bg-white shadow-md w-full max-w-lg">
-      <h2 className="text-lg font-bold mb-2">Edit Glyph</h2>
+      <h2 className="text-lg font-bold mb-2">Edit Glyph at {glyph.coord}</h2>
       <label className="block mb-2">
         Tag:
         <input

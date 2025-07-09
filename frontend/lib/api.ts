@@ -1,4 +1,5 @@
 // frontend/lib/api.ts
+
 import axios from 'axios'
 
 // 🔗 Define base API URL
@@ -16,7 +17,7 @@ const api = axios.create({
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
-    'Accept': 'application/json',
+    Accept: 'application/json',
   },
 })
 
@@ -42,3 +43,14 @@ api.interceptors.request.use((config) => {
 
 export default api
 export { axios }
+
+// 🧬 Send glyph mutation request to backend
+export async function mutateGlyph(glyph: {
+  coord: string
+  tag: string
+  value: string
+  action: string
+}) {
+  const res = await api.post('/api/aion/mutate-glyph', glyph)
+  return res.data
+}

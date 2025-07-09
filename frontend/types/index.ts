@@ -23,3 +23,14 @@ export interface Awareness {
   summary: string;
   context?: string;
 }
+
+// ────────────────────────────────────────────────────────────────────────────
+// AION: Glyph type used in Container + Glyph Inspector views
+// ────────────────────────────────────────────────────────────────────────────
+
+export interface Glyph {
+  coord: string;
+  tag: string;
+  value: string;
+  action: string;
+}
