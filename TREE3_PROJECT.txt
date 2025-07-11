@@ -96,6 +96,8 @@
 │   │   │   ├── grid_progress.py
 │   │   │   ├── grid_tiles.py
 │   │   │   └── status.py
+│   │   ├── endpoints/
+│   │   │   └── submit_mutation.py
 │   │   └── ws.py
 │   ├── bump_alembic_head.py
 │   ├── config.py
@@ -136,7 +138,9 @@
 │   │   │   ├── recursive_learner.py
 │   │   │   ├── sample_agent.py
 │   │   │   └── task_queue.py
-│   │   ├── commands_registry.py
+│   │   ├── avatar/
+│   │   │   └── avatar_core.py
+│   │   ├── command_registry.py
 │   │   ├── consciousness/
 │   │   │   ├── awareness_engine.py
 │   │   │   ├── consciousness_manager.py
@@ -157,10 +161,17 @@
 │   │   │   └── time_engine.py
 │   │   ├── dimensions/
 │   │   │   ├── TREE3_DIMENSIONS.txt
+│   │   │   ├── __init__.py
 │   │   │   ├── aion_start.dc.json
+│   │   │   ├── avatar_core.py
+│   │   │   ├── container_expander.py
 │   │   │   ├── containers/
 │   │   │   ├── default_container.dc.json
-│   │   │   └── dojo_001.dc.json
+│   │   │   ├── dimension_kernel.py
+│   │   │   ├── dimension_loop.py
+│   │   │   ├── dojo_001.dc.json
+│   │   │   ├── glyph_logic.py
+│   │   │   └── glyph_watcher.py
 │   │   ├── dna_chain/
 │   │   │   ├── crispr_ai.py
 │   │   │   ├── data/
@@ -168,8 +179,10 @@
 │   │   │   ├── dna.sh
 │   │   │   ├── dna_address_lookup.py
 │   │   │   ├── dna_proposals.json
+│   │   │   ├── dna_registry.json
 │   │   │   ├── dna_registry.py
 │   │   │   ├── dna_switch.py
+│   │   │   ├── dna_switch_index.json
 │   │   │   ├── dna_utils.py
 │   │   │   ├── dna_writer.py
 │   │   │   ├── ethics_sim.py
@@ -177,23 +190,36 @@
 │   │   │   ├── llm_mutator.py
 │   │   │   ├── modules_path_switch.json
 │   │   │   ├── mutation_checker.py
+│   │   │   ├── mutation_scorer.py
 │   │   │   ├── proposal_manager.py
+│   │   │   ├── proposals/
 │   │   │   ├── switchboard.py
 │   │   │   ├── teleport.py
+│   │   │   ├── teleport_registry.json
+│   │   │   ├── trigger_engine.py
 │   │   │   ├── writable_guard.py
 │   │   │   ├── writable_modules.json
 │   │   │   └── writable_modules_config.json
 │   │   ├── glyphos/
+│   │   │   ├── __init__.py
+│   │   │   ├── bytecode_watcher.py
 │   │   │   ├── glyph_compiler.py
 │   │   │   ├── glyph_dispatcher.py
 │   │   │   ├── glyph_executor.py
+│   │   │   ├── glyph_logic.py
+│   │   │   ├── glyph_mutator.py
 │   │   │   ├── glyph_parser.py
+│   │   │   ├── glyph_reverse_loader.py
 │   │   │   ├── glyph_runtime.py
 │   │   │   ├── glyph_storage.py
 │   │   │   ├── glyph_sweeper.py
+│   │   │   ├── glyph_trigger_engine.py
 │   │   │   ├── glyph_watcher.py
+│   │   │   ├── grid_pattern_scanner.py
 │   │   │   ├── microgrid_index.py
-│   │   │   └── runtime_loop.py
+│   │   │   ├── reverse_loader.py
+│   │   │   ├── runtime_loop.py
+│   │   │   └── trigger_on_glyph_loop.py
 │   │   ├── hexcore/
 │   │   │   ├── __init__.py
 │   │   │   ├── agent_comm.py
@@ -221,8 +247,7 @@
 │   │   │   ├── vision_core.py
 │   │   │   └── wallet.json
 │   │   ├── memory/
-│   │   │   ├── compression.py
-│   │   │   └── memory_engine.py
+│   │   │   └── compression.py
 │   │   ├── runtime/
 │   │   │   └── container_runtime.py
 │   │   ├── sim/
@@ -299,6 +324,13 @@
 │   │   │   └── voice_interface_test.py
 │   │   ├── soul/
 │   │   │   └── soul_laws.py
+│   │   ├── tessaris/
+│   │   │   ├── reverse_loader.py
+│   │   │   ├── tessaris_engine.py
+│   │   │   ├── tessaris_intent.py
+│   │   │   ├── tessaris_store.py
+│   │   │   ├── tessaris_trigger.py
+│   │   │   └── thought_branch.py
 │   │   └── websocket_manager.py
 │   ├── package-lock.json
 │   ├── requirements.txt
@@ -318,9 +350,13 @@
 │   │   ├── aion_plan.py
 │   │   ├── aion_prompt.py
 │   │   ├── aion_routes.py
+│   │   ├── aion_score_mutation.py
 │   │   ├── aion_strategy_plan.py
+│   │   ├── aion_submit_mutation.py
 │   │   ├── aion_suggest.py
+│   │   ├── aion_tessaris_intents.py
 │   │   ├── auth.py
+│   │   ├── avatar_runtime.py
 │   │   ├── buyer.py
 │   │   ├── contract_1.pdf
 │   │   ├── contracts.py
@@ -329,13 +365,15 @@
 │   │   ├── dna_logs.py
 │   │   ├── game.py
 │   │   ├── game_event.py
+│   │   ├── glyph_mutate.py
 │   │   ├── products.py
 │   │   ├── runtime.py
 │   │   ├── skill.py
 │   │   ├── supplier.py
 │   │   ├── teleport_api.py
 │   │   ├── terminal.py
-│   │   └── user.py
+│   │   ├── user.py
+│   │   └── ws_route.py
 │   ├── sample.jpg
 │   ├── schemas/
 │   │   ├── __init__.py
@@ -353,6 +391,7 @@
 │   │   ├── aion_learning_cycle.py
 │   │   ├── approve.sh
 │   │   ├── approve_dna.py
+│   │   ├── approve_mutation.py
 │   │   ├── approve_proposal.py
 │   │   ├── consciousness_scheduler.py
 │   │   ├── create_agent.py
@@ -360,11 +399,16 @@
 │   │   ├── generate_tree3.py
 │   │   ├── migrate_dna_imports.py
 │   │   ├── register_boot_skills.py
+│   │   ├── run_consciousness.py
 │   │   ├── run_dream.py
 │   │   ├── run_glyph_runtime.py
 │   │   ├── simulate_diff_check.py
 │   │   ├── simulate_goal_run.py
-│   │   └── test_vault.py
+│   │   ├── test_glyph_ws_broadcast.py
+│   │   ├── test_mutation_and_dream.py
+│   │   ├── test_openai_chat.py
+│   │   ├── test_vault.py
+│   │   └── test_ws_glyph_mutation.py
 │   ├── src/
 │   │   ├── components/
 │   │   │   └── ProductCard.tsx
@@ -431,7 +475,14 @@
 │   ├── test_milestone_tracker.py
 │   ├── tests/
 │   │   ├── ethics_sim_test.py
-│   │   └── test_dna_registry.py
+│   │   ├── test_dna_registry.py
+│   │   ├── test_glyph_mutator.py
+│   │   ├── test_glyph_reversibility.py
+│   │   ├── test_glyph_runtime_loop.py
+│   │   ├── test_glyph_trigger_engine.py
+│   │   ├── test_mutate_glyph.py
+│   │   ├── test_reverse_loader.py
+│   │   └── test_trigger_engine.py
 │   ├── utils/
 │   │   ├── __init__.py
 │   │   ├── auth.py
@@ -488,15 +539,24 @@
 │   ├── 9 TELEPORT.md
 │   ├── AION_Intelligence_Phase_Checklist.md
 │   ├── Avatar/
-│   │   ├── avatar checklist.md
-│   │   └── avatar document.md
+│   │   ├── Codex Checklist.md
+│   │   ├── Holograms.md
+│   │   ├── Luxnet.md
+│   │   ├── avatar document.md
+│   │   └── dimensions.md
+│   ├── Blockchain.md
+│   ├── Codexian Compute.md
+│   ├── Complete Modules.md/
 │   ├── DNA ENGINE.MD
 │   ├── DNA checklist.md
+│   ├── Encryption.md
+│   ├── Glyph Internet Protocol.md
 │   ├── GlyphOS/
 │   │   ├── GlyphOS Grammar.md
 │   │   ├── Sample_GlyphOS_Boot_Glyphs.csv
 │   │   ├── Screenshot 2025-07-08 at 23.02.04.png
 │   │   └── checklist.md
+│   ├── GlyphQRs.md
 │   ├── Handover docs/
 │   │   ├── AI intelligence.md
 │   │   ├── AIon LLM.md
@@ -507,16 +567,12 @@
 │   │   ├── How Everything Works - STICKEY Platform.md
 │   │   ├── handover.md
 │   │   └── stickey.md
-│   ├── Screenshot 2025-07-02 at 13.12.28.png
-│   ├── Screenshot 2025-07-02 at 13.14.48.png
-│   ├── Screenshot 2025-07-08 at 10.12.52.png
-│   ├── Screenshot 2025-07-08 at 10.20.38.png
-│   ├── Screenshot 2025-07-08 at 10.25.00.png
-│   ├── Screenshot 2025-07-08 at 10.27.43.png
-│   ├── Screenshot 2025-07-08 at 10.33.45.png
-│   ├── Screenshot 2025-07-08 at 10.37.51.png
-│   ├── Screenshot 2025-07-08 at 10.39.42.png
-│   ├── Screenshot 2025-07-08 at 10.47.19.png
+│   ├── Language.md
+│   ├── Luxhub.md
+│   ├── PROOFS.md/
+│   │   ├── Tessaris GlyphOS.md
+│   │   └── compression_log_2025-07-10T15-18-33.txt
+│   ├── Project encryption secrecy.md
 │   ├── SoulEngine_Governance_Charter.md
 │   ├── Tessaris/
 │   │   ├── Screenshot 2025-07-08 at 22.08.45.png
@@ -524,13 +580,27 @@
 │   │   ├── Tessaris checklist.md
 │   │   ├── what is Tessaris.md
 │   │   └── white paper.md
+│   ├── Tessaris Images.md/
+│   │   ├── Screenshot 2025-07-02 at 13.12.28.png
+│   │   ├── Screenshot 2025-07-02 at 13.14.48.png
+│   │   ├── Screenshot 2025-07-08 at 10.12.52.png
+│   │   ├── Screenshot 2025-07-08 at 10.20.38.png
+│   │   ├── Screenshot 2025-07-08 at 10.25.00.png
+│   │   ├── Screenshot 2025-07-08 at 10.27.43.png
+│   │   ├── Screenshot 2025-07-08 at 10.33.45.png
+│   │   ├── Screenshot 2025-07-08 at 10.37.51.png
+│   │   ├── Screenshot 2025-07-08 at 10.39.42.png
+│   │   └── Screenshot 2025-07-08 at 10.47.19.png
+│   ├── USB.md
 │   ├── aion dashboard tasks.md
 │   ├── checklist features.md
 │   ├── conscious world.md
 │   ├── dimensions.md
+│   ├── experimental.md
 │   ├── gpt opinion.md
 │   ├── investor docs.md/
 │   │   └── what is it.md
+│   ├── mathmatics.md
 │   ├── natural seeding.md
 │   └── phase1_checklist.md
 ├── eval "$(ssh-agent -s)"
@@ -550,10 +620,14 @@
 │   │       └── terminal.py
 │   ├── components/
 │   │   ├── AION/
+│   │   │   ├── ContainerMap.tsx
 │   │   │   ├── ContainerStatus.tsx
+│   │   │   ├── GlyphExecutor.tsx
 │   │   │   ├── GlyphGrid.tsx
 │   │   │   ├── GlyphInspector.tsx
-│   │   │   └── GoalList.tsx
+│   │   │   ├── GlyphMutator.tsx
+│   │   │   ├── GoalList.tsx
+│   │   │   └── TessarisVisualizer.tsx
 │   │   ├── AIONDashboardClient.tsx
 │   │   ├── AIONDashboardClient_OLD.tsx
 │   │   ├── AIONStatus.tsx
@@ -671,7 +745,8 @@
 │   │   │   ├── dashboard.tsx
 │   │   │   └── dashboard_aion.tsx
 │   │   ├── aion/
-│   │   │   └── AIONDashboard.tsx
+│   │   │   ├── AIONDashboard.tsx
+│   │   │   └── avatar-runtime.tsx
 │   │   ├── api/
 │   │   │   ├── aion.ts
 │   │   │   └── shipments.js

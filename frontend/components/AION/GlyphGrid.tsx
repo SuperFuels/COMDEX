@@ -4,10 +4,11 @@ import GlyphInspector from "./GlyphInspector";
 
 export interface GlyphGridProps {
   cubes: { [coord: string]: { glyph?: string; [key: string]: any } };
+  tick: number; // ✅ Now explicitly accepted as a prop
   onGlyphClick?: (coord: string, data: any) => void;
 }
 
-const GlyphGrid: React.FC<GlyphGridProps> = ({ cubes, onGlyphClick }) => {
+const GlyphGrid: React.FC<GlyphGridProps> = ({ cubes, tick, onGlyphClick }) => {
   const [zLevel, setZLevel] = useState(0);
   const [glyphData, setGlyphData] = useState(cubes);
   const [selectedCoord, setSelectedCoord] = useState<string | null>(null);
@@ -39,6 +40,11 @@ const GlyphGrid: React.FC<GlyphGridProps> = ({ cubes, onGlyphClick }) => {
       return () => clearInterval(interval);
     }
   }, [connected]);
+
+  // Keep glyphData synced with external prop changes (in case tick/cubes updates externally)
+  useEffect(() => {
+    setGlyphData(cubes);
+  }, [cubes, tick]);
 
   const filtered = Object.entries(glyphData).filter(([coord]) => {
     const [, , z] = coord.split(",").map(Number);

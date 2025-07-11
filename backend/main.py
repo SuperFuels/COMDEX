@@ -119,6 +119,7 @@ from backend.routes import ws_route
 from backend.api.endpoints import submit_mutation
 from backend.routes import aion_submit_mutation
 from backend.routes import aion_score_mutation
+from backend.routes import avatar_runtime
 
 # ✅ WebSocket route
 from backend.api import ws
@@ -175,6 +176,7 @@ app.include_router(ws_route.router)
 app.include_router(submit_mutation.router)
 app.include_router(aion_submit_mutation.router)
 app.include_router(aion_score_mutation.router)
+app.include_router(avatar_runtime.router, prefix="/api")
 
 # ── 16) Serve uploaded images
 app.mount("/uploaded_images", StaticFiles(directory="uploaded_images"), name="uploaded_images")

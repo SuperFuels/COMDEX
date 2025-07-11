@@ -1,7 +1,19 @@
 // components/CommandBar.tsx
 
 import React, { useState, useEffect } from 'react';
-import { ChevronDown, Star, Clock, CheckCircle, XCircle, Loader } from 'lucide-react';
+import {
+  ChevronDown,
+  Star,
+  Clock,
+  CheckCircle,
+  XCircle,
+  Loader,
+  Terminal,
+  Zap,
+  Brain,
+  FileText,
+  Eye,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -18,6 +30,12 @@ const HISTORY_KEY = 'aion_history';
 const FAVORITES_KEY = 'aion_favorites';
 const MAX_HISTORY = 10;
 
+type Suggestion = {
+  text: string;
+  type?: 'system' | 'boot' | 'glyph' | 'data' | 'user';
+  description?: string;
+};
+
 export default function CommandBar({
   input,
   setInput,
@@ -27,10 +45,11 @@ export default function CommandBar({
   setInputFromPreset,
 }: CommandBarProps) {
   const [showDropdown, setShowDropdown] = useState(false);
-  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [history, setHistory] = useState<string[]>([]);
   const [favorites, setFavorites] = useState<string[]>([]);
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [filter, setFilter] = useState<'all' | 'system' | 'boot' | 'glyph' | 'data'>('all');
 
   useEffect(() => {
     const storedHistory = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
@@ -54,7 +73,6 @@ export default function CommandBar({
         setSuggestions([]);
       }
     }, 200);
-
     return () => clearTimeout(delayDebounce);
   }, [input]);
 
@@ -64,23 +82,21 @@ export default function CommandBar({
     setHistory(newHistory);
     localStorage.setItem(HISTORY_KEY, JSON.stringify(newHistory));
     setSuggestions([]);
-
     setStatus('loading');
     try {
       await onSubmit();
       setStatus('success');
     } catch {
       setStatus('error');
+    } finally {
+      setTimeout(() => setStatus('idle'), 2500);
     }
   };
 
   const toggleFavorite = (cmd: string) => {
-    let updated;
-    if (favorites.includes(cmd)) {
-      updated = favorites.filter((f) => f !== cmd);
-    } else {
-      updated = [...favorites, cmd];
-    }
+    const updated = favorites.includes(cmd)
+      ? favorites.filter((f) => f !== cmd)
+      : [...favorites, cmd];
     setFavorites(updated);
     localStorage.setItem(FAVORITES_KEY, JSON.stringify(updated));
   };
@@ -90,9 +106,28 @@ export default function CommandBar({
     setSuggestions([]);
   };
 
+  const iconForType = (type: string | undefined) => {
+    switch (type) {
+      case 'system':
+        return <Terminal size={14} className="text-gray-500 mr-1" />;
+      case 'boot':
+        return <Zap size={14} className="text-blue-500 mr-1" />;
+      case 'glyph':
+        return <Brain size={14} className="text-purple-500 mr-1" />;
+      case 'data':
+        return <FileText size={14} className="text-green-500 mr-1" />;
+      default:
+        return <Eye size={14} className="text-gray-400 mr-1" />;
+    }
+  };
+
+  const filteredSuggestions = suggestions.filter(
+    (s) => filter === 'all' || s.type === filter
+  );
+
   return (
     <div className="relative w-full flex flex-col gap-3">
-      {/* Input & Dropdown */}
+      {/* Input Row */}
       <div className="flex items-center gap-2">
         <div className="flex-grow relative">
           <input
@@ -101,11 +136,8 @@ export default function CommandBar({
             placeholder="Run command or select preset..."
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') handleSubmit();
-            }}
+            onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
           />
-
           <button
             className="absolute top-2 right-2 text-gray-500 hover:text-gray-800"
             onClick={() => setShowDropdown(!showDropdown)}
@@ -113,9 +145,9 @@ export default function CommandBar({
             <ChevronDown size={16} />
           </button>
 
-          {/* Presets Dropdown */}
+          {/* Preset Commands Dropdown */}
           {showDropdown && (
-            <div className="absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded shadow-md max-h-60 overflow-y-auto">
+            <div className="absolute z-30 w-full mt-1 bg-white border border-gray-300 rounded shadow-md max-h-60 overflow-y-auto">
               {presets.map((preset, idx) => (
                 <div
                   key={idx}
@@ -123,7 +155,7 @@ export default function CommandBar({
                   onClick={() => {
                     setInputFromPreset(preset);
                     setShowDropdown(false);
-                    setTimeout(() => onSubmit(), 100); // ✅ Submit after preset selected
+                    setTimeout(() => onSubmit(), 100);
                   }}
                 >
                   {preset}
@@ -132,16 +164,22 @@ export default function CommandBar({
             </div>
           )}
 
-          {/* Live Suggestions Dropdown */}
-          {suggestions.length > 0 && (
-            <div className="absolute z-10 w-full mt-1 bg-white border border-blue-400 rounded shadow-md max-h-60 overflow-y-auto">
-              {suggestions.map((sug, idx) => (
+          {/* Suggestion Dropdown */}
+          {filteredSuggestions.length > 0 && (
+            <div className="absolute z-20 w-full mt-1 bg-white border border-blue-400 rounded shadow-md max-h-60 overflow-y-auto">
+              {filteredSuggestions.map((sug, idx) => (
                 <div
                   key={idx}
-                  className="px-3 py-2 cursor-pointer hover:bg-blue-100 text-sm"
-                  onClick={() => handleSuggestionClick(sug)}
+                  className="px-3 py-2 text-sm flex items-start gap-2 hover:bg-blue-100 cursor-pointer"
+                  onClick={() => handleSuggestionClick(sug.text)}
                 >
-                  {sug}
+                  {iconForType(sug.type)}
+                  <div>
+                    <div>{sug.text}</div>
+                    {sug.description && (
+                      <div className="text-xs text-gray-500">{sug.description}</div>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
@@ -166,7 +204,23 @@ export default function CommandBar({
         </div>
       </div>
 
-      {/* History & Favorites Section */}
+      {/* Filter Tabs */}
+      <div className="flex space-x-3 text-xs text-gray-600 ml-1">
+        {['all', 'system', 'boot', 'glyph', 'data'].map((cat) => (
+          <button
+            key={cat}
+            onClick={() => setFilter(cat as any)}
+            className={cn(
+              'px-2 py-1 rounded',
+              filter === cat ? 'bg-blue-100 text-blue-600 font-medium' : 'hover:bg-gray-100'
+            )}
+          >
+            {cat.toUpperCase()}
+          </button>
+        ))}
+      </div>
+
+      {/* History & Favorites */}
       {(favorites.length > 0 || history.length > 0) && (
         <div className="flex flex-wrap gap-2 text-xs text-gray-700">
           {[...favorites, ...history.filter((h) => !favorites.includes(h))].map((cmd, idx) => (

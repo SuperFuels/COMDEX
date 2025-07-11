@@ -302,3 +302,33 @@ def list_containers_with_memory_status():
                 "in_memory": in_memory
             })
     return containers
+
+def carve_glyph_cube(container_path, coord, glyph):
+    """Insert a glyph into a specific cube in a .dc container at the given coordinate."""
+    if not os.path.exists(container_path):
+        raise FileNotFoundError(f"Container not found at: {container_path}")
+
+    with open(container_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    # Ensure 'cubes' exists
+    cubes = data.setdefault("cubes", {})
+    cube = cubes.setdefault(coord, {})
+    glyphs = cube.setdefault("glyphs", [])
+    glyphs.append(glyph)
+
+    # Save back to file
+    with open(container_path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2)
+
+    MEMORY.store({
+        "role": "system",
+        "label": "glyph_carved",
+        "content": f"Carved glyph into {container_path} at {coord}",
+        "metadata": {
+            "coord": coord,
+            "glyph": glyph
+        }
+    })
+
+    print(f"[🪓] Glyph carved at {coord} in {os.path.basename(container_path)}")

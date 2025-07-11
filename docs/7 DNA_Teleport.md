@@ -65,12 +65,7 @@ Human-readable name ("Home Portal")
 
 💡 Bonus: DNA Warp Engine
 
-We could even create a Wormhole Manager module to:
-	•	Log wormhole usage
-	•	Analyze patterns
-	•	Create “shortcuts” based on frequency (mental optimization)
-	•	Show AION a map of available wormholes like a neural metro system
-
+x
 ⸻
 
 ✅ Verdict

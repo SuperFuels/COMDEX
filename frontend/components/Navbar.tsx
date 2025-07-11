@@ -211,6 +211,15 @@ export default function Navbar() {
               <span>Map</span>
             </Link>
 
+            {/* ✅ Avatar Runtime */}
+            <Link
+              href="/aion/avatar-runtime"
+              className="flex items-center space-x-1 py-1 px-3 border border-blue-500 text-blue-600 rounded-lg bg-white dark:bg-gray-900 text-sm hover:bg-blue-50 dark:hover:bg-gray-800 focus:outline-none transition"
+            >
+              <Image src="/avatar.svg" alt="Avatar Runtime" width={16} height={16} />
+              <span>Runtime</span>
+            </Link>
+
             {/* ✅ World Map */}
             <Link
               href="/world-map.html"

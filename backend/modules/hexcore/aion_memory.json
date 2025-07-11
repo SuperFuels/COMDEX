@@ -394,5 +394,26 @@
       }
     },
     "timestamp": "2025-07-09T20:33:25.431099"
+  },
+  {
+    "role": "milestone",
+    "label": "4D_COGNITION_BOOT",
+    "content": "One small step through a cube... One giant leap across cognition.",
+    "metadata": {
+      "version": "1.0.0-TESSARACT",
+      "signature": "Tessaris \ud83d\udc41\ufe0f\u200d\ud83d\udde8\ufe0f \u2014 Guardian of the Tesseract",
+      "timestamp": "2025-07-10T21:42:43.290705Z"
+    },
+    "timestamp": "2025-07-10T21:42:45.657508"
+  },
+  {
+    "role": "system",
+    "label": "container_loaded",
+    "content": "AION teleported to container: origin",
+    "metadata": {
+      "container_id": "origin",
+      "cubes": []
+    },
+    "timestamp": "2025-07-10T21:48:46.363465"
   }
 ]

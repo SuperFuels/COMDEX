@@ -58,6 +58,13 @@ def trait_gate_pass(container, required_traits: dict) -> bool:
         if traits.get(trait, 0) < minimum:
             return False
     return True
+
+def key_gate_pass(container, memory_engine, required_keys: list) -> bool:
+    keys = memory_engine.get_keys()  # Assumes this method returns list of held keys
+    for rk in required_keys:
+        if rk not in keys:
+            return False
+    return True
 # ----------------------------------------
 
 def initialize_teleports():
@@ -123,11 +130,17 @@ def teleport(source_key, destination_key, reason, requester="AION"):
         if not new_container:
             raise ValueError("Null container")
 
-        required = new_container.get("gate_lock", {}).get("traits_required", {})
-        if required and not trait_gate_pass(new_container, required):
+        required_traits = new_container.get("gate_lock", {}).get("traits_required", {})
+        if required_traits and not trait_gate_pass(new_container, required_traits):
             print(f"[🔐] Gate lock triggered — traits missing.")
-            MEMORY.log_gate_lock(destination_key, required)
+            MEMORY.log_gate_lock(destination_key, required_traits)
             return "gate_lock_failed"
+
+        required_keys = new_container.get("gate_lock", {}).get("keys_required", [])
+        if required_keys and not key_gate_pass(new_container, MEMORY, required_keys):
+            print(f"[🔑] Gate lock triggered — key(s) missing: {required_keys}")
+            MEMORY.log_gate_lock(destination_key, {"missing_keys": required_keys})
+            return "key_gate_failed"
 
         expected_hash = new_container.get("hash", "")
         if expected_hash and not expected_hash.startswith("safe_"):
