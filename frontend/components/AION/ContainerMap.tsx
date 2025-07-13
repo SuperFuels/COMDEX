@@ -1,5 +1,3 @@
-// frontend/components/AION/ContainerMap.tsx
-
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import useWebSocket from "@/hooks/useWebSocket";
 
@@ -35,8 +33,13 @@ export default function ContainerMap({
   const containerRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   const { connected } = useWebSocket("ws://localhost:8000/ws", (data: any) => {
-    if (data.type === "glyph_update") console.log("Live glyph:", data);
-    if (data.type === "container_status") fetchContainers();
+    if (data.type === "glyph_update") {
+      console.log("🔄 Live glyph:", data);
+      window.dispatchEvent(new Event("glyph_update"));
+    }
+    if (data.type === "container_status" || data.type === "container_update") {
+      fetchContainers();
+    }
   });
 
   const fetchContainers = () => {
@@ -56,6 +59,15 @@ export default function ContainerMap({
     if (!mapData) fetchContainers();
     else setContainers(mapData);
   }, [mapData]);
+
+  useEffect(() => {
+    const refresh = () => {
+      console.log("🔄 Glyph update received → refreshing container map");
+      fetchContainers();
+    };
+    window.addEventListener("glyph_update", refresh);
+    return () => window.removeEventListener("glyph_update", refresh);
+  }, []);
 
   useEffect(() => {
     const updatePositions = () => {

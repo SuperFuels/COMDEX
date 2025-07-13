@@ -3,6 +3,7 @@
 
 from typing import Callable, Dict, Any
 import time
+import threading
 from backend.modules.dna_chain.dc_handler import load_dimension_by_file
 from backend.modules.glyphos.microgrid_index import MicrogridIndex
 from backend.modules.hexcore.memory_engine import MemoryEngine
@@ -62,6 +63,16 @@ GLYPH_TRIGGER_MAP: Dict[str, Callable[[Dict[str, Any]], None]] = {
     "⨿": trigger_lock,
 }
 
+# Runtime state and control
+_last_glyph_state = {}
+_loop_active = True  # Graceful shutdown flag
+
+def emit_event_log(event: str, detail: Any = None):
+    memory.store({
+        "label": "glyph:scan_event",
+        "content": f"Glyph scan event: {event} — {detail}"
+    })
+
 def scan_and_trigger(container_path: str):
     """Load .dc container, parse all glyphs, and trigger mapped behavior."""
     dimension = load_dimension_by_file(container_path)
@@ -87,11 +98,9 @@ def scan_and_trigger(container_path: str):
                 "content": content
             })
 
-# Runtime loop support for C10: Trigger-on-glyph behavior loop
-_last_glyph_state = {}
-
 def glyph_behavior_loop(interval: float = 5.0):
     """Continuously scan for new glyphs and trigger mapped behaviors."""
+    global _loop_active
     state = StateManager()
     path = state.get_current_container_path()
 
@@ -100,17 +109,19 @@ def glyph_behavior_loop(interval: float = 5.0):
         return
 
     print("🔄 Starting glyph behavior loop...")
-    while True:
+
+    while _loop_active:
         try:
             dimension = load_dimension_by_file(path)
             index = MicrogridIndex()
             index.import_index(dimension.get("microgrid", {}))
 
+            triggered_this_cycle = []
+
             for coord, meta in index.glyph_map.items():
                 glyph = meta.get("glyph")
                 key = f"{coord}:{glyph}"
 
-                # Skip if seen before (to avoid duplicate triggering)
                 if key in _last_glyph_state:
                     continue
 
@@ -119,12 +130,29 @@ def glyph_behavior_loop(interval: float = 5.0):
                     meta["coord"] = coord
                     GLYPH_TRIGGER_MAP[glyph](meta)
                     _last_glyph_state[key] = True
+                    triggered_this_cycle.append(glyph)
+
+            if triggered_this_cycle:
+                emit_event_log("cycle_complete", triggered_this_cycle)
 
         except Exception as e:
             print(f"❌ Glyph behavior loop error: {e}")
+            emit_event_log("loop_error", str(e))
 
         time.sleep(interval)
 
+def stop_glyph_loop():
+    """Signal loop to stop gracefully."""
+    global _loop_active
+    _loop_active = False
+    print("🛑 Glyph behavior loop stopped.")
+
+# For testing
 if __name__ == "__main__":
     test_path = "backend/modules/dimensions/containers/test_trigger.dc"
     scan_and_trigger(test_path)
+
+    # To test loop mode:
+    # threading.Thread(target=glyph_behavior_loop).start()
+    # time.sleep(30)
+    # stop_glyph_loop()
