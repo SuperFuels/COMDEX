@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
+import useWebSocket from './useWebSocket'; // ✅ Add this line
 
 type Command = {
   name: string;
@@ -181,6 +182,31 @@ export default function useAION(side: 'left' | 'right', label: string = 'AION Te
     }
   };
 
+  // ✅ WebSocket: listen for live updates
+  useWebSocket(
+    process.env.NEXT_PUBLIC_SOCKET_URL || 'ws://localhost:8000/ws',
+    (msg: any) => {
+      if (msg.event === 'status_update' && msg.context) {
+        setStatus((prev: any) => ({
+          ...prev,
+          context: {
+            ...prev?.context,
+            ...msg.context,
+          },
+        }));
+      }
+
+      if (msg.event === 'glyph_update' && side === 'right') {
+        append('data', '🧬 Glyphs updated from WebSocket.', 'success');
+      }
+
+      if (msg.event === 'container_teleport') {
+        append('system', `🧭 Teleported to: ${msg.containerId}`, 'success');
+      }
+    },
+    ['status_update', 'glyph_update', 'container_teleport']
+  );
+
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
@@ -210,7 +236,7 @@ export default function useAION(side: 'left' | 'right', label: string = 'AION Te
     tokenUsage,
     availableCommands,
     setAvailableCommands,
-    status,  
-    setStatus, // ✅ <— ADD THIS LINE
+    status,
+    setStatus, // ✅ Keep exposed for updates
   };
 }

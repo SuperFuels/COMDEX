@@ -16,6 +16,8 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { saveAs } from 'file-saver';
+import toast from 'react-hot-toast';
 
 interface CommandBarProps {
   input: string;
@@ -78,11 +80,48 @@ export default function CommandBar({
 
   const handleSubmit = async () => {
     if (!input.trim()) return;
+
+    // Special command: bundle_container <id>
+    if (input.startsWith("bundle_container")) {
+      const containerId = input.split(" ")[1];
+      if (!containerId) {
+        toast.error("Missing container ID");
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/aion/bundle/${containerId}`);
+        const data = await res.json();
+
+        if (data.status === "success" && data.bundle) {
+          const filename = `AION_${containerId}_${Date.now()}.lux`;
+          const blob = new Blob([data.bundle], { type: "text/plain" });
+          saveAs(blob, filename);
+          toast.success(`🧠 Saved ${filename}`);
+
+          // Trigger WebSocket event or feedback if needed
+          const ws = new WebSocket(`ws://${window.location.host}/ws/containers`);
+          ws.onopen = () => {
+            ws.send(JSON.stringify({ event: 'bundle_trigger', id: containerId }));
+            ws.close();
+          };
+        } else {
+          toast.error(`❌ ${data.error || "Bundle failed"}`);
+        }
+      } catch (err) {
+        toast.error("❌ Request failed");
+        console.error(err);
+      }
+
+      return;
+    }
+
     const newHistory = [input, ...history.filter((h) => h !== input)].slice(0, MAX_HISTORY);
     setHistory(newHistory);
     localStorage.setItem(HISTORY_KEY, JSON.stringify(newHistory));
     setSuggestions([]);
     setStatus('loading');
+
     try {
       await onSubmit();
       setStatus('success');

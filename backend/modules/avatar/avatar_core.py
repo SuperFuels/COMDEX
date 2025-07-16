@@ -5,13 +5,15 @@ Tracks position, glyph interaction, movement, memory tagging, glyph reactivity.
 """
 
 from modules.dimensions.dimension_kernel import DimensionKernel
+from datetime import datetime
 import random
 
 class AIONAvatar:
-    def __init__(self, container_id="default"):
+    def __init__(self, container_id="default", tick_rate=1.0):
         self.id = "AION"
         self.container_id = container_id
         self.kernel = DimensionKernel(container_id)
+        self.tick_rate = tick_rate  # ⏱️ Time multiplier per tick
         self.position = {"x": 0, "y": 0, "z": 0, "t": 0}
         self.active = False
         self.inventory = []  # 🔑 Keys, tokens, items
@@ -19,12 +21,14 @@ class AIONAvatar:
             "mode": "idle",      # think, move, react, compress
             "emotion": None,
             "glyph_focus": None,
-            "last_reaction": None
+            "last_reaction": None,
+            "last_tick": None
         }
 
     def spawn(self, x=0, y=0, z=0, t=0):
         self.position = {"x": x, "y": y, "z": z, "t": t}
         self.active = True
+        self.mind_state["last_tick"] = datetime.utcnow().isoformat()
         self.kernel.mark_avatar_location(self.id, self.position)
         return f"🧬 Avatar spawned at {self.position}"
 
@@ -34,7 +38,7 @@ class AIONAvatar:
         self.position["x"] += dx
         self.position["y"] += dy
         self.position["z"] += dz
-        self.position["t"] += dt
+        self.position["t"] += dt * self.tick_rate
         self.kernel.mark_avatar_location(self.id, self.position)
         return f"🚶 Moved to {self.position}"
 
@@ -68,6 +72,8 @@ class AIONAvatar:
     def tick(self):
         if not self.active:
             return "⚠️ Avatar not active"
+        self.position["t"] += 1 * self.tick_rate
+        self.mind_state["last_tick"] = datetime.utcnow().isoformat()
         self.kernel.tick()
         if self.mind_state["mode"] == "react":
             return self.react_to_glyphs()
@@ -85,9 +91,11 @@ class AIONAvatar:
     def state(self):
         return {
             "id": self.id,
+            "container": self.container_id,
             "position": self.position,
             "mind": self.mind_state,
             "inventory": self.inventory,
+            "tick_rate": self.tick_rate
         }
 
     # 🔐 Inventory Logic — Key Support

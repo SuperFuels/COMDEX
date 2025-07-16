@@ -8,8 +8,13 @@ from modules.avatar.avatar_core import AIONAvatar
 from modules.dimensions.dc_handler import load_dimension
 from modules.dimensions.glyph_logic import process_glyph_logic  # symbolic logic engine
 
+# ✅ New: Import TimeController for tick logging
+from modules.dimensions.time_controller import TimeController
+time_controller = TimeController()
+
 class DimensionLoop:
     def __init__(self, container_id="default"):
+        self.container_id = container_id
         self.avatar = AIONAvatar(container_id)
         self.ticks = 0
         self.running = False
@@ -41,4 +46,10 @@ class DimensionLoop:
         else:
             print("...no glyph found")
 
-        # (Optional future: dream trigger, thought build, teleport portals, etc.)
+        # ✅ Sync this container’s runtime into the tick controller
+        snapshot = {
+            "avatar": self.avatar.current_location(),
+            "glyph": glyph,
+            "cubes": {},  # optionally populate if needed
+        }
+        time_controller.tick(self.container_id, snapshot)

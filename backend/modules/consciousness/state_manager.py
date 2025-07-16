@@ -22,6 +22,10 @@ except Exception:
 from backend.modules.dna_chain.dc_handler import load_dimension, load_dimension_by_file, get_dc_path
 from backend.modules.consciousness.personality_engine import PROFILE as PERSONALITY
 
+# ⏳ Time tracking
+from backend.modules.dimensions.time_controller import TimeController
+TIME = TimeController()
+
 STATE_FILE = "agent_state.json"
 DIMENSION_DIR = os.path.join(os.path.dirname(__file__), "../dimensions")
 
@@ -44,6 +48,7 @@ class StateManager:
         self.agent_states = self.load_agent_states()
         self.current_container = None
         self.loaded_containers = {}
+        self.time_controller = TIME  # ⏳ Container time logic
 
     def load_agent_states(self):
         if os.path.exists(STATE_FILE):
@@ -113,6 +118,12 @@ class StateManager:
             "content": f"[📦] Container {container.get('name', 'unnamed')} activated."
         })
 
+        # ⏳ Begin or resume time tracking for container
+        container_id = container.get("id")
+        if container_id:
+            current_tick = self.time_controller.get_tick(container_id)
+            print(f"[⏳] Container {container_id} time tick: {current_tick}")
+
         try:
             from backend.modules.skills.goal_engine import GOALS
             GOALS.log_progress({
@@ -144,24 +155,33 @@ class StateManager:
         if WS:
             try:
                 loop = asyncio.get_event_loop()
-                if loop.is_running():
-                    asyncio.create_task(WS.broadcast({
-                        "event": "container_switch",
-                        "data": {
-                            "id": container.get("id"),
-                            "name": container.get("name", ""),
-                            "timestamp": str(datetime.utcnow())
-                        }
-                    }))
-                else:
-                    loop.run_until_complete(WS.broadcast({
-                        "event": "container_switch",
-                        "data": {
-                            "id": container.get("id"),
-                            "name": container.get("name", ""),
-                            "timestamp": str(datetime.utcnow())
-                        }
-                    }))
+                payload = {
+                    "event": "container_switch",
+                    "data": {
+                        "id": container.get("id"),
+                        "name": container.get("name", ""),
+                        "timestamp": str(datetime.utcnow())
+                    }
+                }
+                asyncio.ensure_future(WS.broadcast(payload)) if loop.is_running() else loop.run_until_complete(WS.broadcast(payload))
+
+                # ✅ Send minimap update too
+                cubes = container.get("cubes", {})
+                glyph_summary = {g: 0 for g in ["⚙", "🧠", "🔒", "🌐"]}
+                for cube in cubes.values():
+                    glyph = cube.get("glyph")
+                    if glyph in glyph_summary:
+                        glyph_summary[glyph] += 1
+                minimap_payload = {
+                    "event": "minimap_update",
+                    "data": {
+                        "id": container.get("id"),
+                        "glyphs": glyph_summary,
+                        "timestamp": str(datetime.utcnow())
+                    }
+                }
+                asyncio.ensure_future(WS.broadcast(minimap_payload)) if loop.is_running() else loop.run_until_complete(WS.broadcast(minimap_payload))
+
             except Exception as e:
                 print(f"[WS] Broadcast failed: {e}")
 
@@ -174,6 +194,9 @@ class StateManager:
     def get_context(self):
         if self.current_container:
             self.context["active_container"] = self.current_container
+            container_id = self.current_container.get("id")
+            if container_id:
+                self.context["container_time"] = self.time_controller.get_status(container_id)  # ⏳ Add time info
         return self.context
 
     def save_memory_reference(self, snapshot):
@@ -216,6 +239,14 @@ class StateManager:
         self.set_current_container(container)
         self.loaded_containers[container["id"]] = container
         return container
+
+    def tick_current_container(self, state_snapshot: dict):
+        """Call this once per tick loop to advance time."""
+        if not self.current_container:
+            return
+        container_id = self.current_container.get("id")
+        if container_id:
+            self.time_controller.tick(container_id, state_snapshot)  # ⏳ Advance tick
 
 # ✅ Singleton
 STATE = StateManager()

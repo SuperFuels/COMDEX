@@ -33,11 +33,8 @@ export default function ContainerMap({
   const containerRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   const { connected } = useWebSocket("ws://localhost:8000/ws", (data: any) => {
-    if (data.type === "glyph_update") {
-      console.log("🔄 Live glyph:", data);
-      window.dispatchEvent(new Event("glyph_update"));
-    }
-    if (data.type === "container_status" || data.type === "container_update") {
+    if (data.type === "glyph_update" || data.type === "container_update") {
+      console.log("🔁 Real-time event:", data.type);
       fetchContainers();
     }
   });
@@ -48,42 +45,52 @@ export default function ContainerMap({
       .then((data) => {
         const containerList: ContainerInfo[] = data.containers || [];
         setContainers(containerList);
-        const uniqueRegions = [
-          ...new Set(containerList.map((c: ContainerInfo) => c.region || "Unassigned")),
-        ];
+        const uniqueRegions = [...new Set(containerList.map((c) => c.region || "Unassigned"))];
         setRegions(uniqueRegions);
+        setTimeout(updatePositions, 100); // Delay to recalc glyph lines
       });
   };
 
+  // On mount or props update
   useEffect(() => {
     if (!mapData) fetchContainers();
     else setContainers(mapData);
   }, [mapData]);
 
+  // Real-time glyph/region refresh
   useEffect(() => {
     const refresh = () => {
-      console.log("🔄 Glyph update received → refreshing container map");
+      console.log("🔄 Glyph update triggered map refresh");
       fetchContainers();
     };
     window.addEventListener("glyph_update", refresh);
     return () => window.removeEventListener("glyph_update", refresh);
   }, []);
 
+  // Periodic fallback sync in case WebSocket misses
   useEffect(() => {
-    const updatePositions = () => {
-      const newPositions: PositionMap = {};
-      for (const id in containerRefs.current) {
-        const el = containerRefs.current[id];
-        if (el) {
-          const rect = el.getBoundingClientRect();
-          newPositions[id] = {
-            x: rect.left + rect.width / 2,
-            y: rect.top + rect.height / 2,
-          };
-        }
+    const interval = setInterval(() => {
+      fetchContainers();
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const updatePositions = () => {
+    const newPositions: PositionMap = {};
+    for (const id in containerRefs.current) {
+      const el = containerRefs.current[id];
+      if (el) {
+        const rect = el.getBoundingClientRect();
+        newPositions[id] = {
+          x: rect.left + rect.width / 2,
+          y: rect.top + rect.height / 2,
+        };
       }
-      setPositions(newPositions);
-    };
+    }
+    setPositions(newPositions);
+  };
+
+  useEffect(() => {
     setTimeout(updatePositions, 100);
   }, [containers]);
 

@@ -1,6 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+// frontend/hooks/useWebSocket.ts
+import { useEffect, useRef, useState } from 'react';
 
-export default function useWebSocket(url: string, onMessage: (data: any) => void) {
+export default function useWebSocket(
+  url: string,
+  onMessage: (data: any) => void,
+  filterEvent?: string[] // optional: only listen to specific events like ['glyph_update']
+) {
   const socketRef = useRef<WebSocket | null>(null);
   const [connected, setConnected] = useState(false);
 
@@ -15,16 +20,20 @@ export default function useWebSocket(url: string, onMessage: (data: any) => void
     socket.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
+
+        if (!data?.event || !onMessage) return;
+        if (filterEvent && !filterEvent.includes(data.event)) return;
+
         onMessage(data);
       } catch (err) {
-        console.warn("WebSocket parse error", err);
+        console.warn('WebSocket parse error', err);
       }
     };
 
     return () => {
       socket.close();
     };
-  }, [url]);
+  }, [url, onMessage, filterEvent?.join(',')]);
 
   return { socket: socketRef.current, connected };
 }

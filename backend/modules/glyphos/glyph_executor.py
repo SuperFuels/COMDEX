@@ -44,6 +44,9 @@ class GlyphExecutor:
         # Dispatch to module logic
         self.dispatcher.dispatch(parsed)
 
+        # Get current simulation tick
+        current_tick = self.state_manager.get_tick()
+
         # Specific glyph behaviors
         if glyph == "🧠":
             self.goal_engine.boot_next_skill()
@@ -52,6 +55,7 @@ class GlyphExecutor:
                 "glyph": glyph,
                 "action": "boot_next_skill",
                 "coord": coord,
+                "tick": current_tick,
                 "trait_impact": {"curiosity": +0.02},
             })
             self.personality.adjust_trait("curiosity", +0.02)
@@ -63,6 +67,7 @@ class GlyphExecutor:
                 "glyph": glyph,
                 "action": "run_top_goal",
                 "coord": coord,
+                "tick": current_tick,
                 "trait_impact": {"ambition": +0.01},
             })
             self.personality.adjust_trait("ambition", +0.01)
@@ -73,6 +78,7 @@ class GlyphExecutor:
                 "glyph": glyph,
                 "action": "curiosity_spark",
                 "coord": coord,
+                "tick": current_tick,
                 "trait_impact": {"curiosity": +0.03, "humility": +0.01},
             })
             self.personality.adjust_trait("curiosity", +0.03)
@@ -86,6 +92,7 @@ class GlyphExecutor:
                 "glyph": glyph,
                 "action": "created_goal",
                 "coord": coord,
+                "tick": current_tick,
                 "goal_id": goal_id,
                 "trait_impact": {"ambition": +0.01},
             })
@@ -98,6 +105,7 @@ class GlyphExecutor:
                 "glyph": glyph,
                 "action": "milestone_unlocked",
                 "coord": coord,
+                "tick": current_tick,
                 "milestone": "glyph_star_trigger",
                 "trait_impact": {"ambition": +0.02, "curiosity": +0.01},
             })
@@ -109,6 +117,7 @@ class GlyphExecutor:
                 "type": "glyph_trigger",
                 "glyph": glyph,
                 "coord": coord,
+                "tick": current_tick,
                 "action": "executed_generic_glyph"
             })
 

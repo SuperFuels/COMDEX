@@ -26,6 +26,9 @@ from backend.modules.tessaris.tessaris_engine import TessarisEngine
 from backend.modules.tessaris.thought_branch import ThoughtBranch, BranchNode
 from backend.modules.tessaris.tessaris_store import save_snapshot
 
+from backend.modules.glyphos.glyph_mutator import mutate_glyph
+from backend.websocket.websocket_handler import socketio
+
 from backend.database import get_db
 from backend.models.dream import Dream
 
@@ -206,7 +209,6 @@ class DreamCore:
                 self.situation.log_event(f"Dream post-processing failed: {e}", "negative")
                 print(f"🚨 Dream post-processing failed: {e}")
 
-            # 🔁 NEW: Trigger Tessaris recursive logic
             try:
                 root = BranchNode(symbol="Δ", source="dream")
                 children = root.generate_branches()
@@ -216,7 +218,6 @@ class DreamCore:
                 self.tessaris.execute_branch(branch)
                 print("🌱 Tessaris executed dream logic branch.")
 
-                # 📸 Save Tessaris snapshot (with metadata)
                 save_snapshot(
                     branch=branch,
                     label=dream_label,
@@ -227,6 +228,38 @@ class DreamCore:
                 print("📸 Tessaris snapshot saved.")
             except Exception as e:
                 print(f"⚠️ Tessaris integration failed: {e}")
+
+            # ♻️ Decay/loop triggered glyph mutation
+            try:
+                current_container = self.state.current_container
+                container_file = current_container.get("path") if current_container else None
+
+                if container_file:
+                    dimension = self.state.get_loaded_dimension()
+                    grid = dimension.get("microgrid", {})
+
+                    for coord, glyph in grid.items():
+                        decay = glyph.get("decay", 0)
+                        trigger_count = glyph.get("trigger_count", 0)
+
+                        if decay >= 1 or trigger_count > 10:
+                            reason = f"Auto-triggered decay rewrite from dream at {coord} (decay={decay}, count={trigger_count})"
+                            new_value = f"{glyph.get('value', '')}*"
+                            success = mutate_glyph(
+                                container_path=container_file,
+                                coord=coord,
+                                mutation={"value": new_value, "meta": {"triggered_by": "dream_reflection"}},
+                                reason=reason
+                            )
+                            if success:
+                                socketio.emit("glyph_decay_trigger", {
+                                    "coord": coord,
+                                    "container": container_file,
+                                    "trigger": reason
+                                })
+                                print(f"♻️ Glyph decay mutation triggered at {coord}")
+            except Exception as e:
+                print(f"⚠️ Glyph decay/mutation pass failed: {e}")
 
             return dream
         else:

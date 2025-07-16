@@ -7,6 +7,7 @@ type TessarisIntent = {
   name: string;
   status: string;
   source: string;
+  reason?: string; // 🔍 Added reason for D14
   preview?: string;
 };
 
@@ -39,17 +40,24 @@ export default function GlyphExecutor() {
       ) : (
         <ul className="space-y-2">
           {intents.map((intent, idx) => (
-            <li key={idx} className="border rounded p-2">
-              <div className="text-sm text-gray-700">
-                <strong>{intent.type}</strong> → {intent.name}
+            <li key={idx} className="border rounded p-2 bg-gray-50 hover:bg-white transition">
+              <div className="text-sm text-gray-800">
+                <span className="font-bold">{intent.type}</span>
+                <span className="mx-1 text-blue-600 font-mono">→</span>
+                <span className="font-medium">{intent.name}</span>
               </div>
               <div className="text-xs text-gray-500">
                 Status: {intent.status} | Source: {intent.source}
               </div>
-              {intent.preview && (
-                <div className="text-xs mt-1 bg-gray-50 p-1 rounded">
-                  {intent.preview}
+              {intent.reason && (
+                <div className="text-xs mt-1 text-indigo-600 italic">
+                  🧠 Trigger Reason: {intent.reason}
                 </div>
+              )}
+              {intent.preview && (
+                <pre className="text-xs mt-1 bg-white border rounded p-1 overflow-x-auto text-gray-700">
+                  {intent.preview}
+                </pre>
               )}
             </li>
           ))}

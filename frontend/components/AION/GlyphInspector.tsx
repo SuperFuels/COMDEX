@@ -39,6 +39,19 @@ const GlyphInspector: React.FC<GlyphInspectorProps> = ({ coord, data, onClose })
     setIsSubmitting(false);
   };
 
+  // 🧬 Symbolic Logic Preview
+  const previewLogic = () => {
+    const { type, tag, value, action } = editedGlyph || {};
+    if (!type && !tag && !value && !action) return null;
+    const symbol = `⟦ ${type || "?"} | ${tag || "?"} : ${value || "?"} → ${action || "?"} ⟧`;
+    return (
+      <div className="bg-gray-100 p-3 mt-3 rounded text-sm font-mono text-gray-800 border">
+        <div className="text-xs text-gray-500 mb-1">Symbolic Logic:</div>
+        {symbol}
+      </div>
+    );
+  };
+
   return (
     <div className="p-4 border rounded bg-white shadow-md w-full max-w-lg">
       <h2 className="text-lg font-bold mb-2">Edit Glyph: {coord}</h2>
@@ -86,6 +99,9 @@ const GlyphInspector: React.FC<GlyphInspectorProps> = ({ coord, data, onClose })
           )}
         </div>
       )}
+
+      {/* ⟦ Logic | Tag : Value → Action ⟧ */}
+      {previewLogic()}
 
       <div className="flex justify-between mt-4">
         <button

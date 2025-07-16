@@ -120,6 +120,12 @@ from backend.api.endpoints import submit_mutation
 from backend.routes import aion_submit_mutation
 from backend.routes import aion_score_mutation
 from backend.routes import avatar_runtime
+from backend.routes import aion_get_glyph_tick
+from backend.api.aion.memory_trace import router as memory_trace_router
+from backend.api.aion import get_memory_trace
+from backend.api.aion import bundle_container
+
+
 
 # ✅ WebSocket route
 from backend.api import ws
@@ -177,6 +183,10 @@ app.include_router(submit_mutation.router)
 app.include_router(aion_submit_mutation.router)
 app.include_router(aion_score_mutation.router)
 app.include_router(avatar_runtime.router, prefix="/api")
+app.include_router(aion_get_glyph_tick.router)
+app.include_router(memory_trace_router, tags=["AION Traces"])
+app.include_router(get_memory_trace.router)
+app.include_router(bundle_container.router)
 
 # ── 16) Serve uploaded images
 app.mount("/uploaded_images", StaticFiles(directory="uploaded_images"), name="uploaded_images")

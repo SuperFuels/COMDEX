@@ -1,3 +1,5 @@
+// File: frontend/components/AION/ContainerStatus.tsx
+
 import React, { useEffect, useState } from "react";
 
 type Container = {
@@ -13,6 +15,7 @@ type Container = {
 const ContainerStatus = () => {
   const [containers, setContainers] = useState<Container[]>([]);
   const [autoRefresh, setAutoRefresh] = useState(true);
+  const [uploadingId, setUploadingId] = useState<string | null>(null);
 
   const fetchContainers = async () => {
     try {
@@ -23,6 +26,20 @@ const ContainerStatus = () => {
       }
     } catch (err) {
       console.error("Failed to fetch containers:", err);
+    }
+  };
+
+  const uploadBundle = async (id: string) => {
+    setUploadingId(id);
+    try {
+      const res = await fetch(`/api/aion/bundle/${id}`);
+      const data = await res.json();
+      console.log("Bundle result:", data);
+      // Optional: show toast, trigger save, or auto-download
+    } catch (e) {
+      console.error("Bundle error:", e);
+    } finally {
+      setTimeout(() => setUploadingId(null), 1500);
     }
   };
 
@@ -104,15 +121,27 @@ const ContainerStatus = () => {
                 <span>
                   {c.in_memory ? "🧠" : "📁"} {c.title || c.id}
                 </span>
-                {Array.isArray(c.tags) && c.tags.length > 0 && (
-                  <span className="text-xs text-gray-500">
-                    [{c.tags.join(", ")}]
-                  </span>
-                )}
+                <div
+                  className="ml-2 text-sm text-gray-500 hover:text-blue-600"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    uploadBundle(c.id);
+                  }}
+                >
+                  {uploadingId === c.id ? "⏳" : "📤"}
+                </div>
               </div>
+
               {c.description && (
                 <div className="text-xs text-gray-600 mt-1">{c.description}</div>
               )}
+
+              {Array.isArray(c.tags) && c.tags.length > 0 && (
+                <div className="text-xs text-gray-500 mt-1">
+                  <strong>Tags:</strong> {c.tags.join(", ")}
+                </div>
+              )}
+
               {c.nav && (
                 <div className="text-xs text-gray-500 mt-1">
                   <p className="font-medium">🗺️ Nav Map:</p>

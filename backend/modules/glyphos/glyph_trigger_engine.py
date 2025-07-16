@@ -9,20 +9,35 @@ from backend.modules.glyphos.microgrid_index import MicrogridIndex
 from backend.modules.hexcore.memory_engine import MemoryEngine
 from backend.modules.aion.dream_core import trigger_dream_reflection
 from backend.modules.consciousness.state_manager import StateManager
+from backend.modules.memory.memory_bridge import MemoryBridge  # ✅ New
+from backend.modules.dna_chain.glyph_mutator import propose_rewrite  # ♻️ Glyph rewrite
 
 # Instantiate memory engine for feedback
 memory = MemoryEngine()
+state = StateManager()
+container_id = state.get_current_container_id() or "default"
+bridge = MemoryBridge(container_id)  # ✅ MemoryBridge instance
 
 # Glyph-triggered action definitions
 def trigger_dream_core(metadata: Dict[str, Any]):
     print(f"🌙 Triggering DreamCore from glyph: {metadata}")
     trigger_dream_reflection(source="glyph_trigger", context=metadata)
+    bridge.trace_trigger("✦", {
+        **metadata,
+        "origin": "glyph_trigger_engine",
+        "role": "Dream reflection",
+    })
 
 def trigger_teleport(metadata: Dict[str, Any]):
     print(f"🧽 Teleport activated by glyph: {metadata}")
     memory.store({
         "label": "trigger:teleport",
         "content": f"Teleport glyph triggered at {metadata.get('coord', '?')}"
+    })
+    bridge.trace_trigger("🧽", {
+        **metadata,
+        "origin": "glyph_trigger_engine",
+        "role": "Teleport command",
     })
 
 def trigger_ethics(metadata: Dict[str, Any]):
@@ -31,12 +46,22 @@ def trigger_ethics(metadata: Dict[str, Any]):
         "label": "trigger:ethics",
         "content": f"Ethic glyph triggered with payload: {metadata}"
     })
+    bridge.trace_trigger("⚛", {
+        **metadata,
+        "origin": "glyph_trigger_engine",
+        "role": "SoulLaw check",
+    })
 
 def trigger_memory_seed(metadata: Dict[str, Any]):
     print(f"🄁 Storing memory seed: {metadata}")
     memory.store({
         "label": "trigger:seed",
         "content": f"Seeded memory: {metadata.get('value', 'unknown')}"
+    })
+    bridge.trace_trigger("🄁", {
+        **metadata,
+        "origin": "glyph_trigger_engine",
+        "role": "Seed memory injection",
     })
 
 def trigger_compression(metadata: Dict[str, Any]):
@@ -45,6 +70,11 @@ def trigger_compression(metadata: Dict[str, Any]):
         "label": "trigger:compress",
         "content": f"Compression glyph triggered for: {metadata.get('coord', '?')}"
     })
+    bridge.trace_trigger("⌜", {
+        **metadata,
+        "origin": "glyph_trigger_engine",
+        "role": "Compression event",
+    })
 
 def trigger_lock(metadata: Dict[str, Any]):
     print(f"⨿ Dimension lock triggered: {metadata}")
@@ -52,6 +82,28 @@ def trigger_lock(metadata: Dict[str, Any]):
         "label": "trigger:lock",
         "content": f"Lock glyph triggered. Tag: {metadata.get('tag', 'none')}"
     })
+    bridge.trace_trigger("⨿", {
+        **metadata,
+        "origin": "glyph_trigger_engine",
+        "role": "Dimension gate lock",
+    })
+
+def trigger_decay_rewrite(coord: str, meta: Dict[str, Any]):
+    age_ms = meta.get("age_ms", 0)
+    if age_ms > 60000:  # 60s decay threshold
+        print(f"♻️ Glyph at {coord} decayed — proposing rewrite")
+        propose_rewrite(coord, {
+            "reason": "Decay-triggered glyph rewrite",
+            "original_glyph": meta.get("glyph"),
+            "age_ms": age_ms,
+            "metadata": meta
+        })
+        bridge.trace_trigger("♻️", {
+            **meta,
+            "coord": coord,
+            "origin": "glyph_trigger_engine",
+            "role": "Decay-based rewrite",
+        })
 
 # Glyph character → handler map
 GLYPH_TRIGGER_MAP: Dict[str, Callable[[Dict[str, Any]], None]] = {
@@ -82,13 +134,17 @@ def scan_and_trigger(container_path: str):
     for coord, meta in index.glyph_map.items():
         glyph = meta.get("glyph")
 
-        # 1. Direct glyph triggers (via character map)
+        if not glyph:
+            continue
+
         if glyph in GLYPH_TRIGGER_MAP:
             print(f"🚨 Triggering behavior for glyph {glyph} at {coord}")
             meta["coord"] = coord
             GLYPH_TRIGGER_MAP[glyph](meta)
 
-        # 2. Memory action
+        # Decay rewrite logic
+        trigger_decay_rewrite(coord, meta)
+
         elif meta.get("type") == "Memory" and meta.get("action") == "store":
             print(f"📄 Storing memory glyph at {coord}: {meta}")
             label = f"glyph:{meta.get('tag', 'note')}"
@@ -122,7 +178,7 @@ def glyph_behavior_loop(interval: float = 5.0):
                 glyph = meta.get("glyph")
                 key = f"{coord}:{glyph}"
 
-                if key in _last_glyph_state:
+                if not glyph or key in _last_glyph_state:
                     continue
 
                 if glyph in GLYPH_TRIGGER_MAP:
@@ -131,6 +187,9 @@ def glyph_behavior_loop(interval: float = 5.0):
                     GLYPH_TRIGGER_MAP[glyph](meta)
                     _last_glyph_state[key] = True
                     triggered_this_cycle.append(glyph)
+
+                # Also check for decay-based rebirth
+                trigger_decay_rewrite(coord, meta)
 
             if triggered_this_cycle:
                 emit_event_log("cycle_complete", triggered_this_cycle)
@@ -152,7 +211,6 @@ if __name__ == "__main__":
     test_path = "backend/modules/dimensions/containers/test_trigger.dc"
     scan_and_trigger(test_path)
 
-    # To test loop mode:
     # threading.Thread(target=glyph_behavior_loop).start()
     # time.sleep(30)
     # stop_glyph_loop()

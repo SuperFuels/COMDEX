@@ -1,25 +1,102 @@
-import React, { useEffect, useState } from "react";
+// avatar-runtime.tsx
+
+import React, { useEffect, useState, useRef } from "react";
 import ContainerStatus from "@/components/AION/ContainerStatus";
 import GlyphGrid from "@/components/AION/GlyphGrid";
 import GlyphMutator from "@/components/AION/GlyphMutator";
 import TessarisVisualizer from "@/components/AION/TessarisVisualizer";
+import TessarisIntentVisualizer from "@/components/AION/TessarisIntentVisualizer";
 import GlyphExecutor from "@/components/AION/GlyphExecutor";
-import CommandBar from "@/components/CommandBar"; // ✅ Corrected path
+import CommandBar from "@/components/CommandBar";
+import GlyphQROverlay from "@/components/AION/GlyphQROverlay";
+import GlyphSummaryHUD from "@/components/AION/GlyphSummaryHUD";
+import TimelineControls from "@/components/AION/TimelineControls";
+
+type ViewMode = "top-down" | "3d-symbolic" | "glyph-logic";
 
 export default function AvatarRuntimePage() {
   const [tick, setTick] = useState(0);
-  const [glyphData, setGlyphData] = useState<string>(""); // Expecting glyph logic as a string
+  const [glyphData, setGlyphData] = useState<string>("");
   const [cubes, setCubes] = useState<Record<string, any>>({});
-  const [coord, setCoord] = useState<{ x: number; y: number; z: number; t: number }>({
-    x: 0,
-    y: 0,
-    z: 0,
-    t: 0,
-  });
+  const [prevCubes, setPrevCubes] = useState<Record<string, any>>({});
+  const [glyphDiff, setGlyphDiff] = useState<any>(null);
+  const [coord, setCoord] = useState<{ x: number; y: number; z: number; t: number }>({ x: 0, y: 0, z: 0, t: 0 });
   const [loading, setLoading] = useState(false);
   const [input, setInput] = useState("");
   const [presets, setPresets] = useState<string[]>([]);
+  const [showQR, setShowQR] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>("top-down");
+  const [timeRatio, setTimeRatio] = useState(1);
+  const [isPlaying, setIsPlaying] = useState(false);
   const containerId = "default";
+
+  const playbackInterval = useRef<NodeJS.Timeout | null>(null);
+
+  const diffGlyphs = (oldCubes: any, newCubes: any) => {
+    const added: string[] = [];
+    const removed: string[] = [];
+    const changed: string[] = [];
+
+    const allKeys = new Set([...Object.keys(oldCubes), ...Object.keys(newCubes)]);
+
+    for (const key of allKeys) {
+      const oldGlyph = oldCubes[key]?.glyph || "";
+      const newGlyph = newCubes[key]?.glyph || "";
+
+      if (!oldGlyph && newGlyph) added.push(key);
+      else if (oldGlyph && !newGlyph) removed.push(key);
+      else if (oldGlyph !== newGlyph) changed.push(key);
+    }
+
+    return { added, removed, changed };
+  };
+
+  const fetchSnapshot = async (targetTick: number) => {
+    try {
+      const res = await fetch(`/api/aion/glyphs?t=${targetTick}`);
+      const data = await res.json();
+      if (data.cubes) {
+        setPrevCubes(cubes);
+        setCubes(data.cubes);
+        const diff = diffGlyphs(cubes, data.cubes);
+        setGlyphDiff(diff);
+      }
+    } catch (err) {
+      console.error("Failed to fetch rewind snapshot:", err);
+    }
+  };
+
+  const handlePlay = () => {
+    setIsPlaying(true);
+    playbackInterval.current = setInterval(() => {
+      setTick((prev) => {
+        const next = prev + 1;
+        fetchSnapshot(next);
+        return next;
+      });
+    }, 1000);
+  };
+
+  const handlePause = () => {
+    setIsPlaying(false);
+    if (playbackInterval.current) clearInterval(playbackInterval.current);
+  };
+
+  const handlePrev = () => {
+    setTick((prev) => {
+      const next = Math.max(0, prev - 1);
+      fetchSnapshot(next);
+      return next;
+    });
+  };
+
+  const handleNext = () => {
+    setTick((prev) => {
+      const next = prev + 1;
+      fetchSnapshot(next);
+      return next;
+    });
+  };
 
   useEffect(() => {
     const ws = new WebSocket("wss://comdex-api-kappa.vercel.app/ws/updates");
@@ -29,8 +106,11 @@ export default function AvatarRuntimePage() {
         if (data.type === "runtime_tick") {
           setTick(data.tick);
         } else if (data.type === "glyph_update") {
-          setGlyphData(data.glyphs?.[0] || ""); // just use first glyph logic for now
+          setGlyphData(data.glyphs?.[0] || "");
+          setPrevCubes(cubes);
           setCubes(data.cubes || {});
+          const diff = diffGlyphs(cubes, data.cubes || {});
+          setGlyphDiff(diff);
         }
       } catch (err) {
         console.error("WebSocket parse error:", err);
@@ -39,7 +119,7 @@ export default function AvatarRuntimePage() {
     ws.onerror = (e) => console.warn("WebSocket error:", e);
     ws.onclose = () => console.log("WebSocket closed");
     return () => ws.close();
-  }, []);
+  }, [cubes]);
 
   useEffect(() => {
     fetch("/api/aion/command/registry")
@@ -52,6 +132,12 @@ export default function AvatarRuntimePage() {
       .catch((err) => {
         console.warn("Failed to load command registry:", err);
       });
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (playbackInterval.current) clearInterval(playbackInterval.current);
+    };
   }, []);
 
   const handleSubmit = async () => {
@@ -80,7 +166,6 @@ export default function AvatarRuntimePage() {
     <div className="min-h-screen p-6 bg-gradient-to-b from-gray-100 to-white text-gray-900">
       <h1 className="text-3xl font-bold mb-6">🧠 AION Avatar Runtime</h1>
 
-      {/* Container Map */}
       <section className="mb-8">
         <div className="flex items-center justify-between mb-2">
           <h2 className="text-xl font-semibold">🌐 Container Status</h2>
@@ -89,17 +174,44 @@ export default function AvatarRuntimePage() {
         <ContainerStatus />
       </section>
 
-      {/* Thought Tree */}
       <section className="mb-8">
         <h2 className="text-xl font-semibold mb-2">🧬 Tessaris Thought Tree</h2>
         <TessarisVisualizer />
       </section>
 
-      {/* Glyph Grid + Mutator */}
+      <section className="mb-8">
+        <h2 className="text-xl font-semibold mb-2">🧩 Tessaris Intents</h2>
+        <TessarisIntentVisualizer />
+      </section>
+
       <section className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
         <div>
-          <h2 className="text-xl font-semibold mb-2">🔠 Glyph Grid</h2>
-          <GlyphGrid cubes={cubes} tick={tick} />
+          <div className="flex justify-between items-center mb-2">
+            <h2 className="text-xl font-semibold">🔠 Glyph Grid</h2>
+            <div className="flex space-x-2">
+              <select
+                value={viewMode}
+                onChange={(e) => setViewMode(e.target.value as ViewMode)}
+                className="border rounded p-1 text-sm"
+              >
+                <option value="top-down">Top-Down View</option>
+                <option value="3d-symbolic">3D Symbolic View</option>
+                <option value="glyph-logic">CodexLang / GlyphOS Logic</option>
+              </select>
+              <button
+                onClick={() => setShowQR(!showQR)}
+                className="px-3 py-1 text-sm bg-purple-600 text-white rounded-md hover:bg-purple-700 transition"
+              >
+                {showQR ? "Hide QR" : "Show GlyphQR"}
+              </button>
+            </div>
+          </div>
+          <GlyphGrid cubes={cubes} tick={tick} viewMode={viewMode} />
+          {showQR && (
+            <div className="mt-4">
+              <GlyphQROverlay glyphData={glyphData} visible={true} />
+            </div>
+          )}
         </div>
         <div>
           <h2 className="text-xl font-semibold mb-2">🧪 Glyph Mutator</h2>
@@ -112,13 +224,44 @@ export default function AvatarRuntimePage() {
         </div>
       </section>
 
-      {/* Execution Queue */}
       <section className="mb-10">
         <h2 className="text-xl font-semibold mb-2">⚡ Glyph Execution Queue</h2>
         <GlyphExecutor />
       </section>
 
-      {/* Terminal */}
+      <section className="mb-10">
+        <h2 className="text-xl font-semibold mb-2">📺 Glyph Runtime HUD</h2>
+        <GlyphSummaryHUD glyphDiff={glyphDiff} />
+      </section>
+
+      <section className="mb-10">
+        <h2 className="text-xl font-semibold mb-2">📺 Timeline Playback</h2>
+        <TimelineControls
+          isPlaying={isPlaying}
+          currentTick={tick}
+          onPlay={handlePlay}
+          onPause={handlePause}
+          onPrev={handlePrev}
+          onNext={handleNext}
+        />
+      </section>
+
+      <section className="mb-10">
+        <h2 className="text-xl font-semibold mb-2">🕰️ Container Time Ratio</h2>
+        <div className="flex items-center space-x-4">
+          <input
+            type="range"
+            min={0.1}
+            max={5}
+            step={0.1}
+            value={timeRatio}
+            onChange={(e) => setTimeRatio(Number(e.target.value))}
+            className="w-48"
+          />
+          <span className="text-sm text-gray-700">Ratio: {timeRatio.toFixed(1)}x</span>
+        </div>
+      </section>
+
       <section className="border-t border-gray-300 pt-6 mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <h2 className="text-lg font-medium mb-2">🧭 AION Command Interface</h2>

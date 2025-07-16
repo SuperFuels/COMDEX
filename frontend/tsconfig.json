@@ -31,6 +31,7 @@
       "@/types/*":       ["types/*"],
       "@/lib/*":         ["lib/*"],
       "@/components/*":  ["components/*"],
+      "@/components/ui/*": ["components/ui/*"],       // ✅ Added for Card, Badge, Button
       "@/hooks/*":       ["hooks/*"],
       "@/utils/*":       ["utils/*"],
       "@/styles/*":      ["styles/*"]
