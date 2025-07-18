@@ -1,9 +1,10 @@
-# backend/modules/codex/codex_core.py
+# 📁 backend/modules/codex/codex_core.py
 
 from backend.modules.glyphos.glyph_instruction_set import INSTRUCTION_SET, get_instruction
 from backend.modules.glyphos.symbolic_hash_engine import symbolic_hash
 from backend.modules.glyphos.glyph_trace_logger import GlyphTraceLogger
 from backend.modules.dna_chain.glyph_mutator import propose_mutation
+from backend.modules.codex.codex_cost_estimator import CodexCostEstimator
 
 logger = GlyphTraceLogger()
 
@@ -11,6 +12,7 @@ class CodexCore:
     def __init__(self):
         self.known_hashes = set()
         self.execution_log = []
+        self.cost_estimator = CodexCostEstimator()
 
     def execute(self, glyph: str, context: dict = {}):
         glyph = glyph.strip()
@@ -47,6 +49,10 @@ class CodexCore:
 
             if op == "→" and "rewrite" in str(result).lower():
                 propose_mutation(glyph, reason="CodexCore Rewrite Trigger")
+
+            # ✅ Estimate cost
+            cost = self.cost_estimator.estimate_glyph_cost(glyph, context or {})
+            print(f"[🧮] Estimated glyph cost: {cost.total()} | Breakdown: {vars(cost)}")
 
             return result
         except Exception as e:

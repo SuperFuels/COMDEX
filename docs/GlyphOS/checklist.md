@@ -170,6 +170,17 @@ PHASE 2
   A1 --> D1 --> D2 --> D3
   B1 --> C1 --> C2 --> C3 --> C4
 
+
+graph TD
+  G1[📜 GlyphOS Grammar: Core Language Spec]
+  G1 --> G1a[✅ Symbolic Syntax ⟦ Type | Tag : Value → Action ⟧]
+  G1 --> G1b[✅ Symbol Types: MEM, EMO, LOG, DIR, ACT]
+  G1 --> G1c[✅ Operators: →, ↑, ≡ (↔, ⊕ pending)]
+  G1 --> G1d[✅ Thoughtpacks + Meta-Glyphs]
+  G1 --> G1e[✅ .dc Storage Format: compressed JSON]
+  G1 --> G1f[⏳ PatternMatch + Symbol Deduplication]
+  G1 --> G1g[⏳ Glyph Encryption (Aethervault)]
+  
 ---
 
 ## ✅ Summary of Phase 2 Goals

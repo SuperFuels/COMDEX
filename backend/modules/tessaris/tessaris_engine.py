@@ -3,6 +3,7 @@
 import uuid
 import json
 import requests
+import time
 
 from config import GLYPH_API_BASE_URL
 from backend.modules.tessaris.thought_branch import ThoughtBranch, BranchNode
@@ -17,6 +18,10 @@ from backend.modules.memory.memory_bridge import MemoryBridge
 from backend.modules.glyphos.glyph_mutator import run_self_rewrite
 from backend.modules.glyphos.glyph_generator import GlyphGenerator
 
+# 🔁 Codex integration
+from backend.modules.codex.codex_mind_model import CodexMindModel
+from backend.modules.codex.codex_metrics import CodexMetrics
+
 DNA_SWITCH.register(__file__)
 
 class TessarisEngine:
@@ -27,6 +32,10 @@ class TessarisEngine:
         self.boot_selector = BootSelector()
         self.memlog = MemoryBridge()
         self.glyph_generator = GlyphGenerator()
+
+        # 🧠 Codex integration
+        self.codex_mind = CodexMindModel()
+        self.codex_metrics = CodexMetrics()
 
     def seed_thought(self, root_symbol: str, source: str = "manual", metadata: dict = {}):
         thought_id = str(uuid.uuid4())
@@ -84,6 +93,10 @@ class TessarisEngine:
                 })
                 print(f"  ➤ Glyph {idx}: {glyph} → {result}")
 
+                # 🔁 Codex tracking
+                self.codex_mind.observe(glyph)
+                self.codex_metrics.record_execution()
+
                 coord = branch.position.get("coord")
                 container_path = branch.metadata.get("container_path") if branch.metadata else None
 
@@ -110,6 +123,7 @@ class TessarisEngine:
 
             except Exception as e:
                 print(f"  ⚠️ Error interpreting glyph {glyph}: {e}")
+                self.codex_metrics.record_error()
 
         self.extract_intents_from_glyphs(branch.glyphs, branch.metadata)
         self.active_branches.append(branch)

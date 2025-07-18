@@ -25,6 +25,9 @@ from backend.modules.consciousness.reflection_engine import ReflectionEngine
 from backend.modules.consciousness.personality_engine import PersonalityProfile
 from backend.modules.consciousness.situational_engine import SituationalEngine
 from backend.modules.skills.dream_post_processor import DreamPostProcessor
+from backend.modules.codex.codex_core import CodexCore
+from backend.modules.codex.codex_feedback_loop import CodexFeedbackLoop
+from backend.modules.codex.codex_metrics import CodexMetrics
 from backend.modules.tessaris.tessaris_engine import TessarisEngine
 from backend.modules.tessaris.thought_branch import ThoughtBranch, BranchNode
 from backend.modules.tessaris.tessaris_store import save_snapshot
@@ -64,6 +67,9 @@ class DreamCore:
         self.personality = PersonalityProfile()
         self.situation = SituationalEngine()
         self.tessaris = TessarisEngine()
+        self.codex = CodexCore()
+        self.codex_metrics = CodexMetrics()
+        self.codex_feedback = CodexFeedbackLoop()
 
         self.max_memories = 20
         self.noise_phrases = ["random noise", "nonsense", "irrelevant", "unintelligible"]
@@ -240,6 +246,16 @@ class DreamCore:
                 self.tessaris.execute_branch(branch)
                 print("🌱 Tessaris executed dream logic branch.")
 
+            try:
+                print("⚛️ CodexCore executing symbolic glyphs...")
+                for glyph in branch.glyphs:
+                    result = self.codex.execute(glyph)
+                    self.codex_metrics.record_execution()
+                    print(f"🧪 Codex executed: {glyph} → {result}")
+            except Exception as e:
+                self.codex_metrics.record_error()
+                print(f"🚨 Codex execution error: {e}")
+
                 # 🧠 Extract and queue intents from dream glyphs
                 self.tessaris.extract_intents_from_glyphs(branch.glyphs, metadata={
                     "source": "dream_core",
@@ -256,6 +272,19 @@ class DreamCore:
                 )
                 print("📸 Tessaris snapshot saved.")
                 scan_snapshot_for_intents(snapshot_path=f"data/tessaris/snapshots/{dream_label}.tessaris.json")
+
+                # SECTION 4: Codex Feedback Loop
+                try:
+                    print("🔁 Running Codex feedback analysis...")
+                    self.codex_feedback.reinforce_or_mutate()
+                except Exception as e:
+                    print(f"⚠️ Codex feedback loop failed: {e}")
+
+                # SECTION 5: Codex Metrics Output
+                try:
+                    print("📊 Codex Metrics:", self.codex_metrics.dump())
+                except Exception as e:
+                    print(f"⚠️ Failed to dump Codex metrics: {e}")
 
                 # 🧠 Embed dream glyphs into .dc runtime container
                 try:
