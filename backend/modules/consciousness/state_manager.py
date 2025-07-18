@@ -186,7 +186,6 @@ class StateManager:
                 print(f"[WS] Broadcast failed: {e}")
 
     def get_current_container_path(self):
-        """Return full file path to currently loaded container, if available."""
         if not self.current_container:
             return None
         return get_dc_path(self.current_container)
@@ -196,7 +195,7 @@ class StateManager:
             self.context["active_container"] = self.current_container
             container_id = self.current_container.get("id")
             if container_id:
-                self.context["container_time"] = self.time_controller.get_status(container_id)  # ⏳ Add time info
+                self.context["container_time"] = self.time_controller.get_status(container_id)
         return self.context
 
     def save_memory_reference(self, snapshot):
@@ -241,12 +240,58 @@ class StateManager:
         return container
 
     def tick_current_container(self, state_snapshot: dict):
-        """Call this once per tick loop to advance time."""
         if not self.current_container:
             return
         container_id = self.current_container.get("id")
         if container_id:
-            self.time_controller.tick(container_id, state_snapshot)  # ⏳ Advance tick
+            self.time_controller.tick(container_id, state_snapshot)
+
+    def write_glyph_to_cube(self, glyphs: list, source: str = "synthesis") -> bool:
+        try:
+            if not self.current_container:
+                print("[ERROR] No container loaded.")
+                return False
+
+            if "cubes" not in self.current_container:
+                self.current_container["cubes"] = {}
+
+            cubes = self.current_container["cubes"]
+            max_x = max([int(c.split(",")[0]) for c in cubes.keys()] + [0])
+            base_yzt = "0,0,0"
+
+            for i, glyph in enumerate(glyphs):
+                x = max_x + i + 1
+                coord = f"{x},{base_yzt}"
+                cubes[coord] = {
+                    "coord": [x, 0, 0, 0],
+                    "glyph": glyph,
+                    "source": source,
+                    "timestamp": str(datetime.utcnow())
+                }
+
+            path = self.get_current_container_path()
+            if path:
+                with open(path, "w") as f:
+                    json.dump(self.current_container, f, indent=2)
+                print(f"[💾] Injected {len(glyphs)} glyph(s) into container at path {path}")
+
+            if WS:
+                loop = asyncio.get_event_loop()
+                payload = {
+                    "event": "glyph_injected",
+                    "data": {
+                        "glyphs": glyphs,
+                        "container": self.current_container.get("id"),
+                        "timestamp": str(datetime.utcnow())
+                    }
+                }
+                asyncio.ensure_future(WS.broadcast(payload)) if loop.is_running() else loop.run_until_complete(WS.broadcast(payload))
+
+            return True
+        except Exception as e:
+            print(f"[ERROR] write_glyph_to_cube failed: {e}")
+            return False
+
 
 # ✅ Singleton
 STATE = StateManager()

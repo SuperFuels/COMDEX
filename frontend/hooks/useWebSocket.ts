@@ -35,5 +35,18 @@ export default function useWebSocket(
     };
   }, [url, onMessage, filterEvent?.join(',')]);
 
-  return { socket: socketRef.current, connected };
+  // 🎯 New emit method using the open socket
+  const emit = (event: string, data: any) => {
+    if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+      socketRef.current.send(JSON.stringify({ event, data }));
+    } else {
+      console.warn('WebSocket not connected, cannot emit event:', event);
+    }
+  };
+
+  return {
+    socket: socketRef.current,
+    connected,
+    emit, // 💡 expose emit function here
+  };
 }

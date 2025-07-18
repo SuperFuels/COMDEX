@@ -2,10 +2,12 @@
 
 import time
 import threading
+import asyncio
 from backend.modules.consciousness.state_manager import StateManager
 from backend.modules.glyphos.glyph_executor import GlyphExecutor
 from backend.modules.websocket.websocket_manager import WebSocketManager  # Optional
 from backend.modules.dna_chain.dna_switch import register_dna_switch
+from backend.modules.runtime.glyph_watcher import GlyphWatcher  # ✅ New import
 
 # ✅ Optional glyph summarizer
 try:
@@ -13,10 +15,12 @@ try:
 except ImportError:
     summarize_glyphs = None
 
+
 class ContainerRuntime:
     def __init__(self, state_manager: StateManager, tick_interval: float = 2.0):
         self.state_manager = state_manager
         self.executor = GlyphExecutor(state_manager)
+        self.glyph_watcher = GlyphWatcher(state_manager)  # ✅ Watcher for ⎇: or ⧉: glyphs
         self.tick_interval = tick_interval
         self.running = False
         self.logs = []
@@ -26,6 +30,15 @@ class ContainerRuntime:
         self.loop_interval = 50  # How many ticks before looping
         self.rewind_buffer = []
         self.max_rewind = 5  # Store last 5 container states
+
+        # ✅ Async event loop in background thread
+        self.async_loop = asyncio.new_event_loop()
+        self.loop_thread = threading.Thread(target=self._start_event_loop, daemon=True)
+        self.loop_thread.start()
+
+    def _start_event_loop(self):
+        asyncio.set_event_loop(self.async_loop)
+        self.async_loop.run_forever()
 
     def start(self):
         if not self.running:
@@ -61,27 +74,32 @@ class ContainerRuntime:
             if len(self.rewind_buffer) > self.max_rewind:
                 self.rewind_buffer.pop(0)
 
+        # 🔍 Scan for ⎇: or ⧉: bytecode glyphs
+        self.glyph_watcher.scan_for_bytecode()
+
         for coord_str, data in cubes.items():
-            if "glyph" in data:
-                x, y, z = map(int, coord_str.split(","))
-                print(f"⚙️ Executing glyph at {coord_str}")
-                self.executor.execute_glyph_at(x, y, z)
-                tick_log["executed"].append(coord_str)
+            if "glyph" in data and data["glyph"]:
+                try:
+                    x, y, z = map(int, coord_str.split(","))
+                    print(f"⚙️ Executing glyph at {coord_str}")
+                    coro = self.executor.execute_glyph_at(x, y, z)
+                    asyncio.run_coroutine_threadsafe(coro, self.async_loop)
+                    tick_log["executed"].append(coord_str)
+                except Exception as e:
+                    print(f"❌ Failed to execute glyph at {coord_str}: {e}")
 
         self.tick_counter += 1
         tick_log["timestamp"] = time.time()
         tick_log["tick"] = self.tick_counter
 
-        # Apply looping logic
+        # Looping logic
         if self.loop_enabled and self.tick_counter % self.loop_interval == 0:
             if self.rewind_buffer:
                 rewind_state = self.rewind_buffer[0]
                 container["cubes"] = rewind_state["cubes"].copy()
                 print("🔄 Container loop: state rewound.")
 
-        # Optional: apply decay logic
         self.apply_decay(container["cubes"])
-
         return tick_log
 
     def apply_decay(self, cubes):
@@ -99,12 +117,12 @@ class ContainerRuntime:
         self.loop_enabled = enable
         self.loop_interval = interval
 
-    # ✅ NEW: Timeline playback support
+    # ✅ Timeline playback support
     def get_rewind_state(self, tick_offset: int = -1):
-        """Returns the container state at a given offset from latest (-1 = latest, -2 = previous, etc.)"""
         if not self.rewind_buffer:
             return None
         index = tick_offset % len(self.rewind_buffer)
         return self.rewind_buffer[index]["cubes"]
+
 
 register_dna_switch(__file__)

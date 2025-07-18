@@ -124,6 +124,7 @@ from backend.routes import aion_get_glyph_tick
 from backend.api.aion.memory_trace import router as memory_trace_router
 from backend.api.aion import get_memory_trace
 from backend.api.aion import bundle_container
+from backend.routes import aion_glyph_trigger_log
 
 
 
@@ -187,6 +188,7 @@ app.include_router(aion_get_glyph_tick.router)
 app.include_router(memory_trace_router, tags=["AION Traces"])
 app.include_router(get_memory_trace.router)
 app.include_router(bundle_container.router)
+app.include_router(aion_glyph_trigger_log.router)
 
 # ── 16) Serve uploaded images
 app.mount("/uploaded_images", StaticFiles(directory="uploaded_images"), name="uploaded_images")

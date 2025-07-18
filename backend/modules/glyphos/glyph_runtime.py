@@ -1,6 +1,6 @@
 # glyph_runtime.py
 
-import time
+import asyncio
 from backend.modules.glyphos.glyph_executor import GlyphExecutor
 from backend.modules.consciousness.state_manager import StateManager
 
@@ -11,20 +11,36 @@ class GlyphRuntime:
         self.state_manager = state_manager
         self.interval = 1.0  # seconds between scans
 
-    def tick(self):
+    async def tick(self):
         container = self.state_manager.get_current_container()
         cubes = container.get("cubes", {})
+
+        tasks = []
+
         for coord, data in cubes.items():
             glyph = data.get("glyph", "")
             if glyph:
                 x, y, z = map(int, coord.split(","))
                 print(f"⏱️ Runtime tick found glyph at ({coord}) → Executing")
-                self.executor.execute_glyph_at(x, y, z)
+                tasks.append(self.executor.execute_glyph_at(x, y, z))  # async
 
-    def run(self, duration_seconds=10):
+        if tasks:
+            await asyncio.gather(*tasks)  # ✅ await them concurrently
+
+    async def run(self, duration_seconds=10):
         print(f"🌀 Starting GlyphRuntime loop for {duration_seconds}s...")
-        start = time.time()
-        while time.time() - start < duration_seconds:
-            self.tick()
-            time.sleep(self.interval)
+        start = asyncio.get_event_loop().time()
+        while asyncio.get_event_loop().time() - start < duration_seconds:
+            await self.tick()
+            await asyncio.sleep(self.interval)
         print("✅ GlyphRuntime loop complete.")
+
+
+# Optional CLI runner
+if __name__ == "__main__":
+    async def main():
+        state_manager = StateManager()
+        runtime = GlyphRuntime(state_manager)
+        await runtime.run(duration_seconds=10)
+
+    asyncio.run(main())

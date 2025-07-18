@@ -8,6 +8,10 @@ import torch  # added import for PyTorch
 from backend.modules.dna_chain.switchboard import DNA_SWITCH
 DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
 
+# ✅ Glyph Synthesis API
+import requests
+from config import GLYPH_API_BASE_URL
+
 MEMORY_FILE = Path(__file__).parent / "aion_memory.json"
 EMBEDDING_FILE = Path(__file__).parent / "aion_embeddings.json"
 
@@ -131,6 +135,21 @@ class MemoryEngine:
             "type": "new_memory",
             "memory": memory_obj
         })
+
+        # ♻️ Auto-synthesize glyphs from memory
+        try:
+            print("🧬 Synthesizing glyphs from memory...")
+            synth_response = requests.post(
+                f"{GLYPH_API_BASE_URL}/api/aion/synthesize-glyphs",
+                json={"text": content, "source": "memory"}
+            )
+            if synth_response.status_code == 200:
+                result = synth_response.json()
+                print(f"✅ Synthesized {len(result.get('glyphs', []))} glyphs from memory.")
+            else:
+                print(f"⚠️ Glyph synthesis failed: {synth_response.status_code} {synth_response.text}")
+        except Exception as e:
+            print(f"🚨 Glyph synthesis error (memory): {e}")
 
 
 # ✅ Enhanced helper to store container metadata richly

@@ -1,4 +1,4 @@
-# File: backend/modules/glyphos/glyph_logic.py
+# glyph_logic.py
 
 from typing import Any, Dict
 from backend.modules.skills.boot_selector import BootSelector
@@ -8,9 +8,16 @@ from backend.modules.skills.strategy_planner import StrategyPlanner
 from backend.modules.hexcore.memory_engine import store_memory
 from backend.modules.dna_chain.switchboard import DNA_SWITCH
 
-DNA_SWITCH.register(__file__)  # Enable glyph mutation + evolution tracking
+# Optional: import MemoryBridge safely
+try:
+    from backend.modules.hexcore.memory_bridge import MemoryBridge
+    bridge = MemoryBridge()
+except ImportError:
+    bridge = None
 
-# Basic symbolic mappings (extendable)
+DNA_SWITCH.register(__file__)  # ✅ Track evolution of this logic
+
+# Glyph → symbolic meaning
 GLYPH_SYMBOL_MAP = {
     "Δ": "intent",
     "⊕": "condition",
@@ -25,17 +32,17 @@ GLYPH_SYMBOL_MAP = {
     "⚙": "boot",
 }
 
-# Optional internal modules
+# Real modules
 boot_selector = BootSelector()
 reflector = ReflectionEngine()
 goal_engine = GoalEngine()
 planner = StrategyPlanner()
 
 
-def interpret_glyph(glyph: str, context: Dict[str, Any]) -> str:
+def interpret_glyph(glyph: str, context: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Translate and execute a glyph symbol within a given context.
-    Triggers symbolic logic and optionally real AION modules.
+    Interprets a glyph symbol using symbolic logic + real modules.
+    Returns a dict including logs, triggers, metadata, and module output.
     """
     branch = context.get("branch")
     idx = context.get("index")
@@ -43,36 +50,88 @@ def interpret_glyph(glyph: str, context: Dict[str, Any]) -> str:
     position = context.get("position", 0)
 
     symbol = GLYPH_SYMBOL_MAP.get(glyph, "unknown")
-    log = f"[Glyph] {glyph} interpreted as '{symbol}' (in branch {branch.origin_id} at index {idx})"
+    logs = [f"[Glyph] {glyph} interpreted as '{symbol}' (branch={branch.origin_id}, index={idx})"]
+    triggered_modules = []
+    memory_traces = []
 
-    # Trigger real behaviors (v1 symbolic only)
+    # Phase 3 stub: nested expression handling (e.g. Δ(ψ + ⚙))
+    if "value" in meta and isinstance(meta["value"], str) and any(c in meta["value"] for c in GLYPH_SYMBOL_MAP):
+        logs.append(f"🔁 Nested glyph expression found: {meta['value']} — [parser pending]")
+
     try:
         if glyph == "🧠":
             result = reflector.run(limit=5)
             store_memory({"label": "glyph_reflection", "content": result})
-            log += " → 🪞 Reflected"
+            logs.append("→ 🪞 Reflection triggered.")
+            triggered_modules.append("ReflectionEngine")
+            memory_traces.append({"type": "reflection", "content": result})
+
         elif glyph == "⚙":
             plan = planner.generate()
-            log += f" → ⚙ Planned"
-        elif glyph == "✧":
-            log += " → ✧ Trigger evaluated"
-        elif glyph == "ψ":
-            log += " → 💤 Dream marker"
-        elif glyph == "🪄":
-            log += " → 🔁 Transform hint"
-        elif glyph == "Σ":
-            log += " → 🧾 Summarized logic"
-        elif glyph == "☼":
-            log += " → ☀️ Light expansion"
-        elif glyph == "λ":
-            log += " → 📜 Plan expansion"
-        elif glyph == "Δ":
-            log += " → 🚩 Intent declared"
-        elif glyph == "⊕":
-            log += " → 🔄 Conditional logic"
-        elif glyph == "⇌":
-            log += " → 🔁 Adjustment triggered"
-    except Exception as e:
-        log += f" ⚠️ Glyph execution error: {e}"
+            logs.append("→ ⚙ Strategy planned.")
+            triggered_modules.append("StrategyPlanner")
+            memory_traces.append({"type": "plan", "content": plan})
 
-    return log
+        elif glyph == "✧":
+            logs.append("→ ✧ Trigger activated.")
+            triggered_modules.append("Trigger")
+
+        elif glyph == "ψ":
+            logs.append("→ 💤 Dream marker encountered.")
+            triggered_modules.append("Dream")
+
+        elif glyph == "🪄":
+            logs.append("→ 🔁 Transformation logic placeholder.")
+            triggered_modules.append("Transform")
+
+        elif glyph == "Σ":
+            logs.append("→ 🧾 Summarization logic.")
+            triggered_modules.append("Summarizer")
+
+        elif glyph == "☼":
+            logs.append("→ ☀️ Light expansion behavior.")
+            triggered_modules.append("Light")
+
+        elif glyph == "λ":
+            logs.append("→ 📜 Plan expansion initiated.")
+            triggered_modules.append("Planner")
+
+        elif glyph == "Δ":
+            logs.append("→ 🚩 Intent declared.")
+            triggered_modules.append("Intent")
+
+        elif glyph == "⊕":
+            logs.append("→ 🔄 Conditional logic triggered.")
+            triggered_modules.append("Condition")
+
+        elif glyph == "⇌":
+            logs.append("→ 🔁 Adjustment logic.")
+            triggered_modules.append("Adjust")
+
+    except Exception as e:
+        logs.append(f"⚠️ Glyph execution error: {str(e)}")
+        triggered_modules.append("Error")
+
+    # Optional MemoryBridge trace
+    if bridge:
+        trace = {
+            "glyph": glyph,
+            "symbol": symbol,
+            "branch": branch.origin_id if branch else None,
+            "index": idx,
+            "position": position,
+            "modules": triggered_modules,
+        }
+        bridge.trace("glyph_execution", trace)
+
+    return {
+        "glyph": glyph,
+        "symbol": symbol,
+        "branch": branch.origin_id if branch else None,
+        "index": idx,
+        "position": position,
+        "log": "\n".join(logs),
+        "modules": triggered_modules,
+        "memory": memory_traces,
+        "meta": meta,
+    }

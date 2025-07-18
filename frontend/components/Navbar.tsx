@@ -200,6 +200,14 @@ export default function Navbar() {
               <span>Map</span>
             </Link>
 
+            <Link
+              href="/aion/glyph-synthesis"
+              className="flex items-center space-x-1 py-1 px-3 border border-yellow-500 text-yellow-600 rounded-lg bg-white dark:bg-gray-900 text-sm hover:bg-yellow-50 dark:hover:bg-gray-800 focus:outline-none transition"
+            >
+              <Image src="/spark.svg" alt="Compress" width={16} height={16} />
+              <span>Compress</span>
+            </Link>
+
             {/* ✅ Tessaris */}
             <Link
               href="/tessaris.html"

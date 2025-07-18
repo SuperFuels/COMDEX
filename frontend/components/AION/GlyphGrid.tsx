@@ -26,6 +26,7 @@ const GlyphGrid: React.FC<GlyphGridProps> = ({
   const [hudStats, setHudStats] = useState({ total: 0, active: 0, decaying: 0, mutated: 0, denied: 0 });
   const [snapshots, setSnapshots] = useState<{ [name: string]: any }>({});
   const [selectedSnapshot, setSelectedSnapshot] = useState<string | null>(null);
+  const [recentTriggers, setRecentTriggers] = useState<{ [coord: string]: boolean }>({});
 
   const gridRef = useRef<HTMLDivElement>(null);
 
@@ -67,6 +68,25 @@ const GlyphGrid: React.FC<GlyphGridProps> = ({
     setGlyphData(cubes);
   }, [cubes, tick]);
 
+    useEffect(() => {
+  const loadRecentTriggers = async () => {
+    try {
+      const res = await fetch("/api/aion/glyph-triggers/recent");
+      const json = await res.json();
+      if (Array.isArray(json?.triggers)) {
+        const mapped: { [coord: string]: boolean } = {};
+        json.triggers.forEach((t: { coord?: string }) => {
+          if (t.coord) mapped[t.coord] = true;
+        });
+        setRecentTriggers(mapped);
+      }
+    } catch (err) {
+      console.warn("Trigger log load failed:", err);
+    }
+  };
+  loadRecentTriggers();
+}, []);
+  
   const loadSnapshot = async () => {
     try {
       const res = await fetch("/api/aion/glyph-runtime/snapshot");

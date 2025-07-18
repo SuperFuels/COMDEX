@@ -1,10 +1,13 @@
 # File: backend/modules/skills/dream_core.py
 
 import os
+import requests
 from pathlib import Path
 from datetime import datetime, timezone
 from dotenv import load_dotenv
 from openai import OpenAI
+from config import GLYPH_API_BASE_URL
+
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
@@ -25,6 +28,7 @@ from backend.modules.skills.dream_post_processor import DreamPostProcessor
 from backend.modules.tessaris.tessaris_engine import TessarisEngine
 from backend.modules.tessaris.thought_branch import ThoughtBranch, BranchNode
 from backend.modules.tessaris.tessaris_store import save_snapshot
+from backend.modules.tessaris.tessaris_intent_executor import scan_snapshot_for_intents
 
 from backend.modules.glyphos.glyph_mutator import mutate_glyph
 from backend.websocket.websocket_handler import socketio
@@ -156,6 +160,24 @@ class DreamCore:
             })
             print("✅ Dream saved to MemoryEngine.")
 
+            # ♻️ Auto-synthesize glyphs from reflection
+            try:
+                import requests
+                print("🧬 Synthesizing glyphs from dream reflection...")
+
+                synth_response = requests.post(
+                    f"{GLYPH_API_BASE_URL}/api/aion/synthesize-glyphs",
+                    json={"text": dream, "source": "reflection"}
+                )
+
+                if synth_response.status_code == 200:
+                    result = synth_response.json()
+                    print(f"✅ Synthesized {len(result.get('glyphs', []))} glyphs from dream.")
+                else:
+                    print(f"⚠️ Glyph synthesis failed: {synth_response.status_code} {synth_response.text}")
+            except Exception as e:
+                print(f"🚨 Glyph synthesis error: {e}")
+
             self.tracker.detect_milestones_from_dream(dream)
             self.tracker.export_summary()
             self.planner.generate()
@@ -218,6 +240,13 @@ class DreamCore:
                 self.tessaris.execute_branch(branch)
                 print("🌱 Tessaris executed dream logic branch.")
 
+                # 🧠 Extract and queue intents from dream glyphs
+                self.tessaris.extract_intents_from_glyphs(branch.glyphs, metadata={
+                    "source": "dream_core",
+                    "dream_id": dream_label,
+                    "timestamp": timestamp
+                })
+                
                 save_snapshot(
                     branch=branch,
                     label=dream_label,
@@ -226,6 +255,44 @@ class DreamCore:
                     boot_skill=selected
                 )
                 print("📸 Tessaris snapshot saved.")
+                scan_snapshot_for_intents(snapshot_path=f"data/tessaris/snapshots/{dream_label}.tessaris.json")
+
+                # 🧠 Embed dream glyphs into .dc runtime container
+                try:
+                    print("🌌 Embedding dream glyphs into container...")
+                    dream_glyphs = [node.symbol for node in children if node.symbol not in ["Δ", None]]
+                    current_container = self.state.current_container
+                    container_file = current_container.get("path") if current_container else None
+
+                    if container_file:
+                        dimension = self.state.get_loaded_dimension()
+                        grid = dimension.get("microgrid", {})
+                        used_coords = set(grid.keys())
+                        max_x = max((c[0] for c in used_coords), default=0)
+                        max_y = max((c[1] for c in used_coords), default=0)
+
+                        for i, glyph_symbol in enumerate(dream_glyphs):
+                            coord = (max_x + 1 + i, max_y + 1)
+                            reason = f"Embedded from dream '{dream_label}' at {coord}"
+                            success = mutate_glyph(
+                                container_path=container_file,
+                                coord=coord,
+                                mutation={"value": glyph_symbol, "meta": {"from": "dream", "label": dream_label}},
+                                reason=reason
+                            )
+                            if success:
+                                socketio.emit("glyph_embed", {
+                                    "coord": coord,
+                                    "container": container_file,
+                                    "value": glyph_symbol,
+                                    "source": "dream"
+                                })
+                                print(f"✨ Dream glyph '{glyph_symbol}' embedded at {coord}")
+                    else:
+                        print("⚠️ No active container to embed dream glyphs into.")
+                except Exception as e:
+                    print(f"🚨 Failed to embed dream glyphs into container: {e}")
+
             except Exception as e:
                 print(f"⚠️ Tessaris integration failed: {e}")
 

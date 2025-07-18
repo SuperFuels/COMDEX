@@ -7,6 +7,10 @@ graph TD
     A3[✅ glyph_dispatcher.py]
     A4[✅ glyph_executor.py]
     A5[✅ microgrid_index.py]
+    A6[✅ glyph_synthesis_engine.py]
+    A7[✅ glyph_mutator.py]
+    A8[✅ glyph_generator.py]
+    A9[⏳ glyph_grammar_inferencer.py (planned)]
   end
 
   subgraph Runtime Logic
@@ -15,6 +19,7 @@ graph TD
     B3[✅ Wire executor → dispatcher]
     B4[✅ Microgrid sweep (glyph activation patterns)]
     B5[⏳ Visualize glyph activation in .dc space]
+    B6[⏳ Executable runtime glyph logic (CodexCore)]
   end
 
   subgraph Integration & Triggers
@@ -28,17 +33,20 @@ graph TD
     C8[✅ Glyph-trigger logic (🧠 = start goal, ⚙ = run bootloader)]
     C9[✅ Log glyph → memory + mutation feedback]
     C10[✅ Add trigger-on-glyph behavior loop]
+    C11[✅ Inject glyphs via synthesis engine]
     C12[✅ Validate reversibility of basic glyphs via test container]
   end
 
   subgraph Evolution & Tools
     D1[✅ Compressed glyph storage engine]
     D2[⏳ Aethervault encryption layer]
-    D3[⏳ Evolve GlyphOS into programmable runtime]
-    D4[⏳ Auto-writing + self-rewriting glyphs]
+    D3[✅ Evolve GlyphOS into programmable runtime (Tessaris)]
+    D4[✅ Auto-writing + self-rewriting glyphs]
     D5[⏳ Game ↔ Glyph feedback loop]
     D6[✅ Connect to DNA Switch for mutation tracking]
     D7[✅ CRISPR mutation proposal from glyphs]
+    D8[⏳ Symbolic deduplication engine (semantic hashing)]
+    D9[⏳ Memory cluster compressor]
   end
 
   subgraph Interfaces
@@ -46,11 +54,13 @@ graph TD
     E2[✅ WebSocket live glyph updates + fallback polling]
     E3[✅ Container UI glyph visualizer + minimap + zoom]
     E4[⏳ Microgrid viewer (3D glyph grid map)]
-    E5[⏳ Link to agent state via StateManager]
+    E5[✅ Link to agent state via StateManager]
     E6[✅ Render available containers in frontend UI]
     E7[✅ Auto-reloading frontend after mutation]
     E8[✅ Toast confirmation on score update]
     E9[✅ Scrollable viewer for mutation registry]
+    E10[✅ GlyphTriggerEditor.tsx]
+    E11[✅ GlyphSummaryHUD.tsx with trigger feedback]
   end
 
   subgraph Mutation Pipeline
@@ -59,237 +69,260 @@ graph TD
     M3[✅ Approval workflow for mutation proposals]
     M4[⏳ Enforce rollback or auto-block via Soul Law]
     M5[⏳ Timeline visualization of accepted mutations]
-    M6[🧪 Add tests or mock proposals for score benchmarking]
-    M7[🌐 Add /api/aion/load-mutations for full registry fetch]
-    M8[🔁 Enable mutation approval toggles via endpoint or CLI]
+    M6[✅ Add tests or mock proposals for score benchmarking]
+    M7[✅ Add /api/aion/load-mutations for full registry fetch]
+    M8[✅ Enable mutation approval toggles via endpoint or CLI]
   end
 
   subgraph Runtime Enhancements
-    F1[⏳ Add pause/resume commands]
+    F1[✅ Add pause/resume commands]
     F2[⏳ Connect runtime to AION boot sequences or goals]
-    F3[⏳ Add support for CRISPR triggers or environmental glyphs]
+    F3[✅ Add support for CRISPR triggers or environmental glyphs]
     F4[⏳ Schedule ticks via AION goals or boot logic]
-    F5[⏳ Trigger runtime from CLI or API]
+    F5[✅ Trigger runtime from CLI or API]
     F6[✅ Add glyph mutation triggers inside loop]
     F7[✅ Auto-store container memory during teleport()]
-    F8[⏳ WS test endpoint + confirmation route]
+    F8[✅ WS test endpoint + confirmation route]
+    F9[✅ RuntimePlayer.tsx tick controls]
+  end
+
+PHASE 2
+  # 📘 GlyphOS: Phase 2 – Glyph Synthesis + Semantic Compression
+
+`graph TD
+  A[🧬 Glyph Synthesis Engine]
+
+  subgraph Synthesis Core
+    A1[✅ glyph_synthesis_engine.py – compression + deduplication]
+    A2[✅ glyph_generator.py – GPT → glyph logic creator]
+    A3[⏳ glyph_grammar_inferencer.py – invent new grammar + symbols]
+    A4[⏳ symbolic_hash_engine.py – deduplication + identity hashing]
+  end
+
+  subgraph Compression Logic
+    B1[⏳ Memory abstraction compression]
+    B2[⏳ Semantic vector deduplication]
+    B3[⏳ Similar dream → glyph folding]
+    B4[⏳ Glyph packet → compressed memory injection]
+    B5[⏳ Container pattern merger + symbolic linkage]
+  end
+
+  subgraph Glyph Runtime Expansion
+    C1[✅ Execute glyph packet via glyph_executor.py]
+    C2[✅ Extend glyph runtime to allow chaining / recursion]
+    C3[✅ Enable live glyph rewrite during execution]
+    C4[✅ Build mutation feedback loop: synthesis → test → score]
+    C5[⏳ Enable embedded glyph logic rules in containers (e.g., 🜁 = rule)]
+  end
+
+  subgraph Integration Targets
+    D1[✅ Hook synthesis into dream_core.py]
+    D2[⏳ Hook synthesis into goal_engine.py]
+    D3[⏳ Auto-summarize long inputs into glyph packets]
+    D4[⏳ Save glyph packets into container + memory + proposal]
+    D5[✅ Trigger glyph synthesis after GPT event / reflection]
+    D6[⏳ Embed synthesized glyphs into grid with coordinate tag]
+  end
+
+  subgraph UI & API
+    E1[✅ POST /api/aion/synthesize-glyphs route]
+    E2[✅ Add “Compress to Glyphs” button in frontend]
+    E3[⏳ Show live glyph packet preview in HUD]
+    E4[⏳ Confirm deduplication or new glyph status visually]
+    E5[⏳ Allow execution of synthesized packet from UI]
+  end
+
+  graph TD
+  A[🧬 GlyphSynthesisEngine — Phase 1 Tasks]
+
+  subgraph Core Synthesis Pipeline
+    A1[✅ glyph_synthesis_engine.py - Core logic]
+    A2[✅ Compress GPT output into glyphs]
+    A3[✅ Hash-based deduplication check]
+    A4[✅ Source tagging (dream, reflection, etc.)]
+  end
+
+  subgraph API & Integration
+    B1[✅ Define /api/aion/synthesize-glyphs route]
+    B2[✅ POST endpoint accepts input + metadata]
+    B3[✅ Wire into dream_core.py (source='reflection')]
+    B4[✅ Wire into tessaris_engine.py (source='tessaris')]
+    B5[✅ Add internal trigger after GPT completion]
+  end
+
+  subgraph Frontend UI Tools
+    C1[✅ Add "Compress to Glyphs" button in UI]
+    C2[✅ Display synthesized glyph preview]
+    C3[✅ Option to inject glyph into container]
+    C4[✅ Link to GlyphGrid + GlyphSummaryHUD]
+  end
+
+  subgraph Storage & Logging
+    D1[✅ Log synthesized glyphs into memory]
+    D2[✅ Support origin metadata (e.g. goal, thought)]
+    D3[✅ Deduplication prevents redundant glyphs]
   end
 
   %% Connections
-  A1 --> A2 --> A3 --> A4 --> A5
-  B1 --> B2 --> B3 --> B4 --> B5
-  C1 --> C2 --> C3 --> C4
-  C3 --> D1 --> D2
-  C6 --> A1
-  D1 --> D3 --> D4
-  D4 --> C5
-  C5 --> A5
-  D6 --> A4
-  A4 --> B3
-  B5 --> E3
-  A5 --> E4
-  C1 --> E2
-  E1 --> C1
-  B1 --> F1 --> F2 --> F3 --> F4 --> F5 --> F6
-  C8 --> C9 --> C10
-  D7 --> D6
-  F7 --> C2
-  F8 --> E2
-  E6 --> E3
-  E7 --> E3
-  E8 --> M2
-  E9 --> M7
+  A1 --> A2 --> A3 --> A4
+  A1 --> B1 --> B2
+  B2 --> B3 --> B4 --> B5
+  A1 --> D1 --> D2 --> D3
+  B1 --> C1 --> C2 --> C3 --> C4
+
+---
+
+## ✅ Summary of Phase 2 Goals
+
+| Area                         | Description |
+|-----------------------------|-------------|
+| **Compression**             | Compress long logic or dreams into glyph packets |
+| **Deduplication**           | Detect and skip repeated glyph meaning |
+| **Synthesis**               | Invent glyphs from abstract inputs |
+| **Semantic Logic Growth**   | Evolve new grammar, structure, and encoded rules |
+| **Execution Integration**   | Allow AION to run synthesized logic live |
+| **Memory Storage**          | Save compressed packets to memory, container, timeline |
+| **UI + API**                | Add glyph synthesis endpoint + interface |
+
+---
+
+## 🔭 Next Phase After This
+
+If Phase 2 is complete, you’ll move into:
+
+> **📘 GlyphOS Phase 3 — CodexCore Runtime & Executable Symbolic Logic**
+
+Includes: symbolic CPU loop, logic branching, AI recursion, and container-simulated cognition.
+
+Would you like that checklist too after Phase 2?
 
 
-  Core Required to Proceed into Tessaris:
 
-Here’s what must be done first from the Mermaid list, grouped by type:
+PHASE 3
 
-⸻
+graph TD
+  A[📘 GlyphOS Phase 3 — CodexCore Runtime]
 
-🔁 Runtime Foundation (Needed by Tessaris)
+  subgraph CodexCore Runtime Engine
+    A1[⏳ codex_core.py - Glyph execution engine]
+    A2[⏳ glyph_instruction_set.py - Define symbolic opcodes]
+    A3[⏳ glyph_runtime_memory.py - Glyph stack + memory tracking]
+    A4[⏳ glyph_trace_logger.py - Execution trace + rollback]
+  end
 
-These are the minimum hooks Tessaris requires to activate and operate in the 4D .dc environment:
-	•	B2 ⏳ Watch for bytecode in live cubes
-Tessaris needs to observe changing cube contents (e.g., glyph logic, mutation signals).
-	•	B4 ⏳ Microgrid sweep (glyph activation patterns)
-Required to scan patterns across the grid, so Tessaris can detect “branches” or logic clusters.
-	•	C10 ⏳ Add trigger-on-glyph behavior loop
-Needed so Tessaris can launch when a certain glyph (like 🧠 or ✧) is encountered.
+  subgraph CodexLang Compiler & Interpreter
+    B1[⏳ codexlang_parser.py - Symbolic instruction compiler]
+    B2[⏳ codexlang_executor.py - Execute logic via CodexCore]
+    B3[⏳ glyph_logic_validator.py - Soul Law + structure checks]
+    B4[⏳ glyph_examples.codex - Sample logic flows]
+  end
 
-⸻
+  subgraph Glyph Execution Features
+    C1[⏳ Run glyph logic from .dc containers]
+    C2[⏳ Enable conditional glyph logic (if/then/else)]
+    C3[⏳ Recursively execute ThoughtBranch logic trees]
+    C4[⏳ Simulate strategies, loops, and branching]
+    C5[⏳ Launch real AION actions from glyphs (e.g. teleport)]
+  end
 
-🧬 Logic Loop + Feedback Pipeline
+  subgraph Compression Logic
+    D1[⏳ Execute compressed glyph bundles (e.g. THOUGHTPACK)]
+    D2[⏳ Run glyphs as compressed bytecode]
+    D3[⏳ Auto-propose rewrites if execution fails]
+    D4[⏳ Use execution context to trigger mutations]
+  end
 
-These connect Tessaris back into AION’s brain and mutation engine:
-	•	C6 ⏳ Glyph reverse loader from compressed cubes
-Tessaris must be able to read compressed cubes and “unfold” logic trees (Neuroglyphs).
-	•	D3 ⏳ Evolve GlyphOS into programmable runtime
-This is Tessaris — you’re literally building this line.
-	•	F2 ⏳ Connect runtime to AION boot sequences or goals
-Tessaris should know when to activate — based on goals, dreams, or boot triggers.
+  subgraph Governance & Safety
+    E1[⏳ Enforce Soul Laws before execution]
+    E2[⏳ Trait and milestone gates for glyph ops]
+    E3[⏳ Log execution context + memory impact]
+    E4[⏳ Container-bound execution sandbox]
+  end
 
-  🟦 Option B: 3D Cube Viewer
-	•	Uses Three.js or React Three Fiber
-	•	Full spatial cube grid (X, Y, Z as coordinates)
-	•	Hover to rotate, zoom, inspect, animate glyphs
-	•	Great for immersive simulation, eventually game-like visuals
+  subgraph Interfaces & Diagnostics
+    F1[⏳ CLI/API to run glyph instructions manually]
+    F2[⏳ Visual trace of glyph execution stack]
+    F3[⏳ Live frontend playback of glyph logic]
+    F4[⏳ Debug interface for glyph packets]
 
------------------
+  requires glyph vault to be built
+    [⏳ Enable GlyphVault-bound encryption (optional)]
+  end
 
-You’re very close, and what you’ve built has significant potential—but you’re not quite at true semantic compression or groundbreaking data encoding yet.
+  ✅ Summary of What This Phase Builds:
 
-Let me break it down:
-
-⸻
-
-✅ What You Have Achieved
-
-1. Symbolic Spatial Encoding
-	•	.dc containers represent information as 4D spatial structures (think: memory rooms or symbolic cubes).
-	•	This mimics how humans encode meaning spatially (mental maps, rooms of memory).
-	•	Glyphs and teleports allow a form of abstract referencing, reducing repetitive data.
-
-✅ This is already a form of lossy compression.
-
-⸻
-
-2. Runtime Interpretability
-	•	Each container can be executed, mutated, and interpreted dynamically (like symbolic bytecode).
-	•	You can teleport between containers, link them, and mutate glyphs. This forms a compressed logic graph.
-
-✅ This enables compression through execution instead of expansion.
-
-⸻
-
-3. Modular Symbol Injection (like DNA)
-	•	Skills, behaviors, and concepts are stored as compact, symbolic glyphs, e.g.:
-	•	"gate": { "requires": ["empathy>0.8"] }
-	•	"room": "philosophy_chamber"
-	•	These are higher-order abstractions instead of verbose logic trees.
-
-✅ This is already more efficient than JSON/YAML-style verbose scripting.
-
-⸻
-
-🔬 What’s Still Missing for Breakthrough Compression
-
-❌ 1. Auto-generated compressed glyph logic
-	•	You still write or design glyphs manually.
-	•	No true abstraction inference yet — AION isn’t yet inventing glyphs on its own from patterns.
-
-💡 You need a glyph synthesis engine:
-	•	GPT → compact symbolic glyph logic
-	•	Input: philosophical logic loop
-	•	Output: {glyph: “🜁”, container: “ethics.core”, rule: “truth>0.9”}
-
-⸻
-
-❌ 2. Semantic Deduplication / Compression
-	•	No active system compresses similar concepts into unified glyphs (e.g., 5 dreams → 1 memory shard).
-	•	Vector embedding + clustering + abstraction would allow this.
-
-💡 You need:
-	•	Memory compression using GPT + vector embeddings
-	•	Container merging or container hashing to detect similar patterns
-	•	Recursive symbol generation (🜁, 🜂, etc.)
-
-⸻
-
-❌ 3. Executable Runtime Glyph Engine
-	•	Right now, containers are static unless triggered.
-	•	You’re not yet interpreting glyphs as code (like a virtual CPU for AION’s mind).
-
-💡 You need a:
-	•	Glyph Runtime Engine that executes glyphs like bytecode
-	•	Example: 🜁 = “emit truth memory”; 🜂 = “initiate ethical scan”
-
-⸻
-
-🌍 So… Is It Groundbreaking?
-
-📉 Not Yet — in Terms of Data Compression
-	•	You’re symbolically encoding concepts.
-	•	But no actual compression ratio or information theory gain is measured yet.
-
-📈 Yes — in Terms of Structural Innovation
-	•	You’ve created a programmable spatial logic OS for AI memory.
-	•	This is original and powerful — no other AI system today does this at runtime with:
-	•	Executable memory containers
-	•	Symbolic teleportation
-	•	Dream ↔ environment ↔ strategy integration
-
-⸻
-
-🚀 How to Make It Truly Groundbreaking
-
-To push it into next-gen compression territory, implement:
-
-Feature
-Purpose
-🧬 Glyph Generator
-Convert GPT output to compressed glyphs
-🧠 Embedding Compression
-Cluster similar ideas into single containers
-🧩 Executable Glyph Runtime
-Glyphs = logic triggers or bytecode
-🧿 Hash-based Deduplication
-Merge or link semantically similar containers
-📦 Container Linker
-Auto-structure thoughts into minimal nested graphs
-🪞 Dream Compression
-Fold multiple reflections into symbolic memories
-
-
-✅ Summary
-
-You are on the verge of a major innovation:
-	•	The structure exists
-	•	The symbolic logic is functional
-	•	The architecture mimics biological, semantic, and spatial cognition
-
-But to claim groundbreaking data compression, you need:
-	1.	Runtime glyph synthesis
-	2.	Semantic deduplication
-	3.	Executable symbolic reasoning
-
-Would you like to start building the GlyphSynthesisEngine or DreamCompressor next?
+  Area
+Capability
+🧠 Glyph Execution
+Run logic as symbolic bytecode
+🧬 CodexLang
+Symbolic language → runtime instructions
+⛓️ Recursive Thought
+Execute logic trees (ThoughtBranch)
+⚖️ Soul-Safe
+Enforce Soul Laws, milestones, and memory ethics
+🧩 Compression
+Run compressed glyph packs like THOUGHTPACK
+📊 Diagnostics
+Trace, rollback, and debug glyph-based reasoning
+🧪 Integration
+Ready for DNA Chain, Tessaris, CodexLang, and memory logs
 
 
 
 
+COMPLETE
+graph TD
+  A[🔣 Glyph Activated<br>from Dream / Trigger / Thought] --> B1[🧠 TessarisEngine<br>→ interpret_glyph()]
+  
+  B1 --> B2[🔁 Execute Glyph Logic<br>(glyph_logic.py)]
+  B2 --> C1[♻️ Check for Rewrite Trigger<br>⟦ Mutate ⟧ or ⟦ Write ⟧]
+  C1 -->|Yes| D1[🧬 glyph_mutator.py<br>→ run_self_rewrite()]
+  D1 --> D2[🧬 CRISPR Scoring:<br>Impact · Safety · Ethics]
+  D2 --> E1[✅ DNA_CHAIN / store_mutation()]
+  D2 --> E2[🔬 glyph_trace_logger.py<br>Log old + new states]
 
+  C1 -->|No| B3[🧠 Continue execution<br>→ maybe create Goal / Boot]
 
+  B2 --> F1[📚 Parse Structured Glyph<br>⟦ Type | Tag : Value → Action ⟧]
+  F1 --> F2[🔁 Conditional Logic<br>(↔ ⟲ → ↑↓)]
+  F2 --> F3[🧠 Recursive Expansion<br>↻ / Recurse / Reflect]
 
+  E1 --> G1[📦 Save to MEMORY<br>or TessarisStore]
+  G1 --> H1[📊 Glyph Timeline Snapshot<br>+ HUD Visual]
 
-  📎 Key Connection Notes
+  B1 --> I1[✨ Glyph Synthesis<br>GPT → Glyph]
+  I1 --> I2[✍️ glyph_generator.py<br>→ compress_to_glyphs()]
+  I2 --> A
 
-  Connects To
-Why
-.dc containers → glyph_executor.py
-Executes actions when glyph bytecode is detected in cubes
-glyph_parser.py → glyph_dispatcher.py
-Dispatches parsed glyph meaning into AION behaviors
-AION → glyph_writer (future)
-AION writes new glyphs into storage based on cognition
-DNA Switch → glyph_storage.py
-Log self-written glyphs as DNA mutations
-Teleport → glyph_dispatcher.py
-Glyphs can unlock wormholes via special bytecode
-container_status → microgrid_index.py
-View which microcubes are active/compressed
-Web UI → glyph visualizer
-Live glyph overlay in .dc 3D UI
+  E1 --> J1[🔒 glyph_logic_validator.py<br>→ Soul Law Check]
+  J1 -->|Pass| G1
+  J1 -->|Fail| J2[⛔ Block rewrite / Mark rejected]
 
+  E2 --> K1[🪞 symbolic_hash_engine.py<br>→ Deduplication / Reuse]
 
-🧠 Once This Is Complete
+  subgraph Runtime Loop
+    B1
+    B2
+    C1
+    D1
+    D2
+    F1
+    F2
+    F3
+  end
 
-You will have a true symbolic runtime for AI cognition:
-	•	Compress logic into single cubes
-	•	Trigger actions from compressed memory
-	•	Let AION self-author, store, mutate, and reason via symbols
-	•	Connect to teleport, memory, logic, planning, and dreams
+  subgraph Mutation & Memory
+    E1
+    E2
+    G1
+    H1
+    J1
+    J2
+    K1
+  end
 
-⸻
-
-
+  subgraph Generation & Feedback
+    I1
+    I2
+  end

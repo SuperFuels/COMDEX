@@ -79,3 +79,25 @@ async def set_container(request: Request):
 @router.get("/avatar/state")
 async def get_avatar_state():
     return JSONResponse(content=avatar.state())
+
+
+@router.get("/avatar/trace_log")
+async def get_trace_log():
+    try:
+        return JSONResponse(content={"trace": avatar.trace_log[-100:]})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Trace fetch failed: {str(e)}")
+
+
+@router.get("/avatar/runtime_tick_summary")
+async def get_runtime_tick_summary():
+    try:
+        return {
+            "tick": avatar.tick_count,
+            "position": avatar.position,
+            "active_glyphs": avatar.active_glyphs,
+            "mode": avatar.mode,
+            "container": avatar.container_id,
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Summary fetch failed: {str(e)}")

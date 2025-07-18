@@ -2,6 +2,7 @@ import os
 import json
 import hashlib
 from datetime import datetime
+from typing import Optional
 
 # ✅ DNA Switch
 from backend.modules.dna_chain.switchboard import DNA_SWITCH
@@ -196,10 +197,6 @@ def resolve_wormhole(container_id, wormhole_id):
     return wormholes.get(wormhole_id)
 
 def save_dimension(path: str, data: dict):
-    """
-    Saves a container (.dc) file to disk with the given data dictionary.
-    Keys should be strings like "x,y,z[,layer]" and values should be glyphs or metadata.
-    """
     with open(path, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2)
 
@@ -303,32 +300,34 @@ def list_containers_with_memory_status():
             })
     return containers
 
-def carve_glyph_cube(container_path, coord, glyph):
-    """Insert a glyph into a specific cube in a .dc container at the given coordinate."""
+def carve_glyph_cube(container_path, coord, glyph, meta: Optional[dict] = None):
+    """Insert a glyph into a specific cube in a .dc container at the given coordinate with metadata."""
     if not os.path.exists(container_path):
         raise FileNotFoundError(f"Container not found at: {container_path}")
 
     with open(container_path, "r", encoding="utf-8") as f:
         data = json.load(f)
 
-    # Ensure 'cubes' exists
     cubes = data.setdefault("cubes", {})
     cube = cubes.setdefault(coord, {})
-    glyphs = cube.setdefault("glyphs", [])
-    glyphs.append(glyph)
+    cube["coord"] = [int(x) for x in coord.split(",")] if "," in coord else coord
+    cube["glyph"] = glyph
+    cube["timestamp"] = datetime.utcnow().isoformat()
+    if meta:
+        cube.update(meta)
 
-    # Save back to file
     with open(container_path, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2)
 
     MEMORY.store({
         "role": "system",
         "label": "glyph_carved",
-        "content": f"Carved glyph into {container_path} at {coord}",
+        "content": f"Carved glyph '{glyph}' into {container_path} at {coord}",
         "metadata": {
             "coord": coord,
-            "glyph": glyph
+            "glyph": glyph,
+            **(meta or {})
         }
     })
 
-    print(f"[🪓] Glyph carved at {coord} in {os.path.basename(container_path)}")
+    print(f"[🪓] Glyph '{glyph}' carved at {coord} in {os.path.basename(container_path)}")

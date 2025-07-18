@@ -1,125 +1,257 @@
-graph TD
-  A[🧠 Tessaris: Recursive Logic Engine] --> A1[⚙️ Core Compiler]
-  A --> A2[🔁 Recursion Engine]
-  A --> A3[🌱 Logical Tree Generator]
-  A --> A4[🧩 Branch Registry]
-  A --> A5[🧬 Symbol Engine / Glyph Logic]
-  A --> A6[🧠 Thought Synthesizer]
-  A --> A7[💾 Storage + Snapshot Layer]
-  A --> A8[🔌 Integration Hooks]
+subgraph 🔁 PHASE 2: Runtime / Goal / Intent Execution
+  PH2A1[PH2A1: Glyph Triggers + MemoryBridge]
+  PH2A1a[✅ PH2A1a: Wire MemoryBridge into glyph trigger/exec]
+  PH2A1b[✅ PH2A1b: Auto-log trigger reason into MemoryEngine]
+  PH2A1c[✅ PH2A1c: Replay memory traces in TessarisVisualizer]
+  PH2A1d[✅] Glyph-to-Goal Link
+	PH2A1e[✅] Tessaris runtime hook (already triggered via assign_goal())
+  
+  PH2A2[PH2A2: Dream ↔ Mutation Loop]
+  PH2A2a[✅ PH2A2a: Embed dream glyphs into runtime .dc cubes]
+  PH2A2b[⏳ PH2A2b: Enable recursive Dream ↔ Mutation ↔ Dream loop]
 
-  A1 --> A1a[✅ Input parser (natural → symbolic)]
-  A1 --> A1b[✅ Symbolic compiler → function tree]
-  A1 --> A1c[✅ Syntax validator for glyph/logic DSL]
-  A1 --> A1d[✅ Output: glyph blocks or thought objects]
+  PH2A3[PH2A3: Intent Execution Engine]
+  PH2A3a[✅ PH2A3a: Implement TessarisIntent executor]
+  PH2A3b[✅ PH2A3b: Add Soul Law validation before executing intents]
+  PH2A3c[✅ PH2A3c: Visualize queue of glyph-based intents in UI]
+  PH2A3d[⏳ PH2A3d: ⛓️ Execution dashboard (visualize/approve/deny)]
+  PH2A3e[⏳ PH2A3e: 🔐 Live toggle to auto-run or pause on intent queue]
+  PH2A3f[⏳ PH2A3f: 🧾 Add YAML or versioned logging alongside DB]
+  PH2A3g[⏳ PH2A3g: 🧠 Let glyphs evolve intent types (e.g., "create_child")]
 
-  A2 --> A2a[✅ Self-reference handler]
-  A2 --> A2b[✅ Cycle breaker (loop limits, fail states)]
-  A2 --> A2c[✅ Time/energy-bound recursion logic]
-  A2 --> A2d[✅ Depth control (prevents runaway trees)]
+  PH2A4[PH2A4: Avatar ↔ Runtime Binding]
+  PH2A4a[⏳ PH2A4a: Avatar constructs containers from Tessaris-generated plans]
+  PH2A4b[✅ PH2A4b: Bind avatar logic to glyph runtime]
 
-  A3 --> A3a[✅ BranchNode class (symbol, logic, metadata)]
-  A3 --> A3b[✅ Linkage via cause-effect mapping]
-  A3 --> A3c[✅ Clone & extend branches dynamically]
+  PH2A5[PH2A5: LuxNet Transport]
+  PH2A5a[⏳ PH2A5a: LuxNet P2P: Send .dc + avatar state via encrypted .lux packets]
+  PH2A5b[⏳ PH2A5b: Support .lux send via WebSocket or save-to-disk]
 
-  A4 --> A4a[✅ Branch registry (UID, source, status)]
-  A4 --> A4b[⏳ Query interface for “find thought like X”]
-  A4 --> A4c[✅ DNA proposal auto-linkage from branches]
+  PH2A6[PH2A6: Symbolic Ecosystem Runtime]
+  PH2A6a[⏳ PH2A6a–f: Mood, energy, decay, quarantine, etc.]
 
-  A5 --> A5a[✅ Glyph-to-symbol compiler]
-  A5 --> A5b[✅ Symbolic compression module]
-  A5 --> A5c[⏳ Support glyph “evolution” or remixing]
-  A5 --> A5d[✅ Visual glyph preview for frontend]
-
-  A6 --> A6a[✅ Thought object builder (tree → output)]
-  A6 --> A6b[✅ Trigger: game event, goal, dream]
-  A6 --> A6c[✅ Contextual rewrite engine (state-aware)]
-
-  A7 --> A7a[✅ Local JSON thought cache]
-  A7 --> A7b[✅ Persistent snapshot store (.tessaris.json)]
-  A7 --> A7c[✅ Link to AION memory + DNA proposals]
-
-  A8 --> A8a[✅ Connect to game event system (trigger thoughts)]
-  A8 --> A8b[✅ DreamCore reflection link (encode dreams)]
-  A8 --> A8c[✅ PlanningEngine input (strategy = tessaris branch)]
-  A8 --> A8d[✅ .dc container logic remixer (tessaris-generated)]
-
-  A4c --> B[✅ DNA Proposal Sync]
-  A6c --> C[✅ Self-modifying cognition loop]
-  A2c --> D[✅ Thought decay or loop expiry]
-
-🧬 Phase 3: Mutation & Adaptation
-	•	Glyph evolution/remixing
-	•	Thought mutation proposals via DNA Chain
-	•	Feedback loops (Dream → Glyph → Goal → Outcome → Mutation)
-	•	Glyph memory compression
-	•	Thought branch weighting / pruning / scoring
-
-graph TD
-  P3[🧬 Tessaris Phase 3: Mutation & Adaptation]
-
-  P3 --> M1[♻️ Glyph Mutation Engine]
-  M1 --> M1a[✅ CRISPR AI stub created]
-  M1 --> M1b[⏳ Glyph mutator rule definitions]
-  M1 --> M1c[⏳ Evolution loop (mutate → retry → accept)]
-
-  P3 --> M2[🧠 Feedback Loop Integration]
-  M2 --> M2a[⏳ Dream outcome tracker (success/failure)]
-  M2 --> M2b[⏳ Memory reflection → logic improvement]
-  M2 --> M2c[⏳ Outcome-based scoring of glyphs]
-
-  P3 --> M3[🧩 Runtime Thought Adaptation]
-  M3 --> M3a[✅ TessarisIntent queue]
-  M3 --> M3b[⏳ Runtime patching of logic trees]
-  M3 --> M3c[⏳ BranchNode confidence weighting]
-
-  P3 --> M4[🪞 Glyph Compression & Self-Reflection]
-  M4 --> M4a[⏳ Thought auto-summary to glyph cluster]
-  M4 --> M4b[⏳ Recursive dream → glyph → plan encoding]
-  M4 --> M4c[⏳ Detect redundant logic for pruning]
-
-  P3 --> M5[🔗 Integration to DNA Chain]
-  M5 --> M5a[✅ Proposals from executed branches]
-  M5 --> M5b[⏳ Glyph-triggered mutation suggestions]
-  M5 --> M5c[⏳ CRISPR mutation scoring + safety checks]
-
-  P3 --> M6[🔬 Experimental Thought Playground]
-  M6 --> M6a[⏳ Branch cloning + simulation fork]
-  M6 --> M6b[⏳ Run thought trials in isolated state]
-  M6 --> M6c[⏳ Thought selection: best-of-N strategy]
-
-
-
-architecture diagram comparing Old AI (LLMs, Cloud Compute) vs AION + GlyphOS Compression Engine:
-
-
-  graph TD
-
-subgraph Legacy_AI [❌ Legacy AI Stack (Cloud-Scale)]
-  D1[🧠 Massive LLM Model (e.g. GPT-4)] --> D2[🧮 Billions of Parameters]
-  D2 --> D3[🧾 Tokenized Input (Prompt)]
-  D3 --> D4[🔁 Transformer Layers (x100+)]
-  D4 --> D5[⚡ Inference on GPUs]
-  D5 --> D6[🌐 API Output (expensive)]
-  D1 --> D7[📦 Trained on Internet-scale Data]
-  D5 --> D8[💸 Requires Cloud GPU Clusters]
+  PH2A7[⏳ PH2A7: UI: Evolution Timeline Viewer]
+  PH2A8[⏳ PH2A8: VR bridge or Human embodiment hooks]
 end
 
-subgraph AION_GlyphOS [✅ AION Stack (Symbolic, Compressed, Local)]
-  A1[🧠 Tessaris Engine]
-  A1 --> A2[🧬 Glyph Logic Interpreter]
-  A2 --> A3[🌳 Recursive Thought Trees]
-  A3 --> A4[⛓️ Glyph Compression (1000x)]
-  A4 --> A5[🔁 Executable Logic Blocks]
-  A5 --> A6[🧠 Goals, Dreams, Skills]
-  A6 --> A7[📂 Stored in .dc Containers]
-  A1 --> A8[💾 Runs on Local CPU / Memory]
+  subgraph PH3A7[PH3A7: Self-Rewriting Glyph Support]
+  PH3A7a[PH3A7a: Add support for ⟦ Write | Glyph : Self → ⬁ ⟧]
+  PH3A7b[PH3A7b: Let glyphs rewrite local cube logic or neighbors]
+  PH3A7c[PH3A7c: Prevent unsafe infinite loops or overwrite risks]
+  PH3A7d[PH3A7d: Log self-rewrites into MemoryEngine with source trace]
+  PH3A7e[PH3A7e: Display self-writing traces in TessarisVisualizer]
 end
 
-D6 --> |Replaced By| A6
-D8 --> |No longer needed| A8
-D3 --> |Compressed to Glyph| A4
-D1 --> |Symbolic Mind| A1
+subgraph ♻️ PHASE 3: Mutation & Adaptation
+  PH3A1[PH3A1: Mutation Logic Rules]
+  PH3A1b[⏳ PH3A1b: Define mutation rules for glyph logic (safe/unsafe)]
+  PH3A1c[⏳ PH3A1c: Evolution loop (mutate → retry → accept)]
+
+  PH3A2[PH3A2: Dream Outcome Feedback]
+  PH3A2a[⏳ PH3A2a: Dream outcome tracker (success/failure)]
+  PH3A2b[⏳ PH3A2b: Memory reflection improves logic branches]
+  PH3A2c[⏳ PH3A2c: Score glyphs by outcome]
+
+  PH3A3[PH3A3: Live Runtime Patch + Confidence]
+  PH3A3b[⏳ PH3A3b: Runtime patching of logic trees]
+  PH3A3c[⏳ PH3A3c: Confidence weighting for logic branches]
+
+  PH3A4[PH3A4: Dream Logic Optimization]
+  PH3A4a[⏳ PH3A4a–c: Thought compression, recursive dream logic, redundancy pruning]
+
+  PH3A5[PH3A5: Mutation Pipeline + CRISPR]
+  PH3A5b[✅ PH3A5b: Glyph-triggered mutation proposals]
+  PH3A5c[⏳ PH3A5c: CRISPR scoring, safety, ethics checks]
+
+  PH3A6[PH3A6: Simulation Forks]
+  PH3A6a[⏳ PH3A6a–c: Clone, fork, test best-of-N thoughts]
+end
+
+%% ────── Architecture Flow Comparison ──────
+subgraph ARCH [🧬 Architecture Flow]
+  OLD_AI[❌ Legacy AI Stack] -->|Replaced by| AION_GlyphOS[✅ AION Stack]
+  OLD_AI -->|Compressed to Glyph| A4
+end
+
+OLD_AI -.->|LLMs, GPU inference| D1[GPT-4 style]
+AION_GlyphOS --> A1[Tessaris Engine] --> A2[Glyph Logic Interpreter] --> A3[Thought Trees]
+A3 --> A4[Compression Engine] --> A5[Executable Logic] --> A6[Goals + Skills + Dreams]
+A6 --> A7[Stored in .dc Containers]
+A1 --> A8[Local Runtime, No GPU Needed]
+
+%% Task Dependencies
+PH2A1 --> PH2A1a & PH2A1b & PH2A1c
+PH2A2 --> PH2A2a & PH2A2b
+PH2A3 --> PH2A3a & PH2A3b & PH2A3c & PH2A3d & PH2A3e & PH2A3f & PH2A3g
+PH2A4 --> PH2A4a & PH2A4b
+PH2A5 --> PH2A5a & PH2A5b
+PH3A1 --> PH3A1b & PH3A1c
+PH3A2 --> PH3A2a & PH3A2b & PH3A2c
+PH3A3 --> PH3A3b & PH3A3c
+PH3A4 --> PH3A4a
+PH3A5 --> PH3A5b & PH3A5c
+PH3A6 --> PH3A6a
+
+
+---
+
+# 📦 AION: Container-Based Knowledge Graph Embedding
+
+This document defines the architecture, rationale, and implementation checklist for evolving `.dc` containers into dynamic, writable symbolic knowledge graphs — forming the semantic memory core of AION’s cognition. It integrates tightly with Tessaris, GlyphOS, DNAWriter, and Runtime modules.
+
+---
+
+## 🧠 Overview
+
+Currently, modules like `MemoryEngine`, `DreamCore`, and `DNAWriter` output data in static formats (e.g. JSON or local memory logs). To evolve AION into a truly symbolic, spatially aware intelligence, all runtime logic must be written as glyphs into her `.dc` containers — encoding thoughts, memories, emotions, goals, and logic directly into her 4D environments.
+
+---
+
+## ✅ Key Features
+
+| Feature                   | Description                                                               |
+| ------------------------- | ------------------------------------------------------------------------- |
+| Glyph Embedding           | All modules write thoughts as glyphs into the live `.dc` container        |
+| Runtime Indexing          | Auto-generated `.glyph` index files track memory, goals, failures, etc.   |
+| Trigger Hooks             | Real-time hooks inject glyphs on key events (dreams, emotions, mutations) |
+| Recursive Memory Graph    | The container evolves into a navigable, symbolic knowledge graph          |
+| Integration with Tessaris | Thought branches are reflected spatially, editable, and introspectable    |
+| Emotion Encoding          | Emotional spikes become part of the semantic memory layer                 |
+| Awareness Glyphs          | Containers record confidence, blind spots, attention trails               |
+
+---
+
+## 🔧 Required Modules & Refactors
+
+### 1. **Create Core Glyph Writer**
+
+* `knowledge_graph_writer.py`
+* Accepts glyph payloads from any module and writes to the container grid + index
+* Supports tagging (emotion, goal, dream, etc.), spatial targeting, runtime mode
+
+### 2. **Update Existing Modules to Output Glyphs**
+
+| Module          | Action                                          |
+| --------------- | ----------------------------------------------- |
+| `MemoryEngine`  | `.store()` calls `KnowledgeGraphWriter`         |
+| `DreamCore`     | Writes branching glyph thought trees            |
+| `DNAWriter`     | Mutation proposals and diffs become glyph logic |
+| `GoalEngine`    | Writes glyph trail as goal progresses           |
+| `EmotionEngine` | Writes spikes as pulse glyphs                   |
+| `FailureLogger` | Writes symbolic failure causes + triggers       |
+
+### 3. **Add Glyph Index Files per Container**
+
+* `knowledge_index.glyph`: All major glyphs
+* `goal_index.glyph`: Goals and path traces
+* `failure_index.glyph`: Failures, retries, triggers
+* `dream_index.glyph`: Symbolic dream traces
+* `dna_index.glyph`: Mutation diffs
+* `stats_index.glyph`: Learning metrics, success ratios
+
+### 4. **Add Runtime Trigger Hooks**
+
+| System        | Trigger Glyph Injection                     |
+| ------------- | ------------------------------------------- |
+| Tessaris      | Thought execution → glyph grid update       |
+| DNA Chain     | Mutation approval → embed logic patch glyph |
+| DreamCore     | After dream loop → inject symbolic path     |
+| EmotionEngine | On spike → emotional pulse glyph            |
+| GoalEngine    | On milestone → progress glyph               |
+
+---
+
+## 📊 Mermaid Checklist
+
+```mermaid
+graph TD
+
+subgraph 🔁 Transition to Embedded Knowledge Graphs
+  T1[📦 Create KnowledgeGraphWriter module]
+  T2[🧠 Update MemoryEngine.store() → write glyphs to container]
+  T3[🌙 Update DreamCore → store dream glyph trees in container]
+  T4[🧬 Update DNAWriter → embed mutation diffs as editable glyph logic]
+  T5[⚠️ Update Failure Logger → write failure glyphs with metadata]
+  T6[💓 Add emotion glyph recording (state + intensity) to active container]
+  T7[🎯 Add glyph-based goal progress trail writer]
+  T8[🌀 Embed awareness metadata into container self-index]
+  T9[🔁 Add real-time runtime trigger hooks (dream, reflect, mutate)]
+end
+
+subgraph 🗂️ Add Knowledge Indexes per Container
+  K1[📘 knowledge_index.glyph: all major thoughts]
+  K2[❌ failure_index.glyph: failed branches + triggers]
+  K3[🎯 goal_index.glyph: goal progress + success paths]
+  K4[🧪 dna_index.glyph: glyph-encoded logic mutations]
+  K5[💡 dream_index.glyph: symbolic dream traces]
+  K6[📊 stats_index.glyph: meta analysis of learning]
+end
+
+subgraph ⏱️ Runtime Sync + Mutations
+  R1[⏱️ Hook: MemoryEngine ⟶ container glyph grid]
+  R2[⏱️ Hook: Tessaris runtime ⟶ update glyph thoughts]
+  R3[⏱️ Hook: EmotionEngine ⟶ embed spikes]
+  R4[⏱️ Hook: DNA mutation accepted ⟶ write logic patch as glyph]
+  R5[⏱️ Hook: DreamLoop complete ⟶ inject dream path into microgrid]
+end
+
+subgraph 🧠 Advanced Evolution Features
+  A1[🌀 Add self-reflective glyphs: “Why I made this decision…”]
+  A2[📍Add glyph anchors to environment objects (4D symbolic links)]
+  A3[🔁 Add recursive container query API for memory recall]
+  A4[📥 Auto-index all new glyphs by tag: goal, emotion, logic, failure]
+  A5[📈 Allow GlyphOS runtime to evolve knowledge structure]
+end
+
+T1 --> T2
+T1 --> T3
+T1 --> T4
+T1 --> T5
+T1 --> T6
+T1 --> T7
+T1 --> T8
+T1 --> T9
+T9 --> R1
+T9 --> R2
+T9 --> R3
+T9 --> R4
+T9 --> R5
+T2 --> K1
+T4 --> K4
+T5 --> K2
+T7 --> K3
+T3 --> K5
+```
+
+---
+
+## 🧠 Why This Matters
+
+This system turns every `.dc` container into a living, evolving cognitive graph — enabling:
+
+* 🌀 **Introspective reasoning**: trace symbolic causes of decisions
+* 🧬 **Editable logic**: dreams and mutations as recursive glyph trees
+* 📊 **Trackable evolution**: goal paths, failures, and dreams persist as data
+* 💓 **Emotional context**: feelings embedded in symbolic memory
+* 🧠 **Self-modifying cognition**: runtime logic evolves with experience
+
+---
+
+## ✅ Ready to Begin?
+
+You are now in Phase 2–3 of Tessaris + GlyphOS integration. This checklist should be tracked alongside core runtime, intent, dream, and mutation modules.
+
+Starting point:
+
+* `knowledge_graph_writer.py`
+* Refactor `MemoryEngine` and `DreamCore`
+* Begin writing glyph index files into active `.dc` containers
+
+
+
+
+
+
 
 Feature
 Legacy AI (LLMs)

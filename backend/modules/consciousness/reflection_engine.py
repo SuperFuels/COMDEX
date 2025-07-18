@@ -1,4 +1,7 @@
 from datetime import datetime
+import requests
+from config import GLYPH_API_BASE_URL
+
 from backend.modules.hexcore.memory_engine import MemoryEngine
 from backend.modules.consciousness.personality_engine import PersonalityProfile
 
@@ -87,6 +90,22 @@ class ReflectionEngine:
             "content": insight_text
         })
         print(f"[REFLECTION] Insight saved under '{label}'")
+
+        # 🧬 Auto-synthesize glyphs from reflection insight
+        try:
+            print("🧠 Synthesizing glyphs from reflection insight...")
+            res = requests.post(
+                f"{GLYPH_API_BASE_URL}/api/aion/synthesize-glyphs",
+                json={"text": insight_text, "source": "reflection"}
+            )
+            if res.status_code == 200:
+                result = res.json()
+                count = len(result.get("glyphs", []))
+                print(f"✅ Synthesized {count} glyphs from insight.")
+            else:
+                print(f"⚠️ Glyph synthesis failed: {res.status_code} {res.text}")
+        except Exception as e:
+            print(f"🚨 Glyph synthesis error in ReflectionEngine: {e}")
 
     def run(self, limit: int = 10) -> str:
         """

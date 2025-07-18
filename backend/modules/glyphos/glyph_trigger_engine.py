@@ -1,4 +1,3 @@
-# backend/modules/glyphos/glyph_trigger_engine.py
 # Triggers runtime behavior based on detected glyphs inside a .dc container
 
 from typing import Callable, Dict, Any
@@ -10,7 +9,7 @@ from backend.modules.hexcore.memory_engine import MemoryEngine
 from backend.modules.aion.dream_core import trigger_dream_reflection
 from backend.modules.consciousness.state_manager import StateManager
 from backend.modules.memory.memory_bridge import MemoryBridge  # ✅ New
-from backend.modules.dna_chain.glyph_mutator import propose_rewrite  # ♻️ Glyph rewrite
+from backend.modules.dna_chain.glyph_mutator import propose_rewrite, run_self_rewrite  # ♻️ Glyph rewrite + self-write
 
 # Instantiate memory engine for feedback
 memory = MemoryEngine()
@@ -105,6 +104,18 @@ def trigger_decay_rewrite(coord: str, meta: Dict[str, Any]):
             "role": "Decay-based rewrite",
         })
 
+def trigger_self_rewrite(coord: str, meta: Dict[str, Any]):
+    glyph = meta.get("glyph", "")
+    if glyph.strip().startswith("⟦ Write") or glyph.strip().startswith("⟦ Mutate"):
+        container_path = state.get_current_container_path()
+        if container_path:
+            print(f"♻️ Self-rewrite glyph detected at {coord}")
+            success = run_self_rewrite(container_path, coord)
+            if success:
+                print(f"✅ Self-rewrite executed at {coord}")
+            else:
+                print(f"⚠️ Self-rewrite skipped at {coord}")
+
 # Glyph character → handler map
 GLYPH_TRIGGER_MAP: Dict[str, Callable[[Dict[str, Any]], None]] = {
     "✦": trigger_dream_core,
@@ -142,9 +153,13 @@ def scan_and_trigger(container_path: str):
             meta["coord"] = coord
             GLYPH_TRIGGER_MAP[glyph](meta)
 
+        # Self-rewriting logic
+        trigger_self_rewrite(coord, meta)
+
         # Decay rewrite logic
         trigger_decay_rewrite(coord, meta)
 
+        # Passive memory trigger
         elif meta.get("type") == "Memory" and meta.get("action") == "store":
             print(f"📄 Storing memory glyph at {coord}: {meta}")
             label = f"glyph:{meta.get('tag', 'note')}"
@@ -153,11 +168,16 @@ def scan_and_trigger(container_path: str):
                 "label": label,
                 "content": content
             })
+            bridge.trace_trigger("📝", {
+                **meta,
+                "coord": coord,
+                "origin": "glyph_trigger_engine",
+                "role": "Passive memory store",
+            })
 
 def glyph_behavior_loop(interval: float = 5.0):
     """Continuously scan for new glyphs and trigger mapped behaviors."""
     global _loop_active
-    state = StateManager()
     path = state.get_current_container_path()
 
     if not path:
@@ -188,7 +208,10 @@ def glyph_behavior_loop(interval: float = 5.0):
                     _last_glyph_state[key] = True
                     triggered_this_cycle.append(glyph)
 
-                # Also check for decay-based rebirth
+                # Self-rewriting logic
+                trigger_self_rewrite(coord, meta)
+
+                # Decay-based mutation
                 trigger_decay_rewrite(coord, meta)
 
             if triggered_this_cycle:
@@ -210,7 +233,3 @@ def stop_glyph_loop():
 if __name__ == "__main__":
     test_path = "backend/modules/dimensions/containers/test_trigger.dc"
     scan_and_trigger(test_path)
-
-    # threading.Thread(target=glyph_behavior_loop).start()
-    # time.sleep(30)
-    # stop_glyph_loop()

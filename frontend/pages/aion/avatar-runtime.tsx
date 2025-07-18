@@ -6,11 +6,14 @@ import GlyphGrid from "@/components/AION/GlyphGrid";
 import GlyphMutator from "@/components/AION/GlyphMutator";
 import TessarisVisualizer from "@/components/AION/TessarisVisualizer";
 import TessarisIntentVisualizer from "@/components/AION/TessarisIntentVisualizer";
+import TessarisTracePanel from "@/components/AION/TessarisTracePanel";
 import GlyphExecutor from "@/components/AION/GlyphExecutor";
 import CommandBar from "@/components/CommandBar";
 import GlyphQROverlay from "@/components/AION/GlyphQROverlay";
 import GlyphSummaryHUD from "@/components/AION/GlyphSummaryHUD";
 import TimelineControls from "@/components/AION/TimelineControls";
+import GlyphTriggerEditor from "@/components/AION/GlyphTriggerEditor";
+import GlyphCompressorPanel from "@/components/AION/GlyphCompressorPanel";
 
 type ViewMode = "top-down" | "3d-symbolic" | "glyph-logic";
 
@@ -163,124 +166,139 @@ export default function AvatarRuntimePage() {
   };
 
   return (
-    <div className="min-h-screen p-6 bg-gradient-to-b from-gray-100 to-white text-gray-900">
-      <h1 className="text-3xl font-bold mb-6">🧠 AION Avatar Runtime</h1>
+    <div className="min-h-screen p-6 bg-gradient-to-b from-gray-100 to-white text-gray-900 flex">
+      <div className="flex-1 pr-4">
+        <h1 className="text-3xl font-bold mb-6">🧠 AION Avatar Runtime</h1>
 
-      <section className="mb-8">
-        <div className="flex items-center justify-between mb-2">
-          <h2 className="text-xl font-semibold">🌐 Container Status</h2>
-          <span className="text-sm text-gray-500">⏱️ Tick: {tick.toString().padStart(3, "0")}</span>
-        </div>
-        <ContainerStatus />
-      </section>
+        <section className="mb-8">
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-xl font-semibold">🌐 Container Status</h2>
+            <span className="text-sm text-gray-500">⏱️ Tick: {tick.toString().padStart(3, "0")}</span>
+          </div>
+          <ContainerStatus />
+        </section>
 
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-2">🧬 Tessaris Thought Tree</h2>
-        <TessarisVisualizer />
-      </section>
+        <section className="mb-8">
+          <h2 className="text-xl font-semibold mb-2">🧬 Tessaris Thought Tree</h2>
+          <TessarisVisualizer />
+        </section>
 
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-2">🧩 Tessaris Intents</h2>
-        <TessarisIntentVisualizer />
-      </section>
+        <section className="mb-8">
+          <h2 className="text-xl font-semibold mb-2">🧩 Tessaris Intents</h2>
+          <TessarisIntentVisualizer />
+        </section>
 
-      <section className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-        <div>
-          <div className="flex justify-between items-center mb-2">
-            <h2 className="text-xl font-semibold">🔠 Glyph Grid</h2>
-            <div className="flex space-x-2">
-              <select
-                value={viewMode}
-                onChange={(e) => setViewMode(e.target.value as ViewMode)}
-                className="border rounded p-1 text-sm"
-              >
-                <option value="top-down">Top-Down View</option>
-                <option value="3d-symbolic">3D Symbolic View</option>
-                <option value="glyph-logic">CodexLang / GlyphOS Logic</option>
-              </select>
-              <button
-                onClick={() => setShowQR(!showQR)}
-                className="px-3 py-1 text-sm bg-purple-600 text-white rounded-md hover:bg-purple-700 transition"
-              >
-                {showQR ? "Hide QR" : "Show GlyphQR"}
-              </button>
+        <section className="mb-8">
+          <h2 className="text-xl font-semibold mb-2">📜 Tessaris Execution Trace</h2>
+          <TessarisTracePanel />
+        </section>
+
+        <section className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+          <div>
+            <div className="flex justify-between items-center mb-2">
+              <h2 className="text-xl font-semibold">🔠 Glyph Grid</h2>
+              <div className="flex space-x-2">
+                <select
+                  value={viewMode}
+                  onChange={(e) => setViewMode(e.target.value as ViewMode)}
+                  className="border rounded p-1 text-sm"
+                >
+                  <option value="top-down">Top-Down View</option>
+                  <option value="3d-symbolic">3D Symbolic View</option>
+                  <option value="glyph-logic">CodexLang / GlyphOS Logic</option>
+                </select>
+                <button
+                  onClick={() => setShowQR(!showQR)}
+                  className="px-3 py-1 text-sm bg-purple-600 text-white rounded-md hover:bg-purple-700 transition"
+                >
+                  {showQR ? "Hide QR" : "Show GlyphQR"}
+                </button>
+              </div>
+            </div>
+            <GlyphGrid cubes={cubes} tick={tick} viewMode={viewMode} />
+            {showQR && (
+              <div className="mt-4">
+                <GlyphQROverlay glyphData={glyphData} visible={true} />
+              </div>
+            )}
+          </div>
+          <div>
+            <h2 className="text-xl font-semibold mb-2">🧪 Glyph Mutator</h2>
+            <GlyphMutator
+              containerId={containerId}
+              coord={`${coord.x},${coord.y},${coord.z},${coord.t}`}
+              glyphData={glyphData}
+              onMutationComplete={handleMutationComplete}
+            />
+          </div>
+        </section>
+
+        <section className="mb-10">
+          <h2 className="text-xl font-semibold mb-2">⚡ Glyph Execution Queue</h2>
+          <GlyphExecutor />
+        </section>
+
+        <section className="mb-10">
+          <h2 className="text-xl font-semibold mb-2">📺 Glyph Runtime HUD</h2>
+          <GlyphSummaryHUD glyphDiff={glyphDiff} />
+        </section>
+
+        <section className="mb-10">
+          <h2 className="text-xl font-semibold mb-2">📺 Timeline Playback</h2>
+          <TimelineControls
+            isPlaying={isPlaying}
+            currentTick={tick}
+            onPlay={handlePlay}
+            onPause={handlePause}
+            onPrev={handlePrev}
+            onNext={handleNext}
+          />
+        </section>
+
+        <section className="mb-10">
+          <h2 className="text-xl font-semibold mb-2">🕰️ Container Time Ratio</h2>
+          <div className="flex items-center space-x-4">
+            <input
+              type="range"
+              min={0.1}
+              max={5}
+              step={0.1}
+              value={timeRatio}
+              onChange={(e) => setTimeRatio(Number(e.target.value))}
+              className="w-48"
+            />
+            <span className="text-sm text-gray-700">Ratio: {timeRatio.toFixed(1)}x</span>
+          </div>
+        </section>
+
+        <section className="border-t border-gray-300 pt-6 mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <h2 className="text-lg font-medium mb-2">🧭 AION Command Interface</h2>
+            <CommandBar
+              input={input}
+              setInput={setInput}
+              loading={loading}
+              onSubmit={handleSubmit}
+              presets={presets}
+              setInputFromPreset={(value: string) => setInput(value)}
+            />
+          </div>
+          <div>
+            <h2 className="text-lg font-medium mb-2">💬 GPT Prompt Console</h2>
+            <div className="p-4 border rounded-md text-sm text-gray-600 bg-gray-50">
+              GPT prompt interface is not available in this view.
             </div>
           </div>
-          <GlyphGrid cubes={cubes} tick={tick} viewMode={viewMode} />
-          {showQR && (
-            <div className="mt-4">
-              <GlyphQROverlay glyphData={glyphData} visible={true} />
-            </div>
-          )}
-        </div>
-        <div>
-          <h2 className="text-xl font-semibold mb-2">🧪 Glyph Mutator</h2>
-          <GlyphMutator
-            containerId={containerId}
-            coord={`${coord.x},${coord.y},${coord.z},${coord.t}`}
-            glyphData={glyphData}
-            onMutationComplete={handleMutationComplete}
-          />
-        </div>
-      </section>
+        </section>
+      </div>
 
-      <section className="mb-10">
-        <h2 className="text-xl font-semibold mb-2">⚡ Glyph Execution Queue</h2>
-        <GlyphExecutor />
-      </section>
-
-      <section className="mb-10">
-        <h2 className="text-xl font-semibold mb-2">📺 Glyph Runtime HUD</h2>
-        <GlyphSummaryHUD glyphDiff={glyphDiff} />
-      </section>
-
-      <section className="mb-10">
-        <h2 className="text-xl font-semibold mb-2">📺 Timeline Playback</h2>
-        <TimelineControls
-          isPlaying={isPlaying}
-          currentTick={tick}
-          onPlay={handlePlay}
-          onPause={handlePause}
-          onPrev={handlePrev}
-          onNext={handleNext}
-        />
-      </section>
-
-      <section className="mb-10">
-        <h2 className="text-xl font-semibold mb-2">🕰️ Container Time Ratio</h2>
-        <div className="flex items-center space-x-4">
-          <input
-            type="range"
-            min={0.1}
-            max={5}
-            step={0.1}
-            value={timeRatio}
-            onChange={(e) => setTimeRatio(Number(e.target.value))}
-            className="w-48"
-          />
-          <span className="text-sm text-gray-700">Ratio: {timeRatio.toFixed(1)}x</span>
+      {/* ✅ Glyph Trigger Editor Sidebar */}
+      <div className="w-96 border-l border-gray-300 bg-white shadow-inner flex flex-col overflow-y-auto">
+        <GlyphTriggerEditor />
+        <div className="border-t border-gray-200 mt-4 pt-4">
+          <GlyphCompressorPanel />
         </div>
-      </section>
-
-      <section className="border-t border-gray-300 pt-6 mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <h2 className="text-lg font-medium mb-2">🧭 AION Command Interface</h2>
-          <CommandBar
-            input={input}
-            setInput={setInput}
-            loading={loading}
-            onSubmit={handleSubmit}
-            presets={presets}
-            setInputFromPreset={(value: string) => setInput(value)}
-          />
-        </div>
-        <div>
-          <h2 className="text-lg font-medium mb-2">💬 GPT Prompt Console</h2>
-          <div className="p-4 border rounded-md text-sm text-gray-600 bg-gray-50">
-            GPT prompt interface is not available in this view.
-          </div>
-        </div>
-      </section>
+      </div>
     </div>
   );
 }

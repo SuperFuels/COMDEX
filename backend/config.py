@@ -26,4 +26,6 @@ else:
         f"postgresql+psycopg2://{DB_USER}:{DB_PASS}@/{DB_NAME}"
         f"?host=/cloudsql/{INSTANCE_CONNECTION_NAME}"
     )
-    
+
+# ✅ Glyph API base URL (used by glyph_api_client.py and runtime synthesis)
+GLYPH_API_BASE_URL = os.getenv("GLYPH_API_BASE_URL", "http://localhost:8000")

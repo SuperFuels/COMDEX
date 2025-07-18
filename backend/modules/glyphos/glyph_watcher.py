@@ -1,12 +1,15 @@
 # backend/modules/runtime/glyph_watcher.py
 
+import asyncio
 from backend.modules.glyphos.glyph_executor import GlyphExecutor
 from backend.modules.consciousness.state_manager import StateManager
 
+
 class GlyphWatcher:
-    def __init__(self, state_manager: StateManager):
+    def __init__(self, state_manager: StateManager, async_loop: asyncio.AbstractEventLoop = None):
         self.executor = GlyphExecutor(state_manager)
         self.state_manager = state_manager
+        self.async_loop = async_loop or asyncio.get_event_loop()
 
     def scan_for_bytecode(self):
         """
@@ -39,8 +42,10 @@ class GlyphWatcher:
         """
         if glyph.startswith("⎇:"):
             print(f"🧬 Executing decoded glyph at ({x},{y},{z})")
-            decoded = glyph.replace("⎇:", "")  # Placeholder for decoding logic
-            # TODO: Decode bytecode → real glyphs before executing
-            self.executor.execute_glyph_at(x, y, z)
+            decoded = glyph.replace("⎇:", "")  # Future decoding logic goes here
+            coro = self.executor.execute_glyph_at(x, y, z)
+            asyncio.run_coroutine_threadsafe(coro, self.async_loop)
+
         elif glyph.startswith("⧉:"):
             print(f"📡 Deferred glyph at ({x},{y},{z}) → Remote logic not yet implemented.")
+            # TODO: Future support for remote execution or glyph routing

@@ -4,6 +4,9 @@ import json
 from datetime import datetime
 from pathlib import Path
 
+import requests
+from config import GLYPH_API_BASE_URL  # ✅ Added for glyph synthesis
+
 from backend.modules.dna_chain.switchboard import DNA_SWITCH
 DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
 
@@ -132,6 +135,22 @@ class GoalEngine:
             print(f"🧠 Tessaris logic triggered from goal: {goal.get('name')}")
         except Exception as e:
             print(f"⚠️ Tessaris trigger from goal failed: {e}")
+
+        # ♻️ Auto-synthesize glyphs from goal description
+        try:
+            print("🧬 Synthesizing glyphs from goal assignment...")
+            text = goal.get("description", "")
+            synth_response = requests.post(
+                f"{GLYPH_API_BASE_URL}/api/aion/synthesize-glyphs",
+                json={"text": text, "source": "goal"}
+            )
+            if synth_response.status_code == 200:
+                result = synth_response.json()
+                print(f"✅ Synthesized {len(result.get('glyphs', []))} glyphs from goal.")
+            else:
+                print(f"⚠️ Glyph synthesis failed: {synth_response.status_code} {synth_response.text}")
+        except Exception as e:
+            print(f"🚨 Glyph synthesis error during goal assignment: {e}")
 
         return goal
 
