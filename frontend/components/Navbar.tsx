@@ -180,7 +180,7 @@ export default function Navbar() {
           <div className="flex items-center space-x-3">
             {/* ✅ Container Map */}
               <Link
-                href="/container-map"
+                href="aion/ContainerMap"
                 className="flex items-center space-x-1 py-1 px-3 border border-purple-500 text-purple-600 rounded-lg bg-white dark:bg-gray-900 text-sm hover:bg-purple-50 dark:hover:bg-gray-800 focus:outline-none transition"
               >
                 <Image src="/cube.svg" alt="Map" width={16} height={16} />
