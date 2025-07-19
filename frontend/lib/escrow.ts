@@ -51,3 +51,5 @@ export async function getEscrowBalance(
   return contract.getBalance()
 }
 
+export const ESCROW_ABI = EscrowArtifact.abi;
+export { ESCROW_CONTRACT_ADDRESS };

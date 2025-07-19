@@ -1,6 +1,12 @@
+// File: frontend/hooks/useEscrowContract.ts
+
 import { useMemo } from 'react';
 import { ethers } from 'ethers';
-import { ESCROW_ABI, ESCROW_CONTRACT_ADDRESS } from '@/constants/escrow';
+import {
+  getEscrowContract,
+  ESCROW_CONTRACT_ADDRESS,
+  ESCROW_ABI
+} from '@/lib/escrow'; // ✅ Correct path
 
 export default function useEscrowContract() {
   const getContract = () => {
@@ -17,4 +23,3 @@ export default function useEscrowContract() {
 
   return useMemo(() => getContract(), []);
 }
-
