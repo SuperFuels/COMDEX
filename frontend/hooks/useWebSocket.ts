@@ -1,23 +1,29 @@
 // frontend/hooks/useWebSocket.ts
 import { useEffect, useRef, useState } from 'react';
 
-// ✅ Helper to convert API base URL to WSS endpoint
+// ✅ Helper to convert NEXT_PUBLIC_API_URL to WSS WebSocket endpoint
 function getWssUrl(path: string): string {
-  const base = process.env.NEXT_PUBLIC_API_URL || '';
-  return base.replace(/^http/, 'wss').replace(/\/api$/, '') + path;
+  const apiBase = process.env.NEXT_PUBLIC_API_URL || '';
+  const wsProtocol =
+    typeof window !== 'undefined' && window.location.protocol === 'https:' ? 'wss' : 'ws';
+
+  // Strip `/api` suffix if present to match FastAPI ws routes (e.g. /ws/codex)
+  const base = apiBase.replace(/^http/, wsProtocol).replace(/\/api\/?$/, '');
+
+  return `${base}${path}`;
 }
 
 export default function useWebSocket(
-  path: string, // expects relative WebSocket path like "/ws/containers"
+  path: string, // example: "/ws/codex"
   onMessage: (data: any) => void,
-  filterEvent?: string[] // optional: only listen to specific events like ['glyph_update']
+  filterType?: string[] // previously filterEvent, renamed for clarity
 ) {
   const socketRef = useRef<WebSocket | null>(null);
   const [connected, setConnected] = useState(false);
 
   useEffect(() => {
-    const fullUrl = getWssUrl(path);
-    const socket = new WebSocket(fullUrl);
+    const url = getWssUrl(path);
+    const socket = new WebSocket(url);
     socketRef.current = socket;
 
     socket.onopen = () => setConnected(true);
@@ -27,26 +33,24 @@ export default function useWebSocket(
     socket.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
-
-        if (!data?.event || !onMessage) return;
-        if (filterEvent && !filterEvent.includes(data.event)) return;
-
+        if (!data?.type || !onMessage) return;
+        if (filterType && !filterType.includes(data.type)) return;
         onMessage(data);
       } catch (err) {
-        console.warn('WebSocket parse error', err);
+        console.warn('WebSocket parse error:', err);
       }
     };
 
     return () => {
       socket.close();
     };
-  }, [path, onMessage, filterEvent?.join(',')]);
+  }, [path, onMessage, filterType?.join(',')]);
 
   const emit = (event: string, data: any) => {
-    if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+    if (socketRef.current?.readyState === WebSocket.OPEN) {
       socketRef.current.send(JSON.stringify({ event, data }));
     } else {
-      console.warn('WebSocket not connected, cannot emit event:', event);
+      console.warn('WebSocket not connected, cannot emit:', event);
     }
   };
 

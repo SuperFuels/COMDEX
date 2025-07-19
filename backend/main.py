@@ -130,6 +130,7 @@ from backend.routes import aion_glyph_trigger_log
 from backend.modules.codex.codex_websocket_interface import start_codex_ws_server
 from backend.routes.ws import codex_ws
 from backend.routes import aion_tessaris_intents
+from backend.routes import ws_codex_interface
 
 
 # ✅ WebSocket route
@@ -195,6 +196,7 @@ app.include_router(bundle_container.router)
 app.include_router(aion_glyph_trigger_log.router)
 app.include_router(codex_ws.router)
 app.include_router(aion_tessaris_intents.router, prefix="/api")
+app.include_router(ws_codex_interface.router)
 
 @app.on_event("startup")
 async def start_codex_websocket():
