@@ -1,98 +1,99 @@
-subgraph 🔁 PHASE 2: Runtime / Goal / Intent Execution
-  PH2A1[PH2A1: Glyph Triggers + MemoryBridge]
-  PH2A1a[✅ PH2A1a: Wire MemoryBridge into glyph trigger/exec]
-  PH2A1b[✅ PH2A1b: Auto-log trigger reason into MemoryEngine]
-  PH2A1c[✅ PH2A1c: Replay memory traces in TessarisVisualizer]
-  PH2A1d[✅] Glyph-to-Goal Link
-	PH2A1e[✅] Tessaris runtime hook (already triggered via assign_goal())
+graph TD
+  A[📘 GlyphOS Phase 3 — CodexCore Runtime]
+
+  subgraph 🔁 PHASE 2: Runtime / Goal / Intent Execution
+    PH2A1[PH2A1: Glyph Triggers + MemoryBridge]
+    PH2A1a[✅ PH2A1a: Wire MemoryBridge into glyph trigger/exec]
+    PH2A1b[✅ PH2A1b: Auto-log trigger reason into MemoryEngine]
+    PH2A1c[✅ PH2A1c: Replay memory traces in TessarisVisualizer]
+    PH2A1d[✅ PH2A1d: Glyph-to-Goal Link]
+    PH2A1e[✅ PH2A1e: Tessaris runtime hook (already triggered via assign_goal())]
+    
+    PH2A2[PH2A2: Dream ↔ Mutation Loop]
+    PH2A2a[✅ PH2A2a: Embed dream glyphs into runtime .dc cubes]
+    PH2A2b[⏳ PH2A2b: Enable recursive Dream ↔ Mutation ↔ Dream loop]
   
-  PH2A2[PH2A2: Dream ↔ Mutation Loop]
-  PH2A2a[✅ PH2A2a: Embed dream glyphs into runtime .dc cubes]
-  PH2A2b[⏳ PH2A2b: Enable recursive Dream ↔ Mutation ↔ Dream loop]
-
-  PH2A3[PH2A3: Intent Execution Engine]
-  PH2A3a[✅ PH2A3a: Implement TessarisIntent executor]
-  PH2A3b[✅ PH2A3b: Add Soul Law validation before executing intents]
-  PH2A3c[✅ PH2A3c: Visualize queue of glyph-based intents in UI]
-  PH2A3d[⏳ PH2A3d: ⛓️ Execution dashboard (visualize/approve/deny)]
-  PH2A3e[⏳ PH2A3e: 🔐 Live toggle to auto-run or pause on intent queue]
-  PH2A3f[⏳ PH2A3f: 🧾 Add YAML or versioned logging alongside DB]
-  PH2A3g[⏳ PH2A3g: 🧠 Let glyphs evolve intent types (e.g., "create_child")]
-
-  PH2A4[PH2A4: Avatar ↔ Runtime Binding]
-  PH2A4a[⏳ PH2A4a: Avatar constructs containers from Tessaris-generated plans]
-  PH2A4b[✅ PH2A4b: Bind avatar logic to glyph runtime]
-
-  PH2A5[PH2A5: LuxNet Transport]
-  PH2A5a[⏳ PH2A5a: LuxNet P2P: Send .dc + avatar state via encrypted .lux packets]
-  PH2A5b[⏳ PH2A5b: Support .lux send via WebSocket or save-to-disk]
-
-  PH2A6[PH2A6: Symbolic Ecosystem Runtime]
-  PH2A6a[⏳ PH2A6a–f: Mood, energy, decay, quarantine, etc.]
-
-  PH2A7[⏳ PH2A7: UI: Evolution Timeline Viewer]
-  PH2A8[⏳ PH2A8: VR bridge or Human embodiment hooks]
-end
+    PH2A3[PH2A3: Intent Execution Engine]
+    PH2A3a[✅ PH2A3a: Implement TessarisIntent executor]
+    PH2A3b[✅ PH2A3b: Add Soul Law validation before executing intents]
+    PH2A3c[✅ PH2A3c: Visualize queue of glyph-based intents in UI]
+    PH2A3d[⏳ PH2A3d: ⛓️ Execution dashboard (visualize/approve/deny)]
+    PH2A3e[⏳ PH2A3e: 🔐 Live toggle to auto-run or pause on intent queue]
+    PH2A3f[⏳ PH2A3f: 🧾 Add YAML or versioned logging alongside DB]
+    PH2A3g[⏳ PH2A3g: 🧠 Let glyphs evolve intent types (e.g., "create_child")]
+  
+    PH2A4[PH2A4: Avatar ↔ Runtime Binding]
+    PH2A4a[⏳ PH2A4a: Avatar constructs containers from Tessaris-generated plans]
+    PH2A4b[✅ PH2A4b: Bind avatar logic to glyph runtime]
+  
+    PH2A5[PH2A5: LuxNet Transport]
+    PH2A5a[⏳ PH2A5a: LuxNet P2P: Send .dc + avatar state via encrypted .lux packets]
+    PH2A5b[⏳ PH2A5b: Support .lux send via WebSocket or save-to-disk]
+  
+    PH2A6[PH2A6: Symbolic Ecosystem Runtime]
+    PH2A6a[⏳ PH2A6a–f: Mood, energy, decay, quarantine, etc.]
+  
+    PH2A7[⏳ PH2A7: UI: Evolution Timeline Viewer]
+    PH2A8[⏳ PH2A8: VR bridge or Human embodiment hooks]
+  end
 
   subgraph PH3A7[PH3A7: Self-Rewriting Glyph Support]
-  PH3A7a[PH3A7a: Add support for ⟦ Write | Glyph : Self → ⬁ ⟧]
-  PH3A7b[PH3A7b: Let glyphs rewrite local cube logic or neighbors]
-  PH3A7c[PH3A7c: Prevent unsafe infinite loops or overwrite risks]
-  PH3A7d[PH3A7d: Log self-rewrites into MemoryEngine with source trace]
-  PH3A7e[PH3A7e: Display self-writing traces in TessarisVisualizer]
-end
+    PH3A7a[⏳ PH3A7a: Add support for ⟦ Write | Glyph : Self → ⬁ ⟧]
+    PH3A7b[⏳ PH3A7b: Let glyphs rewrite local cube logic or neighbors]
+    PH3A7c[⏳ PH3A7c: Prevent unsafe infinite loops or overwrite risks]
+    PH3A7d[⏳ PH3A7d: Log self-rewrites into MemoryEngine with source trace]
+    PH3A7e[⏳ PH3A7e: Display self-writing traces in TessarisVisualizer]
+  end
 
-subgraph ♻️ PHASE 3: Mutation & Adaptation
-  PH3A1[PH3A1: Mutation Logic Rules]
-  PH3A1b[⏳ PH3A1b: Define mutation rules for glyph logic (safe/unsafe)]
-  PH3A1c[⏳ PH3A1c: Evolution loop (mutate → retry → accept)]
+  subgraph ♻️ PHASE 3: Mutation & Adaptation
+    PH3A1[PH3A1: Mutation Logic Rules]
+    PH3A1b[⏳ PH3A1b: Define mutation rules for glyph logic (safe/unsafe)]
+    PH3A1c[⏳ PH3A1c: Evolution loop (mutate → retry → accept)]
 
-  PH3A2[PH3A2: Dream Outcome Feedback]
-  PH3A2a[⏳ PH3A2a: Dream outcome tracker (success/failure)]
-  PH3A2b[⏳ PH3A2b: Memory reflection improves logic branches]
-  PH3A2c[⏳ PH3A2c: Score glyphs by outcome]
+    PH3A2[PH3A2: Dream Outcome Feedback]
+    PH3A2a[⏳ PH3A2a: Dream outcome tracker (success/failure)]
+    PH3A2b[⏳ PH3A2b: Memory reflection improves logic branches]
+    PH3A2c[⏳ PH3A2c: Score glyphs by outcome]
 
-  PH3A3[PH3A3: Live Runtime Patch + Confidence]
-  PH3A3b[⏳ PH3A3b: Runtime patching of logic trees]
-  PH3A3c[⏳ PH3A3c: Confidence weighting for logic branches]
+    PH3A3[PH3A3: Live Runtime Patch + Confidence]
+    PH3A3b[⏳ PH3A3b: Runtime patching of logic trees]
+    PH3A3c[⏳ PH3A3c: Confidence weighting for logic branches]
 
-  PH3A4[PH3A4: Dream Logic Optimization]
-  PH3A4a[⏳ PH3A4a–c: Thought compression, recursive dream logic, redundancy pruning]
+    PH3A4[PH3A4: Dream Logic Optimization]
+    PH3A4a[⏳ PH3A4a–c: Thought compression, recursive dream logic, redundancy pruning]
 
-  PH3A5[PH3A5: Mutation Pipeline + CRISPR]
-  PH3A5b[✅ PH3A5b: Glyph-triggered mutation proposals]
-  PH3A5c[⏳ PH3A5c: CRISPR scoring, safety, ethics checks]
+    PH3A5[PH3A5: Mutation Pipeline + CRISPR]
+    PH3A5b[✅ PH3A5b: Glyph-triggered mutation proposals]
+    PH3A5c[⏳ PH3A5c: CRISPR scoring, safety, ethics checks]
 
-  PH3A6[PH3A6: Simulation Forks]
-  PH3A6a[⏳ PH3A6a–c: Clone, fork, test best-of-N thoughts]
-end
+    PH3A6[PH3A6: Simulation Forks]
+    PH3A6a[⏳ PH3A6a–c: Clone, fork, test best-of-N thoughts]
+  end
 
-%% ────── Architecture Flow Comparison ──────
-subgraph ARCH [🧬 Architecture Flow]
-  OLD_AI[❌ Legacy AI Stack] -->|Replaced by| AION_GlyphOS[✅ AION Stack]
-  OLD_AI -->|Compressed to Glyph| A4
-end
+  %% ────── Architecture Flow Comparison ──────
+  subgraph ARCH [🧬 Architecture Flow]
+    OLD_AI[❌ Legacy AI Stack] -->|Replaced by| AION_GlyphOS[✅ AION Stack]
+    OLD_AI -->|Compressed to Glyph| A4
+  end
 
-OLD_AI -.->|LLMs, GPU inference| D1[GPT-4 style]
-AION_GlyphOS --> A1[Tessaris Engine] --> A2[Glyph Logic Interpreter] --> A3[Thought Trees]
-A3 --> A4[Compression Engine] --> A5[Executable Logic] --> A6[Goals + Skills + Dreams]
-A6 --> A7[Stored in .dc Containers]
-A1 --> A8[Local Runtime, No GPU Needed]
+  OLD_AI -.->|LLMs, GPU inference| D1[GPT-4 style]
+  AION_GlyphOS --> A1[Tessaris Engine] --> A2[Glyph Logic Interpreter] --> A3[Thought Trees]
+  A3 --> A4[Compression Engine] --> A5[Executable Logic] --> A6[Goals + Skills + Dreams]
+  A6 --> A7[Stored in .dc Containers]
+  A1 --> A8[Local Runtime, No GPU Needed]
 
-%% Task Dependencies
-PH2A1 --> PH2A1a & PH2A1b & PH2A1c
-PH2A2 --> PH2A2a & PH2A2b
-PH2A3 --> PH2A3a & PH2A3b & PH2A3c & PH2A3d & PH2A3e & PH2A3f & PH2A3g
-PH2A4 --> PH2A4a & PH2A4b
-PH2A5 --> PH2A5a & PH2A5b
-PH3A1 --> PH3A1b & PH3A1c
-PH3A2 --> PH3A2a & PH3A2b & PH3A2c
-PH3A3 --> PH3A3b & PH3A3c
-PH3A4 --> PH3A4a
-PH3A5 --> PH3A5b & PH3A5c
-PH3A6 --> PH3A6a
-
-
+  %% Task Dependencies
+  PH2A1 --> PH2A1a & PH2A1b & PH2A1c
+  PH2A2 --> PH2A2a & PH2A2b
+  PH2A3 --> PH2A3a & PH2A3b & PH2A3c & PH2A3d & PH2A3e & PH2A3f & PH2A3g
+  PH2A4 --> PH2A4a & PH2A4b
+  PH2A5 --> PH2A5a & PH2A5b
+  PH3A1 --> PH3A1b & PH3A1c
+  PH3A2 --> PH3A2a & PH3A2b & PH3A2c
+  PH3A3 --> PH3A3b & PH3A3c
+  PH3A4 --> PH3A4a
+  PH3A5 --> PH3A5b & PH3A5c
+  PH3A6 --> PH3A6a
 ---
 
 # 📦 AION: Container-Based Knowledge Graph Embedding

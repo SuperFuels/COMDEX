@@ -1,14 +1,15 @@
-# backend/modules/glyphos/glyph_synthesis_engine.py
+# 📁 backend/modules/glyphos/glyph_synthesis_engine.py
 
 import hashlib
 import json
 from typing import List, Dict, Optional
 from datetime import datetime
 
-from modules.glyphos.glyph_utils import parse_to_glyphos, summarize_to_glyph, generate_hash
-from modules.memory.memory_engine import store_memory_packet
-from modules.tessaris.tessaris_engine import execute_glyph_packet
-from modules.consciousness.state_manager import STATE
+from backend.modules.glyphos.glyph_utils import parse_to_glyphos, summarize_to_glyph, generate_hash
+from backend.modules.glyphos.glyph_grammar_inferencer import GlyphGrammarInferencer
+from backend.modules.hexcore.memory_engine import store_memory_packet
+from backend.modules.tessaris.tessaris_intent_executor import execute_glyph_packet
+from backend.modules.consciousness.state_manager import STATE
 
 # Optional WebSocket push
 try:
@@ -21,11 +22,12 @@ except:
 class GlyphSynthesisEngine:
     def __init__(self):
         self.dedup_cache: Dict[str, Dict] = {}
+        self.grammar_engine = GlyphGrammarInferencer()
 
     def compress_input(self, raw_text: str, source: str = "gpt") -> Dict:
         """
         Convert raw input into compressed glyph packet.
-        source = 'gpt', 'goal', or 'reflection'
+        source = 'gpt', 'goal', 'reflection', or 'mutation'
         """
         glyphs = parse_to_glyphos(raw_text)
         meaning_hash = generate_hash(glyphs)
@@ -37,10 +39,18 @@ class GlyphSynthesisEngine:
                 "glyph_packet": self.dedup_cache[meaning_hash],
             }
 
+        # Optional: Infer symbolic grammar
+        inferred_grammar = []
+        for g in glyphs:
+            structure = self.grammar_engine.infer_from_glyph(g)
+            if structure:
+                inferred_grammar.append(structure)
+
         glyph_packet = {
             "source": source,
             "raw_input": raw_text,
             "glyphs": glyphs,
+            "inferred_grammar": inferred_grammar,
             "hash": meaning_hash,
             "timestamp": datetime.utcnow().isoformat(),
         }
@@ -84,6 +94,7 @@ class GlyphSynthesisEngine:
     def push_to_glyph_grid(self, packet: Dict):
         """
         Push synthesized glyphs to glyph grid via WebSocket.
+        Includes inferred grammar metadata for HUD overlays.
         """
         if not WS:
             print("[WS] GlyphGrid WebSocket not available.")
@@ -93,25 +104,42 @@ class GlyphSynthesisEngine:
             "event": "glyph_injected",
             "data": {
                 "glyphs": packet.get("glyphs", []),
+                "grammar": packet.get("inferred_grammar", []),
                 "timestamp": packet.get("timestamp"),
                 "source": packet.get("source"),
+                "hash": packet.get("hash")
             }
         }
         WS.broadcast(payload)
+
+    def get_dedup_stats(self):
+        return {
+            "total_cached": len(self.dedup_cache),
+            "recent_hashes": list(self.dedup_cache.keys())[-5:]
+        }
 
 
 # ✅ Singleton
 glyph_synthesizer = GlyphSynthesisEngine()
 
 
+def compress_to_glyphs(data: str) -> List[Dict]:
+    """
+    External utility wrapper to compress raw input into a list of glyphs.
+    Returns only the glyph list, not the full packet.
+    """
+    result = glyph_synthesizer.compress_input(data)
+    return result["glyph_packet"]["glyphs"]
+
+
 # 🧪 Optional test stub
 if __name__ == "__main__":
-    sample = "The AI should reflect on her past decision and improve ethical alignment."
-    result = glyph_synthesizer.compress_input(sample, source="reflection")
+    sample = "The AI should generate a symbolic child using glyph logic and ethical alignment."
+    result = glyph_synthesizer.compress_input(sample, source="child_generation")
     print("Glyph Packet:", json.dumps(result, indent=2))
 
     glyph_synthesizer.store_packet(result["glyph_packet"])
-    glyph_synthesizer.inject_into_container(result["glyph_packet"], coord="1,0,0,0")
+    glyph_synthesizer.inject_into_container(result["glyph_packet"], coord="2,0,0,0")
     glyph_synthesizer.push_to_glyph_grid(result["glyph_packet"])
 
     print("Execution result:", glyph_synthesizer.run_packet(result["glyph_packet"]))

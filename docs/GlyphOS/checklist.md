@@ -19,7 +19,7 @@ graph TD
     B3[✅ Wire executor → dispatcher]
     B4[✅ Microgrid sweep (glyph activation patterns)]
     B5[⏳ Visualize glyph activation in .dc space]
-    B6[⏳ Executable runtime glyph logic (CodexCore)]
+    B6[✅ Executable runtime glyph logic (CodexCore)]
   end
 
   subgraph Integration & Triggers
@@ -89,7 +89,7 @@ graph TD
 PHASE 2
   # 📘 GlyphOS: Phase 2 – Glyph Synthesis + Semantic Compression
 
-`graph TD
+graph TD
   A[🧬 Glyph Synthesis Engine]
 
   subgraph Synthesis Core
@@ -171,8 +171,6 @@ PHASE 2
   B1 --> C1 --> C2 --> C3 --> C4
 
 
-graph TD
-  G1[📜 GlyphOS Grammar: Core Language Spec]
   G1 --> G1a[✅ Symbolic Syntax ⟦ Type | Tag : Value → Action ⟧]
   G1 --> G1b[✅ Symbol Types: MEM, EMO, LOG, DIR, ACT]
   G1 --> G1c[✅ Operators: →, ↑, ≡ (↔, ⊕ pending)]
@@ -180,7 +178,6 @@ graph TD
   G1 --> G1e[✅ .dc Storage Format: compressed JSON]
   G1 --> G1f[⏳ PatternMatch + Symbol Deduplication]
   G1 --> G1g[⏳ Glyph Encryption (Aethervault)]
-  
 ---
 
 ## ✅ Summary of Phase 2 Goals
@@ -209,52 +206,50 @@ Would you like that checklist too after Phase 2?
 
 
 
-PHASE 3
-
 graph TD
   A[📘 GlyphOS Phase 3 — CodexCore Runtime]
 
   subgraph CodexCore Runtime Engine
-    A1[⏳ codex_core.py - Glyph execution engine]
-    A2[⏳ glyph_instruction_set.py - Define symbolic opcodes]
-    A3[⏳ glyph_runtime_memory.py - Glyph stack + memory tracking]
-    A4[⏳ glyph_trace_logger.py - Execution trace + rollback]
+    A1[✅ codex_core.py - Glyph execution engine]
+    A2[✅ glyph_instruction_set.py - Define symbolic opcodes]
+    A3[✅ glyph_runtime_memory.py - Glyph stack + memory tracking]
+    A4[✅ glyph_trace_logger.py - Execution trace + rollback]
   end
 
   subgraph CodexLang Compiler & Interpreter
-    B1[⏳ codexlang_parser.py - Symbolic instruction compiler]
-    B2[⏳ codexlang_executor.py - Execute logic via CodexCore]
-    B3[⏳ glyph_logic_validator.py - Soul Law + structure checks]
-    B4[⏳ glyph_examples.codex - Sample logic flows]
+    B1[✅ codexlang_parser.py - Symbolic instruction compiler]
+    B2[✅ codexlang_executor.py - Execute logic via CodexCore]
+    B3[✅ glyph_logic_validator.py - Soul Law + structure checks]
+    B4[✅ glyph_examples.codex - Sample logic flows]
   end
 
   subgraph Glyph Execution Features
-    C1[⏳ Run glyph logic from .dc containers]
-    C2[⏳ Enable conditional glyph logic (if/then/else)]
-    C3[⏳ Recursively execute ThoughtBranch logic trees]
-    C4[⏳ Simulate strategies, loops, and branching]
-    C5[⏳ Launch real AION actions from glyphs (e.g. teleport)]
+    C1[✅ Run glyph logic from .dc containers]
+    C2[✅ Enable conditional glyph logic (if/then/else)]
+    C3[✅ Recursively execute ThoughtBranch logic trees]
+    C4[✅ Simulate strategies, loops, and branching]
+    C5[✅ Launch real AION actions from glyphs (e.g. teleport)]
   end
 
   subgraph Compression Logic
-    D1[⏳ Execute compressed glyph bundles (e.g. THOUGHTPACK)]
-    D2[⏳ Run glyphs as compressed bytecode]
-    D3[⏳ Auto-propose rewrites if execution fails]
-    D4[⏳ Use execution context to trigger mutations]
+    D1[✅ Execute compressed glyph bundles (e.g. THOUGHTPACK)]
+    D2[✅ Run glyphs as compressed bytecode]
+    D3[✅ Auto-propose rewrites if execution fails]
+    D4[✅ Use execution context to trigger mutations]
   end
 
   subgraph Governance & Safety
-    E1[⏳ Enforce Soul Laws before execution]
-    E2[⏳ Trait and milestone gates for glyph ops]
-    E3[⏳ Log execution context + memory impact]
-    E4[⏳ Container-bound execution sandbox]
+    E1[✅ Enforce Soul Laws before execution]
+    E2[✅ Trait and milestone gates for glyph ops]
+    E3[✅ Log execution context + memory impact]
+    E4[✅ Container-bound execution sandbox]
   end
 
   subgraph Interfaces & Diagnostics
-    F1[⏳ CLI/API to run glyph instructions manually]
-    F2[⏳ Visual trace of glyph execution stack]
-    F3[⏳ Live frontend playback of glyph logic]
-    F4[⏳ Debug interface for glyph packets]
+    F1[✅ CLI/API to run glyph instructions manually]
+    F2[✅ Visual trace of glyph execution stack]
+    F3[✅ Live frontend playback of glyph logic]
+    F4[✅ Debug interface for glyph packets]
 
   requires glyph vault to be built
     [⏳ Enable GlyphVault-bound encryption (optional)]

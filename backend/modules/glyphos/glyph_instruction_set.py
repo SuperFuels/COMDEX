@@ -1,4 +1,4 @@
-# backend/modules/glyphos/glyph_instruction_set.py
+# 📁 backend/modules/glyphos/glyph_instruction_set.py
 
 # Symbolic Instruction Definitions for CodexCore
 # Each operator is mapped to a runtime behavior
@@ -15,6 +15,7 @@ class GlyphInstruction:
     def execute(self, *args, **kwargs) -> Any:
         return self.func(*args, **kwargs)
 
+# --- Operation Implementations ---
 
 def op_trigger(source, target, memory=None):
     if memory:
@@ -25,54 +26,61 @@ def op_trigger(source, target, memory=None):
         })
     return f"{source} → {target}"
 
-
 def op_equivalence(left, right):
     return left == right
 
-
-def op_reflect(symbol, memory=None):
+def op_mutate(symbol, memory=None):
     if memory:
         memory.store({
-            "label": "reflection",
-            "type": "self_reflection",
-            "content": f"Reflecting on: {symbol}"
+            "label": "mutation",
+            "type": "self_mutation",
+            "content": f"Mutating on: {symbol}"
         })
-    return f"Reflected on {symbol}"
-
+    return f"Mutated: {symbol}"
 
 def op_loop(symbol, count=3):
     return [f"Loop[{i}] → {symbol}" for i in range(count)]
 
-
 def op_union(set1, set2):
     return list(set(set1) | set(set2))
-
 
 def op_combine(a, b):
     return f"⊕({a}, {b})"
 
-
 def op_multiply(a, b):
     return f"⊗({a}, {b})"
-
 
 def op_condition(condition, then_action, else_action=None):
     if condition:
         return then_action
     return else_action or "No Action"
 
-# Instruction Set Registry
+def op_delay(symbol, seconds=1):
+    import time
+    time.sleep(seconds)
+    return f"Delayed: {symbol} by {seconds}s"
+
+def op_compress(*symbols):
+    return f"∇({', '.join(map(str, symbols))})"
+
+def op_milestone(*args):
+    return f"✦ Milestone Reached: {' '.join(map(str, args))}"
+
+# --- Instruction Set Registry ---
+
 INSTRUCTION_SET: Dict[str, GlyphInstruction] = {
     "→": GlyphInstruction("→", "trigger", op_trigger, "Triggers a symbolic action"),
     "↔": GlyphInstruction("↔", "equivalence", op_equivalence, "Checks bidirectional equivalence"),
-    "⟲": GlyphInstruction("⟲", "reflect", op_reflect, "Reflect on a symbol"),
+    "⟲": GlyphInstruction("⟲", "mutate", op_mutate, "Performs self-mutation or update"),
     "⤾": GlyphInstruction("⤾", "loop", op_loop, "Loops over a symbol"),
     "∪": GlyphInstruction("∪", "union", op_union, "Set union of two sets"),
     "⊕": GlyphInstruction("⊕", "combine", op_combine, "Combines two symbolic values"),
     "⊗": GlyphInstruction("⊗", "multiply", op_multiply, "Multiplies symbolic structures"),
     "?": GlyphInstruction("?", "condition", op_condition, "Conditional execution"),
+    "⧖": GlyphInstruction("⧖", "delay", op_delay, "Delays execution of a symbol"),
+    "∇": GlyphInstruction("∇", "compress", op_compress, "Compresses symbolic values"),
+    "✦": GlyphInstruction("✦", "milestone", op_milestone, "Marks a milestone or boot phase"),
 }
-
 
 def get_instruction(symbol: str) -> GlyphInstruction:
     return INSTRUCTION_SET.get(symbol)

@@ -1,5 +1,8 @@
-from modules.memory.memory_engine import MemoryEngine
-from modules.dna_chain.glyph_trigger_logger import log_trigger_trace
+# File: backend/modules/consciousness/memory_bridge.py
+
+from backend.modules.hexcore.memory_engine import MemoryEngine
+from backend.modules.dna_chain.glyph_trigger_logger import log_trigger_trace
+
 
 class MemoryBridge:
     def __init__(self, container_id: str):

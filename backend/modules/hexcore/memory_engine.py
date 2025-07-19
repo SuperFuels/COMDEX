@@ -1,19 +1,17 @@
+import os
 import json
 from pathlib import Path
 from datetime import datetime
 from sentence_transformers import SentenceTransformer, util
-import torch  # added import for PyTorch
-
-# ✅ DNA Switch
-from backend.modules.dna_chain.switchboard import DNA_SWITCH
-DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
-
-# ✅ Glyph Synthesis API
+import torch
 import requests
-from config import GLYPH_API_BASE_URL
 
-MEMORY_FILE = Path(__file__).parent / "aion_memory.json"
-EMBEDDING_FILE = Path(__file__).parent / "aion_embeddings.json"
+from backend.modules.dna_chain.switchboard import DNA_SWITCH
+from backend.config import GLYPH_API_BASE_URL
+
+DNA_SWITCH.register(__file__)
+
+MEMORY_DIR = "data/memory_logs"
 
 MILESTONE_KEYWORDS = {
     "first_dream": ["dream_reflection"],
@@ -24,11 +22,15 @@ MILESTONE_KEYWORDS = {
 }
 
 class MemoryEngine:
-    def __init__(self):
+    def __init__(self, container_id: str = "global"):
+        self.container_id = container_id
         self.memory = []
         self.embeddings = []
         self.model = SentenceTransformer("all-MiniLM-L6-v2")
         self.agents = []
+
+        self.memory_file = Path(__file__).parent / f"memory_{self.container_id}.json"
+        self.embedding_file = Path(__file__).parent / f"embeddings_{self.container_id}.json"
 
         self.load_memory()
         self.load_embeddings()
@@ -49,7 +51,7 @@ class MemoryEngine:
         embeddings_tensor = torch.stack(self.embeddings) if isinstance(self.embeddings, list) else self.embeddings
         similarities = util.cos_sim(new_embedding, embeddings_tensor)[0]
         max_sim = float(similarities.max())
-        return max_sim > 0.95  # Threshold
+        return max_sim > 0.95
 
     def list_labels(self):
         return sorted(set(m.get("label") for m in self.memory if "label" in m))
@@ -61,9 +63,9 @@ class MemoryEngine:
         return self.memory
 
     def load_memory(self):
-        if MEMORY_FILE.exists():
+        if self.memory_file.exists():
             try:
-                with open(MEMORY_FILE, "r") as f:
+                with open(self.memory_file, "r") as f:
                     self.memory = json.load(f)
             except Exception:
                 self.memory = []
@@ -71,9 +73,9 @@ class MemoryEngine:
             self.memory = []
 
     def load_embeddings(self):
-        if EMBEDDING_FILE.exists():
+        if self.embedding_file.exists():
             try:
-                with open(EMBEDDING_FILE, "r") as f:
+                with open(self.embedding_file, "r") as f:
                     loaded = json.load(f)
                     self.embeddings = [torch.tensor(e, dtype=torch.float32) for e in loaded]
             except Exception:
@@ -83,14 +85,14 @@ class MemoryEngine:
 
     def save_memory(self):
         try:
-            with open(MEMORY_FILE, "w") as f:
+            with open(self.memory_file, "w") as f:
                 json.dump(self.memory, f, indent=2)
         except Exception as e:
             print(f"⚠️ Failed to save memory file: {e}")
 
     def save_embeddings(self):
         try:
-            with open(EMBEDDING_FILE, "w") as f:
+            with open(self.embedding_file, "w") as f:
                 json.dump([e.tolist() for e in self.embeddings], f)
         except Exception as e:
             print(f"⚠️ Failed to save embeddings file: {e}")
@@ -136,7 +138,6 @@ class MemoryEngine:
             "memory": memory_obj
         })
 
-        # ♻️ Auto-synthesize glyphs from memory
         try:
             print("🧬 Synthesizing glyphs from memory...")
             synth_response = requests.post(
@@ -151,9 +152,34 @@ class MemoryEngine:
         except Exception as e:
             print(f"🚨 Glyph synthesis error (memory): {e}")
 
+def _ensure_dir():
+    os.makedirs(MEMORY_DIR, exist_ok=True)
 
-# ✅ Enhanced helper to store container metadata richly
-def store_container_metadata(container):
+def store_memory_entry(kind: str, data: dict):
+    _ensure_dir()
+    date_str = datetime.utcnow().strftime("%Y-%m-%d")
+    path = os.path.join(MEMORY_DIR, f"{kind}_{date_str}.log.jsonl")
+
+    full_entry = {
+        "kind": kind,
+        "timestamp": datetime.utcnow().isoformat(),
+        "data": data
+    }
+
+    with open(path, "a") as f:
+        f.write(json.dumps(full_entry) + "\n")
+
+    print(f"[🧠] Stored memory entry: {kind} | {data.get('context', '')}")
+
+def store_memory_packet(packet: dict):
+    label = packet.get("label", "memory:unlabeled")
+    content = packet.get("content", "")
+    MEMORY.store({
+        "label": label,
+        "content": content
+    })
+
+def store_container_metadata(container: dict):
     container_id = container.get("id", "unknown")
     label = f"container:{container_id}"
 
@@ -178,13 +204,10 @@ def store_container_metadata(container):
     }
 
     readable = "\n".join([f"{k}: {v}" for k, v in summary.items()])
-
     MEMORY.store({
         "label": label,
         "content": f"[📦] Container metadata\n{readable}"
     })
 
-
-# ✅ Exportable singletons
 MEMORY = MemoryEngine()
 store_memory = MEMORY.store

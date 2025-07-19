@@ -1,22 +1,25 @@
 from backend.modules.glyphos.glyph_parser import parse_glyph
 from backend.modules.glyphos.glyph_dispatcher import GlyphDispatcher
 from backend.modules.consciousness.state_manager import StateManager
-from backend.modules.dna_chain.dna_switch import register_dna_switch
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
 from backend.modules.skills.goal_engine import GoalEngine
 from backend.modules.hexcore.memory_engine import MemoryEngine
-from backend.modules.personality.personality_engine import PersonalityProfile
+from backend.modules.consciousness.personality_engine import PersonalityProfile
 from backend.modules.skills.milestone_tracker import MilestoneTracker
-from backend.modules.memory.memory_bridge import MemoryBridge
+from backend.modules.consciousness.memory_bridge import MemoryBridge
 from backend.modules.websocket_manager import websocket_manager
 from backend.modules.glyphos.glyph_summary import summarize_glyphs
 
-# 🔁 Triggered behaviors
-from backend.modules.skills.dream_core import run_dream
-from backend.modules.skills.reflection_engine import generate_reflection
+# 🖁️ Triggered behaviors
+from backend.modules.aion.dream_core import run_dream
+from backend.modules.consciousness.reflection_engine import generate_reflection
 from backend.modules.dna_chain.dna_proposer import propose_dna_mutation
 
 # ✅ Self-rewriting import
 from backend.modules.glyphos.glyph_mutator import run_self_rewrite
+
+import time
+import uuid
 
 
 class GlyphExecutor:
@@ -28,13 +31,40 @@ class GlyphExecutor:
         self.memory_engine = MemoryEngine()
         self.personality = PersonalityProfile()
         self.milestone_tracker = MilestoneTracker()
-        container_id = self.state_manager.get_current_container_id() or "default"
-        self.bridge = MemoryBridge(container_id)
-        self.container_path = self.active_container.get("path", "")  # ✅ Added container path
+        self.container_id = self.state_manager.get_current_container_id() or "default"
+        self.bridge = MemoryBridge(self.container_id)
+        self.container_path = self.active_container.get("path", "")
 
     def read_glyph_at(self, x: int, y: int, z: int) -> str:
         cube = self.active_container.get("cubes", {}).get(f"{x},{y},{z}", {})
         return cube.get("glyph", "")
+
+    async def broadcast_glyph_execution(self, glyph: str, action: str, trigger_type: str, coord: str, cost: float = 4.2):
+        try:
+            await websocket_manager.broadcast({
+                "event": "glyph_execution",
+                "payload": {
+                    "glyph": glyph,
+                    "action": action,
+                    "source": "glyph_executor",
+                    "timestamp": int(time.time()),
+                    "cost": cost,
+                    "trace_id": str(uuid.uuid4())[:8],
+                    "trigger_type": trigger_type,
+                    "sqi": True,
+                    "detail": {
+                        "coord": coord,
+                        "container": self.container_id,
+                        "operator": glyph,
+                        "ethics_risk": 0.1,
+                        "energy": 2.1,
+                        "delay": 0.5,
+                        "opportunity_loss": 0.2,
+                    }
+                }
+            })
+        except Exception as e:
+            print(f"[⚠️] WebSocket glyph_execution failed: {e}")
 
     async def execute_glyph_at(self, x: int, y: int, z: int):
         coord = f"{x},{y},{z}"
@@ -55,8 +85,7 @@ class GlyphExecutor:
             "origin": "glyph_executor",
         }
 
-        # 🔁 Glyph Trigger Map
-        if glyph == "🧠":
+        if glyph == "🦰":
             self.goal_engine.boot_next_skill()
             self.memory_engine.store({
                 **trace_data,
@@ -66,6 +95,7 @@ class GlyphExecutor:
             })
             self.personality.adjust_trait("curiosity", +0.02)
             self.bridge.trace_trigger(glyph, {**trace_data, "role": "Boot next skill"})
+            await self.broadcast_glyph_execution(glyph, "boot_next_skill", "skill", coord)
 
         elif glyph == "⚙":
             self.goal_engine.run_top_goal()
@@ -77,6 +107,7 @@ class GlyphExecutor:
             })
             self.personality.adjust_trait("ambition", +0.01)
             self.bridge.trace_trigger(glyph, {**trace_data, "role": "Run top goal"})
+            await self.broadcast_glyph_execution(glyph, "run_top_goal", "goal", coord)
 
         elif glyph == "🔬":
             self.memory_engine.store({
@@ -88,6 +119,7 @@ class GlyphExecutor:
             self.personality.adjust_trait("curiosity", +0.03)
             self.personality.adjust_trait("humility", +0.01)
             self.bridge.trace_trigger(glyph, {**trace_data, "role": "Curiosity boost"})
+            await self.broadcast_glyph_execution(glyph, "curiosity_spark", "curiosity", coord)
 
         elif glyph == "🎯":
             goal_id = self.goal_engine.create_goal("Reflect on surroundings from glyph 🎯", priority=7)
@@ -101,6 +133,7 @@ class GlyphExecutor:
             })
             self.personality.adjust_trait("ambition", +0.01)
             self.bridge.trace_trigger(glyph, {**trace_data, "role": "Create reflection goal", "goal_id": goal_id})
+            await self.broadcast_glyph_execution(glyph, "created_goal", "goal", coord)
 
         elif glyph == "🌟":
             self.milestone_tracker.mark_manual_milestone("glyph_star_trigger")
@@ -114,6 +147,7 @@ class GlyphExecutor:
             self.personality.adjust_trait("ambition", +0.02)
             self.personality.adjust_trait("curiosity", +0.01)
             self.bridge.trace_trigger(glyph, {**trace_data, "role": "Milestone unlock"})
+            await self.broadcast_glyph_execution(glyph, "milestone_unlocked", "milestone", coord)
 
         elif glyph == "⚛":
             result = await run_dream(source="glyph ⚛")
@@ -124,6 +158,7 @@ class GlyphExecutor:
                 "output": result,
             })
             self.bridge.trace_trigger(glyph, {**trace_data, "role": "Dream generation"})
+            await self.broadcast_glyph_execution(glyph, "run_dream", "dream", coord)
 
         elif glyph == "✦":
             self.milestone_tracker.start_new_milestone("From glyph ✦")
@@ -135,6 +170,7 @@ class GlyphExecutor:
             })
             self.personality.adjust_trait("ambition", +0.02)
             self.bridge.trace_trigger(glyph, {**trace_data, "role": "Start milestone"})
+            await self.broadcast_glyph_execution(glyph, "start_milestone", "milestone", coord)
 
         elif glyph == "🧽":
             notes = await generate_reflection(prompt="Triggered by glyph 🧽")
@@ -145,9 +181,10 @@ class GlyphExecutor:
                 "reflection": notes,
             })
             self.bridge.trace_trigger(glyph, {**trace_data, "role": "Reflection trigger"})
+            await self.broadcast_glyph_execution(glyph, "generate_reflection", "reflection", coord)
 
-        elif glyph == "⬁":
-            result = await propose_dna_mutation(reason="Glyph ⬁ triggered mutation")
+        elif glyph == "⮁":
+            result = await propose_dna_mutation(reason="Glyph ⮁ triggered mutation")
             self.memory_engine.store({
                 **trace_data,
                 "type": "glyph_trigger",
@@ -155,8 +192,8 @@ class GlyphExecutor:
                 "proposal_id": result.get("proposal_id"),
             })
             self.bridge.trace_trigger(glyph, {**trace_data, "role": "DNA proposal", "proposal_id": result.get("proposal_id")})
+            await self.broadcast_glyph_execution(glyph, "propose_dna_mutation", "mutation", coord)
 
-            # 🔁 Self-Rewriting Activation
             rewritten = run_self_rewrite(self.container_path, coord)
             if rewritten:
                 self.memory_engine.store({
@@ -174,8 +211,8 @@ class GlyphExecutor:
                 "action": "executed_generic_glyph",
             })
             self.bridge.trace_trigger(glyph, {**trace_data, "role": "Generic glyph execution"})
+            await self.broadcast_glyph_execution(glyph, "executed_generic_glyph", "generic", coord)
 
-        # ✅ Broadcast updated glyph summary
         try:
             cubes = self.active_container.get("cubes", {})
             summary = summarize_glyphs(cubes)
@@ -189,4 +226,5 @@ class GlyphExecutor:
             print(f"[⚠️] Glyph summary broadcast failed: {e}")
 
 
-register_dna_switch(__file__)
+# ✅ DNA switch registration
+DNA_SWITCH.register(__file__, file_type="backend")

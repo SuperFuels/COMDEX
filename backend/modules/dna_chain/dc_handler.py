@@ -200,6 +200,9 @@ def save_dimension(path: str, data: dict):
     with open(path, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2)
 
+# Alias for compatibility with glyph_mutator
+save_dimension_to_file = save_dimension
+
 def apply_style_to_cube(container_id, cube_key, layer, material, area):
     container = load_dc_container(container_id)
     cube = container.setdefault("cubes", {}).setdefault(cube_key, {})

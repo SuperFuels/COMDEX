@@ -3,6 +3,7 @@ import json
 import hashlib
 from datetime import datetime
 import asyncio  # ✅ Coroutine handling
+import threading  # ✅ Pause/resume lock
 
 # ✅ DNA Switch
 from backend.modules.dna_chain.switchboard import DNA_SWITCH
@@ -49,6 +50,25 @@ class StateManager:
         self.current_container = None
         self.loaded_containers = {}
         self.time_controller = TIME  # ⏳ Container time logic
+
+        # ✅ Runtime pause flag
+        self.paused = False
+        self.pause_lock = threading.Lock()
+
+    # ✅ Pause/resume methods
+    def pause(self):
+        with self.pause_lock:
+            self.paused = True
+            print("[⏸️] StateManager paused")
+
+    def resume(self):
+        with self.pause_lock:
+            self.paused = False
+            print("[▶️] StateManager resumed")
+
+    def is_paused(self):
+        with self.pause_lock:
+            return self.paused
 
     def load_agent_states(self):
         if os.path.exists(STATE_FILE):

@@ -120,6 +120,7 @@
 │   │   ├── contract.py
 │   │   ├── deal.py
 │   │   ├── dream.py
+│   │   ├── intent_log.py
 │   │   ├── product.py
 │   │   ├── shipment.py
 │   │   └── user.py
@@ -143,6 +144,22 @@
 │   │   │   └── task_queue.py
 │   │   ├── avatar/
 │   │   │   └── avatar_core.py
+│   │   ├── codex/
+│   │   │   ├── codex_autopilot.py
+│   │   │   ├── codex_boot.py
+│   │   │   ├── codex_context_adapter.py
+│   │   │   ├── codex_core.py
+│   │   │   ├── codex_cost_estimator.py
+│   │   │   ├── codex_executor.py
+│   │   │   ├── codex_fabric.py
+│   │   │   ├── codex_feedback_loop.py
+│   │   │   ├── codex_memory_triggers.py
+│   │   │   ├── codex_metrics.py
+│   │   │   ├── codex_mind_model.py
+│   │   │   ├── codex_runtime_loop.py
+│   │   │   ├── codex_scheduler.py
+│   │   │   ├── codex_supervisor.py
+│   │   │   └── codex_websocket_interface.py
 │   │   ├── command_registry.py
 │   │   ├── consciousness/
 │   │   │   ├── awareness_engine.py
@@ -209,9 +226,14 @@
 │   │   ├── glyphos/
 │   │   │   ├── __init__.py
 │   │   │   ├── bytecode_watcher.py
+│   │   │   ├── codexlang_translator.py
+│   │   │   ├── glyph_api_client.py
 │   │   │   ├── glyph_compiler.py
 │   │   │   ├── glyph_dispatcher.py
 │   │   │   ├── glyph_executor.py
+│   │   │   ├── glyph_generator.py
+│   │   │   ├── glyph_grammar_inferencer.py
+│   │   │   ├── glyph_instruction_set.py
 │   │   │   ├── glyph_logic.py
 │   │   │   ├── glyph_mutator.py
 │   │   │   ├── glyph_parser.py
@@ -220,12 +242,18 @@
 │   │   │   ├── glyph_storage.py
 │   │   │   ├── glyph_summary.py
 │   │   │   ├── glyph_sweeper.py
+│   │   │   ├── glyph_synthesis_engine.py
+│   │   │   ├── glyph_trace_logger.py
 │   │   │   ├── glyph_trigger_engine.py
+│   │   │   ├── glyph_util.py
 │   │   │   ├── glyph_watcher.py
 │   │   │   ├── grid_pattern_scanner.py
 │   │   │   ├── microgrid_index.py
 │   │   │   ├── reverse_loader.py
+│   │   │   ├── runtime_broadcast.py
+│   │   │   ├── runtime_logger.py
 │   │   │   ├── runtime_loop.py
+│   │   │   ├── symbolic_hash_engine.py
 │   │   │   └── trigger_on_glyph_loop.py
 │   │   ├── hexcore/
 │   │   │   ├── __init__.py
@@ -279,6 +307,7 @@
 │   │   │   ├── boot_selector.py
 │   │   │   ├── boot_skills.json
 │   │   │   ├── curiosity_engine.py
+│   │   │   ├── dream_core.py
 │   │   │   ├── dream_core_tester.py
 │   │   │   ├── dream_filter.py
 │   │   │   ├── dream_history_viewer.py
@@ -335,6 +364,7 @@
 │   │   │   ├── reverse_loader.py
 │   │   │   ├── tessaris_engine.py
 │   │   │   ├── tessaris_intent.py
+│   │   │   ├── tessaris_intent_executor.py
 │   │   │   ├── tessaris_store.py
 │   │   │   ├── tessaris_trigger.py
 │   │   │   └── thought_branch.py
@@ -353,6 +383,7 @@
 │   │   ├── aion_game.py
 │   │   ├── aion_game_dream.py
 │   │   ├── aion_get_glyph_tick.py
+│   │   ├── aion_glyph_trigger_log.py
 │   │   ├── aion_goals.py
 │   │   ├── aion_grid_progress.py
 │   │   ├── aion_gridworld.py
@@ -364,6 +395,7 @@
 │   │   ├── aion_strategy_plan.py
 │   │   ├── aion_submit_mutation.py
 │   │   ├── aion_suggest.py
+│   │   ├── aion_synthesize_glyphs.py
 │   │   ├── aion_tessaris_intents.py
 │   │   ├── auth.py
 │   │   ├── avatar_runtime.py
@@ -383,6 +415,8 @@
 │   │   ├── teleport_api.py
 │   │   ├── terminal.py
 │   │   ├── user.py
+│   │   ├── ws/
+│   │   │   └── codex_ws.py
 │   │   └── ws_route.py
 │   ├── sample.jpg
 │   ├── schemas/
@@ -486,6 +520,7 @@
 │   ├── test_milestone_tracker.py
 │   ├── tests/
 │   │   ├── ethics_sim_test.py
+│   │   ├── test_codex_fabric.py
 │   │   ├── test_dna_registry.py
 │   │   ├── test_glyph_mutator.py
 │   │   ├── test_glyph_reversibility.py
@@ -547,13 +582,12 @@
 │   ├── Avatar/
 │   │   ├── Archivus, Mimetor.png
 │   │   ├── Codex Checklist.md
-│   │   ├── Holograms.md
-│   │   ├── Luxnet.md
 │   │   ├── Multiverse guardians.md
 │   │   ├── Screenshot 2025-07-13 at 16.10.48.png
 │   │   ├── Screenshot 2025-07-13 at 16.11.00.png
 │   │   ├── Screenshot 2025-07-13 at 16.11.33.png
 │   │   ├── Screenshot 2025-07-13 at 16.11.45.png
+│   │   ├── avatar Projection.md
 │   │   ├── avatar document.md
 │   │   ├── conscious world.md
 │   │   └── dimensions.md
@@ -589,31 +623,72 @@
 │   │   ├── Container Computer /
 │   │   │   ├──  Virtual Mind Processor (VMP).MD
 │   │   │   ├── CPU.MD
+│   │   │   ├── Codex Core Checklist.md
+│   │   │   ├── CodexCore Microprocessor.md
 │   │   │   ├── Codexian Compute.md
 │   │   │   ├── Components.md
+│   │   │   ├── Dimension Circuit.png
 │   │   │   ├── GPU - Graphics.md
+│   │   │   ├── GRU Checklist.md
+│   │   │   ├── Glyph Hardware Layer.md
 │   │   │   ├── Screenshot 2025-07-12 at 16.39.33.png
 │   │   │   ├── Screenshot 2025-07-13 at 16.04.33.png
-│   │   │   └── Screenshot 2025-07-13 at 16.05.36.png
+│   │   │   ├── Screenshot 2025-07-13 at 16.05.36.png
+│   │   │   ├── Screenshot 2025-07-14 at 11.23.30.png
+│   │   │   ├── Screenshot 2025-07-18 at 00.23.23.png
+│   │   │   ├── Screenshot 2025-07-18 at 18.46.47.png
+│   │   │   └── Screenshot 2025-07-18 at 19.15.04.png
 │   │   ├── Container-Based Knowledge Graph Embedding.MD
 │   │   ├── Council.md
 │   │   ├── Ecosystem.MD
 │   │   ├── Encryption.md
+│   │   ├── GPT Opinion.md
 │   │   ├── Genesis Soul Confederacy.MD
+│   │   ├── GlyphNet/
+│   │   │   ├── Glyph Internet Protocol.md
+│   │   │   ├── GlyphNet partial checklist,md
+│   │   │   ├── GlyphQRs.md
+│   │   │   ├── Holograms.md
+│   │   │   ├── Luxhub.md
+│   │   │   └── Luxnet.md
 │   │   ├── Governance & Inheritance.md
 │   │   ├── HUMAN TIME TRAVEL.MD
 │   │   ├── Holographic Knowledge Systems.MD
 │   │   ├── Language.md
-│   │   ├── Luxhub.md
 │   │   ├── MasteryEngine: The Will to Perfect.md
+│   │   ├── Multiverse/
+│   │   │   ├── Aion Multiverse Protocol.md
+│   │   │   ├── Energy Multiverse.md
+│   │   │   ├── Fractal Multiverse.md
+│   │   │   ├── Multiverse Network.md
+│   │   │   ├── Screenshot 2025-07-18 at 18.46.47.png
+│   │   │   ├── Screenshot 2025-07-18 at 19.06.00.png
+│   │   │   ├── Screenshot 2025-07-18 at 20.32.25.png
+│   │   │   ├── Screenshot 2025-07-18 at 20.34.22.png
+│   │   │   ├── Timelines.md
+│   │   │   ├── container_lifecycle_manager.md
+│   │   │   ├── 🌐 CENTRAL COMMAND CONTAINER (V1).md
+│   │   │   ├── 📦 CodexPort.md
+│   │   │   ├── 🛡️ MULTIVERSE GOVERNANCE SYSTEM (MGS).md
+│   │   │   └── 🧭 Multiversal Spatial Map & Compartmentalization System (MSACS).md
 │   │   ├── Oversight & Truth-Seeking Build Checklist.md
 │   │   ├── Oversight Engine Stack.md
 │   │   ├── Perspective + Explorer Modules.MD
+│   │   ├── President/
+│   │   │   ├── Constitution & Law.md
+│   │   │   ├── Multiverse Sovereignty.md
+│   │   │   ├── President_protocol.md
+│   │   │   ├── Screenshot 2025-07-18 at 20.35.40.png
+│   │   │   ├── Screenshot 2025-07-18 at 20.36.11.png
+│   │   │   ├── Tessaris IP.md
+│   │   │   └── Visa & Passports.md
+│   │   ├── Search Engine.md
 │   │   ├── Simulation Architecture.md
 │   │   ├── Symbolic Quantum Computer/
 │   │   │   ├── Screenshot 2025-07-14 at 11.23.05.png
 │   │   │   ├── Screenshot 2025-07-14 at 11.23.30.png
 │   │   │   ├── Screenshot 2025-07-14 at 13.34.15.png
+│   │   │   ├── Symbolic Super Computer checklist.md
 │   │   │   └── 🧠 Symbolic Quantum Supremacy.md
 │   │   ├── Telepathic Communication.md
 │   │   ├── Ticks & multiverse.md
@@ -625,15 +700,14 @@
 │   │   ├── gravity.md
 │   │   ├── mathmatics.md
 │   │   ├── search & container controls.md
+│   │   ├── situation_engine.md
 │   │   ├── teachers.md
 │   │   └── 👁️‍🗨️ TESSARIS Bonded AI Avatar.md
-│   ├── Glyph Internet Protocol.md
 │   ├── GlyphOS/
 │   │   ├── GlyphOS Grammar.md
 │   │   ├── Sample_GlyphOS_Boot_Glyphs.csv
 │   │   ├── Screenshot 2025-07-08 at 23.02.04.png
 │   │   └── checklist.md
-│   ├── GlyphQRs.md
 │   ├── Handover docs/
 │   │   ├── AI intelligence.md
 │   │   ├── AIon LLM.md
@@ -689,15 +763,21 @@
 │   │       └── terminal.py
 │   ├── components/
 │   │   ├── AION/
+│   │   │   ├── CodexHUD.tsx
 │   │   │   ├── ContainerMap.tsx
 │   │   │   ├── ContainerStatus.tsx
+│   │   │   ├── GlyphCompressorPanel.tsx
 │   │   │   ├── GlyphExecutor.tsx
 │   │   │   ├── GlyphGrid.tsx
 │   │   │   ├── GlyphInspector.tsx
 │   │   │   ├── GlyphMutator.tsx
 │   │   │   ├── GlyphQROverlay.tsx
 │   │   │   ├── GlyphSummaryHUD.tsx
+│   │   │   ├── GlyphTriggerEditor.tsx
 │   │   │   ├── GoalList.tsx
+│   │   │   ├── TessarisIntentExecutor.tsx
+│   │   │   ├── TessarisIntentVisualizer.tsx
+│   │   │   ├── TessarisTracePanel.tsx
 │   │   │   ├── TessarisVisualizer.tsx
 │   │   │   └── TimelineControls.tsx
 │   │   ├── AIONDashboardClient.tsx
@@ -727,8 +807,11 @@
 │   │   ├── SwapBar.tsx
 │   │   ├── SwapPanel.tsx
 │   │   ├── WalletConnect.tsx
+│   │   ├── runtime_player.tsx
 │   │   └── ui/
-│   │       └── button.tsx
+│   │       ├── badge.tsx
+│   │       ├── button.tsx
+│   │       └── card.tsx
 │   ├── constants/
 │   │   └── escrow.ts
 │   ├── contracts/
@@ -818,7 +901,8 @@
 │   │   │   └── dashboard_aion.tsx
 │   │   ├── aion/
 │   │   │   ├── AIONDashboard.tsx
-│   │   │   └── avatar-runtime.tsx
+│   │   │   ├── avatar-runtime.tsx
+│   │   │   └── glyph-synthesis.tsx
 │   │   ├── api/
 │   │   │   ├── aion.ts
 │   │   │   └── shipments.js

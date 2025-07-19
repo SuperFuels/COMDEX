@@ -3,18 +3,21 @@
 from typing import Callable, Dict, Any
 import time
 import threading
+import os
+
 from backend.modules.dna_chain.dc_handler import load_dimension_by_file
 from backend.modules.glyphos.microgrid_index import MicrogridIndex
 from backend.modules.hexcore.memory_engine import MemoryEngine
 from backend.modules.aion.dream_core import trigger_dream_reflection
 from backend.modules.consciousness.state_manager import StateManager
-from backend.modules.memory.memory_bridge import MemoryBridge  # ✅ New
-from backend.modules.dna_chain.glyph_mutator import propose_rewrite, run_self_rewrite  # ♻️ Glyph rewrite + self-write
+from backend.modules.consciousness.memory_bridge import MemoryBridge
+from backend.modules.glyphos.glyph_mutator import propose_mutation, run_self_rewrite
 
-# Instantiate memory engine for feedback
+# Instantiate memory engine and state
 memory = MemoryEngine()
 state = StateManager()
-container_id = state.get_current_container_id() or "default"
+container_path = state.get_current_container_path() or "containers/default.json"
+container_id = os.path.splitext(os.path.basename(container_path))[0]
 bridge = MemoryBridge(container_id)  # ✅ MemoryBridge instance
 
 # Glyph-triggered action definitions
@@ -107,7 +110,6 @@ def trigger_decay_rewrite(coord: str, meta: Dict[str, Any]):
 def trigger_self_rewrite(coord: str, meta: Dict[str, Any]):
     glyph = meta.get("glyph", "")
     if glyph.strip().startswith("⟦ Write") or glyph.strip().startswith("⟦ Mutate"):
-        container_path = state.get_current_container_path()
         if container_path:
             print(f"♻️ Self-rewrite glyph detected at {coord}")
             success = run_self_rewrite(container_path, coord)
@@ -136,9 +138,9 @@ def emit_event_log(event: str, detail: Any = None):
         "content": f"Glyph scan event: {event} — {detail}"
     })
 
-def scan_and_trigger(container_path: str):
+def scan_and_trigger(path: str):
     """Load .dc container, parse all glyphs, and trigger mapped behavior."""
-    dimension = load_dimension_by_file(container_path)
+    dimension = load_dimension_by_file(path)
     index = MicrogridIndex()
     index.import_index(dimension.get("microgrid", {}))
 
@@ -160,7 +162,7 @@ def scan_and_trigger(container_path: str):
         trigger_decay_rewrite(coord, meta)
 
         # Passive memory trigger
-        elif meta.get("type") == "Memory" and meta.get("action") == "store":
+        if meta.get("type") == "Memory" and meta.get("action") == "store":
             print(f"📄 Storing memory glyph at {coord}: {meta}")
             label = f"glyph:{meta.get('tag', 'note')}"
             content = meta.get("value", "Unnamed memory")
@@ -178,9 +180,8 @@ def scan_and_trigger(container_path: str):
 def glyph_behavior_loop(interval: float = 5.0):
     """Continuously scan for new glyphs and trigger mapped behaviors."""
     global _loop_active
-    path = state.get_current_container_path()
 
-    if not path:
+    if not container_path:
         print("⚠️ No container loaded — skipping glyph scan")
         return
 
@@ -188,7 +189,7 @@ def glyph_behavior_loop(interval: float = 5.0):
 
     while _loop_active:
         try:
-            dimension = load_dimension_by_file(path)
+            dimension = load_dimension_by_file(container_path)
             index = MicrogridIndex()
             index.import_index(dimension.get("microgrid", {}))
 
@@ -208,10 +209,7 @@ def glyph_behavior_loop(interval: float = 5.0):
                     _last_glyph_state[key] = True
                     triggered_this_cycle.append(glyph)
 
-                # Self-rewriting logic
                 trigger_self_rewrite(coord, meta)
-
-                # Decay-based mutation
                 trigger_decay_rewrite(coord, meta)
 
             if triggered_this_cycle:

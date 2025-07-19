@@ -74,3 +74,10 @@ if __name__ == "__main__":
         print(result["new_code"])
     else:
         print("❌ Error:", result["error"])
+
+    # ✅ Alias for compatibility
+def query_gpt4(prompt: str) -> str:
+    result = generate_mutation("generated.py", "N/A", context=prompt)
+    if result["success"]:
+        return result["new_code"]
+    raise RuntimeError(result.get("error", "Unknown error"))

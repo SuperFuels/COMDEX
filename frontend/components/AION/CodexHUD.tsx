@@ -14,12 +14,44 @@ interface GlyphEvent {
   source: string;
   timestamp: number;
   cost?: number;
+  trace_id?: string;
+  trigger_type?: string;
+  sqi?: boolean;
   detail?: {
     energy?: number;
     ethics_risk?: number;
     delay?: number;
     opportunity_loss?: number;
+    coord?: string;
+    container?: string;
+    operator?: string;
   };
+}
+
+const COST_WARNING_THRESHOLD = 7;
+
+function extractOperator(glyph: string): string | null {
+  if (glyph.includes('⊕')) return '⊕';
+  if (glyph.includes('↔')) return '↔';
+  if (glyph.includes('→')) return '→';
+  if (glyph.includes('⟲')) return '⟲';
+  if (glyph.includes('∇')) return '∇';
+  if (glyph.includes('⧖')) return '⧖';
+  if (glyph.includes('✦')) return '✦';
+  return null;
+}
+
+function operatorName(op: string | null): string {
+  switch (op) {
+    case '⊕': return 'AND';
+    case '↔': return 'EQUIVALENCE';
+    case '→': return 'TRIGGER';
+    case '⟲': return 'MUTATE';
+    case '∇': return 'COMPRESS';
+    case '⧖': return 'DELAY';
+    case '✦': return 'MILESTONE';
+    default: return '';
+  }
 }
 
 export default function CodexHUD() {
@@ -37,7 +69,7 @@ export default function CodexHUD() {
   );
 
   const filteredEvents = events.filter((e) =>
-    e.glyph.toLowerCase().includes(filter.toLowerCase())
+    e.glyph?.toLowerCase().includes(filter.toLowerCase())
   );
 
   return (
@@ -58,40 +90,82 @@ export default function CodexHUD() {
         />
 
         <ScrollArea className="h-[240px] pr-2">
-          {filteredEvents.map((log, index) => (
-            <div key={index} className="border-b border-white/10 py-1">
-              <div className="text-sm font-mono text-blue-300">
-                ⟦ {log.glyph} ⟧ → <span className="text-green-400">{log.action}</span>
-              </div>
+          {filteredEvents.map((log, index) => {
+            const isCostly = log.cost !== undefined && log.cost > COST_WARNING_THRESHOLD;
+            const costColor = log.cost === undefined ? '' :
+              log.cost > 9 ? 'text-red-500' :
+              log.cost > 7 ? 'text-orange-400' :
+              log.cost > 4 ? 'text-yellow-300' : 'text-green-300';
 
-              <div className="text-xs text-white/60 flex justify-between">
-                <span>{log.source}</span>
-                <span>{new Date(log.timestamp * 1000).toLocaleTimeString()}</span>
-              </div>
+            const operator = extractOperator(log.glyph);
+            const operatorLabel = operatorName(operator);
+            const traceColor = log.trace_id ? 'text-cyan-400' : '';
+            const operatorColor = operator === '⊕' ? 'text-pink-400' :
+                                  operator === '↔' ? 'text-purple-300' :
+                                  operator === '→' ? 'text-green-400' :
+                                  operator === '⟲' ? 'text-orange-300' : 'text-white';
 
-              {log.cost !== undefined && (
-                <div className="text-xs text-white/70 mt-1">
-                  💰 Estimated Cost: <b>{log.cost.toFixed(2)}</b>
-                  {log.detail && (
-                    <div className="flex gap-2 mt-1 flex-wrap">
-                      {log.detail.energy !== undefined && (
-                        <Badge variant="outline">🔋 Energy: {log.detail.energy}</Badge>
-                      )}
-                      {log.detail.ethics_risk !== undefined && (
-                        <Badge variant="outline">⚖️ Risk: {log.detail.ethics_risk}</Badge>
-                      )}
-                      {log.detail.delay !== undefined && (
-                        <Badge variant="outline">⌛ Delay: {log.detail.delay}</Badge>
-                      )}
-                      {log.detail.opportunity_loss !== undefined && (
-                        <Badge variant="outline">📉 Loss: {log.detail.opportunity_loss}</Badge>
-                      )}
-                    </div>
+            return (
+              <div key={index} className="border-b border-white/10 py-1">
+                <div className={`text-sm font-mono ${operatorColor}`}>
+                  ⟦ {log.glyph} ⟧ → <span className="text-green-400">{log.action}</span>
+
+                  {operator && (
+                    <Badge variant="outline" className="ml-2">{operator} {operatorLabel}</Badge>
+                  )}
+
+                  {log.trigger_type && (
+                    <Badge variant="secondary" className="ml-2">🕒 {log.trigger_type}</Badge>
+                  )}
+
+                  {log.trace_id && (
+                    <Badge variant="outline" className="ml-2">🧩 Trace ID</Badge>
+                  )}
+
+                  {log.sqi && (
+                    <Badge variant="outline" className="ml-2">🌌 SQI</Badge>
+                  )}
+
+                  {isCostly && (
+                    <Badge variant="destructive" className="ml-2">⚠️ High Cost</Badge>
                   )}
                 </div>
-              )}
-            </div>
-          ))}
+
+                <div className="text-xs text-white/60 flex justify-between">
+                  <span>{log.source || 'Unknown Source'}</span>
+                  <span>{new Date(log.timestamp * 1000).toLocaleTimeString()}</span>
+                </div>
+
+                {log.cost !== undefined && (
+                  <div className={`text-xs mt-1 ${costColor}`}>
+                    💰 Estimated Cost: <b>{log.cost.toFixed(2)}</b>
+                    {log.detail && (
+                      <div className="flex gap-2 mt-1 flex-wrap">
+                        {log.detail.energy !== undefined && (
+                          <Badge variant="outline">🔋 Energy: {log.detail.energy}</Badge>
+                        )}
+                        {log.detail.ethics_risk !== undefined && (
+                          <Badge variant="outline">⚖️ Risk: {log.detail.ethics_risk}</Badge>
+                        )}
+                        {log.detail.delay !== undefined && (
+                          <Badge variant="outline">⌛ Delay: {log.detail.delay}</Badge>
+                        )}
+                        {log.detail.opportunity_loss !== undefined && (
+                          <Badge variant="outline">📉 Loss: {log.detail.opportunity_loss}</Badge>
+                        )}
+                        {log.detail.coord && (
+                          <Badge variant="outline">📍 Coord: {log.detail.coord}</Badge>
+                        )}
+                        {log.detail.container && (
+                          <Badge variant="outline">🧱 Container: {log.detail.container}</Badge>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </ScrollArea>
       </CardContent>
     </Card>

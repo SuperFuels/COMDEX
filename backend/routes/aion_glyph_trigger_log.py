@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from backend.modules.memory.memory_engine import MemoryEngine
+from backend.modules.hexcore.memory_engine import MemoryEngine
 
 router = APIRouter()
 

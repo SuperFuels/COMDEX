@@ -10,10 +10,9 @@ import {
   Info,
   Eye,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
+import { cn } from "@/lib/utils";
 
-// 💡 Types
 type BranchNode = {
   id: string;
   symbol: string;
@@ -39,24 +38,34 @@ type MemoryEntry = {
   created_at: string;
 };
 
-const Card = ({ children, className }: { children: React.ReactNode; className?: string }) => (
-  <div className={`rounded border bg-white shadow p-4 ${className || ""}`}>
+interface TessarisVisualizerProps {
+  tree: BranchNode | null;
+  onNodeClick?: (node: BranchNode) => void;
+}
+
+const Card = ({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) => (
+  <div className={cn("rounded border bg-white shadow p-4", className)}>
     {children}
   </div>
 );
 
-export default function TessarisVisualizer() {
-  const [tree, setTree] = useState<BranchNode | null>(null);
+export default function TessarisVisualizer({ tree, onNodeClick }: TessarisVisualizerProps) {
   const [traces, setTraces] = useState<TriggerTrace[]>([]);
-  const [filter, setFilter] = useState({ glyph: "", minAge: 0, maxAge: 600 });
+  const [filter, setFilter] = useState({
+    glyph: "",
+    minAge: 0,
+    maxAge: 600,
+  });
   const [replayIndex, setReplayIndex] = useState<number | null>(null);
   const [memoryTrace, setMemoryTrace] = useState<MemoryEntry[] | null>(null);
 
   useEffect(() => {
-    fetch("/api/aion/tessaris/thought-tree")
-      .then((res) => res.json())
-      .then((data) => setTree(data?.tree ?? null));
-
     fetch("/api/aion/memory-trace")
       .then((res) => res.json())
       .then((data) => setTraces(data?.traces ?? []));
@@ -99,6 +108,7 @@ export default function TessarisVisualizer() {
           node.mutated && "ring-2 ring-pink-400"
         )}
         data-glyph={node.symbol}
+        onClick={() => onNodeClick?.(node)}
       >
         <motion.div
           whileHover={{ scale: 1.04 }}
@@ -130,7 +140,7 @@ export default function TessarisVisualizer() {
               <div
                 className="ml-2 w-4 h-4 text-gray-400 hover:text-blue-500 cursor-pointer"
                 title={node.info}
-                >
+              >
                 <Info className="w-full h-full" />
               </div>
             )}
@@ -212,14 +222,18 @@ export default function TessarisVisualizer() {
           className="border px-2 py-1 text-xs rounded w-20"
           placeholder="Min age"
           value={filter.minAge}
-          onChange={(e) => setFilter({ ...filter, minAge: Number(e.target.value) })}
+          onChange={(e) =>
+            setFilter({ ...filter, minAge: Number(e.target.value) })
+          }
         />
         <input
           type="number"
           className="border px-2 py-1 text-xs rounded w-20"
           placeholder="Max age"
           value={filter.maxAge}
-          onChange={(e) => setFilter({ ...filter, maxAge: Number(e.target.value) })}
+          onChange={(e) =>
+            setFilter({ ...filter, maxAge: Number(e.target.value) })
+          }
         />
       </div>
 
@@ -240,14 +254,18 @@ export default function TessarisVisualizer() {
                 transition={{ duration: 0.2 }}
                 className={cn(
                   "mb-3 border rounded p-2 transition",
-                  isActive ? "border-blue-500 bg-blue-50" : "border-border bg-gray-50"
+                  isActive
+                    ? "border-blue-500 bg-blue-50"
+                    : "border-border bg-gray-50"
                 )}
                 data-trace={trace.glyph}
               >
                 <div className="flex justify-between items-center mb-1">
                   <div className="flex items-center space-x-2">
                     <Clock className="w-4 h-4 text-muted-foreground" />
-                    <span className="text-xs text-muted-foreground">{trace.timestamp}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {trace.timestamp}
+                    </span>
                     {age !== null && (
                       <span className="text-xs text-gray-600 flex items-center space-x-1 ml-2">
                         <TimerReset className="w-3 h-3" /> <span>{age}s</span>
@@ -298,7 +316,9 @@ export default function TessarisVisualizer() {
                     <strong>Memory Links:</strong>
                     <ul className="list-disc ml-5">
                       {trace.memory_links.map((link, i) => (
-                        <li key={i} className="text-[11px]">{link}</li>
+                        <li key={i} className="text-[11px]">
+                          {link}
+                        </li>
                       ))}
                     </ul>
                   </div>

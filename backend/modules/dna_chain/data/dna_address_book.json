@@ -195,5 +195,9 @@
   "scheduler.py": {
     "name": "scheduler.py",
     "path": "/workspaces/COMDEX/backend/tasks/scheduler.py"
+  },
+  "glyph_executor.py": {
+    "name": "glyph_executor.py",
+    "path": "/workspaces/COMDEX/backend/modules/glyphos/glyph_executor.py"
   }
 }

@@ -11,8 +11,12 @@ from backend.modules.codex.codex_mind_model import CodexMindModel
 from backend.modules.codex.codex_memory_triggers import CodexMemoryTrigger
 from backend.modules.codex.codex_autopilot import CodexAutopilot
 from backend.modules.codex.codex_boot import boot_codex_runtime
+from backend.modules.codex.codex_executor import CodexExecutor  # ✅ NEW
 from backend.modules.tessaris.tessaris_engine import TessarisEngine
 from backend.modules.hexcore.memory_engine import MEMORY
+
+# ✅ Pause/resume support
+from backend.modules.state_manager import STATE
 
 
 class CodexScheduler:
@@ -25,6 +29,7 @@ class CodexScheduler:
         self.trigger = CodexMemoryTrigger()
         self.autopilot = CodexAutopilot()
         self.tessaris = TessarisEngine()
+        self.executor = CodexExecutor()  # ✅ NEW
 
         self.tasks = []
         self.running = False
@@ -63,7 +68,7 @@ class CodexScheduler:
         glyph = task["glyph"]
         metadata = task.get("metadata", {})
         try:
-            result = self.codex.execute(glyph)
+            result = self.executor.execute(glyph, metadata)  # ✅ UPDATED
             self.metrics.record_execution()
             print(f"✅ CodexScheduler executed: {glyph} → {result}")
 
@@ -81,6 +86,10 @@ class CodexScheduler:
             print(f"🚨 CodexScheduler execution error: {e}")
 
     def tick(self):
+        if STATE.is_paused():
+            print("⏸️ Codex Tick paused by StateManager.")
+            return
+
         print("🔁 Codex Tick Started")
 
         # Step 1: Scheduled task execution

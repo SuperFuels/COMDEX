@@ -29,7 +29,8 @@ class TessarisStore:
         payload = self._load_all_json()
         payload.append({
             "timestamp": datetime.utcnow().isoformat(),
-            "branch": branch.to_dict()
+            "branch": branch.to_dict(),
+            "origin_id": branch.origin_id
         })
 
         with open(SNAPSHOT_PATH, "w") as f:
@@ -46,6 +47,19 @@ class TessarisStore:
         except Exception as e:
             print(f"[⚠️] Failed to load branches: {e}")
             return []
+
+    def load_tessaris_snapshot(self, thought_id: str) -> Optional[ThoughtBranch]:
+        """
+        Load a specific ThoughtBranch by its origin_id.
+        """
+        try:
+            all_data = self._load_all_json()
+            for entry in reversed(all_data):  # most recent match first
+                if entry.get("origin_id") == thought_id:
+                    return ThoughtBranch.from_dict(entry["branch"])
+        except Exception as e:
+            print(f"[❌] Error loading snapshot for {thought_id}: {e}")
+        return None
 
     def get_cache(self) -> List[ThoughtBranch]:
         """
@@ -93,15 +107,39 @@ class TessarisStore:
         payload = self._load_all_json()
         payload.append({
             "timestamp": datetime.utcnow().isoformat(),
-            "branch": node.to_dict()
+            "branch": node.to_dict(),
+            "origin_id": node.id if hasattr(node, 'id') else None
         })
         with open(SNAPSHOT_PATH, "w") as f:
             json.dump(payload, f, indent=2)
         print(f"✅ Direct BranchNode saved to {SNAPSHOT_PATH}")
 
+    def save_snapshot(self, snapshot: dict, name: Optional[str] = None):
+        """
+        Save a raw snapshot dictionary to a separate file under /snapshots.
+        """
+        snapshot_dir = Path("data/thoughts/snapshots")
+        snapshot_dir.mkdir(parents=True, exist_ok=True)
+        name = name or datetime.utcnow().strftime("%Y%m%d-%H%M%S")
+        filename = snapshot_dir / f"{name}.tessaris.json"
+
+        try:
+            with open(filename, "w") as f:
+                json.dump(snapshot, f, indent=2)
+            print(f"🧠 Tessaris snapshot saved: {filename.name}")
+        except Exception as e:
+            print(f"❌ Failed to save snapshot: {e}")
 
 # ✅ Singleton export
 TESSARIS_STORE = TessarisStore()
+
+# 🔁 Global importable function for tessaris_engine
+def load_tessaris_snapshot(thought_id: str) -> Optional[ThoughtBranch]:
+    return TESSARIS_STORE.load_tessaris_snapshot(thought_id)
+
+# 🧠 Global snapshot saver for tessaris_engine
+def save_snapshot(snapshot: dict, name: Optional[str] = None):
+    TESSARIS_STORE.save_snapshot(snapshot, name)
 
 if __name__ == "__main__":
     print("🧠 Saved Tessaris Thought Branches:")

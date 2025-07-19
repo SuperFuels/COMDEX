@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter, Query
 from typing import List
-from backend.modules.memory.memory_engine import MemoryEngine
+from backend.modules.hexcore.memory_engine import MemoryEngine
 from backend.modules.consciousness.state_manager import StateManager
 
 router = APIRouter()

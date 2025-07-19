@@ -1,41 +1,49 @@
-# backend/modules/tessaris/tessaris_engine.py
-
 import uuid
 import json
 import requests
 import time
 
-from config import GLYPH_API_BASE_URL
+from backend.config import GLYPH_API_BASE_URL
 from backend.modules.tessaris.thought_branch import ThoughtBranch, BranchNode
 from backend.modules.glyphos.glyph_logic import interpret_glyph
-from backend.modules.storage.tessaris_store import save_thought_snapshot
-from backend.modules.skills.goal_engine import GoalEngine
+from backend.modules.tessaris.tessaris_store import TESSARIS_STORE
 from backend.modules.skills.boot_selector import BootSelector
 from backend.modules.hexcore.memory_engine import MEMORY
 from backend.modules.dna_chain.switchboard import DNA_SWITCH
 from backend.modules.tessaris.tessaris_intent_executor import queue_tessaris_intent
-from backend.modules.memory.memory_bridge import MemoryBridge
+from backend.modules.consciousness.memory_bridge import MemoryBridge
 from backend.modules.glyphos.glyph_mutator import run_self_rewrite
 from backend.modules.glyphos.glyph_generator import GlyphGenerator
+
+# ✅ Fixed: moved import inside function to avoid circular import
+def trigger_from_goal(goal_data):
+    from backend.modules.skills.goal_engine import GoalEngine
+    engine = GoalEngine()
+    return engine.process_goal(goal_data)
 
 # 🔁 Codex integration
 from backend.modules.codex.codex_mind_model import CodexMindModel
 from backend.modules.codex.codex_metrics import CodexMetrics
+from backend.modules.codex.codex_cost_estimator import CodexCostEstimator
 
 DNA_SWITCH.register(__file__)
 
+
 class TessarisEngine:
-    def __init__(self):
+    def __init__(self, container_id="default"):
+        self.container_id = container_id
         self.active_branches = []
         self.active_thoughts = {}
+        from backend.modules.skills.goal_engine import GoalEngine  # ✅ local import
         self.goal_engine = GoalEngine()
         self.boot_selector = BootSelector()
-        self.memlog = MemoryBridge()
+        self.memlog = MemoryBridge(container_id=self.container_id)
         self.glyph_generator = GlyphGenerator()
 
         # 🧠 Codex integration
         self.codex_mind = CodexMindModel()
         self.codex_metrics = CodexMetrics()
+        self.codex_estimator = CodexCostEstimator()
 
     def seed_thought(self, root_symbol: str, source: str = "manual", metadata: dict = {}):
         thought_id = str(uuid.uuid4())
@@ -48,7 +56,7 @@ class TessarisEngine:
         if not root:
             raise ValueError("Thought not found")
         self._expand_branch(root, depth)
-        save_thought_snapshot(thought_id, root)
+        TESSARIS_STORE.save_branch(ThoughtBranch.from_root(root, origin_id=thought_id))
         return root
 
     def _expand_branch(self, node: BranchNode, depth: int):
@@ -85,6 +93,28 @@ class TessarisEngine:
 
         for idx, glyph in enumerate(branch.glyphs):
             try:
+                cost = self.codex_estimator.estimate_glyph_cost(glyph, {"source": "tessaris"})
+                MEMORY.store({
+                    "type": "cost_estimate",
+                    "glyph": glyph,
+                    "cost": cost.total(),
+                    "detail": vars(cost),
+                })
+
+                if cost.total() > 7:
+                    MEMORY.store({
+                        "label": "cost_warning",
+                        "role": "tessaris",
+                        "type": "self_reflection",
+                        "content": f"⚠️ High future cost predicted for glyph {glyph}",
+                        "data": {
+                            "glyph": glyph,
+                            "total_cost": cost.total(),
+                            "breakdown": vars(cost)
+                        }
+                    })
+                    print(f"⚠️ Self-reflection: high-cost glyph {glyph} → total cost {cost.total():.2f}")
+
                 result = interpret_glyph(glyph, context={
                     "branch": branch,
                     "position": branch.position,
@@ -93,7 +123,6 @@ class TessarisEngine:
                 })
                 print(f"  ➤ Glyph {idx}: {glyph} → {result}")
 
-                # 🔁 Codex tracking
                 self.codex_mind.observe(glyph)
                 self.codex_metrics.record_execution()
 
@@ -103,10 +132,7 @@ class TessarisEngine:
                 if glyph.strip().startswith("⟦ Write") or glyph.strip().startswith("⟦ Mutate"):
                     if coord and container_path:
                         success = run_self_rewrite(container_path, coord)
-                        if success:
-                            print(f"♻️ Self-rewriting glyph executed at {coord}")
-                        else:
-                            print(f"⚠️ Rewrite skipped at {coord}")
+                        print("♻️ Self-rewriting glyph executed" if success else "⚠️ Rewrite skipped")
 
                 if "⟲" in glyph and "Reflect" in result:
                     MEMORY.store({
@@ -128,7 +154,6 @@ class TessarisEngine:
         self.extract_intents_from_glyphs(branch.glyphs, branch.metadata)
         self.active_branches.append(branch)
 
-        # 🔁 Synthesis hook
         try:
             synth_payload = {
                 "glyphs": branch.glyphs,
@@ -144,7 +169,6 @@ class TessarisEngine:
         except Exception as e:
             print(f"[❌] Glyph synthesis error: {e}")
 
-        # 🧬 Glyph regeneration
         try:
             generated = self.glyph_generator.generate_from_text(
                 input_text=" ".join(branch.glyphs),

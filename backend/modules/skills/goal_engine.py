@@ -5,7 +5,7 @@ from datetime import datetime
 from pathlib import Path
 
 import requests
-from config import GLYPH_API_BASE_URL  # ✅ Added for glyph synthesis
+from backend.config import GLYPH_API_BASE_URL  # ✅ Added for glyph synthesis
 
 from backend.modules.dna_chain.switchboard import DNA_SWITCH
 DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file

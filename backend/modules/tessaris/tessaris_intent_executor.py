@@ -1,22 +1,26 @@
-# File: backend/modules/tessaris/tessaris_intent_executor.py
-
 import json
 import os
 from datetime import datetime
 
 from backend.modules.tessaris.tessaris_store import load_tessaris_snapshot
-from backend.modules.aion.soul_laws import validate_intent
-from backend.modules.aion.goal_engine import submit_goal
-from backend.modules.aion.planning_engine import enqueue_plan
-from backend.modules.consciousness.avatar_core import execute_avatar_action
-from backend.modules.memory.memory_engine import store_memory
+from backend.modules.soul.soul_laws import validate_intent
+from backend.modules.consciousness.planning_engine import enqueue_plan
+from backend.modules.avatar.avatar_core import execute_avatar_action
+from backend.modules.hexcore.memory_engine import store_memory
 from backend.modules.consciousness.state_manager import STATE
 from backend.database import get_db
 from backend.models.intent_log import IntentLog
-from backend.modules.memory.memory_bridge import MemoryBridge
+from backend.modules.consciousness.memory_bridge import MemoryBridge
+
+
+def execute_glyph_packet(packet):
+    """Safe execution wrapper for glyph packets."""
+    from backend.modules.tessaris.tessaris_engine import TessarisEngine  # deferred to avoid circular import
+    engine = TessarisEngine()
+    return engine.execute_packet(packet)
+
 
 INTENT_QUEUE_FILE = "data/tessaris/intent_queue.json"
-memlog = MemoryBridge()
 
 
 def load_intents():
@@ -38,6 +42,11 @@ def queue_intent(intent):
     intents.append(intent)
     save_intents(intents)
     store_memory(f"📝 Queued intent: {intent}")
+
+
+def queue_tessaris_intent(intent):
+    """External API wrapper for queuing an intent."""
+    queue_intent(intent)
 
 
 def execute_intents():
@@ -78,8 +87,10 @@ def route_intent(intent):
     try:
         kind = intent.get("type")
         payload = intent.get("data")
+        container_id = intent.get("container_id", "default")
 
         if kind == "goal":
+            from backend.modules.skills.goal_engine import submit_goal
             submit_goal(payload)
         elif kind == "plan":
             enqueue_plan(payload)
@@ -92,7 +103,8 @@ def route_intent(intent):
         store_memory(f"✅ Executed intent: {intent}")
         log_intent(intent, "executed")
 
-        # ✅ MemoryBridge trace logging
+        # Trace log via MemoryBridge
+        memlog = MemoryBridge(container_id=container_id)
         memlog.log({
             "source": "tessaris_intent_executor",
             "event": "intent_executed",
@@ -108,8 +120,6 @@ def route_intent(intent):
         log_intent(intent, "error")
         return "retry"
 
-
-# 🔍 Auto-scan from Tessaris branch snapshot
 
 def scan_snapshot_for_intents(snapshot_path):
     try:
@@ -128,7 +138,8 @@ def scan_snapshot_for_intents(snapshot_path):
                     "type": intent_type.lower(),
                     "data": intent_value,
                     "source": snapshot_path,
-                    "timestamp": datetime.utcnow().isoformat()
+                    "timestamp": datetime.utcnow().isoformat(),
+                    "container_id": metadata.get("container_id", "default")
                 }
                 queue_intent(structured)
                 store_memory(f"📥 Scanned intent from snapshot: {structured}")

@@ -7,12 +7,12 @@ from backend.modules.dna_chain.switchboard import get_module_path
 from backend.modules.dna_chain.switchboard import DNA_SWITCH
 from backend.modules.dna_chain.writable_guard import is_write_allowed
 
-
 # ✅ Register with DNA Switch
 DNA_SWITCH.register(__file__)
 
+
 def create_proposal(file, replaced_code, new_code, reason):
-    # 🔄 Normalize file path to use forward slashes and remove leading './'
+    # 🔄 Normalize file path
     normalized_file = file.replace("\\", "/").lstrip("./")
 
     # 🔐 Restriction check
@@ -58,22 +58,6 @@ def create_proposal(file, replaced_code, new_code, reason):
     return proposal
 
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Create a DNA mutation proposal")
-    parser.add_argument("--file", required=True, help="Relative path to target file")
-    parser.add_argument("--replaced", required=True, help="Original code block")
-    parser.add_argument("--new", required=True, help="New code block to replace with")
-    parser.add_argument("--reason", required=True, help="Reason for the change")
-
-    args = parser.parse_args()
-
-    create_proposal(
-        file=args.file,
-        replaced_code=args.replaced,
-        new_code=args.new,
-        reason=args.reason
-    )
-
 def approve_dna_proposal(proposal_id: str) -> bool:
     """
     Marks a DNA proposal as approved by its proposal_id.
@@ -94,3 +78,42 @@ def approve_dna_proposal(proposal_id: str) -> bool:
     save_proposals(proposals)
     print(f"✅ Proposal approved: {proposal_id}")
     return True
+
+
+# ✅ Tessaris-compatible symbolic mutation proposal
+def propose_dna_mutation(reason: str, source: str, code_context: str, new_logic: str):
+    """
+    Lightweight wrapper to auto-generate a DNA mutation proposal from symbolic trigger.
+    - reason: human-readable explanation
+    - source: origin module (e.g. tessaris_trigger)
+    - code_context: placeholder code or symbolic marker to target
+    - new_logic: string of replacement logic or symbolic code
+    """
+    file = "backend/modules/skills/goal_engine.py"  # ⛓️ Default symbolic target
+    replaced_code = code_context
+    new_code = new_logic
+
+    return create_proposal(
+        file=file,
+        replaced_code=replaced_code,
+        new_code=new_code,
+        reason=f"{reason} (triggered by: {source})"
+    )
+
+
+# 🧪 CLI usage
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Create a DNA mutation proposal")
+    parser.add_argument("--file", required=True, help="Relative path to target file")
+    parser.add_argument("--replaced", required=True, help="Original code block")
+    parser.add_argument("--new", required=True, help="New code block to replace with")
+    parser.add_argument("--reason", required=True, help="Reason for the change")
+
+    args = parser.parse_args()
+
+    create_proposal(
+        file=args.file,
+        replaced_code=args.replaced,
+        new_code=args.new,
+        reason=args.reason
+    )

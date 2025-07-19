@@ -1,13 +1,12 @@
-# container_runtime.py
+# File: backend/modules/runtime/container_runtime.py
 
 import time
 import threading
 import asyncio
 from backend.modules.consciousness.state_manager import StateManager
 from backend.modules.glyphos.glyph_executor import GlyphExecutor
-from backend.modules.websocket.websocket_manager import WebSocketManager  # Optional
-from backend.modules.dna_chain.dna_switch import register_dna_switch
-from backend.modules.runtime.glyph_watcher import GlyphWatcher  # ✅ New import
+from backend.modules.websocket_manager import WebSocketManager
+from backend.modules.glyphos.glyph_watcher import GlyphWatcher
 
 # ✅ Optional glyph summarizer
 try:
@@ -125,4 +124,7 @@ class ContainerRuntime:
         return self.rewind_buffer[index]["cubes"]
 
 
-register_dna_switch(__file__)
+# ✅ External getter used by FastAPI route or runtime script
+def get_container_runtime(tick_interval=2.0) -> ContainerRuntime:
+    state_manager = StateManager()
+    return ContainerRuntime(state_manager, tick_interval=tick_interval)

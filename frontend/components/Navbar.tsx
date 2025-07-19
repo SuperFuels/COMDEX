@@ -228,6 +228,15 @@ export default function Navbar() {
               <span>Runtime</span>
             </Link>
 
+            {/* ✅ Codex HUD */}
+            <Link
+              href="/aion/codex-hud"
+              className="flex items-center space-x-1 py-1 px-3 border border-red-500 text-red-600 rounded-lg bg-white dark:bg-gray-900 text-sm hover:bg-red-50 dark:hover:bg-gray-800 focus:outline-none transition"
+            >
+              <Image src="/hud.svg" alt="HUD" width={16} height={16} />
+              <span>Codex HUD</span>
+            </Link>
+
             {/* ✅ World Map */}
             <Link
               href="/world-map.html"

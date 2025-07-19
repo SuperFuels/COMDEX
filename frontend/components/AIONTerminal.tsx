@@ -14,10 +14,11 @@ import useAION from '../hooks/useAION';
 import ContainerStatus from '@/components/AION/ContainerStatus';
 import GlyphGrid from './AION/GlyphGrid';
 import GlyphInspector from './AION/GlyphInspector';
-import ContainerMap from './AION/ContainerMap'; // ✅ Added container map component
+import ContainerMap from './AION/ContainerMap';
 import GlyphMutator from './AION/GlyphMutator';
-import TessarisVisualizer from "@/components/AION/TessarisVisualizer";
-
+import TessarisVisualizer from '@/components/AION/TessarisVisualizer';
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Input } from "@/components/ui/input";
 
 interface AIONTerminalProps {
   side: 'left' | 'right';
@@ -49,7 +50,7 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
   const [selectedGlyph, setSelectedGlyph] = useState<null | { coord: string; data: any }>(null);
   const [showGlyphMutator, setShowGlyphMutator] = useState(false);
   const [showTessarisTree, setShowTessarisTree] = useState(false);
-  
+
   const handleSubmit = async () => {
     if (!input.trim()) return;
     await sendCommand(input.trim());
@@ -183,25 +184,22 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
       });
       const result = await res.json();
       if (res.ok) {
-        console.log(`🌀 Teleported to ${id}`);
-        // Optional feedback toast
         alert(`🌀 Teleported to ${id}`);
       } else {
-        console.error("Teleport failed:", result.detail || "Unknown error");
         alert(`❌ Teleport failed: ${result.detail || 'Unknown error'}`);
       }
     } catch (err) {
-      console.error("Teleport error:", err);
       alert("❌ Teleport error. See console for details.");
     }
   };
 
   return (
     <div className="flex flex-col h-full">
+      {/* 🌐 Input Toolbar */}
       <div className="relative flex items-center px-4 gap-2 py-2">
         <div className="relative flex-1">
-          <input
-            className="w-full border border-gray-300 px-3 py-1 rounded text-sm"
+          <Input
+            className="w-full pr-8 text-sm"
             placeholder={side === 'left' ? 'Type command or select preset...' : 'Ask AION...'}
             value={input}
             onChange={(e) => setInput(e.target.value)}
@@ -211,12 +209,13 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
           />
           <button
             onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="absolute right-1.5 top-1/2 transform -translate-y-1/2 text-gray-400"
+            className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400"
           >
             <FaChevronDown />
           </button>
+
           {dropdownOpen && (
-            <div className="absolute left-0 top-10 w-full bg-white border border-gray-200 rounded shadow-lg z-10 max-h-60 overflow-auto">
+            <ScrollArea className="absolute left-0 top-10 w-full bg-white border border-gray-200 rounded shadow-lg z-10 max-h-60 overflow-auto">
               {availableCommands.map((cmd) => (
                 <button
                   key={cmd.name}
@@ -231,7 +230,7 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
                   <div className="text-xs text-gray-500 ml-6">{cmd.description || cmd.endpoint}</div>
                 </button>
               ))}
-            </div>
+            </ScrollArea>
           )}
         </div>
 
@@ -248,15 +247,9 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
           <option value="stub">Stub</option>
         </select>
 
-        <button onClick={syncMemory} className="text-blue-600 text-sm" title="Sync">
-          <FaSync />
-        </button>
-        <button onClick={handleExport} className="text-gray-600 text-sm" title="Export">
-          <FaFileExport />
-        </button>
-        <button onClick={() => setAutoRefresh((p) => !p)} className="text-gray-600 text-sm" title="Auto Refresh">
-          <FaRedo /> {autoRefresh ? '🔁' : '⏸️'}
-        </button>
+        <button onClick={syncMemory} className="text-blue-600 text-sm" title="Sync"><FaSync /></button>
+        <button onClick={handleExport} className="text-gray-600 text-sm" title="Export"><FaFileExport /></button>
+        <button onClick={() => setAutoRefresh((p) => !p)} className="text-gray-600 text-sm" title="Auto Refresh"><FaRedo /> {autoRefresh ? '🔁' : '⏸️'}</button>
         <button
           onClick={side === 'left' ? handleSubmit : sendPrompt}
           disabled={loading}
@@ -266,8 +259,9 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
         </button>
       </div>
 
-      {/* Output */}
+      {/* 🔽 Output and Visuals */}
       <div className="flex-1 bg-gray-50 px-4 pt-4 pb-4 rounded overflow-y-auto text-sm whitespace-pre-wrap border border-gray-200 mx-2">
+        {/* Message List */}
         {filteredMessages.map((msg, idx) => (
           <div key={idx} className={`${getMessageColor(msg.role, msg.status)} flex items-start justify-between mb-2`}>
             <div className="flex-1">
@@ -284,9 +278,7 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
                   </button>
                 </div>
               ) : (
-                <>
-                  <div>{msg.content ?? '[Invalid message]'}</div>
-                </>
+                <div>{msg.content ?? '[Invalid message]'}</div>
               )}
             </div>
             {editingIndex !== idx && (
@@ -303,6 +295,7 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
           </div>
         ))}
 
+        {/* ✅ All Additional Runtime UI Sections Below */}
         {/* 📦 Containers */}
         {status?.context?.available_containers && (
           <div className="mt-4 text-xs text-gray-500">
@@ -321,7 +314,7 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
           </div>
         )}
 
-        {/* 🌳 Tessaris Thought Tree Visualizer */}
+        {/* 🔍 Visual Tree + Glyphs */}
         {status?.context?.tessaris_snapshot && (
           <div className="mt-6">
             <div
@@ -331,32 +324,25 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
               <h3 className="text-sm font-semibold text-gray-700">🌳 Tessaris Logic Tree</h3>
               <span className="text-xs text-blue-600">{showTessarisTree ? 'Hide ▲' : 'Show ▼'}</span>
             </div>
-
             {showTessarisTree && (
               <div className="border border-gray-200 rounded bg-white p-2 mt-2">
-                <TessarisVisualizer
-                  tree={status.context.tessaris_snapshot}
-                  onNodeClick={(node) => {
-                    console.log('🧠 Clicked node:', node);
-                  }}
-                />
+                <TessarisVisualizer tree={status.context.tessaris_snapshot} onNodeClick={(node) => console.log('🧠 Clicked node:', node)} />
               </div>
             )}
           </div>
         )}
 
-        {/* 🧩 Glyph Grid */}
         {status?.context?.current_container?.cubes && (
           <>
             <h3 className="text-sm text-gray-500 mt-4">🧩 Glyph Grid:</h3>
             <GlyphGrid
               cubes={status.context.current_container.cubes}
               onGlyphClick={(coord, data) => setSelectedGlyph({ coord, data })}
+              tick={status.context?.tick ?? 0}
             />
           </>
         )}
 
-        {/* 🔍 Glyph Inspector */}
         {selectedGlyph && (
           <GlyphInspector
             coord={selectedGlyph.coord}
@@ -365,7 +351,6 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
           />
         )}
 
-        {/* 🧬 Glyph Mutator Panel */}
         {selectedGlyph && status?.context?.current_container?.id && (
           <div className="mt-4 border-t border-gray-200 pt-4">
             <h3 className="text-sm text-gray-600">🧬 Glyph Mutator</h3>
@@ -374,9 +359,8 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
               coord={selectedGlyph.coord}
               glyphData={selectedGlyph.data}
               onMutationComplete={() => {
-                // Optionally refresh status after mutation
                 callEndpoint('status', 'Refreshing after mutation');
-                setSelectedGlyph(null); // Close panel
+                setSelectedGlyph(null);
               }}
             />
           </div>
@@ -395,8 +379,8 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
             />
           </div>
         )}
-        
-        {/* 🗺️ Container Map Component */}
+
+        {/* 🗺️ Map & Breadcrumbs */}
         {status?.context?.container_map && (
           <div className="mt-4">
             <ContainerMap
@@ -407,24 +391,21 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
           </div>
         )}
 
-        {/* 🧭 Breadcrumb Path */}
         {status?.context?.container_path && (
           <div className="mt-4 text-xs text-gray-600">
             <p>🧭 Path: {status.context.container_path.join(' → ')}</p>
           </div>
         )}
 
-        {/* 🧠 Token Usage */}
         {tokenUsage && (
           <div className="mt-2 text-xs text-gray-400">
             🧠 Token usage: {tokenUsage} tokens
           </div>
         )}
-
         <div ref={bottomRef} />
       </div>
 
-      {/* 🔍 Container Summary Component */}
+      {/* 🔽 Container Summary */}
       <div className="border-t border-gray-200 p-2">
         <ContainerStatus />
       </div>

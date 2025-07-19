@@ -1,7 +1,7 @@
 # File: backend/api/aion/bundle_container.py
 
 from fastapi import APIRouter
-from backend.modules.utils.bundle_builder import bundle_container
+from backend.utils.bundle_builder import bundle_container  # ✅ Corrected import
 
 router = APIRouter()
 

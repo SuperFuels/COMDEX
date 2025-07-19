@@ -4,7 +4,7 @@
 from typing import List, Dict, Optional
 import re
 from backend.modules.glyphos.glyph_synthesis_engine import compress_to_glyphs
-from backend.modules.memory.memory_engine import store_memory_entry
+from backend.modules.hexcore.memory_engine import store_memory_entry
 
 GLYPH_TEMPLATE = "\u27E6 {type} | {tag} : {value} → {action} \u27E7"
 

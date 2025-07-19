@@ -1,14 +1,18 @@
+# File: backend/modules/consciousness/personality_engine.py
+
 import json
 import os
 from datetime import datetime
 
-# ✅ DNA Switch
+# ✅ DNA Switch registration for symbolic tracking
 from backend.modules.dna_chain.switchboard import DNA_SWITCH
-DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+DNA_SWITCH.register(__file__)
 
+# 📁 Paths
 TRAIT_FILE = "data/personality_traits.json"
 HISTORY_FILE = "logs/personality_log.json"
 
+# 🌱 Default traits if none stored yet
 DEFAULT_TRAITS = {
     "curiosity": 0.7,
     "discipline": 0.5,
@@ -23,12 +27,10 @@ class PersonalityProfile:
         self.traits = DEFAULT_TRAITS.copy()
         self.history = []
 
-        # Load existing traits if saved
         if os.path.exists(TRAIT_FILE):
             with open(TRAIT_FILE, "r") as f:
                 self.traits = json.load(f)
 
-        # Load history if available
         if os.path.exists(HISTORY_FILE):
             with open(HISTORY_FILE, "r") as f:
                 self.history = json.load(f)
@@ -42,59 +44,59 @@ class PersonalityProfile:
         with open(HISTORY_FILE, "w") as f:
             json.dump(self.history, f, indent=2)
 
-    def adjust_trait(self, trait, delta, reason: str = "unspecified"):
+    def adjust_trait(self, trait: str, delta: float, reason: str = "unspecified"):
         if trait in self.traits:
             prev = self.traits[trait]
             self.traits[trait] = max(0.0, min(1.0, prev + delta))
-            entry = {
+            self.history.append({
                 "timestamp": datetime.utcnow().isoformat(),
                 "trait": trait,
                 "delta": delta,
                 "from": prev,
                 "to": self.traits[trait],
                 "reason": reason
-            }
-            self.history.append(entry)
-            print(f"[PERSONALITY] {trait} adjusted: {prev:.2f} → {self.traits[trait]:.2f} ({reason})")
+            })
+            print(f"[🧠] Trait '{trait}' changed: {prev:.2f} → {self.traits[trait]:.2f} ({reason})")
             self._save()
         else:
-            print(f"[PERSONALITY] Trait '{trait}' not recognized.")
-
-    def get_profile(self) -> dict:
-        return self.traits
+            print(f"[⚠️] Unknown trait: {trait}")
 
     def get_trait(self, trait: str) -> float:
         return self.traits.get(trait, 0.0)
 
-    def has_required_traits(self, required: dict) -> bool:
+    def get_profile(self) -> dict:
+        return self.traits
+
+    def has_required_traits(self, requirements: dict) -> bool:
         """
-        Validates if AION's current traits meet or exceed the required levels.
-        Example input: {"risk_tolerance": 0.5, "curiosity": 0.6}
+        Validate trait thresholds before allowing action.
+        Example: { "discipline": 0.6, "humility": 0.4 }
         """
-        for trait, threshold in required.items():
-            current = self.traits.get(trait, 0.0)
-            if current < threshold:
-                print(f"[GATE] Trait '{trait}' too low: {current:.2f} < {threshold:.2f}")
+        for trait, threshold in requirements.items():
+            value = self.traits.get(trait, 0.0)
+            if value < threshold:
+                print(f"[❌] Trait '{trait}' below threshold: {value:.2f} < {threshold:.2f}")
                 return False
         return True
 
     def describe(self):
-        print("[PERSONALITY] Current trait profile:")
+        print("\n🧬 AION Personality Profile:")
         for k, v in self.traits.items():
-            bar = "#" * int(v * 10)
+            bar = "█" * int(v * 20)
             print(f" - {k.capitalize():<14}: {v:.2f}  {bar}")
+        print()
 
     def to_json(self) -> str:
         return json.dumps(self.traits, indent=2)
 
     def log_history(self):
         self._save()
-        print(f"[PERSONALITY] History + traits saved to disk.")
+        print("[📖] Personality history saved.")
 
 
-# ✅ Singleton
+# ✅ Singleton access
 PROFILE = PersonalityProfile()
 
-# ✅ Export current traits for external modules
+# ✅ External access shortcut
 def get_current_traits():
     return PROFILE.traits

@@ -1,10 +1,10 @@
 """
-AION Avatar Core
-Embodied intelligence inside a .dc container.
+AION Avatar Core  
+Embodied intelligence inside a .dc container.  
 Tracks position, glyph interaction, movement, memory tagging, glyph reactivity.
 """
 
-from modules.dimensions.dimension_kernel import DimensionKernel
+from backend.modules.dimensions.dimension_kernel import DimensionKernel
 from datetime import datetime
 import random
 
@@ -110,3 +110,29 @@ class AIONAvatar:
 
     def list_keys(self):
         return self.inventory
+
+# ✅ Exposed executor function to resolve ImportError
+def execute_avatar_action(action: str, context: dict = None):
+    avatar = AIONAvatar(container_id=context.get("container_id", "default"))
+    avatar.spawn(**context.get("spawn", {}))
+
+    if action == "tick":
+        return avatar.tick()
+    elif action == "move":
+        return avatar.move(**context.get("delta", {}))
+    elif action == "focus":
+        return avatar.focus_glyph()
+    elif action == "react":
+        return avatar.react_to_glyphs()
+    elif action == "state":
+        return avatar.state()
+    elif action == "set_mode":
+        return avatar.set_mode(context.get("mode", "idle"))
+    else:
+        return f"⚠️ Unknown action: {action}"
+
+# ✅ New: export avatar state snapshot for bundle_container or HUD
+def get_avatar_state(container_id: str) -> dict:
+    avatar = AIONAvatar(container_id=container_id)
+    avatar.spawn()  # Ensure valid position and kernel mark
+    return avatar.state()

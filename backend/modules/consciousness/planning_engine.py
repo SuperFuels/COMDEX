@@ -1,18 +1,23 @@
 import random
 from datetime import datetime
-from backend.modules.skills.goal_engine import GoalEngine
-from backend.modules.hexcore.memory_engine import MemoryEngine
-from backend.modules.skills.strategy_planner import StrategyPlanner
 
 # ✅ DNA Switch
 from backend.modules.dna_chain.switchboard import DNA_SWITCH
 DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+
+# ✅ Import outside circular deps
+from backend.modules.hexcore.memory_engine import MemoryEngine
 
 class PlanningEngine:
     def __init__(self):
         self.active_plan = []
         self.current_goal = None
         self.last_generated = None
+
+        # ✅ Delayed imports to avoid circular dependencies
+        from backend.modules.skills.goal_engine import GoalEngine
+        from backend.modules.skills.strategy_planner import StrategyPlanner
+
         self.goal_engine = GoalEngine()
         self.memory = MemoryEngine()
         self.strategist = StrategyPlanner()
@@ -52,7 +57,6 @@ class PlanningEngine:
             ]
         }
 
-        # Choose matching template or fallback
         self.active_plan = plan_templates.get(goal_name, [
             "Understand goal context",
             "Break down goal into subtasks",
@@ -75,7 +79,6 @@ class PlanningEngine:
         timestamp = datetime.now().isoformat()
         print(f"[PLANNING] Executing step: {next_step}")
 
-        # Store in memory for later reflection
         memory_entry = {
             "type": "planning_step",
             "goal": self.current_goal or "unspecified",
@@ -102,3 +105,13 @@ class PlanningEngine:
             print(f"[PLANNING] Strategy step executed: {step}")
         else:
             print("[PLANNING] Plan completed or empty.")
+
+
+# ✅ Safe, lazy-import module-level access function
+_planner_instance = None
+
+def enqueue_plan(goal_name: str):
+    global _planner_instance
+    if _planner_instance is None:
+        _planner_instance = PlanningEngine()
+    return _planner_instance.generate_plan(goal_name)

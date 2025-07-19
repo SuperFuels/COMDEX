@@ -1,9 +1,7 @@
-# 📁 backend/modules/codex/codex_core.py
-
 from backend.modules.glyphos.glyph_instruction_set import INSTRUCTION_SET, get_instruction
 from backend.modules.glyphos.symbolic_hash_engine import symbolic_hash
 from backend.modules.glyphos.glyph_trace_logger import GlyphTraceLogger
-from backend.modules.dna_chain.glyph_mutator import propose_mutation
+from backend.modules.glyphos.glyph_mutator import propose_mutation
 from backend.modules.codex.codex_cost_estimator import CodexCostEstimator
 
 logger = GlyphTraceLogger()
@@ -15,6 +13,11 @@ class CodexCore:
         self.cost_estimator = CodexCostEstimator()
 
     def execute(self, glyph: str, context: dict = {}):
+        from backend.modules.glyphos.codexlang_translator import (  # ⬅ Delayed import
+            parse_codexlang_string,
+            translate_to_instruction
+        )
+
         glyph = glyph.strip()
         h = symbolic_hash(glyph)
 
@@ -24,33 +27,27 @@ class CodexCore:
 
         self.known_hashes.add(h)
 
-        instruction = self._parse_instruction(glyph)
-        if not instruction:
+        # 🧠 Parse full CodexLang structure
+        parsed = parse_codexlang_string(glyph)
+        if not parsed:
             print(f"❌ Failed to parse glyph: {glyph}")
             return "parse_error"
 
-        op = instruction.get("operator")
-        handler = get_instruction(op)
-
-        if not handler:
-            print(f"❓ Unknown operator '{op}' in glyph: {glyph}")
-            return "unknown_operator"
-
         try:
-            # Execute using instruction wrapper
-            result = handler.execute(
-                instruction.get("value"),
-                instruction.get("action"),
-                memory=context.get("memory")
-            )
+            # 🧠 Translate into executable instruction
+            memory = context.get("memory")
+            result = translate_to_instruction(parsed, memory=memory)
 
+            # 🧾 Log and trace
             logger.log_trace(glyph, result, context=context.get("source", "codex_core"))
             self.execution_log.append({"glyph": glyph, "result": result})
 
-            if op == "→" and "rewrite" in str(result).lower():
+            # 🧬 Auto-propose rewrite mutation if triggered
+            action_str = str(parsed.get("action"))
+            if parsed.get("tag") and "rewrite" in action_str.lower():
                 propose_mutation(glyph, reason="CodexCore Rewrite Trigger")
 
-            # ✅ Estimate cost
+            # 💰 Cost estimation
             cost = self.cost_estimator.estimate_glyph_cost(glyph, context or {})
             print(f"[🧮] Estimated glyph cost: {cost.total()} | Breakdown: {vars(cost)}")
 
@@ -58,25 +55,6 @@ class CodexCore:
         except Exception as e:
             print(f"💥 Error during execution of glyph: {glyph}\n{e}")
             return "execution_error"
-
-    def _parse_instruction(self, glyph: str):
-        try:
-            inner = glyph.strip("⟦⟧").strip()
-            parts = inner.split("→")
-            left = parts[0].strip()
-            action = parts[1].strip() if len(parts) > 1 else "Reflect"
-            type_tag, value = left.split(":", 1)
-            g_type, tag = type_tag.split("|", 1)
-            return {
-                "type": g_type.strip(),
-                "tag": tag.strip(),
-                "value": value.strip(),
-                "operator": "→",
-                "action": action
-            }
-        except Exception as e:
-            print(f"[⚠️] Parse error in CodexCore: {e}")
-            return None
 
     def get_log(self, limit=25):
         return self.execution_log[-limit:]

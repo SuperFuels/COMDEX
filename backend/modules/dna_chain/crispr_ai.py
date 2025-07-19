@@ -4,16 +4,18 @@ import os
 import datetime
 
 from backend.modules.dna_chain.switchboard import get_module_path, read_module_file
-from backend.modules.llm.llm_mutator import query_gpt4  # ✅ Updated path to LLM interface
+from backend.modules.dna_chain.llm_mutator import query_gpt4  # ✅ Updated path to LLM interface
 from backend.modules.dna_chain.dna_registry import store_proposal
 from backend.modules.soul.soul_laws import validate_ethics  # ✅ Ethics hook (C5)
 
+
 def score_mutation(original_code, new_code):
-    \"\"\"Basic scoring logic for mutation impact + confidence.\"\"\"
+    """Basic scoring logic for mutation impact + confidence."""
     impact_score = round(min(1.0, len(new_code) / max(1, len(original_code))), 2)
     confidence_score = 0.85 if "def " in new_code else 0.5  # placeholder logic
     safety_score = 1.0 if "os.remove" not in new_code else 0.3
     return impact_score, safety_score, confidence_score
+
 
 def generate_mutation_proposal(module_key, prompt_reason, override_path=None, dry_run=True):
     path = override_path or get_module_path(module_key)
@@ -23,7 +25,7 @@ def generate_mutation_proposal(module_key, prompt_reason, override_path=None, dr
     original_code = read_module_file(module_key) if not override_path else open(path, "r", encoding="utf-8").read()
 
     # 🔍 Construct prompt
-    full_prompt = f\"\"\"You are CRISPR-AI. Your task is to intelligently mutate Python code.
+    full_prompt = f"""You are CRISPR-AI. Your task is to intelligently mutate Python code.
 
 Reason for mutation:
 {prompt_reason}
@@ -33,7 +35,7 @@ Reason for mutation:
 --- ORIGINAL CODE END ---
 
 Return the new code ONLY, with improved structure or logic.
-\"\"\"
+"""
 
     mutated_code = query_gpt4(full_prompt).strip()
 
@@ -42,7 +44,7 @@ Return the new code ONLY, with improved structure or logic.
         raise ValueError("❌ Mutation violates Soul Laws.")
 
     # 🔄 Compute diff
-    diff = "\\n".join(difflib.unified_diff(
+    diff = "\n".join(difflib.unified_diff(
         original_code.splitlines(),
         mutated_code.splitlines(),
         fromfile="original.py",

@@ -5,7 +5,7 @@ Control the AION Avatar inside a .dc container.
 
 from fastapi import APIRouter, Request, HTTPException
 from fastapi.responses import JSONResponse
-from modules.dimensions.avatar_core import AIONAvatar
+from backend.modules.avatar.avatar_core import AIONAvatar
 
 router = APIRouter()
 avatar = AIONAvatar(container_id="default")  # Load default container

@@ -37,7 +37,7 @@ from backend.modules.dna_chain.trigger_engine import check_glyph_triggers
 from backend.modules.glyphos.trigger_on_glyph_loop import register_container_for_glyph_triggers
 
 # ✅ Bytecode glyph scanner
-from backend.modules.dimensions.glyph_watcher import GlyphWatcher
+from backend.modules.glyphos.glyph_watcher import GlyphWatcher
 
 # ✅ Tessaris Runtime
 from backend.modules.tessaris.tessaris_engine import TessarisEngine

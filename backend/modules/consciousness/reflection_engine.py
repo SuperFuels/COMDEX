@@ -1,6 +1,6 @@
 from datetime import datetime
 import requests
-from config import GLYPH_API_BASE_URL
+from backend.config import GLYPH_API_BASE_URL
 
 from backend.modules.hexcore.memory_engine import MemoryEngine
 from backend.modules.consciousness.personality_engine import PersonalityProfile
@@ -116,3 +116,13 @@ class ReflectionEngine:
         combined = "\n".join(reflections)
         self.save_insight(combined)
         return combined
+
+
+# ✅ Compatibility function used by glyph_executor and others
+def generate_reflection(thought: str = "") -> str:
+    """
+    Externally callable function to trigger a reflection cycle.
+    If a specific thought is passed, it can be stored beforehand.
+    """
+    engine = ReflectionEngine()
+    return engine.run()

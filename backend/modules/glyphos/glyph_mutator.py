@@ -9,7 +9,7 @@ from difflib import unified_diff
 
 from backend.modules.dna_chain.dc_handler import load_dimension_by_file, save_dimension_to_file
 from backend.modules.dna_chain.dna_registry import register_mutation_proposal
-from backend.modules.memory.memory_engine import store_memory_entry
+from backend.modules.hexcore.memory_engine import store_memory as store_memory_entry
 
 # ─── 🧬 Glyph Mutation Engine ───────────────────────────────────────────────────
 
@@ -57,6 +57,33 @@ def mutate_glyph(container_path: str, coord: str, mutation: dict, reason: str) -
     store_memory_entry("mutation_proposal", proposal)
     print(f"✅ Mutation proposal logged for glyph {coord}")
     return True
+
+# ─── 🆕 CodexCore Compatibility: propose_mutation wrapper ──────────────────────
+
+def propose_mutation(glyph: dict, reason: str = "CodexCore runtime execution") -> dict:
+    """
+    External interface to submit a mutation proposal based on glyph structure.
+    This avoids circular imports by skipping StrategyPlanner and GoalEngine.
+    """
+    coord = glyph.get("coord", "unknown")
+    file_path = glyph.get("file", "unknown_container.json")
+    value = glyph.get("value", "undefined")
+    tag = glyph.get("tag", "unlabeled")
+
+    mutation = {
+        "value": value,
+        "tag": tag,
+        "updated_at": datetime.utcnow().isoformat() + "Z"
+    }
+
+    mutate_glyph(file_path, coord, mutation, reason=reason)
+    return {
+        "status": "proposed",
+        "coord": coord,
+        "file": file_path,
+        "value": value,
+        "tag": tag
+    }
 
 # ─── ♻️ Auto-Mutation via Decay Limit ──────────────────────────────────────────
 

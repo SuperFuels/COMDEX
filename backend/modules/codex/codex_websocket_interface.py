@@ -71,7 +71,6 @@ async def codex_handler(websocket, path):
 
                     tessaris.extract_intents_from_glyphs([glyph], metadata)
 
-                    # ✅ broadcast to HUD listeners with cost included
                     await broadcast_glyph_execution(glyph, result, context)
 
                     await websocket.send(json.dumps({
@@ -104,7 +103,8 @@ async def codex_handler(websocket, path):
         connected_clients.remove(websocket)
         print(f"🔌 Codex WebSocket disconnected: {websocket.remote_address}")
 
-
-def start_codex_ws_server():
+# ✅ Fix: make this a coroutine that waits for shutdown
+async def start_codex_ws_server():
     print("🌐 Codex WebSocket server starting on ws://localhost:8671")
-    return websockets.serve(codex_handler, "localhost", 8671)
+    server = await websockets.serve(codex_handler, "localhost", 8671)
+    await server.wait_closed()

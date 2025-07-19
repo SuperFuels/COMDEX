@@ -1,3 +1,5 @@
+# File: backend/modules/dna_chain/teleport.py
+
 import os
 import json
 import datetime
@@ -121,7 +123,7 @@ def teleport(source_key, destination_key, reason, requester="AION"):
             "teleport_type": route["gate_type"],
             "requested_by": requester
         }
-        store_proposal(proposal)
+        register_proposal(proposal)
         print(f"[⚠️] Approval required — request stored.")
         return "awaiting_approval"
 
@@ -182,6 +184,12 @@ def teleport(source_key, destination_key, reason, requester="AION"):
 
     print(f"[✅] Teleport complete: {source_key} → {destination_key}")
     return "teleport_complete"
+
+# ✅ New exportable function
+def teleport_to_container(destination_key: str, reason: str = "", requester: str = "AION"):
+    current = STATE.get_current_container()
+    source_key = current.get("id") if current else "unknown"
+    return teleport(source_key, destination_key, reason, requester)
 
 def list_routes():
     return load_teleport_registry()

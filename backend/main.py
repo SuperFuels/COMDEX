@@ -5,10 +5,11 @@ import logging
 import subprocess
 import asyncio
 
-# Fix for ModuleNotFoundError: ensure /srv/backend is in sys.path and PYTHONPATH env var is set
-os.environ['PYTHONPATH'] = '/srv/backend'
-if '/srv/backend' not in sys.path:
-    sys.path.insert(0, '/srv/backend')
+# ✅ Fix for ModuleNotFoundError: dynamically append the root project path
+ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+if ROOT_DIR not in sys.path:
+    sys.path.insert(0, ROOT_DIR)
+os.environ["PYTHONPATH"] = ROOT_DIR
 
 from fastapi import FastAPI, APIRouter, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -124,10 +125,10 @@ from backend.routes import avatar_runtime
 from backend.routes import aion_get_glyph_tick
 from backend.api.aion.memory_trace import router as memory_trace_router
 from backend.api.aion import get_memory_trace
-from backend.api.aion import bundle_container
+from backend.api.aion import bundle_container  
 from backend.routes import aion_glyph_trigger_log
 from backend.modules.codex.codex_websocket_interface import start_codex_ws_server
-from routes.ws import codex_ws  # ✅ import route
+from backend.routes.ws import codex_ws
 
 # ✅ WebSocket route
 from backend.api import ws
@@ -192,9 +193,9 @@ app.include_router(bundle_container.router)
 app.include_router(aion_glyph_trigger_log.router)
 app.include_router(codex_ws.router)
 
-asyncio.get_event_loop().run_until_complete(start_codex_ws_server())
-asyncio.get_event_loop().run_forever()
-
+@app.on_event("startup")
+async def start_codex_websocket():
+    asyncio.create_task(start_codex_ws_server())
 
 # ── 16) Serve uploaded images
 app.mount("/uploaded_images", StaticFiles(directory="uploaded_images"), name="uploaded_images")

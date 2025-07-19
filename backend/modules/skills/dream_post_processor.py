@@ -6,7 +6,6 @@
 from backend.modules.hexcore.memory_engine import MemoryEngine
 from backend.modules.skills.milestone_tracker import MilestoneTracker
 from backend.modules.skills.boot_selector import BootSelector
-from backend.modules.skills.goal_engine import GoalEngine
 
 # ✅ DNA Switch
 from backend.modules.dna_chain.switchboard import DNA_SWITCH
@@ -24,6 +23,8 @@ class DreamPostProcessor:
         self.memory = MemoryEngine()
         self.tracker = MilestoneTracker()
         self.boot_selector = BootSelector()
+        # 🛠️ Deferred to avoid circular import
+        from backend.modules.skills.goal_engine import GoalEngine
         self.goals = GoalEngine()
 
     def process(self, dream: str):

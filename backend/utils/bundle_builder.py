@@ -1,11 +1,11 @@
-# backend/modules/utils/bundle_builder.py
+# backend/utils/bundle_builder.py
 
 import json
 import base64
 import hashlib
 from datetime import datetime
 from backend.modules.consciousness.state_manager import StateManager
-from backend.modules.aion.avatar_core import get_avatar_state
+from backend.modules.avatar.avatar_core import get_avatar_state
 from backend.modules.glyphos.microgrid_index import MicrogridIndex
 from backend.modules.dna_chain.dc_handler import load_dimension_by_file
 

@@ -1,10 +1,12 @@
+# File: backend/modules/tessaris/tessaris_trigger.py
+
 from typing import Optional, Dict, Any
 from backend.modules.tessaris.thought_branch import ThoughtBranch, BranchNode
 from backend.modules.tessaris.tessaris_engine import TessarisEngine
-from backend.modules.tessaris.tessaris_store import save_snapshot
-from backend.modules.tessaris.memory_bridge import MemoryBridge
+from backend.modules.tessaris.tessaris_store import TESSARIS_STORE
+from backend.modules.consciousness.memory_bridge import MemoryBridge
 from backend.modules.dna_chain.dna_writer import propose_dna_mutation
-from backend.modules.tessaris.glyph_logic import analyze_branch
+from backend.modules.glyphos.glyph_logic import analyze_branch
 from backend.modules.aion.dream_core import run_dream
 from backend.modules.dna_chain.teleport import teleport_to_container
 
@@ -45,7 +47,7 @@ class TessarisTrigger:
             )
 
         # 🧠 Snapshot + Memory Link
-        save_snapshot(branch=branch, label=label)
+        TESSARIS_STORE.save_branch(branch)
         self.memory.link_to_branch(branch)
 
         print(f"🔁 Feedback loop complete with {len(insights)} insights.")
@@ -66,7 +68,7 @@ class TessarisTrigger:
         self.engine.execute_branch(branch)
         print("🎮 Tessaris executed game event logic branch.")
 
-        save_snapshot(branch=branch, label=label)
+        TESSARIS_STORE.save_branch(branch)
 
     def trigger_dream(self, reason: str = "glyph_triggered"):
         """
@@ -81,6 +83,26 @@ class TessarisTrigger:
         """
         print(f"🪐 Glyph triggered teleport to: {destination}")
         teleport_to_container(container_id=destination, reason=label)
+
+
+# ✅ External trigger wrapper (used in goal_engine.py)
+def trigger_tessaris_from_goal(goal_data: dict):
+    """
+    Thin wrapper for external modules to trigger Tessaris from goal data.
+    """
+    engine = TessarisEngine()
+    goal_text = goal_data.get("text", "Undefined Goal")
+    label = goal_data.get("label", "external_goal")
+    
+    root = BranchNode(symbol="🎯", value=goal_text, source="external")
+    children = root.generate_branches()
+    for child in children:
+        root.add_child(child)
+
+    branch = ThoughtBranch(glyphs=[n.symbol for n in children], origin_id=label)
+    result = engine.execute_branch(branch)
+    print(f"[🧠] External Tessaris goal triggered → result: {result}")
+    return result
 
 
 # Example manual triggers (for CLI/testing)

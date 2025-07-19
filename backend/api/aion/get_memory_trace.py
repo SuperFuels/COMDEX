@@ -1,8 +1,8 @@
 # backend/api/aion/get_memory_trace.py
 
 from fastapi import APIRouter
-from modules.consciousness.state_manager import StateManager
-from modules.memory.memory_engine import MemoryEngine
+from backend.modules.consciousness.state_manager import StateManager
+from backend.modules.hexcore.memory_engine import MemoryEngine
 from datetime import datetime
 
 router = APIRouter()

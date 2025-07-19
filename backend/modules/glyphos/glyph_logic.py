@@ -1,12 +1,19 @@
 # glyph_logic.py
 
-from typing import Any, Dict
+from typing import Any, Dict, List
 from backend.modules.skills.boot_selector import BootSelector
 from backend.modules.consciousness.reflection_engine import ReflectionEngine
-from backend.modules.consciousness.goal_engine import GoalEngine
-from backend.modules.skills.strategy_planner import StrategyPlanner
 from backend.modules.hexcore.memory_engine import store_memory
 from backend.modules.dna_chain.switchboard import DNA_SWITCH
+
+# ⏳ Delay imports to avoid circular dependencies
+def get_goal_engine():
+    from backend.modules.skills.goal_engine import GoalEngine
+    return GoalEngine()
+
+def get_strategy_planner():
+    from backend.modules.skills.strategy_planner import StrategyPlanner
+    return StrategyPlanner()
 
 # Optional: import MemoryBridge safely
 try:
@@ -35,8 +42,6 @@ GLYPH_SYMBOL_MAP = {
 # Real modules
 boot_selector = BootSelector()
 reflector = ReflectionEngine()
-goal_engine = GoalEngine()
-planner = StrategyPlanner()
 
 
 def interpret_glyph(glyph: str, context: Dict[str, Any]) -> Dict[str, Any]:
@@ -67,6 +72,7 @@ def interpret_glyph(glyph: str, context: Dict[str, Any]) -> Dict[str, Any]:
             memory_traces.append({"type": "reflection", "content": result})
 
         elif glyph == "⚙":
+            planner = get_strategy_planner()
             plan = planner.generate()
             logs.append("→ ⚙ Strategy planned.")
             triggered_modules.append("StrategyPlanner")
@@ -135,3 +141,16 @@ def interpret_glyph(glyph: str, context: Dict[str, Any]) -> Dict[str, Any]:
         "memory": memory_traces,
         "meta": meta,
     }
+
+
+def analyze_branch(branch) -> List[str]:
+    """
+    Basic analysis of a ThoughtBranch: returns human-readable summaries of what occurred.
+    Used for memory writing and mutation feedback.
+    """
+    summaries = []
+    for i, glyph in enumerate(branch.glyphs):
+        context = {"branch": branch, "index": i}
+        result = interpret_glyph(glyph, context)
+        summaries.append(f"{i}. Glyph {glyph} → {result['symbol']}: {result['log']}")
+    return summaries

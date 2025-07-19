@@ -1,0 +1,50 @@
+# codex_instruction_set.yaml
+# Defines symbolic opcodes and their corresponding CodexLang execution logic
+
+⊕:
+  name: AND
+  description: "Combine multiple logic nodes or actions"
+  args: min=2
+  function: execute_and
+
+↔:
+  name: EQUIVALENCE
+  description: "Bi-directional symbolic equivalence"
+  args: 2
+  function: execute_equivalence
+
+⟲:
+  name: MUTATE
+  description: "Recursive mutation or self-update"
+  args: 1+
+  function: execute_mutation
+
+⧖:
+  name: DELAY
+  description: "Delay, wait condition, or gate trigger"
+  args: optional
+  function: execute_delay
+
+→:
+  name: TRIGGER
+  description: "Trigger symbolic action"
+  args: 1
+  function: execute_trigger
+
+∇:
+  name: COMPRESS
+  description: "Compress or embed symbolic meaning"
+  args: 1+
+  function: execute_compression
+
+⊗:
+  name: NEGATE
+  description: "Invert or negate symbolic value"
+  args: 1
+  function: execute_negation
+
+✦:
+  name: MILESTONE
+  description: "Milestone marker or boot phase"
+  args: optional
+  function: execute_milestone
