@@ -7,6 +7,7 @@ from datetime import datetime
 from backend.modules.codex.codex_cost_estimator import CodexCostEstimator
 from backend.modules.codex.codex_metrics import CodexMetrics
 from backend.modules.codex.codex_websocket_interface import send_codex_ws_event
+from backend.modules.hexcore.memory_engine import MemoryBridge
 from backend.modules.state_manager import STATE  # ✅ Pause flag
 
 
@@ -93,6 +94,18 @@ class CodexExecutor:
             }
 
             send_codex_ws_event("glyph_execution", cost_payload)
+
+            # ✅ Store in memory
+            MemoryBridge.store_memory({
+                "source": "codex_executor",
+                "type": "execution",
+                "glyph": glyph,
+                "details": f"Executed {glyph} with ops: {', '.join([s['action'] for s in ops_chain])}",
+                "container": context.get("container"),
+                "coord": context.get("coord"),
+                "cost": cost_payload["cost"],
+                "timestamp": timestamp
+            })
 
             return {
                 "status": "executed",

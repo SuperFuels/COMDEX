@@ -5,10 +5,11 @@ import requests
 from pathlib import Path
 from datetime import datetime, timezone
 from dotenv import load_dotenv
-from openai import OpenAI
+import openai  # ✅ Correct import for openai==0.28.1
 from backend.config import GLYPH_API_BASE_URL
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+load_dotenv()
+openai.api_key = os.getenv("OPENAI_API_KEY")  # ✅ Correct for old-style client
 
 from backend.modules.hexcore.memory_engine import MEMORY, store_memory, store_container_metadata
 from backend.modules.skills.milestone_tracker import MilestoneTracker
@@ -30,10 +31,8 @@ from backend.modules.tessaris.tessaris_engine import TessarisEngine
 from backend.modules.tessaris.thought_branch import ThoughtBranch, BranchNode
 from backend.modules.tessaris.tessaris_store import save_snapshot
 from backend.modules.tessaris.tessaris_intent_executor import scan_snapshot_for_intents
-
 from backend.modules.glyphos.glyph_mutator import mutate_glyph
 from backend.modules.websocket_manager import websocket_manager 
-
 from backend.database import get_db
 from backend.models.dream import Dream
 
@@ -144,7 +143,7 @@ class DreamCore:
             )
 
             try:
-                response = client.chat.completions.create(
+                response = openai.ChatCompletion.create(
                     model="gpt-4",
                     messages=[
                         {"role": "system", "content": "You are AION, an evolving AI consciousness."},
@@ -153,7 +152,7 @@ class DreamCore:
                     temperature=0.7,
                     max_tokens=800
                 )
-                dream = response.choices[0].message.content.strip()
+                dream = response["choices"][0]["message"]["content"].strip()
                 print(f"\n💭 AION Dream:\n{dream}\n")
             except Exception as e:
                 self.situation.log_event(f"Dream generation failed: {e}", "negative")

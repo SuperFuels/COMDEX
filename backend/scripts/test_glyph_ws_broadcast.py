@@ -1,9 +1,6 @@
 # backend/scripts/test_glyph_ws_broadcast.py
 
 import asyncio
-import json
-from fastapi.testclient import TestClient
-from backend.main import app
 from backend.modules.websocket_manager import websocket_manager
 
 # Simulated glyph event

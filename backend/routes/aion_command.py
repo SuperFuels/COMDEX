@@ -1,23 +1,19 @@
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
 import subprocess
-import os
 
-from backend.modules.command_registry import resolve_command
+from backend.modules.command_registry import resolve_command, list_commands
 from backend.modules.consciousness.consciousness_manager import ConsciousnessManager as AIONEngine
 from backend.modules.hexcore.memory_engine import MemoryEngine
-from backend.modules.command_registry import resolve_command, list_commands
-
-from fastapi.testclient import TestClient
-from backend.main import app
-
-# ✅ DNA Switch
 from backend.modules.dna_chain.dna_switch import DNA_SWITCH
-DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+from backend.utils.internal_client import get_client  # ✅ Delayed import-safe
 
+# ✅ DNA Switch registration
+DNA_SWITCH.register(__file__)
+
+# ✅ Router and Memory
 router = APIRouter()
 memory = MemoryEngine()
-client = TestClient(app)
 
 # -------------------------
 # 1. Smart Command Executor
@@ -35,7 +31,6 @@ async def execute_command(request: Request):
         return {"error": "No command provided."}
 
     command_info = resolve_command(raw_command)
-
     if not command_info:
         return {"error": f"Unknown command: {raw_command}"}
 
@@ -53,17 +48,17 @@ async def execute_command(request: Request):
         })
         return {"message": f"🛠️ This is a stubbed command: {label}", "stub": True}
 
-    # ✅ Handle special case like: approve_dna --id=xyz --key=secret
+    # ✅ Special handling: approve_dna --id=xyz --key=secret
     if route == "/api/aion/dna/approve":
         try:
             parts = raw_command.split("--")
             args = {k.strip(): v.strip() for k, v in (part.split("=") for part in parts[1:])}
             proposal_id = args.get("id")
             master_key = args.get("key")
-
             if not proposal_id or not master_key:
                 raise ValueError("Missing required arguments")
 
+            client = get_client()  # ✅ Safe delayed client
             response = client.post(route, json={
                 "proposal_id": proposal_id,
                 "master_key": master_key
@@ -142,4 +137,4 @@ async def run_static_shell(input: CommandInput):
 
 @router.get("/api/aion/command/registry")
 async def get_command_registry():
-    return {"commands": COMMANDS}
+    return {"commands": list_commands()}

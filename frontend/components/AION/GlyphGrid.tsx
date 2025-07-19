@@ -158,6 +158,8 @@ const GlyphGrid: React.FC<GlyphGridProps> = ({
     return "bg-gray-100";
   };
 
+  // [...unchanged imports and state setup]
+
   const renderCell = (x: number, y: number) => {
     const key = `${x},${y},${zLevel}`;
     const data = glyphData[key] || {};
@@ -166,6 +168,7 @@ const GlyphGrid: React.FC<GlyphGridProps> = ({
     const ageSec = Math.floor(ageMs / 1000);
     const changed = previousGlyphs[key] !== undefined && previousGlyphs[key] !== glyph;
     const denied = data?.denied === true;
+    const triggered = recentTriggers[key] === true;
     const color = getGlyphColor(glyph, ageMs, changed, denied);
     const percent = Math.min(ageSec / filter.maxAge, 1) * 100;
 
@@ -182,10 +185,16 @@ const GlyphGrid: React.FC<GlyphGridProps> = ({
           setSelectedCoord(key);
           setSelectedData(data);
         }}
-        className={`w-6 h-6 border text-xs text-center cursor-pointer flex flex-col items-center justify-center hover:scale-105 transition transform ${color}`}
+        className={`w-6 h-6 border text-xs text-center cursor-pointer flex flex-col items-center justify-center hover:scale-105 transition transform relative ${color}`}
         title={tooltip}
       >
-        <div>
+        {/* Glow ring for triggered glyph */}
+        {triggered && (
+          <div className="absolute inset-0 rounded-sm border-2 border-blue-500 animate-ping pointer-events-none z-10"></div>
+        )}
+
+        {/* Glyph text */}
+        <div className="z-20">
           {denied ? <XCircle className="w-3 h-3 text-red-700" /> :
             viewMode === "glyph-logic"
               ? glyph
@@ -193,9 +202,18 @@ const GlyphGrid: React.FC<GlyphGridProps> = ({
               ? `⟦${glyph}⟧`
               : glyph}
         </div>
-        <div className="w-full h-1 mt-[1px] bg-gray-200">
+
+        {/* Progress bar */}
+        <div className="w-full h-1 mt-[1px] bg-gray-200 z-20">
           <div className="h-1 bg-green-500" style={{ width: `${percent}%` }} />
         </div>
+
+        {/* Floating trigger label */}
+        {triggered && (
+          <div className="absolute -top-5 left-1/2 transform -translate-x-1/2 text-[10px] px-1 py-[1px] bg-blue-100 text-blue-800 border border-blue-300 rounded shadow z-30">
+            ↪ triggered {data?.action || "event"}
+          </div>
+        )}
       </div>
     );
   };

@@ -28,6 +28,14 @@ interface GlyphEvent {
   };
 }
 
+interface TickEvent {
+  type: 'dimension_tick';
+  container: string;
+  timestamp: number;
+}
+
+type EventLog = { type: 'glyph'; data: GlyphEvent } | { type: 'tick'; data: TickEvent };
+
 const COST_WARNING_THRESHOLD = 7;
 
 function extractOperator(glyph: string): string | null {
@@ -55,21 +63,30 @@ function operatorName(op: string | null): string {
 }
 
 export default function CodexHUD() {
-  const [events, setEvents] = useState<GlyphEvent[]>([]);
+  const [events, setEvents] = useState<EventLog[]>([]);
   const [filter, setFilter] = useState('');
 
   const { connected } = useWebSocket(
     'ws://localhost:8000/ws/codex',
     (data) => {
       if (data?.type === 'glyph_execution') {
-        setEvents((prev) => [data.payload, ...prev.slice(0, 100)]);
+        setEvents((prev) => [{ type: 'glyph', data: data.payload }, ...prev.slice(0, 100)]);
+      } else if (data?.type === 'dimension_tick') {
+        const tick: TickEvent = {
+          type: 'dimension_tick',
+          container: data.container,
+          timestamp: data.timestamp
+        };
+        setEvents((prev) => [{ type: 'tick', data: tick }, ...prev.slice(0, 100)]);
       }
     },
-    ['glyph_execution']
+    ['glyph_execution', 'dimension_tick']
   );
 
   const filteredEvents = events.filter((e) =>
-    e.glyph?.toLowerCase().includes(filter.toLowerCase())
+    e.type === 'glyph'
+      ? e.data.glyph?.toLowerCase().includes(filter.toLowerCase())
+      : true
   );
 
   return (
@@ -90,7 +107,20 @@ export default function CodexHUD() {
         />
 
         <ScrollArea className="h-[240px] pr-2">
-          {filteredEvents.map((log, index) => {
+          {filteredEvents.map((entry, index) => {
+            if (entry.type === 'tick') {
+              const { container, timestamp } = entry.data;
+              return (
+                <div key={index} className="border-b border-white/10 py-1">
+                  <div className="text-sm text-cyan-300 font-mono">
+                    🧱 Tick from <b>{container}</b> at{' '}
+                    <span className="text-white">{new Date(timestamp * 1000).toLocaleTimeString()}</span>
+                  </div>
+                </div>
+              );
+            }
+
+            const log = entry.data;
             const isCostly = log.cost !== undefined && log.cost > COST_WARNING_THRESHOLD;
             const costColor = log.cost === undefined ? '' :
               log.cost > 9 ? 'text-red-500' :
@@ -99,7 +129,6 @@ export default function CodexHUD() {
 
             const operator = extractOperator(log.glyph);
             const operatorLabel = operatorName(operator);
-            const traceColor = log.trace_id ? 'text-cyan-400' : '';
             const operatorColor = operator === '⊕' ? 'text-pink-400' :
                                   operator === '↔' ? 'text-purple-300' :
                                   operator === '→' ? 'text-green-400' :

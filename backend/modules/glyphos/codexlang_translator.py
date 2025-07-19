@@ -13,7 +13,6 @@ def parse_codexlang_string(code_str):
     Converts a symbolic CodexLang string like:
     ⟦ Logic | If: x > 5 → ⊕(Grow, Reflect) ⟧
     Into a structured AST-like dictionary.
-    Supports nested operators.
     """
     try:
         body = code_str.strip("⟦⟧ ").strip()
@@ -35,15 +34,15 @@ def parse_codexlang_string(code_str):
 
 def parse_action_expr(expr):
     """
-    Recursively parses expressions like:
-    ⊕(Grow, ∇(Dream, Reflect))
-    into:
+    Recursively parses nested operator expressions like:
+    ⊕(Grow, ↔(Dream, Reflect))
+    Into:
     {
         "op": "⊕",
         "args": [
             "Grow",
             {
-                "op": "∇",
+                "op": "↔",
                 "args": ["Dream", "Reflect"]
             }
         ]
@@ -76,8 +75,8 @@ def parse_action_expr(expr):
 
 def translate_to_instruction(parsed_glyph, memory=None):
     """
-    Convert parsed structure into an executable function call using dispatch.
-    Supports nested expressions and memory context.
+    Convert parsed structure into an executable tree using dispatch system.
+    Uses symbolic operator functions from the glyph_instruction_set.
     """
     def eval_action(action):
         if isinstance(action, str):
@@ -101,23 +100,23 @@ def translate_to_instruction(parsed_glyph, memory=None):
 
 def run_codexlang_string(glyph_string: str, context: dict = {}):
     """
-    Full loop: parse, interpret, and run CodexLang string using CodexCore.
-    Handles memory, trace, and metrics.
-    Delayed import to avoid circular import error.
+    Full CodexLang runtime: parse, dispatch, and execute symbolic glyph string.
+    Uses CodexCore for actual logic execution.
     """
     from backend.modules.codex.codex_core import CodexCore  # ⬅ Delayed import
     codex = CodexCore()
     return codex.execute(glyph_string, context=context)
 
 
-# Example usage
+# Debug entry point
 if __name__ == "__main__":
-    test = "⟦ Logic | If: x > 5 → ⊕(Grow, ∇(Dream, Reflect)) ⟧"
+    test = "⟦ Goal | Build : GlyphEngine → Strategy ⟧"
+    print("\n[🔍] Parsing:", test)
     parsed = parse_codexlang_string(test)
     print("Parsed AST:", parsed)
-    result = translate_to_instruction(parsed)
-    print("Translated Result:", result)
 
-    # Full runtime
+    translated = translate_to_instruction(parsed)
+    print("Translated Instruction:", translated)
+
     output = run_codexlang_string(test, context={"source": "test"})
     print("CodexCore Output:", output)
