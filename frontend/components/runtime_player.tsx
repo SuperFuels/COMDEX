@@ -1,4 +1,3 @@
-// frontend/components/runtime_player.tsx
 import React, { useEffect, useState, useRef } from 'react';
 import TimelineControls from './AION/TimelineControls';
 
@@ -26,15 +25,13 @@ const RuntimePlayer: React.FC<RuntimePlayerProps> = ({
   useEffect(() => {
     if (isPlaying) {
       intervalRef.current = setInterval(() => {
-        onTickChange((prev) => {
-          const next = prev + 1;
-          if (next >= totalTicks) {
-            clearInterval(intervalRef.current!);
-            setIsPlaying(false);
-            return prev;
-          }
-          return next;
-        });
+        const nextTick = currentTick + 1;
+        if (nextTick >= totalTicks) {
+          clearInterval(intervalRef.current!);
+          setIsPlaying(false);
+        } else {
+          onTickChange(nextTick);
+        }
       }, tickInterval);
     } else if (intervalRef.current) {
       clearInterval(intervalRef.current);
@@ -43,7 +40,7 @@ const RuntimePlayer: React.FC<RuntimePlayerProps> = ({
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [isPlaying, tickInterval, totalTicks]);
+  }, [isPlaying, tickInterval, totalTicks, currentTick, onTickChange]);
 
   const handlePlay = () => setIsPlaying(true);
   const handlePause = () => setIsPlaying(false);
