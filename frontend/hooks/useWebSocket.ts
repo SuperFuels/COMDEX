@@ -1,8 +1,14 @@
 // frontend/hooks/useWebSocket.ts
 import { useEffect, useRef, useState } from 'react';
 
+// ✅ Helper to convert API base URL to WSS endpoint
+function getWssUrl(path: string): string {
+  const base = process.env.NEXT_PUBLIC_API_URL || '';
+  return base.replace(/^http/, 'wss').replace(/\/api$/, '') + path;
+}
+
 export default function useWebSocket(
-  url: string,
+  path: string, // expects relative WebSocket path like "/ws/containers"
   onMessage: (data: any) => void,
   filterEvent?: string[] // optional: only listen to specific events like ['glyph_update']
 ) {
@@ -10,7 +16,8 @@ export default function useWebSocket(
   const [connected, setConnected] = useState(false);
 
   useEffect(() => {
-    const socket = new WebSocket(url);
+    const fullUrl = getWssUrl(path);
+    const socket = new WebSocket(fullUrl);
     socketRef.current = socket;
 
     socket.onopen = () => setConnected(true);
@@ -33,9 +40,8 @@ export default function useWebSocket(
     return () => {
       socket.close();
     };
-  }, [url, onMessage, filterEvent?.join(',')]);
+  }, [path, onMessage, filterEvent?.join(',')]);
 
-  // 🎯 New emit method using the open socket
   const emit = (event: string, data: any) => {
     if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
       socketRef.current.send(JSON.stringify({ event, data }));
@@ -47,6 +53,6 @@ export default function useWebSocket(
   return {
     socket: socketRef.current,
     connected,
-    emit, // 💡 expose emit function here
+    emit,
   };
 }
