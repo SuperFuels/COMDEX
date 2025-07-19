@@ -180,7 +180,7 @@ export default function AvatarRuntimePage() {
 
         <section className="mb-8">
           <h2 className="text-xl font-semibold mb-2">🧬 Tessaris Thought Tree</h2>
-          <TessarisVisualizer />
+          <TessarisVisualizer tree={{ id: "root", symbol: "🌱", children: [] }} />
         </section>
 
         <section className="mb-8">
