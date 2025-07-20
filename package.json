@@ -22,6 +22,7 @@
     "@types/file-saver": "^2.0.7",
     "@types/node": "^24.0.15",
     "@types/react": "^18.0.38",
+    "@types/three": "^0.178.1",
     "hardhat": "^2.26.0"
   },
   "scripts": {
