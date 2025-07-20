@@ -48,7 +48,8 @@ const ContainerStatus = () => {
     let refreshInterval: NodeJS.Timeout;
 
     const initWebSocket = () => {
-      socket = new WebSocket(`ws://${window.location.host}/ws/containers`);
+      const protocol = window.location.protocol === "https:" ? "wss" : "ws";
+      socket = new WebSocket(`${protocol}://${window.location.host}/ws/containers`);
 
       socket.onmessage = (event) => {
         try {

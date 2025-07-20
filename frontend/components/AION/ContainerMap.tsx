@@ -32,7 +32,7 @@ export default function ContainerMap({
 
   const containerRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
-  const { connected } = useWebSocket("ws://localhost:8000/ws", (data: any) => {
+  const { connected } = useWebSocket("/ws", (data: any) => {
     if (data.type === "glyph_update" || data.type === "container_update") {
       console.log("🔁 Real-time event:", data.type);
       fetchContainers();

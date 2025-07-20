@@ -13,12 +13,9 @@ interface ContainerMessage {
   [key: string]: any;
 }
 
-// ✅ Initialize the WebSocket
-const socket = new WebSocket(
-  window.location.protocol === "https:"
-    ? `wss://${window.location.host}/ws/containers`
-    : `ws://${window.location.host}/ws/containers`
-);
+// ✅ Initialize the WebSocket with dynamic protocol
+const protocol = window.location.protocol === "https:" ? "wss" : "ws";
+const socket = new WebSocket(`${protocol}://${window.location.host}/ws/containers`);
 
 // ✅ Listener registry
 const listeners: Array<(msg: ContainerMessage) => void> = [];

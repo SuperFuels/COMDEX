@@ -18,7 +18,7 @@ const GlyphInspector: React.FC<GlyphInspectorProps> = ({ coord, data, onClose, h
     data?.score_breakdown ?? null
   );
 
-  const { emit } = useWebSocket("ws://localhost:8000/ws", () => {}, ["glyph_update"]);
+  const { emit } = useWebSocket("/ws", () => {}, ["glyph_update"]);
 
   const handleChange = (field: string, value: string) => {
     setEditedGlyph({ ...editedGlyph, [field]: value });

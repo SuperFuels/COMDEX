@@ -100,7 +100,8 @@ export default function CommandBar({
           toast.success(`🧠 Saved ${filename}`);
 
           // Trigger WebSocket event or feedback if needed
-          const ws = new WebSocket(`ws://${window.location.host}/ws/containers`);
+          const protocol = window.location.protocol === "https:" ? "wss" : "ws";
+          const ws = new WebSocket(`${protocol}://${window.location.host}/ws/containers`);
           ws.onopen = () => {
             ws.send(JSON.stringify({ event: 'bundle_trigger', id: containerId }));
             ws.close();
