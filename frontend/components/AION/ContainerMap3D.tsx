@@ -12,7 +12,7 @@ interface ContainerInfo {
 }
 
 interface ContainerMap3DProps {
-  containers: ContainerInfo[];
+  containers?: ContainerInfo[];
   activeId?: string;
   onTeleport?: (id: string) => void;
 }
@@ -24,7 +24,17 @@ const getPosition = (index: number, total: number): [number, number, number] => 
   return [Math.cos(angle) * radius, height, Math.sin(angle) * radius];
 };
 
-function ContainerNode({ container, position, active, onClick }: any) {
+function ContainerNode({
+  container,
+  position,
+  active,
+  onClick,
+}: {
+  container: ContainerInfo;
+  position: [number, number, number];
+  active: boolean;
+  onClick: (id: string) => void;
+}) {
   const meshRef = useRef<any>();
 
   useFrame(() => {
@@ -47,12 +57,18 @@ function ContainerNode({ container, position, active, onClick }: any) {
   );
 }
 
-export default function ContainerMap3D({ containers, activeId, onTeleport }: ContainerMap3DProps) {
+export default function ContainerMap3D({
+  containers = [],
+  activeId,
+  onTeleport,
+}: ContainerMap3DProps) {
   const positions = useMemo(() => {
     const posMap: Record<string, [number, number, number]> = {};
-    containers.forEach((c, i) => {
-      posMap[c.id] = getPosition(i, containers.length);
-    });
+    if (Array.isArray(containers)) {
+      containers.forEach((c, i) => {
+        posMap[c.id] = getPosition(i, containers.length);
+      });
+    }
     return posMap;
   }, [containers]);
 
@@ -69,7 +85,7 @@ export default function ContainerMap3D({ containers, activeId, onTeleport }: Con
             container={container}
             position={positions[container.id]}
             active={container.id === activeId}
-            onClick={onTeleport}
+            onClick={onTeleport || (() => {})}
           />
         ))}
 
@@ -78,13 +94,13 @@ export default function ContainerMap3D({ containers, activeId, onTeleport }: Con
             const from = positions[source.id];
             const to = positions[targetId];
             if (!from || !to) return null;
-            const mid = [
+            const mid: [number, number, number] = [
               (from[0] + to[0]) / 2,
               (from[1] + to[1]) / 2,
               (from[2] + to[2]) / 2,
             ];
             return (
-              <mesh key={`${source.id}->${targetId}`} position={mid as [number, number, number]}>
+              <mesh key={`${source.id}->${targetId}`} position={mid}>
                 <cylinderGeometry args={[0.02, 0.02, 1]} />
                 <meshStandardMaterial color="#999" />
               </mesh>
