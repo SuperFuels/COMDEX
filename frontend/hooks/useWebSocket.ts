@@ -2,17 +2,21 @@
 
 import { useEffect, useRef, useState } from 'react'
 
-// ✅ Cleanly transforms NEXT_PUBLIC_API_URL into a valid WebSocket URL
+// ✅ Safely transforms NEXT_PUBLIC_API_URL into a WebSocket URL or falls back
 function getWssUrl(path: string): string {
-  const apiBase = process.env.NEXT_PUBLIC_API_URL || ''
+  if (typeof window === 'undefined') {
+    return '' // SSR-safe
+  }
 
-  const wsProtocol =
-    typeof window !== 'undefined' && window.location.protocol === 'https:' ? 'wss' : 'ws'
+  const wsProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws'
 
-  const cleanedHost = apiBase
-    .replace(/^https?:\/\//, '')       // remove protocol
-    .replace(/\/+api\/?$/, '')         // remove trailing /api or /api/
-    .replace(/\/+$/, '')               // remove trailing slash if any
+  const envBase = process.env.NEXT_PUBLIC_API_URL || ''
+  const cleanedHost = envBase
+    ? envBase
+        .replace(/^https?:\/\//, '')      // remove protocol
+        .replace(/\/+api\/?$/, '')        // strip /api or /api/
+        .replace(/\/+$/, '')              // trailing slash
+    : window.location.host                // fallback to current host
 
   return `${wsProtocol}://${cleanedHost}${path.startsWith('/') ? path : `/${path}`}`
 }
@@ -27,23 +31,28 @@ export default function useWebSocket(
 
   useEffect(() => {
     const url = getWssUrl(path)
+    if (!url) {
+      console.warn('[WebSocket] Skipping connection — invalid or missing URL.')
+      return
+    }
+
     let socket: WebSocket
 
     try {
       socket = new WebSocket(url)
       socketRef.current = socket
     } catch (err) {
-      console.error('[WebSocket] Failed to construct:', err)
+      console.error('[WebSocket] Failed to construct WebSocket:', err)
       return
     }
 
     socket.onopen = () => {
-      console.info(`[WebSocket] Connected: ${url}`)
+      console.info(`[WebSocket] Connected to ${url}`)
       setConnected(true)
     }
 
     socket.onclose = () => {
-      console.warn('[WebSocket] Disconnected:', url)
+      console.warn('[WebSocket] Disconnected from', url)
       setConnected(false)
     }
 
@@ -59,7 +68,7 @@ export default function useWebSocket(
         if (!type || (filterType && !filterType.includes(type))) return
         onMessage(data)
       } catch (err) {
-        console.warn('[WebSocket] Invalid JSON:', err)
+        console.warn('[WebSocket] Invalid JSON message:', err)
       }
     }
 
@@ -72,7 +81,7 @@ export default function useWebSocket(
     if (socketRef.current?.readyState === WebSocket.OPEN) {
       socketRef.current.send(JSON.stringify({ event, ...data }))
     } else {
-      console.warn('[WebSocket] Cannot emit, not open:', event)
+      console.warn('[WebSocket] Cannot emit — socket not open:', event)
     }
   }
 
