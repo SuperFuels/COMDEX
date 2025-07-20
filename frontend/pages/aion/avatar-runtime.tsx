@@ -102,7 +102,12 @@ export default function AvatarRuntimePage() {
   };
 
   useEffect(() => {
-    const ws = new WebSocket("wss://comdex-api-kappa.vercel.app/ws/updates");
+    const apiBase = process.env.NEXT_PUBLIC_API_URL || '';
+    const wsProtocol =
+      typeof window !== 'undefined' && window.location.protocol === 'https:' ? 'wss' : 'ws';
+    const wsBase = apiBase.replace(/^http/, wsProtocol).replace(/\/api\/?$/, '');
+    const ws = new WebSocket(`${wsBase}/ws/updates`);
+
     ws.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
@@ -119,8 +124,10 @@ export default function AvatarRuntimePage() {
         console.error("WebSocket parse error:", err);
       }
     };
+
     ws.onerror = (e) => console.warn("WebSocket error:", e);
     ws.onclose = () => console.log("WebSocket closed");
+
     return () => ws.close();
   }, [cubes]);
 

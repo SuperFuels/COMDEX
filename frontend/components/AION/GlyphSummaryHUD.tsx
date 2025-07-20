@@ -59,7 +59,11 @@ const GlyphSummaryHUD: React.FC<GlyphSummaryHUDProps> = ({ glyphDiff }) => {
   useEffect(() => {
     if (glyphDiff) return;
 
-    const ws = new WebSocket("wss://comdex-api-kappa.vercel.app/ws/updates");
+    const apiBase = process.env.NEXT_PUBLIC_API_URL || '';
+    const wsProtocol =
+      typeof window !== 'undefined' && window.location.protocol === 'https:' ? 'wss' : 'ws';
+    const wsBase = apiBase.replace(/^http/, wsProtocol).replace(/\/api\/?$/, '');
+    const ws = new WebSocket(`${wsBase}/ws/updates`);
 
     ws.onmessage = (event) => {
       try {
@@ -81,10 +85,9 @@ const GlyphSummaryHUD: React.FC<GlyphSummaryHUDProps> = ({ glyphDiff }) => {
       }
     };
 
-    ws.onerror = (e) => console.warn("WS error:", e);
-    ws.onclose = () => console.log("WS closed");
-
-    return () => ws.close();
+    return () => {
+      ws.close();
+    };
   }, [glyphDiff]);
 
   useEffect(() => {

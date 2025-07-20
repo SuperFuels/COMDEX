@@ -15,7 +15,11 @@ const TessarisTracePanel: React.FC = () => {
   const [traces, setTraces] = useState<TraceEntry[]>([]);
 
   useEffect(() => {
-    const ws = new WebSocket("wss://comdex-api-kappa.vercel.app/ws/updates");
+    const apiBase = process.env.NEXT_PUBLIC_API_URL || '';
+    const wsProtocol =
+      typeof window !== "undefined" && window.location.protocol === "https:" ? "wss" : "ws";
+    const wsBase = apiBase.replace(/^http/, wsProtocol).replace(/\/api\/?$/, "");
+    const ws = new WebSocket(`${wsBase}/ws/updates`);
 
     ws.onmessage = (event) => {
       try {
@@ -54,7 +58,9 @@ const TessarisTracePanel: React.FC = () => {
             🔖 <strong>{trace.intent_type}</strong>
           </div>
           {trace.glyph && (
-            <div className="text-sm">🔣 Glyph: <span className="font-mono">{trace.glyph}</span></div>
+            <div className="text-sm">
+              🔣 Glyph: <span className="font-mono">{trace.glyph}</span>
+            </div>
           )}
           {trace.source && (
             <div className="text-sm">
