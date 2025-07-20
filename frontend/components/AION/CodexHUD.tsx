@@ -67,7 +67,7 @@ export default function CodexHUD() {
   const [filter, setFilter] = useState('');
 
   const { connected } = useWebSocket(
-    'ws://localhost:8000/ws/codex',
+    '/ws/codex',
     (data) => {
       if (data?.type === 'glyph_execution') {
         setEvents((prev) => [{ type: 'glyph', data: data.payload }, ...prev.slice(0, 100)]);
