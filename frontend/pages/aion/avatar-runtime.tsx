@@ -47,11 +47,13 @@ export default function AvatarRuntimePage() {
     const removed: string[] = [];
     const changed: string[] = [];
 
-    const allKeys = new Set([...Object.keys(oldCubes), ...Object.keys(newCubes)]);
+    const allKeys = new Set([...Object.keys(oldCubes || {}), ...Object.keys(newCubes || {})]);
 
     for (const key of allKeys) {
-      const oldGlyph = oldCubes[key]?.glyph || "";
-      const newGlyph = newCubes[key]?.glyph || "";
+      const oldCube = oldCubes?.[key] ?? {};
+      const newCube = newCubes?.[key] ?? {};
+      const oldGlyph = oldCube?.glyph ?? "";
+      const newGlyph = newCube?.glyph ?? "";
 
       if (!oldGlyph && newGlyph) added.push(key);
       else if (oldGlyph && !newGlyph) removed.push(key);
@@ -63,9 +65,9 @@ export default function AvatarRuntimePage() {
 
   const fetchSnapshot = async (targetTick: number) => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/aion/glyphs?t=${targetTick}`);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/aion/glyphs?t=${targetTick}`);
       const data = await res.json();
-      if (data.cubes) {
+      if (data?.cubes) {
         setPrevCubes(cubes);
         setCubes(data.cubes);
         const diff = diffGlyphs(cubes, data.cubes);
@@ -115,12 +117,13 @@ export default function AvatarRuntimePage() {
       try {
         const data = JSON.parse(event.data);
         if (data.type === "runtime_tick") {
-          setTick(data.tick);
+          setTick(data.tick ?? 0);
         } else if (data.type === "glyph_update") {
-          setGlyphData(data.glyphs?.[0] || "");
+          setGlyphData(data?.glyphs?.[0] ?? "");
+          const newCubes = data?.cubes ?? {};
           setPrevCubes(cubes);
-          setCubes(data.cubes || {});
-          const diff = diffGlyphs(cubes, data.cubes || {});
+          setCubes(newCubes);
+          const diff = diffGlyphs(cubes, newCubes);
           setGlyphDiff(diff);
         }
       } catch (err) {
@@ -138,7 +141,7 @@ export default function AvatarRuntimePage() {
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/aion/command/registry`)
       .then((res) => res.json())
       .then((data) => {
-        if (data.commands) {
+        if (data?.commands) {
           setPresets(data.commands.map((cmd: any) => cmd.command));
         }
       })
@@ -302,7 +305,6 @@ export default function AvatarRuntimePage() {
         </section>
       </div>
 
-      {/* ✅ Glyph Trigger Editor Sidebar */}
       <div className="w-96 border-l border-gray-300 bg-white shadow-inner flex flex-col overflow-y-auto">
         <GlyphTriggerEditor />
         <div className="border-t border-gray-200 mt-4 pt-4">
