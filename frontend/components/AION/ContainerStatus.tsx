@@ -1,5 +1,3 @@
-// File: frontend/components/AION/ContainerStatus.tsx
-
 import React, { useEffect, useState } from "react";
 
 type Container = {
@@ -12,6 +10,9 @@ type Container = {
   nav?: Record<string, string>; // nav structure: { north: "id2", south: "id3" }
 };
 
+// ✅ Ensure NEXT_PUBLIC_API_URL ends cleanly and doesn’t double up /api
+const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "").replace(/\/api\/?$/, "");
+
 const ContainerStatus = () => {
   const [containers, setContainers] = useState<Container[]>([]);
   const [autoRefresh, setAutoRefresh] = useState(true);
@@ -19,7 +20,7 @@ const ContainerStatus = () => {
 
   const fetchContainers = async () => {
     try {
-      const res = await fetch("/api/aion/containers");
+      const res = await fetch(`${API_BASE}/api/aion/containers`);
       const data = await res.json();
       if (Array.isArray(data.containers)) {
         setContainers(data.containers);
@@ -32,10 +33,9 @@ const ContainerStatus = () => {
   const uploadBundle = async (id: string) => {
     setUploadingId(id);
     try {
-      const res = await fetch(`/api/aion/bundle/${id}`);
+      const res = await fetch(`${API_BASE}/api/aion/bundle/${id}`);
       const data = await res.json();
       console.log("Bundle result:", data);
-      // Optional: show toast, trigger save, or auto-download
     } catch (e) {
       console.error("Bundle error:", e);
     } finally {
@@ -82,7 +82,7 @@ const ContainerStatus = () => {
   }, [autoRefresh]);
 
   const teleportTo = (id: string) => {
-    fetch("/api/aion/command", {
+    fetch(`${API_BASE}/api/aion/command`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ command: `teleport ${id}` }),

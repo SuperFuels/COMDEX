@@ -138,7 +138,7 @@ export default function AvatarRuntimePage() {
   }, [cubes]);
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/aion/command/registry`)
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/aion/command/registry`)
       .then((res) => res.json())
       .then((data) => {
         if (data?.commands) {
@@ -160,7 +160,7 @@ export default function AvatarRuntimePage() {
     if (!input.trim()) return;
     setLoading(true);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/aion/command`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/aion/command`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ command: input }),

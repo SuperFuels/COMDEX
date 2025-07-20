@@ -141,7 +141,7 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
   useEffect(() => {
     const fetchCommands = async () => {
       try {
-        const res = await fetch('/api/aion/command/registry');
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/aion/command/registry`);
         const data = await res.json();
         if (Array.isArray(data)) {
           setAvailableCommands(data);

@@ -38,36 +38,42 @@ type EventLog = { type: 'glyph'; data: GlyphEvent } | { type: 'tick'; data: Tick
 
 const COST_WARNING_THRESHOLD = 7;
 
+const OPERATOR_LABELS: Record<string, string> = {
+  '⊕': 'AND',
+  '↔': 'EQUIVALENCE',
+  '→': 'TRIGGER',
+  '⟲': 'MUTATE',
+  '∇': 'COMPRESS',
+  '⧖': 'DELAY',
+  '✦': 'MILESTONE'
+};
+
+const OPERATOR_COLORS: Record<string, string> = {
+  '⊕': 'text-pink-400',
+  '↔': 'text-purple-300',
+  '→': 'text-green-400',
+  '⟲': 'text-orange-300',
+  '∇': 'text-blue-300',
+  '⧖': 'text-yellow-500',
+  '✦': 'text-cyan-300'
+};
+
 function extractOperator(glyph: string): string | null {
-  if (glyph.includes('⊕')) return '⊕';
-  if (glyph.includes('↔')) return '↔';
-  if (glyph.includes('→')) return '→';
-  if (glyph.includes('⟲')) return '⟲';
-  if (glyph.includes('∇')) return '∇';
-  if (glyph.includes('⧖')) return '⧖';
-  if (glyph.includes('✦')) return '✦';
-  return null;
+  return Object.keys(OPERATOR_LABELS).find((op) => glyph.includes(op)) || null;
 }
 
 function operatorName(op: string | null): string {
-  switch (op) {
-    case '⊕': return 'AND';
-    case '↔': return 'EQUIVALENCE';
-    case '→': return 'TRIGGER';
-    case '⟲': return 'MUTATE';
-    case '∇': return 'COMPRESS';
-    case '⧖': return 'DELAY';
-    case '✦': return 'MILESTONE';
-    default: return '';
-  }
+  return op ? OPERATOR_LABELS[op] || '' : '';
 }
 
 export default function CodexHUD() {
   const [events, setEvents] = useState<EventLog[]>([]);
   const [filter, setFilter] = useState('');
 
+  const wsUrl = `${process.env.NEXT_PUBLIC_WS_URL || ''}/ws/codex`;
+
   const { connected } = useWebSocket(
-    '/ws/codex',
+    wsUrl,
     (data) => {
       if (data?.type === 'glyph_execution') {
         setEvents((prev) => [{ type: 'glyph', data: data.payload }, ...prev.slice(0, 100)]);
@@ -111,7 +117,7 @@ export default function CodexHUD() {
             if (entry.type === 'tick') {
               const { container, timestamp } = entry.data;
               return (
-                <div key={index} className="border-b border-white/10 py-1">
+                <div key={`tick-${container}-${timestamp}`} className="border-b border-white/10 py-1">
                   <div className="text-sm text-cyan-300 font-mono">
                     🧱 Tick from <b>{container}</b> at{' '}
                     <span className="text-white">
@@ -124,23 +130,20 @@ export default function CodexHUD() {
 
             const log = entry.data;
             const isCostly = log.cost !== undefined && log.cost > COST_WARNING_THRESHOLD;
-            const costColor = log.cost === undefined ? '' :
+            const costColor =
+              log.cost === undefined ? '' :
               log.cost > 9 ? 'text-red-500' :
               log.cost > 7 ? 'text-orange-400' :
               log.cost > 4 ? 'text-yellow-300' : 'text-green-300';
 
             const operator = extractOperator(log.glyph);
             const operatorLabel = operatorName(operator);
-            const operatorColor = operator === '⊕' ? 'text-pink-400' :
-                                  operator === '↔' ? 'text-purple-300' :
-                                  operator === '→' ? 'text-green-400' :
-                                  operator === '⟲' ? 'text-orange-300' :
-                                  operator === '∇' ? 'text-blue-300' :
-                                  operator === '⧖' ? 'text-yellow-500' :
-                                  operator === '✦' ? 'text-cyan-300' : 'text-white';
+            const operatorColor = operator ? OPERATOR_COLORS[operator] || 'text-white' : 'text-white';
+
+            const key = `${log.glyph}-${log.timestamp || index}`;
 
             return (
-              <div key={index} className="border-b border-white/10 py-1">
+              <div key={key} className="border-b border-white/10 py-1">
                 <div className={`text-sm font-mono ${operatorColor}`}>
                   ⟦ {log.glyph} ⟧ → <span className="text-green-400">{log.action}</span>
 
