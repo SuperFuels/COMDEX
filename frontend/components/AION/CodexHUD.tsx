@@ -114,7 +114,9 @@ export default function CodexHUD() {
                 <div key={index} className="border-b border-white/10 py-1">
                   <div className="text-sm text-cyan-300 font-mono">
                     🧱 Tick from <b>{container}</b> at{' '}
-                    <span className="text-white">{new Date(timestamp * 1000).toLocaleTimeString()}</span>
+                    <span className="text-white">
+                      {timestamp ? new Date(timestamp * 1000).toLocaleTimeString() : 'N/A'}
+                    </span>
                   </div>
                 </div>
               );
@@ -132,7 +134,10 @@ export default function CodexHUD() {
             const operatorColor = operator === '⊕' ? 'text-pink-400' :
                                   operator === '↔' ? 'text-purple-300' :
                                   operator === '→' ? 'text-green-400' :
-                                  operator === '⟲' ? 'text-orange-300' : 'text-white';
+                                  operator === '⟲' ? 'text-orange-300' :
+                                  operator === '∇' ? 'text-blue-300' :
+                                  operator === '⧖' ? 'text-yellow-500' :
+                                  operator === '✦' ? 'text-cyan-300' : 'text-white';
 
             return (
               <div key={index} className="border-b border-white/10 py-1">
@@ -162,7 +167,9 @@ export default function CodexHUD() {
 
                 <div className="text-xs text-white/60 flex justify-between">
                   <span>{log.source || 'Unknown Source'}</span>
-                  <span>{new Date(log.timestamp * 1000).toLocaleTimeString()}</span>
+                  <span>
+                    {log.timestamp ? new Date(log.timestamp * 1000).toLocaleTimeString() : 'Unknown Time'}
+                  </span>
                 </div>
 
                 {log.cost !== undefined && (
