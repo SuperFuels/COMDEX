@@ -6,28 +6,35 @@ import api from '@/lib/api'
 
 export default function GlyphSynthesisPage() {
   const [inputText, setInputText] = useState('')
-  const [glyphs, setGlyphs] = useState<string[] | null>(null)
+  const [glyphs, setGlyphs] = useState<any[] | null>(null)
   const [status, setStatus] = useState<'idle' | 'loading' | 'done' | 'error'>('idle')
   const [injectToContainer, setInjectToContainer] = useState(true)
-  const [glyphTags, setGlyphTags] = useState('')
   const [sourceLabel, setSourceLabel] = useState('manual')
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   const handleSynthesize = async () => {
     setStatus('loading')
+    setErrorMessage(null)
     try {
       const res = await api.post('/aion/synthesize-glyphs', {
         input: inputText,
         source: sourceLabel,
-        inject: injectToContainer,
-        tags: glyphTags
-          .split(',')
-          .map(tag => tag.trim())
-          .filter(Boolean),
+        inject_to_grid: injectToContainer,
+        container: 'glyph_synthesis_lab.dc.json'
       })
-      setGlyphs(res.data.glyphs || [])
-      setStatus('done')
+
+      if (res.data.success) {
+        setGlyphs(res.data.glyphs || [])
+        setStatus('done')
+      } else {
+        console.warn('Synthesis API returned error:', res.data.error)
+        setGlyphs(res.data.glyphs || [])
+        setErrorMessage(res.data.error || 'Unknown synthesis error')
+        setStatus('error')
+      }
     } catch (err) {
-      console.error('Synthesis failed', err)
+      console.error('Synthesis request failed:', err)
+      setErrorMessage('Network or server error')
       setStatus('error')
     }
   }
@@ -52,13 +59,6 @@ export default function GlyphSynthesisPage() {
           />
 
           <div className="flex flex-wrap gap-4 items-center">
-            <input
-              type="text"
-              placeholder="Optional tags (comma-separated)"
-              value={glyphTags}
-              onChange={e => setGlyphTags(e.target.value)}
-              className="flex-1 min-w-[200px] p-2 border border-gray-300 rounded-lg text-sm dark:bg-gray-800 dark:text-white dark:border-gray-600"
-            />
             <select
               value={sourceLabel}
               onChange={e => setSourceLabel(e.target.value)}
@@ -87,7 +87,7 @@ export default function GlyphSynthesisPage() {
           </div>
         </div>
 
-        {status === 'done' && glyphs && (
+        {(status === 'done' || (status === 'error' && glyphs)) && glyphs && (
           <div className="mt-6 space-y-2">
             <h2 className="text-xl font-semibold">Generated Glyphs:</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
@@ -96,15 +96,22 @@ export default function GlyphSynthesisPage() {
                   key={i}
                   className="p-3 border rounded-lg bg-white dark:bg-gray-800 dark:border-gray-700 text-center"
                 >
-                  <code className="block text-lg">{glyph}</code>
+                  <code className="block text-lg">{glyph.symbol ?? glyph}</code>
+                  {glyph.meaning && (
+                    <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                      {glyph.meaning}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
           </div>
         )}
 
-        {status === 'error' && (
-          <div className="text-red-500 font-medium">Something went wrong during synthesis.</div>
+        {status === 'error' && !glyphs && (
+          <div className="text-red-500 font-medium">
+            Synthesis failed: {errorMessage ?? 'Unexpected error'}
+          </div>
         )}
 
         <div className="pt-8 text-right">
