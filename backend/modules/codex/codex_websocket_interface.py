@@ -105,3 +105,7 @@ async def codex_ws_handler(websocket: WebSocket):
     except WebSocketDisconnect:
         connected_clients.discard(websocket)
         print("🔌 Codex WebSocket disconnected")
+
+# ✅ Minimal stub for FastAPI import compatibility
+async def start_codex_ws_server(websocket: WebSocket):
+    await codex_ws_handler(websocket)
