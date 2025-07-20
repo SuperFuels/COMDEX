@@ -59,10 +59,10 @@ const GlyphSummaryHUD: React.FC<GlyphSummaryHUDProps> = ({ glyphDiff }) => {
   useEffect(() => {
     if (glyphDiff) return;
 
-    const apiBase = process.env.NEXT_PUBLIC_API_URL || '';
+    const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "").replace(/\/api\/?$/, "");
     const wsProtocol =
       typeof window !== 'undefined' && window.location.protocol === 'https:' ? 'wss' : 'ws';
-    const wsBase = apiBase.replace(/^http/, wsProtocol).replace(/\/api\/?$/, '');
+    const wsBase = API_BASE.replace(/^http/, wsProtocol).replace(/\/api\/?$/, '');
     const ws = new WebSocket(`${wsBase}/ws/updates`);
 
     ws.onmessage = (event) => {

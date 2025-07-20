@@ -39,7 +39,7 @@ export default function useAION(side: 'left' | 'right', label: string = 'AION Te
 
   const syncMessagesToBackend = async () => {
     try {
-      await axios.post('/api/aion/sync-messages', { messages });
+      await axios.post('/aion/sync-messages', { messages });
     } catch (err: any) {
       append('system', `⚠️ Failed to sync messages: ${err.message}`, 'error');
     }
@@ -79,7 +79,7 @@ export default function useAION(side: 'left' | 'right', label: string = 'AION Te
     setLoading(true);
 
     try {
-      const res = await axios.post('/api/aion/command', {
+      const res = await axios.post('/aion/command', {
         command,
         side,
         label,
@@ -165,7 +165,7 @@ export default function useAION(side: 'left' | 'right', label: string = 'AION Te
 
   const fetchCommandRegistry = async () => {
     try {
-      const res = await axios.get('/api/aion/command/registry');
+      const res = await axios.get('/aion/command/registry');
       const commands = res.data.commands || [];
       setAvailableCommands(commands);
     } catch (err: any) {
