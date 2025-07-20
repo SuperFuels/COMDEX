@@ -12,8 +12,8 @@ steps:
       - "-c"
       - |
         cd frontend
-        npm install
-        npm run build
+        yarn install --frozen-lockfile
+        yarn build
 
   # ─── 1) Build Docker image ──────────────────────────────────────────
   - id: "docker-build"
