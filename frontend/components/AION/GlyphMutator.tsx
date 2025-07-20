@@ -1,3 +1,4 @@
+'use client'
 import React, { useState, useEffect } from "react";
 
 interface GlyphMutatorProps {
@@ -31,16 +32,19 @@ export default function GlyphMutator({
     setError(null);
 
     try {
-      const res = await fetch("/api/aion/submit-mutation", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          from_container: containerId,
-          coord: coord,
-          logic_before: originalGlyph,
-          logic_after: editedGlyph,
-        }),
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/aion/submit-mutation`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            from_container: containerId,
+            coord: coord,
+            logic_before: originalGlyph,
+            logic_after: editedGlyph,
+          }),
+        }
+      );
 
       const result = await res.json();
       if (!res.ok) {
@@ -48,7 +52,7 @@ export default function GlyphMutator({
         setError(result.detail || "Unknown error");
       } else {
         setStatus("success");
-        onMutationComplete(); // signal update
+        onMutationComplete();
       }
     } catch (err: any) {
       setStatus("error");

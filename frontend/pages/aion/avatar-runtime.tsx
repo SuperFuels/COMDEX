@@ -1,4 +1,4 @@
-// avatar-runtime.tsx
+// pages/aion/avatar-runtime.tsx
 
 import React, { useEffect, useState, useRef } from "react";
 import ContainerStatus from "@/components/AION/ContainerStatus";
@@ -17,13 +17,20 @@ import GlyphCompressorPanel from "@/components/AION/GlyphCompressorPanel";
 
 type ViewMode = "top-down" | "3d-symbolic" | "glyph-logic";
 
+const getWssUrl = (path: string) => {
+  const apiBase = process.env.NEXT_PUBLIC_API_URL || '';
+  const wsProtocol = typeof window !== 'undefined' && window.location.protocol === 'https:' ? 'wss' : 'ws';
+  const base = apiBase.replace(/^https?:\/\//, `${wsProtocol}://`).replace(/\/api\/?$/, '');
+  return `${base}${path}`;
+};
+
 export default function AvatarRuntimePage() {
   const [tick, setTick] = useState(0);
   const [glyphData, setGlyphData] = useState<string>("");
   const [cubes, setCubes] = useState<Record<string, any>>({});
   const [prevCubes, setPrevCubes] = useState<Record<string, any>>({});
   const [glyphDiff, setGlyphDiff] = useState<any>(null);
-  const [coord, setCoord] = useState<{ x: number; y: number; z: number; t: number }>({ x: 0, y: 0, z: 0, t: 0 });
+  const [coord, setCoord] = useState({ x: 0, y: 0, z: 0, t: 0 });
   const [loading, setLoading] = useState(false);
   const [input, setInput] = useState("");
   const [presets, setPresets] = useState<string[]>([]);
@@ -56,7 +63,7 @@ export default function AvatarRuntimePage() {
 
   const fetchSnapshot = async (targetTick: number) => {
     try {
-      const res = await fetch(`/api/aion/glyphs?t=${targetTick}`);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/aion/glyphs?t=${targetTick}`);
       const data = await res.json();
       if (data.cubes) {
         setPrevCubes(cubes);
@@ -102,11 +109,7 @@ export default function AvatarRuntimePage() {
   };
 
   useEffect(() => {
-    const apiBase = process.env.NEXT_PUBLIC_API_URL || '';
-    const wsProtocol =
-      typeof window !== 'undefined' && window.location.protocol === 'https:' ? 'wss' : 'ws';
-    const wsBase = apiBase.replace(/^http/, wsProtocol).replace(/\/api\/?$/, '');
-    const ws = new WebSocket(`${wsBase}/ws/updates`);
+    const ws = new WebSocket(getWssUrl("/ws/updates"));
 
     ws.onmessage = (event) => {
       try {
@@ -132,7 +135,7 @@ export default function AvatarRuntimePage() {
   }, [cubes]);
 
   useEffect(() => {
-    fetch("/api/aion/command/registry")
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/aion/command/registry`)
       .then((res) => res.json())
       .then((data) => {
         if (data.commands) {
@@ -154,7 +157,7 @@ export default function AvatarRuntimePage() {
     if (!input.trim()) return;
     setLoading(true);
     try {
-      const res = await fetch("/api/aion/command", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/aion/command`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ command: input }),

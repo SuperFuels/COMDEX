@@ -15,7 +15,7 @@ export default function GlyphSynthesisPage() {
   const handleSynthesize = async () => {
     setStatus('loading')
     try {
-      const res = await api.post('/api/aion/synthesize-glyphs', {
+      const res = await api.post('/aion/synthesize-glyphs', {
         input: inputText,
         source: sourceLabel,
         inject: injectToContainer,
@@ -107,7 +107,6 @@ export default function GlyphSynthesisPage() {
           <div className="text-red-500 font-medium">Something went wrong during synthesis.</div>
         )}
 
-        {/* 🔗 Link to live GlyphGrid + HUD view */}
         <div className="pt-8 text-right">
           <a
             href="/aion/avatar-runtime"
