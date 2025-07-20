@@ -2,47 +2,48 @@
 
 import { useEffect, useRef, useState } from 'react'
 
-// ✅ Safely transforms NEXT_PUBLIC_API_URL into a WebSocket URL or falls back
+// ✅ Builds fallback WebSocket URL from API if NEXT_PUBLIC_SOCKET_URL is missing
 function getWssUrl(path: string): string {
-  if (typeof window === 'undefined') {
-    return '' // SSR-safe
-  }
+  if (typeof window === 'undefined') return ''
 
   const wsProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws'
-
   const envBase = process.env.NEXT_PUBLIC_API_URL || ''
   const cleanedHost = envBase
     ? envBase
-        .replace(/^https?:\/\//, '')      // remove protocol
-        .replace(/\/+api\/?$/, '')        // strip /api or /api/
-        .replace(/\/+$/, '')              // trailing slash
-    : window.location.host                // fallback to current host
+        .replace(/^https?:\/\//, '')       // remove http/https
+        .replace(/\/+api\/?$/, '')         // strip trailing /api
+        .replace(/\/+$/, '')               // remove trailing slashes
+    : window.location.host                 // fallback to current origin
 
   return `${wsProtocol}://${cleanedHost}${path.startsWith('/') ? path : `/${path}`}`
 }
 
 export default function useWebSocket(
-  path: string, // e.g. "/ws/codex"
+  path: string,                      // e.g. "/ws/codex"
   onMessage: (data: any) => void,
-  filterType?: string[]
+  filterType?: string[]              // optionally restrict to certain event types
 ) {
   const socketRef = useRef<WebSocket | null>(null)
   const [connected, setConnected] = useState(false)
 
   useEffect(() => {
-    const url = getWssUrl(path)
+    const url = process.env.NEXT_PUBLIC_SOCKET_URL || getWssUrl(path)
+
     if (!url) {
-      console.warn('[WebSocket] Skipping connection — invalid or missing URL.')
+      console.warn('[WebSocket] Skipping connection — no valid URL.')
       return
     }
 
-    let socket: WebSocket
+    if (url.startsWith('ws://localhost')) {
+      console.warn('[WebSocket] Warning: using local ws://localhost connection.')
+    }
 
+    let socket: WebSocket
     try {
       socket = new WebSocket(url)
       socketRef.current = socket
     } catch (err) {
-      console.error('[WebSocket] Failed to construct WebSocket:', err)
+      console.error('[WebSocket] Failed to connect:', err)
       return
     }
 
@@ -68,7 +69,7 @@ export default function useWebSocket(
         if (!type || (filterType && !filterType.includes(type))) return
         onMessage(data)
       } catch (err) {
-        console.warn('[WebSocket] Invalid JSON message:', err)
+        console.warn('[WebSocket] Received invalid JSON:', err)
       }
     }
 
