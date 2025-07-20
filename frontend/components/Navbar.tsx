@@ -187,34 +187,12 @@ export default function Navbar() {
                 <span>Map</span>
               </Link>
 
-            {/* ✅ Conscious Engine */}
-            <Link
-              href="/conscious_engine.html"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center space-x-1 py-1 px-3 border border-purple-500 text-purple-600 rounded-lg bg-white dark:bg-gray-900 text-sm hover:bg-purple-50 dark:hover:bg-gray-800 focus:outline-none transition"
-            >
-              <Image src="/cube.svg" alt="Map" width={16} height={16} />
-              <span>Map</span>
-            </Link>
-
             <Link
               href="/aion/glyph-synthesis"
               className="flex items-center space-x-1 py-1 px-3 border border-yellow-500 text-yellow-600 rounded-lg bg-white dark:bg-gray-900 text-sm hover:bg-yellow-50 dark:hover:bg-gray-800 focus:outline-none transition"
             >
               <Image src="/spark.svg" alt="Compress" width={16} height={16} />
               <span>Compress</span>
-            </Link>
-
-            {/* ✅ Tessaris */}
-            <Link
-              href="/tessaris.html"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center space-x-1 py-1 px-3 border border-purple-500 text-purple-600 rounded-lg bg-white dark:bg-gray-900 text-sm hover:bg-purple-50 dark:hover:bg-gray-800 focus:outline-none transition"
-            >
-              <Image src="/cube.svg" alt="Map" width={16} height={16} />
-              <span>Map</span>
             </Link>
 
             {/* ✅ Avatar Runtime */}
@@ -233,17 +211,6 @@ export default function Navbar() {
             >
               <Image src="/hud.svg" alt="HUD" width={16} height={16} />
               <span>Codex HUD</span>
-            </Link>
-
-            {/* ✅ World Map */}
-            <Link
-              href="/world-map.html"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center space-x-1 py-1 px-3 border border-green-500 text-green-600 rounded-lg bg-white dark:bg-gray-900 text-sm hover:bg-green-50 dark:hover:bg-gray-800 focus:outline-none transition"
-            >
-              <Image src="/aion-icon.svg" alt="World" width={16} height={16} />
-              <span>World</span>
             </Link>
 
             <button
