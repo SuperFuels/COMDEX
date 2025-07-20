@@ -198,10 +198,6 @@ app.include_router(codex_ws.router)
 app.include_router(aion_tessaris_intents.router, prefix="/api")
 app.include_router(ws_codex_interface.router)
 
-@app.on_event("startup")
-async def start_codex_websocket():
-    asyncio.create_task(start_codex_ws_server())
-
 # ── 16) Serve uploaded images
 app.mount("/uploaded_images", StaticFiles(directory="uploaded_images"), name="uploaded_images")
 
