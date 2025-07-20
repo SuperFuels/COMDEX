@@ -3,6 +3,10 @@
 import { useState } from 'react'
 import Head from 'next/head'
 import api from '@/lib/api'
+import dynamic from 'next/dynamic'
+
+// Lazy-load the 3D component to avoid SSR issues
+const GlyphGrid3D = dynamic(() => import('@/components/AION/GlyphGrid3D'), { ssr: false })
 
 export default function GlyphSynthesisPage() {
   const [inputText, setInputText] = useState('')
@@ -37,6 +41,13 @@ export default function GlyphSynthesisPage() {
       setErrorMessage('Network or server error')
       setStatus('error')
     }
+  }
+
+  const testCubes = {
+    "0,0,0": { glyph: "🧠", age_ms: 1000 },
+    "1,0,0": { glyph: "⚙", denied: true },
+    "-1,1,0": { glyph: "🌐", age_ms: 5000 },
+    "0,1,1": { glyph: "✦" },
   }
 
   return (
@@ -113,6 +124,15 @@ export default function GlyphSynthesisPage() {
             Synthesis failed: {errorMessage ?? 'Unexpected error'}
           </div>
         )}
+
+        {/* 🔁 3D Glyph Preview */}
+        <div className="mt-12">
+          <h2 className="text-xl font-bold mb-2">🧱 3D Glyph Grid Preview</h2>
+          <GlyphGrid3D
+            cubes={testCubes}
+            onGlyphClick={(coord, data) => console.log("Clicked glyph:", coord, data)}
+          />
+        </div>
 
         <div className="pt-8 text-right">
           <a
