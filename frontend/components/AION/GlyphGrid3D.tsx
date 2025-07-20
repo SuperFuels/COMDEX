@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useMemo } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Html } from "@react-three/drei";
@@ -18,8 +20,17 @@ const getColor = (glyph: string, age_ms?: number, denied?: boolean) => {
   return "#e5e7eb"; // default gray
 };
 
-const GlyphCube = ({ x, y, z, coord, data, onClick }: any) => {
-  const color = getColor(data.glyph, data.age_ms, data.denied);
+const GlyphCube = ({
+  x, y, z, coord, data, onClick,
+}: {
+  x: number;
+  y: number;
+  z: number;
+  coord: string;
+  data: { glyph?: string; age_ms?: number; denied?: boolean };
+  onClick?: (coord: string, data: any) => void;
+}) => {
+  const color = getColor(data.glyph || "", data.age_ms, data.denied);
   const label = data.glyph || "";
 
   return (
@@ -44,7 +55,17 @@ const GlyphGrid3D: React.FC<GlyphGrid3DProps> = ({ cubes, onGlyphClick }) => {
   const glyphCubes = useMemo(() => {
     return Object.entries(cubes).map(([coord, data]) => {
       const [x, y, z] = coord.split(",").map(Number);
-      return <GlyphCube key={coord} x={x} y={y} z={z} coord={coord} data={data} onClick={onGlyphClick} />;
+      return (
+        <GlyphCube
+          key={coord}
+          x={x}
+          y={y}
+          z={z}
+          coord={coord}
+          data={data}
+          onClick={onGlyphClick}
+        />
+      );
     });
   }, [cubes, onGlyphClick]);
 

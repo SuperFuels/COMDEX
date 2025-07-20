@@ -5,7 +5,7 @@ import Head from 'next/head'
 import api from '@/lib/api'
 import dynamic from 'next/dynamic'
 
-// Lazy-load the 3D component to avoid SSR issues
+// ✅ Lazy-load the 3D component to avoid SSR issues
 const GlyphGrid3D = dynamic(() => import('@/components/AION/GlyphGrid3D'), { ssr: false })
 
 export default function GlyphSynthesisPage() {
@@ -24,7 +24,7 @@ export default function GlyphSynthesisPage() {
         input: inputText,
         source: sourceLabel,
         inject_to_grid: injectToContainer,
-        container: 'glyph_synthesis_lab.dc.json'
+        container: 'glyph_synthesis_lab.dc.json',
       })
 
       if (res.data.success) {
@@ -43,6 +43,7 @@ export default function GlyphSynthesisPage() {
     }
   }
 
+  // 🔬 Demo cubes for 3D glyph grid
   const testCubes = {
     "0,0,0": { glyph: "🧠", age_ms: 1000 },
     "1,0,0": { glyph: "⚙", denied: true },
@@ -60,19 +61,20 @@ export default function GlyphSynthesisPage() {
           <span>🧬 Glyph Synthesis Lab</span>
         </h1>
 
+        {/* 🔤 Input Panel */}
         <div className="space-y-4">
           <textarea
             className="w-full p-4 text-sm border border-gray-300 rounded-lg shadow-sm dark:bg-gray-800 dark:text-white dark:border-gray-600"
             rows={10}
             placeholder="Enter reflection, thought, or symbolic text to compress into glyphs..."
             value={inputText}
-            onChange={e => setInputText(e.target.value)}
+            onChange={(e) => setInputText(e.target.value)}
           />
 
           <div className="flex flex-wrap gap-4 items-center">
             <select
               value={sourceLabel}
-              onChange={e => setSourceLabel(e.target.value)}
+              onChange={(e) => setSourceLabel(e.target.value)}
               className="p-2 border border-gray-300 rounded-lg text-sm dark:bg-gray-800 dark:text-white dark:border-gray-600"
             >
               <option value="manual">Manual</option>
@@ -83,7 +85,7 @@ export default function GlyphSynthesisPage() {
               <input
                 type="checkbox"
                 checked={injectToContainer}
-                onChange={e => setInjectToContainer(e.target.checked)}
+                onChange={(e) => setInjectToContainer(e.target.checked)}
                 className="form-checkbox"
               />
               <span className="text-sm">Inject into container</span>
@@ -98,6 +100,7 @@ export default function GlyphSynthesisPage() {
           </div>
         </div>
 
+        {/* 🧩 Glyph Results */}
         {(status === 'done' || (status === 'error' && glyphs)) && glyphs && (
           <div className="mt-6 space-y-2">
             <h2 className="text-xl font-semibold">Generated Glyphs:</h2>
@@ -125,7 +128,7 @@ export default function GlyphSynthesisPage() {
           </div>
         )}
 
-        {/* 🔁 3D Glyph Preview */}
+        {/* 🧱 3D Glyph Grid Preview */}
         <div className="mt-12">
           <h2 className="text-xl font-bold mb-2">🧱 3D Glyph Grid Preview</h2>
           <GlyphGrid3D
@@ -134,6 +137,7 @@ export default function GlyphSynthesisPage() {
           />
         </div>
 
+        {/* ➡️ Runtime Viewer Link */}
         <div className="pt-8 text-right">
           <a
             href="/aion/avatar-runtime"
