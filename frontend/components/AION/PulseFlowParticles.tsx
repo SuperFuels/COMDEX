@@ -3,6 +3,7 @@
 import React, { useRef, useMemo } from "react";
 import { useFrame } from "@react-three/fiber";
 import { BufferGeometry, Points, PointsMaterial, Vector3 } from "three";
+import * as THREE from "three";
 
 interface PulseFlowProps {
   start: [number, number, number];
