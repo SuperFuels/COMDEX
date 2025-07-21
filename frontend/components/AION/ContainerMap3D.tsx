@@ -115,7 +115,27 @@ export default function ContainerMap3D({
           />
         ))}
 
-        <WormholeRenderer containers={containers} positions={positions} />
+        {containers.flatMap((container) =>
+          (container.connected || []).map((link) => {
+            const from = positions[container.id];
+            const to = positions[link];
+            if (!from || !to) return null;
+
+            return (
+              <WormholeRenderer
+                key={`${container.id}->${link}`}
+                from={from}
+                to={to}
+                color="#66f"
+                thickness={0.025}
+                glyph="↔"
+                mode="glow"
+                pulse
+                pulseFlow
+              />
+            );
+          })
+        )}
       </Canvas>
     </div>
   );
