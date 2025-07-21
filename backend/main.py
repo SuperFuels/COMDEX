@@ -128,7 +128,6 @@ from backend.api.aion import get_memory_trace
 from backend.api.aion import bundle_container  
 from backend.routes import aion_glyph_trigger_log
 from backend.modules.codex.codex_websocket_interface import start_codex_ws_server
-from backend.routes.ws import codex_ws
 from backend.routes import aion_tessaris_intents
 from backend.routes import ws_codex_interface
 from backend.routes import aion_synthesize_glyphs  # ✅ CORRECT
@@ -194,7 +193,6 @@ app.include_router(memory_trace_router, tags=["AION Traces"])
 app.include_router(get_memory_trace.router)
 app.include_router(bundle_container.router)
 app.include_router(aion_glyph_trigger_log.router)
-app.include_router(codex_ws.router)
 app.include_router(aion_tessaris_intents.router, prefix="/api")
 app.include_router(ws_codex_interface.router)
 app.include_router(aion_synthesize_glyphs.router)
