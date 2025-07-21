@@ -195,6 +195,14 @@ export default function Navbar() {
               <span>Compress</span>
             </Link>
 
+            <Link
+              href="/aion/multiverse"
+              className="flex items-center space-x-1 py-1 px-3 border border-purple-500 text-purple-600 rounded-lg bg-white dark:bg-gray-900 text-sm hover:bg-purple-50 dark:hover:bg-gray-800 focus:outline-none transition"
+            >
+              <Image src="/universe.svg" alt="Multiverse" width={16} height={16} />
+              <span>Multiverse</span>
+            </Link>
+
             {/* ✅ Avatar Runtime */}
             <Link
               href="/aion/avatar-runtime"
