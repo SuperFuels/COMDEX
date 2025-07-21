@@ -1,9 +1,10 @@
 // File: frontend/components/AION/ContainerMap3D.tsx
 
-import React, { useRef, useMemo } from "react";
+import React, { useRef, useMemo, useState, useEffect } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, Html } from "@react-three/drei";
 import WormholeRenderer from "./WormholeRenderer";
+import GlyphSprite from "./GlyphSprite";
 
 interface ContainerInfo {
   id: string;
@@ -20,6 +21,12 @@ interface ContainerMap3DProps {
   layout?: "ring" | "grid" | "sphere";
   onTeleport?: (id: string) => void;
 }
+
+const dummyContainers: ContainerInfo[] = [
+  { id: "A", name: "Alpha", in_memory: true, connected: ["B"], glyph: "🌐" },
+  { id: "B", name: "Beta", in_memory: false, connected: ["A", "C"], glyph: "💠" },
+  { id: "C", name: "Gamma", in_memory: true, connected: ["B"], glyph: "✨" },
+];
 
 const getPosition = (
   index: number,
@@ -42,7 +49,6 @@ const getPosition = (
       r * Math.cos(phi),
     ];
   }
-  // Default ring layout
   const angle = (index / total) * Math.PI * 2;
   const radius = 6;
   const height = (index % 3) * 2;
@@ -53,12 +59,16 @@ function ContainerNode({
   container,
   position,
   active,
+  linked,
   onClick,
+  onHover,
 }: {
   container: ContainerInfo;
   position: [number, number, number];
   active: boolean;
+  linked: boolean;
   onClick: (id: string) => void;
+  onHover: (id: string | null) => void;
 }) {
   const meshRef = useRef<any>();
 
@@ -68,35 +78,61 @@ function ContainerNode({
     }
   });
 
-  const color = active ? "#4fc3f7" : container.in_memory ? "#8bc34a" : "#666";
+  const color = active
+    ? "#4fc3f7"
+    : linked
+    ? "#ff9800"
+    : container.in_memory
+    ? "#8bc34a"
+    : "#666";
 
   return (
-    <mesh position={position} ref={meshRef} onClick={() => onClick(container.id)}>
+    <mesh
+      position={position}
+      ref={meshRef}
+      onClick={() => onClick(container.id)}
+      onPointerOver={() => onHover(container.id)}
+      onPointerOut={() => onHover(null)}
+    >
       <boxGeometry args={[1, 1, 1]} />
       <meshStandardMaterial color={color} />
       <Html distanceFactor={8} style={{ fontSize: "0.7rem", textAlign: "center" }}>
         <div>{container.name}</div>
         {container.glyph && <div style={{ color: "#ccc" }}>{container.glyph}</div>}
       </Html>
+      {container.glyph && <GlyphSprite position={position} glyph={container.glyph} />}
     </mesh>
   );
 }
 
 export default function ContainerMap3D({
-  containers = [],
+  containers,
   activeId,
   layout = "ring",
   onTeleport,
 }: ContainerMap3DProps) {
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [realContainers, setRealContainers] = useState<ContainerInfo[]>([]);
+
+  // Auto-load fallback if none provided
+  useEffect(() => {
+    if (!containers || containers.length === 0) {
+      setRealContainers(dummyContainers);
+    } else {
+      setRealContainers(containers);
+    }
+  }, [containers]);
+
   const positions = useMemo(() => {
     const posMap: Record<string, [number, number, number]> = {};
-    if (Array.isArray(containers)) {
-      containers.forEach((c, i) => {
-        posMap[c.id] = getPosition(i, containers.length, layout);
-      });
-    }
+    realContainers.forEach((c, i) => {
+      posMap[c.id] = getPosition(i, realContainers.length, layout);
+    });
     return posMap;
-  }, [containers, layout]);
+  }, [realContainers, layout]);
+
+  const isLinked = (id: string) =>
+    hoveredId && realContainers.some((c) => c.id === hoveredId && c.connected.includes(id));
 
   return (
     <div className="w-full h-[600px] border rounded bg-black">
@@ -105,17 +141,19 @@ export default function ContainerMap3D({
         <directionalLight position={[5, 10, 5]} intensity={0.7} />
         <OrbitControls />
 
-        {containers.map((container) => (
+        {realContainers.map((container) => (
           <ContainerNode
             key={container.id}
             container={container}
             position={positions[container.id]}
             active={container.id === activeId}
+            linked={!!isLinked(container.id)}
             onClick={onTeleport || (() => {})}
+            onHover={setHoveredId}
           />
         ))}
 
-        {containers.flatMap((container) =>
+        {realContainers.flatMap((container) =>
           (container.connected || []).map((link) => {
             const from = positions[container.id];
             const to = positions[link];
@@ -129,7 +167,7 @@ export default function ContainerMap3D({
                 color="#66f"
                 thickness={0.025}
                 glyph="↔"
-                mode="glow"
+                mode="dashed"
                 pulse
                 pulseFlow
               />
