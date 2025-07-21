@@ -1,6 +1,9 @@
-import React, { useRef, useEffect, useMemo } from "react";
+// File: frontend/components/AION/ContainerMap3D.tsx
+
+import React, { useRef, useMemo } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, Html } from "@react-three/drei";
+import WormholeRenderer from "./WormholeRenderer";
 
 interface ContainerInfo {
   id: string;
@@ -14,10 +17,32 @@ interface ContainerInfo {
 interface ContainerMap3DProps {
   containers?: ContainerInfo[];
   activeId?: string;
+  layout?: "ring" | "grid" | "sphere";
   onTeleport?: (id: string) => void;
 }
 
-const getPosition = (index: number, total: number): [number, number, number] => {
+const getPosition = (
+  index: number,
+  total: number,
+  layout: "ring" | "grid" | "sphere"
+): [number, number, number] => {
+  if (layout === "grid") {
+    const size = Math.ceil(Math.sqrt(total));
+    const x = index % size;
+    const z = Math.floor(index / size);
+    return [x * 2 - size, 0, z * 2 - size];
+  }
+  if (layout === "sphere") {
+    const phi = Math.acos(-1 + (2 * index) / total);
+    const theta = Math.sqrt(total * Math.PI) * phi;
+    const r = 6;
+    return [
+      r * Math.cos(theta) * Math.sin(phi),
+      r * Math.sin(theta) * Math.sin(phi),
+      r * Math.cos(phi),
+    ];
+  }
+  // Default ring layout
   const angle = (index / total) * Math.PI * 2;
   const radius = 6;
   const height = (index % 3) * 2;
@@ -43,7 +68,7 @@ function ContainerNode({
     }
   });
 
-  const color = active ? "#4fc3f7" : container.in_memory ? "#8bc34a" : "#aaa";
+  const color = active ? "#4fc3f7" : container.in_memory ? "#8bc34a" : "#666";
 
   return (
     <mesh position={position} ref={meshRef} onClick={() => onClick(container.id)}>
@@ -60,17 +85,18 @@ function ContainerNode({
 export default function ContainerMap3D({
   containers = [],
   activeId,
+  layout = "ring",
   onTeleport,
 }: ContainerMap3DProps) {
   const positions = useMemo(() => {
     const posMap: Record<string, [number, number, number]> = {};
     if (Array.isArray(containers)) {
       containers.forEach((c, i) => {
-        posMap[c.id] = getPosition(i, containers.length);
+        posMap[c.id] = getPosition(i, containers.length, layout);
       });
     }
     return posMap;
-  }, [containers]);
+  }, [containers, layout]);
 
   return (
     <div className="w-full h-[600px] border rounded bg-black">
@@ -89,24 +115,7 @@ export default function ContainerMap3D({
           />
         ))}
 
-        {containers.flatMap((source) =>
-          source.connected.map((targetId) => {
-            const from = positions[source.id];
-            const to = positions[targetId];
-            if (!from || !to) return null;
-            const mid: [number, number, number] = [
-              (from[0] + to[0]) / 2,
-              (from[1] + to[1]) / 2,
-              (from[2] + to[2]) / 2,
-            ];
-            return (
-              <mesh key={`${source.id}->${targetId}`} position={mid}>
-                <cylinderGeometry args={[0.02, 0.02, 1]} />
-                <meshStandardMaterial color="#999" />
-              </mesh>
-            );
-          })
-        )}
+        <WormholeRenderer containers={containers} positions={positions} />
       </Canvas>
     </div>
   );

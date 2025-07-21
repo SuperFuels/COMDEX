@@ -3,10 +3,6 @@
 import { useState } from 'react'
 import Head from 'next/head'
 import api from '@/lib/api'
-import dynamic from 'next/dynamic'
-
-// ✅ Lazy-load the 3D component to avoid SSR issues
-const GlyphGrid3D = dynamic(() => import('@/components/AION/GlyphGrid3D'), { ssr: false })
 
 export default function GlyphSynthesisPage() {
   const [inputText, setInputText] = useState('')
@@ -31,24 +27,14 @@ export default function GlyphSynthesisPage() {
         setGlyphs(res.data.glyphs || [])
         setStatus('done')
       } else {
-        console.warn('Synthesis API returned error:', res.data.error)
         setGlyphs(res.data.glyphs || [])
         setErrorMessage(res.data.error || 'Unknown synthesis error')
         setStatus('error')
       }
     } catch (err) {
-      console.error('Synthesis request failed:', err)
       setErrorMessage('Network or server error')
       setStatus('error')
     }
-  }
-
-  // 🔬 Demo cubes for 3D glyph grid
-  const testCubes = {
-    "0,0,0": { glyph: "🧠", age_ms: 1000 },
-    "1,0,0": { glyph: "⚙", denied: true },
-    "-1,1,0": { glyph: "🌐", age_ms: 5000 },
-    "0,1,1": { glyph: "✦" },
   }
 
   return (
@@ -128,22 +114,13 @@ export default function GlyphSynthesisPage() {
           </div>
         )}
 
-        {/* 🧱 3D Glyph Grid Preview */}
-        <div className="mt-12">
-          <h2 className="text-xl font-bold mb-2">🧱 3D Glyph Grid Preview</h2>
-          <GlyphGrid3D
-            cubes={testCubes}
-            onGlyphClick={(coord, data) => console.log("Clicked glyph:", coord, data)}
-          />
-        </div>
-
-        {/* ➡️ Runtime Viewer Link */}
+        {/* 🔭 Link to Multiverse Viewer */}
         <div className="pt-8 text-right">
           <a
-            href="/aion/avatar-runtime"
+            href="/aion/multiverse"
             className="text-sm text-blue-600 hover:underline"
           >
-            🧠 View Live GlyphGrid Runtime →
+            🌌 View Multiverse Grid & Container Map →
           </a>
         </div>
       </div>
