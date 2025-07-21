@@ -1,5 +1,6 @@
 import os
 import json
+from typing import List
 import hashlib
 from datetime import datetime
 from typing import Optional
@@ -334,3 +335,41 @@ def carve_glyph_cube(container_path, coord, glyph, meta: Optional[dict] = None):
     })
 
     print(f"[🪓] Glyph '{glyph}' carved at {coord} in {os.path.basename(container_path)}")
+
+def inject_glyphs_into_container(container_filename: str, glyphs: List[dict], source: str = "manual") -> bool:
+    """
+    Inject a list of glyphs into the specified container file.
+    The glyphs will be added sequentially to available empty slots.
+    """
+    path = get_dc_path(container_filename)
+    if not os.path.exists(path):
+        print(f"[❌] Container not found: {container_filename}")
+        return False
+
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            container = json.load(f)
+
+        inserted = 0
+        for glyph in glyphs:
+            placed = False
+            for key, cube in container.get("cubes", {}).items():
+                if cube.get("glyph") in [None, "", "⬛"]:
+                    cube["glyph"] = glyph.get("symbol", "?")
+                    cube["source"] = source
+                    inserted += 1
+                    placed = True
+                    break
+            if not placed:
+                print("[⚠️] No empty cube slots available for glyph injection.")
+                break
+
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(container, f, indent=2)
+
+        print(f"[✅] Injected {inserted} glyph(s) into {container_filename}")
+        return inserted > 0
+
+    except Exception as e:
+        print(f"[❌] Error injecting glyphs into container: {e}")
+        return False

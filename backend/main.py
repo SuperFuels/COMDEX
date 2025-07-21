@@ -131,7 +131,7 @@ from backend.modules.codex.codex_websocket_interface import start_codex_ws_serve
 from backend.routes.ws import codex_ws
 from backend.routes import aion_tessaris_intents
 from backend.routes import ws_codex_interface
-from routes import aion_synthesize_glyphs
+from backend.routes import aion_synthesize_glyphs  # ✅ CORRECT
 
 # ✅ WebSocket route
 from backend.api import ws

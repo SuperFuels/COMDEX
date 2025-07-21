@@ -132,6 +132,21 @@ def compress_to_glyphs(data: str) -> List[Dict]:
     return result["glyph_packet"]["glyphs"]
 
 
+# ✅ Public function for FastAPI route
+def synthesize_glyphs_from_text(text: str, source: str = "manual") -> List[Dict]:
+    """
+    Public-facing synthesis function used by API.
+    Compresses input text to glyphs and stores result.
+    """
+    result = glyph_synthesizer.compress_input(text, source)
+    glyph_packet = result["glyph_packet"]
+
+    glyph_synthesizer.store_packet(glyph_packet, tag=source)
+    glyph_synthesizer.push_to_glyph_grid(glyph_packet)
+
+    return glyph_packet["glyphs"]
+
+
 # 🧪 Optional test stub
 if __name__ == "__main__":
     sample = "The AI should generate a symbolic child using glyph logic and ethical alignment."
