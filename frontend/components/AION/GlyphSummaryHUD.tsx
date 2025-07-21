@@ -50,7 +50,7 @@ const GlyphSummaryHUD: React.FC<GlyphSummaryHUDProps> = ({ glyphDiff }) => {
   const [trigger, setTrigger] = useState<GlyphTrigger | null>(null);
   const [traceLog, setTraceLog] = useState<GlyphTrigger[]>([]);
 
-  useEffect(() => {
+useEffect(() => {
     if (glyphDiff?.summary) {
       setSummary(glyphDiff.summary);
     }
@@ -61,8 +61,8 @@ const GlyphSummaryHUD: React.FC<GlyphSummaryHUDProps> = ({ glyphDiff }) => {
 
     const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "").replace(/\/api\/?$/, "");
     const wsProtocol =
-      typeof window !== 'undefined' && window.location.protocol === 'https:' ? 'wss' : 'ws';
-    const wsBase = API_BASE.replace(/^http/, wsProtocol).replace(/\/api\/?$/, '');
+      typeof window !== "undefined" && window.location.protocol === "https:" ? "wss" : "ws";
+    const wsBase = API_BASE.replace(/^http/, wsProtocol).replace(/\/api\/?$/, "");
     const ws = new WebSocket(`${wsBase}/ws/updates`);
 
     ws.onmessage = (event) => {
@@ -81,8 +81,16 @@ const GlyphSummaryHUD: React.FC<GlyphSummaryHUDProps> = ({ glyphDiff }) => {
           setTraceLog((prev) => [newTrigger, ...prev.slice(0, 9)]);
         }
       } catch (err) {
-        console.error("GlyphSummary WS error:", err);
+        console.error("GlyphSummary WS error parsing:", err);
       }
+    };
+
+    ws.onerror = (err) => {
+      console.error("WebSocket error:", err);
+    };
+
+    ws.onclose = (event) => {
+      console.warn("WebSocket closed:", event.reason || event.code);
     };
 
     return () => {
@@ -91,9 +99,11 @@ const GlyphSummaryHUD: React.FC<GlyphSummaryHUDProps> = ({ glyphDiff }) => {
   }, [glyphDiff]);
 
   useEffect(() => {
+    const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "").replace(/\/api\/?$/, "");
+
     const fetchRuntime = async () => {
       try {
-        const res = await fetch("/avatar/runtime_tick_summary");
+        const res = await fetch(`${API_BASE}/avatar/runtime_tick_summary`);
         const data = await res.json();
         setRuntime(data);
       } catch (e) {

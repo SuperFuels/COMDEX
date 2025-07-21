@@ -15,10 +15,9 @@ const TessarisTracePanel: React.FC = () => {
   const [traces, setTraces] = useState<TraceEntry[]>([]);
 
   useEffect(() => {
-    const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "").replace(/\/api\/?$/, "");
-    const wsProtocol =
-      typeof window !== "undefined" && window.location.protocol === "https:" ? "wss" : "ws";
-    const wsBase = API_BASE.replace(/^http/, wsProtocol).replace(/\/api\/?$/, "");
+    const API_BASE = process.env.NEXT_PUBLIC_API_URL?.replace(/\/+$/, '') || '';
+    const wsProtocol = typeof window !== 'undefined' && window.location.protocol === 'https:' ? 'wss' : 'ws';
+    const wsBase = API_BASE.replace(/^https?:\/\//, `${wsProtocol}://`);
     const ws = new WebSocket(`${wsBase}/ws/updates`);
 
     ws.onmessage = (event) => {

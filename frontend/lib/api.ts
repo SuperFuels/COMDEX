@@ -51,17 +51,17 @@ export async function scoreMutation(glyph: {
   value: string
   action: string
 }) {
-  const res = await api.post('/api/aion/score-mutation', { glyph })
+  const res = await api.post('/aion/score-mutation', { glyph })
   return res.data
 }
 
 // 🧬 Send glyph mutation request to backend
 export async function mutateGlyph(glyph: {
-  coord: string
-  tag: string
-  value: string
-  action: string
+  coord: string;
+  tag: string;
+  value: string;
+  action: string;
 }) {
-  const res = await api.post('/api/aion/mutate-glyph', glyph)
-  return res.data
+  const res = await api.post('/aion/mutate-glyph', glyph);
+  return res.data;
 }

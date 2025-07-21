@@ -10,7 +10,7 @@ interface GlyphMutatorProps {
 }
 
 // ✅ Normalizes API base by stripping trailing /api if present
-const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "").replace(/\/api\/?$/, "");
+const API_BASE = process.env.NEXT_PUBLIC_API_URL?.replace(/\/+$/, '') || '';
 
 export default function GlyphMutator({
   containerId,

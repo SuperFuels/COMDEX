@@ -15,6 +15,8 @@ import TimelineControls from "@/components/AION/TimelineControls";
 import GlyphTriggerEditor from "@/components/AION/GlyphTriggerEditor";
 import GlyphCompressorPanel from "@/components/AION/GlyphCompressorPanel";
 
+const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/+$/, '') || '';
+
 type ViewMode = "top-down" | "3d-symbolic" | "glyph-logic";
 
 const getWssUrl = (path: string) => {
@@ -65,7 +67,7 @@ export default function AvatarRuntimePage() {
 
   const fetchSnapshot = async (targetTick: number) => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/aion/glyphs?t=${targetTick}`);
+      const res = await fetch(`${baseUrl}/aion/glyphs?t=${targetTick}`);
       const data = await res.json();
       if (data?.cubes) {
         setPrevCubes(cubes);
@@ -138,7 +140,7 @@ export default function AvatarRuntimePage() {
   }, [cubes]);
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/aion/command/registry`)
+    fetch(`${baseUrl}/aion/command/registry`)
       .then((res) => res.json())
       .then((data) => {
         if (data?.commands) {
@@ -160,7 +162,7 @@ export default function AvatarRuntimePage() {
     if (!input.trim()) return;
     setLoading(true);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/aion/command`, {
+      const res = await fetch(`${baseUrl}/aion/command`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ command: input }),

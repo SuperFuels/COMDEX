@@ -53,13 +53,15 @@ const GlyphGrid: React.FC<GlyphGridProps> = ({
     if (!connected) {
       const interval = setInterval(async () => {
         try {
-          const res = await fetch("/api/aion/containers");
+          const baseUrl = process.env.NEXT_PUBLIC_API_URL || '';
+          const res = await fetch(`${baseUrl}/aion/containers`);
           const data = await res.json();
           if (data?.cubes) setGlyphData(data.cubes);
         } catch (err) {
           console.warn("Polling failed:", err);
         }
       }, 3000);
+
       return () => clearInterval(interval);
     }
   }, [connected]);
@@ -71,7 +73,7 @@ const GlyphGrid: React.FC<GlyphGridProps> = ({
     useEffect(() => {
   const loadRecentTriggers = async () => {
     try {
-      const res = await fetch("/api/aion/glyph-triggers/recent");
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/aion/glyph-triggers/recent`);
       const json = await res.json();
       if (Array.isArray(json?.triggers)) {
         const mapped: { [coord: string]: boolean } = {};
@@ -89,7 +91,7 @@ const GlyphGrid: React.FC<GlyphGridProps> = ({
   
   const loadSnapshot = async () => {
     try {
-      const res = await fetch("/api/aion/glyph-runtime/snapshot");
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/aion/glyph-runtime/snapshot`);
       const json = await res.json();
       if (json?.cubes) {
         setGlyphData(json.cubes);

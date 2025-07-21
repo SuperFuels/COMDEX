@@ -12,14 +12,14 @@ type Status = {
 };
 
 // ✅ Ensure clean base URL without trailing /api
-const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "").replace(/\/api\/?$/, "");
+const API_BASE = process.env.NEXT_PUBLIC_API_URL?.replace(/\/+$/, '') || '';
 
 export default function AIONStatus() {
   const [status, setStatus] = useState<Status | null>(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    fetch(`${API_BASE}/api/aion/status`)
+    fetch(`${API_BASE}/aion/status`)
       .then((res) => {
         if (!res.ok) throw new Error("Status fetch failed");
         return res.json();

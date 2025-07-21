@@ -7,6 +7,8 @@ const ContainerMap3D = dynamic(() => import("@/components/AION/ContainerMap3D"),
   loading: () => <p className="text-white text-center mt-10">Loading 4D Container Map...</p>,
 });
 
+const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/+$/, '') || '';
+
 interface ContainerInfo {
   id: string;
   name: string;
@@ -20,7 +22,7 @@ export default function ContainerMapPage() {
   const [containers, setContainers] = useState<ContainerInfo[]>([]);
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/aion/containers`)
+    fetch(`${baseUrl}/aion/containers`)
       .then((res) => res.json())
       .then((data) => setContainers(data))
       .catch((err) => console.error("Failed to load containers:", err));

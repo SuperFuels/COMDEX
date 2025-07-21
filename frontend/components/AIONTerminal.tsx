@@ -20,6 +20,8 @@ import TessarisVisualizer from '@/components/AION/TessarisVisualizer';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 
+const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/+$/, '') || '';
+
 interface AIONTerminalProps {
   side: 'left' | 'right';
 }
@@ -76,7 +78,7 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
 
   const syncMemory = async () => {
     try {
-      const res = await fetch('/api/aion/sync-messages', {
+      const res = await fetch(`${baseUrl}/aion/sync-messages`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messages }),
@@ -85,6 +87,7 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
       alert('✅ Synced to memory.');
     } catch (err) {
       alert('❌ Sync failed.');
+      console.error(err);
     }
   };
 
@@ -141,7 +144,7 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
   useEffect(() => {
     const fetchCommands = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/aion/command/registry`);
+        const res = await fetch(`${baseUrl}/aion/command/registry`);
         const data = await res.json();
         if (Array.isArray(data)) {
           setAvailableCommands(data);
@@ -158,7 +161,7 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
     if (!autoRefresh) return;
     const interval = setInterval(() => {
       callEndpoint('status', 'Refreshing status');
-      fetch('/api/aion/containers')
+      fetch(`${baseUrl}/aion/containers`)
         .then((res) => res.json())
         .then((data) => {
           if (data?.containers) {
@@ -177,7 +180,7 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
 
   const teleportToContainer = async (id: string) => {
     try {
-      const res = await fetch("/api/aion/teleport", {
+      const res = await fetch(`${baseUrl}/aion/teleport`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ target: id }),
@@ -190,6 +193,7 @@ export default function AIONTerminal({ side }: AIONTerminalProps) {
       }
     } catch (err) {
       alert("❌ Teleport error. See console for details.");
+      console.error(err);
     }
   };
 
