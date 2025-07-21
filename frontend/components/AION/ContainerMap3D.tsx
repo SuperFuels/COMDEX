@@ -1,6 +1,7 @@
 import React, { useRef, useMemo, useState, useEffect } from "react";
 import { useFrame } from "@react-three/fiber";
 import { OrbitControls, Html } from "@react-three/drei";
+import * as THREE from "three";
 import WormholeRenderer from "./WormholeRenderer";
 import GlyphSprite from "./GlyphSprite";
 
@@ -53,7 +54,7 @@ const getPosition = (
   return [Math.cos(angle) * radius, height, Math.sin(angle) * radius];
 };
 
-function ContainerNode({
+function HolodeckCube({
   container,
   position,
   active,
@@ -68,38 +69,71 @@ function ContainerNode({
   onClick: (id: string) => void;
   onHover: (id: string | null) => void;
 }) {
-  const meshRef = useRef<any>();
-
-  useFrame(() => {
-    if (meshRef.current && active) {
-      meshRef.current.rotation.y += 0.01;
-    }
-  });
-
+  const ref = useRef<any>();
   const color = active
     ? "#4fc3f7"
     : linked
     ? "#ff9800"
     : container.in_memory
     ? "#8bc34a"
-    : "#666";
+    : "#555";
+
+  useFrame(() => {
+    if (ref.current && active) {
+      ref.current.rotation.y += 0.005;
+    }
+  });
 
   return (
-    <mesh
+    <group
+      ref={ref}
       position={position}
-      ref={meshRef}
       onClick={() => onClick(container.id)}
       onPointerOver={() => onHover(container.id)}
       onPointerOut={() => onHover(null)}
     >
-      <boxGeometry args={[1, 1, 1]} />
-      <meshStandardMaterial color={color} />
-      <Html distanceFactor={8} style={{ fontSize: "0.7rem", textAlign: "center" }}>
-        <div>{container.name}</div>
-        {container.glyph && <div style={{ color: "#ccc" }}>{container.glyph}</div>}
+      {/* Transparent box */}
+      <mesh>
+        <boxGeometry args={[1, 1, 1]} />
+        <meshStandardMaterial
+          color={color}
+          transparent
+          opacity={0.1}
+          emissive={color}
+          emissiveIntensity={1.5}
+        />
+      </mesh>
+
+      {/* Edge glow lines */}
+      <lineSegments>
+        <edgesGeometry args={[new THREE.BoxGeometry(1, 1, 1)]} />
+        <lineBasicMaterial color={color} linewidth={2} />
+      </lineSegments>
+
+      {/* Floating inner sphere */}
+      <mesh position={[0, 0.2, 0]}>
+        <sphereGeometry args={[0.2, 16, 16]} />
+        <meshStandardMaterial
+          color={color}
+          emissive={color}
+          emissiveIntensity={3}
+          transparent
+          opacity={0.5}
+        />
+      </mesh>
+
+      {/* Floating HUD terminal */}
+      <Html distanceFactor={10}>
+        <div style={{ fontSize: "0.7rem", color: "#00f0ff", textAlign: "center" }}>
+          <div>{container.name}</div>
+          <div style={{ opacity: 0.6 }}>{container.in_memory ? "🧠 In-Memory" : "💾 Loaded"}</div>
+          {container.glyph && <div style={{ fontSize: "1.2rem" }}>{container.glyph}</div>}
+        </div>
       </Html>
+
+      {/* Optional Glyph Sprite */}
       {container.glyph && <GlyphSprite position={position} glyph={container.glyph} />}
-    </mesh>
+    </group>
   );
 }
 
@@ -112,7 +146,6 @@ export default function ContainerMap3D({
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [realContainers, setRealContainers] = useState<ContainerInfo[]>([]);
 
-  // Auto-load fallback if none provided
   useEffect(() => {
     if (!containers || containers.length === 0) {
       setRealContainers(dummyContainers);
@@ -130,20 +163,17 @@ export default function ContainerMap3D({
   }, [realContainers, layout]);
 
   const isLinked = (id: string) =>
-    hoveredId && realContainers.some((c) => c.id === hoveredId && c.connected.includes(id));
+    hoveredId &&
+    realContainers.some((c) => c.id === hoveredId && c.connected.includes(id));
 
   return (
     <>
-      {/* Optional camera controls */}
       <OrbitControls />
+      <ambientLight intensity={0.5} />
+      <pointLight position={[10, 10, 10]} intensity={1.2} />
 
-      {/* Light setup */}
-      <ambientLight intensity={0.6} />
-      <directionalLight position={[5, 10, 5]} intensity={0.7} />
-
-      {/* Render containers */}
       {realContainers.map((container) => (
-        <ContainerNode
+        <HolodeckCube
           key={container.id}
           container={container}
           position={positions[container.id]}
@@ -154,7 +184,6 @@ export default function ContainerMap3D({
         />
       ))}
 
-      {/* Render wormhole links */}
       {realContainers.flatMap((container) =>
         (container.connected || []).map((link) => {
           const from = positions[container.id];
