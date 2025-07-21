@@ -1,5 +1,7 @@
 # File: backend/modules/glyphos/glyph_utils.py
 
+import hashlib
+
 def parse_to_glyphos(data: str) -> list:
     """Parse natural language into symbolic glyphs based on keyword matching."""
     text = data.lower()
@@ -30,3 +32,8 @@ def summarize_to_glyph(summary_text: str) -> str:
     """Return the most representative glyph from a summary text string."""
     glyphs = parse_to_glyphos(summary_text)
     return glyphs[0] if glyphs else "✦"
+
+
+def generate_hash(content: str) -> str:
+    """Generate a SHA256 hash for a given string input."""
+    return hashlib.sha256(content.encode('utf-8')).hexdigest()
