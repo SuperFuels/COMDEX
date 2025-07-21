@@ -291,4 +291,4 @@ def shutdown_service(event, context):
         logger.exception("❌ Unexpected error during Cloud Function shutdown.")
 
     for route in app.routes:
-    print(f"[📡 ROUTE] {route.path} ({route.name})")
+        print(f"[📡 ROUTE] {route.path} ({route.name})")
