@@ -10,7 +10,7 @@ graph TD
     A6[✅ glyph_synthesis_engine.py]
     A7[✅ glyph_mutator.py]
     A8[✅ glyph_generator.py]
-    A9[⏳ glyph_grammar_inferencer.py (planned)]
+    A9[✅ glyph_grammar_inferencer.py (planned)]
   end
 
   subgraph Runtime Logic

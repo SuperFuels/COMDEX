@@ -1,25 +1,32 @@
-import hashlib
-import json
+# File: backend/modules/glyphos/glyph_utils.py
+
+def parse_to_glyphos(data: str) -> list:
+    """Parse natural language into symbolic glyphs based on keyword matching."""
+    text = data.lower()
+    glyphs = []
+
+    if any(word in text for word in ["milestone", "achievement", "goal reached"]):
+        glyphs.append("✦")  # Milestone
+
+    if any(word in text for word in ["dream", "imagine", "vision"]):
+        glyphs.append("🛌")  # Dream
+
+    if any(word in text for word in ["mutate", "change", "evolve"]):
+        glyphs.append("⬁")  # Mutation
+
+    if any(word in text for word in ["memory", "remember", "recall"]):
+        glyphs.append("🧠")  # Memory
+
+    if any(word in text for word in ["navigate", "map", "path", "journey"]):
+        glyphs.append("🧭")  # Navigation
+
+    if not glyphs:
+        glyphs.append("✦")  # Default: Milestone
+
+    return glyphs
 
 
-def parse_to_glyphos(data: str) -> dict:
-    """Parse raw string or JSON into glyph-compatible dictionary."""
-    try:
-        return json.loads(data)
-    except json.JSONDecodeError:
-        return {"raw": data}
-
-
-def summarize_to_glyph(data: dict) -> str:
-    """Generate a symbolic glyph summary from a data block."""
-    if "type" in data and "value" in data:
-        return f"⟦{data['type']}|{data.get('tag', '')}:{data['value']}⟧"
-    if "raw" in data:
-        return f"⟦Raw|Text:{data['raw']}⟧"
-    return f"⟦Data|Unknown:{str(data)[:20]}⟧"
-
-
-def generate_hash(obj: dict) -> str:
-    """Generate a SHA256 hash from a dictionary object."""
-    json_str = json.dumps(obj, sort_keys=True)
-    return hashlib.sha256(json_str.encode("utf-8")).hexdigest()
+def summarize_to_glyph(summary_text: str) -> str:
+    """Return the most representative glyph from a summary text string."""
+    glyphs = parse_to_glyphos(summary_text)
+    return glyphs[0] if glyphs else "✦"

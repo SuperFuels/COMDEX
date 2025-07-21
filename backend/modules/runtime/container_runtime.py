@@ -56,6 +56,16 @@ class ContainerRuntime:
 
             if self.websocket:
                 self.websocket.broadcast({"type": "tick_log", "data": tick_log})
+
+                # ✅ NEW: Send dimension_tick event
+                self.websocket.broadcast({
+                    "type": "dimension_tick",
+                    "data": {
+                        "tick": self.tick_counter,
+                        "timestamp": time.time()
+                    }
+                })
+
                 if summarize_glyphs:
                     summary = summarize_glyphs(self.state_manager.get_current_container().get("cubes", {}))
                     self.websocket.broadcast({"type": "glyph_summary", "data": summary})
