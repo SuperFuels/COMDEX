@@ -20,7 +20,7 @@ export default function GlyphSynthesisPage() {
     setStatus('loading')
     setErrorMessage(null)
     try {
-      const res = await api.post('/aion/synthesize-glyphs', {
+      const res = await api.post('aion/synthesize-glyphs', {
         input: inputText,
         source: sourceLabel,
         inject_to_grid: injectToContainer,
