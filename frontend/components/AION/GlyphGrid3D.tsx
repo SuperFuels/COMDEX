@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Html } from "@react-three/drei";
 
@@ -52,6 +52,12 @@ const GlyphCube = ({
 };
 
 const GlyphGrid3D: React.FC<GlyphGrid3DProps> = ({ cubes, onGlyphClick }) => {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const glyphCubes = useMemo(() => {
     return Object.entries(cubes).map(([coord, data]) => {
       const [x, y, z] = coord.split(",").map(Number);
@@ -69,8 +75,10 @@ const GlyphGrid3D: React.FC<GlyphGrid3DProps> = ({ cubes, onGlyphClick }) => {
     });
   }, [cubes, onGlyphClick]);
 
+  if (!mounted) return null;
+
   return (
-    <div style={{ width: "100%", height: "600px" }}>
+    <div style={{ width: "100%", height: "600px", minHeight: "600px", overflow: "visible" }}>
       <Canvas shadows camera={{ position: [10, 10, 10], fov: 50 }}>
         <ambientLight intensity={0.6} />
         <pointLight position={[10, 20, 10]} intensity={1} castShadow />
