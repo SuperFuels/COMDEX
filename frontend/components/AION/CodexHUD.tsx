@@ -70,7 +70,7 @@ export default function CodexHUD() {
   const [events, setEvents] = useState<EventLog[]>([]);
   const [filter, setFilter] = useState('');
 
-  const wsUrl = `${process.env.NEXT_PUBLIC_WS_URL || ''}/ws/codex`;
+  const wsUrl = "/ws/codex"
 
   const { connected } = useWebSocket(
     wsUrl,

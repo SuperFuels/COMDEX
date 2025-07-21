@@ -113,7 +113,7 @@ export default function AvatarRuntimePage() {
   };
 
   useEffect(() => {
-    const ws = new WebSocket(getWssUrl("/ws/updates"));
+    const ws = new WebSocket(getWssUrl("/ws/codex"));
 
     ws.onmessage = (event) => {
       try {
