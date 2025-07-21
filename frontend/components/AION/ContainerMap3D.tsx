@@ -1,7 +1,5 @@
-// File: frontend/components/AION/ContainerMap3D.tsx
-
 import React, { useRef, useMemo, useState, useEffect } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { useFrame } from "@react-three/fiber";
 import { OrbitControls, Html } from "@react-three/drei";
 import WormholeRenderer from "./WormholeRenderer";
 import GlyphSprite from "./GlyphSprite";
@@ -135,46 +133,49 @@ export default function ContainerMap3D({
     hoveredId && realContainers.some((c) => c.id === hoveredId && c.connected.includes(id));
 
   return (
-    <div className="w-full h-[600px] border rounded bg-black">
-      <Canvas camera={{ position: [0, 10, 15], fov: 60 }}>
-        <ambientLight intensity={0.6} />
-        <directionalLight position={[5, 10, 5]} intensity={0.7} />
-        <OrbitControls />
+    <>
+      {/* Optional camera controls */}
+      <OrbitControls />
 
-        {realContainers.map((container) => (
-          <ContainerNode
-            key={container.id}
-            container={container}
-            position={positions[container.id]}
-            active={container.id === activeId}
-            linked={!!isLinked(container.id)}
-            onClick={onTeleport || (() => {})}
-            onHover={setHoveredId}
-          />
-        ))}
+      {/* Light setup */}
+      <ambientLight intensity={0.6} />
+      <directionalLight position={[5, 10, 5]} intensity={0.7} />
 
-        {realContainers.flatMap((container) =>
-          (container.connected || []).map((link) => {
-            const from = positions[container.id];
-            const to = positions[link];
-            if (!from || !to) return null;
+      {/* Render containers */}
+      {realContainers.map((container) => (
+        <ContainerNode
+          key={container.id}
+          container={container}
+          position={positions[container.id]}
+          active={container.id === activeId}
+          linked={!!isLinked(container.id)}
+          onClick={onTeleport || (() => {})}
+          onHover={setHoveredId}
+        />
+      ))}
 
-            return (
-              <WormholeRenderer
-                key={`${container.id}->${link}`}
-                from={from}
-                to={to}
-                color="#66f"
-                thickness={0.025}
-                glyph="↔"
-                mode="dashed"
-                pulse
-                pulseFlow
-              />
-            );
-          })
-        )}
-      </Canvas>
-    </div>
+      {/* Render wormhole links */}
+      {realContainers.flatMap((container) =>
+        (container.connected || []).map((link) => {
+          const from = positions[container.id];
+          const to = positions[link];
+          if (!from || !to) return null;
+
+          return (
+            <WormholeRenderer
+              key={`${container.id}->${link}`}
+              from={from}
+              to={to}
+              color="#66f"
+              thickness={0.025}
+              glyph="↔"
+              mode="dashed"
+              pulse
+              pulseFlow
+            />
+          );
+        })
+      )}
+    </>
   );
 }
