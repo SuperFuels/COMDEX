@@ -23,6 +23,11 @@ export default function MutationDiffViewer() {
       .catch((err) => console.error("Failed to load diffs:", err));
   }, []);
 
+  const renderValue = (value: any) =>
+    typeof value === "string"
+      ? value
+      : JSON.stringify(value, null, 2);
+
   return (
     <Card className="w-full max-h-[600px]">
       <CardContent className="p-2">
@@ -41,15 +46,15 @@ export default function MutationDiffViewer() {
               {diff.change === "modified" && (
                 <div>
                   <span className="text-muted-foreground">from:</span>{" "}
-                  <code>{diff.from}</code>
+                  <code>{renderValue(diff.from)}</code>
                   <span className="ml-2 text-muted-foreground">to:</span>{" "}
-                  <code>{diff.to}</code>
+                  <code>{renderValue(diff.to)}</code>
                 </div>
               )}
               {diff.change !== "modified" && diff.glyph && (
                 <div>
                   <span className="text-muted-foreground">glyph:</span>{" "}
-                  <code>{diff.glyph}</code>
+                  <code>{renderValue(diff.glyph)}</code>
                 </div>
               )}
             </div>

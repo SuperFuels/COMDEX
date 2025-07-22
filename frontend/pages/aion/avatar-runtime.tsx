@@ -1,5 +1,3 @@
-// pages/aion/avatar-runtime.tsx
-
 import React, { useEffect, useState, useRef } from "react";
 import ContainerStatus from "@/components/AION/ContainerStatus";
 import GlyphGrid from "@/components/AION/GlyphGrid";
@@ -15,14 +13,14 @@ import TimelineControls from "@/components/AION/TimelineControls";
 import GlyphTriggerEditor from "@/components/AION/GlyphTriggerEditor";
 import GlyphCompressorPanel from "@/components/AION/GlyphCompressorPanel";
 
-const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/+$/, '') || '';
+const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/+\$/, '') || '';
 
 type ViewMode = "top-down" | "3d-symbolic" | "glyph-logic";
 
 const getWssUrl = (path: string) => {
   const apiBase = process.env.NEXT_PUBLIC_API_URL || '';
   const wsProtocol = typeof window !== 'undefined' && window.location.protocol === 'https:' ? 'wss' : 'ws';
-  const base = apiBase.replace(/^https?:\/\//, `${wsProtocol}://`).replace(/\/api\/?$/, '');
+  const base = apiBase.replace(/^https?:\/\//, `${wsProtocol}://`).replace(/\/api\/?\$/, '');
   return `${base}${path}`;
 };
 
@@ -242,7 +240,13 @@ export default function AvatarRuntimePage() {
             <GlyphMutator
               containerId={containerId}
               coord={`${coord.x},${coord.y},${coord.z},${coord.t}`}
-              glyphData={glyphData}
+              glyphData={{
+                glyph: glyphData,
+                type: "logic",       // or "runtime"
+                tag: "default",      // or something descriptive
+                value: glyphData,    // reuse the same glyph as value
+                action: "none",      // optional action
+              }}
               onMutationComplete={handleMutationComplete}
             />
           </div>
