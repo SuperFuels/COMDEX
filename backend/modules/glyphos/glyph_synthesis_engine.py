@@ -1,9 +1,8 @@
-# 📁 backend/modules/glyphos/glyph_synthesis_engine.py
-
 import hashlib
 import json
 from typing import List, Dict, Optional
 from datetime import datetime
+from pathlib import Path
 
 from backend.modules.glyphos.glyph_utils import parse_to_glyphos, summarize_to_glyph, generate_hash
 from backend.modules.glyphos.glyph_grammar_inferencer import GlyphGrammarInferencer
@@ -18,11 +17,29 @@ try:
 except:
     WS = None
 
+DEDUP_CACHE_FILE = Path(__file__).parent / "glyph_dedup_cache.json"
+
 
 class GlyphSynthesisEngine:
     def __init__(self):
         self.dedup_cache: Dict[str, Dict] = {}
         self.grammar_engine = GlyphGrammarInferencer()
+        self._load_dedup_cache()
+
+    def _load_dedup_cache(self):
+        if DEDUP_CACHE_FILE.exists():
+            try:
+                with open(DEDUP_CACHE_FILE, "r") as f:
+                    self.dedup_cache = json.load(f)
+            except Exception:
+                self.dedup_cache = {}
+
+    def _save_dedup_cache(self):
+        try:
+            with open(DEDUP_CACHE_FILE, "w") as f:
+                json.dump(self.dedup_cache, f, indent=2)
+        except Exception as e:
+            print(f"⚠️ Failed to save dedup cache: {e}")
 
     def compress_input(self, raw_text: str, source: str = "gpt") -> Dict:
         """
@@ -46,16 +63,21 @@ class GlyphSynthesisEngine:
             if structure:
                 inferred_grammar.append(structure)
 
+        grammar_summary = list(set([s.get("type") for s in inferred_grammar if "type" in s]))
+
         glyph_packet = {
             "source": source,
             "raw_input": raw_text,
             "glyphs": glyphs,
             "inferred_grammar": inferred_grammar,
+            "grammar_summary": grammar_summary,
             "hash": meaning_hash,
             "timestamp": datetime.utcnow().isoformat(),
         }
 
         self.dedup_cache[meaning_hash] = glyph_packet
+        self._save_dedup_cache()
+
         return {
             "status": "new",
             "hash": meaning_hash,
@@ -67,11 +89,14 @@ class GlyphSynthesisEngine:
         store_memory_packet({
             "type": "glyph_compression",
             "summary": summary,
+            "grammar": packet.get("grammar_summary", []),
             "data": packet,
             "tag": tag or packet.get("source", "unknown"),
         })
 
     def run_packet(self, packet: Dict) -> str:
+        if not packet.get("glyphs"):
+            return "❌ No glyphs to execute."
         return execute_glyph_packet(packet["glyphs"])
 
     def inject_into_container(self, packet: Dict, coord: str = "0,0,0,0") -> bool:
@@ -83,12 +108,18 @@ class GlyphSynthesisEngine:
             print("[❌] No active container to inject glyph into.")
             return False
 
-        # Use first glyph as entry point
-        main_glyph = packet["glyphs"][0] if packet["glyphs"] else "⚙"
+        glyphs = packet.get("glyphs", [])
+        if not glyphs:
+            print("[⚠️] Cannot inject empty glyph packet.")
+            return False
+
+        main_glyph = glyphs[0]
         success = STATE.write_glyph_to_cube(container_id, coord, main_glyph)
 
         if success:
             print(f"[📦] Glyph {main_glyph} injected at {coord} into container {container_id}")
+        else:
+            print("[❌] Glyph injection failed.")
         return success
 
     def push_to_glyph_grid(self, packet: Dict):
@@ -105,6 +136,7 @@ class GlyphSynthesisEngine:
             "data": {
                 "glyphs": packet.get("glyphs", []),
                 "grammar": packet.get("inferred_grammar", []),
+                "summary": packet.get("grammar_summary", []),
                 "timestamp": packet.get("timestamp"),
                 "source": packet.get("source"),
                 "hash": packet.get("hash")

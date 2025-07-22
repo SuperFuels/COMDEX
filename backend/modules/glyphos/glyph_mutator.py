@@ -1,5 +1,3 @@
-# backend/modules/glyphos/glyph_mutator.py
-
 import json
 import os
 import hashlib
@@ -10,6 +8,7 @@ from difflib import unified_diff
 from backend.modules.dna_chain.dc_handler import load_dimension_by_file, save_dimension_to_file
 from backend.modules.dna_chain.dna_registry import register_mutation_proposal
 from backend.modules.hexcore.memory_engine import store_memory as store_memory_entry
+from backend.modules.glyphos.mutation_checker import check_mutation_against_soul_laws
 
 # ─── 🧬 Glyph Mutation Engine ───────────────────────────────────────────────────
 
@@ -37,6 +36,9 @@ def mutate_glyph(container_path: str, coord: str, mutation: dict, reason: str) -
     new = json.dumps(grid[coord], indent=2)
     diff = "\n".join(unified_diff(old.splitlines(), new.splitlines(), lineterm=""))
 
+    diff_text = f"{old}\n---\n{new}"
+    soul_law_violations = check_mutation_against_soul_laws(diff_text)
+
     proposal = {
         "proposal_id": f"mutate_{coord}_{int(datetime.utcnow().timestamp())}",
         "file": container_path,
@@ -47,7 +49,8 @@ def mutate_glyph(container_path: str, coord: str, mutation: dict, reason: str) -
         "diff": diff,
         "impact_score": score_impact(old, new),
         "safety_score": score_safety(mutation),
-        "soul_law_pass": check_soul_law(mutation),
+        "soul_law_pass": len(soul_law_violations) == 0,
+        "soul_law_violations": soul_law_violations,
         "symbolic_hash": symbolic_hash(grid[coord].get("value", "")),
         "approved": False,
         "timestamp": datetime.utcnow().isoformat() + "Z"
@@ -101,7 +104,7 @@ def auto_mutate_if_expired(container_path: str, coord: str, now_ms: Optional[int
     now = now_ms or int(datetime.utcnow().timestamp() * 1000)
 
     if not decay_limit or not created_at:
-        return False  # No decay logic
+        return False
 
     try:
         created_time = int(datetime.fromisoformat(created_at.replace("Z", "")).timestamp() * 1000)
@@ -170,7 +173,7 @@ def score_safety(mutation: dict) -> float:
     return 1.0
 
 def check_soul_law(mutation: dict) -> bool:
-    """Ensure mutation does not violate Soul Laws."""
+    """Legacy check; replaced by full diff-based Soul Law checker."""
     val = json.dumps(mutation)
     banned = ["Harm", "Lie", "Dominate"]
     return not any(x in val for x in banned)

@@ -1,5 +1,4 @@
-// 📁 CodexHUD.tsx
-// Visual HUD for CodexCore glyph execution, cost, and tick feedback
+'use client';
 
 import React, { useEffect, useState } from 'react';
 import useWebSocket from '@/hooks/useWebSocket';
@@ -7,6 +6,17 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+
+interface GlyphDetail {
+  energy?: number;
+  ethics_risk?: number;
+  delay?: number;
+  opportunity_loss?: number;
+  coord?: string;
+  container?: string;
+  operator?: string;
+}
 
 interface GlyphEvent {
   glyph: string;
@@ -17,15 +27,7 @@ interface GlyphEvent {
   trace_id?: string;
   trigger_type?: string;
   sqi?: boolean;
-  detail?: {
-    energy?: number;
-    ethics_risk?: number;
-    delay?: number;
-    opportunity_loss?: number;
-    coord?: string;
-    container?: string;
-    operator?: string;
-  };
+  detail?: GlyphDetail;
 }
 
 interface TickEvent {
@@ -66,11 +68,26 @@ function operatorName(op: string | null): string {
   return op ? OPERATOR_LABELS[op] || '' : '';
 }
 
+async function fetchScroll(glyph: string): Promise<string> {
+  try {
+    const res = await fetch('/api/build_scroll', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ glyph })
+    });
+    const data = await res.json();
+    return data?.scroll || 'No scroll generated.';
+  } catch (e) {
+    return '⚠️ Failed to load scroll.';
+  }
+}
+
 export default function CodexHUD() {
   const [events, setEvents] = useState<EventLog[]>([]);
   const [filter, setFilter] = useState('');
+  const [scrolls, setScrolls] = useState<Record<string, string>>({});
 
-  const wsUrl = "/ws/codex"
+  const wsUrl = "/ws/codex";
 
   const { connected } = useWebSocket(
     wsUrl,
@@ -95,8 +112,19 @@ export default function CodexHUD() {
       : true
   );
 
+  const toggleScroll = async (glyph: string) => {
+    if (scrolls[glyph]) {
+      const newScrolls = { ...scrolls };
+      delete newScrolls[glyph];
+      setScrolls(newScrolls);
+    } else {
+      const scroll = await fetchScroll(glyph);
+      setScrolls((prev) => ({ ...prev, [glyph]: scroll }));
+    }
+  };
+
   return (
-    <Card className="w-full max-h-[350px] bg-black text-white border border-green-700 shadow-lg rounded-xl p-2 mt-4">
+    <Card className="w-full max-h-[450px] bg-black text-white border border-green-700 shadow-lg rounded-xl p-2 mt-4">
       <CardContent>
         <div className="flex justify-between items-center mb-2">
           <h2 className="text-lg font-bold text-green-400">🧠 Codex Runtime HUD</h2>
@@ -112,7 +140,7 @@ export default function CodexHUD() {
           className="mb-3 bg-gray-900 border-gray-700 text-white text-sm"
         />
 
-        <ScrollArea className="h-[240px] pr-2">
+        <ScrollArea className="h-[320px] pr-2">
           {filteredEvents.map((entry, index) => {
             if (entry.type === 'tick') {
               const { container, timestamp } = entry.data;
@@ -148,24 +176,28 @@ export default function CodexHUD() {
                   ⟦ {log.glyph} ⟧ → <span className="text-green-400">{log.action}</span>
 
                   {operator && (
-                    <Badge variant="outline" className="ml-2">{operator} {operatorLabel}</Badge>
+                    <Badge className="ml-2" variant="outline">{operator} {operatorLabel}</Badge>
                   )}
 
                   {log.trigger_type && (
-                    <Badge variant="secondary" className="ml-2">🕒 {log.trigger_type}</Badge>
+                    <Badge className="ml-2" variant="secondary">🕒 {log.trigger_type}</Badge>
                   )}
 
                   {log.trace_id && (
-                    <Badge variant="outline" className="ml-2">🧩 Trace ID</Badge>
+                    <Badge className="ml-2" variant="outline">🧩 Trace ID</Badge>
                   )}
 
                   {log.sqi && (
-                    <Badge variant="outline" className="ml-2">🌌 SQI</Badge>
+                    <Badge className="ml-2" variant="outline">🌌 SQI</Badge>
                   )}
 
                   {isCostly && (
-                    <Badge variant="destructive" className="ml-2">⚠️ High Cost</Badge>
+                    <Badge className="ml-2" variant="destructive">⚠️ High Cost</Badge>
                   )}
+
+                  <Button className="ml-2 text-xs px-2 py-0 h-6 bg-transparent hover:bg-white/10 border border-white/10" onClick={() => toggleScroll(log.glyph)}>
+                    🧾 {scrolls[log.glyph] ? 'Hide' : 'Show'} Scroll
+                  </Button>
                 </div>
 
                 <div className="text-xs text-white/60 flex justify-between">
@@ -201,6 +233,12 @@ export default function CodexHUD() {
                       </div>
                     )}
                   </div>
+                )}
+
+                {scrolls[log.glyph] && (
+                  <pre className="bg-gray-800 text-green-300 text-xs mt-2 p-2 rounded max-h-40 overflow-auto whitespace-pre-wrap border border-green-800">
+                    {scrolls[log.glyph]}
+                  </pre>
                 )}
               </div>
             );

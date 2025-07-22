@@ -1,4 +1,4 @@
-// frontend/components/aion/GlyphSummaryHUD.tsx
+// File: frontend/components/aion/GlyphSummaryHUD.tsx
 
 import React, { useEffect, useState } from "react";
 
@@ -50,7 +50,7 @@ const GlyphSummaryHUD: React.FC<GlyphSummaryHUDProps> = ({ glyphDiff }) => {
   const [trigger, setTrigger] = useState<GlyphTrigger | null>(null);
   const [traceLog, setTraceLog] = useState<GlyphTrigger[]>([]);
 
-useEffect(() => {
+  useEffect(() => {
     if (glyphDiff?.summary) {
       setSummary(glyphDiff.summary);
     }
@@ -81,7 +81,7 @@ useEffect(() => {
           setTraceLog((prev) => [newTrigger, ...prev.slice(0, 9)]);
         }
       } catch (err) {
-        console.error("GlyphSummary WS error parsing:", err);
+        console.error("GlyphSummary WS parse error:", err);
       }
     };
 
@@ -123,6 +123,7 @@ useEffect(() => {
   return (
     <div className="p-4 rounded-md bg-white shadow border text-sm space-y-3 max-h-[90vh] overflow-y-auto">
       <div>🧮 <strong>Total Glyphs:</strong> {summary.total}</div>
+
       <div>🔠 <strong>Types:</strong>
         <ul className="ml-4 list-disc">
           {Object.entries(summary.types).map(([type, count]) => (
@@ -130,13 +131,15 @@ useEffect(() => {
           ))}
         </ul>
       </div>
+
       <div>🔁 <strong>Changed this tick:</strong> {summary.changed}</div>
       <div>💀 <strong>Decayed:</strong> {summary.decayed}</div>
+
       <div>📊 <strong>Lifespan:</strong>
         <ul className="ml-4 list-disc">
-          <li>Average: {summary.lifespanStats.average.toFixed(2)}</li>
-          <li>Oldest: {summary.lifespanStats.oldest}</li>
-          <li>Youngest: {summary.lifespanStats.youngest}</li>
+          <li>Average: {summary.lifespanStats?.average?.toFixed(2) ?? "N/A"}</li>
+          <li>Oldest: {summary.lifespanStats?.oldest ?? "N/A"}</li>
+          <li>Youngest: {summary.lifespanStats?.youngest ?? "N/A"}</li>
         </ul>
       </div>
 
@@ -145,7 +148,9 @@ useEffect(() => {
           <div>🧠 <strong>Tick:</strong> {runtime.tick}</div>
           <div>🚦 <strong>Mode:</strong> {runtime.mode}</div>
           <div>📦 <strong>Container:</strong> {runtime.container}</div>
-          <div>📍 <strong>Position:</strong> x={runtime.position.x}, y={runtime.position.y}, z={runtime.position.z}, t={runtime.position.t}</div>
+          <div>
+            📍 <strong>Position:</strong> x={runtime.position.x}, y={runtime.position.y}, z={runtime.position.z}, t={runtime.position.t}
+          </div>
           {runtime.active_glyphs !== undefined && (
             <div>✨ <strong>Active Glyphs:</strong> {runtime.active_glyphs}</div>
           )}

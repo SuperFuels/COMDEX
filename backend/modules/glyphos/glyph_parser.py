@@ -3,9 +3,9 @@
 
 import re
 import json
-from typing import List, Dict, Optional, Union
+from typing import List, Dict, Optional
 
-# Sample glyph structure for bootloading reference
+# ─── 🔠 Symbol Table ────────────────────────────────────────────────────────────
 
 glyph_index = {
     "🜁": {"name": "memory_seed", "type": "instruction", "tags": ["init", "load"]},
@@ -16,6 +16,7 @@ glyph_index = {
     "⟁": {"name": "dimension_lock", "type": "barrier", "tags": ["test", "gate"]}
 }
 
+# ─── 🧩 Glyph Object ────────────────────────────────────────────────────────────
 
 class Glyph:
     def __init__(self, symbol: str):
@@ -30,9 +31,11 @@ class Glyph:
             "symbol": self.symbol,
             "name": self.definition.get("name", "unknown"),
             "type": self.definition.get("type", "unknown"),
-            "tags": self.definition.get("tags", [])
+            "tags": self.definition.get("tags", []),
+            "valid": self.is_valid()
         }
 
+# ─── ⟦ Structured Glyph Parser ⟧ ────────────────────────────────────────────────
 
 class StructuredGlyph:
     def __init__(self, raw: str):
@@ -43,8 +46,9 @@ class StructuredGlyph:
         """
         Parse glyphs in the format:
         ⟦ Type | Target : Value → Action ⟧
+        Allows symbols and operators in Value/Action.
         """
-        pattern = r"⟦\s*(\w+)\s*\|\s*(\w+)\s*:\s*([\w\d\s\-]+)\s*→\s*([\S]+)\s*⟧"
+        pattern = r"⟦\s*(\w+)\s*\|\s*(\w+)\s*:\s*([^\→]+?)\s*→\s*(.+?)\s*⟧"
         match = re.match(pattern, self.raw)
         if not match:
             return {
@@ -63,6 +67,7 @@ class StructuredGlyph:
     def to_dict(self) -> Dict:
         return self.parsed
 
+# ─── 🔍 Unified Parser ──────────────────────────────────────────────────────────
 
 class GlyphParser:
     def __init__(self, input_string: str):
@@ -71,35 +76,33 @@ class GlyphParser:
 
     def parse(self) -> List[Dict]:
         if self.input.startswith("⟦") and self.input.endswith("⟧"):
-            # Structured glyph
             structured = StructuredGlyph(self.input)
             self.parsed = [structured.to_dict()]
         else:
-            # Individual glyphs
             symbols = list(self.input)
-            self.parsed = [Glyph(sym).to_dict() for sym in symbols if Glyph(sym).is_valid()]
+            self.parsed = [Glyph(sym).to_dict() for sym in symbols]
         return self.parsed
 
     def dump_json(self) -> str:
         return json.dumps(self.parse(), indent=2)
 
+# ─── ✅ Helper: Single-Glyph Parse ──────────────────────────────────────────────
 
-# ✅ Top-level helper for other modules
 def parse_glyph(bytecode: str) -> Dict:
     parsed = GlyphParser(bytecode).parse()
     return parsed[0] if parsed else {"symbol": bytecode, "error": "Invalid glyph"}
 
+# ─── 🧪 CLI Test Harness ────────────────────────────────────────────────────────
 
-# 🔁 CLI test
 if __name__ == "__main__":
     test_cases = [
         "🜁⚛✦🧭⌬⟁",
         "⟦ Write | Glyph : Self → ⬁ ⟧",
         "⟦ Mutate | Cube : Logic → Dual ⟧",
-        "⟦ Invalid ⟧"
+        "⟦ Invalid ⟧",
+        "💀✪🌌",  # invalid glyphs
     ]
     for case in test_cases:
-        print(f"Input: {case}")
+        print(f"\nInput: {case}")
         parser = GlyphParser(case)
         print(parser.dump_json())
-        print("---")

@@ -8,6 +8,7 @@ import requests
 
 from backend.modules.dna_chain.switchboard import DNA_SWITCH
 from backend.config import GLYPH_API_BASE_URL
+from backend.modules.codex.codex_scroll_builder import build_scroll_from_glyph  # ✅ NEW IMPORT
 
 DNA_SWITCH.register(__file__)
 
@@ -126,6 +127,16 @@ class MemoryEngine:
         tags = self.detect_tags(content)
         if tags:
             memory_obj["milestone_tags"] = tags
+
+        # ✅ Scroll conversion for glyph or glyph_tree
+        if memory_obj.get("glyph") or memory_obj.get("glyph_tree"):
+            try:
+                scroll_data = build_scroll_from_glyph(memory_obj.get("glyph") or memory_obj.get("glyph_tree"))
+                memory_obj["scroll_preview"] = scroll_data.get("codexlang")
+                memory_obj["scroll_tree"] = scroll_data.get("tree")
+                print("🌀 Attached scroll to memory entry.")
+            except Exception as e:
+                print(f"⚠️ Failed to build scroll from glyph: {e}")
 
         self.memory.append(memory_obj)
         self.embeddings.append(embedding)

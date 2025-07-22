@@ -18,6 +18,9 @@ from backend.modules.dna_chain.dna_proposer import propose_dna_mutation
 # ✅ Self-rewriting import
 from backend.modules.glyphos.glyph_mutator import run_self_rewrite
 
+# ✅ Tessaris trigger support
+from backend.modules.tessaris.tessaris_trigger import TessarisTrigger
+
 import time
 import uuid
 
@@ -84,6 +87,8 @@ class GlyphExecutor:
             "tick": current_tick,
             "origin": "glyph_executor",
         }
+
+        # === TRIGGER MAP ===
 
         if glyph == "🦰":
             self.goal_engine.boot_next_skill()
@@ -203,6 +208,36 @@ class GlyphExecutor:
                     "result": True
                 })
                 self.bridge.trace_trigger(glyph, {**trace_data, "role": "Self-rewriting glyph"})
+
+        elif glyph == "🧠":
+            TessarisTrigger().run_from_memory(context=trace_data)
+            self.memory_engine.store({
+                **trace_data,
+                "type": "glyph_trigger",
+                "action": "tessaris_memory",
+            })
+            self.bridge.trace_trigger(glyph, {**trace_data, "role": "Tessaris from memory"})
+            await self.broadcast_glyph_execution(glyph, "tessaris_memory", "tessaris", coord)
+
+        elif glyph == "🧬":
+            TessarisTrigger().run_from_dna(context=trace_data)
+            self.memory_engine.store({
+                **trace_data,
+                "type": "glyph_trigger",
+                "action": "tessaris_dna",
+            })
+            self.bridge.trace_trigger(glyph, {**trace_data, "role": "Tessaris from DNA"})
+            await self.broadcast_glyph_execution(glyph, "tessaris_dna", "tessaris", coord)
+
+        elif glyph == "🪄":
+            TessarisTrigger().run_from_symbol(context=trace_data)
+            self.memory_engine.store({
+                **trace_data,
+                "type": "glyph_trigger",
+                "action": "tessaris_symbol",
+            })
+            self.bridge.trace_trigger(glyph, {**trace_data, "role": "Tessaris from symbol"})
+            await self.broadcast_glyph_execution(glyph, "tessaris_symbol", "tessaris", coord)
 
         else:
             self.memory_engine.store({

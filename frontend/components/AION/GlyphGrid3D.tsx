@@ -1,11 +1,18 @@
 'use client';
 
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Html } from "@react-three/drei";
+import * as THREE from "three";
 
 export interface GlyphGrid3DProps {
-  cubes: { [coord: string]: { glyph?: string; age_ms?: number; denied?: boolean } };
+  cubes: {
+    [coord: string]: {
+      glyph?: string;
+      age_ms?: number;
+      denied?: boolean;
+    };
+  };
   onGlyphClick?: (coord: string, data: any) => void;
 }
 
@@ -21,7 +28,12 @@ const getColor = (glyph: string, age_ms?: number, denied?: boolean) => {
 };
 
 const GlyphCube = ({
-  x, y, z, coord, data, onClick,
+  x,
+  y,
+  z,
+  coord,
+  data,
+  onClick,
 }: {
   x: number;
   y: number;
@@ -30,20 +42,25 @@ const GlyphCube = ({
   data: { glyph?: string; age_ms?: number; denied?: boolean };
   onClick?: (coord: string, data: any) => void;
 }) => {
+  const [hovered, setHovered] = useState(false);
   const color = getColor(data.glyph || "", data.age_ms, data.denied);
   const label = data.glyph || "";
+  const scale = hovered ? 1.1 : 1.0;
 
   return (
     <mesh
       position={[x, z, y]}
+      scale={[scale, scale, scale]}
       onClick={() => onClick?.(coord, data)}
+      onPointerOver={() => setHovered(true)}
+      onPointerOut={() => setHovered(false)}
       castShadow
       receiveShadow
     >
       <boxGeometry args={[0.9, 0.9, 0.9]} />
-      <meshStandardMaterial color={color} />
+      <meshStandardMaterial color={color} emissive={data.denied ? "#f87171" : "#000000"} emissiveIntensity={data.denied ? 0.5 : 0} />
       {label && (
-        <Html center distanceFactor={10} style={{ fontSize: "10px", pointerEvents: "none" }}>
+        <Html center distanceFactor={8} style={{ fontSize: "10px", pointerEvents: "none" }}>
           {label}
         </Html>
       )}
@@ -81,7 +98,7 @@ const GlyphGrid3D: React.FC<GlyphGrid3DProps> = ({ cubes, onGlyphClick }) => {
     <div style={{ width: "100%", height: "600px", minHeight: "600px", overflow: "visible" }}>
       <Canvas shadows camera={{ position: [10, 10, 10], fov: 50 }}>
         <ambientLight intensity={0.6} />
-        <pointLight position={[10, 20, 10]} intensity={1} castShadow />
+        <pointLight position={[10, 20, 10]} intensity={1.2} castShadow />
         <OrbitControls enableDamping />
         {glyphCubes}
       </Canvas>

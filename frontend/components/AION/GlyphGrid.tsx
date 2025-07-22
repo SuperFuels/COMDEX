@@ -1,7 +1,15 @@
+// frontend/components/GlyphGrid.tsx
 import React, { useState, useEffect, useRef } from "react";
 import useWebSocket from "@/hooks/useWebSocket";
 import GlyphInspector from "./GlyphInspector";
-import { TimerReset, Filter, RefreshCw, Save, XCircle, Download } from "lucide-react";
+import {
+  TimerReset,
+  Filter,
+  RefreshCw,
+  Save,
+  XCircle,
+  Download,
+} from "lucide-react";
 
 export interface GlyphGridProps {
   cubes: { [coord: string]: { glyph?: string; [key: string]: any } };
@@ -26,7 +34,8 @@ const GlyphGrid: React.FC<GlyphGridProps> = ({
   const [hudStats, setHudStats] = useState({ total: 0, active: 0, decaying: 0, mutated: 0, denied: 0 });
   const [snapshots, setSnapshots] = useState<{ [name: string]: any }>({});
   const [selectedSnapshot, setSelectedSnapshot] = useState<string | null>(null);
-  const [recentTriggers, setRecentTriggers] = useState<{ [coord: string]: boolean }>({});
+  const [recentTriggers, setRecentTriggers] = useState<{ [coord: string]: { reason: string } }>({});
+  const [zOptions, setZOptions] = useState<number[]>([0]);
 
   const gridRef = useRef<HTMLDivElement>(null);
 
@@ -34,6 +43,13 @@ const GlyphGrid: React.FC<GlyphGridProps> = ({
     "wss://comdex-api-swift-area-459514-d1-uc.a.run.app/ws/containers",
     (incoming) => {
       if (incoming?.cubes) {
+        const allZs = new Set<number>();
+        Object.keys(incoming.cubes).forEach((coord) => {
+          const [, , z] = coord.split(",").map(Number);
+          allZs.add(z);
+        });
+        setZOptions(Array.from(allZs).sort((a, b) => a - b));
+
         setPreviousGlyphs((prev) => {
           const updates: { [coord: string]: string } = {};
           for (const coord in incoming.cubes) {
@@ -50,45 +66,26 @@ const GlyphGrid: React.FC<GlyphGridProps> = ({
   );
 
   useEffect(() => {
-    if (!connected) {
-      const interval = setInterval(async () => {
-        try {
-          const baseUrl = process.env.NEXT_PUBLIC_API_URL || '';
-          const res = await fetch(`${baseUrl}/aion/containers`);
-          const data = await res.json();
-          if (data?.cubes) setGlyphData(data.cubes);
-        } catch (err) {
-          console.warn("Polling failed:", err);
+    const loadRecentTriggers = async () => {
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/aion/glyph-triggers/recent`);
+        const json = await res.json();
+        if (Array.isArray(json?.triggers)) {
+          const mapped: { [coord: string]: { reason: string } } = {};
+          json.triggers.forEach((t: any) => {
+            if (t.coord) mapped[t.coord] = { reason: t.reason || "event" };
+          });
+          setRecentTriggers(mapped);
         }
-      }, 3000);
-
-      return () => clearInterval(interval);
-    }
-  }, [connected]);
-
-  useEffect(() => {
-    setGlyphData(cubes);
-  }, [cubes, tick]);
-
-    useEffect(() => {
-  const loadRecentTriggers = async () => {
-    try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/aion/glyph-triggers/recent`);
-      const json = await res.json();
-      if (Array.isArray(json?.triggers)) {
-        const mapped: { [coord: string]: boolean } = {};
-        json.triggers.forEach((t: { coord?: string }) => {
-          if (t.coord) mapped[t.coord] = true;
-        });
-        setRecentTriggers(mapped);
+      } catch (err) {
+        console.warn("Trigger log load failed:", err);
       }
-    } catch (err) {
-      console.warn("Trigger log load failed:", err);
-    }
-  };
-  loadRecentTriggers();
-}, []);
-  
+    };
+    loadRecentTriggers();
+    const interval = setInterval(loadRecentTriggers, 10000);
+    return () => clearInterval(interval);
+  }, []);
+
   const loadSnapshot = async () => {
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/aion/glyph-runtime/snapshot`);
@@ -104,8 +101,7 @@ const GlyphGrid: React.FC<GlyphGridProps> = ({
   };
 
   const saveSnapshot = () => {
-    const name = prompt("Enter a name for this snapshot:");
-    if (!name) return;
+    const name = prompt("Enter a name for this snapshot:") || `tick-${tick}`;
     setSnapshots((prev) => ({ ...prev, [name]: glyphData }));
     alert(`Snapshot '${name}' saved.`);
   };
@@ -160,8 +156,6 @@ const GlyphGrid: React.FC<GlyphGridProps> = ({
     return "bg-gray-100";
   };
 
-  // [...unchanged imports and state setup]
-
   const renderCell = (x: number, y: number) => {
     const key = `${x},${y},${zLevel}`;
     const data = glyphData[key] || {};
@@ -170,7 +164,7 @@ const GlyphGrid: React.FC<GlyphGridProps> = ({
     const ageSec = Math.floor(ageMs / 1000);
     const changed = previousGlyphs[key] !== undefined && previousGlyphs[key] !== glyph;
     const denied = data?.denied === true;
-    const triggered = recentTriggers[key] === true;
+    const triggered = recentTriggers[key];
     const color = getGlyphColor(glyph, ageMs, changed, denied);
     const percent = Math.min(ageSec / filter.maxAge, 1) * 100;
 
@@ -190,12 +184,9 @@ const GlyphGrid: React.FC<GlyphGridProps> = ({
         className={`w-6 h-6 border text-xs text-center cursor-pointer flex flex-col items-center justify-center hover:scale-105 transition transform relative ${color}`}
         title={tooltip}
       >
-        {/* Glow ring for triggered glyph */}
         {triggered && (
-          <div className="absolute inset-0 rounded-sm border-2 border-blue-500 animate-ping pointer-events-none z-10"></div>
+          <div className="absolute inset-0 rounded-sm border-2 border-blue-500 animate-ping pointer-events-none z-10" />
         )}
-
-        {/* Glyph text */}
         <div className="z-20">
           {denied ? <XCircle className="w-3 h-3 text-red-700" /> :
             viewMode === "glyph-logic"
@@ -204,16 +195,12 @@ const GlyphGrid: React.FC<GlyphGridProps> = ({
               ? `⟦${glyph}⟧`
               : glyph}
         </div>
-
-        {/* Progress bar */}
         <div className="w-full h-1 mt-[1px] bg-gray-200 z-20">
           <div className="h-1 bg-green-500" style={{ width: `${percent}%` }} />
         </div>
-
-        {/* Floating trigger label */}
         {triggered && (
           <div className="absolute -top-5 left-1/2 transform -translate-x-1/2 text-[10px] px-1 py-[1px] bg-blue-100 text-blue-800 border border-blue-300 rounded shadow z-30">
-            ↪ triggered {data?.action || "event"}
+            ↪ triggered {triggered.reason}
           </div>
         )}
       </div>
@@ -222,7 +209,11 @@ const GlyphGrid: React.FC<GlyphGridProps> = ({
 
   const handleMinimapClick = (x: number, y: number) => {
     const cell = document.getElementById(`cell-${x},${y},${zLevel}`);
-    cell?.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
+    if (cell) {
+      cell.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
+      cell.classList.add("ring-4", "ring-blue-400");
+      setTimeout(() => cell.classList.remove("ring-4", "ring-blue-400"), 800);
+    }
   };
 
   useEffect(() => {
@@ -250,11 +241,10 @@ const GlyphGrid: React.FC<GlyphGridProps> = ({
             value={zLevel}
             onChange={(e) => setZLevel(parseInt(e.target.value))}
           >
-            {[...Array(5)].map((_, i) => (
-              <option key={i} value={i}>{i}</option>
+            {zOptions.map((z) => (
+              <option key={z} value={z}>{z}</option>
             ))}
           </select>
-
           <label className="ml-2 text-sm">Zoom:</label>
           <select
             className="border p-1 rounded text-sm"
@@ -265,7 +255,6 @@ const GlyphGrid: React.FC<GlyphGridProps> = ({
             <option value={1}>100%</option>
             <option value={2}>200%</option>
           </select>
-
           <button onClick={loadSnapshot} className="ml-2 px-2 py-1 bg-gray-100 hover:bg-gray-200 text-sm rounded border">
             <TimerReset className="inline-block w-4 h-4 mr-1" /> Load Snapshot
           </button>
@@ -285,7 +274,6 @@ const GlyphGrid: React.FC<GlyphGridProps> = ({
               <option key={name} value={name}>{name}</option>
             ))}
           </select>
-
           <span className="text-xs text-gray-500 pl-2">⏱️ Tick: <span className="font-mono">{tick}</span></span>
         </div>
         <div className="text-xs text-gray-500">{connected ? "🟢 Live (WebSocket)" : "🟡 Polling fallback"}</div>
@@ -317,12 +305,10 @@ const GlyphGrid: React.FC<GlyphGridProps> = ({
         />
       </div>
 
-      {/* Glyph HUD */}
       <div className="text-xs text-gray-700 mb-2">
         Total: {hudStats.total} | Active: {hudStats.active} | Decaying: {hudStats.decaying} | Mutated: {hudStats.mutated} | Denied: {hudStats.denied}
       </div>
 
-      {/* Glyph Grid */}
       <div
         ref={gridRef}
         className="grid gap-1 overflow-auto border p-1"
@@ -337,7 +323,6 @@ const GlyphGrid: React.FC<GlyphGridProps> = ({
         )}
       </div>
 
-      {/* Minimap */}
       <div className="absolute bottom-2 right-2 bg-white border p-1 shadow-md z-10">
         <div className="grid gap-[1px]" style={{ gridTemplateColumns: `repeat(${maxX + 1}, 1fr)` }}>
           {Array.from({ length: (maxX + 1) * (maxY + 1) }).map((_, i) => {
@@ -358,7 +343,6 @@ const GlyphGrid: React.FC<GlyphGridProps> = ({
         </div>
       </div>
 
-      {/* Inspector */}
       {selectedCoord && selectedData && (
         <GlyphInspector
           coord={selectedCoord}

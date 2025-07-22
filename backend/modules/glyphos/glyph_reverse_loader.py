@@ -1,4 +1,4 @@
-# File: backend/modules/glyphos/glyph_reverse_loader.py
+# backend/modules/glyphos/glyph_reverse_loader.py
 
 import os
 import json
@@ -22,11 +22,11 @@ def cube_to_coord(cube: Dict[str, Any]) -> str:
 
 def parse_glyph(bytecode: str) -> Dict[str, Any]:
     """Use GlyphParser to interpret a single bytecode string."""
-    parser = GlyphParser()
-    return parser.parse(bytecode)
+    parser = GlyphParser(bytecode)
+    return parser.parse()[0]  # Return single glyph result
 
 
-def extract_glyphs_from_container(dc_path: str):
+def extract_glyphs_from_container(dc_path: str) -> List[Dict[str, Any]]:
     """Extract glyph-like bytecode from all cubes in a .dc container."""
     dimension = load_dimension(dc_path)
     glyphs = []
@@ -62,7 +62,13 @@ def extract_glyph_chain(microgrid: Dict[str, Dict[str, Any]]) -> List[Dict[str, 
                 "action": cube.get("action")
             })
     # Optional: sort by spatial coordinates for consistency
-    chain.sort(key=lambda c: tuple(map(int, c["coord"].split(","))))
+    def coord_key(c):
+        try:
+            return tuple(map(int, c["coord"].split(",")))
+        except:
+            return (0, 0, 0)
+
+    chain.sort(key=coord_key)
     return chain
 
 
@@ -85,11 +91,21 @@ def unfold_logic_tree(microgrid: Dict[str, Dict[str, Any]]) -> Dict[str, Any]:
 
 
 if __name__ == "__main__":
-    # Example CLI usage
     import sys
     if len(sys.argv) < 2:
-        print("Usage: python glyph_reverse_loader.py path/to/container.dc")
+        print("Usage: python glyph_reverse_loader.py path/to/container.dc.json")
     else:
         path = sys.argv[1]
-        results = extract_glyphs_from_container(path)
-        print(json.dumps(results, indent=2))
+        print(f"\n🔁 Extracting glyphs from {path}...\n")
+        glyphs = extract_glyphs_from_container(path)
+        print("🧠 Parsed Glyphs:")
+        print(json.dumps(glyphs, indent=2))
+
+        # Also test unfolding tree
+        try:
+            dimension = load_dimension(path)
+            tree_result = unfold_logic_tree(dimension.get("cubes", {}))
+            print("\n🌳 Symbolic Glyph Tree:")
+            print(json.dumps(tree_result, indent=2))
+        except Exception as e:
+            print(f"[⚠️] Failed to build tree: {e}")

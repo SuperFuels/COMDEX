@@ -1,8 +1,10 @@
 # File: backend/modules/glyphos/glyph_utils.py
 
 import hashlib
+from typing import List
 
-def parse_to_glyphos(data: str) -> list:
+
+def parse_to_glyphos(data: str) -> List[str]:
     """Parse natural language into symbolic glyphs based on keyword matching."""
     text = data.lower()
     glyphs = []
@@ -34,6 +36,10 @@ def summarize_to_glyph(summary_text: str) -> str:
     return glyphs[0] if glyphs else "✦"
 
 
-def generate_hash(content: str) -> str:
-    """Generate a SHA256 hash for a given string input."""
-    return hashlib.sha256(content.encode('utf-8')).hexdigest()
+def generate_hash(glyphs: List[str]) -> str:
+    """
+    Generate a unique hash string for a list of glyphs, used for deduplication.
+    Ensures consistent symbolic packet recognition.
+    """
+    raw = "|".join(sorted(glyphs))
+    return hashlib.sha256(raw.encode("utf-8")).hexdigest()

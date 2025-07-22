@@ -1,4 +1,4 @@
-# File: backend/modules/tessaris/tessaris_trigger.py
+# backend/modules/tessaris/tessaris_trigger.py
 
 from typing import Optional, Dict, Any
 from backend.modules.tessaris.thought_branch import ThoughtBranch, BranchNode
@@ -105,7 +105,7 @@ def trigger_tessaris_from_goal(goal_data: dict):
     return result
 
 
-# Example manual triggers (for CLI/testing)
+# 🧪 Example manual triggers (for CLI/testing)
 if __name__ == "__main__":
     trigger = TessarisTrigger()
     trigger.run_from_goal("Complete the lava challenge", metadata={"label": "goal_lava"})

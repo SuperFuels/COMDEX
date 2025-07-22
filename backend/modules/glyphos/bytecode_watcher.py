@@ -2,7 +2,7 @@
 
 import time
 import threading
-from typing import Callable
+from typing import Callable, Dict, Union
 from backend.modules.dimensions.dc_handler import load_dimension
 from backend.modules.glyphos.glyph_parser import parse_glyph
 from backend.modules.glyphos.microgrid_index import cube_to_coord
@@ -22,17 +22,25 @@ class BytecodeWatcher:
         while self._running:
             try:
                 dimension = load_dimension(self.dc_path)
-                cubes = dimension.get("cubes", [])
-                for cube in cubes:
-                    coord = cube_to_coord(cube)
-                    bytecode = cube.get("bytecode")
-                    if bytecode and coord not in self._seen:
-                        try:
+                cubes = dimension.get("cubes", {})
+
+                # Support both list and dict styles
+                if isinstance(cubes, list):
+                    items = enumerate(cubes)
+                else:
+                    items = cubes.items()
+
+                for coord_key, cube in items:
+                    try:
+                        coord = cube_to_coord(cube) if isinstance(cube, dict) else str(coord_key)
+                        bytecode = cube.get("bytecode")
+                        if bytecode and coord not in self._seen:
                             glyph = parse_glyph(bytecode)
                             self.on_glyph_detected(glyph, coord)
                             self._seen.add(coord)
-                        except Exception as e:
-                            print(f"[⚠️] Skipping invalid glyph at {coord}: {e}")
+                    except Exception as e:
+                        print(f"[⚠️] Skipping invalid glyph at {coord_key}: {e}")
+
                 print(f"[🔍] Scanned {len(cubes)} cubes in {self.dc_path}")
             except Exception as e:
                 print(f"[❌] Watcher error: {e}")

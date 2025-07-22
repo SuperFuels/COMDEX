@@ -1,26 +1,35 @@
+// frontend/components/AION/AIONGlyphMutator.tsx
 'use client';
+
 import React, { useState, useEffect } from "react";
+
+interface GlyphLogic {
+  type: string;
+  tag: string;
+  value: string;
+  action: string;
+  [key: string]: any;
+}
 
 interface GlyphMutatorProps {
   containerId: string;
   coord: string;
-  glyphData: any;
+  glyphData: GlyphLogic;
   onMutationComplete: () => void;
   onClose?: () => void;
 }
 
-// ✅ Normalizes API base by stripping trailing /api if present
 const API_BASE = process.env.NEXT_PUBLIC_API_URL?.replace(/\/+$/, '') || '';
 
-export default function GlyphMutator({
+export default function AIONGlyphMutator({
   containerId,
   coord,
   glyphData,
   onMutationComplete,
   onClose,
 }: GlyphMutatorProps) {
-  const [originalGlyph, setOriginalGlyph] = useState(glyphData);
-  const [editedGlyph, setEditedGlyph] = useState(glyphData);
+  const [originalGlyph, setOriginalGlyph] = useState<GlyphLogic>(glyphData);
+  const [editedGlyph, setEditedGlyph] = useState<GlyphLogic>(glyphData);
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
   const [diff, setDiff] = useState<string | null>(null);
@@ -28,6 +37,7 @@ export default function GlyphMutator({
   useEffect(() => {
     setOriginalGlyph(glyphData);
     setEditedGlyph(glyphData);
+    setDiff(null);
   }, [glyphData]);
 
   const handleSubmit = async () => {
@@ -40,7 +50,7 @@ export default function GlyphMutator({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           from_container: containerId,
-          coord: coord,
+          coord,
           logic_before: originalGlyph,
           logic_after: editedGlyph,
         }),
@@ -62,39 +72,61 @@ export default function GlyphMutator({
     setTimeout(() => setStatus("idle"), 3000);
   };
 
+  const handleFieldChange = (field: keyof GlyphLogic, value: string) => {
+    setEditedGlyph((prev) => ({ ...prev, [field]: value }));
+  };
+
   const generateDiff = () => {
-    const linesBefore = originalGlyph.split("\n");
-    const linesAfter = editedGlyph.split("\n");
-    const result: string[] = [];
+    const keys = new Set([...Object.keys(originalGlyph), ...Object.keys(editedGlyph)]);
+    const lines: string[] = [];
 
-    for (let i = 0; i < Math.max(linesBefore.length, linesAfter.length); i++) {
-      const before = linesBefore[i] || "";
-      const after = linesAfter[i] || "";
+    keys.forEach((key) => {
+      const before = originalGlyph[key] || "";
+      const after = editedGlyph[key] || "";
       if (before !== after) {
-        result.push(`- ${before}`);
-        result.push(`+ ${after}`);
+        lines.push(`- ${key}: ${before}`);
+        lines.push(`+ ${key}: ${after}`);
       } else {
-        result.push(`  ${before}`);
+        lines.push(`  ${key}: ${before}`);
       }
-    }
+    });
 
-    setDiff(result.join("\n"));
+    setDiff(lines.join("\n"));
+  };
+
+  const renderField = (label: keyof GlyphLogic) => (
+    <label key={label} className="block mb-2">
+      {(label as string).charAt(0).toUpperCase() + (label as string).slice(1)}:
+      <input
+        className="w-full border px-2 py-1 text-sm rounded"
+        value={editedGlyph[label] || ""}
+        onChange={(e) => handleFieldChange(label, e.target.value)}
+      />
+    </label>
+  );
+
+  const renderSymbolicPreview = () => {
+    const { type, tag, value, action } = editedGlyph;
+    return `⟦ ${type || "?"} | ${tag || "?"} : ${value || "?"} → ${action || "?"} ⟧`;
   };
 
   return (
     <div className="p-4 border rounded bg-white shadow-md max-w-xl w-full">
       <h2 className="text-lg font-bold mb-2">🧬 Glyph Mutator</h2>
-      <p className="text-sm mb-2 text-gray-600">
+      <p className="text-sm mb-3 text-gray-600">
         Container: <strong>{containerId}</strong> | Coord: <strong>{coord}</strong>
       </p>
 
-      <textarea
-        className="w-full h-40 p-2 border rounded text-sm font-mono"
-        value={editedGlyph}
-        onChange={(e) => setEditedGlyph(e.target.value)}
-      />
+      <div className="space-y-2">
+        {["type", "tag", "value", "action"].map((field) => renderField(field as keyof GlyphLogic))}
+      </div>
 
-      <div className="flex justify-between mt-3">
+      <div className="mt-3">
+        <div className="text-xs text-gray-500 mb-1">Symbolic Preview:</div>
+        <div className="bg-gray-100 p-2 font-mono text-sm rounded">{renderSymbolicPreview()}</div>
+      </div>
+
+      <div className="flex justify-between mt-4 items-center gap-2">
         <button
           onClick={handleSubmit}
           disabled={status === "submitting"}
@@ -113,7 +145,7 @@ export default function GlyphMutator({
         {onClose && (
           <button
             onClick={onClose}
-            className="text-sm text-red-500 hover:underline"
+            className="text-sm text-red-500 hover:underline ml-auto"
           >
             Close
           </button>
@@ -128,7 +160,7 @@ export default function GlyphMutator({
       )}
 
       {diff && (
-        <pre className="mt-3 p-3 bg-gray-100 border rounded text-xs overflow-auto max-h-40">
+        <pre className="mt-3 p-3 bg-gray-100 border rounded text-xs overflow-auto max-h-40 whitespace-pre-wrap">
           {diff}
         </pre>
       )}

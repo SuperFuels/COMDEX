@@ -1,5 +1,3 @@
-# backend/modules/glyphos/glyph_mutation_loop.py
-
 import threading
 import time
 import traceback
@@ -17,7 +15,7 @@ class GlyphMutationLoop(threading.Thread):
       - Self-rewriting logic (⬁ glyphs)
     """
     def __init__(self, tick_interval_sec: float = 5.0, container_filter: Optional[list] = None):
-        super().__init__()
+        super().__init__(daemon=True)
         self.tick_interval = tick_interval_sec
         self.running = False
         self.container_filter = container_filter  # If set, restrict to specific container IDs

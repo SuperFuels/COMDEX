@@ -3,6 +3,7 @@
 import time
 import threading
 import asyncio
+from typing import Dict, Any, Optional
 from backend.modules.consciousness.state_manager import StateManager
 from backend.modules.glyphos.glyph_executor import GlyphExecutor
 from backend.modules.websocket_manager import WebSocketManager
@@ -19,16 +20,16 @@ class ContainerRuntime:
     def __init__(self, state_manager: StateManager, tick_interval: float = 2.0):
         self.state_manager = state_manager
         self.executor = GlyphExecutor(state_manager)
-        self.glyph_watcher = GlyphWatcher(state_manager)  # ✅ Watcher for ⎇: or ⧉: glyphs
+        self.glyph_watcher = GlyphWatcher(state_manager)
         self.tick_interval = tick_interval
         self.running = False
-        self.logs = []
-        self.websocket = WebSocketManager()  # Optional WebSocket feedback
+        self.logs: list[Dict[str, Any]] = []
+        self.websocket = WebSocketManager()
         self.tick_counter = 0
         self.loop_enabled = False
-        self.loop_interval = 50  # How many ticks before looping
-        self.rewind_buffer = []
-        self.max_rewind = 5  # Store last 5 container states
+        self.loop_interval = 50
+        self.rewind_buffer: list[Dict[str, Any]] = []
+        self.max_rewind = 5
 
         # ✅ Async event loop in background thread
         self.async_loop = asyncio.new_event_loop()
@@ -72,7 +73,7 @@ class ContainerRuntime:
 
             time.sleep(self.tick_interval)
 
-    def run_tick(self):
+    def run_tick(self) -> Dict[str, Any]:
         container = self.state_manager.get_current_container()
         cubes = container.get("cubes", {})
         tick_log = {"executed": []}
@@ -111,7 +112,7 @@ class ContainerRuntime:
         self.apply_decay(container["cubes"])
         return tick_log
 
-    def apply_decay(self, cubes):
+    def apply_decay(self, cubes: Dict[str, Dict[str, Any]]):
         for coord, data in cubes.items():
             if "glyph" in data and data.get("decay", False):
                 data["lifespan"] = data.get("lifespan", 10) - 1
@@ -119,15 +120,15 @@ class ContainerRuntime:
                     print(f"💀 Glyph at {coord} decayed.")
                     data["glyph"] = ""
 
-    def get_logs(self, limit=20):
+    def get_logs(self, limit: int = 20) -> list[Dict[str, Any]]:
         return self.logs[-limit:]
 
-    def enable_looping(self, enable=True, interval=50):
+    def enable_looping(self, enable: bool = True, interval: int = 50):
         self.loop_enabled = enable
         self.loop_interval = interval
 
     # ✅ Timeline playback support
-    def get_rewind_state(self, tick_offset: int = -1):
+    def get_rewind_state(self, tick_offset: int = -1) -> Optional[Dict[str, Any]]:
         if not self.rewind_buffer:
             return None
         index = tick_offset % len(self.rewind_buffer)
@@ -135,6 +136,6 @@ class ContainerRuntime:
 
 
 # ✅ External getter used by FastAPI route or runtime script
-def get_container_runtime(tick_interval=2.0) -> ContainerRuntime:
+def get_container_runtime(tick_interval: float = 2.0) -> ContainerRuntime:
     state_manager = StateManager()
     return ContainerRuntime(state_manager, tick_interval=tick_interval)

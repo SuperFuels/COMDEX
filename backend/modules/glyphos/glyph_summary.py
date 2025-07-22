@@ -11,12 +11,23 @@ GLYPH_CATEGORIES = {
     "⛓": "link",
     "🎯": "goal",
     "📜": "scroll",
-    "🧬": "mutation"
+    "🧬": "mutation",
+    "↔": "logic",
+    "⊕": "logic",
+    "⟲": "loop",
+    "→": "logic",
+    "⧖": "logic",
 }
 
 GLYPH_WEIGHTS = {
-    "⚛": 2.0,  # emotional intensity weight
-    # others can be added as needed
+    "⚛": 2.0,
+    "🧠": 1.2,
+    "🧬": 1.5,
+    "↔": 0.8,
+    "⊕": 0.6,
+    "⟲": 0.7,
+    "→": 0.5,
+    "⧖": 0.6,
 }
 
 _last_hash = None
@@ -51,7 +62,7 @@ def summarize_glyphs(cubes: dict, state_manager=None) -> dict:
         category = GLYPH_CATEGORIES.get(glyph, "unknown")
         by_category[category] += 1
 
-        # Emotional scoring
+        # Emotional / cognitive scoring
         emotion_score += GLYPH_WEIGHTS.get(glyph, 0)
 
         # Lifespan logic
@@ -82,10 +93,9 @@ def summarize_glyphs(cubes: dict, state_manager=None) -> dict:
     _last_coords = current_coords
 
     # Volume estimation (for density)
-    volume = max(len(cubes), 1)  # fallback to avoid divide-by-zero
+    volume = max(len(cubes), 1)
     density = round(total / volume, 4)
 
-    # Dominant category
     dominant_category = max(by_category.items(), key=lambda x: x[1], default=(None, 0))[0]
 
     summary = {
@@ -107,7 +117,6 @@ def summarize_glyphs(cubes: dict, state_manager=None) -> dict:
         }
     }
 
-    # Optional: add tick if available
     if state_manager and hasattr(state_manager, "get_tick"):
         try:
             summary["tick"] = state_manager.get_tick()

@@ -1,5 +1,3 @@
-# glyph_logic.py
-
 from typing import Any, Dict, List
 from backend.modules.skills.boot_selector import BootSelector
 from backend.modules.consciousness.reflection_engine import ReflectionEngine
@@ -55,11 +53,11 @@ def interpret_glyph(glyph: str, context: Dict[str, Any]) -> Dict[str, Any]:
     position = context.get("position", 0)
 
     symbol = GLYPH_SYMBOL_MAP.get(glyph, "unknown")
-    logs = [f"[Glyph] {glyph} interpreted as '{symbol}' (branch={branch.origin_id}, index={idx})"]
+    logs = [f"[Glyph] {glyph} interpreted as '{symbol}' (branch={getattr(branch, 'origin_id', '?')}, index={idx})"]
     triggered_modules = []
     memory_traces = []
 
-    # Phase 3 stub: nested expression handling (e.g. Δ(ψ + ⚙))
+    # Phase 3 stub: nested expression handling
     if "value" in meta and isinstance(meta["value"], str) and any(c in meta["value"] for c in GLYPH_SYMBOL_MAP):
         logs.append(f"🔁 Nested glyph expression found: {meta['value']} — [parser pending]")
 
@@ -74,6 +72,7 @@ def interpret_glyph(glyph: str, context: Dict[str, Any]) -> Dict[str, Any]:
         elif glyph == "⚙":
             planner = get_strategy_planner()
             plan = planner.generate()
+            store_memory({"label": "glyph_strategy_plan", "content": plan})
             logs.append("→ ⚙ Strategy planned.")
             triggered_modules.append("StrategyPlanner")
             memory_traces.append({"type": "plan", "content": plan})
@@ -123,17 +122,18 @@ def interpret_glyph(glyph: str, context: Dict[str, Any]) -> Dict[str, Any]:
         trace = {
             "glyph": glyph,
             "symbol": symbol,
-            "branch": branch.origin_id if branch else None,
+            "branch": getattr(branch, "origin_id", None),
             "index": idx,
             "position": position,
             "modules": triggered_modules,
+            "meta": meta
         }
         bridge.trace("glyph_execution", trace)
 
     return {
         "glyph": glyph,
         "symbol": symbol,
-        "branch": branch.origin_id if branch else None,
+        "branch": getattr(branch, "origin_id", None),
         "index": idx,
         "position": position,
         "log": "\n".join(logs),
@@ -145,8 +145,7 @@ def interpret_glyph(glyph: str, context: Dict[str, Any]) -> Dict[str, Any]:
 
 def analyze_branch(branch) -> List[str]:
     """
-    Basic analysis of a ThoughtBranch: returns human-readable summaries of what occurred.
-    Used for memory writing and mutation feedback.
+    Analyze a ThoughtBranch: return summaries of each glyph in sequence.
     """
     summaries = []
     for i, glyph in enumerate(branch.glyphs):

@@ -1,11 +1,13 @@
 # backend/modules/glyphos/glyph_generator.py
 # 🔁 Glyph synthesis, reverse generation, and CodexLang translation
 
-from typing import List, Dict, Optional
 import re
+from typing import List, Dict, Optional
+
 from backend.modules.glyphos.glyph_synthesis_engine import compress_to_glyphs
 from backend.modules.hexcore.memory_engine import store_memory_entry
 
+# Glyph rendering template: ⟦ type | tag : value → action ⟧
 GLYPH_TEMPLATE = "\u27E6 {type} | {tag} : {value} → {action} \u27E7"
 
 class GlyphGenerator:
@@ -14,7 +16,7 @@ class GlyphGenerator:
 
     def generate_from_text(self, input_text: str, context: str = "dream") -> List[str]:
         """
-        Compress input text into glyphs using synthesis engine and store in memory.
+        Compress input text into symbolic glyphs and store the result in memory.
         """
         glyphs = compress_to_glyphs(input_text, source=context)
         store_memory_entry("generated_glyphs", {
@@ -40,13 +42,16 @@ class GlyphGenerator:
 
     def codexlang_to_glyphs(self, codex_code: str) -> List[str]:
         """
-        Translate CodexLang string (e.g., 'Memory:Emotion = Love => Store') into glyph(s).
-        Currently supports one expression per line.
+        Convert CodexLang into glyphs. Example CodexLang:
+        Memory:Emotion = Love => Store
+        Goal:Skill = Flight => Achieve
         """
         glyphs = []
-        for line in codex_code.strip().splitlines():
+        lines = codex_code.strip().splitlines()
+
+        pattern = r"(\w+):(\w+)\s*=\s*(.+?)\s*=>\s*(\w+)"
+        for line in lines:
             line = line.strip()
-            pattern = r"(\w+):(\w+)\s*=\s*(.+?)\s*=>\s*(\w+)"
             match = re.match(pattern, line)
             if match:
                 g_type, tag, value, action = match.groups()
@@ -57,12 +62,15 @@ class GlyphGenerator:
                 glyphs.append(f"[⚠️ Invalid CodexLang: {line}]")
         return glyphs
 
+
 # 🧪 Optional: Standalone test
 if __name__ == "__main__":
     g = GlyphGenerator()
 
+    print("🔹 From Text:")
     print(g.generate_from_text("My dreams are full of light."))
 
+    print("\n🔹 Reverse Glyph:")
     dict_data = {
         "type": "Logic",
         "tag": "Truth",
@@ -71,6 +79,7 @@ if __name__ == "__main__":
     }
     print(g.reverse_generate_glyph(dict_data))
 
+    print("\n🔹 CodexLang:")
     codex_input = """
     Memory:Emotion = Gratitude => Store
     Goal:Skill = Flight => Achieve

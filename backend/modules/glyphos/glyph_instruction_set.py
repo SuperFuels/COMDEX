@@ -51,9 +51,7 @@ def op_multiply(a, b):
     return f"⊗({a}, {b})"
 
 def op_condition(condition, then_action, else_action=None):
-    if condition:
-        return then_action
-    return else_action or "No Action"
+    return then_action if condition else (else_action or "No Action")
 
 def op_delay(symbol, seconds=1):
     import time

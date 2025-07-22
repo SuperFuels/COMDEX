@@ -1,3 +1,5 @@
+// File: frontend/components/AION/GlyphTriggerEditor.tsx
+
 import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -25,17 +27,30 @@ export default function GlyphTriggerEditor() {
   const [newGlyph, setNewGlyph] = useState("");
   const [newAction, setNewAction] = useState("");
   const [newDesc, setNewDesc] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
   const addTrigger = () => {
-    if (!newGlyph || !newAction) return;
-    setTriggers([...triggers, {
-      glyph: newGlyph,
-      action: newAction,
-      description: newDesc,
-    }]);
+    if (!newGlyph.trim() || !newAction.trim()) {
+      setError("Glyph and action are required.");
+      return;
+    }
+
+    if (triggers.some(t => t.glyph === newGlyph)) {
+      setError("This glyph already has a trigger.");
+      return;
+    }
+
+    const newTrigger: TriggerMapping = {
+      glyph: newGlyph.trim(),
+      action: newAction.trim(),
+      description: newDesc.trim(),
+    };
+
+    setTriggers(prev => [...prev, newTrigger]);
     setNewGlyph("");
     setNewAction("");
     setNewDesc("");
+    setError(null);
   };
 
   return (
@@ -44,7 +59,7 @@ export default function GlyphTriggerEditor() {
 
       <div className="space-y-2">
         {triggers.map((trigger, idx) => (
-          <Card key={idx} className="bg-white">
+          <Card key={`${trigger.glyph}-${idx}`} className="bg-white">
             <CardContent className="p-3 space-y-1">
               <div className="text-xl">{trigger.glyph}</div>
               <div className="text-sm text-gray-600">🛠 {trigger.action}</div>
@@ -57,11 +72,15 @@ export default function GlyphTriggerEditor() {
       <div className="border-t pt-4 space-y-2">
         <h3 className="text-sm font-medium">➕ Add New Trigger</h3>
 
+        {error && (
+          <div className="text-xs text-red-600 bg-red-100 px-2 py-1 rounded">{error}</div>
+        )}
+
         <input
           type="text"
           placeholder="Glyph (e.g. 🪞)"
           value={newGlyph}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewGlyph(e.target.value)}
+          onChange={(e) => setNewGlyph(e.target.value)}
           className="w-full border rounded px-2 py-1"
         />
 
@@ -69,18 +88,19 @@ export default function GlyphTriggerEditor() {
           type="text"
           placeholder="Action name (e.g. reflect_self)"
           value={newAction}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewAction(e.target.value)}
+          onChange={(e) => setNewAction(e.target.value)}
           className="w-full border rounded px-2 py-1"
         />
 
         <textarea
           placeholder="Description (optional)"
           value={newDesc}
-          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setNewDesc(e.target.value)}
+          onChange={(e) => setNewDesc(e.target.value)}
           className="w-full border rounded px-2 py-1"
+          rows={2}
         />
 
-        <Button onClick={addTrigger} className="w-full">
+        <Button onClick={addTrigger} className="w-full mt-2">
           Add Trigger
         </Button>
       </div>
