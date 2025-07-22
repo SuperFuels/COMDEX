@@ -2,12 +2,15 @@
 
 import os
 import json
-from typing import List, Optional, Dict, Any
+import hashlib
+from typing import List, Optional, Dict, Any, Union
 from datetime import datetime
 from pathlib import Path
 
 from backend.modules.tessaris.thought_branch import ThoughtBranch, BranchNode
 from backend.modules.dna_chain.switchboard import DNA_SWITCH
+from backend.modules.codex.codex_scroll_builder import build_codex_scroll
+
 DNA_SWITCH.register(__file__)  # ✅ DNA tracking
 
 SNAPSHOT_PATH = "data/thoughts/.tessaris.json"
@@ -21,26 +24,32 @@ class TessarisStore:
 
     def save_branch(self, branch: ThoughtBranch):
         """
-        Save a ThoughtBranch to disk and optionally to memory cache.
+        Save a ThoughtBranch to disk with optional in-memory caching.
         """
         if self.cache_enabled:
             self._cache.append(branch)
 
         payload = self._load_all_json()
-        payload.append({
+
+        encoded = {
             "timestamp": datetime.utcnow().isoformat(),
             "branch": branch.to_dict(),
-            "origin_id": branch.origin_id
-        })
+            "origin_id": branch.origin_id,
+            "hash": self._hash_branch(branch)
+        }
+
+        # Prevent saving exact duplicate
+        if payload and encoded["hash"] == payload[-1].get("hash"):
+            print("⚠️ Duplicate branch detected, skipping save.")
+            return
+
+        payload.append(encoded)
 
         with open(SNAPSHOT_PATH, "w") as f:
             json.dump(payload, f, indent=2)
         print(f"✅ ThoughtBranch saved to {SNAPSHOT_PATH}")
 
     def load_all_branches(self) -> List[ThoughtBranch]:
-        """
-        Load all saved ThoughtBranches from disk.
-        """
         try:
             raw = self._load_all_json()
             return [ThoughtBranch.from_dict(entry["branch"]) for entry in raw]
@@ -49,12 +58,9 @@ class TessarisStore:
             return []
 
     def load_tessaris_snapshot(self, thought_id: str) -> Optional[ThoughtBranch]:
-        """
-        Load a specific ThoughtBranch by its origin_id.
-        """
         try:
             all_data = self._load_all_json()
-            for entry in reversed(all_data):  # most recent match first
+            for entry in reversed(all_data):  # newest match first
                 if entry.get("origin_id") == thought_id:
                     return ThoughtBranch.from_dict(entry["branch"])
         except Exception as e:
@@ -62,9 +68,6 @@ class TessarisStore:
         return None
 
     def get_cache(self) -> List[ThoughtBranch]:
-        """
-        Return in-memory cache (if enabled).
-        """
         return self._cache if self.cache_enabled else []
 
     def clear_cache(self):
@@ -81,43 +84,34 @@ class TessarisStore:
             return []
 
     def list_snapshots(self) -> List[Dict[str, Any]]:
-        """
-        Return raw snapshot metadata for inspection or filtering.
-        """
         try:
             return self._load_all_json()
         except:
             return []
 
     def export_latest_snapshot_to_context(self, context: dict):
-        """
-        Load latest saved branch and attach as tessaris_snapshot to context.
-        """
         all_branches = self.load_all_branches()
         if not all_branches:
             print("⚠️ No branches available to export to context.")
             return
         latest = all_branches[-1]
         context["tessaris_snapshot"] = latest.root.to_dict()
+        context["tessaris_codex_scroll"] = build_codex_scroll(latest.root.to_list(), include_coords=True)
 
     def save_direct_branchnode(self, node: BranchNode):
-        """
-        Lightweight method to save a BranchNode directly without full ThoughtBranch wrapper.
-        """
         payload = self._load_all_json()
-        payload.append({
+        encoded = {
             "timestamp": datetime.utcnow().isoformat(),
             "branch": node.to_dict(),
-            "origin_id": node.id if hasattr(node, 'id') else None
-        })
+            "origin_id": getattr(node, "id", None),
+            "hash": self._hash_dict(node.to_dict())
+        }
+        payload.append(encoded)
         with open(SNAPSHOT_PATH, "w") as f:
             json.dump(payload, f, indent=2)
         print(f"✅ Direct BranchNode saved to {SNAPSHOT_PATH}")
 
     def save_snapshot(self, snapshot: dict, name: Optional[str] = None):
-        """
-        Save a raw snapshot dictionary to a separate file under /snapshots.
-        """
         snapshot_dir = Path("data/thoughts/snapshots")
         snapshot_dir.mkdir(parents=True, exist_ok=True)
         name = name or datetime.utcnow().strftime("%Y%m%d-%H%M%S")
@@ -130,18 +124,26 @@ class TessarisStore:
         except Exception as e:
             print(f"❌ Failed to save snapshot: {e}")
 
-# ✅ Singleton export
+    def _hash_branch(self, branch: ThoughtBranch) -> str:
+        return self._hash_dict(branch.to_dict())
+
+    def _hash_dict(self, data: Dict[str, Any]) -> str:
+        raw = json.dumps(data, sort_keys=True)
+        return hashlib.sha256(raw.encode()).hexdigest()
+
+
+# ✅ Singleton
 TESSARIS_STORE = TessarisStore()
 
-# 🔁 Global importable function for tessaris_engine
+# 🔁 Exports
 def load_tessaris_snapshot(thought_id: str) -> Optional[ThoughtBranch]:
     return TESSARIS_STORE.load_tessaris_snapshot(thought_id)
 
-# 🧠 Global snapshot saver for tessaris_engine
 def save_snapshot(snapshot: dict, name: Optional[str] = None):
     TESSARIS_STORE.save_snapshot(snapshot, name)
 
 if __name__ == "__main__":
     print("🧠 Saved Tessaris Thought Branches:")
     for entry in TESSARIS_STORE.list_snapshots():
-        print(f" - {entry.get('timestamp')}: {entry['branch'].get('glyphs')}")
+        glyphs = entry["branch"].get("glyphs", [])
+        print(f" - {entry.get('timestamp')}: {glyphs}")

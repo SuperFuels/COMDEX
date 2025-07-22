@@ -1,46 +1,54 @@
 # File: backend/modules/codex/codex_scroll_builder.py
 
-from typing import List, Dict, Any
+from typing import List, Dict, Optional, Any
+from backend.modules.codex.codex_metrics import score_glyph_tree  # Optional import for scoring
+from backend.modules.glyphos.glyph_parser import parse_codexlang_string
 
-def build_codex_scroll(glyph_tree: List[Dict[str, Any]], include_coords: bool = False, indent: int = 0) -> str:
+def build_codex_scroll(glyph_tree: List[Dict], include_coords: bool = False, indent: int = 0) -> str:
     """
-    Converts a structured glyph tree into CodexLang scroll format.
-    Recursively traverses symbolic logic and renders as a readable scroll.
+    Converts structured glyph tree into CodexLang scroll format.
+    Recursively traverses tree and renders symbolic logic.
     """
-    lines: List[str] = []
+    lines = []
 
     for glyph in glyph_tree:
         symbol = glyph.get("symbol", "???")
         value = glyph.get("value", "undefined")
         action = glyph.get("action", "")
         children = glyph.get("children", [])
-        coord = glyph.get("coord", None)
+        coord = glyph.get("coord")
 
-        # Construct base line
-        line = "    " * indent + f"{symbol} {value}"
+        # Build base line
+        line = "    " * indent + f"{symbol}: {value}"
         if action:
-            line += f" → {action}"
+            line += f" => {action}"
         if include_coords and coord:
-            line += f"    # @ {coord}"
+            line += f"    # coord: {coord}"
 
         lines.append(line)
 
-        # Recursively render children
-        if isinstance(children, list) and children:
-            child_block = build_codex_scroll(children, include_coords=include_coords, indent=indent + 1)
-            lines.append(child_block)
+        # Recurse
+        if children:
+            child_lines = build_codex_scroll(children, include_coords=include_coords, indent=indent + 1)
+            lines.append(child_lines)
 
     return "\n".join(lines)
 
 
-# 🧪 Example entry point for dev test
-if __name__ == "__main__":
-    from backend.modules.glyphos.glyph_parser import parse_codexlang_string
+def build_scroll_from_glyph(glyph_tree: List[Dict[str, Any]]) -> str:
+    """
+    ✅ Entry point used by memory_engine and runtime systems.
+    Wraps build_codex_scroll and hides internal config flags.
+    """
+    return build_codex_scroll(glyph_tree, include_coords=True)
 
-    test_string = "Memory:Emotion = Joy → Store → Memory:Emotion = Peace → Remember"
+
+# Example test runner
+if __name__ == "__main__":
+    test_string = "Memory:Emotion = Joy => Store -> Memory:Emotion = Peace => Remember"
     parsed = parse_codexlang_string(test_string)
     tree = parsed.get("tree", [])
 
-    scroll = build_codex_scroll(tree, include_coords=True)
-    print("=== Codex Scroll Output ===")
+    scroll = build_scroll_from_glyph(tree)
+    print("--- Codex Scroll ---")
     print(scroll)
