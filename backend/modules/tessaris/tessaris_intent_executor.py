@@ -12,13 +12,7 @@ from backend.database import get_db
 from backend.models.intent_log import IntentLog
 from backend.modules.consciousness.memory_bridge import MemoryBridge
 
-
-def execute_glyph_packet(packet):
-    """Safe execution wrapper for glyph packets."""
-    from backend.modules.tessaris.tessaris_engine import TessarisEngine  # deferred to avoid circular import
-    engine = TessarisEngine()
-    return engine.execute_packet(packet)
-
+from time import perf_counter
 
 INTENT_QUEUE_FILE = "data/tessaris/intent_queue.json"
 
@@ -47,6 +41,13 @@ def queue_intent(intent):
 def queue_tessaris_intent(intent):
     """External API wrapper for queuing an intent."""
     queue_intent(intent)
+
+
+def execute_glyph_packet(packet):
+    """Safe execution wrapper for glyph packets."""
+    from backend.modules.tessaris.tessaris_engine import TessarisEngine  # Deferred
+    engine = TessarisEngine()
+    return engine.execute_packet(packet)
 
 
 def execute_intents():
@@ -88,6 +89,10 @@ def route_intent(intent):
         kind = intent.get("type")
         payload = intent.get("data")
         container_id = intent.get("container_id", "default")
+        source = intent.get("source", "unknown")
+        glyph = intent.get("glyph")
+
+        t0 = perf_counter()
 
         if kind == "goal":
             from backend.modules.skills.goal_engine import submit_goal
@@ -100,18 +105,19 @@ def route_intent(intent):
             store_memory(f"⚠️ Unknown intent type: {kind}")
             return "retry"
 
-        store_memory(f"✅ Executed intent: {intent}")
+        dt = perf_counter() - t0
+        store_memory(f"✅ Executed intent: {kind} in {dt:.3f}s — {payload}")
         log_intent(intent, "executed")
 
-        # Trace log via MemoryBridge
         memlog = MemoryBridge(container_id=container_id)
         memlog.log({
             "source": "tessaris_intent_executor",
             "event": "intent_executed",
             "intent_type": kind,
-            "glyph": intent.get("glyph"),
+            "glyph": glyph,
             "payload": payload,
             "metadata": intent.get("metadata", {}),
+            "duration": dt,
         })
 
         return "ok"
@@ -127,24 +133,49 @@ def scan_snapshot_for_intents(snapshot_path):
         glyphs = snapshot.get("glyphs", [])
 
         for glyph in glyphs:
-            symbol = glyph.get("symbol", "")
-            metadata = glyph.get("meta", {})
+            if isinstance(glyph, str) and glyph.strip().startswith("⟦"):
+                # Attempt symbolic parse
+                parsed = parse_symbolic_glyph(glyph)
+                if not parsed:
+                    continue
 
-            if symbol == "⟦" and metadata.get("type") == "Intent":
-                intent_type = metadata.get("tag", "")
-                intent_value = metadata.get("value", {})
+                intent_type = parsed["type"].lower()
+                intent_value = {
+                    "tag": parsed.get("tag"),
+                    "value": parsed.get("value"),
+                    "action": parsed.get("action"),
+                }
 
                 structured = {
-                    "type": intent_type.lower(),
+                    "type": intent_type,
                     "data": intent_value,
                     "source": snapshot_path,
                     "timestamp": datetime.utcnow().isoformat(),
-                    "container_id": metadata.get("container_id", "default")
+                    "glyph": glyph,
+                    "container_id": parsed.get("container_id", "default")
                 }
                 queue_intent(structured)
                 store_memory(f"📥 Scanned intent from snapshot: {structured}")
     except Exception as e:
         store_memory(f"⚠️ Failed to scan snapshot for intents: {str(e)}")
+
+
+def parse_symbolic_glyph(glyph: str) -> dict | None:
+    try:
+        inner = glyph.strip("⟦⟧").strip()
+        parts = inner.split("→")
+        left = parts[0].strip()
+        action = parts[1].strip() if len(parts) > 1 else "Reflect"
+        type_tag, value = left.split(":", 1)
+        g_type, tag = type_tag.split("|", 1)
+        return {
+            "type": g_type.strip(),
+            "tag": tag.strip(),
+            "value": value.strip(),
+            "action": action
+        }
+    except Exception:
+        return None
 
 
 if __name__ == "__main__":

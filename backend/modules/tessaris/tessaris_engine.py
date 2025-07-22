@@ -1,3 +1,5 @@
+# [FULL FILE: tessaris_engine.py]
+
 import uuid
 import json
 import requests
@@ -15,13 +17,7 @@ from backend.modules.consciousness.memory_bridge import MemoryBridge
 from backend.modules.glyphos.glyph_mutator import run_self_rewrite
 from backend.modules.glyphos.glyph_generator import GlyphGenerator
 
-# ✅ Fixed: moved import inside function to avoid circular import
-def trigger_from_goal(goal_data):
-    from backend.modules.skills.goal_engine import GoalEngine
-    engine = GoalEngine()
-    return engine.process_goal(goal_data)
-
-# 🔁 Codex integration
+# Codex integration
 from backend.modules.codex.codex_mind_model import CodexMindModel
 from backend.modules.codex.codex_metrics import CodexMetrics
 from backend.modules.codex.codex_cost_estimator import CodexCostEstimator
@@ -29,18 +25,23 @@ from backend.modules.codex.codex_cost_estimator import CodexCostEstimator
 DNA_SWITCH.register(__file__)
 
 
+def trigger_from_goal(goal_data):
+    from backend.modules.skills.goal_engine import GoalEngine
+    engine = GoalEngine()
+    return engine.process_goal(goal_data)
+
+
 class TessarisEngine:
     def __init__(self, container_id="default"):
         self.container_id = container_id
         self.active_branches = []
         self.active_thoughts = {}
-        from backend.modules.skills.goal_engine import GoalEngine  # ✅ local import
+        from backend.modules.skills.goal_engine import GoalEngine
         self.goal_engine = GoalEngine()
         self.boot_selector = BootSelector()
-        self.memlog = MemoryBridge(container_id=self.container_id)
+        self.memlog = MemoryBridge(container_id=container_id)
         self.glyph_generator = GlyphGenerator()
 
-        # 🧠 Codex integration
         self.codex_mind = CodexMindModel()
         self.codex_metrics = CodexMetrics()
         self.codex_estimator = CodexCostEstimator()
@@ -77,7 +78,7 @@ class TessarisEngine:
         print(f"[🧠] Thought expanded from glyph {symbol} in {source}")
 
     def execute_branch(self, branch: ThoughtBranch):
-        print(f"🧠 Executing ThoughtBranch from {branch.origin_id} ({len(branch.glyphs)} glyphs)")
+        print(f"\n[🧠] Executing ThoughtBranch from {branch.origin_id} ({len(branch.glyphs)} glyphs)")
 
         MEMORY.store({
             "label": f"tessaris_exec_{branch.origin_id}",
@@ -154,31 +155,36 @@ class TessarisEngine:
         self.extract_intents_from_glyphs(branch.glyphs, branch.metadata)
         self.active_branches.append(branch)
 
+        self._send_synthesis(branch)
+        self._generate_from_branch(branch)
+
+        return True
+
+    def _send_synthesis(self, branch: ThoughtBranch):
         try:
-            synth_payload = {
+            payload = {
                 "glyphs": branch.glyphs,
                 "metadata": branch.metadata,
                 "source": "tessaris_engine",
                 "origin_id": branch.origin_id
             }
-            response = requests.post(f"{GLYPH_API_BASE_URL}/api/aion/synthesize-glyphs", json=synth_payload)
+            response = requests.post(f"{GLYPH_API_BASE_URL}/api/aion/synthesize-glyphs", json=payload)
             if response.ok:
                 print(f"[✨] Synthesized glyphs: {response.json()}")
             else:
-                print(f"[⚠️] Synthesis failed with status {response.status_code}")
+                print(f"[⚠️] Synthesis failed: {response.status_code}")
         except Exception as e:
             print(f"[❌] Glyph synthesis error: {e}")
 
+    def _generate_from_branch(self, branch: ThoughtBranch):
         try:
             generated = self.glyph_generator.generate_from_text(
                 input_text=" ".join(branch.glyphs),
                 context="tessaris"
             )
-            print(f"[🧬] Glyphs re-generated from executed branch: {generated}")
+            print(f"[🧬] Re-generated glyphs: {generated}")
         except Exception as e:
             print(f"[❌] Glyph generation error: {e}")
-
-        return True
 
     def _maybe_create_goal(self, glyph: str, branch: ThoughtBranch):
         if "Goal" in glyph or glyph.startswith("⟦ Goal"):
@@ -200,7 +206,7 @@ class TessarisEngine:
         if "Boot" in glyph or glyph.startswith("⟦ Skill") or glyph.startswith("⟦ Boot"):
             skill = self.boot_selector.find_matching_skill(glyph)
             if skill:
-                print(f"[🚀] Matching boot skill found: {skill['title']}")
+                print(f"[🚀] Matching boot skill: {skill['title']}")
                 MEMORY.store({
                     "label": "tessaris_boot_proposal",
                     "role": "tessaris",
@@ -244,7 +250,7 @@ class TessarisEngine:
                     "name": parsed.get("tag"),
                     "description": parsed.get("value"),
                 }
-            elif parsed["type"] == "Skill" or parsed["type"] == "Boot":
+            elif parsed["type"] in ["Skill", "Boot"]:
                 intent_type = "avatar_action"
                 payload = {
                     "skill": parsed.get("value"),
