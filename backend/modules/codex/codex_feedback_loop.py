@@ -1,7 +1,7 @@
 # 📁 codex_feedback_loop.py
 
 from backend.modules.codex.codex_core import CodexCore
-from backend.modules.glyphos.glyph_mutator import mutate_glyph
+from backend.modules.glyphos.glyph_mutator import mutate_glyph, propose_mutation
 from backend.modules.glyphos.glyph_trace_logger import GlyphTraceLogger
 from backend.modules.codex.codex_mind_model import CodexMindModel
 from backend.modules.hexcore.memory_engine import MEMORY

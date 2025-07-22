@@ -12,8 +12,10 @@ from backend.modules.codex.codex_metrics import CodexMetrics
 from backend.modules.codex.codex_mind_model import CodexMindModel
 from backend.modules.codex.codex_memory_triggers import CodexMemoryTrigger
 from backend.modules.codex.codex_autopilot import CodexAutopilot
+from backend.modules.codex.codex_executor import CodexExecutor  # ✅ ADDED
 from backend.modules.tessaris.tessaris_engine import TessarisEngine
 from backend.modules.hexcore.memory_engine import MEMORY
+from backend.modules.state_manager import STATE  # ✅ ADDED
 
 
 class CodexSupervisor:
@@ -26,6 +28,7 @@ class CodexSupervisor:
         self.trigger = CodexMemoryTrigger()
         self.autopilot = CodexAutopilot()
         self.tessaris = TessarisEngine()
+        self.executor = CodexExecutor()  # ✅ ADDED
 
         self.tasks = []
         self.running = False
@@ -64,8 +67,9 @@ class CodexSupervisor:
         glyph = task["glyph"]
         metadata = task.get("metadata", {})
         try:
-            result = self.codex.execute(glyph)
+            result = self.executor.execute(glyph, metadata)  # ✅ Updated execution path
             self.metrics.record_execution()
+            self.mind_model.observe(glyph)  # ✅ Symbolic prediction update
             print(f"✅ Supervisor executed: {glyph} → {result}")
 
             MEMORY.store({
@@ -82,6 +86,10 @@ class CodexSupervisor:
             print(f"🚨 Supervisor execution error: {e}")
 
     def tick(self):
+        if STATE.is_paused():  # ✅ Respect pause state
+            print("⏸️ Codex Tick paused by StateManager.")
+            return
+
         print("🔁 Codex Tick Started")
 
         # Step 1: Scheduled tasks

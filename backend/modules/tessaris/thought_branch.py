@@ -1,44 +1,49 @@
 # File: backend/modules/tessaris/thought_branch.py
 
 import uuid
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Any
 
 
 class BranchNode:
-    def __init__(self, symbol: str, source: str = "unknown", metadata: dict = {}):
+    def __init__(self, symbol: str, source: str = "unknown", metadata: Optional[dict] = None):
         self.id = str(uuid.uuid4())
         self.symbol = symbol
         self.source = source
-        self.metadata = metadata
+        self.metadata = metadata or {}
         self.children: List['BranchNode'] = []
+        self.parent: Optional['BranchNode'] = None  # 🔁 Enables upward reflection
 
     def generate_branches(self) -> List['BranchNode']:
         """
-        Generate new branches based on symbolic rules.
-        In v1 this is placeholder logic; future versions can use:
-        - Contextual dreaming
-        - Bootloader state
-        - Goal memory
-        - Glyph mutation triggers
+        Generate child BranchNodes using symbolic logic expansion.
+        Placeholder logic for now; override with advanced symbolic growth.
         """
         next_symbols = self._expand_symbol(self.symbol)
-        return [BranchNode(symbol=s, source=self.id) for s in next_symbols]
+        generated = []
+        for s in next_symbols:
+            node = BranchNode(symbol=s, source=self.id)
+            node.parent = self
+            generated.append(node)
+        return generated
 
     def _expand_symbol(self, symbol: str) -> List[str]:
         """
-        Map known symbols to potential next branches.
-        This can later be replaced by dynamic graph logic.
+        Symbolic expansion map. Replace or enhance with real logic, embeddings, or glyph maps.
         """
         return {
             "Δ": ["⊕", "λ"],
             "⊕": ["⇌", "Σ"],
             "λ": ["☼", "ψ"],
+            "🎯": ["Δ", "⊕"],
+            "🪄": ["λ", "⧖"],
+            "⧖": ["ψ", "↔"],
         }.get(symbol, [])
 
     def add_child(self, node: 'BranchNode'):
+        node.parent = self
         self.children.append(node)
 
-    def to_dict(self):
+    def to_dict(self) -> Dict[str, Any]:
         return {
             "id": self.id,
             "symbol": self.symbol,
@@ -47,26 +52,65 @@ class BranchNode:
             "children": [child.to_dict() for child in self.children],
         }
 
+    def to_glyph_tree(self) -> str:
+        """
+        Convert the node and its children into an indented glyph tree string for scroll rendering.
+        """
+        lines = []
+
+        def recurse(node: 'BranchNode', depth: int = 0):
+            lines.append("  " * depth + f"{node.symbol} ({node.source})")
+            for child in node.children:
+                recurse(child, depth + 1)
+
+        recurse(self)
+        return "\n".join(lines)
+
 
 class ThoughtBranch:
-    def __init__(self, glyphs: List[str], origin_id: Optional[str] = None, metadata: dict = {}):
+    def __init__(self, glyphs: List[str], origin_id: Optional[str] = None, metadata: Optional[dict] = None):
         self.origin_id = origin_id or str(uuid.uuid4())
         self.glyphs = glyphs
-        self.metadata = metadata
-        self.position = 0  # Used by glyph executor to track logic flow
+        self.metadata = metadata or {}
+        self.position = 0  # Runtime execution tracker
+        self.root: Optional[BranchNode] = None  # 🌱 Optional root node for glyph tree
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> Dict[str, Any]:
         return {
             "origin_id": self.origin_id,
             "glyphs": self.glyphs,
             "metadata": self.metadata,
-            "position": self.position
+            "position": self.position,
+            "root": self.root.to_dict() if self.root else None,
         }
 
     @classmethod
-    def from_dict(cls, data: Dict) -> "ThoughtBranch":
-        return cls(
+    def from_dict(cls, data: Dict[str, Any]) -> "ThoughtBranch":
+        obj = cls(
             origin_id=data.get("origin_id"),
             glyphs=data.get("glyphs", []),
             metadata=data.get("metadata", {}),
         )
+        obj.position = data.get("position", 0)
+        if "root" in data and data["root"]:
+            obj.root = ThoughtBranch._rebuild_branch_node(data["root"])
+        return obj
+
+    @staticmethod
+    def _rebuild_branch_node(data: Dict[str, Any]) -> BranchNode:
+        node = BranchNode(
+            symbol=data.get("symbol"),
+            source=data.get("source"),
+            metadata=data.get("metadata", {})
+        )
+        node.id = data.get("id", str(uuid.uuid4()))
+        node.children = [ThoughtBranch._rebuild_branch_node(child) for child in data.get("children", [])]
+        for child in node.children:
+            child.parent = node
+        return node
+
+    def to_glyph_tree(self) -> str:
+        """
+        Returns stringified glyph tree from root node (Codex-ready scroll).
+        """
+        return self.root.to_glyph_tree() if self.root else "(no tree)"

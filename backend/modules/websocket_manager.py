@@ -1,28 +1,65 @@
 # File: backend/modules/websocket_manager.py
 
 from fastapi import WebSocket
-from typing import List
+from typing import List, Dict, Any, Optional
+from collections import defaultdict
+import asyncio
+
+class WebSocketClient:
+    def __init__(self, websocket: WebSocket):
+        self.websocket = websocket
+        self.tags: set[str] = set()
 
 class WebSocketManager:
     def __init__(self):
-        self.active_connections: List[WebSocket] = []
+        self.clients: List[WebSocketClient] = []
+        self.tag_map: Dict[str, List[WebSocketClient]] = defaultdict(list)
 
     async def connect(self, websocket: WebSocket):
         await websocket.accept()
-        self.active_connections.append(websocket)
-        print(f"[🔌] WebSocket connected: {len(self.active_connections)} clients")
+        client = WebSocketClient(websocket)
+        self.clients.append(client)
+        print(f"[🔌] WebSocket connected: {len(self.clients)} clients")
 
     def disconnect(self, websocket: WebSocket):
-        if websocket in self.active_connections:
-            self.active_connections.remove(websocket)
-            print(f"[⚡] WebSocket disconnected: {len(self.active_connections)} clients")
+        client = next((c for c in self.clients if c.websocket == websocket), None)
+        if client:
+            self.clients.remove(client)
+            for tag in client.tags:
+                if client in self.tag_map[tag]:
+                    self.tag_map[tag].remove(client)
+            print(f"[⚡] WebSocket disconnected: {len(self.clients)} clients")
 
-    async def broadcast(self, message: dict):
-        for connection in self.active_connections:
+    async def subscribe(self, websocket: WebSocket, tag: str):
+        client = next((c for c in self.clients if c.websocket == websocket), None)
+        if client:
+            client.tags.add(tag)
+            self.tag_map[tag].append(client)
+            print(f"[📡] Subscribed client to tag: {tag}")
+
+    async def unsubscribe(self, websocket: WebSocket, tag: str):
+        client = next((c for c in self.clients if c.websocket == websocket), None)
+        if client and tag in client.tags:
+            client.tags.remove(tag)
+            if client in self.tag_map[tag]:
+                self.tag_map[tag].remove(client)
+            print(f"[❌] Unsubscribed client from tag: {tag}")
+
+    async def broadcast(self, message: Dict[str, Any], tag: Optional[str] = None, origin_id: Optional[str] = None):
+        """
+        Send a message to all clients or to a subset based on tag.
+        """
+        target_clients = self.tag_map[tag] if tag else self.clients
+        print(f"[📣] Broadcasting to {len(target_clients)} clients {'on tag: ' + tag if tag else '(global)'}")
+
+        for client in target_clients:
             try:
-                await connection.send_json(message)
+                enriched_msg = message.copy()
+                if origin_id:
+                    enriched_msg["origin"] = origin_id
+                await client.websocket.send_json(enriched_msg)
             except Exception as e:
                 print(f"[⚠️] Failed to send WebSocket message: {e}")
 
-# ✅ Singleton instance for global import
+# ✅ Singleton instance for global use
 websocket_manager = WebSocketManager()

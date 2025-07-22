@@ -16,6 +16,7 @@ interface GlyphDetail {
   coord?: string;
   container?: string;
   operator?: string;
+  entangled_from?: string;
 }
 
 interface GlyphEvent {
@@ -170,8 +171,10 @@ export default function CodexHUD() {
 
             const key = `${log.glyph}-${log.timestamp || index}`;
 
+            const isEntangled = log.glyph.includes('↔') || log.detail?.entangled_from;
+
             return (
-              <div key={key} className="border-b border-white/10 py-1">
+              <div key={key} className={`border-b border-white/10 py-1 ${isEntangled ? 'bg-purple-900/10' : ''}`}>
                 <div className={`text-sm font-mono ${operatorColor}`}>
                   ⟦ {log.glyph} ⟧ → <span className="text-green-400">{log.action}</span>
 
@@ -189,6 +192,10 @@ export default function CodexHUD() {
 
                   {log.sqi && (
                     <Badge className="ml-2" variant="outline">🌌 SQI</Badge>
+                  )}
+
+                  {isEntangled && (
+                    <Badge className="ml-2" variant="outline">↔ Entangled</Badge>
                   )}
 
                   {isCostly && (
@@ -229,6 +236,9 @@ export default function CodexHUD() {
                         )}
                         {log.detail.container && (
                           <Badge variant="outline">🧱 Container: {log.detail.container}</Badge>
+                        )}
+                        {log.detail.entangled_from && (
+                          <Badge variant="outline">🪞 Forked from: {log.detail.entangled_from}</Badge>
                         )}
                       </div>
                     )}

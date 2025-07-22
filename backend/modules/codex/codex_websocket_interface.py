@@ -7,17 +7,21 @@ from fastapi import WebSocket, WebSocketDisconnect
 from backend.modules.codex.codex_core import CodexCore
 from backend.modules.codex.codex_metrics import CodexMetrics
 from backend.modules.codex.codex_cost_estimator import CodexCostEstimator
+from backend.modules.codex.codex_emulator import CodexEmulator
+from backend.modules.codex.codexlang_translator import run_codexlang_string
 from backend.modules.tessaris.tessaris_engine import TessarisEngine
 from backend.modules.hexcore.memory_engine import MEMORY
 
 # ✅ Runtime Instances
 connected_clients = set()
 codex = CodexCore()
+emulator = CodexEmulator()
 metrics = CodexMetrics()
 tessaris = TessarisEngine()
 cost_estimator = CodexCostEstimator()
 
-# ✅ Broadcast execution trace to all clients
+
+# ✅ Broadcast to all clients
 async def broadcast_glyph_execution(glyph, result, context):
     cost_obj = cost_estimator.estimate_glyph_cost(glyph, context or {})
     cost = cost_obj.total()
@@ -47,7 +51,8 @@ async def broadcast_glyph_execution(glyph, result, context):
         except:
             connected_clients.discard(client)
 
-# ✅ FastAPI-compatible WebSocket handler
+
+# ✅ WebSocket Handler
 async def codex_ws_handler(websocket: WebSocket):
     await websocket.accept()
     connected_clients.add(websocket)
@@ -59,9 +64,11 @@ async def codex_ws_handler(websocket: WebSocket):
             try:
                 data = json.loads(message)
                 glyph = data.get("glyph")
+                scroll = data.get("scroll")
                 context = data.get("context", {})
                 metadata = data.get("metadata", {})
 
+                # 🧠 Execute single glyph
                 if glyph:
                     result = codex.execute(glyph, context)
                     metrics.record_execution()
@@ -83,16 +90,27 @@ async def codex_ws_handler(websocket: WebSocket):
                         "result": result
                     }))
 
-                elif data.get("command") == "observe":
+                # 🌀 Execute CodexLang scroll
+                elif scroll:
+                    result = emulator.run(scroll, context)
+
+                    MEMORY.store({
+                        "label": "codex_scroll_execution",
+                        "type": "scroll",
+                        "scroll": scroll,
+                        "result": result
+                    })
+
                     await websocket.send_text(json.dumps({
                         "status": "ok",
-                        "message": "Observer hook not yet implemented"
+                        "scroll": scroll,
+                        "result": result
                     }))
 
                 else:
                     await websocket.send_text(json.dumps({
                         "status": "error",
-                        "error": "Invalid request: no glyph or command"
+                        "error": "Invalid request: must provide glyph or scroll"
                     }))
 
             except Exception as e:
@@ -106,6 +124,7 @@ async def codex_ws_handler(websocket: WebSocket):
         connected_clients.discard(websocket)
         print("🔌 Codex WebSocket disconnected")
 
-# ✅ Minimal stub for FastAPI import compatibility
+
+# ✅ Minimal stub for FastAPI compatibility
 async def start_codex_ws_server(websocket: WebSocket):
     await codex_ws_handler(websocket)

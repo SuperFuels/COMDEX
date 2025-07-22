@@ -9,7 +9,6 @@ from backend.modules.glyphos.glyph_executor import GlyphExecutor
 from backend.modules.websocket_manager import WebSocketManager
 from backend.modules.glyphos.glyph_watcher import GlyphWatcher
 
-# ✅ Optional glyph summarizer
 try:
     from backend.modules.glyphos.glyph_summary import summarize_glyphs
 except ImportError:
@@ -31,7 +30,6 @@ class ContainerRuntime:
         self.rewind_buffer: list[Dict[str, Any]] = []
         self.max_rewind = 5
 
-        # ✅ Async event loop in background thread
         self.async_loop = asyncio.new_event_loop()
         self.loop_thread = threading.Thread(target=self._start_event_loop, daemon=True)
         self.loop_thread.start()
@@ -58,7 +56,6 @@ class ContainerRuntime:
             if self.websocket:
                 self.websocket.broadcast({"type": "tick_log", "data": tick_log})
 
-                # ✅ NEW: Send dimension_tick event
                 self.websocket.broadcast({
                     "type": "dimension_tick",
                     "data": {
@@ -78,13 +75,11 @@ class ContainerRuntime:
         cubes = container.get("cubes", {})
         tick_log = {"executed": []}
 
-        # Save rewind snapshot
         if self.max_rewind > 0:
             self.rewind_buffer.append({"cubes": cubes.copy()})
             if len(self.rewind_buffer) > self.max_rewind:
                 self.rewind_buffer.pop(0)
 
-        # 🔍 Scan for ⎇: or ⧉: bytecode glyphs
         self.glyph_watcher.scan_for_bytecode()
 
         for coord_str, data in cubes.items():
@@ -92,6 +87,11 @@ class ContainerRuntime:
                 try:
                     x, y, z = map(int, coord_str.split(","))
                     print(f"⚙️ Executing glyph at {coord_str}")
+
+                    if "↔" in data["glyph"]:
+                        self.fork_entangled_path(container, coord_str, data["glyph"])
+                        print(f"🔀 Entangled fork triggered at {coord_str}")
+
                     coro = self.executor.execute_glyph_at(x, y, z)
                     asyncio.run_coroutine_threadsafe(coro, self.async_loop)
                     tick_log["executed"].append(coord_str)
@@ -102,7 +102,6 @@ class ContainerRuntime:
         tick_log["timestamp"] = time.time()
         tick_log["tick"] = self.tick_counter
 
-        # Looping logic
         if self.loop_enabled and self.tick_counter % self.loop_interval == 0:
             if self.rewind_buffer:
                 rewind_state = self.rewind_buffer[0]
@@ -112,30 +111,28 @@ class ContainerRuntime:
         self.apply_decay(container["cubes"])
         return tick_log
 
-    def apply_decay(self, cubes: Dict[str, Dict[str, Any]]):
-        for coord, data in cubes.items():
-            if "glyph" in data and data.get("decay", False):
-                data["lifespan"] = data.get("lifespan", 10) - 1
-                if data["lifespan"] <= 0:
-                    print(f"💀 Glyph at {coord} decayed.")
-                    data["glyph"] = ""
+    def fork_entangled_path(self, container: Dict[str, Any], coord: str, glyph: str):
+        original_name = container.get("id", "default")
+        entangled_id = f"{original_name}_entangled"
 
-    def get_logs(self, limit: int = 20) -> list[Dict[str, Any]]:
-        return self.logs[-limit:]
+        if entangled_id in self.state_manager.all_containers:
+            print(f"↔ Entangled container {entangled_id} already exists.")
+            return
 
-    def enable_looping(self, enable: bool = True, interval: int = 50):
-        self.loop_enabled = enable
-        self.loop_interval = interval
+        forked_container = {
+            **container,
+            "id": entangled_id,
+            "origin": original_name,
+            "entangled": True,
+            "created_from": coord,
+            "glyph": glyph,
+            "cubes": container.get("cubes", {}).copy(),
+            "metadata": {
+                "entangled_from": original_name,
+                "trigger_glyph": glyph,
+                "fork_time": time.time()
+            }
+        }
 
-    # ✅ Timeline playback support
-    def get_rewind_state(self, tick_offset: int = -1) -> Optional[Dict[str, Any]]:
-        if not self.rewind_buffer:
-            return None
-        index = tick_offset % len(self.rewind_buffer)
-        return self.rewind_buffer[index]["cubes"]
-
-
-# ✅ External getter used by FastAPI route or runtime script
-def get_container_runtime(tick_interval: float = 2.0) -> ContainerRuntime:
-    state_manager = StateManager()
-    return ContainerRuntime(state_manager, tick_interval=tick_interval)
+        self.state_manager.all_containers[entangled_id] = forked_container
+        print(f"🌌 Forked entangled container: {entangled_id}")

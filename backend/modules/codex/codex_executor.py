@@ -7,6 +7,7 @@ from datetime import datetime
 from backend.modules.codex.codex_cost_estimator import CodexCostEstimator
 from backend.modules.codex.codex_metrics import CodexMetrics
 from backend.modules.codex.codex_websocket_interface import send_codex_ws_event
+from backend.modules.codex.codex_trace import CodexTrace
 from backend.modules.hexcore.memory_engine import MemoryBridge
 from backend.modules.state_manager import STATE  # ✅ Pause flag
 
@@ -16,18 +17,11 @@ class CodexExecutor:
         self.log = []
         self.coster = CodexCostEstimator()
         self.metrics = CodexMetrics()
+        self.tracer = CodexTrace()
 
     def execute(self, glyph, context):
-        """
-        Interpret and execute a glyph structure symbolically.
-        Supports logic ops: ⊕, →, ⟲, ↔, ⧖, ⬁, 🧬, 🧭, 🪞
-        Emits WebSocket HUD feedback with cost and operator metadata.
-        """
         if STATE.is_paused():
-            return {
-                "status": "paused",
-                "reason": "CodexExecutor is paused"
-            }
+            return {"status": "paused", "reason": "CodexExecutor is paused"}
 
         try:
             timestamp = datetime.utcnow().timestamp()
@@ -37,29 +31,20 @@ class CodexExecutor:
             glyph_stripped = glyph.strip("⟦⟧").strip()
 
             if "→" not in glyph_stripped:
-                return {
-                    "status": "ignored",
-                    "reason": "No action arrow in glyph"
-                }
+                return {"status": "ignored", "reason": "No action arrow in glyph"}
 
             lhs, rhs = map(str.strip, glyph_stripped.split("→", 1))
 
-            # Decompose ⟦ Type | Tag : Value ⟧
             match = re.match(r"([^|]+)\|([^:]+):(.+)", lhs)
             if not match:
-                return {
-                    "status": "error",
-                    "error": f"Malformed glyph LHS: {lhs}"
-                }
+                return {"status": "error", "error": f"Malformed glyph LHS: {lhs}"}
 
             g_type = match.group(1).strip()
             g_tag = match.group(2).strip()
             g_value = match.group(3).strip()
 
-            # Decompose RHS chain with symbolic operators
             ops_chain = self._decompose_rhs(rhs)
 
-            # Execute each step in the logic chain
             execution_trace = []
             for step in ops_chain:
                 op_result = self._resolve_action(step["action"], context, operator=step["operator"])
@@ -69,11 +54,7 @@ class CodexExecutor:
                     "result": op_result
                 })
 
-            # Estimate symbolic execution cost
-            context_info = {
-                **context,
-                "operator": ops_chain[0]["operator"] if ops_chain else None
-            }
+            context_info = {**context, "operator": ops_chain[0]["operator"] if ops_chain else None}
             estimate = self.coster.estimate_glyph_cost(glyph, context_info)
 
             cost_payload = {
@@ -95,7 +76,20 @@ class CodexExecutor:
 
             send_codex_ws_event("glyph_execution", cost_payload)
 
-            # ✅ Store in memory
+            # 🔁 Codex Trace Logging
+            self.tracer.log_trace({
+                "source": "codex_executor",
+                "glyph": glyph,
+                "ops_chain": ops_chain,
+                "context": context,
+                "type": g_type,
+                "tag": g_tag,
+                "value": g_value,
+                "cost": cost_payload["cost"],
+                "detail": cost_payload["detail"],
+                "timestamp": timestamp
+            })
+
             MemoryBridge.store_memory({
                 "source": "codex_executor",
                 "type": "execution",
@@ -122,24 +116,15 @@ class CodexExecutor:
 
         except Exception as e:
             self.metrics.record_error()
-            return {
-                "status": "error",
-                "error": str(e)
-            }
+            return {"status": "error", "error": str(e)}
 
     def _decompose_rhs(self, rhs: str):
-        """
-        Splits RHS into a sequence of operations.
-        Example: Boot ⊕ Dream ↔ Reflect ⟲ Analyze
-        Returns: [{operator, action}, ...]
-        """
         pattern = r"(⊕|↔|⟲|⧖|→|⬁|🧬|🧭|🪞)"
         parts = re.split(pattern, rhs)
         result = []
         i = 0
         while i < len(parts):
             if i == 0:
-                # First action has implicit → trigger
                 result.append({"operator": "→", "action": parts[i].strip()})
                 i += 1
             else:
@@ -150,13 +135,8 @@ class CodexExecutor:
         return result
 
     def _resolve_action(self, action_str, context, operator=None):
-        """
-        Convert symbolic action string into operation.
-        Extendable via CodexLang, GPT plugins, or handlers.
-        """
         action_str = action_str.strip()
 
-        # Handle symbolic operators as triggers
         if operator == "⬁":
             return self._trigger("self_rewrite", context)
         elif operator == "🧬":
@@ -166,7 +146,6 @@ class CodexExecutor:
         elif operator == "🪞":
             return self._trigger("mirror_logic", context)
 
-        # Fallback: action string logic
         if action_str == "Dream":
             return self._trigger("trigger_dream", context)
         elif action_str == "Mutate":
@@ -191,9 +170,6 @@ class CodexExecutor:
             return self._trigger("unrecognized_action", context, detail=action_str)
 
     def _trigger(self, function_name, context, detail=None):
-        """
-        Simulate symbolic function call.
-        """
         return {
             "trigger": function_name,
             "context": context,

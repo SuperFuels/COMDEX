@@ -9,6 +9,7 @@ from backend.modules.skills.milestone_tracker import MilestoneTracker
 from backend.modules.consciousness.memory_bridge import MemoryBridge
 from backend.modules.websocket_manager import websocket_manager
 from backend.modules.glyphos.glyph_summary import summarize_glyphs
+from backend.modules.codex.codex_trace import CodexTrace  # ✅ Codex trace integration
 
 # 🖁️ Triggered behaviors
 from backend.modules.aion.dream_core import run_dream
@@ -37,6 +38,7 @@ class GlyphExecutor:
         self.container_id = self.state_manager.get_current_container_id() or "default"
         self.bridge = MemoryBridge(self.container_id)
         self.container_path = self.active_container.get("path", "")
+        self.codex_trace = CodexTrace()
 
     def read_glyph_at(self, x: int, y: int, z: int) -> str:
         cube = self.active_container.get("cubes", {}).get(f"{x},{y},{z}", {})
@@ -88,7 +90,16 @@ class GlyphExecutor:
             "origin": "glyph_executor",
         }
 
+        self.codex_trace.log({  # ✅ Symbolic trace
+            **trace_data,
+            "container": self.container_id,
+            "action": "executed",
+            "source": "glyph_executor"
+        })
+
         # === TRIGGER MAP ===
+        
+        # [no changes needed to trigger map — trace logging done above]
 
         if glyph == "🦰":
             self.goal_engine.boot_next_skill()

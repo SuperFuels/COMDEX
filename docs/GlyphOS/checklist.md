@@ -1,6 +1,12 @@
 graph TD
   A[📦 GlyphOS System]
 
+Not done yet, re  quires GLYPH HUB TO BE BUILT
+🔗 Codex Virtual CPU ↔ GlyphHub Bridge
+Enable scrolls written in the CPU’s CodexLang to be saved, versioned, and synced via GlyphHub
+GlyphHub Phase 1
+
+
   subgraph Core Modules
     A1[✅ glyph_parser.py]
     A2[✅ glyph_compiler.py]
@@ -53,7 +59,7 @@ graph TD
     E1[⏳ CLI for glyph event injection]
     E2[✅ WebSocket live glyph updates + fallback polling]
     E3[✅ Container UI glyph visualizer + minimap + zoom]
-    E4[⏳ Microgrid viewer (3D glyph grid map)]
+    E4[✅ Microgrid viewer (3D glyph grid map)]
     E5[✅ Link to agent state via StateManager]
     E6[✅ Render available containers in frontend UI]
     E7[✅ Auto-reloading frontend after mutation]

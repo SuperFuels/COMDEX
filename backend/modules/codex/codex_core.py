@@ -3,6 +3,10 @@ from backend.modules.glyphos.symbolic_hash_engine import symbolic_hash
 from backend.modules.glyphos.glyph_trace_logger import GlyphTraceLogger
 from backend.modules.glyphos.glyph_mutator import propose_mutation
 from backend.modules.codex.codex_cost_estimator import CodexCostEstimator
+from backend.modules.dna_chain.switchboard import DNA_SWITCH
+
+# ✅ DNA upgrade registration
+DNA_SWITCH.register(__file__)
 
 logger = GlyphTraceLogger()
 
@@ -13,48 +17,58 @@ class CodexCore:
         self.cost_estimator = CodexCostEstimator()
 
     def execute(self, glyph: str, context: dict = {}):
-        from backend.modules.glyphos.codexlang_translator import (  # ⬅ Delayed import
+        from backend.modules.glyphos.codexlang_translator import (
             parse_codexlang_string,
             translate_to_instruction
         )
 
         glyph = glyph.strip()
-        h = symbolic_hash(glyph)
+        glyph_hash = symbolic_hash(glyph)
 
-        if h in self.known_hashes:
+        if glyph_hash in self.known_hashes:
             print(f"⚠️ Duplicate glyph skipped: {glyph}")
-            return "duplicate"
+            return {"status": "duplicate", "glyph": glyph}
 
-        self.known_hashes.add(h)
+        self.known_hashes.add(glyph_hash)
 
         # 🧠 Parse full CodexLang structure
         parsed = parse_codexlang_string(glyph)
         if not parsed:
             print(f"❌ Failed to parse glyph: {glyph}")
-            return "parse_error"
+            return {"status": "parse_error", "glyph": glyph}
 
         try:
-            # 🧠 Translate into executable instruction
+            # Translate into symbolic instruction
             memory = context.get("memory")
             result = translate_to_instruction(parsed, memory=memory)
 
-            # 🧾 Log and trace
-            logger.log_trace(glyph, result, context=context.get("source", "codex_core"))
+            # Log + store trace
+            source = context.get("source", "codex_core")
+            logger.log_trace(glyph, result, context=source)
             self.execution_log.append({"glyph": glyph, "result": result})
 
-            # 🧬 Auto-propose rewrite mutation if triggered
-            action_str = str(parsed.get("action"))
-            if parsed.get("tag") and "rewrite" in action_str.lower():
+            # Trigger rewrite mutation if glyph contains symbolic rewrite logic
+            action_str = str(parsed.get("action", "")).lower()
+            if parsed.get("tag") and "rewrite" in action_str:
                 propose_mutation(glyph, reason="CodexCore Rewrite Trigger")
 
-            # 💰 Cost estimation
+            # Estimate symbolic execution cost
             cost = self.cost_estimator.estimate_glyph_cost(glyph, context or {})
             print(f"[🧮] Estimated glyph cost: {cost.total()} | Breakdown: {vars(cost)}")
 
-            return result
+            return {
+                "status": "executed",
+                "glyph": glyph,
+                "result": result,
+                "cost": {
+                    "total": cost.total(),
+                    "breakdown": vars(cost)
+                }
+            }
+
         except Exception as e:
             print(f"💥 Error during execution of glyph: {glyph}\n{e}")
-            return "execution_error"
+            return {"status": "execution_error", "glyph": glyph, "error": str(e)}
 
     def get_log(self, limit=25):
         return self.execution_log[-limit:]
