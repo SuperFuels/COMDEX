@@ -92,6 +92,18 @@ def parse_glyph(bytecode: str) -> Dict:
     parsed = GlyphParser(bytecode).parse()
     return parsed[0] if parsed else {"symbol": bytecode, "error": "Invalid glyph"}
 
+# ─── ✅ NEW: Parse CodexLang string for instruction trees ──────────────────────
+
+def parse_codexlang_string(input_str: str) -> Dict:
+    """
+    Accepts CodexLang string like:
+      ⟦ Compute | Target : A ↔ B → Result ⟧
+    Returns structured instruction tree for symbolic execution.
+    """
+    parser = GlyphParser(input_str)
+    result = parser.parse()
+    return result[0] if result else {"error": "Failed to parse CodexLang string"}
+
 # ─── 🧪 CLI Test Harness ────────────────────────────────────────────────────────
 
 if __name__ == "__main__":

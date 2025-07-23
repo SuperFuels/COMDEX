@@ -8,7 +8,7 @@ from difflib import unified_diff
 from backend.modules.dna_chain.dc_handler import load_dimension_by_file, save_dimension_to_file
 from backend.modules.dna_chain.dna_registry import register_mutation_proposal
 from backend.modules.hexcore.memory_engine import store_memory as store_memory_entry
-from backend.modules.glyphos.mutation_checker import check_mutation_against_soul_laws
+from backend.modules.dna_chain.mutation_checker import check_mutation_against_soul_laws
 
 # ─── 🧬 Glyph Mutation Engine ───────────────────────────────────────────────────
 

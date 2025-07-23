@@ -1,8 +1,26 @@
+# 📁 backend/modules/glyphos/glyph_logic.py
+
 from typing import Any, Dict, List
 from backend.modules.skills.boot_selector import BootSelector
 from backend.modules.consciousness.reflection_engine import ReflectionEngine
-from backend.modules.hexcore.memory_engine import store_memory
 from backend.modules.dna_chain.switchboard import DNA_SWITCH
+
+# Attempt safe imports for optional systems
+try:
+    from backend.modules.hexcore.memory_engine import store_memory
+except ImportError:
+    store_memory = lambda *args, **kwargs: None
+
+try:
+    from backend.modules.hexcore.memory_bridge import MemoryBridge
+    bridge = MemoryBridge()
+except ImportError:
+    bridge = None
+
+try:
+    from backend.modules.codex.ops.op_trigger import op_trigger
+except ImportError:
+    op_trigger = None
 
 # ⏳ Delay imports to avoid circular dependencies
 def get_goal_engine():
@@ -12,13 +30,6 @@ def get_goal_engine():
 def get_strategy_planner():
     from backend.modules.skills.strategy_planner import StrategyPlanner
     return StrategyPlanner()
-
-# Optional: import MemoryBridge safely
-try:
-    from backend.modules.hexcore.memory_bridge import MemoryBridge
-    bridge = MemoryBridge()
-except ImportError:
-    bridge = None
 
 DNA_SWITCH.register(__file__)  # ✅ Track evolution of this logic
 
@@ -80,6 +91,12 @@ def interpret_glyph(glyph: str, context: Dict[str, Any]) -> Dict[str, Any]:
         elif glyph == "✧":
             logs.append("→ ✧ Trigger activated.")
             triggered_modules.append("Trigger")
+            if op_trigger:
+                try:
+                    target_value = meta.get("value") or context.get("target") or "default_trigger"
+                    op_trigger(context=context, target=target_value)
+                except Exception as trigger_error:
+                    logs.append(f"⚠️ Trigger error: {trigger_error}")
 
         elif glyph == "ψ":
             logs.append("→ 💤 Dream marker encountered.")
@@ -128,7 +145,10 @@ def interpret_glyph(glyph: str, context: Dict[str, Any]) -> Dict[str, Any]:
             "modules": triggered_modules,
             "meta": meta
         }
-        bridge.trace("glyph_execution", trace)
+        try:
+            bridge.trace("glyph_execution", trace)
+        except Exception as trace_error:
+            logs.append(f"⚠️ MemoryBridge trace failed: {trace_error}")
 
     return {
         "glyph": glyph,

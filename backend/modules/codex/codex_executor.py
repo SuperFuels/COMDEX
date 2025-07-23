@@ -2,6 +2,7 @@
 # Executes compiled glyph logic – symbolic bytecode interpreter
 
 import re
+import asyncio
 from datetime import datetime
 
 from backend.modules.codex.codex_cost_estimator import CodexCostEstimator
@@ -9,7 +10,10 @@ from backend.modules.codex.codex_metrics import CodexMetrics
 from backend.modules.codex.codex_websocket_interface import send_codex_ws_event
 from backend.modules.codex.codex_trace import CodexTrace
 from backend.modules.hexcore.memory_engine import MemoryBridge
-from backend.modules.state_manager import STATE  # ✅ Pause flag
+from backend.modules.consciousness.state_manager import STATE  # ✅ Pause flag
+
+# ✅ Global executor instance for benchmarking
+executor = None
 
 
 class CodexExecutor:
@@ -74,7 +78,8 @@ class CodexExecutor:
                 }
             }
 
-            send_codex_ws_event("glyph_execution", cost_payload)
+            # ✅ Await coroutine safely
+            asyncio.create_task(send_codex_ws_event("glyph_execution", cost_payload))
 
             # 🔁 Codex Trace Logging
             self.tracer.log_trace({
@@ -138,13 +143,13 @@ class CodexExecutor:
         action_str = action_str.strip()
 
         if operator == "⬁":
-            return self._trigger("self_rewrite", context)
+            return self._trigger("self_rewrite", context, action_str)
         elif operator == "🧬":
-            return self._trigger("spawn_child_ai", context)
+            return self._trigger("spawn_child_ai", context, action_str)
         elif operator == "🧭":
-            return self._trigger("explore_codex_space", context)
+            return self._trigger("explore_codex_space", context, action_str)
         elif operator == "🪞":
-            return self._trigger("mirror_logic", context)
+            return self._trigger("mirror_logic", context, action_str)
 
         if action_str == "Dream":
             return self._trigger("trigger_dream", context)
@@ -178,3 +183,22 @@ class CodexExecutor:
 
     def get_log(self):
         return self.log
+
+
+# ✅ Exportable function for benchmark_runner.py
+def execute_codex_instruction_tree(tree: dict, context: dict = None):
+    global executor
+    if executor is None:
+        executor = CodexExecutor()
+
+    glyph = tree.get("glyph") or "⟦ Logic | Test : Benchmark → Analyze ⟧"
+    return executor.execute(glyph, context or {})
+
+
+# ✅ Add missing method to CodexTrace if not already present
+if not hasattr(CodexTrace, "log_trace"):
+    def log_trace(self, entry):
+        if not hasattr(self, "entries"):
+            self.entries = []
+        self.entries.append(entry)
+    CodexTrace.log_trace = log_trace

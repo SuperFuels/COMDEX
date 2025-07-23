@@ -26,9 +26,19 @@ class CodexVirtualCPU:
         Parse and execute CodexLang code string.
         Returns list of execution results.
         """
-        tree = self.parser.parse_codexlang_string(codexlang_code)
-        results = self.executor.execute_tree(tree, context)
-        self.registers.store("last_result", results[-1] if results else None)
+        context = dict(context)  # Avoid modifying original
+        try:
+            tree = self.parser.parse_codexlang_string(codexlang_code)
+        except Exception as e:
+            raise ValueError(f"CodexLang parse error: {e}")
+
+        try:
+            results = self.executor.execute_tree(tree, context)
+        except Exception as e:
+            raise RuntimeError(f"CodexLang execution error: {e}")
+
+        last_result = results[-1] if results else None
+        self.registers.store("last_result", last_result)
         return results
 
     def get_registers(self) -> Dict[str, Any]:
@@ -39,8 +49,11 @@ class CodexVirtualCPU:
 if __name__ == "__main__":
     cpu = CodexVirtualCPU()
     code = "⚛ → ✦ ⟲ 🧠"
-    output = cpu.run(code)
-    print("💡 CodexLang Output:")
-    for line in output:
-        print("  ", line)
-    print("📦 Registers:", cpu.get_registers())
+    try:
+        output = cpu.run(code)
+        print("💡 CodexLang Output:")
+        for line in output:
+            print("  ", line)
+        print("📦 Registers:", cpu.get_registers())
+    except Exception as e:
+        print(f"❌ Error during execution: {e}")

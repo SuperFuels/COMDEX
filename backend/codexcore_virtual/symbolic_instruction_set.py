@@ -1,4 +1,4 @@
-# File: codex_core/virtual/symbolic_instruction_set.py
+# File: codex_core_virtual/symbolic_instruction_set.py
 
 """
 Symbolic Instruction Set for CodexCore

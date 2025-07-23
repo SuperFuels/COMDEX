@@ -1,0 +1,53 @@
+# 📁 backend/modules/codex/google_benchmark_runner.py
+
+import time
+import uuid
+import json
+import logging
+from pathlib import Path
+from ..glyphos.codexlang_translator import parse_codexlang_string
+from .codex_executor import execute_instruction_tree
+from .codex_metrics import score_glyph_tree
+from ..glyphos.qglyph import generate_qglyph_from_tree
+
+logging.basicConfig(level=logging.INFO)
+
+# Load symbolic benchmark
+BENCHMARK_PATH = Path(__file__).parent / "google_benchmark_test.codex"
+with BENCHMARK_PATH.open("r") as f:
+    codex_program = f.read()
+
+# Parse into symbolic instruction tree
+instruction_tree = parse_codexlang_string(codex_program)
+
+logging.info("🔭 Loaded 53-QGlyph symbolic benchmark (Google Sycamore simulation)")
+
+# Measure classical Codex execution
+start_classical = time.perf_counter()
+execute_instruction_tree(instruction_tree)
+end_classical = time.perf_counter()
+classical_time = end_classical - start_classical
+
+# Generate QGlyph and measure symbolic quantum time
+start_qglyph = time.perf_counter()
+qglyph = generate_qglyph_from_tree(instruction_tree)
+end_qglyph = time.perf_counter()
+qglyph_time = end_qglyph - start_qglyph
+
+# Score for symbolic complexity
+symbolic_score = score_glyph_tree(instruction_tree)
+
+# Report results
+results = {
+    "test": "Google Sycamore Symbolic Benchmark",
+    "qglyph_id": str(uuid.uuid4()),
+    "classical_time": classical_time,
+    "qglyph_time": qglyph_time,
+    "symbolic_score": symbolic_score,
+    "compression_ratio": round(classical_time / qglyph_time, 6) if qglyph_time > 0 else None,
+}
+
+print(json.dumps(results, indent=2))
+
+# Optional: Save output for log inspection
+Path("/tmp/codex_sycamore_result.json").write_text(json.dumps(results, indent=2))

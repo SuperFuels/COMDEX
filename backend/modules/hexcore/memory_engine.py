@@ -222,3 +222,19 @@ def store_container_metadata(container: dict):
 
 MEMORY = MemoryEngine()
 store_memory = MEMORY.store
+
+# ✅ Minimal MemoryBridge stub for Codex integration
+class MemoryBridge:
+    @staticmethod
+    def store_entry(entry: dict):
+        MEMORY.store(entry)
+
+    @staticmethod
+    def log_codex_execution(glyph: str, result: str, context: dict):
+        MEMORY.store({
+            "label": "codex_execution",
+            "type": "execution",
+            "glyph": glyph,
+            "result": result,
+            "context": context
+        })

@@ -188,11 +188,19 @@ export default function Navbar() {
               </Link>
 
             <Link
-              href="/aion/glyph-synthesis"
-              className="flex items-center space-x-1 py-1 px-3 border border-yellow-500 text-yellow-600 rounded-lg bg-white dark:bg-gray-900 text-sm hover:bg-yellow-50 dark:hover:bg-gray-800 focus:outline-none transition"
+              href="/aion/codex-playground"
+              className="flex items-center space-x-1 py-1 px-3 border border-blue-600 text-blue-700 rounded-lg bg-white dark:bg-gray-900 text-sm hover:bg-blue-50 dark:hover:bg-gray-800 focus:outline-none transition"
             >
-              <Image src="/spark.svg" alt="Compress" width={16} height={16} />
-              <span>Compress</span>
+              <Image src="/scroll.svg" alt="Playground" width={16} height={16} />
+              <span>Playground</span>
+            </Link>
+
+            <Link
+              href="/aion/glyphnet"
+              className="flex items-center space-x-1 py-1 px-3 border border-green-600 text-green-700 rounded-lg bg-white dark:bg-gray-900 text-sm hover:bg-green-50 dark:hover:bg-gray-800 focus:outline-none transition"
+            >
+              <Image src="/glyphnet.svg" alt="GlyphNet" width={16} height={16} />
+              <span>GlyphNet</span>
             </Link>
 
             <Link

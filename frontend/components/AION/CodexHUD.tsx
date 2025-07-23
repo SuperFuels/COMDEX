@@ -17,6 +17,11 @@ interface GlyphDetail {
   container?: string;
   operator?: string;
   entangled_from?: string;
+  qglyph_id?: string;
+  qglyph_paths?: [string, string];
+  collapsed_path?: string;
+  bias_score?: number;
+  observer_trace?: string;
 }
 
 interface GlyphEvent {
@@ -29,6 +34,10 @@ interface GlyphEvent {
   trigger_type?: string;
   sqi?: boolean;
   detail?: GlyphDetail;
+  context?: string;
+  token?: string;
+  identity?: string;
+  luxpush?: boolean;
 }
 
 interface TickEvent {
@@ -37,7 +46,15 @@ interface TickEvent {
   timestamp: number;
 }
 
-type EventLog = { type: 'glyph'; data: GlyphEvent } | { type: 'tick'; data: TickEvent };
+interface GIPEvent {
+  type: 'gip_event';
+  payload: GlyphEvent;
+}
+
+type EventLog =
+  | { type: 'glyph'; data: GlyphEvent }
+  | { type: 'tick'; data: TickEvent }
+  | { type: 'gip'; data: GlyphEvent };
 
 const COST_WARNING_THRESHOLD = 7;
 
@@ -87,28 +104,43 @@ export default function CodexHUD() {
   const [events, setEvents] = useState<EventLog[]>([]);
   const [filter, setFilter] = useState('');
   const [scrolls, setScrolls] = useState<Record<string, string>>({});
+  const [replayMode, setReplayMode] = useState(false);
+  const [contextShown, setContextShown] = useState<Record<string, boolean>>({});
 
   const wsUrl = "/ws/codex";
+  const gipWsUrl = "/ws/glyphnet";
 
-  const { connected } = useWebSocket(
+  const { connected: codexConnected } = useWebSocket(
     wsUrl,
     (data) => {
-      if (data?.type === 'glyph_execution') {
-        setEvents((prev) => [{ type: 'glyph', data: data.payload }, ...prev.slice(0, 100)]);
-      } else if (data?.type === 'dimension_tick') {
-        const tick: TickEvent = {
-          type: 'dimension_tick',
-          container: data.container,
-          timestamp: data.timestamp
-        };
-        setEvents((prev) => [{ type: 'tick', data: tick }, ...prev.slice(0, 100)]);
+      if (!replayMode) {
+        if (data?.type === 'glyph_execution') {
+          setEvents((prev) => [{ type: 'glyph', data: data.payload }, ...prev.slice(0, 100)]);
+        } else if (data?.type === 'dimension_tick') {
+          const tick: TickEvent = {
+            type: 'dimension_tick',
+            container: data.container,
+            timestamp: data.timestamp
+          };
+          setEvents((prev) => [{ type: 'tick', data: tick }, ...prev.slice(0, 100)]);
+        }
       }
     },
     ['glyph_execution', 'dimension_tick']
   );
 
+  useWebSocket(
+    gipWsUrl,
+    (data) => {
+      if (!replayMode && data?.type === 'gip_event') {
+        setEvents((prev) => [{ type: 'gip', data: data.payload }, ...prev.slice(0, 100)]);
+      }
+    },
+    ['gip_event']
+  );
+
   const filteredEvents = events.filter((e) =>
-    e.type === 'glyph'
+    e.type === 'glyph' || e.type === 'gip'
       ? e.data.glyph?.toLowerCase().includes(filter.toLowerCase())
       : true
   );
@@ -124,22 +156,38 @@ export default function CodexHUD() {
     }
   };
 
+  const toggleReplay = () => {
+    setReplayMode(!replayMode);
+  };
+
+  const toggleContext = (glyph: string) => {
+    setContextShown((prev) => ({ ...prev, [glyph]: !prev[glyph] }));
+  };
+
   return (
     <Card className="w-full max-h-[450px] bg-black text-white border border-green-700 shadow-lg rounded-xl p-2 mt-4">
       <CardContent>
         <div className="flex justify-between items-center mb-2">
           <h2 className="text-lg font-bold text-green-400">🧠 Codex Runtime HUD</h2>
           <span className="text-sm">
-            WebSocket: {connected ? '🟢 Connected' : '🔴 Disconnected'}
+            Codex: {codexConnected ? '🟢 Connected' : '🔴 Disconnected'}
           </span>
         </div>
 
-        <Input
-          placeholder="🔍 Filter glyphs..."
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          className="mb-3 bg-gray-900 border-gray-700 text-white text-sm"
-        />
+        <div className="flex items-center justify-between mb-2 gap-2">
+          <Input
+            placeholder="🔍 Filter glyphs..."
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            className="bg-gray-900 border-gray-700 text-white text-sm"
+          />
+          <Button
+            className="text-xs px-3 py-1 h-8 bg-purple-800 hover:bg-purple-700"
+            onClick={toggleReplay}
+          >
+            {replayMode ? '🔁 Exit Replay' : '🔂 Enter Replay'}
+          </Button>
+        </div>
 
         <ScrollArea className="h-[320px] pr-2">
           {filteredEvents.map((entry, index) => {
@@ -170,7 +218,6 @@ export default function CodexHUD() {
             const operatorColor = operator ? OPERATOR_COLORS[operator] || 'text-white' : 'text-white';
 
             const key = `${log.glyph}-${log.timestamp || index}`;
-
             const isEntangled = log.glyph.includes('↔') || log.detail?.entangled_from;
 
             return (
@@ -202,16 +249,26 @@ export default function CodexHUD() {
                     <Badge className="ml-2" variant="destructive">⚠️ High Cost</Badge>
                   )}
 
+                  {log.token && log.identity && (
+                    <Badge className="ml-2" variant="outline">🔐 {log.identity}</Badge>
+                  )}
+
+                  {log.luxpush && (
+                    <Badge className="ml-2" variant="outline">🛰️ LuxPush</Badge>
+                  )}
+
                   <Button className="ml-2 text-xs px-2 py-0 h-6 bg-transparent hover:bg-white/10 border border-white/10" onClick={() => toggleScroll(log.glyph)}>
                     🧾 {scrolls[log.glyph] ? 'Hide' : 'Show'} Scroll
+                  </Button>
+
+                  <Button className="ml-2 text-xs px-2 py-0 h-6 bg-transparent hover:bg-white/10 border border-white/10" onClick={() => toggleContext(log.glyph)}>
+                    🔍 {contextShown[log.glyph] ? 'Hide' : 'Show'} Context
                   </Button>
                 </div>
 
                 <div className="text-xs text-white/60 flex justify-between">
                   <span>{log.source || 'Unknown Source'}</span>
-                  <span>
-                    {log.timestamp ? new Date(log.timestamp * 1000).toLocaleTimeString() : 'Unknown Time'}
-                  </span>
+                  <span>{log.timestamp ? new Date(log.timestamp * 1000).toLocaleTimeString() : 'Unknown Time'}</span>
                 </div>
 
                 {log.cost !== undefined && (
@@ -219,27 +276,18 @@ export default function CodexHUD() {
                     💰 Estimated Cost: <b>{log.cost.toFixed(2)}</b>
                     {log.detail && (
                       <div className="flex gap-2 mt-1 flex-wrap">
-                        {log.detail.energy !== undefined && (
-                          <Badge variant="outline">🔋 Energy: {log.detail.energy}</Badge>
-                        )}
-                        {log.detail.ethics_risk !== undefined && (
-                          <Badge variant="outline">⚖️ Risk: {log.detail.ethics_risk}</Badge>
-                        )}
-                        {log.detail.delay !== undefined && (
-                          <Badge variant="outline">⌛ Delay: {log.detail.delay}</Badge>
-                        )}
-                        {log.detail.opportunity_loss !== undefined && (
-                          <Badge variant="outline">📉 Loss: {log.detail.opportunity_loss}</Badge>
-                        )}
-                        {log.detail.coord && (
-                          <Badge variant="outline">📍 Coord: {log.detail.coord}</Badge>
-                        )}
-                        {log.detail.container && (
-                          <Badge variant="outline">🧱 Container: {log.detail.container}</Badge>
-                        )}
-                        {log.detail.entangled_from && (
-                          <Badge variant="outline">🪞 Forked from: {log.detail.entangled_from}</Badge>
-                        )}
+                        {log.detail.energy !== undefined && (<Badge variant="outline">🔋 Energy: {log.detail.energy}</Badge>)}
+                        {log.detail.ethics_risk !== undefined && (<Badge variant="outline">⚖️ Risk: {log.detail.ethics_risk}</Badge>)}
+                        {log.detail.delay !== undefined && (<Badge variant="outline">⌛ Delay: {log.detail.delay}</Badge>)}
+                        {log.detail.opportunity_loss !== undefined && (<Badge variant="outline">📉 Loss: {log.detail.opportunity_loss}</Badge>)}
+                        {log.detail.coord && (<Badge variant="outline">📍 Coord: {log.detail.coord}</Badge>)}
+                        {log.detail.container && (<Badge variant="outline">🧱 Container: {log.detail.container}</Badge>)}
+                        {log.detail.entangled_from && (<Badge variant="outline">🪞 Forked from: {log.detail.entangled_from}</Badge>)}
+                        {log.detail.qglyph_id && (<Badge variant="outline">🧬 QGlyph ID: {log.detail.qglyph_id}</Badge>)}
+                        {log.detail.qglyph_paths && (<Badge variant="outline">↔ Paths: {log.detail.qglyph_paths[0]} / {log.detail.qglyph_paths[1]}</Badge>)}
+                        {log.detail.collapsed_path && (<Badge variant="outline">⧖ Collapsed: {log.detail.collapsed_path}</Badge>)}
+                        {log.detail.bias_score !== undefined && (<Badge variant="outline">🎯 Bias Score: {log.detail.bias_score}</Badge>)}
+                        {log.detail.observer_trace && (<Badge variant="outline">👁️ Trace: {log.detail.observer_trace}</Badge>)}
                       </div>
                     )}
                   </div>
@@ -248,6 +296,12 @@ export default function CodexHUD() {
                 {scrolls[log.glyph] && (
                   <pre className="bg-gray-800 text-green-300 text-xs mt-2 p-2 rounded max-h-40 overflow-auto whitespace-pre-wrap border border-green-800">
                     {scrolls[log.glyph]}
+                  </pre>
+                )}
+
+                {contextShown[log.glyph] && log.context && (
+                  <pre className="bg-gray-900 text-purple-300 text-xs mt-2 p-2 rounded max-h-32 overflow-auto whitespace-pre-wrap border border-purple-800">
+                    {log.context}
                   </pre>
                 )}
               </div>

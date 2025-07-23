@@ -16,6 +16,10 @@ from backend.modules.dimensions.dc_handler import (
     run_dimension_tick
 )
 
+# 🧠 SQI Runtime: Q-routing
+from backend.modules.glyphos.glyph_quantum_core import GlyphQuantumCore
+from backend.modules.hexcore.memory_engine import MemoryEngine
+
 
 class CodexFabric:
     """
@@ -30,6 +34,7 @@ class CodexFabric:
         self.scheduler = CodexScheduler()
         self.supervisor = CodexSupervisor()
         self.adapter = CodexContextAdapter()
+        self.qcores = {}  # container_id -> GlyphQuantumCore
 
     def discover_dimensions(self):
         """Find all loaded .dc containers that can run CodexCore"""
@@ -41,21 +46,36 @@ class CodexFabric:
                     "last_tick": 0,
                     "active": True
                 }
+                # ♾️ Initialize QGlyph quantum core for container
+                self.qcores[dim.id] = GlyphQuantumCore(container_id=dim.id)
 
     def tick_dimension(self, dim_id):
         """Run Codex tick for a single container"""
         container = self.dimensions[dim_id]["obj"]
         try:
             self.adapter.set_context(container)
-            run_dimension_tick(container)
-            self.supervisor.tick()
-            self.dimensions[dim_id]["last_tick"] = time.time()
 
-            # Broadcast dimension tick summary
+            # 🧠 Check for QGlyph execution flag
+            if container.metadata.get("physics") == "symbolic-quantum":
+                # ↯ Forked QGlyph execution path (symbolic quantum runtime)
+                qcore = self.qcores[container.id]
+                result = qcore.generate_qbit(glyph="⊕", coord="center")
+                qcore.collapse_qbit(result)
+                # ➕ Expand this logic in recursive runtime (future)
+
+            # 🌀 Run normal CodexCore logic
+            run_dimension_tick(container)
+
+            # 📈 Supervisor tick
+            self.supervisor.tick()
+
+            # 📡 WebSocket: dimension tick summary
+            now = time.time()
+            self.dimensions[dim_id]["last_tick"] = now
             broadcast_tick({
                 "type": "dimension_tick",
                 "container": container.id,
-                "timestamp": self.dimensions[dim_id]["last_tick"]
+                "timestamp": now
             })
 
         except Exception as e:

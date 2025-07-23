@@ -372,6 +372,35 @@ class DreamCore:
     async def run_dream_cycle(self):
         return self.generate_dream()
 
+    def reflect_qglyph_collapse(self, collapse_data: dict):
+        """Stores symbolic QGlyph collapse decisions into the dream reflection log."""
+        selected = collapse_data.get("selected", {})
+        ranked = collapse_data.get("ranked", [])
+
+        thought = f"🌌 QGlyph Collapse: Selected path {selected.get('path')} with ethics {selected.get('ethics_score')}."
+
+        metadata = {
+            "selected_path": selected.get("path"),
+            "selected_glyph": selected.get("glyph"),
+            "ethics_score": selected.get("ethics_score"),
+            "alternatives": [
+                {
+                    "path": alt.get("path"),
+                    "glyph": alt.get("glyph"),
+                    "ethics_score": alt.get("ethics_score")
+                }
+                for alt in ranked[1:]
+            ]
+        }
+
+        self.memory.store({
+            "label": "qglyph_collapse_reflection",
+            "content": thought,
+            "metadata": metadata
+        })
+
+        print("🌌 QGlyph collapse decision stored in DreamCore.")
+
 def trigger_dream_reflection():
     core = DreamCore()
     return core.generate_dream()

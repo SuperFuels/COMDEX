@@ -1,17 +1,25 @@
 """
 Dimension Kernel: 4D Runtime Control System
-Powers runtime logic, space expansion, cube interaction, and dynamic glyph routing.
+Powers runtime logic, space expansion, cube interaction, dynamic glyph routing, and symbolic-quantum execution.
 """
 
 import random
 import uuid
 
+from backend.modules.glyphos.glyph_quantum_core import GlyphQuantumCore
+
 class DimensionKernel:
-    def __init__(self, container_id):
+    def __init__(self, container_id, physics="default"):
         self.container_id = container_id
+        self.physics = physics
         self.cubes = {}  # keyed by (x,y,z,t)
         self.runtime_ticks = 0
         self.avatar_positions = {}  # id -> position
+
+        if physics == "symbolic-quantum":
+            self.quantum_core = GlyphQuantumCore(container_id)
+        else:
+            self.quantum_core = None
 
     def register_cube(self, x, y, z, t=0, metadata=None):
         key = (x, y, z, t)
@@ -21,6 +29,11 @@ class DimensionKernel:
             "metadata": metadata or {},
             "active": True,
         }
+
+        if self.physics == "symbolic-quantum":
+            glyph = "∿"  # symbolic QBit seed
+            qbit = self.quantum_core.generate_qbit(glyph, coord=f"{x},{y},{z},{t}")
+            self.cubes[key]["metadata"]["qbit"] = qbit
 
     def mark_avatar_location(self, avatar_id, position):
         self.avatar_positions[avatar_id] = dict(position)
@@ -81,7 +94,6 @@ class DimensionKernel:
                     if len(parts) == 2:
                         trigger = parts[0].strip()
                         action = parts[1].strip()
-                        # Basic pattern check
                         if "if_" in trigger and "action:" in action:
                             actions_triggered.append({
                                 "location": key,
@@ -90,12 +102,32 @@ class DimensionKernel:
                             })
         return actions_triggered
 
+    def collapse_all_qbits(self):
+        if not self.quantum_core:
+            return []
+
+        results = []
+        for key, cube in self.cubes.items():
+            qbit = cube["metadata"].get("qbit")
+            if qbit and qbit.get("state") != "collapsed":
+                collapsed = self.quantum_core.collapse_qbit(qbit)
+                cube["metadata"]["qbit"] = collapsed
+                results.append({
+                    "location": key,
+                    "collapsed_to": collapsed["collapsed"]
+                })
+        return results
+
     def get_active_region(self):
         return [key for key, cube in self.cubes.items() if cube["active"]]
 
     def tick(self):
         self.runtime_ticks += 1
         glyph_actions = self.run_glyph_programs()
+
+        if self.physics == "symbolic-quantum":
+            self.collapse_all_qbits()
+
         return {
             "tick": self.runtime_ticks,
             "active_cubes": len(self.get_active_region()),
@@ -103,7 +135,6 @@ class DimensionKernel:
         }
 
     def expand(self, axis="z", amount=1):
-        new_keys = []
         for key in list(self.cubes.keys()):
             x, y, z, t = key
             for i in range(1, amount + 1):

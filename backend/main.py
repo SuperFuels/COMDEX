@@ -11,7 +11,7 @@ if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 os.environ["PYTHONPATH"] = ROOT_DIR
 
-from fastapi import FastAPI, APIRouter, Request, HTTPException
+from fastapi import FastAPI, APIRouter, Request, HTTPException, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from starlette.responses import RedirectResponse
@@ -130,12 +130,24 @@ from backend.routes import aion_glyph_trigger_log
 from backend.modules.codex.codex_websocket_interface import start_codex_ws_server
 from backend.routes import aion_tessaris_intents
 from backend.routes import ws_codex_interface
-from backend.routes import aion_synthesize_glyphs  # ✅ CORRECT
+from backend.routes import aion_synthesize_glyphs
 from backend.routes.ws import codex_ws
 from backend.routes import codex_scroll
+from backend.routes.ws import qglyph_ws
+from api.aion import codex_playground 
+from routes.ws import glyphnet_ws
+from modules.gip.gip_adapter_http import router as gip_http_router
+from routes.glyphnet_command import router as glyphnet_command_router
 
 # ✅ WebSocket route
 from backend.api import ws
+
+# ✅ Mount QGlyph WebSocket
+from backend.routes.ws.qglyph_ws import start_qglyph_ws
+
+@app.websocket("/ws/qglyph")
+async def qglyph_socket(websocket: WebSocket):
+    await start_qglyph_ws(websocket)
 
 # ── 12) Import standalone routers from backend.api (if used)
 from backend.api.aion.status           import router as status_router
@@ -199,7 +211,11 @@ app.include_router(aion_tessaris_intents.router, prefix="/api")
 app.include_router(ws_codex_interface.router)
 app.include_router(aion_synthesize_glyphs.router)
 app.include_router(codex_ws.router)
-app.include_router(aion_tessaris_intents.router, prefix="/api")
+app.include_router(qglyph_ws.router)
+app.include_router(codex_playground.router)
+app.include_router(glyphnet_ws.router)
+app.include_router(gip_http_router, prefix="/api")
+app.include_router(glyphnet_command_router)
 
 # ── 16) Serve uploaded images
 app.mount("/uploaded_images", StaticFiles(directory="uploaded_images"), name="uploaded_images")

@@ -8,7 +8,7 @@ from backend.modules.codex.codex_core import CodexCore
 from backend.modules.codex.codex_metrics import CodexMetrics
 from backend.modules.codex.codex_cost_estimator import CodexCostEstimator
 from backend.modules.codex.codex_emulator import CodexEmulator
-from backend.modules.codex.codexlang_translator import run_codexlang_string
+from backend.modules.glyphos.codexlang_translator import run_codexlang_string
 from backend.modules.tessaris.tessaris_engine import TessarisEngine
 from backend.modules.hexcore.memory_engine import MEMORY
 
@@ -128,3 +128,8 @@ async def codex_ws_handler(websocket: WebSocket):
 # ✅ Minimal stub for FastAPI compatibility
 async def start_codex_ws_server(websocket: WebSocket):
     await codex_ws_handler(websocket)
+
+
+# ✅ Fallback CLI/Test compatible event stub
+async def send_codex_ws_event(event_type: str, payload: dict):
+    print(f"[CodexWS] {event_type} → {json.dumps(payload)}")
