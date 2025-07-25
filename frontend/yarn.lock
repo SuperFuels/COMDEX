@@ -1801,6 +1801,13 @@
   resolved "https://registry.npmjs.org/@types/react-dom/-/react-dom-18.3.7.tgz"
   integrity sha512-MEe3UeoENYVFXzoXEWsvcpg6ZvlrFNlOQ7EOsvhI3CfAXwzPfO8Qwuxd40nepsYKqyyVQnTdEfv68q91yLcKrQ==
 
+"@types/react-monaco-editor@^0.16.0":
+  version "0.16.0"
+  resolved "https://registry.yarnpkg.com/@types/react-monaco-editor/-/react-monaco-editor-0.16.0.tgz#12913ab07221f3335eb56d12d38b9d310643db2f"
+  integrity sha512-3YxNIyZ+mlU6WN9UfQ/T66LYjHH3ZWOK4csfefkkXdDmUbHDbuDpfmVSYyJt1W0wlwhcfu4zc7BMwYrimN/GUg==
+  dependencies:
+    react-monaco-editor "*"
+
 "@types/react-reconciler@^0.26.7":
   version "0.26.7"
   resolved "https://registry.yarnpkg.com/@types/react-reconciler/-/react-reconciler-0.26.7.tgz#0c4643f30821ae057e401b0d9037e03e8e9b2a36"
@@ -5423,6 +5430,11 @@ react-modal@^3.16.3:
     prop-types "^15.7.2"
     react-lifecycles-compat "^3.0.0"
     warning "^4.0.3"
+
+react-monaco-editor@*, react-monaco-editor@^0.59.0:
+  version "0.59.0"
+  resolved "https://registry.yarnpkg.com/react-monaco-editor/-/react-monaco-editor-0.59.0.tgz#a3cdef4a47fd0cb899f412c9d66b365c51a76096"
+  integrity sha512-SggqfZCdUauNk7GI0388bk5n25zYsQ1ai1i+VhxAgwbCH+MTGl7L1fBNTJ6V+oXeUApf+bpzikprHJEZm9J/zA==
 
 react-pdf@^9.2.1:
   version "9.2.1"
