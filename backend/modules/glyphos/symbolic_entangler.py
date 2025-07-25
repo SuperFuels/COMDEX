@@ -56,10 +56,19 @@ def propagate_entangled_memory(source_id: str, memory: dict, tag: str = "↔ ent
         MemoryEngine().store(target_id, memory, tag=tag)
 
 
+def register_entanglement(source_id: str, targets: List[str]) -> None:
+    """
+    Registers symbolic entanglement between a source container and a list of targets.
+    """
+    for target_id in targets:
+        entangle_containers(source_id, target_id)
+
+
 __all__ = [
     "entangle_glyphs",
     "get_entangled_for",
     "entangle_containers",
     "get_entangled_containers",
     "propagate_entangled_memory",
+    "register_entanglement",
 ]

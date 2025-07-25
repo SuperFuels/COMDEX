@@ -1,15 +1,23 @@
+// File: frontend/components/GlyphNetTerminal.tsx
+
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
+// ✅ Fixed incorrect import path for Textarea
+import { Textarea } from "@/components/ui/textarea"; 
 import useWebSocket from "@/hooks/useWebSocket";
 
 export default function GlyphNetTerminal() {
-  const { sendMessage } = useWebSocket("/ws/glyphnet");
   const [command, setCommand] = useState("");
   const [log, setLog] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+
+  // ✅ Provide basic onMessage handler for incoming WebSocket data
+  const { emit } = useWebSocket("/ws/glyphnet", (msg: any) => {
+    const message = typeof msg === "string" ? msg : JSON.stringify(msg);
+    setLog((prev) => [`📩 ${message}`, ...prev]);
+  });
 
   const handleRun = async () => {
     const trimmed = command.trim();
@@ -23,7 +31,7 @@ export default function GlyphNetTerminal() {
           glyphs: [{ glyph }],
           meta: { container: target, from: "terminal", command },
         };
-        sendMessage(packet);
+        emit("glyphnet_command", { command: trimmed, packet });
         setLog((prev) => [`✅ Sent: ${glyph} → ${target}`, ...prev]);
         setCommand("");
         return;

@@ -113,10 +113,11 @@ class StateManager:
 
     def secure_load_and_set(self, container_id: str):
         try:
+            # ✅ Load standard or lean container
             container = load_dimension(container_id)
 
             # ✅ Lean container detection
-            if container.get("metadata", {}).get("origin") == "lean_import":
+            if is_lean_container(container_id) or container.get("metadata", {}).get("origin") == "lean_import":
                 MEMORY({
                     "type": "lean_container_loaded",
                     "container_id": container_id,
@@ -124,7 +125,7 @@ class StateManager:
                     "timestamp": datetime.utcnow().isoformat()
                 })
 
-            # Decrypt vault glyph data if present
+            # 🔒 Decrypt vault glyph data if present
             encrypted_glyph_blob = container.get("encrypted_glyph_data")
             if encrypted_glyph_blob:
                 avatar_state = self.get_agent_state("AION")  # TODO: use dynamic current avatar id if needed
@@ -135,7 +136,7 @@ class StateManager:
                 if not success:
                     raise PermissionError("[🔒] Vault decryption failed due to avatar state")
 
-            # SoulLaw / trait gates
+            # ⚖️ SoulLaw / trait gates
             gates = container.get("gates", {})
             required_traits = gates.get("traits", {})
             for trait, required in required_traits.items():
@@ -149,6 +150,8 @@ class StateManager:
                     })
                     raise PermissionError(f"[🔒] Trait gate locked: {trait} = {actual} < {required}")
 
+            # ✅ Register + activate
+            self.loaded_containers[container_id] = container
             self.set_current_container(container)
             return True
 
