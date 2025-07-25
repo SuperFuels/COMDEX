@@ -26,7 +26,7 @@ export default function GlyphNetLogViewer() {
   const [typeFilter, setTypeFilter] = useState("all");
   const [containerFilter, setContainerFilter] = useState("all");
   const [search, setSearch] = useState("");
-  const { sendMessage } = useWebSocket("/ws/glyphnet");
+  const { emit } = useWebSocket("/ws/glyphnet");
 
   useEffect(() => {
     fetch("/api/glyphnet/log")
@@ -44,7 +44,7 @@ export default function GlyphNetLogViewer() {
         container: entry.container,
       },
     };
-    sendMessage(replayPacket);
+    emit("replay", replayPacket);
   };
 
   const filtered = log.filter((entry) => {
