@@ -17,6 +17,7 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-hot-toast": "^2.5.2",
+    "react-monaco-editor": "^0.59.0",
     "react-split": "^2.0.14",
     "three": "^0.178.0"
   },
@@ -27,6 +28,7 @@
     "@types/file-saver": "^2.0.7",
     "@types/node": "^24.0.15",
     "@types/react": "^18.0.38",
+    "@types/react-monaco-editor": "^0.16.0",
     "@types/three": "^0.178.1",
     "hardhat": "^2.26.0"
   },
