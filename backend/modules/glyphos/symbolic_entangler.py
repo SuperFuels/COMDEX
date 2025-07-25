@@ -3,7 +3,7 @@ import os
 from typing import Dict, List
 
 from backend.modules.hexcore.memory_engine import log_memory
-from backend.modules.aion.symbolic_operator import is_entanglement_operator
+from backend.modules.glyphos.symbolic_operator import is_entanglement_operator
 from backend.modules.aion.container_runtime import get_container_data, save_container_data
 
 

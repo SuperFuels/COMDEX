@@ -249,6 +249,13 @@ class MemoryBridge:
             "context": context
         })
 
+def log_memory(container_id: str, data: dict):
+    """
+    Public method to log memory into a specific container.
+    """
+    mem = MemoryEngine(container_id)
+    mem.store(data)
+
 def get_runtime_entropy_snapshot():
     # Calls the static method inside MemoryEngine for convenience
     return MemoryEngine.get_runtime_entropy_snapshot()
