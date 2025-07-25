@@ -22,6 +22,9 @@ from backend.modules.glyphos.glyph_mutator import run_self_rewrite
 # ✅ Tessaris trigger support
 from backend.modules.tessaris.tessaris_trigger import TessarisTrigger
 
+# ✅ Entanglement logic
+from backend.modules.glyphos.symbolic_entangler import entangle_glyphs
+
 import time
 import uuid
 
@@ -98,10 +101,19 @@ class GlyphExecutor:
         })
 
         # === TRIGGER MAP ===
-        
-        # [no changes needed to trigger map — trace logging done above]
+        if glyph == "↔":
+            entangle_glyphs("↔", f"entangled:{coord}")
+            self.memory_engine.store({
+                **trace_data,
+                "type": "glyph_trigger",
+                "action": "entangle_glyph",
+                "trait_impact": {"empathy": +0.01},
+            })
+            self.personality.adjust_trait("empathy", +0.01)
+            self.bridge.trace_trigger(glyph, {**trace_data, "role": "Symbolic entanglement"})
+            await self.broadcast_glyph_execution(glyph, "entangle_glyph", "entanglement", coord)
 
-        if glyph == "🦰":
+        elif glyph == "🦰":
             self.goal_engine.boot_next_skill()
             self.memory_engine.store({
                 **trace_data,

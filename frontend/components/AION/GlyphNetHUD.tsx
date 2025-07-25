@@ -32,15 +32,18 @@ export default function GlyphNetHUD() {
       if (data?.glyph) {
         setEvents((prev) => [data as GlyphEvent, ...prev.slice(0, 100)]);
       }
-    },
-    [],
-    () => {
-      setConnected(true);
-      // Optional default filter
-      socket?.send(JSON.stringify({ subscribe: { symbol: '↔' } }));
-    },
-    () => setConnected(false)
+    }
   );
+
+  useEffect(() => {
+    setConnected(true);
+    socket?.send(JSON.stringify({ subscribe: { symbol: '↔' } }));
+
+    return () => {
+      setConnected(false);
+      socket?.send(JSON.stringify({ unsubscribe: { symbol: '↔' } }));
+    };
+  }, [socket]);
 
   const filteredEvents = events.filter((e) =>
     e.glyph?.toLowerCase().includes(filter.toLowerCase())

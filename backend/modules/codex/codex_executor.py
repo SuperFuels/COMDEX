@@ -11,6 +11,7 @@ from backend.modules.codex.codex_websocket_interface import send_codex_ws_event
 from backend.modules.codex.codex_trace import CodexTrace
 from backend.modules.hexcore.memory_engine import MemoryBridge
 from backend.modules.consciousness.state_manager import STATE  # ✅ Pause flag
+from backend.modules.glyphos.symbolic_entangler import get_entangled_for  # ✅ Entanglement support
 
 # ✅ Global executor instance for benchmarking
 executor = None
@@ -60,6 +61,23 @@ class CodexExecutor:
                     "action": step["action"],
                     "result": op_result
                 })
+
+                # ✅ If operator is ↔ (entangled), execute entangled glyphs
+                if step["operator"] == "↔":
+                    entangled = get_entangled_for(glyph)
+                    for partner in entangled:
+                        self.log.append((partner, context, timestamp))
+                        self.tracer.log_trace({
+                            "source": "codex_executor",
+                            "glyph": partner,
+                            "entangled_from": glyph,
+                            "context": context,
+                            "timestamp": timestamp
+                        })
+                        # Avoid infinite loops by not triggering further ↔ here
+                        partner_clean = partner.strip("⟦⟧").strip()
+                        if "→" in partner_clean:
+                            self.execute(partner, context)
 
             context_info = {**context, "operator": ops_chain[0]["operator"] if ops_chain else None}
             estimate = self.coster.estimate_glyph_cost(glyph, context_info)
@@ -141,7 +159,6 @@ class CodexExecutor:
             return {"status": "error", "error": str(e)}
 
     def execute_theorem(self, glyph_stripped: str, context: dict, timestamp: float):
-        # Format: Theorem | id : statement via proof_ref
         match = re.match(r"Theorem\s*\|\s*([^:]+):(.+?)\s+via\s+(.+)", glyph_stripped)
         if not match:
             return {"status": "error", "error": f"Malformed theorem glyph: {glyph_stripped}"}
@@ -150,7 +167,6 @@ class CodexExecutor:
         statement = match.group(2).strip()
         proof_ref = match.group(3).strip()
 
-        # Store memory
         MemoryBridge.store_memory({
             "source": "codex_executor",
             "type": "lean_theorem_executed",
@@ -162,7 +178,6 @@ class CodexExecutor:
             "timestamp": timestamp
         })
 
-        # Send both events
         glyph_str = f"⟦ Theorem | {theorem_id} : {statement} via {proof_ref} ⟧"
         execution_payload = {
             "glyph": glyph_str,
