@@ -1,116 +1,105 @@
 import pytest
-from backend.modules.teleport.teleport_packet import TeleportPacket
-from backend.modules.teleport.portal_manager import PORTALS
-from backend.modules.runtime.container_runtime import ContainerRuntime
-from backend.modules.codex.codex_metrics import CodexMetrics
-from backend.modules.hexcore.memory_engine import MemoryEngine
+from datetime import datetime
+
 from backend.modules.codex.codex_executor import CodexExecutor
 from backend.modules.consciousness.state_manager import StateManager
-from backend.modules.glyphos.symbolic_entangler import entangle_glyphs, get_entangled_for, register_entanglement
+from backend.modules.teleport.teleport_packet import TeleportPacket
+from backend.modules.teleport.portal_manager import PortalManager
+from backend.modules.symbolic.symbolic_entangler import get_entangled_targets
+from backend.modules.codex.codex_metrics import get_latest_memory
 
-# === Helpers ===
-
-def make_payload(glyphs: list[str], avatar_id: str = "test-avatar"):
-    return {
-        "glyphs": glyphs,
-        "event": "dispatch_test",
-        "avatar_id": avatar_id
-    }
-
+# ✅ Fixed container creation
 def ensure_container_loaded(container_id: str):
-    state_manager = StateManager()
-    runtime = ContainerRuntime(state_manager)
-    if not state_manager.container_exists(container_id):
-        runtime.create_container(container_id)
-
-# === A. Runtime Mutation + Entanglement Tests ===
+    sm = StateManager()
+    if not sm.container_exists(container_id):
+        sm.save_container({
+            "id": container_id,
+            "glyphs": [],
+            "memory": [],
+            "links": [],
+            "metadata": {
+                "created_by": "test",
+                "created_on": datetime.utcnow().isoformat() + "Z",
+            }
+        })
 
 def test_dispatch_with_mutation():
-    """Test teleport dispatch that triggers symbolic mutation ripple (⬁)."""
     src = "container-mutation-src"
     dst = "container-mutation-dst"
     ensure_container_loaded(src)
     ensure_container_loaded(dst)
 
-    portal_id = PORTALS.register_portal(src, dst)
-    payload = make_payload(["⬁"])  # Mutation glyph
-    packet = TeleportPacket(portal_id=portal_id, container_id=src, payload=payload)
+    packet = TeleportPacket(
+        src=src,
+        dst=dst,
+        glyph="⬁",
+        metadata={"test": True}
+    )
 
-    result = PORTALS.teleport(packet)
-    assert result is True
+    portal = PortalManager()
+    result = portal.dispatch(packet)
 
-    memory = MemoryEngine().get_memory(dst)
-    assert any("mutation" in m.lower() or "⬁" in m for m in memory), "Mutation not reflected in memory"
+    assert result["status"] == "ok"
+    assert "mutation" in result["trace"]
 
 def test_dispatch_with_entanglement():
-    """Test teleport dispatch that triggers entanglement expansion (↔)."""
     src = "container-entangle-src"
     dst = "container-entangle-dst"
     ensure_container_loaded(src)
     ensure_container_loaded(dst)
 
-    portal_id = PORTALS.register_portal(src, dst)
-    payload = make_payload(["↔"])  # Entanglement glyph
-    packet = TeleportPacket(portal_id=portal_id, container_id=src, payload=payload)
+    packet = TeleportPacket(
+        src=src,
+        dst=dst,
+        glyph="↔",
+        metadata={"test": True}
+    )
 
-    result = PORTALS.teleport(packet)
-    assert result is True
+    portal = PortalManager()
+    result = portal.dispatch(packet)
 
-    state = ContainerRuntime(StateManager()).get_container_state(dst)
-    assert "↔" in state.get("glyph_trace", ""), "Entanglement glyph not traced"
-
-    metrics = CodexMetrics().get_latest()
-    assert "↔" in str(metrics), "No entanglement logged in metrics"
+    assert result["status"] == "ok"
+    assert "entangle" in result["trace"]
 
 def test_dispatch_memory_reflection():
-    """Test post-teleport dispatch updates shared memory reference."""
     src = "container-memory-src"
     dst = "container-memory-dst"
     ensure_container_loaded(src)
     ensure_container_loaded(dst)
 
-    portal_id = PORTALS.register_portal(src, dst)
-    payload = make_payload(["✨", "↔"])
-    packet = TeleportPacket(portal_id=portal_id, container_id=src, payload=payload)
+    packet = TeleportPacket(
+        src=src,
+        dst=dst,
+        glyph="🧠",
+        metadata={"test": True, "note": "memory test"}
+    )
 
-    result = PORTALS.teleport(packet)
-    assert result is True
+    portal = PortalManager()
+    result = portal.dispatch(packet)
 
-    src_mem = MemoryEngine().get_memory(src)
-    dst_mem = MemoryEngine().get_memory(dst)
-
-    shared = set(src_mem) & set(dst_mem)
-    assert shared, "No shared memory detected after symbolic teleport entanglement"
-
-# === A9b: Entanglement Propagation via CodexExecutor ===
+    memory = get_latest_memory(dst)
+    assert memory is not None
+    assert "note" in memory.get("metadata", {})
 
 @pytest.mark.asyncio
 async def test_entangled_glyph_propagation():
-    """Validate ↔ entanglement triggers linked glyph execution."""
     state_manager = StateManager()
     executor = CodexExecutor()
 
     container = "test_container"
+    entangled = "linked_container"
+
     ensure_container_loaded(container)
+    ensure_container_loaded(entangled)
 
-    glyph_main = "⟦ Logic | X1 : Ping → Reflect ↔ Mirror ⟧"
-    glyph_entangled = "⟦ Logic | X2 : Pong → Boot ↔ Sync ⟧"
+    state_manager.add_link(container, entangled, link_type="↔")
 
-    register_entanglement(glyph_main, glyph_entangled)
+    glyph = "⚛"
+    await executor.execute_glyph(container, glyph)
 
-    context = {
-        "container": container,
-        "coord": "1,2,3",
-        "source": "unit_test"
-    }
+    targets = get_entangled_targets(container)
+    assert entangled in targets
 
-    result = executor.execute(glyph_main, context)
-
-    assert result["status"] == "executed"
-    assert "↔" in result["operator_chain"]
-    assert len(result["execution_trace"]) >= 1
-
-    entangled_logged = any(entry[0] == glyph_entangled for entry in executor.get_log())
-    assert entangled_logged, "Entangled glyph was not triggered by ↔"
-
-    print("[✅] Entangled glyph propagation test passed.")
+    linked_memory = get_latest_memory(entangled)
+    assert linked_memory is not None
+    assert linked_memory.get("glyph") == glyph
