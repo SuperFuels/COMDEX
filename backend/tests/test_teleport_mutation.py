@@ -5,7 +5,7 @@ from backend.modules.codex.codex_executor import CodexExecutor
 from backend.modules.consciousness.state_manager import StateManager
 from backend.modules.teleport.teleport_packet import TeleportPacket
 from backend.modules.teleport.portal_manager import PortalManager
-from backend.modules.symbolic.symbolic_entangler import get_entangled_targets
+from backend.modules.aion.symbolic_entangler import get_entangled_targets
 from backend.modules.codex.codex_metrics import get_latest_memory
 
 # ✅ Fixed container creation
