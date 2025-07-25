@@ -6,7 +6,7 @@ from backend.modules.codex.codex_metrics import CodexMetrics
 from backend.modules.hexcore.memory_engine import MemoryEngine
 from backend.modules.codex.codex_executor import CodexExecutor
 from backend.modules.consciousness.state_manager import StateManager
-from backend.modules.glyphos.symbolic_entangler import register_entanglement
+from backend.modules.glyphos.symbolic_entangler import entangle_glyphs, get_entangled_for
 
 # === Helpers ===
 
@@ -17,6 +17,10 @@ def make_payload(glyphs: list[str], avatar_id: str = "test-avatar"):
         "avatar_id": avatar_id
     }
 
+def register_entanglement(g1: str, g2: str):
+    entangle_glyphs(g1, g2)
+    entangle_glyphs(g2, g1)
+
 # === A. Runtime Mutation + Entanglement Tests ===
 
 def test_dispatch_with_mutation():
@@ -25,7 +29,13 @@ def test_dispatch_with_mutation():
     dst = "container-mutation-dst"
     portal_id = PORTALS.register_portal(src, dst)
     payload = make_payload(["⬁"])  # Mutation glyph
-    packet = TeleportPacket(portal_id=portal_id, container_id=src, payload=payload)
+    packet = TeleportPacket(
+        portal_id=portal_id,
+        container_id=src,
+        source=src,
+        destination=dst,
+        payload=payload
+    )
 
     result = PORTALS.teleport(packet)
     assert result is True
@@ -39,7 +49,13 @@ def test_dispatch_with_entanglement():
     dst = "container-entangle-dst"
     portal_id = PORTALS.register_portal(src, dst)
     payload = make_payload(["↔"])  # Entanglement glyph
-    packet = TeleportPacket(portal_id=portal_id, container_id=src, payload=payload)
+    packet = TeleportPacket(
+        portal_id=portal_id,
+        container_id=src,
+        source=src,
+        destination=dst,
+        payload=payload
+    )
 
     result = PORTALS.teleport(packet)
     assert result is True
@@ -56,7 +72,13 @@ def test_dispatch_memory_reflection():
     dst = "container-memory-dst"
     portal_id = PORTALS.register_portal(src, dst)
     payload = make_payload(["✨", "↔"])
-    packet = TeleportPacket(portal_id=portal_id, container_id=src, payload=payload)
+    packet = TeleportPacket(
+        portal_id=portal_id,
+        container_id=src,
+        source=src,
+        destination=dst,
+        payload=payload
+    )
 
     result = PORTALS.teleport(packet)
     assert result is True
