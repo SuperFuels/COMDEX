@@ -18,9 +18,10 @@ def make_payload(glyphs: list[str], avatar_id: str = "test-avatar"):
     }
 
 def ensure_container_loaded(container_id: str):
-    sm = StateManager()
-    if not sm.container_exists(container_id):
-        sm.create_container(container_id)
+    state_manager = StateManager()
+    runtime = ContainerRuntime(state_manager)
+    if not state_manager.container_exists(container_id):
+        runtime.create_container(container_id)
 
 # === A. Runtime Mutation + Entanglement Tests ===
 
@@ -55,7 +56,7 @@ def test_dispatch_with_entanglement():
     result = PORTALS.teleport(packet)
     assert result is True
 
-    state = ContainerRuntime().get_container_state(dst)
+    state = ContainerRuntime(StateManager()).get_container_state(dst)
     assert "↔" in state.get("glyph_trace", ""), "Entanglement glyph not traced"
 
     metrics = CodexMetrics().get_latest()

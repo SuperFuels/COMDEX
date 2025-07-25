@@ -2,7 +2,7 @@ import React from "react";
 import dynamic from "next/dynamic";
 
 const MonacoDiffEditor = dynamic(
-  () => import("react-monaco-editor").then(mod => mod.DiffEditor),
+  () => import("@monaco-editor/react").then(mod => mod.DiffEditor),
   { ssr: false }
 );
 
@@ -18,16 +18,16 @@ export default function CodexDiffViewer({ original, mutated }: CodexDiffViewerPr
         🧬 Scroll Mutation Diff
       </h3>
       <MonacoDiffEditor
-        language="json"
         original={original}
-        value={mutated}
+        modified={mutated}
+        language="json"
         theme="vs-dark"
         options={{
           readOnly: true,
           automaticLayout: true,
           wordWrap: "on",
         }}
-        height="400"
+        height="400px"
       />
     </div>
   );
