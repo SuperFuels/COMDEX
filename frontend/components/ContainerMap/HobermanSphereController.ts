@@ -1,16 +1,7 @@
 // File: frontend/components/ContainerMap/HobermanSphereController.tsx
 
-import { useEffect, useState } from 'react';
-import dynamic from 'next/dynamic';
-import React from 'react';
-
-// ✅ Clean dynamic import + type
-const DynamicHobermanSphere = dynamic(() => import('./HobermanSphere'), {
-  ssr: false,
-}) as React.ComponentType<{
-  position: [number, number, number];
-  expanded: boolean;
-}>;
+import React, { useEffect, useState } from 'react';
+import HobermanSphere from './HobermanSphere';
 
 interface HobermanSphereControllerProps {
   containerMetadata: Record<string, any>;
@@ -29,7 +20,7 @@ export function HobermanSphereController({
   }, [containerMetadata]);
 
   return (
-    <DynamicHobermanSphere
+    <HobermanSphere
       position={position}
       expanded={expanded}
     />
