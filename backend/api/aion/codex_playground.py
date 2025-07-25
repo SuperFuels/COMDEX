@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Request
 from pydantic import BaseModel
-from modules.glyphos.codexlang_translator import run_codexlang_string
+from backend.modules.glyphos.codexlang_translator import run_codexlang_string
 
 router = APIRouter()
 

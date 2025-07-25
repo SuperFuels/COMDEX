@@ -1,5 +1,4 @@
-'use client';
-
+// frontend/components/CodexHUD.tsx
 import React, { useEffect, useState } from 'react';
 import useWebSocket from '@/hooks/useWebSocket';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -38,6 +37,7 @@ interface GlyphEvent {
   token?: string;
   identity?: string;
   luxpush?: boolean;
+  type?: string; // NEW: for lean_theorem_executed
 }
 
 interface TickEvent {
@@ -65,7 +65,8 @@ const OPERATOR_LABELS: Record<string, string> = {
   '⟲': 'MUTATE',
   '∇': 'COMPRESS',
   '⧖': 'DELAY',
-  '✦': 'MILESTONE'
+  '✦': 'MILESTONE',
+  '⟦ Theorem ⟧': 'LEAN THEOREM',
 };
 
 const OPERATOR_COLORS: Record<string, string> = {
@@ -75,10 +76,12 @@ const OPERATOR_COLORS: Record<string, string> = {
   '⟲': 'text-orange-300',
   '∇': 'text-blue-300',
   '⧖': 'text-yellow-500',
-  '✦': 'text-cyan-300'
+  '✦': 'text-cyan-300',
+  '⟦ Theorem ⟧': 'text-sky-400',
 };
 
 function extractOperator(glyph: string): string | null {
+  if (glyph === '⟦ Theorem ⟧') return '⟦ Theorem ⟧';
   return Object.keys(OPERATOR_LABELS).find((op) => glyph.includes(op)) || null;
 }
 
@@ -216,6 +219,7 @@ export default function CodexHUD() {
             const operator = extractOperator(log.glyph);
             const operatorLabel = operatorName(operator);
             const operatorColor = operator ? OPERATOR_COLORS[operator] || 'text-white' : 'text-white';
+            const isLeanGlyph = operator === '⟦ Theorem ⟧' || log.type === 'lean_theorem_executed';
 
             const key = `${log.glyph}-${log.timestamp || index}`;
             const isEntangled = log.glyph.includes('↔') || log.detail?.entangled_from;
@@ -225,8 +229,12 @@ export default function CodexHUD() {
                 <div className={`text-sm font-mono ${operatorColor}`}>
                   ⟦ {log.glyph} ⟧ → <span className="text-green-400">{log.action}</span>
 
-                  {operator && (
-                    <Badge className="ml-2" variant="outline">{operator} {operatorLabel}</Badge>
+                  {isLeanGlyph && (
+                    <Badge className="ml-2" variant="outline">📘 Lean Theorem</Badge>
+                  )}
+
+                  {operator && !isLeanGlyph && (
+                    <Badge className="ml-2" variant="outline">{`${operator} ${operatorLabel}`}</Badge>
                   )}
 
                   {log.trigger_type && (

@@ -1,5 +1,3 @@
-# File: backend/modules/runtime/container_runtime.py
-
 import time
 import threading
 import asyncio
@@ -9,11 +7,15 @@ from backend.modules.glyphos.glyph_executor import GlyphExecutor
 from backend.modules.websocket_manager import WebSocketManager
 from backend.modules.glyphos.glyph_watcher import GlyphWatcher
 
+from backend.modules.glyphvault.container_vault_manager import ContainerVaultManager
+
 try:
     from backend.modules.glyphos.glyph_summary import summarize_glyphs
 except ImportError:
     summarize_glyphs = None
 
+# Stub: get encryption key from config/env securely in real system
+ENCRYPTION_KEY = b'\x00' * 32  # 32-byte zero key placeholder
 
 class ContainerRuntime:
     def __init__(self, state_manager: StateManager, tick_interval: float = 2.0):
@@ -33,6 +35,9 @@ class ContainerRuntime:
         self.async_loop = asyncio.new_event_loop()
         self.loop_thread = threading.Thread(target=self._start_event_loop, daemon=True)
         self.loop_thread.start()
+
+        # Initialize ContainerVaultManager for encryption/decryption of glyph cubes
+        self.vault_manager = ContainerVaultManager(ENCRYPTION_KEY)
 
     def _start_event_loop(self):
         asyncio.set_event_loop(self.async_loop)
@@ -65,13 +70,16 @@ class ContainerRuntime:
                 })
 
                 if summarize_glyphs:
-                    summary = summarize_glyphs(self.state_manager.get_current_container().get("cubes", {}))
+                    # Use decrypted cubes for summary
+                    container = self.get_decrypted_current_container()
+                    cubes = container.get("cubes", {})
+                    summary = summarize_glyphs(cubes)
                     self.websocket.broadcast({"type": "glyph_summary", "data": summary})
 
             time.sleep(self.tick_interval)
 
     def run_tick(self) -> Dict[str, Any]:
-        container = self.state_manager.get_current_container()
+        container = self.get_decrypted_current_container()
         cubes = container.get("cubes", {})
         tick_log = {"executed": []}
 
@@ -111,6 +119,49 @@ class ContainerRuntime:
         self.apply_decay(container["cubes"])
         return tick_log
 
+    def get_decrypted_current_container(self) -> Dict[str, Any]:
+        """
+        Get current container with decrypted cubes loaded from encrypted storage.
+        Fallback to plaintext cubes if no encrypted data found or decryption fails.
+        """
+        container = self.state_manager.get_current_container()
+        encrypted_blob = container.get("encrypted_glyph_data")
+        avatar_state = self.state_manager.get_avatar_state()
+
+        if encrypted_blob:
+            success = self.vault_manager.load_container_glyph_data(
+                encrypted_blob,
+                avatar_state=avatar_state
+            )
+            if success:
+                # Replace cubes with decrypted glyph map
+                container["cubes"] = self.vault_manager.get_microgrid().export_index()
+                return container
+            else:
+                print("⚠️ Warning: Failed to decrypt container glyph data or access denied.")
+                # Optionally fallback to unencrypted cubes for safety
+                container["cubes"] = {}
+                return container
+
+        # No encrypted glyph data present, return as is
+        return container
+
+    def save_container(self):
+        """
+        Serialize current glyph data and encrypt before saving to container state.
+        """
+        container = self.state_manager.get_current_container()
+        microgrid = self.vault_manager.get_microgrid()
+
+        # Export glyph data currently loaded in microgrid
+        glyph_data = microgrid.export_index()
+        try:
+            encrypted_blob = self.vault_manager.save_container_glyph_data(glyph_data)
+            container["encrypted_glyph_data"] = encrypted_blob
+            print(f"💾 Container glyph data encrypted and saved, size: {len(encrypted_blob)} bytes")
+        except Exception as e:
+            print(f"❌ Failed to encrypt and save container glyph data: {e}")
+
     def fork_entangled_path(self, container: Dict[str, Any], coord: str, glyph: str):
         original_name = container.get("id", "default")
         entangled_id = f"{original_name}_entangled"
@@ -136,3 +187,14 @@ class ContainerRuntime:
 
         self.state_manager.all_containers[entangled_id] = forked_container
         print(f"🌌 Forked entangled container: {entangled_id}")
+
+    def apply_decay(self, cubes: Dict[str, Any]):
+        # Placeholder decay logic - implement as needed
+        pass
+
+
+# ✅ Global runtime instance for external access (must be outside class)
+container_runtime = ContainerRuntime(StateManager())
+
+def get_container_runtime():
+    return container_runtime

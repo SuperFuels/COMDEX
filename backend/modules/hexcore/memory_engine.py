@@ -54,6 +54,16 @@ class MemoryEngine:
         max_sim = float(similarities.max())
         return max_sim > 0.95
 
+    @staticmethod
+    def get_runtime_entropy_snapshot():
+        """
+        Stub function to provide a symbolic runtime entropy snapshot
+        for use in symbolic key derivation.
+        Replace with real runtime snapshot logic later.
+        """
+        # Example: return summary stats or a timestamp string
+        return f"MemoryCount:{len(MEMORY.memory)};Timestamp:{datetime.utcnow().isoformat()}"
+
     def list_labels(self):
         return sorted(set(m.get("label") for m in self.memory if "label" in m))
 
@@ -238,3 +248,7 @@ class MemoryBridge:
             "result": result,
             "context": context
         })
+
+def get_runtime_entropy_snapshot():
+    # Calls the static method inside MemoryEngine for convenience
+    return MemoryEngine.get_runtime_entropy_snapshot()

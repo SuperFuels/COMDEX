@@ -1,0 +1,12 @@
+{
+  "type": "dc_container",
+  "id": "lean::test.lean",
+  "metadata": {
+    "origin": "lean_import",
+    "source_path": "backend/modules/lean/examples/test.lean",
+    "logic_type": "lean_math"
+  },
+  "glyphs": [],
+  "thought_tree": [],
+  "symbolic_logic": []
+}

@@ -12,6 +12,9 @@ from ..glyphos.codexlang_translator import run_codexlang_string
 from ..glyphos.symbolic_entangler import entangle_glyphs
 from ..glyphnet.glyphnet_packet import push_symbolic_packet
 from ..glyphnet.glyphnet_crypto import encrypt_packet  # 🔐 Encryption layer
+from ..encryption.glyph_vault import GlyphVault  # 🧠 Vault Access
+from ..glyphnet.ephemeral_key_manager import get_ephemeral_key_manager  # Ephemeral AES keys for fallback encryption
+from ..glyphnet.symbolic_key_derivation import symbolic_key_deriver  # <-- Added for symbolic context
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +43,7 @@ def get_public_key_for_identity(identity: str) -> Optional[bytes]:
 def push_to_glyphnet(result: Dict[str, Any], sender: str, target_id: Optional[str] = None, encrypt: bool = False):
     """
     Sends symbolic result to GlyphNet for symbolic delivery via GlyphPush.
-    Optionally encrypts using RSA public key based on target identity.
+    Optionally encrypts using RSA public key or Ephemeral AES session key based on target identity.
     """
     try:
         packet = {
@@ -55,6 +58,7 @@ def push_to_glyphnet(result: Dict[str, Any], sender: str, target_id: Optional[st
         if encrypt and target_id:
             key = get_public_key_for_identity(target_id)
             if key:
+                # Encrypt using RSA public key
                 encrypted_packet = encrypt_packet(packet, key)
                 push_symbolic_packet({
                     "type": "glyph_push_encrypted",
@@ -63,10 +67,39 @@ def push_to_glyphnet(result: Dict[str, Any], sender: str, target_id: Optional[st
                     "payload": encrypted_packet,
                     "timestamp": time.time(),
                 })
-                logger.info(f"[GlyphPush🔐] Encrypted packet sent from {sender} to {target_id}")
+                logger.info(f"[GlyphPush🔐] Encrypted packet sent from {sender} to {target_id} using RSA")
                 return
             else:
-                logger.warning(f"[GlyphPush🔐] No public key for {target_id}, sending unencrypted")
+                # Fallback: encrypt using ephemeral AES key with symbolic derivation context
+                ephemeral_manager = get_ephemeral_key_manager()
+                # Prepare symbolic context params (example: default trust/emotion; customize as needed)
+                symbolic_trust = 0.7
+                symbolic_emotion = 0.5
+                seed_phrase = f"GlyphPush:{sender}->{target_id}"
+
+                aes_key = ephemeral_manager.get_key(target_id)
+                if aes_key is None:
+                    # Generate key with symbolic params if not existing
+                    aes_key = ephemeral_manager.generate_key(
+                        target_id,
+                        trust_level=symbolic_trust,
+                        emotion_level=symbolic_emotion,
+                        seed_phrase=seed_phrase
+                    )
+                if aes_key:
+                    from ..glyphnet.glyphnet_crypto import aes_encrypt_packet
+                    encrypted_packet = aes_encrypt_packet(packet, aes_key)
+                    push_symbolic_packet({
+                        "type": "glyph_push_encrypted_ephemeral",
+                        "sender": sender,
+                        "target": target_id,
+                        "payload": encrypted_packet,
+                        "timestamp": time.time(),
+                    })
+                    logger.info(f"[GlyphPush🔐] Encrypted packet sent from {sender} to {target_id} using Ephemeral AES key")
+                    return
+                else:
+                    logger.warning(f"[GlyphPush🔐] No ephemeral AES key for {target_id}, sending unencrypted")
 
         # Default unencrypted push
         push_symbolic_packet(packet)
@@ -186,6 +219,30 @@ def execute_terminal_command(command: str, payload: Dict[str, Any]) -> Dict[str,
 
             return {"status": "ok", "entangled": link_result}
 
+        elif command == "unlock_glyphvault":
+            container_id = payload.get("container_id")
+            avatar_state = payload.get("avatar_state")
+            if not container_id or not avatar_state:
+                return {"status": "error", "error": "Missing container_id or avatar_state"}
+
+            vault = GlyphVault(container_id)
+            unlock_result = vault.decrypt(avatar_state)
+
+            log_entry = {
+                "type": "vault_unlock",
+                "container": container_id,
+                "result": unlock_result,
+                "avatar": avatar_state,
+                "timestamp": time.time(),
+                "token": token,
+            }
+            store_log(log_entry)
+
+            if enable_push:
+                push_to_glyphnet(log_entry, sender=token, target_id=target_id, encrypt=encrypt)
+
+            return {"status": "ok", "unlocked": unlock_result}
+
         else:
             return {"status": "error", "error": f"Unknown terminal command: {command}"}
 
@@ -208,5 +265,4 @@ def store_log(entry: Dict[str, Any]):
         _log_history.pop(0)
 
 
-def get_recent_logs() -> List[Dict[str, Any]]:
-    return _log_history
+def get_recent_logs() -> List[Dict[str, Any

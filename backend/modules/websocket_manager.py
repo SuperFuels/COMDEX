@@ -1,5 +1,3 @@
-# File: backend/modules/websocket_manager.py
-
 from fastapi import WebSocket
 from typing import List, Dict, Any, Optional
 from collections import defaultdict
@@ -75,3 +73,7 @@ class WebSocketManager:
 
 # ✅ Singleton instance for global use
 websocket_manager = WebSocketManager()
+
+# ✅ Global helper for GIP or other modules
+async def broadcast_event(tag: str, payload: Dict[str, Any]):
+    await websocket_manager.broadcast(payload, tag=tag)

@@ -1,8 +1,8 @@
 # File: backend/routes/ws/glyphnet_ws.py
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
-from modules.gip.gip_adapter_net import GIPNetworkAdapter
-from modules.gip.gip_executor import handle_gip_packet
+from backend.modules.gip.gip_adapter_net import GIPNetworkAdapter
+from backend.modules.gip.gip_executor import handle_gip_packet
 
 router = APIRouter()
 adapter = GIPNetworkAdapter(node_id="glyphnet-node")

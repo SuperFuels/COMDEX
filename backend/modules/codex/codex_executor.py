@@ -34,6 +34,9 @@ class CodexExecutor:
 
             glyph_stripped = glyph.strip("⟦⟧").strip()
 
+            if glyph_stripped.startswith("Theorem"):
+                return self.execute_theorem(glyph_stripped, context, timestamp)
+
             if "→" not in glyph_stripped:
                 return {"status": "ignored", "reason": "No action arrow in glyph"}
 
@@ -78,10 +81,24 @@ class CodexExecutor:
                 }
             }
 
-            # ✅ Await coroutine safely
+            # ✅ Primary glyph execution event
             asyncio.create_task(send_codex_ws_event("glyph_execution", cost_payload))
 
-            # 🔁 Codex Trace Logging
+            # 🛰️ Additional lean_theorem_executed event if applicable
+            if g_type == "⟦ Theorem ⟧":
+                lean_payload = {
+                    "type": "lean_theorem_executed",
+                    "glyph": glyph,
+                    "name": g_tag,
+                    "logic": g_value,
+                    "operator": ops_chain[0]["operator"] if ops_chain else None,
+                    "result": execution_trace,
+                    "container": context.get("container"),
+                    "coord": context.get("coord"),
+                    "timestamp": timestamp
+                }
+                asyncio.create_task(send_codex_ws_event("lean_theorem_executed", lean_payload))
+
             self.tracer.log_trace({
                 "source": "codex_executor",
                 "glyph": glyph,
@@ -122,6 +139,64 @@ class CodexExecutor:
         except Exception as e:
             self.metrics.record_error()
             return {"status": "error", "error": str(e)}
+
+    def execute_theorem(self, glyph_stripped: str, context: dict, timestamp: float):
+        # Format: Theorem | id : statement via proof_ref
+        match = re.match(r"Theorem\s*\|\s*([^:]+):(.+?)\s+via\s+(.+)", glyph_stripped)
+        if not match:
+            return {"status": "error", "error": f"Malformed theorem glyph: {glyph_stripped}"}
+
+        theorem_id = match.group(1).strip()
+        statement = match.group(2).strip()
+        proof_ref = match.group(3).strip()
+
+        # Store memory
+        MemoryBridge.store_memory({
+            "source": "codex_executor",
+            "type": "lean_theorem_executed",
+            "theorem_id": theorem_id,
+            "statement": statement,
+            "proof": proof_ref,
+            "container": context.get("container"),
+            "coord": context.get("coord"),
+            "timestamp": timestamp
+        })
+
+        # Send both events
+        glyph_str = f"⟦ Theorem | {theorem_id} : {statement} via {proof_ref} ⟧"
+        execution_payload = {
+            "glyph": glyph_str,
+            "action": "validate_theorem",
+            "source": context.get("source", "lean_container"),
+            "timestamp": timestamp,
+            "detail": {
+                "container": context.get("container"),
+                "coord": context.get("coord")
+            }
+        }
+
+        lean_payload = {
+            "type": "lean_theorem_executed",
+            "glyph": glyph_str,
+            "name": theorem_id,
+            "logic": statement,
+            "operator": "⊕",
+            "result": [{"operator": "⊕", "action": proof_ref, "result": "proof_accepted"}],
+            "container": context.get("container"),
+            "coord": context.get("coord"),
+            "timestamp": timestamp
+        }
+
+        asyncio.create_task(send_codex_ws_event("glyph_execution", execution_payload))
+        asyncio.create_task(send_codex_ws_event("lean_theorem_executed", lean_payload))
+
+        return {
+            "status": "theorem_validated",
+            "theorem_id": theorem_id,
+            "statement": statement,
+            "proof": proof_ref,
+            "timestamp": timestamp
+        }
 
     def _decompose_rhs(self, rhs: str):
         pattern = r"(⊕|↔|⟲|⧖|→|⬁|🧬|🧭|🪞)"

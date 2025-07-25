@@ -37,7 +37,7 @@ class GlyphExecutor:
         self.milestone_tracker = MilestoneTracker()
         self.container_id = self.state_manager.get_current_container_id() or "default"
         self.bridge = MemoryBridge(self.container_id)
-        self.container_path = self.active_container.get("path", "")
+        self.container_path = self.active_container.get("path", "") if self.active_container else ""
         self.codex_trace = CodexTrace()
 
     def read_glyph_at(self, x: int, y: int, z: int) -> str:

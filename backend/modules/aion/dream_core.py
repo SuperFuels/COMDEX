@@ -27,14 +27,24 @@ from backend.modules.skills.dream_post_processor import DreamPostProcessor
 from backend.modules.codex.codex_core import CodexCore
 from backend.modules.codex.codex_feedback_loop import CodexFeedbackLoop
 from backend.modules.codex.codex_metrics import CodexMetrics
-from backend.modules.tessaris.tessaris_engine import TessarisEngine
 from backend.modules.tessaris.thought_branch import ThoughtBranch, BranchNode
 from backend.modules.tessaris.tessaris_store import save_snapshot
-from backend.modules.tessaris.tessaris_intent_executor import scan_snapshot_for_intents
 from backend.modules.glyphos.glyph_mutator import mutate_glyph
 from backend.modules.websocket_manager import websocket_manager 
 from backend.database import get_db
 from backend.models.dream import Dream
+
+try:
+    from backend.modules.tessaris.tessaris_intent_executor import scan_snapshot_for_intents
+    scan_snapshot_for_intents(snapshot_path=f"data/tessaris/snapshots/{dream_label}.tessaris.json")
+except Exception as e:
+    print(f"⚠️ Intent scan failed: {e}")
+
+# Delay import to avoid circular dependency
+def get_tessaris_engine():
+    from backend.modules.tessaris.tessaris_engine import TessarisEngine
+    return TessarisEngine
+
 
 # ✅ DNA Switch
 from backend.modules.dna_chain.switchboard import DNA_SWITCH
@@ -62,7 +72,7 @@ class DreamCore:
         self.reflector = ReflectionEngine()
         self.personality = PersonalityProfile()
         self.situation = SituationalEngine()
-        self.tessaris = TessarisEngine()
+        self.tessaris = get_tessaris_engine()
         self.codex = CodexCore()
         self.codex_metrics = CodexMetrics()
         self.codex_feedback = CodexFeedbackLoop()

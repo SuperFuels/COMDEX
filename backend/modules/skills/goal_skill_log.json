@@ -107,5 +107,26 @@
     "message": "Cycle completed",
     "success": true,
     "timestamp": "2025-07-09T20:37:21.711498"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: example_lean_theorem",
+    "success": true,
+    "timestamp": "2025-07-24T21:52:11.928876"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: example_lean_theorem",
+    "success": true,
+    "timestamp": "2025-07-24T21:55:16.495700"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: example_lean_theorem",
+    "success": true,
+    "timestamp": "2025-07-24T21:57:51.121564"
   }
 ]

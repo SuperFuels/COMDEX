@@ -12,7 +12,7 @@ from backend.modules.consciousness.state_manager import STATE
 
 # Optional WebSocket push
 try:
-    from modules.websocket_manager import WebSocketManager
+    from backend.modules.websocket_manager import WebSocketManager
     WS = WebSocketManager()
 except:
     WS = None
@@ -44,7 +44,7 @@ class GlyphSynthesisEngine:
     def compress_input(self, raw_text: str, source: str = "gpt") -> Dict:
         """
         Convert raw input into compressed glyph packet.
-        source = 'gpt', 'goal', 'reflection', or 'mutation'
+        source = 'gpt', 'goal', 'reflection', 'mutation', or 'lean'
         """
         glyphs = parse_to_glyphos(raw_text)
         meaning_hash = generate_hash(glyphs)
@@ -144,6 +144,21 @@ class GlyphSynthesisEngine:
         }
         WS.broadcast(payload)
 
+    def mutate_packet(self, packet: Dict) -> Dict:
+        """
+        Perform simple symbolic mutation by reordering glyphs or toggling logic.
+        Future: semantic mutation via GPT or logic engine.
+        """
+        mutated = dict(packet)
+        mutated_glyphs = list(mutated["glyphs"])
+        if len(mutated_glyphs) > 1:
+            mutated_glyphs.reverse()
+        mutated["glyphs"] = mutated_glyphs
+        mutated["hash"] = generate_hash(mutated_glyphs)
+        mutated["source"] = "mutation"
+        mutated["timestamp"] = datetime.utcnow().isoformat()
+        return mutated
+
     def get_dedup_stats(self):
         return {
             "total_cached": len(self.dedup_cache),
@@ -190,3 +205,7 @@ if __name__ == "__main__":
     glyph_synthesizer.push_to_glyph_grid(result["glyph_packet"])
 
     print("Execution result:", glyph_synthesizer.run_packet(result["glyph_packet"]))
+
+    # 🧬 Test mutation
+    mutated = glyph_synthesizer.mutate_packet(result["glyph_packet"])
+    print("Mutated Packet:", json.dumps(mutated, indent=2))

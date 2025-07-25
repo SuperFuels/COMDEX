@@ -131,13 +131,16 @@ from backend.modules.codex.codex_websocket_interface import start_codex_ws_serve
 from backend.routes import aion_tessaris_intents
 from backend.routes import ws_codex_interface
 from backend.routes import aion_synthesize_glyphs
-from backend.routes.ws import codex_ws
 from backend.routes import codex_scroll
 from backend.routes.ws import qglyph_ws
-from api.aion import codex_playground 
-from routes.ws import glyphnet_ws
-from modules.gip.gip_adapter_http import router as gip_http_router
-from routes.glyphnet_command import router as glyphnet_command_router
+from backend.api.aion import codex_playground
+from backend.routes.ws import glyphnet_ws
+from backend.modules.gip.gip_adapter_http import router as gip_http_router
+from backend.routes.glyphnet_command import router as glyphnet_command_router
+from backend.api.aion import container_api
+from backend.api.aion import vault_api
+from backend.routes.api import glyph_socket_api
+from backend.routes.ws import glyph_socket_ws
 
 # ✅ WebSocket route
 from backend.api import ws
@@ -210,12 +213,15 @@ app.include_router(aion_glyph_trigger_log.router)
 app.include_router(aion_tessaris_intents.router, prefix="/api")
 app.include_router(ws_codex_interface.router)
 app.include_router(aion_synthesize_glyphs.router)
-app.include_router(codex_ws.router)
 app.include_router(qglyph_ws.router)
 app.include_router(codex_playground.router)
 app.include_router(glyphnet_ws.router)
 app.include_router(gip_http_router, prefix="/api")
 app.include_router(glyphnet_command_router)
+app.include_router(container_api.router, prefix="/api/aion")
+app.include_router(vault_api.router, prefix="/api/aion")  # if vault_api exists
+app.include_router(glyph_socket_api.router, prefix="/api")
+app.include_router(glyph_socket_ws.router)
 
 # ── 16) Serve uploaded images
 app.mount("/uploaded_images", StaticFiles(directory="uploaded_images"), name="uploaded_images")

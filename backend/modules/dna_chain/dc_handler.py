@@ -336,6 +336,87 @@ def carve_glyph_cube(container_path, coord, glyph, meta: Optional[dict] = None):
 
     print(f"[🪓] Glyph '{glyph}' carved at {coord} in {os.path.basename(container_path)}")
 
+from backend.modules.glyphvault.container_vault_integration import decrypt_glyph_vault, encrypt_and_embed_glyph_vault
+
+def load_dimension(container_id):
+    path = get_dc_path(container_id)
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"[❌] Dimension container '{container_id}' not found at {path}")
+
+    try:
+        original_hash = compute_file_hash(path)
+    except Exception as e:
+        store_memory({
+            "type": "tamper_alert",
+            "role": "system",
+            "content": f"[❌] Could not read container file: {container_id}: {str(e)}",
+            "timestamp": datetime.utcnow().isoformat()
+        })
+        raise
+
+    with open(path, "r") as f:
+        data = json.load(f)
+
+    # NEW: Decrypt glyph vault if present
+    data = decrypt_glyph_vault(data)
+
+    validate_dimension(data)
+
+    try:
+        check_gate_lock(data)
+    except PermissionError as e:
+        store_memory({
+            "type": "access_denied",
+            "role": "system",
+            "content": str(e),
+            "timestamp": datetime.utcnow().isoformat()
+        })
+        raise
+
+    store_container_metadata(data)
+
+    print(f"[📦] Loaded dimension: {data['name']} (ID: {data['id']})")
+
+    # ... rest unchanged ...
+    return data
+
+def load_dimension_by_file(file_path: str):
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"[dc_handler] File not found: {file_path}")
+
+    with open(file_path, "r", encoding="utf-8") as f:
+        container = json.load(f)
+
+    # NEW: Decrypt glyph vault if present
+    container = decrypt_glyph_vault(container)
+
+    if "id" not in container:
+        raise ValueError(f"[dc_handler] Invalid container file (missing 'id'): {file_path}")
+
+    DNA_SWITCH.register(file_path)
+    store_container_metadata(container)
+
+    if container:
+        MEMORY.store({
+            "role": "system",
+            "label": "container_loaded",
+            "content": f"AION teleported to container: {container['id']}",
+            "metadata": {
+                "container_id": container['id'],
+                "cubes": list(container.get('cubes', {}).keys())
+            }
+        })
+
+    return container
+
+def save_dc_container(container_id, data):
+    # NEW: Encrypt glyph vault before saving
+    data = encrypt_and_embed_glyph_vault(data)
+
+    path = get_dc_path(container_id)
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2)
+
 def inject_glyphs_into_container(container_filename: str, glyphs: List[dict], source: str = "manual") -> bool:
     """
     Inject a list of glyphs into the specified container file.

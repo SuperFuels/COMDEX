@@ -162,6 +162,14 @@ def interpret_glyph(glyph: str, context: Dict[str, Any]) -> Dict[str, Any]:
         "meta": meta,
     }
 
+def glyph_from_label(label: str) -> str:
+    """
+    Given a symbolic label like 'dream' or 'boot', return the matching glyph (e.g., 'ψ', '⚙').
+    """
+    for glyph, meaning in GLYPH_SYMBOL_MAP.items():
+        if meaning == label:
+            return glyph
+    return "?"  # fallback if unknown
 
 def analyze_branch(branch) -> List[str]:
     """

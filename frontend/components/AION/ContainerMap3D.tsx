@@ -12,6 +12,9 @@ interface ContainerInfo {
   connected: string[];
   glyph?: string;
   region?: string;
+  logic_depth?: number;
+  runtime_tick?: number;
+  memory_count?: number;
 }
 
 interface ContainerMap3DProps {
@@ -22,9 +25,9 @@ interface ContainerMap3DProps {
 }
 
 const dummyContainers: ContainerInfo[] = [
-  { id: "A", name: "Alpha", in_memory: true, connected: ["B"], glyph: "🌐" },
-  { id: "B", name: "Beta", in_memory: false, connected: ["A", "C"], glyph: "💠" },
-  { id: "C", name: "Gamma", in_memory: true, connected: ["B"], glyph: "✨" },
+  { id: "A", name: "Alpha", in_memory: true, connected: ["B"], glyph: "🌐", logic_depth: 2 },
+  { id: "B", name: "Beta", in_memory: false, connected: ["A", "C"], glyph: "💠", logic_depth: 5 },
+  { id: "C", name: "Gamma", in_memory: true, connected: ["B"], glyph: "✨", logic_depth: 8 },
 ];
 
 const getPosition = (
@@ -61,6 +64,7 @@ function HolodeckCube({
   linked,
   onClick,
   onHover,
+  symbolicScale,
 }: {
   container: ContainerInfo;
   position: [number, number, number];
@@ -68,8 +72,10 @@ function HolodeckCube({
   linked: boolean;
   onClick: (id: string) => void;
   onHover: (id: string | null) => void;
+  symbolicScale: boolean;
 }) {
   const ref = useRef<any>();
+  const scaleFactor = symbolicScale ? (1 + (container.logic_depth || 0) / 10) : 1;
   const color = active
     ? "#4fc3f7"
     : linked
@@ -88,6 +94,7 @@ function HolodeckCube({
     <group
       ref={ref}
       position={position}
+      scale={[scaleFactor, scaleFactor, scaleFactor]}
       onClick={() => onClick(container.id)}
       onPointerOver={() => onHover(container.id)}
       onPointerOut={() => onHover(null)}
@@ -123,11 +130,16 @@ function HolodeckCube({
       </mesh>
 
       {/* Floating HUD terminal */}
-      <Html distanceFactor={10}>
+      <Html distanceFactor={10} style={{ pointerEvents: "none" }}>
         <div style={{ fontSize: "0.7rem", color: "#00f0ff", textAlign: "center" }}>
           <div>{container.name}</div>
           <div style={{ opacity: 0.6 }}>{container.in_memory ? "🧠 In-Memory" : "💾 Loaded"}</div>
           {container.glyph && <div style={{ fontSize: "1.2rem" }}>{container.glyph}</div>}
+          {symbolicScale && (
+            <div style={{ fontSize: "0.6rem", opacity: 0.7 }}>
+              Logic: {container.logic_depth || 0}, Tick: {container.runtime_tick || 0}, Mem: {container.memory_count || 0}
+            </div>
+          )}
         </div>
       </Html>
 
@@ -145,6 +157,7 @@ export default function ContainerMap3D({
 }: ContainerMap3DProps) {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [realContainers, setRealContainers] = useState<ContainerInfo[]>([]);
+  const [symbolicScale, setSymbolicScale] = useState<boolean>(true);
 
   useEffect(() => {
     if (!containers || containers.length === 0) {
@@ -163,8 +176,11 @@ export default function ContainerMap3D({
   }, [realContainers, layout]);
 
   const isLinked = (id: string) =>
-    hoveredId &&
-    realContainers.some((c) => c.id === hoveredId && c.connected.includes(id));
+    hoveredId && realContainers.some((c) => c.id === hoveredId && c.connected.includes(id));
+
+  const sortedContainers = useMemo(() => {
+    return [...realContainers].sort((a, b) => (b.logic_depth || 0) - (a.logic_depth || 0));
+  }, [realContainers]);
 
   return (
     <>
@@ -172,7 +188,20 @@ export default function ContainerMap3D({
       <ambientLight intensity={0.5} />
       <pointLight position={[10, 10, 10]} intensity={1.2} />
 
-      {realContainers.map((container) => (
+      <Html position={[-4, 3, 0]}>
+        <div style={{ background: "#0008", padding: "4px 8px", borderRadius: 8, fontSize: "0.7rem", color: "#fff" }}>
+          <label>
+            <input
+              type="checkbox"
+              checked={symbolicScale}
+              onChange={() => setSymbolicScale(!symbolicScale)}
+            />
+            Symbolic Scale
+          </label>
+        </div>
+      </Html>
+
+      {sortedContainers.map((container) => (
         <HolodeckCube
           key={container.id}
           container={container}
@@ -181,6 +210,7 @@ export default function ContainerMap3D({
           linked={!!isLinked(container.id)}
           onClick={onTeleport || (() => {})}
           onHover={setHoveredId}
+          symbolicScale={symbolicScale}
         />
       ))}
 
@@ -195,10 +225,10 @@ export default function ContainerMap3D({
               key={`${container.id}->${link}`}
               from={from}
               to={to}
-              color="#66f"
+              color="#f69"
               thickness={0.025}
               glyph="↔"
-              mode="dashed"
+              mode="glow"
               pulse
               pulseFlow
             />

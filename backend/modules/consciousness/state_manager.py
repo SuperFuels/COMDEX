@@ -1,9 +1,14 @@
+# File: backend/modules/consciousness/state_manager.py
+
 import os
 import json
 import hashlib
 from datetime import datetime
 import asyncio  # ✅ Coroutine handling
 import threading  # ✅ Pause/resume lock
+
+# ✅ Lean container support
+from backend.modules.lean.lean_utils import is_lean_container
 
 # ✅ DNA Switch
 from backend.modules.dna_chain.switchboard import DNA_SWITCH
@@ -26,6 +31,9 @@ from backend.modules.consciousness.personality_engine import PROFILE as PERSONAL
 # ⏳ Time tracking
 from backend.modules.dimensions.time_controller import TimeController
 TIME = TimeController()
+
+# GlyphVault integration
+from backend.modules.glyphvault.container_vault_manager import ContainerVaultManager
 
 STATE_FILE = "agent_state.json"
 DIMENSION_DIR = os.path.join(os.path.dirname(__file__), "../dimensions")
@@ -50,6 +58,10 @@ class StateManager:
         self.current_container = None
         self.loaded_containers = {}
         self.time_controller = TIME  # ⏳ Container time logic
+
+        # Initialize ContainerVaultManager with placeholder key (must be securely set in production)
+        encryption_key = b'\x00' * 32  # TODO: Replace with real secure key management
+        self.vault_manager = ContainerVaultManager(encryption_key)
 
         # ✅ Runtime pause flag
         self.paused = False
@@ -103,6 +115,27 @@ class StateManager:
         try:
             container = load_dimension(container_id)
 
+            # ✅ Lean container detection
+            if container.get("metadata", {}).get("origin") == "lean_import":
+                MEMORY({
+                    "type": "lean_container_loaded",
+                    "container_id": container_id,
+                    "logic_type": container.get("metadata", {}).get("logic_type", "unknown"),
+                    "timestamp": datetime.utcnow().isoformat()
+                })
+
+            # Decrypt vault glyph data if present
+            encrypted_glyph_blob = container.get("encrypted_glyph_data")
+            if encrypted_glyph_blob:
+                avatar_state = self.get_agent_state("AION")  # TODO: use dynamic current avatar id if needed
+                success = self.vault_manager.load_container_glyph_data(
+                    encrypted_glyph_blob,
+                    avatar_state=avatar_state
+                )
+                if not success:
+                    raise PermissionError("[🔒] Vault decryption failed due to avatar state")
+
+            # SoulLaw / trait gates
             gates = container.get("gates", {})
             required_traits = gates.get("traits", {})
             for trait, required in required_traits.items():
@@ -289,6 +322,13 @@ class StateManager:
                     "timestamp": str(datetime.utcnow())
                 }
 
+            # Encrypt and store glyph data vault before saving container
+            encrypted_blob = self.vault_manager.save_container_glyph_data(cubes)
+            self.current_container["encrypted_glyph_data"] = encrypted_blob
+
+            # Optionally remove plaintext cubes for security
+            # self.current_container["cubes"] = {}
+
             path = self.get_current_container_path()
             if path:
                 with open(path, "w") as f:
@@ -311,10 +351,34 @@ class StateManager:
         except Exception as e:
             print(f"[ERROR] write_glyph_to_cube failed: {e}")
             return False
+    
+    def get_current_container(self):
+        return self.current_container
 
+    def get_current_container_id(self):
+        if self.current_container:
+            return self.current_container.get("id")
+        return None
 
 # ✅ Singleton
 STATE = StateManager()
+
+
+# ✅ Load container from .dc.json file for benchmark/test usage
+def load_container_from_file(file_path: str) -> dict:
+    """
+    Loads a .dc container file from disk into current state.
+    Returns the loaded container dict.
+    Raises an exception if load fails.
+    """
+    with open(file_path, "r") as f:
+        data = json.load(f)
+        if not isinstance(data, dict):
+            raise ValueError(f"[❌] Loaded data is not a valid container dict: {type(data)}")
+        STATE.set_current_container(data)
+        STATE.loaded_containers[data.get("id", "unknown")] = data
+        print(f"[📦] Loaded container: {data.get('id', 'unknown')}")
+        return data
 
 # 🔄 Exports
 def get_agent_state(agent_id):

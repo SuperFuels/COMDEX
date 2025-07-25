@@ -7,6 +7,9 @@ import random
 import uuid
 
 from backend.modules.glyphos.glyph_quantum_core import GlyphQuantumCore
+from backend.modules.teleport.teleport_packet import TeleportPacket
+from backend.modules.teleport.portal_registry import PORTALS
+from backend.modules.consciousness.state_manager import STATE
 
 class DimensionKernel:
     def __init__(self, container_id, physics="default"):
@@ -89,7 +92,30 @@ class DimensionKernel:
         actions_triggered = []
         for key, cube in self.cubes.items():
             for glyph in cube.get("glyphs", []):
-                if "→" in glyph:
+                if glyph.startswith("⌘TELEPORT"):
+                    parts = glyph.split("::")
+                    if len(parts) == 2:
+                        portal_id = parts[1].strip()
+                        payload = {
+                            "source_cube": key,
+                            "initiated_by": "DimensionKernel",
+                            "runtime_tick": self.runtime_ticks
+                        }
+                        packet = TeleportPacket(
+                            source=self.container_id,
+                            destination="*",  # resolved by portal
+                            payload=payload,
+                            container_id=self.container_id,
+                            portal_id=portal_id
+                        )
+                        PORTALS.teleport(packet)
+                        actions_triggered.append({
+                            "location": key,
+                            "action": "teleport_dispatch",
+                            "portal_id": portal_id
+                        })
+
+                elif "→" in glyph:
                     parts = glyph.split("→")
                     if len(parts) == 2:
                         trigger = parts[0].strip()
