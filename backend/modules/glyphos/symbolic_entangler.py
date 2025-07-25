@@ -1,67 +1,94 @@
-# File: backend/modules/glyphos/symbolic_entangler.py
-
+import json
+import os
 from typing import Dict, List
-from backend.modules.hexcore.memory_engine import MemoryEngine
 
-# Runtime entanglement registries (in-memory)
-entangled_glyphs: List[Dict[str, str]] = []
-entangled_containers: Dict[str, List[str]] = {}
+from backend.modules.hexcore.memory_engine import log_memory
+from backend.modules.aion.symbolic_operator import is_entanglement_operator
+from backend.modules.aion.container_runtime import get_container_data, save_container_data
 
 
-def entangle_glyphs(g1: str, g2: str) -> Dict[str, str]:
-    """
-    Symbolically entangles two glyphs. Future actions on one may influence the other.
-    """
-    pair = {"glyph1": g1, "glyph2": g2}
-    entangled_glyphs.append(pair)
-    return pair
+# 🔒 Entanglement database file
+ENTANGLEMENTS_FILE = "backend/data/entanglements.json"
+
+
+def _load_entanglements() -> Dict[str, List[str]]:
+    """Load the entanglement link map from disk."""
+    if os.path.exists(ENTANGLEMENTS_FILE):
+        with open(ENTANGLEMENTS_FILE, "r") as f:
+            return json.load(f)
+    return {}
+
+
+def _save_entanglements(entanglements: Dict[str, List[str]]) -> None:
+    """Save the entanglement link map to disk."""
+    with open(ENTANGLEMENTS_FILE, "w") as f:
+        json.dump(entanglements, f, indent=2)
+
+
+def entangle_glyphs(glyph1: str, glyph2: str) -> None:
+    """Log an entanglement between two glyphs."""
+    log_memory("system", f"Entangled glyphs: {glyph1} ↔ {glyph2}")
 
 
 def get_entangled_for(glyph: str) -> List[str]:
-    """
-    Returns all glyphs entangled with the given one.
-    """
-    return [
-        p["glyph2"] if p["glyph1"] == glyph else p["glyph1"]
-        for p in entangled_glyphs
-        if glyph in (p["glyph1"], p["glyph2"])
-    ]
+    """Return a list of glyphs entangled with the given one."""
+    entanglements = _load_entanglements()
+    results = []
+    for source, targets in entanglements.items():
+        if glyph == source or glyph in targets:
+            results.append(source if glyph != source else glyph)
+            results.extend([t for t in targets if t != glyph])
+    return list(set(results))
 
 
-def entangle_containers(c1: str, c2: str) -> None:
-    """
-    Registers symbolic entanglement between two containers.
-    """
-    entangled_containers.setdefault(c1, [])
-    entangled_containers.setdefault(c2, [])
+def entangle_containers(source_id: str, target_id: str) -> None:
+    """Create a bidirectional entanglement between two containers."""
+    entanglements = _load_entanglements()
 
-    if c2 not in entangled_containers[c1]:
-        entangled_containers[c1].append(c2)
-    if c1 not in entangled_containers[c2]:
-        entangled_containers[c2].append(c1)
+    # Ensure source → target
+    if source_id not in entanglements:
+        entanglements[source_id] = []
+    if target_id not in entanglements[source_id]:
+        entanglements[source_id].append(target_id)
+
+    # Ensure target → source
+    if target_id not in entanglements:
+        entanglements[target_id] = []
+    if source_id not in entanglements[target_id]:
+        entanglements[target_id].append(source_id)
+
+    _save_entanglements(entanglements)
+    log_memory("system", f"Entangled containers: {source_id} ↔ {target_id}")
 
 
 def get_entangled_containers(container_id: str) -> List[str]:
-    """
-    Gets containers entangled with the given one.
-    """
-    return entangled_containers.get(container_id, [])
+    """Return all containers entangled with the given one."""
+    entanglements = _load_entanglements()
+    return entanglements.get(container_id, [])
 
 
-def propagate_entangled_memory(source_id: str, memory: dict, tag: str = "↔ entangled") -> None:
-    """
-    Propagates memory to all containers symbolically entangled with source_id.
-    """
-    for target_id in get_entangled_containers(source_id):
-        MemoryEngine().store(target_id, memory, tag=tag)
-
-
-def register_entanglement(source_id: str, targets: List[str]) -> None:
-    """
-    Registers symbolic entanglement between a source container and a list of targets.
-    """
+def propagate_entangled_memory(container_id: str, memory: Dict) -> None:
+    """Push memory to all containers entangled with the given one."""
+    targets = get_entangled_containers(container_id)
     for target_id in targets:
-        entangle_containers(source_id, target_id)
+        data = get_container_data(target_id)
+        if "entangled_memory" not in data:
+            data["entangled_memory"] = []
+        data["entangled_memory"].append(memory)
+        save_container_data(target_id, data)
+
+
+def register_entanglement(glyph_str: str, container_id: str) -> None:
+    """Auto-register container entanglements based on glyph string."""
+    if is_entanglement_operator(glyph_str):
+        for target in get_entangled_containers(container_id):
+            entangle_containers(container_id, target)
+
+
+# ✅ Alias for test usage
+def get_entangled_targets(container_id: str) -> List[str]:
+    """Alias to match test function: return entangled container IDs."""
+    return get_entangled_containers(container_id)
 
 
 __all__ = [
@@ -71,4 +98,5 @@ __all__ = [
     "get_entangled_containers",
     "propagate_entangled_memory",
     "register_entanglement",
+    "get_entangled_targets",
 ]

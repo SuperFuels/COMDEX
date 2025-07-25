@@ -4,7 +4,7 @@ import React from "react";
 import dynamic from "next/dynamic";
 
 const CodexScrollRunner = dynamic(
-  () => import("@/components/Codex/CodexScrollRunner"),
+  () => import("@/components/codex/CodexScrollRunner"),
   { ssr: false }
 );
 
