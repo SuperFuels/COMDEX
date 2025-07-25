@@ -364,12 +364,12 @@ class StateManager:
         return None
 
     def container_exists(self, container_id: str) -> bool:
-    """Check if a container is available in the current loaded or disk state."""
-    if container_id in self.loaded_containers:
-        return True
-    container_path = os.path.join(DIMENSION_DIR, f"{container_id}.dc.json")
-    return os.path.exists(container_path)
-    
+        """Check if a container is available in the current loaded or disk state."""
+        if container_id in self.loaded_containers:
+            return True
+        container_path = os.path.join(DIMENSION_DIR, f"{container_id}.dc.json")
+        return os.path.exists(container_path)
+
 # ✅ Singleton
 STATE = StateManager()
 
