@@ -26,7 +26,10 @@ export default function GlyphNetLogViewer() {
   const [typeFilter, setTypeFilter] = useState("all");
   const [containerFilter, setContainerFilter] = useState("all");
   const [search, setSearch] = useState("");
-  const { emit } = useWebSocket("/ws/glyphnet");
+
+  const { emit } = useWebSocket("/ws/glyphnet", () => {
+    // Optional: handle incoming WebSocket messages
+  });
 
   useEffect(() => {
     fetch("/api/glyphnet/log")
@@ -49,8 +52,11 @@ export default function GlyphNetLogViewer() {
 
   const filtered = log.filter((entry) => {
     const typeMatch = typeFilter === "all" || entry.type === typeFilter;
-    const containerMatch = containerFilter === "all" || entry.container === containerFilter;
-    const searchMatch = entry.glyph.toLowerCase().includes(search.toLowerCase());
+    const containerMatch =
+      containerFilter === "all" || entry.container === containerFilter;
+    const searchMatch = entry.glyph
+      .toLowerCase()
+      .includes(search.toLowerCase());
     return typeMatch && containerMatch && searchMatch;
   });
 
@@ -112,8 +118,7 @@ export default function GlyphNetLogViewer() {
                 </div>
               </div>
               <Button
-                size="sm"
-                variant="secondary"
+                className="text-sm px-2 py-1 bg-muted hover:bg-muted/80 border"
                 onClick={() => handleReplay(entry)}
               >
                 Replay

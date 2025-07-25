@@ -6,7 +6,7 @@ from backend.modules.codex.codex_metrics import CodexMetrics
 from backend.modules.hexcore.memory_engine import MemoryEngine
 from backend.modules.codex.codex_executor import CodexExecutor
 from backend.modules.consciousness.state_manager import StateManager
-from backend.modules.glyphos.symbolic_entangler import entangle_glyphs, get_entangled_for
+from backend.modules.glyphos.symbolic_entangler import entangle_glyphs, get_entangled_for, register_entanglement
 
 # === Helpers ===
 
@@ -17,9 +17,10 @@ def make_payload(glyphs: list[str], avatar_id: str = "test-avatar"):
         "avatar_id": avatar_id
     }
 
-def register_entanglement(g1: str, g2: str):
-    entangle_glyphs(g1, g2)
-    entangle_glyphs(g2, g1)
+def ensure_container_loaded(container_id: str):
+    sm = StateManager()
+    if not sm.container_exists(container_id):
+        sm.create_container(container_id)
 
 # === A. Runtime Mutation + Entanglement Tests ===
 
@@ -27,15 +28,12 @@ def test_dispatch_with_mutation():
     """Test teleport dispatch that triggers symbolic mutation ripple (⬁)."""
     src = "container-mutation-src"
     dst = "container-mutation-dst"
+    ensure_container_loaded(src)
+    ensure_container_loaded(dst)
+
     portal_id = PORTALS.register_portal(src, dst)
     payload = make_payload(["⬁"])  # Mutation glyph
-    packet = TeleportPacket(
-        portal_id=portal_id,
-        container_id=src,
-        source=src,
-        destination=dst,
-        payload=payload
-    )
+    packet = TeleportPacket(portal_id=portal_id, container_id=src, payload=payload)
 
     result = PORTALS.teleport(packet)
     assert result is True
@@ -47,15 +45,12 @@ def test_dispatch_with_entanglement():
     """Test teleport dispatch that triggers entanglement expansion (↔)."""
     src = "container-entangle-src"
     dst = "container-entangle-dst"
+    ensure_container_loaded(src)
+    ensure_container_loaded(dst)
+
     portal_id = PORTALS.register_portal(src, dst)
     payload = make_payload(["↔"])  # Entanglement glyph
-    packet = TeleportPacket(
-        portal_id=portal_id,
-        container_id=src,
-        source=src,
-        destination=dst,
-        payload=payload
-    )
+    packet = TeleportPacket(portal_id=portal_id, container_id=src, payload=payload)
 
     result = PORTALS.teleport(packet)
     assert result is True
@@ -70,15 +65,12 @@ def test_dispatch_memory_reflection():
     """Test post-teleport dispatch updates shared memory reference."""
     src = "container-memory-src"
     dst = "container-memory-dst"
+    ensure_container_loaded(src)
+    ensure_container_loaded(dst)
+
     portal_id = PORTALS.register_portal(src, dst)
     payload = make_payload(["✨", "↔"])
-    packet = TeleportPacket(
-        portal_id=portal_id,
-        container_id=src,
-        source=src,
-        destination=dst,
-        payload=payload
-    )
+    packet = TeleportPacket(portal_id=portal_id, container_id=src, payload=payload)
 
     result = PORTALS.teleport(packet)
     assert result is True
@@ -97,13 +89,16 @@ async def test_entangled_glyph_propagation():
     state_manager = StateManager()
     executor = CodexExecutor()
 
+    container = "test_container"
+    ensure_container_loaded(container)
+
     glyph_main = "⟦ Logic | X1 : Ping → Reflect ↔ Mirror ⟧"
     glyph_entangled = "⟦ Logic | X2 : Pong → Boot ↔ Sync ⟧"
 
     register_entanglement(glyph_main, glyph_entangled)
 
     context = {
-        "container": "test_container",
+        "container": container,
         "coord": "1,2,3",
         "source": "unit_test"
     }
