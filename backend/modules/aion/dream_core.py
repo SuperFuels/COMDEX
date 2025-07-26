@@ -33,6 +33,8 @@ from backend.modules.glyphos.glyph_mutator import mutate_glyph
 from backend.modules.websocket_manager import websocket_manager 
 from backend.database import get_db
 from backend.models.dream import Dream
+from backend.modules.holography.ghx_encoder import encode_ghx_from_scroll
+from backend.modules.codex.collapse_trace_exporter import export_collapse_trace
 
 try:
     from backend.modules.tessaris.tessaris_intent_executor import scan_snapshot_for_intents
@@ -164,6 +166,34 @@ class DreamCore:
                 )
                 dream = response["choices"][0]["message"]["content"].strip()
                 print(f"\n💭 AION Dream:\n{dream}\n")
+
+                # ✅ GHX compression block
+                dream_id = f"dream_{datetime.utcnow().isoformat()}"
+                scroll = {
+                    "dream": dream,
+                    "memories": formatted,
+                    "context": self.context.get_context(),
+                    "identity": self.identity.get_identity(),
+                    "emotion": self.emotion.get_emotion(),
+                    "awareness": awareness,
+                    "ethics": self.ethics.list_laws(),
+                    "system_state": self.state.dump_status()
+                }
+                ghx_data = encode_ghx_from_scroll(scroll)
+
+                export_collapse_trace(
+                    expression=f"🌀 Dream::{dream_id}",
+                    output=f"ghx::{ghx_data.get('ghx_id', 'unknown')}",
+                    adapter_name="DreamCore",
+                    identity=self.identity.get_identity(),
+                    extra={
+                        "ghx_data": ghx_data,
+                        "vault_snapshot_id": self.state.get("vault_snapshot_id", None),
+                        "qglyph_id": self.state.get("last_qglyph_id", None),
+                        "trigger_metadata": {"source": "dream"}
+                    }
+                )
+
             except Exception as e:
                 self.situation.log_event(f"Dream generation failed: {e}", "negative")
                 print(f"🚨 Dream generation failed: {e}")
@@ -381,6 +411,41 @@ class DreamCore:
 
     async def run_dream_cycle(self):
         return self.generate_dream()
+
+    def compress_dream_to_ghx(
+        dream_id: str,
+        scroll: Dict,
+        identity: Optional[str] = None,
+        adapter_name: str = "DreamCore",
+        vault_snapshot_id: Optional[str] = None,
+        qglyph_id: Optional[str] = None,
+    ) -> Optional[Dict]:
+        """
+        Compresses a dream logic scroll into GHX format and exports a collapse trace.
+
+        Returns the GHX data dict (for optional embedding or debug).
+        """
+        try:
+            ghx_data = encode_ghx_from_scroll(scroll)
+
+            export_collapse_trace(
+                expression=f"🌀 Dream::{dream_id}",
+                output=f"ghx::{ghx_data.get('ghx_id', 'unknown')}",
+                adapter_name=adapter_name,
+                identity=identity,
+                extra={
+                    "ghx_data": ghx_data,
+                    "vault_snapshot_id": vault_snapshot_id,
+                    "qglyph_id": qglyph_id,
+                    "trigger_metadata": {"source": "dream"},
+                },
+            )
+
+            return ghx_data
+
+        except Exception as e:
+            logger.warning(f"[DreamCore] Failed to compress dream to GHX: {e}")
+            return None
 
     def reflect_qglyph_collapse(self, collapse_data: dict):
         """Stores symbolic QGlyph collapse decisions into the dream reflection log."""

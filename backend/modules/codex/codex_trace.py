@@ -1,7 +1,8 @@
 # 📁 backend/modules/codex/codex_trace.py
 
 import time
-from typing import List, Dict
+import json
+from typing import List, Dict, Optional
 
 class CodexTrace:
     def __init__(self):
@@ -22,11 +23,28 @@ class CodexTrace:
     def clear(self):
         self.entries = []
 
-    def to_json(self):
-        import json
+    def to_json(self) -> str:
         return json.dumps(self.entries, indent=2)
 
-# ✅ Add this function to support imports from glyph_quantum_core.py
+    def get_latest_trace(self, container_id: Optional[str] = None) -> Optional[Dict]:
+        """
+        Retrieve the most recent trace entry for a given container_id (if available).
+        """
+        for entry in reversed(self.entries):
+            ctx = entry.get("context", {})
+            if container_id is None or ctx.get("container_id") == container_id:
+                return {
+                    "ghx_id": ctx.get("ghx_id"),
+                    "path": ctx.get("collapse_trace"),
+                    "container_id": ctx.get("container_id"),
+                    "timestamp": entry.get("timestamp"),
+                    "glyph": entry.get("glyph"),
+                    "result": entry.get("result"),
+                    "source": entry.get("source"),
+                }
+        return None
+
+# ✅ Global singleton
 _global_trace = CodexTrace()
 
 def log_codex_trace(glyph: str, context: dict, result: str, source: str = "benchmark"):
@@ -34,3 +52,6 @@ def log_codex_trace(glyph: str, context: dict, result: str, source: str = "bench
 
 def get_codex_trace():
     return _global_trace.get_trace()
+
+def get_latest_trace(container_id: Optional[str] = None):
+    return _global_trace.get_latest_trace(container_id)

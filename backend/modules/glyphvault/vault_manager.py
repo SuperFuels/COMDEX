@@ -17,11 +17,6 @@ VAULT_DIR = os.path.join(os.path.dirname(__file__), "../../vault_snapshots")
 os.makedirs(VAULT_DIR, exist_ok=True)
 
 class VaultManager:
-    """
-    Vault Manager for saving, listing, loading, and deleting
-    encrypted container snapshots for .dc containers.
-    """
-
     def __init__(self, encryption_key: bytes):
         self.encryptor = ContainerVaultManager(encryption_key)
 
@@ -30,10 +25,6 @@ class VaultManager:
         return f"{container_id}_{timestamp}.vault.json"
 
     def _collapse_if_hoberman(self, container: dict):
-        """
-        If the container is a Hoberman or Symbolic Expansion type, collapse before snapshot
-        to reduce saved state to only seed glyphs.
-        """
         container_type = container.get("container_type", "")
         if container_type in {"hoberman", "symbolic_expansion"}:
             if hasattr(container, "collapse"):
@@ -41,13 +32,37 @@ class VaultManager:
             if "cubes" in container:
                 del container["cubes"]
 
+    def _inject_ghx_metadata(self, snapshot: dict, container_id: str):
+        """
+        Adds GHX ↔ QGlyph ↔ Entropy metadata to the snapshot.
+        """
+        try:
+            from backend.modules.codex.codex_trace import CodexTrace
+            from backend.modules.qglyph.glyph_quantum_core import GlyphQuantumCore
+
+            trace = CodexTrace.get_latest_trace(container_id)
+            if not trace:
+                return
+
+            latest_qglyph = GlyphQuantumCore.get_last_qglyph()
+            if not latest_qglyph:
+                return
+
+            snapshot["ghx_metadata"] = {
+                "ghx_id": trace.get("ghx_id"),
+                "qglyph_id": latest_qglyph.get("id"),
+                "collapse_trace": trace.get("path"),
+                "entropy_signature": latest_qglyph.get("entropy_signature"),
+            }
+        except Exception as e:
+            print(f"[VaultManager] GHX metadata injection skipped: {e}")
+
     def save_snapshot(self, container_id: str, associated_data: Optional[bytes] = None) -> str:
         container = get_state().current_container
         if not container or container.get("id") != container_id:
             raise ValueError(f"Container {container_id} is not currently active or loaded.")
 
         self._collapse_if_hoberman(container)
-
         glyph_data = container.get("cubes", {})
 
         encrypted_blob = self.encryptor.save_container_glyph_data(glyph_data, associated_data)
@@ -60,6 +75,8 @@ class VaultManager:
             "runtime_mode": container.get("runtime_mode", "compressed"),
             "container_type": container.get("container_type", "standard")
         }
+
+        self._inject_ghx_metadata(snapshot, container_id)
 
         filename = self._generate_snapshot_filename(container_id)
         path = os.path.join(VAULT_DIR, filename)
@@ -109,57 +126,31 @@ class VaultManager:
             if container is not None:
                 cubes = container.setdefault("cubes", {})
                 for coord_tuple, meta in glyph_map.items():
-                    if len(coord_tuple) == 4:
-                        x, y, z, layer = coord_tuple
-                    else:
-                        x, y, z = coord_tuple
-                        layer = None
-                    key = f"{x},{y},{z}" if layer is None else f"{x},{y},{z},{layer}"
+                    key = ",".join(map(str, coord_tuple))
                     cubes[key] = meta
 
-                # 🧠 If Hoberman-style and expanded in snapshot, inflate now
                 if snapshot.get("container_type") in {"hoberman", "symbolic_expansion"}:
                     if snapshot.get("runtime_mode", "compressed") == "expanded":
                         if hasattr(container, "inflate"):
                             container.inflate()
 
-            event_data = {
-                "filename": filename,
-                "timestamp": datetime.utcnow().isoformat()
-            }
-            log_event("RESTORE", event_data)
+            log_event("RESTORE", {"filename": filename, "timestamp": datetime.utcnow().isoformat()})
             VAULT_AUDIT.record_event("RESTORE", snapshot.get("container_id", "unknown"))
-
             return True
 
-        event_data = {
-            "filename": filename,
-            "timestamp": datetime.utcnow().isoformat()
-        }
-        log_event("ACCESS_DENIED", event_data)
+        log_event("ACCESS_DENIED", {"filename": filename, "timestamp": datetime.utcnow().isoformat()})
         VAULT_AUDIT.record_event("ACCESS_DENIED", snapshot.get("container_id", "unknown"))
-
         return False
 
     def delete_snapshot(self, filename: str) -> bool:
         path = os.path.join(VAULT_DIR, filename)
         if os.path.exists(path):
             os.remove(path)
-
-            event_data = {
-                "filename": filename,
-                "timestamp": datetime.utcnow().isoformat()
-            }
-            log_event("DELETE", event_data)
+            log_event("DELETE", {"filename": filename, "timestamp": datetime.utcnow().isoformat()})
             VAULT_AUDIT.record_event("DELETE", "unknown")
-
             return True
         return False
 
 from backend.modules.glyphvault.key_manager import key_manager
-
 ENCRYPTION_KEY = key_manager.key
-
-print(f"ENCRYPTION_KEY length: {len(ENCRYPTION_KEY)}")
-
 VAULT = VaultManager(ENCRYPTION_KEY)

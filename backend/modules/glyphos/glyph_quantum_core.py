@@ -69,7 +69,7 @@ class GlyphQuantumCore:
             "selected": {
                 "path": qbit.get("glyph"),
                 "collapsed": collapsed,
-                "qbit_id": qbit["qbit_id"],
+                "qbit_id": qbit.get("qbit_id"),
                 "coord": qbit.get("origin"),
                 "container": self.container_id,
             },
@@ -107,7 +107,7 @@ class GlyphQuantumCore:
 
 
 # 🔁 Standalone QGlyph Generator for Benchmarking
-def generate_qglyph_from_string(codex_string: str) -> dict:
+def generate_qglyph_from_string(codex_string: str, ghx_projection_id: str = None, vault_snapshot_id: str = None) -> dict:
     """
     Converts a CodexLang string into a symbolic QGlyph format.
     This simulates compression and hashing for traceable quantum-symbolic execution.
@@ -115,6 +115,19 @@ def generate_qglyph_from_string(codex_string: str) -> dict:
     qglyph_id = hashlib.sha256(codex_string.encode()).hexdigest()[:12]
     parsed_tree = run_codexlang_string(codex_string)
     entropy = len(set(codex_string))
+
+    qglyph = {
+        "id": qglyph_id,
+        "entropy": entropy,
+        "compressed_length": len(codex_string) // 3,
+        "parsed_tree": parsed_tree,
+    }
+
+    if ghx_projection_id:
+        qglyph["ghx_projection_id"] = ghx_projection_id
+
+    if vault_snapshot_id:
+        qglyph["vault_snapshot_id"] = vault_snapshot_id
 
     codex_trace.record(
         glyph="[qglyph]",
@@ -124,13 +137,10 @@ def generate_qglyph_from_string(codex_string: str) -> dict:
             "source": "generate_qglyph_from_string",
             "entropy": entropy,
             "length": len(codex_string),
+            "ghx_projection_id": ghx_projection_id,
+            "vault_snapshot_id": vault_snapshot_id,
         },
         result="generated"
     )
 
-    return {
-        "id": qglyph_id,
-        "entropy": entropy,
-        "compressed_length": len(codex_string) // 3,
-        "parsed_tree": parsed_tree
-    }
+    return qglyph

@@ -83,10 +83,12 @@ const OPERATOR_COLORS: Record<string, string> = {
   '⧖': 'text-yellow-500',
   '✦': 'text-cyan-300',
   '⟦ Theorem ⟧': 'text-sky-400',
+  '⬁': 'text-pink-400', // ✅ Added for mutation marker
 };
 
 function extractOperator(glyph: string): string | null {
   if (glyph === '⟦ Theorem ⟧') return '⟦ Theorem ⟧';
+  if (glyph === '⬁') return '⬁'; // ✅ Mutation check
   return Object.keys(OPERATOR_LABELS).find((op) => glyph.includes(op)) || null;
 }
 
@@ -162,8 +164,12 @@ export default function CodexHUD({
     onExport?.();
   };
 
-  const handleHoverNarration = (glyph: string, action?: string) => {
-    playGlyphNarration(`Glyph ${glyph} triggered ${action || 'an event'}.`);
+  const handleHoverNarration = (glyph: string, action?: string, isMutated?: boolean) => {
+    if (isMutated) {
+      playGlyphNarration("Self-rewriting mutation detected.");
+    } else {
+      playGlyphNarration(`Glyph ${glyph} triggered ${action || 'an event'}.`);
+    }
   };
 
   const wsUrl = "/ws/codex";

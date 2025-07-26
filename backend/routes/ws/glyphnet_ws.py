@@ -1,6 +1,6 @@
 import asyncio
 from fastapi import WebSocket
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
 
 from backend.modules.codex.glyph_executor import GlyphExecutor
 from backend.modules.state.state_manager import state_manager
@@ -15,7 +15,10 @@ event_queue: asyncio.Queue = asyncio.Queue()
 async def connect(websocket: WebSocket):
     await websocket.accept()
     active_connections.append(websocket)
-    await websocket.send_json({"type": "status", "message": "🛰️ Connected to GlyphNet WebSocket"})
+    await websocket.send_json({
+        "type": "status",
+        "message": "🛰️ Connected to GlyphNet WebSocket"
+    })
 
 
 def disconnect(websocket: WebSocket):
@@ -47,14 +50,36 @@ def start_glyphnet_ws_loop():
     asyncio.create_task(glyphnet_ws_loop())
 
 
-def push_entanglement_update(from_id: str, to_id: str):
-    """Trigger a WebSocket broadcast for ↔ entanglement."""
-    event = {
+def push_entanglement_update(
+    from_id: str,
+    to_id: str,
+    ghx_projection_id: Optional[str] = None,
+    entangled_ids: Optional[List[str]] = None,
+    signal_path: Optional[List[str]] = None,
+    source_entropy: Optional[str] = None
+):
+    """Trigger a WebSocket broadcast for ↔ entanglement, with optional GHX metadata."""
+    event: Dict[str, Any] = {
         "type": "entanglement_update",
         "from": from_id,
         "to": to_id,
         "symbol": "↔",
     }
+
+    # Optional GHX / signal metadata
+    metadata: Dict[str, Any] = {}
+    if ghx_projection_id:
+        metadata["ghx_projection_id"] = ghx_projection_id
+    if entangled_ids:
+        metadata["entangled_ids"] = entangled_ids
+    if signal_path:
+        metadata["signal_path"] = signal_path
+    if source_entropy:
+        metadata["source_entropy"] = source_entropy
+
+    if metadata:
+        event["metadata"] = metadata
+
     asyncio.create_task(broadcast_event(event))
 
 
