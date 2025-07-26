@@ -92,6 +92,30 @@ export default function Sidebar({
             >
               Live Market
             </Link>
+            {/* Holographic Knowledge System Links */}
+            <Link
+              href="/aion/hologram"
+              onClick={onClose}
+              className="block py-2 px-3 border border-purple-600 rounded hover:bg-purple-100 dark:hover:bg-purple-900 text-purple-800 dark:text-purple-300 text-left"
+            >
+              Holographic Viewer
+            </Link>
+
+            <Link
+              href="/aion/replay"
+              onClick={onClose}
+              className="block py-2 px-3 border border-purple-600 rounded hover:bg-purple-100 dark:hover:bg-purple-900 text-purple-800 dark:text-purple-300 text-left"
+            >
+              GHX Replay
+            </Link>
+
+            <Link
+              href="/aion/entanglement"
+              onClick={onClose}
+              className="block py-2 px-3 border border-purple-600 rounded hover:bg-purple-100 dark:hover:bg-purple-900 text-purple-800 dark:text-purple-300 text-left"
+            >
+              Entanglement Graph
+            </Link>
 
             {/* If user is logged in (anything in `role`), show Dashboard link */}
             {role && (

@@ -1,5 +1,3 @@
-# backend/utils/bundle_builder.py
-
 import json
 import base64
 import hashlib
@@ -8,6 +6,9 @@ from backend.modules.consciousness.state_manager import StateManager
 from backend.modules.avatar.avatar_core import get_avatar_state
 from backend.modules.glyphos.microgrid_index import MicrogridIndex
 from backend.modules.dna_chain.dc_handler import load_dimension_by_file
+
+# ✅ Collapse trace importer
+from backend.modules.codex.collapse_trace_exporter import get_recent_collapse_traces
 
 def bundle_container(container_id: str) -> dict:
     state = StateManager()
@@ -25,7 +26,7 @@ def bundle_container(container_id: str) -> dict:
     # Avatar state
     avatar = get_avatar_state(container_id)
 
-    # Metadata
+    # Metadata + collapse trace
     bundle = {
         "container_id": container_id,
         "timestamp": datetime.utcnow().isoformat(),
@@ -35,6 +36,9 @@ def bundle_container(container_id: str) -> dict:
             "origin": container_path,
             "hash": hashlib.sha256(json.dumps(microgrid).encode()).hexdigest(),
         },
+        "symbolic": {
+            "collapse_trace": get_recent_collapse_traces(limit=10)  # ⬅️ Inject latest traces
+        }
     }
 
     encoded = base64.b64encode(json.dumps(bundle).encode()).decode()

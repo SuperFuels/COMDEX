@@ -14,6 +14,7 @@ from backend.modules.dna_chain.dc_handler import (
     inject_glyphs_into_container,
 )
 from backend.modules.hexcore.memory_engine import MEMORY
+from backend.modules.dimensions.glyph_logic import get_entangled_links_for_container
 
 router = APIRouter()
 
@@ -30,6 +31,19 @@ class TeleportRequest(BaseModel):
 async def get_containers():
     try:
         containers = list_available_containers()
+
+        # Build map for validating connected links
+        container_map = {c["id"]: c for c in containers}
+
+        # Inject "connected" links using live ↔ entanglement logic
+        for container in containers:
+            container_id = container["id"]
+            try:
+                entangled_ids = get_entangled_links_for_container(container_id)
+                container["connected"] = [eid for eid in entangled_ids if eid in container_map]
+            except Exception:
+                container["connected"] = []
+
         return JSONResponse(content={"containers": containers})
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to list containers: {e}")
@@ -76,7 +90,6 @@ async def inject_glyphs(container_id: str, payload: GlyphInjectRequest):
 @router.post("/container/teleport")
 async def teleport_container(request: TeleportRequest):
     try:
-        # Use state manager to handle teleport (simulate)
         from backend.modules.dna_chain.teleport import teleport
         teleport(request.source, request.destination, reason=request.reason or "api_call")
         MEMORY.store({

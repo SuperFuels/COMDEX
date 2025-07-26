@@ -4,6 +4,7 @@
 
 import time
 import threading
+
 from backend.modules.codex.codex_core import CodexCore
 from backend.modules.codex.codex_feedback_loop import CodexFeedbackLoop
 from backend.modules.codex.codex_metrics import CodexMetrics
@@ -11,13 +12,14 @@ from backend.modules.codex.codex_mind_model import CodexMindModel
 from backend.modules.codex.codex_memory_triggers import CodexMemoryTrigger
 from backend.modules.codex.codex_autopilot import CodexAutopilot
 from backend.modules.codex.codex_boot import boot_codex_runtime
-from backend.modules.codex.codex_executor import CodexExecutor  # ✅ NEW
+from backend.modules.codex.codex_executor import CodexExecutor
+from backend.modules.codex.codex_cost_estimator import CodexCostEstimator  # ✅ NEW
 from backend.modules.tessaris.tessaris_engine import TessarisEngine
 from backend.modules.hexcore.memory_engine import MEMORY
-
-# ✅ Pause/resume support
 from backend.modules.state_manager import STATE
 
+# ✅ Cost threshold (adjust as needed)
+COST_THRESHOLD = 100
 
 class CodexScheduler:
     def __init__(self):
@@ -29,13 +31,13 @@ class CodexScheduler:
         self.trigger = CodexMemoryTrigger()
         self.autopilot = CodexAutopilot()
         self.tessaris = TessarisEngine()
-        self.executor = CodexExecutor()  # ✅ NEW
+        self.executor = CodexExecutor()
 
+        self.estimator = CodexCostEstimator()  # ✅ Cost estimator instance
         self.tasks = []
         self.running = False
 
     def add_task(self, glyph: str, trigger: dict, metadata: dict = {}):
-        """Schedule a glyph execution when condition is met."""
         self.tasks.append({
             "glyph": glyph,
             "trigger": trigger,
@@ -45,13 +47,6 @@ class CodexScheduler:
         print(f"📅 Scheduled glyph {glyph} with trigger: {trigger}")
 
     def _check_trigger(self, trigger: dict) -> bool:
-        """
-        Check if the symbolic condition is satisfied.
-        Supported trigger types:
-        - {"type": "interval", "seconds": 10}
-        - {"type": "memory_contains", "keyword": "dream"}
-        - {"type": "tick_multiple", "mod": 5}
-        """
         ttype = trigger.get("type")
         if ttype == "interval":
             return time.time() % trigger.get("seconds", 10) < 1
@@ -67,8 +62,24 @@ class CodexScheduler:
     def _run_task(self, task):
         glyph = task["glyph"]
         metadata = task.get("metadata", {})
+
+        # ✅ Step A11b: Estimate cost and collapse container if overload
         try:
-            result = self.executor.execute(glyph, metadata)  # ✅ UPDATED
+            context = {
+                "memory": MEMORY.query(limit=10),
+                "tick": MEMORY.get_tick(),
+                "metadata": metadata
+            }
+            cost = self.estimator.estimate_glyph_cost(glyph, context)
+            if cost.total() > COST_THRESHOLD:
+                print(f"⚠️ Cost {cost.total()} exceeds threshold. Triggering collapse.")
+                self._collapse_container(metadata)
+                return  # Skip execution
+        except Exception as e:
+            print(f"⚠️ Cost estimation failed: {e}")
+
+        try:
+            result = self.executor.execute(glyph, metadata)
             self.metrics.record_execution()
             print(f"✅ CodexScheduler executed: {glyph} → {result}")
 
@@ -85,6 +96,15 @@ class CodexScheduler:
             self.metrics.record_error()
             print(f"🚨 CodexScheduler execution error: {e}")
 
+    def _collapse_container(self, metadata: dict):
+        """Collapse or freeze the current container (placeholder logic)."""
+        try:
+            container_id = metadata.get("container_id", "unknown")
+            print(f"🧊 Collapsing container: {container_id}")
+            # TODO: Replace with real collapse logic if needed
+        except Exception as e:
+            print(f"❌ Collapse failed: {e}")
+
     def tick(self):
         if STATE.is_paused():
             print("⏸️ Codex Tick paused by StateManager.")
@@ -92,7 +112,6 @@ class CodexScheduler:
 
         print("🔁 Codex Tick Started")
 
-        # Step 1: Scheduled task execution
         for task in self.tasks:
             if task["executed"]:
                 continue
@@ -100,24 +119,20 @@ class CodexScheduler:
                 self._run_task(task)
                 task["executed"] = True
 
-        # Step 2: Scan memory and trigger glyphs
         triggered_glyphs = self.trigger.scan_and_trigger()
         for glyph in triggered_glyphs or []:
             self.mind_model.observe(glyph)
             self.metrics.record_execution()
 
-        # Step 3: Run symbolic evolution via autopilot
         self.autopilot.evolve()
         self.metrics.record_mutation()
 
-        # Step 4: Feedback analysis
         try:
             print("🔁 Running Codex feedback analysis...")
             self.feedback.reinforce_or_mutate()
         except Exception as e:
             print(f"⚠️ Codex feedback loop failed: {e}")
 
-        # Step 5: Metrics + Predictions
         try:
             print("📊 Codex Metrics:", self.metrics.dump())
             print("🧠 Codex Predictions:", self.mind_model.symbol_predictions)
@@ -139,7 +154,5 @@ class CodexScheduler:
 if __name__ == "__main__":
     boot_codex_runtime()
     scheduler = CodexScheduler()
-
-    # 🧪 Example: schedule a test glyph
     scheduler.add_task("🜂", {"type": "tick_multiple", "mod": 3})
     scheduler.run(interval_seconds=5)

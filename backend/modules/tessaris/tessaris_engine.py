@@ -1,5 +1,3 @@
-# [FULL FILE: tessaris_engine.py]
-
 import uuid
 import json
 import requests
@@ -16,6 +14,7 @@ from backend.modules.tessaris.tessaris_intent_executor import queue_tessaris_int
 from backend.modules.consciousness.memory_bridge import MemoryBridge
 from backend.modules.glyphos.glyph_mutator import run_self_rewrite
 from backend.modules.glyphos.glyph_generator import GlyphGenerator
+from backend.modules.runtime.container_runtime import expand_container, collapse_container
 
 # Codex integration
 from backend.modules.codex.codex_mind_model import CodexMindModel
@@ -23,7 +22,6 @@ from backend.modules.codex.codex_metrics import CodexMetrics
 from backend.modules.codex.codex_cost_estimator import CodexCostEstimator
 
 DNA_SWITCH.register(__file__)
-
 
 def trigger_from_goal(goal_data):
     from backend.modules.skills.goal_engine import GoalEngine
@@ -50,6 +48,11 @@ class TessarisEngine:
         thought_id = str(uuid.uuid4())
         root = BranchNode(symbol=root_symbol, source=source, metadata=metadata)
         self.active_thoughts[thought_id] = root
+
+        # ⏳ A3c: Trigger expansion on intention
+        if metadata.get("physics") == "symbolic-expansion":
+            self.inflate_hoberman()
+
         return thought_id, root
 
     def expand_thought(self, thought_id: str, depth: int = 3):
@@ -67,6 +70,20 @@ class TessarisEngine:
         for child in children:
             node.add_child(child)
             self._expand_branch(child, depth - 1)
+
+    def inflate_hoberman(self):
+        try:
+            expand_container(self.container_id)
+            print(f"🔵 Expanded Hoberman container {self.container_id}")
+        except Exception as e:
+            print(f"[⚠️] Failed to expand container: {e}")
+
+    def collapse_hoberman(self):
+        try:
+            collapse_container(self.container_id)
+            print(f"🔻 Collapsed Hoberman container {self.container_id}")
+        except Exception as e:
+            print(f"[⚠️] Failed to collapse container: {e}")
 
     def process_triggered_cube(self, cube: dict, source: str = "unknown"):
         glyphs = cube.get("glyphs", [])

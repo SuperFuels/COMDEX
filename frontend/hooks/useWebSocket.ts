@@ -1,4 +1,6 @@
+// utils/useWebSocket.ts
 import { useEffect, useRef, useState } from 'react'
+import { playGlyphNarration } from '@/utils/hologram_audio'
 
 function getWssUrl(path: string): string {
   if (typeof window === 'undefined') return ''
@@ -62,6 +64,13 @@ export default function useWebSocket(
         const data = JSON.parse(event.data)
         const type = data?.type || data?.event
         if (!type || (filterType && !filterType.includes(type))) return
+
+        // 🎙️ Trigger narration if glyph symbol is available
+        if (type === 'glyph_execution' && data.payload?.glyph) {
+          const symbol = data.payload.glyph
+          playGlyphNarration(symbol)
+        }
+
         onMessage(data)
       } catch (err) {
         console.warn('[WebSocket] Invalid message:', event.data)

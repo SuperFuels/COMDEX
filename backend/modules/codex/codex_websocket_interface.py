@@ -1,5 +1,3 @@
-# 📁 backend/modules/codex/codex_websocket_interface.py
-
 import json
 import traceback
 from fastapi import WebSocket, WebSocketDisconnect
@@ -11,6 +9,9 @@ from backend.modules.codex.codex_emulator import CodexEmulator
 from backend.modules.glyphos.codexlang_translator import run_codexlang_string
 from backend.modules.tessaris.tessaris_engine import TessarisEngine
 from backend.modules.hexcore.memory_engine import MEMORY
+
+# 🛰️ Import glyph trigger dispatcher
+from backend.modules.glyphnet.glyphnet_ws import handle_glyphnet_event
 
 # ✅ Runtime Instances
 connected_clients = set()
@@ -63,6 +64,12 @@ async def codex_ws_handler(websocket: WebSocket):
             message = await websocket.receive_text()
             try:
                 data = json.loads(message)
+
+                # 🛰️ Remote glyph trigger support
+                if data.get("event") == "trigger_glyph":
+                    await handle_glyphnet_event(websocket, data)
+                    continue
+
                 glyph = data.get("glyph")
                 scroll = data.get("scroll")
                 context = data.get("context", {})

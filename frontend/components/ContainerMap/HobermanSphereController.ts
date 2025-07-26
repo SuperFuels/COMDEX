@@ -1,7 +1,11 @@
-// File: frontend/components/ContainerMap/HobermanSphereController.tsx
-
 import React, { useEffect, useState } from 'react';
-import HobermanSphere from './HobermanSphere';
+import dynamic from 'next/dynamic';
+
+// ✅ Dynamically import HobermanSphere to avoid SSR issues with three.js
+const HobermanSphere = dynamic(() => import('./HobermanSphere'), {
+  ssr: false,
+  loading: () => null,
+});
 
 interface HobermanSphereControllerProps {
   containerMetadata: Record<string, any>;

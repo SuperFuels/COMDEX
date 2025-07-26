@@ -1,6 +1,6 @@
 // File: frontend/components/GlyphNet/GlyphNetTerminal.tsx
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -11,6 +11,7 @@ export default function GlyphNetTerminal() {
   const [command, setCommand] = useState("");
   const [log, setLog] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  const [replayMode, setReplayMode] = useState(false);
 
   // ✅ Handle messages from backend
   const { emit } = useWebSocket("/ws/glyphnet", (msg: any) => {
@@ -57,11 +58,33 @@ export default function GlyphNetTerminal() {
     }
   };
 
+  const handleReplay = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/glyphnet/collapse_trace");
+      const data = await res.json();
+      if (data.status === "ok" && Array.isArray(data.traces)) {
+        const traceLog = data.traces.map((t) => `🛰️ REPLAY: ${t.expression} → ${t.output}`);
+        setLog((prev) => [...traceLog, ...prev]);
+      } else {
+        setLog((prev) => ["⚠️ Failed to load replay traces", ...prev]);
+      }
+    } catch (e) {
+      setLog((prev) => [`❌ Replay error: ${(e as Error).message}`, ...prev]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (replayMode) handleReplay();
+  }, [replayMode]);
+
   return (
     <Card className="w-full">
       <CardContent>
         <h2 className="text-lg font-bold mb-2">⌨️ GlyphNet Terminal</h2>
-        <div className="flex gap-2 mb-2">
+        <div className="flex gap-2 mb-2 items-center">
           <Input
             value={command}
             onChange={(e) => setCommand(e.target.value)}
@@ -71,6 +94,9 @@ export default function GlyphNetTerminal() {
           />
           <Button onClick={handleRun} disabled={loading}>
             {loading ? "Running..." : "Run"}
+          </Button>
+          <Button variant="outline" onClick={() => setReplayMode((r) => !r)}>
+            {replayMode ? "🔁 Replay: ON" : "Replay: OFF"}
           </Button>
         </div>
         <Textarea

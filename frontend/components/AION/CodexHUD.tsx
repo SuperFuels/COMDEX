@@ -1,4 +1,3 @@
-// frontend/components/CodexHUD.tsx
 import React, { useEffect, useState } from 'react';
 import useWebSocket from '@/hooks/useWebSocket';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -6,6 +5,9 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
+import { Play, Pause, Download, Eye, EyeOff } from 'lucide-react';
+import { playGlyphNarration } from "@/utils/hologram_audio";
 
 interface GlyphDetail {
   energy?: number;
@@ -37,7 +39,10 @@ interface GlyphEvent {
   token?: string;
   identity?: string;
   luxpush?: boolean;
-  type?: string; // NEW: for lean_theorem_executed
+  type?: string;
+  replay_trace?: boolean;
+  collapse_trace?: boolean;
+  entangled_identity?: boolean;
 }
 
 interface TickEvent {
@@ -103,12 +108,63 @@ async function fetchScroll(glyph: string): Promise<string> {
   }
 }
 
-export default function CodexHUD() {
+interface CodexHUDProps {
+  onReplayToggle?: (state: boolean) => void;
+  onTraceOverlayToggle?: (state: boolean) => void;
+  onLayoutToggle?: () => void;
+  onExport?: () => void;
+}
+
+export default function CodexHUD({
+  onReplayToggle,
+  onTraceOverlayToggle,
+  onLayoutToggle,
+  onExport
+}: CodexHUDProps) {
   const [events, setEvents] = useState<EventLog[]>([]);
   const [filter, setFilter] = useState('');
   const [scrolls, setScrolls] = useState<Record<string, string>>({});
-  const [replayMode, setReplayMode] = useState(false);
   const [contextShown, setContextShown] = useState<Record<string, boolean>>({});
+  const [isReplay, setIsReplay] = useState(false);
+  const [showTrace, setShowTrace] = useState(false);
+  const [gazeMode, setGazeMode] = useState(false);
+
+  const totalGlyphs = events.filter(e => e.type === 'glyph' || e.type === 'gip').length;
+  const triggeredGlyphs = events.filter(e => (e.type === 'glyph' || e.type === 'gip') && e.data.action).length;
+
+  useEffect(() => {
+    playGlyphNarration(`Loaded ${totalGlyphs} glyphs, ${triggeredGlyphs} triggered.`);
+  }, [totalGlyphs, triggeredGlyphs]);
+
+  const handleReplayToggle = () => {
+    const newVal = !isReplay;
+    setIsReplay(newVal);
+    onReplayToggle?.(newVal);
+    playGlyphNarration(newVal ? "Replay started" : "Replay paused");
+  };
+
+  const handleTraceOverlayToggle = () => {
+    const newVal = !showTrace;
+    setShowTrace(newVal);
+    onTraceOverlayToggle?.(newVal);
+    playGlyphNarration(newVal ? "Trace overlay on" : "Trace overlay off");
+  };
+
+  const handleGazeToggle = () => {
+    const newVal = !gazeMode;
+    setGazeMode(newVal);
+    onLayoutToggle?.();
+    playGlyphNarration(newVal ? "Gaze mode enabled" : "Gaze mode disabled");
+  };
+
+  const handleExport = () => {
+    playGlyphNarration("Exporting projection as GHX format.");
+    onExport?.();
+  };
+
+  const handleHoverNarration = (glyph: string, action?: string) => {
+    playGlyphNarration(`Glyph ${glyph} triggered ${action || 'an event'}.`);
+  };
 
   const wsUrl = "/ws/codex";
   const gipWsUrl = "/ws/glyphnet";
@@ -116,7 +172,7 @@ export default function CodexHUD() {
   const { connected: codexConnected } = useWebSocket(
     wsUrl,
     (data) => {
-      if (!replayMode) {
+      if (!isReplay) {
         if (data?.type === 'glyph_execution') {
           setEvents((prev) => [{ type: 'glyph', data: data.payload }, ...prev.slice(0, 100)]);
         } else if (data?.type === 'dimension_tick') {
@@ -135,7 +191,7 @@ export default function CodexHUD() {
   useWebSocket(
     gipWsUrl,
     (data) => {
-      if (!replayMode && data?.type === 'gip_event') {
+      if (!isReplay && data?.type === 'gip_event') {
         setEvents((prev) => [{ type: 'gip', data: data.payload }, ...prev.slice(0, 100)]);
       }
     },
@@ -159,10 +215,6 @@ export default function CodexHUD() {
     }
   };
 
-  const toggleReplay = () => {
-    setReplayMode(!replayMode);
-  };
-
   const toggleContext = (glyph: string) => {
     setContextShown((prev) => ({ ...prev, [glyph]: !prev[glyph] }));
   };
@@ -184,15 +236,46 @@ export default function CodexHUD() {
             onChange={(e) => setFilter(e.target.value)}
             className="bg-gray-900 border-gray-700 text-white text-sm"
           />
-          <Button
-            className="text-xs px-3 py-1 h-8 bg-purple-800 hover:bg-purple-700"
-            onClick={toggleReplay}
-          >
-            {replayMode ? '🔁 Exit Replay' : '🔂 Enter Replay'}
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              className="text-xs px-3 py-1 h-8 bg-purple-800 hover:bg-purple-700"
+              onClick={handleReplayToggle}
+            >
+              {isReplay ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+              <span className="ml-1">{isReplay ? "Pause" : "Replay"}</span>
+            </Button>
+            <Button
+              className="text-xs px-3 py-1 h-8 bg-cyan-800 hover:bg-cyan-700"
+              onClick={handleExport}
+            >
+              📀 Export GHX
+            </Button>
+            <Button
+              className="text-xs px-3 py-1 h-8 bg-pink-800 hover:bg-pink-700"
+              onClick={handleGazeToggle}
+            >
+              👁️ Gaze Mode: {gazeMode ? 'On' : 'Off'}
+            </Button>
+            <Button
+              className="text-xs px-3 py-1 h-8 bg-gray-700 hover:bg-gray-600"
+              onClick={handleTraceOverlayToggle}
+            >
+              🔍 Trace: {showTrace ? 'On' : 'Off'}
+            </Button>
+          </div>
         </div>
 
-        <ScrollArea className="h-[320px] pr-2">
+        <div className="text-xs text-purple-300 mt-2">
+          🧠 Replay features enabled:
+          <ul className="list-disc pl-4 space-y-1 mt-1">
+            <li>↔ Entangled Glyphs</li>
+            <li>⧖ Delay Badge</li>
+            <li>🪞 Mirror Trails</li>
+            <li>🛰️ GlyphPush Events</li>
+          </ul>
+        </div>
+
+        <ScrollArea className="h-[320px] pr-2 mt-2">
           {filteredEvents.map((entry, index) => {
             if (entry.type === 'tick') {
               const { container, timestamp } = entry.data;
@@ -220,50 +303,32 @@ export default function CodexHUD() {
             const operatorLabel = operatorName(operator);
             const operatorColor = operator ? OPERATOR_COLORS[operator] || 'text-white' : 'text-white';
             const isLeanGlyph = operator === '⟦ Theorem ⟧' || log.type === 'lean_theorem_executed';
-
-            const key = `${log.glyph}-${log.timestamp || index}`;
             const isEntangled = log.glyph.includes('↔') || log.detail?.entangled_from;
 
+            const key = `${log.glyph}-${log.timestamp || index}`;
+
             return (
-              <div key={key} className={`border-b border-white/10 py-1 ${isEntangled ? 'bg-purple-900/10' : ''}`}>
+              <div
+                key={key}
+                className={`border-b border-white/10 py-1 ${isEntangled ? 'bg-purple-900/10' : ''} hover:bg-slate-800 cursor-pointer`}
+                onMouseEnter={() => handleHoverNarration(log.glyph, log.action)}
+              >
                 <div className={`text-sm font-mono ${operatorColor}`}>
                   ⟦ {log.glyph} ⟧ → <span className="text-green-400">{log.action}</span>
 
-                  {isLeanGlyph && (
-                    <Badge className="ml-2" variant="outline">📘 Lean Theorem</Badge>
-                  )}
-
-                  {operator && !isLeanGlyph && (
-                    <Badge className="ml-2" variant="outline">{`${operator} ${operatorLabel}`}</Badge>
-                  )}
-
-                  {log.trigger_type && (
-                    <Badge className="ml-2" variant="secondary">🕒 {log.trigger_type}</Badge>
-                  )}
-
-                  {log.trace_id && (
-                    <Badge className="ml-2" variant="outline">🧩 Trace ID</Badge>
-                  )}
-
-                  {log.sqi && (
-                    <Badge className="ml-2" variant="outline">🌌 SQI</Badge>
-                  )}
-
-                  {isEntangled && (
-                    <Badge className="ml-2" variant="outline">↔ Entangled</Badge>
-                  )}
-
-                  {isCostly && (
-                    <Badge className="ml-2" variant="destructive">⚠️ High Cost</Badge>
-                  )}
-
-                  {log.token && log.identity && (
-                    <Badge className="ml-2" variant="outline">🔐 {log.identity}</Badge>
-                  )}
-
-                  {log.luxpush && (
-                    <Badge className="ml-2" variant="outline">🛰️ LuxPush</Badge>
-                  )}
+                  {isLeanGlyph && <Badge className="ml-2" variant="outline">📘 Lean Theorem</Badge>}
+                  {operator && !isLeanGlyph && <Badge className="ml-2" variant="outline">{`${operator} ${operatorLabel}`}</Badge>}
+                  {log.trigger_type && <Badge className="ml-2" variant="secondary">🕒 {log.trigger_type}</Badge>}
+                  {log.replay_trace && <Badge className="ml-2" variant="outline">🛰️ Replay</Badge>}
+                  {log.collapse_trace && <Badge className="ml-2" variant="outline">📦 Collapse Trace</Badge>}
+                  {log.entangled_identity && <Badge className="ml-2" variant="outline">↔ Identity Link</Badge>}
+                  {log.trace_id && <Badge className="ml-2" variant="outline">🧩 Trace ID</Badge>}
+                  {log.sqi && <Badge className="ml-2" variant="outline">🌌 SQI</Badge>}
+                  {isEntangled && <Badge className="ml-2" variant="outline">↔ Entangled</Badge>}
+                  {log.luxpush && <Badge className="ml-2" variant="outline">🛰️ GlyphPush</Badge>}
+                  {log.context && <Badge className="ml-2" variant="outline">🧠 Context Preview</Badge>}
+                  {isCostly && <Badge className="ml-2" variant="destructive">⚠️ High Cost</Badge>}
+                  {log.token && log.identity && <Badge className="ml-2" variant="outline">🔐 {log.identity}</Badge>}
 
                   <Button className="ml-2 text-xs px-2 py-0 h-6 bg-transparent hover:bg-white/10 border border-white/10" onClick={() => toggleScroll(log.glyph)}>
                     🧾 {scrolls[log.glyph] ? 'Hide' : 'Show'} Scroll
@@ -293,9 +358,9 @@ export default function CodexHUD() {
                         {log.detail.entangled_from && (<Badge variant="outline">🪞 Forked from: {log.detail.entangled_from}</Badge>)}
                         {log.detail.qglyph_id && (<Badge variant="outline">🧬 QGlyph ID: {log.detail.qglyph_id}</Badge>)}
                         {log.detail.qglyph_paths && (<Badge variant="outline">↔ Paths: {log.detail.qglyph_paths[0]} / {log.detail.qglyph_paths[1]}</Badge>)}
-                        {log.detail.collapsed_path && (<Badge variant="outline">⧖ Collapsed: {log.detail.collapsed_path}</Badge>)}
                         {log.detail.bias_score !== undefined && (<Badge variant="outline">🎯 Bias Score: {log.detail.bias_score}</Badge>)}
                         {log.detail.observer_trace && (<Badge variant="outline">👁️ Trace: {log.detail.observer_trace}</Badge>)}
+                        {log.detail.collapsed_path && (<Badge variant="outline">🪞 Forked Path: {log.detail.collapsed_path}</Badge>)}
                       </div>
                     )}
                   </div>

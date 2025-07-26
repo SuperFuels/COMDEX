@@ -1,95 +1,123 @@
-import * as THREE from 'three';
-import { useRef, useMemo } from 'react';
-import { useFrame } from '@react-three/fiber';
-import { a, useSpring } from '@react-spring/three';
-import { Text } from '@react-three/drei';
+import React, { useRef, useEffect, useState } from "react";
+import { animated, useSpring } from "@react-spring/three";
+import { useFrame } from "@react-three/fiber";
+import { Html } from "@react-three/drei";
+import * as THREE from "three";
 
 interface HobermanSphereProps {
   position: [number, number, number];
-  expanded: boolean;
+  containerId: string;
+  active?: boolean;
+  glyph?: string;
+  logicDepth?: number;
+  runtimeTick?: number;
+  soulLocked?: boolean;
 }
 
-export default function HobermanSphere({ position, expanded }: HobermanSphereProps) {
+export default function HobermanSphere({
+  position,
+  containerId,
+  active = false,
+  glyph,
+  logicDepth = 0,
+  runtimeTick = 0,
+  soulLocked = false,
+}: HobermanSphereProps) {
   const groupRef = useRef<THREE.Group>(null);
-  const innerRingRef = useRef<THREE.Group>(null);
-  const middleRingRef = useRef<THREE.Group>(null);
-  const outerRingRef = useRef<THREE.Group>(null);
+  const [tickState, setTickState] = useState(runtimeTick);
 
-  const springs = useSpring({
-    armLength: expanded ? 3.2 : 0.6,
-    coreScale: expanded ? 2.4 : 0.4,
-    emissiveIntensity: expanded ? 1.4 : 0.2,
-    config: { mass: 1, tension: 190, friction: 20 },
+  const targetScale =
+    soulLocked || logicDepth === 0 ? 0.001 : 0.5 + logicDepth * 0.15;
+
+  const scaleSpring = useSpring({
+    scale: targetScale,
+    config: { mass: 2, tension: 200, friction: 25 },
   });
 
-  // Animate gyroscopes
+  const animatedScale = scaleSpring.scale.to((s) => [s, s, s]);
+
   useFrame(() => {
-    if (groupRef.current) {
+    if (groupRef.current && active) {
       groupRef.current.rotation.y += 0.01;
-      groupRef.current.rotation.x += 0.003;
     }
-    if (innerRingRef.current) innerRingRef.current.rotation.x += 0.015;
-    if (middleRingRef.current) middleRingRef.current.rotation.y += 0.01;
-    if (outerRingRef.current) outerRingRef.current.rotation.z += 0.007;
   });
 
-  const armAngles = useMemo(() => {
-    const count = 18;
-    return Array.from({ length: count }, (_, i) => (i / count) * Math.PI * 2);
-  }, []);
+  useEffect(() => {
+    if (runtimeTick !== tickState) {
+      setTickState(runtimeTick);
+    }
+  }, [runtimeTick]);
+
+  const glowColor =
+    glyph === "↔"
+      ? "#9933ff"
+      : glyph === "⧖"
+      ? "#00e0ff"
+      : glyph === "🧬"
+      ? "#66ff99"
+      : "#888";
 
   return (
-    <group ref={groupRef} position={position}>
-      {/* Core */}
-      <a.mesh scale={springs.coreScale}>
+    <animated.group
+      ref={groupRef}
+      position={position}
+      scale={animatedScale as unknown as [number, number, number]}
+    >
+      {/* Core Mesh */}
+      <mesh>
         <sphereGeometry args={[1, 32, 32]} />
-        <a.meshStandardMaterial
-          color={expanded ? '#00f0ff' : '#8888ff'}
-          emissive="#00f0ff"
-          emissiveIntensity={springs.emissiveIntensity}
+        <meshStandardMaterial
+          color={glowColor}
+          emissive={glowColor}
+          emissiveIntensity={1.5}
           transparent
-          opacity={0.8}
+          opacity={0.08}
         />
-      </a.mesh>
+      </mesh>
 
-      {/* Central symbolic glyph */}
-      <Text position={[0, 0, 0.1]} fontSize={0.35} color="#ffffff" anchorX="center" anchorY="middle">
-        ⬁
-      </Text>
-
-      {/* Gyroscopic rings */}
-      <group ref={innerRingRef}>
+      {/* Glow Ring for ↔ entanglement */}
+      {glyph === "↔" && (
         <mesh rotation={[Math.PI / 2, 0, 0]}>
-          <torusGeometry args={[1.8, 0.05, 16, 100]} />
-          <meshStandardMaterial color="#00caff" emissive="#00f0ff" emissiveIntensity={0.4} />
+          <ringGeometry args={[1.2, 1.4, 64]} />
+          <meshBasicMaterial
+            color="#cc66ff"
+            transparent
+            opacity={0.5}
+            side={THREE.DoubleSide}
+          />
         </mesh>
-      </group>
-      <group ref={middleRingRef}>
-        <mesh rotation={[0, Math.PI / 2, 0]}>
-          <torusGeometry args={[2.4, 0.05, 16, 100]} />
-          <meshStandardMaterial color="#007aff" emissive="#00f0ff" emissiveIntensity={0.3} />
-        </mesh>
-      </group>
-      <group ref={outerRingRef}>
-        <mesh rotation={[0, 0, Math.PI / 2]}>
-          <torusGeometry args={[3.0, 0.05, 16, 100]} />
-          <meshStandardMaterial color="#0044ff" emissive="#00f0ff" emissiveIntensity={0.2} />
-        </mesh>
-      </group>
+      )}
 
-      {/* Mechanical arm deployment */}
-      {armAngles.map((angle, i) => (
-        <group key={i} rotation={[0, angle, 0]}>
-          <a.mesh position={springs.armLength.to((l) => [l, 0, 0])}>
-            <cylinderGeometry args={[0.05, 0.05, 1.8, 6]} />
-            <meshStandardMaterial color="#00f0ff" />
-          </a.mesh>
-          <a.mesh position={springs.armLength.to((l) => [l + 1.1, 0, 0])}>
-            <sphereGeometry args={[0.12, 16, 16]} />
-            <meshStandardMaterial color="#ffffff" emissive="#00f0ff" emissiveIntensity={0.8} />
-          </a.mesh>
-        </group>
-      ))}
-    </group>
+      {/* Trail Pulse */}
+      {(glyph === "↔" || glyph === "⧖" || glyph === "🧬") && (
+        <mesh>
+          <sphereGeometry args={[1.6, 32, 32]} />
+          <meshStandardMaterial
+            color={glowColor}
+            emissive={glowColor}
+            emissiveIntensity={0.7}
+            transparent
+            opacity={0.06}
+          />
+        </mesh>
+      )}
+
+      {/* Label tag */}
+      <Html distanceFactor={12}>
+        <div
+          style={{
+            fontSize: "0.6rem",
+            color: "#ccc",
+            textAlign: "center",
+            marginTop: "4px",
+            background: "#0008",
+            padding: "2px 6px",
+            borderRadius: 6,
+          }}
+        >
+          {containerId}
+        </div>
+      </Html>
+    </animated.group>
   );
 }

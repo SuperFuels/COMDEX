@@ -229,6 +229,24 @@ export default function Navbar() {
               <span>Codex HUD</span>
             </Link>
 
+            {/* ✅ Glyph Replay */}
+            <Link
+              href="/aion/replay"
+              className="flex items-center space-x-1 py-1 px-3 border border-blue-500 text-blue-600 rounded-lg bg-white dark:bg-gray-900 text-sm hover:bg-blue-50 dark:hover:bg-gray-800 focus:outline-none transition"
+            >
+              <Image src="/replay.svg" alt="Replay" width={16} height={16} />
+              <span>Glyph Replay</span>
+            </Link>
+
+            {/* ✅ Entanglement Graph */}
+            <Link
+              href="/aion/entanglement"
+              className="flex items-center space-x-1 py-1 px-3 border border-purple-500 text-purple-600 rounded-lg bg-white dark:bg-gray-900 text-sm hover:bg-purple-50 dark:hover:bg-gray-800 focus:outline-none transition"
+            >
+              <Image src="/entangle.svg" alt="Entanglement" width={16} height={16} />
+              <span>Entanglement</span>
+            </Link>
+
             <button
               onClick={() => router.push('/products')}
               className="flex items-center space-x-1 py-1 px-3 border border-black rounded-lg bg-transparent text-black dark:text-white text-sm hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none transition"

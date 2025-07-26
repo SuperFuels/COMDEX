@@ -37,7 +37,7 @@ flowchart TD
     H0 --> A8[💫 symbolic_compressor.py ✅]
     A8 --> A8a[deduplicate glyph trees ✅]
     A8 --> A8b[store deltas from parent/linked ✅]
-    A8 --> A8c[reference glyph blocks via hash/symbol ⏳]
+    A8 --> A8c[reference glyph blocks via hash/symbol ✅]
 
     H0 --> A9[🔗 symbolic_entangler.py Link ✅]
     A9 --> A9a[↔ expands linked containers ✅]
@@ -49,54 +49,155 @@ flowchart TD
     A10 --> A10b[lightweight CodexLang load ✅]
     A10 --> A10c[portal_id trigger support ✅]
 
-    H0 --> A11[⏳ Cost Estimator Integration ⏳]
-    A11 --> A11a[Estimate cost of inflation ⏳]
-    A11 --> A11b[Defer/collapse on overload ⏳]
-    A11 --> A11c[Integrate with codex_cost_estimator.py ⏳]
+    H0 --> A11[⏳ Cost Estimator Integration ✅]
+    A11 --> A11a[Estimate cost of inflation ✅]
+    A11 --> A11b[Defer/collapse on overload ✅]
+    A11 --> A11c[Integrate with codex_cost_estimator.py ✅]
 
-    H0 --> A12[🌐 CodexCore Adapter ⏳]
-    A12 --> A12a[CodexExecutor: expand on ⧖, ↔, ⬁ ⏳]
-    A12 --> A12b[collapse on ⛒ or timeout ⏳]
-    A12 --> A12c[track SQI metrics + cost ⏳]
-    A12 --> A12d[autocollapse idle containers ⏳]
+    H0 --> A12[🌐 CodexCore Adapter ✅]
+    A12 --> A12a[CodexExecutor: expand on ⧖, ↔, ⬁ ✅]
+    A12 --> A12b[collapse on ⛒ or timeout ✅]
+    A12 --> A12c[track SQI metrics + cost ✅]
+    A12 --> A12d[autocollapse idle containers ✅]
 
-    H0 --> A13[🧬 Trigger Integration ⏳]
-    A13 --> A13a[glyph_executor.py ⏳]
-    A13 --> A13b[Expand if triggered by ⧖, ↔, ⬁, → ⏳]
-    A13 --> A13c[Collapse on ⛒ or goal-complete ⏳]
+    H0 --> A13[🧬 Trigger Integration ✅]
+    A13 --> A13a[glyph_executor.py ✅]
+    A13 --> A13b[Expand if triggered by ⧖, ↔, ⬁, → ✅]
+    A13 --> A13c[Collapse on ⛒ or goal-complete ✅]
 
-    H0 --> A3[⚙️ tessaris_engine.py Extension ⏳]
-    A3 --> A3a[inflate_hoberman() ⏳]
-    A3 --> A3b[collapse_container() ⏳]
-    A3 --> A3c[trigger on intention activation ⏳]
+    H0 --> A3[⚙️ tessaris_engine.py Extension ✅]
+    A3 --> A3a[inflate_hoberman() ✅]
+    A3 --> A3b[collapse_container() ✅]
+    A3 --> A3c[trigger on intention activation ✅]
 
     %% Soul-Locked Containers
-    H0 --> A14[🔑 SoulLaw Locks (optional) ⏳]
-    A14 --> A14a[seed_lock from entropy/SoulHash ⏳]
-    A14 --> A14b[soul-link agent validation ⏳]
-    A14 --> A14c[key match required to expand ⏳]
+    H0 --> A14[🔑 SoulLaw Locks (optional) ✅]
+    A14 --> A14a[seed_lock from entropy/SoulHash ✅]
+    A14 --> A14b[soul-link agent validation ✅]
+    A14 --> A14c[key match required to expand ✅]
 
     %% UI Integration
-    H0 --> UI1[🧿 TessarisVisualizer.tsx ⏳]
-    UI1 --> UI1a[Sphere geometry ⏳]
-    UI1 --> UI1b[Inflation animation (pulse/fractal) ⏳]
-    UI1 --> UI1c[Tooltip: logic density, cost ⏳]
+    H0 --> UI1[🧿 TessarisVisualizer.tsx ✅]
+    UI1 --> UI1a[Sphere geometry ✅]
+    UI1 --> UI1b[Inflation animation (pulse/fractal) ✅]
+    UI1 --> UI1c[Tooltip: logic density, cost ✅]
 
-    H0 --> UI2[🧪 CodexHUD.tsx ⏳]
-    UI2 --> UI2a[Expand/collapse trace ⏳]
-    UI2 --> UI2b[Replay inflation events ⏳]
-    UI2 --> UI2c[Cost delta per tick ⏳]
+    H0 --> UI2[🧪 CodexHUD.tsx ✅]
+    UI2 --> UI2a[Expand/collapse trace ✅]
+    UI2 --> UI2b[Replay inflation events ✅]
+    UI2 --> UI2c[Cost delta per tick ✅]
 
     H0 --> UI3[📊 ContainerMap3D.tsx ✅]
     UI3 --> UI3a[Expanded vs Compressed state ✅]
     UI3 --> UI3b[Expansion animation on entry ✅]
     UI3 --> UI3c[Highlight entangled clusters ✅]
 
-    H0 --> UI4[🧬 RuntimeGlyphTrace.tsx ⏳]
-    UI4 --> UI4a[⧖ triggers HSC inflate ⏳]
-    UI4 --> UI4b[↔ shows entanglement links ⏳]
+    H0 --> UI4[🧬 RuntimeGlyphTrace.tsx ✅]
+    UI4 --> UI4a[⧖ triggers HSC inflate ✅]
+    UI4 --> UI4b[↔ shows entanglement links✅]
 
   end
+
+
+
+PHASE 2 & 3 ;;;
+
+flowchart TD
+  subgraph Phase2[⚡ Phase 2: Real-Time Expansion Heuristics]
+
+    P2[⚙️ Phase 2 Core Logic]
+
+    P2 --> E1[🧠 Entropy Thresholding]
+    E1 --> E1a[entropy_monitor.py ✅/⏳]
+    E1a --> E1a1[calculate_symbolic_entropy() ⏳]
+    E1a --> E1a2[get_container_entropy_score(container_id) ⏳]
+    E1 --> E1b[integrate with container_runtime.py ⏳]
+    E1b --> E1b1[inflate only if entropy > threshold ⏳]
+    E1b --> E1b2[store last entropy score in metadata ⏳]
+
+    P2 --> E2[⏳ Collapse Prioritization]
+    E2 --> E2a[symbolic_pressure_manager.py ⏳]
+    E2a --> E2a1[track active vs idle containers ⏳]
+    E2a --> E2a2[collapse lowest-score containers ⏳]
+    E2a --> E2a3[notify HUD of deferred collapse ⏳]
+
+    P2 --> E3[🔁 Expansion Loop Scheduler]
+    E3 --> E3a[symbolic_expansion_loop.py ⏳]
+    E3a --> E3a1[loop(): check entropy + SQI metrics ⏳]
+    E3a --> E3a2[invoke inflate() or collapse() per tick ⏳]
+    E3a --> E3a3[prevent expand if CPU/memory is high ⏳]
+
+    P2 --> E4[🧮 Expansion Scoring System]
+    E4 --> E4a[symbolic_score_engine.py ⏳]
+    E4a --> E4a1[get_mutation_density(container_id) ⏳]
+    E4a --> E4a2[get_recent_codex_cost(container_id) ⏳]
+    E4a --> E4a3[combine SQI + logic density → score ⏳]
+
+    P2 --> E5[🧠 Runtime Integration]
+    E5 --> E5a[update container_runtime.py ⏳]
+    E5a --> E5a1[trigger scheduler per tick ⏳]
+    E5a --> E5a2[inflate if expansion_score > threshold ⏳]
+    E5a --> E5a3[collapse if cost > limit or idle ⏳]
+
+    P2 --> UI5[💻 CodexHUD.tsx Extension]
+    UI5 --> UI5a[Show: 🧠 entropy badge ⏳]
+    UI5 --> UI5b[Show: collapse deferral alert ⏳]
+    UI5 --> UI5c[Highlight score rank of each container ⏳]
+
+    P2 --> UI6[📊 TessarisVisualizer.tsx Additions]
+    UI6 --> UI6a[Color code by entropy ⏳]
+    UI6 --> UI6b[Show collapse queue rank ⏳]
+
+  end
+
+  subgraph Phase3[🧬 Phase 3: Autonomous Symbolic Reproduction]
+
+    P3[🌱 Phase 3 Reproduction Logic]
+
+    P3 --> R1[🌿 Self-Replication Engine]
+    R1 --> R1a[symbolic_reproducer.py ⏳]
+    R1a --> R1a1[detect logic_density > threshold ⏳]
+    R1a --> R1a2[spawn_child_container() ⏳]
+    R1a --> R1a3[seed: copy entropy/core glyphs ⏳]
+    R1a --> R1a4[set lineage metadata in .dc ⏳]
+
+    P3 --> R2[🪞 Multi-Agent Forking]
+    R2 --> R2a[container_runtime.py ⏳]
+    R2a --> R2a1[↔ triggers entangled clone spawn ⏳]
+    R2a --> R2a2[teleport fork with own expansion path ⏳]
+
+    P3 --> R3[📜 CodexLang-Driven Growth]
+    R3 --> R3a[link with glyph_executor.py ⏳]
+    R3a --> R3a1[⬁ triggers logic-based growth ⏳]
+    R3a --> R3a2[⬁ + ↔ triggers entangled offspring ⏳]
+
+    P3 --> R4[📄 .dc Metadata Extensions]
+    R4 --> R4a[lineage_id, parent_id ⏳]
+    R4 --> R4b[seed_type: mirrored, divergent ⏳]
+    R4 --> R4c[auto-tag as: "offspring", "forked", etc. ⏳]
+
+    P3 --> UI7[🧬 GlyphNet Terminal]
+    UI7 --> UI7a[log new offspring events ⏳]
+    UI7 --> UI7b[⌘ grow ↔ clone → target ⏳]
+
+    P3 --> UI8[🧿 Visualizer Fork View]
+    UI8 --> UI8a[Show family trees ⏳]
+    UI8 --> UI8b[Differentiate clone vs fork ⏳]
+
+  end
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

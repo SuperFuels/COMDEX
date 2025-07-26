@@ -12,6 +12,7 @@ from backend.modules.codex.codex_trace import CodexTrace
 from backend.modules.hexcore.memory_engine import MemoryBridge
 from backend.modules.consciousness.state_manager import STATE  # ✅ Pause flag
 from backend.modules.glyphos.symbolic_entangler import get_entangled_for  # ✅ Entanglement support
+from backend.modules.glyphvault.soul_law_validator import soul_law_validator  # ✅ Soul Law check
 
 # ✅ Global executor instance for benchmarking
 executor = None
@@ -29,6 +30,11 @@ class CodexExecutor:
             return {"status": "paused", "reason": "CodexExecutor is paused"}
 
         try:
+            # ✅ Soul Law Check (if avatar state present)
+            avatar_state = context.get("avatar_state")
+            if not soul_law_validator.validate_avatar(avatar_state):
+                return {"status": "forbidden", "reason": "Avatar failed Soul Law validation"}
+
             timestamp = datetime.utcnow().timestamp()
             self.log.append((glyph, context, timestamp))
             self.metrics.record_execution()
@@ -74,13 +80,23 @@ class CodexExecutor:
                             "context": context,
                             "timestamp": timestamp
                         })
-                        # Avoid infinite loops by not triggering further ↔ here
                         partner_clean = partner.strip("⟦⟧").strip()
                         if "→" in partner_clean:
                             self.execute(partner, context)
 
             context_info = {**context, "operator": ops_chain[0]["operator"] if ops_chain else None}
             estimate = self.coster.estimate_glyph_cost(glyph, context_info)
+
+            # 🚨 Collapse container if cost exceeds threshold
+            THRESHOLD = 100.0  # Adjust threshold as needed
+            container = context.get("container")
+            if estimate.total() > THRESHOLD and container:
+                try:
+                    from backend.modules.runtime.container_runtime import collapse_container
+                    collapse_container(container)
+                    print(f"⚠️ Collapsed container {container} due to high cost: {estimate.total()}")
+                except Exception as e:
+                    print(f"⚠️ Failed to collapse container {container}: {e}")
 
             cost_payload = {
                 "glyph": glyph,
@@ -99,10 +115,8 @@ class CodexExecutor:
                 }
             }
 
-            # ✅ Primary glyph execution event
             asyncio.create_task(send_codex_ws_event("glyph_execution", cost_payload))
 
-            # 🛰️ Additional lean_theorem_executed event if applicable
             if g_type == "⟦ Theorem ⟧":
                 lean_payload = {
                     "type": "lean_theorem_executed",
@@ -250,45 +264,4 @@ class CodexExecutor:
         elif action_str == "Boot":
             return self._trigger("initiate_boot_sequence", context)
         elif action_str == "Analyze":
-            return self._trigger("run_analysis", context)
-        elif action_str == "Sync":
-            return self._trigger("sync_context", context)
-        elif action_str == "Generate":
-            return self._trigger("spawn_child_ai", context)
-        elif action_str == "Search":
-            return self._trigger("explore_codex_space", context)
-        elif action_str == "Mirror":
-            return self._trigger("mirror_logic", context)
-        elif action_str == "Rewrite":
-            return self._trigger("self_rewrite", context)
-        else:
-            return self._trigger("unrecognized_action", context, detail=action_str)
-
-    def _trigger(self, function_name, context, detail=None):
-        return {
-            "trigger": function_name,
-            "context": context,
-            "detail": detail
-        }
-
-    def get_log(self):
-        return self.log
-
-
-# ✅ Exportable function for benchmark_runner.py
-def execute_codex_instruction_tree(tree: dict, context: dict = None):
-    global executor
-    if executor is None:
-        executor = CodexExecutor()
-
-    glyph = tree.get("glyph") or "⟦ Logic | Test : Benchmark → Analyze ⟧"
-    return executor.execute(glyph, context or {})
-
-
-# ✅ Add missing method to CodexTrace if not already present
-if not hasattr(CodexTrace, "log_trace"):
-    def log_trace(self, entry):
-        if not hasattr(self, "entries"):
-            self.entries = []
-        self.entries.append(entry)
-    CodexTrace.log_trace = log_trace
+            return self._trigger("

@@ -21,6 +21,23 @@ class CostEstimate:
             self.opportunity_loss * w["opportunity_loss"]
         )
 
+    # Append to CodexCostEstimator class
+
+    def should_defer_or_collapse(self, glyph, context, threshold=10):
+        """
+        Determine if glyph should be deferred or container should be collapsed
+        due to excessive symbolic cost.
+        Returns: {'action': 'ok' | 'defer' | 'collapse', 'reason': str}
+        """
+        est = self.estimate_glyph_cost(glyph, context)
+        total = est.total()
+
+        if total >= threshold + 5:
+            return {"action": "collapse", "reason": f"Overload: cost={total}"}
+        elif total >= threshold:
+            return {"action": "defer", "reason": f"High cost: cost={total}"}
+        else:
+            return {"action": "ok", "reason": f"Within limits: cost={total}"}
 
 class CodexCostEstimator:
     def estimate_glyph_cost(self, glyph, context):

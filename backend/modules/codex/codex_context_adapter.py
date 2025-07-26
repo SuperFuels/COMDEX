@@ -6,30 +6,36 @@ from typing import Optional, Dict
 
 from backend.modules.hexcore.memory_engine import get_runtime_entropy_snapshot
 from backend.modules.glyphnet.ephemeral_key_manager import get_ephemeral_key_manager
+from backend.modules.codex.soul_law_validator import validate_avatar_state
+from backend.modules.codex.codex_core import CodexCore
 
 logger = logging.getLogger(__name__)
+
 
 class SymbolicKeyDerivation:
     MAX_ATTEMPTS = 10  # Added to match test expectation
 
     def __init__(self):
-        # Remove CodexContextAdapter import to avoid circular import
-        # Use dummy adapter or fallback
         self._codex_adapter = None
-
         self.brute_force_attempts: Dict[str, int] = {}
         self.lockout_time = 300  # seconds to lockout
         self.lockouts: Dict[str, float] = {}
+        self.collapse_trace = []
+        self.entanglement_registry = {}
 
     def _get_codex_adapter(self):
-        # Return a dummy adapter with a stable evaluate method for testing
         if self._codex_adapter is None:
-            class DummyAdapter:
-                def evaluate(self, input_str):
-                    # Deterministic dummy output for key derivation tests
-                    # In real use, replace with actual CodexContextAdapter import + logic
-                    return hashlib.sha256(input_str.encode('utf-8')).hexdigest()
-            self._codex_adapter = DummyAdapter()
+            try:
+                self._codex_adapter = CodexCore()
+                logger.info("[SymbolicKeyDerivation] CodexCore initialized for collapse logic")
+            except Exception as e:
+                logger.warning(f"[SymbolicKeyDerivation] Falling back to dummy adapter: {e}")
+
+                class DummyAdapter:
+                    def evaluate(self, input_str):
+                        return hashlib.sha256(input_str.encode('utf-8')).hexdigest()
+
+                self._codex_adapter = DummyAdapter()
         return self._codex_adapter
 
     def _is_locked_out(self, identity: str) -> bool:
@@ -53,7 +59,6 @@ class SymbolicKeyDerivation:
             del self.lockouts[identity]
 
     def _get_entropy(self):
-        # Support monkeypatch in tests for entropy starvation
         try:
             return get_runtime_entropy_snapshot()
         except Exception as e:
@@ -79,9 +84,30 @@ class SymbolicKeyDerivation:
         logger.debug(f"[SymbolicKeyDerivation] Performed key stretching with {iterations} iterations")
         return stretched
 
-    def derive_key(self, trust_level: float, emotion_level: float, timestamp: float, 
+    def _register_collapse_trace(self, expression: str, output: str, adapter: str, qbit: Optional[str], entangled_with: Optional[str]):
+        trace_entry = {
+            "expression": expression,
+            "output": output,
+            "adapter": adapter,
+            "timestamp": time.time(),
+            "qbit": qbit,
+            "↔": entangled_with
+        }
+        self.collapse_trace.append(trace_entry)
+        logger.debug(f"[SymbolicKeyDerivation] Collapse trace recorded: {trace_entry}")
+
+    def _register_entanglement(self, identity: str) -> str:
+        if identity in self.entanglement_registry:
+            return self.entanglement_registry[identity]
+        glyph_key = hashlib.sha256(identity.encode("utf-8")).hexdigest()
+        self.entanglement_registry[identity] = glyph_key
+        self.entanglement_registry[glyph_key] = identity  # bidirectional
+        logger.debug(f"[SymbolicKeyDerivation] QBit entanglement registered: {identity} ↔ {glyph_key}")
+        return glyph_key
+
+    def derive_key(self, trust_level: float, emotion_level: float, timestamp: float,
                    identity: Optional[str] = None, seed_phrase: Optional[str] = None) -> Optional[bytes]:
-        # Validate input types for test_invalid_inputs
+
         if not isinstance(trust_level, (float, int)) or not isinstance(emotion_level, (float, int)) or not isinstance(timestamp, (float, int)):
             raise TypeError("trust_level, emotion_level, and timestamp must be numeric")
         if identity is not None and not isinstance(identity, str):
@@ -89,23 +115,33 @@ class SymbolicKeyDerivation:
         if seed_phrase is not None and not isinstance(seed_phrase, str):
             raise TypeError("seed_phrase must be a string if provided")
 
-        if identity and self._is_locked_out(identity):
-            logger.error(f"[SymbolicKeyDerivation] Derivation blocked due to lockout for identity {identity}")
-            return None
+        if identity:
+            if self._is_locked_out(identity):
+                logger.error(f"[SymbolicKeyDerivation] Derivation blocked due to lockout for identity {identity}")
+                return None
+
+            # ✅ Soul Law validation
+            if not validate_avatar_state(identity):
+                logger.error(f"[SymbolicKeyDerivation] SoulLaw rejected identity {identity}")
+                return None
 
         try:
             base_input = self._gather_entropy(float(trust_level), float(emotion_level), float(timestamp))
             if seed_phrase:
                 base_input += f";Seed:{seed_phrase}"
 
+            expression = f"⟦ Key : {base_input} ⟧"
             codex_adapter = self._get_codex_adapter()
-            symbolic_output = codex_adapter.evaluate(f"⟦ Key : {base_input} ⟧")
+            symbolic_output = codex_adapter.evaluate(expression)
+            adapter_type = codex_adapter.__class__.__name__
 
-            # Encode output deterministically to bytes (using hash hex string)
-            base_material = symbolic_output.encode('utf-8')
-
+            base_material = symbolic_output.encode("utf-8")
             salted_material = self._add_salt_nonce(base_material)
             derived_key = self._key_stretch(salted_material)
+
+            qbit = self._register_entanglement(identity) if identity else None
+            entangled_with = self.entanglement_registry.get(qbit) if qbit else None
+            self._register_collapse_trace(expression, symbolic_output, adapter_type, qbit, entangled_with)
 
             if identity:
                 self._clear_attempts(identity)

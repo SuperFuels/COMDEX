@@ -2,8 +2,12 @@ import React, { useRef, useMemo, useState, useEffect } from "react";
 import { useFrame } from "@react-three/fiber";
 import { OrbitControls, Html } from "@react-three/drei";
 import * as THREE from "three";
+import axios from "axios";
 import WormholeRenderer from "./WormholeRenderer";
 import GlyphSprite from "./GlyphSprite";
+import RuntimeGlyphTrace from "@/components/codex/RuntimeGlyphTrace";
+import HobermanSphere from "../ContainerMap/HobermanSphere";
+import SymbolicExpansionSphere from "../ContainerMap/SymbolicExpansionSphere";
 
 interface ContainerInfo {
   id: string;
@@ -15,20 +19,18 @@ interface ContainerInfo {
   logic_depth?: number;
   runtime_tick?: number;
   memory_count?: number;
+  symbolic_mode?: string;
+  soul_locked?: boolean;
 }
 
 interface ContainerMap3DProps {
   containers?: ContainerInfo[];
-  activeId?: string;
   layout?: "ring" | "grid" | "sphere";
+  activeId?: string;
   onTeleport?: (id: string) => void;
 }
 
-const dummyContainers: ContainerInfo[] = [
-  { id: "A", name: "Alpha", in_memory: true, connected: ["B"], glyph: "🌐", logic_depth: 2 },
-  { id: "B", name: "Beta", in_memory: false, connected: ["A", "C"], glyph: "💠", logic_depth: 5 },
-  { id: "C", name: "Gamma", in_memory: true, connected: ["B"], glyph: "✨", logic_depth: 8 },
-];
+const fetchContainersAPI = "/api/containers";
 
 const getPosition = (
   index: number,
@@ -75,7 +77,13 @@ function HolodeckCube({
   symbolicScale: boolean;
 }) {
   const ref = useRef<any>();
-  const scaleFactor = symbolicScale ? (1 + (container.logic_depth || 0) / 10) : 1;
+
+  const scaleFactor = useMemo(() => {
+    const base = symbolicScale ? 1 + (container.logic_depth || 0) / 10 : 1;
+    const tickPulse = container.runtime_tick ? Math.sin(container.runtime_tick / 4) * 0.1 : 0;
+    return base + tickPulse;
+  }, [container.logic_depth, container.runtime_tick, symbolicScale]);
+
   const color = active
     ? "#4fc3f7"
     : linked
@@ -90,6 +98,9 @@ function HolodeckCube({
     }
   });
 
+  const shouldGlow = container.glyph === "↔";
+  const shouldTrail = ["↔", "🧬", "⧖"].includes(container.glyph || "");
+
   return (
     <group
       ref={ref}
@@ -99,8 +110,7 @@ function HolodeckCube({
       onPointerOver={() => onHover(container.id)}
       onPointerOut={() => onHover(null)}
     >
-      {/* Transparent box */}
-      <mesh>
+      <mesh visible={!container.soul_locked}>
         <boxGeometry args={[1, 1, 1]} />
         <meshStandardMaterial
           color={color}
@@ -111,13 +121,24 @@ function HolodeckCube({
         />
       </mesh>
 
-      {/* Edge glow lines */}
       <lineSegments>
         <edgesGeometry args={[new THREE.BoxGeometry(1, 1, 1)]} />
-        <lineBasicMaterial color={color} linewidth={2} />
+        <lineBasicMaterial color={shouldGlow ? "#aa00ff" : color} linewidth={2} />
       </lineSegments>
 
-      {/* Floating inner sphere */}
+      {shouldTrail && (
+        <mesh position={[0, 0.5, 0]}>
+          <torusGeometry args={[0.4, 0.03, 8, 32]} />
+          <meshStandardMaterial
+            color="#ffffff"
+            emissive="#00f0ff"
+            emissiveIntensity={1}
+            transparent
+            opacity={0.4}
+          />
+        </mesh>
+      )}
+
       <mesh position={[0, 0.2, 0]}>
         <sphereGeometry args={[0.2, 16, 16]} />
         <meshStandardMaterial
@@ -129,21 +150,22 @@ function HolodeckCube({
         />
       </mesh>
 
-      {/* Floating HUD terminal */}
       <Html distanceFactor={10} style={{ pointerEvents: "none" }}>
         <div style={{ fontSize: "0.7rem", color: "#00f0ff", textAlign: "center" }}>
           <div>{container.name}</div>
-          <div style={{ opacity: 0.6 }}>{container.in_memory ? "🧠 In-Memory" : "💾 Loaded"}</div>
+          <div style={{ opacity: 0.6 }}>
+            {container.in_memory ? "🧠 In-Memory" : "💾 Loaded"}
+          </div>
           {container.glyph && <div style={{ fontSize: "1.2rem" }}>{container.glyph}</div>}
           {symbolicScale && (
             <div style={{ fontSize: "0.6rem", opacity: 0.7 }}>
-              Logic: {container.logic_depth || 0}, Tick: {container.runtime_tick || 0}, Mem: {container.memory_count || 0}
+              Logic: {container.logic_depth || 0}, Tick: {container.runtime_tick || 0}, Mem:{" "}
+              {container.memory_count || 0}
             </div>
           )}
         </div>
       </Html>
 
-      {/* Optional Glyph Sprite */}
       {container.glyph && <GlyphSprite position={position} glyph={container.glyph} />}
     </group>
   );
@@ -151,19 +173,33 @@ function HolodeckCube({
 
 export default function ContainerMap3D({
   containers,
-  activeId,
   layout = "ring",
+  activeId,
   onTeleport,
 }: ContainerMap3DProps) {
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [realContainers, setRealContainers] = useState<ContainerInfo[]>([]);
-  const [symbolicScale, setSymbolicScale] = useState<boolean>(true);
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [symbolicScale, setSymbolicScale] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!containers || containers.length === 0) {
-      setRealContainers(dummyContainers);
-    } else {
+    if (containers) {
       setRealContainers(containers);
+      setLoading(false);
+    } else {
+      axios
+        .get(fetchContainersAPI)
+        .then((response) => {
+          setRealContainers(response.data.containers);
+          setLoading(false);
+          setError(null);
+        })
+        .catch((err) => {
+          setError("Failed to load containers.");
+          setLoading(false);
+          console.error(err);
+        });
     }
   }, [containers]);
 
@@ -182,6 +218,22 @@ export default function ContainerMap3D({
     return [...realContainers].sort((a, b) => (b.logic_depth || 0) - (a.logic_depth || 0));
   }, [realContainers]);
 
+  if (loading) {
+    return (
+      <Html position={[0, 0, 0]}>
+        <div style={{ color: "#00f0ff" }}>Loading containers...</div>
+      </Html>
+    );
+  }
+
+  if (error) {
+    return (
+      <Html position={[0, 0, 0]}>
+        <div style={{ color: "red" }}>{error}</div>
+      </Html>
+    );
+  }
+
   return (
     <>
       <OrbitControls />
@@ -189,7 +241,15 @@ export default function ContainerMap3D({
       <pointLight position={[10, 10, 10]} intensity={1.2} />
 
       <Html position={[-4, 3, 0]}>
-        <div style={{ background: "#0008", padding: "4px 8px", borderRadius: 8, fontSize: "0.7rem", color: "#fff" }}>
+        <div
+          style={{
+            background: "#0008",
+            padding: "4px 8px",
+            borderRadius: 8,
+            fontSize: "0.7rem",
+            color: "#fff",
+          }}
+        >
           <label>
             <input
               type="checkbox"
@@ -201,18 +261,49 @@ export default function ContainerMap3D({
         </div>
       </Html>
 
-      {sortedContainers.map((container) => (
-        <HolodeckCube
-          key={container.id}
-          container={container}
-          position={positions[container.id]}
-          active={container.id === activeId}
-          linked={!!isLinked(container.id)}
-          onClick={onTeleport || (() => {})}
-          onHover={setHoveredId}
-          symbolicScale={symbolicScale}
-        />
-      ))}
+      <Html position={[4.5, 3, 0]} transform>
+        <div style={{ width: 340 }}>
+          <RuntimeGlyphTrace />
+        </div>
+      </Html>
+
+      {sortedContainers.map((container) => {
+        const pos = positions[container.id];
+        return (
+          <React.Fragment key={container.id}>
+            {container.symbolic_mode === "expansion" && (
+              <SymbolicExpansionSphere
+                containerId={container.id}
+                expandedLogic={{ logic_tree: { depth: container.logic_depth || 1 } }}
+                runtimeTick={container.runtime_tick}
+                glyphOverlay={[container.glyph || ""]}
+                isEntangled={container.glyph === "↔"}
+                isCollapsed={container.glyph === "⧖"}
+                mode="depth"
+              />
+            )}
+
+            <HobermanSphere
+              position={pos}
+              containerId={container.id}
+              active={container.id === activeId}
+              glyph={container.glyph}
+              logicDepth={container.logic_depth}
+              runtimeTick={container.runtime_tick}
+            />
+
+            <HolodeckCube
+              container={container}
+              position={pos}
+              active={container.id === activeId}
+              linked={!!isLinked(container.id)}
+              onClick={onTeleport || (() => {})}
+              onHover={setHoveredId}
+              symbolicScale={symbolicScale}
+            />
+          </React.Fragment>
+        );
+      })}
 
       {realContainers.flatMap((container) =>
         (container.connected || []).map((link) => {

@@ -141,6 +141,7 @@ from backend.api.aion import container_api
 from backend.api.aion import vault_api
 from backend.routes.api import glyph_socket_api
 from backend.routes.ws import glyph_socket_ws
+from backend.routes.ws import ghx_ws
 
 # ✅ WebSocket route
 from backend.api import ws
@@ -222,6 +223,7 @@ app.include_router(container_api.router, prefix="/api/aion")
 app.include_router(vault_api.router, prefix="/api/aion")  # if vault_api exists
 app.include_router(glyph_socket_api.router, prefix="/api")
 app.include_router(glyph_socket_ws.router)
+app.include_router(ghx_ws.router)
 
 # ── 16) Serve uploaded images
 app.mount("/uploaded_images", StaticFiles(directory="uploaded_images"), name="uploaded_images")

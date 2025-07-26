@@ -9,21 +9,18 @@ from backend.modules.skills.milestone_tracker import MilestoneTracker
 from backend.modules.consciousness.memory_bridge import MemoryBridge
 from backend.modules.websocket_manager import websocket_manager
 from backend.modules.glyphos.glyph_summary import summarize_glyphs
-from backend.modules.codex.codex_trace import CodexTrace  # ✅ Codex trace integration
-
-# 🖁️ Triggered behaviors
+from backend.modules.codex.codex_trace import CodexTrace
 from backend.modules.aion.dream_core import run_dream
 from backend.modules.consciousness.reflection_engine import generate_reflection
 from backend.modules.dna_chain.dna_proposer import propose_dna_mutation
-
-# ✅ Self-rewriting import
 from backend.modules.glyphos.glyph_mutator import run_self_rewrite
-
-# ✅ Tessaris trigger support
 from backend.modules.tessaris.tessaris_trigger import TessarisTrigger
+from backend.modules.glyphos.entanglement_utils import entangle_glyphs
 
-# ✅ Entanglement logic
-from backend.modules.glyphos.symbolic_entangler import entangle_glyphs
+# ✅ Cost estimator and GlyphPush adapter
+from backend.modules.codex.codex_cost_estimator import estimate_glyph_cost
+from backend.modules.codex.codex_context_adapter import CodexContextAdapter
+from backend.modules.glyphnet.glyph_push_dispatcher import dispatch_glyph_push
 
 import time
 import uuid
@@ -93,12 +90,38 @@ class GlyphExecutor:
             "origin": "glyph_executor",
         }
 
-        self.codex_trace.log({  # ✅ Symbolic trace
+        try:
+            cost = estimate_glyph_cost(glyph, container_id=self.container_id)
+        except Exception:
+            cost = 4.2
+
+        self.codex_trace.log({
             **trace_data,
             "container": self.container_id,
             "action": "executed",
             "source": "glyph_executor"
         })
+
+    async def trigger_glyph_remotely(self, container_id: str, x: int, y: int, z: int, source: str = "remote"):
+        """
+        Triggers a glyph execution remotely (via Codex, DreamCore, WebSocket).
+        """
+        # Ensure container context is updated
+        if container_id != self.container_id:
+            self.container_id = container_id
+            self.active_container = self.state_manager.get_container(container_id)
+            self.container_path = self.active_container.get("path", "") if self.active_container else ""
+            self.bridge = MemoryBridge(container_id)
+
+        coord = f"{x},{y},{z}"
+        glyph = self.read_glyph_at(x, y, z)
+
+        if not glyph:
+            print(f"⚠️ No glyph found at {coord} for remote trigger")
+            return
+
+        print(f"🛰️ Remotely triggering glyph {glyph} at {coord} from {source}")
+        await self.execute_glyph_at(x, y, z)    
 
         # === TRIGGER MAP ===
         if glyph == "↔":
@@ -111,43 +134,93 @@ class GlyphExecutor:
             })
             self.personality.adjust_trait("empathy", +0.01)
             self.bridge.trace_trigger(glyph, {**trace_data, "role": "Symbolic entanglement"})
-            await self.broadcast_glyph_execution(glyph, "entangle_glyph", "entanglement", coord)
+            await self.broadcast_glyph_execution(glyph, "entangle_glyph", "entanglement", coord, cost)
+            dispatch_glyph_push(trace_data)
 
-        elif glyph == "🦰":
-            self.goal_engine.boot_next_skill()
+        elif glyph == "⮁":
+            result = await propose_dna_mutation(reason="Glyph ⮁ triggered mutation")
             self.memory_engine.store({
                 **trace_data,
                 "type": "glyph_trigger",
-                "action": "boot_next_skill",
-                "trait_impact": {"curiosity": +0.02},
+                "action": "propose_dna_mutation",
+                "proposal_id": result.get("proposal_id"),
             })
-            self.personality.adjust_trait("curiosity", +0.02)
-            self.bridge.trace_trigger(glyph, {**trace_data, "role": "Boot next skill"})
-            await self.broadcast_glyph_execution(glyph, "boot_next_skill", "skill", coord)
+            self.bridge.trace_trigger(glyph, {**trace_data, "role": "DNA proposal", "proposal_id": result.get("proposal_id")})
+            await self.broadcast_glyph_execution(glyph, "propose_dna_mutation", "mutation", coord, cost)
+            rewritten = run_self_rewrite(self.container_path, coord)
+            if rewritten:
+                self.memory_engine.store({
+                    **trace_data,
+                    "type": "glyph_trigger",
+                    "action": "self_rewrite",
+                    "result": True
+                })
+                self.bridge.trace_trigger(glyph, {**trace_data, "role": "Self-rewriting glyph"})
+            dispatch_glyph_push(trace_data)
 
-        elif glyph == "⚙":
-            self.goal_engine.run_top_goal()
+        elif glyph == "🧠":
+            TessarisTrigger().run_from_memory(context=trace_data)
             self.memory_engine.store({
                 **trace_data,
                 "type": "glyph_trigger",
-                "action": "run_top_goal",
-                "trait_impact": {"ambition": +0.01},
+                "action": "tessaris_memory",
             })
-            self.personality.adjust_trait("ambition", +0.01)
-            self.bridge.trace_trigger(glyph, {**trace_data, "role": "Run top goal"})
-            await self.broadcast_glyph_execution(glyph, "run_top_goal", "goal", coord)
+            self.bridge.trace_trigger(glyph, {**trace_data, "role": "Tessaris from memory"})
+            await self.broadcast_glyph_execution(glyph, "tessaris_memory", "tessaris", coord, cost)
 
-        elif glyph == "🔬":
+        elif glyph == "🧬":
+            TessarisTrigger().run_from_dna(context=trace_data)
             self.memory_engine.store({
                 **trace_data,
                 "type": "glyph_trigger",
-                "action": "curiosity_spark",
-                "trait_impact": {"curiosity": +0.03, "humility": +0.01},
+                "action": "tessaris_dna",
             })
-            self.personality.adjust_trait("curiosity", +0.03)
-            self.personality.adjust_trait("humility", +0.01)
-            self.bridge.trace_trigger(glyph, {**trace_data, "role": "Curiosity boost"})
-            await self.broadcast_glyph_execution(glyph, "curiosity_spark", "curiosity", coord)
+            self.bridge.trace_trigger(glyph, {**trace_data, "role": "Tessaris from DNA"})
+            await self.broadcast_glyph_execution(glyph, "tessaris_dna", "tessaris", coord, cost)
+
+        elif glyph == "🪄":
+            TessarisTrigger().run_from_symbol(context=trace_data)
+            self.memory_engine.store({
+                **trace_data,
+                "type": "glyph_trigger",
+                "action": "tessaris_symbol",
+            })
+            self.bridge.trace_trigger(glyph, {**trace_data, "role": "Tessaris from symbol"})
+            await self.broadcast_glyph_execution(glyph, "tessaris_symbol", "tessaris", coord, cost)
+
+        elif glyph == "⚛":
+            result = await run_dream(source="glyph ⚛")
+            self.memory_engine.store({
+                **trace_data,
+                "type": "glyph_trigger",
+                "action": "run_dream",
+                "output": result,
+            })
+            self.bridge.trace_trigger(glyph, {**trace_data, "role": "Dream generation"})
+            await self.broadcast_glyph_execution(glyph, "run_dream", "dream", coord, cost)
+
+        elif glyph == "🧽":
+            notes = await generate_reflection(prompt="Triggered by glyph 🧽")
+            self.memory_engine.store({
+                **trace_data,
+                "type": "glyph_trigger",
+                "action": "generate_reflection",
+                "reflection": notes,
+            })
+            self.bridge.trace_trigger(glyph, {**trace_data, "role": "Reflection trigger"})
+            await self.broadcast_glyph_execution(glyph, "generate_reflection", "reflection", coord, cost)
+
+        elif glyph == "✦":
+            self.milestone_tracker.start_new_milestone("From glyph ✦")
+            self.memory_engine.store({
+                **trace_data,
+                "type": "glyph_trigger",
+                "action": "start_milestone",
+                "trait_impact": {"ambition": +0.02},
+            })
+            self.personality.adjust_trait("ambition", +0.02)
+            self.bridge.trace_trigger(glyph, {**trace_data, "role": "Start milestone"})
+            await self.broadcast_glyph_execution(glyph, "start_milestone", "milestone", coord, cost)
 
         elif glyph == "🎯":
             goal_id = self.goal_engine.create_goal("Reflect on surroundings from glyph 🎯", priority=7)
@@ -161,7 +234,7 @@ class GlyphExecutor:
             })
             self.personality.adjust_trait("ambition", +0.01)
             self.bridge.trace_trigger(glyph, {**trace_data, "role": "Create reflection goal", "goal_id": goal_id})
-            await self.broadcast_glyph_execution(glyph, "created_goal", "goal", coord)
+            await self.broadcast_glyph_execution(glyph, "created_goal", "goal", coord, cost)
 
         elif glyph == "🌟":
             self.milestone_tracker.mark_manual_milestone("glyph_star_trigger")
@@ -175,92 +248,43 @@ class GlyphExecutor:
             self.personality.adjust_trait("ambition", +0.02)
             self.personality.adjust_trait("curiosity", +0.01)
             self.bridge.trace_trigger(glyph, {**trace_data, "role": "Milestone unlock"})
-            await self.broadcast_glyph_execution(glyph, "milestone_unlocked", "milestone", coord)
+            await self.broadcast_glyph_execution(glyph, "milestone_unlocked", "milestone", coord, cost)
 
-        elif glyph == "⚛":
-            result = await run_dream(source="glyph ⚛")
+        elif glyph == "🦰":
+            self.goal_engine.boot_next_skill()
             self.memory_engine.store({
                 **trace_data,
                 "type": "glyph_trigger",
-                "action": "run_dream",
-                "output": result,
+                "action": "boot_next_skill",
+                "trait_impact": {"curiosity": +0.02},
             })
-            self.bridge.trace_trigger(glyph, {**trace_data, "role": "Dream generation"})
-            await self.broadcast_glyph_execution(glyph, "run_dream", "dream", coord)
+            self.personality.adjust_trait("curiosity", +0.02)
+            self.bridge.trace_trigger(glyph, {**trace_data, "role": "Boot next skill"})
+            await self.broadcast_glyph_execution(glyph, "boot_next_skill", "skill", coord, cost)
 
-        elif glyph == "✦":
-            self.milestone_tracker.start_new_milestone("From glyph ✦")
+        elif glyph == "⚙":
+            self.goal_engine.run_top_goal()
             self.memory_engine.store({
                 **trace_data,
                 "type": "glyph_trigger",
-                "action": "start_milestone",
-                "trait_impact": {"ambition": +0.02},
+                "action": "run_top_goal",
+                "trait_impact": {"ambition": +0.01},
             })
-            self.personality.adjust_trait("ambition", +0.02)
-            self.bridge.trace_trigger(glyph, {**trace_data, "role": "Start milestone"})
-            await self.broadcast_glyph_execution(glyph, "start_milestone", "milestone", coord)
+            self.personality.adjust_trait("ambition", +0.01)
+            self.bridge.trace_trigger(glyph, {**trace_data, "role": "Run top goal"})
+            await self.broadcast_glyph_execution(glyph, "run_top_goal", "goal", coord, cost)
 
-        elif glyph == "🧽":
-            notes = await generate_reflection(prompt="Triggered by glyph 🧽")
+        elif glyph == "🔬":
             self.memory_engine.store({
                 **trace_data,
                 "type": "glyph_trigger",
-                "action": "generate_reflection",
-                "reflection": notes,
+                "action": "curiosity_spark",
+                "trait_impact": {"curiosity": +0.03, "humility": +0.01},
             })
-            self.bridge.trace_trigger(glyph, {**trace_data, "role": "Reflection trigger"})
-            await self.broadcast_glyph_execution(glyph, "generate_reflection", "reflection", coord)
-
-        elif glyph == "⮁":
-            result = await propose_dna_mutation(reason="Glyph ⮁ triggered mutation")
-            self.memory_engine.store({
-                **trace_data,
-                "type": "glyph_trigger",
-                "action": "propose_dna_mutation",
-                "proposal_id": result.get("proposal_id"),
-            })
-            self.bridge.trace_trigger(glyph, {**trace_data, "role": "DNA proposal", "proposal_id": result.get("proposal_id")})
-            await self.broadcast_glyph_execution(glyph, "propose_dna_mutation", "mutation", coord)
-
-            rewritten = run_self_rewrite(self.container_path, coord)
-            if rewritten:
-                self.memory_engine.store({
-                    **trace_data,
-                    "type": "glyph_trigger",
-                    "action": "self_rewrite",
-                    "result": True
-                })
-                self.bridge.trace_trigger(glyph, {**trace_data, "role": "Self-rewriting glyph"})
-
-        elif glyph == "🧠":
-            TessarisTrigger().run_from_memory(context=trace_data)
-            self.memory_engine.store({
-                **trace_data,
-                "type": "glyph_trigger",
-                "action": "tessaris_memory",
-            })
-            self.bridge.trace_trigger(glyph, {**trace_data, "role": "Tessaris from memory"})
-            await self.broadcast_glyph_execution(glyph, "tessaris_memory", "tessaris", coord)
-
-        elif glyph == "🧬":
-            TessarisTrigger().run_from_dna(context=trace_data)
-            self.memory_engine.store({
-                **trace_data,
-                "type": "glyph_trigger",
-                "action": "tessaris_dna",
-            })
-            self.bridge.trace_trigger(glyph, {**trace_data, "role": "Tessaris from DNA"})
-            await self.broadcast_glyph_execution(glyph, "tessaris_dna", "tessaris", coord)
-
-        elif glyph == "🪄":
-            TessarisTrigger().run_from_symbol(context=trace_data)
-            self.memory_engine.store({
-                **trace_data,
-                "type": "glyph_trigger",
-                "action": "tessaris_symbol",
-            })
-            self.bridge.trace_trigger(glyph, {**trace_data, "role": "Tessaris from symbol"})
-            await self.broadcast_glyph_execution(glyph, "tessaris_symbol", "tessaris", coord)
+            self.personality.adjust_trait("curiosity", +0.03)
+            self.personality.adjust_trait("humility", +0.01)
+            self.bridge.trace_trigger(glyph, {**trace_data, "role": "Curiosity boost"})
+            await self.broadcast_glyph_execution(glyph, "curiosity_spark", "curiosity", coord, cost)
 
         else:
             self.memory_engine.store({
@@ -269,7 +293,7 @@ class GlyphExecutor:
                 "action": "executed_generic_glyph",
             })
             self.bridge.trace_trigger(glyph, {**trace_data, "role": "Generic glyph execution"})
-            await self.broadcast_glyph_execution(glyph, "executed_generic_glyph", "generic", coord)
+            await self.broadcast_glyph_execution(glyph, "executed_generic_glyph", "generic", coord, cost)
 
         try:
             cubes = self.active_container.get("cubes", {})

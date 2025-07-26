@@ -72,10 +72,41 @@ def load_dimension(container_id):
         })
         raise
 
-    with open(path, "r") as f:
+    with open(path, "r", encoding="utf-8") as f:
         data = json.load(f)
 
     validate_dimension(data)
+
+    if data:
+        store_memory({
+            "role": "system",
+            "label": "dimension_loaded",
+            "content": f"Dimension '{container_id}' loaded.",
+            "metadata": {
+                "container_id": data.get("id", container_id),
+                "cubes": list(data.get("cubes", {}).keys())
+            }
+        })
+
+        entangled = data.get("entangled", [])
+        if entangled:
+            store_memory({
+                "role": "system",
+                "label": "entangled_links",
+                "content": f"{container_id} is entangled with: {entangled}",
+                "metadata": {
+                    "container_id": container_id,
+                    "entangled_with": entangled
+                }
+            })
+
+    return data
+
+
+# ✅ Define this at the global/module level
+def get_entangled_links(container_id):
+    container = load_dc_container(container_id)
+    return container.get("entangled", [])
 
     try:
         check_gate_lock(data)
@@ -173,6 +204,19 @@ def load_dc_container(container_id):
                 "cubes": list(container.get('cubes', {}).keys())
             }
         })
+        
+        # 🔗 Extract and store entanglement links
+        entangled = container.get("entangled", [])
+        if entangled:
+            MEMORY.store({
+                "role": "system",
+                "label": "entangled_links",
+                "content": f"{container['id']} is entangled with: {entangled}",
+                "metadata": {
+                    "container_id": container['id'],
+                    "entangled_with": entangled
+                }
+            })
 
     return container
 

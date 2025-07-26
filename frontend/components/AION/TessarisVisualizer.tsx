@@ -9,9 +9,17 @@ import {
   SkipForward,
   Info,
   Eye,
+  Repeat,
+  Zap,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+
+// 🧠 Symbolic glyphs for detection
+const ENTANGLED_GLYPH = "↔";
+const COLLAPSE_DELAY_GLYPH = "⧖";
+
+// Types
 
 type BranchNode = {
   id: string;
@@ -29,6 +37,7 @@ type TriggerTrace = {
   memory_links: string[];
   reason?: string;
   created_at?: string;
+  replayed?: boolean;
 };
 
 type MemoryEntry = {
@@ -91,6 +100,31 @@ export default function TessarisVisualizer({ tree, onNodeClick }: TessarisVisual
     return "bg-red-300";
   };
 
+  const stepReplay = () => {
+    if (traces.length === 0) return;
+    setReplayIndex((prev) => {
+      if (prev === null || prev >= traces.length - 1) return 0;
+      return prev + 1;
+    });
+  };
+
+  const renderGlyphBadge = (glyph: string) => {
+    return (
+      <span className="ml-2 inline-flex items-center text-xs text-purple-700">
+        {glyph.includes(ENTANGLED_GLYPH) && (
+          <>
+            <Zap className="w-3 h-3 mr-0.5" /> Entangled
+          </>
+        )}
+        {glyph.includes(COLLAPSE_DELAY_GLYPH) && (
+          <>
+            <Repeat className="w-3 h-3 mr-0.5 ml-2" /> Replayed
+          </>
+        )}
+      </span>
+    );
+  };
+
   const renderBranch = (node: BranchNode, depth = 0) => {
     const age = traces.find((t) => t.glyph === node.symbol)?.created_at;
     const ageSec = getAge(age ?? "");
@@ -131,6 +165,7 @@ export default function TessarisVisualizer({ tree, onNodeClick }: TessarisVisual
             <span className="font-mono text-sm font-semibold text-blue-700">
               {node.symbol}
             </span>
+            {renderGlyphBadge(node.symbol)}
             {node.value && (
               <span className="ml-2 text-xs font-mono text-gray-600">
                 ⟶ {node.value}
@@ -170,14 +205,6 @@ export default function TessarisVisualizer({ tree, onNodeClick }: TessarisVisual
       age !== null && age >= filter.minAge && age <= filter.maxAge;
     return matchGlyph && withinAge;
   });
-
-  const stepReplay = () => {
-    if (filteredTraces.length === 0) return;
-    setReplayIndex((prev) => {
-      if (prev === null || prev >= filteredTraces.length - 1) return 0;
-      return prev + 1;
-    });
-  };
 
   return (
     <Card className="max-h-[80vh] overflow-auto">
@@ -243,6 +270,8 @@ export default function TessarisVisualizer({ tree, onNodeClick }: TessarisVisual
             const age = getAge(trace.created_at);
             const percent = age ? Math.min(age / filter.maxAge, 1) * 100 : 0;
             const isActive = replayIndex === index;
+            const isEntangled = trace.glyph.includes(ENTANGLED_GLYPH);
+            const isDelayed = trace.glyph.includes(COLLAPSE_DELAY_GLYPH);
 
             return (
               <motion.div
@@ -256,7 +285,9 @@ export default function TessarisVisualizer({ tree, onNodeClick }: TessarisVisual
                   "mb-3 border rounded p-2 transition",
                   isActive
                     ? "border-blue-500 bg-blue-50"
-                    : "border-border bg-gray-50"
+                    : "border-border bg-gray-50",
+                  isEntangled && "ring-1 ring-purple-400",
+                  isDelayed && "bg-yellow-100"
                 )}
                 data-trace={trace.glyph}
               >
@@ -271,6 +302,7 @@ export default function TessarisVisualizer({ tree, onNodeClick }: TessarisVisual
                         <TimerReset className="w-3 h-3" /> <span>{age}s</span>
                       </span>
                     )}
+                    {renderGlyphBadge(trace.glyph)}
                   </div>
                   <div className="flex items-center space-x-1">
                     <button

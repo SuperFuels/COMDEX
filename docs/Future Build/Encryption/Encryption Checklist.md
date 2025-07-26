@@ -34,21 +34,21 @@ graph TD
   G --> G4[✅ Non-brute-forceable, unforgeable]
   
 
-  H[📦 Phase 8: GlyphVault System] --> H1[⚪ Create glyph_encryptor.py]
-  H1 --> H2[⚪ Encrypt data into .dc container blocks]
-  H1 --> H3[⚪ Decrypt only with valid avatar state]
-  H --> H4[⚪ Supports recursive logic unlocking]
-  H --> H5[⚪ Embed SoulLaw + morality gates]
+  H[📦 Phase 8: GlyphVault System] --> H1[✅ Create glyph_encryptor.py]
+  H1 --> H2[✅ Encrypt data into .dc container blocks]
+  H1 --> H3[✅ Decrypt only with valid avatar state]
+  H --> H4[✅ Supports recursive logic unlocking]
+  H --> H5[✅ Embed SoulLaw + morality gates]
 
   I[🧠 Phase 9: Avatar & State Locks] --> I1[⚪ Avatar-bound access (avatar_state)]
   I --> I2[⚪ Emotion-locked vaults (e.g. empathy ≥ 0.8)]
   I --> I3[⚪ Time-locked decryption (tick-based)]
   I --> I4[⚪ Dream-unlocked via TessarisEngine]
 
-  J[⚛️ Phase 10: Quantum Glyph Locks] --> J1[⚪ QGlyph superposition key (glyph_quantum_core.py)]
-  J1 --> J2[⚪ Collapse logic only upon trusted context]
-  J1 --> J3[⚪ Post-quantum symbolic entanglement]
-  J --> J4[⚪ Split keys across dimensions]
+  J[⚛️ Phase 10: Quantum Glyph Locks] --> J1[✅  QGlyph superposition key (glyph_quantum_core.py)]
+  J1 --> J2[✅  Collapse logic only upon trusted context]
+  J1 --> J3[✅  Post-quantum symbolic entanglement]
+  J --> J4[✅  Split keys across dimensions]
 
   K[🧑‍🤝‍🧑 Phase 11: Multi-Agent Unlock] --> K1[⚪ Require 2+ avatars to co-decrypt]
   K --> K2[⚪ Entangled glyph decision trees]

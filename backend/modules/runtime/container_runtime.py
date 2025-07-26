@@ -2,20 +2,23 @@ import time
 import threading
 import asyncio
 from typing import Dict, Any, Optional
+
 from backend.modules.consciousness.state_manager import StateManager
 from backend.modules.glyphos.glyph_executor import GlyphExecutor
-from backend.modules.websocket_manager import WebSocketManager
+from backend.modules.websocket_manager import WebSocketManager, broadcast_glyph_event
 from backend.modules.glyphos.glyph_watcher import GlyphWatcher
-
 from backend.modules.glyphvault.container_vault_manager import ContainerVaultManager
+from backend.modules.teleport.teleport_packet import TeleportPacket
+from backend.modules.glyphos.entanglement_utils import entangle_glyphs
+from backend.modules.security.key_fragment_resolver import KeyFragmentResolver  # ✅ NEW
 
 try:
     from backend.modules.glyphos.glyph_summary import summarize_glyphs
 except ImportError:
     summarize_glyphs = None
 
-# Stub: get encryption key from config/env securely in real system
-ENCRYPTION_KEY = b'\x00' * 32  # 32-byte zero key placeholder
+ENCRYPTION_KEY = b'\x00' * 32  # Placeholder key
+
 
 class ContainerRuntime:
     def __init__(self, state_manager: StateManager, tick_interval: float = 2.0):
@@ -36,7 +39,6 @@ class ContainerRuntime:
         self.loop_thread = threading.Thread(target=self._start_event_loop, daemon=True)
         self.loop_thread.start()
 
-        # Initialize ContainerVaultManager for encryption/decryption of glyph cubes
         self.vault_manager = ContainerVaultManager(ENCRYPTION_KEY)
 
     def _start_event_loop(self):
@@ -60,7 +62,6 @@ class ContainerRuntime:
 
             if self.websocket:
                 self.websocket.broadcast({"type": "tick_log", "data": tick_log})
-
                 self.websocket.broadcast({
                     "type": "dimension_tick",
                     "data": {
@@ -70,7 +71,6 @@ class ContainerRuntime:
                 })
 
                 if summarize_glyphs:
-                    # Use decrypted cubes for summary
                     container = self.get_decrypted_current_container()
                     cubes = container.get("cubes", {})
                     summary = summarize_glyphs(cubes)
@@ -100,9 +100,22 @@ class ContainerRuntime:
                         self.fork_entangled_path(container, coord_str, data["glyph"])
                         print(f"🔀 Entangled fork triggered at {coord_str}")
 
+                    if "⧖" in data["glyph"]:
+                        broadcast_glyph_event({
+                            "type": "glyph_execution",
+                            "data": {
+                                "glyph": data["glyph"],
+                                "tick": self.tick_counter,
+                                "coord": coord_str,
+                                "containerId": container.get("id", "unknown"),
+                                "timestamp": time.time()
+                            }
+                        })
+
                     coro = self.executor.execute_glyph_at(x, y, z)
                     asyncio.run_coroutine_threadsafe(coro, self.async_loop)
                     tick_log["executed"].append(coord_str)
+
                 except Exception as e:
                     print(f"❌ Failed to execute glyph at {coord_str}: {e}")
 
@@ -120,10 +133,6 @@ class ContainerRuntime:
         return tick_log
 
     def get_decrypted_current_container(self) -> Dict[str, Any]:
-        """
-        Get current container with decrypted cubes loaded from encrypted storage.
-        Fallback to plaintext cubes if no encrypted data found or decryption fails.
-        """
         container = self.state_manager.get_current_container()
         encrypted_blob = container.get("encrypted_glyph_data")
         avatar_state = self.state_manager.get_avatar_state()
@@ -134,26 +143,34 @@ class ContainerRuntime:
                 avatar_state=avatar_state
             )
             if success:
-                # Replace cubes with decrypted glyph map
                 container["cubes"] = self.vault_manager.get_microgrid().export_index()
-                return container
             else:
                 print("⚠️ Warning: Failed to decrypt container glyph data or access denied.")
-                # Optionally fallback to unencrypted cubes for safety
                 container["cubes"] = {}
-                return container
 
-        # No encrypted glyph data present, return as is
+        # ✅ Load seed entanglement if defined
+        container_id = container.get("id")
+        seed_links = container.get("entangled", [])
+        for other_id in seed_links:
+            if other_id and other_id != container_id:
+                try:
+                    entangle_glyphs("↔", container_id, other_id, sender="container_runtime", push=True)
+                except Exception as e:
+                    print(f"⚠️ Failed to seed-entangle {container_id} ↔ {other_id}: {e}")
+
+        # ✅ Split Key Resolution Trigger
+        try:
+            resolver = KeyFragmentResolver(container_id)
+            glyphs = list(container.get("cubes", {}).values())
+            resolver.run_full_recombination(glyphs)
+        except Exception as e:
+            print(f"⚠️ Key fragment recombination failed: {e}")
+
         return container
 
     def save_container(self):
-        """
-        Serialize current glyph data and encrypt before saving to container state.
-        """
         container = self.state_manager.get_current_container()
         microgrid = self.vault_manager.get_microgrid()
-
-        # Export glyph data currently loaded in microgrid
         glyph_data = microgrid.export_index()
         try:
             encrypted_blob = self.vault_manager.save_container_glyph_data(glyph_data)
@@ -189,11 +206,36 @@ class ContainerRuntime:
         print(f"🌌 Forked entangled container: {entangled_id}")
 
     def apply_decay(self, cubes: Dict[str, Any]):
-        # Placeholder decay logic - implement as needed
         pass
 
+    def load_glyphpush_packet(self, packet: TeleportPacket):
+        try:
+            target_container = self.state_manager.get_current_container()
+            payload = packet.payload or {}
 
-# ✅ Global runtime instance for external access (must be outside class)
+            trace = payload.get("replay_trace", [])
+            cubes = trace[-1]["cubes"] if trace else {}
+
+            target_container["cubes"] = cubes
+            target_container["glyph_trace"] = trace
+            target_container["trigger"] = payload.get("trigger", {})
+            target_container["origin_snapshot"] = {
+                "portal_id": packet.portal_id,
+                "source": packet.source,
+                "timestamp": packet.timestamp
+            }
+
+            if payload.get("collapse_trace"):
+                target_container["collapse_trace"] = payload["collapse_trace"]
+            if payload.get("entangled_identity"):
+                target_container["entangled_identity"] = payload["entangled_identity"]
+
+            print(f"🛰️ GlyphPush replay loaded into container: {target_container.get('id')}")
+        except Exception as e:
+            print(f"❌ Failed to load GlyphPush packet: {e}")
+
+
+# ✅ Global instance
 container_runtime = ContainerRuntime(StateManager())
 
 def get_container_runtime():

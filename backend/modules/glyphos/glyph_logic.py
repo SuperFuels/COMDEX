@@ -1,5 +1,3 @@
-# 📁 backend/modules/glyphos/glyph_logic.py
-
 from typing import Any, Dict, List
 from backend.modules.skills.boot_selector import BootSelector
 from backend.modules.consciousness.reflection_engine import ReflectionEngine
@@ -52,12 +50,7 @@ GLYPH_SYMBOL_MAP = {
 boot_selector = BootSelector()
 reflector = ReflectionEngine()
 
-
 def interpret_glyph(glyph: str, context: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Interprets a glyph symbol using symbolic logic + real modules.
-    Returns a dict including logs, triggers, metadata, and module output.
-    """
     branch = context.get("branch")
     idx = context.get("index")
     meta = context.get("metadata", {})
@@ -68,7 +61,6 @@ def interpret_glyph(glyph: str, context: Dict[str, Any]) -> Dict[str, Any]:
     triggered_modules = []
     memory_traces = []
 
-    # Phase 3 stub: nested expression handling
     if "value" in meta and isinstance(meta["value"], str) and any(c in meta["value"] for c in GLYPH_SYMBOL_MAP):
         logs.append(f"🔁 Nested glyph expression found: {meta['value']} — [parser pending]")
 
@@ -163,21 +155,46 @@ def interpret_glyph(glyph: str, context: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 def glyph_from_label(label: str) -> str:
-    """
-    Given a symbolic label like 'dream' or 'boot', return the matching glyph (e.g., 'ψ', '⚙').
-    """
     for glyph, meaning in GLYPH_SYMBOL_MAP.items():
         if meaning == label:
             return glyph
-    return "?"  # fallback if unknown
+    return "?"
 
 def analyze_branch(branch) -> List[str]:
-    """
-    Analyze a ThoughtBranch: return summaries of each glyph in sequence.
-    """
     summaries = []
     for i, glyph in enumerate(branch.glyphs):
         context = {"branch": branch, "index": i}
         result = interpret_glyph(glyph, context)
         summaries.append(f"{i}. Glyph {glyph} → {result['symbol']}: {result['log']}")
     return summaries
+
+# 🧬 J2: Interpret QGlyphs (Superposition / Collapse Logic)
+def interpret_qglyph(qglyph: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Interpret a QGlyph in symbolic superposition and embed collapse/entanglement logic.
+    Expects:
+      - qglyph["superposition"]: list of glyphs
+      - qglyph["collapse_trace"]: (optional) collapse order
+    """
+    results = []
+    collapse_trace = []
+    for i, glyph in enumerate(qglyph.get("superposition", [])):
+        local_context = context.copy()
+        local_context["position"] = i
+        result = interpret_glyph(glyph, local_context)
+        results.append(result)
+        collapse_trace.append({
+            "glyph": glyph,
+            "index": i,
+            "symbol": result.get("symbol"),
+            "modules": result.get("modules"),
+        })
+
+    return {
+        "type": "qglyph",
+        "results": results,
+        "collapse_trace": collapse_trace,
+        "entangled": qglyph.get("entangled_with", []),
+        "origin": qglyph.get("origin", None),
+        "metadata": qglyph.get("metadata", {}),
+    }
