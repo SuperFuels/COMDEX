@@ -1,31 +1,38 @@
-# File: backend/modules/consciousness/goal_engine.py
-
 import json
 from datetime import datetime
 from pathlib import Path
-
 import requests
-from backend.config import GLYPH_API_BASE_URL  # ✅ Added for glyph synthesis
 
+from backend.config import GLYPH_API_BASE_URL
 from backend.modules.dna_chain.switchboard import DNA_SWITCH
-DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
-
-# ✅ Tessaris trigger import
 from backend.modules.tessaris.tessaris_trigger import trigger_tessaris_from_goal
+from backend.modules.glyphos.glyph_mutator import run_self_rewrite
+from backend.modules.glyphos.entanglement_utils import entangle_glyphs
+from backend.config.config import ENABLE_GLYPH_LOGGING
+from backend.modules.knowledge.knowledge_graph_writer import kg_writer
+
+# ✅ Glyph injection
+from backend.modules.knowledge.knowledge_graph_writer import KnowledgeGraphWriter
+kg_writer = KnowledgeGraphWriter()
+
+# ✅ Awareness tag tracing
+from backend.modules.glyphnet.glyphnet_trace import log_trace_event
 
 GOAL_FILE = Path(__file__).parent / "goals.json"
 LOG_FILE = Path(__file__).parent / "goal_skill_log.json"
 
+DNA_SWITCH.register(__file__)
+
 class GoalEngine:
-    def __init__(self):
+    def __init__(self, enable_glyph_logging=ENABLE_GLYPH_LOGGING):
+        self.enable_glyph_logging = enable_glyph_logging
         self.goals = []
         self.completed = []
-        self.log = []  # For tracking dream/strategy/goal/skill relationships
-        self.agents = []  # For agent communication
+        self.log = []
+        self.agents = []
         self.load_goals()
         self.load_log()
 
-    # 📨 Agent communication methods
     def register_agent(self, agent):
         if agent not in self.agents:
             self.agents.append(agent)
@@ -42,6 +49,22 @@ class GoalEngine:
                 self.create_goal_from_milestone(name, desc)
             elif msg_type == "glyph_trigger":
                 self.create_goal_from_glyph(message.get("glyph"))
+            elif msg_type == "awareness_event":
+                # ✅ Awareness-triggered goal
+                name = message.get("name", "awareness_goal")
+                desc = message.get("description", "Goal triggered by awareness trace.")
+                source = message.get("source", "AwarenessEngine")
+                tags = message.get("tags", [])
+
+                print(f"🧠 Awareness-triggered goal: {name} [{tags}]")
+                self.create_awareness_goal(name, desc, origin=source, tags=tags)
+
+                # ✅ Trace it in GlyphNet
+                log_trace_event(
+                    event_type="goal_from_awareness",
+                    data={"goal_name": name, "description": desc, "origin": source},
+                    tags=["goal", "awareness"] + tags
+                )
             else:
                 print(f"📬 Unknown message type received: {msg_type}")
         else:
@@ -121,22 +144,52 @@ class GoalEngine:
         return None
 
     def assign_goal(self, goal):
+        if not self.enable_glyph_logging:
+            print("🚫 Glyph injection disabled by toggle.")
+            return goal
+
+        try:
+            kg_writer.inject_glyph(
+                content=goal.get("description", ""),
+                glyph_type="goal",
+                metadata={
+                    "name": goal.get("name"),
+                    "reward": goal.get("reward"),
+                    "priority": goal.get("priority"),
+                    "origin": goal.get("origin_strategy_id") or goal.get("origin_glyph") or goal.get("origin", "system"),
+                    "tags": goal.get("tags", []) + ["🎯"],
+                    "created_at": goal.get("created_at")
+                },
+                plugin="GoalEngine"
+            )
+            print(f"📦 Injected goal glyph into knowledge graph: {goal.get('name')}")
+        except Exception as e:
+            print(f"⚠️ Failed to inject goal glyph into KG: {e}")
+
         existing_names = [g.get("name") for g in self.goals]
+        for existing_goal in self.goals:
+            if existing_goal.get("name") == goal.get("name") and existing_goal.get("description") != goal.get("description"):
+                print(f"⚠️ Contradiction detected for goal '{goal.get('name')}', triggering self-rewrite ⮁ glyph.")
+                try:
+                    run_self_rewrite(goal.get("name"), reason="Contradictory goal assignment")
+                    entangle_glyphs("⮁", f"goal_contradiction:{goal.get('name')}")
+                except Exception as e:
+                    print(f"⚠️ Failed to trigger self-rewrite on contradiction: {e}")
+                return None
         if goal.get("name") in existing_names:
             print(f"⚠️ Goal '{goal.get('name')}' already assigned.")
             return None
+
         self.goals.append(goal)
         self.save_goals()
         print(f"✅ Goal assigned: {goal.get('name')}")
 
-        # ✅ Trigger recursive Tessaris logic
         try:
             trigger_tessaris_from_goal(goal)
             print(f"🧠 Tessaris logic triggered from goal: {goal.get('name')}")
         except Exception as e:
             print(f"⚠️ Tessaris trigger from goal failed: {e}")
 
-        # ♻️ Auto-synthesize glyphs from goal description
         try:
             print("🧬 Synthesizing glyphs from goal assignment...")
             text = goal.get("description", "")
@@ -153,6 +206,45 @@ class GoalEngine:
             print(f"🚨 Glyph synthesis error during goal assignment: {e}")
 
         return goal
+
+    def create_goal_from_awareness(self, awareness_type: str, context: str, source: str = "AwarenessEngine"):
+        """
+        Create a goal triggered by an awareness trace such as 'confidence' or 'blindspot'.
+        """
+        name = f"awareness_goal_{awareness_type}_{datetime.now().strftime('%H%M%S')}"
+        desc = f"Goal triggered by awareness state: {awareness_type.upper()} – {context}"
+        tags = ["🧠", "awareness", awareness_type]
+
+        goal = {
+            "name": name,
+            "description": desc,
+            "reward": 4 if awareness_type == "confidence" else 6,
+            "priority": 1 if awareness_type == "confidence" else 2,
+            "dependencies": [],
+            "created_at": datetime.now().isoformat(),
+            "origin_strategy_id": source
+        }
+
+        # Optional: Inject into KG explicitly with awareness tag
+        try:
+            kg_writer.inject_glyph(
+                content=desc,
+                glyph_type="goal",
+                metadata={
+                    "name": name,
+                    "awareness_type": awareness_type,
+                    "context": context,
+                    "origin": source,
+                    "tags": tags,
+                    "created_at": goal["created_at"]
+                },
+                plugin="AwarenessTrigger"
+            )
+            print(f"🧠 Injected awareness-triggered goal into KG: {name}")
+        except Exception as e:
+            print(f"⚠️ Awareness-trigger goal KG injection failed: {e}")
+
+        return self.assign_goal(goal)
 
     def create_goal_from_milestone(self, milestone_name, description, reward=5, priority=1, dependencies=None, origin_strategy_id=None):
         if dependencies is None:
@@ -183,9 +275,6 @@ class GoalEngine:
         return self.assign_goal(goal)
 
     def create_goal_from_glyph(self, glyph, reward=3):
-        """
-        Optional glyph-to-goal bridge.
-        """
         name = f"glyph_goal_{glyph}"
         desc = f"Goal triggered by glyph {glyph} in Tessaris runtime."
         goal = {
@@ -196,6 +285,19 @@ class GoalEngine:
             "dependencies": [],
             "created_at": datetime.now().isoformat(),
             "origin_glyph": glyph
+        }
+        return self.assign_goal(goal)
+
+    def create_awareness_goal(self, name, description, origin="AwarenessEngine", tags=None):
+        goal = {
+            "name": name,
+            "description": description,
+            "reward": 3,
+            "priority": 2,
+            "dependencies": [],
+            "created_at": datetime.now().isoformat(),
+            "origin": origin,
+            "tags": tags or []
         }
         return self.assign_goal(goal)
 
@@ -223,8 +325,6 @@ class GoalEngine:
         self.log.append(log_entry)
         self.save_log()
 
-
-# ✅ Export global instance
 GOALS = GoalEngine()
 
 if __name__ == "__main__":

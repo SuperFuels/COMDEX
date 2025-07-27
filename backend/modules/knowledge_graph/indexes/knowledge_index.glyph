@@ -1,0 +1,37 @@
+📘 knowledge_index.glyph
+
+⧉ Type: KnowledgeIndex
+⧈ Format: SymbolicGlyph v1.2
+
+⟦ Entries ⟧
+
+- ⟦ Glyph ⟧: 🧠
+  ⟦ Meaning ⟧: Self-awareness
+  ⟦ Tags ⟧: [introspection, identity, observer]
+  ⟦ Confidence ⟧: 0.95
+  ⟦ Source ⟧: MemoryEngine
+  ⟦ Container ⟧: core_runtime.dc
+  ⟦ Timestamp ⟧: ⌛ 2025-07-27T20:34:00Z
+
+- ⟦ Glyph ⟧: ↔
+  ⟦ Meaning ⟧: Entanglement
+  ⟦ Tags ⟧: [connection, memory_link, quantum]
+  ⟦ Confidence ⟧: 0.91
+  ⟦ Source ⟧: glyph_executor
+  ⟦ Container ⟧: seed_entangled.dc
+  ⟦ Timestamp ⟧: ⌛ 2025-07-27T20:31:05Z
+
+- ⟦ Glyph ⟧: ⧖
+  ⟦ Meaning ⟧: Collapse delay
+  ⟦ Tags ⟧: [qglyph, uncertainty, logic_bias]
+  ⟦ Confidence ⟧: 0.78
+  ⟦ Source ⟧: CodexCore
+  ⟦ Container ⟧: replay_packet.dc
+  ⟦ Timestamp ⟧: ⌛ 2025-07-27T20:15:42Z
+
+⟦ Index Summary ⟧
+
+- Total Glyphs: 3
+- Unique Tags: 8
+- Average Confidence: 0.88
+- Sources: [MemoryEngine, glyph_executor, CodexCore]

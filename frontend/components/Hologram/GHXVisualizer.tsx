@@ -3,19 +3,41 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { Html, OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
 import GHXSignatureTrail from './GHXSignatureTrail';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
 
-// Simulated GHX data with memory echoes and holograms
-const ghx = {
-  holograms: [
-    { id: "g1", glyph: "⊕", position: [0, 0, 0], color: "white" },
-    { id: "g2", glyph: "↔", position: [2, 0, 0], color: "violet", entangled: ["g1"] },
-    { id: "g3", glyph: "🧠", position: [0, 2, 0], color: "cyan" },
-    { id: "g4", glyph: "⬁", position: [-2, 0, 0], color: "red", entangled: ["g2"] },
-  ],
-  echoes: [
-    { id: "m1", glyph: "⌘", position: [-4, -2, -1], color: "#444444", memoryEcho: true },
-    { id: "m2", glyph: "⚛", position: [3, -2, 1], color: "#555577", memoryEcho: true },
-  ]
+const useGHXGlyphs = () => {
+  const [holograms, setHolograms] = useState<any[]>([]);
+  const [echoes, setEchoes] = useState<any[]>([]);
+
+  useEffect(() => {
+    axios.get("/api/replay/list?include_metadata=true&sort_by_time=true").then(res => {
+      const allGlyphs = res.data.result || [];
+
+      const holograms = [];
+      const echoes = [];
+
+      for (const g of allGlyphs) {
+        const isEcho = g.metadata?.memoryEcho || g.metadata?.source === "memory";
+        const glyphObj = {
+          id: g.id,
+          glyph: g.content,
+          position: [Math.random() * 6 - 3, Math.random() * 4 - 2, Math.random() * 4 - 2],
+          color: isEcho ? "#555577" : "#ffffff",
+          memoryEcho: isEcho,
+          entangled: g.metadata?.entangled_ids || [],
+        };
+
+        if (isEcho) echoes.push(glyphObj);
+        else holograms.push(glyphObj);
+      }
+
+      setHolograms(holograms);
+      setEchoes(echoes);
+    });
+  }, []);
+
+  return { holograms, echoes };
 };
 
 const GlyphHologram = ({ glyph, position, color, memoryEcho }: any) => {
@@ -125,7 +147,7 @@ const QEntropySpiral = () => {
 };
 
 export default function GHXVisualizer() {
-  const { holograms, echoes } = ghx;
+  const { holograms, echoes } = useGHXGlyphs();
 
   return (
     <Canvas camera={{ position: [0, 0, 10], fov: 60 }}>

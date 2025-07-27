@@ -3,7 +3,8 @@ import json
 import logging
 from datetime import datetime
 from typing import Dict, Optional
-from backend.modules.hexcore.memory_engine import MEMORY  # Add this import
+
+from backend.modules.hexcore.memory_engine import MEMORY  # Keep as-is
 
 EXPORT_PATH = "data/logs/collapse_trace_log.dc.json"  # Customize as needed
 logger = logging.getLogger(__name__)
@@ -16,28 +17,14 @@ def export_collapse_trace(
     timestamp: Optional[float] = None,
     extra: Optional[Dict] = None
 ) -> None:
-    """
-    Export a symbolic collapse trace for replay, GHX holograms, or debugging.
-    Saves in `.dc.json` format.
-
-    Args:
-        expression: symbolic input expression, e.g. ⟦ Key : ... ⟧
-        output: collapse result (hex, key, string, etc.)
-        adapter_name: name of adapter used ("CodexCore", "DummyAdapter", etc.)
-        identity: optional linked identity or avatar
-        timestamp: optional Unix time
-        extra: any additional fields to include (e.g., ghx_data, trigger metadata)
-    """
     try:
         if timestamp is None:
             timestamp = datetime.utcnow().timestamp()
 
-        # Prepare GHX ↔ Vault ↔ QGlyph trace signature block
         ghx_projection_id = extra.get("ghx_projection_id") if extra else None
         vault_snapshot_id = extra.get("vault_snapshot_id") if extra else None
         qglyph_id = extra.get("qglyph_id") if extra else None
 
-        # Build Dream Pack Delta block
         dream_pack = {
             "scroll_tree": MEMORY.scroll_tree if hasattr(MEMORY, "scroll_tree") else None,
             "entropy_state": MEMORY.get_runtime_entropy_snapshot() if hasattr(MEMORY, "get_runtime_entropy_snapshot") else None,
@@ -63,7 +50,6 @@ def export_collapse_trace(
             }
         }
 
-        # Merge any other extra fields outside of 'hologram'
         if extra:
             for key, value in extra.items():
                 if key not in (
@@ -72,10 +58,7 @@ def export_collapse_trace(
                 ):
                     trace[key] = value
 
-        # Ensure directory exists
         os.makedirs(os.path.dirname(EXPORT_PATH), exist_ok=True)
-
-        # Append to file
         with open(EXPORT_PATH, "a", encoding="utf-8") as f:
             json.dump(trace, f, ensure_ascii=False)
             f.write("\n")
@@ -84,3 +67,33 @@ def export_collapse_trace(
 
     except Exception as e:
         logger.error(f"[CollapseTraceExporter] Failed to export collapse trace: {e}")
+
+# ✅ NEW: SoulLaw-specific trace logger
+def log_soullaw_event(
+    verdict: str,  # "violation" or "approval"
+    glyph: str,
+    lock_hash: Optional[str] = None,
+    triggered_by: Optional[str] = None,
+    origin: Optional[str] = "soul_law_validator"
+) -> None:
+    try:
+        timestamp = datetime.utcnow().timestamp()
+        trace = {
+            "type": "soullaw_event",
+            "event": f"soullaw_{verdict}",
+            "glyph": glyph,
+            "lock_hash": lock_hash,
+            "triggered_by": triggered_by,
+            "origin": origin,
+            "timestamp": timestamp
+        }
+
+        os.makedirs(os.path.dirname(EXPORT_PATH), exist_ok=True)
+        with open(EXPORT_PATH, "a", encoding="utf-8") as f:
+            json.dump(trace, f, ensure_ascii=False)
+            f.write("\n")
+
+        logger.info(f"[CollapseTraceExporter] Logged SoulLaw {verdict} for glyph: {glyph}")
+
+    except Exception as e:
+        logger.warning(f"[CollapseTraceExporter] Failed to log SoulLaw event: {e}")

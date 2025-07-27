@@ -10,7 +10,10 @@ from backend.modules.glyphos.glyph_watcher import GlyphWatcher
 from backend.modules.glyphvault.container_vault_manager import ContainerVaultManager
 from backend.modules.teleport.teleport_packet import TeleportPacket
 from backend.modules.glyphos.entanglement_utils import entangle_glyphs
-from backend.modules.security.key_fragment_resolver import KeyFragmentResolver  # ✅ NEW
+from backend.modules.security.key_fragment_resolver import KeyFragmentResolver
+
+from backend.modules.soullaw.soul_law_validator import SoulLawValidator  # ✅ NEW
+from backend.modules.glyphos.collapse_trace_exporter import export_collapse_trace  # ✅ NEW
 
 try:
     from backend.modules.glyphos.glyph_summary import summarize_glyphs
@@ -101,14 +104,52 @@ class ContainerRuntime:
                         print(f"🔀 Entangled fork triggered at {coord_str}")
 
                     if "⧖" in data["glyph"]:
+                        glyph_str = data["glyph"]
+                        avatar_state = self.state_manager.get_avatar_state()
+
+                        verdict = SoulLawValidator.evaluate_glyph(
+                            glyph_str,
+                            identity=avatar_state.get("id") if avatar_state else None
+                        )
+
+                        container.setdefault("soul_law_trace", []).append({
+                            "coord": coord_str,
+                            "glyph": glyph_str,
+                            "verdict": verdict,
+                            "tick": self.tick_counter,
+                            "timestamp": time.time()
+                        })
+
+                        self.websocket.broadcast({
+                            "type": "soul_law_event",
+                            "data": {
+                                "coord": coord_str,
+                                "glyph": glyph_str,
+                                "verdict": verdict,
+                                "tick": self.tick_counter,
+                                "timestamp": time.time(),
+                                "container_id": container.get("id")
+                            }
+                        })
+
+                        export_collapse_trace(
+                            expression=glyph_str,
+                            output=verdict,
+                            adapter_name="SoulLawValidator",
+                            identity=avatar_state.get("id") if avatar_state else None,
+                            timestamp=time.time(),
+                            extra={"coord": coord_str, "trigger_metadata": {"source": "ContainerRuntime"}}
+                        )
+
                         broadcast_glyph_event({
                             "type": "glyph_execution",
                             "data": {
-                                "glyph": data["glyph"],
+                                "glyph": glyph_str,
                                 "tick": self.tick_counter,
                                 "coord": coord_str,
                                 "containerId": container.get("id", "unknown"),
-                                "timestamp": time.time()
+                                "timestamp": time.time(),
+                                "soul_law_verdict": verdict
                             }
                         })
 
@@ -148,7 +189,6 @@ class ContainerRuntime:
                 print("⚠️ Warning: Failed to decrypt container glyph data or access denied.")
                 container["cubes"] = {}
 
-        # ✅ Load seed entanglement if defined
         container_id = container.get("id")
         seed_links = container.get("entangled", [])
         for other_id in seed_links:
@@ -158,7 +198,6 @@ class ContainerRuntime:
                 except Exception as e:
                     print(f"⚠️ Failed to seed-entangle {container_id} ↔ {other_id}: {e}")
 
-        # ✅ Split Key Resolution Trigger
         try:
             resolver = KeyFragmentResolver(container_id)
             glyphs = list(container.get("cubes", {}).values())
@@ -172,6 +211,19 @@ class ContainerRuntime:
         container = self.state_manager.get_current_container()
         microgrid = self.vault_manager.get_microgrid()
         glyph_data = microgrid.export_index()
+
+        # ✅ Inject SoulLaw collapse trace into container metadata
+        from backend.modules.codex.symbolic_key_deriver import export_collapse_trace_with_soullaw_metadata
+        try:
+            avatar_state = self.state_manager.get_avatar_state()
+            identity = avatar_state.get("id") if avatar_state else None
+
+            collapse_metadata = export_collapse_trace_with_soullaw_metadata(identity=identity)
+            container["collapse_metadata"] = collapse_metadata
+            print("🔐 Injected SoulLaw collapse trace into container metadata.")
+        except Exception as e:
+            print(f"⚠️ Failed to inject collapse metadata: {e}")
+
         try:
             encrypted_blob = self.vault_manager.save_container_glyph_data(glyph_data)
             container["encrypted_glyph_data"] = encrypted_blob

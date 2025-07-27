@@ -403,12 +403,27 @@ class DreamCore:
             except Exception as e:
                 print(f"⚠️ Glyph decay/mutation pass failed: {e}")
 
+            # H5b: Inject into add_dream_trace()
+            try:
+                from backend.modules.knowledge_graph.trace_logger import add_dream_trace
+                add_dream_trace({
+                    "label": dream_label,
+                    "tick": datetime.now(timezone.utc).isoformat(),
+                    "glyph_sequence": [node.symbol for node in children if node.symbol not in ["Δ", None]],
+                    "summary": summary if 'summary' in locals() else None,
+                    "purpose": "dream_synthesis",
+                    "container_path": container_file if 'container_file' in locals() else None,
+                })
+                print(f"🧠 Dream trace injected into Knowledge Graph for: {dream_label}")
+            except Exception as e:
+                print(f"⚠️ Failed to inject dream trace: {e}")
+
             return dream
         else:
             self.situation.log_event("Dream rejected for quality", "negative")
             print("⚠️ Dream skipped due to quality filters.")
             return None
-
+        
     async def run_dream_cycle(self):
         return self.generate_dream()
 

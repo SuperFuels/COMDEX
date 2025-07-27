@@ -8,11 +8,14 @@ import requests
 
 from backend.modules.dna_chain.switchboard import DNA_SWITCH
 from backend.config import GLYPH_API_BASE_URL
-from backend.modules.codex.codex_scroll_builder import build_scroll_from_glyph  # ✅ NEW IMPORT
+from backend.modules.codex.codex_scroll_builder import build_scroll_from_glyph
+from backend.modules.knowledge.knowledge_graph_writer import KnowledgeGraphWriter  # ✅ R1b, ⏱️ H1
+from backend.modules.dna_chain.container_index_writer import add_to_index          # ✅ R1f, ⏱️ H1
 
 DNA_SWITCH.register(__file__)
 
 MEMORY_DIR = "data/memory_logs"
+ENABLE_GLYPH_LOGGING = True  # ✅ R1g
 
 MILESTONE_KEYWORDS = {
     "first_dream": ["dream_reflection"],
@@ -32,6 +35,8 @@ class MemoryEngine:
 
         self.memory_file = Path(__file__).parent / f"memory_{self.container_id}.json"
         self.embedding_file = Path(__file__).parent / f"embeddings_{self.container_id}.json"
+
+        self.kg_writer = KnowledgeGraphWriter()  # ✅ ⏱️ H1
 
         self.load_memory()
         self.load_embeddings()
@@ -56,12 +61,6 @@ class MemoryEngine:
 
     @staticmethod
     def get_runtime_entropy_snapshot():
-        """
-        Stub function to provide a symbolic runtime entropy snapshot
-        for use in symbolic key derivation.
-        Replace with real runtime snapshot logic later.
-        """
-        # Example: return summary stats or a timestamp string
         return f"MemoryCount:{len(MEMORY.memory)};Timestamp:{datetime.utcnow().isoformat()}"
 
     def list_labels(self):
@@ -127,10 +126,11 @@ class MemoryEngine:
             raise ValueError("Memory must contain 'label' and 'content' keys.")
 
         content = memory_obj["content"]
+        label = memory_obj["label"]
         embedding = self.model.encode(content, convert_to_tensor=True).to(torch.float32)
 
         if self.is_duplicate(embedding):
-            print(f"⚠️ Duplicate memory ignored: {memory_obj['label']}")
+            print(f"⚠️ Duplicate memory ignored: {label}")
             return
 
         memory_obj["timestamp"] = datetime.now().isoformat()
@@ -138,7 +138,7 @@ class MemoryEngine:
         if tags:
             memory_obj["milestone_tags"] = tags
 
-        # ✅ Scroll conversion for glyph or glyph_tree
+        # ✅ Attach scrolls if glyph available
         if memory_obj.get("glyph") or memory_obj.get("glyph_tree"):
             try:
                 scroll_data = build_scroll_from_glyph(memory_obj.get("glyph") or memory_obj.get("glyph_tree"))
@@ -153,12 +153,13 @@ class MemoryEngine:
         self.save_memory()
         self.save_embeddings()
 
-        print(f"✅ Memory stored: {memory_obj['label']}")
+        print(f"✅ Memory stored: {label}")
         self.send_message_to_agents({
             "type": "new_memory",
             "memory": memory_obj
         })
 
+        # 🧬 Trigger synthesis
         try:
             print("🧬 Synthesizing glyphs from memory...")
             synth_response = requests.post(
@@ -172,6 +173,31 @@ class MemoryEngine:
                 print(f"⚠️ Glyph synthesis failed: {synth_response.status_code} {synth_response.text}")
         except Exception as e:
             print(f"🚨 Glyph synthesis error (memory): {e}")
+
+        # ✅ ⏱️ H1: Inject glyph trace into container
+        if ENABLE_GLYPH_LOGGING:
+            try:
+                self.kg_writer.inject_glyph(
+                    content=content,
+                    glyph_type="memory",
+                    metadata={
+                        "label": label,
+                        "timestamp": memory_obj["timestamp"],
+                        "tags": tags,
+                        "container": self.container_id
+                    },
+                    plugin="MemoryEngine"
+                )
+                print(f"🧠 Glyph injected into container for {label}")
+                add_to_index("memory_index.glyph", {
+                    "text": content,
+                    "timestamp": memory_obj["timestamp"],
+                    "hash": hash(content)
+                })
+            except Exception as e:
+                print(f"⚠️ Glyph injection failed: {e}")
+
+# 🔧 Logging utilities
 
 def _ensure_dir():
     os.makedirs(MEMORY_DIR, exist_ok=True)
@@ -230,10 +256,10 @@ def store_container_metadata(container: dict):
         "content": f"[📦] Container metadata\n{readable}"
     })
 
+# 🧠 Global memory instance
 MEMORY = MemoryEngine()
 store_memory = MEMORY.store
 
-# ✅ Minimal MemoryBridge stub for Codex integration
 class MemoryBridge:
     @staticmethod
     def store_entry(entry: dict):
@@ -250,12 +276,8 @@ class MemoryBridge:
         })
 
 def log_memory(container_id: str, data: dict):
-    """
-    Public method to log memory into a specific container.
-    """
     mem = MemoryEngine(container_id)
     mem.store(data)
 
 def get_runtime_entropy_snapshot():
-    # Calls the static method inside MemoryEngine for convenience
     return MemoryEngine.get_runtime_entropy_snapshot()

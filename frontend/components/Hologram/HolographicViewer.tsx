@@ -16,6 +16,8 @@ import LayeredContainerSphere from "./LayeredContainerSphere";
 import AvatarThoughtProjection from "@/components/Hologram/AvatarThoughtProjection";
 import MemoryHaloRing from "@/components/Hologram/MemoryHaloRing";
 import MemoryBridgeBeams from "@/components/Hologram/MemoryBridgeBeams";
+import SoulLawHUD from '@/components/Soul/SoulLawHUD'
+
 
 type GlyphPoint = {
   glyph_id: string;
@@ -210,6 +212,8 @@ export default function HolographicViewer({ containerId }: { containerId: string
         onFrameSelect={handleFrameSelect}
         onPlayToggle={(v) => setReplayMode(v)}
       />
+
+      <SoulLawHUD />
     </div>
   );
 }

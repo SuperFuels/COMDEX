@@ -15,6 +15,8 @@ from backend.modules.consciousness.memory_bridge import MemoryBridge
 from backend.modules.glyphos.glyph_mutator import run_self_rewrite
 from backend.modules.glyphos.glyph_generator import GlyphGenerator
 from backend.modules.runtime.container_runtime import expand_container, collapse_container
+from backend.modules.glyphos.glyph_logic import interpret_glyph, detect_contradiction
+from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter
 
 # Codex integration
 from backend.modules.codex.codex_mind_model import CodexMindModel
@@ -39,6 +41,7 @@ class TessarisEngine:
         self.boot_selector = BootSelector()
         self.memlog = MemoryBridge(container_id=container_id)
         self.glyph_generator = GlyphGenerator()
+        self.kg_writer = KnowledgeGraphWriter(container_id=container_id)
 
         self.codex_mind = CodexMindModel()
         self.codex_metrics = CodexMetrics()
@@ -49,7 +52,6 @@ class TessarisEngine:
         root = BranchNode(symbol=root_symbol, source=source, metadata=metadata)
         self.active_thoughts[thought_id] = root
 
-        # ⏳ A3c: Trigger expansion on intention
         if metadata.get("physics") == "symbolic-expansion":
             self.inflate_hoberman()
 
@@ -96,6 +98,7 @@ class TessarisEngine:
 
     def execute_branch(self, branch: ThoughtBranch):
         print(f"\n[🧠] Executing ThoughtBranch from {branch.origin_id} ({len(branch.glyphs)} glyphs)")
+        self.kg_writer.log_thought_branch(branch)
 
         MEMORY.store({
             "label": f"tessaris_exec_{branch.origin_id}",
@@ -141,6 +144,33 @@ class TessarisEngine:
                 })
                 print(f"  ➤ Glyph {idx}: {glyph} → {result}")
 
+                if "⊥" in str(result) or detect_contradiction(str(result)) or cost.total() > 9:
+                    coord = branch.position.get("coord")
+                    container_path = branch.metadata.get("container_path") if branch.metadata else None
+                    if coord and container_path:
+                        print(f"⬁ Triggering fallback rewrite for {glyph}")
+                        MEMORY.store({
+                            "label": "fallback_rewrite",
+                            "role": "tessaris",
+                            "type": "self_rewrite",
+                            "content": f"⬁ Auto-triggered rewrite for glyph {glyph} due to contradiction or entropy.",
+                            "data": {
+                                "glyph": glyph,
+                                "reason": "contradiction or high cost",
+                                "cost": cost.total(),
+                                "coord": coord
+                            }
+                        })
+
+                        self.kg_writer.log_event("self_rewrite_triggered", {
+                            "glyph": glyph,
+                            "reason": "contradiction" if "⊥" in str(result) else "error",
+                            "cost": cost.total(),
+                            "coord": coord,
+                        })
+                        success = run_self_rewrite(container_path, coord)
+                        print("♻️ Fallback self-rewrite succeeded." if success else "⚠️ Fallback rewrite failed or skipped.")
+
                 self.codex_mind.observe(glyph)
                 self.codex_metrics.record_execution()
 
@@ -149,6 +179,12 @@ class TessarisEngine:
 
                 if glyph.strip().startswith("⟦ Write") or glyph.strip().startswith("⟦ Mutate"):
                     if coord and container_path:
+                        self.kg_writer.log_event("self_rewrite_triggered", {
+                            "glyph": glyph,
+                            "reason": "contradiction" if "⊥" in str(result) else "error",
+                            "cost": cost.total(),
+                            "coord": coord,
+                        })
                         success = run_self_rewrite(container_path, coord)
                         print("♻️ Self-rewriting glyph executed" if success else "⚠️ Rewrite skipped")
 
@@ -169,13 +205,28 @@ class TessarisEngine:
                 print(f"  ⚠️ Error interpreting glyph {glyph}: {e}")
                 self.codex_metrics.record_error()
 
-        self.extract_intents_from_glyphs(branch.glyphs, branch.metadata)
-        self.active_branches.append(branch)
-
-        self._send_synthesis(branch)
-        self._generate_from_branch(branch)
-
-        return True
+                coord = branch.position.get("coord")
+                container_path = branch.metadata.get("container_path") if branch.metadata else None
+                if coord and container_path:
+                    MEMORY.store({
+                        "label": "fallback_rewrite_error",
+                        "role": "tessaris",
+                        "type": "self_rewrite",
+                        "content": f"⬁ Rewrite triggered from glyph error: {glyph}",
+                        "data": {
+                            "glyph": glyph,
+                            "exception": str(e),
+                            "coord": coord
+                        }
+                    })
+                    self.kg_writer.log_event("self_rewrite_triggered", {
+                        "glyph": glyph,
+                        "reason": "error",
+                        "cost": cost.total() if 'cost' in locals() else None,
+                        "coord": coord,
+                    })
+                    success = run_self_rewrite(container_path, coord)
+                    print("⬁ Auto-rewrite from error succeeded." if success else "⚠️ Auto-rewrite from error failed or skipped.")
 
     def _send_synthesis(self, branch: ThoughtBranch):
         try:
@@ -288,6 +339,11 @@ class TessarisEngine:
                     "glyph": glyph,
                     "metadata": metadata or {},
                 }
+                self.kg_writer.log_event("intent_extracted", {
+                    "intent_type": intent_type,
+                    "glyph": glyph,
+                    "payload": payload
+                })
                 queue_tessaris_intent(intent_data)
                 self.memlog.log({
                     "source": "tessaris_engine",

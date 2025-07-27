@@ -1,9 +1,12 @@
 import asyncio
+import logging
 from fastapi import WebSocket
 from typing import Dict, List, Any, Optional
 
 from backend.modules.codex.glyph_executor import GlyphExecutor
 from backend.modules.state.state_manager import state_manager
+
+logger = logging.getLogger(__name__)
 
 # Connected clients
 active_connections: List[WebSocket] = []
@@ -19,11 +22,13 @@ async def connect(websocket: WebSocket):
         "type": "status",
         "message": "🛰️ Connected to GlyphNet WebSocket"
     })
+    logger.info(f"WebSocket connected: {websocket.client}")
 
 
 def disconnect(websocket: WebSocket):
     if websocket in active_connections:
         active_connections.remove(websocket)
+        logger.info(f"WebSocket disconnected: {websocket.client}")
 
 
 async def broadcast_event(event: Dict[str, Any]):
@@ -39,7 +44,8 @@ async def glyphnet_ws_loop():
         for conn in active_connections:
             try:
                 await conn.send_json(event)
-            except Exception:
+            except Exception as e:
+                logger.warning(f"WebSocket send error: {e}")
                 disconnected.append(conn)
         for conn in disconnected:
             disconnect(conn)
@@ -98,3 +104,23 @@ async def handle_glyphnet_event(websocket: WebSocket, msg: Dict[str, Any]):
             z=z,
             source="ws_trigger"
         )
+
+
+# ✅ NEW: SoulLaw verdict broadcast
+def stream_soullaw_verdict(verdict: str, glyph: str, context: str = "SoulLaw"):
+    """
+    Stream a SoulLaw event over WebSocket to live UI.
+    verdict: "violation" or "approval"
+    """
+    try:
+        payload = {
+            "type": "soullaw_event",
+            "verdict": verdict,
+            "glyph": glyph,
+            "context": context,
+            "tags": ["⚖️", "🔒"] if verdict == "violation" else ["⚖️", "✅"]
+        }
+        asyncio.create_task(broadcast_event(payload))
+        logger.info(f"[GlyphNetWS] Streamed SoulLaw {verdict}: {glyph}")
+    except Exception as e:
+        logger.warning(f"[GlyphNetWS] Failed to stream SoulLaw verdict: {e}")

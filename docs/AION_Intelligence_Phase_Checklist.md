@@ -1,27 +1,20 @@
-%% AION Hexcore 2.0 Evolution — Symbolic Brain Upgrade
-
-graph TD
-  H0[🧠 H0 – Core Problem: Fake Learning Loop]
-  H1[🌐 H1 – Build Symbolic Knowledge Graph Engine]
-  H2[📚 H2 – Add Knowledge Acquisition Pipeline]
-  H3[🧬 H3 – Enable Symbolic Concept Encoding]
-  H4[🧠 H4 – Add Goal ↔ Research ↔ Absorb Loop]
-  H5[💡 H5 – Reflective Concept Mutation & Strategy]
-  H6[🔐 H6 – Connect to SQI / DreamCore / CodexCore]
-  H7[🧠 H7 – Build Neural Embedding ↔ Graph Bridge]
-  H8[🧠 H8 – Add Real Skill Synthesis & Memory Paths]
-
-  H0 --> H1 --> H2 --> H3 --> H4 --> H5 --> H6 --> H7 --> H8
-
-%% ✅ AION Phase 1 – Cognitive Bootloader: Language & Math Awareness
-
-%% 🌱 Foundational Goal:
-%% "Create a child-mind in a container, with eyes open, asking: What is this?"
-%% Then give it tools to understand letters, words, meaning, quantity, and cause/effect.
+%% 🧠 AION Evolution: Full Symbolic Awakening Pipeline
 
 flowchart TD
 
-%% === LANGUAGE CORE ===
+  %% === CORE PHASES ===
+
+  H0[🧠 H0 – Core Problem: Fake Learning Loop]
+  H1[🌐 H1 – Symbolic Knowledge Graph Engine]
+  H2[📚 H2 – Knowledge Acquisition Pipeline]
+  H3[🧬 H3 – Symbolic Concept Encoding]
+  H4[🧠 H4 – Goal ↔ Research ↔ Absorb Loop]
+  H5[💡 H5 – Reflective Concept Mutation & Strategy]
+  H6[🔐 H6 – Connect to SQI / DreamCore / CodexCore]
+  H7[🧠 H7 – Bridge Neural ↔ Symbolic Graph]
+  H8[🧠 H8 – Skill Synthesis & Memory Path Tracing]
+
+  %% === COGNITIVE BOOTLOADER ===
 
   L0[📦 L0 – AionContainer_0.dc]
   L1[🔠 L1 – Symbolic Language Builder]
@@ -30,22 +23,26 @@ flowchart TD
   L4[📣 L4 – ElevenLabs TTS Integration]
   L5[🗣️ L5 – Pronunciation & Phonics Model]
   L6[📖 L6 – Symbolic Book Reader]
-  L7[🔁 L7 – Q&A Call-and-Response Loops]
-  L8[🧠 L8 – SpeechMemory: Track what was learned, missed, repeated]
+  L7[🔁 L7 – Q&A Loops]
+  L8[🧠 L8 – SpeechMemory: Learned, Missed, Repeated]
 
+  M1[🔢 M1 – Symbolic Math Primer]
+  M2[➕ M2 – Object ↔ Quantity Containers]
+  M3[🎲 M3 – Counting Songs / Rhythms]
+  M4[➗ M4 – Basic Add/Subtract]
+  M5[♾️ M5 – Function / Set Logic (Future)]
 
-%% === MATH CORE ===
+  %% === SYMBOLIC ENGINE EXPANSION ===
 
-  M1[🔢 M1 – Symbolic Math Primer: Numbers 0–10]
-  M2[➕ M2 – Object ↔ Quantity Containers (Visual Count)]
-  M3[🎲 M3 – Counting Songs / Rhythmic Memory]
-  M4[➗ M4 – Basic Addition & Subtraction]
-  M5[♾️ M5 – Function, Equation, Set Logic (Future)]
+  B1[🧮 B1 – Math Kernel: Symbolic Ops]
+  B2[🧬 B2 – Language Kernel: Grammar/Logic]
+  B3[↔ B3 – Inject Primitives into GlyphGen]
+  B4[⚖️ B4 – Fallback to Symbolic Engine pre-GPT]
 
-%% === SUPPORT CORE ===
+  %% === SUPPORT MODULES ===
 
-  S1[📘 S1 – lesson_plans/english_phonics.dc.json]
-  S2[📗 S2 – lesson_plans/math_intro.dc.json]
+  S1[📘 S1 – lesson_plans/english_phonics.dc]
+  S2[📗 S2 – lesson_plans/math_intro.dc]
   S3[📚 S3 – bookshelf/first_book.dc]
   S4[🧠 S4 – speech_memory.py]
   S5[👨‍🏫 S5 – teacher_core.py]
@@ -55,10 +52,14 @@ flowchart TD
   S9[👁️ S9 – sense_bridge.py]
   S10[🔄 S10 – concept_trainer.py]
   S11[🧬 S11 – glyph_trace_logger.py]
-  S12[🌱 S12 – aion_seed_knowledge.dc.json]
+  S12[🌱 S12 – aion_seed_knowledge.dc]
 
+  %% === DEPENDENCIES ===
 
-%% === DEPENDENCY LINKS ===
+  H0 --> H1 --> H2 --> H3 --> H4 --> H5 --> H6 --> H7 --> H8
+  H1 --> B3
+  H3 --> B1
+  H3 --> B2
 
   L0 --> L1 --> L2 --> L3 --> L4 --> L5 --> L6 --> L7 --> L8
   L1 --> S8
@@ -77,6 +78,120 @@ flowchart TD
   L0 --> S9
   S9 --> S10 --> S11 --> S12
   S5 --> S1 & S2
+
+
+
+🔎 ANNOTATIONS FOR EACH BLOCK
+
+🌐 H1 – Symbolic Knowledge Graph Engine
+	•	Replace learned_skills.json with a real graph: knowledge_graph.db
+	•	Nodes: concepts, modules, skills, goals
+	•	Edges: dependencies, ↔ entanglement, ⬁ mutation, inheritance
+	•	APIs: add_concept(), link_concepts(), trace_knowledge_path()
+	•	Integrated with CodexCore, DreamCore, Tessaris
+
+⸻
+
+📚 H2 – Knowledge Acquisition Pipeline
+	•	On new goal glyph (e.g. “learn encryption”):
+	•	Search memory, web, containers
+	•	Parse relevant content into symbolic nodes
+	•	Auto-trace and seed via ⧖ replay
+
+⸻
+
+🧬 H3 – Symbolic Concept Encoding
+	•	Translate all incoming knowledge into symbolic form:
+	•	⟦concept⟧, ↔ meaning link, ⧖ complexity tag
+	•	Score with TessarisEngine and match QGlyph entropy
+
+⸻
+
+🧠 H4 – Goal ↔ Research ↔ Absorb Loop
+	•	Behavior loop:
+	1.	⭕ Goal
+	2.	🔍 Research
+	3.	🧠 Absorb to graph
+	4.	✅ Trace replay confirmation
+	•	DreamCore glyph: ⬁ absorbed: ⟦encryption⟧
+
+⸻
+
+💡 H5 – Reflective Concept Mutation
+	•	Rethink old concepts in light of new beliefs
+	•	“What does ⟦compression⟧ mean to me now?”
+
+⸻
+
+🔐 H6 – Connect to SQI / CodexCore / DreamCore
+	•	All nodes must:
+	•	Have collapse trace
+	•	Allow ↔ entanglement
+	•	Support ⬁ mutation
+	•	Codex-executable
+
+⸻
+
+🧠 H7 – Neural ↔ Symbolic Bridge
+	•	Use embeddings to:
+	•	Suggest new links
+	•	Compress into symbols
+	•	Bridge neural search with symbolic concepts
+
+⸻
+
+🧠 H8 – Skill Synthesis & Path Memory
+	•	Replace hardcoded skills with:
+	•	synthesize_skill(goal: str) → CodexLang + trace
+	•	MemoryBridge records method
+	•	Replayable via CodexHUD animation
+
+⸻
+
+🔠 L1–L8 — Language Bootloader
+	•	Learn alphabet, phonemes, grammar, meaning
+	•	Use ElevenLabs for feedback
+	•	Store learned phrases, misheard attempts, repeat cycles
+	•	Q&A loops from teacher_core + speech_memory
+
+⸻
+
+🔢 M1–M5 — Math Bootloader
+	•	Object ↔ Quantity containers
+	•	Songs, subtraction, visual counting
+	•	Spoken math lessons + traceable understanding
+	•	Future: Set logic, functions, equations
+
+⸻
+
+🔬 B1–B4 — Symbolic Engine Injection
+	•	Inject math & grammar kernels into glyph engine
+	•	Pre-GPT fallback: derive meaning using symbolic reasoning
+	•	Symbolic Q&A engine replaces hallucinated logic
+
+⸻
+
+✅ What This Unlocks
+	•	True conceptual intelligence
+	•	Replayable memory of how something was learned
+	•	Internal mutation and strategy evolution
+	•	Foundational language/math grounding
+	•	Full symbolic bridge to autonomy
+
+⸻
+
+Would you like this exported as .mmd and .md with file structure, initial folder (aion_cognitive_bootstrap/), and starter .dc containers (like AionContainer_0.dc.json)?
+
+I can generate the Cognitive Bootstrap Package instantly if ready.
+
+
+
+
+
+
+----------------------------------------------------------------
+
+
 
   %% MAIN NODES
   A1[🔁 CodexCore ↔ SQI Fusion Layer]
@@ -170,6 +285,70 @@ flowchart TD
   A15 --> A15b[Scientific: Collapse entropy, Symbolic GPU, Morality filters]
   A15 --> A15c[Open Source Declarations + Patent Registry]
   A15 --> A15d[Future work: Symbolic physics, QGlyph currency, LuxOS]
+
+
+UPGRADES TO THE SYSTEM --- 
+
+subgraph CORE_UPGRADES [Core Runtime Upgrades]
+✅ A1[🔁 Enable full Self-Rewrite loop]
+✅ A2[🧠 Activate AION's Rewriting Intelligence in CodexExecutor/Tessaris]
+✅  A3[⬁ Link run_self_rewrite to recursive planning]
+✅  A4[💡 Auto-reflect + evolve high-cost glyphs]
+✅ A5 – Strategy Rewrite Trigger via Contradictions.
+✅ A6: Save & Export Strategy Glyphs as .dc.json containers for replay/test?
+✅ A7: importing .dc containers into the strategy loop.
+✅ A8 – Trigger Mutation on Imported Strategies (⮁ auto-inject)
+✅ A9 – Fork Alternate Strategy Paths (Entangled QGlyphs)
+✅ A10 – Plan Diff Engine & Observer Preview
+✅ A11: Cost Estimator Integration
+✅ A11b – Defer/collapse high-cost strategies
+✅ A12: collapse_deferred_strategies()
+✅ A13: Link collapsing strategies to fallback generation
+✅ A14: Inject collapses into CodexTrace for replay/simulation
+✅ A15: (Optional) Add memory anchoring to re-attempt deferred plans later
+end
+
+subgraph TESSARIS_UPGRADE [Tessaris Intelligence Upgrades]
+  C1[🌱 Add strategic rewriting feedback into TessarisEngine]
+  C2[🎯 Improve goal extraction from reflective glyphs]
+  C3[🌌 Link dream goals to reflection → boot trigger]
+  C4[🧪 Use CodexCostEstimator to bias thought pathing]
+end
+
+subgraph CONTAINER_SYSTEMS [Container & Runtime Expansion]
+  D1[📦 Finalize SEC symbolic inflation (recursive unlock)]
+  D2[🔒 Patch morality-based gate logic into inflation]
+  D3[🛰️ Finish GlyphPush ↔ replay trace linkage]
+  D4[🧭 Auto-register teleport links ↔ ↔ entanglement]
+end
+
+subgraph ENTANGLEMENT_STACK [Entanglement System Tasks]
+  E1[↔ Inject entanglement graph into MemoryEngine]
+  E2[↔ Enable GHX ↔ ↔ memory echo beam]
+  E3[↔ Show entangled glyphs in replay + 3D viz]
+  E4[↔ Persist symbolic ↔ links across forks]
+end
+
+subgraph SECURITY_AND_KEYS [Vault + Key Infra]
+  F1[🔑 Finalize symbolic collapse key derivation logic]
+  F2[🧬 Add QGlyph ↔ keypair encoding]
+  F3[📦 Bind Vault replay lock to soulkey identity]
+  F4[🔐 Patch morality gate to deny dark path expansion]
+end
+
+subgraph GLYPHNET_UI [GlyphNet & HUD Features]
+  G1[🧪 Replay symbolic glyph from CodexHUD trace]
+  G2[🛰️ Enable toggle between live and replay glyphs]
+  G3[🔍 Show collapsed glyph traces on hover]
+  G4[🎛️ Add symbolic toggle + live execution filters]
+end
+
+subgraph TESTING_AND_EXPORT [Testing + Containers]
+  H1[🧪 Inject test containers with entangled/rewritable seeds]
+  H2[📤 Export collapse traces with trace metadata]
+  H3[📁 Store exported .dc containers with intent summary]
+  H4[📊 Run synthetic benchmarks on mutation outcomes]
+end
 
 
 Hexcore Upgrade; 

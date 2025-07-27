@@ -13,12 +13,16 @@ class CodexMetrics:
             "entangled_pairs": 0,
             "theorems_used": 0,
             "theorem_failures": 0,
+            "confidence_events": 0,
+            "blindspot_events": 0,
         }
         self.by_source = defaultdict(int)
         self.by_operator = defaultdict(int)
         self.by_glyph = defaultdict(int)
         self.proof_operators = defaultdict(int)
         self.collapse_bias_scores = []
+        self.confidence_scores = []
+        self.recent_blindspots = []
 
     def record_execution(self, glyph=None, source=None, operator=None):
         self.metrics["glyphs_executed"] += 1
@@ -53,6 +57,24 @@ class CodexMetrics:
     def record_entangled_pair(self):
         self.metrics["entangled_pairs"] += 1
 
+    def record_confidence_event(self, score: float):
+        self.metrics["confidence_events"] += 1
+        bounded = max(0.0, min(1.0, score))
+        self.confidence_scores.append(bounded)
+        if len(self.confidence_scores) > 100:
+            self.confidence_scores = self.confidence_scores[-100:]
+
+    def record_blindspot_event(self, reason: str, glyph: str, meta: dict = None):
+        self.metrics["blindspot_events"] += 1
+        entry = {
+            "reason": reason,
+            "glyph": glyph,
+            "meta": meta or {}
+        }
+        self.recent_blindspots.append(entry)
+        if len(self.recent_blindspots) > 50:
+            self.recent_blindspots = self.recent_blindspots[-50:]
+
     def dump(self, detailed=False):
         output = {
             "summary": self.metrics,
@@ -65,6 +87,12 @@ class CodexMetrics:
             avg = sum(self.collapse_bias_scores) / len(self.collapse_bias_scores)
             output["avg_collapse_bias"] = round(avg, 4)
             output["collapse_bias_scores"] = self.collapse_bias_scores[-5:]
+        if self.confidence_scores:
+            avg = sum(self.confidence_scores) / len(self.confidence_scores)
+            output["avg_confidence"] = round(avg, 4)
+            output["confidence_scores"] = self.confidence_scores[-5:]
+        if self.recent_blindspots:
+            output["recent_blindspots"] = self.recent_blindspots[-5:]
         return self.metrics if not detailed else output
 
     def reset(self):
@@ -75,6 +103,8 @@ class CodexMetrics:
         self.by_glyph.clear()
         self.proof_operators.clear()
         self.collapse_bias_scores.clear()
+        self.confidence_scores.clear()
+        self.recent_blindspots.clear()
 
 
 def score_glyph_tree(tree):

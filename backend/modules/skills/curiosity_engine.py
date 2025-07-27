@@ -6,10 +6,15 @@ from datetime import datetime
 from backend.modules.dna_chain.switchboard import DNA_SWITCH
 DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
 
+# ✅ Index + Glyph Injection
+from backend.modules.knowledge_graph.indexes import curiosity_index
+from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter
+
+# ✅ Paths
 MEMORY_FILE = os.path.join(os.path.dirname(__file__), "aion_memory.json")
 INFERENCE_LOG = os.path.join(os.path.dirname(__file__), "aion_inference_chain.log")
 
-# Map of learned tag ➜ curiosity triggers for next learning steps
+# 🧠 Curiosity Chain — symbolic next steps per learned tag
 CURIOSITY_CHAIN = {
     "communication": ["public speaking", "negotiation"],
     "logic": ["formal logic", "systems thinking"],
@@ -42,6 +47,7 @@ def run_inference():
     learned_titles = {s["title"] for s in memory if s.get("status") == "learned"}
     existing_titles = {s["title"] for s in memory}
 
+    writer = KnowledgeGraphWriter()
     added_count = 0
 
     for skill in memory:
@@ -60,6 +66,25 @@ def run_inference():
                         memory.append(new_entry)
                         log_inference(skill["title"], new_title)
                         added_count += 1
+
+                        # ✅ Inject into curiosity_index
+                        curiosity_index.add_inferred_skill(
+                            title=new_title,
+                            tag=tag,
+                            inferred_from=skill["title"]
+                        )
+
+                        # ✅ Inject as symbolic glyph into .dc container
+                        writer.inject_glyph(
+                            content=new_title,
+                            glyph_type="inferred_skill",
+                            metadata={
+                                "tags": [tag],
+                                "inferred_from": skill["title"]
+                            },
+                            forecast_confidence=0.85,
+                            plugin="curiosity_engine"
+                        )
 
     if added_count > 0:
         save_memory(memory)

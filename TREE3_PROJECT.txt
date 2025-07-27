@@ -91,6 +91,8 @@
 │   │   ├── aion/
 │   │   │   ├── __init__.py
 │   │   │   ├── bundle_container.py
+│   │   │   ├── codex_playground.py
+│   │   │   ├── container_api.py
 │   │   │   ├── export_scroll.py
 │   │   │   ├── get_memory_trace.py
 │   │   │   ├── grid_loop.py
@@ -98,9 +100,12 @@
 │   │   │   ├── grid_progress.py
 │   │   │   ├── grid_tiles.py
 │   │   │   ├── memory_trace.py
-│   │   │   └── status.py
+│   │   │   ├── status.py
+│   │   │   └── vault_api.py
+│   │   ├── build_scroll.py
 │   │   ├── endpoints/
 │   │   │   └── submit_mutation.py
+│   │   ├── glyph_socket_api.py
 │   │   └── ws.py
 │   ├── bump_alembic_head.py
 │   ├── codexcore_virtual/
@@ -183,14 +188,19 @@
 │   │   │   ├── codex_supervisor.py
 │   │   │   ├── codex_trace.py
 │   │   │   ├── codex_websocket_interface.py
+│   │   │   ├── collapse_trace_exporter.py
 │   │   │   ├── google_benchmark_test.codex
 │   │   │   ├── hardware/
+│   │   │   ├── holographic_cortex.py
 │   │   │   ├── ops/
 │   │   │   ├── scroll_mutation_engine.py
 │   │   │   ├── sycamore_runner.py
+│   │   │   ├── symbolic_key_deriver.py
 │   │   │   ├── tests/
 │   │   │   └── virtual/
 │   │   ├── command_registry.py
+│   │   ├── compression/
+│   │   │   └── symbolic_compressor.py
 │   │   ├── consciousness/
 │   │   │   ├── awareness_engine.py
 │   │   │   ├── consciousness_manager.py
@@ -206,6 +216,7 @@
 │   │   │   ├── personality_engine.py
 │   │   │   ├── planning_engine.py
 │   │   │   ├── privacy_vault.py
+│   │   │   ├── qglyph_loop_runner.py
 │   │   │   ├── reflection_engine.py
 │   │   │   ├── situational_engine.py
 │   │   │   ├── state_manager.py
@@ -220,6 +231,7 @@
 │   │   │   ├── dimension_loop.py
 │   │   │   ├── dojo_001.dc.json
 │   │   │   ├── glyph_logic.py
+│   │   │   ├── sqi_runtime_master.dc.json
 │   │   │   └── time_controller.py
 │   │   ├── dna_chain/
 │   │   │   ├── bundle_engine.py
@@ -241,6 +253,7 @@
 │   │   │   ├── ethics_sim.py
 │   │   │   ├── glyph_trigger_logger.py
 │   │   │   ├── inject_dna_switch.py
+│   │   │   ├── knowledge_graph_writer.py
 │   │   │   ├── llm_mutator.py
 │   │   │   ├── modules_path_switch.json
 │   │   │   ├── mutation_checker.py
@@ -254,25 +267,70 @@
 │   │   │   ├── writable_guard.py
 │   │   │   ├── writable_modules.json
 │   │   │   └── writable_modules_config.json
+│   │   ├── encryption/
+│   │   │   ├── README_GlyphEncryption.md
+│   │   │   ├── Symbolic Key Derivation Module Documentation.md
+│   │   │   ├── Symbolic Key Derivation Module.md
+│   │   │   ├── crypto_core.py
+│   │   │   ├── encryption_utils.py
+│   │   │   ├── glyphvault_encryptor.py
+│   │   │   ├── key_registry.py
+│   │   │   ├── session_key_manager.py
+│   │   │   ├── session_key_vault.py
+│   │   │   ├── symbolic_encryption_handler.py
+│   │   │   ├── vault_exporter.py
+│   │   │   └── vault_importer.py
 │   │   ├── gip/
 │   │   │   ├── gip_adapter_http.py
+│   │   │   ├── gip_adapter_net.py
+│   │   │   ├── gip_broadcast.py
+│   │   │   ├── gip_compressor.py
 │   │   │   ├── gip_executor.py
 │   │   │   ├── gip_log.py
 │   │   │   ├── gip_packet.py
 │   │   │   ├── gip_packet_queue.py
+│   │   │   ├── gip_packet_schema.py
+│   │   │   ├── gip_test_runner.py
 │   │   │   ├── gip_websocket_interface.py
+│   │   │   ├── glyphnet_ws_interface.py
 │   │   │   └── luxnet_simulator.py
 │   │   ├── glyphnet/
 │   │   │   ├── GlyphNetDebugger.tsx
+│   │   │   ├── container_bootstrap.py
+│   │   │   ├── ephemeral_key_manager.py
+│   │   │   ├── gip_adapter_wave.py
+│   │   │   ├── gip_encryption_adapter.py
+│   │   │   ├── glyph_beacon.py
+│   │   │   ├── glyph_entanglement_protocol.py
+│   │   │   ├── glyph_io_controller.py
+│   │   │   ├── glyph_receiver.py
+│   │   │   ├── glyph_signal_reconstructor.py
+│   │   │   ├── glyph_socket.py
+│   │   │   ├── glyph_transmitter.py
+│   │   │   ├── glyph_transport_config.py
+│   │   │   ├── glyph_transport_switch.py
+│   │   │   ├── glyphnet_command.py
+│   │   │   ├── glyphnet_crypto.py
+│   │   │   ├── glyphnet_encrypted_push.py
+│   │   │   ├── glyphnet_key_locks.py
 │   │   │   ├── glyphnet_node_sim.py
+│   │   │   ├── glyphnet_packet.py
 │   │   │   ├── glyphnet_router.py
-│   │   │   └── glyphnet_trace.py
+│   │   │   ├── glyphnet_satellite_mode.py
+│   │   │   ├── glyphnet_terminal.py
+│   │   │   ├── glyphnet_trace.py
+│   │   │   ├── glyphwave_encoder.py
+│   │   │   ├── glyphwave_simulator.py
+│   │   │   ├── identity_registry.py
+│   │   │   ├── symbolic_key_derivation.py
+│   │   │   └── time_locked_key_manager.py
 │   │   ├── glyphos/
 │   │   │   ├── __init__.py
 │   │   │   ├── bytecode_watcher.py
 │   │   │   ├── codex_instruction_set.yaml
 │   │   │   ├── codex_trace_bridge.py
 │   │   │   ├── codexlang_translator.py
+│   │   │   ├── entanglement_utils.py
 │   │   │   ├── glyph_api_client.py
 │   │   │   ├── glyph_compiler.py
 │   │   │   ├── glyph_dispatcher.py
@@ -298,13 +356,29 @@
 │   │   │   ├── glyph_watcher.py
 │   │   │   ├── grid_pattern_scanner.py
 │   │   │   ├── microgrid_index.py
+│   │   │   ├── qglyph_ws_interface.py
 │   │   │   ├── remote_glyph_router.py
 │   │   │   ├── reverse_loader.py
 │   │   │   ├── runtime_broadcast.py
 │   │   │   ├── runtime_logger.py
 │   │   │   ├── runtime_loop.py
+│   │   │   ├── symbolic_entangler.py
 │   │   │   ├── symbolic_hash_engine.py
+│   │   │   ├── symbolic_operator.py
 │   │   │   └── trigger_on_glyph_loop.py
+│   │   ├── glyphvault/
+│   │   │   ├── GlyphVault Architecture.md
+│   │   │   ├── config.py
+│   │   │   ├── container_vault_integration.py
+│   │   │   ├── container_vault_manager.py
+│   │   │   ├── glyph_encryptor.py
+│   │   │   ├── key_manager.py
+│   │   │   ├── soul_law_validator.py
+│   │   │   ├── vault_audit.py
+│   │   │   ├── vault_audit_api.py
+│   │   │   ├── vault_bridge.py
+│   │   │   ├── vault_logger.py
+│   │   │   └── vault_manager.py
 │   │   ├── hexcore/
 │   │   │   ├── __init__.py
 │   │   │   ├── agent_comm.py
@@ -333,12 +407,31 @@
 │   │   │   ├── token_engine.py
 │   │   │   ├── vision_core.py
 │   │   │   └── wallet.json
+│   │   ├── holograms/
+│   │   │   ├── ghx_encoder.py
+│   │   │   ├── ghx_packet_validator.py
+│   │   │   ├── ghx_serializer.py
+│   │   │   ├── ghx_ws_interface.py
+│   │   │   ├── hologram_engine.py
+│   │   │   ├── hologram_integrator.py
+│   │   │   ├── holographic_renderer.py
+│   │   │   ├── holographic_trigger_controller.py
+│   │   │   └── knowledge_pack_generator.py
+│   │   ├── lean/
+│   │   │   ├── examples/
+│   │   │   ├── lean_exporter.py
+│   │   │   ├── lean_to_glyph.py
+│   │   │   └── lean_utils.py
 │   │   ├── memory/
 │   │   │   └── compression.py
+│   │   ├── quantum/
+│   │   │   └── qglyph_superposition.py
 │   │   ├── runtime/
 │   │   │   ├── container_runtime.py
 │   │   │   ├── entangled_runtime_forker.py
 │   │   │   └── observer_path_selector.py
+│   │   ├── security/
+│   │   │   └── key_fragment_resolver.py
 │   │   ├── sim/
 │   │   │   └── grid_engine.py
 │   │   ├── skills/
@@ -423,6 +516,12 @@
 │   │   │   ├── qglyph_generator.py
 │   │   │   ├── qglyph_trace_logger.py
 │   │   │   └── sqi_tessaris_bridge.py
+│   │   ├── symbolic_engine/
+│   │   │   └── math_kernel.py
+│   │   ├── teleport/
+│   │   │   ├── portal_manager.py
+│   │   │   ├── portal_registry.py
+│   │   │   └── teleport_packet.py
 │   │   ├── tessaris/
 │   │   │   ├── dimension_thought_runner.py
 │   │   │   ├── reverse_loader.py
@@ -478,6 +577,9 @@
 │   │   ├── game_event.py
 │   │   ├── gip_router.py
 │   │   ├── glyph_mutate.py
+│   │   ├── glyphnet_command_api.py
+│   │   ├── glyphnet_transport_api.py
+│   │   ├── glyphnet_vault_api.py
 │   │   ├── products.py
 │   │   ├── runtime.py
 │   │   ├── skill.py
@@ -486,7 +588,11 @@
 │   │   ├── terminal.py
 │   │   ├── user.py
 │   │   ├── ws/
-│   │   │   └── gip_ws.py
+│   │   │   ├── ghx_ws.py
+│   │   │   ├── gip_ws.py
+│   │   │   ├── glyph_socket_ws.py
+│   │   │   ├── glyphnet_ws.py
+│   │   │   └── qglyph_ws.py
 │   │   ├── ws_codex_interface.py
 │   │   └── ws_route.py
 │   ├── run_sycamore.sh
@@ -592,25 +698,40 @@
 │   │   └── scheduler.py
 │   ├── test_milestone_tracker.py
 │   ├── tests/
+│   │   ├── __init__.py
 │   │   ├── ethics_sim_test.py
+│   │   ├── glyph_encryption_test.py
 │   │   ├── test_codex_fabric.py
 │   │   ├── test_dimension_thought_runner.py
 │   │   ├── test_dna_registry.py
 │   │   ├── test_glyph_mutator.py
 │   │   ├── test_glyph_reversibility.py
 │   │   ├── test_glyph_runtime_loop.py
+│   │   ├── test_glyph_socket.py
 │   │   ├── test_glyph_trigger_engine.py
+│   │   ├── test_knowledge_pack.py
+│   │   ├── test_lean_scroll_output.py
 │   │   ├── test_mutate_glyph.py
+│   │   ├── test_portal_dispatch.py
 │   │   ├── test_reverse_loader.py
-│   │   └── test_trigger_engine.py
+│   │   ├── test_self_rewrite_loop.py
+│   │   ├── test_symbolic_key_derivation.py
+│   │   ├── test_teleport_mutation.py
+│   │   ├── test_trigger_engine.py
+│   │   ├── test_vault_api.py
+│   │   ├── test_vault_manager.py
+│   │   └── test_vault_restore_integration.py
 │   ├── utils/
 │   │   ├── __init__.py
 │   │   ├── auth.py
 │   │   ├── auth_guard.py
 │   │   ├── bundle_builder.py
+│   │   ├── ghx_exporter.ts
+│   │   ├── hologram_audio.ts
 │   │   ├── internal_client.py
 │   │   ├── news.py
 │   │   └── terminal.py
+│   ├── vault_snapshots/
 │   └── venv/
 │       ├── bin/
 │       │   ├── Activate.ps1
@@ -631,11 +752,14 @@
 │       │   └── python3.12/
 │       └── pyvenv.cfg
 ├── backup.sql
+├── benchmarks/
+│   └── lean_benchmark_results.json
 ├── budget_auto_shutdown/
 │   └── budget_auto_shutdown/
 │       ├── main.py
 │       └── requirements.txt
 ├── check_db.py
+├── check_key.py
 ├── check_milestones.py
 ├── check_progress.py
 ├── clean.sh
@@ -679,12 +803,12 @@
 │   │   └── dimensions.md
 │   ├── DNA ENGINE.MD
 │   ├── Future Build/
-│   │   ├──  Synthetic Time + Worldmind + Observer Logic.MD
+│   │   ├── .Lean/
+│   │   │   └── .Lean Whitepaper.md
 │   │   ├── 4 oversight_engine.md
 │   │   ├── AION Deep Time Sanity Protocols.MD
 │   │   ├── AION Family System & Symbolic Reproduction.MD
 │   │   ├── AION Genesis + Architect Contact System.MD
-│   │   ├── AION Problem Scroll + Knowledge Architecture + Cosmos Simulation.MD
 │   │   ├── AION System Architecture/
 │   │   │   ├── Screenshot 2025-07-12 at 17.07.44.png
 │   │   │   ├── Screenshot 2025-07-13 at 01.44.23.png
@@ -694,7 +818,6 @@
 │   │   ├── Agent container - grid size.md
 │   │   ├── Architect Contact Pathways + Genesis Protocol.MD
 │   │   ├── BORDER CONTROL.MD
-│   │   ├── Blockchain.md
 │   │   ├── Commercial.md/
 │   │   │   └── connectivity.md
 │   │   ├── Container Computer /
@@ -716,32 +839,54 @@
 │   │   │   ├── Screenshot 2025-07-18 at 00.23.23.png
 │   │   │   ├── Screenshot 2025-07-18 at 18.46.47.png
 │   │   │   └── Screenshot 2025-07-18 at 19.15.04.png
-│   │   ├── Container-Based Knowledge Graph Embedding.MD
 │   │   ├── Council.md
 │   │   ├── Ecosystem.MD
-│   │   ├── Encryption.md
+│   │   ├── Encryption/
+│   │   │   ├── Encryption Checklist.md
+│   │   │   ├── Encryption.md
+│   │   │   ├── KEYS Integration.md
+│   │   │   └── Next Gen Encrypt.md
 │   │   ├── GPT Opinion.md
 │   │   ├── Genesis Soul Confederacy.MD
+│   │   ├── GlypHub/
+│   │   │   └── GlypHub Checklist.md
+│   │   ├── GlyphChain/
+│   │   │   ├── Blockchain.md
+│   │   │   └── GlyphChain.md
 │   │   ├── GlyphNet/
 │   │   │   ├── Glyph Internet Protocol.md
+│   │   │   ├── GlyphNet Checklist.md
 │   │   │   ├── GlyphNet partial checklist,md
 │   │   │   ├── GlyphQRs.md
 │   │   │   ├── Holograms.md
 │   │   │   ├── Luxhub.md
 │   │   │   ├── Luxnet.md
+│   │   │   ├── Marketing GlyphNet.md
 │   │   │   ├── Screenshot 2025-07-21 at 13.18.06.png
 │   │   │   └── SoulNet......md
-│   │   ├── GlyphNote.md
 │   │   ├── Governance & Inheritance.md
 │   │   ├── HUMAN TIME TRAVEL.MD
-│   │   ├── Holographic Knowledge Systems.MD
-│   │   ├── Language.md
+│   │   ├── Hoberman Sphere & Expansion.md
+│   │   ├── Holographic Knowledge System.md
+│   │   ├── Knowledge Graph IGI.md/
+│   │   │   └── Knowledge Graph System Build.md
+│   │   ├── Level 2/
+│   │   │   ├──  Synthetic Time + Worldmind + Observer Logic.MD
+│   │   │   ├── AION Problem Scroll + Knowledge Architecture + Cosmos Simulation.MD
+│   │   │   ├── Container-Based Knowledge Graph Embedding.MD
+│   │   │   ├── GlyphNote.md
+│   │   │   ├── Hoberman Sphere Containers (HSC).md
+│   │   │   ├── Holographic Knowledge Systems.MD
+│   │   │   ├── Language.md
+│   │   │   ├── Ticks & multiverse.md
+│   │   │   ├── Time Dilation & Container Evolution.md
+│   │   │   ├── container_lifecycle_manager.md
+│   │   │   └── mathmatics.md
 │   │   ├── MasteryEngine: The Will to Perfect.md
 │   │   ├── Multiverse/
 │   │   │   ├── Aion Multiverse Protocol.md
 │   │   │   ├── Energy Multiverse.md
 │   │   │   ├── Fractal Multiverse.md
-│   │   │   ├── Hoberman Sphere Containers (HSC).md
 │   │   │   ├── Multiverse Network.md
 │   │   │   ├── Quantum Entanglement in Neurons.md
 │   │   │   ├── Screenshot 2025-07-18 at 18.46.47.png
@@ -749,7 +894,6 @@
 │   │   │   ├── Screenshot 2025-07-18 at 20.32.25.png
 │   │   │   ├── Screenshot 2025-07-18 at 20.34.22.png
 │   │   │   ├── Timelines.md
-│   │   │   ├── container_lifecycle_manager.md
 │   │   │   ├── 🌐 CENTRAL COMMAND CONTAINER (V1).md
 │   │   │   ├── 📦 CodexPort.md
 │   │   │   ├── 🛡️ MULTIVERSE GOVERNANCE SYSTEM (MGS).md
@@ -767,28 +911,27 @@
 │   │   │   └── Visa & Passports.md
 │   │   ├── QGlyph/
 │   │   │   ├── Codex Bundle Viewer.md
+│   │   │   ├── Free Will.md
 │   │   │   ├── Google Comparison.md
-│   │   │   ├── How to use QGlyph.md
-│   │   │   ├── QGlyph Technical Guide.md
-│   │   │   ├── QGlyph Whitepaper.md
+│   │   │   ├── Next Gen SQI + Speheres.md
 │   │   │   ├── SQC Checklist.md
 │   │   │   ├── Screenshot 2025-07-14 at 11.23.05.png
 │   │   │   ├── Screenshot 2025-07-14 at 11.23.30.png
 │   │   │   ├── Screenshot 2025-07-14 at 13.34.15.png
+│   │   │   ├── Screenshot 2025-07-24 at 20.25.36.png
+│   │   │   ├── Screenshot 2025-07-26 at 08.32.59.png
+│   │   │   ├── Super Powers.md
 │   │   │   ├── Symbolic Super Computer checklist.md
 │   │   │   └── 🧠 Symbolic Quantum Supremacy.md
 │   │   ├── Search Engine.md
 │   │   ├── Simulation Architecture.md
 │   │   ├── Symbolic Synapse.md
 │   │   ├── Telepathic Communication.md
-│   │   ├── Ticks & multiverse.md
 │   │   ├── Time + Toolkit System across .dc Containers.MD
-│   │   ├── Time Dilation & Container Evolution.md
 │   │   ├── USB.md
 │   │   ├── WEAPONS.MD
 │   │   ├── experimental.md
 │   │   ├── gravity.md
-│   │   ├── mathmatics.md
 │   │   ├── search & container controls.md
 │   │   ├── situation_engine.md
 │   │   ├── teachers.md
@@ -814,21 +957,36 @@
 │   │   └── compression_log_2025-07-10T15-18-33.txt
 │   ├── Project encryption secrecy.md
 │   ├── SYSTEM ARCHITECTURE/
+│   │   ├── (IGI) Introspective General Intelligence.md
 │   │   ├── CODEX_Architecture_Overview.pdf
 │   │   ├── Codex_Virtual_CPU_Architecture.pdf
+│   │   ├── Final Compression Bluepirnt.md
+│   │   ├── GlyphNet User Manual.md
+│   │   ├── GlyphNet WhitePaper.md
 │   │   ├── GlyphOS_Architecture_Overview.pdf
 │   │   ├── GlyphOS_Architecture_Overview2.pdf
+│   │   ├── Holographic Knowledge System.md
+│   │   ├── How to use QGlyph.md
+│   │   ├── Master Codex Manifest.md
+│   │   ├── QGlyph Technical Guide.md
+│   │   ├── QGlyph Whitepaper.md
+│   │   ├── RNA & Ribosome.md
+│   │   ├── SQI Runtime Graph.md
+│   │   ├── SQI_Runtime_WhitePaper_ModuleMap.txt
 │   │   ├── SYSTEM ARCHITECTURE.md
 │   │   ├── Screenshot 2025-07-22 at 17.23.02.png
 │   │   ├── Screenshot 2025-07-22 at 17.23.07.png
-│   │   └── Tessaris_Engine_Architecture.pdf
+│   │   ├── Symbolic Quantum Intelligence vs. Classical Quantum Systems.md
+│   │   ├── Symbolic Quantum Mechanics.md
+│   │   ├── System Identity Key.md
+│   │   ├── Tessaris_Engine_Architecture.pdf
+│   │   └── white paper.md
 │   ├── TIME STAMP GLYPH.md
 │   ├── Tessaris/
 │   │   ├── Screenshot 2025-07-08 at 22.08.45.png
 │   │   ├── Screenshot 2025-07-08 at 22.28.12.png
 │   │   ├── Tessaris checklist.md
-│   │   ├── what is Tessaris.md
-│   │   └── white paper.md
+│   │   └── what is Tessaris.md
 │   ├── Tessaris Images.md/
 │   │   ├── Screenshot 2025-07-02 at 13.12.28.png
 │   │   ├── Screenshot 2025-07-02 at 13.14.48.png
@@ -875,6 +1033,7 @@
 │   │   │   ├── GlyphGrid3D.tsx
 │   │   │   ├── GlyphInspector.tsx
 │   │   │   ├── GlyphMutator.tsx
+│   │   │   ├── GlyphNetHUD.tsx
 │   │   │   ├── GlyphQROverlay.tsx
 │   │   │   ├── GlyphSprite.tsx
 │   │   │   ├── GlyphSummaryHUD.tsx
@@ -895,12 +1054,36 @@
 │   │   ├── AIONTerminal.tsx
 │   │   ├── Chart.tsx
 │   │   ├── CommandBar.tsx
+│   │   ├── ContainerMap/
+│   │   │   ├── HobermanSphere.tsx
+│   │   │   ├── HobermanSphereController.ts
+│   │   │   ├── HobermanSphereWrapper.tsx
+│   │   │   ├── LayeredContainerSphere.tsx
+│   │   │   ├── SymbolicExpansionSphere.tsx
+│   │   │   └── WormholeRenderer.tsx
 │   │   ├── CreateProductForm.tsx
 │   │   ├── DarkModeToggle.tsx
 │   │   ├── DnaLogViewer.tsx
 │   │   ├── DreamReflections.tsx
 │   │   ├── EscrowActions.tsx
+│   │   ├── GlyphNet/
+│   │   │   ├── GlyphNetLogViewer.tsx
+│   │   │   ├── GlyphNetReplay.tsx
+│   │   │   └── GlyphNetTerminal.tsx
 │   │   ├── Header.module.css
+│   │   ├── Hologram/
+│   │   │   ├──  GHXSignatureTrail.tsx
+│   │   │   ├── AvatarThoughtAura.tsx
+│   │   │   ├── AvatarThoughtProjection.tsx
+│   │   │   ├── DreamPulseSpiral.tsx
+│   │   │   ├── GHXReplaySlider.tsx
+│   │   │   ├── GHXTimeline.tsx
+│   │   │   ├── GHXVisualizer.tsx
+│   │   │   ├── HologramHUD.tsx
+│   │   │   ├── HolographicViewer.tsx
+│   │   │   ├── MemoryBridgeBeams.tsx
+│   │   │   ├── MemoryHaloRing.tsx
+│   │   │   └── RecursiveLogicField.tsx
 │   │   ├── InventoryActive.tsx
 │   │   ├── InventoryCreate.tsx
 │   │   ├── InventoryEdit.tsx
@@ -924,14 +1107,19 @@
 │   │   │   ├── CodexRegisterViewer.tsx
 │   │   │   ├── CodexScrollHistory.tsx
 │   │   │   ├── CodexScrollPresets.tsx
-│   │   │   └── CodexScrollRunner.tsx
+│   │   │   ├── CodexScrollRunner.tsx
+│   │   │   ├── EntanglementGraph.tsx
+│   │   │   ├── EntanglementLinks.tsx
+│   │   │   └── RuntimeGlyphTrace.tsx
 │   │   ├── runtime_player.tsx
 │   │   └── ui/
 │   │       ├── badge.tsx
 │   │       ├── button.tsx
 │   │       ├── card.tsx
 │   │       ├── input.tsx
-│   │       └── scroll-area.tsx
+│   │       ├── scroll-area.tsx
+│   │       ├── select.tsx
+│   │       └── textarea.tsx
 │   ├── components.json
 │   ├── contracts/
 │   │   ├── Escrow.json
@@ -941,7 +1129,10 @@
 │   ├── hooks/
 │   │   ├── useAION.ts
 │   │   ├── useAuthRedirect.ts
+│   │   ├── useAvatarGlyphs.ts
+│   │   ├── useCodexCoreProjection.ts
 │   │   ├── useEscrowContract.ts
+│   │   ├── useMemoryBridge.ts 
 │   │   ├── useSupplierDashboard.ts
 │   │   └── useWebSocket.ts
 │   ├── lib/
@@ -1019,7 +1210,6 @@
 │   │   ├── vercel.svg
 │   │   ├── window.svg
 │   │   └── world-map.html
-│   ├── package-lock.json
 │   ├── package.json
 │   ├── pages/
 │   │   ├── _app.tsx
@@ -1032,8 +1222,13 @@
 │   │   │   ├── ContainerMap.tsx
 │   │   │   ├── avatar-runtime.tsx
 │   │   │   ├── codex-hud.tsx
+│   │   │   ├── codex-playground.tsx
+│   │   │   ├── entanglement.tsx
+│   │   │   ├── ghx/
 │   │   │   ├── glyph-synthesis.tsx
-│   │   │   └── multiverse.tsx
+│   │   │   ├── multiverse.tsx
+│   │   │   ├── replay.tsx
+│   │   │   └── vaultUI.tsx
 │   │   ├── api/
 │   │   │   ├── aion.ts
 │   │   │   └── shipments.js
@@ -1529,10 +1724,12 @@
 │   ├── personality_log.json
 │   └── trigger_logs/
 ├── next-env.d.ts
+├── output.dc.json
 ├── package.json
 ├── public/
 │   └── aion-game/
 │       └── index.html
+├── runtime_traces/
 ├── scripts/
 │   ├── deploy.ts
 │   └── siwe-debug.py
@@ -1541,6 +1738,7 @@
 ├── test/
 │   └── Lock.js
 ├── test_milestone_tracker.py
+├── test_output.dc.json
 ├── tests/
 │   ├── modules/
 │   │   └── aion/

@@ -235,6 +235,18 @@ class MilestoneTracker:
             self.state["goals"] = new_order
             self.save()
 
+        def summary(self):
+        print(f"\n📈 AION Growth Phase: {self.get_phase()}")
+        print(f"✅ Unlocked Modules: {', '.join(self.list_unlocked_modules())}")
+        print(f"🔒 Locked Modules: {', '.join(self.list_locked_modules())}")
+        print(f"\n🗓️ Milestones:")
+        milestones = self.list_milestones()
+        if not milestones:
+            print("  (none yet)")
+        else:
+            for i, m in enumerate(milestones, 1):
+                print(f"  {i}. {m['name']} @ {m['timestamp']} (via {m.get('source', 'manual')})")
+
     def summary(self):
         print(f"\n📈 AION Growth Phase: {self.get_phase()}")
         print(f"✅ Unlocked Modules: {', '.join(self.list_unlocked_modules())}")
@@ -246,3 +258,25 @@ class MilestoneTracker:
         else:
             for i, m in enumerate(milestones, 1):
                 print(f"  {i}. {m['name']} @ {m['timestamp']} (via {m.get('source', 'manual')})")
+
+    async def trigger_self_rewrite(self, reason="Contradiction detected, triggering self-rewrite glyph ⮁"):
+        """
+        Emits the self-rewrite glyph trigger ⮁.
+        This method can be called whenever a contradiction or mutation
+        in the symbolic reasoning chain is detected.
+        """
+        from backend.modules.glyphos.glyph_executor import GlyphExecutor
+        from backend.modules.consciousness.state_manager import StateManager
+
+        print(f"🔄 {reason}")
+        try:
+            # Create a temporary GlyphExecutor to dispatch ⮁ glyph trigger
+            state_manager = StateManager()
+            executor = GlyphExecutor(state_manager)
+
+            # For demonstration, triggering at a default coordinate; replace as needed
+            # Alternatively, you can parameterize x,y,z coordinates or container_id
+            await executor.trigger_glyph_remotely(container_id=state_manager.get_current_container_id(), x=0, y=0, z=0, source="MilestoneTracker")
+            print("✅ Self-rewrite glyph ⮁ triggered successfully.")
+        except Exception as e:
+            print(f"⚠️ Failed to trigger self-rewrite glyph: {e}")

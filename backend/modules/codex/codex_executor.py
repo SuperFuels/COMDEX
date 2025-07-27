@@ -1,6 +1,3 @@
-# 📁 codex_executor.py
-# Executes compiled glyph logic – symbolic bytecode interpreter
-
 import re
 import asyncio
 from datetime import datetime
@@ -10,13 +7,12 @@ from backend.modules.codex.codex_metrics import CodexMetrics
 from backend.modules.codex.codex_websocket_interface import send_codex_ws_event
 from backend.modules.codex.codex_trace import CodexTrace
 from backend.modules.hexcore.memory_engine import MemoryBridge
-from backend.modules.consciousness.state_manager import STATE  # ✅ Pause flag
-from backend.modules.glyphos.symbolic_entangler import get_entangled_for  # ✅ Entanglement support
-from backend.modules.glyphvault.soul_law_validator import soul_law_validator  # ✅ Soul Law check
+from backend.modules.consciousness.state_manager import STATE
+from backend.modules.glyphos.symbolic_entangler import get_entangled_for
+from backend.modules.glyphvault.soul_law_validator import soul_law_validator
+from backend.modules.knowledge.knowledge_graph_writer import write_glyph_entry  # R2a ✅
 
-# ✅ Global executor instance for benchmarking
 executor = None
-
 
 class CodexExecutor:
     def __init__(self):
@@ -30,7 +26,6 @@ class CodexExecutor:
             return {"status": "paused", "reason": "CodexExecutor is paused"}
 
         try:
-            # ✅ Soul Law Check (if avatar state present)
             avatar_state = context.get("avatar_state")
             if not soul_law_validator.validate_avatar(avatar_state):
                 return {"status": "forbidden", "reason": "Avatar failed Soul Law validation"}
@@ -68,7 +63,6 @@ class CodexExecutor:
                     "result": op_result
                 })
 
-                # ✅ If operator is ↔ (entangled), execute entangled glyphs
                 if step["operator"] == "↔":
                     entangled = get_entangled_for(glyph)
                     for partner in entangled:
@@ -87,8 +81,7 @@ class CodexExecutor:
             context_info = {**context, "operator": ops_chain[0]["operator"] if ops_chain else None}
             estimate = self.coster.estimate_glyph_cost(glyph, context_info)
 
-            # 🚨 Collapse container if cost exceeds threshold
-            THRESHOLD = 100.0  # Adjust threshold as needed
+            THRESHOLD = 100.0
             container = context.get("container")
             if estimate.total() > THRESHOLD and container:
                 try:
@@ -114,7 +107,6 @@ class CodexExecutor:
                     "operator": context_info.get("operator")
                 }
             }
-
             asyncio.create_task(send_codex_ws_event("glyph_execution", cost_payload))
 
             if g_type == "⟦ Theorem ⟧":
@@ -144,6 +136,30 @@ class CodexExecutor:
                 "timestamp": timestamp
             })
 
+            # R2b–R2g ✅ Knowledge Graph Injection
+            try:
+                tags = []
+                if "⬁" in glyph: tags.append("⬁")
+                if "↔" in glyph: tags.append("↔")
+                if "⧖" in glyph: tags.append("⧖")
+                if "🧬" in glyph: tags.append("🧬")
+                if g_type in ["💡 Insight", "🎯 Goal", "⚠️ Failure"]:
+                    tags.append(g_type)
+
+                write_glyph_entry(
+                    glyph=glyph,
+                    g_type=g_type,
+                    g_tag=g_tag,
+                    g_value=g_value,
+                    ops_chain=ops_chain,
+                    context=context,
+                    cost=estimate,
+                    timestamp=timestamp,
+                    tags=tags
+                )
+            except Exception as e:
+                print(f"⚠️ Failed to write glyph to Knowledge Graph: {e}")
+
             MemoryBridge.store_memory({
                 "source": "codex_executor",
                 "type": "execution",
@@ -169,7 +185,29 @@ class CodexExecutor:
             }
 
         except Exception as e:
+            print(f"⚠️ Error executing glyph in CodexExecutor: {glyph} — {e}")
             self.metrics.record_error()
+            container = context.get("container")
+            coord = context.get("coord")
+            if container and coord:
+                from backend.modules.codex.run_self_rewrite import run_self_rewrite
+                from backend.modules.hexcore.memory_engine import MemoryBridge
+                MemoryBridge.store({
+                    "label": "fallback_rewrite_error",
+                    "role": "codex",
+                    "type": "self_rewrite",
+                    "content": f"⬁ Rewrite triggered from CodexExecutor error: {glyph}",
+                    "data": {
+                        "glyph": glyph,
+                        "exception": str(e),
+                        "coord": coord
+                    }
+                })
+                success = run_self_rewrite(container, coord)
+                if success:
+                    print("⬁ Auto-rewrite from CodexExecutor succeeded.")
+                else:
+                    print("⚠️ Auto-rewrite from CodexExecutor failed or skipped.")
             return {"status": "error", "error": str(e)}
 
     def execute_theorem(self, glyph_stripped: str, context: dict, timestamp: float):
@@ -264,4 +302,10 @@ class CodexExecutor:
         elif action_str == "Boot":
             return self._trigger("initiate_boot_sequence", context)
         elif action_str == "Analyze":
-            return self._trigger("
+            return self._trigger("run_analysis", context)
+
+        return {"status": "noop", "action": action_str}
+
+    def _trigger(self, name, context, payload=None):
+        print(f"⚡ Triggered: {name} with payload={payload}")
+        return {"status": "triggered", "name": name, "payload": payload}

@@ -1,5 +1,3 @@
-# File: backend/modules/dna_chain/dna_switch.py
-
 import os
 import json
 import shutil
@@ -8,6 +6,7 @@ from backend.modules.dna_chain.proposal_manager import load_proposals, save_prop
 from backend.modules.dna_chain.switchboard import get_module_path
 from backend.modules.dna_chain.dna_address_lookup import register_backend_path, register_frontend_path
 from backend.modules.dna_chain.dna_registry import update_dna_proposal
+from backend.modules.dna_chain.dna_writer import save_version_snapshot, get_versions_for_file, restore_version
 
 # 🔐 Use environment variable to check for master key
 MASTER_KEY = os.getenv("AION_MASTER_KEY")
@@ -40,6 +39,27 @@ class DNAModuleSwitch:
     def list(self):
         return self.tracked_files
 
+    def list_versions(self, file: str):
+        """List all saved versions for a given file."""
+        return get_versions_for_file(file)
+
+    def rollback_to_version(self, file: str, version_filename: str, provided_key: str):
+        """
+        Restore a given version snapshot into the target file.
+        Only allowed if provided_key == MASTER_KEY.
+        """
+        if provided_key != MASTER_KEY:
+            raise PermissionError("Invalid master key.")
+
+        restore_version(file, version_filename)
+
+        log_dna_switch({
+            "action": "rollback",
+            "file": file,
+            "version_restored": version_filename,
+            "timestamp": datetime.utcnow().isoformat()
+        })
+
 
 # ✅ Use proposal manager for secure mutation approval + replacement
 def approve_proposal(proposal_id, provided_key):
@@ -63,20 +83,14 @@ def approve_proposal(proposal_id, provided_key):
 
     # Apply the change
     file_path = get_module_path(matched["file"])
-    backup_path = (
-        file_path.replace(".py", "_OLD.py")
-        if file_path.endswith(".py")
-        else file_path.replace(".tsx", "_OLD.tsx")
-    )
 
-    # Backup current version
-    shutil.copyfile(file_path, backup_path)
-
-    # Read original
+    # --- Save version snapshot BEFORE applying ---
     with open(file_path, "r", encoding="utf-8") as f:
-        contents = f.read()
+        current_contents = f.read()
+    save_version_snapshot(matched["file"], current_contents)
 
-    # Replace code block
+    # Read original contents for replacement
+    contents = current_contents
     if matched["replaced_code"] not in contents:
         raise ValueError("Original code block not found in file.")
 
@@ -100,7 +114,7 @@ def approve_proposal(proposal_id, provided_key):
         "applied_successfully": True
     })
 
-    return {"status": "applied", "file": matched["file"], "backup": backup_path}
+    return {"status": "applied", "file": matched["file"]}
 
 
 # ✅ Manual DNA trigger for runtime executors (glyphs, dreams, etc.)
@@ -116,9 +130,10 @@ def register_dna_switch(proposal_id: str, new_code: str, file_path: str):
 # ✅ Apply code directly and log it
 def apply_dna_switch(file_path: str, new_code: str) -> bool:
     try:
-        # Optional: backup before applying
-        backup_path = file_path.replace(".py", "_OLD.py") if file_path.endswith(".py") else file_path + ".bak"
-        shutil.copyfile(file_path, backup_path)
+        # Optional: backup before applying using dna_writer version snapshot
+        with open(file_path, "r", encoding="utf-8") as f:
+            current_contents = f.read()
+        save_version_snapshot(file_path, current_contents)
 
         with open(file_path, "w", encoding="utf-8") as f:
             f.write(new_code)

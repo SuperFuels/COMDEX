@@ -10,6 +10,58 @@ from backend.modules.dna_chain.writable_guard import is_write_allowed
 # ✅ Register with DNA Switch
 DNA_SWITCH.register(__file__)
 
+# Directory to save version snapshots
+VERSION_DIR = os.path.join(os.path.dirname(__file__), ".dna_versions")
+os.makedirs(VERSION_DIR, exist_ok=True)
+
+def _get_version_filename(file: str) -> str:
+    """
+    Generates a timestamped filename for a version snapshot of the given file.
+    """
+    base_name = file.replace("/", "_").replace("\\", "_")
+    timestamp = datetime.utcnow().strftime("%Y%m%dT%H%M%S%fZ")
+    return f"{base_name}_{timestamp}.bak"
+
+def save_version_snapshot(file: str, contents: str) -> str:
+    """
+    Save a snapshot of the current file contents for version tracking.
+    Returns the filename of the saved snapshot.
+    """
+    version_file = os.path.join(VERSION_DIR, _get_version_filename(file))
+    with open(version_file, "w", encoding="utf-8") as f:
+        f.write(contents)
+    print(f"💾 Saved version snapshot: {version_file}")
+    return version_file
+
+def get_versions_for_file(file: str):
+    """
+    List all saved versions for a given file.
+    Returns list of version filenames.
+    """
+    base_name = file.replace("/", "_").replace("\\", "_")
+    files = []
+    for f in os.listdir(VERSION_DIR):
+        if f.startswith(base_name):
+            files.append(f)
+    files.sort(reverse=True)  # newest first
+    return files
+
+def restore_version(file: str, version_filename: str):
+    """
+    Restore a given version snapshot into the target file.
+    """
+    version_path = os.path.join(VERSION_DIR, version_filename)
+    if not os.path.exists(version_path):
+        raise FileNotFoundError(f"Version file not found: {version_path}")
+
+    abs_path = get_module_path(file)
+    with open(version_path, "r", encoding="utf-8") as vf:
+        version_contents = vf.read()
+
+    with open(abs_path, "w", encoding="utf-8") as f:
+        f.write(version_contents)
+
+    print(f"♻️ Restored version {version_filename} into {file}")
 
 def create_proposal(file, replaced_code, new_code, reason):
     # 🔄 Normalize file path
@@ -34,6 +86,9 @@ def create_proposal(file, replaced_code, new_code, reason):
 
     if replaced_code not in contents:
         raise ValueError("Replaced code block not found in target file.")
+
+    # --- Save version snapshot BEFORE making proposal ---
+    save_version_snapshot(normalized_file, contents)
 
     # Create proposal object
     proposals = load_proposals()

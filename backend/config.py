@@ -27,5 +27,8 @@ else:
         f"?host=/cloudsql/{INSTANCE_CONNECTION_NAME}"
     )
 
+# ✅ Glyph Logging Toggle
+ENABLE_GLYPH_LOGGING = os.getenv("ENABLE_GLYPH_LOGGING", "true").lower() == "true"
+
 # ✅ Glyph API base URL (used by glyph_api_client.py and runtime synthesis)
 GLYPH_API_BASE_URL = os.getenv("GLYPH_API_BASE_URL", "http://localhost:8000")

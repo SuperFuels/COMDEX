@@ -1,10 +1,36 @@
-# backend/modules/skills/aion_prompt_engine.py
+"""
+🧠 AION Prompt Engine – Identity & Skill Boot Context
+
+Design Rubric:
+- 🔁 Deduplication Logic ............ ✅
+- 📦 Container Awareness ............ ✅
+- 🧠 Semantic Metadata .............. ✅
+- ⏱️ Timestamps (ISO 8601) .......... ✅
+- 🧩 Plugin Compatibility ........... ✅
+- 🔍 Search & Summary API .......... ✅
+- 📊 Readable + Compressed Export ... ✅
+- 📚 .dc Container Injection ........ ✅
+
+📄 Index Purpose:
+Builds and logs the full prompt context used by AION when invoking reasoning models.
+Injects system personality, core skills, and user prompt into `.dc` containers for
+introspective logging, feedback, and skill evolution.
+
+"""
 
 from typing import Dict, List
+from datetime import datetime
 
 # ✅ DNA Switch
 from backend.modules.dna_chain.switchboard import DNA_SWITCH
-DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+DNA_SWITCH.register(__file__)
+
+# ✅ Introspective Prompt Logging
+from backend.modules.dna_chain.container_index_writer import add_to_index
+
+# ✅ Plugin compatibility (for introspective plugin discovery)
+PLUGIN_ID = "aion_prompt_engine"
+
 
 def get_aion_personality() -> Dict[str, str]:
     """
@@ -20,6 +46,7 @@ def get_aion_personality() -> Dict[str, str]:
         )
     }
 
+
 def get_base_skills() -> List[str]:
     """
     Core abilities that AION has access to from boot.
@@ -32,6 +59,7 @@ def get_base_skills() -> List[str]:
         "💡 Idea Generator: Brainstorm creative solutions for business, life, or growth."
     ]
 
+
 def get_skill_context_string() -> str:
     """
     Formats skills as a string that can be injected into the prompt context.
@@ -40,12 +68,37 @@ def get_skill_context_string() -> str:
     return "\n".join([f"✅ Skill Loaded: {skill}" for skill in skills])
 
 
+def log_prompt_context_to_container(user_prompt: str, full_context: List[Dict[str, str]]):
+    """
+    Logs the full prompt context into the `prompt_context_index` of the current .dc container.
+    """
+    context_str = "\n\n".join(
+        [f"[{block['role']}]: {block['content']}" for block in full_context]
+    )
+
+    entry = {
+        "id": f"prompt-{datetime.utcnow().isoformat()}",
+        "type": "prompt_context",
+        "content": context_str,
+        "timestamp": datetime.utcnow().isoformat(),
+        "metadata": {
+            "plugin": PLUGIN_ID,
+            "tags": ["prompt", "context", "identity", "skill"],
+            "source": "aion_prompt_engine"
+        }
+    }
+    add_to_index("prompt_context_index", entry)
+
+
 def build_prompt_context(user_prompt: str) -> List[Dict[str, str]]:
     """
     Final message list to be sent to OpenAI/GPT. Injects system, skills, and user message.
+    Also injects introspective log into .dc container.
     """
-    return [
+    context = [
         get_aion_personality(),
         {"role": "system", "content": get_skill_context_string()},
         {"role": "user", "content": user_prompt}
     ]
+    log_prompt_context_to_container(user_prompt, context)
+    return context
