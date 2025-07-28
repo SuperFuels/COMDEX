@@ -11,9 +11,10 @@ from backend.modules.glyphvault.container_vault_manager import ContainerVaultMan
 from backend.modules.teleport.teleport_packet import TeleportPacket
 from backend.modules.glyphos.entanglement_utils import entangle_glyphs
 from backend.modules.security.key_fragment_resolver import KeyFragmentResolver
-
-from backend.modules.soullaw.soul_law_validator import SoulLawValidator  # ✅ NEW
-from backend.modules.glyphos.collapse_trace_exporter import export_collapse_trace  # ✅ NEW
+from backend.modules.glyphos.glyph_trace_logger import glyph_trace 
+from backend.modules.codex.codex_websocket_interface import send_codex_ws_event 
+from backend.modules.soullaw.soul_law_validator import SoulLawValidator
+from backend.modules.glyphos.collapse_trace_exporter import export_collapse_trace
 
 try:
     from backend.modules.glyphos.glyph_summary import summarize_glyphs
@@ -285,6 +286,75 @@ class ContainerRuntime:
             print(f"🛰️ GlyphPush replay loaded into container: {target_container.get('id')}")
         except Exception as e:
             print(f"❌ Failed to load GlyphPush packet: {e}")
+
+
+    async def run_replay(self, replay_glyphs: list[dict], container_id: Optional[str] = None):
+        """
+        Replays a sequence of glyphs with tick-based logging, entanglement links,
+        and broadcasts glyph_replay WebSocket events for UI (H7).
+        """
+        container = self.get_decrypted_current_container()
+        container_id = container_id or container.get("id", "unknown")
+
+        start_tick = self.tick_counter
+        replay_trace = []
+        print(f"🎬 Starting glyph replay for container {container_id}...")
+
+        for glyph_entry in replay_glyphs:
+            coord = glyph_entry.get("coord", "0,0,0")
+            glyph_str = glyph_entry.get("glyph", "")
+            entangled = glyph_entry.get("entangled", [])
+
+            # Execute glyph in runtime
+            print(f"🔁 Replaying glyph: {glyph_str} @ {coord}")
+            try:
+                x, y, z = map(int, coord.split(","))
+                await self.executor.execute_glyph_at(x, y, z)
+            except Exception as e:
+                print(f"❌ Replay execution failed for {coord}: {e}")
+
+            # Append tick snapshot
+            replay_trace.append({
+                "tick": self.tick_counter,
+                "coord": coord,
+                "glyph": glyph_str,
+                "entangled": entangled,
+                "cubes": container.get("cubes", {}).copy()
+            })
+
+            # Broadcast incremental replay glyph
+            await send_codex_ws_event("glyph_replay", {
+                "glyph": glyph_str,
+                "coord": coord,
+                "tick": self.tick_counter,
+                "entangled": entangled,
+                "container_id": container_id,
+                "timestamp": time.time()
+            })
+
+            self.tick_counter += 1
+            await asyncio.sleep(self.tick_interval)
+
+        end_tick = self.tick_counter
+
+        # ✅ Log replay to glyph_trace
+        glyph_trace.add_glyph_replay(
+            glyphs=[g["glyph"] for g in replay_glyphs],
+            tick_range=(start_tick, end_tick),
+            container_id=container_id,
+            replay_trace=replay_trace
+        )
+
+        # ✅ Broadcast replay complete (with snapshot)
+        await send_codex_ws_event("glyph_replay_complete", {
+            "container_id": container_id,
+            "tick_start": start_tick,
+            "tick_end": end_tick,
+            "glyph_count": len(replay_glyphs),
+            "snapshot": replay_trace[-1] if replay_trace else {}
+        })
+
+        print(f"✅ Glyph replay completed: {len(replay_glyphs)} glyphs from tick {start_tick} → {end_tick}")
 
 
 # ✅ Global instance

@@ -60,10 +60,31 @@ interface GIPEvent {
   payload: GlyphEvent;
 }
 
+type LogEntry =
+  | { type: 'glyph'; data: GlyphEvent; action: string; source?: string }
+  | { type: 'lean_theorem_executed'; action: string; source?: string }; 
+
+// ✅ Update type
 type EventLog =
   | { type: 'glyph'; data: GlyphEvent }
+  | { type: 'gip'; data: GlyphEvent }
   | { type: 'tick'; data: TickEvent }
-  | { type: 'gip'; data: GlyphEvent };
+  | { type: 'soullaw'; data: SoulLawEvent }
+  | { type: 'entanglement'; data: EntanglementEvent }
+  | { type: 'lean_theorem_executed'; action: string; source?: string };
+
+// ✅ Add type guard (if needed)
+function hasAction(log: EventLog): log is { action: string } {
+  return 'action' in log && typeof log.action === 'string';
+}
+
+// ✅ Use in rendering
+const isLeanGlyph =
+  operator === '⟦ Theorem ⟧' || log.type === 'lean_theorem_executed';
+
+<span className="text-green-400">
+  {hasAction(log) ? log.action : ''}
+</span>
 
 const COST_WARNING_THRESHOLD = 7;
 
@@ -76,9 +97,12 @@ const OPERATOR_LABELS: Record<string, string> = {
   '⧖': 'DELAY',
   '✦': 'MILESTONE',
   '⟦ Theorem ⟧': 'LEAN THEOREM',
-  '⬁': 'MUTATION',        // added for mutation glyph
-  '⮁': 'SELF-REWRITE',    // added for self-rewrite glyph
-  '🧬': 'DNA TRIGGER',     // optional but recommended
+  '⬁': 'MUTATION',          // DNA mutation
+  '⮁': 'SELF-REWRITE',      // full self-rewriting
+  '🧬': 'DNA TRIGGER',       // codon-based trigger
+  '🧭': 'GOAL TRIGGER',      // milestone → goal
+  '🪞': 'REFLECTION',        // memory mirroring
+  '⚖️': 'SOUL VERDICT'       // symbolic SoulLaw trigger
 };
 
 const OPERATOR_COLORS: Record<string, string> = {
@@ -90,16 +114,29 @@ const OPERATOR_COLORS: Record<string, string> = {
   '⧖': 'text-yellow-500',
   '✦': 'text-cyan-300',
   '⟦ Theorem ⟧': 'text-sky-400',
-  '⬁': 'text-pink-400',       // mutation color
-  '⮁': 'text-pink-600',       // self-rewrite color (darker pink)
-  '🧬': 'text-green-400',      // DNA trigger color
+  '⬁': 'text-pink-400',        // mutation color
+  '⮁': 'text-pink-600',        // deeper pink for full rewrite
+  '🧬': 'text-green-400',       // DNA
+  '🧭': 'text-cyan-200',        // goal marker
+  '🪞': 'text-gray-300',        // reflection logic
+  '⚖️': 'text-red-500'         // SoulLaw violation
 };
 
 function handleHoverNarration(glyph: string, action?: string, isMutated?: boolean) {
   if (glyph === '⮁') {
     playGlyphNarration("Self-rewriting mutation triggered.");
   } else if (glyph === '⬁') {
-    playGlyphNarration("Self-rewriting mutation detected.");
+    playGlyphNarration("Genetic mutation executed.");
+  } else if (glyph === '↔') {
+    playGlyphNarration("Entangled glyph link activated.");
+  } else if (glyph === '⚖️') {
+    playGlyphNarration("SoulLaw verdict incoming.");
+  } else if (glyph === '🧬') {
+    playGlyphNarration("DNA trigger activated.");
+  } else if (glyph === '🧭') {
+    playGlyphNarration("Goal trigger reached.");
+  } else if (glyph === '🪞') {
+    playGlyphNarration("Reflective memory invoked.");
   } else {
     playGlyphNarration(`Glyph ${glyph} triggered ${action || 'an event'}.`);
   }
@@ -107,8 +144,8 @@ function handleHoverNarration(glyph: string, action?: string, isMutated?: boolea
 
 function extractOperator(glyph: string): string | null {
   if (glyph === '⟦ Theorem ⟧') return '⟦ Theorem ⟧';
-  if (glyph === '⬁') return '⬁'; // ✅ Mutation check
-  return Object.keys(OPERATOR_LABELS).find((op) => glyph.includes(op)) || null;
+  const matches = Object.keys(OPERATOR_LABELS).filter((op) => glyph.includes(op));
+  return matches.length > 0 ? matches[0] : null;
 }
 
 function operatorName(op: string | null): string {
@@ -134,6 +171,18 @@ interface CodexHUDProps {
   onTraceOverlayToggle?: (state: boolean) => void;
   onLayoutToggle?: () => void;
   onExport?: () => void;
+}
+
+interface SoulLawEvent {
+  rule: string;
+  passed: boolean;
+  reason?: string;
+}
+
+interface EntanglementEvent {
+  container: string;
+  glyph: string;
+  status: 'linked' | 'unlinked';
 }
 
 export default function CodexHUD({
@@ -166,13 +215,6 @@ export default function CodexHUD({
     playGlyphNarration(newVal ? "Replay started" : "Replay paused");
   };
 
-  const handleTraceOverlayToggle = () => {
-    const newVal = !showTrace;
-    setShowTrace(newVal);
-    onTraceOverlayToggle?.(newVal);
-    playGlyphNarration(newVal ? "Trace overlay on" : "Trace overlay off");
-  };
-
   const handleGazeToggle = () => {
     const newVal = !gazeMode;
     setGazeMode(newVal);
@@ -196,7 +238,7 @@ export default function CodexHUD({
   const wsUrl = "/ws/codex";
   const gipWsUrl = "/ws/glyphnet";
 
-  const { connected: codexConnected } = useWebSocket(
+ const { connected: codexConnected } = useWebSocket(
     wsUrl,
     (data) => {
       if (!isReplay) {
@@ -209,27 +251,42 @@ export default function CodexHUD({
             timestamp: data.timestamp
           };
           setEvents((prev) => [{ type: 'tick', data: tick }, ...prev.slice(0, 100)]);
+        } else if (data?.type === 'soullaw_event') {
+          const event: EventLog = {
+            type: 'soullaw',
+            data: data.payload as SoulLawEvent
+          };
+          setEvents((prev) => [event, ...prev.slice(0, 100)]);
         }
       }
     },
-    ['glyph_execution', 'dimension_tick']
+    ['glyph_execution', 'dimension_tick', 'soullaw_event']
   );
 
   useWebSocket(
     gipWsUrl,
     (data) => {
-      if (!isReplay && data?.type === 'gip_event') {
-        setEvents((prev) => [{ type: 'gip', data: data.payload }, ...prev.slice(0, 100)]);
+      if (!isReplay) {
+        if (data?.type === 'gip_event') {
+          setEvents((prev) => [{ type: 'gip', data: data.payload }, ...prev.slice(0, 100)]);
+        } else if (data?.type === 'entanglement_update') {
+          const event: EventLog = {
+            type: 'entanglement',
+            data: data.payload as EntanglementEvent
+          };
+          setEvents((prev) => [event, ...prev.slice(0, 100)]);
+        }
       }
     },
-    ['gip_event']
+    ['gip_event', 'entanglement_update']
   );
 
-  const filteredEvents = events.filter((e) =>
-    e.type === 'glyph' || e.type === 'gip'
-      ? e.data.glyph?.toLowerCase().includes(filter.toLowerCase())
-      : true
-  );
+  const filteredEvents = events.filter((e) => {
+    if (e.type === 'glyph' || e.type === 'gip') {
+      return e.data.glyph?.toLowerCase().includes(filter.toLowerCase());
+    }
+    return true; // allow soullaw, entanglement, etc. to pass
+  });
 
   const toggleScroll = async (glyph: string) => {
     if (scrolls[glyph]) {
@@ -304,7 +361,7 @@ return (
           </Button>
           <Button
             className="text-xs px-3 py-1 h-8 bg-gray-700 hover:bg-gray-600"
-            onClick={handleTraceOverlayToggle}
+            onClick={onTraceOverlayToggle}
           >
             🔍 Trace: {showTrace ? 'On' : 'Off'}
           </Button>
@@ -341,112 +398,144 @@ return (
           }
 
           const log = entry.data;
-          const isCostly = log.cost !== undefined && log.cost > COST_WARNING_THRESHOLD;
-          const costColor =
-            log.cost === undefined ? '' :
-            log.cost > 9 ? 'text-red-500' :
-            log.cost > 7 ? 'text-orange-400' :
-            log.cost > 4 ? 'text-yellow-300' : 'text-green-300';
 
-          const operator = extractOperator(log.glyph);
-          const operatorLabel = operatorName(operator);
-          const operatorColor = operator ? OPERATOR_COLORS[operator] || 'text-white' : 'text-white';
-          const isLeanGlyph = operator === '⟦ Theorem ⟧' || log.type === 'lean_theorem_executed';
-          const isEntangled = log.glyph.includes('↔') || log.detail?.entangled_from;
+          if (!('glyph' in log)) return null; // skip non-GlyphEvents
 
-          const key = `${log.glyph}-${log.timestamp || index}`;
+        events.map((log, index) => {
+  if (log.type !== 'glyph' || !log.data) return null;
 
-          return (
-            <div key={key} className={`border-b border-white/10 py-1 ${isEntangled ? 'bg-purple-900/10' : ''} hover:bg-slate-800 cursor-pointer`}
-              onMouseEnter={() => handleHoverNarration(log.glyph, log.action)}
-            >
-              <div className={`text-sm font-mono ${operatorColor}`}>
-                ⟦ {log.glyph} ⟧ → <span className="text-green-400">{log.action}</span>
+  const glyphData = log.data as GlyphEvent;
 
-                {isLeanGlyph && <Badge className="ml-2" variant="outline">📘 Lean Theorem</Badge>}
-                {operator && !isLeanGlyph && <Badge className="ml-2" variant="outline">{`${operator} ${operatorLabel}`}</Badge>}
-                {log.trigger_type && <Badge className="ml-2" variant="secondary">🕒 {log.trigger_type}</Badge>}
-                {log.replay_trace && <Badge className="ml-2" variant="outline">🛰️ Replay</Badge>}
-                {log.collapse_trace && <Badge className="ml-2" variant="outline">📦 Collapse Trace</Badge>}
-                {log.entangled_identity && <Badge className="ml-2" variant="outline">↔ Identity Link</Badge>}
-                {log.trace_id && <Badge className="ml-2" variant="outline">🧩 Trace ID</Badge>}
-                {log.sqi && <Badge className="ml-2" variant="outline">🌌 SQI</Badge>}
-                {isEntangled && <Badge className="ml-2" variant="outline">↔ Entangled</Badge>}
-                {log.luxpush && <Badge className="ml-2" variant="outline">🛰️ GlyphPush</Badge>}
-                {log.context && <Badge className="ml-2" variant="outline">🧠 Context Preview</Badge>}
-                {isCostly && <Badge className="ml-2" variant="destructive">⚠️ High Cost</Badge>}
-                {log.token && log.identity && <Badge className="ml-2" variant="outline">🔐 {log.identity}</Badge>}
+  const isCostly = glyphData.cost !== undefined && glyphData.cost > COST_WARNING_THRESHOLD;
+  const costColor =
+    glyphData.cost === undefined ? '' :
+    glyphData.cost > 9 ? 'text-red-500' :
+    glyphData.cost > 7 ? 'text-orange-400' :
+    glyphData.cost > 4 ? 'text-yellow-300' : 'text-green-300';
 
-                <Button className="ml-2 text-xs px-2 py-0 h-6 bg-transparent hover:bg-white/10 border border-white/10" onClick={() => toggleScroll(log.glyph)}>
-                  🧾 {scrolls[log.glyph] ? 'Hide' : 'Show'} Scroll
-                </Button>
+  const operator = extractOperator(glyphData.glyph);
+  const operatorLabel = operatorName(operator);
+  const operatorColor = operator ? OPERATOR_COLORS[operator] || 'text-white' : 'text-white';
+  const isGlyphLog = log.type === 'glyph';
+const glyph = isGlyphLog ? log.data : null;
 
-                <Button className="ml-2 text-xs px-2 py-0 h-6 bg-transparent hover:bg-white/10 border border-white/10" onClick={() => toggleContext(log.glyph)}>
-                  🔍 {contextShown[log.glyph] ? 'Hide' : 'Show'} Context
-                </Button>
-              </div>
+const isLeanGlyph =
+  operator === '⟦ Theorem ⟧' || log.type === 'lean_theorem_executed';
 
-              <div className="text-xs text-white/60 flex justify-between">
-                <span>{log.source || 'Unknown Source'}</span>
-                <span>{log.timestamp ? new Date(log.timestamp * 1000).toLocaleTimeString() : 'Unknown Time'}</span>
-              </div>
+const isEntangled =
+  glyph?.glyph?.includes('↔') || glyph?.detail?.entangled_from;
 
-              {log.cost !== undefined && (
-                <div className={`text-xs mt-1 ${costColor}`}>
-                  💰 Estimated Cost: <b>{log.cost.toFixed(2)}</b>
-                  {log.detail && (
-                    <div className="flex gap-2 mt-1 flex-wrap">
-                      {log.detail.energy !== undefined && (<Badge variant="outline">🔋 Energy: {log.detail.energy}</Badge>)}
-                      {log.detail.ethics_risk !== undefined && (<Badge variant="outline">⚖️ Risk: {log.detail.ethics_risk}</Badge>)}
-                      {log.detail.delay !== undefined && (<Badge variant="outline">⌛ Delay: {log.detail.delay}</Badge>)}
-                      {log.detail.opportunity_loss !== undefined && (<Badge variant="outline">📉 Loss: {log.detail.opportunity_loss}</Badge>)}
-                      {log.detail.coord && (<Badge variant="outline">📍 Coord: {log.detail.coord}</Badge>)}
-                      {log.detail.container && (<Badge variant="outline">🧱 Container: {log.detail.container}</Badge>)}
-                      {log.detail.entangled_from && (<Badge variant="outline">🪞 Forked from: {log.detail.entangled_from}</Badge>)}
-                      {log.detail.qglyph_id && (<Badge variant="outline">🧬 QGlyph ID: {log.detail.qglyph_id}</Badge>)}
-                      {log.detail.qglyph_paths && (<Badge variant="outline">↔ Paths: {log.detail.qglyph_paths[0]} / {log.detail.qglyph_paths[1]}</Badge>)}
-                      {log.detail.bias_score !== undefined && (<Badge variant="outline">🎯 Bias Score: {log.detail.bias_score}</Badge>)}
-                      {log.detail.observer_trace && (<Badge variant="outline">👁️ Trace: {log.detail.observer_trace}</Badge>)}
-                      {log.detail.collapsed_path && (<Badge variant="outline">🪞 Forked Path: {log.detail.collapsed_path}</Badge>)}
-                    </div>
-                  )}
-                </div>
-              )}
+const isCostly = glyph?.cost && glyph.cost > 100;
 
-              {scrolls[log.glyph] && (
-                <pre className="bg-gray-800 text-green-300 text-xs mt-2 p-2 rounded max-h-40 overflow-auto whitespace-pre-wrap border border-green-800">
-                  {scrolls[log.glyph]}
-                </pre>
-              )}
+const key = `${glyph?.glyph || 'unknown'}-${glyph?.timestamp || index}`;
 
-              {contextShown[log.glyph] && log.context && (
-                <pre className="bg-gray-900 text-purple-300 text-xs mt-2 p-2 rounded max-h-32 overflow-auto whitespace-pre-wrap border border-purple-800">
-                  {log.context}
-                </pre>
-              )}
-            </div>
-          );
-        })}
-      </ScrollArea>
+return (
+  <div
+    key={key}
+    className={`border-b border-white/10 py-1 ${
+      isEntangled ? 'bg-purple-900/10' : ''
+    } hover:bg-slate-800 cursor-pointer`}
+    onMouseEnter={() =>
+      glyph?.glyph && handleHoverNarration(glyph.glyph, glyph.action)
+    }
+  >
+    <div className={`text-sm font-mono ${operatorColor}`}>
+      ⟦ {glyph?.glyph || '???'} ⟧ →{' '}
+      <span className="text-green-400">{glyph?.action || log.action}</span>
 
-      {showReplayPanel && (
-      <div className="absolute right-4 top-20 w-[260px] max-h-[300px] overflow-y-auto bg-gray-900 border border-gray-700 rounded-lg shadow-lg p-3 z-20 text-sm text-white">
-        <div className="font-bold text-purple-300 mb-2">🎞️ Replay History</div>
-        {replays.map((r, idx) => (
-          <div
-            key={idx}
-            className="cursor-pointer hover:bg-gray-700/50 border-b border-gray-800 py-1 px-2 rounded"
-            onClick={() => handleReplayClick(r)}
-          >
-            <div className="text-white">{r.content}</div>
-            <div className="text-xs text-gray-400">
-              {new Date(r.timestamp).toLocaleString()}
-            </div>
-          </div>
-        ))}
-      </div>
+      {isLeanGlyph && (
+        <Badge className="ml-2" variant="outline">
+          📘 Lean Theorem
+        </Badge>
       )}
-    </CardContent>
-  </Card>
+      {operator && !isLeanGlyph && (
+        <Badge className="ml-2" variant="outline">
+          {`${operator} ${operatorLabel}`}
+        </Badge>
+      )}
+      {glyph?.trigger_type && (
+        <Badge className="ml-2" variant="secondary">
+          🕒 {glyph.trigger_type}
+        </Badge>
+      )}
+      {glyph?.replay_trace && (
+        <Badge className="ml-2" variant="outline">
+          🛰️ Replay
+        </Badge>
+      )}
+      {glyph?.collapse_trace && (
+        <Badge className="ml-2" variant="outline">
+          📦 Collapse Trace
+        </Badge>
+      )}
+      {glyph?.entangled_identity && (
+        <Badge className="ml-2" variant="outline">
+          ↔ Identity Link
+        </Badge>
+      )}
+      {glyph?.trace_id && (
+        <Badge className="ml-2" variant="outline">
+          🧩 Trace ID
+        </Badge>
+      )}
+      {glyph?.sqi && (
+        <Badge className="ml-2" variant="outline">
+          🌌 SQI
+        </Badge>
+      )}
+      {isEntangled && (
+        <Badge className="ml-2" variant="outline">
+          ↔ Entangled
+        </Badge>
+      )}
+      {glyph?.luxpush && (
+        <Badge className="ml-2" variant="outline">
+          🛰️ GlyphPush
+        </Badge>
+      )}
+      {glyph?.context && (
+        <Badge className="ml-2" variant="outline">
+          🧠 Context Preview
+        </Badge>
+      )}
+      {isCostly && (
+        <Badge className="ml-2" variant="destructive">
+          ⚠️ High Cost
+        </Badge>
+      )}
+      {glyph?.token && glyph?.identity && (
+        <Badge className="ml-2" variant="outline">
+          🔐 {glyph.identity}
+        </Badge>
+      )}
+
+      {/* Buttons */}
+      {glyph?.glyph && (
+        <>
+          <Button
+            className="ml-2 text-xs px-2 py-0 h-6 bg-transparent hover:bg-white/10 border border-white/10"
+            onClick={() => toggleScroll(glyph.glyph)}
+          >
+            🧾 {scrolls[glyph.glyph] ? 'Hide' : 'Show'} Scroll
+          </Button>
+
+          <Button
+            className="ml-2 text-xs px-2 py-0 h-6 bg-transparent hover:bg-white/10 border border-white/10"
+            onClick={() => toggleContext(glyph.glyph)}
+          >
+            🔍 {contextShown[glyph.glyph] ? 'Hide' : 'Show'} Context
+          </Button>
+        </>
+      )}
+    </div>
+
+    <div className="text-xs text-white/60 flex justify-between">
+      <span>{glyph?.source || log.source || 'Unknown Source'}</span>
+      <span>
+        {glyph?.timestamp
+          ? new Date(glyph.timestamp * 1000).toLocaleTimeString()
+          : 'Unknown Time'}
+      </span>
+    </div>
+  </div>
 );
-}

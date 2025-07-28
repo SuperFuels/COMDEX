@@ -11,6 +11,7 @@ from backend.modules.consciousness.state_manager import STATE
 from backend.modules.glyphos.symbolic_entangler import get_entangled_for
 from backend.modules.glyphvault.soul_law_validator import soul_law_validator
 from backend.modules.knowledge.knowledge_graph_writer import write_glyph_entry  # R2a ✅
+from backend.modules.consciousness.prediction_engine import PredictionEngine   # 🔮 NEW
 
 executor = None
 
@@ -20,6 +21,7 @@ class CodexExecutor:
         self.coster = CodexCostEstimator()
         self.metrics = CodexMetrics()
         self.tracer = CodexTrace()
+        self.predictor = PredictionEngine()  # 🔮 NEW
 
     def execute(self, glyph, context):
         if STATE.is_paused():
@@ -136,7 +138,6 @@ class CodexExecutor:
                 "timestamp": timestamp
             })
 
-            # R2b–R2g ✅ Knowledge Graph Injection
             try:
                 tags = []
                 if "⬁" in glyph: tags.append("⬁")
@@ -159,6 +160,23 @@ class CodexExecutor:
                 )
             except Exception as e:
                 print(f"⚠️ Failed to write glyph to Knowledge Graph: {e}")
+
+            # 🔮 Predict next steps and broadcast
+            try:
+                prediction = self.predictor.predict_future_path(
+                    glyph=glyph,
+                    context=context,
+                    glyph_type=g_type,
+                    glyph_tag=g_tag,
+                    glyph_value=g_value,
+                    ops_chain=ops_chain,
+                    cost_estimate=estimate,
+                    timestamp=timestamp
+                )
+                if prediction:
+                    asyncio.create_task(send_codex_ws_event("glyph_prediction", prediction))
+            except Exception as e:
+                print(f"⚠️ Prediction engine failed: {e}")
 
             MemoryBridge.store_memory({
                 "source": "codex_executor",

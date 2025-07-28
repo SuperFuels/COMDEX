@@ -17,6 +17,8 @@ interface Node {
   id: string;
   label: string;
   glyph: string;
+  tick?: number;
+  entangled?: string[];
 }
 
 interface Link {
@@ -37,12 +39,11 @@ export default function ReplayEntanglementPage() {
   const allGlyphsRef = useRef<any[]>([]);
   const fgRef = useRef<any>();
 
-  // 🛰️ WebSocket Live Mode
+  // 🛰️ WebSocket Live + Replay Mode Listener
   useWebSocket(
     '/ws/codex',
     (data) => {
-      if (mode !== 'live') return;
-      if (data?.type === 'glyph_execution') {
+      if (mode === 'live' && data?.type === 'glyph_execution') {
         const glyph = data.payload?.glyph;
         const from = data.payload?.detail?.entangled_from;
         const id = `${glyph}-${data.payload.timestamp}`;
@@ -53,7 +54,7 @@ export default function ReplayEntanglementPage() {
           const links = [...prev.links];
 
           if (!nodes.find((n) => n.id === id)) {
-            nodes.push({ id, label: glyph, glyph });
+            nodes.push({ id, label: glyph, glyph, tick: data.payload?.tick });
           }
           if (from && !nodes.find((n) => n.id === sourceId)) {
             nodes.push({ id: sourceId, label: from, glyph: from });
@@ -65,29 +66,40 @@ export default function ReplayEntanglementPage() {
           return { nodes, links };
         });
       }
+
+      // 🎞️ Glyph Replay WebSocket Event
+      if (data?.type === 'glyph_replay') {
+        const { glyphs, links, tick_range } = data.payload;
+        allGlyphsRef.current = glyphs;
+        setGraphData({ nodes: glyphs, links });
+        console.log(`🎞️ Replay tick range: ${tick_range.start} → ${tick_range.end}`);
+        setStep(glyphs.length); // Jump to final replay state
+      }
     },
-    ['glyph_execution']
+    ['glyph_execution', 'glyph_replay']
   );
 
   // 🧪 Replay mode loader
   useEffect(() => {
     if (mode !== 'replay') return;
     fetch('/containers/seed_entangled.dc.json')
-      .then(res => res.json())
-      .then(data => {
+      .then((res) => res.json())
+      .then((data) => {
         allGlyphsRef.current = data.glyphs;
-        setStep(1); // Start replay
+        setStep(1);
       });
   }, [mode]);
 
-  // 🧪 Step through glyphs one at a time
+  // 🧪 Step through glyphs in replay
   useEffect(() => {
     if (mode !== 'replay' || step <= 0) return;
     const glyphs = allGlyphsRef.current.slice(0, step);
     const nodes = glyphs.map((g: any) => ({
       id: g.id,
       label: g.label,
-      glyph: g.glyph
+      glyph: g.glyph,
+      tick: g.tick,
+      entangled: g.entangled || [],
     }));
     const links: Link[] = [];
     glyphs.forEach((g: any) => {
@@ -100,13 +112,19 @@ export default function ReplayEntanglementPage() {
     setGraphData({ nodes, links });
   }, [step, mode]);
 
+  // 🔍 Glyph filter
   const filtered = filter
     ? {
-        nodes: graphData.nodes.filter(n => n.glyph.toLowerCase().includes(filter.toLowerCase())),
-        links: graphData.links.filter(l =>
-          graphData.nodes.find(n => n.id === l.source && n.glyph.toLowerCase().includes(filter.toLowerCase())) ||
-          graphData.nodes.find(n => n.id === l.target && n.glyph.toLowerCase().includes(filter.toLowerCase()))
-        )
+        nodes: graphData.nodes.filter((n) => n.glyph.toLowerCase().includes(filter.toLowerCase())),
+        links: graphData.links.filter(
+          (l) =>
+            graphData.nodes.find(
+              (n) => n.id === l.source && n.glyph.toLowerCase().includes(filter.toLowerCase())
+            ) ||
+            graphData.nodes.find(
+              (n) => n.id === l.target && n.glyph.toLowerCase().includes(filter.toLowerCase())
+            )
+        ),
       }
     : graphData;
 
@@ -148,23 +166,24 @@ export default function ReplayEntanglementPage() {
           ref={fgRef}
           graphData={filtered}
           backgroundColor="#000000"
-          nodeLabel={(node: any) => `${node.label} (${node.glyph})`}
+          nodeLabel={(node: any) => `${node.label} (${node.glyph}) • Tick: ${node.tick || '-'}`}
           nodeAutoColorBy="glyph"
           linkColor={() => 'rgba(200, 200, 255, 0.6)'}
           nodeThreeObjectExtend={true}
           nodeThreeObject={(node: any) => {
-            const sprite = document.createElement('canvas');
-            const size = 64;
-            sprite.width = sprite.height = size;
-            const ctx = sprite.getContext('2d')!;
-            ctx.fillStyle = 'white';
-            ctx.font = '24px sans-serif';
+            const spriteCanvas = document.createElement('canvas');
+            spriteCanvas.width = 256;
+            spriteCanvas.height = 64;
+            const ctx = spriteCanvas.getContext('2d')!;
+            ctx.font = '28px Orbitron';
+            ctx.fillStyle = 'cyan';
             ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(node.glyph, size / 2, size / 2);
-            const texture = new THREE.CanvasTexture(sprite);
-            const material = new THREE.SpriteMaterial({ map: texture });
-            return new THREE.Sprite(material);
+            ctx.fillText(node.glyph, 128, 40);
+            const texture = new THREE.CanvasTexture(spriteCanvas);
+            const spriteMaterial = new THREE.SpriteMaterial({ map: texture, transparent: true });
+            const sprite = new THREE.Sprite(spriteMaterial);
+            sprite.scale.set(40, 10, 1);
+            return sprite;
           }}
         />
       </CardContent>

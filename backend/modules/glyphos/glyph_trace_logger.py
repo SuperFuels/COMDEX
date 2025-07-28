@@ -1,7 +1,10 @@
 import time
 import json
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Dict
+
+from backend.modules.glyphnet.glyphnet_ws import broadcast_event  # ✅ WebSocket broadcast
+from backend.modules.glyphvault.vault_bridge import get_container_snapshot_id  # ✅ Snapshot ID fetch
 
 LOG_PATH = Path("logs/glyph_trace_log.json")
 
@@ -9,6 +12,7 @@ LOG_PATH = Path("logs/glyph_trace_log.json")
 class GlyphTraceLogger:
     def __init__(self, persist: bool = True):
         self.trace_log: List[dict] = []
+        self.replay_log: List[dict] = []  # ✅ Replay-specific log
         self.persist = persist
         self._load_existing_log()
 
@@ -63,13 +67,72 @@ class GlyphTraceLogger:
             "entries": self.trace_log[-100:]  # last 100 traces
         }
 
+    # ──────────────────────────────
+    # 🧩 Replay Logging & Broadcast
+    # ──────────────────────────────
+    def add_glyph_replay(
+        self,
+        glyphs: List[Dict],
+        container_id: str,
+        tick_start: int,
+        tick_end: int,
+        entangled_links: Optional[List[Dict]] = None,
+    ):
+        """
+        Logs a replayable glyph trace sequence with Vault snapshot ID and broadcasts it.
+        """
+        snapshot_id = get_container_snapshot_id(container_id)  # ✅ Link replay to Vault snapshot
 
-# ✅ Singleton
+        replay_entry = {
+            "timestamp": time.time(),
+            "iso_time": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            "tick_start": tick_start,
+            "tick_end": tick_end,
+            "container_id": container_id,
+            "snapshot_id": snapshot_id,          # ✅ Attached snapshot ID
+            "glyphs": glyphs,
+            "entangled_links": entangled_links or [],
+        }
+
+        self.replay_log.append(replay_entry)
+
+        # 🛰️ Broadcast replay event over WebSocket
+        try:
+            broadcast_payload = {
+                "type": "glyph_replay_log",
+                "container_id": container_id,
+                "snapshot_id": snapshot_id,
+                "tick_start": tick_start,
+                "tick_end": tick_end,
+                "glyphs": glyphs,
+                "links": entangled_links or [],
+                "meta": {
+                    "glyph_count": len(glyphs),
+                    "entangled_link_count": len(entangled_links or []),
+                },
+            }
+            from asyncio import create_task
+            create_task(broadcast_event(broadcast_payload))
+        except Exception as e:
+            print(f"[⚠️] Failed to broadcast glyph replay: {e}")
+
+        print(f"🛰️ Logged glyph replay: {len(glyphs)} glyphs, ticks {tick_start} → {tick_end}, snapshot={snapshot_id}")
+        return replay_entry
+
+
+# ✅ Singleton instance
 glyph_trace = GlyphTraceLogger()
 
 # 🧪 Optional test
 if __name__ == "__main__":
     glyph_trace.log_trace("⚛", "dream started", context="tessaris")
     glyph_trace.log_trace("⬁", "mutation proposed", context="dna")
+    glyph_trace.add_glyph_replay(
+        glyphs=[{"id": "g1", "glyph": "⚛"}, {"id": "g2", "glyph": "↔"}],
+        container_id="test_container",
+        tick_start=100,
+        tick_end=120,
+        entangled_links=[{"source": "g1", "target": "g2"}],
+    )
     print("Last 2 traces:", glyph_trace.get_recent_traces(2))
-    print("Exported scroll:", json.dumps(glyph_trace.export_to_scroll(), indent=2))
+    print("Replay log:", json.dumps(glyph_trace.replay_log[-1], indent=2))

@@ -69,3 +69,12 @@ def stream_vault_glyphs(identity: str = "AION-000X") -> List[Dict[str, Any]]:
     # Add delay to simulate real-time stream
     time.sleep(0.1)
     return get_mocked_vault_glyphs()
+
+
+def get_container_snapshot_id(container_id: str) -> str:
+    """
+    Retrieves a symbolic snapshot ID for a given container.
+    Currently mocked; integrate with Vault for persistence.
+    """
+    # Mock: deterministic snapshot ID tied to container and timestamp
+    return f"SNAP-{container_id}-{int(time.time())}"
