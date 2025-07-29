@@ -2,7 +2,7 @@
 
 import sys
 import json
-from backend.modules.lean.lean_to_glyph import lean_to_dc_container
+from backend.modules.lean.lean_to_glyph import lean_to_dc_universal_container_system
 
 def main():
     if len(sys.argv) < 2:

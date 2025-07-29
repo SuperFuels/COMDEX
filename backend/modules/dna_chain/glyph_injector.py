@@ -2,7 +2,7 @@
 
 import datetime
 from typing import Optional, Dict, Any
-from backend.modules.state_manager import get_active_container
+from backend.modules.state_manager import get_active_universal_container_system
 from backend.modules.utils.id_utils import generate_uuid
 from backend.modules.utils.time_utils import get_current_timestamp
 from backend.modules.dna_chain.container_index_writer import add_to_index

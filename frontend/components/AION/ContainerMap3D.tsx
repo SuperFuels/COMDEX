@@ -8,6 +8,32 @@ import GlyphSprite from "./GlyphSprite";
 import RuntimeGlyphTrace from "@/components/codex/RuntimeGlyphTrace";
 import HobermanSphere from "../ContainerMap/HobermanSphere";
 import SymbolicExpansionSphere from "../ContainerMap/SymbolicExpansionSphere";
+import WarpDriveNavigator from "@/components/AION/WarpDriveNavigator"; // ✅ Warp Drive Integration
+import {
+  BlackHoleRenderer,
+  DNASpiralRenderer,
+  DodecahedronRenderer,
+  FractalCrystalRenderer,
+  IcosahedronRenderer,
+  MemoryPearlRenderer,
+  MirrorContainerRenderer,
+  OctahedronRenderer,
+  QuantumOrdRenderer,
+  TesseractRenderer,
+  TorusRenderer,
+  VortexRenderer,
+  TetrahedronRenderer
+} from "@/components/AION/renderers";
+
+// ✅ GHXVisualizer directional arrows stub
+export function drawLinkArrows(containerLinks: Record<string, any>) {
+  Object.entries(containerLinks).forEach(([source, nav]) => {
+    Object.entries(nav).forEach(([direction, target]) => {
+      console.log(`🎨 Draw arrow: ${source} → ${target} (${direction})`);
+      // TODO: Render directional arrow in GHX canvas
+    });
+  });
+}
 
 interface ContainerInfo {
   id: string;
@@ -31,6 +57,14 @@ interface ContainerMap3DProps {
 }
 
 const fetchContainersAPI = "/api/containers";
+
+// ✅ Warp Drive Zones
+const defaultZones = [
+  { id: "hq", name: "Tessaris HQ", position: [0, 0, 0], layer: "inner" as const },
+  { id: "qwaves", name: "Quantum Waves", position: [20, 10, -15], layer: "outer" as const },
+  { id: "deep-lab", name: "Deep Lab 7", position: [-25, -5, 30], layer: "deep" as const },
+  { id: "aion-home", name: "AION Home", position: [15, 20, 25], layer: "outer" as const },
+];
 
 const getPosition = (
   index: number,
@@ -171,6 +205,93 @@ function HolodeckCube({
   );
 }
 
+  // ✅ NEW: Dynamic container renderer for SEC, HSC, and all 13 symbolic container types
+  const renderContainerVisual = (
+    container: ContainerInfo,
+    pos: [number, number, number],
+    activeId: string | undefined,
+    isLinked: (id: string) => boolean,
+    onTeleport: ((id: string) => void) | undefined,
+    setHoveredId: (id: string | null) => void,
+    symbolicScale: boolean
+  ) => {
+    switch (container.symbolic_mode) {
+      // ✅ SEC (Symbolic Expansion Container)
+      case "expansion":
+        return (
+          <SymbolicExpansionSphere
+            key={`${container.id}-expansion`}
+            containerId={container.id}
+            expandedLogic={{ logic_tree: { depth: container.logic_depth || 1 } }}
+            runtimeTick={container.runtime_tick}
+            glyphOverlay={[container.glyph || ""]}
+            isEntangled={container.glyph === "↔"}
+            isCollapsed={container.glyph === "⧖"}
+            mode="depth"
+          />
+        );
+
+      // ✅ HSC (Hoberman Sphere Container)
+      case "hoberman":
+        return (
+          <HobermanSphere
+            key={`${container.id}-hoberman`}
+            position={pos}
+            containerId={container.id}
+            active={container.id === activeId}
+            glyph={container.glyph}
+            logicDepth={container.logic_depth}
+            runtimeTick={container.runtime_tick}
+          />
+        );
+
+      // ✅ 13 New Symbolic Container Types
+  // ✅ The 13 symbolic container types
+      case "black_hole":
+        return <BlackHoleRenderer key={container.id} position={pos} container={container} />;
+      case "dna_spiral":
+        return <DNASpiralRenderer key={container.id} position={pos} container={container} />;
+      case "dodecahedron":
+        return <DodecahedronRenderer key={container.id} position={pos} container={container} />;
+      case "fractal_crystal":
+        return <FractalCrystalRenderer key={container.id} position={pos} container={container} />;
+      case "icosahedron":
+        return <IcosahedronRenderer key={container.id} position={pos} container={container} />;
+      case "memory_pearl":
+        return <MemoryPearlRenderer key={container.id} position={pos} container={container} />;
+      case "mirror_container":
+        return <MirrorContainerRenderer key={container.id} position={pos} container={container} />;
+      case "octahedron":
+        return <OctahedronRenderer key={container.id} position={pos} container={container} />;
+      case "quantum_ord":
+        return <QuantumOrdRenderer key={container.id} position={pos} container={container} />;
+      case "tesseract":
+        return <TesseractRenderer key={container.id} position={pos} container={container} />;
+      case "torus":
+        return <TorusRenderer key={container.id} position={pos} container={container} />;
+      case "vortex":
+        return <VortexRenderer key={container.id} position={pos} container={container} />;
+      case "tetrahedron":
+        return <TetrahedronRenderer key={container.id} position={pos} container={container} />;
+
+
+      // 🧊 Default fallback HolodeckCube (if no symbolic_mode match)
+      default:
+        return (
+          <HolodeckCube
+            key={`${container.id}-cube`}
+            container={container}
+            position={pos}
+            active={container.id === activeId}
+            linked={!!isLinked(container.id)}
+            onClick={onTeleport || (() => {})}
+            onHover={setHoveredId}
+            symbolicScale={symbolicScale}
+          />
+        );
+    }
+  };
+
 export default function ContainerMap3D({
   containers,
   layout = "ring",
@@ -182,12 +303,16 @@ export default function ContainerMap3D({
   const [symbolicScale, setSymbolicScale] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [activeZone, setActiveZone] = useState<string | null>("hq");
+  const [selectedZone, setSelectedZone] = useState<string>("hq"); // default zone
 
+  // ✅ Fetch containers, filtered by WarpDrive zone if provided
   useEffect(() => {
     if (containers) {
       setRealContainers(containers);
       setLoading(false);
     } else {
+      // Default: fetch all containers first
       axios
         .get(fetchContainersAPI)
         .then((response) => {
@@ -203,20 +328,54 @@ export default function ContainerMap3D({
     }
   }, [containers]);
 
+  // ✅ NEW: Listen for zone warp and fetch containers for that zone
+  useEffect(() => {
+    if (!selectedZone) return;
+    setLoading(true);
+    axios
+      .get(`/api/aion/containers/zone/${selectedZone}`)
+      .then((response) => {
+        setRealContainers(response.data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Failed to fetch zone containers", err);
+        setLoading(false);
+      });
+  }, [selectedZone]);
+
+  // Zone filter for Warp Drive
+  const zoneFilteredContainers = useMemo(() => {
+    if (!activeZone) return realContainers;
+    return realContainers.filter((c) => !c.region || c.region === activeZone);
+  }, [realContainers, activeZone]);
+
   const positions = useMemo(() => {
     const posMap: Record<string, [number, number, number]> = {};
-    realContainers.forEach((c, i) => {
-      posMap[c.id] = getPosition(i, realContainers.length, layout);
+    zoneFilteredContainers.forEach((c, i) => {
+      posMap[c.id] = getPosition(i, zoneFilteredContainers.length, layout);
     });
     return posMap;
-  }, [realContainers, layout]);
+  }, [zoneFilteredContainers, layout]);
 
   const isLinked = (id: string) =>
-    hoveredId && realContainers.some((c) => c.id === hoveredId && c.connected.includes(id));
+    hoveredId && zoneFilteredContainers.some((c) => c.id === hoveredId && c.connected.includes(id));
 
   const sortedContainers = useMemo(() => {
-    return [...realContainers].sort((a, b) => (b.logic_depth || 0) - (a.logic_depth || 0));
-  }, [realContainers]);
+    return [...zoneFilteredContainers].sort((a, b) => (b.logic_depth || 0) - (a.logic_depth || 0));
+  }, [zoneFilteredContainers]);
+
+  // ✅ GHX directional arrows
+  useEffect(() => {
+    const linkMap: Record<string, any> = {};
+    zoneFilteredContainers.forEach((c) => {
+      linkMap[c.id] = c.connected.reduce((acc: any, linkId: string) => {
+        acc["linked"] = linkId;
+        return acc;
+      }, {});
+    });
+    drawLinkArrows(linkMap);
+  }, [zoneFilteredContainers]);
 
   if (loading) {
     return (
@@ -240,6 +399,13 @@ export default function ContainerMap3D({
       <ambientLight intensity={0.5} />
       <pointLight position={[10, 10, 10]} intensity={1.2} />
 
+    {/* ✅ Warp Drive Navigator HUD */}
+      <WarpDriveNavigator 
+        zones={defaultZones} 
+        onWarpComplete={(z) => setActiveZone(z)} 
+      />
+
+      {/* ✅ Symbolic Scale HUD */}
       <Html position={[-4, 3, 0]}>
         <div
           style={{
@@ -267,50 +433,22 @@ export default function ContainerMap3D({
         </div>
       </Html>
 
+      {/* ✅ Dynamic Container Renderer */}
       {sortedContainers.map((container) => {
         const pos = positions[container.id];
         return (
           <React.Fragment key={container.id}>
-            {container.symbolic_mode === "expansion" && (
-              <SymbolicExpansionSphere
-                containerId={container.id}
-                expandedLogic={{ logic_tree: { depth: container.logic_depth || 1 } }}
-                runtimeTick={container.runtime_tick}
-                glyphOverlay={[container.glyph || ""]}
-                isEntangled={container.glyph === "↔"}
-                isCollapsed={container.glyph === "⧖"}
-                mode="depth"
-              />
-            )}
-
-            <HobermanSphere
-              position={pos}
-              containerId={container.id}
-              active={container.id === activeId}
-              glyph={container.glyph}
-              logicDepth={container.logic_depth}
-              runtimeTick={container.runtime_tick}
-            />
-
-            <HolodeckCube
-              container={container}
-              position={pos}
-              active={container.id === activeId}
-              linked={!!isLinked(container.id)}
-              onClick={onTeleport || (() => {})}
-              onHover={setHoveredId}
-              symbolicScale={symbolicScale}
-            />
+            {renderContainerVisual(container, pos, activeId, isLinked, onTeleport, setHoveredId, symbolicScale)}
           </React.Fragment>
         );
       })}
 
-      {realContainers.flatMap((container) =>
+      {/* ✅ Wormhole Rendering */}
+      {zoneFilteredContainers.flatMap((container) =>
         (container.connected || []).map((link) => {
           const from = positions[container.id];
           const to = positions[link];
           if (!from || !to) return null;
-
           return (
             <WormholeRenderer
               key={`${container.id}->${link}`}

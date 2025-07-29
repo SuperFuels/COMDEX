@@ -1,0 +1,15 @@
+{
+  "name": "Torus Memory Exhaust",
+  "symbol": "🧿",
+  "geometry_type": "torus",
+  "description": "Symbolic memory loop and exhaust point; stabilizes post-compression flow.",
+  "sqi_hooks": {
+    "loop": ["memory_cycle", "output_exhaust"]
+  },
+  "properties": {
+    "loop_mode": "closed",
+    "role": "memory_loop",
+    "stability": "high"
+  },
+  "linked_next": null
+}

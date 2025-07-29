@@ -3,6 +3,12 @@ from backend.modules.skills.boot_selector import BootSelector
 from backend.modules.consciousness.reflection_engine import ReflectionEngine
 from backend.modules.dna_chain.switchboard import DNA_SWITCH
 
+# ✅ NEW imports for KG-driven reasoning
+from backend.modules.knowledge_graph.knowledge_index import knowledge_index
+from backend.modules.knowledge_graph.indexes.tag_index import get_glyphs_by_tag
+from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter
+from backend.modules.glyphos.symbol_graph import symbol_graph  # ✅ A5b
+
 # Attempt safe imports for optional systems
 try:
     from backend.modules.hexcore.memory_engine import store_memory
@@ -50,6 +56,14 @@ GLYPH_SYMBOL_MAP = {
 boot_selector = BootSelector()
 reflector = ReflectionEngine()
 
+# ✅ NEW: Dynamic operator weights (modifiable by KG evolution)
+OPERATOR_WEIGHTS = {
+    "↔": 1.0,  # Entanglement strength
+    "⧖": 1.0,  # Collapse bias
+    "⬁": 1.0,  # Mutation rate
+}
+
+
 def interpret_glyph(glyph: str, context: Dict[str, Any]) -> Dict[str, Any]:
     branch = context.get("branch")
     idx = context.get("index")
@@ -71,6 +85,9 @@ def interpret_glyph(glyph: str, context: Dict[str, Any]) -> Dict[str, Any]:
             logs.append("→ 🪞 Reflection triggered.")
             triggered_modules.append("ReflectionEngine")
             memory_traces.append({"type": "reflection", "content": result})
+
+            # ✅ Feed reflection into Symbol Graph
+            symbol_graph.feed_reflection(glyph, result)
 
         elif glyph == "⚙":
             planner = get_strategy_planner()
@@ -142,6 +159,11 @@ def interpret_glyph(glyph: str, context: Dict[str, Any]) -> Dict[str, Any]:
         except Exception as trace_error:
             logs.append(f"⚠️ MemoryBridge trace failed: {trace_error}")
 
+    # ✅ Feed tags into Symbol Graph (from meta or KnowledgeIndex)
+    tags = meta.get("tags") or knowledge_index.get_tags_for_glyph(glyph)
+    if tags:
+        symbol_graph.feed_tags(glyph, tags)
+
     return {
         "glyph": glyph,
         "symbol": symbol,
@@ -154,11 +176,13 @@ def interpret_glyph(glyph: str, context: Dict[str, Any]) -> Dict[str, Any]:
         "meta": meta,
     }
 
+
 def glyph_from_label(label: str) -> str:
     for glyph, meaning in GLYPH_SYMBOL_MAP.items():
         if meaning == label:
             return glyph
     return "?"
+
 
 def analyze_branch(branch) -> List[str]:
     summaries = []
@@ -168,14 +192,8 @@ def analyze_branch(branch) -> List[str]:
         summaries.append(f"{i}. Glyph {glyph} → {result['symbol']}: {result['log']}")
     return summaries
 
-# 🧬 J2: Interpret QGlyphs (Superposition / Collapse Logic)
+
 def interpret_qglyph(qglyph: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Interpret a QGlyph in symbolic superposition and embed collapse/entanglement logic.
-    Expects:
-      - qglyph["superposition"]: list of glyphs
-      - qglyph["collapse_trace"]: (optional) collapse order
-    """
     results = []
     collapse_trace = []
     for i, glyph in enumerate(qglyph.get("superposition", [])):
@@ -198,3 +216,41 @@ def interpret_qglyph(qglyph: Dict[str, Any], context: Dict[str, Any]) -> Dict[st
         "origin": qglyph.get("origin", None),
         "metadata": qglyph.get("metadata", {}),
     }
+
+# ────────────────────────────────────────────────
+# 🧠 NEW: GlyphOS Logic Evolution (A5a + A5b + A5c integrated)
+# ────────────────────────────────────────────────
+def update_logic_from_kg():
+    """
+    Dynamically evolve operator weights and reasoning rules based on Knowledge Graph,
+    feed changes into the Symbol Graph, and trigger adaptive glyph synthesis.
+    """
+    from backend.modules.glyphos.glyph_synthesis_engine import glyph_synthesizer  # ✅ A5c link
+
+    kgw = KnowledgeGraphWriter()
+    stats = kgw.validate_knowledge_graph()
+
+    total_glyphs = stats["total_glyphs"]
+    reflection_glyphs = get_glyphs_by_tag("reflection")
+    entangled_glyphs = get_glyphs_by_tag("↔")
+
+    # Adjust operator weights based on KG metrics
+    OPERATOR_WEIGHTS["↔"] = 1.0 + (len(entangled_glyphs) / max(1, total_glyphs)) * 0.5
+    OPERATOR_WEIGHTS["⧖"] = 1.0 if total_glyphs < 500 else 1.2
+    OPERATOR_WEIGHTS["⬁"] = 1.0 + (len(reflection_glyphs) / max(1, total_glyphs)) * 0.3
+
+    # Inject evolution glyph into KG
+    kgw.inject_glyph(
+        content=f"Updated GlyphOS operator weights ↔:{OPERATOR_WEIGHTS['↔']:.2f} ⧖:{OPERATOR_WEIGHTS['⧖']:.2f} ⬁:{OPERATOR_WEIGHTS['⬁']:.2f}",
+        glyph_type="self_reflection",
+        metadata={"tags": ["evolution", "logic_update"], "reason": "KG-driven adaptation"},
+        plugin="GlyphOS"
+    )
+
+    # ✅ Feed updated weights into Symbol Graph
+    symbol_graph.feed_weights(OPERATOR_WEIGHTS)
+
+    # ✅ A5c: Trigger adaptive glyph synthesis based on KG density & entropy
+    glyph_synthesizer.adaptive_synthesis()
+
+    return OPERATOR_WEIGHTS

@@ -1,0 +1,15 @@
+{
+  "name": "Vortex Chaos Spiral",
+  "symbol": "🌪️",
+  "geometry_type": "vortex",
+  "description": "Chaos-order transformer; accelerates symbolic state evolution.",
+  "sqi_hooks": {
+    "transform": ["entropy_accelerate", "order_converge"]
+  },
+  "properties": {
+    "logic_density": "high",
+    "role": "transformer",
+    "rotation_speed": "hyper"
+  },
+  "linked_next": "black_hole.dc.json"
+}

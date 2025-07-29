@@ -1,0 +1,15 @@
+{
+  "name": "Tesseract Central Command",
+  "symbol": "🧮",
+  "geometry_type": "tesseract",
+  "description": "Entangled futures hub; orchestrates symbolic flow across geometries.",
+  "sqi_hooks": {
+    "orchestrate": ["entangled_logic", "future_projection"]
+  },
+  "properties": {
+    "logic_density": "very_high",
+    "role": "central_command",
+    "connections": 16
+  },
+  "linked_next": "quantum_orb.dc.json"
+}

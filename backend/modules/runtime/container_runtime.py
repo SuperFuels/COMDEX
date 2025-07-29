@@ -15,6 +15,10 @@ from backend.modules.glyphos.glyph_trace_logger import glyph_trace
 from backend.modules.codex.codex_websocket_interface import send_codex_ws_event 
 from backend.modules.soullaw.soul_law_validator import SoulLawValidator
 from backend.modules.glyphos.collapse_trace_exporter import export_collapse_trace
+from backend.modules.dimensions.universal_container_system.ucs_runtime import ucs_runtime
+from backend.modules.dimensions.universal_container_system.ucs_geometry_loader import UCSGeometryLoader
+from backend.modules.dimensions.universal_container_system.ucs_entanglement import entangle_containers
+from backend.modules.dimensions.universal_container_system.ucs_base_container import UCSBaseContainer
 
 try:
     from backend.modules.glyphos.glyph_summary import summarize_glyphs
@@ -38,11 +42,13 @@ class ContainerRuntime:
         self.loop_interval = 50
         self.rewind_buffer: list[Dict[str, Any]] = []
         self.max_rewind = 5
+        self.ucs = ucs_runtime
+        self.geometry_loader = UCSGeometryLoader()
 
         self.async_loop = asyncio.new_event_loop()
         self.loop_thread = threading.Thread(target=self._start_event_loop, daemon=True)
         self.loop_thread.start()
-
+        self.ucs_features = UCSBaseContainer.global_features  # ✅ Apply UCS global features (time_dilation, gravity, micro_grid)
         self.vault_manager = ContainerVaultManager(ENCRYPTION_KEY)
 
     def _start_event_loop(self):
@@ -59,28 +65,49 @@ class ContainerRuntime:
         self.running = False
         print("⏹️ Container Runtime stopped.")
 
-    def run_loop(self):
-        while self.running:
-            tick_log = self.run_tick()
-            self.logs.append(tick_log)
+    def get_decrypted_current_container(self) -> Dict[str, Any]:
+        container = self.state_manager.get_current_container()
+        encrypted_blob = container.get("encrypted_glyph_data")
+        avatar_state = self.state_manager.get_avatar_state()
 
-            if self.websocket:
-                self.websocket.broadcast({"type": "tick_log", "data": tick_log})
-                self.websocket.broadcast({
-                    "type": "dimension_tick",
-                    "data": {
-                        "tick": self.tick_counter,
-                        "timestamp": time.time()
-                    }
-                })
+        if encrypted_blob:
+            success = self.vault_manager.load_container_glyph_data(
+                encrypted_blob,
+                avatar_state=avatar_state
+            )
+            if success:
+                container["cubes"] = self.vault_manager.get_microgrid().export_index()
+            else:
+                print("⚠️ Warning: Failed to decrypt container glyph data or access denied.")
+                container["cubes"] = {}
 
-                if summarize_glyphs:
-                    container = self.get_decrypted_current_container()
-                    cubes = container.get("cubes", {})
-                    summary = summarize_glyphs(cubes)
-                    self.websocket.broadcast({"type": "glyph_summary", "data": summary})
+        container_id = container.get("id")
+        seed_links = container.get("entangled", [])
+        for other_id in seed_links:
+            if other_id and other_id != container_id:
+                try:
+                    entangle_glyphs("↔", container_id, other_id, sender="container_runtime", push=True)
+                except Exception as e:
+                    print(f"⚠️ Failed to seed-entangle {container_id} ↔ {other_id}: {e}")
 
-            time.sleep(self.tick_interval)
+        try:
+            resolver = KeyFragmentResolver(container_id)
+            glyphs = list(container.get("cubes", {}).values())
+            resolver.run_full_recombination(glyphs)
+        except Exception as e:
+            print(f"⚠️ Key fragment recombination failed: {e}")
+
+        # ✅ UCS Sync (register geometry + save container state)
+        if container.get("geometry"):
+            self.geometry_loader.register_geometry(
+                container.get("name", container_id),
+                container.get("symbol", "❔"),
+                container.get("geometry", "unknown")
+            )
+            # ✅ Push updated state into UCS runtime
+            self.ucs.save_container(container["id"], container)
+
+        return container
 
     def run_tick(self) -> Dict[str, Any]:
         container = self.get_decrypted_current_container()
@@ -112,6 +139,13 @@ class ContainerRuntime:
                             glyph_str,
                             identity=avatar_state.get("id") if avatar_state else None
                         )
+
+                        # ✅ UCS SoulLaw enforcement (redundant layer)
+                        try:
+                            self.ucs.soul_law.validate_access(container)
+                            print(f"🔒 UCS SoulLaw enforcement passed for container {container.get('id')}.")
+                        except Exception as e:
+                            print(f"⚠️ UCS SoulLaw enforcement failed: {e}")
 
                         container.setdefault("soul_law_trace", []).append({
                             "coord": coord_str,
@@ -161,6 +195,14 @@ class ContainerRuntime:
                 except Exception as e:
                     print(f"❌ Failed to execute glyph at {coord_str}: {e}")
 
+        # ✅ UCS Visualization Sync (highlight container in GHX)
+        if container.get("id"):
+            try:
+                self.ucs.visualizer.highlight(container["id"])
+                print(f"🎨 UCS Visualization: Highlighted {container['id']} in GHX.")
+            except Exception as e:
+                print(f"⚠️ UCS visualization sync failed: {e}")
+
         self.tick_counter += 1
         tick_log["timestamp"] = time.time()
         tick_log["tick"] = self.tick_counter
@@ -172,6 +214,12 @@ class ContainerRuntime:
                 print("🔄 Container loop: state rewound.")
 
         self.apply_decay(container["cubes"])
+
+        # ✅ Time dilation hook (affects tick pacing)
+        if self.ucs_features.get("time_dilation"):
+            factor = self.ucs_features.get("time_dilation_factor", 1.0)
+            time.sleep(self.tick_interval * (1 / factor))
+
         return tick_log
 
     def get_decrypted_current_container(self) -> Dict[str, Any]:
@@ -255,8 +303,30 @@ class ContainerRuntime:
             }
         }
 
+        # ✅ Register forked container in state manager
         self.state_manager.all_containers[entangled_id] = forked_container
         print(f"🌌 Forked entangled container: {entangled_id}")
+
+        # ✅ Register entanglement in UCS
+        try:
+            from backend.modules.dimensions.universal_container_system.ucs_entanglement import entangle_containers
+            entangle_containers(original_name, entangled_id)
+            print(f"↔ UCS entanglement registered: {original_name} ↔ {entangled_id}")
+        except ImportError:
+            print("⚠️ UCS entanglement module not found. Skipping UCS registration.")
+
+        # ✅ Auto-register geometry in UCS (GHX sync)
+        try:
+            from backend.modules.dimensions.universal_container_system.ucs_geometry_loader import UCSGeometryLoader
+            geometry_loader = UCSGeometryLoader()
+            geometry_loader.register_geometry(
+                forked_container.get("name", entangled_id),
+                forked_container.get("symbol", "❔"),
+                forked_container.get("geometry", "entangled")
+            )
+            print(f"🎨 UCS geometry synced for entangled container: {entangled_id}")
+        except ImportError:
+            print("⚠️ UCS geometry loader not found. Skipping auto-geometry sync.")
 
     def apply_decay(self, cubes: Dict[str, Any]):
         pass
@@ -283,7 +353,10 @@ class ContainerRuntime:
             if payload.get("entangled_identity"):
                 target_container["entangled_identity"] = payload["entangled_identity"]
 
-            print(f"🛰️ GlyphPush replay loaded into container: {target_container.get('id')}")
+            # ✅ Sync to UCS runtime (register updated container state)
+            self.ucs.save_container(target_container["id"], target_container)
+            print(f"🛰️ GlyphPush replay loaded and UCS-synced for container: {target_container.get('id')}")
+
         except Exception as e:
             print(f"❌ Failed to load GlyphPush packet: {e}")
 

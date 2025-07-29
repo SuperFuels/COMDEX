@@ -10,6 +10,10 @@ from backend.modules.hexcore.memory_engine import store_memory_packet
 from backend.modules.tessaris.tessaris_intent_executor import execute_glyph_packet
 from backend.modules.consciousness.state_manager import STATE
 
+# ✅ NEW: Knowledge Graph integration for A5c
+from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter
+from backend.modules.knowledge_graph.indexes.stats_index import build_stats_index
+
 # Optional WebSocket push
 try:
     from backend.modules.websocket_manager import WebSocketManager
@@ -56,7 +60,6 @@ class GlyphSynthesisEngine:
                 "glyph_packet": self.dedup_cache[meaning_hash],
             }
 
-        # Optional: Infer symbolic grammar
         inferred_grammar = []
         for g in glyphs:
             structure = self.grammar_engine.infer_from_glyph(g)
@@ -100,9 +103,6 @@ class GlyphSynthesisEngine:
         return execute_glyph_packet(packet["glyphs"])
 
     def inject_into_container(self, packet: Dict, coord: str = "0,0,0,0") -> bool:
-        """
-        Store the glyph packet into the active container at specified coord.
-        """
         container_id = STATE.current_container.get("id") if STATE.current_container else None
         if not container_id:
             print("[❌] No active container to inject glyph into.")
@@ -123,10 +123,6 @@ class GlyphSynthesisEngine:
         return success
 
     def push_to_glyph_grid(self, packet: Dict):
-        """
-        Push synthesized glyphs to glyph grid via WebSocket.
-        Includes inferred grammar metadata for HUD overlays.
-        """
         if not WS:
             print("[WS] GlyphGrid WebSocket not available.")
             return
@@ -145,10 +141,6 @@ class GlyphSynthesisEngine:
         WS.broadcast(payload)
 
     def mutate_packet(self, packet: Dict) -> Dict:
-        """
-        Perform simple symbolic mutation by reordering glyphs or toggling logic.
-        Future: semantic mutation via GPT or logic engine.
-        """
         mutated = dict(packet)
         mutated_glyphs = list(mutated["glyphs"])
         if len(mutated_glyphs) > 1:
@@ -165,32 +157,48 @@ class GlyphSynthesisEngine:
             "recent_hashes": list(self.dedup_cache.keys())[-5:]
         }
 
+    # ────────────────────────────────────────────────
+    # 🧠 A5c: Adaptive Glyph Synthesis from KG
+    # ────────────────────────────────────────────────
+    def adaptive_synthesis(self):
+        """
+        Dynamically synthesize glyphs based on Knowledge Graph density and entropy.
+        """
+        kgw = KnowledgeGraphWriter()
+        stats = kgw.validate_knowledge_graph()
+        total_glyphs = stats["total_glyphs"]
+        entropy = stats["stats_index"]["summary"].get("entropy", 0.0)
+
+        # Define thresholds
+        if total_glyphs > 500 or entropy > 0.7:
+            seed_text = "Initiate reflective mutation and self-alignment."
+        elif total_glyphs < 100:
+            seed_text = "Bootstrap foundational reasoning and symbolic growth."
+        else:
+            seed_text = "Balance entanglement, collapse, and mutation."
+
+        print(f"[🧠 Adaptive Synthesis] Density={total_glyphs}, Entropy={entropy:.2f} → Seed: {seed_text}")
+
+        packet = self.compress_input(seed_text, source="adaptive_synthesis")["glyph_packet"]
+        self.store_packet(packet, tag="adaptive")
+        self.push_to_glyph_grid(packet)
+        return packet
+
 
 # ✅ Singleton
 glyph_synthesizer = GlyphSynthesisEngine()
 
 
 def compress_to_glyphs(data: str) -> List[Dict]:
-    """
-    External utility wrapper to compress raw input into a list of glyphs.
-    Returns only the glyph list, not the full packet.
-    """
     result = glyph_synthesizer.compress_input(data)
     return result["glyph_packet"]["glyphs"]
 
 
-# ✅ Public function for FastAPI route
 def synthesize_glyphs_from_text(text: str, source: str = "manual") -> List[Dict]:
-    """
-    Public-facing synthesis function used by API.
-    Compresses input text to glyphs and stores result.
-    """
     result = glyph_synthesizer.compress_input(text, source)
     glyph_packet = result["glyph_packet"]
-
     glyph_synthesizer.store_packet(glyph_packet, tag=source)
     glyph_synthesizer.push_to_glyph_grid(glyph_packet)
-
     return glyph_packet["glyphs"]
 
 
@@ -203,9 +211,12 @@ if __name__ == "__main__":
     glyph_synthesizer.store_packet(result["glyph_packet"])
     glyph_synthesizer.inject_into_container(result["glyph_packet"], coord="2,0,0,0")
     glyph_synthesizer.push_to_glyph_grid(result["glyph_packet"])
-
     print("Execution result:", glyph_synthesizer.run_packet(result["glyph_packet"]))
 
     # 🧬 Test mutation
     mutated = glyph_synthesizer.mutate_packet(result["glyph_packet"])
     print("Mutated Packet:", json.dumps(mutated, indent=2))
+
+    # 🧠 Test adaptive synthesis
+    adaptive = glyph_synthesizer.adaptive_synthesis()
+    print("Adaptive Packet:", json.dumps(adaptive, indent=2))

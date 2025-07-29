@@ -1,7 +1,10 @@
-# backend/modules/glyphvault/container_vault_integration.py
+# File: backend/modules/glyphvault/container_vault_integration.py
 
 from backend.modules.glyphvault.container_vault_manager import ContainerVaultManager
 from backend.modules.glyphvault.key_manager import key_manager
+from backend.modules.ucs.ucs_runtime import get_ucs_runtime  # ✅ UCS Runtime sync
+from backend.modules.soullaw.soul_law_validator import soul_law_validator  # ✅ SoulLaw Enforcement
+from backend.modules.glyphnet.glyphnet_ws import broadcast_event  # ✅ GHX/SQI sync
 
 def get_state():
     from backend.modules.consciousness.state_manager import STATE
@@ -9,13 +12,12 @@ def get_state():
 
 # Load encryption key securely from key manager singleton
 ENCRYPTION_KEY = key_manager.key
-
 vault_manager = ContainerVaultManager(ENCRYPTION_KEY)
 
 def decrypt_glyph_vault(container_data: dict, avatar_state: dict = None) -> dict:
     """
-    If container_data contains encrypted glyph vault, decrypt and load glyph metadata.
-    Merge glyph metadata into container 'cubes' or other relevant fields.
+    Decrypt glyph vault, load glyph metadata into container cubes, 
+    sync UCS runtime, enforce SoulLaw, and broadcast GHX visualization.
     """
     encrypted_blob = container_data.get("glyph_vault")
     if not encrypted_blob:
@@ -25,13 +27,19 @@ def decrypt_glyph_vault(container_data: dict, avatar_state: dict = None) -> dict
     if isinstance(encrypted_blob, str):
         encrypted_blob = bytes.fromhex(encrypted_blob)
 
+    # ✅ SoulLaw: Validate container before decryption
+    try:
+        soul_law_validator.validate_container(container_data)
+    except Exception as e:
+        print(f"❌ SoulLaw: Container decryption blocked – {e}")
+        return container_data
+
     success = vault_manager.load_container_glyph_data(encrypted_blob, avatar_state=avatar_state)
     if not success:
-        # Decryption failed - log and proceed without glyph vault
         print("[Vault] Failed to decrypt glyph vault.")
         return container_data
 
-    # Merge glyph metadata from vault into container cubes
+    # Merge glyph metadata into container cubes
     glyph_map = vault_manager.get_microgrid().glyph_map
     cubes = container_data.setdefault("cubes", {})
     for coord_tuple, meta in glyph_map.items():
@@ -40,12 +48,26 @@ def decrypt_glyph_vault(container_data: dict, avatar_state: dict = None) -> dict
         cubes[key] = meta
 
     print(f"[Vault] Loaded {len(glyph_map)} glyphs from glyph vault.")
+
+    # ✅ UCS Runtime Sync
+    ucs = get_ucs_runtime()
+    ucs.save_container(container_data["id"], container_data)
+
+    # ✅ GHX Visualization Sync
+    broadcast_event({
+        "type": "vault_decrypt",
+        "container_id": container_data.get("id"),
+        "glyph_count": len(glyph_map),
+        "tags": ["🔓", "GHX"]
+    })
+
     return container_data
+
 
 def encrypt_and_embed_glyph_vault(container_data: dict) -> dict:
     """
-    Extract glyph metadata from container cubes, encrypt it, and embed as 'glyph_vault' field.
-    Optionally remove plaintext glyph data from cubes to secure container data.
+    Extract glyph metadata, encrypt it, and embed into container vault. 
+    Enforce SoulLaw, sync UCS runtime, and emit SQI events.
     """
     cubes = container_data.get("cubes", {})
     glyph_data = {}
@@ -57,17 +79,35 @@ def encrypt_and_embed_glyph_vault(container_data: dict) -> dict:
         }
         glyph_data[coord_str] = glyph_meta
 
+    # ✅ SoulLaw Validation (Pre-encrypt)
+    try:
+        soul_law_validator.validate_container(container_data)
+    except Exception as e:
+        print(f"❌ SoulLaw: Vault encryption blocked – {e}")
+        return container_data
+
     # Encrypt glyph metadata
     encrypted_blob = vault_manager.save_container_glyph_data(glyph_data)
-
-    # Store hex-encoded encrypted blob
     container_data["glyph_vault"] = encrypted_blob.hex()
 
-    # Optionally clear plaintext glyph cubes for security
+    # Optionally clear plaintext glyph data
     for cube in cubes.values():
         cube.pop("glyph", None)
         cube.pop("source", None)
         cube.pop("metadata", None)
 
     print(f"[Vault] Encrypted and embedded {len(glyph_data)} glyphs into glyph vault.")
+
+    # ✅ UCS Runtime Sync
+    ucs = get_ucs_runtime()
+    ucs.save_container(container_data["id"], container_data)
+
+    # ✅ SQI Event Emission
+    broadcast_event({
+        "type": "vault_encrypt",
+        "container_id": container_data.get("id"),
+        "glyph_count": len(glyph_data),
+        "tags": ["🔒", "SQI"]
+    })
+
     return container_data

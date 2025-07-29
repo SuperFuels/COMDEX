@@ -8,7 +8,7 @@ from typing import Dict, Any, Optional
 
 from backend.modules.tessaris.tessaris_engine import TessarisEngine
 from backend.modules.glyphos.glyph_logic import compile_glyphs, parse_logic
-from backend.modules.dc.container_runtime import embed_glyph_block_into_container, load_container_state
+from backend.modules.dc.container_runtime import embed_glyph_block_into_universal_container_system, load_container_state
 from backend.modules.codex.codex_context_adapter import CodexContextAdapter
 
 logger = logging.getLogger(__name__)

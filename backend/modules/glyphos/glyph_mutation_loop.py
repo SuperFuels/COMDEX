@@ -4,7 +4,7 @@ import traceback
 from datetime import datetime
 from typing import Optional
 
-from backend.modules.dna_chain.dc_handler import list_all_containers, get_dc_path
+from backend.modules.dna_chain.dc_handler import list_all_universal_container_system, get_dc_path
 from backend.modules.glyphos.glyph_mutator import auto_mutate_if_expired, run_self_rewrite
 from backend.modules.hexcore.memory_engine import store_memory_entry
 
@@ -65,7 +65,7 @@ class GlyphMutationLoop(threading.Thread):
 
     def _load_container(self, path):
         try:
-            from backend.modules.dna_chain.dc_handler import load_dc_container
+            from backend.modules.dna_chain.dc_handler import load_dc_universal_container_system
             return load_dc_container(path)
         except Exception as e:
             print(f"[⚠️] Failed to load container {path}: {e}")

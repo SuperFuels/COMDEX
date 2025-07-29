@@ -1,6 +1,8 @@
-from fastapi import APIRouter, HTTPException, Request
+# File: backend/routes/glyphnet_command_api.py
+
+from fastapi import APIRouter, HTTPException, Request, Query
 from pydantic import BaseModel
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 
 from backend.modules.glyphnet.glyphnet_terminal import (
     run_symbolic_command,
@@ -9,6 +11,7 @@ from backend.modules.glyphnet.glyphnet_terminal import (
     get_command_history,
     get_recent_logs
 )
+from backend.modules.glyphnet.glyphnet_trace import get_recent_traces  # ✅ NEW IMPORT
 
 router = APIRouter(prefix="/glyphnet/command", tags=["GlyphNet Terminal"])
 
@@ -52,3 +55,18 @@ def fetch_command_history(n: int = 10):
 def get_glyphnet_logs():
     logs = get_recent_logs()
     return {"logs": logs}
+
+
+# ✅ NEW: Trace Endpoint
+@router.get("/trace")
+def fetch_glyphnet_trace(
+    snapshot_id: Optional[str] = Query(None, description="Filter traces by snapshot ID"),
+    limit: int = Query(100, description="Max number of traces to return")
+):
+    """
+    Fetch recent GlyphNet trace events, optionally filtered by snapshot_id.
+    """
+    traces = get_recent_traces(limit=limit)
+    if snapshot_id:
+        traces = [t for t in traces if t["data"].get("snapshot_id") == snapshot_id]
+    return {"snapshot_id": snapshot_id, "count": len(traces), "traces": traces}

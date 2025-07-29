@@ -8,7 +8,7 @@ from backend.modules.consciousness.memory_bridge import MemoryBridge
 from backend.modules.dna_chain.dna_writer import propose_dna_mutation
 from backend.modules.glyphos.glyph_logic import analyze_branch
 from backend.modules.aion.dream_core import run_dream
-from backend.modules.dna_chain.teleport import teleport_to_container
+from backend.modules.dna_chain.teleport import teleport_to_universal_container_system
 from backend.modules.codex.codex_scroll_builder import build_scroll_from_glyph
 
 

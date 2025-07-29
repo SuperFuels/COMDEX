@@ -3,7 +3,7 @@
 import os
 import json
 import tempfile
-from backend.modules.glyphos.glyph_reverse_loader import extract_glyphs_from_container
+from backend.modules.glyphos.glyph_reverse_loader import extract_glyphs_from_universal_container_system
 from backend.modules.dna_chain.dc_handler import save_dimension
 
 def create_test_container(path: str):

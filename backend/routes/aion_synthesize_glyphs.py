@@ -4,7 +4,7 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 from typing import Optional, List
 from backend.modules.glyphos.glyph_synthesis_engine import synthesize_glyphs_from_text
-from backend.modules.dna_chain.dc_handler import inject_glyphs_into_container
+from backend.modules.dna_chain.dc_handler import inject_glyphs_into_universal_container_system
 
 import traceback
 import logging

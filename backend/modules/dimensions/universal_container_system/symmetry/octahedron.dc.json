@@ -1,0 +1,15 @@
+{
+  "name": "Octahedron Duality Bridge",
+  "symbol": "🟣",
+  "geometry_type": "octahedron",
+  "description": "Duality resolver; bridges two opposing symbolic nodes.",
+  "sqi_hooks": {
+    "resolve": ["duality_merge", "paradox_filter"]
+  },
+  "properties": {
+    "logic_density": "medium",
+    "role": "resolver",
+    "connections": 8
+  },
+  "linked_next": "icosahedron.dc.json"
+}

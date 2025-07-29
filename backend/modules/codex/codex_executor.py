@@ -1,329 +1,247 @@
-import re
-import asyncio
-from datetime import datetime
+/**
+📄 KnowledgeBrainMap.tsx
 
-from backend.modules.codex.codex_cost_estimator import CodexCostEstimator
-from backend.modules.codex.codex_metrics import CodexMetrics
-from backend.modules.codex.codex_websocket_interface import send_codex_ws_event
-from backend.modules.codex.codex_trace import CodexTrace
-from backend.modules.hexcore.memory_engine import MemoryBridge
-from backend.modules.consciousness.state_manager import STATE
-from backend.modules.glyphos.symbolic_entangler import get_entangled_for
-from backend.modules.glyphvault.soul_law_validator import soul_law_validator
-from backend.modules.knowledge.knowledge_graph_writer import write_glyph_entry  # R2a ✅
-from backend.modules.consciousness.prediction_engine import PredictionEngine   # 🔮 NEW
+🧠 Knowledge Brain Map Visualization for AION & IGI  
+Renders a living 3D knowledge graph with glowing entangled glyph zones.
 
-executor = None
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🌌 Knowledge Brain Map – Design Rubric
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ Live WebSocket Updates from KG & Collapse Feedback
+✅ Confidence-Driven Node Glow Intensity (CodexMetrics)
+✅ ⚛ QGlyph Collapse Ripple Visualization
+✅ ↔ Entangled Node Link Highlighting (Real-Time)
+✅ Success vs Failure Gradient Color Mapping
+✅ Animated Ripple Glow Effects for Collapse Events
+✅ GHX Holographic Glyph Overlays (Floating Symbols)
+✅ Replay Glyph Snapshot Metadata (H7)
+✅ Reasoning Chain Overlay (H8)
+✅ Scalable for Cross-Agent KG Fusion & Collective IQ
+✅ Ready for Recursive Self-Optimization Loops
+*/
 
-class CodexExecutor:
-    def __init__(self):
-        self.log = []
-        self.coster = CodexCostEstimator()
-        self.metrics = CodexMetrics()
-        self.tracer = CodexTrace()
-        self.predictor = PredictionEngine()  # 🔮 NEW
+import React, { useState, useRef } from "react";
+import dynamic from "next/dynamic";
+import * as THREE from "three";
+import useWebSocket from "../../hooks/useWebSocket";
 
-    def execute(self, glyph, context):
-        if STATE.is_paused():
-            return {"status": "paused", "reason": "CodexExecutor is paused"}
+const ForceGraph3D = dynamic(() => import("react-force-graph-3d"), { ssr: false });
 
-        try:
-            avatar_state = context.get("avatar_state")
-            if not soul_law_validator.validate_avatar(avatar_state):
-                return {"status": "forbidden", "reason": "Avatar failed Soul Law validation"}
+interface NodeData {
+  id: string;
+  label: string;
+  confidence: number;
+  entropy: number;
+  status: "success" | "failure" | "collapse" | "neutral";
+  ripple?: boolean;
+  snapshot_id?: string; 
+  reasoning_chain?: string; // ✅ NEW: reasoning overlay
+}
 
-            timestamp = datetime.utcnow().timestamp()
-            self.log.append((glyph, context, timestamp))
-            self.metrics.record_execution()
+interface LinkData {
+  source: string;
+  target: string;
+}
 
-            glyph_stripped = glyph.strip("⟦⟧").strip()
+const KnowledgeBrainMap: React.FC = () => {
+  const [graphData, setGraphData] = useState<{ nodes: NodeData[]; links: LinkData[] }>({
+    nodes: [],
+    links: [],
+  });
 
-            if glyph_stripped.startswith("Theorem"):
-                return self.execute_theorem(glyph_stripped, context, timestamp)
+  const fgRef = useRef<any>();
 
-            if "→" not in glyph_stripped:
-                return {"status": "ignored", "reason": "No action arrow in glyph"}
+  // ✅ WebSocket listener for KG + Fusion + Replay + Reasoning Events
+  useWebSocket("/ws/brain-map", (data) => {
+    if (data.type === "node_update") updateNode(data.node);
+    else if (data.type === "link_update") updateLink(data.link);
+    else if (data.type === "collapse_ripple") triggerRippleAnimation(data.entangled_nodes);
+    else if (data.type === "fusion_confidence_update") handleFusionConfidenceUpdate(data);
+    else if (data.type === "fusion_gradient_update") handleFusionGradientUpdate(data);
+    else if (data.type === "fusion_consensus") handleFusionConsensus(data);
+    else if (data.type === "glyph_replay") handleGlyphReplayEvent(data);
+    else if (data.type === "glyph_reasoning") {
+      setGraphData((prev) => ({
+        ...prev,
+        nodes: prev.nodes.map((node) =>
+          node.id === data.glyph ? { ...node, reasoning_chain: data.reasoning } : node
+        ),
+      }));
+    }
+    else if (data.type === "kg_snapshot") setGraphData({ nodes: data.nodes, links: data.links });
+  });
 
-            lhs, rhs = map(str.strip, glyph_stripped.split("→", 1))
+  // 🔧 Node updater
+  const updateNode = (node: any) => {
+    setGraphData((prev) => {
+      const updated = [...prev.nodes];
+      const idx = updated.findIndex((n) => n.id === node.id);
+      if (idx >= 0) updated[idx] = { ...updated[idx], ...node };
+      else updated.push({ ...node, ripple: false });
+      return { ...prev, nodes: updated };
+    });
+  };
 
-            match = re.match(r"([^|]+)\|([^:]+):(.+)", lhs)
-            if not match:
-                return {"status": "error", "error": f"Malformed glyph LHS: {lhs}"}
+  // 🔧 Link updater
+  const updateLink = (link: any) => {
+    setGraphData((prev) => {
+      const exists = prev.links.some((l) => l.source === link.source && l.target === link.target);
+      return exists ? prev : { ...prev, links: [...prev.links, link] };
+    });
+  };
 
-            g_type = match.group(1).strip()
-            g_tag = match.group(2).strip()
-            g_value = match.group(3).strip()
+  // 🔥 Ripple animation for collapse events
+  const triggerRippleAnimation = (entangledNodes: string[]) => {
+    setGraphData((prev) => ({
+      ...prev,
+      nodes: prev.nodes.map((node) =>
+        entangledNodes.includes(node.id) ? { ...node, ripple: true } : node
+      ),
+    }));
+    setTimeout(() => {
+      setGraphData((prev) => ({
+        ...prev,
+        nodes: prev.nodes.map((node) =>
+          entangledNodes.includes(node.id) ? { ...node, ripple: false } : node
+        ),
+      }));
+    }, 1500);
+  };
 
-            ops_chain = self._decompose_rhs(rhs)
+  // 🌐 Fusion Event Handlers
+  const handleFusionConfidenceUpdate = (data: any) => {
+    setGraphData((prev) => ({
+      ...prev,
+      nodes: prev.nodes.map((node) =>
+        data.entangled_nodes.includes(node.id)
+          ? { ...node, confidence: Math.max(0, Math.min(1, node.confidence + data.confidence_delta)) }
+          : node
+      ),
+    }));
+  };
 
-            execution_trace = []
-            for step in ops_chain:
-                op_result = self._resolve_action(step["action"], context, operator=step["operator"])
-                execution_trace.append({
-                    "operator": step["operator"],
-                    "action": step["action"],
-                    "result": op_result
-                })
+  const handleFusionGradientUpdate = (data: any) => {
+    setGraphData((prev) => ({
+      ...prev,
+      nodes: prev.nodes.map((node) =>
+        data.entangled_nodes.includes(node.id)
+          ? { ...node, status: "neutral", ripple: true }
+          : node
+      ),
+    }));
+    setTimeout(() => {
+      setGraphData((prev) => ({
+        ...prev,
+        nodes: prev.nodes.map((node) =>
+          data.entangled_nodes.includes(node.id) ? { ...node, ripple: false } : node
+        ),
+      }));
+    }, 1200);
+  };
 
-                if step["operator"] == "↔":
-                    entangled = get_entangled_for(glyph)
-                    for partner in entangled:
-                        self.log.append((partner, context, timestamp))
-                        self.tracer.log_trace({
-                            "source": "codex_executor",
-                            "glyph": partner,
-                            "entangled_from": glyph,
-                            "context": context,
-                            "timestamp": timestamp
-                        })
-                        partner_clean = partner.strip("⟦⟧").strip()
-                        if "→" in partner_clean:
-                            self.execute(partner, context)
+  const handleFusionConsensus = (data: any) => {
+    setGraphData((prev) => ({
+      ...prev,
+      nodes: prev.nodes.map((node) =>
+        node.id === data.glyph_id ? { ...node, confidence: data.confidence, status: "success" } : node
+      ),
+    }));
+  };
 
-            context_info = {**context, "operator": ops_chain[0]["operator"] if ops_chain else None}
-            estimate = self.coster.estimate_glyph_cost(glyph, context_info)
+  // 🎬 Handle Glyph Replay Events (H7)
+  const handleGlyphReplayEvent = (data: any) => {
+    const { glyphs, snapshot_id } = data;
+    setGraphData((prev) => {
+      const replayNodes = glyphs.map((g: any) => ({
+        id: g.id || g.glyph,
+        label: g.glyph,
+        confidence: 0.8,
+        entropy: 0.1,
+        status: "neutral",
+        ripple: true,
+        snapshot_id,
+      }));
+      const replayLinks = (data.links || []).map((l: any) => ({ source: l.source, target: l.target }));
+      return { nodes: [...prev.nodes, ...replayNodes], links: [...prev.links, ...replayLinks] };
+    });
+  };
 
-            THRESHOLD = 100.0
-            container = context.get("container")
-            if estimate.total() > THRESHOLD and container:
-                try:
-                    from backend.modules.runtime.container_runtime import collapse_container
-                    collapse_container(container)
-                    print(f"⚠️ Collapsed container {container} due to high cost: {estimate.total()}")
-                except Exception as e:
-                    print(f"⚠️ Failed to collapse container {container}: {e}")
+  // 🎨 Glow color
+  const getNodeColor = (node: NodeData) => {
+    if (node.ripple) return "cyan";
+    if (node.status === "failure") return "red";
+    if (node.status === "success") return "limegreen";
+    if (node.status === "collapse") return "deepskyblue";
+    return "white";
+  };
 
-            cost_payload = {
-                "glyph": glyph,
-                "action": ops_chain[0]["action"] if ops_chain else "unknown",
-                "source": context.get("source", "unknown"),
-                "timestamp": timestamp,
-                "cost": round(estimate.total(), 2),
-                "detail": {
-                    "energy": estimate.energy,
-                    "ethics_risk": estimate.ethics_risk,
-                    "delay": estimate.delay,
-                    "opportunity_loss": estimate.opportunity_loss,
-                    "coord": context.get("coord"),
-                    "container": context.get("container"),
-                    "operator": context_info.get("operator")
-                }
-            }
-            asyncio.create_task(send_codex_ws_event("glyph_execution", cost_payload))
+  // 🔆 Glow intensity scaling
+  const getGlowIntensity = (node: NodeData) => {
+    const base = Math.max(0.2, Math.min(2.5, node.confidence * 1.5 + node.entropy * 0.05));
+    return node.ripple ? base * 2.2 : base;
+  };
 
-            if g_type == "⟦ Theorem ⟧":
-                lean_payload = {
-                    "type": "lean_theorem_executed",
-                    "glyph": glyph,
-                    "name": g_tag,
-                    "logic": g_value,
-                    "operator": ops_chain[0]["operator"] if ops_chain else None,
-                    "result": execution_trace,
-                    "container": context.get("container"),
-                    "coord": context.get("coord"),
-                    "timestamp": timestamp
-                }
-                asyncio.create_task(send_codex_ws_event("lean_theorem_executed", lean_payload))
+  return (
+    <div style={{ width: "100%", height: "100vh", background: "black" }}>
+      <ForceGraph3D
+        ref={fgRef}
+        graphData={graphData}
+        nodeAutoColorBy="status"
+        nodeThreeObject={(node: any) => {
+          const n = node as NodeData;
+          const group = new THREE.Group();
 
-            self.tracer.log_trace({
-                "source": "codex_executor",
-                "glyph": glyph,
-                "ops_chain": ops_chain,
-                "context": context,
-                "type": g_type,
-                "tag": g_tag,
-                "value": g_value,
-                "cost": cost_payload["cost"],
-                "detail": cost_payload["detail"],
-                "timestamp": timestamp
-            })
+          // Core glow
+          const glow = new THREE.Mesh(
+            new THREE.SphereGeometry(6),
+            new THREE.MeshBasicMaterial({ color: getNodeColor(n), transparent: true, opacity: 0.85 })
+          );
+          const halo = new THREE.Mesh(
+            new THREE.SphereGeometry(10),
+            new THREE.MeshBasicMaterial({ color: getNodeColor(n), transparent: true, opacity: 0.25 })
+          );
+          glow.scale.setScalar(getGlowIntensity(n));
+          halo.scale.setScalar(getGlowIntensity(n) * 1.5);
+          group.add(glow);
+          group.add(halo);
 
-            try:
-                tags = []
-                if "⬁" in glyph: tags.append("⬁")
-                if "↔" in glyph: tags.append("↔")
-                if "⧖" in glyph: tags.append("⧖")
-                if "🧬" in glyph: tags.append("🧬")
-                if g_type in ["💡 Insight", "🎯 Goal", "⚠️ Failure"]:
-                    tags.append(g_type)
+          // ✨ GHX holographic floating label with reasoning + snapshot ID
+          const spriteCanvas = document.createElement("canvas");
+          const ctx = spriteCanvas.getContext("2d")!;
+          spriteCanvas.width = 256;
+          spriteCanvas.height = 96; // taller to fit reasoning
+          ctx.font = "20px Orbitron";
+          ctx.fillStyle = "cyan";
+          ctx.textAlign = "center";
+          ctx.fillText(n.label || "⧖", 128, 40);
+          if (n.reasoning_chain) {
+            ctx.font = "14px Orbitron";
+            ctx.fillStyle = "white";
+            ctx.fillText(`💭 ${n.reasoning_chain.slice(0, 40)}...`, 128, 80);
+          }
 
-                write_glyph_entry(
-                    glyph=glyph,
-                    g_type=g_type,
-                    g_tag=g_tag,
-                    g_value=g_value,
-                    ops_chain=ops_chain,
-                    context=context,
-                    cost=estimate,
-                    timestamp=timestamp,
-                    tags=tags
-                )
-            except Exception as e:
-                print(f"⚠️ Failed to write glyph to Knowledge Graph: {e}")
+          const texture = new THREE.CanvasTexture(spriteCanvas);
+          const spriteMaterial = new THREE.SpriteMaterial({ map: texture, transparent: true });
+          const sprite = new THREE.Sprite(spriteMaterial);
+          sprite.scale.set(45, 18, 1);
+          sprite.position.set(0, 15, 0);
+          group.add(sprite);
 
-            # 🔮 Predict next steps and broadcast
-            try:
-                prediction = self.predictor.predict_future_path(
-                    glyph=glyph,
-                    context=context,
-                    glyph_type=g_type,
-                    glyph_tag=g_tag,
-                    glyph_value=g_value,
-                    ops_chain=ops_chain,
-                    cost_estimate=estimate,
-                    timestamp=timestamp
-                )
-                if prediction:
-                    asyncio.create_task(send_codex_ws_event("glyph_prediction", prediction))
-            except Exception as e:
-                print(f"⚠️ Prediction engine failed: {e}")
-
-            MemoryBridge.store_memory({
-                "source": "codex_executor",
-                "type": "execution",
-                "glyph": glyph,
-                "details": f"Executed {glyph} with ops: {', '.join([s['action'] for s in ops_chain])}",
-                "container": context.get("container"),
-                "coord": context.get("coord"),
-                "cost": cost_payload["cost"],
-                "timestamp": timestamp
-            })
-
-            return {
-                "status": "executed",
-                "glyph": glyph,
-                "type": g_type,
-                "tag": g_tag,
-                "value": g_value,
-                "operator_chain": [s["operator"] for s in ops_chain],
-                "execution_trace": execution_trace,
-                "timestamp": timestamp,
-                "cost": cost_payload["cost"],
-                "detail": cost_payload["detail"]
-            }
-
-        except Exception as e:
-            print(f"⚠️ Error executing glyph in CodexExecutor: {glyph} — {e}")
-            self.metrics.record_error()
-            container = context.get("container")
-            coord = context.get("coord")
-            if container and coord:
-                from backend.modules.codex.run_self_rewrite import run_self_rewrite
-                from backend.modules.hexcore.memory_engine import MemoryBridge
-                MemoryBridge.store({
-                    "label": "fallback_rewrite_error",
-                    "role": "codex",
-                    "type": "self_rewrite",
-                    "content": f"⬁ Rewrite triggered from CodexExecutor error: {glyph}",
-                    "data": {
-                        "glyph": glyph,
-                        "exception": str(e),
-                        "coord": coord
-                    }
-                })
-                success = run_self_rewrite(container, coord)
-                if success:
-                    print("⬁ Auto-rewrite from CodexExecutor succeeded.")
-                else:
-                    print("⚠️ Auto-rewrite from CodexExecutor failed or skipped.")
-            return {"status": "error", "error": str(e)}
-
-    def execute_theorem(self, glyph_stripped: str, context: dict, timestamp: float):
-        match = re.match(r"Theorem\s*\|\s*([^:]+):(.+?)\s+via\s+(.+)", glyph_stripped)
-        if not match:
-            return {"status": "error", "error": f"Malformed theorem glyph: {glyph_stripped}"}
-
-        theorem_id = match.group(1).strip()
-        statement = match.group(2).strip()
-        proof_ref = match.group(3).strip()
-
-        MemoryBridge.store_memory({
-            "source": "codex_executor",
-            "type": "lean_theorem_executed",
-            "theorem_id": theorem_id,
-            "statement": statement,
-            "proof": proof_ref,
-            "container": context.get("container"),
-            "coord": context.get("coord"),
-            "timestamp": timestamp
-        })
-
-        glyph_str = f"⟦ Theorem | {theorem_id} : {statement} via {proof_ref} ⟧"
-        execution_payload = {
-            "glyph": glyph_str,
-            "action": "validate_theorem",
-            "source": context.get("source", "lean_container"),
-            "timestamp": timestamp,
-            "detail": {
-                "container": context.get("container"),
-                "coord": context.get("coord")
-            }
+          return group;
+        }}
+        linkColor={() => "rgba(0,255,255,0.3)"}
+        linkWidth={1.5}
+        backgroundColor="black"
+        onNodeClick={(node: any) =>
+          alert(
+            `Glyph: ${node.label}\nConfidence: ${node.confidence}\nEntropy: ${node.entropy}\n${
+              node.snapshot_id ? `Snapshot: ${node.snapshot_id}\n` : ""
+            }${node.reasoning_chain ? `Reasoning: ${node.reasoning_chain}` : ""}`
+          )
         }
+      />
+    </div>
+  );
+};
 
-        lean_payload = {
-            "type": "lean_theorem_executed",
-            "glyph": glyph_str,
-            "name": theorem_id,
-            "logic": statement,
-            "operator": "⊕",
-            "result": [{"operator": "⊕", "action": proof_ref, "result": "proof_accepted"}],
-            "container": context.get("container"),
-            "coord": context.get("coord"),
-            "timestamp": timestamp
-        }
-
-        asyncio.create_task(send_codex_ws_event("glyph_execution", execution_payload))
-        asyncio.create_task(send_codex_ws_event("lean_theorem_executed", lean_payload))
-
-        return {
-            "status": "theorem_validated",
-            "theorem_id": theorem_id,
-            "statement": statement,
-            "proof": proof_ref,
-            "timestamp": timestamp
-        }
-
-    def _decompose_rhs(self, rhs: str):
-        pattern = r"(⊕|↔|⟲|⧖|→|⬁|🧬|🧭|🪞)"
-        parts = re.split(pattern, rhs)
-        result = []
-        i = 0
-        while i < len(parts):
-            if i == 0:
-                result.append({"operator": "→", "action": parts[i].strip()})
-                i += 1
-            else:
-                op = parts[i].strip()
-                action = parts[i + 1].strip() if i + 1 < len(parts) else ""
-                result.append({"operator": op, "action": action})
-                i += 2
-        return result
-
-    def _resolve_action(self, action_str, context, operator=None):
-        action_str = action_str.strip()
-
-        if operator == "⬁":
-            return self._trigger("self_rewrite", context, action_str)
-        elif operator == "🧬":
-            return self._trigger("spawn_child_ai", context, action_str)
-        elif operator == "🧭":
-            return self._trigger("explore_codex_space", context, action_str)
-        elif operator == "🪞":
-            return self._trigger("mirror_logic", context, action_str)
-
-        if action_str == "Dream":
-            return self._trigger("trigger_dream", context)
-        elif action_str == "Mutate":
-            return self._trigger("propose_dna_mutation", context)
-        elif action_str == "Reflect":
-            return self._trigger("run_reflection", context)
-        elif action_str == "Boot":
-            return self._trigger("initiate_boot_sequence", context)
-        elif action_str == "Analyze":
-            return self._trigger("run_analysis", context)
-
-        return {"status": "noop", "action": action_str}
-
-    def _trigger(self, name, context, payload=None):
-        print(f"⚡ Triggered: {name} with payload={payload}")
-        return {"status": "triggered", "name": name, "payload": payload}
+export default KnowledgeBrainMap;

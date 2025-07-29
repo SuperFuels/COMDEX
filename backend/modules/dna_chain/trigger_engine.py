@@ -1,6 +1,6 @@
 # File: backend/modules/dna_chain/trigger_engine.py
 
-from backend.modules.dna_chain.dc_handler import load_dc_container
+from backend.modules.dna_chain.dc_handler import load_dc_universal_container_system
 from backend.modules.consciousness.reflection_engine import ReflectionEngine
 from backend.modules.consciousness.state_manager import StateManager  
 

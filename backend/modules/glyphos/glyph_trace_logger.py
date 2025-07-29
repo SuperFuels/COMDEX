@@ -2,9 +2,11 @@ import time
 import json
 from pathlib import Path
 from typing import List, Optional, Dict
+from asyncio import create_task
 
 from backend.modules.glyphnet.glyphnet_ws import broadcast_event  # ✅ WebSocket broadcast
 from backend.modules.glyphvault.vault_bridge import get_container_snapshot_id  # ✅ Snapshot ID fetch
+from backend.modules.replay.glyph_replay_renderer import GlyphReplayRenderer  # ✅ Auto-play renderer link
 
 LOG_PATH = Path("logs/glyph_trace_log.json")
 
@@ -14,6 +16,7 @@ class GlyphTraceLogger:
         self.trace_log: List[dict] = []
         self.replay_log: List[dict] = []  # ✅ Replay-specific log
         self.persist = persist
+        self.replay_renderer = GlyphReplayRenderer()  # ✅ Auto-wire renderer
         self._load_existing_log()
 
     def _load_existing_log(self):
@@ -79,7 +82,8 @@ class GlyphTraceLogger:
         entangled_links: Optional[List[Dict]] = None,
     ):
         """
-        Logs a replayable glyph trace sequence with Vault snapshot ID and broadcasts it.
+        Logs a replayable glyph trace sequence with Vault snapshot ID, broadcasts it,
+        and auto-triggers replay rendering to GHX/UI timeline.
         """
         snapshot_id = get_container_snapshot_id(container_id)  # ✅ Link replay to Vault snapshot
 
@@ -111,13 +115,35 @@ class GlyphTraceLogger:
                     "entangled_link_count": len(entangled_links or []),
                 },
             }
-            from asyncio import create_task
             create_task(broadcast_event(broadcast_payload))
         except Exception as e:
             print(f"[⚠️] Failed to broadcast glyph replay: {e}")
 
+        # 🔁 Auto-load replay into renderer for frame emission
+        try:
+            print(f"[🎞️ Replay Auto-Load] Initiating frame render for {len(glyphs)} glyphs.")
+            create_task(self.replay_renderer.load_and_play(replay_entry))
+        except Exception as e:
+            print(f"[⚠️] Failed to auto-load replay into renderer: {e}")
+
         print(f"🛰️ Logged glyph replay: {len(glyphs)} glyphs, ticks {tick_start} → {tick_end}, snapshot={snapshot_id}")
         return replay_entry
+
+    # ──────────────────────────────
+    # 🔁 Entangled Replay API (NEW)
+    # ──────────────────────────────
+    def add_entangled_replay(
+        self,
+        glyphs: List[Dict],
+        container_id: str,
+        entangled_links: List[Dict],
+    ):
+        """
+        Shortcut: replay entangled glyphs only.
+        """
+        tick_start = int(time.time() * 1000)
+        tick_end = tick_start + (len(glyphs) * 10)  # estimate progression ticks
+        return self.add_glyph_replay(glyphs, container_id, tick_start, tick_end, entangled_links)
 
 
 # ✅ Singleton instance
@@ -133,6 +159,11 @@ if __name__ == "__main__":
         tick_start=100,
         tick_end=120,
         entangled_links=[{"source": "g1", "target": "g2"}],
+    )
+    glyph_trace.add_entangled_replay(
+        glyphs=[{"id": "g3", "glyph": "⧖"}],
+        container_id="test_container",
+        entangled_links=[{"source": "g2", "target": "g3"}],
     )
     print("Last 2 traces:", glyph_trace.get_recent_traces(2))
     print("Replay log:", json.dumps(glyph_trace.replay_log[-1], indent=2))

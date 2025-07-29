@@ -8,7 +8,7 @@ import asyncio  # ✅ Coroutine handling
 import threading  # ✅ Pause/resume lock
 
 # ✅ Lean container support
-from backend.modules.lean.lean_utils import is_lean_container
+from backend.modules.lean.lean_utils import is_lean_universal_container_system
 
 # ✅ DNA Switch
 from backend.modules.dna_chain.switchboard import DNA_SWITCH

@@ -14,7 +14,7 @@ from backend.modules.tessaris.tessaris_intent_executor import queue_tessaris_int
 from backend.modules.consciousness.memory_bridge import MemoryBridge
 from backend.modules.glyphos.glyph_mutator import run_self_rewrite
 from backend.modules.glyphos.glyph_generator import GlyphGenerator
-from backend.modules.runtime.container_runtime import expand_container, collapse_container
+from backend.modules.runtime.container_runtime import expand_universal_container_system, collapse_container
 from backend.modules.glyphos.glyph_logic import interpret_glyph, detect_contradiction
 from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter
 
@@ -47,6 +47,72 @@ class TessarisEngine:
         self.codex_metrics = CodexMetrics()
         self.codex_estimator = CodexCostEstimator()
 
+    def generate_reflection(self, glyph: str, context: dict = None, trace: list = None) -> str:
+        """
+        🌀 Generate a reasoning/reflection string for a glyph based on context and execution trace.
+        Auto-logs reasoning into MEMORY and Knowledge Graph for introspection tracking.
+        """
+        try:
+            parsed = self._parse_glyph(glyph)
+            if not parsed:
+                return "⚠️ Unable to parse glyph for reflection."
+
+            reasoning_parts = []
+
+            # Include glyph type/tag/value
+            g_type = parsed.get("type", "Unknown")
+            g_tag = parsed.get("tag", "Untitled")
+            g_value = parsed.get("value", "")
+            reasoning_parts.append(f"{g_type} | {g_tag}: {g_value}")
+
+            # Include context hints
+            if context:
+                container = context.get("container", "no-container")
+                coord = context.get("coord", "no-coord")
+                reasoning_parts.append(f"Context → Container: {container}, Coord: {coord}")
+
+            # Include execution trace summary
+            if trace:
+                steps = [f"{step['operator']} {step['action']}" for step in trace]
+                reasoning_parts.append(f"Trace → {' → '.join(steps)}")
+
+            # Add cost estimation (symbolic check)
+            try:
+                cost = self.codex_estimator.estimate_glyph_cost(glyph, context or {})
+                reasoning_parts.append(f"Cost → {cost.total():.2f} (E:{cost.energy} / R:{cost.ethics_risk})")
+            except Exception as e:
+                reasoning_parts.append(f"Cost → unavailable ({e})")
+
+            # Join reasoning parts
+            reasoning_text = " | ".join(reasoning_parts)
+
+            # 🧠 Auto-log into MEMORY
+            MEMORY.store({
+                "label": "tessaris_reflection",
+                "role": "tessaris",
+                "type": "reasoning",
+                "content": reasoning_text,
+                "data": {
+                    "glyph": glyph,
+                    "context": context or {},
+                    "trace": trace or []
+                }
+            })
+
+            # 🗂 Auto-log into Knowledge Graph
+            self.kg_writer.log_event("reasoning_generated", {
+                "glyph": glyph,
+                "reasoning": reasoning_text,
+                "context": context or {},
+                "trace_steps": trace or []
+            })
+
+            return reasoning_text
+
+        except Exception as e:
+            print(f"[⚠️] TessarisEngine.generate_reflection failed: {e}")
+            return "Reflection unavailable."
+            
     def seed_thought(self, root_symbol: str, source: str = "manual", metadata: dict = {}):
         thought_id = str(uuid.uuid4())
         root = BranchNode(symbol=root_symbol, source=source, metadata=metadata)

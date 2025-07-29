@@ -8,8 +8,20 @@ class KnowledgeIndex:
     def __init__(self):
         self.entries: List[Dict] = []
 
-    def add_entry(self, glyph: str, meaning: str, tags: List[str], source: str,
-                  container_id: str, confidence: float = 1.0, plugin: Optional[str] = None):
+    def add_entry(
+        self,
+        glyph: str,
+        meaning: str,
+        tags: List[str],
+        source: str,
+        container_id: str,
+        confidence: float = 1.0,
+        plugin: Optional[str] = None,
+        anchor: Optional[Dict] = None  # ✅ NEW: Anchor support
+    ):
+        """
+        Add a new knowledge entry with optional anchor metadata.
+        """
         entry = {
             "glyph": glyph,
             "meaning": meaning,
@@ -21,6 +33,12 @@ class KnowledgeIndex:
         }
         if plugin:
             entry["plugin"] = plugin
+        if anchor:
+            entry["anchor"] = {
+                "env_obj_id": anchor.get("env_obj_id"),
+                "type": anchor.get("type"),
+                "coord": anchor.get("coord", {})
+            }
 
         # Deduplicate by glyph + meaning + container_id
         hash_key = self._hash_entry(entry)

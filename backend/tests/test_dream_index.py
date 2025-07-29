@@ -1,6 +1,6 @@
 import pytest
 from backend.modules.knowledge_graph.indexes import dream_index
-from backend.modules.state_manager import get_active_container
+from backend.modules.state_manager import get_active_universal_container_system
 
 
 def test_add_basic_dream():

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { playGlyphNarration } from "@/utils/hologram_audio";
 import GHXTimeline from "@/components/Hologram/GHXTimeline";
+import useCanvasRecorder from "@/hooks/useCanvasRecorder"; // ✅ Import recording hook
 
 type HUDProps = {
   projectionId?: string;
@@ -15,8 +16,11 @@ type HUDProps = {
   onLayoutToggle?: () => void;
 
   // 🎯 NEW:
-  renderedGlyphs?: any[]; // array of glyphs with .symbol at least
+  renderedGlyphs?: any[];
   setCurrentGlyph?: (glyph: any) => void;
+
+  // 🆕 NEW CAPTION PROP
+  currentCaption?: string;
 };
 
 export default function HologramHUD({
@@ -29,13 +33,18 @@ export default function HologramHUD({
   onExport,
   onLayoutToggle,
 
-  // 🎯 NEW props
   renderedGlyphs = [],
   setCurrentGlyph,
+
+  // 🆕 NEW CAPTION PROP
+  currentCaption = "",
 }: HUDProps) {
   const [replayMode, setReplayMode] = useState(false);
   const [traceOverlay, setTraceOverlay] = useState(false);
   const [replayProgress, setReplayProgress] = useState(0);
+
+  // ✅ Recording hook
+  const { isRecording, startRecording, stopRecording, downloadRecording, downloadUrl } = useCanvasRecorder();
 
   useEffect(() => {
     if (onReplayToggle) onReplayToggle(replayMode);
@@ -68,6 +77,13 @@ export default function HologramHUD({
           {" / "}
           <span>{totalGlyphs}</span>
         </div>
+
+        {/* 🆕 Current Caption Display */}
+        {currentCaption && (
+          <div className="mt-2 p-2 bg-purple-800/50 rounded text-xs italic border border-purple-400/30">
+            <span className="text-purple-300">📜 Caption:</span> {currentCaption}
+          </div>
+        )}
 
         <div className="flex justify-between items-center pt-2 border-t border-white/20 mt-2">
           <label className="flex items-center gap-2 text-sm">
@@ -116,6 +132,24 @@ export default function HologramHUD({
           >
             🌌 Toggle Layout
           </button>
+        </div>
+
+        {/* 🎥 Recording Controls */}
+        <div className="flex justify-between items-center mt-3">
+          <button
+            onClick={() => isRecording ? stopRecording() : startRecording(document.querySelector("canvas")!)}
+            className={`px-3 py-1 text-xs rounded shadow ${isRecording ? "bg-red-500 hover:bg-red-600" : "bg-green-500 hover:bg-green-600"}`}
+          >
+            {isRecording ? "⏹ Stop Recording" : "🎥 Start Recording"}
+          </button>
+          {downloadUrl && (
+            <button
+              onClick={downloadRecording}
+              className="px-3 py-1 text-xs bg-blue-500 hover:bg-blue-600 rounded shadow"
+            >
+              💾 Save Video
+            </button>
+          )}
         </div>
 
         {/* 🎞️ GHX Timeline Replay */}

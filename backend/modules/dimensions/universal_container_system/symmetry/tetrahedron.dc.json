@@ -1,0 +1,15 @@
+{
+  "name": "Tetrahedron Logic Node",
+  "symbol": "🔻",
+  "geometry_type": "tetrahedron",
+  "description": "Foundational logic container; represents elemental symbolic units.",
+  "sqi_hooks": {
+    "stability": ["logic_base", "axiom_seed"]
+  },
+  "properties": {
+    "logic_density": "low",
+    "role": "foundation",
+    "connections": 4
+  },
+  "linked_next": "octahedron.dc.json"
+}

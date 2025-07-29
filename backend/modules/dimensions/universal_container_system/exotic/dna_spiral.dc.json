@@ -1,0 +1,17 @@
+{
+  "name": "DNA Spiral",
+  "symbol": "🧬",
+  "geometry_type": "dna_spiral",
+  "description": "Represents mutation lineage and symbolic growth paths, tied to Codex DNA rewriting.",
+  "sqi_hooks": {
+    "mutate": ["lineage_growth", "evolution_step"],
+    "codex_integration": ["mutation_trigger", "glyph_rewrite"]
+  },
+  "properties": {
+    "logic_density": "medium",
+    "mutation_depth": "4",
+    "growth_mode": "symbolic",
+    "codex_binding": true
+  },
+  "linked_next": "fractal_crystal.dc.json"
+}

@@ -7,7 +7,7 @@ import { GHXPacket } from "@/types/ghx_types";
 
 type Props = {
   projection: GHXPacket | null;
-  onFrameSelect: (frameIndex: number) => void;
+  onFrameSelect: (frameIndex: number, glyph: any, entangledLinks?: any[]) => void;
   onPlayToggle?: (playing: boolean) => void;
 };
 
@@ -17,13 +17,14 @@ export default function GHXReplaySlider({ projection, onFrameSelect, onPlayToggl
 
   const totalFrames = projection?.light_field.length || 0;
 
+  // 🔄 Auto-play progression
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (playing && totalFrames > 0) {
       interval = setInterval(() => {
         setFrame((prev) => {
           const next = (prev + 1) % totalFrames;
-          onFrameSelect(next);
+          emitFrameSelect(next);
           return next;
         });
       }, 800);
@@ -31,9 +32,17 @@ export default function GHXReplaySlider({ projection, onFrameSelect, onPlayToggl
     return () => clearInterval(interval);
   }, [playing, totalFrames]);
 
+  const emitFrameSelect = (frameIndex: number) => {
+    if (!projection) return;
+    const glyph = projection.light_field[frameIndex];
+    const entangledLinks = glyph?.entangled_links || []; // 🔗 Supports replay-linked ↔ paths
+    onFrameSelect(frameIndex, glyph, entangledLinks);
+  };
+
   const handleChange = (val: number[]) => {
-    setFrame(val[0]);
-    onFrameSelect(val[0]);
+    const frameIndex = val[0];
+    setFrame(frameIndex);
+    emitFrameSelect(frameIndex);
   };
 
   const handleToggle = () => {
@@ -59,7 +68,9 @@ export default function GHXReplaySlider({ projection, onFrameSelect, onPlayToggl
           className="w-full"
         />
       </div>
-      <span className="text-xs text-white/70">Frame {frame + 1} / {totalFrames}</span>
+      <span className="text-xs text-white/70">
+        Frame {frame + 1} / {totalFrames}
+      </span>
     </div>
   );
 }

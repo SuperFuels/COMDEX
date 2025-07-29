@@ -1,0 +1,15 @@
+{
+  "name": "Quantum Orb Particle Core",
+  "symbol": "⚛️",
+  "geometry_type": "quantum_orb",
+  "description": "Probabilistic glyph generator; maintains superposition logic states.",
+  "sqi_hooks": {
+    "quantum": ["superposition", "wave_collapse"]
+  },
+  "properties": {
+    "logic_density": "quantum",
+    "role": "generator",
+    "probability_mode": "multi-state"
+  },
+  "linked_next": "vortex.dc.json"
+}

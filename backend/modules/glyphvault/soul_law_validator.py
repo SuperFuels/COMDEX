@@ -51,6 +51,18 @@ class SoulLawValidator:
         self._inject_approval("container_ok", "Container passed moral validation")
         return True
 
+    @staticmethod
+    def validate_navigation_link(source_container: dict, target_container: dict):
+        """
+        SoulLaw enforcement for container linking/navigation.
+        Blocks linking if forbidden rules are detected.
+        """
+        # Example: Prevent linking secure containers to public ones
+        if "secure" in source_container.get("tags", []) and "public" in target_container.get("tags", []):
+            raise PermissionError("❌ SoulLaw: Secure container cannot be linked to public.")
+
+        print(f"✅ SoulLaw: Navigation link allowed {source_container['id']} → {target_container['id']}")
+
     def generate_seed_lock(self, identity: str, entropy: str) -> str:
         input_str = f"{identity}:{entropy}"
         return hashlib.sha256(input_str.encode("utf-8")).hexdigest()
@@ -103,5 +115,6 @@ class SoulLawValidator:
             print(f"❌ Injected SoulLaw violation glyph: {rule} – {reason}")
         except Exception as e:
             print(f"⚠️ Failed to inject SoulLaw violation glyph: {e}")
+
 
 soul_law_validator = SoulLawValidator()

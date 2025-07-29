@@ -1,0 +1,17 @@
+{
+  "name": "Mirror Container",
+  "symbol": "🪞",
+  "geometry_type": "mirror_container",
+  "description": "Reflects symbolic state back into UCS for self-reference, introspection, and Codex resonance feedback.",
+  "sqi_hooks": {
+    "reflect": ["state_echo", "self_reference"],
+    "codex_integration": ["introspection", "resonance_feedback"]
+  },
+  "properties": {
+    "logic_density": "variable",
+    "reflection_depth": 3,
+    "echo_mode": "symbolic",
+    "codex_binding": true
+  },
+  "linked_next": "tesseract_central.dc.json"
+}
