@@ -9,8 +9,8 @@ import requests
 from backend.modules.dna_chain.switchboard import DNA_SWITCH
 from backend.config import GLYPH_API_BASE_URL
 from backend.modules.codex.codex_scroll_builder import build_scroll_from_glyph
-from backend.modules.knowledge.knowledge_graph_writer import KnowledgeGraphWriter  # ✅ R1b, ⏱️ H1
-from backend.modules.dna_chain.container_index_writer import add_to_index          # ✅ R1f, ⏱️ H1
+# 🔥 Lazy import fix: Removed top-level KnowledgeGraphWriter import to avoid circular dependency
+from backend.modules.dna_chain.container_index_writer import add_to_index  # ✅ R1f, ⏱️ H1
 
 DNA_SWITCH.register(__file__)
 
@@ -36,6 +36,8 @@ class MemoryEngine:
         self.memory_file = Path(__file__).parent / f"memory_{self.container_id}.json"
         self.embedding_file = Path(__file__).parent / f"embeddings_{self.container_id}.json"
 
+        # 🔥 Lazy load KnowledgeGraphWriter here to break circular import
+        from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter
         self.kg_writer = KnowledgeGraphWriter()  # ✅ ⏱️ H1
 
         self.load_memory()

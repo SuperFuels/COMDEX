@@ -92,7 +92,16 @@ def parse_glyph(bytecode: str) -> Dict:
     parsed = GlyphParser(bytecode).parse()
     return parsed[0] if parsed else {"symbol": bytecode, "error": "Invalid glyph"}
 
-# ─── ✅ NEW: Parse CodexLang string for instruction trees ──────────────────────
+# ─── ✅ NEW: Parse Glyph String (LEGACY HOBERMAN HOOK) ──────────────────────────
+
+def parse_glyph_string(glyph_str: str) -> List[Dict]:
+    """
+    Parses a raw glyph string into tokenized glyph objects.
+    E.g. "🜁⚛✦" → [{"symbol": "🜁", ...}, {"symbol": "⚛", ...}, {"symbol": "✦", ...}]
+    """
+    return [Glyph(sym).to_dict() for sym in glyph_str if sym.strip()]
+
+# ─── ✅ Parse CodexLang string for instruction trees ────────────────────────────
 
 def parse_codexlang_string(input_str: str) -> Dict:
     """

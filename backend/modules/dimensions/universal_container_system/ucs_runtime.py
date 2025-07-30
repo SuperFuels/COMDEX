@@ -15,16 +15,22 @@ import os
 import time
 from typing import Dict, Any
 
-from backend.modules.sqi.sqi_runtime import SQIRuntime
-from backend.modules.ghx.ghx_visualizer import GHXVisualizer
 from backend.modules.dimensions.universal_container_system.ucs_geometry_loader import UCSGeometryLoader
 from backend.modules.dimensions.universal_container_system.ucs_soullaw import SoulLawEnforcer
 from backend.modules.dimensions.universal_container_system.ucs_trigger_map import UCSTriggerMap
+# Stub GHXVisualizer (frontend-only)
+class GHXVisualizer:
+    def add_container(self, container): 
+        print(f"[GHXVisualizer] (stub) Added container {container.get('name')}")
+    def highlight(self, name): 
+        print(f"[GHXVisualizer] (stub) Highlighting {name}")
 
 class UCSRuntime:
     def __init__(self):
         self.containers: Dict[str, Dict[str, Any]] = {}
-        self.sqi = SQIRuntime()
+
+        # ✅ SQIRuntime alias defined post-class to avoid circular import
+        self.sqi = None  
         self.visualizer = GHXVisualizer()
         self.geometry_loader = UCSGeometryLoader()
         self.soul_law = SoulLawEnforcer()
@@ -90,7 +96,8 @@ class UCSRuntime:
     def emit_event(self, event_name: str, container: dict):
         """Emit an event into SQI runtime (GPIO-capable for Pi testbench)."""
         print(f"⚡ Emitting event: {event_name} from {container['name']}")
-        self.sqi.emit(event_name, payload={"container": container})
+        if self.sqi:
+            self.sqi.emit(event_name, payload={"container": container})
 
     # ---------------------------------------------------------
     # 🧩 Expansion / Collapse (Legacy API Compatibility)
@@ -119,10 +126,15 @@ class UCSRuntime:
         c.setdefault("glyphs", []).append(glyph_block)
         self.save_container(name, c)
 
+
 # ---------------------------------------------------------
 # ✅ Singleton + Legacy Aliases
 # ---------------------------------------------------------
 ucs_runtime = UCSRuntime()
+
+# ✅ Define SQIRuntime alias after UCSRuntime definition to avoid circular import
+SQIRuntime = UCSRuntime  
+ucs_runtime.sqi = SQIRuntime()
 
 # Legacy compatibility shims
 load_dc_container = ucs_runtime.load_dc_container

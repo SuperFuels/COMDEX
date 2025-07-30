@@ -7,17 +7,13 @@ Maintains backward compatibility for modules still referencing 'containers'.
 """
 
 import warnings
-
-# Notify developers about the migration
-warnings.warn(
-    "⚠ Legacy 'containers' import detected. "
-    "All imports now route to 'universal_container_system'. "
-    "Please refactor to use 'backend.modules.dimensions.universal_container_system' directly.",
-    DeprecationWarning,
-    stacklevel=2
+from backend.modules.dimensions.universal_container_system import (
+    ucs_runtime,
+    geometry_loader,
+    ucs_orchestrator,
+    soullaw_enforcer,
+    visual_integration as global_visual_integration,
 )
-
-# Import UCS runtime and expose it under legacy namespace
 from backend.modules.dimensions.universal_container_system.ucs_runtime import UCSRuntime
 from backend.modules.dimensions.universal_container_system.ucs_geometry_loader import UCSGeometryLoader
 from backend.modules.dimensions.universal_container_system.ucs_orchestrator import UCSOrchestrator
@@ -25,15 +21,30 @@ from backend.modules.dimensions.universal_container_system.ucs_soullaw import So
 from backend.modules.dimensions.universal_container_system.ucs_trigger_map import UCSTriggerMap
 from backend.modules.dimensions.universal_container_system.ucs_visual_integration import UCSVisualIntegration
 
-# Instantiate singletons (optional global pattern for legacy use)
-runtime = UCSRuntime()
-geometry_loader = UCSGeometryLoader()
-orchestrator = UCSOrchestrator(runtime)
-soul_law = SoulLawEnforcer()
-trigger_map = UCSTriggerMap()
-visual_integration = UCSVisualIntegration()
+# --------------------------------------
+# ⚠ Migration Notice
+# --------------------------------------
+warnings.warn(
+    "⚠ Legacy 'containers' import detected. "
+    "All imports now route to 'universal_container_system'. "
+    "Please refactor to use 'backend.modules.dimensions.universal_container_system' directly.",
+    DeprecationWarning,
+    stacklevel=2,
+)
 
-# Explicit re-exports for legacy imports:
+# --------------------------------------
+# ✅ Singletons for Legacy Compatibility
+# --------------------------------------
+runtime = ucs_runtime                          # Use the already-initialized UCS runtime
+geometry_loader = geometry_loader              # Shared geometry loader
+orchestrator = ucs_orchestrator                # Orchestrator bound to runtime
+soul_law = soullaw_enforcer                    # SoulLaw enforcement
+trigger_map = UCSTriggerMap()                  # Local trigger map
+visual_integration = UCSVisualIntegration(runtime=ucs_runtime)  # ✅ FIXED: Pass runtime explicitly
+
+# --------------------------------------
+# 🔄 Exports for Backward Compatibility
+# --------------------------------------
 __all__ = [
     "UCSRuntime",
     "UCSGeometryLoader",

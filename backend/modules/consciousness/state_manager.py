@@ -370,6 +370,15 @@ class StateManager:
         container_path = os.path.join(DIMENSION_DIR, f"{container_id}.dc.json")
         return os.path.exists(container_path)
 
+    # ✅ UCS Runtime Bridge for KnowledgeGraphWriter & SoulLawValidator
+    def get_active_universal_container_system():
+        """
+        Provides compatibility layer for modules expecting UCS runtime access.
+        Returns STATE's current container manager as UCS runtime equivalent.
+        """
+        # Future-proof: if UCSRuntime evolves, adapt this wrapper accordingly.
+        return STATE
+
 # ✅ Singleton
 STATE = StateManager()
 

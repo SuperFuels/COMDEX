@@ -1,0 +1,21 @@
+{
+  "id": "qwave_supercontainer",
+  "type": "supercontainer_engine",
+  "physics_enabled": true,
+  "fields": {
+    "gravity": 0.8,
+    "magnetic": 0.5,
+    "wave_intensity": 1.2
+  },
+  "nested_containers": [
+    { "id": "proton_generator", "type": "black_hole", "config": { "emission_rate": 100 } },
+    { "id": "flow_accelerator", "type": "torus", "config": { "rotation_speed": 0.4 } },
+    { "id": "quantum_ord_stage", "type": "quantum_ord", "config": { "stability": 0.9 } },
+    { "id": "vortex_exhaust", "type": "vortex", "config": { "spiral_speed": 0.6 } }
+  ],
+  "flow_routes": {
+    "proton_generator": "flow_accelerator",
+    "flow_accelerator": "quantum_ord_stage",
+    "quantum_ord_stage": "vortex_exhaust"
+  }
+}

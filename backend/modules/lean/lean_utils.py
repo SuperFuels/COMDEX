@@ -11,6 +11,33 @@ def is_lean_container(container: Dict[str, Any]) -> bool:
     return container.get("metadata", {}).get("origin") == "lean_import"
 
 
+def is_lean_universal_container_system(obj: Any) -> bool:
+    """
+    Detects if the provided object is a Lean-compatible UCS (Universal Container System).
+    Supports:
+      • UCS runtime/state objects
+      • dict containers (with Lean origin metadata)
+      • Types marked with Lean-related attributes
+    """
+    try:
+        # Attribute-based detection
+        if hasattr(obj, "is_lean") and getattr(obj, "is_lean"):
+            return True
+
+        # Check dict metadata (for loaded containers)
+        if isinstance(obj, dict):
+            meta = obj.get("metadata", {})
+            if meta.get("origin") == "lean_import" or meta.get("type") == "lean_container":
+                return True
+
+        # Type name heuristic
+        obj_type = type(obj).__name__.lower()
+        return "lean" in obj_type or "ucs" in obj_type
+
+    except Exception:
+        return False
+
+
 def extract_theorems(container: Dict[str, Any]) -> list:
     """
     Returns a list of all symbolic theorems from the container.

@@ -2,17 +2,28 @@
 
 import datetime
 import hashlib
+import importlib
 from typing import Dict, Any
+from datetime import datetime
+import uuid
 
-from backend.modules.state_manager import get_active_universal_container_system
-from backend.modules.utils.time_utils import get_current_timestamp
-from backend.modules.utils.id_utils import generate_uuid
 from backend.modules.dimensions.universal_container_system.ucs_runtime import ucs_runtime
 from backend.modules.websocket_manager import WebSocketManager
-from backend.modules.soullaw.soul_law_validator import SoulLawValidator
+from backend.modules.glyphvault.soul_law_validator import soul_law_validator  # ✅ Corrected path
+
+def get_current_timestamp() -> str:
+    return datetime.utcnow().isoformat()
+
+def generate_uuid() -> str:
+    return str(uuid.uuid4())
 
 # ✅ WebSocket for live UI updates
 ws_manager = WebSocketManager()
+
+# ✅ Lazy-load UCS to avoid circular import
+def _get_ucs():
+    sm = importlib.import_module("backend.modules.consciousness.state_manager")
+    return sm.get_active_universal_container_system()
 
 
 def _get_or_create_index(container: Dict[str, Any], index_name: str):
@@ -44,13 +55,14 @@ def add_to_index(index_name: str, entry: Dict[str, Any]):
     Adds a symbolic glyph entry to a container-level index,
     validates Knowledge Graph integrity, syncs UCS state, and emits updates.
     """
-    container = get_active_universal_container_system().get("active_container", {})
+    ucs = _get_ucs()  # ✅ Lazy fetch to break circular dependency
+    container = ucs.get("active_container", {})
 
     # ✅ Create or fetch the target index
     index = _get_or_create_index(container, index_name)
     index_entry = _create_index_entry(entry)
     index.append(index_entry)
-    container["last_index_update"] = datetime.datetime.utcnow().isoformat()
+    container["last_index_update"] = datetime.utcnow().isoformat()
 
     # ✅ Knowledge Graph validation (Rubric check)
     try:
@@ -62,7 +74,7 @@ def add_to_index(index_name: str, entry: Dict[str, Any]):
 
     # ✅ SoulLaw enforcement on updated container state
     try:
-        SoulLawValidator.validate_container_state(container)
+        soul_law_validator.validate_container(container)  # ✅ Corrected to singleton usage
     except Exception as e:
         container["soul_law_error"] = f"SoulLaw validation failed: {str(e)}"
 
@@ -103,7 +115,8 @@ def add_goal_entry(goal_str: str, source: str = "memory"):
     """
     Adds a symbolic goal entry into the goal index.
     """
-    container = get_active_universal_container_system().get("active_container", {})
+    ucs = _get_ucs()
+    container = ucs.get("active_container", {})
     goal_id = generate_uuid()
 
     entry = {
@@ -124,7 +137,8 @@ def add_dream_entry(dream_str: str, category: str = "vision"):
     """
     Adds a dream entry (used in replay/forecast logic).
     """
-    container = get_active_universal_container_system().get("active_container", {})
+    ucs = _get_ucs()
+    container = ucs.get("active_container", {})
     dream_id = generate_uuid()
 
     entry = {
@@ -145,7 +159,8 @@ def add_failure_entry(reason: str, caused_by: str = "unknown"):
     """
     Adds a failure entry for error analysis and mutation.
     """
-    container = get_active_universal_container_system().get("active_container", {})
+    ucs = _get_ucs()
+    container = ucs.get("active_container", {})
     failure_id = generate_uuid()
 
     entry = {

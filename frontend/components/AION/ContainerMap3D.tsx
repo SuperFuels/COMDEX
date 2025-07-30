@@ -22,7 +22,7 @@ import {
   TesseractRenderer,
   TorusRenderer,
   VortexRenderer,
-  TetrahedronRenderer
+  TetrahedronRenderer,
 } from "@/components/AION/renderers";
 
 // ✅ GHXVisualizer directional arrows stub
@@ -66,32 +66,55 @@ const defaultZones = [
   { id: "aion-home", name: "AION Home", position: [15, 20, 25], layer: "outer" as const },
 ];
 
-const getPosition = (
-  index: number,
-  total: number,
-  layout: "ring" | "grid" | "sphere"
-): [number, number, number] => {
-  if (layout === "grid") {
-    const size = Math.ceil(Math.sqrt(total));
-    const x = index % size;
-    const z = Math.floor(index / size);
-    return [x * 2 - size, 0, z * 2 - size];
-  }
-  if (layout === "sphere") {
-    const phi = Math.acos(-1 + (2 * index) / total);
-    const theta = Math.sqrt(total * Math.PI) * phi;
-    const r = 6;
-    return [
-      r * Math.cos(theta) * Math.sin(phi),
-      r * Math.sin(theta) * Math.sin(phi),
-      r * Math.cos(phi),
-    ];
-  }
-  const angle = (index / total) * Math.PI * 2;
-  const radius = 6;
-  const height = (index % 3) * 2;
-  return [Math.cos(angle) * radius, height, Math.sin(angle) * radius];
-};
+export default function ContainerMap3D(props: ContainerMap3DProps) {
+  // ✅ QWave Engine State
+  const [engineState, setEngineState] = useState<{
+    stage: string;
+    fields: Record<string, number>;
+    nested_containers: { id: string; type: string; glyph: string }[];
+    particles: { x: number; y: number; z: number }[];
+  }>({ stage: "Idle", fields: {}, nested_containers: [], particles: [] });
+
+  const [engineStage, setEngineStage] = useState<string>("");
+  const [fieldValues, setFieldValues] = useState({ gravity: 0, magnetism: 0, wave_frequency: 0 });
+
+  // ✅ Fetch live fields and stage every second
+  useEffect(() => {
+    const interval = setInterval(() => {
+      axios.get("/api/aion/engine/qwave/fields").then((res) => {
+        setFieldValues(res.data.fields);
+        setEngineStage(res.data.stage || "Idle");
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const getPosition = (
+    index: number,
+    total: number,
+    layout: "ring" | "grid" | "sphere"
+  ): [number, number, number] => {
+    if (layout === "grid") {
+      const size = Math.ceil(Math.sqrt(total));
+      const x = index % size;
+      const z = Math.floor(index / size);
+      return [x * 2 - size, 0, z * 2 - size];
+    }
+    if (layout === "sphere") {
+      const phi = Math.acos(-1 + (2 * index) / total);
+      const theta = Math.sqrt(total * Math.PI) * phi;
+      const r = 6;
+      return [
+        r * Math.cos(theta) * Math.sin(phi),
+        r * Math.sin(theta) * Math.sin(phi),
+        r * Math.cos(phi),
+      ];
+    }
+    const angle = (index / total) * Math.PI * 2;
+    const radius = 6;
+    const height = (index % 3) * 2;
+    return [Math.cos(angle) * radius, height, Math.sin(angle) * radius];
+  };
 
 function HolodeckCube({
   container,
@@ -205,6 +228,77 @@ function HolodeckCube({
   );
 }
 
+function ProtonFieldParticles({ zone }: { zone: string | null }) {
+  const group = useRef<THREE.Group>(null);
+  const [fields, setFields] = useState<{ gravity: number; magnetism: number; wave_frequency: number }>({
+    gravity: 0,
+    magnetism: 0,
+    wave_frequency: 0,
+  });
+
+  const particles = useMemo(() => {
+    const count = 200;
+    const arr: { pos: THREE.Vector3; vel: THREE.Vector3 }[] = [];
+    for (let i = 0; i < count; i++) {
+      arr.push({
+        pos: new THREE.Vector3(
+          (Math.random() - 0.5) * 20,
+          (Math.random() - 0.5) * 20,
+          (Math.random() - 0.5) * 20
+        ),
+        vel: new THREE.Vector3(
+          (Math.random() - 0.5) * 0.02,
+          (Math.random() - 0.5) * 0.02,
+          (Math.random() - 0.5) * 0.02
+        ),
+      });
+    }
+    return arr;
+  }, [zone]); // Reset on zone warp
+
+  // 🔄 Fetch QWave engine fields
+  useEffect(() => {
+    const interval = setInterval(() => {
+      axios.get("/api/aion/engine/qwave/fields").then((res) => {
+        setFields(res.data.fields);
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // 🧲 Animate with fields + swirl effect
+  useFrame(({ clock }) => {
+    particles.forEach((p) => {
+      const gravityForce = p.pos.clone().normalize().multiplyScalar(-fields.gravity * 0.002);
+      const magnetismForce = new THREE.Vector3(-p.pos.z, 0, p.pos.x).normalize().multiplyScalar(fields.magnetism * 0.002);
+      const waveForce = Math.sin(clock.elapsedTime * fields.wave_frequency) * 0.002;
+
+      p.vel.add(gravityForce).add(magnetismForce);
+      p.pos.add(p.vel.multiplyScalar(0.98)); // drag
+      p.pos.y += waveForce;
+    });
+
+    if (group.current) group.current.rotation.y += 0.0005; // ambient swirl
+  });
+
+  return (
+    <group ref={group}>
+      {particles.map((p, i) => (
+        <mesh key={i} position={p.pos.toArray()}>
+          <sphereGeometry args={[0.08, 8, 8]} />
+          <meshStandardMaterial
+            color={i % 2 === 0 ? "#00f0ff" : "#ff00ff"}
+            emissive={i % 2 === 0 ? "#00f0ff" : "#ff00ff"}
+            emissiveIntensity={2}
+            transparent
+            opacity={0.7}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
   // ✅ NEW: Dynamic container renderer for SEC, HSC, and all 13 symbolic container types
   const renderContainerVisual = (
     container: ContainerInfo,
@@ -298,6 +392,7 @@ export default function ContainerMap3D({
   activeId,
   onTeleport,
 }: ContainerMap3DProps) {
+  // Existing state hooks...
   const [realContainers, setRealContainers] = useState<ContainerInfo[]>([]);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [symbolicScale, setSymbolicScale] = useState(true);
@@ -305,6 +400,19 @@ export default function ContainerMap3D({
   const [error, setError] = useState<string | null>(null);
   const [activeZone, setActiveZone] = useState<string | null>("hq");
   const [selectedZone, setSelectedZone] = useState<string>("hq"); // default zone
+
+  // ✅ QWave Field Values (Live HUD sync)
+  const [fieldValues, setFieldValues] = useState({ gravity: 0, magnetism: 0, wave_frequency: 0 });
+
+  // ✅ Fetch live field values every second
+  useEffect(() => {
+    const interval = setInterval(() => {
+      axios.get("/api/aion/engine/qwave/fields").then((res) => {
+        setFieldValues(res.data.fields);
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   // ✅ Fetch containers, filtered by WarpDrive zone if provided
   useEffect(() => {
@@ -399,7 +507,10 @@ export default function ContainerMap3D({
       <ambientLight intensity={0.5} />
       <pointLight position={[10, 10, 10]} intensity={1.2} />
 
-    {/* ✅ Warp Drive Navigator HUD */}
+      {/* ✅ Particle Visualization: Proton/Plasma Streams */}
+      <ProtonFieldParticles zone={activeZone} />
+
+      {/* ✅ Warp Drive Navigator HUD */}
       <WarpDriveNavigator 
         zones={defaultZones} 
         onWarpComplete={(z) => setActiveZone(z)} 
@@ -433,37 +544,208 @@ export default function ContainerMap3D({
         </div>
       </Html>
 
-      {/* ✅ Dynamic Container Renderer */}
-      {sortedContainers.map((container) => {
-        const pos = positions[container.id];
-        return (
-          <React.Fragment key={container.id}>
-            {renderContainerVisual(container, pos, activeId, isLinked, onTeleport, setHoveredId, symbolicScale)}
-          </React.Fragment>
-        );
-      })}
+{/* ✅ QWave Field Control HUD */}
+<Html position={[0, -3, 0]}>
+  <div
+    style={{
+      background: "#000a",
+      padding: "12px",
+      borderRadius: "8px",
+      width: "240px",
+      color: "#fff",
+      fontSize: "0.75rem",
+    }}
+  >
+    <h4 style={{ margin: "0 0 8px 0", color: "#00f0ff" }}>⚛ QWave Fields</h4>
 
-      {/* ✅ Wormhole Rendering */}
-      {zoneFilteredContainers.flatMap((container) =>
-        (container.connected || []).map((link) => {
-          const from = positions[container.id];
-          const to = positions[link];
-          if (!from || !to) return null;
-          return (
-            <WormholeRenderer
-              key={`${container.id}->${link}`}
-              from={from}
-              to={to}
-              color="#f69"
-              thickness={0.025}
-              glyph="↔"
-              mode="glow"
-              pulse
-              pulseFlow
-            />
-          );
-        })
-      )}
-    </>
+    {/* Current Stage Display */}
+    <div
+      style={{
+        marginBottom: "10px",
+        fontSize: "0.8rem",
+        color: "#0ff",
+        fontWeight: "bold",
+      }}
+    >
+      Stage: {engineStage || "Initializing..."}
+    </div>
+
+    {/* Field Sliders */}
+    {["gravity", "magnetism", "wave_frequency"].map((field) => (
+      <div key={field} style={{ marginBottom: "6px" }}>
+        <label style={{ display: "block", marginBottom: "2px" }}>
+          {field} ({fieldValues[field as keyof typeof fieldValues].toFixed(2)})
+        </label>
+        <input
+          type="range"
+          min={-10}
+          max={10}
+          step={0.1}
+          value={fieldValues[field as keyof typeof fieldValues]}
+          onChange={(e) => {
+            const val = parseFloat(e.target.value);
+            setFieldValues((prev) => ({ ...prev, [field]: val }));
+            axios.post("/api/aion/engine/qwave/fields", { field, value: val });
+          }}
+          style={{ width: "100%" }}
+        />
+      </div>
+    ))}
+
+    {/* Advance Stage Button */}
+    <button
+      style={{
+        width: "100%",
+        marginTop: "8px",
+        padding: "6px",
+        background: "#00f0ff",
+        color: "#000",
+        fontWeight: "bold",
+        border: "none",
+        borderRadius: "4px",
+        cursor: "pointer",
+      }}
+      onClick={() => axios.post("/api/aion/engine/qwave/advance")}
+    >
+      🔄 Advance Stage
+    </button>
+
+    {/* ✅ Save/Load State Buttons */}
+    <button
+      style={{
+        width: "100%",
+        marginTop: "6px",
+        padding: "6px",
+        background: "#444",
+        color: "#fff",
+        border: "none",
+        borderRadius: "4px",
+        cursor: "pointer",
+      }}
+      onClick={async () => {
+        await axios.post("/api/aion/engine/qwave/save");
+        const res = await axios.get("/api/aion/engine/qwave/state");
+        setEngineState(res.data); // 🔄 Refresh HUD immediately
+      }}
+    >
+      💾 Save State
+    </button>
+    <button
+      style={{
+        width: "100%",
+        marginTop: "4px",
+        padding: "6px",
+        background: "#666",
+        color: "#fff",
+        border: "none",
+        borderRadius: "4px",
+        cursor: "pointer",
+      }}
+      onClick={async () => {
+        await axios.post("/api/aion/engine/qwave/load");
+        const res = await axios.get("/api/aion/engine/qwave/state");
+        setEngineState(res.data); // 🔄 Refresh HUD after load
+      }}
+    >
+      ♻️ Load State
+    </button>
+  </div>
+</Html>
+
+{/* ✅ Nested Containers in SEC (Stage VFX) */}
+{engineState.nested_containers.map((nested, i) => {
+  const angle = (i / engineState.nested_containers.length) * Math.PI * 2;
+  const radius = 2; // orbit radius inside SEC
+  const pos: [number, number, number] = [
+    Math.cos(angle) * radius,
+    0,
+    Math.sin(angle) * radius,
+  ];
+
+  const fakeContainer = {
+    id: nested.id,
+    name: nested.id,
+    glyph: nested.glyph,
+    logic_depth: 3,
+    runtime_tick: Date.now() / 100,
+    symbolic_mode: nested.type,
+    in_memory: true,
+    connected: [],
+  };
+
+  return (
+    <group
+      key={`nested-${nested.id}`}
+      position={[0, 0, 0]}
+      rotation={[0, (Date.now() / 1000) * 0.2 * (i + 1), 0]}
+    >
+      {renderContainerVisual(fakeContainer, pos, activeId, isLinked, onTeleport, setHoveredId, symbolicScale)}
+
+      {/* Stage-Specific Glow Ring */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[pos[0], pos[1] - 0.5, pos[2]]}>
+        <ringGeometry args={[1.2, 1.4, 64]} />
+        <meshBasicMaterial
+          color={
+            engineStage.includes("Proton")
+              ? "#00f0ff"
+              : engineStage.includes("Plasma")
+              ? "#ff0044"
+              : engineStage.includes("Wave")
+              ? "#ffff00"
+              : "#ffffff"
+          }
+          transparent
+          opacity={0.4}
+        />
+      </mesh>
+    </group>
   );
-}
+})}
+
+{/* ✅ Particle Simulation from Engine */}
+<group>
+  {engineState.particles.map((p, idx) => (
+    <mesh key={`particle-${idx}`} position={[p.x, p.y, p.z]}>
+      <sphereGeometry args={[0.05, 8, 8]} />
+      <meshStandardMaterial
+        color="#00f0ff"
+        emissive="#00f0ff"
+        emissiveIntensity={2}
+        transparent
+        opacity={0.8}
+      />
+    </mesh>
+  ))}
+</group>
+
+{/* ✅ Dynamic Container Renderer */}
+{sortedContainers.map((container) => {
+  const pos = positions[container.id];
+  return (
+    <React.Fragment key={container.id}>
+      {renderContainerVisual(container, pos, activeId, isLinked, onTeleport, setHoveredId, symbolicScale)}
+    </React.Fragment>
+  );
+})}
+
+{/* ✅ Wormhole Rendering */}
+{zoneFilteredContainers.flatMap((container) =>
+  (container.connected || []).map((link) => {
+    const from = positions[container.id];
+    const to = positions[link];
+    if (!from || !to) return null;
+    return (
+      <WormholeRenderer
+        key={`${container.id}->${link}`}
+        from={from}
+        to={to}
+        color="#f69"
+        thickness={0.025}
+        glyph="↔"
+        mode="glow"
+        pulse
+        pulseFlow
+      />
+    );
+  })
+)}

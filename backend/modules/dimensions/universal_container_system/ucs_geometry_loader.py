@@ -7,7 +7,7 @@ Registers symbolic container geometries for:
     • Exotic physics containers (Quantum Orb, Vortex, Black Hole, etc.)
     • Symmetry containers (Tetrahedron, Octahedron, Icosahedron, etc.)
     • Capital containers (e.g., Tesseract Central Command)
-    • Legacy compatibility: mirrors classic container geometry usage
+    • Engine-specific geometries (Field Resonance, Compression Core, Exhaust Nozzle)
 """
 
 import os
@@ -21,6 +21,7 @@ class UCSGeometryLoader:
         # Stores registered geometries by name
         self.geometries: Dict[str, Dict[str, Any]] = {}
         self.register_default_geometries()
+        self.register_engine_geometries()  # ✅ Added for QWave Engine stages
         self.auto_register_from_templates()
 
     # ---------------------------------------------------------
@@ -62,8 +63,25 @@ class UCSGeometryLoader:
             ("Mirror Container", "🪞", "Self-reference and reflection triggers")
         ]
         for name, symbol, desc in geometries:
-            # Capital designation only for Tesseract
             self.register_geometry(name, symbol, desc, capital=(name == "Tesseract"))
+
+    # ---------------------------------------------------------
+    # 🚀 Engine-Specific Geometries (QWave Stages)
+    # ---------------------------------------------------------
+    def register_engine_geometries(self):
+        """
+        Registers specialized geometries required for QWave Engine staging.
+        """
+        engine_geometries = [
+            ("Field Resonance Chamber", "🎛️", "SQI resonance field harmonization for wave stability"),
+            ("Compression Core", "🌀", "Extreme density collapse stage for peak energy focusing"),
+            ("Plasma Exciter", "🔥", "Plasma agitation and proton spin-up zone"),
+            ("Vortex Chamber", "🌪️", "Controlled turbulence and chaos for energy buildup"),
+            ("Torus Recycler", "♾️", "Feedback memory loop stabilization stage"),
+            ("Wave Exhaust Nozzle", "💨", "Final exhaust stage for wave emission"),
+        ]
+        for name, symbol, desc in engine_geometries:
+            self.register_geometry(name, symbol, desc)
 
     # ---------------------------------------------------------
     # 🗂 Auto-Detection from Templates

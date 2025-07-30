@@ -2,7 +2,7 @@ import uuid
 from typing import List, Dict, Optional, Any
 
 from backend.modules.dimensions.universal_container_system.ucs_base_container import UCSBaseContainer
-from backend.modules.dimensions.universal_container_system.hoberman import HobermanContainer
+from backend.modules.dimensions.containers.hoberman_container import HobermanContainer
 from backend.modules.symbolic.symbolic_compressor import compress_logic_tree
 from backend.modules.codex.codex_utils import generate_hash
 
@@ -23,6 +23,7 @@ class SymbolicExpansionContainer(UCSBaseContainer):
         self.seed_container = HobermanContainer(container_id=self.container_id)
         self.expanded_logic: Optional[Dict[str, Any]] = None
         self.expanded = False
+        self.engine = None  # ✅ Attach runtime engine (e.g., QWave SupercontainerEngine)
 
     # ---------------------------------------------------------
     # 🌱 Seed Loading
@@ -68,6 +69,18 @@ class SymbolicExpansionContainer(UCSBaseContainer):
         self.expanded_logic = None
         self.expanded = False
         self.seed_container.collapse()
+
+    # ---------------------------------------------------------
+    # 🔄 Runtime Tick (Engine Integration)
+    # ---------------------------------------------------------
+    def runtime_tick(self):
+        """
+        Called every loop tick:
+        - Advances any attached experimental engine (e.g., QWaveEngine)
+        - Keeps SEC physics & symbolic state synchronized
+        """
+        if hasattr(self, "engine") and self.engine:
+            self.engine.tick()  # ✅ Advances QWave proton flows & field updates
 
     # ---------------------------------------------------------
     # 📝 Snapshots & Summaries

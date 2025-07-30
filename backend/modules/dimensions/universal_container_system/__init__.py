@@ -14,45 +14,49 @@ Usage:
         ucs_orchestrator,
         geometry_loader,
         soullaw_enforcer,
-        ghx_hooks
+        visual_integration
     )
 """
 
 import logging
 
+# --------------------------------------------------
 # Core runtime + orchestration
+# --------------------------------------------------
 from .ucs_runtime import UCSRuntime
 from .ucs_orchestrator import UCSOrchestrator
 
 # Geometry loader (Tesseract + Exotic Containers)
-from .ucs_geometry_loader import GeometryLoader
+from .ucs_geometry_loader import UCSGeometryLoader
 
 # SoulLaw enforcement (symbolic ethics/safety)
 from .ucs_soullaw import SoulLawEnforcer
 
 # Visual + Knowledge Graph integration
-from .ucs_visual_integration import GHXHooks
+from .ucs_visual_integration import UCSVisualIntegration
 
 # --------------------------------------------------
 # Initialize core singletons
 # --------------------------------------------------
 ucs_runtime = UCSRuntime()
 ucs_orchestrator = UCSOrchestrator(runtime=ucs_runtime)
-geometry_loader = GeometryLoader(runtime=ucs_runtime)
+geometry_loader = UCSGeometryLoader()
 soullaw_enforcer = SoulLawEnforcer()
-ghx_hooks = GHXHooks()
+
+# ✅ Pass runtime properly to visual integration
+visual_integration = UCSVisualIntegration(runtime=ucs_runtime)
 
 # --------------------------------------------------
 # Auto-register geometries at import (Tesseract + Exotic Containers)
 # --------------------------------------------------
-geometry_loader.register_default_geometries(ucs_runtime)
+geometry_loader.register_default_geometries()
 logging.info("✅ UCS Geometry Loader initialized with default geometries.")
 
 # --------------------------------------------------
 # Bind GHX + KnowledgeGraph visualization hooks
 # --------------------------------------------------
-ghx_hooks.bind_runtime(ucs_runtime)
-logging.info("🌌 GHXVisualizer hooks bound to UCS runtime.")
+visual_integration.inject_into_visualizer(ucs_runtime.visualizer)
+logging.info("🌌 GHXVisualizer integration bound to UCS runtime.")
 
 # --------------------------------------------------
 # Debug logging toggle
@@ -70,10 +74,10 @@ __all__ = [
     "ucs_orchestrator",
     "geometry_loader",
     "soullaw_enforcer",
-    "ghx_hooks",
+    "visual_integration",
     "UCSRuntime",
     "UCSOrchestrator",
-    "GeometryLoader",
+    "UCSGeometryLoader",
     "SoulLawEnforcer",
-    "GHXHooks",
+    "UCSVisualIntegration",
 ]

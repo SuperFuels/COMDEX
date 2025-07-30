@@ -1,10 +1,25 @@
+# backend/modules/glyphvault/soul_law_validator.py
+
+import os
 import logging
 import hashlib
-from typing import Optional, Dict, Union
-
-from backend.modules.knowledge.knowledge_graph_writer import KnowledgeGraphWriter  # ✅ R5a
+from typing import Optional, Dict
 
 logger = logging.getLogger(__name__)
+
+# 🌐 Check if running in test mode
+SOUL_LAW_MODE = os.getenv("SOUL_LAW_MODE", "full").lower()
+
+if SOUL_LAW_MODE == "full":
+    from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter  # ✅ Original import
+else:
+    # ✅ Test mode stub: Prints glyph events instead of injecting into IGI
+    class KnowledgeGraphWriter:
+        def inject_glyph(self, *args, **kwargs):
+            print(f"[SIM] SoulLaw glyph (test mode): {kwargs.get('metadata', {}).get('rule', 'unknown')}")
+
+    print("⚠️ SoulLaw running in TEST MODE: Using stubbed KnowledgeGraphWriter")
+
 
 class SoulLawValidator:
     """
@@ -20,8 +35,8 @@ class SoulLawValidator:
             "value_of_life": True,
             "do_no_harm": True,
         }
-        self.kg_writer = KnowledgeGraphWriter()  # ✅ R5a
-        self.enable_glyph_injection = True  # ✅ R5f future toggle
+        self.kg_writer = KnowledgeGraphWriter()  # ✅ Knowledge Graph integration (stub if test mode)
+        self.enable_glyph_injection = True  # ✅ Toggle for injecting glyph logs
 
     def validate_avatar(self, avatar_state: Optional[Dict]) -> bool:
         """
@@ -47,7 +62,7 @@ class SoulLawValidator:
         """
         Validate container metadata against Soul Laws.
         """
-        # For now we always approve
+        # For now always approve, with glyph logging
         self._inject_approval("container_ok", "Container passed moral validation")
         return True
 
@@ -57,7 +72,6 @@ class SoulLawValidator:
         SoulLaw enforcement for container linking/navigation.
         Blocks linking if forbidden rules are detected.
         """
-        # Example: Prevent linking secure containers to public ones
         if "secure" in source_container.get("tags", []) and "public" in target_container.get("tags", []):
             raise PermissionError("❌ SoulLaw: Secure container cannot be linked to public.")
 
@@ -76,7 +90,7 @@ class SoulLawValidator:
             self._inject_approval("seed_lock_validated", "Seed lock key matched expected hash")
         return match
 
-    # ✅ R5b: Inject moral approval glyph
+    # ✅ Inject moral approval glyph into Knowledge Graph or test stub
     def _inject_approval(self, rule: str, reason: str):
         if not self.enable_glyph_injection:
             return
@@ -96,7 +110,7 @@ class SoulLawValidator:
         except Exception as e:
             print(f"⚠️ Failed to inject SoulLaw approval glyph: {e}")
 
-    # ✅ R5c: Inject moral violation glyph
+    # ✅ Inject moral violation glyph into Knowledge Graph or test stub
     def _inject_violation(self, rule: str, reason: str):
         if not self.enable_glyph_injection:
             return
@@ -117,4 +131,9 @@ class SoulLawValidator:
             print(f"⚠️ Failed to inject SoulLaw violation glyph: {e}")
 
 
+# ✅ Exported singleton instance
 soul_law_validator = SoulLawValidator()
+
+# 🔒 Warn if running test mode in production accidentally
+if SOUL_LAW_MODE == "test":
+    print("⚠️ WARNING: SoulLawValidator is running in TEST MODE. Switch to full mode for production (SOUL_LAW_MODE=full).")
