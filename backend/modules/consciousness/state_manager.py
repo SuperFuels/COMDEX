@@ -1,4 +1,23 @@
 # File: backend/modules/consciousness/state_manager.py
+"""
+📄 state_manager.py
+
+🧭 State Manager (UCS Runtime, Container Orchestration & Context Control)
+Handles universal container state, memory snapshots, vault decryption, personality gating, 
+runtime time-tracking, and WebSocket sync across AION’s UCS runtime.
+
+Design Rubric:
+- 🧭 UCS Runtime Context .................... ✅
+- 📦 Container Load/Activation ............. ✅
+- 🔒 Vault Decryption + Trait Gates ........ ✅
+- ⏱️ TimeController Tick & Tracking ........ ✅
+- 🧠 Memory & Knowledge Graph Hooks ........ ✅
+- 🌐 WebSocket Minimap & Event Broadcast ... ✅
+- 🔁 Pause/Resume Runtime Control .......... ✅
+- 📜 Agent State Persistence & Telemetry ... ✅
+- 💾 Secure Glyph Injection & Save ........ ✅
+- 🔗 Lean Container & Personality Engine ... ✅
+"""
 
 import os
 import json
@@ -66,6 +85,33 @@ class StateManager:
         # ✅ Runtime pause flag
         self.paused = False
         self.pause_lock = threading.Lock()
+
+    # ──────────────────────────────
+    # ✅ Safe Active UCS Fetcher
+    # ──────────────────────────────
+    def get_active_universal_container_system(self) -> dict:
+        """
+        Safely returns the active Universal Container System (UCS) context.
+        This enables lazy loading from other modules without direct imports.
+        """
+        return {
+            "active_container": self.current_container,
+            "loaded_containers": self.loaded_containers,
+            "identity": self.identity,
+            "context": self.context,
+            "vault_manager": self.vault_manager,
+            "time_controller": self.time_controller,
+        }
+
+
+# ✅ Global accessor for external modules (avoids circular imports)
+STATE_MANAGER = StateManager()
+
+def get_active_universal_container_system():
+    """
+    Proxy function to fetch active UCS from global StateManager instance.
+    """
+    return STATE_MANAGER.get_active_universal_container_system()
 
     # ✅ Pause/resume methods
     def pause(self):

@@ -1,3 +1,28 @@
+PYTHONPATH=. python backend/modules/dimensions/ucs/zones/experiments/qwave_engine/qwave_engine_control_panel.py
+
+python -c "from backend.modules.dimensions.ucs.zones.experiments.qwave_engine.qwave_tuning import QWaveAutoTuner; \
+from backend.modules.dimensions.ucs.zones.experiments.qwave_engine.supercontainer_engine import SupercontainerEngine; \
+from backend.modules.dimensions.containers.symbolic_expansion_container import SymbolicExpansionContainer; \
+engine = SupercontainerEngine(SymbolicExpansionContainer('engine-A'), safe_mode=False); \
+engine.sqi_enabled=True; \
+tuner = QWaveAutoTuner(engine); \
+tuner.tune(iterations=20)"
+
+	•	Pulse-Seeking + Auto-SQI:
+python -m backend.modules.dimensions.ucs.zones.experiments.qwave_engine.qwave_tuning \
+    --ticks 3000 --sqi 40 --fuel 3 --pulse-seek --enable-sqi
+
+
+🔥 Optional Variants
+	•	Manual Stage Mode (No SQI):
+python -m backend.modules.dimensions.ucs.zones.experiments.qwave_engine.qwave_tuning \
+    --ticks 2000 --manual-stage
+
+python backend/modules/dimensions/ucs/zones/experiments/qwave_engine/qwave_engine_control_panel.py \
+    --ticks 10000 --sqi 50 --fuel 3 --harmonics 2 4
+
+PYTHONPATH=. python scripts/experiments/test_qwave_engine.py --pi
+
 Included files:
 	1.	field_bridge.py – Final Pi GPIO + ADC coil driver.
 	2.	field_bridge_server.py – WebSocket server for Pi with token authentication.

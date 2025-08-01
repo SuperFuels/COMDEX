@@ -1,9 +1,7 @@
-# File: backend/modules/glyphvault/container_vault_integration.py
-
 from backend.modules.glyphvault.container_vault_manager import ContainerVaultManager
 from backend.modules.glyphvault.key_manager import key_manager
 from backend.modules.ucs.ucs_runtime import get_ucs_runtime  # ✅ UCS Runtime sync
-from backend.modules.soullaw.soul_law_validator import soul_law_validator  # ✅ SoulLaw Enforcement
+from backend.modules.glyphvault.soul_law_validator import get_soul_law_validator  # ✅ Safe SoulLaw accessor
 from backend.modules.glyphnet.glyphnet_ws import broadcast_event  # ✅ GHX/SQI sync
 
 def get_state():
@@ -28,11 +26,16 @@ def decrypt_glyph_vault(container_data: dict, avatar_state: dict = None) -> dict
         encrypted_blob = bytes.fromhex(encrypted_blob)
 
     # ✅ SoulLaw: Validate container before decryption
+    soul_law = get_soul_law_validator()
     try:
-        soul_law_validator.validate_container(container_data)
+        soul_law.validate_container(container_data)
     except Exception as e:
         print(f"❌ SoulLaw: Container decryption blocked – {e}")
         return container_data
+
+    # ✅ Avatar validation before decrypt
+    if not soul_law.validate_avatar(avatar_state):
+        raise PermissionError("[🔒] Vault integration blocked by SoulLaw")
 
     success = vault_manager.load_container_glyph_data(encrypted_blob, avatar_state=avatar_state)
     if not success:
@@ -80,8 +83,9 @@ def encrypt_and_embed_glyph_vault(container_data: dict) -> dict:
         glyph_data[coord_str] = glyph_meta
 
     # ✅ SoulLaw Validation (Pre-encrypt)
+    soul_law = get_soul_law_validator()
     try:
-        soul_law_validator.validate_container(container_data)
+        soul_law.validate_container(container_data)
     except Exception as e:
         print(f"❌ SoulLaw: Vault encryption blocked – {e}")
         return container_data

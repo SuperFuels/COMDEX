@@ -36,12 +36,20 @@ class MemoryEngine:
         self.memory_file = Path(__file__).parent / f"memory_{self.container_id}.json"
         self.embedding_file = Path(__file__).parent / f"embeddings_{self.container_id}.json"
 
-        # 🔥 Lazy load KnowledgeGraphWriter here to break circular import
-        from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter
-        self.kg_writer = KnowledgeGraphWriter()  # ✅ ⏱️ H1
+        # ✅ Removed KnowledgeGraphWriter from __init__ to break circular imports
+        self.kg_writer = None  
 
         self.load_memory()
         self.load_embeddings()
+
+    def _get_kg_writer(self):
+        """
+        Lazy-load KnowledgeGraphWriter only when needed to avoid circular imports.
+        """
+        if self.kg_writer is None:
+            from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter
+            self.kg_writer = KnowledgeGraphWriter()
+        return self.kg_writer
 
     def detect_tags(self, content):
         tags = []

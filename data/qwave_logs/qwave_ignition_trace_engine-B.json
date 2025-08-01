@@ -1,0 +1,58 @@
+[
+  {
+    "tick": 1,
+    "resonance": 2.805371432776295,
+    "drift": 0.0,
+    "pulse": true,
+    "fields": {
+      "gravity": 2.159178817052257,
+      "magnetism": 1.9738393178134666,
+      "wave_frequency": 1.2,
+      "field_pressure": 1.0
+    },
+    "particle_count": 3301,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 2,
+    "resonance": 2.8151807414782986,
+    "drift": 0.004904654351001625,
+    "pulse": true,
+    "fields": {
+      "gravity": 2.159178817052257,
+      "magnetism": 1.9738393178134666,
+      "wave_frequency": 1.2,
+      "field_pressure": 1.0
+    },
+    "particle_count": 3301,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 3,
+    "resonance": 2.7652919193088077,
+    "drift": 0.014994722606162636,
+    "pulse": true,
+    "fields": {
+      "gravity": 2.159178817052257,
+      "magnetism": 1.9738393178134666,
+      "wave_frequency": 1.2,
+      "field_pressure": 1.0
+    },
+    "particle_count": 3302,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 4,
+    "resonance": 2.7162463492452997,
+    "drift": 0.03475347642512139,
+    "pulse": true,
+    "fields": {
+      "gravity": 2.159178817052257,
+      "magnetism": 1.9738393178134666,
+      "wave_frequency": 1.2,
+      "field_pressure": 1.0
+    },
+    "particle_count": 3304,
+    "avg_density": 1.2336
+  }
+]

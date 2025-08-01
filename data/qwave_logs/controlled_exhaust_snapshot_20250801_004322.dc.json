@@ -1,0 +1,21 @@
+{
+  "fields": {
+    "gravity": 1.5,
+    "magnetism": 1.0,
+    "wave_frequency": 0.5599999999999999,
+    "field_pressure": 1.0
+  },
+  "glyphs": [],
+  "timestamp": "2025-08-01T00:43:22.171343",
+  "stage": "controlled_exhaust",
+  "particles": 3311,
+  "score": 0.0,
+  "sqi_enabled": true,
+  "metadata": {
+    "engine": "QWave",
+    "stage": "controlled_exhaust",
+    "sqi_enabled": true,
+    "entangled_glyphs": 0,
+    "timestamp": "2025-08-01T00:43:22.171343"
+  }
+}

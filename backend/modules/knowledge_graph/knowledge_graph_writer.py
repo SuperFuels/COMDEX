@@ -15,15 +15,31 @@ Design Rubric:
 - 📊 Validator: Stats, Search, DC Export .... ✅
 - 🌐 CRDT & Entanglement Locks .............. ✅
 """
-
 import datetime
+import importlib
 from typing import Optional, Dict, Any, Tuple
 from collections import defaultdict
-from backend.modules.consciousness.state_manager import get_active_universal_container_system
-from backend.modules.utils.id_utils import generate_uuid
-from backend.modules.utils.time_utils import get_current_timestamp
+
+# ✅ Correct utility imports
+from backend.modules.knowledge_graph.id_utils import generate_uuid
+from backend.modules.knowledge_graph.time_utils import get_current_timestamp
+
+# ✅ Knowledge graph and indexing
 from backend.modules.dna_chain.container_index_writer import add_to_index
-from backend.modules.glyphnet.glyphnet_ws import broadcast_anchor_update, broadcast_event
+
+# ✅ WebSocket broadcasting (GlyphNet)
+from backend.routes.ws.glyphnet_ws import broadcast_anchor_update, broadcast_event
+
+# ──────────────────────────────
+# Lazy UCS Fetcher (fix circular import)
+# ──────────────────────────────
+def get_active_container():
+    """
+    Lazy-loads UCS to safely fetch the active container without circular import.
+    """
+    sm = importlib.import_module("backend.modules.consciousness.state_manager")
+    ucs = sm.get_active_universal_container_system()
+    return ucs.get("active_container", {})
 
 # ──────────────────────────────
 # CRDT & Entanglement Lock Registry
@@ -44,7 +60,6 @@ class CRDTRegistry:
             local[agent] = max(local[agent], clock)
         return local
 
-    # 🔒 Standard Locks
     def acquire_lock(self, glyph_id: str, agent_id: str) -> bool:
         if glyph_id in self.locks and self.locks[glyph_id] != agent_id:
             return False
@@ -58,7 +73,6 @@ class CRDTRegistry:
     def is_locked(self, glyph_id: str) -> Optional[str]:
         return self.locks.get(glyph_id)
 
-    # ↔ Entanglement Locks
     def acquire_entanglement_lock(self, entangled_group: str, agent_id: str) -> bool:
         if entangled_group in self.entanglement_locks and self.entanglement_locks[entangled_group] != agent_id:
             return False
@@ -80,6 +94,7 @@ crdt_registry = CRDTRegistry()
 # ──────────────────────────────
 class KnowledgeGraphWriter:
     def __init__(self):
+        # 🔥 FIX: Lazy container fetch to avoid circular import
         self.container = get_active_container()
 
     def validate_knowledge_graph(self) -> Dict[str, Any]:

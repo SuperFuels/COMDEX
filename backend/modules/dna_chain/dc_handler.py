@@ -15,6 +15,9 @@ from backend.modules.consciousness.personality_engine import get_current_traits
 # ✅ New mutation utilities
 from backend.modules.dna_chain.dna_registry import register_proposal
 
+# ✅ Safe SoulLaw Accessor (lazy, avoids circular import issues)
+from backend.modules.glyphvault.soul_law_validator import get_soul_law_validator
+
 # ✅ Paths
 DIMENSION_DIR = os.path.join(os.path.dirname(__file__), "../dimensions/containers")
 
@@ -27,16 +30,36 @@ def get_container_path(container_id: str) -> str:
 # ✅ In-memory tracking (can be populated elsewhere)
 CONTAINER_MEMORY = {}
 
-def get_dc_path(container_id):
+def get_dc_path(container_id: str) -> str:
+    """Return the filesystem path to a `.dc.json` container."""
     return os.path.join(DIMENSION_DIR, f"{container_id}.dc.json")
 
-def compute_file_hash(path):
+def compute_file_hash(path: str) -> str:
+    """Compute SHA-256 hash for container file verification."""
     hasher = hashlib.sha256()
     with open(path, "rb") as f:
         buf = f.read()
         hasher.update(buf)
     return hasher.hexdigest()
 
+# ✅ SoulLaw Container Check (hook point for container operations)
+def enforce_soul_law_on_container(container_data: dict, avatar_state: Optional[dict] = None) -> bool:
+    """
+    Validate a container and avatar state against SoulLaw before loading or mutation.
+    Returns True if allowed, raises PermissionError if blocked.
+    """
+    soul_law = get_soul_law_validator()
+
+    # Container-level morality check
+    if not soul_law.validate_container(container_data):
+        raise PermissionError(f"[🔒] SoulLaw: Container {container_data.get('id')} failed validation.")
+
+    # Optional avatar state gate
+    if avatar_state and not soul_law.validate_avatar(avatar_state):
+        raise PermissionError(f"[🔒] SoulLaw: Avatar state blocked access for {container_data.get('id')}.")
+
+    return True
+    
 def validate_dimension(data):
     required_fields = ["id", "name", "description", "created_on", "dna_switch"]
     for field in required_fields:

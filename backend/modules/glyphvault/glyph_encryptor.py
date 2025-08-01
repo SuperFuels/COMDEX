@@ -1,11 +1,9 @@
-# backend/modules/glyphvault/glyph_encryptor.py
-
 import logging
 import os
 from typing import Optional
 
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
-from backend.modules.glyphvault.soul_law_validator import soul_law_validator
+from backend.modules.glyphvault.soul_law_validator import get_soul_law_validator  # ✅ Safe accessor
 
 logger = logging.getLogger(__name__)
 
@@ -82,7 +80,8 @@ class GlyphEncryptor:
         Returns:
             bool: True if access allowed, False otherwise.
         """
-        return soul_law_validator.validate_avatar(avatar_state)
+        soul_law = get_soul_law_validator()  # ✅ Lazy load validator safely
+        return soul_law.validate_avatar(avatar_state)
 
     def recursive_unlock(self, ciphertext: bytes, associated_data: Optional[bytes],
                          avatar_state: Optional[dict], max_depth: int = 5) -> Optional[bytes]:
@@ -108,7 +107,17 @@ class GlyphEncryptor:
 
         # TODO: Detect if plaintext contains further encrypted layers and recursively decrypt.
         # This requires defining a format or marker for nested blocks.
-        # For now, return plaintext directly.
         return plaintext
+
+
+# ✅ Utility function (outside the class)
+def is_encrypted_block(glyph: str) -> bool:
+    """
+    Detect if a glyph string is an encrypted block.
+    Typically checks for a known prefix or structural marker (e.g., ENC: or 🔒).
+    """
+    if not isinstance(glyph, str):
+        return False
+    return glyph.startswith("ENC:") or glyph.startswith("🔒")
 
 # End of glyph_encryptor.py

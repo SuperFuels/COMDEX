@@ -1,0 +1,21 @@
+{
+  "fields": {
+    "gravity": 3.0,
+    "magnetism": 1.8,
+    "wave_frequency": 1.4300000000000002,
+    "field_pressure": 1.0
+  },
+  "glyphs": [],
+  "timestamp": "2025-08-01T00:42:14.336616",
+  "stage": "black_hole_compression",
+  "particles": 2486,
+  "score": 0.0,
+  "sqi_enabled": true,
+  "metadata": {
+    "engine": "QWave",
+    "stage": "black_hole_compression",
+    "sqi_enabled": true,
+    "entangled_glyphs": 0,
+    "timestamp": "2025-08-01T00:42:14.336616"
+  }
+}

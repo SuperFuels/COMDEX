@@ -1,0 +1,14 @@
+{
+  "fields": {
+    "gravity": 1.5900313191177091,
+    "magnetism": 89.41276611551606,
+    "wave_frequency": 1.2,
+    "field_pressure": 1.0
+  },
+  "glyphs": [],
+  "timestamp": "2025-08-01T00:42:13.915969",
+  "stage": "wave_focus",
+  "particles": 2240,
+  "score": 0.0,
+  "sqi_enabled": true
+}

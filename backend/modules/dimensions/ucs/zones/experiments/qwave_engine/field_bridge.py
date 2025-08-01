@@ -13,6 +13,7 @@ Bridges the QWave engine exhaust to Raspberry Pi hardware:
 
 import time
 import random
+import math
 
 try:
     import RPi.GPIO as GPIO
@@ -35,6 +36,8 @@ class FieldBridge:
         self.pwm_a = None
         self.pwm_b = None
         self.spi = None
+        self.simulated_feedback = 1.0
+        self.last_adjustment = 0.0
 
         if GPIO:
             GPIO.setmode(GPIO.BCM)
@@ -75,9 +78,6 @@ class FieldBridge:
     # 🎶 Multi-Harmonic Wave Emission
     # ---------------------------------------------------------
     def emit_multi_harmonic(self, base_freq: float, duty: float, harmonics: int = 1, burst: bool = False):
-        """
-        Emit stacked harmonic frequencies and optional pulse burst.
-        """
         for h in range(1, harmonics + 1):
             freq = base_freq * h
             print(f"🎵 Harmonic {h}: {freq:.2f} Hz @ {duty:.1f}%")
@@ -86,9 +86,6 @@ class FieldBridge:
                 self._pulse_burst(freq, duty)
 
     def _pulse_burst(self, freq: float, duty: float, bursts: int = 3, burst_delay: float = 0.02):
-        """
-        Fires short high-energy bursts for stronger wavefront.
-        """
         for _ in range(bursts):
             self.emit_waveform(freq, min(100, duty + 20))
             time.sleep(burst_delay)
@@ -99,12 +96,6 @@ class FieldBridge:
     # 🚀 Exhaust Emission with Auto-Calibrate & Harmonics
     # ---------------------------------------------------------
     def emit_exhaust_wave(self, phase: float, energy: float, target_voltage: float = 1.0, harmonics: int = 1, burst: bool = False):
-        """
-        Emits an exhaust waveform tied to QWave engine physics:
-        • Base frequency modulated by energy
-        • Harmonic stacking & optional burst
-        • Per-tick coil auto-calibration from ADC feedback
-        """
         base_freq = 200 + (energy * 5)
         feedback = self.read_feedback()
         adjustment = self.auto_calibrate(target_voltage)
@@ -117,24 +108,34 @@ class FieldBridge:
     # 🔎 Feedback (ADC Read)
     # ---------------------------------------------------------
     def read_feedback(self) -> float:
-        """
-        Reads live coil voltage via MCP3008 ADC (or simulated in safe mode).
-        """
         if self.safe_mode or self.spi is None:
             return random.uniform(0.2, 1.2)
         adc = self.spi.xfer2([1, (8 + self.ADC_CHANNEL) << 4, 0])
         value = ((adc[1] & 3) << 8) + adc[2]
         return (value * 3.3) / 1023
 
+    def get_feedback_voltage(self) -> float:
+        """
+        Returns smoothed simulated or actual feedback voltage.
+        In safe mode: derived from coil tuning noise.
+        """
+        if self.safe_mode:
+            noise = (math.sin(time.time() * 2.0) * 0.05) + (random.uniform(-0.02, 0.02))
+            return self.simulated_feedback + noise
+        return self.read_feedback()
+
     # ---------------------------------------------------------
     # ⚖ Auto-Calibrate (Duty)
     # ---------------------------------------------------------
     def auto_calibrate(self, target_voltage: float = 1.0) -> float:
-        """
-        Compares target vs. live voltage and adjusts coil duty cycle proportionally.
-        """
         feedback = self.read_feedback()
         adjustment = (target_voltage - feedback) * 10
+        self.last_adjustment = adjustment
+
+        if self.safe_mode:
+            # Simulate gradual adjustment of feedback voltage
+            self.simulated_feedback += adjustment * 0.05
+
         print(f"⚖ Auto-calibrate: feedback={feedback:.2f}V adj={adjustment:+.2f}")
         return adjustment
 

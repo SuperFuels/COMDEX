@@ -24,7 +24,7 @@ import logging
 from fastapi import WebSocket
 from typing import Dict, List, Any, Optional
 
-from backend.modules.codex.glyph_executor import GlyphExecutor
+from backend.modules.glyphos.glyph_executor import GlyphExecutor
 from backend.modules.state.state_manager import state_manager
 from backend.modules.prediction.predictive_glyph_composer import PredictiveGlyphComposer
 from backend.modules.glyphnet.agent_identity_registry import agent_identity_registry

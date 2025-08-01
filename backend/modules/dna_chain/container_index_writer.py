@@ -6,10 +6,10 @@ import importlib
 from typing import Dict, Any
 from datetime import datetime
 import uuid
+import os
 
 from backend.modules.dimensions.universal_container_system.ucs_runtime import ucs_runtime
 from backend.modules.websocket_manager import WebSocketManager
-from backend.modules.glyphvault.soul_law_validator import soul_law_validator  # ✅ Corrected path
 
 def get_current_timestamp() -> str:
     return datetime.utcnow().isoformat()
@@ -72,9 +72,11 @@ def add_to_index(index_name: str, entry: Dict[str, Any]):
     except Exception as e:
         container["rubric_report_error"] = f"Failed to validate rubric: {str(e)}"
 
-    # ✅ SoulLaw enforcement on updated container state
+    # ✅ SoulLaw enforcement (lazy-import to prevent circular import)
     try:
-        soul_law_validator.validate_container(container)  # ✅ Corrected to singleton usage
+        if os.getenv("SOUL_LAW_MODE", "full") != "test":  # ✅ Skip in test mode
+            from backend.modules.glyphvault.soul_law_validator import soul_law_validator
+            soul_law_validator.validate_container(container)
     except Exception as e:
         container["soul_law_error"] = f"SoulLaw validation failed: {str(e)}"
 

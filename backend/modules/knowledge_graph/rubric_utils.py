@@ -16,13 +16,26 @@ Auto-scans Python modules and `.dc.json` containers to verify:
 import os
 import ast
 import json
+import uuid
+from datetime import datetime
 from typing import Dict, List, Optional
-
 
 REQUIRED_KEYS = [
     "🔁", "📦", "🧠", "⏱️", "🧩", "🔍", "📊", "📚"
 ]
 
+# ✅ Added utility functions for KnowledgeGraphWriter
+def generate_uuid() -> str:
+    """
+    Generates a unique UUID string.
+    """
+    return str(uuid.uuid4())
+
+def get_current_timestamp() -> str:
+    """
+    Returns the current UTC timestamp in ISO 8601 format.
+    """
+    return datetime.utcnow().isoformat()
 
 def check_rubric_in_docstring(file_path: str) -> Dict:
     """Scans a .py file for rubric checklist in the top-level docstring."""
@@ -37,7 +50,6 @@ def check_rubric_in_docstring(file_path: str) -> Dict:
         return {"status": result, "missing": [k for k, v in found.items() if not v]}
     except Exception as e:
         return {"status": "ERROR", "error": str(e)}
-
 
 def check_rubric_in_dc_json(file_path: str) -> Dict:
     """Scans a .dc.json container for presence of rubric-related structures."""
@@ -61,7 +73,6 @@ def check_rubric_in_dc_json(file_path: str) -> Dict:
     except Exception as e:
         return {"status": "ERROR", "error": str(e)}
 
-
 def _evaluate_result(flags: Dict[str, bool]) -> str:
     missing = sum(1 for v in flags.values() if not v)
     if missing == 0:
@@ -71,7 +82,6 @@ def _evaluate_result(flags: Dict[str, bool]) -> str:
     else:
         return "FAIL"
 
-
 def validate_file(file_path: str) -> Dict:
     """Main entrypoint — automatically picks parser based on file type."""
     if file_path.endswith(".py"):
@@ -80,7 +90,6 @@ def validate_file(file_path: str) -> Dict:
         return check_rubric_in_dc_json(file_path)
     else:
         return {"status": "SKIP", "reason": "Unsupported file type"}
-
 
 # Optional: Hook-in broadcast or logging
 def emit_violation_event(file_path: str, result: Dict, broadcast: bool = False):
