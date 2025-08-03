@@ -1,0 +1,32 @@
+{
+  "G1": {
+    "gravity": 1.2,
+    "magnetism": 0.8,
+    "wave_frequency": 0.40,
+    "field_pressure": 1.0
+  },
+  "G2": {
+    "gravity": 1.5,
+    "magnetism": 0.9,
+    "wave_frequency": 0.44,
+    "field_pressure": 1.05
+  },
+  "G3": {
+    "gravity": 1.7,
+    "magnetism": 1.0,
+    "wave_frequency": 0.47,
+    "field_pressure": 1.10
+  },
+  "G4": {
+    "gravity": 1.85,
+    "magnetism": 1.08,
+    "wave_frequency": 0.50,
+    "field_pressure": 1.15
+  },
+  "G4.5": {
+    "gravity": 2.0,
+    "magnetism": 1.15,
+    "wave_frequency": 0.52,
+    "field_pressure": 1.20
+  }
+}

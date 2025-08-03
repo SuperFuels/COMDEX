@@ -53,23 +53,23 @@ from backend.modules.dimensions.containers.symbolic_expansion_container import S
 from backend.modules.dimensions.ucs.zones.experiments.qwave_engine.tesseract_injector import TesseractInjector, CompressionChamber
 from backend.modules.dimensions.ucs.zones.experiments.qwave_engine.gear_shift_manager import gear_shift
 from backend.modules.dimensions.ucs.zones.experiments.qwave_engine.engine_sync import sync_twin_engines, exhaust_to_intake
-from backend.modules.dimensions.ucs.zones.experiments.qwave_engine.idle_manager import ignition_to_idle, save_idle_state, load_idle_state
+from backend.modules.dimensions.ucs.zones.experiments.qwave_engine.idle_manager import ignition_to_idle, save_idle_state
 
 # -------------------------
-# ECU Runtime Loop (SQI Sync Integrated)
+# ECU Runtime Loop (Twin Engine + SQI Phase-Aware Support)
 # -------------------------
-def ecu_runtime_loop(engine_a, engine_b=None, sqi_phase_aware=False, sqi_interval=200, fuel_cycle=5, manual_stage=False, ticks=5000):
+def ecu_runtime_loop(engine_a, engine_b=None, sqi_phase_aware=False, sqi_interval=200,
+                     fuel_cycle=5, manual_stage=False, ticks=5000):
     """
-    ECU runtime loop with optional SQI drift-phase sync between Engine A and Engine B.
+    ECU runtime loop with twin-engine SQI synchronization and explicit sync logs.
     """
     tick_counter = 0
-    print("🚦 Starting ECU Runtime Loop...")
+    print(f"🚦 ECU Runtime Loop Start: Target Ticks={ticks}")
 
     while tick_counter < ticks:
         engine_a.tick()
         if engine_b:
             engine_b.tick()
-
         tick_counter += 1
 
         # SQI Phase-Aware Sync
@@ -80,22 +80,31 @@ def ecu_runtime_loop(engine_a, engine_b=None, sqi_phase_aware=False, sqi_interva
                 engine_b.resonance_phase += adjustment
                 print(f"🔗 SQI Phase Sync: Engine B adjusted by {adjustment:.5f} (Δ={drift_diff:.5f})")
 
-            # Field Sync every SQI interval
             if tick_counter % sqi_interval == 0:
                 engine_b.fields = engine_a.fields.copy()
-                print(f"🔄 SQI Field Sync @tick {tick_counter}: Engine B fields updated to match Engine A.")
+                print(f"🔄 SQI Field Sync @tick {tick_counter}: Engine B fields matched to Engine A.")
 
-        # Fuel injection cycle
+        # Proton fuel cycle
         if tick_counter % fuel_cycle == 0:
             engine_a.inject_proton()
             if engine_b:
                 engine_b.inject_proton()
 
+        # Drift calculations
         drift_a = max(engine_a.resonance_filtered[-30:], default=0) - min(engine_a.resonance_filtered[-30:], default=0)
         drift_b = (max(engine_b.resonance_filtered[-30:], default=0) - min(engine_b.resonance_filtered[-30:], default=0)) if engine_b else None
-        print(f"📊 ECU Tick={tick_counter} | Drift A={drift_a:.4f} | Drift B={drift_b if engine_b else 'N/A'}")
 
-        time.sleep(0.01)  # Stabilize loop timing
+        # ✅ Twin Engines Synced log
+        if engine_b and tick_counter % 100 == 0:
+            print(f"✅ Twin Engines Synced | Tick={tick_counter} | Drift A={drift_a:.4f} | Drift B={drift_b:.4f}")
+
+        # ECU telemetry log (every 100 ticks)
+        if tick_counter % 100 == 0:
+            print(f"📊 ECU Tick={tick_counter} | Particles={len(engine_a.particles)} | Resonance={engine_a.resonance_phase:.4f}")
+
+        time.sleep(0.01)  # Loop pacing
+
+    print("✅ ECU Runtime Loop Complete.")
 
 # -------------------------
 # Engine Init
@@ -111,16 +120,15 @@ def create_engine(name="engine"):
     engine.injectors = [TesseractInjector(i, phase_offset=i * 3) for i in range(4)]
     engine.chambers = [CompressionChamber(i, compression_factor=1.3) for i in range(4)]
 
-    # Apply runtime overrides
+    # Runtime overrides
     engine.injector_interval = args.injector_interval
     engine.fields["gravity"] = args.gravity
     engine.fields["magnetism"] = args.magnetism
     engine.fields["wave_frequency"] = args.wave_frequency
-
     engine.sqi_enabled = args.enable_sqi
+
     mode = "Phase-Aware" if args.sqi_phase_aware else "Fixed-Interval"
     print(f"{'✅ SQI Enabled:' if engine.sqi_enabled else '🛑 SQI Disabled:'} {mode if engine.sqi_enabled else 'Manual stage control active.'}")
-
     print(f"🛠 Engine '{name}' initialized: Injectors={len(engine.injectors)}, Chambers={len(engine.chambers)}")
     return engine
 
@@ -137,22 +145,20 @@ if __name__ == "__main__":
         print("⚙ Initializing Engine B...")
         engine_b = create_engine("engine-B")
         ignition_to_idle(engine_b)
-
         print("🔗 Pre-syncing Engine A ↔ Engine B...")
         sync_twin_engines(engine_a, engine_b)
 
     print("🚦 Starting ECU Runtime Loop...")
     ecu_runtime_loop(
-    engine_a,
-    engine_b=engine_b,
-    sqi_phase_aware=args.sqi_phase_aware,
-    sqi_interval=args.sqi,
-    fuel_cycle=args.fuel,
-    manual_stage=args.manual_stage,
-    ticks=args.ticks
-)
+        engine_a,
+        engine_b=engine_b,
+        sqi_phase_aware=args.sqi_phase_aware,
+        sqi_interval=args.sqi,
+        fuel_cycle=args.fuel,
+        manual_stage=args.manual_stage,
+        ticks=args.ticks
+    )
 
-    # Gear shift sequencing if Engine B is active
     if engine_b:
         for g in [1, 2]:
             print(f"🔧 Gear Shift: Engine A → Gear {g}")
@@ -164,7 +170,6 @@ if __name__ == "__main__":
                 {"gravity": 1.2, "magnetism": 1.5, "wave_frequency": 1.5},
                 {"gravity": 1.5, "magnetism": 1.8, "wave_frequency": 2.0},
             ])
-
             print(f"🔧 Gear Shift: Engine B → Gear {g}")
             gear_shift(engine_b, g, [
                 {"gravity": 0.8, "magnetism": 0.5, "wave_frequency": 0.5},
@@ -174,7 +179,6 @@ if __name__ == "__main__":
                 {"gravity": 1.2, "magnetism": 1.5, "wave_frequency": 1.5},
                 {"gravity": 1.5, "magnetism": 1.8, "wave_frequency": 2.0},
             ])
-
             exhaust_to_intake(engine_a, engine_b)
 
         print("🚀 Engine A ↔ B twin sync + chaining complete.")

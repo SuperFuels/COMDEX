@@ -1,0 +1,2284 @@
+[
+  {
+    "tick": 1,
+    "resonance": 12.950646613279678,
+    "drift": 0.0,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.257118922274157,
+      "magnetism": 2.8041307214768865,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4363,
+    "avg_density": 1.0
+  },
+  {
+    "tick": 2,
+    "resonance": 12.664226375641077,
+    "drift": 0.1432101188193009,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.2570124943011,
+      "magnetism": 2.812543113641317,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4371,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 3,
+    "resonance": 12.237709414521836,
+    "drift": 0.3331191454654814,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.256906068988742,
+      "magnetism": 2.8209807429822407,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4378,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 4,
+    "resonance": 11.825627637160283,
+    "drift": 0.5310941031289591,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.256799646337017,
+      "magnetism": 2.8294436852111873,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4386,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 5,
+    "resonance": 11.428531944892901,
+    "drift": 0.7292982161805242,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.256693226345858,
+      "magnetism": 2.8379320162668207,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4392,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 6,
+    "resonance": 11.045335760617025,
+    "drift": 0.9253003222608793,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.256586809015199,
+      "magnetism": 2.8464458123156207,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4401,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 7,
+    "resonance": 10.675232653233001,
+    "drift": 1.1181736990874214,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.256480394344973,
+      "magnetism": 2.8549851497525673,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4407,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 8,
+    "resonance": 10.31826048268523,
+    "drift": 1.3074502530257988,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.2563739823351145,
+      "magnetism": 2.8635501052018246,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4415,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 9,
+    "resonance": 9.974080755175674,
+    "drift": 1.4929075424789335,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.256267572985556,
+      "magnetism": 2.87214075551743,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4422,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 10,
+    "resonance": 9.641559833181496,
+    "drift": 1.6745254662408584,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.256161166296231,
+      "magnetism": 2.8807571777839818,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4432,
+    "avg_density": 1.2336
+  },
+  {
+    "tick": 11,
+    "resonance": 9.321463297528165,
+    "drift": 2.0374437978160103,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.256054762267072,
+      "magnetism": 2.8893994493173336,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4438,
+    "avg_density": 1.2336
+  },
+  {
+    "tick": 12,
+    "resonance": 9.012055973808698,
+    "drift": 2.402660837999248,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.2559483608980155,
+      "magnetism": 2.898067647665285,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4447,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 13,
+    "resonance": 8.713526188336038,
+    "drift": 2.755079160617827,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.255841962188993,
+      "magnetism": 2.9067618506082806,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4453,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 14,
+    "resonance": 8.425137475465107,
+    "drift": 3.0951281767873446,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.255735566139937,
+      "magnetism": 2.9154821361601053,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4461,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 15,
+    "resonance": 8.147277078717522,
+    "drift": 3.423253663404882,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.2556291727507825,
+      "magnetism": 2.924228582568585,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4468,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 16,
+    "resonance": 7.879416766597309,
+    "drift": 3.7398455628068543,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.255522782021464,
+      "magnetism": 2.9330012683162905,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4476,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 17,
+    "resonance": 7.620985010238277,
+    "drift": 4.045270327106326,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.255416393951913,
+      "magnetism": 2.941800272121239,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4482,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 18,
+    "resonance": 7.370988384036017,
+    "drift": 4.339997536971248,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.2553100085420645,
+      "magnetism": 2.9506256729376026,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4491,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 19,
+    "resonance": 7.130593138080527,
+    "drift": 4.624346298680763,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.25520362579185,
+      "magnetism": 2.959477549956415,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4497,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 20,
+    "resonance": 6.897846377361641,
+    "drift": 4.898717644262748,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.255097245701205,
+      "magnetism": 2.968355982606284,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4507,
+    "avg_density": 1.2336
+  },
+  {
+    "tick": 21,
+    "resonance": 6.67335337623916,
+    "drift": 5.020318517572348,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.254990868270062,
+      "magnetism": 2.9772610505541026,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4514,
+    "avg_density": 1.1752
+  },
+  {
+    "tick": 22,
+    "resonance": 6.456974992004997,
+    "drift": 5.085917589106537,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.254884493498356,
+      "magnetism": 2.9861928337057644,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4522,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 23,
+    "resonance": 6.248476371895785,
+    "drift": 5.134447613087085,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.254778121386018,
+      "magnetism": 2.9951514122068814,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4528,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 24,
+    "resonance": 6.04681048977562,
+    "drift": 5.174076198604468,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.254671751932983,
+      "magnetism": 3.0041368664435018,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4537,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 25,
+    "resonance": 5.852356795223614,
+    "drift": 5.207566120873504,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.254565385139184,
+      "magnetism": 3.013149277042832,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4543,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 26,
+    "resonance": 5.665026591849515,
+    "drift": 5.236131761521741,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.254459021004555,
+      "magnetism": 3.0221887248739603,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4551,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 27,
+    "resonance": 5.483827581168641,
+    "drift": 5.260570950490328,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.2543526595290295,
+      "magnetism": 3.031255291048582,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4558,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 28,
+    "resonance": 5.309254391859467,
+    "drift": 5.281287060254848,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.254246300712541,
+      "magnetism": 3.0403490569217273,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4566,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 29,
+    "resonance": 5.140916230620745,
+    "drift": 5.2986368272389015,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.254139944555023,
+      "magnetism": 3.0494701040924923,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4572,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 30,
+    "resonance": 4.978288665922536,
+    "drift": 5.12767426680766,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.254033591056408,
+      "magnetism": 3.0586185144047695,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4583,
+    "avg_density": 1.2336
+  },
+  {
+    "tick": 31,
+    "resonance": 4.8217087367949745,
+    "drift": 4.947621690568841,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.2539272402166315,
+      "magnetism": 3.0677943699479835,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4589,
+    "avg_density": 1.1752
+  },
+  {
+    "tick": 32,
+    "resonance": 4.673222937802129,
+    "drift": 4.773578573370549,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.253820892035626,
+      "magnetism": 3.076997753057827,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4597,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 33,
+    "resonance": 4.52903567725626,
+    "drift": 4.605473626664984,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.253714546513325,
+      "magnetism": 3.0862287463170004,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4604,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 34,
+    "resonance": 4.38988064044024,
+    "drift": 4.443041124980984,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.253608203649661,
+      "magnetism": 3.095487432555951,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4612,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 35,
+    "resonance": 4.255443053115179,
+    "drift": 4.286140599789856,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.253501863444569,
+      "magnetism": 3.1047738948536185,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4618,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 36,
+    "resonance": 4.1262310402586015,
+    "drift": 4.134595390649475,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.253395525897982,
+      "magnetism": 3.114088216538179,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4627,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 37,
+    "resonance": 4.003691468722177,
+    "drift": 3.9878817920291993,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.253289191009834,
+      "magnetism": 3.1234304811877935,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4633,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 38,
+    "resonance": 3.8828676128888953,
+    "drift": 3.846171708216742,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.253182858780058,
+      "magnetism": 3.1328007726313567,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4641,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 39,
+    "resonance": 3.768444957537363,
+    "drift": 3.709047489943095,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.253076529208588,
+      "magnetism": 3.1421991749492504,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4648,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 40,
+    "resonance": 3.6540885941493406,
+    "drift": 3.5766565049915133,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.252970202295358,
+      "magnetism": 3.1516257724740977,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4658,
+    "avg_density": 1.2336
+  },
+  {
+    "tick": 41,
+    "resonance": 3.543673528121817,
+    "drift": 3.4489519276784595,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.2528638780403,
+      "magnetism": 3.16108064979152,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4664,
+    "avg_density": 1.2336
+  },
+  {
+    "tick": 42,
+    "resonance": 3.4372987217062283,
+    "drift": 3.3260393676440243,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.252757556443348,
+      "magnetism": 3.170563891740894,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4673,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 43,
+    "resonance": 3.3344236116965353,
+    "drift": 3.207667875631048,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.252651237504437,
+      "magnetism": 3.1800755834161163,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4679,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 44,
+    "resonance": 3.2351775446162976,
+    "drift": 3.093646156864052,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.252544921223499,
+      "magnetism": 3.189615810166364,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4687,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 45,
+    "resonance": 3.139415266350205,
+    "drift": 2.98380991806577,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.252438607600468,
+      "magnetism": 3.199184657596863,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4694,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 46,
+    "resonance": 3.0475522106427957,
+    "drift": 2.8779620581203864,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.252332296635277,
+      "magnetism": 3.208782211569653,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4702,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 47,
+    "resonance": 2.9584266305791,
+    "drift": 2.776315142717039,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.252225988327861,
+      "magnetism": 3.2184085582043616,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4708,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 48,
+    "resonance": 2.872616191901708,
+    "drift": 2.6783725940697796,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.252119682678152,
+      "magnetism": 3.2280637838789743,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4717,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 49,
+    "resonance": 2.789567062613626,
+    "drift": 2.5843046124182423,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.252013379686085,
+      "magnetism": 3.237747975230611,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4723,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 50,
+    "resonance": 2.7098849108764167,
+    "drift": 2.4935605168011166,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.251907079351592,
+      "magnetism": 3.2474612191563024,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4733,
+    "avg_density": 1.2336
+  },
+  {
+    "tick": 51,
+    "resonance": 2.6339552909437227,
+    "drift": 2.4061571350986393,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.251800781674608,
+      "magnetism": 3.257203602813771,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4740,
+    "avg_density": 1.1752
+  },
+  {
+    "tick": 52,
+    "resonance": 2.559482695541137,
+    "drift": 2.3219946682511954,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.251694486655066,
+      "magnetism": 3.266975213622212,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4748,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 53,
+    "resonance": 2.4883649963619536,
+    "drift": 2.240907544851116,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.2515881942929,
+      "magnetism": 3.2767761392630783,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4754,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 54,
+    "resonance": 2.428722162467677,
+    "drift": 2.1618617088551346,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.251481904588042,
+      "magnetism": 3.2866064676808673,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4763,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 55,
+    "resonance": 2.375970978696221,
+    "drift": 2.0843265824614416,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.251375617540426,
+      "magnetism": 3.2964662870839097,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4769,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 56,
+    "resonance": 2.321855988161868,
+    "drift": 2.0088825934648877,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.251269333149987,
+      "magnetism": 3.306355685945161,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4777,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 57,
+    "resonance": 2.2647959001334637,
+    "drift": 1.935606988612394,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.2511630514166585,
+      "magnetism": 3.3162747530029963,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4784,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 58,
+    "resonance": 2.2044535392477798,
+    "drift": 1.8651761265694495,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.251056772340373,
+      "magnetism": 3.326223577262005,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4792,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 59,
+    "resonance": 2.1458236015736123,
+    "drift": 1.797130465496131,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.250950495921064,
+      "magnetism": 3.3362022479937905,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4798,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 60,
+    "resonance": 2.0889140582519463,
+    "drift": 1.7314240298912624,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.2508442221586655,
+      "magnetism": 3.3462108547377714,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4809,
+    "avg_density": 1.2336
+  },
+  {
+    "tick": 61,
+    "resonance": 2.0345182713636523,
+    "drift": 1.667775310239679,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.250737951053111,
+      "magnetism": 3.356249487301984,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4815,
+    "avg_density": 1.1752
+  },
+  {
+    "tick": 62,
+    "resonance": 1.9818861149893678,
+    "drift": 1.6060737617388838,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.250631682604334,
+      "magnetism": 3.36631823576389,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4823,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 63,
+    "resonance": 1.931413069302612,
+    "drift": 1.5462986448624232,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.250525416812269,
+      "magnetism": 3.376417190471181,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4830,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 64,
+    "resonance": 1.8820936588070574,
+    "drift": 1.4893587165519881,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.250419153676848,
+      "magnetism": 3.386546442042594,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4838,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 65,
+    "resonance": 1.834958307297704,
+    "drift": 1.435592100730259,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.250312893198005,
+      "magnetism": 3.3967060813687215,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4844,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 66,
+    "resonance": 1.7896425106406195,
+    "drift": 1.3842869646680764,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.250206635375675,
+      "magnetism": 3.4068961996128273,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4853,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 67,
+    "resonance": 1.745613437082847,
+    "drift": 1.335180068874419,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.25010038020979,
+      "magnetism": 3.4171168882116656,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4859,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 68,
+    "resonance": 1.7031012528987837,
+    "drift": 1.2874275080169455,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.249994127700284,
+      "magnetism": 3.4273682388763,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4867,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 69,
+    "resonance": 1.6625721659434665,
+    "drift": 1.2413322832526674,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.249887877847091,
+      "magnetism": 3.4376503435929284,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4874,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 70,
+    "resonance": 1.623174926273285,
+    "drift": 1.196934372732724,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.249781630650145,
+      "magnetism": 3.447963294623707,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4884,
+    "avg_density": 1.2336
+  },
+  {
+    "tick": 71,
+    "resonance": 1.5852707787109779,
+    "drift": 1.1540775193814825,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.249675386109378,
+      "magnetism": 3.4583071845075777,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4890,
+    "avg_density": 1.2336
+  },
+  {
+    "tick": 72,
+    "resonance": 1.5483467761298075,
+    "drift": 1.1128255917339804,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.249569144224725,
+      "magnetism": 3.4686821060611,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4899,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 73,
+    "resonance": 1.5132198317062513,
+    "drift": 1.0739993772787542,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.249462904996118,
+      "magnetism": 3.479088152379283,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4905,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 74,
+    "resonance": 1.4790380382164539,
+    "drift": 1.0379605105724163,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.249356668423493,
+      "magnetism": 3.4895254168364205,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4913,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 75,
+    "resonance": 1.4463548768987524,
+    "drift": 1.004251231364219,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.2492504345067825,
+      "magnetism": 3.4999939930869295,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4920,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 76,
+    "resonance": 1.4142754104002435,
+    "drift": 0.9724248683436925,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.249144203245919,
+      "magnetism": 3.51049397506619,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4928,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 77,
+    "resonance": 1.3838166762907642,
+    "drift": 0.9417882791575076,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.249037974640838,
+      "magnetism": 3.521025456991388,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4934,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 78,
+    "resonance": 1.3541633982378105,
+    "drift": 0.9123077185196038,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.248931748691471,
+      "magnetism": 3.531588533362362,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4943,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 79,
+    "resonance": 1.325912682019836,
+    "drift": 0.88387658164952,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.248825525397753,
+      "magnetism": 3.5421832989624487,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4949,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 80,
+    "resonance": 1.2987119937857354,
+    "drift": 0.8563791729402679,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.248719304759618,
+      "magnetism": 3.5528098488593356,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4959,
+    "avg_density": 1.2336
+  },
+  {
+    "tick": 81,
+    "resonance": 1.2719651381308374,
+    "drift": 0.8299500789431049,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.248613086776999,
+      "magnetism": 3.5634682784059133,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4966,
+    "avg_density": 1.1752
+  },
+  {
+    "tick": 82,
+    "resonance": 1.2468678365102264,
+    "drift": 0.8044027801991287,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.248506871449829,
+      "magnetism": 3.5741586832411305,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4974,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 83,
+    "resonance": 1.2225218491609526,
+    "drift": 0.7788097280875965,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.248400658778042,
+      "magnetism": 3.5848811592908536,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4980,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 84,
+    "resonance": 1.1986036189903109,
+    "drift": 0.7527519028703595,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.248294448761572,
+      "magnetism": 3.595635802768726,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4989,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 85,
+    "resonance": 1.1758442450788609,
+    "drift": 0.7265816183002238,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.248188241400353,
+      "magnetism": 3.6064227101770316,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 4995,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 86,
+    "resonance": 1.1536453199286492,
+    "drift": 0.7007263810423214,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.248082036694317,
+      "magnetism": 3.6172419783075624,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5003,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 87,
+    "resonance": 1.132162943781995,
+    "drift": 0.6757565256582987,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.247975834643399,
+      "magnetism": 3.6280937042424846,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5010,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 88,
+    "resonance": 1.1119806191297577,
+    "drift": 0.6516496600060897,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.2478696352475325,
+      "magnetism": 3.6389779853552118,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5018,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 89,
+    "resonance": 1.092380087590807,
+    "drift": 0.6284290062511264,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.247763438506651,
+      "magnetism": 3.649894919311277,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5024,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 90,
+    "resonance": 1.0736173719292816,
+    "drift": 0.6060137191715043,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.247657244420688,
+      "magnetism": 3.6608446040692106,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5035,
+    "avg_density": 1.2336
+  },
+  {
+    "tick": 91,
+    "resonance": 1.0552841539964197,
+    "drift": 0.5843278836989898,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.247551052989578,
+      "magnetism": 3.671827137881418,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5041,
+    "avg_density": 1.1752
+  },
+  {
+    "tick": 92,
+    "resonance": 1.0380292782045308,
+    "drift": 0.5633924157699233,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.247444864213253,
+      "magnetism": 3.682842619295062,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5049,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 93,
+    "resonance": 1.021335814495872,
+    "drift": 0.543205457177371,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.247338678091647,
+      "magnetism": 3.6938911471529465,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5056,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 94,
+    "resonance": 1.0044221766649701,
+    "drift": 0.5237632583700098,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.247232494624694,
+      "magnetism": 3.704972820594405,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5064,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 95,
+    "resonance": 0.9890329227550856,
+    "drift": 0.5049076805783501,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.247126313812329,
+      "magnetism": 3.7160877390561877,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5070,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 96,
+    "resonance": 0.9739514943012014,
+    "drift": 0.4866973870618867,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.247020135654482,
+      "magnetism": 3.7272360022733557,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5079,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 97,
+    "resonance": 0.9590204795026281,
+    "drift": 0.4691178480237259,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.24691396015109,
+      "magnetism": 3.738417710280175,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5085,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 98,
+    "resonance": 0.944553118554664,
+    "drift": 0.452194649688872,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.246807787302086,
+      "magnetism": 3.7496329634110155,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5093,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 99,
+    "resonance": 0.9309227929095122,
+    "drift": 0.43589408590824674,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.246701617107403,
+      "magnetism": 3.760881862301248,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5100,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 100,
+    "resonance": 0.9174591807385928,
+    "drift": 0.42017934096930165,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.246595449566976,
+      "magnetism": 3.7721645078881516,
+      "wave_frequency": 2.175,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5110,
+    "avg_density": 1.2336
+  },
+  {
+    "tick": 101,
+    "resonance": 1.1187992542412577,
+    "drift": 0.3900314470073435,
+    "pulse": true,
+    "fields": {
+      "gravity": 0.9999749999999998,
+      "magnetism": 1.2035999999999998,
+      "wave_frequency": 1.05,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5116,
+    "avg_density": 1.2336
+  },
+  {
+    "tick": 102,
+    "resonance": 1.0892810839919762,
+    "drift": 0.36096164875281367,
+    "pulse": true,
+    "fields": {
+      "gravity": 1.0999725,
+      "magnetism": 1.35405,
+      "wave_frequency": 1.375,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5125,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 103,
+    "resonance": 1.0634039984163615,
+    "drift": 0.33291820683019935,
+    "pulse": true,
+    "fields": {
+      "gravity": 1.1999699999999998,
+      "magnetism": 1.4543499999999998,
+      "wave_frequency": 1.6099999999999999,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5131,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 104,
+    "resonance": 1.0405609325317693,
+    "drift": 0.30586714364821,
+    "pulse": true,
+    "fields": {
+      "gravity": 1.3499662499999998,
+      "magnetism": 1.6048,
+      "wave_frequency": 1.92,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5139,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 105,
+    "resonance": 1.0212968160400788,
+    "drift": 0.2798041346010508,
+    "pulse": true,
+    "fields": {
+      "gravity": 1.6999574999999998,
+      "magnetism": 1.9056999999999997,
+      "wave_frequency": 2.625,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5146,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 106,
+    "resonance": 1.010020530284147,
+    "drift": 0.2546387613501738,
+    "pulse": true,
+    "fields": {
+      "gravity": 2.3999399999999995,
+      "magnetism": 2.1063,
+      "wave_frequency": 3.25,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5154,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 107,
+    "resonance": 1.0053080400694019,
+    "drift": 0.23042048343936827,
+    "pulse": true,
+    "fields": {
+      "gravity": 3.2999174999999994,
+      "magnetism": 2.3068999999999997,
+      "wave_frequency": 2.0250000000000004,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5160,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 108,
+    "resonance": 0.9889900848999987,
+    "drift": 0.20706722399646538,
+    "pulse": true,
+    "fields": {
+      "gravity": 3.59991,
+      "magnetism": 2.4071999999999996,
+      "wave_frequency": 2.17,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5169,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 109,
+    "resonance": 0.9750809423295504,
+    "drift": 0.18455776181082018,
+    "pulse": true,
+    "fields": {
+      "gravity": 3.7999049999999994,
+      "magnetism": 2.5075,
+      "wave_frequency": 2.32,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5175,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 110,
+    "resonance": 0.9631629985746673,
+    "drift": 0.16288966339737854,
+    "pulse": true,
+    "fields": {
+      "gravity": 3.7998100023749988,
+      "magnetism": 2.5150224999999997,
+      "wave_frequency": 2.32,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5185,
+    "avg_density": 1.2336
+  },
+  {
+    "tick": 111,
+    "resonance": 0.950397355776689,
+    "drift": 0.1420058075668088,
+    "pulse": true,
+    "fields": {
+      "gravity": 3.799715007124939,
+      "magnetism": 2.5225675674999994,
+      "wave_frequency": 2.32,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5192,
+    "avg_density": 1.1752
+  },
+  {
+    "tick": 112,
+    "resonance": 0.9385553079790266,
+    "drift": 0.12188720410030085,
+    "pulse": true,
+    "fields": {
+      "gravity": 3.7996200142497605,
+      "magnetism": 2.530135270202499,
+      "wave_frequency": 2.32,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5200,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 113,
+    "resonance": 0.9269719526743413,
+    "drift": 0.10383570496414751,
+    "pulse": true,
+    "fields": {
+      "gravity": 3.818618114321009,
+      "magnetism": 2.5377256760131064,
+      "wave_frequency": 2.32,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5206,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 114,
+    "resonance": 0.9157510728930848,
+    "drift": 0.09763555869563834,
+    "pulse": true,
+    "fields": {
+      "gravity": 3.9144654289904657,
+      "magnetism": 2.5453388530411454,
+      "wave_frequency": 2.32,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5215,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 115,
+    "resonance": 0.9049760505414809,
+    "drift": 0.09129825268275338,
+    "pulse": true,
+    "fields": {
+      "gravity": 3.9340377561354174,
+      "magnetism": 2.5529748696002685,
+      "wave_frequency": 2.32,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5221,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 116,
+    "resonance": 0.8945696278170452,
+    "drift": 0.08552909650152674,
+    "pulse": true,
+    "fields": {
+      "gravity": 3.953707944916094,
+      "magnetism": 2.560633794209069,
+      "wave_frequency": 2.32,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5229,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 117,
+    "resonance": 0.8840219673684994,
+    "drift": 0.09334273205248256,
+    "pulse": true,
+    "fields": {
+      "gravity": 3.973476484640674,
+      "magnetism": 2.568315695591696,
+      "wave_frequency": 2.32,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5236,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 118,
+    "resonance": 0.8748370991309518,
+    "drift": 0.10475803062938727,
+    "pulse": true,
+    "fields": {
+      "gravity": 3.993343867063877,
+      "magnetism": 2.5760206426784706,
+      "wave_frequency": 2.32,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5244,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 119,
+    "resonance": 0.8658414206215969,
+    "drift": 0.11568198280018249,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.013310586399196,
+      "magnetism": 2.583748704606506,
+      "wave_frequency": 2.32,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5250,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 120,
+    "resonance": 0.8566720537143908,
+    "drift": 0.1263310772862103,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.013210253634535,
+      "magnetism": 2.5914999507203254,
+      "wave_frequency": 2.32,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5261,
+    "avg_density": 1.2336
+  },
+  {
+    "tick": 121,
+    "resonance": 0.8480569070688133,
+    "drift": 0.13656512215699768,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.013109923378193,
+      "magnetism": 2.599274450572486,
+      "wave_frequency": 2.32,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5267,
+    "avg_density": 1.1752
+  },
+  {
+    "tick": 122,
+    "resonance": 0.8394370071134769,
+    "drift": 0.14647695224355273,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.013009595630107,
+      "magnetism": 2.607072273924203,
+      "wave_frequency": 2.32,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5275,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 123,
+    "resonance": 0.8312573503213011,
+    "drift": 0.1560484124788568,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.0129092703902165,
+      "magnetism": 2.6148934907459753,
+      "wave_frequency": 2.32,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5282,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 124,
+    "resonance": 0.8235830399184428,
+    "drift": 0.16526521577632092,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.012808947658456,
+      "magnetism": 2.622738171218213,
+      "wave_frequency": 2.32,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5290,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 125,
+    "resonance": 0.8165440197421527,
+    "drift": 0.17410841885625383,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.0127086274347645,
+      "magnetism": 2.630606385731867,
+      "wave_frequency": 2.32,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5296,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 126,
+    "resonance": 0.809495494478341,
+    "drift": 0.18261583219012423,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.012608309719078,
+      "magnetism": 2.6384982048890624,
+      "wave_frequency": 2.32,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5305,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 127,
+    "resonance": 0.8023333281407762,
+    "drift": 0.1907846961128965,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.012507994511335,
+      "magnetism": 2.6464136995037295,
+      "wave_frequency": 2.32,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5311,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 128,
+    "resonance": 0.7958587184271474,
+    "drift": 0.19868253418327686,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.012407681811471,
+      "magnetism": 2.6543529406022404,
+      "wave_frequency": 2.32,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5319,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 129,
+    "resonance": 0.7897329015482648,
+    "drift": 0.2062933860906102,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.012307371619425,
+      "magnetism": 2.6623159994240466,
+      "wave_frequency": 2.32,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5326,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 130,
+    "resonance": 0.783677855803139,
+    "drift": 0.19675261603527838,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.012207063935134,
+      "magnetism": 2.6703029474223183,
+      "wave_frequency": 2.32,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5336,
+    "avg_density": 1.2336
+  },
+  {
+    "tick": 131,
+    "resonance": 0.7776620664071695,
+    "drift": 0.1887195225001479,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.012106758758535,
+      "magnetism": 2.678313856264585,
+      "wave_frequency": 2.32,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5342,
+    "avg_density": 1.2336
+  },
+  {
+    "tick": 132,
+    "resonance": 0.7720746085742412,
+    "drift": 0.18181255777986938,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.012006456089566,
+      "magnetism": 2.6863487978333787,
+      "wave_frequency": 2.32,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5351,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 133,
+    "resonance": 0.7668254916522587,
+    "drift": 0.17577475768290507,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.0119061559281635,
+      "magnetism": 2.6944078442268786,
+      "wave_frequency": 2.32,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5357,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 134,
+    "resonance": 0.7622115253684383,
+    "drift": 0.1702798325880458,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.011805858274265,
+      "magnetism": 2.702491067759559,
+      "wave_frequency": 2.32,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5365,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 135,
+    "resonance": 0.7572719496748093,
+    "drift": 0.1646619493480701,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.011705563127808,
+      "magnetism": 2.7105985409628373,
+      "wave_frequency": 2.32,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5372,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 136,
+    "resonance": 0.7531028868249672,
+    "drift": 0.15817260284331713,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.0116052704887295,
+      "magnetism": 2.7187303365857254,
+      "wave_frequency": 2.32,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5380,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 137,
+    "resonance": 0.7490662658496404,
+    "drift": 0.152084010495526,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.011504980356967,
+      "magnetism": 2.7268865275954823,
+      "wave_frequency": 2.32,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5386,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 138,
+    "resonance": 0.7445674624224121,
+    "drift": 0.1462891839252044,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.011404692732458,
+      "magnetism": 2.7350671871782684,
+      "wave_frequency": 2.32,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5395,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 139,
+    "resonance": 0.7402038369399787,
+    "drift": 0.14059299590000518,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.011304407615139,
+      "magnetism": 2.7432723887398027,
+      "wave_frequency": 2.32,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5401,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 140,
+    "resonance": 0.7369014656348888,
+    "drift": 0.13503659004604274,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.011204125004948,
+      "magnetism": 2.751502205906022,
+      "wave_frequency": 2.32,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5411,
+    "avg_density": 1.2336
+  },
+  {
+    "tick": 141,
+    "resonance": 0.733321466052424,
+    "drift": 0.12955881999496222,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.011103844901823,
+      "magnetism": 2.75975671252374,
+      "wave_frequency": 2.32,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5418,
+    "avg_density": 1.1752
+  },
+  {
+    "tick": 142,
+    "resonance": 0.7293604471516085,
+    "drift": 0.12425877590192147,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.0110035673057,
+      "magnetism": 2.768035982661311,
+      "wave_frequency": 2.32,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5426,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 143,
+    "resonance": 0.7261786855753893,
+    "drift": 0.11910665321214431,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.031058585142228,
+      "magnetism": 2.7763400906092945,
+      "wave_frequency": 2.32,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5432,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 144,
+    "resonance": 0.7231352882173503,
+    "drift": 0.11417107384732017,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.051213878067938,
+      "magnetism": 2.784669110881122,
+      "wave_frequency": 2.32,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5441,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 145,
+    "resonance": 0.7195129227478522,
+    "drift": 0.10943956320614545,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.071469947458278,
+      "magnetism": 2.7930231182137653,
+      "wave_frequency": 2.32,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5447,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 146,
+    "resonance": 0.7163003165539362,
+    "drift": 0.10495095631047635,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.091827297195569,
+      "magnetism": 2.801402187568406,
+      "wave_frequency": 2.32,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5455,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 147,
+    "resonance": 0.7137499359540231,
+    "drift": 0.10058475122965771,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.112286433681546,
+      "magnetism": 2.809806394131111,
+      "wave_frequency": 2.32,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5462,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 148,
+    "resonance": 0.7115025076751643,
+    "drift": 0.0962803947970492,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.1328478658499535,
+      "magnetism": 2.8182358133135037,
+      "wave_frequency": 2.32,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5470,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 149,
+    "resonance": 0.7093006574753495,
+    "drift": 0.09207129295238692,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.153512105179203,
+      "magnetism": 2.826690520753444,
+      "wave_frequency": 2.32,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5476,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 150,
+    "resonance": 0.7066086732119715,
+    "drift": 0.08806108812851421,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.1742796657050985,
+      "magnetism": 2.8351705923157042,
+      "wave_frequency": 2.32,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5487,
+    "avg_density": 1.2336
+  },
+  {
+    "tick": 151,
+    "resonance": 0.7054524669770468,
+    "drift": 0.0841117481821283,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.195151064033624,
+      "magnetism": 2.843676104092651,
+      "wave_frequency": 2.32,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5493,
+    "avg_density": 1.1752
+  },
+  {
+    "tick": 152,
+    "resonance": 0.702225319837103,
+    "drift": 0.08038207504667472,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.216126819353791,
+      "magnetism": 2.8522071324049283,
+      "wave_frequency": 2.32,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5501,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 153,
+    "resonance": 0.6992073849875973,
+    "drift": 0.07694205365045348,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.216126819353791,
+      "magnetism": 2.8522071324049283,
+      "wave_frequency": 2.32,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5508,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 154,
+    "resonance": 0.6963848142621196,
+    "drift": 0.07368989403924209,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.216126819353791,
+      "magnetism": 2.8522071324049283,
+      "wave_frequency": 2.32,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5516,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 155,
+    "resonance": 0.6936354684385722,
+    "drift": 0.0706383787048328,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.216126819353791,
+      "magnetism": 2.8522071324049283,
+      "wave_frequency": 2.32,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5522,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 156,
+    "resonance": 0.6911087461864496,
+    "drift": 0.06783082951246788,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.216126819353791,
+      "magnetism": 2.8522071324049283,
+      "wave_frequency": 2.32,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5531,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 157,
+    "resonance": 0.6893651284762532,
+    "drift": 0.06514018465977123,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.216126819353791,
+      "magnetism": 2.8522071324049283,
+      "wave_frequency": 2.32,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5537,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 158,
+    "resonance": 0.6876249609347074,
+    "drift": 0.06257503287298838,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.216126819353791,
+      "magnetism": 2.8522071324049283,
+      "wave_frequency": 2.32,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5545,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 159,
+    "resonance": 0.6857426110645494,
+    "drift": 0.06025319849724342,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.216126819353791,
+      "magnetism": 2.8522071324049283,
+      "wave_frequency": 2.32,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5552,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 160,
+    "resonance": 0.6844551405735955,
+    "drift": 0.058034491725606596,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.216126819353791,
+      "magnetism": 2.8522071324049283,
+      "wave_frequency": 2.32,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5562,
+    "avg_density": 1.2336
+  },
+  {
+    "tick": 161,
+    "resonance": 0.6826846974721461,
+    "drift": 0.056039852533833256,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.216126819353791,
+      "magnetism": 2.8522071324049283,
+      "wave_frequency": 2.32,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5568,
+    "avg_density": 1.2336
+  },
+  {
+    "tick": 162,
+    "resonance": 0.6814177853687832,
+    "drift": 0.05405592537297832,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.216126819353791,
+      "magnetism": 2.8522071324049283,
+      "wave_frequency": 2.32,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5577,
+    "avg_density": 1.1168
+  },
+  {
+    "tick": 163,
+    "resonance": 0.6802251296304374,
+    "drift": 0.05204652719358549,
+    "pulse": true,
+    "fields": {
+      "gravity": 4.216126819353791,
+      "magnetism": 2.8522071324049283,
+      "wave_frequency": 2.32,
+      "field_pressure": 1.0
+    },
+    "particle_count": 5583,
+    "avg_density": 1.1168
+  }
+]
