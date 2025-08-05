@@ -9,6 +9,14 @@ logger = logging.getLogger(__name__)
 # 🌐 Mode detection: full or test (fallback)
 SOUL_LAW_MODE = os.getenv("SOUL_LAW_MODE", "full").lower()
 
+# ✅ Safe import for broadcast_event
+try:
+    from backend.modules.glyphnet.glyphnet_ws import broadcast_event
+except ImportError:
+    def broadcast_event(event_type: str, payload: dict):
+        print(f"[SIM:FALLBACK] Broadcast: {event_type} → {payload}")
+
+
 def _lazy_load_kg_writer():
     """Lazy loader for KnowledgeGraphWriter to avoid circular imports."""
     try:
@@ -16,13 +24,12 @@ def _lazy_load_kg_writer():
         return kg_module.KnowledgeGraphWriter
     except ImportError as e:
         logger.warning(f"[SoulLaw] Failed to import KnowledgeGraphWriter: {e}")
-        # ✅ Fallback: Return a stub that avoids 'self' binding errors
-        def _fallback_stub():
-            class StubKGWriter:
-                def inject_glyph(self, *args, **kwargs):
-                    print(f"[SIM:FALLBACK] Glyph inject: {kwargs.get('metadata', {}).get('rule', 'unknown')}")
-            return StubKGWriter()
-        return _fallback_stub
+        # ✅ Fallback: Return a stub class that avoids binding errors
+        class StubKGWriter:
+            def inject_glyph(self, *args, **kwargs):
+                print(f"[SIM:FALLBACK] Glyph inject: {kwargs.get('metadata', {}).get('rule', 'unknown')}")
+        return StubKGWriter
+
 
 # ✅ Test mode stub definition
 if SOUL_LAW_MODE != "full":
@@ -46,21 +53,24 @@ class SoulLawValidator:
         """Initialize KnowledgeGraphWriter lazily."""
         if self.kg_writer is None:
             kg_class_or_stub = _lazy_load_kg_writer()
-            # ✅ Always instantiate properly, even if fallback stub
-            self.kg_writer = kg_class_or_stub() if callable(kg_class_or_stub) else KnowledgeGraphWriter()
+            self.kg_writer = kg_class_or_stub() if callable(kg_class_or_stub) else kg_class_or_stub
         return self.kg_writer
 
     def validate_avatar(self, avatar_state: Optional[Dict]) -> bool:
         """Check if avatar meets SoulLaw level and morality gates."""
-        # ✅ SAFE MODE bypass
         if SOUL_LAW_MODE == "test":
             logger.debug("[SoulLaw] SAFE MODE: Auto-approving avatar validation.")
             self._inject_approval("safe_mode_bypass", "Avatar auto-approved in SAFE MODE")
             return True
 
-        if avatar_state is None:
+        if not avatar_state:
             logger.debug("[SoulLaw] Avatar state missing")
             self._inject_violation("missing_avatar_state", "No avatar state provided")
+            return False
+
+        if "id" not in avatar_state or "role" not in avatar_state:
+            logger.debug("[SoulLaw] Avatar state missing required fields (id/role)")
+            self._inject_violation("incomplete_avatar_state", "Avatar missing id or role")
             return False
 
         level = avatar_state.get("level", 0)
@@ -72,13 +82,39 @@ class SoulLawValidator:
         self._inject_approval("avatar_approval", f"Avatar level {level} approved")
         return True
 
+    def validate_avatar_with_context(self, avatar_state: Optional[Dict], context: Optional[dict] = None) -> bool:
+        """
+        Extended avatar validation for hyperdrive or container contexts.
+        Accepts either dict context (preferred) or string fallback.
+        """
+        # If context is incorrectly passed as a string, log and bypass safely
+        if context and not isinstance(context, dict):
+            logger.warning(f"[SoulLaw] Non-dict context passed ({type(context)}). Converting to dict fallback.")
+            context = {"raw_context": str(context)}
+
+        logger.debug(f"[SoulLaw] Context-aware validation invoked. Context: {context}")
+
+        # Context override: safe hyperdrive mode
+        if context and context.get("hyperdrive_mode") == "safe":
+            self._inject_approval("hyperdrive_safe_mode", "Context override: safe hyperdrive mode")
+            return True
+
+        return self.validate_avatar(avatar_state)
+
+    def validate_avatar_state(self, avatar_state: Optional[Dict]) -> bool:
+        """Alias for validate_avatar for backward compatibility."""
+        return self.validate_avatar(avatar_state)
+
     def validate_container(self, container_metadata: Optional[Dict]) -> bool:
         """Validate container morality gates (expandable for trait checks)."""
-        # ✅ SAFE MODE bypass
         if SOUL_LAW_MODE == "test":
             logger.debug("[SoulLaw] SAFE MODE: Auto-approving container validation.")
             self._inject_approval("safe_mode_bypass_container", "Container auto-approved in SAFE MODE")
             return True
+
+        if not container_metadata or "id" not in container_metadata:
+            self._inject_violation("invalid_container_metadata", "Container metadata incomplete")
+            return False
 
         self._inject_approval("container_ok", "Container passed moral validation")
         return True
@@ -105,16 +141,14 @@ class SoulLawValidator:
         if self.enable_glyph_injection:
             try:
                 kg_writer = self._get_kg_writer()
-                if kg_writer:
-                    kg_writer.inject_glyph(
-                        content=reason,
-                        glyph_type="approval",
-                        metadata={"rule": rule, "type": "SoulLaw", "origin": "SoulLawValidator", "tags": ["📜", "🧠", "✅"]},
-                        plugin="SoulLaw"
-                    )
-                    print(f"✅ [SoulLaw] Approval: {rule} – {reason}")
-                else:
-                    print(f"[SoulLaw] Skipped approval glyph injection (no KG writer).")
+                kg_writer.inject_glyph(
+                    content=reason,
+                    glyph_type="approval",
+                    metadata={"rule": rule, "type": "SoulLaw", "origin": "SoulLawValidator", "tags": ["📜", "🧠", "✅"]},
+                    plugin="SoulLaw"
+                )
+                broadcast_event("soul_law_update", {"rule": rule, "status": "approval", "reason": reason})
+                print(f"✅ [SoulLaw] Approval: {rule} – {reason}")
             except Exception as e:
                 logger.error(f"[SoulLaw] Approval glyph injection failed: {e}")
 
@@ -122,18 +156,34 @@ class SoulLawValidator:
         if self.enable_glyph_injection:
             try:
                 kg_writer = self._get_kg_writer()
-                if kg_writer:
-                    kg_writer.inject_glyph(
-                        content=reason,
-                        glyph_type="violation",
-                        metadata={"rule": rule, "type": "SoulLaw", "origin": "SoulLawValidator", "tags": ["📜", "🧠", "❌"]},
-                        plugin="SoulLaw"
-                    )
-                    print(f"❌ [SoulLaw] Violation: {rule} – {reason}")
-                else:
-                    print(f"[SoulLaw] Skipped violation glyph injection (no KG writer).")
+                kg_writer.inject_glyph(
+                    content=reason,
+                    glyph_type="violation",
+                    metadata={"rule": rule, "type": "SoulLaw", "origin": "SoulLawValidator", "tags": ["📜", "🧠", "❌"]},
+                    plugin="SoulLaw"
+                )
+                broadcast_event("soul_law_update", {"rule": rule, "status": "violation", "reason": reason})
+                print(f"❌ [SoulLaw] Violation: {rule} – {reason}")
             except Exception as e:
                 logger.error(f"[SoulLaw] Violation glyph injection failed: {e}")
+
+    def filter_unethical_feedback(self, feedback: dict) -> dict:
+        """
+        Filters or flags unethical elements in feedback for safe usage.
+        """
+        if not isinstance(feedback, dict):
+            raise ValueError("Feedback must be a dict.")
+
+        unethical_flags = feedback.get("unethical_flags", [])
+        if unethical_flags:
+            feedback["status"] = "flagged"
+            feedback["notes"] = feedback.get("notes", "") + " | ⚠️ SoulLaw flagged unethical content."
+            feedback.pop("dangerous_logic", None)
+            self._inject_violation("unethical_feedback", "Feedback contained flagged unethical elements")
+        else:
+            self._inject_approval("ethical_feedback", "Feedback passed SoulLaw compliance")
+
+        return feedback
 
 
 # ✅ Lazy Singleton Accessor
@@ -146,6 +196,10 @@ def get_soul_law_validator() -> 'SoulLawValidator':
 
 # ✅ Backward-compatible alias
 soul_law_validator = get_soul_law_validator()
+
+# ✅ NEW: Top-level alias for direct import compatibility
+def filter_unethical_feedback(feedback: dict) -> dict:
+    return get_soul_law_validator().filter_unethical_feedback(feedback)
 
 # 🔒 Warn if in test mode
 if SOUL_LAW_MODE == "test":

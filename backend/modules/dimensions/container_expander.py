@@ -13,11 +13,11 @@ Now integrated with:
 from .dimension_kernel import DimensionKernel
 from backend.modules.dimensions.universal_container_system.ucs_runtime import ucs_runtime
 from backend.modules.dimensions.universal_container_system.ucs_geometry_loader import UCSGeometryLoader
-from backend.modules.dimensions.universal_container_system.ucs_entanglement import entangle_containers
-from backend.modules.soullaw.soul_law_validator import SoulLawValidator
+from backend.modules.dimensions.ucs.ucs_entanglement import entangle_containers
+from backend.modules.glyphvault.soul_law_validator import SoulLawValidator
 from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter
 from backend.modules.dna_chain.container_index_writer import add_to_index
-from backend.modules.websocket_manager import broadcast_glyph_event
+from backend.modules.websocket_manager import broadcast_event as broadcast_glyph_event
 from backend.modules.sqi.sqi_event_bus import emit_sqi_event
 import time
 

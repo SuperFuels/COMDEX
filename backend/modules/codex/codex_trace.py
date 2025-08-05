@@ -55,3 +55,17 @@ def get_codex_trace():
 
 def get_latest_trace(container_id: Optional[str] = None):
     return _global_trace.get_latest_trace(container_id)
+
+# ✅ NEW: Provide execution path wrapper for GHXEncoder
+def trace_glyph_execution_path(glyph_id: str) -> Dict:
+    """
+    Trace the execution path for a specific glyph ID based on CodexTrace logs.
+    Returns a lightweight dict structure usable by GHXEncoder.
+    """
+    matching = [e for e in _global_trace.get_trace() if e.get("glyph") == glyph_id]
+    return {
+        "glyph_id": glyph_id,
+        "steps": matching,
+        "count": len(matching),
+        "latest": matching[-1] if matching else None
+    }

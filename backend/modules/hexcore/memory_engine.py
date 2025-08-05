@@ -285,6 +285,32 @@ class MemoryBridge:
             "context": context
         })
 
+def get_recent_memory_glyphs(limit: int = 10) -> list[str]:
+        """
+        Returns the most recent glyphs stored in memory for GHX encoding.
+        Pulls from MEMORY.store() log or in-memory buffer.
+
+        Args:
+            limit (int): Maximum number of recent glyphs to retrieve.
+
+        Returns:
+            list[str]: List of glyph strings.
+        """
+        try:
+            # If MEMORY supports a 'recent' API
+            if hasattr(MEMORY, "get_recent"):
+                return [entry.get("glyph") for entry in MEMORY.get_recent(limit=limit) if entry.get("glyph")]
+
+            # Fallback: manually scan MEMORY log (if stored in-memory)
+            if hasattr(MEMORY, "log"):
+                recent = list(MEMORY.log)[-limit:]
+                return [entry.get("glyph") for entry in recent if entry.get("glyph")]
+
+        except Exception as e:
+            print(f"⚠️ Failed to retrieve recent memory glyphs: {e}")
+
+        return []
+
 def log_memory(container_id: str, data: dict):
     mem = MemoryEngine(container_id)
     mem.store(data)

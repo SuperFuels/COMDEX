@@ -112,7 +112,6 @@ def create_proposal(file, replaced_code, new_code, reason):
     print(f"✅ Proposal created: {proposal_id}")
     return proposal
 
-
 def approve_dna_proposal(proposal_id: str) -> bool:
     """
     Marks a DNA proposal as approved by its proposal_id.
@@ -134,7 +133,6 @@ def approve_dna_proposal(proposal_id: str) -> bool:
     print(f"✅ Proposal approved: {proposal_id}")
     return True
 
-
 # ✅ Tessaris-compatible symbolic mutation proposal
 def propose_dna_mutation(reason: str, source: str, code_context: str, new_logic: str):
     """
@@ -155,6 +153,26 @@ def propose_dna_mutation(reason: str, source: str, code_context: str, new_logic:
         reason=f"{reason} (triggered by: {source})"
     )
 
+# ✅ NEW: Gradient-based DNA mutation logging (used by SymbolicGradientEngine)
+def write_gradient_mutation(container_id: str, glyph_id: str, failure_reason: str):
+    """
+    Records a DNA mutation suggestion derived from symbolic gradient feedback.
+    This enables IGI/AION to evolve logic when encountering failed glyph paths.
+    """
+    proposal = {
+        "proposal_id": f"dna-gradient-{container_id}-{glyph_id}-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}",
+        "file": f"container::{container_id}",
+        "replaced_code": glyph_id,
+        "new_code": f"# Suggested fix for glyph {glyph_id} after failure: {failure_reason}",
+        "reason": f"Gradient mutation: {failure_reason}",
+        "approved": False,
+        "timestamp": datetime.utcnow().isoformat()
+    }
+    proposals = load_proposals()
+    proposals.append(proposal)
+    save_proposals(proposals)
+    print(f"🧬 Gradient DNA mutation logged: {proposal['proposal_id']}")
+    return proposal
 
 # 🧪 CLI usage
 if __name__ == "__main__":

@@ -23,10 +23,10 @@ from typing import Dict, List, Any
 
 from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter
 from backend.modules.codex.codex_metrics import CodexMetrics
-from backend.modules.glyphnet.symbolic_entangler import get_entangled_for
+from backend.modules.glyphos.symbolic_entangler import get_entangled_for, get_entangled_targets
 from backend.modules.knowledge_graph.brain_map_streamer import BrainMapStreamer
-from backend.modules.glyphnet.glyphnet_ws import broadcast_event, fusion_broadcast  # 🛰 Multi-agent fusion w/ broadcast
-from backend.modules.identity.identity_registry import validate_agent_token  # 🔒 Secure auth
+from backend.modules.websocket_manager import websocket_manager as broadcast_event
+from backend.modules.glyphnet.identity_registry import validate_agent_token # 🔒 Secure auth
 from backend.modules.soul.soul_laws import enforce_soul_laws  # 🛡 Ethical checks
 
 

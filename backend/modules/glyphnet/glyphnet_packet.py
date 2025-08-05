@@ -4,10 +4,14 @@ import base64
 import logging
 from typing import Dict, Any, Optional
 
-from ..glyphnet.glyphnet_crypto import encrypt_packet, decrypt_packet
+# ✅ Use AES-based encryption as the primary encrypt function (backward-compatible alias)
+from ..glyphnet.glyphnet_crypto import aes_encrypt_packet as encrypt_packet, aes_decrypt_packet as decrypt_packet
+
+# ✅ Ephemeral key manager for temporary session keys
 from ..glyphnet.ephemeral_key_manager import get_ephemeral_key_manager
-from ..glyphnet.glyphnet_crypto import aes_encrypt_packet, aes_decrypt_packet
-from ..glyphnet.symbolic_key_derivation import symbolic_key_deriver  # <-- Added symbolic derivation import
+
+# ✅ Symbolic key derivation for advanced entropy-driven keys
+from ..glyphnet.symbolic_key_derivation import symbolic_key_deriver
 
 logger = logging.getLogger(__name__)
 

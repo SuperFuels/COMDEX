@@ -4,17 +4,19 @@ from datetime import datetime
 from typing import Dict, Any, List
 from collections import Counter
 
-from backend.modules.codex.codex_metrics import calculate_glyph_cost
+from backend.modules.codex.codex_metrics import calculate_glyph_cost  # ✅ Unified cost integration
 from backend.modules.codex.codex_trace import trace_glyph_execution_path
-from backend.modules.glyphos.symbolic_entangler import get_entangled_links
-from backend.modules.qglyph.glyph_quantum_core import generate_qglyph_from_string
-from backend.modules.security.symbolic_key_deriver import derive_entropy_hash
+from backend.modules.codex.symbolic_key_deriver import derive_entropy_hash
 from backend.modules.hexcore.memory_engine import get_recent_memory_glyphs  # ✅ Memory integration
 
 GHX_VERSION = "1.2"
 
 
 def encode_glyphs_to_ghx(container: Dict[str, Any], qglyph_string: str = "", observer_id: str = "anon") -> Dict[str, Any]:
+    # 🔄 Lazy imports to avoid circular dependency
+    from backend.modules.glyphos.symbolic_entangler import get_entangled_links
+    from backend.modules.glyphos.glyph_quantum_core import generate_qglyph_from_string
+
     container_id = container.get("container_id", "unknown")
     glyphs = container.get("glyphs", [])
 
@@ -36,12 +38,11 @@ def encode_glyphs_to_ghx(container: Dict[str, Any], qglyph_string: str = "", obs
         entangled = glyph.get("entangled", []) or get_entangled_links(glyph_id)
         light_logic = generate_light_logic(symbol)
         position = generate_spatial_coordinates(glyph_id)
-        cost = calculate_glyph_cost(symbol)
+        cost = calculate_glyph_cost({"glyph": symbol})  # ✅ Updated call to pass glyph wrapped dict
         replay = trace_glyph_execution_path(glyph_id)
         narration = generate_narration(symbol, label)
 
         operator_sequence.append(symbol)
-
         is_memory_echo = glyph_id in memory_echo_ids
 
         state_snapshot = {
@@ -52,7 +53,7 @@ def encode_glyphs_to_ghx(container: Dict[str, Any], qglyph_string: str = "", obs
             "entangled": entangled,
             "qentropy_state": entropy_hash,
             "reconstruct_logic": light_logic,
-            "memory_echo": is_memory_echo  # ✅ mark snapshot
+            "memory_echo": is_memory_echo
         }
 
         holograms.append({
@@ -67,7 +68,7 @@ def encode_glyphs_to_ghx(container: Dict[str, Any], qglyph_string: str = "", obs
             "replay": replay,
             "narration": narration,
             "state_snapshot": state_snapshot,
-            "memory_echo": is_memory_echo,  # ✅ mark glyph
+            "memory_echo": is_memory_echo,
             "tts_ready": True,
             "access_control": {
                 "entropy_gate": entropy_hash if entropy_hash else None,
@@ -109,8 +110,6 @@ def encode_glyphs_to_ghx(container: Dict[str, Any], qglyph_string: str = "", obs
     holograms.insert(0, avatar_projection)
 
     symbolic_grammar = generate_symbolic_light_grammar(operator_sequence)
-
-    # ✅ memory_echo glyph subset
     memory_echoes = [g for g in holograms if g.get("memory_echo")]
 
     ghx_meta = {
@@ -129,7 +128,7 @@ def encode_glyphs_to_ghx(container: Dict[str, Any], qglyph_string: str = "", obs
             "symbol": avatar_projection["symbol"],
             "entropy_verified": bool(entropy_hash)
         },
-        "echoes": memory_echoes  # ✅ Add echoes to GHX field
+        "echoes": memory_echoes
     }
 
     if qglyph_string:
@@ -150,7 +149,7 @@ def encode_glyphs_to_ghx(container: Dict[str, Any], qglyph_string: str = "", obs
     }
 
 
-# Supporting functions (unchanged)
+# Supporting functions remain unchanged
 def generate_symbolic_light_grammar(sequence: List[str]) -> Dict[str, Any]:
     glyph_counts = Counter(sequence)
     grammar_string = "".join(s for s in sequence if s in ("↔", "⧖", "⬁", "→", "⊕", "🧠"))
@@ -218,6 +217,38 @@ def generate_narration(symbol: str, label: str) -> Dict[str, Any]:
         "language": "en-US"
     }
 
+def encode_ghx_from_scroll(scroll: dict) -> dict:
+    """
+    Converts a symbolic scroll (glyphs, entanglements, metadata) into GHX geometry format.
+
+    Args:
+        scroll (dict): The scroll object containing glyphs, entanglement, and metadata.
+
+    Returns:
+        dict: A GHX-encoded geometry payload for holographic visualization.
+    """
+    try:
+        glyphs = scroll.get("glyphs", [])
+        entangled = scroll.get("entangled", [])
+        metadata = scroll.get("metadata", {})
+
+        ghx_geometry = {
+            "id": scroll.get("id", f"ghx_{int(time.time())}"),
+            "glyphs": glyphs,
+            "entangled": entangled,
+            "geometry": metadata.get("geometry", "Tesseract 🧮"),
+            "tags": metadata.get("tags", []),
+            "entropy": metadata.get("entropy", 0.0),
+            "timestamp": scroll.get("timestamp", time.time())
+        }
+
+        print(f"🎨 GHX encoded from scroll: {ghx_geometry['id']} "
+              f"({len(glyphs)} glyphs, entangled={len(entangled)})")
+        return ghx_geometry
+
+    except Exception as e:
+        print(f"❌ Failed to encode GHX from scroll: {e}")
+        return {"error": str(e)}
 
 def export_ghx(container: Dict[str, Any], output_path: str, qglyph_string: str = "", observer_id: str = "anon"):
     ghx_data = encode_glyphs_to_ghx(container, qglyph_string=qglyph_string, observer_id=observer_id)

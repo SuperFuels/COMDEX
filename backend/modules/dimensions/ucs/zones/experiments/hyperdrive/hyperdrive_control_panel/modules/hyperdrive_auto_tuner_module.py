@@ -142,6 +142,34 @@ class HyperdriveAutoTuner:
         return max(window) - min(window)
 
     # ============================================================
+    # ⚡ NEW: DYNAMIC ADJUST
+    # ============================================================
+    @staticmethod
+    def dynamic_adjust(engine, coherence: float):
+        """
+        ⚡ Dynamic harmonic auto-adjustment based on real-time coherence.
+        Called by simulate_virtual_exhaust() every tick.
+        """
+        print(f"🎚 [AutoTuner] Dynamic adjust triggered: coherence={coherence:.3f}")
+
+        # If coherence is low, boost harmonic gain slightly
+        if coherence < 0.7:
+            old_gain = engine.fields.get("wave_frequency", 1.0)
+            new_gain = old_gain * 1.05
+            engine.fields["wave_frequency"] = new_gain
+            print(f"⚠ Low coherence ({coherence:.3f}) → boosted wave freq from {old_gain:.3f} to {new_gain:.3f}")
+            engine._resync_harmonics()
+
+        # If coherence is high, stabilize damping slightly
+        elif coherence > 0.9:
+            old_damping = engine.damping_factor
+            engine.damping_factor *= 0.98
+            print(f"✅ High coherence ({coherence:.3f}) → reduced damping from {old_damping:.4f} to {engine.damping_factor:.4f}")
+
+        # Log adjustment event
+        engine.log_event(f"AutoTuner adjusted engine for coherence={coherence:.3f}")
+
+    # ============================================================
     # 📦 EXPORTS
     # ============================================================
     def _generate_report(self):

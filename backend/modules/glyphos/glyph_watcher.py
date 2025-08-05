@@ -3,13 +3,14 @@
 import asyncio
 import hashlib
 import time
-from backend.modules.glyphos.glyph_executor import GlyphExecutor
 from backend.modules.consciousness.state_manager import StateManager
 from backend.modules.hexcore.memory_engine import MEMORY
 
 
 class GlyphWatcher:
     def __init__(self, state_manager: StateManager, async_loop: asyncio.AbstractEventLoop = None, scan_cooldown: float = 1.0):
+        # 🔄 Lazy import to avoid circular dependency
+        from backend.modules.glyphos.glyph_executor import GlyphExecutor
         self.executor = GlyphExecutor(state_manager)
         self.state_manager = state_manager
         self.async_loop = async_loop or asyncio.get_event_loop()

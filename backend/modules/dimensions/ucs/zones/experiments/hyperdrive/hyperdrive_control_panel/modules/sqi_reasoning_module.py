@@ -1,5 +1,3 @@
-# backend/modules/dimensions/ucs/zones/experiments/hyperdrive/hyperdrive_control_panel/modules/sqi_reasoning_module.py
-
 from typing import Dict, Any
 from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.hyperdrive_tuning_constants_module import HyperdriveTuningConstants
 from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.sqi_controller_module import SQIController
@@ -14,18 +12,20 @@ class SQIReasoningEngine:
 
     def __init__(
         self,
+        engine=None,
         target_resonance_drift: float = 0.5,
         target_exhaust_speed: float = 250.0,
         enabled: bool = True,
-        controller: SQIController = None   # ✅ Optional SQI controller for preset sync
+        controller: SQIController = None
     ):
+        self.engine = engine
         self.target_resonance_drift = target_resonance_drift
         self.target_exhaust_speed = target_exhaust_speed
         self.enabled = enabled
         self.last_drift = None
         self.last_exhaust = None
-        self.controller = controller  # ✅ Link to SQI Controller (for preset sync)
-        self.analysis_history = []    # ✅ New: Keep last N analyses
+        self.controller = controller
+        self.analysis_history = []
 
     # -------------------------
     # 🧠 TRACE ANALYSIS
@@ -52,7 +52,6 @@ class SQIReasoningEngine:
         self.last_drift = drift
         self.last_exhaust = avg_exhaust
 
-        # ✅ Save history for visualization/debug
         self.analysis_history.append({
             "drift": drift,
             "trend": drift_trend,
@@ -65,7 +64,7 @@ class SQIReasoningEngine:
         return {"drift": drift, "drift_trend": drift_trend, "avg_exhaust": avg_exhaust, "fields": fields, "stage": stage}
 
     # -------------------------
-    # 🔧 ADJUSTMENT RECOMMENDER
+    # 🔧 ADJUSTMENT RECOMMENDER (FIXED)
     # -------------------------
     def recommend_adjustments(self, analysis: Dict[str, Any]) -> Dict[str, float]:
         if not self.enabled:
@@ -81,68 +80,79 @@ class SQIReasoningEngine:
         stage = analysis.get("stage")
         adjustments = {}
 
-        # ✅ Stage baseline frequency
-        stage_baseline_freq = STAGE_CONFIGS.get(stage, {}).get("wave_frequency", fields.get("wave_frequency", 1.0))
+        # ✅ Stage baseline frequency fix
+        stage_baseline_freq = HyperdriveTuningConstants.STAGE_CONFIGS.get(
+            stage, {}
+        ).get("wave_frequency", fields.get("wave_frequency", 1.0))
 
         # -------------------------
         # ⚖️ DRIFT MANAGEMENT
         # -------------------------
         if drift > self.target_resonance_drift:
-            if drift > (self.target_resonance_drift * 3):  
-                # 🚨 HARD FAILSAFE: Auto harmonic resync + preset sync
+            if drift > (self.target_resonance_drift * 3):
                 print(f"🚨 [SQI] Critical drift ({drift:.3f})! Forcing harmonic resync & preset injection.")
                 if self.controller:
-                    self.controller.apply_preset("95%")  # Example failsafe preset
-                    self.controller.engine._resync_harmonics()
-
-            elif drift > (self.target_resonance_drift * 2):  # Heavy drift
+                    self.controller.apply_preset("95%")
+                    if hasattr(self.controller, "engine"):
+                        self.controller.engine._resync_harmonics()
+            elif drift > (self.target_resonance_drift * 2):
                 factor = 0.97 if drift_trend == "↑" else 0.99
                 new_freq = max(stage_baseline_freq * 0.8, fields["wave_frequency"] * factor)
                 adjustments["wave_frequency"] = new_freq
                 adjustments["magnetism"] = fields["magnetism"] * factor
                 print(f"⚠️ SQI: Heavy drift detected (Stage={stage}) → Freq={new_freq:.3f}, Magnetism scaled.")
-            elif drift_trend == "↑":  # Minor drift rise
+            elif drift_trend == "↑":
                 print(f"⚠️ SQI: Minor drift rising (Stage={stage}) → Holding (dead zone).")
             else:
-                # Drift falling but still above target: gentle correction
                 factor = 0.995
                 adjustments["wave_frequency"] = fields["wave_frequency"] * factor
 
         elif drift < (self.target_resonance_drift * 0.5) and drift_trend == "↓":
-            # Over-correction recovery: gently boost frequency back up
             boost = 1.003
             adjustments["wave_frequency"] = fields["wave_frequency"] * boost
             print(f"✅ SQI: Drift stable and falling, gentle boost applied (Freq x{boost:.3f}).")
 
         # -------------------------
-        # 🌬 EXHAUST BALANCING (Gravity linked)
+        # 🌬 EXHAUST BALANCING
         # -------------------------
         if avg_exhaust < self.target_exhaust_speed * 0.9:
-            adjustments["gravity"] = fields["gravity"] * 1.02  # Boost thrust
+            adjustments["gravity"] = fields["gravity"] * 1.02
         elif avg_exhaust > self.target_exhaust_speed * 1.2:
-            adjustments["gravity"] = fields["gravity"] * 0.97  # Reduce excess thrust
+            adjustments["gravity"] = fields["gravity"] * 0.97
 
         # -------------------------
-        # 🎶 HARMONIC FEEDBACK
+        # 🎶 HARMONIC FEEDBACK (REPLACED MISSING FUNCTIONS)
         # -------------------------
         dynamic_drift_threshold = drift * 1.2 if drift > 0 else self.target_resonance_drift
-        set_harmonic_gain(1.0 if drift < self.target_resonance_drift else 0.9)
-        set_decay_rate(0.999 if drift_trend == "↓" else 0.995)
-        set_damping_factor(0.98 if drift > self.target_resonance_drift else 1.0)
-        set_resonance_threshold(dynamic_drift_threshold)
+        HyperdriveTuningConstants.HARMONIC_GAIN = 1.0 if drift < self.target_resonance_drift else 0.9
+        HyperdriveTuningConstants.DECAY_RATE = 0.999 if drift_trend == "↓" else 0.995
+        HyperdriveTuningConstants.DAMPING_FACTOR = 0.98 if drift > self.target_resonance_drift else 1.0
+        HyperdriveTuningConstants.RESONANCE_DRIFT_THRESHOLD = dynamic_drift_threshold
 
-        print(f"🎶 [SQI] Harmonics tuned: Gain={1.0 if drift < self.target_resonance_drift else 0.9}, Decay adjusted.")
+        print(f"🎶 [SQI] Harmonics tuned: Gain={HyperdriveTuningConstants.HARMONIC_GAIN:.3f}, "
+              f"Decay={HyperdriveTuningConstants.DECAY_RATE:.3f}, "
+              f"Damping={HyperdriveTuningConstants.DAMPING_FACTOR:.3f}, "
+              f"Drift Threshold={dynamic_drift_threshold:.3f}")
 
         # -------------------------
-        # 🔗 CONTROL PRESET SYNC (NEW)
+        # 🔗 CONTROL PRESET SYNC
         # -------------------------
         if self.controller and drift <= self.target_resonance_drift:
             preset_name = f"{min(int(drift / self.target_resonance_drift * 100), 100)}%"
             print(f"📡 [SQI] Syncing control preset: {preset_name}")
             self.controller.apply_preset(preset_name)
 
-        # -------------------------
-        # 🔮 FINAL OUTPUT
-        # -------------------------
         print(f"🔮 [SQI] Recommended Adjustments: {adjustments if adjustments else 'None'}")
         return adjustments
+
+    # -------------------------
+    # 💰 DRIFT COST ESTIMATION
+    # -------------------------
+    def estimate_drift_cost(self, drift: float, base_cost: float = 1.0) -> float:
+        if not isinstance(drift, (int, float)):
+            raise ValueError(f"[SQI] Drift must be numeric, got: {type(drift)}")
+        drift = max(0.0, min(1.0, drift))
+        weight = getattr(self, "drift_weight", 1.0)
+        cost = drift * weight * base_cost
+        print(f"[SQI] Drift Cost → Drift={drift:.3f} | Weight={weight:.2f} | Cost={cost:.3f}")
+        return cost

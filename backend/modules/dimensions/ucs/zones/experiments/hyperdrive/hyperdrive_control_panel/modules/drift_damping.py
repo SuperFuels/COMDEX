@@ -9,10 +9,14 @@
 • Returns drift value for runtime logging and ECU use.
 """
 
+from typing import TYPE_CHECKING
 from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.hyperdrive_tuning_constants_module import HyperdriveTuningConstants
 from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.harmonic_coherence_module import measure_harmonic_coherence
 
-def apply_drift_damping(engine):
+if TYPE_CHECKING:
+    from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.hyperdrive_engine import HyperdriveEngine
+
+def apply_drift_damping(engine: "HyperdriveEngine") -> float:
     """
     Checks engine drift Δ and applies SQI damping if exceeded.
     Dynamically scales damping factor based on harmonic coherence.

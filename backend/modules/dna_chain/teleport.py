@@ -19,6 +19,9 @@ from backend.modules.dna_chain.dc_handler import (
 from backend.modules.consciousness.state_manager import STATE
 from backend.modules.hexcore.memory_engine import MEMORY
 
+# ✅ UCS Runtime Import
+from backend.modules.runtime.container_runtime import get_container_runtime
+
 TELEPORT_DB_PATH = os.path.join(os.path.dirname(__file__), "teleport_registry.json")
 
 def load_teleport_registry():
@@ -49,7 +52,8 @@ def register_teleport(source_key, destination_key, gate_type="code", requires_ap
 
 # --- 🔐 Navigation/Ethical Gate Logic ---
 def ethical_gate_pass(container):
-    return True  # Placeholder for moral/ethical checks
+    # Add placeholder for advanced SoulLaw or moral gates if needed
+    return True  
 
 def has_permission(requester, container):
     return True  # Placeholder for role-based access
@@ -190,6 +194,32 @@ def teleport_to_container(destination_key: str, reason: str = "", requester: str
     current = STATE.get_current_container()
     source_key = current.get("id") if current else "unknown"
     return teleport(source_key, destination_key, reason, requester)
+
+# ✅ Universal Container System teleport (NEW)
+def teleport_to_universal_container_system(container_id: str, target_zone: str = "default", requester: str = "AION") -> str:
+    """
+    Teleports a container into the Universal Container System (UCS) and registers it.
+    """
+    try:
+        runtime = get_container_runtime()
+        container = runtime.state_manager.all_containers.get(container_id)
+
+        if not container:
+            print(f"[❌] UCS Teleport failed: Container '{container_id}' not found.")
+            return "container_not_found"
+
+        if not ethical_gate_pass(container):
+            print(f"[🔒] UCS Ethical gate prevented teleport of '{container_id}'.")
+            return "blocked_by_ethics"
+
+        runtime.ucs.save_container(container_id, container, zone=target_zone)
+        MEMORY.log_teleport_event(container_id, f"UCS::{target_zone}", trigger="ucs")
+        print(f"[🛰️] UCS Teleport: Container '{container_id}' registered in UCS zone '{target_zone}'.")
+        return "ucs_teleport_complete"
+
+    except Exception as e:
+        print(f"[🚨] UCS Teleport error: {e}")
+        return "ucs_teleport_failed"
 
 def list_routes():
     return load_teleport_registry()

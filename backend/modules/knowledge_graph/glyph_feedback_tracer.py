@@ -16,45 +16,63 @@ Maps glyph ancestry, traces causal paths, and injects symbolic gradient zones fo
 ✅ MemoryBridge Lineage Sync & Predictive Drift Ready
 """
 
+import logging
 from typing import List, Optional, Dict, Any
 from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter
 from backend.modules.codex.codex_metrics import CodexMetrics
-from backend.modules.glyphnet.symbolic_entangler import get_entangled_ancestors
-from backend.modules.codex.soul_law_validator import filter_unethical_feedback
-from backend.modules.runtime.memory_bridge import MemoryBridge
+from backend.modules.glyphos.symbolic_entangler import get_entangled_for, get_entangled_targets
+from backend.modules.glyphvault.soul_law_validator import filter_unethical_feedback
+from backend.modules.consciousness.memory_bridge import MemoryBridge
+
+logger = logging.getLogger(__name__)
+
 
 class GlyphFeedbackTracer:
-    def __init__(self):
+    def __init__(self, container_id: str = "default-feedback"):
+        """
+        Initialize Glyph Feedback Tracer bound to a container context.
+        Args:
+            container_id (str): Contextual container ID for MemoryBridge lineage tracking.
+        """
+        self.container_id = container_id
         self.writer = KnowledgeGraphWriter()
         self.metrics = CodexMetrics()
-        self.memory = MemoryBridge()
+        self.memory = MemoryBridge(container_id=self.container_id)  # ✅ FIXED: Pass container_id explicitly
 
+    # ──────────────────────────────────────────────
+    # ❌ FAILURE TRACE + GRADIENT INJECTION
+    # ──────────────────────────────────────────────
     def trace_feedback_path(self, glyph_id: str, event: Dict[str, Any], cause: str):
         """
         Trace the ancestry of a failed glyph to annotate the gradient zone.
+        Applies SoulLaw filtering and injects symbolic gradient learning.
         """
+        logger.debug(f"[GlyphFeedbackTracer] Tracing failure for glyph {glyph_id} (Cause: {cause}) in {self.container_id}")
+
         ancestry = self.identify_causal_glyphs(glyph_id)
         if not ancestry:
             self.annotate_gradient_zone([], glyph_id, cause, fallback=True)
             return
 
-        filtered = filter_unethical_feedback(ancestry)
-        self.annotate_gradient_zone(filtered, glyph_id, cause)
+        filtered = filter_unethical_feedback({"ancestry": ancestry})  # ✅ Wrap for compliance
+        ancestry_filtered = filtered.get("ancestry", ancestry)
+        self.annotate_gradient_zone(ancestry_filtered, glyph_id, cause)
 
     def identify_causal_glyphs(self, glyph_id: str) -> List[str]:
         """
-        Uses memory logs and entanglement to reconstruct symbolic ancestry.
+        Uses entanglement graph (↔) and MemoryBridge lineage to reconstruct symbolic ancestry.
         """
-        entangled = get_entangled_ancestors(glyph_id)
+        entangled = get_entangled_targets(glyph_id)
         memory_lineage = self.memory.get_lineage_trace(glyph_id)
         ancestry = list(set(entangled + memory_lineage))
+        logger.debug(f"[GlyphFeedbackTracer] Ancestry for {glyph_id}: {ancestry}")
         return ancestry
 
     def annotate_gradient_zone(
         self, glyph_ids: List[str], failed_glyph: str, cause: str, fallback: bool = False
     ):
         """
-        Injects failure metadata into the knowledge graph for learning.
+        Injects failure gradient metadata into Knowledge Graph.
         """
         if fallback:
             zone = {
@@ -66,23 +84,29 @@ class GlyphFeedbackTracer:
             }
             self.writer.inject_feedback_zone(zone)
             self.metrics.record_blindspot_event(failed_glyph, cause)
+            logger.warning(f"[GlyphFeedbackTracer] Mirror failure recorded for {failed_glyph}")
             return
 
+        confidence_drop = self.metrics.estimate_confidence_delta(glyph_ids)
         zone = {
             "type": "gradient_zone",
             "target": failed_glyph,
             "status": "failure_gradient",
             "cause": cause,
             "path": glyph_ids,
-            "confidence_drop": self.metrics.estimate_confidence_delta(glyph_ids),
+            "confidence_drop": confidence_drop,
         }
 
         self.writer.inject_feedback_zone(zone)
-        self.metrics.record_confidence_event(failed_glyph, delta=zone["confidence_drop"])
+        self.metrics.record_confidence_event(failed_glyph, delta=confidence_drop)
+        logger.info(f"[GlyphFeedbackTracer] Failure gradient injected for {failed_glyph} (Δ={confidence_drop:.3f})")
 
+    # ──────────────────────────────────────────────
+    # 🏆 SUCCESS TRACE (REINFORCEMENT)
+    # ──────────────────────────────────────────────
     def trace_success_path(self, glyph_id: str, tag: str = "success_gradient"):
         """
-        Optionally record successful glyphs for reinforcement tracking.
+        Record successful glyph ancestry for reinforcement tracking.
         """
         ancestry = self.identify_causal_glyphs(glyph_id)
         if ancestry:
@@ -95,3 +119,4 @@ class GlyphFeedbackTracer:
             }
             self.writer.inject_feedback_zone(zone)
             self.metrics.record_success_event(glyph_id)
+            logger.info(f"[GlyphFeedbackTracer] Reinforcement zone injected for {glyph_id}")

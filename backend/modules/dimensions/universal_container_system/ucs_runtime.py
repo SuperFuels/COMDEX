@@ -150,3 +150,33 @@ __all__ = [
     "collapse_container",
     "embed_glyph_block_into_container",
 ]
+
+# ---------------------------------------------------------
+# ✅ Singleton + Legacy Aliases
+# ---------------------------------------------------------
+ucs_runtime = UCSRuntime()
+
+# ✅ Define SQIRuntime alias after UCSRuntime definition to avoid circular import
+SQIRuntime = UCSRuntime  
+ucs_runtime.sqi = SQIRuntime()
+
+# Legacy compatibility shims
+load_dc_container = ucs_runtime.load_dc_container
+expand_container = ucs_runtime.expand_container
+collapse_container = ucs_runtime.collapse_container
+embed_glyph_block_into_container = ucs_runtime.embed_glyph_block_into_container
+
+# ✅ NEW: Provide accessor for imports expecting get_ucs_runtime()
+def get_ucs_runtime() -> UCSRuntime:
+    """Return the global UCS runtime singleton (for vault + hyperdrive)."""
+    return ucs_runtime
+
+__all__ = [
+    "UCSRuntime",
+    "ucs_runtime",
+    "get_ucs_runtime",  # ✅ Exported now
+    "load_dc_container",
+    "expand_container",
+    "collapse_container",
+    "embed_glyph_block_into_container",
+]

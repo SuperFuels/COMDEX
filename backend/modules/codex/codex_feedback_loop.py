@@ -2,13 +2,14 @@
 
 from backend.modules.codex.codex_core import CodexCore
 from backend.modules.glyphos.glyph_mutator import mutate_glyph, propose_mutation
-from backend.modules.glyphos.glyph_trace_logger import GlyphTraceLogger
 from backend.modules.codex.codex_mind_model import CodexMindModel
 from backend.modules.hexcore.memory_engine import MEMORY
 
 class CodexFeedbackLoop:
     def __init__(self):
         self.codex = CodexCore()
+        # ✅ Lazy import of GlyphTraceLogger to break circular dependency
+        from backend.modules.glyphos.glyph_trace_logger import GlyphTraceLogger
         self.logger = GlyphTraceLogger()
         self.mind_model = CodexMindModel()
 

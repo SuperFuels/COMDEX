@@ -1,0 +1,19 @@
+{
+  "fields": {
+    "gravity": 1.0,
+    "magnetism": 1.0,
+    "wave_frequency": 1.0,
+    "field_pressure": 1.0
+  },
+  "particles": 100,
+  "coherence": 0.0,
+  "timestamp": "2025-08-05T11:52:02.234252",
+  "tick_count": 0,
+  "metadata": {
+    "engine": "Hyperdrive",
+    "stage": "G1",
+    "sqi_enabled": true,
+    "entangled_glyphs": 0,
+    "timestamp": "2025-08-05T11:52:02.234252"
+  }
+}

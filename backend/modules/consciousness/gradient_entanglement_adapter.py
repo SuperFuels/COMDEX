@@ -15,7 +15,7 @@ Propagates QGlyph collapse and symbolic gradient feedback across entangled ances
 """
 
 from typing import Dict, List
-from backend.modules.glyphnet.symbolic_entangler import get_entangled_for
+from backend.modules.glyphos.symbolic_entangler import get_entangled_for
 from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter
 from backend.modules.codex.codex_metrics import CodexMetrics
 

@@ -195,7 +195,6 @@ class SymbolicKeyDerivation:
         Returns:
             Optional[bytes]: Derived key bytes if successful, None if locked out or error.
         """
-        # Validate inputs
         try:
             trust_level = float(trust_level)
             emotion_level = float(emotion_level)
@@ -232,11 +231,7 @@ class SymbolicKeyDerivation:
 
             base_material = symbolic_output.encode('utf-8')
 
-            if use_salt:
-                salted_material = self._add_salt_nonce(base_material)
-            else:
-                salted_material = base_material
-
+            salted_material = self._add_salt_nonce(base_material) if use_salt else base_material
             derived_key = self._key_stretch(salted_material)
 
             if identity:
@@ -257,4 +252,20 @@ class SymbolicKeyDerivation:
         Verifies whether the provided key matches the derived key for the given parameters.
 
         Args:
-            key (bytes): The
+            key (bytes): The key to verify.
+            trust_level (float): Trust level used in derivation.
+            emotion_level (float): Emotion level used in derivation.
+            timestamp (float): Timestamp used in derivation.
+            identity (Optional[str]): Identity string used for rate limiting.
+            seed_phrase (Optional[str]): Seed phrase used in derivation.
+
+        Returns:
+            bool: True if the derived key matches the provided key, False otherwise.
+        """
+        derived = self.derive_key(trust_level, emotion_level, timestamp, identity, seed_phrase)
+        if derived is None:
+            return False
+        return secrets.compare_digest(derived, key)
+
+        # Alias for backward compatibility
+symbolic_key_deriver = SymbolicKeyDerivation()

@@ -38,7 +38,7 @@ class VaultManager:
         """
         try:
             from backend.modules.codex.codex_trace import CodexTrace
-            from backend.modules.qglyph.glyph_quantum_core import GlyphQuantumCore
+            from backend.modules.glyphos.glyph_quantum_core import GlyphQuantumCore
 
             trace = CodexTrace.get_latest_trace(container_id)
             if not trace:

@@ -4,7 +4,11 @@ from pathlib import Path
 from typing import List, Optional, Dict
 from asyncio import create_task
 
-from backend.modules.glyphnet.glyphnet_ws import broadcast_event  # ✅ WebSocket broadcast
+# ✅ Lazy import for broadcast_event to break circular dependency
+def get_broadcast_event():
+    from backend.routes.ws.glyphnet_ws import broadcast_event
+    return broadcast_event
+
 from backend.modules.glyphvault.vault_bridge import get_container_snapshot_id  # ✅ Snapshot ID fetch
 from backend.modules.replay.glyph_replay_renderer import GlyphReplayRenderer  # ✅ Auto-play renderer link
 
@@ -93,14 +97,14 @@ class GlyphTraceLogger:
             "tick_start": tick_start,
             "tick_end": tick_end,
             "container_id": container_id,
-            "snapshot_id": snapshot_id,          # ✅ Attached snapshot ID
+            "snapshot_id": snapshot_id,
             "glyphs": glyphs,
             "entangled_links": entangled_links or [],
         }
 
         self.replay_log.append(replay_entry)
 
-        # 🛰️ Broadcast replay event over WebSocket
+        # 🛰️ Broadcast replay event over WebSocket (lazy import)
         try:
             broadcast_payload = {
                 "type": "glyph_replay_log",
@@ -115,7 +119,7 @@ class GlyphTraceLogger:
                     "entangled_link_count": len(entangled_links or []),
                 },
             }
-            create_task(broadcast_event(broadcast_payload))
+            create_task(get_broadcast_event()(broadcast_payload))
         except Exception as e:
             print(f"[⚠️] Failed to broadcast glyph replay: {e}")
 
@@ -142,7 +146,7 @@ class GlyphTraceLogger:
         Shortcut: replay entangled glyphs only.
         """
         tick_start = int(time.time() * 1000)
-        tick_end = tick_start + (len(glyphs) * 10)  # estimate progression ticks
+        tick_end = tick_start + (len(glyphs) * 10)
         return self.add_glyph_replay(glyphs, container_id, tick_start, tick_end, entangled_links)
 
 

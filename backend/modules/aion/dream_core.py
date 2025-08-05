@@ -5,6 +5,7 @@ import requests
 from pathlib import Path
 from datetime import datetime, timezone
 from dotenv import load_dotenv
+from typing import Dict, Any, Optional, List
 import openai  # ✅ Correct import for openai==0.28.1
 from backend.config import GLYPH_API_BASE_URL
 
@@ -33,14 +34,8 @@ from backend.modules.glyphos.glyph_mutator import mutate_glyph
 from backend.modules.websocket_manager import websocket_manager 
 from backend.database import get_db
 from backend.models.dream import Dream
-from backend.modules.holography.ghx_encoder import encode_ghx_from_scroll
+from backend.modules.holograms.ghx_encoder import encode_ghx_from_scroll
 from backend.modules.codex.collapse_trace_exporter import export_collapse_trace
-
-try:
-    from backend.modules.tessaris.tessaris_intent_executor import scan_snapshot_for_intents
-    scan_snapshot_for_intents(snapshot_path=f"data/tessaris/snapshots/{dream_label}.tessaris.json")
-except Exception as e:
-    print(f"⚠️ Intent scan failed: {e}")
 
 # Delay import to avoid circular dependency
 def get_tessaris_engine():
@@ -370,6 +365,12 @@ class DreamCore:
 
             except Exception as e:
                 print(f"⚠️ Tessaris integration failed: {e}")
+
+            try:
+                from backend.modules.tessaris.tessaris_intent_executor import scan_snapshot_for_intents
+                scan_snapshot_for_intents(snapshot_path=f"data/tessaris/snapshots/{dream_label}.tessaris.json")
+            except Exception as e:
+                print(f"⚠️ Intent scan failed: {e}")            
 
             # ♻️ Decay/loop triggered glyph mutation
             try:

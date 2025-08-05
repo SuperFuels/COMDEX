@@ -19,7 +19,7 @@ from typing import Dict, List, Any, Optional
 import datetime
 import logging
 
-from backend.modules.knowledge.knowledge_graph_writer import KnowledgeGraphWriter
+from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter
 from backend.modules.glyphos.glyph_synthesis_engine import GlyphSynthesisEngine
 
 logger = logging.getLogger(__name__)

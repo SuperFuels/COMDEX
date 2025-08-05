@@ -21,15 +21,13 @@ class CostEstimate:
             self.opportunity_loss * w["opportunity_loss"]
         )
 
-    # Append to CodexCostEstimator class
-
     def should_defer_or_collapse(self, glyph, context, threshold=10):
         """
         Determine if glyph should be deferred or container should be collapsed
         due to excessive symbolic cost.
         Returns: {'action': 'ok' | 'defer' | 'collapse', 'reason': str}
         """
-        est = self.estimate_glyph_cost(glyph, context)
+        est = CodexCostEstimator().estimate_glyph_cost(glyph, context)
         total = est.total()
 
         if total >= threshold + 5:
@@ -38,6 +36,7 @@ class CostEstimate:
             return {"action": "defer", "reason": f"High cost: cost={total}"}
         else:
             return {"action": "ok", "reason": f"Within limits: cost={total}"}
+
 
 class CodexCostEstimator:
     def estimate_glyph_cost(self, glyph, context):
@@ -74,3 +73,13 @@ class CodexCostEstimator:
             est.opportunity_loss += 1
 
         return est
+
+
+# ✅ Wrapper function for backward compatibility
+def estimate_glyph_cost(glyph: str, context: dict = None) -> CostEstimate:
+    """
+    Backward-compatible wrapper for glyph cost estimation.
+    Allows direct import of `estimate_glyph_cost` in older modules.
+    """
+    context = context or {}
+    return CodexCostEstimator().estimate_glyph_cost(glyph, context)

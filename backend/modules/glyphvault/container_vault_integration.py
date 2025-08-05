@@ -1,8 +1,13 @@
 from backend.modules.glyphvault.container_vault_manager import ContainerVaultManager
 from backend.modules.glyphvault.key_manager import key_manager
-from backend.modules.ucs.ucs_runtime import get_ucs_runtime  # ✅ UCS Runtime sync
+from backend.modules.dimensions.universal_container_system.ucs_runtime import get_ucs_runtime  # ✅ UCS Runtime sync
 from backend.modules.glyphvault.soul_law_validator import get_soul_law_validator  # ✅ Safe SoulLaw accessor
-from backend.modules.glyphnet.glyphnet_ws import broadcast_event  # ✅ GHX/SQI sync
+
+def lazy_broadcast_event(payload):
+    """Lazy-imports broadcast_event to avoid circular import."""
+    from backend.routes.ws.glyphnet_ws import broadcast_event
+    from asyncio import create_task
+    create_task(broadcast_event(payload))
 
 def get_state():
     from backend.modules.consciousness.state_manager import STATE
@@ -19,7 +24,6 @@ def decrypt_glyph_vault(container_data: dict, avatar_state: dict = None) -> dict
     """
     encrypted_blob = container_data.get("glyph_vault")
     if not encrypted_blob:
-        # No glyph vault, return as is
         return container_data
 
     if isinstance(encrypted_blob, str):
@@ -56,8 +60,8 @@ def decrypt_glyph_vault(container_data: dict, avatar_state: dict = None) -> dict
     ucs = get_ucs_runtime()
     ucs.save_container(container_data["id"], container_data)
 
-    # ✅ GHX Visualization Sync
-    broadcast_event({
+    # ✅ GHX Visualization Sync (lazy import to avoid circular import)
+    lazy_broadcast_event({
         "type": "vault_decrypt",
         "container_id": container_data.get("id"),
         "glyph_count": len(glyph_map),
@@ -106,8 +110,8 @@ def encrypt_and_embed_glyph_vault(container_data: dict) -> dict:
     ucs = get_ucs_runtime()
     ucs.save_container(container_data["id"], container_data)
 
-    # ✅ SQI Event Emission
-    broadcast_event({
+    # ✅ SQI Event Emission (lazy import to avoid circular import)
+    lazy_broadcast_event({
         "type": "vault_encrypt",
         "container_id": container_data.get("id"),
         "glyph_count": len(glyph_data),

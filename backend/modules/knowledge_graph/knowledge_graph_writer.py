@@ -10,7 +10,7 @@ Design Rubric:
 - 📩 Intent + Reason + Trigger Metadata ..... ✅
 - 📦 Container Context + Coord Awareness .... ✅
 - ⏱️ Timestamp + Runtime Trace Binding ...... ✅
-- 🧩 Plugin & Forecast Integration ........... ✅
+- 🧩 Plugin & Forecast Integration ...........✅
 - 🔁 Self-Reflection + Thought Tracing ...... ✅
 - 📊 Validator: Stats, Search, DC Export .... ✅
 - 🌐 CRDT & Entanglement Locks .............. ✅
@@ -27,8 +27,9 @@ from backend.modules.knowledge_graph.time_utils import get_current_timestamp
 # ✅ Knowledge graph and indexing
 from backend.modules.dna_chain.container_index_writer import add_to_index
 
-# ✅ WebSocket broadcasting (GlyphNet)
-from backend.routes.ws.glyphnet_ws import broadcast_anchor_update, broadcast_event
+def lazy_broadcast_anchor_update(*args, **kwargs):
+    from backend.routes.ws.glyphnet_ws import broadcast_anchor_update  # Lazy import to avoid circular dep
+    return broadcast_anchor_update(*args, **kwargs)
 
 # ──────────────────────────────
 # Lazy UCS Fetcher (fix circular import)
@@ -94,8 +95,13 @@ crdt_registry = CRDTRegistry()
 # ──────────────────────────────
 class KnowledgeGraphWriter:
     def __init__(self):
-        # 🔥 FIX: Lazy container fetch to avoid circular import
-        self.container = get_active_container()
+        self._container = None  # Delay container fetch
+
+    @property
+    def container(self):
+        if self._container is None:
+            self._container = get_active_container()
+        return self._container
 
     def validate_knowledge_graph(self) -> Dict[str, Any]:
         from backend.modules.knowledge_graph.indexes.stats_index import build_stats_index
@@ -190,6 +196,7 @@ class KnowledgeGraphWriter:
         add_to_index("knowledge_index.glyph", entry)
 
         if anchor:
+            from backend.routes.ws.glyphnet_ws import broadcast_anchor_update  # ✅ Lazy import to avoid circular import
             create_task(broadcast_anchor_update(glyph_id, anchor))
 
         # 🔓 Release Locks
@@ -303,7 +310,7 @@ class KnowledgeGraphWriter:
 
 
 # ──────────────────────────────
-# write_glyph_entry (unchanged)
+# write_glyph_entry (updated)
 # ──────────────────────────────
 def write_glyph_entry(
     glyph: str, g_type: str, g_tag: str, g_value: str, ops_chain: list,
@@ -329,14 +336,38 @@ def write_glyph_entry(
         "context": context,
         "reasoning_chain": reasoning_chain or "No reasoning recorded",
     }
-    if anchor: entry["anchor"] = anchor
-
-    from backend.modules.knowledge_graph.indexes.reasoning_index import add_reasoning_entry
-    add_reasoning_entry(glyph_id=glyph, reasoning=reasoning_chain or "Unspecified", context=context)
-    add_to_index("knowledge_index.glyph", entry)
-
     if anchor:
-        from asyncio import create_task
+        entry["anchor"] = anchor
+
+    # ✅ Add reasoning entry and update index
+    from backend.modules.knowledge_graph.indexes.reasoning_index import add_reasoning_entry
+    add_reasoning_entry(
+        glyph_id=glyph,
+        reasoning=reasoning_chain or "Unspecified",
+        context=context
+    )
+    add_to_index("knowledge_index.glyph", entry)
+    # ✅ Broadcast glyph entry event (lazy import to avoid circular import)
+    from asyncio import create_task
+    from backend.routes.ws.glyphnet_ws import broadcast_event
+    create_task(broadcast_event({
+        "type": "glyph_entry",
+        "glyph": glyph,
+        "tags": list(set(tags + auto_tags)),
+        "context": context,
+        "anchor": anchor,
+        "timestamp": timestamp,
+    }))
+
+    # ✅ Broadcast anchor update if present
+    if anchor:
+        from backend.routes.ws.glyphnet_ws import broadcast_anchor_update  # Lazy import
         create_task(broadcast_anchor_update(glyph, anchor))
 
-    return entry
+    return entry  # <-- Ensure function return stays intact
+
+
+# ──────────────────────────────
+# Global KG Writer Instance
+# ──────────────────────────────
+kg_writer = KnowledgeGraphWriter()

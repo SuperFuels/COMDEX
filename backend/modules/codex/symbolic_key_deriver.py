@@ -1,4 +1,6 @@
 import logging
+import hashlib
+import base64
 from typing import Optional, Dict, Any
 
 from backend.modules.codex.codex_context_adapter import SymbolicKeyDerivation
@@ -82,3 +84,25 @@ def export_collapse_trace_with_soullaw_metadata(identity: Optional[str] = None) 
     }
     logger.info("[SymbolicKeyDeriver] Exported collapse trace with SoulLaw metadata")
     return export_data
+
+
+def derive_entropy_hash(data: str, salt: str = "glyph_entropy") -> str:
+    """
+    Derives a stable entropy hash from input data for GHX, SQI, and SoulLaw.
+
+    Args:
+        data (str): Input data (glyph strings, container IDs, etc.)
+        salt (str): Optional salt to differentiate hashing contexts.
+
+    Returns:
+        str: Base64-encoded SHA256 entropy hash.
+    """
+    if not isinstance(data, str):
+        data = str(data)
+
+    entropy = f"{salt}:{data}".encode("utf-8")
+    sha = hashlib.sha256(entropy).digest()
+    hash_result = base64.urlsafe_b64encode(sha).decode("utf-8").rstrip("=")
+
+    logger.debug(f"[SymbolicKeyDeriver] Entropy hash derived (salt={salt}): {hash_result}")
+    return hash_result

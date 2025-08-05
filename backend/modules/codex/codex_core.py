@@ -1,6 +1,5 @@
 from backend.modules.glyphos.glyph_instruction_set import INSTRUCTION_SET, get_instruction
 from backend.modules.glyphos.symbolic_hash_engine import symbolic_hash
-from backend.modules.glyphos.glyph_trace_logger import GlyphTraceLogger
 from backend.modules.glyphos.glyph_mutator import propose_mutation
 from backend.modules.codex.codex_cost_estimator import CodexCostEstimator
 from backend.modules.dna_chain.switchboard import DNA_SWITCH
@@ -8,13 +7,22 @@ from backend.modules.dna_chain.switchboard import DNA_SWITCH
 # ✅ DNA upgrade registration
 DNA_SWITCH.register(__file__)
 
-logger = GlyphTraceLogger()
+# ✅ Defer GlyphTraceLogger initialization fully
+_glyph_trace_logger = None
 
 class CodexCore:
     def __init__(self):
         self.known_hashes = set()
         self.execution_log = []
         self.cost_estimator = CodexCostEstimator()
+
+    def _get_logger(self):
+        """Lazy-load GlyphTraceLogger only when needed to break circular imports."""
+        global _glyph_trace_logger
+        if _glyph_trace_logger is None:
+            from backend.modules.glyphos.glyph_trace_logger import GlyphTraceLogger
+            _glyph_trace_logger = GlyphTraceLogger()
+        return _glyph_trace_logger
 
     def execute(self, glyph: str, context: dict = {}):
         from backend.modules.glyphos.codexlang_translator import (
@@ -42,9 +50,9 @@ class CodexCore:
             memory = context.get("memory")
             result = translate_to_instruction(parsed, memory=memory)
 
-            # Log + store trace
+            # Log + store trace (logger now loaded lazily)
             source = context.get("source", "codex_core")
-            logger.log_trace(glyph, result, context=source)
+            self._get_logger().log_trace(glyph, result, context=source)
             self.execution_log.append({"glyph": glyph, "result": result})
 
             # Trigger rewrite mutation if glyph contains symbolic rewrite logic

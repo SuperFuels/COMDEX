@@ -1,13 +1,20 @@
-# backend/modules/teleport/portal_manager.py
+# 📁 backend/modules/teleport/portal_manager.py
 
 from typing import Dict, Optional
 import uuid
 
-from backend.modules.teleport.teleport_packet import TeleportPacket
 from backend.modules.glyphvault.vault_manager import VAULT
 
-# Lazy-loaded container runtime to prevent circular import
+# Lazy-loaded ContainerRuntime to avoid circular imports
 ContainerRuntimeClass = None
+
+
+def create_teleport_packet(portal_id: str, container_id: str, payload: dict):
+    """
+    Lazily import TeleportPacket to avoid circular import between teleport_packet and portal_manager.
+    """
+    from backend.modules.teleport.teleport_packet import TeleportPacket
+    return TeleportPacket(portal_id=portal_id, container_id=container_id, payload=payload)
 
 
 class PortalManager:
@@ -34,7 +41,10 @@ class PortalManager:
     def resolve(self, portal_id: str) -> Optional[Dict[str, str]]:
         return self.portal_map.get(portal_id)
 
-    def teleport(self, packet: TeleportPacket) -> bool:
+    def teleport(self, packet) -> bool:
+        """
+        Teleport logic: saves current state, loads into target container, injects payload.
+        """
         global ContainerRuntimeClass
         if ContainerRuntimeClass is None:
             from backend.modules.runtime.container_runtime import ContainerRuntime
@@ -45,10 +55,10 @@ class PortalManager:
         if not target_id:
             return False
 
-        # Save the current state (compressed snapshot) before jumping
+        # Save snapshot of current state
         filename = VAULT.save_snapshot(packet.container_id)
 
-        # Load snapshot into new target container
+        # Load snapshot into target container
         success = VAULT.load_snapshot(filename, avatar_state=None)
         if success:
             ContainerRuntimeClass().inject_payload(packet.payload)

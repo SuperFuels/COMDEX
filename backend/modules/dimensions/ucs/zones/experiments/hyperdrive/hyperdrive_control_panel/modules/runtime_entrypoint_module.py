@@ -3,7 +3,7 @@ from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_cont
 from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.gear_map_loader import GEAR_MAP
 from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.gear_shift_module import gear_shift
 from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.hyperdrive_tuning_constants_module import HyperdriveTuningConstants as HyperdriveTuning
-from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.harmonics_module import measure_harmonic_coherence
+from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.harmonic_coherence_module import measure_harmonic_coherence
 
 def twin_sync_and_gearshift(engine_a, engine_b, sync_only=False):
     """

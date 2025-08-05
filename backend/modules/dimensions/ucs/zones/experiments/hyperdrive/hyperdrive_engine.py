@@ -42,6 +42,9 @@ from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_cont
 # SQI Controller (for preset sync)
 from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.sqi_controller_module import SQIController
 
+# Added predictive and collapse trace imports
+from backend.modules.collapse.collapse_trace_exporter import export_collapse_trace
+from backend.modules.consciousness.prediction_engine import PredictionEngine
 
 # -------------------------
 # 🔥 HYPERDRIVE ENGINE CLASS
@@ -51,7 +54,7 @@ class HyperdriveEngine:
     LOG_DIR = "data/qwave_logs"
 
     def __init__(self, container: SymbolicExpansionContainer, safe_mode: bool = False,
-                 stage_lock: int = 6, virtual_absorber: bool = True, sqi_enabled: bool = True):  # ✅ Default ON
+                 stage_lock: int = 6, virtual_absorber: bool = True, sqi_enabled: bool = True):
         self.container = container
         self.safe_mode = safe_mode
         self.stage_lock = stage_lock
@@ -64,7 +67,10 @@ class HyperdriveEngine:
         self.sqi_locked = sqi_enabled
         self.pending_sqi_ticks = None
         self.last_sqi_adjustments: Dict[str, float] = {}
-        self.sqi_controller = SQIController(self)  # ✅ Controller for preset sync
+        self.sqi_controller = SQIController(self)
+
+        # ✅ Initialize Hyperdrive Constants FIRST
+        HyperdriveTuningConstants.load_runtime()
 
         # 🔑 Stage Management
         self.stages = list(HyperdriveTuningConstants.STAGE_CONFIGS.keys())
@@ -82,15 +88,11 @@ class HyperdriveEngine:
         self.graph_log: List[Dict[str, Any]] = []
         self.resonance_phase = 0.0
         self.exhaust_log: List[Dict[str, Any]] = []
-
-        # 📝 Event Log
         self.event_log: List[Dict[str, Any]] = []
 
         # ⚛ Dynamics
-        from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.hyperdrive_tuning_constants_module import HyperdriveTuningConstants
         self.damping_factor = HyperdriveTuningConstants.DAMPING_FACTOR
         self.decay_rate = HyperdriveTuningConstants.DECAY_RATE
-        self.decay_rate = DECAY_RATE
 
         # 🏆 Best-state tracking
         self.best_score: float = None
@@ -102,29 +104,26 @@ class HyperdriveEngine:
         self.injectors = [TesseractInjector(i, phase_offset=i * 3) for i in range(4)]
         self.chambers = [CompressionChamber(i, compression_factor=1.3) for i in range(4)]
         self.field_bridge = FieldBridge(safe_mode=safe_mode)
-        self.sqi_engine = SQIReasoningEngine()
+        self.sqi_engine = SQIReasoningEngine(engine=self)
         self.last_dc_trace = None
 
-        from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.hyperdrive_tuning_constants_module import HyperdriveTuningConstants
         self.collapse_enabled = HyperdriveTuningConstants.ENABLE_COLLAPSE
-
-        # 🎯 Stability thresholds
-        from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.hyperdrive_tuning_constants_module import HyperdriveTuningConstants
         self.stage_stability_window = 50
         self.stability_threshold = HyperdriveTuningConstants.RESONANCE_DRIFT_THRESHOLD / 2
 
         # 🛡 Safe Mode Config
         self._configure_safe_mode()
 
-        # ✅ Tick override
-        self.tick = self._single_tick
+        # ✅ Tick override (Async-compatible)
+        self._single_tick = self._single_tick  # Ensure method reference exists
+        self.tick = self.tick  # Bind the sync wrapper for external calls
 
         os.makedirs(self.LOG_DIR, exist_ok=True)
+
+        # ✅ State Init (AFTER stages exist)
         self._initialize_state()
 
-        from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.hyperdrive_tuning_constants_module import HyperdriveTuningConstants
-
-        # ✅ Restore harmonic constants directly into engine context
+        # 🎼 Sync harmonic constants
         HyperdriveTuningConstants.load_runtime()
         self.damping_factor = HyperdriveTuningConstants.DAMPING_FACTOR
         self.decay_rate = HyperdriveTuningConstants.DECAY_RATE
@@ -189,42 +188,115 @@ class HyperdriveEngine:
                 print(f"💾 SQI idle state saved at drift={drift:.4f}")
             # 🔗 Sync preset at lock
             self.sqi_controller.apply_preset("100%")
+            # 📦 Export DC trace at SQI lock
+            self.last_dc_trace = export_collapse_trace(self)
+            self.log_event("📦 Collapse trace exported for replay/debugging.")
 
-    # -------------------------
-    # 🔥 SINGLE TICK
-    # -------------------------
-    def _single_tick(self):
+    import asyncio
+
+# -------------------------
+# 🔥 SINGLE TICK (Async)
+# -------------------------
+    async def _single_tick(self):
+        try:
+            from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.harmonic_coherence_module import measure_harmonic_coherence
+            from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.hyperdrive_tuning_constants_module import HyperdriveTuningConstants
+            from backend.modules.consciousness.prediction_engine import PredictionEngine
+        except ImportError as e:
+            print(f"❌ Import error in _single_tick: {e}")
+            return
+
+        # 🔄 Increment tick counter
         self.tick_count += 1
-        self._simulate_virtual_exhaust()
-        self._run_sqi_feedback()
-        self._log_graph_snapshot()
 
-        # 🎶 Harmonic coherence measurement
-        from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.harmonic_coherence_module import measure_harmonic_coherence
+        # 1️⃣ SQI Seed Injection at G1 Ignition
+        if self.tick_count == 1 and self.current_stage == self.stages.index("G1"):
+            self.resonance_filtered.append(self.fields["wave_frequency"])
+            self.log_event(f"🌱 SQI Seed injected at ignition: {self.fields['wave_frequency']:.4f}")
+
+        # 🔬 Simulations and feedback loops
+        if hasattr(self, "_simulate_virtual_exhaust"):
+            self._simulate_virtual_exhaust()
+        if hasattr(self, "_run_sqi_feedback"):
+            self._run_sqi_feedback()
+        if hasattr(self, "_log_graph_snapshot"):
+            self._log_graph_snapshot()
+
+        # 🎶 Measure harmonic coherence
         coherence = measure_harmonic_coherence(self)
         self.log_event(f"Harmonic Coherence: {coherence:.3f}")
 
-        # Auto-adjust harmonic gain if coherence is low
+        # 2️⃣ Resonance Buffer Bootstrapping
+        if len(self.resonance_filtered) < 3:
+            self.resonance_filtered.append(coherence)
+            self.log_event(f"⚡ Resonance bootstrap appended: {coherence:.4f}")
+
+        # ⚠ Auto-adjust harmonic gain if coherence is low
         if coherence < 0.8:
-            # Adjust harmonic gain dynamically using HyperdriveTuningConstants
-            boost = HyperdriveTuningConstants.HARMONIC_GAIN * 1.02
+            drift_cost = self.sqi_engine.estimate_drift_cost(drift=1.0 - coherence)
+            boost = HyperdriveTuningConstants.HARMONIC_GAIN * (1.02 + drift_cost * 0.01)
+
+            # 5️⃣ Harmonic Gain Damping
+            boost *= (1.0 - min(0.2, (len(self.resonance_filtered) / 2000)))
             HyperdriveTuningConstants.HARMONIC_GAIN = boost
-            self.log_event(f"⚠ Harmonic coherence low ({coherence:.3f}) → Boosting gain to {boost:.4f}")
+            self.log_event(f"⚠ Harmonic coherence low ({coherence:.3f}) → Boosting gain to {boost:.4f} (damped)")
 
-        # 🎵 Periodic harmonic injection during SQI runtime
-        if self.sqi_enabled and self.tick_count % 100 == 0:  # every 100 ticks
-            from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.hyperdrive_tuning_constants_module import HyperdriveTuningConstants
-            self._inject_harmonics(HyperdriveTuningConstants.HARMONIC_DEFAULTS)
+        # 🎵 Periodic harmonic injection
+        if self.sqi_enabled and self.tick_count % 100 == 0:
+            if hasattr(self, "_inject_harmonics"):
+                self._inject_harmonics(HyperdriveTuningConstants.HARMONIC_DEFAULTS)
 
+        # 🛡 SQI Stability Drift Check
         if self.sqi_enabled:
-            drift = max(self.resonance_filtered[-20:], default=0) - min(self.resonance_filtered[-20:], default=0)
-            if drift <= self.stability_threshold:
-                self.handle_sqi_lock(drift)
+            if len(self.resonance_filtered) >= 20:
+                drift_window = self.resonance_filtered[-20:]
+                drift = max(drift_window) - min(drift_window)
+                if drift <= self.stability_threshold and hasattr(self, "handle_sqi_lock"):
+                    self.handle_sqi_lock(drift)
+            else:
+                self.log_event("⚠️ SQI skipped: Insufficient resonance data.")
 
-        if self.tick_count >= self.tick_limit:
+        # 🔮 Predictive SQI Forecast (await async forecast safely)
+        try:
+            prediction = await PredictionEngine().forecast_hyperdrive(self)
+            self.log_event(f"🔮 Predicted next SQI resonance: {prediction['resonance_estimate']:.4f}")
+        except Exception as e:
+            self.log_event(f"⚠️ SQI prediction failed: {e}")
+
+        # 🔧 ECU runtime sync every 50 ticks
+        if self.tick_count % 50 == 0 and hasattr(self, "_ecu_runtime_sync"):
+            self._ecu_runtime_sync()
+
+        # ⏹ Tick limit guard
+        if self.tick_limit and self.tick_count >= self.tick_limit:
             print(f"⚠ Tick limit reached: {self.tick_limit}")
             return
 
+    # -------------------------
+    # 🛠 VIRTUAL EXHAUST → PARTICLE LINK
+    # -------------------------
+    def _simulate_virtual_exhaust(self):
+        exhaust_force = simulate_virtual_exhaust(self)  # existing call (returns force/energy vector)
+        if exhaust_force and isinstance(exhaust_force, dict):
+            self.exhaust_log.append(exhaust_force)
+            avg_impact = exhaust_force.get("energy", 0) * 0.01
+
+            # 3️⃣ Link exhaust impact to particle motion
+            for p in self.particles:
+                p["vx"] = p.get("vx", 0) + avg_impact * (0.5 - random.random())
+                p["vy"] = p.get("vy", 0) + avg_impact * (0.5 - random.random())
+            self.log_event(f"💨 Exhaust impact applied to particles | Δv~{avg_impact:.5f}")
+
+# -------------------------
+    # ✅ SYNC WRAPPER
+    # -------------------------
+    def tick(self):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        if loop.is_running():
+            return asyncio.create_task(self._single_tick())  
+        else:
+            return loop.run_until_complete(self._single_tick())
     # -------------------------
     # 📝 EVENT LOGGER
     # -------------------------
@@ -259,6 +331,7 @@ class HyperdriveEngine:
     # 🔁 ENGINE INIT STATE
     # -------------------------
     def _initialize_state(self):
+        """Initialize engine state from saved or best state, else start fresh."""
         self._load_best_state()
         if os.path.exists(self.SAVE_PATH) and not self.safe_mode:
             print("♻️ Loading saved engine state...")
@@ -266,11 +339,23 @@ class HyperdriveEngine:
         else:
             print("⚙ No saved state; initializing stage...")
             transition_stage(self, self.stages[self.current_stage])
-            # 🎼 Auto-resync harmonics after stage initialization
             self._resync_harmonics()
-            self.container.expand(avatar_state=self.safe_mode_avatar)
+
+            # ✅ SoulLaw validation before container expansion
+            avatar_state = self.safe_mode_avatar if self.safe_mode else {
+                "id": "hyperdrive_runtime",
+                "role": "engine_operator",
+                "level": get_soul_law_validator().MIN_AVATAR_LEVEL
+            }
+            if not get_soul_law_validator().validate_avatar_with_context(
+                avatar_state=avatar_state,
+                context="hyperdrive_symbolic_expansion"
+            ):
+                raise PermissionError("Avatar failed SoulLaw validation for Symbolic Expansion.")
+            self.container.expand(avatar_state=avatar_state, recursive_unlock=True, enforce_morality=True)
 
     def _load_best_state(self):
+        """Load best known engine state from persistent storage."""
         best_state_path = "data/qwave_best_state.json"
         if os.path.exists(best_state_path):
             try:

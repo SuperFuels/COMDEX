@@ -6,7 +6,7 @@ from typing import Optional, Dict
 
 from backend.modules.hexcore.memory_engine import get_runtime_entropy_snapshot
 from backend.modules.glyphnet.ephemeral_key_manager import get_ephemeral_key_manager
-from backend.modules.codex.soul_law_validator import validate_avatar_state
+from backend.modules.glyphvault.soul_law_validator import soul_law_validator  # ✅ Updated to singleton validator
 from backend.modules.codex.codex_core import CodexCore
 
 logger = logging.getLogger(__name__)
@@ -120,8 +120,8 @@ class SymbolicKeyDerivation:
                 logger.error(f"[SymbolicKeyDerivation] Derivation blocked due to lockout for identity {identity}")
                 return None
 
-            # ✅ Soul Law validation
-            if not validate_avatar_state(identity):
+            # ✅ Soul Law validation (using singleton)
+            if not soul_law_validator.validate_avatar({"id": identity, "role": "system"}):
                 logger.error(f"[SymbolicKeyDerivation] SoulLaw rejected identity {identity}")
                 return None
 
@@ -155,23 +155,57 @@ class SymbolicKeyDerivation:
                 self._record_failed_attempt(identity)
             return None
 
-    def verify_key(self, key: bytes, trust_level: float, emotion_level: float, timestamp: float,
-                   identity: Optional[str] = None, seed_phrase: Optional[str] = None) -> bool:
-        if identity and self._is_locked_out(identity):
-            logger.error(f"[SymbolicKeyDerivation] Verification blocked due to lockout for identity {identity}")
-            return False
+def verify_key(self, key: bytes, trust_level: float, emotion_level: float, timestamp: float,
+               identity: Optional[str] = None, seed_phrase: Optional[str] = None) -> bool:
+    if identity and self._is_locked_out(identity):
+        logger.error(f"[SymbolicKeyDerivation] Verification blocked due to lockout for identity {identity}")
+        return False
 
-        derived = self.derive_key(trust_level, emotion_level, timestamp, identity, seed_phrase)
-        if derived is None:
-            return False
+    derived = self.derive_key(trust_level, emotion_level, timestamp, identity, seed_phrase)
+    if derived is None:
+        return False
 
-        match = derived == key
-        if not match and identity:
-            self._record_failed_attempt(identity)
-        elif match and identity:
-            self._clear_attempts(identity)
+    match = derived == key
+    if not match and identity:
+        self._record_failed_attempt(identity)
+    elif match and identity:
+        self._clear_attempts(identity)
 
-        return match
+    return match
 
 
 symbolic_key_deriver = SymbolicKeyDerivation()
+
+# ✅ Compatibility Shim for Legacy Imports
+def estimate_glyph_cost(glyph_expression: str) -> float:
+    """
+    Backwards-compatible cost estimation for glyphs.
+    Uses CodexCore evaluation complexity as a cost proxy.
+    """
+    try:
+        adapter = symbolic_key_deriver._get_codex_adapter()
+        result = adapter.evaluate(glyph_expression)
+        if isinstance(result, str):
+            return float(len(result)) / 256.0  # Approximate cost based on symbolic output size
+        return 1.0
+    except Exception as e:
+        logger.error(f"[SymbolicKeyDerivation] Cost estimation failed: {e}")
+        return 1.0
+
+
+# ✅ Compatibility Stub for Legacy Imports
+class CodexContextAdapter:
+    """
+    Legacy placeholder for CodexContextAdapter.
+    Routes calls to SymbolicKeyDerivation for modern key/collapse logic.
+    """
+    def __init__(self):
+        self.symbolic_deriver = symbolic_key_deriver
+
+    def evaluate(self, expression: str) -> str:
+        """
+        Mimics legacy CodexContextAdapter.evaluate behavior
+        using CodexCore (via SymbolicKeyDerivation).
+        """
+        adapter = self.symbolic_deriver._get_codex_adapter()
+        return adapter.evaluate(expression)

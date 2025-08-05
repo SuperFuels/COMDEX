@@ -4,10 +4,8 @@ import time
 from typing import Optional, Dict, List, Set
 from collections import defaultdict
 
-from backend.modules.hexcore.memory_engine import write_memory
-from backend.modules.runtime.container_runtime import save_container_data, get_container_by_id
+from backend.modules.hexcore.memory_engine import store_memory
 from backend.modules.glyphnet.glyphnet_packet import push_symbolic_packet
-from backend.modules.glyphnet.glyphnet_ws import push_entanglement_update
 
 ENTANGLEMENT_FILE = "data/entanglement_links.json"
 _entanglement_graph: Dict[str, Set[str]] = defaultdict(set)
@@ -53,8 +51,11 @@ def entangle_glyphs(
 ) -> dict:
     """
     Symbolically entangle two containers (or one container's internal coordinate).
-    Also updates memory, entanglement file, and optionally GlyphNet and WebSocket.
     """
+    # ✅ Lazy imports to prevent circular dependency
+    from backend.modules.runtime.container_runtime import save_container_data, get_container_by_id
+    from backend.routes.ws.glyphnet_ws import push_entanglement_update
+
     timestamp = time.time()
     if not container_b_id:
         container_b_id = container_a_id
@@ -68,9 +69,8 @@ def entangle_glyphs(
         "sender": sender,
     }
 
-    # Log to memory engine
-    write_memory(container_a_id, memory_entry)
-    write_memory(container_b_id, memory_entry)
+    # Log memory
+    store_memory(memory_entry)
 
     # Update container metadata
     container_a = get_container_by_id(container_a_id)
@@ -85,15 +85,14 @@ def entangle_glyphs(
     save_container_data(container_a_id)
     save_container_data(container_b_id)
 
-    # 🔁 Update persistent entanglement graph
+    # Update entanglement graph
     _entanglement_graph[container_a_id].add(container_b_id)
     _entanglement_graph[container_b_id].add(container_a_id)
     _save_entanglement_graph()
 
-    # 🛰️ WebSocket broadcast
+    # WebSocket broadcast (lazy import used)
     push_entanglement_update(container_a_id, container_b_id)
 
-    # Optional: push symbolic packet
     if push:
         push_symbolic_packet({
             "type": "glyph_push",
@@ -106,5 +105,5 @@ def entangle_glyphs(
     return memory_entry
 
 
-# 🔁 Load on startup
+# Load entanglement graph on startup
 _load_entanglement_graph()

@@ -1,14 +1,17 @@
-# backend/modules/dimensions/ucs/zones/experiments/hyperdrive/hyperdrive_control_panel/modules/tick_module.py
+# File: backend/modules/dimensions/ucs/zones/experiments/hyperdrive/hyperdrive_control_panel/modules/tick_module.py
 
 import time
 import math
+import asyncio
 from copy import deepcopy
 from datetime import datetime
 from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.sqi_reasoning_module import SQIReasoningEngine
 from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.dc_io import DCContainerIO
 from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.hyperdrive_tuning_constants_module import HyperdriveTuningConstants
 
-
+# =========================
+# 🔄 CORE TICK HANDLER
+# =========================
 def tick(engine):
     """
     🔄 Modular Hyperdrive Tick:
@@ -97,6 +100,19 @@ def tick(engine):
     _stage_advance(engine)
 
 
+# =========================
+# ✅ ASYNC TICK WRAPPER
+# =========================
+async def async_tick(engine):
+    """
+    Async wrapper for tick() so HyperdriveEngine can await ticks if needed.
+    """
+    tick(engine)
+
+
+# =========================
+# 🔬 PARTICLE UPDATE
+# =========================
 def _update_particles(engine, dt):
     """Particle dynamics update."""
     for p in engine.particles:
@@ -125,11 +141,11 @@ def _update_particles(engine, dt):
         p["z"] += p["vz"] * dt
 
 
+# =========================
+# 🫀 PULSE DETECTION & SQI LOCK
+# =========================
 def _pulse_detection(engine, drift):
-    """
-    Detect stability pulses and trigger SQI lock, harmonic resync,
-    and control-panel preset sync when conditions are met.
-    """
+    """Detect stability pulses and trigger SQI lock."""
     if len(engine.resonance_filtered) >= 30 and engine.tick_count > 200:
         drift = max(engine.resonance_filtered[-30:]) - min(engine.resonance_filtered[-30:])
         if drift <= engine.stability_threshold:
@@ -164,6 +180,9 @@ def _pulse_detection(engine, drift):
                         print(f"⚠️ SQI Controller sync failed: {e}")
 
 
+# =========================
+# 🔧 INLINE SQI CORRECTION
+# =========================
 def _sqi_correction(engine):
     """Apply inline SQI field adjustments via reasoning engine."""
     if engine.sqi_enabled and engine.pending_sqi_ticks is not None:
@@ -183,6 +202,9 @@ def _sqi_correction(engine):
             engine.pending_sqi_ticks = 50
 
 
+# =========================
+# 🚀 STAGE ADVANCEMENT
+# =========================
 def _stage_advance(engine):
     """Handle stage advancement and state export."""
     if engine._check_stage_stability():

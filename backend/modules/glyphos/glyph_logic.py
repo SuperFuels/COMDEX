@@ -4,7 +4,7 @@ from backend.modules.consciousness.reflection_engine import ReflectionEngine
 from backend.modules.dna_chain.switchboard import DNA_SWITCH
 
 # ✅ NEW imports for KG-driven reasoning
-from backend.modules.knowledge_graph.knowledge_index import knowledge_index
+from backend.modules.knowledge_graph.indexes.stats_index import build_stats_index  # or correct index
 from backend.modules.knowledge_graph.indexes.tag_index import get_glyphs_by_tag
 from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter
 from backend.modules.glyphos.symbol_graph import symbol_graph  # ✅ A5b
@@ -30,6 +30,21 @@ except ImportError:
 def get_goal_engine():
     from backend.modules.skills.goal_engine import GoalEngine
     return GoalEngine()
+
+def detect_contradiction(result: str) -> bool:
+    """
+    Detects contradictions in glyph interpretation results.
+    Looks for ⊥ (bottom), negation markers, or explicit 'contradiction' keywords.
+    """
+    if not result:
+        return False
+    result_str = str(result).lower()
+    return (
+        "⊥" in result_str or
+        "contradiction" in result_str or
+        "inconsistent" in result_str or
+        "invalid state" in result_str
+    )
 
 def get_strategy_planner():
     from backend.modules.skills.strategy_planner import StrategyPlanner

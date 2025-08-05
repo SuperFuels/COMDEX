@@ -23,7 +23,17 @@ DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
 
 # ✅ Knowledge Graph Writer for emotion logging
 from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter
-from backend.modules.time_engine import get_current_tick
+
+# ✅ Updated time tracking (replaces deprecated time_engine)
+from backend.modules.dimensions.time_controller import TimeController
+TIME = TimeController()
+
+def get_current_tick() -> int:
+    """
+    Proxy to maintain backward compatibility with existing calls.
+    Fetches current tick from TimeController.
+    """
+    return TIME.get_current_tick()
 
 class EmotionEngine:
     """

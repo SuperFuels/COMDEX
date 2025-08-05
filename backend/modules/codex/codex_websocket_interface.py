@@ -7,19 +7,29 @@ from backend.modules.codex.codex_metrics import CodexMetrics
 from backend.modules.codex.codex_cost_estimator import CodexCostEstimator
 from backend.modules.codex.codex_emulator import CodexEmulator
 from backend.modules.glyphos.codexlang_translator import run_codexlang_string
-from backend.modules.tessaris.tessaris_engine import TessarisEngine
 from backend.modules.hexcore.memory_engine import MEMORY
 
-# 🛰️ Import glyph trigger dispatcher
-from backend.modules.glyphnet.glyphnet_ws import handle_glyphnet_event
+# 🛰️ Lazy import dispatcher to break circular import
+def _get_handle_glyphnet_event():
+    from backend.routes.ws.glyphnet_ws import handle_glyphnet_event
+    return handle_glyphnet_event
 
 # ✅ Runtime Instances
 connected_clients = set()
 codex = CodexCore()
 emulator = CodexEmulator()
 metrics = CodexMetrics()
-tessaris = TessarisEngine()
+tessaris = None  # ✅ Lazy init to prevent circular import
 cost_estimator = CodexCostEstimator()
+
+
+def _get_tessaris():
+    """Lazily import TessarisEngine to avoid circular import."""
+    global tessaris
+    if tessaris is None:
+        from backend.modules.tessaris.tessaris_engine import TessarisEngine
+        tessaris = TessarisEngine()
+    return tessaris
 
 
 # ✅ Broadcast to all clients
@@ -67,7 +77,7 @@ async def codex_ws_handler(websocket: WebSocket):
 
                 # 🛰️ Remote glyph trigger support
                 if data.get("event") == "trigger_glyph":
-                    await handle_glyphnet_event(websocket, data)
+                    await _get_handle_glyphnet_event()(websocket, data)
                     continue
 
                 glyph = data.get("glyph")
@@ -88,7 +98,8 @@ async def codex_ws_handler(websocket: WebSocket):
                         "result": result
                     })
 
-                    tessaris.extract_intents_from_glyphs([glyph], metadata)
+                    # ✅ Lazy Tessaris import
+                    _get_tessaris().extract_intents_from_glyphs([glyph], metadata)
                     await broadcast_glyph_execution(glyph, result, context)
 
                     await websocket.send_text(json.dumps({

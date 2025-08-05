@@ -1,9 +1,10 @@
 from datetime import datetime
 from copy import deepcopy
 from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.dc_io import DCContainerIO
-from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.harmonics_module import measure_harmonic_coherence
+from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.harmonic_coherence_module import measure_harmonic_coherence
 from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.logger import TelemetryLogger
 from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.tesseract_injector import proton_inject_cycle
+from backend.modules.glyphvault.soul_law_validator import get_soul_law_validator  # ✅ Added SoulLaw
 
 def transition_stage(engine, new_stage: str, reseed_particles: bool = True):
     """
@@ -14,6 +15,7 @@ def transition_stage(engine, new_stage: str, reseed_particles: bool = True):
     • Optional particle reseeding
     • .dc snapshot auto-export
     • Telemetry log binding
+    • SoulLaw-validated container expansion
     """
     if new_stage not in engine.stages:
         raise ValueError(f"❌ Invalid stage: {new_stage}")
@@ -65,7 +67,14 @@ def transition_stage(engine, new_stage: str, reseed_particles: bool = True):
         "sqi_enabled": engine.sqi_enabled
     })
 
-    # ✅ Container expansion post-transition
+    # ✅ SoulLaw-validated container expansion post-transition
     if hasattr(engine, "container") and engine.container:
-        engine.container.expand(avatar_state=engine.safe_mode_avatar if engine.safe_mode else None)
-        print("🧩 Container expansion triggered post-transition.")
+        avatar_state = engine.safe_mode_avatar if engine.safe_mode else {
+            "id": "hyperdrive_runtime",
+            "role": "engine_operator",
+            "level": get_soul_law_validator().MIN_AVATAR_LEVEL
+        }
+        if not get_soul_law_validator().validate_avatar(avatar_state):
+            raise PermissionError("Avatar failed SoulLaw validation for Symbolic Expansion.")
+        engine.container.expand(avatar_state=avatar_state)
+        print("🧩 Container expansion triggered post-transition (SoulLaw-compliant).")

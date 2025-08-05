@@ -14,9 +14,10 @@ from backend.modules.tessaris.tessaris_intent_executor import queue_tessaris_int
 from backend.modules.consciousness.memory_bridge import MemoryBridge
 from backend.modules.glyphos.glyph_mutator import run_self_rewrite
 from backend.modules.glyphos.glyph_generator import GlyphGenerator
-from backend.modules.runtime.container_runtime import expand_universal_container_system, collapse_container
 from backend.modules.glyphos.glyph_logic import interpret_glyph, detect_contradiction
 from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter
+from backend.modules.dimensions.container_expander import ContainerExpander
+from backend.modules.runtime.container_runtime import collapse_container
 
 # Codex integration
 from backend.modules.codex.codex_mind_model import CodexMindModel

@@ -3,18 +3,27 @@
 import datetime
 import time
 from typing import List, Dict, Optional, Any
-from backend.modules.state_manager import get_active_universal_container_system
+
+from backend.modules.dimensions.universal_container_system.ucs_runtime import get_ucs_runtime  # ✅ Updated import
 from backend.modules.glyphnet.glyphnet_ws import broadcast_event  # ✅ WebSocket broadcast
 from backend.modules.glyphnet.glyph_trace_logger import glyph_trace  # ✅ Replay logs
 from backend.modules.glyphnet.agent_identity_registry import agent_identity_registry  # ✅ Permission + Identity Registry
 
+
 class GlyphReplayRenderer:
     def __init__(self):
-        self.container = get_active_container()
-        self.grid = self.container.get("glyph_grid", [])
+        self.container = self._get_active_container()  # ✅ Fixed container fetch
+        self.grid = self.container.get("glyph_grid", []) if self.container else []
         self.is_playing = False
         self.current_frame_index = 0
         self.current_replay: Optional[Dict[str, Any]] = None
+
+    def _get_active_container(self) -> dict:
+        """Fetch the active container from UCS runtime singleton."""
+        ucs = get_ucs_runtime()
+        if ucs.containers:
+            return list(ucs.containers.values())[-1]  # Return most recent container
+        return {}
 
     def render_replay_sequence(
         self,
@@ -132,16 +141,12 @@ class GlyphReplayRenderer:
         print("✅ Replay playback complete.")
 
     def pause(self):
-        """
-        Pause the replay playback.
-        """
+        """Pause the replay playback."""
         self.is_playing = False
         print(f"⏸️ Replay paused at frame {self.current_frame_index}")
 
     def seek(self, frame_index: int):
-        """
-        Seek to a specific frame in the replay.
-        """
+        """Seek to a specific frame in the replay."""
         if not self.current_replay:
             print("⚠️ No replay loaded to seek.")
             return
@@ -165,9 +170,7 @@ class GlyphReplayRenderer:
         print(f"🖼️ Emitted frame {frame_index}/{len(self.current_replay['glyphs'])}")
 
     def load_latest_replay(self):
-        """
-        Helper: Load the most recent replay log from glyph_trace.
-        """
+        """Helper: Load the most recent replay log from glyph_trace."""
         if not glyph_trace.replay_log:
             print("⚠️ No replay logs available.")
             return None

@@ -14,6 +14,7 @@ Indexes glyphs by tags for fast lookup and semantic filtering.
 
 from typing import Dict, List, Set, Any
 import logging
+from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter  # ✅ Added for direct glyph retrieval
 
 logger = logging.getLogger(__name__)
 
@@ -109,3 +110,13 @@ def glyphs_for_tag(tag: str) -> List[str]:
     Return just glyph IDs for a given tag.
     """
     return sorted(list(TAG_INDEX.get(tag, set())))
+
+
+def get_glyphs_by_tag(tag: str) -> List[Dict[str, Any]]:
+    """
+    🔍 Direct fetch: Retrieve glyphs from the active KnowledgeGraphWriter container by tag.
+    Useful for modules needing live container glyph queries outside prebuilt index.
+    """
+    kg = KnowledgeGraphWriter()
+    glyphs = kg.container.get("glyph_grid", [])
+    return [g for g in glyphs if tag in g.get("tags", [])]

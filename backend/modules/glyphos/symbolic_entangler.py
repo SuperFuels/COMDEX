@@ -4,7 +4,7 @@ from typing import Dict, List
 
 from backend.modules.hexcore.memory_engine import log_memory
 from backend.modules.glyphos.symbolic_operator import is_entanglement_operator
-from backend.modules.runtime.container_runtime import get_container_data, save_container_data  # ✅ FIXED
+from backend.modules.runtime.container_runtime import get_container_runtime
 
 # 🔒 Entanglement database file
 ENTANGLEMENTS_FILE = "backend/data/entanglements.json"
@@ -49,13 +49,15 @@ def get_entangled_containers(container_id: str) -> List[str]:
     return entanglements.get(container_id, [])
 
 def propagate_entangled_memory(container_id: str, memory: Dict) -> None:
+    runtime = get_container_runtime()  # ✅ Access the global runtime instance
     targets = get_entangled_containers(container_id)
+
     for target_id in targets:
-        data = get_container_data(target_id)
+        data = runtime.get_container_data(target_id)  # ✅ Use runtime method
         if "entangled_memory" not in data:
             data["entangled_memory"] = []
         data["entangled_memory"].append(memory)
-        save_container_data(target_id, data)
+        runtime.save_container_data(target_id, data)  # ✅ Use runtime method
 
 def register_entanglement(glyph_str: str, container_id: str) -> None:
     if is_entanglement_operator(glyph_str):
@@ -65,6 +67,11 @@ def register_entanglement(glyph_str: str, container_id: str) -> None:
 def get_entangled_targets(container_id: str) -> List[str]:
     return get_entangled_containers(container_id)
 
+# ✅ Alias for backward compatibility with GHX and older modules
+def get_entangled_links(container_id: str) -> List[str]:
+    """Alias for backward compatibility – forwards to get_entangled_targets."""
+    return get_entangled_targets(container_id)
+
 __all__ = [
     "get_entangled_for",
     "entangle_containers",
@@ -72,4 +79,5 @@ __all__ = [
     "propagate_entangled_memory",
     "register_entanglement",
     "get_entangled_targets",
+    "get_entangled_links",  # ✅ Added alias export
 ]

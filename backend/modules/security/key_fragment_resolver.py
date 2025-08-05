@@ -3,7 +3,9 @@ import hashlib
 from typing import List, Dict, Optional
 from backend.modules.hexcore.memory_engine import MEMORY
 from backend.modules.codex.symbolic_key_deriver import SymbolicKeyDerivation
-from backend.modules.glyphos.symbolic_entangler import get_entangled_links
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class KeyFragmentResolver:
@@ -101,7 +103,13 @@ class KeyFragmentResolver:
         """
         Use the symbolic entanglement graph to determine deterministic glyph ordering.
         """
-        entangled_links = get_entangled_links(self.container_id)
+        try:
+            from backend.modules.glyphos.symbolic_entangler import get_entangled_links  # ✅ Lazy import
+            entangled_links = get_entangled_links(self.container_id)
+        except Exception as e:
+            logger.error(f"[KeyFragmentResolver] Failed to fetch entangled links: {e}")
+            return []
+
         ordered = []
         visited = set()
 

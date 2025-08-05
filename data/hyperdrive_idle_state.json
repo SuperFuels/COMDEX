@@ -1,0 +1,12 @@
+{
+    "fields": {
+        "gravity": 3.0,
+        "magnetism": 2.0,
+        "wave_frequency": 2.0,
+        "field_pressure": 1.0
+    },
+    "resonance_phase": 0.027,
+    "particles": 100,
+    "timestamp": "2025-08-05T12:38:56.340528",
+    "label": "engine-A_init_idle"
+}

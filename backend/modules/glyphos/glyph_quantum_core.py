@@ -6,15 +6,18 @@ import uuid
 import hashlib
 
 from backend.modules.codex.codex_trace import CodexTrace
-from backend.modules.aion.dream_core import DreamCore
 from backend.modules.glyphos.codexlang_translator import run_codexlang_string
 
 codex_trace = CodexTrace()
+
 
 class GlyphQuantumCore:
     def __init__(self, container_id: str):
         self.container_id = container_id
         self.entangled_pairs = {}  # {pair_id: (coord1, coord2)}
+
+        # 🔄 Lazy import to avoid circular dependency with dream_core
+        from backend.modules.aion.dream_core import DreamCore
         self.dream_core = DreamCore()
 
     def generate_qbit(self, glyph: str, coord: str) -> dict:
@@ -85,7 +88,6 @@ class GlyphQuantumCore:
         }
 
         self.dream_core.reflect_qglyph_collapse(collapse_result)
-
         return qbit
 
     def entangle_qbits(self, coord1: str, coord2: str) -> str:

@@ -16,7 +16,7 @@ from backend.modules.dna_chain.dna_proposer import propose_dna_mutation
 from backend.modules.glyphos.glyph_mutator import run_self_rewrite
 from backend.modules.tessaris.tessaris_trigger import TessarisTrigger
 from backend.modules.glyphos.entanglement_utils import entangle_glyphs
-from backend.modules.hexcore.awareness_engine import AwarenessEngine
+from backend.modules.consciousness.awareness_engine import AwarenessEngine
 
 # ✅ Cost estimator and GlyphPush adapter
 from backend.modules.codex.codex_cost_estimator import estimate_glyph_cost

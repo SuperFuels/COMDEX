@@ -25,16 +25,15 @@ from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_cont
 from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.warp_checks import check_pi_threshold
 from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.drift_damping import apply_drift_damping
 from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.gear_map_loader import load_gear_map
-from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_constants import RESONANCE_DRIFT_THRESHOLD
 from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.logger import TelemetryLogger
 
 # Auto-load centralized gear map
 GEAR_MAP = load_gear_map()
 
 # Safety limits (aligned with ECU runtime)
-THERMAL_MAX = 850.0
-POWER_MAX = 1_200_000.0
-STABILITY_INDEX_MIN = 0.92
+THERMAL_MAX = HyperdriveTuningConstants.THERMAL_MAX
+POWER_MAX = HyperdriveTuningConstants.POWER_MAX
+STABILITY_INDEX_MIN = HyperdriveTuningConstants.STABILITY_INDEX_MIN
 
 
 def _calculate_stability_index(engine):
@@ -153,18 +152,20 @@ def gear_shift(engine, gear_idx, gear_map: dict = None, clutch_duration=25, sqi_
         if harmonic_tick_counter % sqi_interval == 0 and engine.stages[engine.current_stage] in ["plasma_excitation", "wave_focus"]:
             engine._inject_harmonics(HyperdriveTuningConstants.HARMONIC_DEFAULTS)
 
-from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.hyperdrive_tuning_constants_module import HyperdriveTuningConstants
 
 def stabilize_gear(engine, gear_idx: int):
     """
     Stabilize engine resonance when shifting to a specific gear.
     Uses updated HyperdriveTuningConstants for drift threshold.
     """
+    telemetry_logger = TelemetryLogger()
+    drift = max(engine.resonance_filtered[-30:], default=0) - min(engine.resonance_filtered[-30:], default=0)
+    stability_idx = _calculate_stability_index(engine)
+
     # ✅ Updated stability threshold reference
     engine.stability_threshold = HyperdriveTuningConstants.RESONANCE_DRIFT_THRESHOLD / 2
     print(f"✅ Gear {gear_idx} stabilized.")
 
-    # Telemetry log
     telemetry_logger.log({
         "event": "gear_shift",
         "gear": gear_idx,

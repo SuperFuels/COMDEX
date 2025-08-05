@@ -6,13 +6,14 @@ import json
 import matplotlib.pyplot as plt
 from datetime import datetime
 from statistics import mean
+import asyncio
 
 # Core Hyperdrive Modules
-from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.hyperdrive_tuning_constants_module import HyperdriveTuningConstants
 from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.drift_damping import apply_drift_damping
 from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.hyperdrive_engine_sync import sync_twin_engines
 from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.logger import TelemetryLogger
-from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.harmonic_coherence_module import measure_harmonic_coherence
+from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.harmonic_coherence_module import measure_harmonic_coherence, pre_runtime_autopulse
+from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.hyperdrive_tuning_constants_module import HyperdriveTuningConstants
 
 # Paths
 IDLE_STATE_PATH = "data/hyperdrive_idle_state.json"
@@ -56,7 +57,15 @@ def ignition_to_idle(engine, sqi=None, duration=60, fuel_rate=3, initial_particl
     # Main ignition loop
     start_time = time.time()
     while time.time() - start_time < duration:
-        engine.tick()
+        # ✅ Async-safe tick invocation for Engine A
+        if hasattr(engine, "_single_tick"):
+            loop = asyncio.get_event_loop()
+            if loop.is_running():
+                loop.create_task(engine._single_tick())
+            else:
+                loop.run_until_complete(engine._single_tick())
+        else:
+            engine.tick()
 
         # Harmonic coherence and drift calculation
         coherence = measure_harmonic_coherence(engine)
@@ -81,14 +90,21 @@ def ignition_to_idle(engine, sqi=None, duration=60, fuel_rate=3, initial_particl
 
         # Twin-engine sync (if Engine B provided)
         if engine_b:
-            engine_b.tick()
+            if hasattr(engine_b, "_single_tick"):
+                if loop.is_running():
+                    loop.create_task(engine_b._single_tick())
+                else:
+                    loop.run_until_complete(engine_b._single_tick())
+            else:
+                engine_b.tick()
             sync_twin_engines(engine, engine_b)
 
         # SQI stabilization
         if sqi and sqi.engine.sqi_enabled:
             engine._run_sqi_feedback()
             if drift > HyperdriveTuningConstants.RESONANCE_DRIFT_THRESHOLD:
-                apply_drift_damping(drift, engine.fields)
+                # ✅ FIXED: Pass engine instead of (drift, fields)
+                apply_drift_damping(engine)
 
         # Fuel cycle
         if int((time.time() - start_time) * 10) % (fuel_rate * 10) == 0:

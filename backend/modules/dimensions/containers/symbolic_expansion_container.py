@@ -26,16 +26,8 @@ class SymbolicExpansionContainer(UCSBaseContainer):
     """
 
     def __init__(self, container_id: Optional[str] = None, runtime: Optional[Any] = None):
-        """
-        Initialize a Symbolic Expansion Container.
-        Args:
-            container_id (Optional[str]): Unique identifier for the container.
-            runtime (Optional[Any]): Attached runtime reference (e.g., UCS runtime manager).
-        """
         self.container_id = container_id or str(uuid.uuid4())
         name = f"SEC-{self.container_id}"
-
-        # ✅ Pass required args explicitly to UCSBaseContainer
         super().__init__(name=name, runtime=runtime, geometry="Symbolic Expansion Sphere")
 
         self.seed_container = HobermanContainer(container_id=self.container_id, runtime=runtime)
@@ -47,7 +39,6 @@ class SymbolicExpansionContainer(UCSBaseContainer):
     # 🌱 Seed Loading
     # ---------------------------------------------------------
     def load_seed(self, glyph_strings: List[str]):
-        """Load glyphs into seed Hoberman container."""
         logger.info(f"[SEC] Loading {len(glyph_strings)} seed glyphs into Hoberman Sphere.")
         self.seed_container.from_glyphs(glyph_strings)
         self.expanded_logic = None
@@ -56,13 +47,20 @@ class SymbolicExpansionContainer(UCSBaseContainer):
     # ---------------------------------------------------------
     # 🪬 Expansion Logic (SoulLaw Enforced w/ SAFE MODE bypass)
     # ---------------------------------------------------------
-    def expand(self, avatar_state: Optional[Dict] = None, key: Optional[str] = None) -> Dict[str, Any]:
+    def expand(
+        self,
+        avatar_state: Optional[Dict] = None,
+        key: Optional[str] = None,
+        recursive_unlock: bool = False,
+        enforce_morality: bool = True
+    ) -> Dict[str, Any]:
         """
         Expand the Symbolic Expansion Container:
             1️⃣ Validate SoulLaw (via Hoberman Sphere)
             2️⃣ Inflate Hoberman Sphere
             3️⃣ Compress inflated logic tree
             4️⃣ Auto-map glyphs into Micro-Grid
+            5️⃣ Optionally perform recursive unlock of encrypted subglyphs
         """
         if self.expanded:
             logger.debug(f"[SEC] Already expanded: {self.container_id}")
@@ -71,18 +69,22 @@ class SymbolicExpansionContainer(UCSBaseContainer):
         soul_law = get_soul_law_validator()
 
         # 🔒 SoulLaw validation (with SAFE MODE bypass)
-        if not soul_law.validate_avatar(avatar_state):
-            if SOUL_LAW_MODE == "test":  # ✅ SAFE MODE auto-elevation
+        if enforce_morality and not soul_law.validate_avatar(avatar_state):
+            if SOUL_LAW_MODE == "test":
                 logger.warning("[SAFE MODE] Bypassing SoulLaw avatar validation in Symbolic Expansion.")
-                avatar_state = {"level": soul_law.MIN_AVATAR_LEVEL}  # Elevate to minimum approval level
+                avatar_state = {"level": soul_law.MIN_AVATAR_LEVEL}
             else:
                 raise PermissionError("Avatar failed SoulLaw validation for Symbolic Expansion.")
 
-        # ✅ Inflate Hoberman Sphere (with SAFE MODE avatar override if necessary)
+        # ✅ Inflate Hoberman Sphere
         inflated = self.seed_container.inflate(avatar_state=avatar_state, key=key)
         logic_tree = inflated["expanded_logic"]
 
-        # ✅ Auto-map glyph nodes into MicroGrid for GHX visualization
+        # 🔑 NEW: Recursive unlock (layer-by-layer)
+        if recursive_unlock:
+            self._recursive_layer_unlock(logic_tree)
+
+        # ✅ Auto-map glyph nodes into MicroGrid
         if self.micro_grid:
             dims = self.micro_grid.dimensions
             logger.info(f"[SEC] Mapping {len(logic_tree)} glyph nodes into MicroGrid: {dims}")
@@ -90,7 +92,6 @@ class SymbolicExpansionContainer(UCSBaseContainer):
 
         # ✅ Compress expanded logic into symbolic runtime tree
         compressed = compress_logic_tree(logic_tree)
-
         self.expanded_logic = {
             "container_id": self.container_id,
             "geometry": self.geometry,
@@ -103,8 +104,21 @@ class SymbolicExpansionContainer(UCSBaseContainer):
         logger.info(f"[SEC] Expansion complete: {self.container_id} | Nodes: {len(logic_tree)}")
         return self.expanded_logic
 
+    def _recursive_layer_unlock(self, logic_tree: List[Dict[str, Any]]):
+        """
+        🔑 Unlock encrypted subglyphs layer-by-layer with SoulLaw validation.
+        """
+        logger.info(f"[SEC] Performing recursive glyph unlock: {len(logic_tree)} nodes")
+        soul_law = get_soul_law_validator()
+        for node in logic_tree:
+            if node.get("encrypted"):
+                if soul_law.validate_avatar({"level": soul_law.MIN_AVATAR_LEVEL}):
+                    node["unlocked"] = True
+                    logger.debug(f"[SEC] Unlocked glyph: {node.get('id', '<unknown>')}")
+                else:
+                    logger.warning(f"[SEC] Glyph locked by SoulLaw: {node.get('id', '<unknown>')}")
+
     def _populate_micro_grid(self, logic_tree: List[Dict[str, Any]]):
-        """Map glyph logic nodes into MicroGrid (round-robin fill)."""
         x_max, y_max, z_max = self.micro_grid.dimensions
         x = y = z = 0
         for node in logic_tree:
@@ -122,7 +136,6 @@ class SymbolicExpansionContainer(UCSBaseContainer):
     # 🔻 Collapse Logic
     # ---------------------------------------------------------
     def collapse(self):
-        """Collapse symbolic expansion back to compressed seed state."""
         logger.info(f"[SEC] Collapsing container: {self.container_id}")
         self.expanded_logic = None
         self.expanded = False
@@ -132,7 +145,6 @@ class SymbolicExpansionContainer(UCSBaseContainer):
     # 🔄 Runtime Tick (Engine Integration)
     # ---------------------------------------------------------
     def runtime_tick(self):
-        """Advances attached experimental engine and syncs SEC state."""
         if hasattr(self, "engine") and self.engine:
             self.engine.tick()
 
@@ -140,7 +152,6 @@ class SymbolicExpansionContainer(UCSBaseContainer):
     # 📝 Snapshots & Summaries
     # ---------------------------------------------------------
     def snapshot(self) -> Dict[str, Any]:
-        """Return a snapshot of current seed and expansion state."""
         return {
             "container_id": self.container_id,
             "geometry": self.geometry,
@@ -152,7 +163,6 @@ class SymbolicExpansionContainer(UCSBaseContainer):
         }
 
     def compressed_summary(self) -> Dict[str, Any]:
-        """Compact runtime summary for dashboards and GHXVisualizer."""
         return {
             "id": self.container_id,
             "geometry": self.geometry,

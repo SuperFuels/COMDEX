@@ -103,17 +103,9 @@ class StateManager:
             "time_controller": self.time_controller,
         }
 
-
-# ✅ Global accessor for external modules (avoids circular imports)
-STATE_MANAGER = StateManager()
-
-def get_active_universal_container_system():
-    """
-    Proxy function to fetch active UCS from global StateManager instance.
-    """
-    return STATE_MANAGER.get_active_universal_container_system()
-
-    # ✅ Pause/resume methods
+    # ──────────────────────────────
+    # ✅ Pause/Resume Control
+    # ──────────────────────────────
     def pause(self):
         with self.pause_lock:
             self.paused = True
@@ -128,6 +120,9 @@ def get_active_universal_container_system():
         with self.pause_lock:
             return self.paused
 
+    # ──────────────────────────────
+    # ✅ Agent State Persistence
+    # ──────────────────────────────
     def load_agent_states(self):
         if os.path.exists(STATE_FILE):
             with open(STATE_FILE, "r") as f:
@@ -150,6 +145,9 @@ def get_active_universal_container_system():
         self.agent_states[agent_id] = state
         self.save_agent_states()
 
+    # ──────────────────────────────
+    # ✅ Identity & Context Updates
+    # ──────────────────────────────
     def get_identity(self):
         return self.identity
 
@@ -157,6 +155,9 @@ def get_active_universal_container_system():
         self.context[key] = value
         print(f"[STATE] Context updated: {key} = {value}")
 
+    # ──────────────────────────────
+    # ✅ Secure Container Load + Gates
+    # ──────────────────────────────
     def secure_load_and_set(self, container_id: str):
         try:
             # ✅ Load standard or lean container
@@ -211,6 +212,9 @@ def get_active_universal_container_system():
             print(f"[SECURITY] Container load blocked: {e}")
             return False
 
+    # ──────────────────────────────
+    # ✅ Activate Loaded Container
+    # ──────────────────────────────
     def set_current_container(self, container: dict):
         self.current_container = container
         print(f"[STATE] Current container set to: {container.get('id', 'unknown')}")
@@ -451,3 +455,6 @@ def get_agent_state(agent_id):
 
 def update_agent_state(agent_id, updates):
     return STATE.update_agent_state(agent_id, updates)
+
+# ✅ Global instance for compatibility
+state_manager = StateManager()

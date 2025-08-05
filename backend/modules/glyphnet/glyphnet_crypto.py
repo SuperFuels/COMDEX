@@ -6,7 +6,7 @@ from Crypto.Random import get_random_bytes
 from typing import Tuple, Optional
 
 from backend.modules.glyphnet.ephemeral_key_manager import get_ephemeral_key_manager
-from backend.modules.glyphnet.symbolic_key_derivation import symbolic_key_deriver
+from backend.modules.glyphnet.symbolic_key_derivation import SymbolicKeyDerivation
 
 # --- RSA Key Generation ---
 def generate_rsa_keypair(bits: int = 2048) -> Tuple[bytes, bytes]:

@@ -1,10 +1,12 @@
 """
 🔗 Engine Sync Module
 ---------------------
-• Handles twin-engine resonance synchronization (phase lock).
-• Manages exhaust → intake chaining for multi-engine amplification.
-• Syncs harmonic constants & fields during warp ramps (SQI-controlled).
-• Validates exhaust particle transfers safely before intake injection.
+"""
+# ✅ Hyperdrive Engine Sync Module
+# • Handles dual-engine synchronization.
+# • Harmonic coherence evaluation (via harmonic_coherence_module).
+# • SQI alignment and drift correction during parallel runs.
+"""
 
 🔥 Features:
     • Twin-engine resonance sync (phase lock with harmonic drift correction).

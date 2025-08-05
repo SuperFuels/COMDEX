@@ -5,9 +5,9 @@ import logging
 from typing import Optional
 from backend.modules.glyphvault.glyph_encryptor import GlyphEncryptor
 from backend.modules.glyphos.microgrid_index import MicrogridIndex
-from backend.modules.soullaw.soul_law_validator import soul_law_validator  # ✅ SoulLaw validation
-from backend.modules.knowledge.knowledge_graph_writer import KnowledgeGraphWriter  # ✅ KG logging
-from backend.modules.ucs.ucs_runtime import get_ucs_runtime  # ✅ UCS sync for vault ops
+from backend.modules.glyphvault.soul_law_validator import soul_law_validator # ✅ SoulLaw validation
+from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter  # ✅ KG logging
+from backend.modules.dimensions.universal_container_system.ucs_runtime import get_ucs_runtime  # ✅ UCS sync for vault ops
 
 logger = logging.getLogger(__name__)
 

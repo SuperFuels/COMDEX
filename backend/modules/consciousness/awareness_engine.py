@@ -27,8 +27,10 @@ from backend.modules.consciousness.personality_engine import PersonalityProfile
 from backend.modules.dna_chain.switchboard import DNA_SWITCH
 DNA_SWITCH.register(__file__)
 
-# 🛰️ GlyphNet Broadcasting
-from backend.modules.glyphnet.glyphnet_ws import broadcast_glyphnet_event
+# 🛰️ GlyphNet Broadcasting (lazy import inside functions to avoid circular import)
+def send_awareness_update(event: dict):
+    from backend.routes.ws.glyphnet_ws import broadcast_glyphnet_event  # ✅ Lazy import
+    broadcast_glyphnet_event("awareness_update", event)
 
 # 🔍 Introspection Trace Index
 from backend.modules.knowledge_graph.indexes.introspection_index import add_introspection_event
@@ -103,8 +105,9 @@ class AwarenessEngine:
             glyph_trace_ref=glyph,
         )
 
-        # 🛰️ Notify if below threshold
+        # 🛰️ Notify if below threshold (lazy import here)
         if self.confidence_level < 0.6:
+            from backend.routes.ws.glyphnet_ws import broadcast_glyphnet_event
             broadcast_glyphnet_event("uncertain_glyph", {
                 "glyph": glyph,
                 "coord": coord,
@@ -152,7 +155,8 @@ class AwarenessEngine:
             glyph_trace_ref=glyph,
         )
 
-        # 🛰️ Broadcast
+        # 🛰️ Broadcast (lazy import here)
+        from backend.routes.ws.glyphnet_ws import broadcast_glyphnet_event
         broadcast_glyphnet_event("blindspot_detected", {
             "glyph": glyph,
             "coord": coord,

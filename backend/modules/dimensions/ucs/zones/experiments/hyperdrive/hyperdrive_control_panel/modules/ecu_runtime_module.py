@@ -21,6 +21,7 @@ THERMAL_MAX = HyperdriveTuningConstants.THERMAL_MAX
 THERMAL_SLOPE_MAX = HyperdriveTuningConstants.THERMAL_SLOPE_MAX
 POWER_MAX = HyperdriveTuningConstants.POWER_MAX
 STABILITY_INDEX_MIN = HyperdriveTuningConstants.STABILITY_INDEX_MIN
+RESONANCE_DRIFT_THRESHOLD = HyperdriveTuningConstants.RESONANCE_DRIFT_THRESHOLD  # ✅ Added
 
 # 💾 Runtime Persistence File
 PERSISTENCE_FILE = "data/runtime_hyperdrive_constants.json"
@@ -35,6 +36,16 @@ def load_runtime_constants():
         with open(PERSISTENCE_FILE, "r") as f:
             return json.load(f)
     return {}
+
+# ==========================
+# Pre-ignition harmonic stabilization
+# ==========================
+def pre_ignition_harmonics(engine):
+    if hasattr(engine, "_inject_harmonics"):
+        engine.log_event("⚡ Pre-ignition harmonic seeding: injecting baseline harmonics.")
+        engine._inject_harmonics(HyperdriveTuningConstants.HARMONIC_DEFAULTS)
+        engine.fields["wave_frequency"] = max(engine.fields.get("wave_frequency", 0.0), 2.0)
+        engine.log_event(f"🎵 Initial harmonic baseline set: {engine.fields['wave_frequency']:.3f} Hz")
 
 def ecu_runtime_loop(engine_a, engine_b=None, sqi_phase_aware=False, sqi_interval=200,
                      fuel_cycle=5, manual_stage=False, ticks=12000):
@@ -146,9 +157,12 @@ def ecu_runtime_loop(engine_a, engine_b=None, sqi_phase_aware=False, sqi_interva
             drift_trend = "↑" if drift_a > last_drift else "↓" if drift_a < last_drift else "→"
         last_drift = drift_a
 
-        if drift_a > RESONANCE_DRIFT_THRESHOLD:
+        from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.hyperdrive_tuning_constants_module import HyperdriveTuningConstants
+
+        if drift_a > HyperdriveTuningConstants.RESONANCE_DRIFT_THRESHOLD:
             print(f"⚠ Drift spike detected (Engine A): Drift={drift_a:.3f} ({drift_trend}) → SQI damping applied.")
-        if drift_b and drift_b > RESONANCE_DRIFT_THRESHOLD:
+
+        if drift_b and drift_b > HyperdriveTuningConstants.RESONANCE_DRIFT_THRESHOLD:
             print(f"⚠ Drift spike detected (Engine B): Drift={drift_b:.3f} → SQI damping applied.")
 
         # =============================
@@ -179,10 +193,22 @@ def ecu_runtime_loop(engine_a, engine_b=None, sqi_phase_aware=False, sqi_interva
                     stability_index = max(0.0, 1.0 - (drift * 10 + (thermal / THERMAL_MAX) * 0.05))
                     print(f"🧠 [SQI] {eng.container.container_id} Drift={drift:.3f} | Thermal={thermal:.1f}°C | Power={power:.0f}W | Stability={stability_index:.3f}")
 
-                    # 🎶 Measure harmonic coherence
+                    # 🎶 Measure harmonic coherence (with stagnation detection)
                     coherence = measure_harmonic_coherence(eng)
                     print(f"🎶 Harmonic Coherence={coherence:.3f}")
                     eng.log_event(f"Harmonic Coherence={coherence:.3f}")
+
+                    # 🔁 Stagnation handling to avoid infinite reinjection loops
+                    if not hasattr(eng, "_coherence_stall_count"):
+                        eng._coherence_stall_count = 0
+                    if coherence < 0.01:
+                        eng._coherence_stall_count += 1
+                        if eng._coherence_stall_count > 5:
+                            print("⚠️ [SQI] Coherence stagnant → pausing harmonic reinjection this cycle.")
+                            coherence = 0.25  # Seed minimal floor to break loop
+                            eng._coherence_stall_count = 0
+                    else:
+                        eng._coherence_stall_count = 0
 
                     # 🔧 Auto-boost harmonics if coherence is too low
                     if coherence < 0.6:
@@ -222,7 +248,7 @@ def ecu_runtime_loop(engine_a, engine_b=None, sqi_phase_aware=False, sqi_interva
                             "damping_factor": adjustments.get("damping_factor", HyperdriveTuningConstants.DAMPING_FACTOR),
                             "drift_threshold": adjustments.get("drift_threshold", RESONANCE_DRIFT_THRESHOLD),
                         })
-                            # 🔄 Apply SQI adjustments instantly to HyperdriveTuningConstants
+                        # 🔄 Apply SQI adjustments instantly to HyperdriveTuningConstants
                         HyperdriveTuningConstants.apply_sqi_adjustments({
                             "harmonic_gain": adjustments.get("harmonic_gain", HyperdriveTuningConstants.HARMONIC_GAIN),
                             "harmonic_decay": adjustments.get("harmonic_decay", HyperdriveTuningConstants.DECAY_RATE),

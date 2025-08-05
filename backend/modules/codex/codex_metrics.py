@@ -1,5 +1,6 @@
 from collections import defaultdict
 import json
+from backend.modules.codex.codex_cost_estimator import CodexCostEstimator  # ✅ Added for cost integration
 
 
 class CodexMetrics:
@@ -128,6 +129,25 @@ def score_glyph_tree(tree):
 
     traverse(tree)
     return score
+
+
+def calculate_glyph_cost(glyph_data: dict, context: dict = None) -> float:
+    """
+    Unified glyph cost calculation:
+    - Structural complexity (score_glyph_tree)
+    - Contextual runtime cost (CodexCostEstimator)
+    """
+    context = context or {}
+    estimator = CodexCostEstimator()
+
+    # Base structural cost (tree scoring)
+    tree_cost = score_glyph_tree(glyph_data.get("tree", glyph_data))
+
+    # Runtime symbolic cost
+    glyph_symbol = glyph_data.get("glyph") if isinstance(glyph_data, dict) else str(glyph_data)
+    runtime_cost = estimator.estimate_glyph_cost(glyph_symbol, context).total()
+
+    return tree_cost + runtime_cost
 
 
 # ✅ Logging utility for benchmark_runner.py

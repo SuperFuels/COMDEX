@@ -148,7 +148,8 @@ class SQIController:
         if self.engine_b:
             sync_engines(self.engine, self.engine_b)
         drift = max(self.engine.resonance_filtered[-20:], default=0) - min(self.engine.resonance_filtered[-20:], default=0)
-        if drift > RESONANCE_DRIFT_THRESHOLD:
+        # ✅ FIX: Use HyperdriveTuningConstants
+        if drift > HyperdriveTuningConstants.RESONANCE_DRIFT_THRESHOLD:
             apply_drift_damping(drift, self.engine.fields)
             self.engine.log_event(f"🛠 Drift damped: Δ={drift:.4f}")
 

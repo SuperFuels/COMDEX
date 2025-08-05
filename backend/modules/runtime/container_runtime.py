@@ -4,21 +4,25 @@ import asyncio
 from typing import Dict, Any, Optional
 
 from backend.modules.consciousness.state_manager import StateManager
-from backend.modules.glyphos.glyph_executor import GlyphExecutor
-from backend.modules.websocket_manager import WebSocketManager, broadcast_glyph_event
+from backend.modules.websocket_manager import WebSocketManager, broadcast_event  
 from backend.modules.glyphos.glyph_watcher import GlyphWatcher
 from backend.modules.glyphvault.container_vault_manager import ContainerVaultManager
 from backend.modules.teleport.teleport_packet import TeleportPacket
 from backend.modules.glyphos.entanglement_utils import entangle_glyphs
 from backend.modules.security.key_fragment_resolver import KeyFragmentResolver
-from backend.modules.glyphos.glyph_trace_logger import glyph_trace 
-from backend.modules.codex.codex_websocket_interface import send_codex_ws_event 
-from backend.modules.soullaw.soul_law_validator import SoulLawValidator
-from backend.modules.glyphos.collapse_trace_exporter import export_collapse_trace
+from backend.modules.codex.codex_websocket_interface import send_codex_ws_event
+from backend.modules.glyphvault.soul_law_validator import SoulLawValidator
+from backend.modules.collapse.collapse_trace_exporter import export_collapse_trace
 from backend.modules.dimensions.universal_container_system.ucs_runtime import ucs_runtime
 from backend.modules.dimensions.universal_container_system.ucs_geometry_loader import UCSGeometryLoader
-from backend.modules.dimensions.universal_container_system.ucs_entanglement import entangle_containers
+from backend.modules.dimensions.ucs.ucs_entanglement import entangle_containers
 from backend.modules.dimensions.universal_container_system.ucs_base_container import UCSBaseContainer
+
+try:
+    # ✅ Lazy import to avoid circular dependency
+    from backend.modules.glyphos.glyph_executor import GlyphExecutor
+except ImportError:
+    GlyphExecutor = None
 
 try:
     from backend.modules.glyphos.glyph_summary import summarize_glyphs
@@ -31,7 +35,7 @@ ENCRYPTION_KEY = b'\x00' * 32  # Placeholder key
 class ContainerRuntime:
     def __init__(self, state_manager: StateManager, tick_interval: float = 2.0):
         self.state_manager = state_manager
-        self.executor = GlyphExecutor(state_manager)
+        self.executor = self._init_executor(state_manager)
         self.glyph_watcher = GlyphWatcher(state_manager)
         self.tick_interval = tick_interval
         self.running = False
@@ -44,12 +48,28 @@ class ContainerRuntime:
         self.max_rewind = 5
         self.ucs = ucs_runtime
         self.geometry_loader = UCSGeometryLoader()
-
         self.async_loop = asyncio.new_event_loop()
         self.loop_thread = threading.Thread(target=self._start_event_loop, daemon=True)
         self.loop_thread.start()
         self.ucs_features = UCSBaseContainer.global_features  # ✅ Apply UCS global features (time_dilation, gravity, micro_grid)
         self.vault_manager = ContainerVaultManager(ENCRYPTION_KEY)
+
+    def _init_executor(self, state_manager: StateManager):
+        """
+        Lazy-initialize GlyphExecutor to break circular import chains.
+        """
+        global GlyphExecutor
+        if 'GlyphExecutor' not in globals() or GlyphExecutor is None:
+            from backend.modules.glyphos.glyph_executor import GlyphExecutor as GE
+            GlyphExecutor = GE
+        return GlyphExecutor(state_manager)
+
+    def _get_glyph_trace(self):
+        """
+        Lazy loader for glyph_trace to avoid circular import.
+        """
+        from backend.modules.glyphos.glyph_trace_logger import glyph_trace
+        return glyph_trace
 
     def _start_event_loop(self):
         asyncio.set_event_loop(self.async_loop)
@@ -108,6 +128,13 @@ class ContainerRuntime:
             self.ucs.save_container(container["id"], container)
 
         return container
+
+    def log_glyph_trace(self, container_id: str, data: dict):
+        """
+        Log glyph trace for a container (lazy import).
+        """
+        glyph_trace = self._get_glyph_trace()
+        glyph_trace.record(container_id, data)
 
     def run_tick(self) -> Dict[str, Any]:
         container = self.get_decrypted_current_container()
@@ -429,9 +456,29 @@ class ContainerRuntime:
 
         print(f"✅ Glyph replay completed: {len(replay_glyphs)} glyphs from tick {start_tick} → {end_tick}")
 
+from backend.modules.dimensions.container_expander import ContainerExpander
 
-# ✅ Global instance
-container_runtime = ContainerRuntime(StateManager())
+def expand_universal_container_system(container_id: str, direction: str = "z", layers: int = 1) -> str:
+    """High-level wrapper for UCS-based expansion."""
+    expander = ContainerExpander(container_id)
+    return expander.grow_space(direction=direction, layers=layers)
 
-def get_container_runtime():
-    return container_runtime
+def collapse_container(container_id: str) -> str:
+    """Collapses a container (reduces runtime space and updates UCS)."""
+    expander = ContainerExpander(container_id)
+    result = expander.grow_space(direction="z", layers=-1)
+    return f"🔻 Collapsed container {container_id}: {result}"
+
+# ✅ Lazy global instance
+container_runtime_instance = None
+
+def get_container_runtime() -> 'ContainerRuntime':
+    """
+    Lazily initialize and return the global ContainerRuntime instance 
+    to prevent circular imports.
+    """
+    global container_runtime_instance
+    if container_runtime_instance is None:
+        from backend.modules.consciousness.state_manager import StateManager
+        container_runtime_instance = ContainerRuntime(StateManager())
+    return container_runtime_instance

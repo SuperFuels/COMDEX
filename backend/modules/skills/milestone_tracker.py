@@ -235,11 +235,15 @@ class MilestoneTracker:
             self.state["goals"] = new_order
             self.save()
 
-        def summary(self):
+    def display_growth_phase(self):
+        """
+        Display AION's growth phase, unlocked/locked modules, and milestone history.
+        """
         print(f"\n📈 AION Growth Phase: {self.get_phase()}")
-        print(f"✅ Unlocked Modules: {', '.join(self.list_unlocked_modules())}")
-        print(f"🔒 Locked Modules: {', '.join(self.list_locked_modules())}")
+        print(f"✅ Unlocked Modules: {', '.join(self.list_unlocked_modules()) or '(none)'}")
+        print(f"🔒 Locked Modules: {', '.join(self.list_locked_modules()) or '(none)'}")
         print(f"\n🗓️ Milestones:")
+        
         milestones = self.list_milestones()
         if not milestones:
             print("  (none yet)")
