@@ -49,10 +49,12 @@ class UCSBaseContainer:
         "gravity": False,
     }
 
-    def __init__(self, name, geometry, runtime, features=None):
+    def __init__(self, name, geometry, runtime, features=None, container_type=None):
         self.name = name
         self.geometry = geometry
         self.runtime = runtime
+        self.container_type = container_type  # ✅ Add this line
+
         self.features = {**UCSBaseContainer.global_features, **(features or {})}
 
         # ✅ Initialize core state

@@ -85,5 +85,9 @@ def parse_cli_args():
                         help="Enable detailed telemetry logs per tick.")
     parser.add_argument("--dry-run", action="store_true",
                         help="Run without state mutation (simulation mode only).")
+    parser.add_argument("--glyph-trace", action="store_true",
+                        help="Enable glyph trace during execution.")
+    parser.add_argument("--collapse-interval", type=int, default=250,
+                        help="Collapse interval for symbolic collapse sync.")
 
     return parser.parse_args()

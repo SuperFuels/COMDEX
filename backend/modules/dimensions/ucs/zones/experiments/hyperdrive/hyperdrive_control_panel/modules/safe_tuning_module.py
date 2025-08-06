@@ -5,12 +5,39 @@ import os
 from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.hyperdrive_tuning_constants_module import HyperdriveTuningConstants
 
 
-def safe_qwave_tuning() -> dict:
+def safe_qwave_tuning(engine=None) -> dict:
     """
     Returns only safe, serializable hyperdrive tuning constants.
+    If an engine instance is passed, enforces safe field corrections in-place.
     Intended for UIs, APIs, or telemetry dashboards that must read QWave runtime constants
     without exposing full engine state or sensitive control hooks.
     """
+    # ✅ If engine is provided, enforce safe bounds
+    if engine is not None:
+        if hasattr(engine, "fields"):
+            max_gravity = getattr(HyperdriveTuningConstants, "MAX_GRAVITY", 5.0)
+            max_magnetism = getattr(HyperdriveTuningConstants, "MAX_MAGNETISM", 5.0)
+            wave_min, wave_max = 0.1, 10.0
+
+            # Clamp gravity
+            if engine.fields.get("gravity", 0) > max_gravity:
+                engine.fields["gravity"] = max_gravity
+                if hasattr(engine, "log_event"):
+                    engine.log_event(f"🛡 Gravity clamped to safe max: {max_gravity}")
+
+            # Clamp magnetism
+            if engine.fields.get("magnetism", 0) > max_magnetism:
+                engine.fields["magnetism"] = max_magnetism
+                if hasattr(engine, "log_event"):
+                    engine.log_event(f"🛡 Magnetism clamped to safe max: {max_magnetism}")
+
+            # Clamp wave frequency
+            wave_freq = engine.fields.get("wave_frequency", 1.0)
+            if wave_freq < wave_min or wave_freq > wave_max:
+                engine.fields["wave_frequency"] = max(min(wave_freq, wave_max), wave_min)
+                if hasattr(engine, "log_event"):
+                    engine.log_event(f"🛡 Wave frequency clamped to safe range: {wave_min}-{wave_max}")
+
     return {
         "STAGE_CONFIGS": getattr(HyperdriveTuningConstants, "STAGE_CONFIGS", []),
         "HARMONIC_DEFAULTS": getattr(HyperdriveTuningConstants, "HARMONIC_DEFAULTS", []),

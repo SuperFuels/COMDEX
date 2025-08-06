@@ -74,7 +74,18 @@ class AwarenessEngine:
     def _log_to_container(self, record: Dict[str, Any]):
         """📦 Store trace in both container + memory engine (if enabled)."""
         if self.container is not None:
-            self.container.setdefault("awareness_trace", []).append(record)
+            # ✅ Handle both dict-like containers and SEC objects
+            if hasattr(self.container, "snapshot"):
+                # For SymbolicExpansionContainer → attach internal state safely
+                if not hasattr(self.container, "_awareness_trace"):
+                    self.container._awareness_trace = []
+                self.container._awareness_trace.append(record)
+            elif isinstance(self.container, dict):
+                self.container.setdefault("awareness_trace", []).append(record)
+            else:
+                # Fallback: log warning but avoid crash
+                import logging
+                logging.warning(f"[AwarenessEngine] Unsupported container type: {type(self.container)}")
         if self.memory_engine:
             self.memory_engine.store({
                 "type": "awareness_event",

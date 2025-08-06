@@ -222,6 +222,7 @@ class SupercontainerEngine:
             self.set_state(self._load_saved_state())
         else:
             self._configure_stage()
+            self.safe_mode_avatar = {"level": 10}
             self.container.expand(avatar_state=self.safe_mode_avatar)
 
     def _load_best_state(self):
@@ -284,6 +285,9 @@ class SupercontainerEngine:
         print(f"📊 Tick={self.tick_count} | Resonance={self.resonance_phase:.4f} | Drift={drift:.4f} | Particles={len(self.particles)}")
 
         # 🔬 Particle physics update
+        MAX_VELOCITY = 1e3  # ✅ Clamp to prevent overflow
+        DAMPENING = 0.95    # ✅ Exponential dampening factor
+
         for p in self.particles:
             if not isinstance(p, dict):
                 continue
@@ -293,6 +297,7 @@ class SupercontainerEngine:
             p.setdefault("x", 0.0); p.setdefault("y", 0.0); p.setdefault("z", 0.0)
             p.setdefault("mass", 1.0)
 
+            # ⚡ Force updates
             gx, gy, gz = self._gravity_force(p)
             mx, my, mz = self._magnetic_force(p)
             wx, wy, wz = self._wave_push(p)
@@ -301,10 +306,26 @@ class SupercontainerEngine:
             p["vy"] += (gy + my + wy) * dt
             p["vz"] += (gz + mz + wz) * dt
 
-            speed = math.sqrt(p["vx"] ** 2 + p["vy"] ** 2 + p["vz"] ** 2)
+            # ✅ Apply dampening to control runaway acceleration
+            p["vx"] *= DAMPENING
+            p["vy"] *= DAMPENING
+            p["vz"] *= DAMPENING
+
+            # ✅ Clamp velocities to avoid overflow
+            p["vx"] = max(min(p["vx"], MAX_VELOCITY), -MAX_VELOCITY)
+            p["vy"] = max(min(p["vy"], MAX_VELOCITY), -MAX_VELOCITY)
+            p["vz"] = max(min(p["vz"], MAX_VELOCITY), -MAX_VELOCITY)
+
+            # ✅ Safe speed calculation
+            try:
+                speed = math.sqrt(p["vx"] ** 2 + p["vy"] ** 2 + p["vz"] ** 2)
+            except OverflowError:
+                speed = MAX_VELOCITY  # fallback if still unstable
+
             p["velocity_delta"] = speed - p.get("last_speed", 0)
             p["last_speed"] = speed
 
+            # 🛰 Position update
             p["x"] += p["vx"] * dt
             p["y"] += p["vy"] * dt
             p["z"] += p["vz"] * dt

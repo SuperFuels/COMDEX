@@ -21,10 +21,13 @@ from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_cont
 from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.sqi_reasoning_module import SQIReasoningEngine
 from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.dc_container_io_module import DCContainerIO
 from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.safe_tuning_module import safe_qwave_tuning
+from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.warp_checks import check_warp_pi
+from backend.modules.dimensions.universal_container_system.ucs_base_container import UCSBaseContainer
 
 # ECU and Auto-Tuner
 from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.ecu_runtime_module import ecu_runtime_loop
 from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.hyperdrive_auto_tuner_module import HyperdriveAutoTuner
+from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.harmonic_coherence_module import resync_harmonics, inject_harmonics
 
 # Stage and Stability
 from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.stage_transition_module import transition_stage
@@ -44,7 +47,11 @@ from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_cont
 
 # Added predictive and collapse trace imports
 from backend.modules.collapse.collapse_trace_exporter import export_collapse_trace
+from backend.modules.glyphos.glyph_trace_logger import glyph_trace
 from backend.modules.consciousness.prediction_engine import PredictionEngine
+# Awareness + Drift Damping
+from backend.modules.consciousness.awareness_engine import AwarenessEngine
+from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.drift_damping import apply_drift_damping
 
 # -------------------------
 # 🔥 HYPERDRIVE ENGINE CLASS
@@ -105,29 +112,133 @@ class HyperdriveEngine:
         self.chambers = [CompressionChamber(i, compression_factor=1.3) for i in range(4)]
         self.field_bridge = FieldBridge(safe_mode=safe_mode)
         self.sqi_engine = SQIReasoningEngine(engine=self)
+
+        # 🧠 Awareness Engine (IGI Integration)
+        if not hasattr(self, "awareness"):
+            self.awareness = AwarenessEngine(container=getattr(self, "container", None))
+
+        # 🔗 Twin Engine Support (Dual-warp runtime)
+        self.twin_engine = None
+        self.injector_controller = self.injectors[0] if self.injectors else None
         self.last_dc_trace = None
+        self.particle_density: float = 1.0   # Default density baseline
+        self.particles: list = []            # Ensure particle list exists
 
         self.collapse_enabled = HyperdriveTuningConstants.ENABLE_COLLAPSE
         self.stage_stability_window = 50
         self.stability_threshold = HyperdriveTuningConstants.RESONANCE_DRIFT_THRESHOLD / 2
+        self.gain = HyperdriveTuningConstants.HARMONIC_GAIN
 
         # 🛡 Safe Mode Config
         self._configure_safe_mode()
 
-        # ✅ Tick override (Async-compatible)
-        self._single_tick = self._single_tick  # Ensure method reference exists
-        self.tick = self.tick  # Bind the sync wrapper for external calls
+        # Tick orchestration logic (async-compatible)
+        from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.tick_orchestrator import (
+            run_tick_orchestration,
+            _single_tick,
+        )
 
+        # Bind orchestrated tick methods
+        self._single_tick = _single_tick.__get__(self)
+        self.tick = lambda: asyncio.run(run_tick_orchestration(self))
+
+        # Ensure log directory exists
         os.makedirs(self.LOG_DIR, exist_ok=True)
 
         # ✅ State Init (AFTER stages exist)
-        self._initialize_state()
+        self.tuning_constants = HyperdriveTuningConstants.restore()
+        self.name = name
+        self.args = args
+        self.runtime = runtime
+
+        # ✅ Initialize Engine Chambers
+        self.engine_containers = []
+        self.CHAMBER_COUNT = 4
+
+        for i in range(self.CHAMBER_COUNT):
+            sec_id = f"SEC-chamber-{i}"
+            hob_id = f"HOB-chamber-{i}"
+
+            # 🧩 Create Symbolic Expansion Container
+            sec = UCSBaseContainer(
+                name=sec_id,
+                geometry="Symbolic Expansion Sphere",
+                runtime=self.runtime,
+                container_type="SEC",
+                features={
+                    "time_dilation": 1.0,
+                    "micro_grid": True
+                }
+            )
+
+            # 🌀 Create Hoberman Sphere Container
+            hob = UCSBaseContainer(
+                name=hob_id,
+                geometry="Hoberman Sphere",
+                runtime=self.runtime,
+                container_type="HOB",
+                features={
+                    "time_dilation": 1.0,
+                    "micro_grid": True
+                }
+            )
+
+            self.engine_containers.extend([sec, hob])
+
+    from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.harmonic_coherence_module import resync_harmonics
+
+    def ignite(self):
+        """
+        Initialize plasma ignition and ensure particle baseline.
+        - Ensures particles exist.
+        - Centralized harmonic resync via module.
+        """
+        if not self.particles:
+            self.spawn_particles(count=250, velocity=0.5)
+
+        # 🎼 Centralized harmonic resync
+        resync_harmonics(self)
+
+        print("🔥 Hyperdrive ignition sequence complete.")
+
+        # ✅ Pre-Ignition Warp PI Validation
+        pi_check = check_warp_pi(self, window=300, label="ignite_warp_pi_snapshot")
+        if not pi_check:
+            print("⚠ Warp PI threshold not met. Continuing warm-up sequence...")  
+
+    def spawn_particles(self, count=250, velocity=0.5):
+        for _ in range(count):
+            self.particles.append({
+                "vx": 0.0, "vy": 0.0, "vz": velocity,
+                "x": 0.0, "y": 0.0, "z": 0.0,
+                "mass": 1.0, "charge": 1.0, "density": 1.0
+            })
+        print(f"💠 Seeded engine with {count} baseline plasma particles.")
+
+
+        # 📦 Export collapse trace
+        self.last_dc_trace = export_collapse_trace(self.get_state())
+        self.log_event("📦 Collapse trace exported for replay/debugging.")
+
+        # 🛰️ Log GHX/Codex replay snapshot
+        glyph_trace.add_glyph_replay(
+            glyphs=[{"id": f"tick_{self.tick_count}", "glyph": "⧖"}],  # placeholder glyph for SQI lock
+            container_id=self.container.id,
+            tick_start=max(0, self.tick_count - 50),
+            tick_end=self.tick_count,
+            entangled_links=[],
+        )
 
         # 🎼 Sync harmonic constants
         HyperdriveTuningConstants.load_runtime()
         self.damping_factor = HyperdriveTuningConstants.DAMPING_FACTOR
         self.decay_rate = HyperdriveTuningConstants.DECAY_RATE
         print(f"🎼 Harmonic constants synced: Gain={HyperdriveTuningConstants.HARMONIC_GAIN:.4f} | Decay={self.decay_rate:.4f} | Damping={self.damping_factor:.4f}")
+        
+        # 🛡 Restore idle baseline fields if drift detected on boot
+        if any(abs(self.fields[k] - v) > 0.2 for k, v in HyperdriveTuningConstants.BEST_IDLE_FIELDS.items()):
+            print("🛡 Restoring idle baseline fields from HyperdriveTuningConstants.BEST_IDLE_FIELDS")
+            self.fields.update(deepcopy(HyperdriveTuningConstants.BEST_IDLE_FIELDS))
 
     # -------------------------
     # 🛡 SAFE MODE CONFIG
@@ -144,44 +255,13 @@ class HyperdriveEngine:
         self.safe_mode_avatar = {"level": get_soul_law_validator().MIN_AVATAR_LEVEL}
 
     # -------------------------
-    # 🎼 HARMONIC RESYNC
-    # -------------------------
-    def _resync_harmonics(self):
-        print("🎼 Resynchronizing harmonic resonance...")
-        base_frequency = self.fields.get("wave_frequency", 1.0)
-        self.resonance_phase = 0.0
-        for i, injector in enumerate(self.injectors):
-            injector.phase_offset = i * (360 / max(len(self.injectors), 1))
-            injector.sync_to_frequency(base_frequency)
-        for chamber in self.chambers:
-            chamber.adjust_harmonic(base_frequency)
-        print(f"✅ Harmonic resync complete: Base Frequency={base_frequency}")
-
-    # -------------------------
-    # 🎼 HARMONIC INJECTION
-    # -------------------------
-    def _inject_harmonics(self, harmonics: List[float]):
-        if not harmonics:
-            return
-        print(f"🎵 Injecting harmonics: {harmonics}")
-        base_freq = self.fields.get("wave_frequency", 1.0)
-        for i, injector in enumerate(self.injectors):
-            harmonic = harmonics[i % len(harmonics)]
-            injector.sync_to_frequency(base_freq * harmonic)
-        for chamber in self.chambers:
-            chamber.adjust_harmonic(base_freq)
-        self.resonance_phase += sum(harmonics) * 0.001
-        self.resonance_log.append(self.resonance_phase)
-        if len(self.resonance_log) > 200:
-            self.resonance_log.pop(0)
-
-    # -------------------------
     # ✅ SQI LOCK HANDLER
     # -------------------------
     def handle_sqi_lock(self, drift: float):
         if not self.sqi_locked:
             self.sqi_locked = True
-            self._resync_harmonics()
+            from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.harmonic_coherence_module import resync_harmonics
+            resync_harmonics(self)
             self.log_event(f"🔒 SQI Lock achieved | Drift={drift:.4f} | Resonance={self.resonance_phase:.4f}")
             if hasattr(self, "save_idle_state"):
                 self.save_idle_state(self)
@@ -191,103 +271,148 @@ class HyperdriveEngine:
             # 📦 Export DC trace at SQI lock
             self.last_dc_trace = export_collapse_trace(self)
             self.log_event("📦 Collapse trace exported for replay/debugging.")
+            # 🛡 Save safe constants snapshot on SQI lock
+            HyperdriveTuningConstants.save_runtime()
+            self.log_event("💾 HyperdriveTuningConstants snapshot persisted at SQI lock.")
 
     import asyncio
+
+    # -------------------------
+    # 🔮 PREDICTIVE GLYPH INJECTION (Delegated)
+    # -------------------------
+    def inject_from_prediction(self, prediction: Dict[str, Any]):
+        """
+        Delegates predictive glyph injection to tick_module.
+        """
+        from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.tick_module import inject_from_prediction
+        inject_from_prediction(self, prediction)
 
 # -------------------------
 # 🔥 SINGLE TICK (Async)
 # -------------------------
-    async def _single_tick(self):
+async def _single_tick(self):
+    """
+    Executes a single tick with:
+    - Pre-tick instability check
+    - Drift damping + Awareness feedback
+    - Core tick logic execution
+    - Optional twin-engine sync
+    """
+    # 🛑 Pre-tick Instability Check
+    from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.instability_check_module import check_instability
+    if check_instability(self):
+        self.log_event("⚠️ Instability detected: Tick skipped for stabilization.")
+        return
+
+    # 🌊 Drift Damping + Awareness Feedback
+    drift = apply_drift_damping(self)
+    if hasattr(self, "awareness"):
         try:
-            from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.harmonic_coherence_module import measure_harmonic_coherence
-            from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.hyperdrive_tuning_constants_module import HyperdriveTuningConstants
-            from backend.modules.consciousness.prediction_engine import PredictionEngine
-        except ImportError as e:
-            print(f"❌ Import error in _single_tick: {e}")
-            return
-
-        # 🔄 Increment tick counter
-        self.tick_count += 1
-
-        # 1️⃣ SQI Seed Injection at G1 Ignition
-        if self.tick_count == 1 and self.current_stage == self.stages.index("G1"):
-            self.resonance_filtered.append(self.fields["wave_frequency"])
-            self.log_event(f"🌱 SQI Seed injected at ignition: {self.fields['wave_frequency']:.4f}")
-
-        # 🔬 Simulations and feedback loops
-        if hasattr(self, "_simulate_virtual_exhaust"):
-            self._simulate_virtual_exhaust()
-        if hasattr(self, "_run_sqi_feedback"):
-            self._run_sqi_feedback()
-        if hasattr(self, "_log_graph_snapshot"):
-            self._log_graph_snapshot()
-
-        # 🎶 Measure harmonic coherence
-        coherence = measure_harmonic_coherence(self)
-        self.log_event(f"Harmonic Coherence: {coherence:.3f}")
-
-        # 2️⃣ Resonance Buffer Bootstrapping
-        if len(self.resonance_filtered) < 3:
-            self.resonance_filtered.append(coherence)
-            self.log_event(f"⚡ Resonance bootstrap appended: {coherence:.4f}")
-
-        # ⚠ Auto-adjust harmonic gain if coherence is low
-        if coherence < 0.8:
-            drift_cost = self.sqi_engine.estimate_drift_cost(drift=1.0 - coherence)
-            boost = HyperdriveTuningConstants.HARMONIC_GAIN * (1.02 + drift_cost * 0.01)
-
-            # 5️⃣ Harmonic Gain Damping
-            boost *= (1.0 - min(0.2, (len(self.resonance_filtered) / 2000)))
-            HyperdriveTuningConstants.HARMONIC_GAIN = boost
-            self.log_event(f"⚠ Harmonic coherence low ({coherence:.3f}) → Boosting gain to {boost:.4f} (damped)")
-
-        # 🎵 Periodic harmonic injection
-        if self.sqi_enabled and self.tick_count % 100 == 0:
-            if hasattr(self, "_inject_harmonics"):
-                self._inject_harmonics(HyperdriveTuningConstants.HARMONIC_DEFAULTS)
-
-        # 🛡 SQI Stability Drift Check
-        if self.sqi_enabled:
-            if len(self.resonance_filtered) >= 20:
-                drift_window = self.resonance_filtered[-20:]
-                drift = max(drift_window) - min(drift_window)
-                if drift <= self.stability_threshold and hasattr(self, "handle_sqi_lock"):
-                    self.handle_sqi_lock(drift)
-            else:
-                self.log_event("⚠️ SQI skipped: Insufficient resonance data.")
-
-        # 🔮 Predictive SQI Forecast (await async forecast safely)
-        try:
-            prediction = await PredictionEngine().forecast_hyperdrive(self)
-            self.log_event(f"🔮 Predicted next SQI resonance: {prediction['resonance_estimate']:.4f}")
+            self.awareness.update_confidence(max(0.0, 1.0 - drift))
+            self.awareness.record_confidence(
+                glyph="🎶",
+                coord=f"stage:{self.stages[self.current_stage]}",
+                container_id=getattr(self.container, "id", "N/A"),
+                tick=self.tick_count,
+                trigger_type="sqi_drift_feedback"
+            )
+            if drift > self.sqi_engine.target_resonance_drift:
+                self.awareness.log_blindspot(
+                    glyph="⚠",
+                    coord=f"stage:{self.stages[self.current_stage]}",
+                    container_id=getattr(self.container, "id", "N/A"),
+                    tick=self.tick_count,
+                    context="high_drift_blindspot"
+                )
         except Exception as e:
-            self.log_event(f"⚠️ SQI prediction failed: {e}")
+            self.log_event(f"⚠️ AwarenessEngine drift logging failed: {e}")
 
-        # 🔧 ECU runtime sync every 50 ticks
-        if self.tick_count % 50 == 0 and hasattr(self, "_ecu_runtime_sync"):
-            self._ecu_runtime_sync()
+    # ✅ Core Tick Logic
+    from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.tick_module import tick
+    tick(self)
 
-        # ⏹ Tick limit guard
-        if self.tick_limit and self.tick_count >= self.tick_limit:
-            print(f"⚠ Tick limit reached: {self.tick_limit}")
-            return
+    # 🔗 Twin Engine Auto-Tick (if linked)
+    if self.twin_engine:
+        await self.twin_engine._single_tick()
 
-    # -------------------------
-    # 🛠 VIRTUAL EXHAUST → PARTICLE LINK
-    # -------------------------
-    def _simulate_virtual_exhaust(self):
-        exhaust_force = simulate_virtual_exhaust(self)  # existing call (returns force/energy vector)
-        if exhaust_force and isinstance(exhaust_force, dict):
-            self.exhaust_log.append(exhaust_force)
-            avg_impact = exhaust_force.get("energy", 0) * 0.01
+def _initialize_state(self):
+    """Initialize runtime state and default config flags."""
+    self.state = {}
+    self.state["tick_count"] = 0
+    self.state["drift_accumulator"] = 0.0
+    self.state["instability_flags"] = []
+    self.state["last_collapse_tick"] = 0
 
-            # 3️⃣ Link exhaust impact to particle motion
-            for p in self.particles:
-                p["vx"] = p.get("vx", 0) + avg_impact * (0.5 - random.random())
-                p["vy"] = p.get("vy", 0) + avg_impact * (0.5 - random.random())
-            self.log_event(f"💨 Exhaust impact applied to particles | Δv~{avg_impact:.5f}")
+    # Optional: preload harmonic profile state
+    self.state["current_profile"] = getattr(self, "default_profile", "warp")
+    self.state["phase_sync_enabled"] = getattr(self, "use_new_phase_sync", False)
+
+    print("🧠 Runtime state initialized.")
 
 # -------------------------
+# 🧪 BATCH SIMULATION RUNNER (Unified)
+# -------------------------
+async def run_simulation(self, tick_limit: int = 1000, export_trace: bool = False, collapse_interval: int = 100):
+    """
+    Unified simulation runner:
+    - Executes async ticks with drift damping, SQI feedback, and safety guards.
+    - Auto-enforces safe tuning every 20 ticks.
+    - Periodically exports collapse traces for Codex/GHX replay.
+    - Supports twin-engine linked hyperdrive runs.
+    """
+    self.tick_limit = tick_limit
+    self.log_event(f"🧠 Starting simulation loop for {tick_limit} ticks...")
+
+    for _ in range(tick_limit):
+        # 🔥 Primary Engine Tick
+        await self._single_tick()
+
+        # 🔗 Twin Engine Sync Tick (if linked)
+        if self.twin_engine:
+            await self.twin_engine._single_tick()
+
+        # 🛡 Enforce safe tuning every 20 ticks
+        if self.tick_count % 20 == 0:
+            from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.safe_tuning_module import validate_constant_ranges
+            if not validate_constant_ranges(self.fields):
+                from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.hyperdrive_tuning_constants_module import HyperdriveTuningConstants
+                self.fields.update(HyperdriveTuningConstants.BEST_IDLE_FIELDS)
+                self.log_event("🛡 Auto-corrected fields during simulation.")
+
+        # 🎞 Export collapse trace snapshots
+        if self.tick_count % collapse_interval == 0:
+            from backend.modules.collapse.collapse_trace_exporter import export_collapse_trace
+            export_collapse_trace(self.get_state())
+            self.log_event(f"🎞 Collapse trace snapshot saved at tick {self.tick_count}")
+
+    # 📦 Final snapshot + GHX replay export
+    from backend.modules.collapse.collapse_trace_exporter import export_collapse_trace
+    export_collapse_trace(self.get_state())
+
+    from backend.modules.glyphnet.glyph_trace_logger import glyph_trace
+    glyph_trace.add_glyph_replay(
+        glyphs=[{"id": f"sim_{self.tick_count}", "glyph": "↯"}],
+        container_id=self.container.id,
+        tick_start=max(0, self.tick_count - tick_limit),
+        tick_end=self.tick_count,
+    )
+
+    self.log_event(f"✅ Simulation complete at tick {self.tick_count}.")
+
+    # -------------------------
+    # 🛠 VIRTUAL EXHAUST → PARTICLE LINK (Delegated)
+    # -------------------------
+    def _simulate_virtual_exhaust(self):
+        """
+        Delegates virtual exhaust simulation to the dedicated module.
+        Retains logging and particle impact handling through the centralized function.
+        """
+        from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.virtual_exhaust_module import simulate_virtual_exhaust
+        
+        # ✅ Call unified exhaust simulation (handles particle kick, PI metric, and SQI tuning internally)
+        simulate_virtual_exhaust(self)
+
+    # -------------------------
     # ✅ SYNC WRAPPER
     # -------------------------
     def tick(self):
@@ -338,10 +463,32 @@ class HyperdriveEngine:
             self.set_state(self._load_saved_state())
         else:
             print("⚙ No saved state; initializing stage...")
-            transition_stage(self, self.stages[self.current_stage])
-            self._resync_harmonics()
 
-            # ✅ SoulLaw validation before container expansion
+            # 🔑 Stage transition
+            transition_stage(self, self.stages[self.current_stage])
+            self.log_event(f"🔁 Stage initialized: {self.stages[self.current_stage]}")
+
+            # 🎵 Apply stage harmonic boost
+            stage_gain = HyperdriveTuningConstants.harmonic_for_stage(self.stages[self.current_stage])
+            self.fields["wave_frequency"] *= stage_gain
+            self.log_event(f"🎵 Stage harmonic boost applied: x{stage_gain:.3f}")
+
+            # 🎼 Resync harmonics
+            from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.harmonic_coherence_module import resync_harmonics
+            resync_harmonics(self)
+
+            # 🛰️ Log symbolic trace for GHX/Codex replay
+            glyph_trace.log_trace(
+                glyph="🎵",
+                result=f"Stage {self.stages[self.current_stage]} harmonic boost: x{stage_gain:.3f}",
+                context="hyperdrive_stage"
+            )
+
+            # ✅ Restore BEST_IDLE_FIELDS baseline
+            self.fields.update(HyperdriveTuningConstants.BEST_IDLE_FIELDS)
+            print("♻️ Restored BEST_IDLE_FIELDS baseline fields.")
+
+            # 🔒 Validate SoulLaw avatar context
             avatar_state = self.safe_mode_avatar if self.safe_mode else {
                 "id": "hyperdrive_runtime",
                 "role": "engine_operator",
@@ -352,8 +499,29 @@ class HyperdriveEngine:
                 context="hyperdrive_symbolic_expansion"
             ):
                 raise PermissionError("Avatar failed SoulLaw validation for Symbolic Expansion.")
+
+            # 🌌 Expand container with morality enforcement
             self.container.expand(avatar_state=avatar_state, recursive_unlock=True, enforce_morality=True)
 
+            # 🛡 Validate field safety after expansion
+            from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.safe_tuning_module import validate_constant_ranges
+            if not validate_constant_ranges(self.fields):
+                print("⚠ Safe-tuning auto-correct triggered: resetting invalid field values.")
+                self.fields.update(HyperdriveTuningConstants.BEST_IDLE_FIELDS)
+                self.log_event("🛡 Safe field correction applied after expansion.")
+
+    # -------------------------
+    # 🔗 Twin Engine Sync Helper
+    # -------------------------
+    def get_sync_state(self):
+        """Return minimal sync snapshot for twin-engine alignment."""
+        return {
+            "resonance_phase": self.resonance_phase,
+            "fields": self.fields.copy(),
+            "sqi_enabled": self.sqi_enabled
+        }
+
+            
     def _load_best_state(self):
         """Load best known engine state from persistent storage."""
         best_state_path = "data/qwave_best_state.json"

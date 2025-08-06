@@ -13,6 +13,14 @@ def run_sqi_feedback(engine):
     • Auto-reactivates SQI on drift or coherence spikes.
     • Syncs with engine.handle_sqi_lock() if coherence locks.
     """
+
+    # -----------------------
+    # Auto-fill Resonance History (Prevents "SQI skipped")
+    # -----------------------
+    if len(engine.resonance_filtered) < engine.sqi_engine.interval:
+        engine.resonance_filtered.append(engine.resonance_phase or 0.01)
+        print(f"ℹ️ SQI resonance auto-fill: Added phase {engine.resonance_phase or 0.01:.4f}")
+
     # -----------------------
     # SQI Toggle Check
     # -----------------------
@@ -58,7 +66,6 @@ def run_sqi_feedback(engine):
     if "magnetism" in adjustments:
         adjustments["magnetism"] = min(adjustments["magnetism"], HyperdriveTuningConstants.MAX_MAGNETISM)
 
-    # Weighted smoothing for stability
     for k, v in adjustments.items():
         if k in engine.fields:
             adjustments[k] = (engine.fields[k] * 0.7) + (v * 0.3)
@@ -81,8 +88,6 @@ def run_sqi_feedback(engine):
             print("🛑 SQI auto-paused: Drift + harmonic lock achieved.")
             engine.sqi_enabled = False
             engine._low_drift_ticks = 0
-
-            # 🔒 Trigger SQI Lock if engine supports it
             if hasattr(engine, "handle_sqi_lock") and not engine.sqi_locked:
                 engine.handle_sqi_lock(drift)
 
@@ -91,7 +96,7 @@ def run_sqi_feedback(engine):
         if not engine.sqi_enabled:
             print("🔄 SQI auto-reactivated: Drift/coherence instability detected.")
             engine.sqi_enabled = True
-            engine.pending_sqi_ticks = 5  # Grace period before applying heavy tuning
+            engine.pending_sqi_ticks = 5
 
     # -----------------------
     # Harmonic Auto-Boost (if drift lock detected)

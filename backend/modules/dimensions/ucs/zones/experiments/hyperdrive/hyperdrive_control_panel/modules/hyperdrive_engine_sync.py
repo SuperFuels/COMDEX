@@ -7,12 +7,13 @@
 # • Harmonic coherence evaluation (via harmonic_coherence_module).
 # • SQI alignment and drift correction during parallel runs.
 """
-
 🔥 Features:
     • Twin-engine resonance sync (phase lock with harmonic drift correction).
     • Exhaust-to-intake chaining with safe particle injection.
     • Gravity/magnetism + SQI phase field sync.
     • Harmonic coherence evaluation (via harmonics_module).
+    • Awareness confidence hooks (IGI integration).
+    • Stage profile auto-alignment during sync.
     • Future-ready: supports chaining pipelines (A → B → C).
 
 🛠 Recommended Usage:
@@ -28,12 +29,21 @@ from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_cont
 def sync_twin_engines(engine_a, engine_b, sync_fields=True, sync_harmonics=True, sqi_phase_lock=True):
     """
     Synchronize resonance and harmonics between two engines.
-    Includes SQI-aware phase correction and field tuning.
+    Includes SQI-aware phase correction, field tuning, awareness, and profile alignment.
     """
     print("\n🔗 Initiating twin-engine sync (phase lock + field harmonics)...")
 
+    # 🔧 Stage Profile Alignment (match both engines to same profile)
+    stage_name = str(engine_a.stages[engine_a.current_stage]).lower()
+    if "warp" in stage_name:
+        HyperdriveTuningConstants.apply_profile("warp")
+    elif "idle" in stage_name:
+        HyperdriveTuningConstants.apply_profile("idle")
+    elif "safe" in stage_name:
+        HyperdriveTuningConstants.apply_profile("safe")
+
     # ✅ Phase Lock Loop
-    for _ in range(8):  # fewer ticks for faster lock-in
+    for _ in range(8):  # faster lock-in
         avg_phase = (engine_a.resonance_phase + engine_b.resonance_phase) / 2
         for eng in (engine_a, engine_b):
             eng.fields["wave_frequency"] = max(0.01, avg_phase / 3)
@@ -49,7 +59,7 @@ def sync_twin_engines(engine_a, engine_b, sync_fields=True, sync_harmonics=True,
 
     # ✅ Harmonic Gain Unification
     if sync_harmonics:
-        HyperdriveTuningConstants.load_runtime()  # Refresh runtime constants
+        HyperdriveTuningConstants.load_runtime()
         print(f"🎶 Harmonic constants unified: Gain={HyperdriveTuningConstants.HARMONIC_GAIN:.4f}")
 
     # ✅ SQI Phase Lock (optional)
@@ -61,13 +71,25 @@ def sync_twin_engines(engine_a, engine_b, sync_fields=True, sync_harmonics=True,
         if avg_coherence > 0.8:
             print("✅ SQI phase lock confirmed across twin engines.")
 
+    # 🧠 Awareness Hooks (IGI)
+    for eng in (engine_a, engine_b):
+        if hasattr(eng, "awareness"):
+            eng.awareness.update_confidence(1.0)
+            eng.awareness.record_confidence(
+                glyph="🔗",
+                coord=f"engine_sync",
+                container_id=getattr(eng.container, "id", "N/A"),
+                tick=getattr(eng, "tick_count", 0),
+                trigger_type="engine_sync"
+            )
+
     print("✅ Twin engines fully synchronized and SQI-ready.")
 
 
 def exhaust_to_intake(source_engine, target_engine, limit=5):
     """
     Transfer exhaust particles safely from source to target engine intake.
-    Includes validation, SQI drift dampening, and harmonic tuning.
+    Includes validation, SQI drift dampening, awareness, and harmonic tuning.
     """
     if not hasattr(source_engine, "exhaust_log") or not source_engine.exhaust_log:
         print("⚠ No exhaust particles available for transfer.")
@@ -98,8 +120,18 @@ def exhaust_to_intake(source_engine, target_engine, limit=5):
 
     print(f"🔄 Exhaust → Intake: {len(particles)} particles recycled into {target_engine}.")
 
-    # ✅ Optional Drift Damp After Exhaust Transfer
+    # ✅ Drift & Awareness Post-Transfer
     if check_instability(target_engine):
         print("🛑 Drift spike detected post-transfer. Applying SQI drift damp...")
         target_engine.fields["wave_frequency"] *= 0.98
         target_engine.fields["gravity"] *= 0.99
+
+    if hasattr(target_engine, "awareness"):
+        target_engine.awareness.update_confidence(0.95)
+        target_engine.awareness.record_confidence(
+            glyph="♻",
+            coord="exhaust_intake_transfer",
+            container_id=getattr(target_engine.container, "id", "N/A"),
+            tick=getattr(target_engine, "tick_count", 0),
+            trigger_type="post_exhaust_transfer"
+        )

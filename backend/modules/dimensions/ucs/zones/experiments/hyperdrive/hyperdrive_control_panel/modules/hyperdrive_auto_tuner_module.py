@@ -31,6 +31,9 @@ class HyperdriveAutoTuner:
         for _ in range(warmup_ticks):
             self._tick_engine()
 
+        # 🧠 SQI Feedback Warmup Sequence
+        self._sqi_feedback_warmup()
+
         for i in range(iterations):
             print(f"\n🔄 Auto-Tune Iteration {i+1}/{iterations}")
             self.engine.run_simulation(duration=8)
@@ -86,6 +89,37 @@ class HyperdriveAutoTuner:
                 "cooldown": self.sqi_cooldown,
                 "timestamp": datetime.utcnow().isoformat()
             })
+
+    # ============================================================
+    # 🧠 SQI Feedback Warmup (NEW)
+    # ============================================================
+    def _sqi_feedback_warmup(self):
+        """🧠 Pre-tuning SQI feedback pulse sequence to break initial stagnation."""
+        print("🧠 SQI Feedback Warmup Sequence (6 cycles)")
+        for i in range(6):
+            print(f"🌀 Warmup Cycle {i + 1}/6")
+            if hasattr(self.engine, "_run_sqi_feedback"):
+                self.engine._run_sqi_feedback()
+            if hasattr(self.engine, "_inject_noise"):
+                self.engine._inject_noise()
+            if hasattr(self.engine, "_sync_and_damp"):
+                self.engine._sync_and_damp()
+            self.engine.tick()
+            if hasattr(self.engine, "_break_stagnation"):
+                self.engine._break_stagnation()
+
+            self.logger.log({
+                "phase": "warmup",
+                "cycle": i + 1,
+                "tick": getattr(self.engine, "tick_count", 0),
+                "timestamp": datetime.utcnow().isoformat()
+            })
+
+            try:
+                import time
+                time.sleep(0.3)
+            except Exception:
+                pass
 
     # ============================================================
     # 🔑 INTERNAL HELPERS

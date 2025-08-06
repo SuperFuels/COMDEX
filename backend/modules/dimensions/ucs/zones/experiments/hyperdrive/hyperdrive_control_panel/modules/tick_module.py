@@ -3,228 +3,286 @@
 import time
 import math
 import asyncio
+from typing import Dict, Any
 from copy import deepcopy
 from datetime import datetime
-from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.sqi_reasoning_module import SQIReasoningEngine
+
+# Core modules
+from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.sqi_module import update_sqi_inline
 from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.dc_io import DCContainerIO
 from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.hyperdrive_tuning_constants_module import HyperdriveTuningConstants
+from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.drift_damping import apply_drift_damping
+from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.virtual_exhaust_module import ExhaustModule
+from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.harmonic_coherence_module import measure_harmonic_coherence
+from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.safe_tuning_module import safe_qwave_tuning
+from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.warp_checks import check_warp_pi
+
+# Awareness, DNA/SoulLaw, Prediction
+from backend.modules.consciousness.awareness_engine import AwarenessEngine
+from backend.modules.consciousness.prediction_engine import PredictionEngine
+from backend.modules.glyphvault.soul_law_validator import get_soul_law_validator
+from backend.modules.dna_chain.dna_switch import DNA_SWITCH
+
+# ECU Orchestration
+from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.orchestrator.tick_orchestrator import TickOrchestrator
+
+# Glyph Trace Logger
+try:
+    from backend.modules.glyphnet import glyph_trace_logger
+except ImportError:
+    glyph_trace_logger = None
+
 
 # =========================
 # 🔄 CORE TICK HANDLER
 # =========================
-def tick(engine):
+def tick(engine_a, engine_b=None):
     """
-    🔄 Modular Hyperdrive Tick:
-    - Executes resonance, SQI reasoning, and control-panel-driven adjustments in real-time.
-    - Supports SQI auto-tuning, particle physics, harmonic feedback, and graph logging.
+    🔄 Unified Hyperdrive Tick (Single + Dual Engine):
+    • SQI inline correction, drift damping, harmonic coherence.
+    • DNA/SoulLaw modulation, awareness, predictive foresight.
+    • TickOrchestrator sync, warp PI checks, safe tuning.
+    • Dual-engine glyph trace logging (Engine A & B split traces).
     """
-    dt = time.time() - engine.last_update
-    if dt < engine.tick_delay:
+    now = time.time()
+    dt_a = now - engine_a.last_update
+    if dt_a < engine_a.tick_delay:
         return
 
-    engine.last_update = time.time()
-    engine.tick_count += 1
+    engine_a.last_update = now
+    engine_a.tick_count += 1
 
-    # =========================
-    # 🧬 PARTICLE INJECTION & SEEDING
-    # =========================
-    if hasattr(engine, "intake_rate") and engine.intake_rate > 0:
-        for _ in range(engine.intake_rate):
-            engine.inject_proton()
+    if engine_b:
+        dt_b = now - engine_b.last_update
+        if dt_b >= engine_b.tick_delay:
+            engine_b.last_update = now
+            engine_b.tick_count += 1
 
-    if len(engine.particles) < 200:
-        print(f"⚠ Low particle count ({len(engine.particles)}). Injecting 50 baseline protons.")
-        for _ in range(50):
-            engine.inject_proton()
+    # 🌱 SQI Inline Correction
+    update_sqi_inline(engine_a, dt_a)
+    if engine_b:
+        update_sqi_inline(engine_b, dt_b)
 
-    # =========================
-    # 🛑 TICK LIMIT SAFEGUARD
-    # =========================
-    if engine.tick_limit and engine.tick_count >= engine.tick_limit:
-        print("🛑 Tick limit reached. Auto-collapsing engine.")
-        engine.collapse()
-        return
+    # 🛠 Virtual Exhaust
+    ExhaustModule().simulate(engine_a)
+    if engine_b:
+        ExhaustModule().simulate(engine_b)
 
-    # =========================
-    # ⚠ INSTABILITY CHECK
-    # =========================
-    if engine._check_instability():
-        return
-
-    # =========================
-    # 🎯 RESONANCE UPDATE
-    # =========================
-    feedback_voltage = engine.field_bridge.get_feedback_voltage() or 0.0
-    engine.resonance_phase = (
-        engine.resonance_phase +
-        (engine.fields["wave_frequency"] - feedback_voltage * engine.damping_factor) * dt
-    ) * engine.decay_rate
-
-    engine.resonance_log.append(engine.resonance_phase)
-    engine.resonance_filtered.append(
-        sum(engine.resonance_log[-10:]) / min(len(engine.resonance_log), 10)
+    # ♻️ Particle Physics
+    from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.physics_module import (
+        update_particles, decay_particles, seed_particles_if_low,
     )
+    decay_particles(engine_a, dt_a)
+    seed_particles_if_low(engine_a)
+    update_particles(engine_a, dt_a)
 
-    # 📈 Telemetry Logging Hook
-    if hasattr(engine, "_log_graph_snapshot"):
-        engine._log_graph_snapshot()
+    if engine_b:
+        decay_particles(engine_b, dt_b)
+        seed_particles_if_low(engine_b)
+        update_particles(engine_b, dt_b)
 
-    # Drift Calculation
-    drift = max(engine.resonance_filtered[-20:], default=0) - min(engine.resonance_filtered[-20:], default=0)
-    print(f"📊 Tick={engine.tick_count} | Resonance={engine.resonance_phase:.4f} | Drift={drift:.4f} | Particles={len(engine.particles)}")
+    # 🎶 Harmonic Coherence & Drift
+    from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.harmonics_module import update_harmonics
+    coherence_a, drift_a = asyncio.run(update_harmonics(engine_a, dt_a))
+    coherence_b, drift_b = (0.0, 0.0)
+    if engine_b:
+        coherence_b, drift_b = asyncio.run(update_harmonics(engine_b, dt_b))
 
-    # =========================
-    # 🔬 PARTICLE PHYSICS UPDATE
-    # =========================
-    _update_particles(engine, dt)
+    # 🌪 Drift Damping
+    apply_drift_damping(engine_a)
+    if engine_b:
+        apply_drift_damping(engine_b)
 
-    # =========================
-    # 🫀 SQI PULSE + LOCK
-    # =========================
-    _pulse_detection(engine, drift)
+    # 🧠 Awareness Update
+    _update_awareness(engine_a, coherence_a)
+    if engine_b:
+        _update_awareness(engine_b, coherence_b)
 
-    # =========================
-    # 🔧 INLINE SQI AUTOTUNE
-    # =========================
-    _sqi_correction(engine)
+    # 🧬 DNA/SoulLaw Modulation
+    _dna_soullaw_modulation(engine_a)
+    if engine_b:
+        _dna_soullaw_modulation(engine_b)
 
-    # =========================
-    # 🎛 CONTROL PANEL HOOK (REALTIME SQI)
-    # =========================
-    if hasattr(engine, "sqi_controller"):
-        engine.sqi_controller._sync_and_damp()
+    # 🔮 Predictive Glyph Foresight
+    asyncio.create_task(_inject_predictions(engine_a))
+    if engine_b:
+        asyncio.create_task(_inject_predictions(engine_b))
 
-    # =========================
-    # 🚀 STAGE ADVANCEMENT
-    # =========================
-    _stage_advance(engine)
+    # 🛡 Safe Tuning
+    if engine_a.tick_count % 25 == 0:
+        safe_qwave_tuning(engine_a)
+        engine_a.log_event("🛡 Safe tuning enforced.")
+    if engine_b and engine_b.tick_count % 25 == 0:
+        safe_qwave_tuning(engine_b)
+        engine_b.log_event("🛡 Safe tuning enforced.")
 
+    # ⚙ ECU Orchestration
+    if engine_a.tick_count % 50 == 0:
+        TickOrchestrator(engine_a, getattr(engine_a, "stage_controller", None)).tick()
+        engine_a.log_event("⚙ TickOrchestrator tick executed (Engine A).")
+    if engine_b and engine_b.tick_count % 50 == 0:
+        TickOrchestrator(engine_b, getattr(engine_b, "stage_controller", None)).tick()
+        engine_b.log_event("⚙ TickOrchestrator tick executed (Engine B).")
 
-# =========================
-# ✅ ASYNC TICK WRAPPER
-# =========================
-async def async_tick(engine):
-    """
-    Async wrapper for tick() so HyperdriveEngine can await ticks if needed.
-    """
-    tick(engine)
+    # 🚀 Warp PI Checks
+    if engine_a.tick_count % 50 == 0:
+        _warp_pi_check(engine_a)
+    if engine_b and engine_b.tick_count % 50 == 0:
+        _warp_pi_check(engine_b)
 
+    # 🎛 SQI Controller Sync
+    if hasattr(engine_a, "sqi_controller"):
+        engine_a.sqi_controller._sync_and_damp()
+    if engine_b and hasattr(engine_b, "sqi_controller"):
+        engine_b.sqi_controller._sync_and_damp()
 
-# =========================
-# 🔬 PARTICLE UPDATE
-# =========================
-def _update_particles(engine, dt):
-    """Particle dynamics update."""
-    for p in engine.particles:
-        if not isinstance(p, dict):
-            continue
-        p.setdefault("charge", 1.0)
-        p.setdefault("density", 1.0)
-        p.setdefault("vx", 0.0); p.setdefault("vy", 0.0); p.setdefault("vz", 0.0)
-        p.setdefault("x", 0.0); p.setdefault("y", 0.0); p.setdefault("z", 0.0)
-        p.setdefault("mass", 1.0)
+    # 📝 Glyph Trace Logging (Dual Engine)
+    _log_glyph_trace(engine_a, coherence_a, drift_a, label="Engine A")
+    if engine_b:
+        _log_glyph_trace(engine_b, coherence_b, drift_b, label="Engine B")
 
-        gx, gy, gz = engine._gravity_force(p)
-        mx, my, mz = engine._magnetic_force(p)
-        wx, wy, wz = engine._wave_push(p)
+    # 🚦 Tick Limit Guard
+    if engine_a.tick_limit and engine_a.tick_count >= engine_a.tick_limit:
+        print(f"⚠ Engine A tick limit reached: {engine_a.tick_limit}")
+        return
+    if engine_b and engine_b.tick_limit and engine_b.tick_count >= engine_b.tick_limit:
+        print(f"⚠ Engine B tick limit reached: {engine_b.tick_limit}")
+        return
 
-        p["vx"] += (gx + mx + wx) * dt
-        p["vy"] += (gy + my + wy) * dt
-        p["vz"] += (gz + mz + wz) * dt
-
-        speed = math.sqrt(p["vx"] ** 2 + p["vy"] ** 2 + p["vz"] ** 2)
-        p["velocity_delta"] = speed - p.get("last_speed", 0)
-        p["last_speed"] = speed
-
-        p["x"] += p["vx"] * dt
-        p["y"] += p["vy"] * dt
-        p["z"] += p["vz"] * dt
-
-
-# =========================
-# 🫀 PULSE DETECTION & SQI LOCK
-# =========================
-def _pulse_detection(engine, drift):
-    """Detect stability pulses and trigger SQI lock."""
-    if len(engine.resonance_filtered) >= 30 and engine.tick_count > 200:
-        drift = max(engine.resonance_filtered[-30:]) - min(engine.resonance_filtered[-30:])
-        if drift <= engine.stability_threshold:
-            if not engine.sqi_enabled:
-                print(f"🫀 Pulse detected: drift={drift:.3f}, enabling SQI...")
-                engine.sqi_enabled = True
-                engine.pending_sqi_ticks = 20
-            else:
-                print(f"🫀 Pulse stable: SQI active (drift={drift:.3f})")
-
-            # ✅ SQI Lock State Integration
-            if drift <= 0.05 and not getattr(engine, "sqi_locked", False):
-                print(f"🔒 SQI LOCKED: Resonance={engine.resonance_phase:.4f} | Drift={drift:.4f}")
-                engine.sqi_locked = True
-
-                # Save idle state on lock
-                if hasattr(engine, "save_idle_state"):
-                    engine.save_idle_state(engine)
-                    print(f"💾 SQI idle state saved at drift={drift:.4f}")
-
-                # Harmonic Resync
-                if hasattr(engine, "_resync_harmonics"):
-                    engine._resync_harmonics()
-
-                # Control Panel Preset Sync
-                if hasattr(engine, "sqi_controller"):
-                    try:
-                        engine.sqi_controller.engage_feedback()
-                        engine.sqi_controller.apply_preset(f"{int(drift * 100)}%")
-                        print(f"🎛 SQI Controller preset applied at lock: drift={drift:.4f}")
-                    except Exception as e:
-                        print(f"⚠️ SQI Controller sync failed: {e}")
+    # 🚀 Stage Advancement
+    _stage_advance(engine_a)
+    if engine_b:
+        _stage_advance(engine_b)
 
 
 # =========================
-# 🔧 INLINE SQI CORRECTION
+# 🧠 AWARENESS UPDATE
 # =========================
-def _sqi_correction(engine):
-    """Apply inline SQI field adjustments via reasoning engine."""
-    if engine.sqi_enabled and engine.pending_sqi_ticks is not None:
-        engine.pending_sqi_ticks -= 1
-        if engine.pending_sqi_ticks <= 0:
-            trace = {
-                "resonance": engine.resonance_filtered[-30:],
-                "fields": engine.fields.copy(),
-                "exhaust": [e.get("impact_speed", 0) for e in engine.exhaust_log[-20:]],
-                "stage": engine.stages[engine.current_stage],
-            }
-            analysis = engine.sqi_engine.analyze_trace(trace)
-            adjustments = engine.sqi_engine.recommend_adjustments(analysis)
-            if adjustments:
-                engine.fields.update(adjustments)
-                engine.log_event(f"🔧 [SQI-inline] Micro-adjust applied: {adjustments}")
-            engine.pending_sqi_ticks = 50
+def _update_awareness(engine, coherence):
+    try:
+        if not hasattr(engine, "awareness"):
+            engine.awareness = AwarenessEngine(container=engine.container)
+        engine.awareness.update_confidence(coherence)
+        engine.awareness.record_confidence(
+            glyph="🎶",
+            coord=f"stage:{engine.stages[engine.current_stage]}",
+            container_id=engine.container.id,
+            tick=engine.tick_count,
+            trigger_type="coherence_update"
+        )
+        if coherence < 0.6:
+            engine.awareness.log_blindspot(
+                glyph="⚠",
+                coord=f"stage:{engine.stages[engine.current_stage]}",
+                container_id=engine.container.id,
+                tick=engine.tick_count,
+                context="low_coherence_blindspot"
+            )
+    except Exception as e:
+        engine.log_event(f"⚠️ AwarenessEngine integration failed: {e}")
+
+
+# =========================
+# 🧬 DNA/SOULLAW MODULATION
+# =========================
+def _dna_soullaw_modulation(engine):
+    try:
+        validator = get_soul_law_validator()
+        avatar_state = engine.safe_mode_avatar if engine.safe_mode else {
+            "id": "hyperdrive_runtime",
+            "role": "engine_operator",
+            "level": validator.MIN_AVATAR_LEVEL,
+        }
+        if validator.validate_avatar_with_context(avatar_state=avatar_state, context="hyperdrive_field_modulation"):
+            active_switches = len(DNA_SWITCH.list())
+            scale_factor = 1.0 + (0.02 * active_switches)
+            engine.fields["gravity"] *= scale_factor
+            engine.fields["magnetism"] *= scale_factor
+            engine.log_event(f"🧬 DNA/SoulLaw modulation applied: scale={scale_factor:.3f} | Switches={active_switches}")
+        else:
+            engine.log_event("⚠️ DNA/SoulLaw modulation skipped: Avatar failed validation.")
+    except Exception as e:
+        engine.log_event(f"⚠️ DNA/SoulLaw modulation error: {e}")
+
+
+# =========================
+# 🔮 PREDICTIVE GLYPH INJECTION
+# =========================
+async def _inject_predictions(engine):
+    try:
+        predictor = PredictionEngine(engine=engine)
+        prediction = predictor.forecast_tick(engine)
+        if prediction:
+            inject_from_prediction(engine, prediction)
+    except Exception as e:
+        engine.log_event(f"⚠️ Prediction injection failed: {e}")
+
+
+def inject_from_prediction(engine, prediction: Dict[str, Any]):
+    glyphs = prediction.get("glyphs", [])
+    adjustments = prediction.get("adjustments", {})
+
+    for field, value in adjustments.items():
+        if field in engine.fields:
+            engine.fields[field] = value
+            engine.log_event(f"🔮 Predictive adjustment applied: {field}={value:.4f}")
+
+    if hasattr(engine, "injectors") and engine.injectors:
+        for i, glyph in enumerate(glyphs):
+            pulse_params = _glyph_to_pulse(glyph)
+            injector = engine.injectors[i % len(engine.injectors)]
+            injector.set_pulse_strength(pulse_params["pulse"])
+            injector.set_particle_density(pulse_params["density"])
+            injector.multi_compress_and_fire(engine)
+            engine.log_event(f"🚀 Predictive glyph injected via Injector {injector.id}: {glyph}")
+
+
+def _glyph_to_pulse(glyph: str) -> Dict[str, float]:
+    glyph_map = {
+        "⚛": {"density": 1.5, "pulse": 1.0},
+        "↯": {"density": 1.2, "pulse": 0.8},
+        "🎶": {"density": 1.0, "pulse": 0.6},
+    }
+    return glyph_map.get(glyph, {"density": 1.0, "pulse": 0.5})
+
+
+# =========================
+# 📝 GLYPH TRACE LOGGER
+# =========================
+def _log_glyph_trace(engine, coherence: float, drift: float, label: str = "Engine"):
+    if glyph_trace_logger:
+        try:
+            glyph_trace_logger.log_trace({
+                "tick": engine.tick_count,
+                "engine_label": label,
+                "stage": getattr(engine, "current_stage", "N/A"),
+                "container_id": getattr(engine.container, "id", "N/A"),
+                "resonance": getattr(engine, "resonance_phase", 0.0),
+                "coherence": coherence,
+                "drift": drift,
+                "particles": len(engine.particles),
+                "timestamp": datetime.utcnow().isoformat(),
+                "fields": deepcopy(engine.fields),
+                "glyphs": getattr(engine, "glyphs", []),
+            })
+        except Exception as e:
+            engine.log_event(f"⚠️ Glyph trace logging failed: {e}")
+
+
+# =========================
+# 🚀 WARP PI CHECK
+# =========================
+def _warp_pi_check(engine):
+    warp_ready = check_warp_pi(engine=engine, window=500, label=f"warp_snapshot_tick_{engine.tick_count}")
+    if warp_ready:
+        engine.log_event(f"🚀 Warp PI milestone achieved (PI ≥ {HyperdriveTuningConstants.WARP_PI_THRESHOLD})")
+    else:
+        engine.log_event(f"ℹ Warp PI not yet achieved (PI < {HyperdriveTuningConstants.WARP_PI_THRESHOLD})")
 
 
 # =========================
 # 🚀 STAGE ADVANCEMENT
 # =========================
 def _stage_advance(engine):
-    """Handle stage advancement and state export."""
-    if engine._check_stage_stability():
-        prev_stage = engine.stages[engine.current_stage]
-        if engine.current_stage == len(engine.stages) - 1:
-            print("🔒 SQI micro-tune: Final stage reached.")
-        else:
-            engine.advance_stage()
-
-        new_stage = engine.stages[engine.current_stage]
-        if new_stage != prev_stage:
-            print(f"🚀 Stage advanced: {prev_stage} ➝ {new_stage}")
-            engine._resync_harmonics()
-            engine.last_dc_trace = f"data/qwave_logs/{new_stage}_snapshot_{datetime.now().strftime('%Y%m%d_%H%M%S')}.dc.json"
-            DCContainerIO.export({
-                "fields": deepcopy(engine.fields),
-                "glyphs": [],
-                "timestamp": datetime.utcnow().isoformat(),
-                "stage": new_stage,
-                "particles": len(engine.particles),
-                "score": engine.best_score or 0.0,
-                "sqi_enabled": engine.sqi_enabled
-            }, engine.last_dc_trace, stage=new_stage, sqi_enabled=engine.sqi_enabled)
+    if hasattr(engine, "stage_controller") and callable(getattr(engine.stage_controller, "advance", None)):
+        engine.stage_controller.advance(engine)

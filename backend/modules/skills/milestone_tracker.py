@@ -56,7 +56,7 @@ TRIGGER_PATTERNS = {
 class MilestoneTracker:
     def __init__(self, goal_creation_callback=None):
         self.goal_creation_callback = goal_creation_callback
-        self.model = SentenceTransformer("all-MiniLM-L6-v2")
+        self.model = SentenceTransformer("./models/all-MiniLM-L6-v2", local_files_only=True)
         self.trigger_embeddings = self._embed_triggers()
         self.boot_selector = BootSelector()
 

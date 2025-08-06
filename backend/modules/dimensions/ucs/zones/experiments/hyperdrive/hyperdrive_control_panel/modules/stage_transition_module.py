@@ -26,7 +26,8 @@ def transition_stage(engine, new_stage: str, reseed_particles: bool = True):
         engine._configure_stage()
 
     # 🎼 Harmonic resync and coherence check
-    engine._resync_harmonics()
+    from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.harmonic_coherence_module import resync_harmonics
+    resync_harmonics(engine)
     coherence = measure_harmonic_coherence(engine)
     engine.last_harmonic_coherence = coherence
     print(f"🎼 Harmonic coherence after transition: {coherence:.3f}")

@@ -27,8 +27,15 @@ class SymbolicExpansionContainer(UCSBaseContainer):
 
     def __init__(self, container_id: Optional[str] = None, runtime: Optional[Any] = None):
         self.container_id = container_id or str(uuid.uuid4())
+        self.id = self.container_id  # ✅ Added explicit .id alias for HyperdriveEngine compatibility
         name = f"SEC-{self.container_id}"
-        super().__init__(name=name, runtime=runtime, geometry="Symbolic Expansion Sphere")
+
+        # ✅ FIXED: Ensure parent constructor is called properly
+        super(SymbolicExpansionContainer, self).__init__(
+            name=name,
+            runtime=runtime,
+            geometry="Symbolic Expansion Sphere"
+        )
 
         self.seed_container = HobermanContainer(container_id=self.container_id, runtime=runtime)
         self.expanded_logic: Optional[Dict[str, Any]] = None
@@ -54,14 +61,6 @@ class SymbolicExpansionContainer(UCSBaseContainer):
         recursive_unlock: bool = False,
         enforce_morality: bool = True
     ) -> Dict[str, Any]:
-        """
-        Expand the Symbolic Expansion Container:
-            1️⃣ Validate SoulLaw (via Hoberman Sphere)
-            2️⃣ Inflate Hoberman Sphere
-            3️⃣ Compress inflated logic tree
-            4️⃣ Auto-map glyphs into Micro-Grid
-            5️⃣ Optionally perform recursive unlock of encrypted subglyphs
-        """
         if self.expanded:
             logger.debug(f"[SEC] Already expanded: {self.container_id}")
             return self.expanded_logic
@@ -105,9 +104,6 @@ class SymbolicExpansionContainer(UCSBaseContainer):
         return self.expanded_logic
 
     def _recursive_layer_unlock(self, logic_tree: List[Dict[str, Any]]):
-        """
-        🔑 Unlock encrypted subglyphs layer-by-layer with SoulLaw validation.
-        """
         logger.info(f"[SEC] Performing recursive glyph unlock: {len(logic_tree)} nodes")
         soul_law = get_soul_law_validator()
         for node in logic_tree:

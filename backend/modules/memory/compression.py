@@ -6,7 +6,7 @@ from backend.modules.dna_chain.switchboard import DNA_SWITCH
 DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
 
 # Load a lightweight embedding model
-model = SentenceTransformer('all-MiniLM-L6-v2')
+model = SentenceTransformer("./models/all-MiniLM-L6-v2", local_files_only=True)
 
 def compress_text(text: str) -> np.ndarray:
     """

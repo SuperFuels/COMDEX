@@ -30,7 +30,7 @@ class MemoryEngine:
         self.container_id = container_id
         self.memory = []
         self.embeddings = []
-        self.model = SentenceTransformer("all-MiniLM-L6-v2")
+        self.model = SentenceTransformer("./models/all-MiniLM-L6-v2", local_files_only=True)
         self.agents = []
 
         self.memory_file = Path(__file__).parent / f"memory_{self.container_id}.json"

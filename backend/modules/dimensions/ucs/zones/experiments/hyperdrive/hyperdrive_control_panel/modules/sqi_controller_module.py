@@ -1,5 +1,3 @@
-# backend/modules/dimensions/ucs/zones/experiments/hyperdrive/hyperdrive_control_panel/modules/sqi_controller_module.py
-
 import os, json, time, random
 from datetime import datetime
 from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.hyperdrive_tuning_constants_module import HyperdriveTuningConstants
@@ -26,6 +24,7 @@ class SQIController:
         self.resonance_profile = self._load_profile()
         self.presets = self._load_presets()
         self.max_resonance = 100_000.0  # HARD STOP enforced
+        self._stagnation_count = 0  # Track flatline cycles
 
     # =========================
     # 🎯 TARGET + FIELD CONTROL
@@ -95,6 +94,7 @@ class SQIController:
                 self._inject_noise()
                 self._sync_and_damp()
                 self.engine.tick()
+                self._break_stagnation()  # NEW: Handle coherence locks
                 TelemetryLogger().log({
                     "tick": self.engine.tick_count,
                     "resonance": self.engine.resonance_phase,
@@ -127,6 +127,7 @@ class SQIController:
                 self._inject_noise()
                 self._sync_and_damp()
                 self.engine.tick()
+                self._break_stagnation()  # NEW: Handle coherence locks
                 TelemetryLogger().log({
                     "tick": self.engine.tick_count,
                     "resonance": self.engine.resonance_phase,
@@ -218,3 +219,41 @@ class SQIController:
             noise = random.uniform(-0.002, 0.002)
             self.engine.fields["wave_frequency"] += noise
             self.engine.log_event(f"🌐 Noise injected: Δwave={noise:+.5f}")
+
+    # =========================
+    # 🔧 STAGNATION BREAKER
+    # =========================
+    def _break_stagnation(self):
+        """Break harmonic stagnation when coherence locks at 1.000."""
+        coherence = getattr(self.engine, "harmonic_coherence", None)
+        drift = getattr(self.engine, "harmonic_drift", None)
+
+        if coherence is not None and abs(coherence - 1.0) < 1e-6:
+            self._stagnation_count += 1
+
+            # 1. Auto-reseed if stuck too long
+            if self._stagnation_count > 20:
+                self.engine.log_event("🔄 Auto-reseeding resonance to break stagnation...")
+                self.engine.resonance_filtered = [
+                    (0.02 + random.uniform(-0.005, 0.005)) for _ in range(5)
+                ]
+                self.engine.harmonic_coherence = 0.8
+                self._stagnation_count = 0
+
+            # 2. Natural decay
+            self.engine.harmonic_coherence *= 0.999
+
+            # 3. Escalate perturbations
+            if self._stagnation_count % 3 == 0:
+                perturb_strength = 0.05 + (0.01 * (self._stagnation_count // 3))
+                self.engine.log_event(f"⚡ Escalating perturbation: {perturb_strength}")
+                if self.engine.resonance_filtered:
+                    self.engine.resonance_filtered[-1] += perturb_strength
+
+            # 4. Drift bias if locked at zero
+            if drift is not None and abs(drift) < 1e-5:
+                bias = random.uniform(-0.001, 0.001)
+                self.engine.harmonic_drift = bias
+                self.engine.log_event(f"🎯 Drift bias injected: {bias:+.5f}")
+        else:
+            self._stagnation_count = 0

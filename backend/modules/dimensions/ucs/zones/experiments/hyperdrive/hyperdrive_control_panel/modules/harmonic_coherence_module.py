@@ -1,79 +1,76 @@
-# backend/modules/dimensions/ucs/zones/experiments/hyperdrive/hyperdrive_control_panel/modules/harmonic_coherence_module.py
-
 """
-🎵 Harmonic Coherence Module
-----------------------------
-• Calculates harmonic coherence with stagnation detection.
-• Supports SQI pre-runtime seeding and safe particle injection.
-• Auto-adjusts behavior for simulation to avoid infinite loops.
+🎵 Harmonic Coherence Measurement
+--------------------------------
+• Pure measurement utilities (no runtime tick logic).
+• Calculates harmonic coherence & supports harmonic injection/resync.
 """
 
 from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.hyperdrive_tuning_constants_module import HyperdriveTuningConstants
 
-# Track prior coherence for stagnation detection
 _last_coherence: float = 0.0
 _stagnation_count: int = 0
 
-
 def measure_harmonic_coherence(engine) -> float:
-    """
-    📊 Calculates harmonic coherence with stagnation detection & SIM override.
-    - Peak-to-drift normalized by HARMONIC_GAIN.
-    - Detects stagnant coherence (flatline) to avoid infinite feedback cycles.
-    """
+    """Calculate harmonic coherence (no runtime logic)."""
     global _last_coherence, _stagnation_count
 
-    # 🛡 Guard: No resonance history → return zero
     if not engine.resonance_filtered:
         return 0.0
 
-    # 🔍 Compute windowed stats
     window = engine.resonance_filtered[-50:]
     peak = max(window, default=1e-6)
     drift = peak - min(window, default=0.0)
-
-    # 🎼 Normalize coherence (scaled by harmonic gain)
     coherence = (peak / (drift + 1e-6)) * 0.01 * HyperdriveTuningConstants.HARMONIC_GAIN
-    coherence = max(0.0, min(1.0, coherence))  # Clamp [0.0, 1.0]
+    coherence = max(0.0, min(1.0, coherence))
 
-    # 🚦 Stagnation detection: unchanged coherence over N ticks
     if abs(coherence - _last_coherence) < 0.0001:
         _stagnation_count += 1
     else:
         _stagnation_count = 0
     _last_coherence = coherence
-
-    # 🔄 SIM safety: Break loops in virtual/sim mode
-    if getattr(engine, "simulation_mode", False) and _stagnation_count > 5:
-        print("⚠️ Harmonic stagnation in SIM detected → injecting seed coherence.")
-        coherence = 0.15  # Seed minimal value to break flatline
-
     return coherence
 
+def inject_harmonics(engine, harmonics):
+    """Inject harmonic frequencies into injectors/chambers."""
+    if not harmonics: return
+    base_freq = engine.fields.get("wave_frequency", 1.0)
+    for i, injector in enumerate(engine.injectors):
+        harmonic = harmonics[i % len(harmonics)]
+        injector.sync_to_frequency(base_freq * harmonic)
+    for chamber in engine.chambers:
+        chamber.adjust_harmonic(base_freq)
 
+def resync_harmonics(engine):
+    """Resynchronize injectors/chambers."""
+    base_frequency = engine.fields.get("wave_frequency", 1.0)
+    engine.resonance_phase = 0.0
+    for i, injector in enumerate(engine.injectors):
+        injector.phase_offset = i * (360 / max(len(engine.injectors), 1))
+        injector.sync_to_frequency(base_frequency)
+    for chamber in engine.chambers:
+        chamber.adjust_harmonic(base_frequency)
+    engine.log_event(f"🎼 Harmonic resync complete: Base Frequency={base_frequency:.4f}")
+
+# -------------------------
+# 🔄 Pre-Runtime Auto-Pulse Hook
+# -------------------------
 def pre_runtime_autopulse(engine):
     """
-    🔧 Pre-runtime Auto-Pulse Ramp
-    - Applies mild field tuning and harmonic seeding before runtime.
-    - Ensures resonance baseline exists for early SQI operations.
+    Pre-runtime autopulse logic to stabilize harmonics before main tick loop.
+    Used by IdleManager during initialization.
     """
-    print("🔧 Pre-runtime Auto-pulse ramp applied.")
+    if not engine or not hasattr(engine, "fields"):
+        print("⚠️ [pre_runtime_autopulse] Engine invalid or missing fields.")
+        return
 
-    # 🌌 Stabilize core fields
-    engine.fields["gravity"] *= 1.01
-    engine.fields["magnetism"] *= 1.01
-    engine.fields["wave_frequency"] *= 1.005
+    print("🔄 Pre-runtime autopulse: aligning harmonic waveforms...")
 
-    # 🛡 Particle safety enforcement
-    if hasattr(engine, "particles"):
-        HyperdriveTuningConstants.enforce_particle_safety(engine)
+    # Slight boost to harmonic wave frequency for alignment
+    engine.fields["wave_frequency"] *= 1.02
+    engine.gain = getattr(engine, "gain", 1.0) * 1.01
 
-    # 🎶 Harmonic burst injection (SQI pre-seed)
-    if getattr(engine, "sqi_enabled", False) and hasattr(engine, "_inject_harmonics"):
-        print("🎶 Injecting pre-runtime harmonic burst (SQI-aligned).")
-        engine._inject_harmonics(HyperdriveTuningConstants.HARMONIC_DEFAULTS)
+    # Resync harmonics after adjustment
+    if hasattr(engine, "resonance_phase"):
+        engine.resonance_phase = (engine.resonance_phase + 0.1) % (2 * 3.14159)
 
-    # 🌊 Resonance seeding: prevent flat zero coherence
-    if hasattr(engine, "resonance_filtered") and not engine.resonance_filtered:
-        engine.resonance_filtered.extend([0.01] * 10)  # Seed ripple baseline
-        print("⚡ Resonance bootstrap seeded with baseline ripples (10x 0.01).")
+    print(f"✅ Harmonic alignment complete: Gain={engine.gain:.4f}, Wave={engine.fields['wave_frequency']:.4f}")

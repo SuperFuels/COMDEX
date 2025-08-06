@@ -1,3 +1,5 @@
+# File: backend/modules/glyphvault/soul_law_validator.py
+
 import os
 import logging
 import hashlib
@@ -8,6 +10,28 @@ logger = logging.getLogger(__name__)
 
 # 🌐 Mode detection: full or test (fallback)
 SOUL_LAW_MODE = os.getenv("SOUL_LAW_MODE", "full").lower()
+
+def inject_approval_glyph(payload: Dict):
+    """
+    Injects an approval glyph into the GlyphNet WebSocket stream.
+    Uses a lazy import for broadcast_event to avoid circular import chains.
+    """
+    try:
+        from backend.routes.ws.glyphnet_ws import broadcast_event  # ✅ Lazy import to break circular import
+        broadcast_event(payload)
+        logger.info(f"[SoulLaw] Approval glyph broadcasted: {payload}")
+    except Exception as e:
+        logger.error(f"[SoulLaw] Approval glyph injection failed: {e}")
+
+
+# Existing or placeholder functions remain here (no changes to their logic):
+def get_soul_law_validator():
+    """
+    Dynamically imports and returns the SoulLawValidator.
+    Uses importlib to avoid premature circular imports.
+    """
+    module = importlib.import_module("backend.modules.glyphvault.soul_law_core")
+    return getattr(module, "SoulLawValidator")()
 
 # ✅ Safe import for broadcast_event
 try:
