@@ -192,7 +192,7 @@ class HyperdriveAutoTuner:
             new_gain = old_gain * 1.05
             engine.fields["wave_frequency"] = new_gain
             print(f"⚠ Low coherence ({coherence:.3f}) → boosted wave freq from {old_gain:.3f} to {new_gain:.3f}")
-            engine._resync_harmonics()
+            engine.resync_harmonics()
 
         # If coherence is high, stabilize damping slightly
         elif coherence > 0.9:

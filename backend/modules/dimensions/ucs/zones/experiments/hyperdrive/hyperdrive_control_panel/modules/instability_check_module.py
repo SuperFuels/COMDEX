@@ -1,7 +1,11 @@
 # backend/modules/dimensions/ucs/zones/experiments/hyperdrive/hyperdrive_control_panel/modules/instability_check_module.py
 
 import math
-from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.hyperdrive_tuning_constants_module import HyperdriveTuningConstants
+from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.hyperdrive_tuning_constants_module import (
+    HyperdriveTuningConstants,
+    RESONANCE_DRIFT_THRESHOLD,
+    SPEED_THRESHOLD,
+)
 from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.harmonic_coherence_module import measure_harmonic_coherence
 from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.drift_damping import apply_drift_damping
 

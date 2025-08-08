@@ -1,7 +1,7 @@
 from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.idle_manager_module import ignition_to_idle
 from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.hyperdrive_engine_sync import sync_twin_engines, exhaust_to_intake
 from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.gear_map_loader import GEAR_MAP
-from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.gear_shift_module import gear_shift
+from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.gear_shift_module import GearShiftManager
 from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.hyperdrive_tuning_constants_module import HyperdriveTuningConstants as HyperdriveTuning
 from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.harmonic_coherence_module import measure_harmonic_coherence
 
@@ -26,7 +26,7 @@ def twin_sync_and_gearshift(engine_a, engine_b, sync_only=False):
 
     if not sync_only:
         for g in [1, 2]:
-            gear_shift(engine_a, g, HyperdriveTuning.STAGE_CONFIGS)
-            gear_shift(engine_b, g, HyperdriveTuning.STAGE_CONFIGS)
+            GearShiftManager.gear_shift(engine_a, g, HyperdriveTuning.STAGE_CONFIGS)
+            GearShiftManager.gear_shift(engine_b, g, HyperdriveTuning.STAGE_CONFIGS)
             exhaust_to_intake(engine_a, engine_b)
         print("🚀 Twin sync & exhaust chaining complete.")

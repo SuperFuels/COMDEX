@@ -1,0 +1,161 @@
+- ⟦ Glyph ⟧: approval
+  ⟦ Meaning ⟧: KG event: approval
+  ⟦ Tags ⟧: [📜, 🧠, ✅]
+  ⟦ Confidence ⟧: 0.95
+  ⟦ Source ⟧: sqi_bus
+  ⟦ Container ⟧: ucs_ephemeral
+  ⟦ Timestamp ⟧: ⌛ 2025-08-08T09:39:01.398535
+- ⟦ Glyph ⟧: approval
+  ⟦ Meaning ⟧: KG event: approval
+  ⟦ Tags ⟧: [📜, 🧠, ✅]
+  ⟦ Confidence ⟧: 0.95
+  ⟦ Source ⟧: sqi_bus
+  ⟦ Container ⟧: ucs_ephemeral
+  ⟦ Timestamp ⟧: ⌛ 2025-08-08T09:39:01.398535
+- ⟦ Glyph ⟧: approval
+  ⟦ Meaning ⟧: KG event: approval
+  ⟦ Tags ⟧: [📜, 🧠, ✅]
+  ⟦ Confidence ⟧: 0.95
+  ⟦ Source ⟧: sqi_bus
+  ⟦ Container ⟧: ucs_ephemeral
+  ⟦ Timestamp ⟧: ⌛ 2025-08-08T10:06:52Z
+- ⟦ Glyph ⟧: proof_replay
+  ⟦ Meaning ⟧: KG event: proof_replay
+  ⟦ Tags ⟧: [replay, proof, glyph_count:2, tick:1754648570681-1754648570723]
+  ⟦ Confidence ⟧: 0.80
+  ⟦ Source ⟧: glyph_replay_renderer
+  ⟦ Container ⟧: kg_proof_test
+  ⟦ Timestamp ⟧: ⌛ 2025-08-08T10:22:50.681649Z
+- ⟦ Glyph ⟧: proof_replay
+  ⟦ Meaning ⟧: KG event: proof_replay
+  ⟦ Tags ⟧: [replay, proof, glyph_count:2, tick:123-150]
+  ⟦ Confidence ⟧: 0.80
+  ⟦ Source ⟧: glyph_replay_renderer
+  ⟦ Container ⟧: kg_proof_test
+  ⟦ Timestamp ⟧: ⌛ 2025-08-08T10:28:10.006433Z
+- ⟦ Glyph ⟧: approval
+  ⟦ Meaning ⟧: KG event: approval
+  ⟦ Tags ⟧: [📜, 🧠, ✅]
+  ⟦ Confidence ⟧: 0.95
+  ⟦ Source ⟧: sqi_bus
+  ⟦ Container ⟧: ucs_ephemeral
+  ⟦ Timestamp ⟧: ⌛ 2025-08-08T10:30:30Z
+- ⟦ Glyph ⟧: drift_report
+  ⟦ Meaning ⟧: KG event: drift_report
+  ⟦ Tags ⟧: [drift]
+  ⟦ Confidence ⟧: 1.00
+  ⟦ Source ⟧: drift_report
+  ⟦ Container ⟧: kg_entangle_demo
+  ⟦ Timestamp ⟧: ⌛ 2025-08-08T10:30:00Z
+- ⟦ Glyph ⟧: proof_replay
+  ⟦ Meaning ⟧: KG event: proof_replay
+  ⟦ Tags ⟧: [replay, proof]
+  ⟦ Confidence ⟧: 1.00
+  ⟦ Source ⟧: proof_replay
+  ⟦ Container ⟧: kg_entangle_demo
+  ⟦ Timestamp ⟧: ⌛ 2025-08-08T10:30:02Z
+- ⟦ Glyph ⟧: drift_report
+  ⟦ Meaning ⟧: KG event: drift_report
+  ⟦ Tags ⟧: [drift]
+  ⟦ Confidence ⟧: 1.00
+  ⟦ Source ⟧: drift_report
+  ⟦ Container ⟧: kg_entangle_demo
+  ⟦ Timestamp ⟧: ⌛ 2025-08-08T10:30:00Z
+- ⟦ Glyph ⟧: proof_replay
+  ⟦ Meaning ⟧: KG event: proof_replay
+  ⟦ Tags ⟧: [replay, proof]
+  ⟦ Confidence ⟧: 1.00
+  ⟦ Source ⟧: proof_replay
+  ⟦ Container ⟧: kg_entangle_demo
+  ⟦ Timestamp ⟧: ⌛ 2025-08-08T10:30:02Z
+- ⟦ Glyph ⟧: drift_report
+  ⟦ Meaning ⟧: KG event: drift_report
+  ⟦ Tags ⟧: [drift]
+  ⟦ Confidence ⟧: 1.00
+  ⟦ Source ⟧: drift_report
+  ⟦ Container ⟧: kg_entangle_demo
+  ⟦ Timestamp ⟧: ⌛ 2025-08-08T10:30:00Z
+- ⟦ Glyph ⟧: proof_replay
+  ⟦ Meaning ⟧: KG event: proof_replay
+  ⟦ Tags ⟧: [replay, proof]
+  ⟦ Confidence ⟧: 1.00
+  ⟦ Source ⟧: proof_replay
+  ⟦ Container ⟧: kg_entangle_demo
+  ⟦ Timestamp ⟧: ⌛ 2025-08-08T10:30:02Z
+- ⟦ Glyph ⟧: drift_report
+  ⟦ Meaning ⟧: KG event: drift_report
+  ⟦ Tags ⟧: [drift]
+  ⟦ Confidence ⟧: 1.00
+  ⟦ Source ⟧: drift_report
+  ⟦ Container ⟧: t
+  ⟦ Timestamp ⟧: ⌛ 2025-01-01T00:00:00Z
+- ⟦ Glyph ⟧: proof_replay
+  ⟦ Meaning ⟧: KG event: proof_replay
+  ⟦ Tags ⟧: [replay, proof]
+  ⟦ Confidence ⟧: 1.00
+  ⟦ Source ⟧: proof_replay
+  ⟦ Container ⟧: t
+  ⟦ Timestamp ⟧: ⌛ 2025-01-01T00:00:02Z
+- ⟦ Glyph ⟧: kg_node
+  ⟦ Meaning ⟧: KG event: kg_node
+  ⟦ Tags ⟧: []
+  ⟦ Confidence ⟧: 1.00
+  ⟦ Source ⟧: kg_node
+  ⟦ Container ⟧: ucs_ephemeral
+  ⟦ Timestamp ⟧: ⌛ 2025-08-08T13:57:32.312044
+- ⟦ Glyph ⟧: kg_node
+  ⟦ Meaning ⟧: KG event: kg_node
+  ⟦ Tags ⟧: []
+  ⟦ Confidence ⟧: 1.00
+  ⟦ Source ⟧: kg_node
+  ⟦ Container ⟧: ucs_ephemeral
+  ⟦ Timestamp ⟧: ⌛ 2025-08-08T13:57:33.640586
+- ⟦ Glyph ⟧: kg_node
+  ⟦ Meaning ⟧: KG event: kg_node
+  ⟦ Tags ⟧: []
+  ⟦ Confidence ⟧: 1.00
+  ⟦ Source ⟧: kg_node
+  ⟦ Container ⟧: ucs_ephemeral
+  ⟦ Timestamp ⟧: ⌛ 2025-08-08T13:57:35.985889
+- ⟦ Glyph ⟧: kg_node
+  ⟦ Meaning ⟧: KG event: kg_node
+  ⟦ Tags ⟧: []
+  ⟦ Confidence ⟧: 1.00
+  ⟦ Source ⟧: kg_node
+  ⟦ Container ⟧: ucs_ephemeral
+  ⟦ Timestamp ⟧: ⌛ 2025-08-08T13:57:37.818169
+- ⟦ Glyph ⟧: kg_node
+  ⟦ Meaning ⟧: KG event: kg_node
+  ⟦ Tags ⟧: []
+  ⟦ Confidence ⟧: 1.00
+  ⟦ Source ⟧: kg_node
+  ⟦ Container ⟧: ucs_ephemeral
+  ⟦ Timestamp ⟧: ⌛ 2025-08-08T14:06:54.742769
+- ⟦ Glyph ⟧: kg_node
+  ⟦ Meaning ⟧: KG event: kg_node
+  ⟦ Tags ⟧: []
+  ⟦ Confidence ⟧: 1.00
+  ⟦ Source ⟧: kg_node
+  ⟦ Container ⟧: ucs_ephemeral
+  ⟦ Timestamp ⟧: ⌛ 2025-08-08T14:06:55.648234
+- ⟦ Glyph ⟧: kg_node
+  ⟦ Meaning ⟧: KG event: kg_node
+  ⟦ Tags ⟧: []
+  ⟦ Confidence ⟧: 1.00
+  ⟦ Source ⟧: kg_node
+  ⟦ Container ⟧: ucs_ephemeral
+  ⟦ Timestamp ⟧: ⌛ 2025-08-08T14:06:56.140307
+- ⟦ Glyph ⟧: kg_node
+  ⟦ Meaning ⟧: KG event: kg_node
+  ⟦ Tags ⟧: []
+  ⟦ Confidence ⟧: 1.00
+  ⟦ Source ⟧: kg_node
+  ⟦ Container ⟧: ucs_ephemeral
+  ⟦ Timestamp ⟧: ⌛ 2025-08-08T14:06:56.563605
+- ⟦ Glyph ⟧: kg_node
+  ⟦ Meaning ⟧: KG event: kg_node
+  ⟦ Tags ⟧: []
+  ⟦ Confidence ⟧: 1.00
+  ⟦ Source ⟧: kg_node
+  ⟦ Container ⟧: ucs_ephemeral
+  ⟦ Timestamp ⟧: ⌛ 2025-08-08T14:27:44.290144

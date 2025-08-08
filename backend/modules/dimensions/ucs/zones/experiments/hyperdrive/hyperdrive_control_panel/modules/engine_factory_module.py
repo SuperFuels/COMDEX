@@ -29,13 +29,12 @@ def create_engine(name, args):
     # =============================
     container = SymbolicExpansionContainer(container_id=name)
     runtime = f"{name}-runtime"
-    engine = HyperdriveEngine(name, args, runtime)(
-        container=container,
-        safe_mode=args.safe_mode,
-        stage_lock=getattr(args, "stage_lock", 4),
-        virtual_absorber=True,
-        sqi_enabled=getattr(args, "enable_sqi", False)
-    )
+    engine = HyperdriveEngine(name, args, runtime, container)  # ✅ FIXED: pass container into constructor
+
+    engine.safe_mode = args.safe_mode
+    engine.stage_lock = getattr(args, "stage_lock", 4)
+    engine.virtual_absorber = True
+    engine.sqi_enabled = getattr(args, "enable_sqi", False)
 
     # ✅ State Init (AFTER stages exist)
     engine.tuning_constants = HyperdriveTuningConstants.restore()

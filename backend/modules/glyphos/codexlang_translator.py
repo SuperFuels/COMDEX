@@ -6,6 +6,53 @@ Supports nested parsing, symbolic ops, and runtime dispatch.
 """
 
 from backend.modules.glyphos.glyph_instruction_set import get_instruction
+from backend.modules.symbolic_engine.symbolic_kernels.logic_glyphs import (
+    AndGlyph, OrGlyph, NotGlyph, ImplicationGlyph
+)
+
+
+def parse_logic_expression(expr: str):
+    """
+    Parses logical expressions like:
+    A ∧ B → C
+    ¬A ∨ B
+    Returns nested LogicGlyph trees.
+    """
+    expr = expr.strip()
+    if "→" in expr:
+        left, right = expr.split("→", 1)
+        return ImplicationGlyph(parse_logic_expression(left), parse_logic_expression(right))
+    elif "∧" in expr:
+        left, right = expr.split("∧", 1)
+        return AndGlyph(parse_logic_expression(left), parse_logic_expression(right))
+    elif "∨" in expr:
+        left, right = expr.split("∨", 1)
+        return OrGlyph(parse_logic_expression(left), parse_logic_expression(right))
+    elif expr.startswith("¬"):
+        return NotGlyph(parse_logic_expression(expr[1:].strip()))
+    else:
+        return expr  # Raw variable
+
+
+def logic_to_tree(expr: str):
+    """
+    Outputs the logic expression as a structured tree (for serialization).
+    Used for bytecode encoding and Codex export.
+    """
+    expr = expr.strip()
+    if "→" in expr:
+        left, right = expr.split("→", 1)
+        return {"op": "→", "args": [logic_to_tree(left), logic_to_tree(right)]}
+    elif "∧" in expr:
+        left, right = expr.split("∧", 1)
+        return {"op": "∧", "args": [logic_to_tree(left), logic_to_tree(right)]}
+    elif "∨" in expr:
+        left, right = expr.split("∨", 1)
+        return {"op": "∨", "args": [logic_to_tree(left), logic_to_tree(right)]}
+    elif expr.startswith("¬"):
+        return {"op": "¬", "args": [logic_to_tree(expr[1:].strip())]}
+    else:
+        return expr
 
 
 def parse_codexlang_string(code_str):
@@ -20,12 +67,23 @@ def parse_codexlang_string(code_str):
         type_tag, value = left.split(":", 1)
         g_type, tag = type_tag.split("|", 1)
 
-        parsed = {
-            "type": g_type.strip(),
-            "tag": tag.strip(),
-            "value": value.strip(),
-            "action": parse_action_expr(action.strip())
-        }
+        type_str = g_type.strip().lower()
+        if type_str == "logic":
+            parsed = {
+                "type": type_str,
+                "tag": tag.strip(),
+                "value": value.strip(),
+                "action": parse_logic_expression(action.strip()),
+                "tree": logic_to_tree(action.strip())  # ✅ structured version
+            }
+        else:
+            parsed = {
+                "type": type_str,
+                "tag": tag.strip(),
+                "value": value.strip(),
+                "action": parse_action_expr(action.strip())
+            }
+
         return parsed
     except Exception as e:
         print(f"[⚠️] Failed to parse CodexLang string: {e}")
@@ -95,6 +153,11 @@ def translate_to_instruction(parsed_glyph, memory=None):
             else:
                 return {"error": f"Unknown operator: {op}", "args": args}
 
+        elif hasattr(action, "evaluate"):
+            return action.evaluate()
+
+        return action
+
     return eval_action(parsed_glyph.get("action"))
 
 
@@ -110,7 +173,7 @@ def run_codexlang_string(glyph_string: str, context: dict = {}):
 
 # Debug entry point
 if __name__ == "__main__":
-    test = "⟦ Goal | Build : GlyphEngine → Strategy ⟧"
+    test = "⟦ Logic | Test: A ∧ B → ¬C ⟧"
     print("\n[🔍] Parsing:", test)
     parsed = parse_codexlang_string(test)
     print("Parsed AST:", parsed)

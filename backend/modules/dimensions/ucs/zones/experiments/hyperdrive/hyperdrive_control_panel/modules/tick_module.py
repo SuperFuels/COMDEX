@@ -1,5 +1,3 @@
-# File: backend/modules/dimensions/ucs/zones/experiments/hyperdrive/hyperdrive_control_panel/modules/tick_module.py
-
 import time
 import math
 import asyncio
@@ -24,7 +22,12 @@ from backend.modules.glyphvault.soul_law_validator import get_soul_law_validator
 from backend.modules.dna_chain.dna_switch import DNA_SWITCH
 
 # ECU Orchestration
-from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.orchestrator.tick_orchestrator import TickOrchestrator
+from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.tick_orchestrator import TickOrchestrator
+
+# Physics & Harmonics
+from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.physics_module import PhysicsModule
+from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.exhaust_module import ExhaustModule
+from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.harmonics_module import update_harmonics
 
 # Glyph Trace Logger
 try:
@@ -36,7 +39,7 @@ except ImportError:
 # =========================
 # 🔄 CORE TICK HANDLER
 # =========================
-def tick(engine_a, engine_b=None):
+async def tick(engine_a, engine_b=None):
     """
     🔄 Unified Hyperdrive Tick (Single + Dual Engine):
     • SQI inline correction, drift damping, harmonic coherence.
@@ -57,55 +60,54 @@ def tick(engine_a, engine_b=None):
         if dt_b >= engine_b.tick_delay:
             engine_b.last_update = now
             engine_b.tick_count += 1
+        else:
+            dt_b = None  # engine_b tick skipped
 
     # 🌱 SQI Inline Correction
-    update_sqi_inline(engine_a, dt_a)
-    if engine_b:
+    update_sqi_inline(engine_a)
+    if engine_b and dt_b:
         update_sqi_inline(engine_b, dt_b)
 
     # 🛠 Virtual Exhaust
     ExhaustModule().simulate(engine_a)
-    if engine_b:
+    if engine_b and dt_b:
         ExhaustModule().simulate(engine_b)
 
     # ♻️ Particle Physics
-    from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.physics_module import (
-        update_particles, decay_particles, seed_particles_if_low,
-    )
-    decay_particles(engine_a, dt_a)
-    seed_particles_if_low(engine_a)
-    update_particles(engine_a, dt_a)
+    physics = PhysicsModule()
+    physics.decay_particles(engine_a, dt_a)
+    physics.seed_particles_if_low(engine_a)
+    physics.update_particles(engine_a, dt_a)
 
-    if engine_b:
-        decay_particles(engine_b, dt_b)
-        seed_particles_if_low(engine_b)
-        update_particles(engine_b, dt_b)
+    if engine_b and dt_b:
+        physics.decay_particles(engine_b, dt_b)
+        physics.seed_particles_if_low(engine_b)
+        physics.update_particles(engine_b, dt_b)
 
-    # 🎶 Harmonic Coherence & Drift
-    from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.harmonics_module import update_harmonics
-    coherence_a, drift_a = asyncio.run(update_harmonics(engine_a, dt_a))
+    # 🎼 Harmonic Correction (ASYNC)
+    coherence_a, drift_a = await update_harmonics(engine_a, dt_a)
     coherence_b, drift_b = (0.0, 0.0)
-    if engine_b:
-        coherence_b, drift_b = asyncio.run(update_harmonics(engine_b, dt_b))
+    if engine_b and dt_b:
+        coherence_b, drift_b = await update_harmonics(engine_b, dt_b)
 
     # 🌪 Drift Damping
     apply_drift_damping(engine_a)
-    if engine_b:
+    if engine_b and dt_b:
         apply_drift_damping(engine_b)
 
     # 🧠 Awareness Update
     _update_awareness(engine_a, coherence_a)
-    if engine_b:
+    if engine_b and dt_b:
         _update_awareness(engine_b, coherence_b)
 
     # 🧬 DNA/SoulLaw Modulation
     _dna_soullaw_modulation(engine_a)
-    if engine_b:
+    if engine_b and dt_b:
         _dna_soullaw_modulation(engine_b)
 
     # 🔮 Predictive Glyph Foresight
     asyncio.create_task(_inject_predictions(engine_a))
-    if engine_b:
+    if engine_b and dt_b:
         asyncio.create_task(_inject_predictions(engine_b))
 
     # 🛡 Safe Tuning
@@ -138,7 +140,7 @@ def tick(engine_a, engine_b=None):
 
     # 📝 Glyph Trace Logging (Dual Engine)
     _log_glyph_trace(engine_a, coherence_a, drift_a, label="Engine A")
-    if engine_b:
+    if engine_b and dt_b:
         _log_glyph_trace(engine_b, coherence_b, drift_b, label="Engine B")
 
     # 🚦 Tick Limit Guard

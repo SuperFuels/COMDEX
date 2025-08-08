@@ -5,6 +5,9 @@ import re
 import json
 from typing import List, Dict, Optional
 
+# NEW: For Logic tree evaluation
+from backend.modules.glyphos.codexlang_translator import parse_logic_expression
+
 # ─── 🔠 Symbol Table ────────────────────────────────────────────────────────────
 
 glyph_index = {
@@ -56,13 +59,23 @@ class StructuredGlyph:
                 "error": "Invalid structured glyph"
             }
 
-        return {
+        result = {
             "raw": self.raw,
             "type": match.group(1).strip(),
             "target": match.group(2).strip(),
             "value": match.group(3).strip(),
             "action": match.group(4).strip()
         }
+
+        # ✅ NEW: Logic tree evaluation hook
+        if result["type"].lower() == "logic":
+            try:
+                logic_tree = parse_logic_expression(result["action"])
+                result["tree"] = logic_tree.evaluate()
+            except Exception as e:
+                result["tree"] = f"Parse error: {e}"
+
+        return result
 
     def to_dict(self) -> Dict:
         return self.parsed
@@ -119,6 +132,7 @@ if __name__ == "__main__":
     test_cases = [
         "🜁⚛✦🧭⌬⟁",
         "⟦ Write | Glyph : Self → ⬁ ⟧",
+        "⟦ Logic | X : A ∧ B → ¬C ⟧",  # should show tree
         "⟦ Mutate | Cube : Logic → Dual ⟧",
         "⟦ Invalid ⟧",
         "💀✪🌌",  # invalid glyphs

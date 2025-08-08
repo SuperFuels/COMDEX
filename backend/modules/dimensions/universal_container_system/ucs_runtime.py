@@ -24,6 +24,11 @@ class GHXVisualizer:
         print(f"[GHXVisualizer] (stub) Added container {container.get('name')}")
     def highlight(self, name): 
         print(f"[GHXVisualizer] (stub) Highlighting {name}")
+    # NEW: quiet the AttributeError; callers expect this hook
+    def log_event(self, *args, **kwargs):
+        # keep as no-op or uncomment for visibility
+        # print(f"[GHXVisualizer] (stub) log_event {args} {kwargs}")
+        pass
 
 class UCSRuntime:
     def __init__(self):

@@ -59,3 +59,16 @@ class SQIModule:
         if drift < self.sqi_engine.target_resonance_drift and self.controller:
             print(f"🔒 [SQI Module] Drift lock detected ({drift:.4f}). Triggering controller lock.")
             self.controller.lock_and_stabilize(drift)
+
+def update_sqi_inline(engine):
+    """
+    Inline update hook used by the tick orchestrator to trigger SQIModule.feedback.
+    """
+    if not hasattr(engine, "sqi_module"):
+        print("⚠️ [SQI Inline] No sqi_module attached to engine.")
+        return
+
+    try:
+        engine.sqi_module.feedback()
+    except Exception as e:
+        print(f"❌ [SQI Inline] Feedback failed: {e}")

@@ -1,0 +1,8 @@
+digraph G {
+  rankdir=LR;
+  node [shape=box, style="rounded,filled", fillcolor="#eef7ff"];
+  "add_zero" [label="add_zero\n⟦ Theorem ⟧"];
+  "zero_add" [label="zero_add\n⟦ Theorem ⟧"];
+  "mul_one" [label="mul_one\n⟦ Lemma ⟧"];
+  "square" [label="square\n⟦ Definition ⟧"];
+}
