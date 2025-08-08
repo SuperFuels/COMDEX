@@ -57,44 +57,6 @@ class ExhaustModule:
         # Log telemetry snapshot
         self._log_snapshot(engine, impacts)
 
-# -------------------------
-# 🛠 Virtual Exhaust Simulation (Standalone Helper)
-# -------------------------
-def simulate_virtual_exhaust(engine):
-    """
-    Simulates virtual exhaust to regulate particle flow, resonance drift,
-    and maintain SQI harmonic balance. Delegated for HyperdriveEngine.
-    """
-    if not engine or not hasattr(engine, "particles"):
-        print("⚠️ [simulate_virtual_exhaust] Engine missing particle system.")
-        return
-
-    print("💨 Simulating virtual exhaust...")
-
-    # Apply exhaust effect to reduce excess particle density
-    if len(engine.particles) > engine.max_particles:
-        removed = len(engine.particles) - engine.max_particles
-        engine.particles = engine.particles[:engine.max_particles]
-        engine.log_event(f"💨 Exhaust vented {removed} particles to maintain stability.")
-
-    # Minor harmonic correction during exhaust
-    if hasattr(engine, "fields"):
-        engine.fields["wave_frequency"] *= 0.999  # slow decay to bleed off excess energy
-        engine.fields["field_pressure"] *= 0.998
-
-    # Log particle density and exhaust impact
-    engine.exhaust_log.append({
-        "tick": engine.tick_count,
-        "particles": len(engine.particles),
-        "resonance": getattr(engine, "resonance_phase", None)
-    })
-
-    print(f"✅ Virtual exhaust complete | Particles: {len(engine.particles)}")
-
-    # =============================
-    # 🔬 INTERNAL HELPERS
-    # =============================
-
     def _ensure_particle_integrity(self, p):
         p.setdefault("vx", 0.0)
         p.setdefault("vy", 0.0)
@@ -143,7 +105,7 @@ def simulate_virtual_exhaust(engine):
 
     def _apply_oscillation_damp(self, engine):
         if engine.sqi_enabled and len(engine.exhaust_log) > 10:
-            last_exhaust = [e["impact_speed"] for e in engine.exhaust_log[-10:]]
+            last_exhaust = [e["impact_speed"] for e in engine.exhaust_log[-10:] if "impact_speed" in e]
             oscillation = max(last_exhaust) - min(last_exhaust)
             if oscillation > 50:
                 engine.fields["wave_frequency"] *= 0.98
@@ -166,7 +128,7 @@ def simulate_virtual_exhaust(engine):
         print(f"📡 Virtual Exhaust Impact: {last_impact}")
 
     def _check_sqi_signature(self, engine, impacts):
-        recent_energies = [imp["energy"] for imp in impacts[-5:]]
+        recent_energies = [imp["energy"] for imp in impacts[-5:] if "energy" in imp]
         if len(recent_energies) >= 5 and max(recent_energies) - min(recent_energies) < 0.2:
             print("🫀 Pulse signature confirmed in exhaust oscillation → SQI tuning engaged")
             HyperdriveAutoTuner.dynamic_adjust(engine, measure_harmonic_coherence(engine))
@@ -183,3 +145,37 @@ def simulate_virtual_exhaust(engine):
         })
         if hasattr(engine, "_log_graph_snapshot"):
             engine._log_graph_snapshot()
+
+# -------------------------
+# 🛠 Virtual Exhaust Simulation (Standalone Helper)
+# -------------------------
+def simulate_virtual_exhaust(engine):
+    """
+    Simulates virtual exhaust to regulate particle flow, resonance drift,
+    and maintain SQI harmonic balance. Delegated for HyperdriveEngine.
+    """
+    if not engine or not hasattr(engine, "particles"):
+        print("⚠️ [simulate_virtual_exhaust] Engine missing particle system.")
+        return
+
+    print("💨 Simulating virtual exhaust...")
+
+    # Apply exhaust effect to reduce excess particle density
+    if len(engine.particles) > engine.max_particles:
+        removed = len(engine.particles) - engine.max_particles
+        engine.particles = engine.particles[:engine.max_particles]
+        engine.log_event(f"💨 Exhaust vented {removed} particles to maintain stability.")
+
+    # Minor harmonic correction during exhaust
+    if hasattr(engine, "fields"):
+        engine.fields["wave_frequency"] *= 0.999
+        engine.fields["field_pressure"] *= 0.998
+
+    # Log particle density and exhaust impact
+    engine.exhaust_log.append({
+        "tick": engine.tick_count,
+        "particles": len(engine.particles),
+        "resonance": getattr(engine, "resonance_phase", None)
+    })
+
+    print(f"✅ Virtual exhaust complete | Particles: {len(engine.particles)}")

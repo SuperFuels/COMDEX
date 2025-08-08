@@ -1,7 +1,7 @@
 📘 knowledge_index.glyph
 
 ⧉ Type: KnowledgeIndex
-⧈ Format: SymbolicGlyph v1.2
+⧈ Format: SymbolicGlyph v1.3
 
 ⟦ Entries ⟧
 
@@ -10,28 +10,59 @@
   ⟦ Tags ⟧: [introspection, identity, observer]
   ⟦ Confidence ⟧: 0.95
   ⟦ Source ⟧: MemoryEngine
-  ⟦ Container ⟧: core_runtime.dc
-  ⟦ Timestamp ⟧: ⌛ 2025-07-27T20:34:00Z
+  ⟦ Container_ID ⟧: core_runtime.dc
+  ⟦ External_Hash ⟧: —
+  ⟦ Plugin ⟧: —
+  ⟦ Anchor ⟧: —
+  ⟦ Timestamp ⟧: 2025-07-27T20:34:00Z
 
 - ⟦ Glyph ⟧: ↔
   ⟦ Meaning ⟧: Entanglement
   ⟦ Tags ⟧: [connection, memory_link, quantum]
   ⟦ Confidence ⟧: 0.91
   ⟦ Source ⟧: glyph_executor
-  ⟦ Container ⟧: seed_entangled.dc
-  ⟦ Timestamp ⟧: ⌛ 2025-07-27T20:31:05Z
+  ⟦ Container_ID ⟧: seed_entangled.dc
+  ⟦ External_Hash ⟧: —
+  ⟦ Plugin ⟧: —
+  ⟦ Anchor ⟧: —
+  ⟦ Timestamp ⟧: 2025-07-27T20:31:05Z
 
 - ⟦ Glyph ⟧: ⧖
   ⟦ Meaning ⟧: Collapse delay
   ⟦ Tags ⟧: [qglyph, uncertainty, logic_bias]
   ⟦ Confidence ⟧: 0.78
   ⟦ Source ⟧: CodexCore
-  ⟦ Container ⟧: replay_packet.dc
-  ⟦ Timestamp ⟧: ⌛ 2025-07-27T20:15:42Z
+  ⟦ Container_ID ⟧: replay_packet.dc
+  ⟦ External_Hash ⟧: —
+  ⟦ Plugin ⟧: —
+  ⟦ Anchor ⟧: —
+  ⟦ Timestamp ⟧: 2025-07-27T20:15:42Z
+
+# Ingested from SQI bus (examples)
+- ⟦ Glyph ⟧: approval
+  ⟦ Meaning ⟧: KG event: approval
+  ⟦ Tags ⟧: [📜, 🧠, ✅]
+  ⟦ Confidence ⟧: 1.0
+  ⟦ Source ⟧: sqi_bus
+  ⟦ Container_ID ⟧: ucs_ephemeral
+  ⟦ External_Hash ⟧: 9b1247f6c61e547c17b169ee9ef3247ba4e4c6160a3330bf452245f5ded8d33e
+  ⟦ Plugin ⟧: —
+  ⟦ Anchor ⟧: —
+  ⟦ Timestamp ⟧: 2025-08-07T23:29:38.667Z
+
+- ⟦ Glyph ⟧: drift_report
+  ⟦ Meaning ⟧: KG event: drift_report
+  ⟦ Tags ⟧: []
+  ⟦ Confidence ⟧: 1.0
+  ⟦ Source ⟧: sqi_bus
+  ⟦ Container_ID ⟧: ucs_ephemeral
+  ⟦ External_Hash ⟧: e3ff189251efb23ef11032f0ee1d181383234d4d90311c2bad18a2b3d133f195
+  ⟦ Plugin ⟧: —
+  ⟦ Anchor ⟧: —
+  ⟦ Timestamp ⟧: 2025-08-07T23:29:38.662Z
 
 ⟦ Index Summary ⟧
-
-- Total Glyphs: 3
+- Total Glyphs: 5
 - Unique Tags: 8
-- Average Confidence: 0.88
-- Sources: [MemoryEngine, glyph_executor, CodexCore]
+- Average Confidence: 0.93
+- Sources: [MemoryEngine, glyph_executor, CodexCore, sqi_bus]

@@ -114,3 +114,25 @@ def export_best_state(engine):
     with open(best_path, "w") as f:
         json.dump(data, f, indent=2)
     print(f"💾 Best state exported: {best_path}")
+
+from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.state_snapshot import get_state, set_state
+
+# ===============================
+# 🧠 Class Wrapper (StateManager)
+# ===============================
+class StateManager:
+    @staticmethod
+    def get_active_universal_container_system(engine):
+        return get_state(engine)
+
+    @staticmethod
+    def restore_universal_container_system(engine, state):
+        return set_state(engine, state)
+
+    @staticmethod
+    def compute_engine_score(engine):
+        return compute_score(engine)
+
+    @staticmethod
+    def export_best_snapshot(engine):
+        return export_best_state(engine)

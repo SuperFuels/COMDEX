@@ -48,3 +48,190 @@
   description: "Milestone marker or boot phase"
   args: optional
   function: execute_milestone
+
+# --- Physics / Vector–Tensor Calculus (non-breaking: name-dispatched) ---
+grad:
+  symbol: "∇"          # NOTE: display only; ∇ key above remains COMPRESS
+  name: GRADIENT
+  description: "Vector gradient of a scalar field"
+  args: ["field", "coords?"]
+  function: execute_grad
+  category: physics
+
+div:
+  symbol: "∇·"
+  name: DIVERGENCE
+  description: "Divergence of a vector field"
+  args: ["vector", "coords?"]
+  function: execute_div
+  category: physics
+
+curl:
+  symbol: "∇×"
+  name: CURL
+  description: "Curl of a vector field"
+  args: ["vector", "coords?"]
+  function: execute_curl
+  category: physics
+
+laplacian:
+  symbol: "∇²"
+  name: LAPLACIAN
+  description: "Laplacian of a scalar field"
+  args: ["field", "coords?"]
+  function: execute_laplacian
+  category: physics
+
+d_dt:
+  symbol: "∂/∂t"
+  name: PARTIAL_TIME
+  description: "Time partial derivative"
+  args: ["expr", "t?"]
+  function: execute_d_dt
+  category: physics
+
+dot:
+  symbol: "·"
+  name: DOT
+  description: "Dot product"
+  args: ["A", "B"]
+  function: execute_dot
+  category: physics
+
+cross:
+  symbol: "×"
+  name: CROSS
+  description: "Cross product"
+  args: ["A", "B"]
+  function: execute_cross
+  category: physics
+
+tensor_product:
+  symbol: "⊗"          # NOTE: display only; top-level ⊗ remains NEGATE
+  name: TENSOR_PRODUCT
+  description: "Tensor/outer product"
+  args: ["A", "B"]
+  function: execute_tensor_product
+  category: physics
+
+# --- Quantum Mechanics (symbolic forms with safe name dispatch) ---
+ket:
+  symbol: "|ψ⟩"
+  name: KET
+  description: "Quantum state ket"
+  args: ["label"]
+  function: execute_ket
+  category: quantum
+
+bra:
+  symbol: "⟨ψ|"
+  name: BRA
+  description: "Quantum state bra"
+  args: ["label"]
+  function: execute_bra
+  category: quantum
+
+operator:
+  symbol: "Â"
+  name: OPERATOR
+  description: "Linear operator on a state"
+  args: ["name", "arg?"]
+  function: execute_operator
+  category: quantum
+
+hamiltonian:
+  symbol: "H"
+  name: HAMILTONIAN
+  description: "Hamiltonian operator"
+  args: ["name?"]
+  function: execute_hamiltonian
+  category: quantum
+
+commutator:
+  symbol: "[ , ]"
+  name: COMMUTATOR
+  description: "Commutator [A, B] = AB - BA"
+  args: ["A", "B"]
+  function: execute_commutator
+  category: quantum
+
+schrodinger_evolution:
+  symbol: "≐"
+  name: SCHRODINGER_EQ
+  description: "iℏ ∂|ψ⟩/∂t = H|ψ⟩"
+  args: ["psi", "H", "t?"]
+  function: execute_schrodinger
+  category: quantum
+
+# --- General Relativity (safe names) ---
+metric:
+  symbol: "g_{μν}"
+  name: METRIC
+  description: "Spacetime metric tensor"
+  args: ["symbol?"]
+  function: execute_metric
+  category: gr
+
+inverse_metric:
+  symbol: "g^{μν}"
+  name: INVERSE_METRIC
+  description: "Inverse metric tensor"
+  args: ["symbol?"]
+  function: execute_inverse_metric
+  category: gr
+
+covariant_derivative:
+  symbol: "∇_μ"
+  name: COVARIANT_DERIVATIVE
+  description: "Covariant derivative"
+  args: ["expr", "index?"]
+  function: execute_covariant_derivative
+  category: gr
+
+riemann:
+  symbol: "R^ρ_{σμν}"
+  name: RIEMANN
+  description: "Riemann curvature tensor"
+  args: []
+  function: execute_riemann
+  category: gr
+
+ricci:
+  symbol: "R_{μν}"
+  name: RICCI
+  description: "Ricci tensor"
+  args: []
+  function: execute_ricci
+  category: gr
+
+ricci_scalar:
+  symbol: "R"
+  name: RICCI_SCALAR
+  description: "Ricci scalar"
+  args: []
+  function: execute_ricci_scalar
+  category: gr
+
+stress_energy:
+  symbol: "T_{μν}"
+  name: STRESS_ENERGY
+  description: "Stress-energy tensor"
+  args: ["symbol?"]
+  function: execute_stress_energy
+  category: gr
+
+einstein_tensor:
+  symbol: "G_{μν}"
+  name: EINSTEIN_TENSOR
+  description: "Einstein tensor (R_{μν} - 1/2 g_{μν} R)"
+  args: []
+  function: execute_einstein_tensor
+  category: gr
+
+einstein_equation:
+  symbol: "≐"
+  name: EINSTEIN_EQ
+  description: "G_{μν} = 8πG T_{μν}"
+  args: ["G", "T"]
+  function: execute_einstein_equation
+  category: gr

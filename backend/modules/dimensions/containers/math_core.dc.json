@@ -1,0 +1,61 @@
+{
+  "id": "math_core",
+  "name": "Math Core",
+  "version": "1.0.0",
+  "kind": "seed_container",
+  "metadata": {
+    "domain": "mathematics",
+    "description": "Foundational math seed: Linear Algebra + ODE/PDE starter glyphs",
+    "tags": ["math", "seed", "linear_algebra", "ode", "pde"]
+  },
+
+  "glyph_categories": [
+    {
+      "id": "linear_algebra",
+      "label": "Linear Algebra",
+      "tags": ["LA", "vector", "matrix", "eigen"]
+    },
+    {
+      "id": "ode_pde",
+      "label": "ODE / PDE",
+      "tags": ["dynamics", "systems", "boundary", "initial"]
+    }
+  ],
+
+  "nodes": [
+    {
+      "id": "la_basis",
+      "glyph": "𝐁",
+      "meaning": "Basis & span of a vector space",
+      "category": "linear_algebra",
+      "tags": ["LA", "basis", "span", "subspace"]
+    },
+    {
+      "id": "la_eigen",
+      "glyph": "λ⃗",
+      "meaning": "Eigenvalues and eigenvectors",
+      "category": "linear_algebra",
+      "tags": ["LA", "eigen", "diagonalization", "spectral"]
+    },
+    {
+      "id": "ode_linear",
+      "glyph": "ẋ = A x",
+      "meaning": "Linear ODE system",
+      "category": "ode_pde",
+      "tags": ["ODE", "linear", "systems", "stability"]
+    },
+    {
+      "id": "pde_heat",
+      "glyph": "u_t = α ∇²u",
+      "meaning": "Heat equation (diffusion)",
+      "category": "ode_pde",
+      "tags": ["PDE", "heat", "parabolic", "diffusion"]
+    }
+  ],
+
+  "links": [
+    { "src": "la_basis",  "dst": "la_eigen",   "relation": "prereq" },
+    { "src": "la_eigen",  "dst": "ode_linear", "relation": "solves_via_diagonalization" },
+    { "src": "la_eigen",  "dst": "pde_heat",   "relation": "fourier_modes_eigenbasis" }
+  ]
+}

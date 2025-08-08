@@ -24,7 +24,7 @@ from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_cont
 from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.hyperdrive_tuning_constants_module import HyperdriveTuningConstants
 
 # ⚙️ Gear Shift Module Integration
-from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.gear_shift_module import auto_gear_sequence, gear_shift
+from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.gear_shift_module import GearShiftManager
 
 # 🧩 Tesseract Injector Integration
 from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.tesseract_injector import TesseractInjector, CompressionChamber
@@ -54,7 +54,8 @@ async def run_tick_orchestration(engine):
         return
 
     # 🌊 Drift damping
-    drift = ECUDriftRegulator(engine).apply()
+    from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.drift_damping import apply_drift_damping
+    drift = apply_drift_damping(engine)
 
     # 🧠 Awareness feedback
     if engine.awareness:
@@ -79,7 +80,7 @@ async def run_tick_orchestration(engine):
             engine.log_event(f"⚠️ AwarenessEngine drift logging failed: {e}")
 
     # ✅ Core stateless tick
-    tick(engine)
+    await tick(engine)
 
     # 🔗 Twin engine sync
     if engine.twin_engine:
@@ -388,11 +389,13 @@ class TickOrchestrator:
 
     def _auto_gear_progression(self):
         stage_name = str(getattr(self.stage, "current_stage", "")).lower()
+
         if "g1" in stage_name or "g2" in stage_name or "g3" in stage_name:
-            auto_gear_sequence(self.engine, sqi_controller=self.engine.sqi_controller)
+            GearShiftManager.auto_gear_sequence(self.engine, sqi_controller=self.engine.sqi_controller)
+
         elif "warp_alignment" in stage_name:
             print("🚀 Warp alignment detected: syncing PI surge lock with G4.5 gear shift.")
-            gear_shift(self.engine, "G4.5")
+            GearShiftManager.gear_shift(self.engine, "G4.5")
 
     def _awareness_hooks(self, drift):
         try:

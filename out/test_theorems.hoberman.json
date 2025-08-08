@@ -1,0 +1,293 @@
+{
+  "type": "hoberman_container",
+  "id": "lean::hoberman::test_theorems.lean",
+  "metadata": {
+    "origin": "lean_import",
+    "source_path": "backend/modules/lean/examples/test_theorems.lean",
+    "logic_type": "lean_math"
+  },
+  "hoberman_glyphs": [
+    "⟦ Theorem ⟧ | add_zero : n + 0 = n → Prove ⟧",
+    "⟦ Theorem ⟧ | zero_add : 0 + n = n → Prove ⟧",
+    "⟦ Lemma ⟧ | mul_one : n * 1 = n → Prove ⟧",
+    "⟦ Definition ⟧ | square : ℕ → Define ⟧"
+  ],
+  "hoberman_logic": [
+    {
+      "name": "add_zero",
+      "symbol": "⟦ Theorem ⟧",
+      "logic": "n = n",
+      "logic_raw": "n + 0 = n",
+      "codexlang": {
+        "symbol": "⟦ Theorem ⟧",
+        "name": "add_zero",
+        "logic": "n + 0 = n",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "n + 0 = n"
+          },
+          {
+            "type": "Proof",
+            "value": "nat.add_zero n"
+          }
+        ],
+        "normalized": "n = n"
+      },
+      "glyph_tree": {
+        "type": "LogicGlyph",
+        "name": "add_zero",
+        "logic": "n + 0 = n",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "n + 0 = n"
+          },
+          {
+            "type": "Proof",
+            "value": "nat.add_zero n"
+          }
+        ]
+      },
+      "source": "backend/modules/lean/examples/test_theorems.lean",
+      "body": "nat.add_zero n"
+    },
+    {
+      "name": "zero_add",
+      "symbol": "⟦ Theorem ⟧",
+      "logic": "n = n",
+      "logic_raw": "0 + n = n",
+      "codexlang": {
+        "symbol": "⟦ Theorem ⟧",
+        "name": "zero_add",
+        "logic": "0 + n = n",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "0 + n = n"
+          },
+          {
+            "type": "Proof",
+            "value": "nat.zero_add n"
+          }
+        ],
+        "normalized": "n = n"
+      },
+      "glyph_tree": {
+        "type": "LogicGlyph",
+        "name": "zero_add",
+        "logic": "0 + n = n",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "0 + n = n"
+          },
+          {
+            "type": "Proof",
+            "value": "nat.zero_add n"
+          }
+        ]
+      },
+      "source": "backend/modules/lean/examples/test_theorems.lean",
+      "body": "nat.zero_add n"
+    },
+    {
+      "name": "mul_one",
+      "symbol": "⟦ Lemma ⟧",
+      "logic": "n = n",
+      "logic_raw": "n * 1 = n",
+      "codexlang": {
+        "symbol": "⟦ Lemma ⟧",
+        "name": "mul_one",
+        "logic": "n * 1 = n",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "n * 1 = n"
+          },
+          {
+            "type": "Proof",
+            "value": "nat.mul_one n"
+          }
+        ],
+        "normalized": "n = n"
+      },
+      "glyph_tree": {
+        "type": "LogicGlyph",
+        "name": "mul_one",
+        "logic": "n * 1 = n",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "n * 1 = n"
+          },
+          {
+            "type": "Proof",
+            "value": "nat.mul_one n"
+          }
+        ]
+      },
+      "source": "backend/modules/lean/examples/test_theorems.lean",
+      "body": "nat.mul_one n"
+    },
+    {
+      "name": "square",
+      "symbol": "⟦ Definition ⟧",
+      "logic": "ℕ",
+      "logic_raw": "ℕ",
+      "codexlang": {
+        "symbol": "⟦ Definition ⟧",
+        "name": "square",
+        "logic": "ℕ",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "ℕ"
+          },
+          {
+            "type": "Definition",
+            "value": "n * n"
+          }
+        ],
+        "normalized": "ℕ"
+      },
+      "glyph_tree": {
+        "type": "LogicGlyph",
+        "name": "square",
+        "logic": "ℕ",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "ℕ"
+          },
+          {
+            "type": "Definition",
+            "value": "n * n"
+          }
+        ]
+      },
+      "source": "backend/modules/lean/examples/test_theorems.lean",
+      "body": "n * n"
+    }
+  ],
+  "hoberman_tree": [
+    {
+      "name": "add_zero",
+      "glyph": "⟦ Theorem ⟧",
+      "node": {
+        "type": "LogicGlyph",
+        "name": "add_zero",
+        "logic": "n + 0 = n",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "n + 0 = n"
+          },
+          {
+            "type": "Proof",
+            "value": "nat.add_zero n"
+          }
+        ]
+      }
+    },
+    {
+      "name": "zero_add",
+      "glyph": "⟦ Theorem ⟧",
+      "node": {
+        "type": "LogicGlyph",
+        "name": "zero_add",
+        "logic": "0 + n = n",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "0 + n = n"
+          },
+          {
+            "type": "Proof",
+            "value": "nat.zero_add n"
+          }
+        ]
+      }
+    },
+    {
+      "name": "mul_one",
+      "glyph": "⟦ Lemma ⟧",
+      "node": {
+        "type": "LogicGlyph",
+        "name": "mul_one",
+        "logic": "n * 1 = n",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "n * 1 = n"
+          },
+          {
+            "type": "Proof",
+            "value": "nat.mul_one n"
+          }
+        ]
+      }
+    },
+    {
+      "name": "square",
+      "glyph": "⟦ Definition ⟧",
+      "node": {
+        "type": "LogicGlyph",
+        "name": "square",
+        "logic": "ℕ",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "ℕ"
+          },
+          {
+            "type": "Definition",
+            "value": "n * n"
+          }
+        ]
+      }
+    }
+  ],
+  "previews": [
+    "⟦ Theorem ⟧ | add_zero : n + 0 = n → Prove ⟧",
+    "⟦ Theorem ⟧ | zero_add : 0 + n = n → Prove ⟧",
+    "⟦ Lemma ⟧ | mul_one : n * 1 = n → Prove ⟧",
+    "⟦ Definition ⟧ | square : ℕ → Define ⟧"
+  ],
+  "dependencies": [
+    {
+      "theorem": "add_zero",
+      "depends_on": [
+        "nat.add_zero"
+      ]
+    },
+    {
+      "theorem": "zero_add",
+      "depends_on": [
+        "nat.zero_add"
+      ]
+    },
+    {
+      "theorem": "mul_one",
+      "depends_on": [
+        "nat.mul_one"
+      ]
+    },
+    {
+      "theorem": "square",
+      "depends_on": []
+    }
+  ]
+}

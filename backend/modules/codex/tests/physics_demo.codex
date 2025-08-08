@@ -1,0 +1,14 @@
+# Simple CodexLang-ish pseudo program (one op per line)
+GRAD { "field": "phi(x,y)", "coords": ["x","y"] }
+DIV  { "vec": ["u(x,y)","v(x,y)"], "coords": ["x","y"] }
+CURL { "vec": ["Ax","Ay","Az"], "coords": ["x","y","z"] }
+DOT  { "A": [1,2,3], "B":[4,5,6] }
+CROSS{ "A":[1,0,0], "B":[0,1,0] }
+TENSOR{ "A":[1,2], "B":[3,4] }
+
+Q.SCHR { "psi":"ψ0", "H":"H", "dt":0.1 }
+Q.GATE { "state":"|00⟩", "gate":"H", "wires":[0] }
+Q.MEAS { "state":"|ψ⟩", "wires":[0,1], "shots":256 }
+
+GR.Riemann { "metric": {"metric":"g_munu"} }
+GR.G       { "metric": {"metric":"g_munu"} }

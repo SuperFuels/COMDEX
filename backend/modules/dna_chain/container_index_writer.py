@@ -7,6 +7,7 @@ from typing import Dict, Any
 from datetime import datetime
 import uuid
 import os
+import json  # ✅ added
 
 from backend.modules.dimensions.universal_container_system.ucs_runtime import ucs_runtime
 from backend.modules.websocket_manager import WebSocketManager
@@ -20,10 +21,71 @@ def generate_uuid() -> str:
 # ✅ WebSocket for live UI updates
 ws_manager = WebSocketManager()
 
-# ✅ Lazy-load UCS to avoid circular import
+# ---------- CLI/Test fallback ----------
+# In-memory UCS stub used when the real state_manager/ucs isn’t available.
+_EPHEMERAL_UCS: Dict[str, Any] = {
+    "active_container": {
+        "id": "ucs_ephemeral",
+        "glyph_grid": [],
+        "indexes": {},
+        "last_updated": None,
+    },
+    "_ephemeral": True,
+}
+
+# Local JSONL sink for CLI/test mirroring
+_JSONL_MIRROR = "backend/data/knowledge_index.jsonl"
+
+def _append_jsonl(index_name: str, entry: Dict[str, Any], path: str = _JSONL_MIRROR) -> None:
+    """Mirror writes to a JSONL file for offline/CLI inspection."""
+    try:
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        rec = {
+            "ts": datetime.utcnow().isoformat(),
+            "index": index_name,
+            "entry": entry,
+        }
+        with open(path, "a", encoding="utf-8") as f:
+            f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+    except Exception as e:
+        # Never fail the write because of the mirror
+        print(f"⚠️ Index JSONL mirror failed: {e}")
+
+# ✅ Lazy-load UCS to avoid circular import, with robust fallback
 def _get_ucs():
-    sm = importlib.import_module("backend.modules.consciousness.state_manager")
-    return sm.get_active_universal_container_system()
+    """
+    Try several accessors on state_manager to fetch UCS.
+    If unavailable (or method missing), return a safe ephemeral UCS stub so
+    index writes still work in CLI/test mode.
+    """
+    try:
+        sm = importlib.import_module("backend.modules.consciousness.state_manager")
+    except Exception:
+        return _EPHEMERAL_UCS
+
+    # Try known accessors (be liberal across branches)
+    for accessor in (
+        "get_active_universal_container_system",
+        "get_universal_container_system",
+        "active_universal_container_system",
+    ):
+        fn = getattr(sm, accessor, None)
+        if callable(fn):
+            try:
+                ucs = fn()
+                if isinstance(ucs, dict):
+                    # Ensure structure is present
+                    ucs.setdefault("active_container", ucs.get("container", {}))
+                    ac = ucs.get("active_container")
+                    if isinstance(ac, dict):
+                        ac.setdefault("indexes", {})
+                    return ucs
+            except Exception:
+                # If calling the accessor fails, fall through to fallback
+                break
+
+    # Fallback UCS stub
+    return _EPHEMERAL_UCS
 
 
 def _get_or_create_index(container: Dict[str, Any], index_name: str):
@@ -55,7 +117,7 @@ def add_to_index(index_name: str, entry: Dict[str, Any]):
     Adds a symbolic glyph entry to a container-level index,
     validates Knowledge Graph integrity, syncs UCS state, and emits updates.
     """
-    ucs = _get_ucs()  # ✅ Lazy fetch to break circular dependency
+    ucs = _get_ucs()  # ✅ robust lazy fetch
     container = ucs.get("active_container", {})
 
     # ✅ Create or fetch the target index
@@ -63,6 +125,10 @@ def add_to_index(index_name: str, entry: Dict[str, Any]):
     index_entry = _create_index_entry(entry)
     index.append(index_entry)
     container["last_index_update"] = datetime.utcnow().isoformat()
+
+    # ✅ Mirror to JSONL if running without a real UCS (CLI/test)
+    if ucs is _EPHEMERAL_UCS or ucs.get("_ephemeral") is True:
+        _append_jsonl(index_name, index_entry)
 
     # ✅ Knowledge Graph validation (Rubric check)
     try:
@@ -80,29 +146,37 @@ def add_to_index(index_name: str, entry: Dict[str, Any]):
     except Exception as e:
         container["soul_law_error"] = f"SoulLaw validation failed: {str(e)}"
 
-    # ✅ UCS runtime sync (persist updated state)
+    # ✅ UCS runtime sync (persist updated state) — skip in ephemeral mode
     try:
-        ucs_runtime.save_container(container["id"], container)
-        print(f"📥 UCS Sync: Saved updated container state for {container['id']}")
+        if not (ucs is _EPHEMERAL_UCS or ucs.get("_ephemeral") is True):
+            cid = container.get("id") or "unknown_container"
+            ucs_runtime.save_container(cid, container)
+            print(f"📥 UCS Sync: Saved updated container state for {cid}")
     except Exception as e:
         print(f"⚠️ UCS sync failed: {e}")
 
-    # ✅ GHX visualization log
+    # ✅ GHX visualization log (guard)
     try:
-        ucs_runtime.visualizer.log_event(container["id"], f"Index updated: {index_name}")
+        cid = container.get("id") or "unknown_container"
+        if hasattr(ucs_runtime, "visualizer") and getattr(ucs_runtime, "visualizer"):
+            ucs_runtime.visualizer.log_event(cid, f"Index updated: {index_name}")
     except Exception as e:
         print(f"⚠️ GHX visualization logging failed: {e}")
 
-    # ✅ WebSocket broadcast for live index updates
-    ws_manager.broadcast({
-        "type": "index_update",
-        "data": {
-            "container_id": container.get("id"),
-            "index_name": index_name,
-            "entry": index_entry,
-            "timestamp": get_current_timestamp()
-        }
-    })
+    # ✅ WebSocket broadcast for live index updates (guard)
+    try:
+        ws_manager.broadcast({
+            "type": "index_update",
+            "data": {
+                "container_id": container.get("id"),
+                "index_name": index_name,
+                "entry": index_entry,
+                "timestamp": get_current_timestamp()
+            }
+        })
+    except Exception as e:
+        # In CLI/test, ws may not be active — don’t fail
+        print(f"⚠️ WS broadcast skipped: {e}")
 
     # ✅ Emit SQI event (index type aware)
     try:

@@ -1,0 +1,31 @@
+{
+  "container_id": "atom_math_logic",
+  "sqi_seed": true,
+  "physics": "symbolic-quantum",
+  "glyphs": [
+    { "id": "q_forall", "glyph": "⟦∀⟧", "meaning": "Universal quantifier", "type": "logic" },
+    { "id": "q_exists", "glyph": "⟦∃⟧", "meaning": "Existential quantifier", "type": "logic" },
+    { "id": "op_nabla", "glyph": "∇", "meaning": "Gradient operator", "type": "math" },
+    { "id": "op_partial", "glyph": "∂", "meaning": "Partial derivative", "type": "math" },
+    { "id": "op_dt", "glyph": "∂t", "meaning": "Time derivative", "type": "physics" },
+    { "id": "set_N", "glyph": "ℕ", "meaning": "Natural numbers", "type": "math" },
+    { "id": "set_Z", "glyph": "ℤ", "meaning": "Integers", "type": "math" },
+    { "id": "set_R", "glyph": "ℝ", "meaning": "Real numbers", "type": "math" },
+    { "id": "sym_entail", "glyph": "⊢", "meaning": "Syntactic entailment", "type": "logic" },
+    { "id": "sym_implication", "glyph": "⇨", "meaning": "Logical implication", "type": "logic" },
+    { "id": "sym_equiv", "glyph": "↔", "meaning": "Logical equivalence", "type": "logic" },
+    { "id": "sym_negation", "glyph": "¬", "meaning": "Logical negation", "type": "logic" },
+    { "id": "rule_mp", "glyph": "⊢ A, A ⇨ B ⊢ B", "meaning": "Modus Ponens", "type": "rule" },
+    { "id": "rule_identity", "glyph": "A ⊢ A", "meaning": "Identity Rule", "type": "rule" },
+    { "id": "rule_deduction", "glyph": "A ⊢ B ⇒ ⊢ A ⇨ B", "meaning": "Deduction Theorem", "type": "rule" },
+    { "id": "sym_quantum", "glyph": "⚛", "meaning": "Symbolic quantum marker", "type": "qglyph" }
+  ],
+  "meta": {
+    "created_by": "Tessaris",
+    "sqi_phase": 3,
+    "hologram_ready": true,
+    "entropy_score": 0.92,
+    "linked": [],
+    "created_at": "2025-08-07T00:00:00Z"
+  }
+}

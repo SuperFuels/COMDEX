@@ -1,0 +1,47 @@
+{
+  "container": {
+    "type": "hoberman_container",
+    "id": "lean::hoberman::test_theorems.lean",
+    "logic_field": "hoberman_logic",
+    "count": 4,
+    "by_symbol": {
+      "⟦ Theorem ⟧": 2,
+      "⟦ Lemma ⟧": 1,
+      "⟦ Definition ⟧": 1
+    }
+  },
+  "items": [
+    {
+      "name": "add_zero",
+      "symbol": "⟦ Theorem ⟧",
+      "logic_raw": "n + 0 = n",
+      "logic": "n = n",
+      "depends_on": [],
+      "source": "backend/modules/lean/examples/test_theorems.lean"
+    },
+    {
+      "name": "zero_add",
+      "symbol": "⟦ Theorem ⟧",
+      "logic_raw": "0 + n = n",
+      "logic": "n = n",
+      "depends_on": [],
+      "source": "backend/modules/lean/examples/test_theorems.lean"
+    },
+    {
+      "name": "mul_one",
+      "symbol": "⟦ Lemma ⟧",
+      "logic_raw": "n * 1 = n",
+      "logic": "n = n",
+      "depends_on": [],
+      "source": "backend/modules/lean/examples/test_theorems.lean"
+    },
+    {
+      "name": "square",
+      "symbol": "⟦ Definition ⟧",
+      "logic_raw": "ℕ",
+      "logic": "ℕ",
+      "depends_on": [],
+      "source": "backend/modules/lean/examples/test_theorems.lean"
+    }
+  ]
+}

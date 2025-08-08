@@ -3,7 +3,12 @@
 import { useState } from 'react'
 import Head from 'next/head'
 import api from '@/lib/api'
-
+import DriftPanel from "@/components/SQI/DriftPanel";
+// ...
+<DriftPanel />
+import KGList from "@/components/SQI/KGList";
+//...
+<KGList />
 export default function GlyphSynthesisPage() {
   const [inputText, setInputText] = useState('')
   const [glyphs, setGlyphs] = useState<any[] | null>(null)

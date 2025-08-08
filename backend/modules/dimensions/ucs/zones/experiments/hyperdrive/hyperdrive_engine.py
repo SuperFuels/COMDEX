@@ -60,8 +60,12 @@ class HyperdriveEngine:
     SAVE_PATH = "data/qwave_engine_state.json"
     LOG_DIR = "data/qwave_logs"
 
-    def __init__(self, container: SymbolicExpansionContainer, safe_mode: bool = False,
+    def __init__(self, name: str, args, runtime,
+                 container: SymbolicExpansionContainer, safe_mode: bool = False,
                  stage_lock: int = 6, virtual_absorber: bool = True, sqi_enabled: bool = True):
+        self.name = name
+        self.args = args
+        self.runtime = runtime
         self.container = container
         self.safe_mode = safe_mode
         self.stage_lock = stage_lock
@@ -286,6 +290,18 @@ class HyperdriveEngine:
         """
         from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.tick_module import inject_from_prediction
         inject_from_prediction(self, prediction)
+
+    def log_event(self, message: str):
+        """
+        🪵 Log Engine Event (if logger exists)
+        Allows optional runtime event logging for diagnostics.
+        """
+        try:
+            print(f"[LOG][{self.name}] {message}")  # fallback
+            if hasattr(self, "logger"):
+                self.logger.info(message)
+        except Exception as e:
+            print(f"[WARN] log_event failed: {e}")
 
 # -------------------------
 # 🔥 SINGLE TICK (Async)

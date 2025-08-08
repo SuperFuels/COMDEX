@@ -44,7 +44,8 @@ DAMPING_FACTOR = 0.981
 # ==========================================
 # 🌊 Drift & Warp Thresholds
 # ==========================================
-RESONANCE_DRIFT_THRESHOLD = 2.4
+RESONANCE_DRIFT_THRESHOLD = 0.075
+SPEED_THRESHOLD = 3.0
 QWAVE_DRIFT_THRESHOLD = 5.0
 WARP_PI_THRESHOLD = 3.14159
 

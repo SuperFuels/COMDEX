@@ -1,0 +1,157 @@
+{
+  "type": "hoberman_container",
+  "id": "lean::hoberman::test.lean",
+  "metadata": {
+    "origin": "lean_import",
+    "source_path": "backend/modules/lean/examples/test.lean",
+    "logic_type": "lean_math"
+  },
+  "hoberman_glyphs": [
+    "⟦ Theorem ⟧ | add_comm : a + b = b + a → Prove ⟧",
+    "⟦ Lemma ⟧ | zero_add : 0 + n = n → Prove ⟧"
+  ],
+  "hoberman_logic": [
+    {
+      "name": "add_comm",
+      "symbol": "⟦ Theorem ⟧",
+      "logic": "a + b = b + a",
+      "logic_raw": "a + b = b + a",
+      "codexlang": {
+        "symbol": "⟦ Theorem ⟧",
+        "name": "add_comm",
+        "logic": "a + b = b + a",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "a + b = b + a"
+          },
+          {
+            "type": "Proof",
+            "value": "Nat.add_comm a b"
+          }
+        ],
+        "normalized": "a + b = b + a"
+      },
+      "glyph_tree": {
+        "type": "LogicGlyph",
+        "name": "add_comm",
+        "logic": "a + b = b + a",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "a + b = b + a"
+          },
+          {
+            "type": "Proof",
+            "value": "Nat.add_comm a b"
+          }
+        ]
+      },
+      "source": "backend/modules/lean/examples/test.lean",
+      "body": "Nat.add_comm a b"
+    },
+    {
+      "name": "zero_add",
+      "symbol": "⟦ Lemma ⟧",
+      "logic": "n = n",
+      "logic_raw": "0 + n = n",
+      "codexlang": {
+        "symbol": "⟦ Lemma ⟧",
+        "name": "zero_add",
+        "logic": "0 + n = n",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "0 + n = n"
+          },
+          {
+            "type": "Proof",
+            "value": "Nat.zero_add n"
+          }
+        ],
+        "normalized": "n = n"
+      },
+      "glyph_tree": {
+        "type": "LogicGlyph",
+        "name": "zero_add",
+        "logic": "0 + n = n",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "0 + n = n"
+          },
+          {
+            "type": "Proof",
+            "value": "Nat.zero_add n"
+          }
+        ]
+      },
+      "source": "backend/modules/lean/examples/test.lean",
+      "body": "Nat.zero_add n"
+    }
+  ],
+  "hoberman_tree": [
+    {
+      "name": "add_comm",
+      "glyph": "⟦ Theorem ⟧",
+      "node": {
+        "type": "LogicGlyph",
+        "name": "add_comm",
+        "logic": "a + b = b + a",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "a + b = b + a"
+          },
+          {
+            "type": "Proof",
+            "value": "Nat.add_comm a b"
+          }
+        ]
+      }
+    },
+    {
+      "name": "zero_add",
+      "glyph": "⟦ Lemma ⟧",
+      "node": {
+        "type": "LogicGlyph",
+        "name": "zero_add",
+        "logic": "0 + n = n",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "0 + n = n"
+          },
+          {
+            "type": "Proof",
+            "value": "Nat.zero_add n"
+          }
+        ]
+      }
+    }
+  ],
+  "previews": [
+    "⟦ Theorem ⟧ | add_comm : a + b = b + a → Prove ⟧",
+    "⟦ Lemma ⟧ | zero_add : 0 + n = n → Prove ⟧"
+  ],
+  "dependencies": [
+    {
+      "theorem": "add_comm",
+      "depends_on": [
+        "Nat.add_comm"
+      ]
+    },
+    {
+      "theorem": "zero_add",
+      "depends_on": [
+        "Nat.zero_add"
+      ]
+    }
+  ]
+}

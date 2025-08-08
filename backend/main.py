@@ -143,6 +143,10 @@ from backend.routes.api import glyph_socket_api
 from backend.routes.ws import glyph_socket_ws
 from backend.routes.ws import ghx_ws
 from backend.routes import replay_api
+from backend.routes.lean_inject import router as lean_router
+from backend.routes import lean_inject_api 
+from backend.routes import sqi_drift
+from backend.routes import sqi_kg
 
 # ✅ WebSocket route
 from backend.api import ws
@@ -226,6 +230,10 @@ app.include_router(glyph_socket_api.router, prefix="/api")
 app.include_router(glyph_socket_ws.router)
 app.include_router(ghx_ws.router)
 app.include_router(replay_api.router)
+app.include_router(lean_router)
+app.include_router(lean_inject_api.router)
+app.include_router(sqi_drift.router)
+app.include_router(sqi_kg.router)
 
 # ── 16) Serve uploaded images
 app.mount("/uploaded_images", StaticFiles(directory="uploaded_images"), name="uploaded_images")
