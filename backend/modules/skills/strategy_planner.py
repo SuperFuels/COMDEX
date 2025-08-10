@@ -8,12 +8,7 @@ from backend.modules.logging.failure_logger import FailureLogger
 from backend.modules.codex.codex_trace import CodexTrace
 from backend.modules.skills.goal_engine import GOALS
 from backend.modules.skills.goal_engine import GoalEngine  # Added for goal linkage
-from backend.modules.knowledge.knowledge_graph_writer import kg_writer
-
-class StrategyPlanner:
-    def __init__(self, ...):
-        ...
-        self.trace = CodexTrace()
+from backend.modules.knowledge_graph.knowledge_graph_writer import kg_writer
 
 # ✅ DNA Switch
 from backend.modules.dna_chain.switchboard import DNA_SWITCH
@@ -30,6 +25,7 @@ class StrategyPlanner:
         self.strategies = []
         self.agents = []  # For agent communication
         self.strategy_goal_map = {}  # Maps strategy_id -> goal string
+        self.trace = CodexTrace()  # Restored from original placeholder version
         self.load()
         self.detect_and_handle_rewrites()  # 🧠 Respond to self-rewrite trigger
         self.failure_logger = FailureLogger()
@@ -343,7 +339,7 @@ class StrategyPlanner:
                 self.generate_with_ids(priority_importance=7)
                 break    
 
-        def generate_goal(self):
+    def generate_goal(self):
         """
         Generates a single high-level goal string for AION.
         Uses highest priority strategy if available, else returns a default goal.

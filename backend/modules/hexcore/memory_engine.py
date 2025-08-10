@@ -17,6 +17,74 @@ DNA_SWITCH.register(__file__)
 MEMORY_DIR = "data/memory_logs"
 ENABLE_GLYPH_LOGGING = True  # ✅ R1g
 
+# --- Sanitizers (Stage D) -----------------------------------------------------
+# 1) Generic sanitizer for the boot_loader's list-of-dicts file that must have "title"
+def sanitize_memory_file_at(path) -> None:
+    """
+    Ensure file at `path` is a JSON list of dicts containing 'title' (str).
+    If malformed, it will rewrite to a safe list.
+    """
+    try:
+        if not os.path.exists(path):
+            # nothing to sanitize; create an empty list to be safe
+            with open(path, "w") as f:
+                json.dump([], f)
+            print(f"🧽 sanitize_memory_file_at: created empty list at {path}")
+            return
+
+        with open(path, "r") as f:
+            raw = json.load(f)
+
+        if not isinstance(raw, list):
+            print(f"⚠️ sanitize_memory_file_at: not a list at {path}; writing empty list.")
+            with open(path, "w") as f:
+                json.dump([], f)
+            return
+
+        cleaned = [r for r in raw if isinstance(r, dict) and isinstance(r.get("title"), str)]
+        dropped = len(raw) - len(cleaned)
+        if dropped:
+            print(f"🧽 sanitize_memory_file_at: dropped {dropped} malformed rows at {path}.")
+        with open(path, "w") as f:
+            json.dump(cleaned, f, indent=2)
+
+    except Exception as e:
+        print(f"🚨 sanitize_memory_file_at failed for {path}: {e}")
+
+# 2) Local sanitizer for this engine’s per-container memory file (expects 'label')
+def sanitize_engine_memory_file(path) -> None:
+    """
+    Ensure MemoryEngine’s own on-disk file is a JSON list of dicts with 'label' and 'content'.
+    """
+    try:
+        if not os.path.exists(path):
+            with open(path, "w") as f:
+                json.dump([], f)
+            print(f"🧽 sanitize_engine_memory_file: created empty list at {path}")
+            return
+
+        with open(path, "r") as f:
+            raw = json.load(f)
+
+        if not isinstance(raw, list):
+            print(f"⚠️ sanitize_engine_memory_file: not a list at {path}; writing empty list.")
+            with open(path, "w") as f:
+                json.dump([], f)
+            return
+
+        def ok(d):
+            return isinstance(d, dict) and isinstance(d.get("label"), str) and isinstance(d.get("content"), str)
+
+        cleaned = [r for r in raw if ok(r)]
+        dropped = len(raw) - len(cleaned)
+        if dropped:
+            print(f"🧽 sanitize_engine_memory_file: dropped {dropped} malformed rows at {path}.")
+        with open(path, "w") as f:
+            json.dump(cleaned, f, indent=2)
+
+    except Exception as e:
+        print(f"🚨 sanitize_engine_memory_file failed for {path}: {e}")
+
 MILESTONE_KEYWORDS = {
     "first_dream": ["dream_reflection"],
     "cognitive_reflection": ["self-awareness", "introspection", "echoes of existence"],

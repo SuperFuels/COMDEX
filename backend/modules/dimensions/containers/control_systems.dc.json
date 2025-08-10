@@ -1,0 +1,170 @@
+{
+  "id": "control_systems",
+  "name": "control_systems",
+  "symbol": "🎛️",
+  "metadata": {
+    "version": "1.1",
+    "created_by": "AION Seed Generator",
+    "domain": "Control Systems",
+    "provenance": "seed",
+    "integration": {
+      "linked_domains": ["math_core", "physics_core", "economics_core"],
+      "export_ready": true
+    }
+  },
+  "glyph_categories": [
+    { "id": "fb",   "label": "Feedback",            "emoji": "🔁" },
+    { "id": "stab", "label": "Stability",           "emoji": "🏗️" },
+    { "id": "opt",  "label": "Optimal/Robust Ctrl", "emoji": "🎯" },
+    { "id": "dyn",  "label": "Dynamics/Models",     "emoji": "📈" },
+    { "id": "est",  "label": "Estimation/Filters",  "emoji": "🧮" },
+    { "id": "x",    "label": "Cross-Domain",        "emoji": "🔗" }
+  ],
+  "nodes": [
+    { "id": "pid_control",         "label": "PID Control",                       "cat": "fb",
+      "source": { "tier": "tertiary", "ref": "https://en.wikipedia.org/wiki/PID_controller" } },
+
+    { "id": "state_feedback",      "label": "State Feedback (Kx)",               "cat": "fb" },
+
+    { "id": "state_space",         "label": "State-Space Model (A,B,C,D)",       "cat": "dyn",
+      "source": { "tier": "secondary", "ref": "doi:10.1017/CBO9780511815983", "notes": "Dorf/Bishop, Ogata" } },
+
+    { "id": "transfer_function",   "label": "Transfer Function",                  "cat": "dyn" },
+    { "id": "pole_zero",           "label": "Pole-Zero Map",                      "cat": "dyn" },
+
+    { "id": "bode_plot",           "label": "Bode Plot",                          "cat": "stab" },
+    { "id": "nyquist_plot",        "label": "Nyquist Plot",                       "cat": "stab" },
+    { "id": "root_locus",          "label": "Root Locus",                         "cat": "stab" },
+
+    { "id": "lyapunov_stability",  "label": "Lyapunov Stability",                 "cat": "stab",
+      "source": { "tier": "primary", "ref": "doi:10.1137/1.9781611975401", "notes": "Khalil – Nonlinear Systems" } },
+
+    { "id": "controllability",     "label": "Controllability",                    "cat": "dyn" },
+    { "id": "observability",       "label": "Observability",                      "cat": "dyn" },
+
+    { "id": "lqr",                 "label": "Linear Quadratic Regulator",         "cat": "opt",
+      "source": { "tier": "secondary", "ref": "doi:10.1109/TAC.1968.1098905" } },
+
+    { "id": "riccati_equation",    "label": "Algebraic Riccati Equation",         "cat": "opt" },
+    { "id": "mpc",                 "label": "Model Predictive Control",           "cat": "opt",
+      "source": { "tier": "secondary", "ref": "doi:10.1002/rnc.126" } },
+
+    { "id": "h_infinity",          "label": "H∞ Robust Control",                  "cat": "opt",
+      "source": { "tier": "secondary", "ref": "doi:10.1137/1.9781611971168" } },
+
+    { "id": "kalman_filter",       "label": "Kalman Filter",                      "cat": "est",
+      "source": { "tier": "primary", "ref": "doi:10.1115/1.3662552", "notes": "Kalman 1960" } },
+
+    { "id": "ekf",                 "label": "Extended Kalman Filter",             "cat": "est" },
+    { "id": "ukf",                 "label": "Unscented Kalman Filter",            "cat": "est" },
+
+    { "id": "predictive_pid",      "label": "Predictive PID Tuning",              "cat": "fb",  "type": "predictive_fork" },
+    { "id": "proof_lyapunov",      "label": "Lyapunov Proof Replay",              "cat": "stab","type": "proof_replay" },
+
+    { "id": "softmax_readout_ctrl","label": "Softmax Readout (Action Ranking)",   "cat": "opt",
+      "type": "readout_head", "notes": "Tiny head to rank candidate control actions; learns from outcome reward." },
+    
+    { "id": "lqg",                 "label": "LQG (LQR + Kalman)",           "cat": "opt",
+      "source": { "tier": "secondary", "ref": "doi:10.1109/TAC.1965.1099977" } },
+    { "id": "luenberger_observer", "label": "Luenberger Observer",          "cat": "est" },
+    { "id": "disturbance_observer","label": "Disturbance Observer (DOB)",   "cat": "est" },
+    { "id": "anti_windup",         "label": "Anti-Windup Compensation",     "cat": "fb" },
+    { "id": "adaptive_control",    "label": "Adaptive Control",             "cat": "opt" },
+    { "id": "mrac",                "label": "MRAC (Model Reference AC)",    "cat": "opt" },
+    { "id": "gain_scheduling",     "label": "Gain Scheduling",              "cat": "opt" },
+    { "id": "sliding_mode",        "label": "Sliding-Mode Control",         "cat": "opt" },
+    { "id": "internal_model_ctrl", "label": "Internal Model Control (IMC)", "cat": "fb" },
+    { "id": "feedforward_ctrl",    "label": "Feedforward Control",          "cat": "fb" },
+    { "id": "h2_synthesis",        "label": "H2 Synthesis",                 "cat": "opt" },
+    { "id": "youla_param",         "label": "Youla–Kučera Parametrization", "cat": "opt" },
+    { "id": "system_ident",        "label": "System Identification",        "cat": "dyn" },
+    { "id": "mimo_systems",        "label": "MIMO Systems",                 "cat": "dyn" },
+    { "id": "nonmin_phase",        "label": "Non-Minimum-Phase Systems",    "cat": "dyn" },
+    { "id": "actuator_saturation", "label": "Actuator Saturation",          "cat": "dyn" },
+    { "id": "robust_margins",      "label": "Robust Stability Margins",     "cat": "stab" },
+    { "id": "cbf",                 "label": "Control Barrier Functions",    "cat": "stab" },
+    { "id": "barrier_lyapunov",    "label": "Barrier Lyapunov Stability",   "cat": "stab" },
+    { "id": "koopman",             "label": "Koopman Operator (Linearization in Lifted Space)", "cat": "dyn" },
+    { "id": "rl_control",          "label": "Reinforcement Learning Control","cat": "opt" },
+    { "id": "softmax_reward",      "label": "Reward Shaper (Softmax Head)", "cat": "opt", "type": "readout_head",
+      "notes": "Lightweight head for shaping rewards/credit assignment" },
+    { "id": "policy_eval",         "label": "Policy Evaluator",             "cat": "opt" },
+
+    { "id": "convex_optimization", "label": "Convex Optimization",          "cat": "x", "external": true },
+    { "id": "graph_theory",        "label": "Graph Theory",                 "cat": "x", "external": true },
+    { "id": "stochastic_processes","label": "Stochastic Processes",         "cat": "x", "external": true },
+    { "id": "mdp",                 "label": "Markov Decision Process",      "cat": "x", "external": true },
+    { "id": "rigid_body_dynamics", "label": "Rigid Body Dynamics",          "cat": "x", "external": true },
+    { "id": "linear_algebra",         "label": "Linear Algebra",          "cat": "x", "external": true },
+    { "id": "differential_equations", "label": "Differential Equations",  "cat": "x", "external": true },
+    { "id": "fourier_transform",      "label": "Fourier Transform",       "cat": "x", "external": true },
+    { "id": "bayesian_inference",     "label": "Bayesian Inference",      "cat": "x", "external": true }
+  ],
+  "links": [
+    { "src": "pid_control",        "dst": "bode_plot",            "relation": "analyzed_by" },
+    { "src": "pid_control",        "dst": "root_locus",           "relation": "gain_placement" },
+    { "src": "state_feedback",     "dst": "lyapunov_stability",   "relation": "stability_via" },
+    { "src": "state_feedback",     "dst": "root_locus",           "relation": "eigenvalue_placement" },
+
+    { "src": "state_space",        "dst": "transfer_function",    "relation": "maps_to" },
+    { "src": "transfer_function",  "dst": "bode_plot",            "relation": "frequency_view" },
+    { "src": "transfer_function",  "dst": "nyquist_plot",         "relation": "stability_assessment" },
+    { "src": "pole_zero",          "dst": "root_locus",           "relation": "trajectory_over_gain" },
+
+    { "src": "lqr",                "dst": "state_space",          "relation": "optimizes_on" },
+    { "src": "lqr",                "dst": "riccati_equation",     "relation": "solves_via" },
+    { "src": "h_infinity",         "dst": "state_space",          "relation": "synthesis_on" },
+    { "src": "mpc",                "dst": "state_space",          "relation": "predicts_with" },
+
+    { "src": "kalman_filter",      "dst": "state_space",          "relation": "estimates_in" },
+    { "src": "ekf",                "dst": "state_space",          "relation": "linearizes_on" },
+    { "src": "ukf",                "dst": "state_space",          "relation": "sigma_points_on" },
+
+    { "src": "controllability",    "dst": "state_space",          "relation": "property_of" },
+    { "src": "observability",      "dst": "state_space",          "relation": "property_of" },
+
+    { "src": "predictive_pid",     "dst": "pid_control",          "relation": "tunes" },
+    { "src": "proof_lyapunov",     "dst": "lyapunov_stability",   "relation": "replays" },
+
+    { "src": "softmax_readout_ctrl","dst": "lqr",                 "relation": "ranks_actions_for" },
+    { "src": "softmax_readout_ctrl","dst": "mpc",                 "relation": "ranks_actions_for" },
+    { "src": "lqg",               "dst": "lqr",                 "relation": "combines_with" },
+    { "src": "lqg",               "dst": "kalman_filter",       "relation": "combines_with" },
+    { "src": "luenberger_observer","dst": "state_space",         "relation": "designed_on" },
+    { "src": "disturbance_observer","dst": "actuator_saturation","relation": "mitigates_effects_of" },
+    { "src": "h2_synthesis",      "dst": "state_space",         "relation": "synthesis_on" },
+    { "src": "h2_synthesis",      "dst": "robust_margins",      "relation": "evaluated_by" },
+    { "src": "youla_param",       "dst": "transfer_function",   "relation": "parametrizes" },
+    { "src": "youla_param",       "dst": "h_infinity",          "relation": "enables_robust_design" },
+    { "src": "adaptive_control",  "dst": "mrac",                "relation": "includes" },
+    { "src": "gain_scheduling",   "dst": "nonmin_phase",        "relation": "caution_for" },
+    { "src": "adaptive_control",  "dst": "system_ident",        "relation": "requires_online_model" },
+    { "src": "internal_model_ctrl","dst": "feedforward_ctrl",   "relation": "augments" },
+    { "src": "anti_windup",       "dst": "actuator_saturation", "relation": "compensates" },
+    { "src": "sliding_mode",      "dst": "robust_margins",      "relation": "achieves_robustness_via" },
+    { "src": "mimo_systems",      "dst": "state_space",         "relation": "represented_in" },
+    { "src": "system_ident",      "dst": "state_space",         "relation": "produces_models_for" },
+    { "src": "cbf",               "dst": "lyapunov_stability",  "relation": "complements" },
+    { "src": "barrier_lyapunov",  "dst": "lyapunov_stability",  "relation": "extends" },
+    { "src": "koopman",           "dst": "state_space",         "relation": "lifts_to_linear" },
+    { "src": "rl_control",        "dst": "mdp",                 "relation": "formulated_as" },
+    { "src": "rl_control",        "dst": "policy_eval",         "relation": "evaluated_by" },
+    { "src": "softmax_readout_ctrl","dst": "rl_control",        "relation": "ranks_actions_for" },
+    { "src": "softmax_reward",    "dst": "rl_control",          "relation": "shapes_rewards_for" },
+    { "src": "policy_eval",       "dst": "softmax_readout_ctrl","relation": "consumes_scores_from" },
+    { "src": "robust_margins",    "dst": "nyquist_plot",        "relation": "assessed_with" },
+    { "src": "nonmin_phase",      "dst": "pole_zero",           "relation": "detected_in" },
+    { "src": "lqr",               "dst": "convex_optimization", "relation": "solved_by" },
+    { "src": "mpc",               "dst": "convex_optimization", "relation": "solved_by" },
+    { "src": "h_infinity",        "dst": "convex_optimization", "relation": "solved_by" },
+    { "src": "kalman_filter",     "dst": "stochastic_processes","relation": "assumes" },
+    { "src": "state_space",       "dst": "graph_theory",        "relation": "network_models_with" },
+    { "src": "rl_control",        "dst": "bayesian_inference",  "relation": "can_use" },
+    { "src": "state_space",       "dst": "rigid_body_dynamics", "relation": "applied_in" },
+
+    { "src": "state_space",        "dst": "linear_algebra",       "relation": "represented_by" },
+    { "src": "lyapunov_stability", "dst": "differential_equations","relation": "analyzed_with" },
+    { "src": "bode_plot",          "dst": "fourier_transform",    "relation": "frequency_analysis" },
+    { "src": "kalman_filter",      "dst": "bayesian_inference",   "relation": "uses_statistics" }
+  ]
+}

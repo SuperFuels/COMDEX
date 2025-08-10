@@ -1,4 +1,4 @@
-# File: backend/modules/sqi/sqi_event_bus.py
+# -*- coding: utf-8 -*-
 """
 SQI Event Bus
 =============
@@ -7,6 +7,8 @@ Integrates with Raspberry Pi GPIO for hardware signaling, while providing a fall
 mode when running off-Pi (e.g., dev environment).
 
 Additions in this version:
+    • Env-based logging controls (AION_LOG_LEVEL)
+    • Toggle simulated broadcast spam (AION_SQI_SIM_BROADCAST)
     • Burst-debounce + idempotent guard for knowledge_index.glyph_entry_added
     • publish_kg_added(payload) convenience publisher (drops dupes)
     • Safe wiring to KnowledgeIndex via knowledge_bus_adapter.ingest_bus_event
@@ -19,7 +21,117 @@ import threading
 from collections import OrderedDict
 from typing import Dict, Callable, Optional
 
-# ---- Optional KG adapter wiring --------------------------------------------
+# -----------------------------------------------------------------------------
+# Environment flags
+# -----------------------------------------------------------------------------
+import os, sys, time, json
+from typing import Optional, Dict, Any
+from collections import OrderedDict
+
+SIM_BROADCAST = os.getenv("AION_SQI_SIM_BROADCAST", "1") == "1"
+ENABLE_WS_BROADCAST = os.getenv("AION_ENABLE_WS_BROADCAST", "1") == "1"
+
+# logging config
+_LOG_LEVEL = (os.getenv("AION_LOG_LEVEL", "info") or "info").lower()
+_LOG_JSON  = os.getenv("AION_LOG_JSON", "0") == "1"          # structured logs
+_LOG_TS    = os.getenv("AION_LOG_TS", "1") == "1"            # prefix human timestamp if not JSON
+_LOG_SRC   = os.getenv("AION_LOG_SOURCE", "1") == "1"        # include "src" field
+
+# spam control
+_DEBOUNCE_MS_DEFAULT = int(os.getenv("AION_LOG_DEBOUNCE_MS", "150"))  # per-key
+_SAMPLE_RATE         = float(os.getenv("AION_LOG_SAMPLE_RATE", "1.0"))  # 0..1 probabilistic
+
+_LEVELS = {"debug": 10, "info": 20, "warn": 30, "warning": 30, "error": 40}
+
+# LRU-ish store for recent log keys
+_recent_log: "OrderedDict[str, float]" = OrderedDict()
+_RECENT_MAX = 4096
+
+def _should_log(level: str) -> bool:
+    return _LEVELS.get(level, 20) >= _LEVELS.get(_LOG_LEVEL, 20)
+
+def _maybe_drop_by_key(key: Optional[str], debounce_ms: Optional[int]) -> bool:
+    """Return True if this log should be dropped due to recent duplicate."""
+    if not key or not debounce_ms or debounce_ms <= 0:
+        return False
+    now = time.time() * 1000.0
+    last = _recent_log.get(key)
+    if last is not None and (now - last) < debounce_ms:
+        return True
+    _recent_log[key] = now
+    # trim oldest to keep memory bounded
+    while len(_recent_log) > _RECENT_MAX:
+        _recent_log.popitem(last=False)
+    return False
+
+def _fmt_now() -> str:
+    return time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime())
+
+def _emit(payload: str):
+    # Single write to stdout; change to stderr if you prefer
+    sys.stdout.write(payload + ("\n" if not payload.endswith("\n") else ""))
+    sys.stdout.flush()
+
+def _log(
+    level: str,
+    msg: str,
+    *,
+    src: Optional[str] = None,
+    key: Optional[str] = None,
+    debounce_ms: Optional[int] = None,
+    data: Optional[Dict[str, Any]] = None,
+):
+    """
+    Structured log with optional debounce and JSON formatting.
+
+    level:  "debug" | "info" | "warn" | "error"
+    src:    freeform string (module/function)
+    key:    dedupe key; messages with same key within debounce_ms are dropped
+    debounce_ms: override global debounce; set 0/None to disable for this line
+    data:   extra fields merged into JSON logs
+    """
+    if not _should_log(level):
+        return
+    # sampling
+    if _SAMPLE_RATE < 1.0:
+        import random
+        if random.random() > _SAMPLE_RATE:
+            return
+    # debounce
+    if _maybe_drop_by_key(key, debounce_ms if debounce_ms is not None else _DEBOUNCE_MS_DEFAULT):
+        return
+
+    if _LOG_JSON:
+        record = {
+            "ts": _fmt_now(),
+            "level": level,
+            "msg": msg,
+        }
+        if _LOG_SRC and src:
+            record["src"] = src
+        if data:
+            # avoid clobbering keys
+            record["data"] = data
+        _emit(json.dumps(record, ensure_ascii=False))
+    else:
+        parts = []
+        if _LOG_TS:
+            parts.append(_fmt_now())
+        parts.append(level.upper())
+        if _LOG_SRC and src:
+            parts.append(f"[{src}]")
+        parts.append(msg)
+        _emit(" ".join(parts))
+
+# Convenience wrappers
+def log_debug(msg: str, **kw):  _log("debug", msg, **kw)
+def log_info(msg: str, **kw):   _log("info", msg, **kw)
+def log_warn(msg: str, **kw):   _log("warn", msg, **kw)
+def log_error(msg: str, **kw):  _log("error", msg, **kw)
+
+# -----------------------------------------------------------------------------
+# Optional KG adapter wiring
+# -----------------------------------------------------------------------------
 try:
     # Ingests bus payloads into KnowledgeIndex with external_hash idempotency
     from backend.modules.knowledge_graph.knowledge_bus_adapter import ingest_bus_event
@@ -27,19 +139,23 @@ try:
 except Exception as _e:
     ingest_bus_event = None  # type: ignore
     _KG_ADAPTER_AVAILABLE = False
-    print(f"⚠️ SQI: Knowledge bus adapter not available ({_e}). KG ingest will be skipped.")
+    _log("warn", f"⚠️ SQI: Knowledge bus adapter not available ({_e}). KG ingest will be skipped.")
 
-# ---- GPIO detection ---------------------------------------------------------
+# -----------------------------------------------------------------------------
+# GPIO detection
+# -----------------------------------------------------------------------------
 try:
     import RPi.GPIO as GPIO
     GPIO.setmode(GPIO.BCM)  # BCM pin numbering
     GPIO_AVAILABLE = True
-    print("✅ SQI: Raspberry Pi GPIO detected, hardware mode enabled.")
-except ImportError:
+    _log("info", "✅ SQI: Raspberry Pi GPIO detected, hardware mode enabled.")
+except Exception:
     GPIO_AVAILABLE = False
-    print("⚠️ SQI: No GPIO detected, running in simulation mode.")
+    _log("warn", "⚠️ SQI: No GPIO detected, running in simulation mode.")
 
-# ---- Defaults ---------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# Defaults & registries
+# -----------------------------------------------------------------------------
 DEFAULT_PINS = {
     "container_growth": 17,
     "glyph_injection": 27,
@@ -50,10 +166,10 @@ DEFAULT_PINS = {
 # Event listeners registry (str -> list[callable])
 event_listeners: Dict[str, list[Callable[[dict], None]]] = {}
 
-# ---- Debounce / Idempotency for KG events ----------------------------------
+# Debounce / Idempotency for KG events
 _DEDUPE = OrderedDict()     # (container_id, external_hash) -> last_ms
-_DEBOUNCE_MS = 150          # collapse storms within this window
-_MAX_CACHE = 4096           # LRU-ish cap
+_DEBOUNCE_MS = int(os.getenv("AION_SQI_DEBOUNCE_MS", "150"))  # collapse storms within this window
+_MAX_CACHE = int(os.getenv("AION_SQI_DEDUPE_CACHE", "4096"))  # LRU-ish cap
 
 def _recent_kg(cid: Optional[str], h: Optional[str]) -> bool:
     """
@@ -73,35 +189,41 @@ def _recent_kg(cid: Optional[str], h: Optional[str]) -> bool:
         _DEDUPE.popitem(last=False)
     return False
 
-# ---- Listener registration --------------------------------------------------
+# -----------------------------------------------------------------------------
+# Listener registration
+# -----------------------------------------------------------------------------
 def register_event_listener(event_type: str, callback: Callable[[dict], None]) -> None:
     """Register a listener function for a given SQI event."""
     if event_type not in event_listeners:
         event_listeners[event_type] = []
     event_listeners[event_type].append(callback)
-    print(f"🔗 SQI listener registered for event: {event_type}")
+    _log("debug", f"🔗 SQI listener registered for event: {event_type}")
 
-# ---- Low-level GPIO pulse ---------------------------------------------------
+# -----------------------------------------------------------------------------
+# Low-level GPIO pulse
+# -----------------------------------------------------------------------------
 def _pulse_pin(pin: int, duration: float = 0.1) -> None:
     GPIO.setup(pin, GPIO.OUT)
     GPIO.output(pin, GPIO.HIGH)
     time.sleep(duration)
     GPIO.output(pin, GPIO.LOW)
 
-# ---- Core emitter -----------------------------------------------------------
+# -----------------------------------------------------------------------------
+# Core emitter
+# -----------------------------------------------------------------------------
 def emit_sqi_event(event_type: str, payload: Optional[dict] = None) -> None:
     """
     Emit an SQI event, pulsing GPIO (if available) and notifying listeners.
     """
     payload = payload or {}
-    print(f"[SQI Event] {event_type} | Payload: {payload}")
+    _log("info", f"[SQI Event] {event_type} | Payload: {payload}")
 
     # Hardware pulse or simulated notice
     if GPIO_AVAILABLE and event_type in DEFAULT_PINS:
         pin = DEFAULT_PINS[event_type]
         threading.Thread(target=_pulse_pin, args=(pin,), daemon=True).start()
-    elif not GPIO_AVAILABLE:
-        print(f"⚠️ SQI simulated pulse → Event: {event_type}")
+    elif not GPIO_AVAILABLE and SIM_BROADCAST:
+        _log("warn", f"⚠️ SQI simulated pulse → Event: {event_type}")
 
     # Notify listeners
     if event_type in event_listeners:
@@ -109,9 +231,11 @@ def emit_sqi_event(event_type: str, payload: Optional[dict] = None) -> None:
             try:
                 callback(payload)
             except Exception as e:
-                print(f"⚠️ SQI listener error for {event_type}: {e}")
+                _log("warn", f"⚠️ SQI listener error for {event_type}: {e}")
 
-# ---- High-level publishers --------------------------------------------------
+# -----------------------------------------------------------------------------
+# High-level publishers
+# -----------------------------------------------------------------------------
 def publish_kg_added(payload: dict) -> bool:
     """
     Publish 'knowledge_index.glyph_entry_added' with burst debounce + idempotency.
@@ -143,7 +267,9 @@ def publish_kg_added(payload: dict) -> bool:
     emit_sqi_event("knowledge_index.glyph_entry_added", payload)
     return True
 
-# ---- Optional: auto-wire KG ingest as a listener ---------------------------
+# -----------------------------------------------------------------------------
+# Optional: auto-wire KG ingest as a listener
+# -----------------------------------------------------------------------------
 def _kg_ingest_listener(payload: dict) -> None:
     """
     Listener that normalizes & writes into KnowledgeIndex (via adapter when available),
@@ -174,12 +300,14 @@ def _kg_ingest_listener(payload: dict) -> None:
                 except Exception:
                     pass
     except Exception as e:
-        print(f"⚠️ KG ingest failed: {e}")
+        _log("warn", f"⚠️ KG ingest failed: {e}")
 
 # Register the listener once at import time
 register_event_listener("knowledge_index.glyph_entry_added", _kg_ingest_listener)
 
-# ---- Heartbeat --------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# Heartbeat
+# -----------------------------------------------------------------------------
 def emit_heartbeat(interval: float = 5.0) -> None:
     """Emit periodic heartbeat pulses over SQI to confirm system is alive."""
     def _heartbeat_loop():
@@ -188,18 +316,27 @@ def emit_heartbeat(interval: float = 5.0) -> None:
             time.sleep(interval)
 
     threading.Thread(target=_heartbeat_loop, daemon=True).start()
-    print(f"💓 SQI heartbeat started (interval: {interval}s)")
+    _log("info", f"💓 SQI heartbeat started (interval: {interval}s)")
 
-# ---- Cleanup ----------------------------------------------------------------
+# Auto-start heartbeat if enabled
+if os.getenv("SQI_HEARTBEAT", "true").lower() == "true":
+    try:
+        iv = float(os.getenv("SQI_HEARTBEAT_INTERVAL", "5"))
+    except Exception:
+        iv = 5.0
+    emit_heartbeat(interval=iv)
+
+# -----------------------------------------------------------------------------
+# Cleanup
+# -----------------------------------------------------------------------------
 def cleanup_sqi() -> None:
     """Clean up GPIO pins on shutdown."""
     if GPIO_AVAILABLE:
-        GPIO.cleanup()
-        print("🧹 SQI GPIO cleaned up.")
-
-# ---- Auto-start heartbeat if enabled ---------------------------------------
-if os.getenv("SQI_HEARTBEAT", "true").lower() == "true":
-    emit_heartbeat()
+        try:
+            GPIO.cleanup()
+            _log("info", "🧹 SQI GPIO cleaned up.")
+        except Exception:
+            pass
 
 # =============================================================================
 # Helpers for inline ingest (fallback path) + relation linking

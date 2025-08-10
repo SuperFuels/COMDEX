@@ -11,3 +11,4 @@ export { default as TesseractRenderer } from "./TesseractRenderer";
 export { default as TorusRenderer } from "./TorusRenderer";
 export { default as VortexRenderer } from "./VortexRenderer";
 export { default as TetrahedronRenderer } from "./TetrahedronRenderer";
+export { default as AtomContainerRenderer } from "./AtomContainerRenderer";

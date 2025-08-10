@@ -10,7 +10,7 @@ load_dotenv()
 DISABLE_FAILURE_GLYPHS = os.getenv("DISABLE_FAILURE_GLYPHS", "false").lower() == "true"
 
 # ✅ Knowledge Graph Writer
-from backend.modules.knowledge.knowledge_graph_writer import KnowledgeGraphWriter
+from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter
 
 class FailureLogger:
     def __init__(self):

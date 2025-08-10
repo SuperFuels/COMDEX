@@ -1,0 +1,167 @@
+{
+  "id": "data_secondary",
+  "name": "Secondary Data (Processed/Curated)",
+  "symbol": "📖",
+  "metadata": {
+    "version": "1.0",
+    "created_by": "AION Seed Generator",
+    "domain": "Data",
+    "tier": "secondary",
+    "provenance": "seed",
+    "integration": {
+      "linked_domains": ["physics_core", "biology_core", "economics_core", "engineering_materials", "control_systems"],
+      "export_ready": true
+    }
+  },
+  "glyph_categories": [
+    { "id": "clean",    "label": "Cleaned/Standardized",  "emoji": "🧼" },
+    { "id": "feature",  "label": "Feature Sets",          "emoji": "🧩" },
+    { "id": "agg",      "label": "Aggregations",          "emoji": "📊" },
+    { "id": "catalog",  "label": "Catalog/Registry",      "emoji": "📇" },
+    { "id": "quality",  "label": "Quality/Validation",    "emoji": "✅" },
+    { "id": "lineage",  "label": "Lineage/Reproducible",  "emoji": "🧬" },
+    { "id": "privacy",  "label": "Privacy/Compliance",    "emoji": "🛡️" },
+    { "id": "pipeline", "label": "Pipelines/Contracts",   "emoji": "🛠️" },
+    { "id": "serve",    "label": "Serving/Indexes",       "emoji": "🗂️" },
+    { "id": "geo",      "label": "Geospatial",            "emoji": "🗺️" }
+  ],
+  "nodes": [
+    { "id": "tidy_tables",       "label": "Tidy Tables",                 "cat": "clean",
+      "from": ["sensor_timeseries","machine_logs"], "ops": ["impute","normalize","unit_convert"] },
+
+    { "id": "golden_datasets",   "label": "Golden Datasets",             "cat": "catalog",
+      "policy": "versioned, QA-checked, reproducible" },
+
+    { "id": "feature_marts",     "label": "Feature Marts",               "cat": "feature",
+      "ops": ["windowing","fft","wavelets","statics","onehot","embedding"] },
+
+    { "id": "agg_panels",        "label": "Aggregated Panels",           "cat": "agg",
+      "ops": ["resample","groupby","join","rollup"], "freq": ["hourly","daily","weekly"] },
+
+    { "id": "model_ready_sets",  "label": "Model-Ready Datasets",        "cat": "feature",
+      "notes": "train/val/test splits; schema contracts" },
+
+    { "id": "physics_curations", "label": "Physics Curations",           "cat": "catalog",
+      "notes": "cleaned spectra, curves, response surfaces", "external": true },
+
+    { "id": "omics_curations",   "label": "Omics Curations",             "cat": "catalog",
+      "notes": "expression matrices, variant calls", "external": true },
+
+    { "id": "econ_curations",    "label": "Economic Curations",          "cat": "catalog",
+      "notes": "macro panels, micro matched datasets", "external": true },
+
+
+
+    { "id": "quality_scorecards", "label": "Data Quality Scorecards",    "cat": "quality",
+      "checks": ["nulls","ranges","drift","duplicates","freshness","schema"] },
+
+    { "id": "anomaly_reports",    "label": "Anomaly Reports",            "cat": "quality",
+      "signals": ["zscore","ewma","prophet","isolation_forest"] },
+
+    { "id": "schema_contracts",   "label": "Schema Contracts",           "cat": "pipeline",
+      "style": ["Avro","JSONSchema","ParquetSchema"], "modes": ["strict","backward","forward"] },
+
+    { "id": "transform_pipelines","label": "Transform DAG Specs",        "cat": "pipeline",
+      "engine": ["Airflow","Dagster","Prefect"], "artifacts": ["code","env","params"] },
+
+    { "id": "lineage_graph",      "label": "Lineage Graph",              "cat": "lineage",
+      "tracks": ["sources","transforms","outputs","versions","owners"] },
+
+    { "id": "repro_bundles",      "label": "Reproducibility Bundles",    "cat": "lineage",
+      "contents": ["notebook","env_lock","seed","checksums"] },
+
+    { "id": "versioned_snapshots","label": "Versioned Snapshots (SCD)",  "cat": "catalog",
+      "types": ["SCD1","SCD2"], "granularity": ["daily","monthly","event"] },
+
+    { "id": "conformed_dimensions","label": "Conformed Dimensions",      "cat": "catalog",
+      "dims": ["time","entity","product","geo","instrument"] },
+
+    { "id": "join_keys_registry", "label": "Join Keys Registry",         "cat": "catalog",
+      "notes": "surrogate keys, hashing strategies, collision policy" },
+
+    { "id": "entity_resolution",  "label": "Entity Resolution (ER)",     "cat": "clean",
+      "methods": ["rules","probabilistic","graph"], "quality": "curated" },
+
+    { "id": "unit_norm_maps",     "label": "Unit Normalization Maps",    "cat": "clean",
+      "ontologies": ["UDUNITS","QUDT"] },
+
+    { "id": "encoding_maps",      "label": "Encoding/Code Maps",         "cat": "clean",
+      "kinds": ["onehot","target","ordinal","tokenizers"] },
+
+    { "id": "deidentified_views", "label": "De-Identified Views",        "cat": "privacy",
+      "tech": ["masking","tokenization","k-anonymity"], "governed_by": ["consent_records","pii_manifest"] },
+
+    { "id": "dp_releases",        "label": "Differential Privacy Releases","cat": "privacy",
+      "mechanisms": ["Laplace","Gaussian"], "epsilon_range": [0.1, 5.0] },
+
+    { "id": "feature_store",      "label": "Feature Store",              "cat": "serve",
+      "serving": ["offline","online"], "policies": ["ttl","freshness","backfill"] },
+
+    { "id": "embedding_store",    "label": "Embedding Store (Vectors)",  "cat": "serve",
+      "index": ["HNSW","IVF","Flat"], "dims": [128,256,512,1024] },
+
+    { "id": "vector_index",       "label": "Vector Index Registry",      "cat": "serve",
+      "ops": ["upsert","search","rebuild"] },
+
+    { "id": "geo_tiles",          "label": "Geo Tiles (XYZ/COG)",        "cat": "geo",
+      "zoom_levels": [0, 22] },
+
+    { "id": "time_alignment_idx", "label": "Time Alignment Index",       "cat": "clean",
+      "ops": ["asof_join","clock_sync","timezone_norm"] }
+  ],
+  "links": [
+
+    { "src": "tidy_tables",       "dst": "golden_datasets",   "relation": "promoted_to" },
+    { "src": "feature_marts",     "dst": "model_ready_sets",  "relation": "feeds" },
+    { "src": "agg_panels",        "dst": "model_ready_sets",  "relation": "feeds" },
+    { "src": "physics_curations", "dst": "golden_datasets",   "relation": "registered_in" },
+    { "src": "omics_curations",   "dst": "golden_datasets",   "relation": "registered_in" },
+    { "src": "econ_curations",    "dst": "golden_datasets",   "relation": "registered_in" },
+
+
+    { "src": "tidy_tables",       "dst": "schema_contracts",  "relation": "validated_against" },
+    { "src": "tidy_tables",       "dst": "quality_scorecards","relation": "assessed_by" },
+    { "src": "tidy_tables",       "dst": "lineage_graph",     "relation": "tracked_in" },
+    { "src": "feature_marts",     "dst": "quality_scorecards","relation": "assessed_by" },
+    { "src": "feature_marts",     "dst": "schema_contracts",  "relation": "validated_against" },
+    { "src": "agg_panels",        "dst": "quality_scorecards","relation": "assessed_by" },
+    { "src": "model_ready_sets",  "dst": "schema_contracts",  "relation": "constrained_by" },
+    { "src": "model_ready_sets",  "dst": "repro_bundles",     "relation": "reproduced_by" },
+    { "src": "versioned_snapshots","dst":"golden_datasets",   "relation": "versions_of" },
+
+
+    { "src": "tidy_tables",       "dst": "unit_norm_maps",    "relation": "standardized_with" },
+    { "src": "tidy_tables",       "dst": "encoding_maps",     "relation": "encoded_with" },
+    { "src": "entity_resolution", "dst": "tidy_tables",       "relation": "applied_to" },
+    { "src": "time_alignment_idx","dst": "tidy_tables",       "relation": "aligns" },
+
+
+    { "src": "conformed_dimensions","dst":"agg_panels",       "relation": "joined_into" },
+    { "src": "join_keys_registry", "dst":"conformed_dimensions","relation": "keys_for" },
+    { "src": "join_keys_registry", "dst":"tidy_tables",       "relation": "used_by" },
+
+
+    { "src": "deidentified_views","dst": "model_ready_sets",  "relation": "feeds" },
+    { "src": "deidentified_views","dst": "dp_releases",       "relation": "basis_for" },
+
+
+    { "src": "feature_marts",     "dst": "feature_store",     "relation": "published_to" },
+    { "src": "embedding_store",   "dst": "vector_index",      "relation": "indexed_by" },
+    { "src": "feature_marts",     "dst": "embedding_store",   "relation": "embeds_into" },
+
+
+    { "src": "agg_panels",        "dst": "geo_tiles",         "relation": "tiled_as" },
+
+
+    { "src": "transform_pipelines","dst":"tidy_tables",       "relation": "produces" },
+    { "src": "transform_pipelines","dst":"feature_marts",     "relation": "produces" },
+    { "src": "transform_pipelines","dst":"agg_panels",        "relation": "produces" },
+    { "src": "repro_bundles",     "dst":"model_ready_sets",   "relation": "recreates" },
+
+
+    { "src": "tidy_tables",       "dst": "sensor_timeseries", "relation": "derived_from" },
+    { "src": "tidy_tables",       "dst": "machine_logs",      "relation": "derived_from" },
+    { "src": "feature_marts",     "dst": "tidy_tables",       "relation": "derived_from" },
+    { "src": "agg_panels",        "dst": "tidy_tables",       "relation": "derived_from" }
+  ]
+}

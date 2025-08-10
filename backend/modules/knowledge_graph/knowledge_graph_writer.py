@@ -18,8 +18,10 @@ Design Rubric:
 """
 import datetime
 import importlib
+import os, json
 from typing import Optional, Dict, Any, Tuple, List
 from collections import defaultdict
+from pathlib import Path
 
 # ✅ Correct utility imports
 from backend.modules.knowledge_graph.id_utils import generate_uuid
@@ -28,8 +30,18 @@ from backend.modules.knowledge_graph.time_utils import get_current_timestamp
 # ✅ Knowledge graph and indexing
 from backend.modules.dna_chain.container_index_writer import add_to_index
 
+# --- export support ---
+from pathlib import Path
+
+# Where KG exports will be written (mirrors boot_loader defaults)
+# --- KG export location (persistent) ---
+_REPO_ROOT = Path(__file__).resolve().parents[3]
+KG_EXPORTS_DIR = _REPO_ROOT / "backend" / "modules" / "dimensions" / "containers" / "kg_exports"
+KG_EXPORTS_DIR.mkdir(parents=True, exist_ok=True)
+
 # --- add near the top of the file (after imports) ---
 _EPHEMERAL_CONTAINER = {"id": "kg_cli_ephemeral", "glyph_grid": [], "last_updated": None}
+ENABLE_WS_BROADCAST = os.getenv("AION_ENABLE_WS_BROADCAST", "1") == "1"
 
 def get_active_container():
     """
@@ -125,16 +137,23 @@ crdt_registry = CRDTRegistry()
 # Knowledge Graph Writer
 # ──────────────────────────────
 class KnowledgeGraphWriter:
-    def __init__(self):
+    def __init__(self, container_id: Optional[str] = None, **kwargs):
         # Explicitly attached UCS container (if any)
-        self._container = None  
+        self._container = None 
+        self.container_id = container_id 
 
     def attach_container(self, container: dict):
         """
         Bind a specific UCS container so glyphs land in the correct place.
         This bypasses the default active container.
+        Also auto-exports a KG snapshot for persistence in kg_exports/.
         """
         self._container = container
+        # 🔄 Automatically export the attached container's KG to kg_exports/<name>.kg.json
+        try:
+            self._auto_export_attached()
+        except Exception as e:
+            print(f"⚠️ KG auto-export failed: {e}")
 
     @property
     def container(self):
@@ -165,6 +184,120 @@ class KnowledgeGraphWriter:
             "stats_index": stats_result["stats_index"],
             "total_glyphs": len(glyphs)
         }
+
+    def export_pack(self, container: dict, out_path: str | Path):
+        """
+        Export the current container's KG content (from glyph_grid) into a compact
+        domain-pack JSON (nodes/links + categories), so we can reload without recomputing.
+        """
+        cg = container.get("glyph_grid", [])
+        nodes = [g for g in cg if g.get("type") == "kg_node"]
+        edges = [g for g in cg if g.get("type") == "kg_edge"]
+
+        pack = {
+            "id": container.get("id"),
+            "name": container.get("name"),
+            "symbol": container.get("symbol", "❔"),
+            "glyph_categories": container.get("glyph_categories", []),
+            "nodes": [
+                # keep original metadata shape, annotate type for clarity
+                (n.get("metadata", {}) | {"type": "kg_node"})
+                for n in nodes
+                if isinstance(n, dict)
+            ],
+            "links": [
+                {
+                    "src": e.get("metadata", {}).get("from"),
+                    "dst": e.get("metadata", {}).get("to"),
+                    "relation": e.get("metadata", {}).get("relation"),
+                }
+                for e in edges
+                if isinstance(e, dict)
+            ],
+        }
+
+        out_path = Path(out_path)
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(out_path, "w") as f:
+            json.dump(pack, f, indent=2)
+        print(f"💾 KG export saved to {out_path}")
+
+        if ENABLE_WS_BROADCAST:
+            _safe_emit(broadcast_event({
+                "type": "kg_update",
+                "domain": "physics_core",
+                "file": str(out_path),
+                "status": "saved"
+            }))
+        return str(out_path)
+
+    def export_pack(self, container: dict, out_path: str | Path):
+        """
+        Export the container's KG content (from glyph_grid) to a compact JSON pack
+        so it can be reloaded without recomputing.
+        """
+        cg = container.get("glyph_grid", [])
+        nodes = [g for g in cg if g.get("type") == "kg_node"]
+        edges = [g for g in cg if g.get("type") == "kg_edge"]
+
+        pack = {
+            "id": container.get("id"),
+            "name": container.get("name"),
+            "symbol": container.get("symbol", "❔"),
+            "glyph_categories": container.get("glyph_categories", []),
+            "nodes": [
+                (n.get("metadata", {}) | {"type": "kg_node"})
+                for n in nodes if isinstance(n, dict)
+            ],
+            "links": [
+                {
+                    "src": e.get("metadata", {}).get("from"),
+                    "dst": e.get("metadata", {}).get("to"),
+                    "relation": e.get("metadata", {}).get("relation"),
+                }
+                for e in edges if isinstance(e, dict)
+            ],
+        }
+
+        out_path = Path(out_path)
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(out_path, "w") as f:
+            json.dump(pack, f, indent=2)
+        print(f"💾 KG export saved to {out_path}")
+        if ENABLE_WS_BROADCAST:
+            _safe_emit(broadcast_event({
+                "type": "kg_update",
+                "domain": "physics_core",
+                "file": str(out_path),
+                "status": "saved"
+            }))
+        return str(out_path)
+
+    def _auto_export_attached(self):
+        """
+        If a container is attached, write its KG snapshot to kg_exports/<name>.kg.json.
+        Safe no-op if container is missing or empty.
+        """
+        try:
+            c = self.container
+            if not isinstance(c, dict):
+                return
+            name = c.get("name") or c.get("id")
+            if not name:
+                return
+            out = KG_EXPORTS_DIR / f"{name}.kg.json"
+            self.export_pack(c, out)
+        except Exception as e:
+            print(f"⚠️ KG auto-export skipped: {e}")
+
+    def save_current_pack(self, filename: str | None = None):
+        """
+        Manual trigger for saving the current container's KG pack.
+        """
+        c = self.container
+        name = (filename or c.get("name") or c.get("id") or "kg_export").rstrip(".json")
+        out = KG_EXPORTS_DIR / f"{name}.kg.json"
+        return self.export_pack(c, out)
 
     def inject_glyph(
         self,
@@ -392,23 +525,21 @@ class KnowledgeGraphWriter:
                 add_to_index("knowledge_index.glyph", g)
                 return g
         raise KeyError(f"Glyph {glyph_id} not found for merge edit.")
-
     # ── Convenience injectors (kept) ──
     def inject_self_reflection(self, message: str, trigger: str):
-        return self.inject_glyph(content=f"Reflection: {message}", glyph_type="self_reflection", metadata={"trigger": trigger})
+        return self.inject_glyph(content=f"Reflection: {message}", glyph_type="self_reflection",
+                                 metadata={"trigger": trigger})
 
     def inject_prediction(self, hypothesis: str, based_on: str, confidence: float = 0.75,
                           plugin: Optional[str] = None, region: Optional[str] = None,
                           coords: Optional[Tuple[float, float, float]] = None):
-        return self.inject_glyph(content=hypothesis, glyph_type="predictive", metadata={"based_on": based_on},
-                                 prediction="future", forecast_confidence=confidence, plugin=plugin,
-                                 region=region, coordinates=coords)
-    
-        # ── KG node/edge helpers ──
+        return self.inject_glyph(content=hypothesis, glyph_type="predictive",
+                                 metadata={"based_on": based_on},
+                                 prediction="future", forecast_confidence=confidence,
+                                 plugin=plugin, region=region, coordinates=coords)
+
+    # ── KG node/edge helpers ──
     def add_node(self, node_id: str, label: str, meta: Optional[Dict[str, Any]] = None):
-        """
-        Store a KG node as a glyph entry (typed 'kg_node') so it is queryable + replayable.
-        """
         return self.inject_glyph(
             content=f"KGNode:{node_id} label={label}",
             glyph_type="kg_node",
@@ -416,18 +547,53 @@ class KnowledgeGraphWriter:
             plugin="KG"
         )
 
+    # --- Source/provenance helpers ---
+    def add_source(self, node_id: str, source: Dict[str, Any]):
+        return self.inject_glyph(
+            content=f"KGSource:{node_id}",
+            glyph_type="kg_source",
+            metadata={"node_id": node_id, **(source or {})},
+            plugin="KG"
+        )
+
+    def link_source(self, node_id: str, source_id: str, relation: str = "supports"):
+        try:
+            self.write_link_entry(node_id, source_id, relation)
+        except Exception:
+            pass
+        return self.inject_glyph(
+            content=f"KGEdge:{node_id}->{source_id} rel={relation}",
+            glyph_type="kg_edge",
+            metadata={"from": node_id, "to": source_id, "relation": relation},
+            plugin="KG"
+        )
+
     def add_edge(self, src: str, dst: str, relation: str):
-        """
-        Store a KG edge. Reuse the existing link writer for indexes + telemetry.
-        """
         self.write_link_entry(src, dst, relation)
-        # Optionally also persist a glyph for timeline/replay:
         return self.inject_glyph(
             content=f"KGEdge:{src}->{dst} rel={relation}",
             glyph_type="kg_edge",
             metadata={"from": src, "to": dst, "relation": relation},
             plugin="KG"
         )
+
+    def add_source(self, node_id: str, source: dict):
+        """
+        Attach or update source metadata for a given KG node by emitting a kg_source glyph.
+        source = {"tier": "primary|secondary|tertiary", "ref": "doi/url", "notes": "..."}
+        """
+        return self.inject_glyph(
+            content=f"KGSource:{node_id}",
+            glyph_type="kg_source",
+            metadata={"node_id": node_id, **(source or {})},
+            plugin="KG"
+        )
+
+    def link_source(self, node_id: str, source_id: str, relation: str = "supports"):
+        """
+        Link a node to a source with a 'supports' (or custom) relation, as a normal KG edge.
+        """
+        return self.add_edge(node_id, source_id, relation)
 
     def inject_plugin_aware(self, content: str, glyph_type: str, plugin_name: str, metadata: Optional[Dict[str, Any]] = None):
         return self.inject_glyph(content=content, glyph_type=glyph_type, metadata=metadata, plugin=plugin_name)
@@ -441,27 +607,66 @@ class KnowledgeGraphWriter:
 
     def load_domain_pack(self, container_id: str, container: Dict[str, Any]) -> bool:
         """
-        Ingest a domain seed (e.g., physics_core) into the live KG.
-        Returns True if handled.
+        Ingest ANY domain seed (id/nodes/links) into the live KG.
         """
-        if container_id != "physics_core":
+        nodes = container.get("nodes", [])
+        links = container.get("links", [])
+        if not nodes and not links:
             return False
 
-        for node in container.get("nodes", []):
+        # Add nodes
+        for node in nodes:
             self.add_node(
                 node["id"],
                 label=node.get("label", node["id"]),
                 meta={
-                    "source": "physics_core",
-                    "domain": "physics",
+                    "source": container_id,
+                    "domain": container.get("metadata", {}).get("domain") or container.get("name") or container_id,
                     "category": node.get("cat"),
+                    **({k: v for k, v in node.items() if k not in ("id", "label", "cat")} ),
                 },
             )
 
-        for link in container.get("links", []):
+        # Add links
+        for link in links:
             self.add_edge(link["src"], link["dst"], link.get("relation", "relates_to"))
 
-        return True       
+        # Auto-export snapshot
+        try:
+            c = self.container if getattr(self, "_container", None) else container
+            out_path = (Path(os.getenv("AION_KG_EXPORT_DIR", "")) if os.getenv("AION_KG_EXPORT_DIR")
+                        else (Path(__file__).resolve().parents[3] / "backend/modules/dimensions/containers_saved/kg_exports")) \
+                    / f"{container_id}.kg.json"
+            out_path.parent.mkdir(parents=True, exist_ok=True)
+            self.export_pack(c, out_path)
+        except Exception as e:
+            print(f"⚠️ KG auto-export failed for {container_id}: {e}")
+
+        return True  
+
+    def export_pack(self, container: dict, out_path: str):
+        nodes = [g for g in container.get("glyph_grid", []) if g.get("type") == "kg_node"]
+        edges = [g for g in container.get("glyph_grid", []) if g.get("type") == "kg_edge"]
+        pack = {
+            "id": container.get("id"),
+            "name": container.get("name"),
+            "symbol": container.get("symbol", "❔"),
+            "glyph_categories": container.get("glyph_categories", []),
+            "nodes": [n["metadata"] | {"type": "kg_node"} for n in nodes if "metadata" in n],
+            "links": [
+                {
+                    "src": e["metadata"]["from"],
+                    "dst": e["metadata"]["to"],
+                    "relation": e["metadata"]["relation"]
+                }
+                for e in edges if "metadata" in e
+            ],
+        }
+        import json, os
+        os.makedirs(os.path.dirname(out_path), exist_ok=True)
+        with open(out_path, "w") as f:
+            json.dump(pack, f, indent=2)
+        return out_path
 
     # ── New: Proof/Drift/Harmonics helpers (Stage C/D integration) ──
     def write_proof_state(self,

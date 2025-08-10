@@ -1,4 +1,141 @@
 graph TD
+    A0[📦 Multi-Scale Atomic Expansion Across All Containers] --> A1
+    A1[Define container capacity rules per size class] --> A2
+    A2[Implement auto-population of atoms based on container volume] --> A3
+    A3[Atom states: full / partial / empty] --> A4
+    A4[Integrate SQI atom capacity registry & tracking] --> A5
+    A5[Add sub-containers: macro → atomic → subatomic → Planck] --> A6
+    A6[Recursive inflation: trigger deeper expansion only on atom activation] --> A7
+    A7[Alarm/monitor system: available atoms & free capacity] --> A8
+    A8[Extend logic to all container classes (Hoberman, SEC, Atom, Symmetry, Exotic, .dc)] --> A9
+    A9[Update inflation functions to respect atomic capacity rules] --> A10
+    A10[Update SQI container mapping to show multi-scale availability] --> A11
+    A11[Test deep inflation performance & SQI awareness alarms] --> A12
+    A12[Finalize documentation & container physics glossary]
+
+gantt
+    title UCS Hoberman + Hierarchical Atom Runtime — Build Checklist
+    dateFormat  YYYY-MM-DD
+    axisFormat  %m/%d
+
+    section Capacity & Geometry
+    Define grid_dims & cap model ([x,y,z], cap=∏)          :done,    cap1, 2025-08-09, 1d
+    Sparse index (no prefill) + cell state enum             :active,  cap2, 2025-08-10, 2d
+    Capacity counters (used/free/partials/fragmentation)    :         cap3, 2025-08-12, 1d
+    Hoberman expand/contract updates cap + emit event       :         cap4, 2025-08-13, 1d
+
+    section Hierarchical Depth
+    Atom depth schema (macro/atomic/subatomic/planck)      :done,    depth1, 2025-08-09, 0.5d
+    Lazy inflate API (inflate(atom_id, depth))              :active,  depth2, 2025-08-10, 1d
+    Prewarm policy hooks (forecast, hot-rings)              :         depth3, 2025-08-11, 0.5d
+    Child caps per depth (+ accounting)                     :         depth4, 2025-08-11, 0.5d
+
+    section SQI Signals & Backpressure
+    Alarms: low_free_slots / high_fragmentation             :active,  sig1, 2025-08-10, 0.5d
+    Alarms: depth.inflate_required / inflate_{ok,failed}    :         sig2, 2025-08-10, 0.5d
+    Backpressure 409s: capacity_exhausted / depth_cap_exceeded :     sig3, 2025-08-11, 0.5d
+
+    section APIs & Telemetry
+    GET /ucs/debug (capacity + per-atom depth/state)        :active,  api1, 2025-08-10, 0.5d
+    POST /ucs/inflate {atom_id,target_depth,reason}         :         api2, 2025-08-11, 0.5d
+    POST /ucs/reserve {count|coords}                        :         api3, 2025-08-11, 0.5d
+    Metrics bus → SQI (events & thresholds)                 :         api4, 2025-08-12, 0.5d
+
+    section Placement & Maintenance
+    Allocator v1 (scanline / nearest-fit)                   :         place1, 2025-08-12, 0.5d
+    Fragmentation monitor + compaction/migration task       :         place2, 2025-08-12, 0.5d
+
+    section Defaults & Safety
+    Sensible defaults ([4,4,4], depth=macro)                :done,    safe1, 2025-08-09, 0.2d
+    SoulLaw checks on inflate/expand                        :         safe2, 2025-08-13, 0.5d
+    Error taxonomy + logs (policy hints)                    :         safe3, 2025-08-13, 0.5d
+
+    flowchart TD
+    A[Container Loaded / Geometry Change] --> B[Recompute Capacity (cap, used, states)]
+    B --> C{Thresholds}
+    C -->|free < 10%| D[Emit alarm: capacity.low_free_slots]
+    C -->|fragmentation high| E[Emit alarm: capacity.high_fragmentation]
+    C -->|ok| F[No alarm]
+
+    subgraph SQI Requests
+      G[Task needs deeper res] --> H[POST /ucs/inflate {atom_id, target_depth}]
+      I[Incoming workload] --> J[POST /ucs/reserve {count|coords}]
+    end
+
+    H --> K{Policy & Child Caps OK?}
+    K -->|Yes| L[Inflate atom → update depth/children_used]
+    L --> M[Emit: depth.inflate_complete]
+    K -->|No| N[409 depth_cap_exceeded → guide: expand/redistribute]
+
+    J --> O{Enough free slots?}
+    O -->|Yes| P[Reserve slots → states: reserved]
+    P --> Q[Emit: capacity.reserved]
+    O -->|No| R[409 capacity_exhausted → emit alarm]
+
+    subgraph Telemetry
+      S[GET /ucs/debug]
+      S --> T[capacity summary + per-atom state/depth]
+    end
+
+    D --> S
+    E --> S
+    M --> S
+    R --> S
+
+    title UCS/SQI Container Lifecycle & Inflation – Build Checklist
+    dateFormat  YYYY-MM-DD
+    section Foundations
+    Define global container interfaces (UCSBase, GeometryAdapter)   :done, a1, 2025-08-09, 2d
+    Atom lattice spec (capacity, levels: Macro→Atomic→Subatomic→Planck) :a2, after a1, 2d
+    Alarm/telemetry schema (capacity, health, entropy, cost)        :a3, after a2, 1d
+    section Inflation & Indexing
+    Auto-inflation driver (lazy + eager modes)                      :b1, after a3, 2d
+    Atom indexing (global atom_index, per-container registry)       :b2, after b1, 1d
+    Geometry adapters (Hoberman, SEC, Torus, Exotic)                :b3, after b2, 2d
+    section SQI Integration
+    SQI signal hooks (needs, depth_request, deflate)                :c1, after b3, 1d
+    Route planner uses capacity & tags                              :c2, after c1, 1d
+    section Lifecycle Evaluator (CLE)
+    Scoring: truth, novelty, utility, cost, entropy                 :d1, after c2, 2d
+    Actions: keep, archive, deflate/destroy                         :d2, after d1, 1d
+    Wormhole/link sanitation on teardown                            :d3, after d2, 1d
+    section Persistence & Audit
+    Archive vault (.dc compress, metadata, replay pointers)         :e1, after d3, 1d
+    Audit log (why kept/archived/destroyed)                         :e2, after e1, 0.5d
+    section Cross-Container
+    Teleport policy (payload tags, quarantine rules)                :f1, after e2, 1d
+    Global quotas & backpressure (indefinite runtime guardrails)    :f2, after f1, 1d
+
+    flowchart TD
+    A[Container finishes run or goes idle] --> B{Evaluate with CLE}
+    B --> C[Compute Scores<br/>Truth • Novelty • Utility • Cost • Entropy]
+    C --> D{Thresholds met?}
+    D -- Low truth & low utility --> X[Deflate & Destroy<br/>Free resources • Close wormholes • Tag payloads]
+    D -- Valid but niche --> Y[Archive to Vault<br/>Compress .dc • Index for recall]
+    D -- Valid & high utility --> Z[Keep Active or Archive<br/>Promote to Saved Containers]
+    X --> L[Audit Log + Telemetry]
+    Y --> L
+    Z --> L
+    L --> R[Global Quotas & Backpressure<br/>Purge if limits exceeded]
+
+    flowchart LR
+    subgraph InflationPolicy[Inflation Policy (applies to all geometries)]
+        I0{Atom available?}
+        I0 -- No --> I1[Eager Inflation (Hoberman expand to capacity limits)]
+        I0 -- Yes --> I2[Lazy Inflation (inflate only on demand)]
+        I1 --> I3[Populate Lattice<br/>Macro→Atomic→Subatomic→Planck]
+        I2 --> I3
+        I3 --> I4[Mark Cells: Empty • Partial • Full]
+        I4 --> I5[Emit Alarms: capacity_low • depth_request • deflate_ok]
+    end
+
+    subgraph SQIPath[SQI Routing]
+        S1[Goal arrives] --> S2[Check atom_index by caps/tags/nodes]
+        S2 --> S3{Depth needed?}
+        S3 -- Yes --> I2
+        S3 -- No --> S4[Execute atoms • Monitor signals]
+        S4 --> S5[On failure: emit deflate • on success: mark useful]
+    end
 
 %% Core Build Stages
 
@@ -23,21 +160,19 @@ graph TD
 %% Stage 4: Knowledge Graph Integration
 D[Stage 4: Knowledge Graph Integration]:::stage
 
-✅ D1[📦 D4.1: Seed containers — math_core.dc.json (LA, ODE/PDE, category, graph)]:::task
-❌ D2[🌠 D4.2: Seed containers — physics_core.dc.json (mech, thermo, EM, QFT resonance)]:::task
-❌ D3[🧬 D4.3: Seed containers — control_systems.dc.json (feedback, optimization, dynamical)]:::task
-
-✅ D4[📝 D4.4: Patch SQI to use KnowledgeGraphWriter]:::task
-⚠️ D5[🔗 D4.5: Entangle KG nodes ↔ drift/proof states]:::subtask
-❌ D6[🧠 D4.6: Predictive glyph injection into KG (hypothesis nodes)]:::subtask
-✅ D7[📽️ D4.7: Add replay renderer to KG for proofs/experiments]:::task
-
-❌ D8[🏗️ D4.8: Domain pack — Engineering/Materials (stress, thermo, phase diagrams)]:::task
-❌ D9[🧪 D4.9: Domain pack — Biology/Bioinformatics (GRNs, kinetics, folding)]:::task
-❌ D10[📊 D4.10: Domain pack — Economics/Decision Theory (utility, game theory, multi-agent)]:::task
-❌ D11[📚 D4.11: Data source — Primary (formal: arXiv, math libs, Wolfram, symbolic physics)]:::task
-❌ D12[📖 D4.12: Data source — Secondary (curated domain texts: NASA, textbooks → glyph logic)]:::task
-❌ D13[🌐 D4.13: Data source — Tertiary (controlled scrape → verified glyph assertions)]:::task
+• ✅ D4.1 📦 Seed containers — math_core.dc.json (LA, ODE/PDE, category, graph)
+• ✅ D4.2 🌠 Seed containers — physics_core.dc.json (mech, thermo, EM, QFT resonance)
+• ✅ D4.3 🧬 Seed containers — control_systems.dc.json (feedback, optimization, dynamical)
+• ✅ D4.4 📝 Patch SQI to use KnowledgeGraphWriter
+• ✅ D4.5 🔗 Entangle KG nodes ↔ drift/proof states (edges + relates_to wiring working)
+• ✅ D4.6 🧠 Predictive glyph injection into KG (predictive_fork nodes via composer)
+• ✅ D4.7 📽️ Add replay renderer to KG for proofs/experiments (proof_replay nodes + bus publish; GHX broadcast safe)
+• ✅ D4.8 🏗️ Domain pack — Engineering/Materials
+• ✅ D4.9 🧪 Domain pack — Biology/Bioinformatics
+• ✅ D4.10 📊 Domain pack — Economics/Decision Theory
+• ✅ D4.11 📚 Data source — Primary
+• ✅ D4.12 📖 Data source — Secondary
+• ✅ D4.13 🌐 Data source — Tertiary
 
 E[Stage 5: Recursive Self-Expansion]:::stage
 E1[📚 E5.1: Auto-node generation: lemmas/proofs → KG]:::task

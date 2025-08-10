@@ -371,6 +371,83 @@ def list_containers_with_memory_status():
             })
     return containers
 
+# --- NEW: microgrid injection helpers --------------------------------
+from typing import List, Tuple, Dict, Any, Optional
+
+def _coord_key(coord: Tuple[int, int, int]) -> str:
+    """Normalize (x,y,z) to a stable microgrid dict key."""
+    x, y, z = coord
+    return f"{int(x)},{int(y)},{int(z)}"
+
+def save_dc_container(container_id: str, container: Dict[str, Any]) -> None:
+    """
+    Persist a container back to its .dc.json file.
+    Uses get_dc_path(container_id) from this module.
+    """
+    path = get_dc_path(container_id)  # must already exist in this module
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(container, f, ensure_ascii=False, indent=2)
+
+def inject_glyphs_into_universal_container_system(
+    container_id: str,
+    glyphs: List[Dict[str, Any]],
+    placement: Optional[List[Tuple[int, int, int]]] = None,
+    overwrite: bool = False,
+) -> Dict[str, Any]:
+    """
+    Inject one or many glyph entries into a UCS container microgrid.
+
+    Args:
+      container_id: target container id (resolved via get_dc_path)
+      glyphs: list of glyph dicts, e.g. {"glyph":"🧠","tag":"reflect", ...}
+      placement: optional list of (x,y,z) coords; if provided, must be same length as glyphs
+      overwrite: if False, existing cells are left intact
+
+    Returns:
+      The updated container dict.
+    """
+    container = load_dc_container(container_id)
+    microgrid = container.setdefault("microgrid", {})  # dict of "x,y,z" -> meta
+
+    if placement:
+        if len(placement) != len(glyphs):
+            raise ValueError("placement length must match glyphs length")
+        for g, coord in zip(glyphs, placement):
+            key = _coord_key(coord)
+            if not overwrite and key in microgrid:
+                # skip existing cells unless overwrite=True
+                continue
+            microgrid[key] = g
+    else:
+        # No explicit coords: place sequentially into first free slots
+        # We scan a small default lattice; adjust if you keep dims elsewhere.
+        # You can also read dims from container.get("dims", [4,4,4]) if present.
+        dims = container.get("dims", [4, 4, 4])
+        X, Y, Z = map(int, dims)
+        it = iter(glyphs)
+        placed = 0
+        for x in range(X):
+            for y in range(Y):
+                for z in range(Z):
+                    if placed >= len(glyphs):
+                        break
+                    key = _coord_key((x, y, z))
+                    if key not in microgrid or overwrite:
+                        microgrid[key] = next(it)
+                        placed += 1
+                if placed >= len(glyphs):
+                    break
+            if placed >= len(glyphs):
+                break
+        if placed < len(glyphs):
+            raise RuntimeError(
+                f"Not enough free microgrid cells to place {len(glyphs)} glyph(s); placed {placed}."
+            )
+
+    save_dc_container(container_id, container)
+    return container
+
 def carve_glyph_cube(container_path, coord, glyph, meta: Optional[dict] = None):
     """Insert a glyph into a specific cube in a .dc container at the given coordinate with metadata."""
     if not os.path.exists(container_path):

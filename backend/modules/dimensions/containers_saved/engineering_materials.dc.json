@@ -1,0 +1,488 @@
+{
+  "id": "engineering_materials",
+  "name": "engineering_materials",
+  "symbol": "\ud83c\udfd7\ufe0f",
+  "metadata": {
+    "version": "1.2",
+    "created_by": "AION Seed Generator",
+    "domain": "Engineering / Materials Science",
+    "provenance": "seed",
+    "integration": {
+      "linked_domains": [
+        "physics_core",
+        "math_core",
+        "control_systems",
+        "economics_decision"
+      ],
+      "export_ready": true
+    }
+  },
+  "glyph_categories": [
+    {
+      "id": "mech",
+      "label": "Mechanical",
+      "emoji": "\u2699\ufe0f"
+    },
+    {
+      "id": "therm",
+      "label": "Thermal",
+      "emoji": "\ud83d\udd25"
+    },
+    {
+      "id": "elec",
+      "label": "Electrical",
+      "emoji": "\u26a1"
+    },
+    {
+      "id": "struct",
+      "label": "Structure/Micro",
+      "emoji": "\ud83e\udde9"
+    },
+    {
+      "id": "proc",
+      "label": "Processing",
+      "emoji": "\ud83c\udfed"
+    },
+    {
+      "id": "fail",
+      "label": "Failure/Degradation",
+      "emoji": "\ud83d\udca5"
+    },
+    {
+      "id": "x",
+      "label": "Cross-Domain",
+      "emoji": "\ud83d\udd17"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "steel_1018",
+      "label": "Steel 1018 (Low-Carbon)",
+      "cat": "mech",
+      "props": {
+        "E": 205000000000.0,
+        "sigma_y": 370000000.0,
+        "sigma_u": 440000000.0,
+        "rho": 7850,
+        "nu": 0.29,
+        "CTE": 1.2e-05
+      },
+      "source": {
+        "tier": "secondary",
+        "ref": "Callister/MatWeb"
+      }
+    },
+    {
+      "id": "stainless_304",
+      "label": "Stainless Steel 304",
+      "cat": "mech",
+      "props": {
+        "E": 193000000000.0,
+        "sigma_y": 215000000.0,
+        "sigma_u": 505000000.0,
+        "rho": 8000,
+        "nu": 0.3,
+        "CTE": 1.7e-05,
+        "corrosion_res": "high"
+      },
+      "source": {
+        "tier": "secondary",
+        "ref": "ASM Handbook"
+      }
+    },
+    {
+      "id": "al_6061_t6",
+      "label": "Aluminum 6061-T6",
+      "cat": "mech",
+      "props": {
+        "E": 69000000000.0,
+        "sigma_y": 275000000.0,
+        "sigma_u": 310000000.0,
+        "rho": 2700,
+        "nu": 0.33,
+        "CTE": 2.3e-05,
+        "k": 167
+      },
+      "source": {
+        "tier": "secondary",
+        "ref": "ASM/MatWeb"
+      }
+    },
+    {
+      "id": "ti_6al_4v",
+      "label": "Titanium Ti-6Al-4V",
+      "cat": "mech",
+      "props": {
+        "E": 114000000000.0,
+        "sigma_y": 880000000.0,
+        "sigma_u": 950000000.0,
+        "rho": 4430,
+        "nu": 0.34,
+        "CTE": 8.6e-06,
+        "k": 6.7
+      },
+      "source": {
+        "tier": "secondary",
+        "ref": "ASM"
+      }
+    },
+    {
+      "id": "abs",
+      "label": "ABS (Thermoplastic)",
+      "cat": "mech",
+      "props": {
+        "E": 2300000000.0,
+        "sigma_y": 40000000.0,
+        "rho": 1040,
+        "nu": 0.36,
+        "Tg": 105
+      },
+      "source": {
+        "tier": "tertiary",
+        "ref": "datasheet"
+      }
+    },
+    {
+      "id": "peek",
+      "label": "PEEK (High-Perf Polymer)",
+      "cat": "mech",
+      "props": {
+        "E": 3600000000.0,
+        "sigma_y": 90000000.0,
+        "rho": 1300,
+        "nu": 0.38,
+        "Tg": 143
+      },
+      "source": {
+        "tier": "secondary",
+        "ref": "manufacturer datasheet"
+      }
+    },
+    {
+      "id": "alumina_al2o3",
+      "label": "Alumina (Al\u2082O\u2083)",
+      "cat": "therm",
+      "props": {
+        "E": 370000000000.0,
+        "sigma_u": 300000000.0,
+        "rho": 3900,
+        "nu": 0.22,
+        "k": 30,
+        "max_temp": 1500,
+        "KIC": 3500000.0
+      },
+      "source": {
+        "tier": "secondary",
+        "ref": "ceramic handbook"
+      }
+    },
+    {
+      "id": "sic",
+      "label": "Silicon Carbide (SiC)",
+      "cat": "therm",
+      "props": {
+        "E": 410000000000.0,
+        "rho": 3210,
+        "k": 120,
+        "max_temp": 1600,
+        "KIC": 4000000.0
+      },
+      "source": {
+        "tier": "secondary",
+        "ref": "ceramic handbook"
+      }
+    },
+    {
+      "id": "cfrp",
+      "label": "CFRP (Carbon Fiber/Epoxy)",
+      "cat": "struct",
+      "props": {
+        "E_l": 135000000000.0,
+        "E_t": 10000000000.0,
+        "rho": 1600,
+        "strength_l": 1500000000.0,
+        "nu": 0.3,
+        "anisotropy": true
+      },
+      "source": {
+        "tier": "secondary",
+        "ref": "composite design guide"
+      }
+    },
+    {
+      "id": "copper",
+      "label": "Copper (OFHC)",
+      "cat": "elec",
+      "props": {
+        "sigma_e": 59600000.0,
+        "rho": 8960,
+        "k": 400,
+        "CTE": 1.65e-05,
+        "E": 110000000000.0
+      },
+      "source": {
+        "tier": "secondary",
+        "ref": "CRC"
+      }
+    },
+    {
+      "id": "grain_size",
+      "label": "Grain Size (Hall-Petch)",
+      "cat": "struct",
+      "notes": "\u03c3_y \u2248 \u03c3_0 + k_y d^{-1/2}",
+      "type": "knowledge"
+    },
+    {
+      "id": "heat_treatment",
+      "label": "Heat Treatment",
+      "cat": "proc",
+      "sub": [
+        "annealing",
+        "quenching",
+        "tempering"
+      ]
+    },
+    {
+      "id": "additive_mfg",
+      "label": "Additive Manufacturing",
+      "cat": "proc",
+      "sub": [
+        "PBF",
+        "FFF",
+        "DMLS"
+      ],
+      "notes": "porosity & anisotropy management"
+    },
+    {
+      "id": "fatigue",
+      "label": "Fatigue (S\u2013N / \u03b5\u2013N)",
+      "cat": "fail",
+      "props": {
+        "Basquin": "\u03c3_a = \u03c3\u2019_f (2N_f)^b"
+      },
+      "source": {
+        "tier": "secondary",
+        "ref": "S\u2013N data compilations"
+      }
+    },
+    {
+      "id": "creep",
+      "label": "Creep (Norton)",
+      "cat": "fail",
+      "props": {
+        "Norton": "\u03b5\u0307 = A \u03c3^n exp(-Q/RT)"
+      }
+    },
+    {
+      "id": "fracture_toughness",
+      "label": "Fracture Toughness K_IC",
+      "cat": "fail",
+      "props": {
+        "KIC_units": "Pa\u00b7sqrt(m)"
+      },
+      "source": {
+        "tier": "secondary",
+        "ref": "fracture mechanics text"
+      }
+    },
+    {
+      "id": "corrosion",
+      "label": "Corrosion (Galvanic/CRE)",
+      "cat": "fail",
+      "notes": "environmental assisted cracking, passivation, galvanic series"
+    },
+    {
+      "id": "linear_elasticity",
+      "label": "Linear Elasticity",
+      "cat": "x",
+      "external": true
+    },
+    {
+      "id": "heat_transfer",
+      "label": "Heat Transfer",
+      "cat": "x",
+      "external": true
+    },
+    {
+      "id": "maxwell",
+      "label": "Maxwell\u2019s Equations",
+      "cat": "x",
+      "external": true
+    },
+    {
+      "id": "optimization",
+      "label": "Optimization",
+      "cat": "x",
+      "external": true
+    },
+    {
+      "id": "cost_modeling",
+      "label": "Cost Modeling",
+      "cat": "x",
+      "external": true
+    },
+    {
+      "id": "predict_material_props",
+      "label": "Predictive Material Property Fork",
+      "cat": "proc",
+      "type": "predictive_fork",
+      "notes": "learns property regressors from KG + experiments"
+    },
+    {
+      "id": "proof_griffith",
+      "label": "Griffith Crack Energy Proof Replay",
+      "cat": "fail",
+      "type": "proof_replay",
+      "notes": "energy balance for brittle fracture"
+    },
+    {
+      "id": "softmax_readout_material",
+      "label": "Softmax Readout (Material Selection)",
+      "cat": "x",
+      "type": "readout_head",
+      "notes": "ranks candidate materials vs. task objective; updates from outcomes"
+    }
+  ],
+  "links": [
+    {
+      "src": "grain_size",
+      "dst": "steel_1018",
+      "relation": "affects_yield_strength"
+    },
+    {
+      "src": "heat_treatment",
+      "dst": "steel_1018",
+      "relation": "processes"
+    },
+    {
+      "src": "heat_treatment",
+      "dst": "stainless_304",
+      "relation": "processes"
+    },
+    {
+      "src": "additive_mfg",
+      "dst": "ti_6al_4v",
+      "relation": "processes"
+    },
+    {
+      "src": "fatigue",
+      "dst": "al_6061_t6",
+      "relation": "fails_via"
+    },
+    {
+      "src": "fracture_toughness",
+      "dst": "alumina_al2o3",
+      "relation": "limits_failure"
+    },
+    {
+      "src": "corrosion",
+      "dst": "stainless_304",
+      "relation": "resists"
+    },
+    {
+      "src": "copper",
+      "dst": "elec",
+      "relation": "high_conductivity"
+    },
+    {
+      "src": "al_6061_t6",
+      "dst": "steel_1018",
+      "relation": "lighter_than"
+    },
+    {
+      "src": "ti_6al_4v",
+      "dst": "al_6061_t6",
+      "relation": "stronger_than"
+    },
+    {
+      "src": "cfrp",
+      "dst": "al_6061_t6",
+      "relation": "higher_specific_stiffness"
+    },
+    {
+      "src": "predict_material_props",
+      "dst": "al_6061_t6",
+      "relation": "predicts_props_for"
+    },
+    {
+      "src": "predict_material_props",
+      "dst": "cfrp",
+      "relation": "predicts_props_for"
+    },
+    {
+      "src": "proof_griffith",
+      "dst": "alumina_al2o3",
+      "relation": "replays_for"
+    },
+    {
+      "src": "softmax_readout_material",
+      "dst": "steel_1018",
+      "relation": "ranks_for_task"
+    },
+    {
+      "src": "softmax_readout_material",
+      "dst": "al_6061_t6",
+      "relation": "ranks_for_task"
+    },
+    {
+      "src": "softmax_readout_material",
+      "dst": "ti_6al_4v",
+      "relation": "ranks_for_task"
+    },
+    {
+      "src": "softmax_readout_material",
+      "dst": "cfrp",
+      "relation": "ranks_for_task"
+    },
+    {
+      "src": "softmax_readout_material",
+      "dst": "peek",
+      "relation": "ranks_for_task"
+    },
+    {
+      "src": "steel_1018",
+      "dst": "linear_elasticity",
+      "relation": "modeled_by"
+    },
+    {
+      "src": "al_6061_t6",
+      "dst": "linear_elasticity",
+      "relation": "modeled_by"
+    },
+    {
+      "src": "cfrp",
+      "dst": "linear_elasticity",
+      "relation": "anisotropic_tensor"
+    },
+    {
+      "src": "al_6061_t6",
+      "dst": "heat_transfer",
+      "relation": "conducts_heat"
+    },
+    {
+      "src": "alumina_al2o3",
+      "dst": "heat_transfer",
+      "relation": "insulates"
+    },
+    {
+      "src": "copper",
+      "dst": "maxwell",
+      "relation": "conducts_electricity"
+    },
+    {
+      "src": "softmax_readout_material",
+      "dst": "optimization",
+      "relation": "optimizes_against"
+    },
+    {
+      "src": "ti_6al_4v",
+      "dst": "cost_modeling",
+      "relation": "high_cost"
+    },
+    {
+      "src": "cfrp",
+      "dst": "cost_modeling",
+      "relation": "high_cost"
+    }
+  ]
+}

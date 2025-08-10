@@ -2,11 +2,12 @@
   "id": "math_core",
   "name": "Math Core",
   "version": "1.0.0",
+  "type": "AtomContainer",
   "kind": "seed_container",
   "metadata": {
     "domain": "mathematics",
-    "description": "Foundational math seed: Linear Algebra + ODE/PDE starter glyphs",
-    "tags": ["math", "seed", "linear_algebra", "ode", "pde"]
+    "description": "Foundational math AtomContainer seed: Linear Algebra + ODE/PDE starter glyphs",
+    "tags": ["math", "atom", "seed", "linear_algebra", "ode", "pde"]
   },
 
   "glyph_categories": [
@@ -22,40 +23,44 @@
     }
   ],
 
-  "nodes": [
+  "atoms": [
     {
       "id": "la_basis",
       "glyph": "𝐁",
       "meaning": "Basis & span of a vector space",
       "category": "linear_algebra",
-      "tags": ["LA", "basis", "span", "subspace"]
+      "tags": ["LA", "basis", "span", "subspace"],
+      "position": [0, 0, 0]
     },
     {
       "id": "la_eigen",
       "glyph": "λ⃗",
       "meaning": "Eigenvalues and eigenvectors",
       "category": "linear_algebra",
-      "tags": ["LA", "eigen", "diagonalization", "spectral"]
+      "tags": ["LA", "eigen", "diagonalization", "spectral"],
+      "position": [2, 0, 0]
     },
     {
       "id": "ode_linear",
       "glyph": "ẋ = A x",
       "meaning": "Linear ODE system",
       "category": "ode_pde",
-      "tags": ["ODE", "linear", "systems", "stability"]
+      "tags": ["ODE", "linear", "systems", "stability"],
+      "position": [4, 0, 0]
     },
     {
       "id": "pde_heat",
       "glyph": "u_t = α ∇²u",
       "meaning": "Heat equation (diffusion)",
       "category": "ode_pde",
-      "tags": ["PDE", "heat", "parabolic", "diffusion"]
+      "tags": ["PDE", "heat", "parabolic", "diffusion"],
+      "position": [6, 0, 0]
     }
   ],
 
   "links": [
-    { "src": "la_basis",  "dst": "la_eigen",   "relation": "prereq" },
-    { "src": "la_eigen",  "dst": "ode_linear", "relation": "solves_via_diagonalization" },
-    { "src": "la_eigen",  "dst": "pde_heat",   "relation": "fourier_modes_eigenbasis" }
+    { "src": "la_basis", "dst": "la_eigen", "relation": "prereq" },
+    { "src": "la_eigen", "dst": "ode_linear", "relation": "solves_via_diagonalization" },
+    { "src": "la_eigen", "dst": "pde_heat", "relation": "fourier_modes_eigenbasis" }
   ]
 }

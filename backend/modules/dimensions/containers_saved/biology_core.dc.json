@@ -1,0 +1,316 @@
+{
+  "id": "biology_core",
+  "name": "biology_core",
+  "symbol": "\ud83e\uddec",
+  "metadata": {
+    "version": "1.0",
+    "created_by": "AION Seed Generator",
+    "domain": "Biology / Bioinformatics",
+    "provenance": "seed",
+    "integration": {
+      "linked_domains": [
+        "math_core",
+        "control_systems",
+        "physics_core",
+        "economics_core"
+      ],
+      "export_ready": true
+    }
+  },
+  "glyph_categories": [
+    {
+      "id": "mol",
+      "label": "Molecular Biology",
+      "emoji": "\ud83e\uddeb"
+    },
+    {
+      "id": "gen",
+      "label": "Genetics/Genomics",
+      "emoji": "\ud83e\uddec"
+    },
+    {
+      "id": "bioi",
+      "label": "Bioinformatics",
+      "emoji": "\ud83d\udcbb"
+    },
+    {
+      "id": "sys",
+      "label": "Systems Biology",
+      "emoji": "\ud83d\udd78\ufe0f"
+    },
+    {
+      "id": "x",
+      "label": "Cross-Domain",
+      "emoji": "\ud83d\udd17"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "dna",
+      "label": "DNA",
+      "cat": "mol",
+      "source": {
+        "tier": "tertiary",
+        "ref": "https://en.wikipedia.org/wiki/DNA"
+      }
+    },
+    {
+      "id": "rna",
+      "label": "RNA",
+      "cat": "mol"
+    },
+    {
+      "id": "protein",
+      "label": "Protein",
+      "cat": "mol"
+    },
+    {
+      "id": "transcription",
+      "label": "Transcription",
+      "cat": "mol"
+    },
+    {
+      "id": "translation",
+      "label": "Translation",
+      "cat": "mol"
+    },
+    {
+      "id": "central_dogma",
+      "label": "Central Dogma",
+      "cat": "mol"
+    },
+    {
+      "id": "gene",
+      "label": "Gene",
+      "cat": "gen"
+    },
+    {
+      "id": "promoter",
+      "label": "Promoter",
+      "cat": "gen"
+    },
+    {
+      "id": "enhancer",
+      "label": "Enhancer",
+      "cat": "gen"
+    },
+    {
+      "id": "crispr_cas9",
+      "label": "CRISPR-Cas9",
+      "cat": "gen",
+      "source": {
+        "tier": "secondary",
+        "ref": "doi:10.1126/science.aad6773"
+      }
+    },
+    {
+      "id": "grna",
+      "label": "Guide RNA (gRNA)",
+      "cat": "gen"
+    },
+    {
+      "id": "pcr",
+      "label": "PCR",
+      "cat": "gen",
+      "source": {
+        "tier": "secondary",
+        "ref": "doi:10.1038/nbt.2404"
+      }
+    },
+    {
+      "id": "sequencing",
+      "label": "Sequencing",
+      "cat": "bioi"
+    },
+    {
+      "id": "alignment",
+      "label": "Sequence Alignment",
+      "cat": "bioi",
+      "source": {
+        "tier": "secondary",
+        "ref": "doi:10.1093/nar/25.17.3389",
+        "notes": "BLAST"
+      }
+    },
+    {
+      "id": "hmm",
+      "label": "Hidden Markov Models",
+      "cat": "bioi"
+    },
+    {
+      "id": "phylogeny",
+      "label": "Phylogeny",
+      "cat": "bioi"
+    },
+    {
+      "id": "pathway",
+      "label": "Pathway",
+      "cat": "sys"
+    },
+    {
+      "id": "metabolic_net",
+      "label": "Metabolic Network",
+      "cat": "sys"
+    },
+    {
+      "id": "grn",
+      "label": "Gene Regulatory Network",
+      "cat": "sys"
+    },
+    {
+      "id": "predictive_mutation_effect",
+      "label": "Predictive: Mutation Effect",
+      "cat": "bioi",
+      "type": "predictive_fork"
+    },
+    {
+      "id": "proof_pathway_replay",
+      "label": "Proof Replay: Pathway Consistency",
+      "cat": "sys",
+      "type": "proof_replay"
+    },
+    {
+      "id": "softmax_readout_bio",
+      "label": "Softmax Readout (Hypothesis Ranking)",
+      "cat": "bioi",
+      "type": "readout_head",
+      "notes": "Ranks gene/variant hypotheses and learns from experimental outcomes."
+    },
+    {
+      "id": "graph_theory",
+      "label": "Graph Theory",
+      "cat": "x",
+      "external": true
+    },
+    {
+      "id": "probability_stats",
+      "label": "Probability/Statistics",
+      "cat": "x",
+      "external": true
+    },
+    {
+      "id": "thermodynamics",
+      "label": "Thermodynamics",
+      "cat": "x",
+      "external": true
+    },
+    {
+      "id": "decision_theory",
+      "label": "Decision Theory",
+      "cat": "x",
+      "external": true
+    }
+  ],
+  "links": [
+    {
+      "src": "dna",
+      "dst": "rna",
+      "relation": "transcribes_to"
+    },
+    {
+      "src": "rna",
+      "dst": "protein",
+      "relation": "translates_to"
+    },
+    {
+      "src": "central_dogma",
+      "dst": "transcription",
+      "relation": "includes"
+    },
+    {
+      "src": "central_dogma",
+      "dst": "translation",
+      "relation": "includes"
+    },
+    {
+      "src": "promoter",
+      "dst": "gene",
+      "relation": "controls_initiation_of"
+    },
+    {
+      "src": "enhancer",
+      "dst": "gene",
+      "relation": "upregulates"
+    },
+    {
+      "src": "grn",
+      "dst": "gene",
+      "relation": "regulates"
+    },
+    {
+      "src": "crispr_cas9",
+      "dst": "dna",
+      "relation": "edits"
+    },
+    {
+      "src": "grna",
+      "dst": "crispr_cas9",
+      "relation": "guides"
+    },
+    {
+      "src": "sequencing",
+      "dst": "alignment",
+      "relation": "feeds"
+    },
+    {
+      "src": "alignment",
+      "dst": "hmm",
+      "relation": "modeled_by"
+    },
+    {
+      "src": "alignment",
+      "dst": "phylogeny",
+      "relation": "informs"
+    },
+    {
+      "src": "pathway",
+      "dst": "metabolic_net",
+      "relation": "component_of"
+    },
+    {
+      "src": "pathway",
+      "dst": "grn",
+      "relation": "interacts_with"
+    },
+    {
+      "src": "predictive_mutation_effect",
+      "dst": "gene",
+      "relation": "predicts_effect_on"
+    },
+    {
+      "src": "proof_pathway_replay",
+      "dst": "pathway",
+      "relation": "replays"
+    },
+    {
+      "src": "softmax_readout_bio",
+      "dst": "predictive_mutation_effect",
+      "relation": "ranks_hypotheses_for"
+    },
+    {
+      "src": "grn",
+      "dst": "graph_theory",
+      "relation": "represented_by"
+    },
+    {
+      "src": "metabolic_net",
+      "dst": "graph_theory",
+      "relation": "represented_by"
+    },
+    {
+      "src": "hmm",
+      "dst": "probability_stats",
+      "relation": "uses"
+    },
+    {
+      "src": "pathway",
+      "dst": "thermodynamics",
+      "relation": "constrained_by"
+    },
+    {
+      "src": "softmax_readout_bio",
+      "dst": "decision_theory",
+      "relation": "grounded_in"
+    }
+  ]
+}

@@ -2,9 +2,9 @@
 
 from fastapi import APIRouter
 from backend.utils.bundle_builder import bundle_universal_container_system  # ✅ Corrected import
-from backend.modules.ucs.ucs_runtime import get_ucs_runtime  # ✅ UCS integration
-from backend.modules.knowledge.knowledge_graph_writer import KnowledgeGraphWriter  # ✅ KG logging
-from backend.modules.glyphnet.glyphnet_ws import broadcast_event  # ✅ GHX/SQI sync
+from backend.modules.dimensions.universal_container_system.ucs_runtime import get_ucs_runtime  # ✅ UCS integration
+from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter # ✅ KG logging
+from backend.routes.ws.glyphnet_ws import broadcast_event # ✅ GHX/SQI sync
 
 router = APIRouter()
 

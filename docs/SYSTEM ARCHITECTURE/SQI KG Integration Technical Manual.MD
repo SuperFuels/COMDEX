@@ -429,3 +429,246 @@ Maintenance Tips
 	•	Regularly prune unused or outdated packs to keep runtime lean.
 
 ⸻
+D4.11–D4.13 • Data Source Provenance (Primary / Secondary / Tertiary)
+
+Goal
+
+Every KG node/edge you ingest carries provenance you can cite and replay:
+	•	tier: primary | secondary | tertiary
+	•	ref: DOI/URL or dataset handle
+	•	notes: optional string
+	•	Edges from node → source (relation: supports by default)
+
+You already have the KG helpers:
+	•	kg_writer.add_source(node_id, source_dict)
+	•	kg_writer.link_source(node_id, source_id, relation="supports")
+	•	kg_writer.export_pack(container, out_path) (persistence)
+
+We’ll add thin loader scripts + boot glue so sources are attached automatically.
+
+⸻
+
+Repo structure (additions)
+
+backend/modules/knowledge_graph/loaders/
+  primary_loader.py
+  secondary_loader.py
+  tertiary_loader.py
+  utils.py
+backend/modules/dimensions/containers/kg_exports/
+  (auto-populated by kg_writer.export_pack)
+
+  Minimal data model (JSON/CSV)
+
+Each loader accepts a simple JSON list or CSV:
+
+JSON list
+
+[
+  {
+    "node_id": "maxwell_eqs",
+    "label": "Maxwell's Equations",
+    "source": {
+      "tier": "primary",
+      "ref": "https://doi.org/10.1103/PhysRev.2.136",
+      "notes": "Original publication or authoritative transcription"
+    }
+  }
+]
+
+CSV
+
+node_id,label,tier,ref,notes
+maxwell_eqs,Maxwell's Equations,primary,https://doi.org/...,Original paper
+
+Loader utilities (backend/modules/knowledge_graph/loaders/utils.py)
+
+from __future__ import annotations
+import csv, json
+from pathlib import Path
+from typing import Iterable, Dict, Any
+
+def load_jsonl_or_json(path: str | Path) -> Iterable[Dict[str, Any]]:
+    p = Path(path)
+    if p.suffix.lower() == ".jsonl":
+        with p.open() as f:
+            for line in f:
+                line = line.strip()
+                if line:
+                    yield json.loads(line)
+    else:
+        return json.loads(p.read_text())
+
+def load_csv(path: str | Path) -> Iterable[Dict[str, Any]]:
+    with Path(path).open(newline="") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            yield row
+
+def coerce_source(d: Dict[str, Any]) -> Dict[str, Any]:
+    src = d.get("source", d)
+    return {
+        "tier": str(src.get("tier", "tertiary")).lower(),
+        "ref": src.get("ref") or "",
+        "notes": src.get("notes", "")
+    }
+
+Primary loader (primary_loader.py)
+
+Works for JSON/JSONL/CSV; attaches sources and linking edges.
+
+from __future__ import annotations
+from pathlib import Path
+from typing import Optional
+from backend.modules.knowledge_graph.knowledge_graph_writer import kg_writer
+from backend.modules.dimensions.universal_container_system.ucs_runtime import ucs_runtime
+from .utils import load_jsonl_or_json, load_csv, coerce_source
+
+def attach_sources(container_id: str, dataset_path: str | Path) -> int:
+    c = ucs_runtime.get_container(container_id)
+    if not c:
+        print(f"⚠️ container '{container_id}' not loaded; skipping")
+        return 0
+    kg_writer.attach_container(c)
+
+    p = Path(dataset_path)
+    rows = []
+    if p.suffix.lower() in (".json", ".jsonl"):
+        rows = list(load_jsonl_or_json(p))
+    elif p.suffix.lower() == ".csv":
+        rows = list(load_csv(p))
+    else:
+        raise ValueError(f"Unsupported file type: {p}")
+
+    added = 0
+    for r in rows:
+        node_id = r.get("node_id")
+        label = r.get("label", node_id or "unknown")
+        if not node_id:
+            continue
+
+        # Ensure node exists (no-op if it already does)
+        kg_writer.add_node(node_id, label)
+
+        # Create a stable source id (hash or deterministic name)
+        src_meta = coerce_source(r)
+        src_id = f"src::{node_id}::{abs(hash((src_meta['tier'], src_meta['ref'])))}"
+
+        # Add source glyph + link
+        kg_writer.add_source(node_id=node_id, source={"id": src_id, **src_meta})
+        kg_writer.link_source(node_id=node_id, source_id=src_id, relation="supports")
+        added += 1
+
+    # Export pack with provenance baked in
+    out = (Path("backend/modules/dimensions/containers/kg_exports") /
+           f"{container_id}.kg.json")
+    kg_writer.export_pack(c, out)
+
+    print(f"✅ primary_loader: attached {added} sources to {container_id}")
+    return added
+
+	Secondary & Tertiary loaders can be identical—copy primary_loader.py to secondary_loader.py and tertiary_loader.py. If you want stricter validation (e.g., secondary must include ref), add assertions per loader.
+
+⸻
+
+Boot glue (call loaders at boot)
+
+Append this to backend/modules/hexcore/boot_loader.py (after your domain pack preload):
+
+# --- D4.11–D4.13: Source provenance preload ---
+def preload_source_provenance():
+    """
+    Attach provenance for several domain packs at boot.
+    Each path can be JSON/JSONL/CSV. Skip if file missing.
+    """
+    from pathlib import Path
+    from backend.modules.knowledge_graph.loaders.primary_loader import attach_sources as attach_primary
+    from backend.modules.knowledge_graph.loaders.secondary_loader import attach_sources as attach_secondary
+    from backend.modules.knowledge_graph.loaders.tertiary_loader import attach_sources as attach_tertiary
+
+    # Put your datasets anywhere you like; adjust paths here:
+    datasets = [
+        # (container_id, tier, path)
+        ("physics_core",  "primary",   "data/kg_sources/physics_primary.json"),
+        ("physics_core",  "secondary", "data/kg_sources/physics_secondary.csv"),
+        ("physics_core",  "tertiary",  "data/kg_sources/physics_tertiary.jsonl"),
+
+        ("math_core",     "primary",   "data/kg_sources/math_primary.json"),
+        ("control_systems","secondary","data/kg_sources/control_secondary.csv"),
+
+        ("engineering_materials", "tertiary", "data/kg_sources/eng_tertiary.jsonl"),
+        ("biology_core",  "primary",   "data/kg_sources/biology_primary.json"),
+        ("economics_core","secondary", "data/kg_sources/econ_secondary.csv"),
+    ]
+
+    handled = 0
+    for cid, tier, path in datasets:
+        p = Path(path)
+        if not p.exists():
+            print(f"ℹ️ provenance dataset missing: {p}")
+            continue
+        try:
+            if tier == "primary":
+                handled += attach_primary(cid, p)
+            elif tier == "secondary":
+                handled += attach_secondary(cid, p)
+            else:
+                handled += attach_tertiary(cid, p)
+        except Exception as e:
+            print(f"⚠️ provenance attach failed for {cid} ({tier}): {e}")
+
+    if handled:
+        print(f"🧾 provenance: attached {handled} total sources across containers")
+    else:
+        print("ℹ️ provenance: no sources attached (no datasets found)")
+
+
+And in the if __name__ == "__main__": block:
+
+    # 3) Attach and persist source provenance for domain packs
+    preload_source_provenance()
+
+Acceptance checks
+	1.	Attach sources
+Run:
+
+python -m backend.modules.hexcore.boot_loader
+
+Expect lines like:
+	•	primary_loader: attached X sources to physics_core
+	•	💾 KG export saved to backend/modules/dimensions/containers/kg_exports/physics_core.kg.json
+
+	2.	Inspect export
+Open backend/modules/dimensions/containers/kg_exports/<container>.kg.json
+	•	nodes[*].source.tier present where loaders added sources
+	•	links include supports edges to src::... ids
+	3.	Replay
+Start your UI/WS; verify that kg_edge glyphs show supports edges in replays.
+
+⸻
+
+Notes / Gotchas
+	•	Idempotency: If you re-run, you’ll add duplicate kg_source glyphs unless you de-dupe. If you care, stash a source_id inside node metadata and skip when already present.
+	•	Order of operations: Run after domain packs are loaded (you’ve already wired that in the boot order).
+	•	Persistence: Exports are saved after attaching sources, so they persist across restarts even without rerunning loaders.
+	•	Extending tiers: You can add quaternary, etc.—just adjust coerce_source.
+
+⸻
+
+Quick one-liner to sanity check per container
+
+from backend.modules.knowledge_graph.knowledge_graph_writer import kg_writer
+from backend.modules.dimensions.universal_container_system.ucs_runtime import ucs_runtime
+
+for cid in ["physics_core","math_core","control_systems","engineering_materials","biology_core","economics_core"]:
+    c = ucs_runtime.get_container(cid)
+    if not c:
+        print(cid, "not loaded")
+        continue
+    kg_writer.attach_container(c)
+    glyphs = kg_writer.container.get("glyph_grid", [])
+    nodes = [g for g in glyphs if g.get("type")=="kg_node"]
+    edges = [g for g in glyphs if g.get("type")=="kg_edge"]
+    print(cid, "nodes:", len(nodes), "edges:", len(edges))
+
+	

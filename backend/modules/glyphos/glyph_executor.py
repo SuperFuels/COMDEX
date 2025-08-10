@@ -312,6 +312,59 @@ class GlyphExecutor:
         except Exception as e:
             print(f"[⚠️] Glyph summary broadcast failed: {e}")
 
+from typing import Any, Dict, Optional
+
+# Import the canonical interpreters
+try:
+    from backend.modules.glyphos.glyph_logic import interpret_glyph, interpret_qglyph
+except Exception as e:  # keep import failure visible to caller
+    interpret_glyph = None
+    interpret_qglyph = None
+    _IMPORT_ERROR = e
+else:
+    _IMPORT_ERROR = None
+
+
+def execute_glyph_logic(payload: Any, context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    """
+    Back-compat execution entrypoint used by GlyphNet terminal.
+
+    Accepts:
+      - a single glyph string: "🧠"
+      - a dict with {"glyph": "..."} or {"symbol": "..."} or {"value": "..."}
+      - a qglyph dict: {"qglyph": {"superposition": [...], "entangled_with": [...], "metadata": {...}}}
+
+    Returns a normalized interpretation dict.
+    """
+    if _IMPORT_ERROR:
+        return {"type": "error", "error": "import_failed", "detail": str(_IMPORT_ERROR)}
+
+    ctx = (context or {}).copy()
+
+    # qglyph path
+    if isinstance(payload, dict) and "qglyph" in payload and isinstance(payload["qglyph"], dict):
+        qg = payload["qglyph"]
+        # merge top-level meta if present
+        if "meta" in payload and isinstance(payload["meta"], dict):
+            qg.setdefault("metadata", {}).update(payload["meta"])
+        return interpret_qglyph(qg, ctx)
+
+    # single glyph path (string or small dict)
+    if isinstance(payload, str):
+        return interpret_glyph(payload, ctx)
+
+    if isinstance(payload, dict):
+        glyph = payload.get("glyph") or payload.get("symbol") or payload.get("value")
+        meta = payload.get("meta") or payload.get("metadata") or {}
+        if glyph is not None:
+            c2 = ctx.copy()
+            c2.setdefault("metadata", meta)
+            out = interpret_glyph(str(glyph), c2)
+            out["type"] = "glyph"
+            return out
+
+    return {"type": "noop", "reason": "unrecognized_payload", "payload_type": str(type(payload))}
+
 
 # ✅ DNA switch registration
 DNA_SWITCH.register(__file__, file_type="backend")

@@ -1,22 +1,192 @@
 {
   "id": "physics_core",
-  "name": "physics_core",
-  "symbol": "❔",
+  "type": "SymbolicExpansionContainer",
+  "name": "Physics Core",
+  "symbol": "⚛️",
+  "metadata": {
+    "version": "1.1",
+    "created_by": "AION Seed Generator",
+    "domain": "Physics",
+    "provenance": "seed",
+    "integration": {
+      "linked_domains": [
+        "math_core",
+        "control_systems",
+        "engineering_materials",
+        "biology_bioinformatics",
+        "economics_decision"
+      ],
+      "export_ready": true
+    }
+  },
+  "atoms": [
+    {
+      "id": "pde_solver_fem",
+      "type": "AtomContainer",
+      "caps": ["pde.solver"],
+      "tags": ["physics", "fem"],
+      "description": "Finite element solver for partial differential equations."
+    }
+  ],
   "glyph_categories": [
-    { "id": "mech",   "label": "Mechanics",        "emoji": "⚙️" },
-    { "id": "thermo", "label": "Thermodynamics",   "emoji": "🔥" },
-    { "id": "em",     "label": "Electromagnetism", "emoji": "⚡" },
-    { "id": "qft",    "label": "Quantum Fields",   "emoji": "🌀" }
+    { "id": "mech",   "label": "Classical Mechanics",     "emoji": "⚙️" },
+    { "id": "em",     "label": "Electromagnetism",        "emoji": "⚡" },
+    { "id": "thermo", "label": "Thermo & Stat Phys",      "emoji": "🔥" },
+    { "id": "qmech",  "label": "Quantum Mechanics",       "emoji": "🧪" },
+    { "id": "qft",    "label": "Quantum Fields",          "emoji": "🌀" },
+    { "id": "rel",    "label": "Relativity/Gravitation",  "emoji": "🛰️" },
+    { "id": "fluids", "label": "Fluids & Continuum",      "emoji": "🌊" },
+    { "id": "solid",  "label": "Condensed Matter",        "emoji": "🧱" },
+    { "id": "optics", "label": "Optics/Photonics",        "emoji": "🔦" },
+    { "id": "x",      "label": "Cross-Domain Math",       "emoji": "🔗" }
   ],
   "nodes": [
-    { "id": "newton_laws",  "label": "Newton's Laws", "cat": "mech" },
-    { "id": "maxwell_eqs",  "label": "Maxwell's Eqns","cat": "em" },
-    { "id": "first_law",    "label": "1st Law",       "cat": "thermo" },
-    { "id": "dirac_field",  "label": "Dirac Field",   "cat": "qft" }
+
+    { "id": "newton_laws",     "label": "Newton's Laws",       "cat": "mech" },
+    { "id": "lagrangian",      "label": "Lagrangian Mechanics","cat": "mech",
+      "source": { "tier": "secondary", "ref": "doi:10.1017/CBO9780511815143", "notes": "Goldstein" } },
+    { "id": "hamiltonian",     "label": "Hamiltonian Mechanics","cat": "mech" },
+    { "id": "noether_theorem", "label": "Noether's Theorem",   "cat": "mech",
+      "source": { "tier": "primary", "ref": "doi:10.1007/BF01450472" } },
+    { "id": "rigid_body",      "label": "Rigid Body Dynamics", "cat": "mech" },
+    { "id": "continuum",       "label": "Continuum Mechanics", "cat": "mech" },
+
+
+    { "id": "maxwell_eqs",     "label": "Maxwell's Equations", "cat": "em" },
+    { "id": "em_potentials",   "label": "Scalar/Vector Potentials", "cat": "em" },
+    { "id": "gauge_invariance","label": "Gauge Invariance (U(1))",  "cat": "em" },
+    { "id": "em_wave_eq",      "label": "EM Wave Equation",     "cat": "em" },
+    { "id": "lorentz_force",   "label": "Lorentz Force",        "cat": "em" },
+
+
+    { "id": "first_law",       "label": "First Law (Energy)",   "cat": "thermo" },
+    { "id": "second_law",      "label": "Second Law (Entropy)", "cat": "thermo" },
+    { "id": "free_energies",   "label": "Gibbs/Helmholtz Free Energy", "cat": "thermo" },
+    { "id": "stat_mech",       "label": "Statistical Mechanics","cat": "thermo" },
+    { "id": "partition_function","label": "Partition Function Z","cat": "thermo" },
+    { "id": "ising_model",     "label": "Ising Model",          "cat": "thermo" },
+
+
+    { "id": "schrodinger_eq",  "label": "Schrödinger Equation", "cat": "qmech" },
+    { "id": "heisenberg_form", "label": "Heisenberg Picture",   "cat": "qmech" },
+    { "id": "pauli_matrices",  "label": "Pauli Matrices",       "cat": "qmech" },
+    { "id": "spin_angular",    "label": "Spin & Angular Momentum","cat": "qmech" },
+    { "id": "path_integral",   "label": "Feynman Path Integral","cat": "qmech",
+      "source": { "tier": "secondary", "ref": "doi:10.1063/1.3068665", "notes": "Feynman & Hibbs" } },
+
+
+    { "id": "dirac_field",     "label": "Dirac Field",          "cat": "qft" },
+    { "id": "scalar_field",    "label": "Real/Complex Scalar Fields","cat": "qft" },
+    { "id": "qed",             "label": "Quantum Electrodynamics (QED)","cat": "qft" },
+    { "id": "renormalization", "label": "Renormalization",      "cat": "qft" },
+    { "id": "ssb_higgs",       "label": "Spontaneous Symmetry Breaking / Higgs","cat": "qft" },
+
+
+    { "id": "special_relativity","label": "Special Relativity", "cat": "rel" },
+    { "id": "general_relativity","label": "General Relativity", "cat": "rel" },
+    { "id": "einstein_eqs",    "label": "Einstein Field Equations","cat": "rel" },
+    { "id": "geodesics",       "label": "Geodesics & Curvature","cat": "rel" },
+
+
+    { "id": "navier_stokes",   "label": "Navier–Stokes Equations","cat": "fluids" },
+    { "id": "boundary_layer",  "label": "Boundary Layer Theory", "cat": "fluids" },
+    { "id": "turbulence",      "label": "Turbulence & Spectra",  "cat": "fluids" },
+
+
+    { "id": "band_theory",     "label": "Band Theory / Bloch",  "cat": "solid" },
+    { "id": "superconductivity","label": "BCS Superconductivity","cat": "solid" },
+    { "id": "topo_insulators", "label": "Topological Insulators","cat": "solid" },
+
+
+    { "id": "fourier_optics",  "label": "Fourier Optics",        "cat": "optics" },
+    { "id": "geometric_optics","label": "Geometric Optics",      "cat": "optics" },
+    { "id": "nonlinear_optics","label": "Nonlinear Optics",      "cat": "optics" },
+
+
+    { "id": "predictive_harmonics", "label": "Predictive Harmonics (QFT/EM)", "cat": "qft", "type": "predictive_fork" },
+    { "id": "proof_variational",    "label": "Variational Proof Replay",      "cat": "mech","type": "proof_replay" },
+    { "id": "softmax_readout_phys", "label": "Softmax Readout (Model Ranking)","cat": "thermo","type": "readout_head",
+      "notes": "Ranks candidate models/approximations by evidence/likelihood" },
+
+
+    { "id": "calc_variational",   "label": "Calculus of Variations", "cat": "x", "external": true },
+    { "id": "pde",                "label": "Partial Differential Eqns", "cat": "x", "external": true },
+    { "id": "fourier_transform",  "label": "Fourier Transform",     "cat": "x", "external": true },
+    { "id": "linear_algebra",     "label": "Linear Algebra",        "cat": "x", "external": true },
+    { "id": "differential_geom",  "label": "Differential Geometry", "cat": "x", "external": true },
+    { "id": "group_theory",       "label": "Group Theory",          "cat": "x", "external": true },
+    { "id": "lie_algebra",        "label": "Lie Algebras",          "cat": "x", "external": true },
+    { "id": "probability",        "label": "Probability Theory",    "cat": "x", "external": true },
+    { "id": "bayesian_inference", "label": "Bayesian Inference",    "cat": "x", "external": true }
   ],
   "links": [
-    { "src": "newton_laws", "dst": "maxwell_eqs", "relation": "informs" },
-    { "src": "first_law",   "dst": "maxwell_eqs", "relation": "constraints" },
-    { "src": "dirac_field", "dst": "maxwell_eqs", "relation": "couples" }
+
+    { "src": "lagrangian",      "dst": "calc_variational", "relation": "uses" },
+    { "src": "hamiltonian",     "dst": "lagrangian",       "relation": "legendre_transform" },
+    { "src": "noether_theorem", "dst": "lagrangian",       "relation": "symmetry_of" },
+    { "src": "rigid_body",      "dst": "newton_laws",      "relation": "governed_by" },
+    { "src": "continuum",       "dst": "pde",              "relation": "expressed_as" },
+
+
+    { "src": "maxwell_eqs",     "dst": "em_wave_eq",       "relation": "implies" },
+    { "src": "em_potentials",   "dst": "gauge_invariance", "relation": "respects" },
+    { "src": "lorentz_force",   "dst": "maxwell_eqs",      "relation": "consistent_with" },
+
+
+    { "src": "second_law",      "dst": "entropy",          "relation": "defines" },
+    { "src": "free_energies",   "dst": "partition_function","relation": "derived_from" },
+    { "src": "stat_mech",       "dst": "partition_function","relation": "uses" },
+    { "src": "ising_model",     "dst": "stat_mech",        "relation": "example_of" },
+
+
+    { "src": "schrodinger_eq",  "dst": "hamiltonian",      "relation": "generator_is" },
+    { "src": "heisenberg_form", "dst": "schrodinger_eq",   "relation": "equivalent_to" },
+    { "src": "pauli_matrices",  "dst": "spin_angular",     "relation": "represents" },
+    { "src": "path_integral",   "dst": "lagrangian",       "relation": "weights_by" },
+
+
+    { "src": "qed",             "dst": "gauge_invariance", "relation": "extends" },
+    { "src": "dirac_field",     "dst": "qed",              "relation": "couples_in" },
+    { "src": "renormalization", "dst": "qed",              "relation": "applies_to" },
+    { "src": "ssb_higgs",       "dst": "scalar_field",     "relation": "implemented_in" },
+
+
+    { "src": "special_relativity","dst": "maxwell_eqs",    "relation": "compatible_with" },
+    { "src": "general_relativity","dst": "einstein_eqs",   "relation": "governed_by" },
+    { "src": "geodesics",       "dst": "general_relativity","relation": "solutions_in" },
+
+
+    { "src": "navier_stokes",   "dst": "continuum",        "relation": "in_continuum" },
+    { "src": "turbulence",      "dst": "navier_stokes",    "relation": "emerges_from" },
+    { "src": "boundary_layer",  "dst": "navier_stokes",    "relation": "asymptotic_regime" },
+
+
+    { "src": "band_theory",     "dst": "solid",            "relation": "part_of" },
+    { "src": "superconductivity","dst": "band_theory",     "relation": "extends" },
+    { "src": "topo_insulators", "dst": "band_theory",      "relation": "topological_phase_of" },
+
+
+    { "src": "fourier_optics",  "dst": "fourier_transform","relation": "uses" },
+    { "src": "nonlinear_optics","dst": "em_potentials",    "relation": "driven_by" },
+
+
+    { "src": "predictive_harmonics", "dst": "qed",         "relation": "predicts_lines_in" },
+    { "src": "predictive_harmonics", "dst": "em_wave_eq",  "relation": "predicts_modes_in" },
+    { "src": "proof_variational",    "dst": "lagrangian",  "relation": "replays_proof_for" },
+    { "src": "softmax_readout_phys", "dst": "band_theory", "relation": "ranks_models_for" },
+    { "src": "softmax_readout_phys", "dst": "navier_stokes","relation": "ranks_closures_for" },
+
+ 
+    { "src": "lagrangian",      "dst": "calc_variational", "relation": "uses" },
+    { "src": "hamiltonian",     "dst": "linear_algebra",   "relation": "operator_form" },
+    { "src": "em_wave_eq",      "dst": "pde",              "relation": "is_a" },
+    { "src": "fourier_optics",  "dst": "fourier_transform","relation": "uses" },
+    { "src": "general_relativity","dst": "differential_geom","relation": "requires" },
+    { "src": "qed",             "dst": "group_theory",     "relation": "symmetry" },
+    { "src": "qed",             "dst": "lie_algebra",      "relation": "generators" },
+    { "src": "stat_mech",       "dst": "probability",      "relation": "grounded_in" },
+    { "src": "renormalization", "dst": "group_theory",     "relation": "rg_flow_on" },
+    { "src": "schrodinger_eq",  "dst": "pde",              "relation": "is_a" },
+    { "src": "ising_model",     "dst": "bayesian_inference","relation": "inference_links" }
   ]
 }

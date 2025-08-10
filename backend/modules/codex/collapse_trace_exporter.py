@@ -1,13 +1,17 @@
+# backend/modules/codex/collapse_trace_exporter.py
 import os
 import json
 import logging
+import itertools
+from pathlib import Path
 from datetime import datetime
-from typing import Dict, Optional
+from typing import Dict, Optional, List, Any
 
 from backend.modules.hexcore.memory_engine import MEMORY  # Keep as-is
 
 EXPORT_PATH = "data/logs/collapse_trace_log.dc.json"  # Customize as needed
 logger = logging.getLogger(__name__)
+
 
 def export_collapse_trace(
     expression: str,
@@ -15,8 +19,11 @@ def export_collapse_trace(
     adapter_name: str,
     identity: Optional[str] = None,
     timestamp: Optional[float] = None,
-    extra: Optional[Dict] = None
+    extra: Optional[Dict[str, Any]] = None,
 ) -> None:
+    """
+    Append a Codex collapse-trace line to the JSONL log at EXPORT_PATH.
+    """
     try:
         if timestamp is None:
             timestamp = datetime.utcnow().timestamp()
@@ -26,12 +33,14 @@ def export_collapse_trace(
         qglyph_id = extra.get("qglyph_id") if extra else None
 
         dream_pack = {
-            "scroll_tree": MEMORY.scroll_tree if hasattr(MEMORY, "scroll_tree") else None,
-            "entropy_state": MEMORY.get_runtime_entropy_snapshot() if hasattr(MEMORY, "get_runtime_entropy_snapshot") else None,
+            "scroll_tree": getattr(MEMORY, "scroll_tree", None),
+            "entropy_state": MEMORY.get_runtime_entropy_snapshot()
+            if hasattr(MEMORY, "get_runtime_entropy_snapshot")
+            else None,
             "memory_tags": getattr(MEMORY, "active_tags", []),
         }
 
-        trace = {
+        trace: Dict[str, Any] = {
             "type": "collapse_trace",
             "expression": expression,
             "output": output,
@@ -44,17 +53,21 @@ def export_collapse_trace(
                 "signature_block": {
                     "ghx_projection_id": ghx_projection_id,
                     "vault_snapshot_id": vault_snapshot_id,
-                    "qglyph_id": qglyph_id
+                    "qglyph_id": qglyph_id,
                 },
-                "dream_pack": dream_pack
-            }
+                "dream_pack": dream_pack,
+            },
         }
 
+        # copy any extra fields (except reserved keys already embedded above)
         if extra:
             for key, value in extra.items():
                 if key not in (
-                    "ghx_data", "trigger_metadata", "ghx_projection_id",
-                    "vault_snapshot_id", "qglyph_id"
+                    "ghx_data",
+                    "trigger_metadata",
+                    "ghx_projection_id",
+                    "vault_snapshot_id",
+                    "qglyph_id",
                 ):
                     trace[key] = value
 
@@ -68,14 +81,17 @@ def export_collapse_trace(
     except Exception as e:
         logger.error(f"[CollapseTraceExporter] Failed to export collapse trace: {e}")
 
-# ✅ NEW: SoulLaw-specific trace logger
+
 def log_soullaw_event(
     verdict: str,  # "violation" or "approval"
     glyph: str,
     lock_hash: Optional[str] = None,
     triggered_by: Optional[str] = None,
-    origin: Optional[str] = "soul_law_validator"
+    origin: Optional[str] = "soul_law_validator",
 ) -> None:
+    """
+    Log a SoulLaw event into the same JSONL stream as collapse traces.
+    """
     try:
         timestamp = datetime.utcnow().timestamp()
         trace = {
@@ -85,7 +101,7 @@ def log_soullaw_event(
             "lock_hash": lock_hash,
             "triggered_by": triggered_by,
             "origin": origin,
-            "timestamp": timestamp
+            "timestamp": timestamp,
         }
 
         os.makedirs(os.path.dirname(EXPORT_PATH), exist_ok=True)
@@ -97,3 +113,57 @@ def log_soullaw_event(
 
     except Exception as e:
         logger.warning(f"[CollapseTraceExporter] Failed to log SoulLaw event: {e}")
+
+
+# --- Compatibility: provide get_recent_collapse_traces for bundle_builder ----
+def get_recent_collapse_traces(limit: int = 50) -> List[Dict[str, Any]]:
+    """
+    Return the most recent collapse traces.
+
+    Preference order:
+      1) Canonical exporter in backend.modules.collapse (if present)
+      2) Fallback: tail the local JSONL log at EXPORT_PATH
+    """
+    # Try canonical implementation
+    try:
+        from backend.modules.collapse.collapse_trace_exporter import (  # type: ignore
+            get_recent_collapse_traces as _canonical_get_recent_collapse_traces,
+        )
+
+        # Some versions accept (limit) or (limit, load=True). Call defensively.
+        try:
+            return _canonical_get_recent_collapse_traces(limit)  # simple signature
+        except TypeError:
+            return _canonical_get_recent_collapse_traces(limit=limit)  # kw-only
+    except Exception:
+        pass  # fall through to local log tail
+
+    # Fallback: read last N JSON lines of our log
+    path = Path(EXPORT_PATH)
+    if not path.exists():
+        return []
+
+    try:
+        with path.open("r", encoding="utf-8") as f:
+            lines = f.readlines()
+        # latest last → first; take last N then reverse back to chronological
+        last = list(itertools.islice(reversed(lines), 0, max(0, int(limit))))
+        out: List[Dict[str, Any]] = []
+        for line in reversed(last):
+            try:
+                obj = json.loads(line.strip())
+                if isinstance(obj, dict):
+                    out.append(obj)
+            except Exception:
+                continue
+        return out
+    except Exception as e:
+        logger.warning(f"[CollapseTraceExporter] Failed to read local collapse traces: {e}")
+        return []
+
+
+__all__ = [
+    "export_collapse_trace",
+    "log_soullaw_event",
+    "get_recent_collapse_traces",
+]

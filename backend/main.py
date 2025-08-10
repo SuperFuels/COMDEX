@@ -15,18 +15,17 @@ from fastapi import FastAPI, APIRouter, Request, HTTPException, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from starlette.responses import RedirectResponse
-from sqlalchemy import text
 from sqlalchemy.exc import OperationalError
 import uvicorn
 
-# ✅ DNA Switch
+# DNA Switch
 from backend.modules.dna_chain.dna_switch import DNA_SWITCH
-DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+DNA_SWITCH.register(__file__)
 
-# ── 1) Ensure uploads folder exists
+# ── Ensure uploads folder exists
 os.makedirs("uploaded_images", exist_ok=True)
 
-# ── 2) Load .env.local (only when ENV != "production")
+# ── Load .env.local if not production
 ENV = os.getenv("ENV", "").lower()
 if ENV != "production":
     from dotenv import load_dotenv
@@ -35,41 +34,37 @@ if ENV != "production":
     else:
         print("⚠️ Warning: .env.local not found.")
 
-# ── 3) Warm up Cloud SQL socket on cold starts
+# ── Warm up Cloud SQL socket
 time.sleep(3)
 
-# ── 4) Logging setup
+# ── Logging setup
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("comdex")
 
-# ── 5) Log the DB URL for troubleshooting
+# ── Log DB URL
 from backend.config import SQLALCHEMY_DATABASE_URL
 logger.info(f"🔍 SQLALCHEMY_DATABASE_URL = {SQLALCHEMY_DATABASE_URL}")
 
-# ── 6) Import engine, Base, get_db
+# ── Import DB
 from backend.database import engine, Base, get_db
-
-# ── 7) Register all ORM models
 import backend.models
 
-# ── 8) Auto-create tables
+# ── Boot imports
+from backend.modules.hexcore.boot_loader import load_boot_goals, preload_all_domain_packs, boot
+
+# ── Auto-create tables
 Base.metadata.create_all(bind=engine)
 logger.info("✅ Database tables checked/created.")
 
-# ── 9) Instantiate FastAPI
-app = FastAPI(
-    title="COMDEX API",
-    version="1.0.0",
-    description="Global Commodity Marketplace API",
-)
+# ── Instantiate FastAPI
+app = FastAPI(title="COMDEX API", version="1.0.0", description="AION")
+app.router.redirect_slashes = False
 
-app.router.redirect_slashes = False  # Disable trailing slash redirects globally
-
-# ── 10) GLOBAL CORS (must come before routers)
+# ── CORS
 if ENV != "production":
     allow_origins = [
         "http://localhost:3000",
-        "https://comdex-fawn.vercel.app",  # your frontend (Vercel)
+        "https://comdex-fawn.vercel.app",
     ]
 else:
     raw = os.getenv("CORS_ALLOWED_ORIGINS", "")
@@ -78,7 +73,6 @@ else:
         raise RuntimeError("CORS_ALLOWED_ORIGINS must be set in production.")
 
 logger.info(f"✅ CORS allowed_origins = {allow_origins}")
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allow_origins,
@@ -87,7 +81,24 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ── 11) Import routers with consistent backend.routes prefix
+# ── Unified startup event
+@app.on_event("startup")
+async def startup_event():
+    try:
+        load_boot_goals()
+    except Exception as e:
+        logger.warning(f"boot: load_boot_goals failed: {e}")
+    try:
+        preload_all_domain_packs()
+    except Exception as e:
+        logger.warning(f"boot: preload_all_domain_packs failed: {e}")
+    try:
+        boot()
+    except Exception as e:
+        logger.warning(f"boot() failed: {e}")
+
+# ── Routers
+from backend.routes.auth import router as auth_router
 from backend.routes.auth               import router as auth_router
 from backend.routes.products           import router as products_router
 from backend.routes.deal               import router as deal_router
@@ -136,7 +147,7 @@ from backend.routes.ws import qglyph_ws
 from backend.api.aion import codex_playground
 from backend.routes.ws import glyphnet_ws
 from backend.modules.gip.gip_adapter_http import router as gip_http_router
-from backend.routes.glyphnet_command import router as glyphnet_command_router
+from backend.routes.glyphnet_command_api import router as glyphnet_command_router
 from backend.api.aion import container_api
 from backend.api.aion import vault_api
 from backend.routes.api import glyph_socket_api
@@ -147,6 +158,7 @@ from backend.routes.lean_inject import router as lean_router
 from backend.routes import lean_inject_api 
 from backend.routes import sqi_drift
 from backend.routes import sqi_kg
+from backend.routes import ucs_api
 
 # ✅ WebSocket route
 from backend.api import ws
@@ -234,6 +246,8 @@ app.include_router(lean_router)
 app.include_router(lean_inject_api.router)
 app.include_router(sqi_drift.router)
 app.include_router(sqi_kg.router)
+app.include_router(ucs_api.router)
+app.include_router(auth_router, prefix="/auth")
 
 # ── 16) Serve uploaded images
 app.mount("/uploaded_images", StaticFiles(directory="uploaded_images"), name="uploaded_images")

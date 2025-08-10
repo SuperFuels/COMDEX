@@ -1,7 +1,73 @@
+# backend/modules/codex/codex_metrics.py
+
 from collections import defaultdict
 import json
+import logging
+import time
+from typing import Any, Dict, Optional
+
 from backend.modules.codex.codex_cost_estimator import CodexCostEstimator  # ✅ Added for cost integration
 
+logger = logging.getLogger(__name__)
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 🔢 Lightweight, safe execution-metrics shim (for GlyphNet and friends)
+#    - Keeps callers working: from backend.modules.codex.codex_metrics import record_execution_metrics
+#    - Never raises; logs one structured line
+#    - Duration works if caller passes start_ts=time.perf_counter()
+# ─────────────────────────────────────────────────────────────────────────────
+
+def _size(obj: Any) -> Optional[int]:
+    try:
+        return len(obj)  # str, list, dict, etc.
+    except Exception:
+        return None
+
+def record_execution_metrics(
+    adapter: str = "glyphnet",
+    op: str = "execute",
+    payload: Any = None,
+    result: Any = None,
+    start_ts: Optional[float] = None,   # pass time.perf_counter() at operation start
+    extra: Optional[Dict[str, Any]] = None,
+    success: bool = True,
+) -> Dict[str, Any]:
+    """
+    Lightweight, safe metrics logger used by GlyphNet terminal and others.
+    Emits a single structured log line and returns the entry.
+    """
+    now_perf = time.perf_counter()
+    dur_ms = ((now_perf - start_ts) * 1000.0) if isinstance(start_ts, (int, float)) else None
+
+    entry: Dict[str, Any] = {
+        "ts": time.time(),
+        "adapter": adapter,
+        "op": op,
+        "success": bool(success),
+        "duration_ms": dur_ms,
+        "payload_size": _size(payload),
+        "result_size": _size(result),
+    }
+    if extra:
+        entry.update(extra)
+
+    try:
+        logger.info("[codex_metrics] %s", json.dumps(entry, ensure_ascii=False))
+    except Exception:
+        # never fail the caller because of metrics issues
+        logger.info("[codex_metrics] %r", entry)
+
+    return entry
+
+# Optional class wrapper for older call sites expecting CodexMetrics.record_execution_metrics
+class CodexMetricsShim:
+    @staticmethod
+    def record_execution_metrics(**kwargs) -> Dict[str, Any]:
+        return record_execution_metrics(**kwargs)
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 📈 Your existing metrics implementation (UNCHANGED)
+# ─────────────────────────────────────────────────────────────────────────────
 
 class CodexMetrics:
     def __init__(self):
@@ -159,3 +225,12 @@ def log_benchmark_result(result: dict):
     print(f"  🔁 Compression Ratio: {result['compression_ratio']}×")
     print(f"  ⚡ Speedup Ratio:      {result['speedup_ratio']}×")
     print(f"  🧿 QGlyph ID: {result['qglyph_id']}")
+
+__all__ = [
+    "record_execution_metrics",
+    "CodexMetricsShim",
+    "CodexMetrics",
+    "score_glyph_tree",
+    "calculate_glyph_cost",
+    "log_benchmark_result",
+]

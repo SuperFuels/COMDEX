@@ -8,6 +8,7 @@ import GlyphSprite from "./GlyphSprite";
 import RuntimeGlyphTrace from "@/components/codex/RuntimeGlyphTrace";
 import HobermanSphere from "../ContainerMap/HobermanSphere";
 import SymbolicExpansionSphere from "../ContainerMap/SymbolicExpansionSphere";
+import type { AtomModel } from "@/types/atom";
 import WarpDriveNavigator from "@/components/AION/WarpDriveNavigator"; // ✅ Warp Drive Integration
 import {
   BlackHoleRenderer,
@@ -23,6 +24,7 @@ import {
   TorusRenderer,
   VortexRenderer,
   TetrahedronRenderer,
+  AtomContainerRenderer,
 } from "@/components/AION/renderers";
 
 // ✅ GHXVisualizer directional arrows stub
@@ -367,8 +369,23 @@ function ProtonFieldParticles({ zone }: { zone: string | null }) {
         return <VortexRenderer key={container.id} position={pos} container={container} />;
       case "tetrahedron":
         return <TetrahedronRenderer key={container.id} position={pos} container={container} />;
+      case "atom_container":
+        return <AtomContainerRenderer key={container.id} position={pos} container={container} />;
 
-
+      // 🧊 Default fallback
+      default:
+        return (
+          <HolodeckCube
+            key={`${container.id}-cube`}
+            container={container}
+            position={pos}
+            active={container.id === activeId}
+            linked={!!isLinked(container.id)}
+            onClick={onTeleport || (() => {})}
+            onHover={setHoveredId}
+            symbolicScale={symbolicScale}
+          />
+        );
       // 🧊 Default fallback HolodeckCube (if no symbolic_mode match)
       default:
         return (

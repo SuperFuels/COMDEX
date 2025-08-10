@@ -1,0 +1,17 @@
+{
+  "problems": [
+    {
+      "id": "prove_gauss_law_e_field_vacuum",
+      "goal": {
+        "caps": ["lean.replay"],
+        "tags": ["math"],
+        "nodes": ["maxwell_eqs"]
+      },
+      "description": "Prove Gauss’s law for the electric field in a vacuum using Maxwell’s equations.",
+      "required_atoms": [
+        "lean_replay_core",
+        "pde_solver_fem"
+      ]
+    }
+  ]
+}

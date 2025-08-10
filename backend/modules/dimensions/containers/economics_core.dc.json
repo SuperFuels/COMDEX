@@ -1,0 +1,88 @@
+{
+  "id": "economics_core",
+  "name": "economics_core",
+  "symbol": "📊",
+  "metadata": {
+    "version": "1.0",
+    "created_by": "AION Seed Generator",
+    "domain": "Economics / Decision Theory",
+    "provenance": "seed",
+    "integration": {
+      "linked_domains": ["math_core", "control_systems", "biology_core"],
+      "export_ready": true
+    }
+  },
+  "glyph_categories": [
+    { "id": "dec",  "label": "Decision Theory",  "emoji": "🧠" },
+    { "id": "game", "label": "Game Theory",      "emoji": "🎮" },
+    { "id": "micro","label": "Microeconomics",   "emoji": "🧮" },
+    { "id": "macro","label": "Macro/Markets",    "emoji": "🏦" },
+    { "id": "x",    "label": "Cross-Domain",     "emoji": "🔗" }
+  ],
+  "nodes": [
+
+    { "id": "utility",         "label": "Utility",                 "cat": "dec" },
+    { "id": "risk_aversion",   "label": "Risk Aversion",           "cat": "dec" },
+    { "id": "expected_utility","label": "Expected Utility",        "cat": "dec",
+      "source": { "tier": "secondary", "ref": "doi:10.2307/1907269" } },
+    { "id": "prospect_theory", "label": "Prospect Theory",         "cat": "dec",
+      "source": { "tier": "secondary", "ref": "doi:10.2307/1914185", "notes": "Kahneman & Tversky (1979)" } },
+    { "id": "bayesian_update", "label": "Bayesian Update",         "cat": "dec" },
+    { "id": "mdp",             "label": "Markov Decision Process", "cat": "dec" },
+    { "id": "bellman_equation","label": "Bellman Equation",        "cat": "dec" },
+    { "id": "policy_iteration","label": "Policy Iteration",        "cat": "dec" },
+
+
+    { "id": "nash_equilibrium","label": "Nash Equilibrium",        "cat": "game",
+      "source": { "tier": "primary", "ref": "doi:10.2307/1969529" } },
+    { "id": "pareto_efficiency","label": "Pareto Efficiency",      "cat": "game" },
+    { "id": "mechanism_design","label": "Mechanism Design",        "cat": "game" },
+    { "id": "auction_theory",  "label": "Auction Theory",          "cat": "game" },
+
+
+    { "id": "supply_demand",   "label": "Supply & Demand",         "cat": "micro" },
+    { "id": "market_equilibrium","label": "Market Equilibrium",    "cat": "micro" },
+    { "id": "general_equilibrium","label": "General Equilibrium",  "cat": "macro" },
+
+
+    { "id": "predictive_market_response","label": "Predictive: Market Response", "cat": "macro", "type": "predictive_fork" },
+    { "id": "proof_equilibrium_replay",  "label": "Proof Replay: Equilibrium",   "cat": "game",  "type": "proof_replay" },
+    { "id": "softmax_readout_econ",      "label": "Softmax Readout (Action Ranking)", "cat": "dec",
+      "type": "readout_head", "notes": "Ranks strategies/policies; learns from payoff outcomes." },
+
+
+    { "id": "convex_optimization","label": "Convex Optimization",  "cat": "x", "external": true },
+    { "id": "stochastic_processes","label": "Stochastic Processes", "cat": "x", "external": true },
+    { "id": "graph_theory",       "label": "Graph Theory",         "cat": "x", "external": true },
+    { "id": "control_rl",         "label": "RL Control (from Control Systems)", "cat": "x", "external": true }
+  ],
+  "links": [
+
+    { "src": "expected_utility", "dst": "utility",          "relation": "models" },
+    { "src": "risk_aversion",    "dst": "utility",          "relation": "shapes" },
+    { "src": "prospect_theory",  "dst": "utility",          "relation": "alternative_to" },
+    { "src": "bayesian_update",  "dst": "expected_utility", "relation": "updates_beliefs_for" },
+    { "src": "mdp",              "dst": "bellman_equation", "relation": "solved_by" },
+    { "src": "policy_iteration", "dst": "mdp",              "relation": "optimizes" },
+
+
+    { "src": "nash_equilibrium", "dst": "mechanism_design", "relation": "informs" },
+    { "src": "auction_theory",   "dst": "mechanism_design", "relation": "applied_in" },
+    { "src": "nash_equilibrium", "dst": "pareto_efficiency","relation": "contrasted_with" },
+
+
+    { "src": "supply_demand",    "dst": "market_equilibrium","relation": "determines" },
+    { "src": "market_equilibrium","dst": "general_equilibrium","relation": "extends_to" },
+
+
+    { "src": "predictive_market_response", "dst": "market_equilibrium","relation": "predicts_shift_in" },
+    { "src": "proof_equilibrium_replay",   "dst": "nash_equilibrium",  "relation": "replays" },
+    { "src": "softmax_readout_econ",       "dst": "policy_iteration",  "relation": "ranks_policies_for" },
+
+
+    { "src": "policy_iteration", "dst": "convex_optimization", "relation": "solved_by" },
+    { "src": "mdp",              "dst": "stochastic_processes","relation": "assumes" },
+    { "src": "nash_equilibrium", "dst": "graph_theory",        "relation": "represented_by" },
+    { "src": "softmax_readout_econ", "dst": "control_rl",      "relation": "shares_mechanism_with" }
+  ]
+}

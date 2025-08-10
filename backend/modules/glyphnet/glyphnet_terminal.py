@@ -265,4 +265,5 @@ def store_log(entry: Dict[str, Any]):
         _log_history.pop(0)
 
 
-def get_recent_logs() -> List[Dict[str, Any
+def get_recent_logs() -> List[Dict[str, Any]]:
+    return LOG_BUFFER[-200:]

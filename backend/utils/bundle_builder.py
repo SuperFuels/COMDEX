@@ -8,7 +8,7 @@ from backend.modules.glyphos.microgrid_index import MicrogridIndex
 from backend.modules.dna_chain.dc_handler import load_dimension_by_file
 
 # ✅ Collapse trace importer
-from backend.modules.codex.collapse_trace_exporter import get_recent_collapse_traces
+from backend.modules.collapse.collapse_trace_exporter import get_recent_collapse_traces
 
 def bundle_container(container_id: str) -> dict:
     state = StateManager()
@@ -47,3 +47,17 @@ def bundle_container(container_id: str) -> dict:
         "bundle": encoded,
         "preview": bundle["metadata"]
     }
+
+def bundle_universal_container_system(container_id: str) -> dict:
+    """
+    Back-compat wrapper for code expecting `bundle_universal_container_system`.
+    Delegates to `bundle_container`.
+    """
+    return bundle_container(container_id)
+
+
+# Export both names
+__all__ = [
+    "bundle_container",
+    "bundle_universal_container_system",
+]

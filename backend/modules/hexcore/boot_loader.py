@@ -12,23 +12,119 @@ from backend.modules.dimensions.universal_container_system.ucs_runtime import uc
 from backend.modules.dna_chain.switchboard import DNA_SWITCH
 DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
 
-# Paths
+# --- Seeded UCS load (math_core, physics_core, problem_graphs) ----------------
+SEEDS = [
+    "backend/modules/dimensions/containers/math_core.dc.json",
+    "backend/modules/dimensions/containers/physics_core.dc.json",
+    "backend/modules/dimensions/containers/problem_graphs.dc.json",
+]
+
+def load_boot_goals() -> Optional[Dict[str, Any]]:
+    """Load startup goals from MilestoneTracker or KG."""
+    try:
+        return MilestoneTracker.get_boot_goals()
+    except Exception as e:
+        print(f"[boot_loader] Failed to load boot goals: {e}")
+        return None
+
+def preload_all_domain_packs() -> None:
+    """Preload all core .dc.json seeds into the UCS runtime."""
+    for seed_path in SEEDS:
+        try:
+            if not Path(seed_path).exists():
+                print(f"[boot_loader] Seed file missing: {seed_path}")
+                continue
+            with open(seed_path, "r", encoding="utf-8") as f:
+                container_data = json.load(f)
+            ucs_runtime.load_container(container_data)
+            print(f"[boot_loader] Loaded seed: {seed_path}")
+        except Exception as e:
+            print(f"[boot_loader] Failed to load seed {seed_path}: {e}")
+
+def boot():
+    """Full boot sequence: load seeds, init KG, register DNA state."""
+    print("[boot_loader] Starting boot sequence...")
+    
+    preload_all_domain_packs()
+
+    boot_goals = load_boot_goals()
+    if boot_goals:
+        kg_writer.write_knowledge("boot_goals", boot_goals)
+
+    print("[boot_loader] Boot sequence complete.")
+def load_seed_containers():
+    """
+    Minimal UCS seed boot: load .dc.json files directly into ucs_runtime,
+    and register any 'atoms' they contain.
+    Safe to call multiple times (register_container is idempotent).
+    """
+    for p in SEEDS:
+        if not os.path.exists(p):
+            print(f"⚠️  seed missing: {p}")
+            continue
+        try:
+            with open(p, "r") as f:
+                data = json.load(f)
+        except Exception as e:
+            print(f"⚠️  failed to read seed {p}: {e}")
+            continue
+
+        name = data.get("name") or data.get("id") or os.path.basename(p).split(".")[0]
+        # persist raw container
+        ucs_runtime.containers[name] = data
+        ucs_runtime.active_container_name = name
+
+        # register atoms (list or dict)
+        atoms = data.get("atoms", [])
+        if isinstance(atoms, list):
+            for atom in atoms:
+                try:
+                    ucs_runtime.register_atom(name, atom)
+                except Exception as e:
+                    print(f"⚠️  atom skipped in {name}: {e}")
+        elif isinstance(atoms, dict):
+            for _, atom in atoms.items():
+                try:
+                    ucs_runtime.register_atom(name, atom)
+                except Exception as e:
+                    print(f"⚠️  atom skipped in {name}: {e}")
+
+    # optional: see what UCS thinks now
+    try:
+        print("✅ Seed boot complete:", ucs_runtime.debug_state())
+    except Exception:
+        # if debug_state() doesn’t exist, this won’t crash boot
+        pass
+
+# -----------------------------------------------------------------------------
+# Paths / Anchors
+# -----------------------------------------------------------------------------
 BASE_DIR = os.path.dirname(__file__)
 BOOTLOADER_FILE = os.path.join(BASE_DIR, "matrix_bootloader.json")
 MEMORY_FILE = os.path.join(BASE_DIR, "aion_memory.json")
 
-# --- NEW: Domain seed & save locations (multiple candidates; first that exists wins) ---
-# We try to read seeds from these; we persist into SAVE_DIR.
-REPO_ROOT = Path(BASE_DIR).resolve().parents[3] if len(Path(BASE_DIR).resolve().parents) >= 4 else Path(BASE_DIR).resolve().parents[-1]
+# This file lives at backend/modules/hexcore/boot_loader.py
+# parents[0]=hexcore, [1]=modules, [2]=backend  → anchor here.
+BACKEND_DIR = Path(__file__).resolve().parents[2]
+
+# Domain seed & save locations (first that exists wins)
 DOMAIN_SEED_DIRS = [
-    REPO_ROOT / "backend" / "modules" / "dimensions" / "containers",                          # e.g. backend/modules/dimensions/containers/*.dc.json
-    REPO_ROOT / "backend" / "modules" / "dimensions" / "ucs" / "containers",                  # alt location
-    REPO_ROOT / "backend" / "modules" / "dimensions" / "universal_container_system" / "seeds" # alt location
+    BACKEND_DIR / "modules" / "dimensions" / "containers",                          # e.g. backend/modules/dimensions/containers/*.dc.json
+    BACKEND_DIR / "modules" / "dimensions" / "ucs" / "containers",                  # alt location
+    BACKEND_DIR / "modules" / "dimensions" / "universal_container_system" / "seeds" # alt location
 ]
-DOMAIN_SAVE_DIR = REPO_ROOT / "backend" / "modules" / "dimensions" / "containers_saved"
+
+# Where we persist domain packs we load
+DOMAIN_SAVE_DIR = BACKEND_DIR / "modules" / "dimensions" / "containers_saved"
 DOMAIN_SAVE_DIR.mkdir(parents=True, exist_ok=True)
 
-# Loaders & Savers
+# Where we export KG packs built from glyph_grid (for persistence/reload)
+KG_EXPORT_DIR = DOMAIN_SAVE_DIR / "kg_exports"
+KG_EXPORT_DIR.mkdir(parents=True, exist_ok=True)
+
+# -----------------------------------------------------------------------------
+# Utils: load/save JSON
+# -----------------------------------------------------------------------------
 def load_json(filepath):
     if not os.path.exists(filepath):
         return []
@@ -48,14 +144,35 @@ def dependencies_met(skill, memory_data):
             return False
     return True
 
-# Enhanced Bootloader core
+# -----------------------------------------------------------------------------
+# Bootloader core: skills & memory sanitize
+# -----------------------------------------------------------------------------
 def load_boot_goals():
+    # --- sanitize memory on disk first ---
+    from backend.modules.hexcore.memory_engine import sanitize_memory_file_at
+    sanitize_memory_file_at(MEMORY_FILE)
+
+    # --- load + sanity checks ---
     boot_skills = load_json(BOOTLOADER_FILE)
+    if not isinstance(boot_skills, list):
+        print("⚠️ boot_loader: matrix_bootloader.json is not a list; coercing to empty list.")
+        boot_skills = []
+
     memory_data = load_json(MEMORY_FILE)
+    if not isinstance(memory_data, list):
+        print("⚠️ boot_loader: aion_memory.json is not a list; coercing to empty list.")
+        memory_data = []
+
+    # guardrails (keep only dict rows with string titles)
+    pre_len = len(memory_data)
+    memory_data = [r for r in memory_data if isinstance(r, dict) and isinstance(r.get("title"), str)]
+    if pre_len != len(memory_data):
+        print(f"🧽 boot_loader: pruned {pre_len - len(memory_data)} malformed memory rows.")
 
     memory_titles = {entry["title"] for entry in memory_data}
+
     tracker = MilestoneTracker()
-    updated_memory = memory_data.copy()
+    updated_memory = list(memory_data)  # copy
     new_entries = []
     promoted_count = 0
 
@@ -63,9 +180,10 @@ def load_boot_goals():
     for skill in boot_skills:
         title = skill.get("title")
         tags = skill.get("tags", [])
+        if not isinstance(title, str):
+            continue
         if title not in memory_titles:
             milestone_ready = tracker.is_milestone_triggered(tags)
-            # If milestone triggered AND dependencies met, mark 'ready' else 'queued'
             status = "ready" if milestone_ready else "queued"
             skill_entry = {
                 "title": title,
@@ -76,7 +194,7 @@ def load_boot_goals():
                 "added_on": datetime.utcnow().isoformat(),
                 "priority": skill.get("priority", 1),
                 "dependencies": skill.get("dependencies", []),
-                "learned_on": None
+                "learned_on": None,
             }
             new_entries.append(skill_entry)
 
@@ -100,42 +218,19 @@ def load_boot_goals():
     if not new_entries and promoted_count == 0:
         print("ℹ️ No new bootloader skills added or promoted. Memory is up to date.")
 
-# ─────────────────────────────────────────────────────────────────────────────
-# KG domain pack loader: push physics_core seed into the Knowledge Graph
-# ─────────────────────────────────────────────────────────────────────────────
-def load_domain_packs_into_kg():
-    """
-    Pull domain containers from UCS and write them into the Knowledge Graph.
-    Currently handles physics_core. Safe to call even if container isn't loaded.
-    """
-    try:
-        container = ucs_runtime.get_container("physics_core")
-        if container and container.get("nodes"):
-            # Prefer to attach so glyphs land in the same container space
-            try:
-                kg_writer.attach_container(container)  # added in KG writer
-            except Exception:
-                pass
-            loaded = kg_writer.load_domain_pack("physics_core", container)
-            if loaded:
-                print("🧠 KG: physics_core domain loaded into Knowledge Graph.")
-            else:
-                print("ℹ️ KG: physics_core load_domain_pack returned False (not handled).")
-        else:
-            print("ℹ️ KG: physics_core not present in UCS yet; skipping KG load.")
-    except Exception as e:
-        print(f"⚠️ KG domain load skipped: {e}")
-
-# ─────────────────────────────────────────────────────────────────────────────
-# NEW: Persistence helpers — ensure domain packs survive restarts
-# ─────────────────────────────────────────────────────────────────────────────
+# -----------------------------------------------------------------------------
+# Seed resolution & persistence helpers — ensure domain packs survive restarts
+# -----------------------------------------------------------------------------
 def _resolve_dc_seed_path(container_id: str) -> Optional[Path]:
-    """Find a seed .dc.json for a given container id, searching known seed dirs."""
+    """Find a seed .dc.json by ID, with debug so we see what’s happening."""
     filename = f"{container_id}.dc.json"
+    tried = []
     for d in DOMAIN_SEED_DIRS:
-        p = (d / filename)
+        p = d / filename
+        tried.append(str(p))
         if p.exists():
             return p
+    print(f"ℹ️ seed not found for {container_id}. Tried:\n  - " + "\n  - ".join(tried))
     return None
 
 def _get_saved_dc_path(container_id: str) -> Path:
@@ -190,12 +285,96 @@ def load_container_from_disk(container_id: str) -> Optional[Dict[str, Any]]:
 
     return ucs_runtime.get_container(container_id)
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Generic DC → KG ingest (fallback path used when no domain-specific handler)
+# ─────────────────────────────────────────────────────────────────────────────
+def _ingest_dc_into_kg(container: Dict[str, Any]) -> int:
+    """
+    Minimal generic ingest: add nodes, then edges.
+    Returns number of injected glyphs (nodes+edges).
+    """
+    injected = 0
+    try:
+        for n in container.get("nodes", []) or []:
+            nid   = n.get("id")
+            label = n.get("label", nid or "node")
+            meta  = {
+                "source": container.get("id") or container.get("name"),
+                "domain": container.get("metadata", {}).get("domain"),
+                "category": n.get("cat"),
+            }
+            if nid:
+                kg_writer.add_node(nid, label=label, meta=meta)
+                injected += 1
+        for e in container.get("links", []) or []:
+            src = e.get("src")
+            dst = e.get("dst")
+            rel = e.get("relation", "relates_to")
+            if src and dst:
+                kg_writer.add_edge(src, dst, rel)
+                injected += 1
+    except Exception as e:
+        print(f"⚠️ Generic DC→KG ingest failed: {e}")
+    return injected
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Apply cross_links after all other packs (idempotent)
+# ─────────────────────────────────────────────────────────────────────────────
+def _apply_cross_links_last() -> None:
+    """
+    Always apply 'cross_links' edges after all other packs are loaded.
+    Safe no-op if cross_links is missing.
+    """
+    try:
+        container = ucs_runtime.get_container("cross_links")
+        if not (container and (container.get("links") or container.get("nodes"))):
+            # try to load from disk/seed if not already present
+            container = load_container_from_disk("cross_links")
+
+        if not (container and container.get("links")):
+            return
+
+        # Attach so emitted glyphs land in the same KG/container space
+        try:
+            kg_writer.attach_container(container)
+        except Exception:
+            pass
+
+        injected = 0
+        for link in container.get("links", []) or []:
+            src = link.get("src")
+            dst = link.get("dst")
+            rel = link.get("relation", "relates_to")
+            if src and dst:
+                try:
+                    kg_writer.add_edge(src, dst, rel)
+                    injected += 1
+                except Exception as e:
+                    print(f"⚠️ cross_links inject failed for {src}->{dst}: {e}")
+
+        if injected:
+            print(f"🧠 KG: cross_links applied ({injected} bridging edges).")
+            # Export updated KG snapshot
+            try:
+                out = kg_writer.export_pack(container, str(KG_EXPORT_DIR / "cross_links.kg.json"))
+                print(f"💾 KG export saved to {out}")
+            except Exception as e:
+                print(f"⚠️ KG export failed for cross_links: {e}")
+    except Exception as e:
+        print(f"⚠️ cross_links apply skipped: {e}")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Updated: preload + persist + inject + export (with cross_links special-case)
+# ─────────────────────────────────────────────────────────────────────────────
 def preload_and_persist_domain_pack(container_id: str) -> bool:
     """
     Ensure a domain pack is:
       1) available in UCS (load from disk/seed if missing)
       2) persisted to disk under containers_saved/
       3) written into KG so nodes/edges influence reasoning
+      4) exported to KG_EXPORT_DIR as a replayable KG pack (.kg.json)
     Returns True if a pack was handled.
     """
     # 1) Ensure it's in UCS
@@ -203,7 +382,7 @@ def preload_and_persist_domain_pack(container_id: str) -> bool:
     if not container or not container.get("nodes"):
         container = load_container_from_disk(container_id)
 
-    if not container or not container.get("nodes"):
+    if not container or not (container.get("nodes") or container.get("links")):
         print(f"ℹ️ Domain '{container_id}' not found on disk or seed; skipping.")
         return False
 
@@ -211,39 +390,150 @@ def preload_and_persist_domain_pack(container_id: str) -> bool:
     save_domain_pack_to_disk(container)
 
     # 3) Push into KG
+    handled = False
     try:
         # Attach so glyphs land in this container’s space when possible
         try:
             kg_writer.attach_container(container)
         except Exception:
             pass
-        handled = kg_writer.load_domain_pack(container_id, container)
-        if handled:
-            print(f"🧠 KG: {container_id} nodes/edges injected.")
+
+        # Special-case: cross_links is edges-only glue
+        if container_id == "cross_links":
+            injected = 0
+            for link in container.get("links", []) or []:
+                src = link.get("src")
+                dst = link.get("dst")
+                rel = link.get("relation", "relates_to")
+                if src and dst:
+                    try:
+                        kg_writer.add_edge(src, dst, rel)
+                        injected += 1
+                    except Exception as e:
+                        print(f"⚠️ cross_links inject failed for {src}->{dst}: {e}")
+            handled = injected > 0
+            print(f"🧠 KG: cross_links injected {injected} bridging edges.")
         else:
-            print(f"ℹ️ KG: {container_id} not handled by load_domain_pack.")
-        return handled
+            # Preferred: domain-specific handler
+            handled = kg_writer.load_domain_pack(container_id, container)
+            if handled:
+                print(f"🧠 KG: {container_id} domain loaded into Knowledge Graph.")
+            else:
+                # Fallback: generic ingest
+                injected = _ingest_dc_into_kg(container)
+                print(f"🧠 KG: {container_id} nodes/edges injected (generic, {injected}).")
+                handled = injected > 0
     except Exception as e:
         print(f"⚠️ KG injection failed for {container_id}: {e}")
-        return False
+
+    # 4) Export KG pack built from glyph_grid (durable replay)
+    try:
+        out = kg_writer.export_pack(container, str(KG_EXPORT_DIR / f"{container_id}.kg.json"))
+        print(f"💾 KG export saved to {out}")
+    except Exception as e:
+        print(f"⚠️ KG export failed for {container_id}: {e}")
+
+    return handled
+
 
 def preload_all_domain_packs():
     """
     One-stop boot: make sure all packs we care about are loaded and persisted.
-    Extend this list as you add more packs.
+    Then ALWAYS apply cross_links last to bridge domains.
     """
     targets = [
+        "math_core",
         "physics_core",
-        # "math_core",
-        # "control_systems",
-        # add more here as they’re ready
+        "control_systems",
+        "engineering_materials",
+        "biology_core",
+        "economics_core",
+        "cross_links",
+        # "data_primary",          # D4.11 (enable when you have a seed)
+        # "data_secondary",        # D4.12
+        # "data_tertiary",         # D4.13
     ]
     any_handled = False
     for cid in targets:
         handled = preload_and_persist_domain_pack(cid)
         any_handled = any_handled or handled
+
+    # Always bridge last
+    _apply_cross_links_last()
+
     if not any_handled:
         print("ℹ️ No domain packs were handled this boot (nothing found).")
+
+
+# -----------------------------------------------------------------------------
+# Legacy compatibility: previous direct KG loader (kept)
+# -----------------------------------------------------------------------------
+def load_domain_packs_into_kg():
+    """
+    Pull domain containers from UCS and write them into the Knowledge Graph.
+    Handles all targets below if present on disk/UCS.
+    (Kept for compatibility with older runners; preload_all_domain_packs is preferred.)
+    """
+    targets = [
+        "math_core",
+        "physics_core",
+        "control_systems",
+        "engineering_materials",
+        "biology_core",        # <- use the IDs that match your files on disk
+        "economics_core",
+        "cross_links",
+    ]
+
+    for domain in targets:
+        try:
+            container = ucs_runtime.get_container(domain)
+            if not (container and (container.get("nodes") or container.get("links"))):
+                print(f"ℹ️ KG: {domain} not present in UCS yet; skipping KG load.")
+                continue
+
+            # Make KG writer drop glyphs into the same container
+            try:
+                kg_writer.attach_container(container)
+            except Exception:
+                pass
+
+            loaded = False
+
+            # If not handled by writer and it's cross_links, inject edges here
+            if domain == "cross_links":
+                injected = 0
+                for link in container.get("links", []) or []:
+                    src = link.get("src")
+                    dst = link.get("dst")
+                    rel = link.get("relation", "relates_to")
+                    if src and dst:
+                        kg_writer.add_edge(src, dst, rel)
+                        injected += 1
+                loaded = injected > 0
+                if loaded:
+                    print(f"🧠 KG: cross_links injected {injected} bridging edges.")
+            else:
+                loaded = kg_writer.load_domain_pack(domain, container)
+
+            if loaded:
+                print(f"🧠 KG: {domain} domain loaded into Knowledge Graph.")
+                # Export pack via boot path as well (redundant but explicit)
+                out_path = DOMAIN_SAVE_DIR / "kg_exports" / f"{domain}.kg.json"
+                out_path.parent.mkdir(parents=True, exist_ok=True)
+                try:
+                    kg_writer.export_pack(container, out_path)
+                    print(f"💾 KG export saved to {out_path}")
+                except Exception as e:
+                    print(f"⚠️ KG export failed for {domain}: {e}")
+            else:
+                # Generic ingest fallback
+                injected = _ingest_dc_into_kg(container)
+                print(f"🧠 KG: {domain} nodes/edges injected (generic, {injected}).")
+        except Exception as e:
+            print(f"⚠️ KG domain load skipped for {domain}: {e}")
+
+    # Always bridge last here too
+    _apply_cross_links_last()
 
 # -----------------------------------------------------------------------------
 # Boot entrypoint
@@ -252,9 +542,11 @@ if __name__ == "__main__":
     # 1) Ensure skills are persisted
     load_boot_goals()
 
+    # 1.5) NEW: load seed containers (math_core, physics_core, problem_graphs) into UCS
+    load_seed_containers()
+
     # 2) Ensure domain packs are in UCS, saved to disk, and injected into KG
     preload_all_domain_packs()
 
-    # (Optional) Fallback: older direct call (kept for compatibility)
-    # This won’t persist to disk, so it’s safe but less durable:
+    # (Optional) legacy path still fine:
     load_domain_packs_into_kg()

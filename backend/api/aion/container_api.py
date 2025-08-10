@@ -141,4 +141,4 @@ async def teleport_container(request: TeleportRequest, http_req: Request):
         })
         return {"status": "success", "message": f"Teleported from {request.source} to {request.destination} by {agent_id}."}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Teleport failed: {e}"}
+        raise HTTPException(status_code=500, detail=f"Teleport failed: {e}")

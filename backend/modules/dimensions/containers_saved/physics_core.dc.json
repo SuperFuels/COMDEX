@@ -1,0 +1,66 @@
+{
+  "id": "physics_core",
+  "name": "physics_core",
+  "symbol": "\u2754",
+  "glyph_categories": [
+    {
+      "id": "mech",
+      "label": "Mechanics",
+      "emoji": "\u2699\ufe0f"
+    },
+    {
+      "id": "thermo",
+      "label": "Thermodynamics",
+      "emoji": "\ud83d\udd25"
+    },
+    {
+      "id": "em",
+      "label": "Electromagnetism",
+      "emoji": "\u26a1"
+    },
+    {
+      "id": "qft",
+      "label": "Quantum Fields",
+      "emoji": "\ud83c\udf00"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "newton_laws",
+      "label": "Newton's Laws",
+      "cat": "mech"
+    },
+    {
+      "id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "cat": "em"
+    },
+    {
+      "id": "first_law",
+      "label": "1st Law",
+      "cat": "thermo"
+    },
+    {
+      "id": "dirac_field",
+      "label": "Dirac Field",
+      "cat": "qft"
+    }
+  ],
+  "links": [
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    }
+  ]
+}

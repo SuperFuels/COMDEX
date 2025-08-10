@@ -1,4 +1,6 @@
-from typing import Any, Dict, List
+
+from typing import Optional
+from typing import Any, Dict, List, Union, Tuple
 from backend.modules.skills.boot_selector import BootSelector
 from backend.modules.consciousness.reflection_engine import ReflectionEngine
 from backend.modules.dna_chain.switchboard import DNA_SWITCH
@@ -269,3 +271,196 @@ def update_logic_from_kg():
     glyph_synthesizer.adaptive_synthesis()
 
     return OPERATOR_WEIGHTS
+
+def parse_glyph_packet(packet: Dict[str, Any], context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    """
+    Back-compat helper used by GlyphNet terminal.
+    Accepts either a qglyph packet or a single-glyph packet and returns a normalized interpretation dict.
+      Expected inputs:
+        { "qglyph": { "superposition": [...], "entangled_with": [...], "metadata": {...} } }
+        { "glyph": "🧠", "meta": {...} }
+        { "symbol": "🧠", "meta": {...} }
+        { "value": "🧠", "meta": {...} }   # very old producers
+    """
+    context = (context or {}).copy()
+
+    if not isinstance(packet, dict):
+        return {"type": "error", "error": "invalid_packet_type", "packet": str(type(packet))}
+
+    # qglyph path
+    if "qglyph" in packet and isinstance(packet["qglyph"], dict):
+        qg = packet["qglyph"]
+        # allow packet-level metadata to flow into qglyph metadata
+        if "meta" in packet and isinstance(packet["meta"], dict):
+            qg.setdefault("metadata", {}).update(packet["meta"])
+        return interpret_qglyph(qg, context)
+
+    # single glyph path
+    glyph = packet.get("glyph") or packet.get("symbol") or packet.get("value")
+    if glyph is not None:
+        # pass through metadata if present
+        meta = packet.get("meta") or packet.get("metadata") or {}
+        ctx = context.copy()
+        ctx.setdefault("metadata", meta)
+        result = interpret_glyph(str(glyph), ctx)
+        result["type"] = "glyph"
+        return result
+
+    return {"type": "noop", "reason": "no_glyph_in_packet", "packet_keys": list(packet.keys())}
+
+# ────────────────────────────────────────────────
+# 🔧 Glyph DSL Compiler / Parser (proper, back-compat)
+# ────────────────────────────────────────────────
+_LABEL_TO_GLYPH = {v: k for k, v in GLYPH_SYMBOL_MAP.items()}
+
+def _normalize_text(s: str) -> str:
+    return " ".join(str(s).strip().split())
+
+def _split_header_payload_action(text: str) -> Tuple[list, str, str]:
+    # Parses:  "LabelA | LabelB : payload → Action"
+    labels, payload, action = [], "", ""
+    head, sep, tail = text.partition(":")
+    if sep:
+        labels = [l.strip() for l in head.split("|") if l.strip()]
+        payload = tail.strip()
+    else:
+        payload = text.strip()
+    body, sep2, act = payload.partition("→")
+    if sep2:
+        payload = body.strip()
+        action = act.strip()
+    return labels, payload, action
+
+def _labels_to_glyphs(labels: list) -> list:
+    out = []
+    for lab in labels:
+        if lab in _LABEL_TO_GLYPH:
+            out.append(_LABEL_TO_GLYPH[lab])     # map known label → glyph
+        elif lab in GLYPH_SYMBOL_MAP:
+            out.append(lab)                       # already a glyph
+        else:
+            out.append(lab)                       # keep free-form label (goes to meta tags)
+    return out
+
+def compile_glyphs(glyph_data: Union[str, list, dict], *, tags: list = None, metadata: dict = None) -> dict:
+    """
+    Compile a glyph expression into a normalized glyph block.
+
+    Accepts:
+      • str  — DSL:  'LabelA | LabelB : payload → Action'
+      • list — sequence of glyphs, e.g. ['Δ','λ','Σ']
+      • dict — pass-through; fills defaults
+
+    Returns:
+      {
+        "type": "glyph_block",
+        "glyphs": [...],
+        "payload": "...",
+        "action": "Vault",
+        "meta": { "labels": [...], "tags": [...], ... },
+        "original": "raw input if provided"
+      }
+    """
+    tags = tags or []
+    metadata = metadata or {}
+
+    if isinstance(glyph_data, dict):
+        blk = {
+            "type": "glyph_block",
+            "glyphs": glyph_data.get("glyphs", []),
+            "payload": glyph_data.get("payload", ""),
+            "action": glyph_data.get("action", ""),
+            "meta": glyph_data.get("meta", {}),
+            "original": glyph_data.get("original"),
+        }
+        blk["meta"].setdefault("tags", [])
+        blk["meta"]["tags"] = list({*blk["meta"]["tags"], *tags})
+        blk["meta"].update(metadata)
+        return blk
+
+    if isinstance(glyph_data, list):
+        return {
+            "type": "glyph_block",
+            "glyphs": glyph_data,
+            "payload": "",
+            "action": "",
+            "meta": {"labels": [], "tags": tags, **metadata},
+            "original": None,
+        }
+
+    if isinstance(glyph_data, str):
+        raw = glyph_data
+        labels, payload, action = _split_header_payload_action(raw)
+        labels_norm = [_normalize_text(l) for l in labels]
+        payload = _normalize_text(payload)
+        action = _normalize_text(action)
+
+        mapped = _labels_to_glyphs(labels_norm)
+        glyph_list, free_labels = [], []
+        for item in mapped:
+            if item in GLYPH_SYMBOL_MAP:
+                glyph_list.append(item)
+            else:
+                free_labels.append(item)
+
+        meta = {"labels": labels_norm, "tags": list({*tags, *free_labels}), **metadata}
+        return {
+            "type": "glyph_block",
+            "glyphs": glyph_list,
+            "payload": payload,
+            "action": action,
+            "meta": meta,
+            "original": raw,
+        }
+
+    # Fallback: wrap unknown input as payload
+    return {
+        "type": "glyph_block",
+        "glyphs": [],
+        "payload": str(glyph_data),
+        "action": "",
+        "meta": {"labels": [], "tags": tags, **metadata},
+        "original": None,
+    }
+
+def parse_logic(glyph_block: Union[dict, str, list]) -> str:
+    """
+    Convert a glyph block back into readable DSL.
+
+    Priority:
+      1) If 'original' exists → return it (lossless).
+      2) Reconstruct: 'LabelA | LabelB : payload → Action'
+    """
+    if isinstance(glyph_block, str):
+        return glyph_block
+
+    if isinstance(glyph_block, list):
+        labels = [GLYPH_SYMBOL_MAP.get(g, g) for g in glyph_block]
+        hdr = " | ".join(labels).strip()
+        return hdr or "(empty)"
+
+    if not isinstance(glyph_block, dict):
+        return str(glyph_block)
+
+    if glyph_block.get("original"):
+        return glyph_block["original"]
+
+    glyphs = glyph_block.get("glyphs", [])
+    payload = glyph_block.get("payload", "") or ""
+    action = glyph_block.get("action", "") or ""
+    meta = glyph_block.get("meta", {}) or {}
+
+    labels = [GLYPH_SYMBOL_MAP.get(g, g) for g in glyphs]
+    extra = [t for t in meta.get("tags", []) if t not in labels]
+    header_parts = labels + extra
+    header = " | ".join(header_parts).strip()
+
+    parts = []
+    if header:
+        parts.append(header + " :")
+    if payload:
+        parts.append(payload)
+    if action:
+        parts.append(f"→ {action}")
+
+    return _normalize_text(" ".join(parts)) or "(empty)"

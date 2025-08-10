@@ -1,0 +1,142 @@
+{
+  "id": "data_primary",
+  "name": "Primary Data Sources",
+  "symbol": "📚",
+  "metadata": {
+    "version": "1.0",
+    "created_by": "AION Seed Generator",
+    "domain": "Data",
+    "tier": "primary",
+    "provenance": "seed",
+    "integration": {
+      "linked_domains": ["physics_core", "biology_core", "economics_core", "engineering_materials", "control_systems"],
+      "export_ready": true
+    }
+  },
+  "glyph_categories": [
+    { "id": "raw",      "label": "Raw/Instrument",      "emoji": "🧪" },
+    { "id": "observed", "label": "Observational/Logs",  "emoji": "📜" },
+    { "id": "stream",   "label": "Realtime Streams",    "emoji": "📡" },
+    { "id": "meta",     "label": "Provenance/Schema",   "emoji": "🧬" }
+  ],
+  "nodes": [
+    { "id": "sensor_timeseries",  "label": "Sensor Time Series (CSV/Parquet)", "cat": "raw",
+      "schema": ["ts:datetime", "value:float", "unit:string", "sensor_id:string"], "quality": "varies" },
+    { "id": "lab_experiments",    "label": "Lab Experiments (ELN/LIMS)",       "cat": "raw",
+      "schema": ["exp_id", "protocol", "inputs", "outputs", "attachments"], "quality": "controlled" },
+    { "id": "simulation_dumps",   "label": "Simulation Dumps (HDF5/NPY)",      "cat": "raw",
+      "schema": ["grid", "params", "state_tensors", "checkpoints"], "quality": "deterministic" },
+    { "id": "machine_logs",       "label": "Machine/Process Logs",             "cat": "observed",
+      "schema": ["ts", "event", "kv"], "quality": "noisy" },
+    { "id": "telemetry_streams",  "label": "Telemetry Streams (Kafka/MQTT)",   "cat": "stream",
+      "schema": ["ts", "topic", "payload"], "quality": "realtime" },
+    { "id": "raw_provenance",     "label": "Source Provenance (W3C PROV-ish)", "cat": "meta",
+      "schema": ["entity", "activity", "agent", "wasGeneratedBy", "used"], "quality": "varies" },
+    [
+    { "id": "calibration_files",   "label": "Instrument Calibration Files",     "cat": "meta",
+        "schema": ["instrument_id", "date", "coefficients", "environment"], "quality": "required" },
+
+    { "id": "checksum_manifest",   "label": "Checksum Manifest (SHA256/SRI)",   "cat": "meta",
+        "schema": ["path", "algo", "digest"], "quality": "integrity" },
+
+    { "id": "data_dictionary",     "label": "Data Dictionary",                  "cat": "meta",
+        "schema": ["field", "type", "unit", "desc", "nullable"], "quality": "reference" },
+
+    { "id": "schema_registry",     "label": "Schema Registry (Avro/JSON/Parquet)", "cat": "meta",
+        "schema": ["name", "version", "definition", "compatibility"], "quality": "authoritative" },
+
+    { "id": "units_registry",      "label": "Units/Ontology (UDUNITS/QUDT)",    "cat": "meta",
+        "schema": ["unit", "symbol", "dimension", "factor"], "quality": "reference" },
+
+    { "id": "consent_records",     "label": "Consent/Usage Records",            "cat": "meta",
+        "schema": ["subject", "scope", "expires", "jurisdiction"], "quality": "governance" },
+
+    { "id": "pii_manifest",        "label": "PII Manifest",                     "cat": "meta",
+        "schema": ["field", "pii_class", "policy", "masking"], "quality": "governance" },
+
+    { "id": "ground_truth_labels", "label": "Ground Truth Labels",              "cat": "observed",
+        "schema": ["item_id", "label", "annotator", "confidence"], "quality": "curated" },
+
+    { "id": "annotation_tasks",    "label": "Annotation Tasks/Spans",           "cat": "observed",
+        "schema": ["task_id", "item_id", "span", "label", "reviewed"], "quality": "varies" },
+
+    { "id": "image_stacks",        "label": "Image Stacks (TIFF/OME-Zarr)",     "cat": "raw",
+        "schema": ["item_id", "z", "t", "channel", "pixel_data_ref"], "quality": "lossless" },
+
+    { "id": "microscopy_images",   "label": "Microscopy (OME-TIFF)",            "cat": "raw",
+        "schema": ["item_id", "instrument", "magnification", "pixel_size"], "quality": "high" },
+
+    { "id": "dicom_series",        "label": "Medical Imaging (DICOM)",          "cat": "raw",
+        "schema": ["study_uid", "series_uid", "sop_uid", "modality"], "quality": "clinical" },
+
+    { "id": "audio_waveforms",     "label": "Audio Waveforms (WAV/FLAC)",       "cat": "raw",
+        "schema": ["item_id", "sr", "channels", "samples_ref"], "quality": "lossless" },
+
+    { "id": "video_stream",        "label": "Video Frames (MP4/RAW)",           "cat": "stream",
+        "schema": ["ts", "stream_id", "frame_ref", "fps"], "quality": "realtime" },
+
+    { "id": "geospatial_raster",   "label": "Geo Raster (GeoTIFF/COG)",         "cat": "raw",
+        "schema": ["bbox", "crs", "bands", "resolution"], "quality": "survey" },
+
+    { "id": "geospatial_vector",   "label": "Geo Vector (Shapefile/GeoJSON)",   "cat": "raw",
+        "schema": ["geometry", "properties", "crs"], "quality": "survey" },
+
+    { "id": "satellite_telemetry", "label": "Satellite Telemetry",              "cat": "stream",
+        "schema": ["ts", "sat_id", "payload"], "quality": "realtime" },
+
+    { "id": "iot_sensor_bus",      "label": "IoT Sensor Bus (MQTT/OPC-UA)",     "cat": "stream",
+        "schema": ["ts", "topic", "payload"], "quality": "realtime" },
+
+    { "id": "field_observations",  "label": "Field Observations",               "cat": "observed",
+        "schema": ["ts", "observer", "location", "note", "media_refs"], "quality": "noisy" }
+    ],
+
+    { "id": "physics_measurements","label": "Physics Measurements", "cat": "raw",
+      "notes": "Oscilloscopes, spectrometers, interferometers", "external": true },
+    { "id": "omics_reads",        "label": "Omics Reads (FASTQ/BAM)", "cat": "raw",
+      "notes": "RNA/DNA sequencing output", "external": true },
+    { "id": "market_ticks",       "label": "Market Ticks (Trades/Quotes)", "cat": "stream",
+      "notes": "LOB events, trades, quotes", "external": true }
+  ],
+  "links": [
+    { "src": "sensor_timeseries",   "dst": "telemetry_streams",  "relation": "published_as" },
+    { "src": "lab_experiments",     "dst": "raw_provenance",     "relation": "tracked_by" },
+    { "src": "simulation_dumps",    "dst": "raw_provenance",     "relation": "tracked_by" },
+    { "src": "machine_logs",        "dst": "raw_provenance",     "relation": "tracked_by" },
+    [
+    { "src": "sensor_timeseries", "dst": "calibration_files", "relation": "corrected_by" },
+    { "src": "sensor_timeseries", "dst": "checksum_manifest", "relation": "integrity_checked_by" },
+    { "src": "sensor_timeseries", "dst": "data_dictionary",   "relation": "described_by" },
+    { "src": "sensor_timeseries", "dst": "units_registry",    "relation": "units_from" },
+    { "src": "sensor_timeseries", "dst": "schema_registry",   "relation": "validated_against" },
+
+    { "src": "lab_experiments",   "dst": "calibration_files", "relation": "requires" },
+    { "src": "lab_experiments",   "dst": "checksum_manifest", "relation": "integrity_checked_by" },
+    { "src": "lab_experiments",   "dst": "data_dictionary",   "relation": "described_by" },
+
+    { "src": "simulation_dumps",  "dst": "checksum_manifest", "relation": "integrity_checked_by" },
+    { "src": "simulation_dumps",  "dst": "schema_registry",   "relation": "validated_against" },
+
+    { "src": "machine_logs",      "dst": "schema_registry",   "relation": "loosely_conforms_to" },
+    { "src": "machine_logs",      "dst": "data_dictionary",   "relation": "fields_documented_by" },
+
+    { "src": "telemetry_streams", "dst": "iot_sensor_bus",    "relation": "ingests_from" },
+    { "src": "telemetry_streams", "dst": "satellite_telemetry","relation": "ingests_from" },
+
+    { "src": "image_stacks",      "dst": "ground_truth_labels","relation": "labeled_by" },
+    { "src": "microscopy_images", "dst": "annotation_tasks",  "relation": "annotated_by" },
+    { "src": "dicom_series",      "dst": "pii_manifest",      "relation": "restricted_by" },
+    { "src": "dicom_series",      "dst": "consent_records",   "relation": "governed_by" },
+
+    { "src": "audio_waveforms",   "dst": "ground_truth_labels","relation": "labeled_by" },
+    { "src": "video_stream",      "dst": "annotation_tasks",  "relation": "annotated_by" },
+
+    { "src": "geospatial_raster", "dst": "geospatial_vector", "relation": "aligned_with" },
+    { "src": "geospatial_raster", "dst": "checksum_manifest", "relation": "integrity_checked_by" },
+
+    { "src": "field_observations","dst": "raw_provenance",    "relation": "tracked_by" },
+    { "src": "ground_truth_labels","dst": "raw_provenance",   "relation": "tracked_by" }
+    ],
+    { "src": "market_ticks",        "dst": "telemetry_streams",  "relation": "examples" }
+  ]
+}

@@ -114,3 +114,48 @@ class ThoughtBranch:
         Returns stringified glyph tree from root node (Codex-ready scroll).
         """
         return self.root.to_glyph_tree() if self.root else "(no tree)"
+
+    # --- Execution entry for THINK glyphs -----------------------------------------
+
+# --- Execution entry for THINK glyphs -----------------------------------------
+def execute_branch_from_glyph(glyph: str, context: dict | None = None) -> dict:
+        """
+        Create a ThoughtBranch rooted at `glyph`, expand one level, optionally log,
+        and return a structured result for Tessaris/Codex.
+        """
+        tb = ThoughtBranch(glyphs=[glyph], metadata={"context": context or {}, "source": "glyph_logic.THINK"})
+        root = BranchNode(symbol=glyph, source="THINK")
+
+        # expand one level using existing symbolic map in BranchNode._expand_symbol
+        for child in root.generate_branches():
+            root.add_child(child)
+        tb.root = root
+
+        # optional memory trace (won't crash if missing)
+        try:
+            from backend.modules.hexcore.memory_engine import MEMORY
+            MEMORY.store({
+                "role": "glyph",
+                "label": "THINK",
+                "content": f"THINK:{glyph}",
+                "metadata": {
+                    "origin_id": tb.origin_id,
+                    "children": [c.symbol for c in root.children],
+                },
+            })
+        except Exception:
+            pass
+
+        return {
+            "status": "ok",
+            "origin_id": tb.origin_id,
+            "branch": tb.to_dict(),
+            "glyph_tree": tb.to_glyph_tree(),
+        }
+
+    # ensure it’s exported
+        try:
+            __all__  # may not exist yet
+        except NameError:
+            __all__ = []
+        __all__ += ["execute_branch_from_glyph"]
