@@ -48,28 +48,48 @@ KIND_TO_GLYPH = {
     "def":     "⟦ Definition ⟧",
 }
 
-
 def convert_lean_to_codexlang(path: str) -> Dict[str, Any]:
     """
     Parse a .lean file and convert declarations to CodexLang + glyph trees.
     Returns a dict that downstream can embed into any container.
     """
-    if not os.path.isfile(path) or not path.endswith(".lean"):
-        raise ValueError("Invalid .lean file path")
+    # --- path checks ---------------------------------------------------------
+    if not os.path.isfile(path):
+        raise ValueError(f"Invalid .lean file path: {path}")
+    if not path.endswith(".lean"):
+        raise ValueError(f"Expected a .lean file, got: {path}")
 
+    # --- read & pre-clean ----------------------------------------------------
     with open(path, "r", encoding="utf-8") as f:
         content = f.read()
 
+    # normalize line endings
+    content = content.replace("\r\n", "\n").replace("\r", "\n")
+    # drop block comments  /- ... -/
+    content = re.sub(r"/-\*?[\s\S]*?\*/-|/-[\s\S]*?-/", "", content)
+    # drop single-line comments  -- ...
+    content = re.sub(r"^[ \t]*--.*?$", "", content, flags=re.MULTILINE)
+    # drop common attributes like @[simp], @[simp, aesop]
+    content = re.sub(r"(?m)^\s*@\[[^\]]*\]\s*\n", "", content)
+
+    # --- find declarations ---------------------------------------------------
     declarations: List[Dict[str, Any]] = []
 
-    # theorems / lemmas / examples / defs:
-    #   name (optional params) : type := body
     pattern = re.compile(
-        r"^(theorem|lemma|example|def)\s+(\w+)"            # kind and name
-        r"(?:\s*\((.*?)\))?\s*:\s*"                        # optional params
-        r"(.*?)\s*:=\s*"                                   # type
-        r"(.*?)(?=\n(?:theorem|lemma|example|def)\b|\Z)",  # body until next decl
-        re.DOTALL | re.MULTILINE
+        r"""(?mx)                       # verbose, multiline
+        ^\s*
+        (theorem|lemma|example|def)     # kind
+        \s+([A-Za-z_][\w']*)            # name (allow tick in names)
+        (?:\s*\((.*?)\))?               # optional params '(...)' (non-greedy)
+        \s*:\s*
+        (.*?)                           # type (non-greedy, up to ':=')
+        \s*:=\s*
+        (.*?)(?=                        # body up to next decl or EOF
+             ^\s*(?:theorem|lemma|example|def)\b
+            | \Z
+        )
+        """,
+        re.DOTALL
     )
 
     matches = pattern.findall(content)
@@ -88,41 +108,45 @@ def convert_lean_to_codexlang(path: str) -> Dict[str, Any]:
         # Build CodexLang node
         decl["codexlang"] = lean_decl_to_codexlang(decl)
 
-        # Normalize logic (soft mode; keep human readability)
+        # Normalize (soft) for nice display
         try:
             decl["codexlang"]["normalized"] = CodexLangRewriter.simplify(
                 decl["codexlang"]["logic"], mode="soft"
             )
         except TypeError:
-            # Older rewriter w/o mode argument
             decl["codexlang"]["normalized"] = CodexLangRewriter.simplify(
                 decl["codexlang"]["logic"]
             )
 
-        # Build LogicGlyph tree or fallback dict
+        # LogicGlyph tree or dict fallback
         decl["glyph_tree"] = build_glyph_tree(decl)
 
-        # Registry hook (no-op if registry unavailable)
+        # Optional registry hook
         try:
-            symbolic_registry.register(decl["name"], decl["glyph_tree"])
+            symbolic_registry.register(decl["name"], decl["glyph_tree"])  # type: ignore[attr-defined]
         except Exception:
             pass
 
-        # Preview string (Prove vs Define)
+        # Human preview
         decl["preview"] = emit_codexlang_glyph(decl["codexlang"], glyph_symbol)
 
-        # Params + dependency scan
+        # Params + deps
         decl["parsed_params"] = parse_params(decl["params"])
         decl["depends_on"] = detect_dependencies(decl["body"])
 
         declarations.append(decl)
 
+    if not declarations:
+        raise ValueError(
+            f"No Lean declarations found in {path}. "
+            "Expected lines like: 'theorem name : type := proof'"
+        )
+
     return {
-        "source": path,
+        "source": os.path.normpath(path),
         "logic_type": "lean_math",
         "parsed_declarations": declarations,
     }
-
 
 def parse_params(param_str: str) -> List[str]:
     """
@@ -143,21 +167,26 @@ def parse_params(param_str: str) -> List[str]:
 
 def detect_dependencies(body: str) -> List[str]:
     """
-    Heuristic: detect references to lemmas/theorems in the body.
-    You can strengthen this later with a Lean AST export.
+    Heuristic dependency scan for names referenced in the proof body.
     """
-    # common Lean core name patterns (e.g., nat.add_zero, Nat.mul_one)
-    hits = re.findall(r"\b([A-Za-z_][\w\.]*\.[A-Za-z_]\w*)\b", body)
-    # also catch "_lemma", "_thm", "_proof" names
-    hits += re.findall(r"\b\w+_(?:lemma|thm|proof)\b", body)
-    # de-dupe preserving order
-    seen, deps = set(), []
-    for h in hits:
-        if h not in seen:
-            seen.add(h)
-            deps.append(h)
-    return deps
+    if not body:
+        return []
+    # strip comments inside the body too
+    b = re.sub(r"/-.*?-/", "", body, flags=re.DOTALL)
+    b = re.sub(r"^[ \t]*--.*?$", "", b, flags=re.MULTILINE)
 
+    hits: List[str] = []
+    # module.fn or Type.fn (allows dotted chains)
+    hits += re.findall(r"\b(?:[A-Z]?[a-zA-Z_]\w*(?:\.[A-Za-z_]\w+)*)\b", b)
+    # common suffixes
+    hits += re.findall(r"\b\w+_(?:lemma|thm|proof)\b", b)
+
+    seen, out = set(), []
+    for h in hits:
+        if h not in seen and len(h) > 2:
+            seen.add(h)
+            out.append(h)
+    return out[:64]
 
 def lean_decl_to_codexlang(decl: Dict[str, str]) -> Dict[str, Any]:
     """

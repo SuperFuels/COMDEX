@@ -7,10 +7,19 @@ import logging
 from datetime import datetime
 from typing import Dict, List, Optional, Any
 
-from backend.modules.hologram.ghx_encoder import glyph_color_map, glyph_intensity_map
-from backend.modules.symbolic_entangler import get_entangled_links
 from backend.modules.codex.codex_trace import trace_glyph_execution_path
 from backend.modules.codex.codex_metrics import calculate_glyph_cost
+try:
+    from backend.modules.glyphos.symbolic_entangler import get_entangled_links
+except Exception:
+    # Minimal no-op shim to keep renderer working even if entangler isn’t available
+    def get_entangled_links(*args, **kwargs):
+        return []
+
+try:
+    from backend.modules.holograms.ghx_encoder import glyph_color_map, glyph_intensity_map
+except Exception:
+    from .ghx_encoder import glyph_color_map, glyph_intensity_map  # type: ignore
 
 logger = logging.getLogger(__name__)
 

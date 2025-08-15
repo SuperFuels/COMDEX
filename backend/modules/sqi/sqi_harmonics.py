@@ -1,169 +1,110 @@
-'use client'
+# -*- coding: utf-8 -*-
+# backend/modules/sqi/sqi_harmonics.py
 
-import { useEffect, useState } from 'react'
-import Head from 'next/head'
-import api from '@/lib/api' // your axios/fetch wrapper
-import DriftPanel from '@/components/SQI/DriftPanel'
+from __future__ import annotations
+from typing import Any, Dict, List, Tuple, Iterable, Union
+import json
+import os
+import re
 
-type Status = 'idle' | 'loading' | 'done' | 'error'
+ContainerLike = Dict[str, Any]
 
-export default function GlyphSynthesisPage() {
-  const [inputText, setInputText] = useState('')
-  const [glyphs, setGlyphs] = useState<any[] | null>(null)
-  const [status, setStatus] = useState<Status>('idle')
-  const [injectToContainer, setInjectToContainer] = useState(true)
-  const [sourceLabel, setSourceLabel] = useState('manual')
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+__all__ = ["suggest_harmonics"]
 
-  // Drift state
-  const [containerPath, setContainerPath] = useState('backend/modules/dimensions/containers/test_container.dc.json')
-  const [autoCheckDrift, setAutoCheckDrift] = useState(true)
-  const [drift, setDrift] = useState<any | null>(null)
-  const [driftLoading, setDriftLoading] = useState(false)
-  const [driftErr, setDriftErr] = useState<string | null>(null)
+# ---------- helpers ----------
 
-  const handleGenerate = async () => {
-    setStatus('loading')
-    setErrorMessage(null)
-    try {
-      const res = await api.post('/glyphs/synthesize', {
-        text: inputText,
-        inject: injectToContainer,
-        source: sourceLabel,
-      })
-      setGlyphs(res.data?.glyphs || [])
-      setStatus('done')
-      // optionally refresh drift after synthesis
-      if (autoCheckDrift) await refreshDrift()
-    } catch (err: any) {
-      console.error(err)
-      setErrorMessage(err?.response?.data?.detail || err.message || 'Error generating glyphs')
-      setStatus('error')
-    }
-  }
+def _load_container(path: str) -> ContainerLike:
+    with open(path, "r", encoding="utf-8") as f:
+        return json.load(f)
 
-  const refreshDrift = async () => {
-    setDriftLoading(true)
-    setDriftErr(null)
-    try {
-      // Assumes you exposed an endpoint that triggers compute_drift with --suggest
-      // e.g. POST /api/sqi/drift  body: { container_path, suggest: true }
-      const res = await api.post('/sqi/drift', {
-        container_path: containerPath,
-        suggest: true,
-      })
-      setDrift(res.data)
-    } catch (err: any) {
-      console.error(err)
-      setDriftErr(err?.response?.data?.detail || err.message || 'Failed to compute drift')
-    } finally {
-      setDriftLoading(false)
-    }
-  }
+def _logic_entries(container: ContainerLike) -> List[Dict[str, Any]]:
+    for f in (
+        "symbolic_logic",
+        "expanded_logic",
+        "hoberman_logic",
+        "exotic_logic",
+        "symmetric_logic",
+        "axioms",
+    ):
+        v = container.get(f)
+        if isinstance(v, list):
+            return v
+    return []
 
-  useEffect(() => {
-    if (autoCheckDrift) refreshDrift()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [autoCheckDrift, containerPath])
+_token_re = re.compile(r"[A-Za-z0-9_]+")
 
-  return (
-    <>
-      <Head>
-        <title>Glyph Synthesis</title>
-      </Head>
+def _tokens(s: str) -> List[str]:
+    return [t.lower() for t in _token_re.findall(s or "")]
 
-      <div className="max-w-5xl mx-auto p-6 space-y-6">
-        {/* ===== SQI Drift Panel ===== */}
-        <div className="rounded-lg border p-4 space-y-3">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold">SQI Drift & Harmonics</h2>
-            <label className="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                checked={autoCheckDrift}
-                onChange={(e) => setAutoCheckDrift(e.target.checked)}
-              />
-              Auto-check drift
-            </label>
-          </div>
+def _score(name: str, logic_texts: Iterable[str], missing: str) -> float:
+    """Lightweight similarity score:
+       - substring match bonus
+       - token overlap across name + logic fragments
+    """
+    m = (missing or "").lower().strip()
+    if not m:
+        return 0.0
 
-          {/* file path to compute drift against */}
-          <div className="flex gap-2">
-            <input
-              className="flex-1 border rounded px-2 py-1"
-              value={containerPath}
-              onChange={(e) => setContainerPath(e.target.value)}
-              placeholder="backend/modules/dimensions/containers/test_container.dc.json"
-            />
-            <button
-              className="px-3 py-1 rounded bg-gray-800 text-white disabled:opacity-50"
-              onClick={refreshDrift}
-              disabled={driftLoading}
-            >
-              {driftLoading ? 'Checking…' : 'Refresh'}
-            </button>
-          </div>
+    score = 0.0
 
-          {/* Visual panel from your component */}
-          <DriftPanel
-            data={drift}
-            loading={driftLoading}
-            error={driftErr || undefined}
-          />
-        </div>
+    # 1) direct substring in name
+    nm = (name or "").lower()
+    if m in nm:
+        score += 1.0
 
-        {/* ===== Glyph Synthesis UI ===== */}
-        <div className="rounded-lg border p-4 space-y-3">
-          <h2 className="text-lg font-semibold">Glyph Synthesis</h2>
+    # 2) token overlap (Jaccard-ish) on name + logic texts
+    cand_tokens = set(_tokens(nm))
+    for txt in logic_texts:
+        cand_tokens.update(_tokens(txt))
 
-          <textarea
-            className="w-full border rounded p-2 min-h-[140px]"
-            value={inputText}
-            onChange={(e) => setInputText(e.target.value)}
-            placeholder="Enter text to synthesize into glyphs…"
-          />
+    miss_tokens = set(_tokens(m))
+    if cand_tokens and miss_tokens:
+        inter = len(cand_tokens & miss_tokens)
+        union = len(cand_tokens | miss_tokens)
+        score += 2.0 * (inter / union)  # weighted a bit higher than substring
 
-          <div className="flex items-center gap-4 text-sm">
-            <label className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={injectToContainer}
-                onChange={() => setInjectToContainer(!injectToContainer)}
-              />
-              Inject to container
-            </label>
-            <label className="flex items-center gap-2">
-              Source:
-              <input
-                className="border rounded px-2 py-1"
-                value={sourceLabel}
-                onChange={(e) => setSourceLabel(e.target.value)}
-              />
-            </label>
-            <button
-              className="ml-auto px-4 py-2 rounded bg-blue-600 text-white disabled:opacity-50"
-              onClick={handleGenerate}
-              disabled={status === 'loading'}
-            >
-              {status === 'loading' ? 'Generating…' : 'Generate Glyphs'}
-            </button>
-          </div>
+    return round(score, 4)
 
-          {errorMessage && (
-            <div className="text-red-600 text-sm">Error: {errorMessage}</div>
-          )}
+# ---------- public API ----------
 
-          {glyphs && glyphs.length > 0 && (
-            <div className="mt-3 grid gap-3">
-              {glyphs.map((g, i) => (
-                <pre key={i} className="bg-gray-50 border rounded p-3 text-xs overflow-auto">
-{JSON.stringify(g, null, 2)}
-                </pre>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-    </>
-  )
-}
+def suggest_harmonics(
+    container_or_path: Union[ContainerLike, str],
+    missing: str,
+    top_k: int = 3,
+) -> List[Tuple[str, float]]:
+    """
+    Return up to top_k candidate entries from the same container that are likely
+    to satisfy the missing dependency name.
+
+    Shape matches what your route expects:
+        List[Tuple[name, score]]
+    """
+    container: ContainerLike = (
+        _load_container(container_or_path) if isinstance(container_or_path, str) else container_or_path
+    )
+
+    entries = _logic_entries(container)
+    # Build candidate list (exclude items with no name)
+    scored: List[Tuple[str, float]] = []
+    for e in entries:
+        name = e.get("name")
+        if not name:
+            continue
+        # collect any textual context we can use
+        texts = []
+        if isinstance(e.get("logic"), str):
+            texts.append(e["logic"])
+        if isinstance(e.get("logic_raw"), str):
+            texts.append(e["logic_raw"])
+        cl = e.get("codexlang") or {}
+        if isinstance(cl.get("logic"), str):
+            texts.append(cl["logic"])
+
+        s = _score(name, texts, missing)
+        if s > 0.0:
+            scored.append((name, s))
+
+    scored.sort(key=lambda t: t[1], reverse=True)
+    if top_k and top_k > 0:
+        scored = scored[:top_k]
+    return scored

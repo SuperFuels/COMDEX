@@ -671,4 +671,315 @@ for cid in ["physics_core","math_core","control_systems","engineering_materials"
     edges = [g for g in glyphs if g.get("type")=="kg_edge"]
     print(cid, "nodes:", len(nodes), "edges:", len(edges))
 
-	
+	1.	Atom Containers — their structure, logic, and intended role.
+	2.	SQI Containers — including the recent registry, holographic metadata, and CR8 priority scoring upgrades.
+
+I’ll present them as two distinct documents inside one response so you have a clean “technical spec” section and a “how to use” section.
+Everything from Atom Containers → current SQI container state will be covered, so you have a continuous record.
+
+⸻
+
+📄 Technical Manual — Atom & SQI Containers
+
+1. Atom Containers
+
+Purpose:
+Atom Containers are the smallest addressable, immutable symbolic container units in the Universal Container System (UCS). They store a minimal but complete symbolic payload — a single fact, theorem, glyph set, or encoded logic unit — optimized for composability and high-speed linking.
+
+Core Features:
+	•	Minimal Payload – Exactly one atomic unit of symbolic knowledge.
+	•	Immutable Once Sealed – Any modification spawns a new Atom Container with a new CID.
+	•	Intrinsic Addressing – CID derived from symbolic hash + container metadata.
+	•	Native Entanglement Support – Can store ↔ entanglement metadata to link with other atoms.
+	•	Holographic Rendering Hooks – Atom geometry can be projected in GHX viewers for visual mapping.
+
+Data Structure:
+
+
+{
+  "id": "atom://math.calculus.derivative_rule",
+  "type": "atom",
+  "domain": "math.calculus",
+  "meta": {
+    "created_by": "SQI",
+    "created_at": "2025-08-13T12:00:00Z",
+    "sealed": true,
+    "entanglement": [],
+    "visual": {"hover": true, "collapsed": false}
+  },
+  "payload": {
+    "glyphs": "d/dx[x^n] = n*x^(n-1)"
+  }
+}
+
+Lifecycle:
+	1.	Create → generate from symbolic knowledge injection.
+	2.	Seal → hash contents, freeze payload.
+	3.	Register → push to UCS address registry for global discovery.
+	4.	Link → entangle with other atoms or containers.
+
+⸻
+
+2. SQI Containers
+
+Purpose:
+SQI Containers are higher-level symbolic containers built to organize structured knowledge across multiple domains, integrating with UCS and the Knowledge Graph. They can store facts, projects, notes, hypotheses, simulations.
+
+Recent Upgrades Covered:
+	•	CR Registry (CR1–CR7) — domain-aware allocation, meta storage, UCS integration.
+	•	Holographic Metadata (HOV1) — default hover + collapsed states for GHX viewers.
+	•	Priority Scoring (CR8) — algorithmic scoring for goal-based container selection.
+
+Core Features:
+	•	Multi-Domain Support – Domain + kind-based addressing.
+	•	Direct UCS Integration – Uses ucs://knowledge namespace for addresses.
+	•	Holographic View Integration – GHX hover/collapse metadata baked into container meta.
+	•	Priority Ranking – Selects best container for a goal via freshness, size, hotness, and domain match.
+	•	Upsertable Metadata – Allows patching/updating without recreating the container.
+
+Data Structure Example:
+
+{
+  "id": "project_physics_em_maxwell",
+  "type": "container",
+  "kind": "project",
+  "domain": "physics.em",
+  "meta": {
+    "address": "ucs://knowledge/projects/physics.em/maxwell",
+    "created_by": "SQI",
+    "last_updated": "2025-08-13T12:34:56Z",
+    "ghx": {"hover": true, "collapsed": true},
+    "hot": true,
+    "stats": {"glyphs": 420}
+  }
+}
+
+Registry API:
+	•	allocate(kind, domain, name, meta) → create new container entry.
+	•	upsert_meta(cid, patch) → update metadata for existing entry.
+	•	lookup_by_domain(domain) → list containers in a domain.
+	•	get(cid) → fetch container entry.
+	•	choose_for(goal, k) → return top-k container IDs for a given goal.
+
+Priority Score Formula (CR8):
+
+score = (domain_match * 2.0)
+      + (freshness * 1.0)
+      + (size_bias * -0.5)
+      + (hot_flag * 1.5)
+
+
+Where:
+	•	domain_match → 1.0 if goal domain matches container domain.
+	•	freshness → exponential decay with ~3-day half-life.
+	•	size_bias → penalizes very large containers.
+	•	hot_flag → bonus for “hot” flagged containers.
+
+⸻
+
+📖 User Manual — Atom & SQI Containers
+
+1. Atom Containers
+
+When to Use:
+	•	Storing an indivisible knowledge unit (fact, theorem, core formula).
+	•	Ensuring immutability for proofs or historical snapshots.
+	•	Linking to multiple knowledge domains without large payloads.
+
+How to Use:
+	1.	Create:
+
+atom = AtomContainer(domain="math.calculus", glyphs="d/dx[x^n] = n*x^(n-1)")
+
+	2.	Seal & Register:
+
+atom.seal()
+ucs_registry.register(atom)
+
+3.	Link:
+
+atom.link(other_atom, relation="↔")
+
+	4.	View in GHX: Load in holographic viewer with hoverable geometry.
+
+⸻
+
+2. SQI Containers
+
+When to Use:
+	•	Organizing complex knowledge (projects, hypotheses, simulations).
+	•	Managing evolving knowledge that benefits from priority scoring.
+	•	Integrating holographic state (hover/collapse) for GHX rendering.
+
+How to Create & Manage:
+
+# Allocate new SQI container
+entry = sqi_registry.allocate(
+    kind="project",
+    domain="physics.em",
+    name="maxwell",
+    meta={"hot": True, "stats": {"glyphs": 420}}
+)
+
+# Update metadata
+sqi_registry.upsert_meta("maxwell", {"collapsed": False, "last_updated": datetime.utcnow().isoformat()})
+
+# Lookup by domain
+physics_projects = sqi_registry.lookup_by_domain("physics.em")
+
+# Choose top container for a goal
+goal = {"domain": "physics.em", "kind": "project", "tags": ["maxwell"]}
+best = sqi_registry.choose_for(goal, k=1)
+
+Tips:
+	•	Set hot=True for containers needing urgent prioritization.
+	•	Keep stats.glyphs accurate for better size bias scoring.
+	•	Use meaningful name — it becomes the CID and part of the UCS address.
+
+⸻
+COMDEX Atom & Electron System
+
+Overview
+
+The Atom & Electron system in COMDEX enables symbolic rendering, teleportation, and memory linking using a dynamic model inspired by quantum structure. Each “atom” container can contain orbiting “electrons,” which act as dynamic interaction points, symbolic links, and execution triggers within and across containers.
+
+⸻
+
+Atom Structure
+
+Atoms are symbolic containers that serve as high-level knowledge clusters. Their structure contains:
+	•	Nucleus: Center point of the atom, often representing the container’s main theme or identity.
+	•	Electron Rings: Orbitals that hold electrons. These rings are symbolic layers of interaction or categorization.
+	•	Electrons: Glyphs rendered as interactive orbiting elements. Each can:
+	•	Store metadata
+	•	Link to other containers
+	•	Trigger teleportation or logic events
+	•	Animate to signal state changes
+
+⸻
+
+Electron Anatomy
+
+An individual electron is represented as a glyph with special metadata and symbolic behavior.
+
+{
+  "id": "electron_1",
+  "type": "electron",
+  "operator": "↺",
+  "meta": {
+    "ringIndex": 1,
+    "angle": 0.5,
+    "linkContainerId": "linked_idea.dc.json",
+    "tooltip": "Quantum Strategy",
+    "qglyph": true,
+    "predictive": true
+  }
+}
+
+Electron Fields
+	•	ringIndex: Which orbital ring the electron belongs to.
+	•	angle: Its angular position around the atom.
+	•	linkContainerId: Destination container to teleport to.
+	•	tooltip: Tooltip to display on hover.
+	•	qglyph: If true, activates superposition logic (QGlyph).
+	•	predictive: If true, activates forecast glyph rendering.
+
+⸻
+
+Rendering & Interaction
+
+Frontend Rendering (GHXVisualizer.tsx)
+
+Electrons are rendered as animated orbitals:
+	•	Orbital rings are calculated based on ring index and container size.
+	•	Electrons rotate continuously (or upon trigger).
+	•	On hover: Tooltip appears.
+	•	On click: Teleport packet is generated and dispatched.
+
+Orbit Geometry Logic
+	•	Electrons are positioned using polar coordinates.
+	•	The orbit radius increases by ring index.
+	•	Angular offset is calculated using angle in metadata.
+
+const angle = electron.meta?.angle ?? 0;
+const radius = BASE_RADIUS + (electron.meta?.ringIndex ?? 0) * ORBIT_SPACING;
+const x = Math.cos(angle * 2 * Math.PI) * radius;
+const y = Math.sin(angle * 2 * Math.PI) * radius;
+
+
+⸻
+
+Teleportation Flow
+	1.	Electron Clicked → GHXFrontend emits WebSocket event.
+	2.	TeleportPacket Created with linkContainerId.
+	3.	PortalManager.teleport(packet) loads the linked .dc.json container.
+	4.	ContainerRuntime.inject_payload() injects the current glyph context into the destination.
+	5.	CodexTrace logs the teleport event.
+
+⸻
+
+Backend Integration
+	•	ContainerRuntime supports loading .dc.json files with atoms and electrons.
+	•	Electrons are parsed via their type: "electron" key.
+	•	PortalManager handles routing between containers.
+	•	Glyphs executed after teleport appear in CodexTrace.
+
+⸻
+
+SQI + AION Integration
+	•	Electrons can carry QGlyph operators (⚛, ⧖) to trigger quantum collapse.
+	•	Predictive glyphs within electrons link to the PredictionEngine.
+	•	SQI heartbeat triggers electron mutation or ring animation.
+	•	AION tracks which electrons were clicked, storing them as symbolic memory nodes.
+
+⸻
+
+Use Cases
+
+Use Case	Example
+🔁 Container Linking	Electrons teleport to related .dc.json
+🧠 Memory Recall	Electron links point to past memory cores
+⚛ Quantum Reasoning	QGlyph electrons toggle superposition view
+🌌 Predictive Forecast	Electrons reveal likely next state clusters
+🎮 Interactive Navigation	UI teleports across knowledge atoms
+
+
+⸻
+
+How to Create Electrons in .dc.json
+
+Add entries to the glyphs array:
+
+{
+  "id": "e1",
+  "type": "electron",
+  "operator": "↺",
+  "meta": {
+    "ringIndex": 0,
+    "angle": 0.2,
+    "linkContainerId": "memory/insight_1.dc.json",
+    "tooltip": "Insight Node",
+    "predictive": true
+  }
+}
+
+
+⸻
+
+Summary
+
+The Atom & Electron system provides:
+	•	Symbolic navigation
+	•	Teleportation between ideas
+	•	Predictive and quantum interaction
+	•	Visual feedback and interaction hooks
+
+This architecture enables scalable, intelligent memory and idea traversal across the entire SQI + COMDEX system.
+
+⸻
+
+For dynamic container testing, place .dc.json files in:
+
+backend/modules/containers/
+
+and use PortalManager.teleport(...) to navigate between linked atoms.

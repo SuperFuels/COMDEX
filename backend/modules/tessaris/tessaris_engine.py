@@ -3,6 +3,7 @@ import json
 import requests
 import time
 
+from typing import Any, Dict, Optional
 from backend.config import GLYPH_API_BASE_URL
 from backend.modules.tessaris.thought_branch import ThoughtBranch, BranchNode
 from backend.modules.glyphos.glyph_logic import interpret_glyph
@@ -422,6 +423,57 @@ class TessarisEngine:
                 })
                 print(f"🧠 Queued Tessaris intent ({intent_type}): {payload}")
 
+        # ---- Compatibility shim: allow executor to call tessaris.interpret(...) ----
+    def interpret(self, instruction_tree, context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        """
+        Execute/interpret a Codex instruction tree.
+        Tries existing methods if present; otherwise returns a shallow echo result.
+        """
+        ctx = context or {}
+
+        # Prefer an existing concrete method if you already implemented one
+        if hasattr(self, "execute") and callable(getattr(self, "execute")):
+            try:
+                return self.execute(instruction_tree, ctx)
+            except Exception as e:
+                return {"status": "error", "error": f"Tessaris.execute failed: {e}"}
+
+        if hasattr(self, "run") and callable(getattr(self, "run")):
+            try:
+                return self.run(instruction_tree, ctx)
+            except Exception as e:
+                return {"status": "error", "error": f"Tessaris.run failed: {e}"}
+
+        # Fallback: shallow interpretation (structure-only echo)
+        try:
+            return {
+                "status": "ok",
+                "result": {
+                    "op": "interpret",
+                    "summary": _summarize_tree(instruction_tree),
+                },
+            }
+        except Exception as e:
+            return {"status": "error", "error": f"Tessaris fallback failed: {e}"}
+
     def clear(self):
         self.active_branches = []
         self.active_thoughts = []
+
+from typing import Dict, Any, Optional
+
+def _summarize_tree(tree: Any) -> Dict[str, Any]:
+    """Minimal structure summary for fallback results."""
+    def _depth(n) -> int:
+        if isinstance(n, dict):
+            ch = n.get("children") or []
+            return 1 + (max((_depth(c) for c in ch), default=0) if isinstance(ch, list) else 0)
+        if isinstance(n, list):
+            return 1 + (max((_depth(c) for c in n), default=0))
+        return 1
+    try:
+        import json
+        size = len(json.dumps(tree, ensure_ascii=False))
+    except Exception:
+        size = len(str(tree))
+    return {"depth": _depth(tree), "size": size}

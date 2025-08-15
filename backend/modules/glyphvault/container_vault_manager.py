@@ -10,6 +10,7 @@ from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGrap
 from backend.modules.dimensions.universal_container_system.ucs_runtime import get_ucs_runtime  # ✅ UCS sync for vault ops
 
 logger = logging.getLogger(__name__)
+_vmanager_seen = set()
 
 class ContainerVaultManager:
     """
@@ -123,14 +124,40 @@ class ContainerVaultManager:
 
     def _validate_glyph_data_soullaw(self, glyph_data: dict):
         """
-        Validate glyph metadata against SoulLaw.
+        Validate glyph metadata against SoulLaw (gated one-time per glyph/container).
         """
         for coord, meta in glyph_data.items():
             glyph = meta.get("glyph")
-            if glyph and not soul_law_validator.validate_container({"glyph": glyph}):
-                logger.warning(f"[Vault] SoulLaw violation detected for glyph at {coord}: {glyph}")
-                self.kg_writer.inject_soullaw_violation(
-                    rule="glyph_validation",
-                    reason=f"Rejected glyph {glyph} at {coord}",
-                    context={"coord": coord, "glyph": glyph}
-                )
+
+            # Build a stable key for gating: prefer glyph dict ids, else container/coord fallback
+            if isinstance(glyph, dict):
+                key = glyph.get("container_id") or glyph.get("id") or glyph.get("glyph_id")
+            else:
+                key = None
+
+            if not key:
+                key = f"{meta.get('container_id') or meta.get('id') or 'unknown'}::{coord}"
+
+            # Skip if we've already validated this glyph/container once
+            if key in _vmanager_seen:
+                continue
+
+            try:
+                # Validate once, passing an explicit id so the validator can gate too
+                payload = {"glyph": glyph, "id": key}
+                if not soul_law_validator.validate_container(payload):
+                    logger.warning(f"[Vault] SoulLaw violation detected for glyph at {coord}: {glyph}")
+                    self.kg_writer.inject_soullaw_violation(
+                        rule="glyph_validation",
+                        reason=f"Rejected glyph {glyph} at {coord}",
+                        context={"coord": coord, "glyph": glyph, "id": key}
+                    )
+                    return False  # keep your existing failure handling semantics
+            except Exception as e:
+                logger.warning(f"[Vault] SoulLaw check failed for {key} at {coord}: {e}")
+                # choose: either fail closed or continue. Keeping non-fatal like original pattern.
+            finally:
+                # Mark as seen to prevent re-validating/spamming
+                _vmanager_seen.add(key)
+
+        return True

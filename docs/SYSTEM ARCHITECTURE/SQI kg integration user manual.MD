@@ -615,3 +615,75 @@ How to use
 	•	Run python backend/modules/hexcore/boot_loader.py
 	•	It will load physics_core into UCS (from seed or saved), save it to containers_saved/, and inject nodes/edges into the KG.
 	•	On later boots, it will prefer the saved snapshot automatically — so your stuff survives restarts without paying for always-on runtime.
+
+
+	📖 User Manual — Atom & SQI Containers
+
+1. Atom Containers
+
+Purpose:
+Atom Containers store a single, indivisible symbolic knowledge unit — a fact, theorem, glyph pattern, or logic rule — in an immutable form. They are ideal for foundational knowledge blocks that can be linked or combined into larger structures.
+
+When to Use:
+	•	To store facts or logic that should never change after creation.
+	•	When you need a lightweight, addressable unit for linking in a Knowledge Graph.
+	•	For entanglement experiments where precise historical preservation is important.
+
+Basic Workflow:
+	1.	Create an Atom:
+
+	atom = AtomContainer(domain="math.calculus", glyphs="d/dx[x^n] = n*x^(n-1)")
+
+	2.	Seal & Register:
+
+	atom.seal()
+ucs_registry.register(atom)
+
+	3.	Link to Others:
+
+atom.link(other_atom, relation="↔")
+
+2. SQI Containers
+
+Purpose:
+SQI Containers are larger, structured containers designed to hold multi-element symbolic knowledge (projects, simulations, evolving hypotheses) while integrating directly with the UCS registry and holographic systems.
+
+When to Use:
+	•	For grouping related glyphs and symbolic logic into a coherent project or topic.
+	•	When metadata like priority, hotness, or GHX visual state is important.
+	•	For evolving research where you may update metadata without changing payload.
+
+Basic Workflow:
+	1.	Allocate a New SQI Container:
+
+entry = sqi_registry.allocate(
+    kind="project",
+    domain="physics.em",
+    name="maxwell",
+    meta={"hot": True, "stats": {"glyphs": 420}}
+)
+
+	2.	Update Metadata Later:
+
+sqi_registry.upsert_meta("maxwell", {
+    "collapsed": False,
+    "last_updated": datetime.utcnow().isoformat()
+})
+
+	3.	Lookup by Domain:
+
+physics_projects = sqi_registry.lookup_by_domain("physics.em")
+
+	4.	Select Best Container for a Goal:
+
+goal = {"domain": "physics.em", "kind": "project", "tags": ["maxwell"]}
+best = sqi_registry.choose_for(goal, k=1)
+
+Tips for Effective Use:
+	•	Set "hot": true for active or urgent containers.
+	•	Keep stats.glyphs accurate so the system can apply the size bias correctly.
+	•	Use a meaningful name — it’s part of the container’s CID and UCS address.
+	•	Always set GHX metadata (hover, collapsed) if you plan to use holographic viewers.
+
+⸻
+

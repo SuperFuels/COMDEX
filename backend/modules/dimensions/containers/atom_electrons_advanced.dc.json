@@ -1,0 +1,114 @@
+{
+  "id": "atom_electrons_advanced",
+  "name": "Advanced Atom: Electrons + QGlyphs + Prediction",
+  "type": "HobermanContainer",
+  "glyphs": [
+    {
+      "id": "nucleus-center",
+      "type": "core",
+      "position": [0, 0, 0],
+      "label": "Nucleus",
+      "meta": {
+        "charge": "+",
+        "mass": "high",
+        "density": "dense"
+      }
+    },
+    {
+      "id": "electron-0",
+      "type": "electron",
+      "position": [1.5, 0, 0],
+      "meta": {
+        "linkContainerId": "prediction_chamber_1",
+        "qglyph": "⧖(🧬|↔)",
+        "orbit": {
+          "radius": 1.5,
+          "speed": 0.015,
+          "axis": [0, 1, 0]
+        },
+        "prediction": {
+          "confidence": 0.92,
+          "preview": "📈 Predicted energy spike detected."
+        }
+      }
+    },
+    {
+      "id": "electron-1",
+      "type": "electron",
+      "position": [0, 1.5, 0],
+      "meta": {
+        "linkContainerId": "mutation_zone_alpha",
+        "qglyph": "⧖(⬁|↔)",
+        "orbit": {
+          "radius": 1.5,
+          "speed": 0.018,
+          "axis": [1, 0, 0]
+        },
+        "prediction": {
+          "confidence": 0.88,
+          "preview": "🧬 Glyph mutation predicted."
+        }
+      }
+    },
+    {
+      "id": "electron-2",
+      "type": "electron",
+      "position": [-1.5, 0, 0],
+      "meta": {
+        "linkContainerId": "dream_core_x",
+        "qglyph": "⧖(🌌|↔)",
+        "orbit": {
+          "radius": 1.5,
+          "speed": 0.012,
+          "axis": [0, 0, 1]
+        },
+        "prediction": {
+          "confidence": 0.95,
+          "preview": "🌌 Dream glyph correlation strong."
+        }
+      }
+    }
+  ],
+  "meta": {
+    "isAtom": true,
+    "electronCount": 3,
+    "electrons": [
+      {
+        "id": "electron-0",
+        "meta": {
+          "linkContainerId": "prediction_chamber_1",
+          "orbit": { "radius": 1.5, "speed": 0.015, "axis": [0, 1, 0] },
+          "qglyph": "⧖(🧬|↔)",
+          "prediction": {
+            "confidence": 0.92,
+            "preview": "📈 Predicted energy spike detected."
+          }
+        }
+      },
+      {
+        "id": "electron-1",
+        "meta": {
+          "linkContainerId": "mutation_zone_alpha",
+          "orbit": { "radius": 1.5, "speed": 0.018, "axis": [1, 0, 0] },
+          "qglyph": "⧖(⬁|↔)",
+          "prediction": {
+            "confidence": 0.88,
+            "preview": "🧬 Glyph mutation predicted."
+          }
+        }
+      },
+      {
+        "id": "electron-2",
+        "meta": {
+          "linkContainerId": "dream_core_x",
+          "orbit": { "radius": 1.5, "speed": 0.012, "axis": [0, 0, 1] },
+          "qglyph": "⧖(🌌|↔)",
+          "prediction": {
+            "confidence": 0.95,
+            "preview": "🌌 Dream glyph correlation strong."
+          }
+        }
+      }
+    ]
+  }
+}

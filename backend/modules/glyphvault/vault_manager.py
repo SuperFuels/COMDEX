@@ -1,5 +1,3 @@
-# backend/modules/glyphvault/vault_manager.py
-
 import os
 import json
 from datetime import datetime
@@ -33,9 +31,6 @@ class VaultManager:
                 del container["cubes"]
 
     def _inject_ghx_metadata(self, snapshot: dict, container_id: str):
-        """
-        Adds GHX ↔ QGlyph ↔ Entropy metadata to the snapshot.
-        """
         try:
             from backend.modules.codex.codex_trace import CodexTrace
             from backend.modules.glyphos.glyph_quantum_core import GlyphQuantumCore
@@ -141,6 +136,17 @@ class VaultManager:
         log_event("ACCESS_DENIED", {"filename": filename, "timestamp": datetime.utcnow().isoformat()})
         VAULT_AUDIT.record_event("ACCESS_DENIED", snapshot.get("container_id", "unknown"))
         return False
+
+    def load_container_by_id(self, container_id: str, associated_data: Optional[bytes] = None, avatar_state: Optional[dict] = None) -> bool:
+        """
+        Loads the most recent snapshot of the given container ID.
+        """
+        snapshots = self.list_snapshots(container_id)
+        if not snapshots:
+            raise FileNotFoundError(f"No snapshots found for container: {container_id}")
+
+        latest_snapshot = snapshots[0]
+        return self.load_snapshot(latest_snapshot, associated_data, avatar_state)
 
     def delete_snapshot(self, filename: str) -> bool:
         path = os.path.join(VAULT_DIR, filename)

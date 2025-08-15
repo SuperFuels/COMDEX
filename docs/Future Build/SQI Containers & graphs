@@ -1,5 +1,36 @@
-flowchart TD
+%% SQI + Electron Prediction Integration Checklist
+graph TD
+  subgraph Phase 1: Prediction Engine Integration
+    A1[✅ A1 – Append core prediction logic into prediction_engine.py]
+    A2[🔁 A2 – Refactor prediction_engine.py (wrap in PredictionEngine class)]
+    A3[🧠 A3 – Add logic for 'electron' glyph type prediction scoring]
+    A4[🧠 A4 – Ensure 'atom' glyph type is also supported]
+    A5[🔒 A5 – Add SoulLaw check (optional) for valid predictions]
+  end
 
+  subgraph Phase 2: Prediction Execution Integration
+    B1[🔧 B1 – Call run_prediction_on_container in container_runtime.py]
+    B2[🛰️ B2 – Optionally call prediction in codex_executor.py for Codex-linked containers]
+    B3[🌀 B3 – Optionally call prediction after teleport_packet is injected]
+  end
+
+  subgraph Phase 3: Testing & Demo
+    C1[📦 C1 – Generate .dc.json with 3 electrons and predictive_outcomes]
+    C2[🧪 C2 – Create test_prediction_trace.py for CLI testing]
+    C3[🎯 C3 – Add validation: show which prediction was chosen and why]
+    C4[🪞 C4 – Optionally write chosen prediction back to .dc.json or memory]
+  end
+
+  subgraph Phase 4: Logging, HUD, and KGraph
+    D1[📊 D1 – Log predictions to CodexTrace.log_prediction]
+    D2[🌐 D2 – Store prediction result in KnowledgeGraphWriter.store_predictions]
+    D3[👁️ D3 – Inject into CodexHUD or GHXVisualizer (optional)]
+  end
+
+  A1 --> A2 --> A3 --> A4 --> A5
+  A5 --> B1 --> B2 --> B3
+  B3 --> C1 --> C2 --> C3 --> C4
+  C4 --> D1 --> D2 --> D3
 %% =========================
 %% CORE STRUCTURE
 %% =========================
@@ -20,26 +51,26 @@ SQI --> REL
 %% STEP 1: SQI CONTAINER REGISTRY
 %% =========================
 subgraph CR [📦 SQIContainerRegistry + Address System]
-    CR1["Create `sqi_container_registry.py`"]
-    CR2["Embed DNA_SWITCH (self-rewritable registry logic)"]
-    CR3["Auto-register containers (addressable system)"]
-    CR4["Link registry to Knowledge Graph index"]
-    CR5["Support container lookup by topic/domain"]
-    CR6["Address routing hooks (teleport + lookup)"]
+    CR1["✅ Create `sqi_container_registry.py`"]
+    CR2["✅ Embed DNA_SWITCH (self-rewritable registry logic)"]
+    CR3["✅ Auto-register containers (addressable system)"]
+    CR4["✅ Link registry to Knowledge Graph index"]
+    CR5["✅ Support container lookup by topic/domain"]
+    CR6["✅ Address routing hooks (teleport + lookup)"]
     CR7["Meta-KG: Store hologram container metadata in KG"]
-    CR8["Container priority scoring (domain relevance, age, size)"]
+    CR8["✅Container priority scoring (domain relevance, age, size)"]
 end
 
 %% =========================
 %% STEP 2: KNOWLEDGE GRAPH INTEGRATION
 %% =========================
 subgraph KG [📚 Knowledge Graph Integration]
-    KG1["Integrate container registry → KnowledgeGraphWriter"]
-    KG2["Auto-embed holographic state pointers (GHX link)"]
-    KG3["Support hover/collapsible visual states in GHX & UI"]
-    KG4["Domain-specific container routing (physics, maths, etc.)"]
-    KG5["Integrate plugin kernels (physics_kernel, math_kernel)"]
-    KG6["Dynamic KG updates: auto-link proofs, facts, and notes"]
+    KG1["✅ Integrate container registry → KnowledgeGraphWriter"]
+    KG2["✅ Auto-embed holographic state pointers (GHX link)"]
+    KG3["✅ Support hover/collapsible visual states in GHX & UI"]
+    KG4["✅ Domain-specific container routing (physics, maths, etc.)"]
+    KG5["✅Integrate plugin kernels (physics_kernel, math_kernel)"]
+    KG6["✅Dynamic KG updates: auto-link proofs, facts, and notes"]
 end
 
 %% =========================
@@ -58,67 +89,188 @@ end
 %% STEP 4: HOLOGRAPHIC STORAGE
 %% =========================
 subgraph HOV [🪐 Holographic Hover/Collapsible Containers]
-    HOV1["Auto-bake hover/collapse states into `.dc` containers"]
-    HOV2["Runtime-efficient GHX visualization hooks"]
-    HOV3["Lazy-load container details only when expanded"]
-    HOV4["Embed time-dilated states for large containers"]
-    HOV5["Link container hover UI to GHX & Knowledge Graph"]
+    HOV1["✅ Auto-bake hover/collapse states into `.dc` containers"]
+    HOV2["✅ Runtime-efficient GHX visualization hooks"]
+    HOV3["✅ Lazy-load container details only when expanded"]
+    HOV4["✅Embed time-dilated states for large containers"]
+    HOV5["✅Link container hover UI to GHX & Knowledge Graph"]
 end
 
 %% =========================
 %% STEP 5: KNOWLEDGE RELINKER
 %% =========================
 subgraph REL [🔗 Knowledge Relinker + Adaptive Graph]
-    REL1["Create `knowledge_relinker.py` (auto-relationship manager)"]
-    REL2["Detect updated facts → re-link connected nodes"]
-    REL3["Dynamic container reassignment (if knowledge moves)"]
-    REL4["Maintain container-to-KG consistency"]
-    REL5["Reasoning layer: SQI picks optimal container for new data"]
-    REL6["Registry auto-sync: update addresses when containers merge/split"]
+    REL1["✅ Create `knowledge_relinker.py` (auto-relationship manager)"]
 end
 
-%% =========================
-%% STEP 6: MEMORY + REASONING FOR CONTAINER SELECTION
-%% =========================
-subgraph MR [🧠 Memory & Reasoning Integration]
-    MR1["Container selection reasoning module"]
-    MR2["Store domain-weighted heuristics (math/physics/etc.)"]
-    MR3["Cross-check container age & activity before writing"]
-    MR4["Feedback loop: Adjust selection strategy via DNA_SWITCH"]
-end
+%% --- SQI Structured Knowledge Architecture: Pending Tasks ---
+flowchart TD
 
-%% =========================
-%% STEP 7: EXPORT + QUERYING
-%% =========================
-subgraph EXPORT [🔎 Export, Query & Human Readability]
-    EXPORT1["`container_query_api.py`: Search container by topic, hologram, or address"]
-    EXPORT2["Auto-generate container reports (facts, projects, notes)"]
-    EXPORT3["Support human-readable math export (LaTeX + Lean)"]
-    EXPORT4["Lean verification log per container (attach proof status)"]
-end
+subgraph SQI_Knowledge_Structure["SQI Structured Knowledge System"]
 
-🔑 Key Notes
-	•	✅ DNA_SWITCH in every core module → Allows AION or SQI to rewrite registry structure autonomously.
-	•	✅ Meta-KG links: Containers logged in KG with address, domain tags, proof count, GHX hooks.
-	•	✅ Container Classes: Facts, Projects, Notes (extensible) + domain plugins (physics/math kernels).
-	•	✅ Auto-adaptive relinking: Graph must dynamically reassign relationships if facts or entities change (e.g., footballer moves teams).
-	•	✅ Holographic states baked in: Hover/collapse for runtime efficiency.
-	•	✅ Proof verification: All symbolic math must be Lean-exportable & verifiable.
-	•	✅ Registry Query API: Supports querying by address, topic, or GHX visual point.
+    %% --- 1. Knowledge Categorization & Registry ---
+    K1["📝 Define Knowledge Categorization Framework  
+        - Facts (immutable, validated)  
+        - Projects (goal-linked workspaces)  
+        - Notes (ephemeral reasoning)  
+        - Hypotheses, Simulations, Data Lakes, Methods/Proof Strategies  
+        - Define ucs:// address schema for each type  
+        - Tagging rules: domain, references, citations"]
+    K2["🗂 Implement SQIContainerRegistry Extension  
+        - Type-aware container allocation  
+        - Automatic namespace assignment  
+        - Metadata headers for type, domain, links, creator, timestamps  
+        - Enforce container type rules  
+        - Centralized Address Book & Reverse Lookup  
+        - Continuous Address Sync & Manual Address Query Support  
+        - Cognitive Routing via domain tables  
+        - Registry Hooks into Teleport API"]
+    K3["🔗 Workspace-Oriented Knowledge Graph  
+        - Facts ↔ Projects ↔ Notes linking logic  
+        - Auto-pull facts into projects, feed notes back  
+        - Keep facts isolated unless validated"]
+    K4["♻ KnowledgeRelinker Service  
+        - Detect changes in facts → update linked projects  
+        - Promote validated notes → facts  
+        - Archive abandoned projects  
+        - Reverse link tracking ('which projects use this fact?')  
+        - Plugin-aware relinking for kernel/plugin data changes"]
+    K5["🧩 Plugin Kernel Integration  
+        - PhysicsKernel, MathKernel, ChemistryKernel containers  
+        - Auto-tagging: source, origin, verified, domains, last_synced  
+        - Direct feed into Facts Containers  
+        - PhysicsKernel/MathKernel updates trigger relinks to projects"]
+    K6["🌐 External Data Feed Handling  
+        - Store in Hypotheses until validated  
+        - Metadata: sources, dataset hashes, citations  
+        - Promote into Facts on validation"]
+    K7["🧠 Reasoning Heuristics in Registry  
+        - Facts = stable  
+        - Notes = ephemeral  
+        - Auto-promotion/demotion based on verification state  
+        - Storage decisions wired to DNA Switch  
+        - Large datasets → linked data-lake containers with KG stubs"]
+    K8["🔄 DNA Switch Hooks for Autonomy  
+        - Autonomously invent new container types  
+        - Reorganize facts into clusters based on usage"]
+    K9["🎛 Holographic UI Metadata in Containers  
+        - Hover previews, collapsible panels, runtime minimization  
+        - 'Living textbook' navigation for Physics/Math kernels  
+        - GHX Renderer Linking & progressive expansion"]
 
-⸻
+    %% --- 2. Unified Data Flow & Symbolic Ingestion ---
+    D1["📡 Unified Pipeline: SQIContainerRegistry → KnowledgeGraphWriter → RegisteredContainers  
+        - Kernel-fed data (Physics/Math plugins)  
+        - External web data  
+        - User-seeded inputs  
+        - SQI’s own deductions  
+        - Auto container-type assignment"]
+    D2["🔄 Automatic KnowledgeRelinker updates for cross-container linking"]
+    D3["🌐 Full container address registration for instant teleport/query"]
 
-📂 Files Needed Before Build
+    %% --- 3. Symbolic Conversion Pipeline ---
+    S1["⚙ symbolic_ingestion_engine.py  
+        - Ingest → symbolic glyph conversion  
+        - Raw parsing & normalization (Math/Physics → AST)  
+        - Encode to CodexLang + glyph form  
+        - Preserve metadata: original_form, symbolic_form, domains, proof_link  
+        - Link facts ↔ symbolic nodes in KG  
+        - Executable glyph forms for simulation, composition, validation  
+        - Symbolic workspaces: facts, projects, workings, notes  
+        - Auto-feedback with SymbolicGradientEngine  
+        - Store symbolic + archival originals"]
+    S2["🔄 Symbolic ⇄ Human Conversion Pipeline  
+        1. Support SQI-native operators (∀, ⧖, ↔, ⚛)  
+        2. Export to formal math formats (Lean, MathML)  
+        3. Bijective mapping between SQI ops & formal math  
+        4. Plain-English trace generation from proof traces  
+        5. symbolic_explainer.py → human text explanations in KG metadata  
+        6. Lean export with embedded symbolic traces in comments  
+        7. Round-trip verification: Lean proof ↔ SQI reasoning  
+        8. symbolic_to_lean.py for AST-based Lean export  
+        9. lean_to_symbolic.py for Lean → glyph ingestion  
+        10. Ensure all conversions are KG-linked"]
 
-To ensure seamless integration:
-	1.	knowledge_graph_writer.py → to inject container metadata & KG pointers.
-	2.	memory_engine.py → reasoning hooks & retrieval for container selection.
-	3.	address_registry.py or current addressing logic (for teleport & lookup).
-	4.	physics_kernel.py & math_kernel.py (to route domain knowledge).
-	5.	Any existing SQI runtime hooks (so registry is properly wired into SQI).
-	6.	ghx_encoder.py & GHX visualization files (for holographic hover/collapse support).
+    %% --- 4. Search, Exploration & Plasticity ---
+    E1["🔍 Built-In Search + Auto-Exploration  
+        - Registry-driven query routing  
+        - On-demand container expansion for minimalism  
+        - Hover/Collapsible holograms for progressive rendering"]
+    E2["🔗 Knowledge Graph Plasticity  
+        - Relationship hooks in glyphs/holograms: entangled_links, related_containers, semantic_tags  
+        - Dynamic re-linking on new data  
+        - Outdated link pruning on fact changes"]
+    E3["🧠 Container Selection Intelligence  
+        - Semantic clustering into domain containers & sub-clusters  
+        - Density balancing to avoid overload  
+        - Temporal logic: recent → hot containers, older → archive  
+        - Cross-domain linking for overlaps (e.g., sports ↔ media)"]
 
-⸻
+    %% --- 5. Registry + Search Index ---
+    R1["📇 Central SQIContainerRegistry DB  
+        - Store: container_id, topic vector, active links, last update  
+        - Inverse index: keyword → container list lookup  
+        - Fast lookup hooks ('find all mentioning X')  
+        - Health tracking: auto-split large/fragmented containers"]
+
+    %% --- 6. Metadata & Cross-Module Integration ---
+    M1["🧾 SQI Metadata Embedder  
+        - Hover-ready node metadata: density, ancestry, vector summaries  
+        - Collapsible container markers for holographic views  
+        - Progressive holographic KG expansion at runtime"]
+    M2["🔗 Cross-Module Integration  
+        - On new knowledge entry: registry lookup → embed metadata → write hologram & KG links  
+        - On fact change: rewire edges, update registry, regenerate hover metadata  
+        - On query: registry routes to containers, collapsible hologram expansion"]
+    M3["💾 sqi_container_registry.py Implementation  
+        - Topic routing, semantic embeddings, meta-KG linking, ancestry tracking  
+        - DNA-switch registered for adaptive heuristics"]
+
+checklist
+    [ ] M1a — Collapsibility indexed in KG (expanded/collapsed state)
+    [ ] K9b — Pre-linked Registry + Hover geometry metadata
+    [ ] K9a — Hoberman Sphere state + GHX overlay
+    [ ] R1a — Fast Search Map + state flags
+    [ ] X0 — Confirm integration points (audit)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 Would you like me to start by scaffolding sqi_container_registry.py + knowledge_relinker.py first, or begin with Symbolic ⇄ Lean pipeline (conversion + verification) since it’s critical for math/physics reasoning?
 

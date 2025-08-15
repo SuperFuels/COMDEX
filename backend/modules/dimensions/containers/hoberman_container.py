@@ -1,3 +1,5 @@
+# backend/modules/dimensions/containers/hoberman_container.py
+
 import uuid
 import os
 import logging
@@ -8,6 +10,9 @@ from backend.modules.glyphos.glyph_parser import parse_glyph_string
 from backend.modules.codex.codex_utils import generate_hash
 from backend.modules.glyphvault.soul_law_validator import get_soul_law_validator
 from backend.modules.glyphvault.glyph_encryptor import GlyphEncryptor, is_encrypted_block
+
+# ✅ Centralized address/wormhole hookup (idempotent + safe)
+from backend.modules.dimensions.container_helpers import connect_container_to_hub
 
 logger = logging.getLogger(__name__)
 SOUL_LAW_MODE = os.getenv("SOUL_LAW_MODE", "full").lower()
@@ -47,6 +52,22 @@ class HobermanContainer(UCSBaseContainer):
         self.expanded_state: Optional[Dict] = None
         self.expanded = False
         self.soul_lock: Optional[str] = None
+
+        # ✅ Address registration + default wormhole link via helper (idempotent)
+        try:
+            doc = {
+                "id": self.container_id,
+                "name": name,
+                "geometry": self.geometry,
+                "type": "container",  # keep generic type; subtype in meta
+                "meta": {
+                    "address": f"ucs://local/{self.container_id}#container",
+                    "kind": "hoberman",
+                },
+            }
+            connect_container_to_hub(doc)  # safe no-op if already linked/registered
+        except Exception as e:
+            logger.warning(f"[Hoberman] Address/Wormhole setup failed for {self.container_id}: {e}")
 
     # ---------------------------------------------------------
     # 🌱 Seed Glyph Handling
@@ -98,7 +119,11 @@ class HobermanContainer(UCSBaseContainer):
         for glyph in self.seed_glyphs:
             if is_encrypted_block(glyph):
                 try:
-                    unlocked = encryptor.recursive_unlock(ciphertext=glyph, associated_data=None, avatar_state=avatar_state)
+                    unlocked = encryptor.recursive_unlock(
+                        ciphertext=glyph,
+                        associated_data=None,
+                        avatar_state=avatar_state
+                    )
                     if unlocked:
                         logger.debug(f"[Hoberman] Successfully unlocked glyph: {glyph[:12]}...")
                         logic = parse_glyph_string(unlocked)
@@ -106,7 +131,11 @@ class HobermanContainer(UCSBaseContainer):
                         raise ValueError("Recursive unlock returned None")
                 except Exception as e:
                     logger.error(f"[Hoberman] Failed to unlock glyph: {glyph} ({e})")
-                    logic = {"type": "blocked", "reason": "Failed recursive unlock or denied by SoulLaw", "original": glyph}
+                    logic = {
+                        "type": "blocked",
+                        "reason": "Failed recursive unlock or denied by SoulLaw",
+                        "original": glyph
+                    }
             else:
                 logic = parse_glyph_string(glyph)
 
@@ -126,6 +155,23 @@ class HobermanContainer(UCSBaseContainer):
         }
         self.expanded = True
         logger.info(f"[Hoberman] Inflation complete: {self.container_id} (logic nodes: {len(logic_tree)})")
+
+        # ✅ Ensure address + wormhole link exist after inflation too (idempotent)
+        try:
+            doc = {
+                "id": self.container_id,
+                "name": f"HOB-{self.container_id}",
+                "geometry": self.geometry,
+                "type": "container",
+                "meta": {
+                    "address": f"ucs://local/{self.container_id}#container",
+                    "kind": "hoberman",
+                },
+            }
+            connect_container_to_hub(doc)  # safe re-run
+        except Exception as e:
+            logger.warning(f"[Hoberman] Post-inflate address/wormhole setup failed for {self.container_id}: {e}")
+
         return self.expanded_state
 
     def _populate_micro_grid(self, logic_tree: List[Dict[str, Any]]):

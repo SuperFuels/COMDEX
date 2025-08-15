@@ -5,11 +5,22 @@ Powers runtime logic, space expansion, cube interaction, dynamic glyph routing, 
 
 import random
 import uuid
+import logging
 
 from backend.modules.glyphos.glyph_quantum_core import GlyphQuantumCore
 from backend.modules.teleport.teleport_packet import TeleportPacket
 from backend.modules.teleport.portal_registry import PORTALS
 from backend.modules.consciousness.state_manager import STATE
+
+# ✅ Optional hub connector (safe fallback if helper isn’t present)
+try:
+    from backend.modules.dimensions.container_helpers import connect_container_to_hub
+except Exception:  # pragma: no cover
+    def connect_container_to_hub(*_a, **_k):
+        pass
+
+logger = logging.getLogger(__name__)
+
 
 class DimensionKernel:
     def __init__(self, container_id, physics="default"):
@@ -23,6 +34,19 @@ class DimensionKernel:
             self.quantum_core = GlyphQuantumCore(container_id)
         else:
             self.quantum_core = None
+
+        # ✅ NEW: Register this kernel as a container-like node in the HQ graph (idempotent)
+        try:
+            doc = {
+                "id": self.container_id,
+                "name": f"DK-{self.container_id}",
+                "geometry": "Dimension Kernel",
+                "type": "dimension_kernel",
+                "meta": {"address": f"ucs://local/{self.container_id}#dimension"},
+            }
+            connect_container_to_hub(doc)  # safe no-op if helper is stubbed
+        except Exception as e:
+            logger.debug(f"[DimensionKernel] connect_container_to_hub skipped: {e}")
 
     def register_cube(self, x, y, z, t=0, metadata=None):
         key = (x, y, z, t)

@@ -18,6 +18,8 @@ from backend.modules.dna_chain.dna_registry import register_proposal
 # ✅ Safe SoulLaw Accessor (lazy, avoids circular import issues)
 from backend.modules.glyphvault.soul_law_validator import get_soul_law_validator
 
+_seen_dc_validate = set()
+
 # ✅ Paths
 DIMENSION_DIR = os.path.join(os.path.dirname(__file__), "../dimensions/containers")
 
@@ -43,21 +45,29 @@ def compute_file_hash(path: str) -> str:
     return hasher.hexdigest()
 
 # ✅ SoulLaw Container Check (hook point for container operations)
+_soullaw_checked_ids = set()
+
 def enforce_soul_law_on_container(container_data: dict, avatar_state: Optional[dict] = None) -> bool:
     """
     Validate a container and avatar state against SoulLaw before loading or mutation.
+    Runs only once per container id/name per process.
     Returns True if allowed, raises PermissionError if blocked.
     """
     soul_law = get_soul_law_validator()
 
-    # Container-level morality check
-    if not soul_law.validate_container(container_data):
-        raise PermissionError(f"[🔒] SoulLaw: Container {container_data.get('id')} failed validation.")
+    # Determine stable key for deduplication
+    cid = container_data.get("id") or container_data.get("name")
+    if cid not in _soullaw_checked_ids:
+        # Container-level morality check
+        if not soul_law.validate_container(container_data):
+            raise PermissionError(f"[🔒] SoulLaw: Container {cid} failed validation.")
 
-    # Optional avatar state gate
-    if avatar_state and not soul_law.validate_avatar(avatar_state):
-        raise PermissionError(f"[🔒] SoulLaw: Avatar state blocked access for {container_data.get('id')}.")
+        # Optional avatar state gate
+        if avatar_state and not soul_law.validate_avatar(avatar_state):
+            raise PermissionError(f"[🔒] SoulLaw: Avatar state blocked access for {cid}.")
 
+        _soullaw_checked_ids.add(cid)
+        print(f"[🔒] SoulLaw validated once for container: {cid}")
     return True
     
 def validate_dimension(data):

@@ -1,0 +1,92 @@
+{
+  "id": "atom_electrons_test",
+  "type": "atom",
+  "name": "ElectronShell Test Atom",
+  "isAtom": true,
+  "position": [0, 0, 0],
+  "electronCount": 12,
+  "electrons": [
+    {
+      "meta": { "label": "e⁻ 1", "linkContainerId": "test_target_1" },
+      "glyphs": [
+        { "type": "predictive", "value": "⚛ Path A", "confidence": 0.61 },
+        { "type": "predictive", "value": "🧬 Mutation B", "confidence": 0.38 }
+      ]
+    },
+    {
+      "meta": { "label": "e⁻ 2", "linkContainerId": "test_target_2" },
+      "glyphs": [
+        { "type": "predictive", "value": "⚛ Path B", "confidence": 0.72 },
+        { "type": "predictive", "value": "🧬 Mutation C", "confidence": 0.27 }
+      ]
+    },
+    {
+      "meta": { "label": "e⁻ 3", "linkContainerId": "test_target_3" },
+      "glyphs": [
+        { "type": "predictive", "value": "⚛ Path C", "confidence": 0.88 }
+      ]
+    },
+    {
+      "meta": { "label": "e⁻ 4", "linkContainerId": "test_target_4" },
+      "glyphs": [
+        { "type": "predictive", "value": "⚛ Path D", "confidence": 0.54 },
+        { "type": "predictive", "value": "🧬 Mutation D", "confidence": 0.44 }
+      ]
+    },
+    {
+      "meta": { "label": "e⁻ 5", "linkContainerId": "test_target_5" },
+      "glyphs": [
+        { "type": "predictive", "value": "⚛ Path E", "confidence": 0.67 }
+      ]
+    },
+    {
+      "meta": { "label": "e⁻ 6", "linkContainerId": "test_target_6" },
+      "glyphs": [
+        { "type": "predictive", "value": "⚛ Path F", "confidence": 0.43 },
+        { "type": "predictive", "value": "🧬 Mutation E", "confidence": 0.55 }
+      ]
+    },
+    {
+      "meta": { "label": "e⁻ 7", "linkContainerId": "test_target_7" },
+      "glyphs": [
+        { "type": "predictive", "value": "⚛ Path G", "confidence": 0.79 }
+      ]
+    },
+    {
+      "meta": { "label": "e⁻ 8", "linkContainerId": "test_target_8" },
+      "glyphs": [
+        { "type": "predictive", "value": "⚛ Path H", "confidence": 0.52 },
+        { "type": "predictive", "value": "🧬 Mutation F", "confidence": 0.45 }
+      ]
+    },
+    {
+      "meta": { "label": "e⁻ 9", "linkContainerId": "test_target_9" },
+      "glyphs": [
+        { "type": "predictive", "value": "⚛ Path I", "confidence": 0.60 }
+      ]
+    },
+    {
+      "meta": { "label": "e⁻ 10", "linkContainerId": "test_target_10" },
+      "glyphs": [
+        { "type": "predictive", "value": "⚛ Path J", "confidence": 0.69 }
+      ]
+    },
+    {
+      "meta": { "label": "e⁻ 11", "linkContainerId": "test_target_11" },
+      "glyphs": [
+        { "type": "predictive", "value": "⚛ Path K", "confidence": 0.56 },
+        { "type": "predictive", "value": "🧬 Mutation G", "confidence": 0.42 }
+      ]
+    },
+    {
+      "meta": { "label": "e⁻ 12", "linkContainerId": "test_target_12" },
+      "glyphs": [
+        { "type": "predictive", "value": "⚛ Path L", "confidence": 0.64 }
+      ]
+    }
+  ],
+  "metadata": {
+    "description": "Test atom for GHX orbital rendering",
+    "origin": "Generated for visual test"
+  }
+}

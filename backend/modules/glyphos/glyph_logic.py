@@ -56,18 +56,21 @@ DNA_SWITCH.register(__file__)  # ✅ Track evolution of this logic
 
 # Glyph → symbolic meaning
 GLYPH_SYMBOL_MAP = {
-    "Δ": "intent",
-    "⊕": "condition",
-    "λ": "plan",
-    "⇌": "adjust",
-    "Σ": "summarize",
-    "☼": "light",
-    "ψ": "dream",
-    "✧": "trigger",
-    "🧠": "reflect",
-    "🪄": "transform",
-    "⚙": "boot",
-}
+        "Δ": "intent",
+        "⊕": "condition",
+        "λ": "plan",
+        "⇌": "adjust",
+        "Σ": "summarize",
+        "☼": "light",
+        "ψ": "dream",
+        "✧": "trigger",
+        "🧠": "reflect",
+        "🪄": "transform",
+        "⚙": "boot",
+        "↔": "entangle",
+        "⧖": "collapse",
+        "🧭": "guide",     # bias next-step lemma selection   
+    }
 
 # Real modules
 boot_selector = BootSelector()
@@ -78,6 +81,7 @@ OPERATOR_WEIGHTS = {
     "↔": 1.0,  # Entanglement strength
     "⧖": 1.0,  # Collapse bias
     "⬁": 1.0,  # Mutation rate
+    "🧭": 1.0, # Guidance strength (lemma selection bias)
 }
 
 
@@ -89,8 +93,8 @@ def interpret_glyph(glyph: str, context: Dict[str, Any]) -> Dict[str, Any]:
 
     symbol = GLYPH_SYMBOL_MAP.get(glyph, "unknown")
     logs = [f"[Glyph] {glyph} interpreted as '{symbol}' (branch={getattr(branch, 'origin_id', '?')}, index={idx})"]
-    triggered_modules = []
-    memory_traces = []
+    triggered_modules: List[str] = []
+    memory_traces: List[Dict[str, Any]] = []
 
     if "value" in meta and isinstance(meta["value"], str) and any(c in meta["value"] for c in GLYPH_SYMBOL_MAP):
         logs.append(f"🔁 Nested glyph expression found: {meta['value']} — [parser pending]")
@@ -102,8 +106,7 @@ def interpret_glyph(glyph: str, context: Dict[str, Any]) -> Dict[str, Any]:
             logs.append("→ 🪞 Reflection triggered.")
             triggered_modules.append("ReflectionEngine")
             memory_traces.append({"type": "reflection", "content": result})
-
-            # ✅ Feed reflection into Symbol Graph
+            # Feed reflection into Symbol Graph
             symbol_graph.feed_reflection(glyph, result)
 
         elif glyph == "⚙":
@@ -156,6 +159,41 @@ def interpret_glyph(glyph: str, context: Dict[str, Any]) -> Dict[str, Any]:
             logs.append("→ 🔁 Adjustment logic.")
             triggered_modules.append("Adjust")
 
+        elif glyph == "↔":
+            # Entangle: unify/equate expressions
+            strength = OPERATOR_WEIGHTS.get("↔", 1.0)
+            logs.append(f"→ 🔗 Entangle: unified expressions (strength={strength:.2f}).")
+            triggered_modules.append("Entangle")
+            meta.setdefault("hints", {})["prefer_equivalence"] = True
+            try:
+                if hasattr(symbol_graph, "entangle"):
+                    symbol_graph.entangle(context.get("payload", None))
+            except Exception:
+                pass
+
+        elif glyph == "⧖":
+            # Collapse: resolve a constraint / prune a branch
+            bias = OPERATOR_WEIGHTS.get("⧖", 1.0)
+            logs.append(f"→ ⧖ Collapse: constraint resolved (bias={bias:.2f}).")
+            triggered_modules.append("Collapse")
+            meta.setdefault("hints", {})["constraint_resolved"] = True
+
+        elif glyph == "🧭":
+            # Guide: bias next-step lemma selection
+            weight = OPERATOR_WEIGHTS.get("🧭", 1.0)
+            logs.append(f"→ 🧭 Guide: lemma selection biased (weight={weight:.2f}).")
+            triggered_modules.append("Guide")
+            meta.setdefault("hints", {})["lemma_bias"] = {
+                "weight": weight,
+                "strategy": "prefer_short_lemmas"
+            }
+            try:
+                planner = get_strategy_planner()
+                if hasattr(planner, "nudge"):
+                    planner.nudge({"lemma_bias": weight})
+            except Exception:
+                pass
+
     except Exception as e:
         logs.append(f"⚠️ Glyph execution error: {str(e)}")
         triggered_modules.append("Error")
@@ -176,10 +214,14 @@ def interpret_glyph(glyph: str, context: Dict[str, Any]) -> Dict[str, Any]:
         except Exception as trace_error:
             logs.append(f"⚠️ MemoryBridge trace failed: {trace_error}")
 
-    # ✅ Feed tags into Symbol Graph (from meta or KnowledgeIndex)
-    tags = meta.get("tags") or knowledge_index.get_tags_for_glyph(glyph)
-    if tags:
-        symbol_graph.feed_tags(glyph, tags)
+    # ✅ Optional operator score delta (neutral, opt-in)
+    score_delta = 0.0
+    if "Entangle" in triggered_modules:
+        score_delta += OPERATOR_WEIGHTS.get("↔", 0.0)
+    if "Collapse" in triggered_modules:
+        score_delta += OPERATOR_WEIGHTS.get("⧖", 0.0)
+    if "Guide" in triggered_modules:
+        score_delta += OPERATOR_WEIGHTS.get("🧭", 0.0)
 
     return {
         "glyph": glyph,
@@ -191,6 +233,7 @@ def interpret_glyph(glyph: str, context: Dict[str, Any]) -> Dict[str, Any]:
         "modules": triggered_modules,
         "memory": memory_traces,
         "meta": meta,
+        "score_delta": score_delta,
     }
 
 

@@ -9,6 +9,25 @@ from backend.modules.compression.symbolic_compressor import compress_logic_tree 
 from backend.modules.codex.codex_utils import generate_hash
 from backend.modules.glyphvault.soul_law_validator import get_soul_law_validator  # ✅ Safe accessor
 
+# ✅ Address registry + optional wormhole linker (safe fallbacks)
+try:
+    from backend.modules.aion.address_book import address_book
+except Exception:  # pragma: no cover
+    class _NullAB:
+        def register_container(self, *_a, **_k): pass
+    address_book = _NullAB()
+
+try:
+    from backend.modules.dna_chain.container_linker import link_wormhole
+except Exception:  # pragma: no cover
+    def link_wormhole(*_a, **_k): pass
+
+# ✅ NEW: hub connector (safe fallback)
+try:
+    from backend.modules.dimensions.container_helpers import connect_container_to_hub
+except Exception:  # pragma: no cover
+    def connect_container_to_hub(*_a, **_k): pass
+
 logger = logging.getLogger(__name__)
 SOUL_LAW_MODE = os.getenv("SOUL_LAW_MODE", "full").lower()
 
@@ -27,10 +46,10 @@ class SymbolicExpansionContainer(UCSBaseContainer):
 
     def __init__(self, container_id: Optional[str] = None, runtime: Optional[Any] = None):
         self.container_id = container_id or str(uuid.uuid4())
-        self.id = self.container_id  # ✅ Added explicit .id alias for HyperdriveEngine compatibility
+        self.id = self.container_id  # ✅ explicit .id alias for external engines
         name = f"SEC-{self.container_id}"
 
-        # ✅ FIXED: Ensure parent constructor is called properly
+        # ✅ parent constructor
         super(SymbolicExpansionContainer, self).__init__(
             name=name,
             runtime=runtime,
@@ -41,6 +60,25 @@ class SymbolicExpansionContainer(UCSBaseContainer):
         self.expanded_logic: Optional[Dict[str, Any]] = None
         self.expanded = False
         self.engine = None  # ✅ Attach runtime engine (e.g., QWave SupercontainerEngine)
+
+        # ✅ Ensure this container is discoverable via address book + wormhole graph (idempotent)
+        try:
+            self._register_address_and_link()
+        except Exception as e:
+            logger.warning(f"[SEC] address/wormhole setup failed for {self.container_id}: {e}")
+
+        # ✅ NEW: connect into HQ/hub graph (idempotent, safe)
+        try:
+            doc = {
+                "id": self.container_id,
+                "name": getattr(self, "name", self.container_id),
+                "geometry": getattr(self, "geometry", "Unknown"),
+                "type": "container",
+                "meta": {"address": f"ucs://local/{self.container_id}#container"},
+            }
+            connect_container_to_hub(doc)
+        except Exception as e:
+            logger.debug(f"[SEC] connect_container_to_hub skipped for {self.container_id}: {e}")
 
     # ---------------------------------------------------------
     # 🌱 Seed Loading
@@ -100,6 +138,26 @@ class SymbolicExpansionContainer(UCSBaseContainer):
             "micro_grid": self.micro_grid.serialize() if self.micro_grid else None,
         }
         self.expanded = True
+
+        # ✅ Re-register to ensure latest meta is in the directory and linked (idempotent)
+        try:
+            self._register_address_and_link()
+        except Exception as e:
+            logger.debug(f"[SEC] post-expand address/wormhole setup skipped for {self.container_id}: {e}")
+
+        # ✅ NEW: ensure hub connection after expansion too (idempotent)
+        try:
+            doc = {
+                "id": self.container_id,
+                "name": getattr(self, "name", self.container_id),
+                "geometry": getattr(self, "geometry", "Unknown"),
+                "type": "container",
+                "meta": {"address": f"ucs://local/{self.container_id}#container"},
+            }
+            connect_container_to_hub(doc)
+        except Exception as e:
+            logger.debug(f"[SEC] post-expand connect_container_to_hub skipped for {self.container_id}: {e}")
+
         logger.info(f"[SEC] Expansion complete: {self.container_id} | Nodes: {len(logic_tree)}")
         return self.expanded_logic
 
@@ -165,3 +223,24 @@ class SymbolicExpansionContainer(UCSBaseContainer):
             "status": "expanded" if self.expanded else "compressed",
             "glyph_count": len(self.seed_container.get_seed_glyphs()),
         }
+
+    # ---------------------------------------------------------
+    # 🧭 Address + Wormhole helpers (idempotent)
+    # ---------------------------------------------------------
+    def _register_address_and_link(self, hub_id: str = "ucs_hub") -> None:
+        """
+        Ensure this container is in the global address book and linked into the wormhole graph.
+        Safe to call multiple times.
+        """
+        record = {
+            "id": self.container_id,
+            "name": f"SEC-{self.container_id}",
+            "type": "symbolic_expansion_container",
+            "geometry": self.geometry,
+            "meta": {
+                "caps": ["inflate", "compress", "symbolic-map"],
+                "tags": ["SEC", "symbolic", "expansion"],
+            },
+        }
+        address_book.register_container(record)
+        link_wormhole(self.container_id, hub_id)

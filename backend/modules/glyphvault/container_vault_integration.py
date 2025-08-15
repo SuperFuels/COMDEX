@@ -3,6 +3,8 @@ from backend.modules.glyphvault.key_manager import key_manager
 from backend.modules.dimensions.universal_container_system.ucs_runtime import get_ucs_runtime  # ✅ UCS Runtime sync
 from backend.modules.glyphvault.soul_law_validator import get_soul_law_validator  # ✅ Safe SoulLaw accessor
 
+_vault_seen = set()
+
 def lazy_broadcast_event(payload):
     """Lazy-imports broadcast_event to avoid circular import."""
     from backend.routes.ws.glyphnet_ws import broadcast_event
@@ -31,11 +33,14 @@ def decrypt_glyph_vault(container_data: dict, avatar_state: dict = None) -> dict
 
     # ✅ SoulLaw: Validate container before decryption
     soul_law = get_soul_law_validator()
-    try:
-        soul_law.validate_container(container_data)
-    except Exception as e:
-        print(f"❌ SoulLaw: Container decryption blocked – {e}")
-        return container_data
+    cid = container_data.get("id") or container_data.get("name")
+    if cid not in _vault_seen:
+        try:
+            soul_law.validate_container(container_data)
+            _vault_seen.add(cid)
+        except Exception as e:
+            print(f"❌ SoulLaw: Container decryption blocked – {e}")
+            return container_data
 
     # ✅ Avatar validation before decrypt
     if not soul_law.validate_avatar(avatar_state):

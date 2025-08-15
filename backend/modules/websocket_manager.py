@@ -74,6 +74,12 @@ class WebSocketManager:
 # ✅ Singleton instance for global use
 websocket_manager = WebSocketManager()
 
+# 🔁 Back-compat alias expected by some modules
+manager = websocket_manager  # <-- added
+
 # ✅ Global helper for GIP or other modules
 async def broadcast_event(tag: str, payload: Dict[str, Any]):
     await websocket_manager.broadcast(payload, tag=tag)
+
+# Optional: make public API explicit
+__all__ = ["WebSocketManager", "websocket_manager", "manager", "broadcast_event"]

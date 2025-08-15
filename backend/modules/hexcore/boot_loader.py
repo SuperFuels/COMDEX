@@ -7,6 +7,13 @@ from typing import Optional, Dict, Any
 from backend.modules.skills.milestone_tracker import MilestoneTracker
 from backend.modules.knowledge_graph.knowledge_graph_writer import kg_writer
 from backend.modules.dimensions.universal_container_system.ucs_runtime import ucs_runtime
+from backend.modules.dimensions.containers.tesseract_hub import ensure_tesseract_hub
+
+# HQ / Tesseract hub (idempotent creator)
+try:
+    from backend.modules.dimensions.containers.tesseract_hub import ensure_tesseract_hub
+except Exception:
+    ensure_tesseract_hub = None  # safe no-op if module not present
 
 # ✅ DNA Switch
 from backend.modules.dna_chain.switchboard import DNA_SWITCH
@@ -44,14 +51,25 @@ def preload_all_domain_packs() -> None:
 def boot():
     """Full boot sequence: load seeds, init KG, register DNA state."""
     print("[boot_loader] Starting boot sequence...")
-    
+
+    # Ensure Tesseract HQ exists before anything links to it
+    if ensure_tesseract_hub:
+        try:
+            ensure_tesseract_hub(hub_id="tesseract_hq", name="Tesseract HQ", size=8)
+            print("[boot_loader] Tesseract HQ ensured (tesseract_hq).")
+        except Exception as e:
+            print(f"[boot_loader] ⚠️ Failed to ensure Tesseract HQ: {e}")
+
+    # Load core seeds into UCS
     preload_all_domain_packs()
 
+    # Load boot goals into KG (if any)
     boot_goals = load_boot_goals()
     if boot_goals:
         kg_writer.write_knowledge("boot_goals", boot_goals)
 
     print("[boot_loader] Boot sequence complete.")
+    
 def load_seed_containers():
     """
     Minimal UCS seed boot: load .dc.json files directly into ucs_runtime,
@@ -544,6 +562,9 @@ if __name__ == "__main__":
 
     # 1.5) NEW: load seed containers (math_core, physics_core, problem_graphs) into UCS
     load_seed_containers()
+
+    # 1.25) Ensure the permanent Tesseract HQ exists & is linked
+    ensure_tesseract_hub(hub_id="tesseract_hq", name="Tesseract HQ", size=8)
 
     # 2) Ensure domain packs are in UCS, saved to disk, and injected into KG
     preload_all_domain_packs()

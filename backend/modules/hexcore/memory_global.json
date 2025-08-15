@@ -10,5 +10,21 @@
     "label": "container:example_lean_theorem",
     "content": "[\ud83d\udce6] Container unnamed activated.",
     "timestamp": "2025-07-24T21:52:11.926217"
+  },
+  {
+    "role": "system",
+    "label": "container_saved",
+    "content": "Agent anonymous saved container 'logic_core_atom'.",
+    "timestamp": "2025-08-10T17:04:31.258606"
+  },
+  {
+    "role": "system",
+    "label": "container_loaded",
+    "content": "AION teleported to container: logic_core_atom",
+    "metadata": {
+      "container_id": "logic_core_atom",
+      "cubes": []
+    },
+    "timestamp": "2025-08-10T17:20:10.233714"
   }
 ]

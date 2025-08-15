@@ -1,11 +1,18 @@
-import React, { useRef, useState, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Html, OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
 import GHXSignatureTrail from './GHXSignatureTrail';
 import axios from 'axios';
 import useWebSocket from '../../hooks/useWebSocket';
+import React, { useMemo, useRef, useState, useEffect } from "react";
+import { ElectronOrbit } from "@/components/GHX/atoms/electronOrbit";
+import { ElectronShells, buildElectronShells } from "./atoms/electronOrbit";
 
+declare global {
+  interface Window {
+    GHX_ON_TELEPORT?: (cid: string) => void;
+  }
+}
 // ✅ GHXVisualizer Arrows Stub (Nav Map Visualization)
 export function drawLinkArrows(containerLinks: Record<string, any>) {
   Object.entries(containerLinks).forEach(([source, nav]) => {
@@ -15,6 +22,30 @@ export function drawLinkArrows(containerLinks: Record<string, any>) {
     });
   });
 }
+// 🔗 HOV backend-baked metadata (per-hover)
+  const [hoverCid, setHoverCid] = useState<string | null>(null);
+  const [hoverMeta, setHoverMeta] = useState<any>(null);
+// --- HOV hover fetch helper (backend ↔ frontend) ---
+const fetchHoverGHX = async (cid: string) => {
+  try {
+    const res = await fetch(`/sqi/ghx/hover/${cid}`);
+    if (!res.ok) throw new Error(`GHX hover request failed: ${res.status}`);
+    return await res.json(); // baked GHX/metadata payload
+  } catch (err) {
+    console.error("GHX hover fetch error:", err);
+    return null;
+  }
+};
+
+const setCollapse = async (cid: string, collapsed: boolean, opts?: {mode?: string; snapshot_rate?: number; density?: string}) => {
+  const q = new URLSearchParams({ collapsed: String(collapsed) });
+  if (opts?.mode) q.set("mode", opts.mode);
+  if (typeof opts?.snapshot_rate === "number") q.set("snapshot_rate", String(opts.snapshot_rate));
+  if (opts?.density) q.set("density", opts.density);
+  const res = await fetch(`/sqi/ghx/collapse/${cid}?${q.toString()}`, { method: "POST" });
+  if (!res.ok) throw new Error(`collapse failed: ${res.status}`);
+  return res.json();
+};
 
 // ✅ Agent Identity Colors (Dynamic Palette)
 const agentColors: Record<string, string> = {
@@ -31,52 +62,93 @@ const useGHXGlyphs = () => {
   const [echoes, setEchoes] = useState<any[]>([]);
   const [dreams, setDreams] = useState<any[]>([]);
 
-  useEffect(() => {
-    axios.get("/api/replay/list?include_metadata=true&sort_by_time=true").then(res => {
-      const allGlyphs = res.data.result || [];
-      const holograms: any[] = [];
-      const echoes: any[] = [];
-      const dreams: any[] = [];
+  const handleTeleport = (targetId: string) => {
+    if (!targetId) return;
+    // Replace with your teleport system
+    window?.dispatchEvent(new CustomEvent("teleport", { detail: { targetId } }));
+  };
 
-      for (const g of allGlyphs) {
-        const isEcho = g.metadata?.memoryEcho || g.metadata?.source === "memory";
-        const isDream = g.metadata?.predictive || g.metadata?.dream;
-        const glyphObj = {
-          id: g.id,
-          glyph: g.content,
-          position: [Math.random() * 6 - 3, Math.random() * 4 - 2, Math.random() * 4 - 2],
-          memoryEcho: isEcho,
-          predictive: isDream,
-          entangled: g.metadata?.entangled_ids || [],
-          reasoning_chain: g.metadata?.reasoning_chain || null,
-          prediction_path: g.metadata?.predicted_path || [],
-          snapshot_id: g.metadata?.snapshot_id || null,
-          anchor: g.metadata?.anchor || null,
-          agent_id: g.metadata?.agent_id || "system",
-          locked: false,
-          permission: g.metadata?.permission || "editable"
-        };
+useEffect(() => {
+  (window as any).GHX_ON_TELEPORT = async (cid: string) => {
+    console.log("🚀 Teleporting to:", cid);
+    try {
+      const res = await axios.post("/api/teleport", { container_id: cid });
+      console.log("🛬 Teleport complete:", res.data.container);
+      // Optional: update UI with new container
+    } catch (err) {
+      console.error("❌ Teleport failed:", err);
+    }
+  };
 
-        if (isDream) dreams.push(glyphObj);
-        else if (isEcho) echoes.push(glyphObj);
-        else holograms.push(glyphObj);
-      }
+  // 🔁 Fetch replay glyphs
+  axios.get("/api/replay/list?include_metadata=true&sort_by_time=true").then(res => {
+    const allGlyphs = res.data.result || [];
+    const holograms: any[] = [];
+    const echoes: any[] = [];
+    const dreams: any[] = [];
 
-      setHolograms(holograms);
-      setEchoes(echoes);
-      setDreams(dreams);
-    });
-  }, []);
+    for (const g of allGlyphs) {
+      const isEcho = g.metadata?.memoryEcho || g.metadata?.source === "memory";
+      const isDream = g.metadata?.predictive || g.metadata?.dream;
+      const isAtom = g.metadata?.container_kind === "atom";
+
+      const glyphObj = {
+        id: g.id,
+        glyph: g.content,
+        position: [Math.random() * 6 - 3, Math.random() * 4 - 2, Math.random() * 4 - 2],
+        memoryEcho: isEcho,
+        predictive: isDream,
+        entangled: g.metadata?.entangled_ids || [],
+        reasoning_chain: g.metadata?.reasoning_chain || null,
+        prediction_path: g.metadata?.predicted_path || [],
+        snapshot_id: g.metadata?.snapshot_id || null,
+        anchor: g.metadata?.anchor || null,
+        agent_id: g.metadata?.agent_id || "system",
+        locked: false,
+        permission: g.metadata?.permission || "editable",
+        isAtom: isAtom,
+        electronCount: g.metadata?.electronCount || 0,
+        electrons: g.metadata?.electrons || []
+      };
+
+      if (isDream) dreams.push(glyphObj);
+      else if (isEcho) echoes.push(glyphObj);
+      else holograms.push(glyphObj);
+    }
+
+    setHolograms(holograms);
+    setEchoes(echoes);
+    setDreams(dreams);
+  });
+}, []);
 
   return { holograms, echoes, dreams, setHolograms };
 };
 
+type GlyphHologramProps = {
+  cid: string; // ← ensure parent passes container id
+  glyph: string;
+  position: [number, number, number];
+  memoryEcho?: boolean;
+  predictive?: boolean;
+  reasoning_chain?: string | null;
+  prediction_path?: string[];
+  anchor?: { type: string; env_obj_id: string } | null;
+  agent_id?: string;
+  locked?: boolean;
+  permission: "hidden" | "read-only" | "editable" | "full";
+  onClick?: () => void;
+  onTeleport?: (cid: string) => void;
+};
+
 const GlyphHologram = ({
-  glyph, position, memoryEcho, predictive, reasoning_chain, prediction_path,
+  cid,
+  glyph, position, memoryEcho, predictive, reasoning_chain, prediction_path = [],
   anchor, agent_id, locked, permission, onClick
-}: any) => {
+}: GlyphHologramProps) => {
   const meshRef = useRef<any>();
   const [hovered, setHovered] = useState(false);
+  
   const isMutation = glyph === "⬁";
 
   useFrame(({ clock }) => {
@@ -105,8 +177,23 @@ const GlyphHologram = ({
         ref={meshRef}
         position={position}
         onClick={permission !== "read-only" ? onClick : undefined}
-        onPointerOver={() => setHovered(true)}
-        onPointerOut={() => setHovered(false)}
+        onPointerOver={async (e) => {
+          e.stopPropagation();
+          setHovered(true);
+
+          // 🔥 Trigger backend hover baking (HOV1–HOV3)
+          if (cid) {
+            setHoverCid(cid);
+            const baked = await fetchHoverGHX(cid);
+            if (baked) setHoverMeta(baked);
+          }
+        }}
+        onPointerOut={(e) => {
+          e.stopPropagation();
+          setHovered(false);
+          setHoverCid(null);
+          setHoverMeta(null);
+        }}
       >
         <sphereGeometry args={[0.4, 32, 32]} />
         <meshStandardMaterial
@@ -126,6 +213,31 @@ const GlyphHologram = ({
               textShadow: "0 0 8px #ff0000",
               marginTop: "-20px"
             }}>🔒</div>
+          </Html>
+        )}
+
+        {/* 🛰 GHX Hover Preview (uses backend-baked metadata) */}
+        {hovered && hoverCid && hoverMeta && (
+          <Html center distanceFactor={12}>
+            <div style={{
+              padding: "8px 10px",
+              background: "rgba(10,10,20,0.85)",
+              color: "#dfe6ff",
+              border: "1px solid rgba(120,140,255,0.35)",
+              borderRadius: 8,
+              maxWidth: 360,
+              fontSize: 12,
+              boxShadow: "0 4px 18px rgba(0,0,0,0.35)",
+              backdropFilter: "blur(4px)",
+              whiteSpace: "pre-wrap"
+            }}>
+              <div style={{fontWeight: 700, marginBottom: 6}}>
+                {hoverMeta.container_id ?? hoverCid} — GHX (collapsed: {String(hoverMeta.collapsed ?? false)})
+              </div>
+              <code style={{display: "block", maxHeight: 180, overflow: "auto"}}>
+                {JSON.stringify(hoverMeta, null, 2)}
+              </code>
+            </div>
           </Html>
         )}
 
@@ -236,7 +348,133 @@ const LightLinks = ({ glyphs }: any) => {
     </>
   );
 };
+// ===== Electron Shells for Atom Containers =========================================
 
+type Electron = {
+  id: string;
+  label?: string;
+  meta?: {
+    linkContainerId?: string;
+    previewImage?: string;
+  };
+};
+
+type ElectronShell = {
+  radius: number;
+  speed: number;
+  electrons: Electron[];
+};
+
+function buildElectronShells(total: number, electronsMeta?: Electron[]): ElectronShell[] {
+  const capacities = [2, 8, 18];
+  const shells: ElectronShell[] = [];
+  let remaining = total;
+  let baseR = 0.9;
+  let baseSpeed = 0.6;
+  let index = 0;
+
+  for (let i = 0; i < capacities.length && remaining > 0; i++) {
+    const take = Math.min(remaining, capacities[i]);
+    const electrons: Electron[] = [];
+
+    for (let j = 0; j < take; j++) {
+      electrons.push(
+        electronsMeta?.[index] || {
+          id: `e${i}-${j}`,
+        }
+      );
+      index++;
+    }
+
+    shells.push({
+      radius: baseR + i * 0.45,
+      speed: baseSpeed + i * 0.25,
+      electrons,
+    });
+    remaining -= take;
+  }
+  return shells;
+}
+
+const ElectronShells = ({
+  center,
+  shells,
+  onTeleport,
+}: {
+  center: [number, number, number];
+  shells: ElectronShell[];
+  onTeleport?: (containerId: string) => void;
+}) => {
+  const groupsRef = useRef<THREE.Group[]>([]);
+
+  useFrame(({ clock }) => {
+    const t = clock.getElapsedTime();
+    groupsRef.current.forEach((g, i) => {
+      if (!g) return;
+      g.rotation.y = t * shells[i].speed;
+    });
+  });
+
+  return (
+    <>
+      {shells.map((sh, si) => (
+        <group
+          key={`shell-${si}`}
+          ref={(el) => {
+            if (el) groupsRef.current[si] = el;
+          }}
+          position={center}
+        >
+          {/* Orbit ring */}
+          <mesh rotation={[Math.PI / 2, 0, 0]}>
+            <torusGeometry args={[sh.radius, 0.01, 8, 64]} />
+            <meshBasicMaterial color="#4466aa" transparent opacity={0.2} />
+          </mesh>
+
+          {/* Electrons */}
+          {sh.electrons.map((e, idx) => {
+            const angle = (idx / Math.max(1, sh.electrons.length)) * Math.PI * 2;
+            const x = sh.radius * Math.cos(angle);
+            const z = sh.radius * Math.sin(angle);
+
+            return (
+              <mesh
+                key={e.id}
+                position={[center[0] + x, center[1], center[2] + z]}
+                onClick={(ev) => {
+                  ev.stopPropagation();
+                  const targetId = e.meta?.linkContainerId;
+                  if (targetId && onTeleport) {
+                    onTeleport(targetId);
+                  }
+                }}
+              >
+                <sphereGeometry args={[0.05, 16, 16]} />
+                <meshStandardMaterial emissive="#77bbff" emissiveIntensity={1} color="#113355" />
+
+                {/* Tooltip */}
+                {e.label && (
+                  <Html distanceFactor={10}>
+                    <div className="electron-tooltip">
+                      {e.meta?.previewImage && (
+                        <img
+                          src={e.meta.previewImage}
+                          alt="preview"
+                          style={{ width: 64, borderRadius: 4, marginBottom: 4 }}
+                        />
+                      )}
+                      <div>{e.label}</div>
+                    </div>
+                  </Html>
+                )}
+              </mesh>
+            );
+          })}
+        </group>
+      ))}
+    </>
+  );
+};
 const QEntropySpiral = () => {
   const meshRef = useRef<any>();
   useFrame(({ clock }) => {
@@ -244,7 +482,11 @@ const QEntropySpiral = () => {
       const t = clock.getElapsedTime();
       const angle = t * 1.5;
       const radius = 1.5 + 0.2 * Math.sin(t * 2);
-      meshRef.current.position.set(radius * Math.cos(angle), 0.5 * Math.sin(angle * 2), radius * Math.sin(angle));
+      meshRef.current.position.set(
+        radius * Math.cos(angle),
+        0.5 * Math.sin(angle * 2),
+        radius * Math.sin(angle)
+      );
       meshRef.current.rotation.y = angle;
       meshRef.current.scale.setScalar(1 + 0.2 * Math.sin(t * 4));
     }
@@ -260,148 +502,254 @@ const QEntropySpiral = () => {
   );
 };
 
-export default function GHXVisualizer() {
+
   const { holograms, echoes, dreams, setHolograms } = useGHXGlyphs();
   const [selectedGlyph, setSelectedGlyph] = useState<any | null>(null);
   const [trace, setTrace] = useState<any[]>([]);
 
+  // ✅ fallback container id for hover calls if a glyph lacks one
+  const currentCid =
+    (typeof window !== "undefined" && (window as any).GHX_CURRENT_CONTAINER_ID) || "unknown";
+
   useWebSocket("/ws/brain-map", (data) => {
+    const withAtomFlags = (glyph: any) => ({
+      ...glyph,
+      isAtom: glyph?.type === "atom",
+      electronCount: glyph?.electrons?.length || 0,
+    });
+
     if (data.type === "glyph_reasoning") {
       setHolograms((prev) =>
-        prev.map((h) => (h.id === data.glyph ? { ...h, reasoning_chain: data.reasoning } : h))
-      );
-    }
-    if (data.type === "node_update") {
-      setHolograms((prev) =>
         prev.map((h) =>
-          h.id === data.node.id
-            ? { ...h, entangled: data.node.entangled_ids || h.entangled }
+          h.id === data.glyph
+            ? withAtomFlags({ ...h, reasoning_chain: data.reasoning })
             : h
         )
       );
     }
-    if (data.type === "anchor_update") {
+
+    if (data.type === "node_update") {
       setHolograms((prev) =>
         prev.map((h) =>
-          h.id === data.glyph_id ? { ...h, anchor: data.anchor } : h
+          h.id === data.node.id
+            ? withAtomFlags({ ...h, entangled: data.node.entangled_ids || h.entangled })
+            : h
         )
       );
     }
+
+    if (data.type === "anchor_update") {
+      setHolograms((prev) =>
+        prev.map((h) =>
+          h.id === data.glyph_id
+            ? withAtomFlags({ ...h, anchor: data.anchor })
+            : h
+        )
+      );
+    }
+
     if (data.type === "entanglement_lock_acquired") {
       setHolograms((prev) =>
-        prev.map((h) => (h.id === data.glyph_id ? { ...h, locked: true } : h))
+        prev.map((h) =>
+          h.id === data.glyph_id ? withAtomFlags({ ...h, locked: true }) : h
+        )
       );
     }
+
     if (data.type === "entanglement_lock_released") {
       setHolograms((prev) =>
-        prev.map((h) => (h.id === data.glyph_id ? { ...h, locked: false } : h))
+        prev.map((h) =>
+          h.id === data.glyph_id ? withAtomFlags({ ...h, locked: false }) : h
+        )
       );
     }
+
     // 🔑 Permission updates
     if (data.type === "glyph_permission_update") {
       setHolograms((prev) =>
         prev.map((h) =>
           h.agent_id === data.agent_id
-            ? { ...h, permission: data.permissions.includes("kg_edit") ? "editable" : "read-only" }
+            ? withAtomFlags({
+                ...h,
+                permission: data.permissions.includes("kg_edit")
+                  ? "editable"
+                  : "read-only",
+              })
             : h
         )
       );
     }
+
     // 🌐 Agent color updates
     if (data.type === "agent_joined") {
       agentColors[data.agent.agent_id || data.agent.name] = data.agent.color;
     }
   });
 
-  useEffect(() => {
-    if (selectedGlyph?.snapshot_id) {
-      axios.get(`/api/glyphnet/command/trace?snapshot_id=${selectedGlyph.snapshot_id}`)
-        .then(res => setTrace(res.data.traces || []))
-        .catch(() => setTrace([]));
-    } else {
-      setTrace([]);
-    }
-  }, [selectedGlyph]);
+import { useRouter } from "next/router";
+import { ElectronShells, buildElectronShells } from "./atoms/electronOrbit";
+
+const router = useRouter();
+
+<>
+  <Canvas camera={{ position: [0, 0, 10], fov: 60 }}>
+    <ambientLight intensity={0.4} />
+    <pointLight position={[10, 10, 10]} intensity={1} />
+
+    {dreams.map((g) => (
+      <GlyphHologram
+        key={`dream-${g.id}`}
+        cid={g.container_id || g.cid || currentCid}
+        {...g}
+        predictive={true}
+        isAtom={g.isAtom}
+        electronCount={g.electronCount}
+        electrons={g.electrons}
+        onTeleport={(containerId: string) => {
+          router.push(`/container/${containerId}`);
+        }}
+        onClick={() => setSelectedGlyph(g)}
+      />
+    ))}
+
+    {echoes.map((g) => (
+      <GlyphHologram
+        key={`echo-${g.id}`}
+        cid={g.container_id || g.cid || currentCid}
+        {...g}
+        memoryEcho={true}
+        isAtom={g.isAtom}
+        electronCount={g.electronCount}
+        electrons={g.electrons}
+        onTeleport={(containerId: string) => {
+          router.push(`/container/${containerId}`);
+        }}
+        onClick={() => setSelectedGlyph(g)}
+      />
+    ))}
+
+    {holograms.map((g) => (
+      <GlyphHologram
+        key={g.id}
+        cid={g.container_id || g.cid || currentCid}
+        {...g}
+        memoryEcho={false}
+        isAtom={g.isAtom}
+        electronCount={g.electronCount}
+        electrons={g.electrons}
+        onTeleport={(containerId: string) => {
+          router.push(`/container/${containerId}`);
+        }}
+        onClick={() => setSelectedGlyph(g)}
+      />
+    ))}
+
+    {/* ⚛ Render electrons using reusable ElectronShells */}
+    {holograms.concat(dreams).map((g) =>
+      g.isAtom && g.electrons ? (
+        <ElectronShells
+          key={`electrons-${g.id}`}
+          center={g.position}
+          shells={buildElectronShells(g.electronCount || 3, g.electrons)}
+          onTeleport={(cid) => {
+            if (cid) {
+              console.log("🧬 Teleporting to:", cid);
+              window?.GHX_ON_TELEPORT?.(cid); // fallback hook
+            }
+          }}
+        />
+      ) : null
+    )}
+
+    <LightLinks glyphs={[...holograms, ...dreams]} />
+    <QEntropySpiral />
+    <GHXSignatureTrail identity={"AION-000X"} radius={2.2} />
+    <OrbitControls />
+  </Canvas>
+</>
+
+export default function GHXVisualizer() {
+  // 🔗 HOV backend-baked metadata (per-hover)
+  const [hoverCid, setHoverCid] = useState<string | null>(null);
+  const [hoverMeta, setHoverMeta] = useState<any>(null); // Optional: better type later
 
   return (
     <>
-      <Canvas camera={{ position: [0, 0, 10], fov: 60 }}>
-        <ambientLight intensity={0.4} />
-        <pointLight position={[10, 10, 10]} intensity={1} />
-
-        {dreams.map((g) => (
-          <GlyphHologram key={`dream-${g.id}`} {...g} predictive={true} onClick={() => setSelectedGlyph(g)} />
-        ))}
-        {echoes.map((g) => (
-          <GlyphHologram key={`echo-${g.id}`} {...g} memoryEcho={true} onClick={() => setSelectedGlyph(g)} />
-        ))}
-        {holograms.map((g) => (
-          <GlyphHologram key={g.id} {...g} memoryEcho={false} onClick={() => setSelectedGlyph(g)} />
-        ))}
-
+      <Canvas>
+        {/* 🧠 Canvas contents */}
         <LightLinks glyphs={[...holograms, ...dreams]} />
         <QEntropySpiral />
         <GHXSignatureTrail identity={"AION-000X"} radius={2.2} />
         <OrbitControls />
       </Canvas>
-
+      
       {/* ✅ Timeline Identity Strip */}
-      <div style={{
-        position: "absolute", bottom: 0, left: 0, width: "100%", display: "flex",
-        flexDirection: "row", background: "rgba(10,10,20,0.7)", padding: "4px"
-      }}>
+      <div
+        style={{
+          position: "absolute",
+          bottom: 0,
+          left: 0,
+          width: "100%",
+          display: "flex",
+          flexDirection: "row",
+          background: "rgba(10,10,20,0.7)",
+          padding: "4px",
+        }}
+      >
+        {/* 🔽 GHX Expand/Collapse Control */}
+        {hoverCid && (
+          <div style={{
+            position: "absolute", top: 8, right: 8, zIndex: 1000,
+            background: "rgba(10,10,20,0.7)", padding: "8px 10px", borderRadius: 6, border: "1px solid #333"
+          }}>
+            <div style={{ fontSize: 12, opacity: 0.75, marginBottom: 6 }}>Container: {hoverCid}</div>
+            <button
+              onClick={async () => {
+                try {
+                  await setCollapse(hoverCid, false);
+                  const baked = await fetchHoverGHX(hoverCid);
+                  if (baked) setHoverMeta(baked);
+                } catch (e) {
+                  console.error(e);
+                }
+              }}
+              style={{ marginRight: 8 }}
+            >
+              Expand
+            </button>
+            <button
+              onClick={async () => {
+                try {
+                  await setCollapse(hoverCid, true);
+                  const baked = await fetchHoverGHX(hoverCid);
+                  if (baked) setHoverMeta(baked);
+                } catch (e) {
+                  console.error(e);
+                }
+              }}
+            >
+              Collapse
+            </button>
+          </div>
+        )}
+
         {[...holograms, ...dreams, ...echoes].slice(0, 20).map((g) => (
-          <div key={g.id} style={{
-            width: "18px",
-            height: "18px",
-            background: getAgentColor(g.agent_id),
-            borderRadius: "50%",
-            margin: "0 2px",
-            border: "1px solid #444"
-          }} title={`${g.agent_id} (${g.permission})`} />
+          <div
+            key={g.id}
+            style={{
+              width: "18px",
+              height: "18px",
+              background: getAgentColor(g.agent_id),
+              borderRadius: "50%",
+              margin: "0 2px",
+              border: "1px solid #444",
+            }}
+            title={`${g.agent_id} (${g.permission})`}
+            onMouseEnter={() => setHoverCid(g.id)}
+            onMouseLeave={() => setHoverCid(null)}
+          />
         ))}
       </div>
-
-      {/* ✅ Introspection Modal */}
-      {selectedGlyph && (
-        <div style={{
-          position: "fixed", top: 0, left: 0, width: "100%", height: "100%",
-          background: "rgba(0,0,0,0.8)", color: "white", display: "flex",
-          flexDirection: "column", justifyContent: "center", alignItems: "center", zIndex: 1000
-        }}>
-          <div style={{
-            background: "#1a1a2e", padding: "20px", borderRadius: "8px", maxWidth: "700px", textAlign: "center"
-          }}>
-            <h2>🔍 Glyph Introspection</h2>
-            <p><strong>Glyph:</strong> {selectedGlyph.glyph}</p>
-            {selectedGlyph.reasoning_chain && <p><strong>Reasoning:</strong> {selectedGlyph.reasoning_chain}</p>}
-            {selectedGlyph.prediction_path?.length > 0 && (
-              <div>
-                <strong>Predicted Path:</strong>
-                <ul style={{ textAlign: "left" }}>
-                  {selectedGlyph.prediction_path.map((p: string, i: number) => (
-                    <li key={i}>⧖ {p}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-            {selectedGlyph.anchor && (
-              <p><strong>Anchor:</strong> {selectedGlyph.anchor.type} ({selectedGlyph.anchor.env_obj_id})</p>
-            )}
-            {trace.length > 0 && (
-              <div style={{ marginTop: "10px", textAlign: "left", maxHeight: "200px", overflowY: "auto" }}>
-                <strong>Execution Trace (Tick History):</strong>
-                <ul>
-                  {trace.map((t, idx) => (
-                    <li key={idx}>[{t.timestamp}] {t.event}: {JSON.stringify(t.data)}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-            <button onClick={() => setSelectedGlyph(null)} style={{ marginTop: "15px", padding: "8px 16px" }}>Close</button>
-          </div>
-        </div>
-      )}
     </>
   );
 }

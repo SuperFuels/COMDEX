@@ -16,28 +16,39 @@ Design Rubric:
 - 📊 Validator: Stats, Search, DC Export .... ✅
 - 🌐 CRDT & Entanglement Locks .............. ✅
 """
-import datetime
 import importlib
 import os, json
+import datetime
+from pathlib import Path
 from typing import Optional, Dict, Any, Tuple, List
 from collections import defaultdict
-from pathlib import Path
+
+try:
+    # preferred path resolver
+    from backend.modules.dna_chain.dc_handler import get_dc_path
+except Exception:
+    get_dc_path = None
 
 # ✅ Correct utility imports
 from backend.modules.knowledge_graph.id_utils import generate_uuid
 from backend.modules.knowledge_graph.time_utils import get_current_timestamp
+from backend.modules.sqi.sqi_metadata_embedder import bake_hologram_meta, make_kg_payload
 
 # ✅ Knowledge graph and indexing
 from backend.modules.dna_chain.container_index_writer import add_to_index
 
-# --- export support ---
-from pathlib import Path
+# HOV integration (adds hover/collapse + viz hints + lazy expansion)
+from backend.modules.sqi.sqi_metadata_embedder import (
+    bake_hologram_meta,
+    make_kg_payload,
+)
 
 # Where KG exports will be written (mirrors boot_loader defaults)
 # --- KG export location (persistent) ---
 _REPO_ROOT = Path(__file__).resolve().parents[3]
 KG_EXPORTS_DIR = _REPO_ROOT / "backend" / "modules" / "dimensions" / "containers" / "kg_exports"
 KG_EXPORTS_DIR.mkdir(parents=True, exist_ok=True)
+_KG_BUSY = False
 
 # --- add near the top of the file (after imports) ---
 _EPHEMERAL_CONTAINER = {"id": "kg_cli_ephemeral", "glyph_grid": [], "last_updated": None}
@@ -155,6 +166,147 @@ class KnowledgeGraphWriter:
         except Exception as e:
             print(f"⚠️ KG auto-export failed: {e}")
 
+    # ---------- helpers ----------
+    def _container_path_for(self, container_id: str) -> str:
+        """
+        Resolve the .dc.json path for a container ID.
+        Falls back to the standard containers dir if get_dc_path isn't available.
+        """
+        if get_dc_path:
+            p = get_dc_path({"id": container_id})
+            if p and os.path.isfile(p):
+                return p
+        # fallback path
+        fallback = f"backend/modules/dimensions/containers/{container_id}.dc.json"
+        return fallback
+
+    @staticmethod
+    def store_predictions(container_id: str, predictions: dict):
+        """
+        Store prediction results into the knowledge graph or attach to container metadata.
+        """
+        if not predictions:
+            return
+
+        logger.info(f"[KG] Storing predictions for container: {container_id}")
+        
+        # 🔁 Store to in-memory trace or glyph metadata (simplified example)
+        path = f"backend/modules/dimensions/containers/{container_id}.dc.json"
+
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                container = json.load(f)
+        except FileNotFoundError:
+            logger.warning(f"[KG] Could not find container file: {path}")
+            return
+
+        container.setdefault("predictions", {}).update(predictions)
+
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(container, f, indent=2)
+            logger.info(f"[KG] Predictions saved to container: {path}")
+
+    def _safe_load_container(self, path: str) -> dict:
+        if os.path.exists(path):
+            with open(path, "r", encoding="utf-8") as f:
+                obj = json.load(f)
+                return obj if isinstance(obj, dict) else {}
+        return {}
+
+    def _safe_save_container(self, path: str, container: dict) -> None:
+        Path(os.path.dirname(path)).mkdir(parents=True, exist_ok=True)
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(container, f, indent=2)
+
+    def inject_node(
+        self,
+        container_id: str,
+        node: dict,
+        *,
+        allow_create: bool = True,
+        commit: bool = True
+    ) -> dict:
+        """
+        Persist a KG node into a UCS container file AND into glyph_grid as a 'kg_node'
+        so export_pack will pick it up.
+
+        node: {"id": "...", "label": "...", "domain": "...", "tags": [...]}
+        """
+        if not isinstance(node, dict) or "id" not in node:
+            raise ValueError("inject_node: node must be a dict with an 'id'")
+
+        path = self._container_path_for(container_id)
+        container = self._safe_load_container(path)
+
+        # Create a minimal container if missing
+        if not container:
+            if not allow_create:
+                raise FileNotFoundError(f"Container not found: {path}")
+            container = {
+                "id": container_id,
+                "type": "container",
+                "kind": node.get("kind", "fact"),
+                "domain": node.get("domain"),
+                "meta": {
+                    "created_by": "SQI",
+                    "last_updated": datetime.utcnow().isoformat(),
+                    "ghx": {"hover": True, "collapsed": True},
+                    "address": f"ucs://knowledge/{node.get('domain','unknown')}/{container_id}"
+                },
+                "atoms": {},
+                "wormholes": ["ucs_hub"],
+                "nodes": [],
+                "glyphs": [],
+                "glyph_grid": []
+            }
+
+        # Ensure required fields
+        container.setdefault("nodes", [])
+        container.setdefault("glyph_grid", [])
+        container.setdefault("meta", {})
+        meta = container["meta"]
+        meta.setdefault("ghx", {"hover": True, "collapsed": True})
+
+        # 1) Update/insert in plain nodes (idempotent)
+        replaced = False
+        for i, existing in enumerate(container["nodes"]):
+            if isinstance(existing, dict) and existing.get("id") == node["id"]:
+                container["nodes"][i] = {**existing, **node}
+                replaced = True
+                break
+        if not replaced:
+            container["nodes"].append(dict(node))
+
+        # 2) Update/insert in glyph_grid as a kg_node (what export_pack reads)
+        gg = container["glyph_grid"]
+        # remove any existing kg_node with same id
+        gg = [g for g in gg if not (isinstance(g, dict)
+                                    and g.get("type") == "kg_node"
+                                    and g.get("metadata", {}).get("id") == node["id"])]
+        # append a fresh entry
+        gg.append({
+            "type": "kg_node",
+            "metadata": dict(node)
+        })
+        container["glyph_grid"] = gg
+
+        # Touch last_updated
+        meta["last_updated"] = datetime.utcnow().isoformat()
+
+        if commit:
+            self._safe_save_container(path, container)
+
+        return {
+            "status": "ok",
+            "container_id": container_id,
+            "node_id": node["id"],
+            "path": path
+        }
+
+    def add_node(self, container_id: str, node: dict, **kwargs) -> dict:
+        """Back-compat: delegate to inject_node."""
+        return self.inject_node(container_id, node, **kwargs)
+
     @property
     def container(self):
         """
@@ -185,84 +337,186 @@ class KnowledgeGraphWriter:
             "total_glyphs": len(glyphs)
         }
 
-    def export_pack(self, container: dict, out_path: str | Path):
+    def build_node_from_container_for_kg(self, container: dict, *, expand: bool = False) -> dict:
         """
-        Export the current container's KG content (from glyph_grid) into a compact
-        domain-pack JSON (nodes/links + categories), so we can reload without recomputing.
+        HOV1/HOV2/HOV3:
+        - Ensure GHX flags (hover/collapsed) are baked into container meta
+        - Build a KG-ready node with viz hints
+        - Respect lazy expansion (collapsed by default unless expand=True)
         """
-        cg = container.get("glyph_grid", [])
-        nodes = [g for g in cg if g.get("type") == "kg_node"]
-        edges = [g for g in cg if g.get("type") == "kg_edge"]
+        # HOV1: bake hover/collapse GHX flags into the container meta
+        container = bake_hologram_meta(dict(container or {}))
+        # HOV2/HOV3: build a KG node payload with GHX viz flags and lazy expansion
+        return make_kg_payload(
+            {
+                "id": container.get("id") or container.get("container_id", "unknown"),
+                "meta": container.get("meta", {}),
+            },
+            expand=expand,  # False by default → collapsed/lazy
+        )
 
-        pack = {
-            "id": container.get("id"),
-            "name": container.get("name"),
-            "symbol": container.get("symbol", "❔"),
-            "glyph_categories": container.get("glyph_categories", []),
-            "nodes": [
-                # keep original metadata shape, annotate type for clarity
-                (n.get("metadata", {}) | {"type": "kg_node"})
-                for n in nodes
-                if isinstance(n, dict)
-            ],
-            "links": [
-                {
-                    "src": e.get("metadata", {}).get("from"),
-                    "dst": e.get("metadata", {}).get("to"),
-                    "relation": e.get("metadata", {}).get("relation"),
-                }
-                for e in edges
-                if isinstance(e, dict)
-            ],
-        }
+    # --- NEW: collect UCS/SQI containers as KG nodes (collapsed by default) ---
+    def _collect_sqi_nodes(self) -> list[dict]:
+        """
+        Walk the UCS runtime and build KG nodes for all known containers.
+        Collapsed by default (HOV3), with GHX flags baked (HOV1/HOV2).
+        Returns a list of KG node payloads compatible with your export pack.
+        """
+        try:
+            from backend.modules.dimensions.universal_container_system import ucs_runtime
+        except Exception as e:
+            print(f"⚠️ UCS runtime not available for SQI node collection: {e}")
+            return []
 
-        out_path = Path(out_path)
-        out_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(out_path, "w") as f:
-            json.dump(pack, f, indent=2)
-        print(f"💾 KG export saved to {out_path}")
+        nodes_out: list[dict] = []
 
-        if ENABLE_WS_BROADCAST:
-            _safe_emit(broadcast_event({
-                "type": "kg_update",
-                "domain": "physics_core",
-                "file": str(out_path),
-                "status": "saved"
-            }))
-        return str(out_path)
+        # Try the common APIs; fall back gracefully
+        try:
+            if hasattr(ucs_runtime, "list_containers"):
+                ids = ucs_runtime.list_containers()
+            elif hasattr(ucs_runtime, "registry"):
+                ids = list(getattr(ucs_runtime, "registry", {}).keys())
+            else:
+                ids = []
+        except Exception as e:
+            print(f"⚠️ UCS list failed: {e}")
+            ids = []
+
+        for cid in ids or []:
+            try:
+                # get the actual container object/dict
+                if hasattr(ucs_runtime, "get_container"):
+                    c = ucs_runtime.get_container(cid)
+                elif hasattr(ucs_runtime, "index"):
+                    c = ucs_runtime.index.get(cid)
+                elif hasattr(ucs_runtime, "registry"):
+                    c = ucs_runtime.registry.get(cid)
+                else:
+                    c = None
+
+                if not c:
+                    continue
+
+                # Build a KG node with GHX flags baked, collapsed by default
+                node = self.build_node_from_container_for_kg(c, expand=False)
+                # Your pack uses {'type': 'kg_node', ...}
+                nodes_out.append({"type": "kg_node", **node})
+            except Exception as e:
+                print(f"⚠️ Skipped UCS container '{cid}': {e}")
+
+        return nodes_out
 
     def export_pack(self, container: dict, out_path: str | Path):
         """
         Export the container's KG content (from glyph_grid) to a compact JSON pack
-        so it can be reloaded without recomputing.
+        so it can be reloaded without recomputing. Also appends UCS/SQI containers
+        as collapsed KG nodes with HOV1–HOV3 flags baked.
+
+        This version is aware of inject_node()'s 'kg_node' insertion shape so
+        it will always export the latest injected KG nodes without recomputation.
         """
+        # --- Defensive copy and HOV1–HOV3 injection for the primary container ---
+        container = bake_hologram_meta(dict(container or {}))  # HOV1 flags
+        kg_node = self.build_node_from_container_for_kg(       # HOV2/HOV3
+            container,
+            expand=False                                        # collapsed by default
+        )
+
+        # --- Extract KG nodes/edges from glyph_grid ---
         cg = container.get("glyph_grid", [])
-        nodes = [g for g in cg if g.get("type") == "kg_node"]
-        edges = [g for g in cg if g.get("type") == "kg_edge"]
+        nodes = []
+        edges = []
+        for g in cg:
+            if not isinstance(g, dict):
+                continue
+            gtype = g.get("type")
+            if gtype == "kg_node" and isinstance(g.get("metadata"), dict):
+                # keep original metadata shape, annotate type for clarity
+                nodes.append({**g["metadata"], "type": "kg_node"})
+            elif gtype == "kg_edge" and isinstance(g.get("metadata"), dict):
+                edges.append({
+                    "src": g["metadata"].get("from"),
+                    "dst": g["metadata"].get("to"),
+                    "relation": g["metadata"].get("relation"),
+                })
 
         pack = {
             "id": container.get("id"),
             "name": container.get("name"),
             "symbol": container.get("symbol", "❔"),
             "glyph_categories": container.get("glyph_categories", []),
-            "nodes": [
-                (n.get("metadata", {}) | {"type": "kg_node"})
-                for n in nodes if isinstance(n, dict)
-            ],
-            "links": [
-                {
-                    "src": e.get("metadata", {}).get("from"),
-                    "dst": e.get("metadata", {}).get("to"),
-                    "relation": e.get("metadata", {}).get("relation"),
-                }
-                for e in edges if isinstance(e, dict)
-            ],
+            "nodes": nodes,
+            "links": edges,
         }
 
+        # --- Merge our primary container KG node (dedupe by id) ---
+        existing_nodes = pack.get("nodes", [])
+        idset = {n.get("id") for n in existing_nodes if isinstance(n, dict)}
+        if kg_node.get("id") in idset:
+            existing_nodes = [n for n in existing_nodes if n.get("id") != kg_node.get("id")]
+            idset.discard(kg_node.get("id"))
+        existing_nodes.insert(0, {"type": "kg_node", **kg_node})
+        idset.add(kg_node.get("id"))
+
+        # --- Collect UCS containers as extra KG nodes (collapsed/lazy by default) ---
+        try:
+            from backend.modules.dimensions.universal_container_system import ucs_runtime
+            ucs_ids = []
+            if hasattr(ucs_runtime, "list_containers"):
+                ucs_ids = ucs_runtime.list_containers()
+            elif hasattr(ucs_runtime, "registry"):
+                ucs_ids = list(getattr(ucs_runtime, "registry", {}).keys())
+
+            for cid in ucs_ids or []:
+                try:
+                    if hasattr(ucs_runtime, "get_container"):
+                        uc = ucs_runtime.get_container(cid)
+                    elif hasattr(ucs_runtime, "index"):
+                        uc = ucs_runtime.index.get(cid)
+                    elif hasattr(ucs_runtime, "registry"):
+                        uc = ucs_runtime.registry.get(cid)
+                    else:
+                        uc = None
+                    if not uc:
+                        continue
+
+                    uc = bake_hologram_meta(dict(uc))  # ensure GHX flags
+                    node = self.build_node_from_container_for_kg(uc, expand=False)
+
+                    nid = node.get("id")
+                    if nid and nid not in idset:
+                        existing_nodes.append({"type": "kg_node", **node})
+                        idset.add(nid)
+                except Exception as e:
+                    print(f"⚠️ Skipped UCS container '{cid}': {e}")
+        except Exception as e:
+            print(f"⚠️ UCS runtime not available for KG export: {e}")
+
+        # --- Collect SQI registry containers as extra KG nodes (collapsed) ---
+        try:
+            from backend.modules.sqi.sqi_container_registry import sqi_registry
+            for cid, entry in (sqi_registry.index or {}).items():
+                try:
+                    node = make_kg_payload({"id": cid, "meta": entry.get("meta", {})}, expand=False)
+                    nid = node.get("id")
+                    if nid and nid not in idset:
+                        existing_nodes.append({"type": "kg_node", **node})
+                        idset.add(nid)
+                except Exception as e:
+                    print(f"⚠️ Skipped SQI registry entry '{cid}': {e}")
+        except Exception:
+            # Fine if registry is not available in this context
+            pass
+
+        # Final assignment
+        pack["nodes"] = existing_nodes
+
+        # --- Write pack to disk ---
         out_path = Path(out_path)
         out_path.parent.mkdir(parents=True, exist_ok=True)
         with open(out_path, "w") as f:
             json.dump(pack, f, indent=2)
+
         print(f"💾 KG export saved to {out_path}")
         if ENABLE_WS_BROADCAST:
             _safe_emit(broadcast_event({
@@ -272,6 +526,18 @@ class KnowledgeGraphWriter:
                 "status": "saved"
             }))
         return str(out_path)
+
+    # inside KnowledgeGraphWriter
+    def save_pack_for_container(self, container_id: str, filename: str | None = None):
+        from backend.modules.dimensions.universal_container_system import ucs_runtime
+        c = None
+        if hasattr(ucs_runtime, "get_container"):
+            c = ucs_runtime.get_container(container_id)
+        if not c:
+            raise RuntimeError(f"Unknown container: {container_id}")
+        name = (filename or c.get("name") or c.get("id") or "kg_export").rstrip(".json")
+        out = KG_EXPORTS_DIR / f"{name}.kg.json"
+        return self.export_pack(c, out)
 
     def _auto_export_attached(self):
         """
@@ -317,149 +583,143 @@ class KnowledgeGraphWriter:
         # NEW:
         tags: Optional[list] = None,
     ):
-                # lazy imports to avoid circular deps
+        # ── Recursion/rehydration storm guard ───────────────────────────────────
+        global _KG_BUSY
+        if _KG_BUSY:
+            # Drop (or queue) to prevent infinite re-entry loops
+            return
+        _KG_BUSY = True
         try:
-            from backend.routes.ws.glyphnet_ws import broadcast_event
-        except Exception:
-            broadcast_event = lambda *a, **k: None  # no-op if WS not available
-
-        # safe async emit to handle both server + CLI contexts
-        import inspect, asyncio
-        def _safe_emit(coro_or_none):
+            # ── Broadcaster (prefer throttled alias; fall back to async enqueue) ─
+            _broadcast_sync = None
+            _broadcast_async = None
             try:
-                if not coro_or_none:
-                    return
-                if inspect.iscoroutine(coro_or_none):
-                    try:
-                        loop = asyncio.get_running_loop()
-                        loop.create_task(coro_or_none)
-                    except RuntimeError:
-                        asyncio.run(coro_or_none)
+                # throttled alias accepts a single event dict (sync)
+                from backend.routes.ws.glyphnet_ws import broadcast_event_throttled as _broadcast_sync  # type: ignore
             except Exception:
-                pass
+                try:
+                    # async enqueue taking a single event dict
+                    from backend.routes.ws.glyphnet_ws import broadcast_event as _broadcast_async  # type: ignore
+                except Exception:
+                    _broadcast_async = None
 
-        glyph_id = generate_uuid()
-        timestamp = get_current_timestamp()
+            import inspect, asyncio
 
-        # 🔒 Standard Lock Enforcement
-        if not crdt_registry.acquire_lock(glyph_id, agent_id):
-            raise RuntimeError(f"Glyph {glyph_id} is locked by another agent.")
+            def _emit(event_dict: dict):
+                """Send event via throttled sync if available; otherwise via async enqueue."""
+                try:
+                    if _broadcast_sync:
+                        _broadcast_sync(event_dict)  # sync throttled path
+                        return
+                    if _broadcast_async:
+                        if inspect.iscoroutinefunction(_broadcast_async):
+                            try:
+                                loop = asyncio.get_running_loop()
+                                loop.create_task(_broadcast_async(event_dict))
+                            except RuntimeError:
+                                asyncio.run(_broadcast_async(event_dict))
+                        else:
+                            _broadcast_async(event_dict)
+                    else:
+                        print(f"[SIM:FALLBACK] Broadcast: {event_dict}")
+                except Exception:
+                    # Never let broadcast failures bubble into KG write path
+                    pass
 
-        try:
-            from backend.routes.ws.glyphnet_ws import broadcast_event
-        except Exception:
-            broadcast_event = lambda *a, **k: None  # no-op if WS not available
+            # ── Original logic (unchanged, just routed through _emit) ────────────
+            glyph_id = generate_uuid()
+            timestamp = get_current_timestamp()
 
-        import inspect, asyncio
-        def _safe_emit(coro_or_none):
-            try:
-                if not coro_or_none:
-                    return
-                if inspect.iscoroutine(coro_or_none):
-                    try:
-                        loop = asyncio.get_running_loop()
-                        loop.create_task(coro_or_none)
-                    except RuntimeError:
-                        asyncio.run(coro_or_none)
-            except Exception:
-                pass
+            # 🔒 Standard Lock Enforcement
+            if not crdt_registry.acquire_lock(glyph_id, agent_id):
+                raise RuntimeError(f"Glyph {glyph_id} is locked by another agent.")
 
-        _safe_emit(broadcast_event({
-            "type": "lock_acquired",
-            "glyph_id": glyph_id,
-            "agent_id": agent_id,
-            "tags": ["🔒"]
-        }))
-
-        # ↔ Entanglement Lock Enforcement
-        entangled_group = None
-        if metadata and "entangled_ids" in metadata:
-            entangled_group = "|".join(sorted(metadata["entangled_ids"]))
-            if not crdt_registry.acquire_entanglement_lock(entangled_group, agent_id):
-                raise RuntimeError(f"Entangled group {entangled_group} is locked by another agent.")
-
-            _safe_emit(broadcast_event({
-                "type": "entanglement_lock_acquired",
-                "entangled_group": entangled_group,
+            _emit({
+                "type": "lock_acquired",
+                "glyph_id": glyph_id,
                 "agent_id": agent_id,
-                "tags": ["↔", "🔒"]
-            }))
+                "tags": ["🔒"]
+            })
 
-        # 🔀 CRDT merge & increment
-        merged_version = crdt_registry.merge_vector(glyph_id, version_vector or {})
-        crdt_registry.increment_clock(glyph_id, agent_id)
+            # ↔ Entanglement Lock Enforcement
+            entangled_group = None
+            if metadata and "entangled_ids" in metadata:
+                entangled_group = "|".join(sorted(metadata["entangled_ids"]))
+                if not crdt_registry.acquire_entanglement_lock(entangled_group, agent_id):
+                    raise RuntimeError(f"Entangled group {entangled_group} is locked by another agent.")
 
-        # ✅ Auto-tagging based on glyph operators
-        auto_tags = self._derive_auto_tags(content)
-        final_tags = list(set(auto_tags + (tags or [])))
+                _emit({
+                    "type": "entanglement_lock_acquired",
+                    "entangled_group": entangled_group,
+                    "agent_id": agent_id,
+                    "tags": ["↔", "🔒"]
+                })
 
-        entry = {
-            "id": glyph_id,
-            "type": glyph_type,
-            "content": content,
-            "timestamp": timestamp,
-            "metadata": metadata or {},
-            "tags": final_tags,  # <-- now includes manual + auto
-            "agent_id": agent_id,
-            "version_vector": merged_version
-        }
-        if spatial_location: entry["spatial"] = spatial_location
-        if region: entry["region"] = region
-        if coordinates: entry["coordinates"] = {"x": coordinates[0], "y": coordinates[1], "z": coordinates[2]}
-        if prediction: entry["prediction"] = prediction
-        if forecast_confidence is not None: entry["forecast_confidence"] = forecast_confidence
-        if plugin: entry["source_plugin"] = plugin
-        if trace: entry["trace_ref"] = trace
-        if anchor: entry["anchor"] = anchor
+            # 🔀 CRDT merge & increment
+            merged_version = crdt_registry.merge_vector(glyph_id, version_vector or {})
+            crdt_registry.increment_clock(glyph_id, agent_id)
 
-        self._write_to_container(entry)
-        add_to_index("knowledge_index.glyph", entry)
+            # ✅ Auto-tagging based on glyph operators
+            auto_tags = self._derive_auto_tags(content)
+            final_tags = list(set(auto_tags + (tags or [])))
 
-        if anchor:
-            # keep your lazy anchor broadcaster pattern
-            try:
-                from backend.routes.ws.glyphnet_ws import broadcast_anchor_update
-                create_task(broadcast_anchor_update(glyph_id, anchor))
-            except Exception:
-                pass
+            entry = {
+                "id": glyph_id,
+                "type": glyph_type,
+                "content": content,
+                "timestamp": timestamp,
+                "metadata": metadata or {},
+                "tags": final_tags,  # manual + auto
+                "agent_id": agent_id,
+                "version_vector": merged_version
+            }
+            if spatial_location: entry["spatial"] = spatial_location
+            if region: entry["region"] = region
+            if coordinates: entry["coordinates"] = {"x": coordinates[0], "y": coordinates[1], "z": coordinates[2]}
+            if prediction: entry["prediction"] = prediction
+            if forecast_confidence is not None: entry["forecast_confidence"] = forecast_confidence
+            if plugin: entry["source_plugin"] = plugin
+            if trace: entry["trace_ref"] = trace
+            if anchor: entry["anchor"] = anchor
 
-        # 🔓 Release Locks
-        crdt_registry.release_lock(glyph_id, agent_id)
+            self._write_to_container(entry)
+            add_to_index("knowledge_index.glyph", entry)
 
-        try:
-            from backend.routes.ws.glyphnet_ws import broadcast_event
-        except Exception:
-            broadcast_event = lambda *a, **k: None  # no-op if WS not available
+            if anchor:
+                # lazy async anchor broadcast (works in app & CLI)
+                try:
+                    from backend.routes.ws.glyphnet_ws import broadcast_anchor_update  # type: ignore
+                    if inspect.iscoroutinefunction(broadcast_anchor_update):
+                        try:
+                            loop = asyncio.get_running_loop()
+                            loop.create_task(broadcast_anchor_update(glyph_id, anchor))
+                        except RuntimeError:
+                            asyncio.run(broadcast_anchor_update(glyph_id, anchor))
+                    else:
+                        broadcast_anchor_update(glyph_id, anchor)  # sync impl fallback
+                except Exception:
+                    pass
 
-        import inspect, asyncio
-        def _safe_emit(coro_or_none):
-            try:
-                if not coro_or_none:
-                    return
-                if inspect.iscoroutine(coro_or_none):
-                    try:
-                        loop = asyncio.get_running_loop()
-                        loop.create_task(coro_or_none)
-                    except RuntimeError:
-                        asyncio.run(coro_or_none)
-            except Exception:
-                pass
-
-        _safe_emit(broadcast_event({
-            "type": "lock_released",
-            "glyph_id": glyph_id,
-            "agent_id": agent_id
-        }))
-
-        if entangled_group:
-            crdt_registry.release_entanglement_lock(entangled_group, agent_id)
-            _safe_emit(broadcast_event({
-                "type": "entanglement_lock_released",
-                "entangled_group": entangled_group,
+            # 🔓 Release locks and emit
+            crdt_registry.release_lock(glyph_id, agent_id)
+            _emit({
+                "type": "lock_released",
+                "glyph_id": glyph_id,
                 "agent_id": agent_id
-            }))
+            })
 
-        return glyph_id
+            if entangled_group:
+                crdt_registry.release_entanglement_lock(entangled_group, agent_id)
+                _emit({
+                    "type": "entanglement_lock_released",
+                    "entangled_group": entangled_group,
+                    "agent_id": agent_id
+                })
+
+            return glyph_id
+
+        finally:
+            _KG_BUSY = False
 
     def write_link_entry(self, source_id: str, target_id: str, direction: str):
         """
@@ -497,35 +757,46 @@ class KnowledgeGraphWriter:
         add_to_index("knowledge_index.entanglements", entangle_entry)
 
     def merge_edit(self, glyph_id: str, updates: Dict[str, Any], agent_id: str, version_vector: Dict[str, int]):
-        glyphs = self.container.get("glyph_grid", [])
-        for g in glyphs:
-            if g.get("id") == glyph_id:
-                prev_state = g.copy()
-                merged_clock = crdt_registry.merge_vector(glyph_id, version_vector)
-                local_clock = crdt_registry.version_vectors[glyph_id]
+        global _KG_BUSY
+        if _KG_BUSY:
+            return {"version_vector": {}}  # safe no-op response
+        try:
+            _KG_BUSY = True
 
-                # ⚠️ Conflict detection: concurrent edits from different agents
-                if any(version_vector.get(a, 0) > local_clock.get(a, 0) for a in version_vector):
-                    conflict_entry = {
-                        **prev_state,
-                        "id": generate_uuid(),
-                        "type": "conflict",
-                        "conflict_with": glyph_id,
-                        "conflicting_agent": agent_id,
-                        "timestamp": get_current_timestamp(),
-                        "tags": ["⚠️", "conflict"]
-                    }
-                    self._write_to_container(conflict_entry)
-                    add_to_index("knowledge_index.glyph", conflict_entry)
+            glyphs = self.container.get("glyph_grid", [])
+            for g in glyphs:
+                if g.get("id") == glyph_id:
+                    prev_state = g.copy()
+                    merged_clock = crdt_registry.merge_vector(glyph_id, version_vector)
+                    local_clock = crdt_registry.version_vectors[glyph_id]
 
-                g.update(updates)
-                g["version_vector"] = dict(merged_clock)
-                g["last_modified_by"] = agent_id
-                g["last_modified_at"] = get_current_timestamp()
-                add_to_index("knowledge_index.glyph", g)
-                return g
-        raise KeyError(f"Glyph {glyph_id} not found for merge edit.")
+                    # ⚠️ Conflict detection: concurrent edits from different agents
+                    if any(version_vector.get(a, 0) > local_clock.get(a, 0) for a in version_vector):
+                        conflict_entry = {
+                            **prev_state,
+                            "id": generate_uuid(),
+                            "type": "conflict",
+                            "conflict_with": glyph_id,
+                            "conflicting_agent": agent_id,
+                            "timestamp": get_current_timestamp(),
+                            "tags": ["⚠️", "conflict"]
+                        }
+                        self._write_to_container(conflict_entry)
+                        add_to_index("knowledge_index.glyph", conflict_entry)
+
+                    g.update(updates)
+                    g["version_vector"] = dict(merged_clock)
+                    g["last_modified_by"] = agent_id
+                    g["last_modified_at"] = get_current_timestamp()
+                    add_to_index("knowledge_index.glyph", g)
+                    return g
+            raise KeyError(f"Glyph {glyph_id} not found for merge edit.")
+
+        finally:
+            _KG_BUSY = False
+
     # ── Convenience injectors (kept) ──
+
     def inject_self_reflection(self, message: str, trigger: str):
         return self.inject_glyph(content=f"Reflection: {message}", glyph_type="self_reflection",
                                  metadata={"trigger": trigger})

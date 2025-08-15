@@ -14,16 +14,20 @@ Usage:
         ucs_orchestrator,
         geometry_loader,
         soullaw_enforcer,
-        visual_integration
+        visual_integration,
+        load_dc_container,
+        container_loader,
     )
 """
 
 import logging
 
 # --------------------------------------------------
-# Core runtime + orchestration
+# Core runtime (singleton) + orchestration
+#   IMPORTANT: import the singleton from ucs_runtime
+#   Do NOT instantiate UCSRuntime() again here.
 # --------------------------------------------------
-from .ucs_runtime import UCSRuntime
+from .ucs_runtime import UCSRuntime, ucs_runtime, get_ucs_runtime
 from .ucs_orchestrator import UCSOrchestrator
 
 # Geometry loader (Tesseract + Exotic Containers)
@@ -36,27 +40,58 @@ from .ucs_soullaw import SoulLawEnforcer
 from .ucs_visual_integration import UCSVisualIntegration
 
 # --------------------------------------------------
-# Initialize core singletons
+# Initialize core singletons / services
+#   All must reference the SAME ucs_runtime instance
 # --------------------------------------------------
-ucs_runtime = UCSRuntime()
 ucs_orchestrator = UCSOrchestrator(runtime=ucs_runtime)
 geometry_loader = UCSGeometryLoader()
 soullaw_enforcer = SoulLawEnforcer()
-
-# ✅ Pass runtime properly to visual integration
 visual_integration = UCSVisualIntegration(runtime=ucs_runtime)
 
 # --------------------------------------------------
 # Auto-register geometries at import (Tesseract + Exotic Containers)
 # --------------------------------------------------
-geometry_loader.register_default_geometries()
-logging.info("✅ UCS Geometry Loader initialized with default geometries.")
+try:
+    geometry_loader.register_default_geometries()
+    logging.info("✅ UCS Geometry Loader initialized with default geometries.")
+except Exception as e:
+    logging.warning(f"UCS Geometry Loader init failed: {e!r}")
 
 # --------------------------------------------------
 # Bind GHX + KnowledgeGraph visualization hooks
 # --------------------------------------------------
-visual_integration.inject_into_visualizer(ucs_runtime.visualizer)
-logging.info("🌌 GHXVisualizer integration bound to UCS runtime.")
+try:
+    visual_integration.inject_into_visualizer(ucs_runtime.visualizer)
+    logging.info("🌌 GHXVisualizer integration bound to UCS runtime.")
+except Exception as e:
+    logging.warning(f"GHXVisualizer integration failed: {e!r}")
+
+# --------------------------------------------------
+# Legacy / convenience loaders
+# --------------------------------------------------
+def load_dc_container(path: str, register_as_atom: bool = False):
+    """
+    Legacy/module-level helper that routes to the runtime's loader.
+    Prefers load_dc_container if present; falls back to load_container_from_path.
+    """
+    rt = get_ucs_runtime()
+    if hasattr(rt, "load_dc_container"):
+        return rt.load_dc_container(path, register_as_atom=register_as_atom)
+    if hasattr(rt, "load_container_from_path"):
+        return rt.load_container_from_path(path, register_as_atom=register_as_atom)
+    raise AttributeError("UCSRuntime has no container load method")
+
+# Some older code expects a callable named `container_loader`.
+# Keep it as a thin shim to our module-level load_dc_container above.
+try:
+    from .container_loader import container_loader  # type: ignore
+except Exception:
+    def container_loader(path: str, register_as_atom: bool = False):
+        """
+        Load a .dc container via UCS runtime.
+        Mirrors the expected callable used by backend/main.py.
+        """
+        return load_dc_container(path, register_as_atom=register_as_atom)
 
 # --------------------------------------------------
 # Debug logging toggle
@@ -70,11 +105,21 @@ if DEBUG_MODE:
 # Exported symbols
 # --------------------------------------------------
 __all__ = [
+    # Singletons / accessors
     "ucs_runtime",
+    "get_ucs_runtime",
+
+    # Services
     "ucs_orchestrator",
     "geometry_loader",
     "soullaw_enforcer",
     "visual_integration",
+
+    # API helpers
+    "load_dc_container",
+    "container_loader",
+
+    # Types
     "UCSRuntime",
     "UCSOrchestrator",
     "UCSGeometryLoader",

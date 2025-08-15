@@ -16,7 +16,17 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from starlette.responses import RedirectResponse
 from sqlalchemy.exc import OperationalError
+from sqlalchemy import text
 import uvicorn
+# ── Boot imports
+from backend.modules.hexcore.boot_loader import load_boot_goals, preload_all_domain_packs, boot
+
+# ── UCS template loader + optional Tesseract HQ
+from backend.modules.dimensions.universal_container_system import container_loader
+try:
+    from backend.modules.dimensions.containers.tesseract_hub import ensure_tesseract_hub
+except Exception:
+    ensure_tesseract_hub = None
 
 # DNA Switch
 from backend.modules.dna_chain.dna_switch import DNA_SWITCH
@@ -84,6 +94,22 @@ app.add_middleware(
 # ── Unified startup event
 @app.on_event("startup")
 async def startup_event():
+    # Ensure HQ first so others can wormhole-link to it
+    if ensure_tesseract_hub:
+        try:
+            ensure_tesseract_hub(hub_id="tesseract_hq", name="Tesseract HQ", size=8)
+            logger.info("[startup] Tesseract HQ ensured (tesseract_hq).")
+        except Exception as e:
+            logger.warning(f"[startup] Failed to ensure Tesseract HQ: {e}")
+
+    # Preload UCS container templates (.dc.json) into runtime
+    try:
+        loaded = container_loader.auto_load_all_templates()
+        logger.info(f"[startup] Preloaded {len(loaded)} UCS containers.")
+    except Exception as e:
+        logger.warning(f"[startup] Failed to auto-load UCS containers: {e}")
+
+    # Existing boot steps
     try:
         load_boot_goals()
     except Exception as e:
@@ -150,7 +176,7 @@ from backend.modules.gip.gip_adapter_http import router as gip_http_router
 from backend.routes.glyphnet_command_api import router as glyphnet_command_router
 from backend.api.aion import container_api
 from backend.api.aion import vault_api
-from backend.routes.api import glyph_socket_api
+from backend.api import glyph_socket_api
 from backend.routes.ws import glyph_socket_ws
 from backend.routes.ws import ghx_ws
 from backend.routes import replay_api
@@ -159,6 +185,17 @@ from backend.routes import lean_inject_api
 from backend.routes import sqi_drift
 from backend.routes import sqi_kg
 from backend.routes import ucs_api
+from backend.routes import runtime as runtime_routes
+from backend.routes import sqi as sqi_routes
+from backend.routes.ghx_control import router as ghx_control_router
+from backend.routes import sqi_edit
+from backend.routes import sqi_packs
+from backend.routes.ghx_encode import router as ghx_encode_router
+from backend.routes.sqi_route import router as sqi_route_router
+from backend.routes.sqi_kernels import router as sqi_kernels_router
+from backend.routes.sqi_relink import router as sqi_relink_router
+from backend.api import teleport_handler
+
 
 # ✅ WebSocket route
 from backend.api import ws
@@ -231,7 +268,6 @@ app.include_router(aion_glyph_trigger_log.router)
 app.include_router(aion_tessaris_intents.router, prefix="/api")
 app.include_router(ws_codex_interface.router)
 app.include_router(aion_synthesize_glyphs.router)
-app.include_router(qglyph_ws.router)
 app.include_router(codex_playground.router)
 app.include_router(glyphnet_ws.router)
 app.include_router(gip_http_router, prefix="/api")
@@ -248,6 +284,17 @@ app.include_router(sqi_drift.router)
 app.include_router(sqi_kg.router)
 app.include_router(ucs_api.router)
 app.include_router(auth_router, prefix="/auth")
+app.include_router(qglyph_ws.router)
+app.include_router(runtime_routes.router)
+app.include_router(sqi_routes.router)
+app.include_router(ghx_control_router)
+app.include_router(sqi_edit.router)
+app.include_router(sqi_packs.router)
+app.include_router(ghx_encode_router)
+app.include_router(sqi_route_router)
+app.include_router(sqi_kernels_router)
+app.include_router(sqi_relink_router)
+app.include_router(teleport_handler.router)
 
 # ── 16) Serve uploaded images
 app.mount("/uploaded_images", StaticFiles(directory="uploaded_images"), name="uploaded_images")
@@ -257,6 +304,17 @@ if os.path.isdir("static"):
     app.mount("/", StaticFiles(directory="static", html=True), name="frontend")
 else:
     logger.warning("⚠️ 'static' directory not found. Frontend must be built into /backend/static")
+
+
+from backend.modules.sqi.sqi_container_registry import sqi_registry
+
+@app.on_event("startup")
+def _rehydrate_sqi_registry():
+    try:
+        n = sqi_registry.rehydrate_from_ucs()
+        print(f"[SQI] Rehydrated {n} containers from UCS into registry.")
+    except Exception as e:
+        print(f"[SQI] Registry rehydrate skipped: {e}")
 
 # ── 18) Legacy redirect for /products without trailing slash
 @app.get("/products", include_in_schema=False)

@@ -128,5 +128,12 @@
     "message": "Teleported to container: example_lean_theorem",
     "success": true,
     "timestamp": "2025-07-24T21:57:51.121564"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: maxwell_core",
+    "success": true,
+    "timestamp": "2025-08-13T22:46:16.885468"
   }
 ]

@@ -1,7 +1,8 @@
 # 📁 backend/modules/teleport/portal_manager.py
 
-from typing import Dict, Optional
+import time
 import uuid
+from typing import Dict, Optional
 
 from backend.modules.glyphvault.vault_manager import VAULT
 
@@ -14,7 +15,19 @@ def create_teleport_packet(portal_id: str, container_id: str, payload: dict):
     Lazily import TeleportPacket to avoid circular import between teleport_packet and portal_manager.
     """
     from backend.modules.teleport.teleport_packet import TeleportPacket
-    return TeleportPacket(portal_id=portal_id, container_id=container_id, payload=payload)
+
+    # Lookup source + destination from the portal map
+    mapping = PORTALS.resolve(portal_id) or {}
+    source = mapping.get("source", "unknown")
+    destination = mapping.get("target", "unknown")
+
+    return TeleportPacket(
+        portal_id=portal_id,
+        container_id=container_id,
+        source=source,
+        destination=destination,
+        payload=payload
+    )
 
 
 class PortalManager:
@@ -43,7 +56,7 @@ class PortalManager:
 
     def teleport(self, packet) -> bool:
         """
-        Teleport logic: saves current state, loads into target container, injects payload.
+        Teleport logic: saves current state, loads target container, injects symbolic payload.
         """
         global ContainerRuntimeClass
         if ContainerRuntimeClass is None:
@@ -53,17 +66,26 @@ class PortalManager:
 
         target_id = self.resolve_target(packet.portal_id)
         if not target_id:
+            print(f"[PortalManager] Invalid portal_id: {packet.portal_id}")
             return False
 
-        # Save snapshot of current state
-        filename = VAULT.save_snapshot(packet.container_id)
+        try:
+            # Save current container snapshot
+            filename = VAULT.save_snapshot(packet.container_id)
 
-        # Load snapshot into target container
-        success = VAULT.load_snapshot(filename, avatar_state=None)
-        if success:
+            # Load snapshot into target container
+            success = VAULT.load_snapshot(filename, avatar_state=None)
+            if not success:
+                print(f"[PortalManager] Failed to load snapshot for {target_id}")
+                return False
+
+            # Inject payload (e.g. teleport reason, trigger)
             ContainerRuntimeClass().inject_payload(packet.payload)
+            print(f"[PortalManager] Teleport successful to {target_id}")
             return True
-        return False
+        except Exception as e:
+            print(f"[PortalManager] Teleport exception: {e}")
+            return False
 
 
 # ✅ Global portal registry instance

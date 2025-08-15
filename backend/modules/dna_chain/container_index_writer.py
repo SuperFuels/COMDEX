@@ -12,6 +12,8 @@ import json  # ✅ added
 from backend.modules.dimensions.universal_container_system.ucs_runtime import ucs_runtime
 from backend.modules.websocket_manager import WebSocketManager
 
+_soullaw_checked_ids = set()
+
 def get_current_timestamp() -> str:
     return datetime.utcnow().isoformat()
 
@@ -141,10 +143,17 @@ def add_to_index(index_name: str, entry: Dict[str, Any]):
     # ✅ SoulLaw enforcement (lazy-import to prevent circular import)
     try:
         if os.getenv("SOUL_LAW_MODE", "full") != "test":  # ✅ Skip in test mode
-            from backend.modules.glyphvault.soul_law_validator import soul_law_validator
-            soul_law_validator.validate_container(container)
+            from backend.modules.glyphvault.soul_law_validator import get_soul_law_validator
+            soul_law = get_soul_law_validator()
+
+            # Use a stable key to dedupe checks
+            cid = container.get("id") or container.get("name")
+            if cid and cid not in _soullaw_checked_ids:
+                if not soul_law.validate_container(container):
+                    raise PermissionError(f"SoulLaw: container {cid} failed validation.")
+                _soullaw_checked_ids.add(cid)
     except Exception as e:
-        container["soul_law_error"] = f"SoulLaw validation failed: {str(e)}"
+        container["soul_law_error"] = f"SoulLaw validation failed: {e}"
 
     # ✅ UCS runtime sync (persist updated state) — skip in ephemeral mode
     try:

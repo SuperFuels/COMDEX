@@ -1,24 +1,57 @@
+import time
 import json
 import hashlib
 from datetime import datetime
 from typing import Dict, Any, List
 from collections import Counter
 
-from backend.modules.codex.codex_metrics import calculate_glyph_cost  # ✅ Unified cost integration
+from backend.modules.codex.codex_metrics import calculate_glyph_cost
 from backend.modules.codex.codex_trace import trace_glyph_execution_path
 from backend.modules.codex.symbolic_key_deriver import derive_entropy_hash
-from backend.modules.hexcore.memory_engine import get_recent_memory_glyphs  # ✅ Memory integration
+from backend.modules.hexcore.memory_engine import get_recent_memory_glyphs
 
 GHX_VERSION = "1.2"
 
-
 def encode_glyphs_to_ghx(container: Dict[str, Any], qglyph_string: str = "", observer_id: str = "anon") -> Dict[str, Any]:
+    # --- HOV3: respect collapsed flag for lazy export ---
+    ghx_meta_flags = (container.get("meta") or {}).get("ghx") or {}
+    if bool(ghx_meta_flags.get("collapsed", True)):
+        return {
+            "ghx_version": GHX_VERSION,
+            "container_id": container.get("container_id") or container.get("id", "unknown"),
+            "generated": datetime.utcnow().isoformat(),
+            "physics": container.get("physics", "symbolic-quantum"),
+            "dimensions": 4,
+            "holographic": True,
+            "collapsed": True,
+            "replay_enabled": False,
+            "reversal_ready": False,
+            "holograms": [],  # defer heavy payload
+        }
+
+    # --- HOV4: time-dilation sampling (only affects non-collapsed export) ---
+    td = (container.get("meta") or {}).get("time_dilation") or {}
+    td_mode = td.get("mode", "normal")
+    try:
+        td_rate = float(td.get("snapshot_rate", 1.0))
+    except Exception:
+        td_rate = 1.0
+
     # 🔄 Lazy imports to avoid circular dependency
     from backend.modules.glyphos.symbolic_entangler import get_entangled_links
     from backend.modules.glyphos.glyph_quantum_core import generate_qglyph_from_string
 
-    container_id = container.get("container_id", "unknown")
+    container_id = container.get("container_id") or container.get("id", "unknown")
     glyphs = container.get("glyphs", [])
+
+    # Apply time-dilation downsampling
+    if td_mode == "compressed" and 0.0 < td_rate < 1.0 and glyphs:
+        step = max(1, int(round(1.0 / td_rate)))
+        glyphs = glyphs[::step]
+    elif td_mode == "frozen":
+        glyphs = []  # fully suppressed
+
+    # ======== everything below here is your existing logic ========
 
     entropy_seed = "🧬" + qglyph_string if qglyph_string else None
     entropy_hash = derive_entropy_hash(entropy_seed) if entropy_seed else None
@@ -147,7 +180,6 @@ def encode_glyphs_to_ghx(container: Dict[str, Any], qglyph_string: str = "", obs
         **ghx_meta,
         "holograms": holograms
     }
-
 
 # Supporting functions remain unchanged
 def generate_symbolic_light_grammar(sequence: List[str]) -> Dict[str, Any]:

@@ -1,4 +1,7 @@
 import time  # used by grow_space, keep once
+from backend.modules.aion.address_book import address_book
+from backend.modules.dimensions.universal_container_system.ucs_geometry_loader import UCSGeometryLoader
+_checked_containers_for_expander = set()
 
 # Safe fallbacks so this module works in tests/CLI even if deps aren't loaded
 try:
@@ -250,7 +253,6 @@ def _snapshot_with_aliases(container: dict) -> dict:
 
     return snap
 # ============================================================================
-
 class ContainerExpander:
     def __init__(self, container_id):
         self.kernel = DimensionKernel(container_id)
@@ -259,19 +261,57 @@ class ContainerExpander:
         self.ucs = ucs_runtime
         self.kg_writer = KnowledgeGraphWriter()
 
-        # ✅ Auto-register container in UCS
+        # ✅ Get or init container state from UCS
         container = self._get_container()
 
-        # NEW: if a seed with the same ID exists, merge it right away
+        # ✅ If a seed with the same ID exists, merge it right away
         try:
             seed = _load_seed(self.container_id)
             if seed:
                 _merge_seed_into_container(container, seed)
                 _ensure_physics_alias_categories(container)  # add N_* aliases if needed
-                # ✅ make the merge visible to the kernel's live state
-                self._set_container(container)
+                self._set_container(container)  # make the merge visible to the kernel's live state
         except Exception as e:
             print(f"⚠️ Seed merge skipped: {e}")
+
+        # ✅ Address Book: ensure container has an address (idempotent)
+                # ✅ Address Book: ensure container has an address (idempotent)
+        cid = (
+            container.get("id")
+            or container.get("container_id")
+            or self.container_id
+        )
+        container.setdefault("id", cid)
+        container.setdefault("name", container.get("name") or cid)
+        try:
+            address_book.register_container(container)
+            try:
+                from backend.modules.dna_chain.container_linker import link_wormhole
+                link_wormhole(cid, "ucs_hub")  # or your actual wormhole hub/root
+            except Exception as e:
+                print(f"⚠️ Wormhole link failed for {cid}: {e}")
+        except Exception as e:
+            print(f"⚠️ AddressBook register failed for {cid}: {e}")
+
+        # ✅ Save to UCS
+        # ✅ Address Book: register (idempotent)
+        cid = (
+            container.get("id")
+            or container.get("container_id")
+            or self.container_id
+        )
+        container.setdefault("id", cid)
+        container.setdefault("name", container.get("name") or cid)
+        try:
+            address_book.register_container(container)
+            try:
+                from backend.modules.dna_chain.container_linker import link_wormhole
+                link_wormhole(cid, "ucs_hub")  # or your actual wormhole hub/root
+            except Exception as e:
+                print(f"⚠️ Wormhole link failed during seed for {cid}: {e}")
+        except Exception as e:
+            print(f"⚠️ AddressBook register failed during seed for {cid}: {e}")
+
         self.ucs.save_container(self.container_id, container)
 
     # --- helpers so we're compatible with different DimensionKernel versions ---
@@ -380,6 +420,12 @@ class ContainerExpander:
 
         # ✅ Save updated container state in UCS
         self.ucs.save_container(self.container_id, container)
+        # after: self.ucs.save_container(self.container_id, container)
+        try:
+            from backend.modules.dna_chain.container_linker import link_wormhole
+            link_wormhole(self.container_id, "ucs_hub")
+        except Exception as e:
+            print(f"⚠️ Wormhole link failed for {self.container_id}: {e}")
 
         # ✅ Load domain pack into KG (physics_core → KG nodes/edges)
         if self.container_id == "physics_core":
@@ -405,7 +451,22 @@ class ContainerExpander:
         container = self._get_container()
 
         # ✅ UCS Save
+        cid = (container.get("id")
+            or container.get("container_id")
+            or self.container_id)
+        container.setdefault("id", cid)
+        container.setdefault("name", container.get("name") or cid)
+        try:
+            address_book.register_container(container)
+        except Exception as e:
+            print(f"⚠️ AddressBook register failed during growth for {cid}: {e}")
         self.ucs.save_container(self.container_id, container)
+        try:
+            from backend.modules.dna_chain.container_linker import link_wormhole
+            link_wormhole(self.container_id, "ucs_hub")
+        except Exception as e:
+            print(f"⚠️ Wormhole link failed for {self.container_id}: {e}")
+
 
         # ✅ GHX Visualization Sync
         try:
@@ -437,11 +498,28 @@ class ContainerExpander:
         Injects glyph into container space with SoulLaw enforcement, KG indexing,
         UCS sync, and GHX broadcast.
         """
-        # ✅ SoulLaw Validation
-        verdict = SoulLawValidator.evaluate_glyph(glyph)
-        self.ucs.soul_law.validate_access(self._get_container())
-        if verdict != "approved":
-            raise PermissionError(f"❌ SoulLaw denied glyph injection: {glyph} (verdict: {verdict})")
+        # ✅ SoulLaw Validation (only once per container to avoid loops)
+        container = self._get_container()
+        container_id = container.get("id") if container else None
+
+        if container_id not in getattr(self, "_soullaw_checked_containers", set()):
+            if not hasattr(self, "_soullaw_checked_containers"):
+                self._soullaw_checked_containers = set()
+
+            verdict = SoulLawValidator.evaluate_glyph(glyph)
+            try:
+                self.ucs.soul_law.validate_access(container)
+                print(f"🔒 UCS SoulLaw enforcement passed for container {container_id}.")
+            except Exception as e:
+                print(f"⚠️ UCS SoulLaw enforcement failed: {e}")
+                raise
+
+            self._soullaw_checked_containers.add(container_id)
+
+            if verdict != "approved":
+                raise PermissionError(
+                    f"❌ SoulLaw denied glyph injection: {glyph} (verdict: {verdict})"
+                )
 
         # ✅ Inject glyph
         self.kernel.add_glyph(x, y, z, t, glyph)

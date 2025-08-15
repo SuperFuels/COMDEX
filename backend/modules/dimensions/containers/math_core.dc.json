@@ -1,66 +1,139 @@
 {
   "id": "math_core",
+  "type": "SymbolicExpansionContainer",
   "name": "Math Core",
-  "version": "1.0.0",
-  "type": "AtomContainer",
-  "kind": "seed_container",
+  "symbol": "∑",
   "metadata": {
-    "domain": "mathematics",
-    "description": "Foundational math AtomContainer seed: Linear Algebra + ODE/PDE starter glyphs",
-    "tags": ["math", "atom", "seed", "linear_algebra", "ode", "pde"]
-  },
-
-  "glyph_categories": [
-    {
-      "id": "linear_algebra",
-      "label": "Linear Algebra",
-      "tags": ["LA", "vector", "matrix", "eigen"]
-    },
-    {
-      "id": "ode_pde",
-      "label": "ODE / PDE",
-      "tags": ["dynamics", "systems", "boundary", "initial"]
+    "version": "1.1",
+    "created_by": "AION Seed Generator",
+    "domain": "Mathematics",
+    "provenance": "seed",
+    "integration": {
+      "linked_domains": [
+        "physics_core",
+        "control_systems",
+        "computer_science_formal",
+        "optimization_variational",
+        "probability_statistics"
+      ],
+      "export_ready": true
     }
-  ],
-
+  },
   "atoms": [
     {
-      "id": "la_basis",
-      "glyph": "𝐁",
-      "meaning": "Basis & span of a vector space",
-      "category": "linear_algebra",
-      "tags": ["LA", "basis", "span", "subspace"],
-      "position": [0, 0, 0]
+      "id": "lean_replay_core",
+      "type": "AtomContainer",
+      "caps": ["lean.replay", "proof.search", "proof.tactics"],
+      "tags": ["math", "lean", "proof", "replay"],
+      "description": "Replays Lean mathlib proofs; exposes tactic traces and replay diagnostics."
     },
     {
-      "id": "la_eigen",
-      "glyph": "λ⃗",
-      "meaning": "Eigenvalues and eigenvectors",
-      "category": "linear_algebra",
-      "tags": ["LA", "eigen", "diagonalization", "spectral"],
-      "position": [2, 0, 0]
-    },
-    {
-      "id": "ode_linear",
-      "glyph": "ẋ = A x",
-      "meaning": "Linear ODE system",
-      "category": "ode_pde",
-      "tags": ["ODE", "linear", "systems", "stability"],
-      "position": [4, 0, 0]
-    },
-    {
-      "id": "pde_heat",
-      "glyph": "u_t = α ∇²u",
-      "meaning": "Heat equation (diffusion)",
-      "category": "ode_pde",
-      "tags": ["PDE", "heat", "parabolic", "diffusion"],
-      "position": [6, 0, 0]
+      "id": "dataset_slice_mathlib",
+      "type": "AtomContainer",
+      "caps": ["dataset.slice", "lean.export"],
+      "tags": ["math", "library", "axioms", "theorems"],
+      "description": "Structured export of mathlib axioms/lemmas/theorems for ingestion."
     }
   ],
+  "glyph_categories": [
+    { "id": "logic",           "label": "Logic & Foundations",         "emoji": "🧠" },
+    { "id": "algebra",         "label": "Algebra (Grp/Rng/Fld)",       "emoji": "➗" },
+    { "id": "linear_algebra",  "label": "Linear Algebra",              "emoji": "📐" },
+    { "id": "analysis",        "label": "Real/Complex Analysis",       "emoji": "📈" },
+    { "id": "topology",        "label": "Topology",                    "emoji": "🌀" },
+    { "id": "geometry",        "label": "Geometry / Manifolds",        "emoji": "📐" },
+    { "id": "number_theory",   "label": "Number Theory",               "emoji": "🔢" },
+    { "id": "category",        "label": "Category Theory",             "emoji": "🕸️" },
+    { "id": "probability",     "label": "Probability & Measure",       "emoji": "🎲" },
+    { "id": "x",               "label": "Cross-Domain Links",          "emoji": "🔗" }
+  ],
+  "nodes": [
+    { "id": "axioms_peano",        "label": "Peano Axioms",                  "cat": "logic" },
+    { "id": "first_order_logic",   "label": "First-Order Logic",             "cat": "logic" },
+    { "id": "set_theory_zfc",      "label": "ZFC Set Theory",                "cat": "logic" },
+    { "id": "proof_tactics",       "label": "Lean Tactics (simp,ring,…)",    "cat": "logic", "type": "proof_tactics" },
 
+    { "id": "groups",              "label": "Groups",                         "cat": "algebra" },
+    { "id": "rings",               "label": "Rings",                          "cat": "algebra" },
+    { "id": "fields",              "label": "Fields",                         "cat": "algebra" },
+    { "id": "modules",             "label": "Modules / Vector Spaces (R-mod)","cat": "algebra" },
+
+    { "id": "vector_spaces",       "label": "Vector Spaces",                  "cat": "linear_algebra" },
+    { "id": "linear_maps",         "label": "Linear Maps / Matrices",         "cat": "linear_algebra" },
+    { "id": "eigen_theory",        "label": "Eigenvalues/Eigenvectors",       "cat": "linear_algebra" },
+    { "id": "svd_pca",             "label": "SVD / PCA",                      "cat": "linear_algebra" },
+
+    { "id": "limits",              "label": "Limits & Continuity",            "cat": "analysis" },
+    { "id": "derivatives",         "label": "Derivatives",                    "cat": "analysis" },
+    { "id": "integrals",           "label": "Integrals",                      "cat": "analysis" },
+    { "id": "fourier_series",      "label": "Fourier Series / Transform",     "cat": "analysis" },
+
+    { "id": "metric_spaces",       "label": "Metric Spaces",                  "cat": "topology" },
+    { "id": "topological_spaces",  "label": "Topological Spaces",             "cat": "topology" },
+    { "id": "compactness",         "label": "Compactness",                    "cat": "topology" },
+    { "id": "connectedness",       "label": "Connectedness",                  "cat": "topology" },
+
+    { "id": "euclidean_geom",      "label": "Euclidean Geometry",             "cat": "geometry" },
+    { "id": "manifolds",           "label": "Smooth Manifolds",               "cat": "geometry" },
+    { "id": "tensors",             "label": "Tensors / Differential Forms",   "cat": "geometry" },
+
+    { "id": "primes",              "label": "Primes & Factorization",         "cat": "number_theory" },
+    { "id": "modular_arithmetic",  "label": "Modular Arithmetic",             "cat": "number_theory" },
+    { "id": "zeta_function",       "label": "Riemann Zeta ζ(s)",              "cat": "number_theory" },
+
+    { "id": "functors",            "label": "Functors",                       "cat": "category" },
+    { "id": "natural_transform",   "label": "Natural Transformations",        "cat": "category" },
+    { "id": "limits_colimits",     "label": "Limits/Colimits",                "cat": "category" },
+
+    { "id": "measure_theory",      "label": "Measure Theory",                 "cat": "probability" },
+    { "id": "prob_spaces",         "label": "Probability Spaces",             "cat": "probability" },
+    { "id": "bayes_theorems",      "label": "Bayesian Inference",             "cat": "probability" },
+
+    { "id": "lean_kernel",         "label": "Lean Kernel / Elab",             "cat": "logic", "type": "proof_engine" },
+    { "id": "proof_replay",        "label": "Proof Replay (mathlib)",         "cat": "logic", "type": "proof_replay" },
+
+    { "id": "ode_linear_math",     "label": "Linear ODE x' = A x",            "cat": "x", "external": true },
+    { "id": "pde_heat_math",       "label": "Heat Equation u_t = α ∇²u",      "cat": "x", "external": true },
+    { "id": "lagrangian_math",     "label": "Calculus of Variations / EL",    "cat": "x", "external": true }
+  ],
   "links": [
-    { "src": "la_basis", "dst": "la_eigen", "relation": "prereq" },
-    { "src": "la_eigen", "dst": "ode_linear", "relation": "solves_via_diagonalization" },
-    { "src": "la_eigen", "dst": "pde_heat", "relation": "fourier_modes_eigenbasis" }
+    { "src": "first_order_logic", "dst": "set_theory_zfc",     "relation": "formalizes" },
+    { "src": "set_theory_zfc",    "dst": "groups",             "relation": "builds_up_to" },
+    { "src": "groups",            "dst": "rings",              "relation": "extends_to" },
+    { "src": "rings",             "dst": "fields",             "relation": "localizes_to" },
+    { "src": "modules",           "dst": "vector_spaces",      "relation": "over_fields_forms" },
+
+    { "src": "linear_maps",       "dst": "eigen_theory",       "relation": "spectral_analysis" },
+    { "src": "eigen_theory",      "dst": "svd_pca",            "relation": "generalizes_to" },
+    { "src": "fourier_series",    "dst": "integrals",          "relation": "orthonormal_basis_of" },
+
+    { "src": "metric_spaces",     "dst": "topological_spaces", "relation": "induces" },
+    { "src": "compactness",       "dst": "fourier_series",     "relation": "ensures_convergence_for" },
+
+    { "src": "manifolds",         "dst": "tensors",            "relation": "calculus_on" },
+    { "src": "tensors",           "dst": "differential_geom",  "relation": "compatible_with", "note": "alias for geometry links" },
+
+    { "src": "primes",            "dst": "modular_arithmetic", "relation": "underpins" },
+    { "src": "zeta_function",     "dst": "primes",             "relation": "encodes_distribution_of" },
+
+    { "src": "functors",          "dst": "natural_transform",  "relation": "relates" },
+    { "src": "limits_colimits",   "dst": "category",           "relation": "core_concepts" },
+
+    { "src": "measure_theory",    "dst": "prob_spaces",        "relation": "defines" },
+    { "src": "prob_spaces",       "dst": "bayes_theorems",     "relation": "supports" },
+
+    { "src": "proof_replay",      "dst": "lean_replay_core",   "relation": "implemented_by" },
+    { "src": "proof_tactics",     "dst": "lean_replay_core",   "relation": "provides" },
+    { "src": "dataset_slice_mathlib", "dst": "proof_replay",   "relation": "feeds" },
+
+    { "src": "vector_spaces",     "dst": "linear_algebra",     "relation": "is_a" },
+    { "src": "eigen_theory",      "dst": "ode_linear_math",    "relation": "diagonalizes" },
+    { "src": "fourier_series",    "dst": "pde_heat_math",      "relation": "solves_via_modes" },
+    { "src": "lagrangian_math",   "dst": "calc_variational",   "relation": "alias_of", "note": "bridges to physics_core:lagrangian" },
+
+    { "src": "linear_maps",       "dst": "physics_core:em_wave_eq", "relation": "operator_form_of", "cross": true },
+    { "src": "tensors",           "dst": "physics_core:einstein_eqs","relation": "expresses_geometry_for", "cross": true },
+    { "src": "fourier_series",    "dst": "physics_core:em_wave_eq", "relation": "mode_decomposition_for", "cross": true },
+    { "src": "prob_spaces",       "dst": "physics_core:stat_mech",  "relation": "grounds", "cross": true }
   ]
 }

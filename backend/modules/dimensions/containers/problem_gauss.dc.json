@@ -1,0 +1,13 @@
+{
+  "container_id": "problem_gauss",
+  "container_type": "dc",
+  "logic_type": "problem_graph",
+  "atoms": [
+    "lean_replay_core",
+    { "id": "physics_core", "type": "dc", "labels": ["electromagnetism", "maxwell_eqs"] }
+  ],
+  "goal": {
+    "caps": ["lean.replay"],
+    "nodes": ["maxwell_eqs"]
+  }
+}

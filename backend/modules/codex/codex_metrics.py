@@ -1,25 +1,20 @@
-# backend/modules/codex/codex_metrics.py
-
 from collections import defaultdict
 import json
 import logging
 import time
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Union
 
-from backend.modules.codex.codex_cost_estimator import CodexCostEstimator  # ✅ Added for cost integration
+from backend.modules.codex.codex_cost_estimator import CodexCostEstimator  # ✅ For cost integration
 
 logger = logging.getLogger(__name__)
 
 # ─────────────────────────────────────────────────────────────────────────────
-# 🔢 Lightweight, safe execution-metrics shim (for GlyphNet and friends)
-#    - Keeps callers working: from backend.modules.codex.codex_metrics import record_execution_metrics
-#    - Never raises; logs one structured line
-#    - Duration works if caller passes start_ts=time.perf_counter()
+# 🔢 Lightweight, safe execution-metrics shim
 # ─────────────────────────────────────────────────────────────────────────────
 
 def _size(obj: Any) -> Optional[int]:
     try:
-        return len(obj)  # str, list, dict, etc.
+        return len(obj)
     except Exception:
         return None
 
@@ -28,14 +23,10 @@ def record_execution_metrics(
     op: str = "execute",
     payload: Any = None,
     result: Any = None,
-    start_ts: Optional[float] = None,   # pass time.perf_counter() at operation start
+    start_ts: Optional[float] = None,
     extra: Optional[Dict[str, Any]] = None,
     success: bool = True,
 ) -> Dict[str, Any]:
-    """
-    Lightweight, safe metrics logger used by GlyphNet terminal and others.
-    Emits a single structured log line and returns the entry.
-    """
     now_perf = time.perf_counter()
     dur_ms = ((now_perf - start_ts) * 1000.0) if isinstance(start_ts, (int, float)) else None
 
@@ -54,19 +45,17 @@ def record_execution_metrics(
     try:
         logger.info("[codex_metrics] %s", json.dumps(entry, ensure_ascii=False))
     except Exception:
-        # never fail the caller because of metrics issues
         logger.info("[codex_metrics] %r", entry)
 
     return entry
 
-# Optional class wrapper for older call sites expecting CodexMetrics.record_execution_metrics
 class CodexMetricsShim:
     @staticmethod
     def record_execution_metrics(**kwargs) -> Dict[str, Any]:
         return record_execution_metrics(**kwargs)
 
 # ─────────────────────────────────────────────────────────────────────────────
-# 📈 Your existing metrics implementation (UNCHANGED)
+# 📈 Full metrics class with cost estimation
 # ─────────────────────────────────────────────────────────────────────────────
 
 class CodexMetrics:
@@ -99,6 +88,33 @@ class CodexMetrics:
             self.by_operator[operator] += 1
         if glyph:
             self.by_glyph[glyph] += 1
+
+    # ✅ FIXED: This is now a proper method, not nested in record_execution
+    def estimate_cost(self, instruction_tree: Union[Dict[str, Any], list]) -> float:
+        """
+        Rough heuristic so the executor can proceed.
+        Uses CodexCostEstimator if available, otherwise fallback heuristic.
+        Cost ∈ [0, 1].
+        """
+        try:
+            # Prefer structural complexity score
+            struct_cost = score_glyph_tree(instruction_tree)
+            est = CodexCostEstimator()
+            glyph_symbol = None
+            if isinstance(instruction_tree, dict):
+                glyph_symbol = instruction_tree.get("glyph")
+            runtime_cost = est.estimate_glyph_cost(glyph_symbol or str(instruction_tree), {}).total()
+            cost = struct_cost + runtime_cost
+            # Normalise into 0..1 range
+            return min(1.0, cost / 100.0)
+        except Exception:
+            # Fallback: size + depth heuristic
+            try:
+                size = len(json.dumps(instruction_tree, ensure_ascii=False))
+            except Exception:
+                size = len(str(instruction_tree))
+            depth = _tree_depth(instruction_tree)
+            return min(1.0, 0.0005 * size + 0.02 * depth)
 
     def record_theorem_usage(self, glyph: str, operator: str = None, success: bool = True):
         self.metrics["theorems_used"] += 1
@@ -133,11 +149,7 @@ class CodexMetrics:
 
     def record_blindspot_event(self, reason: str, glyph: str, meta: dict = None):
         self.metrics["blindspot_events"] += 1
-        entry = {
-            "reason": reason,
-            "glyph": glyph,
-            "meta": meta or {}
-        }
+        entry = {"reason": reason, "glyph": glyph, "meta": meta or {}}
         self.recent_blindspots.append(entry)
         if len(self.recent_blindspots) > 50:
             self.recent_blindspots = self.recent_blindspots[-50:]
@@ -173,14 +185,41 @@ class CodexMetrics:
         self.confidence_scores.clear()
         self.recent_blindspots.clear()
 
+    def record_execution_batch(self, instruction_tree, cost: float = None, source: str = None):
+        """
+        Compatibility method for batch execution logging.
+        - Increments glyph count based on tree length.
+        - Optionally records a cost estimate if provided.
+        """
+        try:
+            # If it's a list/dict of glyphs, count them
+            if isinstance(instruction_tree, list):
+                for node in instruction_tree:
+                    self.record_execution(glyph=node.get("glyph") if isinstance(node, dict) else None,
+                                          source=source,
+                                          operator=node.get("opcode") if isinstance(node, dict) else None)
+            elif isinstance(instruction_tree, dict):
+                self.record_execution(glyph=instruction_tree.get("glyph"),
+                                      source=source,
+                                      operator=instruction_tree.get("opcode"))
+
+            # Optionally log cost
+            if cost is not None:
+                if "execution_costs" not in self.metrics:
+                    self.metrics["execution_costs"] = []
+                self.metrics["execution_costs"].append(cost)
+
+        except Exception as e:
+            # Never block execution on metrics failure
+            import logging
+            logging.getLogger(__name__).warning("record_execution_batch failed: %s", e)    
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Utilities
+# ─────────────────────────────────────────────────────────────────────────────
 
 def score_glyph_tree(tree):
-    """
-    Returns a symbolic score for a CodexLang tree based on depth, branching, and operator complexity.
-    Used for compression benchmarking or intent prioritization.
-    """
     score = 0
-
     def traverse(node, depth=1):
         nonlocal score
         score += depth
@@ -192,31 +231,27 @@ def score_glyph_tree(tree):
         elif isinstance(node, list):
             for item in node:
                 traverse(item, depth + 1)
-
     traverse(tree)
     return score
 
-
 def calculate_glyph_cost(glyph_data: dict, context: dict = None) -> float:
-    """
-    Unified glyph cost calculation:
-    - Structural complexity (score_glyph_tree)
-    - Contextual runtime cost (CodexCostEstimator)
-    """
     context = context or {}
     estimator = CodexCostEstimator()
-
-    # Base structural cost (tree scoring)
     tree_cost = score_glyph_tree(glyph_data.get("tree", glyph_data))
-
-    # Runtime symbolic cost
     glyph_symbol = glyph_data.get("glyph") if isinstance(glyph_data, dict) else str(glyph_data)
     runtime_cost = estimator.estimate_glyph_cost(glyph_symbol, context).total()
-
     return tree_cost + runtime_cost
 
+def _tree_depth(node) -> int:
+    if node is None:
+        return 0
+    if isinstance(node, dict):
+        children = node.get("children") or []
+        return 1 + (max((_tree_depth(ch) for ch in children), default=0) if isinstance(children, list) else 0)
+    if isinstance(node, list):
+        return 1 + (max((_tree_depth(ch) for ch in node), default=0))
+    return 1
 
-# ✅ Logging utility for benchmark_runner.py
 def log_benchmark_result(result: dict):
     print(f"\n[Benchmark] {result['glyph']}")
     print(f"  ⏱️  Classical Time: {result['classical_time']}s")

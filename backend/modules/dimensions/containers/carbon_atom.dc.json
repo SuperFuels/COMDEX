@@ -1,0 +1,54 @@
+{
+  "container_kind": "atom",
+  "id": "carbon_atom",
+  "label": "Carbon Atom",
+  "electronCount": 6,
+  "electrons": [
+    {
+      "id": "e1",
+      "label": "Photon",
+      "meta": { "linkContainerId": "photon_1.dc.json" }
+    },
+    {
+      "id": "e2",
+      "label": "Photon",
+      "meta": { "linkContainerId": "photon_2.dc.json" }
+    },
+    {
+      "id": "e3",
+      "label": "Photon",
+      "meta": { "linkContainerId": "photon_3.dc.json" }
+    },
+    {
+      "id": "e4",
+      "label": "Photon",
+      "meta": { "linkContainerId": "photon_4.dc.json" }
+    },
+    {
+      "id": "e5",
+      "label": "Photon",
+      "meta": { "linkContainerId": "photon_5.dc.json" }
+    },
+    {
+      "id": "e6",
+      "label": "Photon",
+      "meta": { "linkContainerId": "photon_6.dc.json" }
+    }
+  ],
+  "glyphs": [
+    {
+      "id": "g1",
+      "content": "C",
+      "meta": {
+        "element": "Carbon",
+        "atomicNumber": 6,
+        "symbol": "C"
+      }
+    }
+  ],
+  "metadata": {
+    "created_by": "GHX_Seeder",
+    "source": "Synthetic",
+    "tags": ["atom", "symbolic", "test"]
+  }
+}

@@ -4,11 +4,15 @@
 🔮 Prediction Engine for AION and Symbolic Agents  
 Generates symbolic futures, goal-driven forecasts, and timeline branches.
 """
+
 import uuid
 import random
 import math
+import logging
 from datetime import datetime, timezone
-from typing import List, Dict, Optional
+from typing import Dict, Any, List, Optional
+
+logger = logging.getLogger(__name__)
 
 from backend.modules.dna_chain.switchboard import DNA_SWITCH
 from backend.modules.glyphos.glyph_trace_logger import glyph_trace
@@ -20,40 +24,118 @@ from backend.modules.glyphos.symbolic_entangler import get_entangled_for
 from backend.modules.glyphos.glyph_quantum_core import GlyphQuantumCore
 from backend.modules.consciousness.gradient_entanglement_adapter import GradientEntanglementAdapter
 from backend.modules.knowledge_graph.entanglement_fusion import EntanglementFusion
+from backend.modules.hexcore.memory_engine import MEMORY
+from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter
+from backend.modules.codex.codex_trace import CodexTrace
+from backend.modules.codex.codex_metrics import calculate_glyph_cost as estimate_glyph_cost
 
 try:
-    from backend.modules.memory_engine import MemoryEngine
     from backend.modules.tessaris.tessaris_engine import TessarisEngine
     from backend.modules.dream_core import DreamCore
 except ImportError:
     MemoryEngine, TessarisEngine, DreamCore = None, None, None
 
-# ✅ Lazy import wrapper for estimate_codex_cost
+DNA_SWITCH.register(__file__)
+
+# ✅ Lazy import wrapper
 def get_estimate_codex_cost():
     from backend.modules.codex.codex_executor import estimate_codex_cost
     return estimate_codex_cost
 
-DNA_SWITCH.register(__file__)
 
 class PredictionEngine:
     def __init__(self, container_id: str = "global", memory_engine=None, tessaris_engine=None, dream_core=None):
-        """
-        Initialize PredictionEngine with symbolic forecasting stack.
-        Args:
-            container_id (str): Active container context for KG and feedback tracing.
-        """
         self.container_id = container_id
         self.memory_engine = memory_engine or (MemoryEngine() if MemoryEngine else None)
         self.tessaris_engine = tessaris_engine or (TessarisEngine() if TessarisEngine else None)
         self.dream_core = dream_core or (DreamCore() if DreamCore else None)
 
         self.gradient_engine = SymbolicGradientEngine()
-        self.feedback_tracer = GlyphFeedbackTracer(container_id=self.container_id)  # ✅ Pass container_id
+        self.feedback_tracer = GlyphFeedbackTracer(container_id=self.container_id)
         self.entanglement_adapter = GradientEntanglementAdapter()
         self.entanglement_fusion = EntanglementFusion()
         self.brain_streamer = BrainMapStreamer()
         self.quantum_core = GlyphQuantumCore(container_id=self.container_id)
         self.history = []
+
+
+def run_prediction_on_container(container: dict) -> dict:
+    """
+    Run prediction logic on a symbolic container.
+    Picks optimal paths for atoms, electrons, etc.
+    Returns a dictionary of predicted glyph outcomes.
+    """
+    predictions = {}
+    glyphs = container.get("glyphs", [])
+
+    for glyph in glyphs:
+        gid = glyph.get("id")
+        gtype = glyph.get("type")
+        meta = glyph.get("meta", {})
+        outcomes = meta.get("predictive_outcomes", [])
+
+        print(f"🔍 Glyph: {gid}, Type: {gtype}, Outcomes: {len(outcomes)}")
+
+        if gtype in ("electron", "atom"):
+            if not outcomes:
+                logger.warning(f"[Prediction] No candidates found for {gtype} glyph {gid}")
+                continue
+
+            best = select_best_prediction(outcomes, context=glyph)
+            if best:
+                predictions[gid] = {
+                    "label": best.get("label", "unknown"),
+                    "logic_score": best.get("logic_score", 0),
+                    "all_candidates": outcomes,
+                    "source_metadata": meta,
+                }
+                print(f"✅ Best for {gid}: {best.get('label')} [score: {best.get('logic_score', 0)}]")
+                logger.info(f"[Prediction] {gid} ({gtype}) → {best.get('label')} [score: {best.get('logic_score', 0)}]")
+                CodexTrace.log_prediction(gid, gtype, best)
+            else:
+                print(f"⚠️ No valid prediction selected for {gid}")
+                logger.warning(f"[Prediction] No valid prediction selected for {gid} ({gtype})")
+
+    if container.get("id"):
+        print(f"🧠 Writing {len(predictions)} predictions to KG for container: {container['id']}")
+        KnowledgeGraphWriter.store_predictions(container["id"], predictions)
+
+    return predictions
+
+
+def select_best_prediction(outcomes: list, context: dict) -> dict:
+    """
+    Evaluate list of outcome dicts and choose the most optimal one.
+    Applies SQI-inspired logic score, entropy penalty, cost penalty,
+    and goal alignment reward.
+    """
+    scored = []
+
+    for outcome in outcomes:
+        glyph = outcome.get("glyph", {})
+        logic = outcome.get("logic_score", 0) or 0
+        entropy = outcome.get("entropy_delta", 0) or 0
+        goal_alignment = outcome.get("goal_score", 0) or 0
+        cost = estimate_glyph_cost(glyph) if glyph else 0
+
+        score = (
+            (logic * 2.0) -
+            (entropy * 1.5) -
+            (cost * 0.8) +
+            (goal_alignment * 2.5)
+        )
+
+        scored.append((score, outcome))
+
+    if not scored:
+        logger.warning("[Prediction] No outcomes could be scored. Choosing randomly.")
+        return random.choice(outcomes)
+
+    scored.sort(reverse=True, key=lambda x: x[0])
+    best_score, best_outcome = scored[0]
+
+    logger.debug(f"[Prediction] Best score: {best_score} for outcome: {best_outcome.get('label', 'N/A')}")
+    return best_outcome
 
     async def forecast_hyperdrive(self, hyperdrive_engine) -> Dict:
         """
@@ -311,3 +393,64 @@ class PredictionEngine:
 
     def reset_history(self):
         self.history.clear()
+# === SQI A2–A5: PredictionEngine for atoms/electrons with SoulLaw ===
+
+try:
+    from backend.modules.soullaw.soul_law_validator import get_soul_laws
+except ImportError:
+    get_soul_laws = lambda: []
+
+class PredictionEngine:
+    def __init__(self):
+        self.soul_laws = get_soul_laws()
+
+    def run_prediction_on_container(self, container: Dict[str, Any]) -> Dict[str, Any]:
+        container_type = container.get("type", "")
+        if container_type == "atom":
+            return self._predict_atom(container)
+        else:
+            logger.warning(f"PredictionEngine: Unsupported container type: {container_type}")
+            return {}
+
+    def _predict_atom(self, container: Dict[str, Any]) -> Dict[str, Any]:
+        electrons = container.get("electrons", [])
+        predictions = []
+
+        for idx, electron in enumerate(electrons):
+            label = electron.get("meta", {}).get("label", f"e⁻ {idx+1}")
+            glyphs = electron.get("glyphs", [])
+
+            if not self._passes_soul_law(glyphs):
+                logger.warning(f"⚠️ SoulLaw violation in electron: {label}")
+                continue
+
+            best = max(glyphs, key=lambda g: g.get("confidence", 0), default=None)
+            if best:
+                predictions.append({
+                    "electron": label,
+                    "selected": best.get("value"),
+                    "confidence": best.get("confidence"),
+                    "linkContainerId": electron.get("meta", {}).get("linkContainerId")
+                })
+
+        return {
+            "container_id": container.get("id"),
+            "type": "atom",
+            "prediction_count": len(predictions),
+            "predictions": predictions
+        }
+
+    def _passes_soul_law(self, glyphs: List[Dict[str, Any]]) -> bool:
+        for glyph in glyphs:
+            for law in self.soul_laws:
+                if not law.validate(glyph):
+                    return False
+        return True
+
+# Optional external function (if needed elsewhere)
+prediction_engine = PredictionEngine()
+
+def run_prediction_on_container(container: Dict[str, Any]) -> Dict[str, Any]:
+    return prediction_engine.run_prediction_on_container(container)
+    
+__all__ = ["run_prediction_on_container", "select_best_prediction"]

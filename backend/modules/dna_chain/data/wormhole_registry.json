@@ -1,0 +1,128 @@
+{
+  "Math Core→ucs_hub": {
+    "from": "Math Core",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "physics_core→ucs_hub": {
+    "from": "physics_core",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "control_systems→ucs_hub": {
+    "from": "control_systems",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "engineering_materials→ucs_hub": {
+    "from": "engineering_materials",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "biology_core→ucs_hub": {
+    "from": "biology_core",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "economics_core→ucs_hub": {
+    "from": "economics_core",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "Cross-Domain Links→ucs_hub": {
+    "from": "Cross-Domain Links",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "tesseract_hq→ucs_hub": {
+    "from": "tesseract_hq",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "lean_replay_core.dc→ucs_hub": {
+    "from": "lean_replay_core.dc",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "lean_replay_core→ucs_hub": {
+    "from": "lean_replay_core",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "math_core→ucs_hub": {
+    "from": "math_core",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "cross_links→ucs_hub": {
+    "from": "cross_links",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "problem_gauss.dc→ucs_hub": {
+    "from": "problem_gauss.dc",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "problem_gauss→ucs_hub": {
+    "from": "problem_gauss",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "atom_maxwell→ucs_hub": {
+    "from": "atom_maxwell",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "atom_maxwell_bundle→ucs_hub": {
+    "from": "atom_maxwell_bundle",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "maxwell_core→ucs_hub": {
+    "from": "maxwell_core",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "physics_kernel_facts→ucs_hub": {
+    "from": "physics_kernel_facts",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  }
+}

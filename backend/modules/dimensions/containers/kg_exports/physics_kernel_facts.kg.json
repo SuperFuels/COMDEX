@@ -1,0 +1,30 @@
+{
+  "id": "physics_kernel_facts",
+  "name": null,
+  "symbol": "\u2754",
+  "glyph_categories": [],
+  "nodes": [
+    {
+      "id": "faraday_law",
+      "label": "Faraday's Law",
+      "domain": "physics.kernel",
+      "tags": [
+        "kernel",
+        "physics"
+      ],
+      "type": "kg_node"
+    },
+    {
+      "id": "lorentz_force",
+      "label": "Lorentz Force",
+      "domain": "physics.kernel",
+      "tags": [
+        "kernel",
+        "physics"
+      ],
+      "ingested_at": "2025-08-14T19:44:03.315093",
+      "type": "kg_node"
+    }
+  ],
+  "links": []
+}

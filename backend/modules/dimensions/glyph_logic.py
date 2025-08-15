@@ -7,6 +7,74 @@ from backend.modules.tessaris.thought_branch import execute_branch_from_glyph
 from backend.modules.skills.strategy_planner import StrategyPlanner
 from backend.modules.hexcore.memory_engine import MEMORY
 
+def _apply_proof_ops(glyph: str):
+    """
+    Tiny shim for proof glyph operators:
+      • ⧖ (collapse): mark constraint resolved / branch pruned.
+      • ↔ (entangle): unify/equate expressions (best-effort parse "A ↔ B").
+      • 🧭 (guide): bias next-step lemma selection (parse "🧭 lemma_name" or "🧭: hint").
+    Returns either None (no proof operator found) or a dict with a human-readable result and score delta.
+    """
+    result = None
+    score_delta = 0.0
+
+    # --- Collapse ------------------------------------------------------------
+    if "⧖" in glyph:
+        # Optional: accept annotated form "⧖:constraint_id"
+        parts = glyph.split("⧖", 1)[1].strip()
+        constraint_id = parts.lstrip(":").strip() if parts.startswith(":") else (parts or "constraint")
+        MEMORY.store({
+            "role": "glyph",
+            "label": "proof_collapse",
+            "content": f"Resolved constraint: {constraint_id}",
+        })
+        result = f"⧖ collapse: resolved '{constraint_id}'"
+        score_delta += 0.2  # tiny nudge
+
+    # --- Entangle ------------------------------------------------------------
+    # Try to parse "A ↔ B" (space-tolerant)
+    if "↔" in glyph:
+        left, _, right = glyph.partition("↔")
+        left = left.strip()
+        right = right.strip()
+        if left or right:
+            MEMORY.store({
+                "role": "glyph",
+                "label": "proof_entangle",
+                "content": {"lhs": left, "rhs": right, "note": "unified/considered equivalent"},
+            })
+            msg = f"↔ entangle: unified '{left}' ↔ '{right}'" if (left or right) else "↔ entangle"
+        else:
+            MEMORY.store({
+                "role": "glyph",
+                "label": "proof_entangle",
+                "content": "unification marker",
+            })
+            msg = "↔ entangle"
+        result = f"{result} | {msg}" if result else msg
+        score_delta += 0.3
+
+    # --- Guide ---------------------------------------------------------------
+    if "🧭" in glyph:
+        # Accept "🧭 lemma_name" or "🧭: lemma_name"
+        guide_part = glyph.split("🧭", 1)[1].strip()
+        guide_part = guide_part.lstrip(":").strip()
+        MEMORY.store({
+            "role": "glyph",
+            "label": "proof_guide",
+            "content": f"Guide hint: {guide_part or '<unspecified>'}",
+        })
+        msg = f"🧭 guide: {guide_part}" if guide_part else "🧭 guide"
+        result = f"{result} | {msg}" if result else msg
+        score_delta += 0.1
+
+    if result is None:
+        return None  # no proof ops present
+
+    # Return a compact structure (could be expanded later to integrate with Lean replay)
+    return {"ok": True, "result": result, "score": score_delta}
+
+
 def process_glyph_logic(glyph, avatar=None):
     """
     Evaluate and act on the glyph logic at the avatar’s current location.
@@ -14,6 +82,13 @@ def process_glyph_logic(glyph, avatar=None):
     if not isinstance(glyph, str):
         return "⚪ Non-symbolic data — no action taken."
 
+    # 0) Proof operator shim (works even if glyph isn't an ⟦…⟧ form)
+    proof_effect = _apply_proof_ops(glyph)
+    if proof_effect:
+        # Log a condensed trace line as a convenience return
+        return f"{proof_effect['result']} (Δscore={proof_effect['score']:+.2f})"
+
+    # 1) Structured action glyphs: ⟦ … → ACTION: … ⟧
     if glyph.startswith("⟦"):
         try:
             action = None

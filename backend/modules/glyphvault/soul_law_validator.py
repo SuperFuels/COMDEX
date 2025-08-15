@@ -1,46 +1,61 @@
 # File: backend/modules/glyphvault/soul_law_validator.py
 
 import os
+import time
 import logging
 import hashlib
 import importlib
-from typing import Optional, Dict
+from typing import Optional, Dict, Any
 
 logger = logging.getLogger(__name__)
 
-# 🌐 Mode detection: full or test (fallback)
+# 🌐 Mode detection: "full" (default) or "test"
 SOUL_LAW_MODE = os.getenv("SOUL_LAW_MODE", "full").lower()
 
-def inject_approval_glyph(payload: Dict):
+# --------------------------------------------------------------------------------------
+# 🔊 Broadcasting (prefer throttled WS broadcast; safe fallback in offline/test contexts)
+# --------------------------------------------------------------------------------------
+try:
+    # Prefer throttled broadcast to avoid loop storms
+    from backend.modules.glyphnet.glyphnet_ws import broadcast_event_throttled as broadcast_event  # type: ignore
+except Exception:
+    def broadcast_event(event_type: str, payload: dict):
+        print(f"[SIM:FALLBACK] Broadcast: {event_type} → {payload}")
+
+# Minimal local throttle guard (belt & suspenders; still useful if throttled import fails)
+_MIN_EMIT_INTERVAL = float(os.getenv("SOULLAW_MIN_EMIT_INTERVAL", "0.75"))
+_last_emit: Dict[str, float] = {}
+
+
+def inject_approval_glyph(payload: Dict[str, Any]):
     """
     Injects an approval glyph into the GlyphNet WebSocket stream.
     Uses a lazy import for broadcast_event to avoid circular import chains.
     """
     try:
-        from backend.routes.ws.glyphnet_ws import broadcast_event  # ✅ Lazy import to break circular import
-        broadcast_event(payload)
+        # If your routes layer exposes a broadcaster, this path remains compatible.
+        from backend.routes.ws.glyphnet_ws import broadcast_event as route_broadcast  # type: ignore
+        route_broadcast(payload)
         logger.info(f"[SoulLaw] Approval glyph broadcasted: {payload}")
     except Exception as e:
         logger.error(f"[SoulLaw] Approval glyph injection failed: {e}")
 
 
-# Existing or placeholder functions remain here (no changes to their logic):
-def get_soul_law_validator():
+# --------------------------------------------------------------------------------------
+# 📦 Optional: dynamic access to the *core* validator (kept for backward compatibility)
+# --------------------------------------------------------------------------------------
+def get_soul_law_core_validator():
     """
-    Dynamically imports and returns the SoulLawValidator.
+    Dynamically imports and returns SoulLawValidator from soul_law_core (if you use that).
     Uses importlib to avoid premature circular imports.
     """
     module = importlib.import_module("backend.modules.glyphvault.soul_law_core")
     return getattr(module, "SoulLawValidator")()
 
-# ✅ Safe import for broadcast_event
-try:
-    from backend.modules.glyphnet.glyphnet_ws import broadcast_event
-except ImportError:
-    def broadcast_event(event_type: str, payload: dict):
-        print(f"[SIM:FALLBACK] Broadcast: {event_type} → {payload}")
 
-
+# --------------------------------------------------------------------------------------
+# 🧠 Knowledge Graph writer (lazy import with a safe stub fallback)
+# --------------------------------------------------------------------------------------
 def _lazy_load_kg_writer():
     """Lazy loader for KnowledgeGraphWriter to avoid circular imports."""
     try:
@@ -48,14 +63,15 @@ def _lazy_load_kg_writer():
         return kg_module.KnowledgeGraphWriter
     except ImportError as e:
         logger.warning(f"[SoulLaw] Failed to import KnowledgeGraphWriter: {e}")
-        # ✅ Fallback: Return a stub class that avoids binding errors
+
         class StubKGWriter:
             def inject_glyph(self, *args, **kwargs):
                 print(f"[SIM:FALLBACK] Glyph inject: {kwargs.get('metadata', {}).get('rule', 'unknown')}")
+
         return StubKGWriter
 
 
-# ✅ Test mode stub definition
+# ✅ Test mode stub (kept for explicit clarity)
 if SOUL_LAW_MODE != "full":
     class KnowledgeGraphWriter:
         def inject_glyph(self, *args, **kwargs):
@@ -64,6 +80,7 @@ if SOUL_LAW_MODE != "full":
 
 
 class SoulLawValidator:
+    COOL_DOWN = float(os.getenv("SOULLAW_COOLDOWN_SEC", "30.0"))  # seconds
     """Validates avatar states and containers against immutable Soul Laws."""
 
     MIN_AVATAR_LEVEL = 10  # Example threshold
@@ -73,6 +90,9 @@ class SoulLawValidator:
         self.kg_writer = None  # Lazy init
         self.enable_glyph_injection = True
 
+    # -----------------------
+    # 🔁 Internal utilities
+    # -----------------------
     def _get_kg_writer(self):
         """Initialize KnowledgeGraphWriter lazily."""
         if self.kg_writer is None:
@@ -80,7 +100,24 @@ class SoulLawValidator:
             self.kg_writer = kg_class_or_stub() if callable(kg_class_or_stub) else kg_class_or_stub
         return self.kg_writer
 
-    def validate_avatar(self, avatar_state: Optional[Dict]) -> bool:
+    def _emit(self, event_type: str, payload: dict, key: str, min_interval: float = _MIN_EMIT_INTERVAL):
+        """
+        Emit with a simple per-key throttle (works even if throttled import isn't available).
+        """
+        now = time.time()
+        last = _last_emit.get(key, 0.0)
+        if now - last < max(min_interval, 0.0):
+            return
+        _last_emit[key] = now
+        try:
+            broadcast_event(event_type, payload)
+        except Exception as e:
+            logger.debug(f"[SoulLaw] Broadcast failed (non-fatal): {e}")
+
+    # -----------------------
+    # ✅ Avatar validation
+    # -----------------------
+    def validate_avatar(self, avatar_state: Optional[Dict[str, Any]]) -> bool:
         """Check if avatar meets SoulLaw level and morality gates."""
         if SOUL_LAW_MODE == "test":
             logger.debug("[SoulLaw] SAFE MODE: Auto-approving avatar validation.")
@@ -106,12 +143,11 @@ class SoulLawValidator:
         self._inject_approval("avatar_approval", f"Avatar level {level} approved")
         return True
 
-    def validate_avatar_with_context(self, avatar_state: Optional[Dict], context: Optional[dict] = None) -> bool:
+    def validate_avatar_with_context(self, avatar_state: Optional[Dict[str, Any]], context: Optional[dict] = None) -> bool:
         """
         Extended avatar validation for hyperdrive or container contexts.
         Accepts either dict context (preferred) or string fallback.
         """
-        # If context is incorrectly passed as a string, log and bypass safely
         if context and not isinstance(context, dict):
             logger.warning(f"[SoulLaw] Non-dict context passed ({type(context)}). Converting to dict fallback.")
             context = {"raw_context": str(context)}
@@ -125,14 +161,15 @@ class SoulLawValidator:
 
         return self.validate_avatar(avatar_state)
 
-    def validate_avatar_state(self, avatar_state: Optional[Dict]) -> bool:
+    def validate_avatar_state(self, avatar_state: Optional[Dict[str, Any]]) -> bool:
         """Alias for validate_avatar for backward compatibility."""
         return self.validate_avatar(avatar_state)
 
+    # -----------------------
+    # 📦 Container validation
+    # -----------------------
     def validate_container(self, container_metadata: Optional[Dict]) -> bool:
-        """Validate container morality gates (expandable for trait checks)."""
         if SOUL_LAW_MODE == "test":
-            logger.debug("[SoulLaw] SAFE MODE: Auto-approving container validation.")
             self._inject_approval("safe_mode_bypass_container", "Container auto-approved in SAFE MODE")
             return True
 
@@ -140,7 +177,15 @@ class SoulLawValidator:
             self._inject_violation("invalid_container_metadata", "Container metadata incomplete")
             return False
 
+        cid = container_metadata["id"]
+        now = time.time()
+        last = self._container_approval_cache.get(cid, 0)
+        if now - last < self.COOL_DOWN:
+            # Already approved recently; skip re-broadcast
+            return True
+
         self._inject_approval("container_ok", "Container passed moral validation")
+        self._container_approval_cache[cid] = now
         return True
 
     @staticmethod
@@ -150,6 +195,9 @@ class SoulLawValidator:
             raise PermissionError("❌ SoulLaw: Secure container cannot link to public.")
         print(f"✅ SoulLaw: Navigation link allowed {source_container['id']} → {target_container['id']}")
 
+    # -----------------------
+    # 🔐 Seed locks
+    # -----------------------
     def generate_seed_lock(self, identity: str, entropy: str) -> str:
         return hashlib.sha256(f"{identity}:{entropy}".encode("utf-8")).hexdigest()
 
@@ -161,36 +209,62 @@ class SoulLawValidator:
         self._inject_approval("seed_lock_validated", "Seed lock key matched")
         return True
 
+    # -----------------------
+    # 🟩/🟥 Emit helpers
+    # -----------------------
     def _inject_approval(self, rule: str, reason: str):
-        if self.enable_glyph_injection:
-            try:
-                kg_writer = self._get_kg_writer()
-                kg_writer.inject_glyph(
-                    content=reason,
-                    glyph_type="approval",
-                    metadata={"rule": rule, "type": "SoulLaw", "origin": "SoulLawValidator", "tags": ["📜", "🧠", "✅"]},
-                    plugin="SoulLaw"
-                )
-                broadcast_event("soul_law_update", {"rule": rule, "status": "approval", "reason": reason})
-                print(f"✅ [SoulLaw] Approval: {rule} – {reason}")
-            except Exception as e:
-                logger.error(f"[SoulLaw] Approval glyph injection failed: {e}")
+        if not self.enable_glyph_injection:
+            return
+        try:
+            kg_writer = self._get_kg_writer()
+            kg_writer.inject_glyph(
+                content=reason,
+                glyph_type="approval",
+                metadata={
+                    "rule": rule,
+                    "type": "SoulLaw",
+                    "origin": "SoulLawValidator",
+                    "tags": ["📜", "🧠", "✅"],
+                },
+                plugin="SoulLaw",
+            )
+            self._emit(
+                "soul_law_update",
+                {"rule": rule, "status": "approval", "reason": reason},
+                key=f"approval:{rule}",
+            )
+            print(f"✅ [SoulLaw] Approval: {rule} – {reason}")
+        except Exception as e:
+            logger.error(f"[SoulLaw] Approval glyph injection failed: {e}")
 
     def _inject_violation(self, rule: str, reason: str):
-        if self.enable_glyph_injection:
-            try:
-                kg_writer = self._get_kg_writer()
-                kg_writer.inject_glyph(
-                    content=reason,
-                    glyph_type="violation",
-                    metadata={"rule": rule, "type": "SoulLaw", "origin": "SoulLawValidator", "tags": ["📜", "🧠", "❌"]},
-                    plugin="SoulLaw"
-                )
-                broadcast_event("soul_law_update", {"rule": rule, "status": "violation", "reason": reason})
-                print(f"❌ [SoulLaw] Violation: {rule} – {reason}")
-            except Exception as e:
-                logger.error(f"[SoulLaw] Violation glyph injection failed: {e}")
+        if not self.enable_glyph_injection:
+            return
+        try:
+            kg_writer = self._get_kg_writer()
+            kg_writer.inject_glyph(
+                content=reason,
+                glyph_type="violation",
+                metadata={
+                    "rule": rule,
+                    "type": "SoulLaw",
+                    "origin": "SoulLawValidator",
+                    "tags": ["📜", "🧠", "❌"],
+                },
+                plugin="SoulLaw",
+            )
+            self._emit(
+                "soul_law_update",
+                {"rule": rule, "status": "violation", "reason": reason},
+                key=f"violation:{rule}",
+            )
+            print(f"❌ [SoulLaw] Violation: {rule} – {reason}")
+        except Exception as e:
+            logger.error(f"[SoulLaw] Violation glyph injection failed: {e}")
 
+    # -----------------------
+    # 🧹 Feedback filter
+    # -----------------------
     def filter_unethical_feedback(self, feedback: dict) -> dict:
         """
         Filters or flags unethical elements in feedback for safe usage.
@@ -210,18 +284,22 @@ class SoulLawValidator:
         return feedback
 
 
-# ✅ Lazy Singleton Accessor
+# --------------------------------------------------------------------------------------
+# 🔁 Lazy Singleton Accessor (public)
+# --------------------------------------------------------------------------------------
 _soul_law_instance: Optional['SoulLawValidator'] = None
+
 def get_soul_law_validator() -> 'SoulLawValidator':
     global _soul_law_instance
     if _soul_law_instance is None:
         _soul_law_instance = SoulLawValidator()
     return _soul_law_instance
 
-# ✅ Backward-compatible alias
+
+# Backward-compatible alias
 soul_law_validator = get_soul_law_validator()
 
-# ✅ NEW: Top-level alias for direct import compatibility
+# Direct function alias (legacy imports)
 def filter_unethical_feedback(feedback: dict) -> dict:
     return get_soul_law_validator().filter_unethical_feedback(feedback)
 

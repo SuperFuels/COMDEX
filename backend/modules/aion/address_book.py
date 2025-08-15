@@ -21,12 +21,19 @@ class AddressBook:
                 print("Failed to load address book:", e)
 
     def _save(self):
+        # Ensure directory exists before writing
+        os.makedirs(os.path.dirname(ADDRESS_BOOK_PATH) or ".", exist_ok=True)
         with open(ADDRESS_BOOK_PATH, "w") as f:
             json.dump(self.addresses, f, indent=2)
 
     def register_container(self, container: dict):
+        # Require an ID; fall back to name if provided
+        cid = container.get("id") or container.get("container_id") or container.get("name")
+        if not cid:
+            raise ValueError("AddressBook.register_container: container must have an 'id' (or name).")
+        container.setdefault("id", cid)
         with self.lock:
-            self.addresses[container["id"]] = container
+            self.addresses[cid] = container
             self._save()
 
     def save_container(self, container: dict):
@@ -46,3 +53,7 @@ class AddressBook:
             if container_id in self.addresses:
                 del self.addresses[container_id]
                 self._save()
+
+
+# --- Export a module-level singleton so callers can `from ... import address_book` ---
+address_book = AddressBook()

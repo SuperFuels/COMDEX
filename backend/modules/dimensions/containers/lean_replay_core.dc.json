@@ -1,0 +1,24 @@
+{
+  "id": "lean_replay_core",
+  "type": "dc",
+  "name": "Lean Replay Core",
+  "metadata": {
+    "origin": "ucs_atom",
+    "purpose": "Lean theorem replay testing core",
+    "source_container_path": "backend/modules/dimensions/containers/mathlib_slice.dc.json",
+    "source_container_id": "lean::dc::mathlib_slice.lean"
+  },
+  "atoms": [
+    {
+      "id": "atom::lean.replay.core",
+      "title": "Lean Replay (mathlib slice)",
+      "caps": ["lean.replay"],
+      "nodes": ["maxwell_eqs"],
+      "ref": {
+        "source_container_path": "backend/modules/dimensions/containers/mathlib_slice.dc.json",
+        "container_id": "lean::dc::mathlib_slice.lean"
+      }
+    }
+  ],
+  "atom_ids": ["atom::lean.replay.core"]
+}

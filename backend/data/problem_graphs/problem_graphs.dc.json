@@ -1,17 +1,50 @@
 {
+  "id": "problem_graphs",
+  "name": "Problem Graphs",
+  "container_type": "ucs_base",
+  "geometry_type": "tesseract",
+  "runtime_mode": "expanded",
+  "metadata": {
+    "version": "1.0",
+    "description": "Small library of cross-domain problem graphs used to exercise routing across math_core and physics_core.",
+    "address": "ucs://local/problem_graphs#container",
+    "hub_id": "ucs_hub",
+    "integration": {
+      "linked_domains": ["math_core", "physics_core"],
+      "export_ready": true
+    }
+  },
+
+  "routing": {
+    "strategy": "best_score",
+    "address_match_boost": 100.0,
+    "cap_overlap_weight": 2.0,
+    "node_overlap_weight": 1.0,
+    "tag_overlap_weight": 0.5
+  },
+
   "problems": [
     {
       "id": "prove_gauss_law_e_field_vacuum",
+      "title": "Prove Gauss’s law for the electric field in vacuum",
+      "description": "Prove Gauss’s law for the electric field in a vacuum using Maxwell’s equations.",
       "goal": {
         "caps": ["lean.replay"],
-        "tags": ["math"],
-        "nodes": ["maxwell_eqs"]
+        "nodes": ["maxwell_eqs"],
+        "tags": ["math", "electromagnetism", "theorem"]
       },
-      "description": "Prove Gauss’s law for the electric field in a vacuum using Maxwell’s equations.",
       "required_atoms": [
         "lean_replay_core",
         "pde_solver_fem"
-      ]
+      ],
+      "hints": [
+        "Start from Maxwell's equations in differential form; use ∇·E = ρ/ε₀ and ρ = 0 in vacuum.",
+        "Apply the divergence theorem to connect integral and differential forms."
+      ],
+      "links": [
+        { "src": "maxwell_eqs", "dst": "proof_goal:gauss_law", "relation": "implies_under_vacuum" }
+      ],
+      "priority": 1
     }
   ]
 }

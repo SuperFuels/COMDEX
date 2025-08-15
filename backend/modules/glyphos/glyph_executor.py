@@ -2,7 +2,6 @@ from backend.modules.glyphos.glyph_parser import parse_glyph
 from backend.modules.glyphos.glyph_dispatcher import GlyphDispatcher
 from backend.modules.consciousness.state_manager import StateManager
 from backend.modules.dna_chain.dna_switch import DNA_SWITCH
-from backend.modules.skills.goal_engine import GoalEngine
 from backend.modules.hexcore.memory_engine import MemoryEngine
 from backend.modules.consciousness.personality_engine import PersonalityProfile
 from backend.modules.skills.milestone_tracker import MilestoneTracker
@@ -17,6 +16,10 @@ from backend.modules.glyphos.glyph_mutator import run_self_rewrite
 from backend.modules.tessaris.tessaris_trigger import TessarisTrigger
 from backend.modules.glyphos.entanglement_utils import entangle_glyphs
 from backend.modules.consciousness.awareness_engine import AwarenessEngine
+# 🧠 Lazy import ONLY for circular dependency
+def execute_goal_logic():
+    from backend.modules.skills.goal_engine import GoalEngine
+    goal_engine = GoalEngine()
 
 # ✅ Cost estimator and GlyphPush adapter
 from backend.modules.codex.codex_cost_estimator import estimate_glyph_cost
@@ -168,18 +171,21 @@ class GlyphExecutor:
             dispatch_glyph_push(trace_data)
 
         elif glyph == "🧠":
+            from backend.modules.tessaris.tessaris_trigger import TessarisTrigger
             TessarisTrigger().run_from_memory(context=trace_data)
             self.memory_engine.store({**trace_data, "type": "glyph_trigger", "action": "tessaris_memory"})
             self.bridge.trace_trigger(glyph, {**trace_data, "role": "Tessaris from memory"})
             await self.broadcast_glyph_execution(glyph, "tessaris_memory", "tessaris", coord)
 
         elif glyph == "🧬":
+            from backend.modules.tessaris.tessaris_trigger import TessarisTrigger
             TessarisTrigger().run_from_dna(context=trace_data)
             self.memory_engine.store({**trace_data, "type": "glyph_trigger", "action": "tessaris_dna"})
             self.bridge.trace_trigger(glyph, {**trace_data, "role": "Tessaris from DNA"})
             await self.broadcast_glyph_execution(glyph, "tessaris_dna", "tessaris", coord)
 
         elif glyph == "🪄":
+            from backend.modules.tessaris.tessaris_trigger import TessarisTrigger
             TessarisTrigger().run_from_symbol(context=trace_data)
             self.memory_engine.store({**trace_data, "type": "glyph_trigger", "action": "tessaris_symbol"})
             self.bridge.trace_trigger(glyph, {**trace_data, "role": "Tessaris from symbol"})

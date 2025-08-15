@@ -158,11 +158,22 @@ def main():
         choices=list(CONTAINER_MAP.keys()),
         help="Target container layout (default: dc)",
     )
+    # NEW: optional output file path
+    ap.add_argument(
+        "--out",
+        "-o",
+        help="Write output JSON to this path (default: print to stdout)"
+    )
     args = ap.parse_args()
 
     try:
         container = build_container_from_lean(args.lean_file, args.container_type)
-        print(json.dumps(container, indent=2, ensure_ascii=False))
+        if args.out:
+            with open(args.out, "w", encoding="utf-8") as f:
+                json.dump(container, f, indent=2, ensure_ascii=False)
+            print(f"[✅] Wrote container → {args.out}")
+        else:
+            print(json.dumps(container, indent=2, ensure_ascii=False))
     except Exception as e:
         print(f"[❌] Failed to convert Lean file: {e}")
         sys.exit(2)

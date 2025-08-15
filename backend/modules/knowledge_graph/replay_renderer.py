@@ -5,8 +5,8 @@ import time
 from typing import List, Dict, Optional, Any
 
 from backend.modules.dimensions.universal_container_system.ucs_runtime import get_ucs_runtime  # ✅ Updated import
-from backend.modules.glyphnet.glyphnet_ws import broadcast_event  # ✅ WebSocket broadcast
-from backend.modules.glyphnet.glyph_trace_logger import glyph_trace  # ✅ Replay logs
+from backend.routes.ws.glyphnet_ws import broadcast_event  # ✅ WebSocket broadcast
+from backend.modules.glyphos.glyph_trace_logger import glyph_trace  # ✅ Replay logs
 from backend.modules.glyphnet.agent_identity_registry import agent_identity_registry  # ✅ Permission + Identity Registry
 
 

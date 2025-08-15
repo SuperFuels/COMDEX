@@ -1,5 +1,5 @@
 from fastapi import APIRouter, WebSocket
-from backend.modules.hologram.ghx_ws_interface import ghx_ws_handler
+from backend.modules.holograms.ghx_ws_interface import ghx_ws_handler
 
 router = APIRouter()
 

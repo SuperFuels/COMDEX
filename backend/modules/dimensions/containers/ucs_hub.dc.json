@@ -1,0 +1,68 @@
+{
+  "id": "ucs_hub",
+  "type": "container",
+  "kind": "fact",
+  "domain": "physics.kernel",
+  "meta": {
+    "created_by": "SQI",
+    "last_updated": "2025-08-14T19:33:44.723415",
+    "ghx": {
+      "hover": true,
+      "collapsed": true
+    },
+    "address": "ucs://knowledge/physics.kernel/ucs_hub"
+  },
+  "atoms": {},
+  "wormholes": [
+    "ucs_hub"
+  ],
+  "nodes": [
+    {
+      "id": "lorentz_force",
+      "label": "Lorentz Force",
+      "domain": "physics.kernel",
+      "tags": [
+        "kernel",
+        "physics"
+      ],
+      "kind": "fact"
+    },
+    {
+      "id": "faraday_law",
+      "label": "Faraday's Law",
+      "domain": "physics.kernel",
+      "tags": [
+        "kernel",
+        "physics"
+      ]
+    }
+  ],
+  "glyphs": [],
+  "glyph_grid": [
+    {
+      "type": "kg_node",
+      "metadata": {
+        "id": "faraday_law",
+        "label": "Faraday's Law",
+        "domain": "physics.kernel",
+        "tags": [
+          "kernel",
+          "physics"
+        ]
+      }
+    },
+    {
+      "type": "kg_node",
+      "metadata": {
+        "id": "lorentz_force",
+        "label": "Lorentz Force",
+        "domain": "physics.kernel",
+        "tags": [
+          "kernel",
+          "physics"
+        ],
+        "kind": "fact"
+      }
+    }
+  ]
+}

@@ -1,3 +1,14 @@
+import logging
+from typing import Any, Dict, Optional
+
+# ✅ Optional hub/link helpers (safe fallbacks)
+try:
+    from backend.modules.dimensions.container_helpers import connect_container_to_hub
+except Exception:  # pragma: no cover
+    def connect_container_to_hub(*_a, **_k):  # no-op if helper not present
+        pass
+
+_ucsb_checked = set()
 class MicroGrid:
     """3D symbolic micro-grid for container memory and glyph placement."""
 
@@ -69,6 +80,13 @@ class UCSBaseContainer:
 
         print(f"🔧 UCSBaseContainer initialized: {self.name} ({self.geometry}) | Time Dilation: {self.time_dilation}, Micro-grid: {bool(self.micro_grid)}")
 
+        # ✅ NEW: idempotently connect every base container to the Tesseract hub directory/graph
+        try:
+            self._connect_to_hub()
+        except Exception:
+            # keep silent here; callers can log if desired
+            pass
+
     # ---------------------------------------------------------
     # 🧩 DNA Switch-like Feature Management
     # ---------------------------------------------------------
@@ -125,9 +143,19 @@ class UCSBaseContainer:
     # 🔒 SoulLaw Enforcement
     # ---------------------------------------------------------
     def enforce_soullaw(self):
-        """Enforce SoulLaw validation before execution."""
-        self.runtime.soul_law.validate_access({"name": self.name, "geometry": self.geometry})
-        print(f"🔒 SoulLaw validated for {self.name}")
+        """Enforce SoulLaw validation before execution (only once per container id/name)."""
+        # Prefer a stable id if present; else fall back to name
+        key = getattr(self, "id", None) or self.name
+
+        # Only validate once per process for this container
+        if key not in _ucsb_checked:
+            self.runtime.soul_law.validate_access({"id": key, "name": self.name, "geometry": self.geometry})
+            _ucsb_checked.add(key)
+            print(f"🔒 SoulLaw validated once for {key}")
+        else:
+            # Keep a breadcrumb so we know why we’re not re-validating every time
+            # (helps when debugging slow loops)
+            pass
 
     # ---------------------------------------------------------
     # 🎨 GHX Visualization
@@ -156,3 +184,20 @@ class UCSBaseContainer:
         self.enforce_soullaw()
         self.visualize_state("running")
         print(f"🚀 Executing {self.name} ({self.geometry})")
+
+    # ---------------------------------------------------------
+    # 🧭 NEW: Hub hookup (idempotent)
+    # ---------------------------------------------------------
+    def _connect_to_hub(self, hub_id: str = "tesseract_hq") -> None:
+        """
+        Register/connect this container into the HQ graph. Safe to call many times.
+        """
+        container_id = getattr(self, "id", None) or self.name  # stable id if present
+        doc: Dict[str, Any] = {
+            "id": container_id,
+            "name": self.name,
+            "geometry": self.geometry,
+            "type": self.container_type or "container",
+            "meta": {"address": f"ucs://local/{container_id}#container"},
+        }
+        connect_container_to_hub(doc, hub_id=hub_id)  # no-op if helper stubbed

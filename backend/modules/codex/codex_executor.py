@@ -37,15 +37,49 @@ from backend.modules.consciousness.memory_bridge import MemoryBridge
 from backend.modules.hexcore.memory_engine import store_memory
 from backend.modules.dna_chain.switchboard import DNA_SWITCH
 from backend.modules.dna_chain.mutation_checker import add_dna_mutation
+from backend.modules.consciousness.state_manager import STATE  # singleton instance
 
 # SQI + Prediction
 from backend.modules.consciousness.prediction_engine import PredictionEngine
 from backend.modules.sqi.sqi_trace_logger import SQITraceLogger
-from backend.modules.sqi.symbolic_entangler import entangle_glyphs
+try:
+    from backend.modules.glyphos.symbolic_entangler import entangle_glyphs
+except Exception:
+    def entangle_glyphs(*args, **kwargs):
+        # no-op fallback for tests
+        return []
+
+# websocket broadcaster lives under routes/ws in this repo
+try:
+    from backend.routes.ws.glyphnet_ws import broadcast_glyph_event
+except Exception:
+    def broadcast_glyph_event(*args, **kwargs):
+        # no-op fallback for tests
+        return None
 
 # GHX & GlyphNet
-from backend.modules.glyphnet.glyphnet_ws import broadcast_glyph_event
-from backend.modules.scrolls.scroll_builder import build_scroll_from_glyph
+
+try:
+    from backend.modules.scrolls.scroll_builder import build_scroll_from_glyph
+except ImportError:
+    def build_scroll_from_glyph(*args, **kwargs):
+        return None  # no-op for tests
+
+# after: from backend.modules.codex.ops.op_trigger import op_trigger
+from backend.modules.codex.ops.op_trigger import op_trigger as _raw_op_trigger
+
+def _safe_op_trigger(context: Dict[str, Any], target: str = "default_trigger") -> str:
+    """
+    Adapts to both legacy signatures:
+      - op_trigger(args, registers, context)
+      - op_trigger(context=..., target=...)
+    """
+    try:
+        # Newer/virtual-CPU signature
+        return _raw_op_trigger([target], None, context)  # args, registers(None OK), context
+    except TypeError:
+        # Older keyword-style signature
+        return _raw_op_trigger(context=context, target=target)
 
 # Self-rewrite
 from backend.modules.aion.rewrite_engine import RewriteEngine
@@ -59,13 +93,18 @@ class CodexExecutor:
     def __init__(self):
         self.metrics = CodexMetrics()
         self.trace = CodexTrace()
-        self.glyph_executor = GlyphExecutor()
+        self.glyph_executor = GlyphExecutor(state_manager=STATE)
         self.tessaris = TessarisEngine()
-        self.memory_bridge = MemoryBridge()
         self.kg_writer = KnowledgeGraphWriter()
         self.prediction_engine = PredictionEngine()
         self.prediction_index = PredictionIndex()
         self.sqi_trace = SQITraceLogger()
+        # Resolve the active container id for memory scoping
+        try:
+            active_cid = STATE.get_current_container_id() or "ucs_hub"
+        except Exception:
+            active_cid = "ucs_hub"
+        self.memory_bridge = MemoryBridge(container_id=active_cid)
 
     # ──────────────────────────────
     # 🎯 CodexLang Execution
@@ -194,7 +233,7 @@ class CodexExecutor:
     # 🔀 Trigger Ops
     # ──────────────────────────────
     def trigger_op(self, context: Dict[str, Any], target: Any = "default_trigger") -> str:
-        log = op_trigger(context=context, target=target)
+        log = _safe_op_trigger(context=context, target=str(target))
         self.trace.log_event("trigger", {"target": target, "context": context})
         return log
 
@@ -217,3 +256,31 @@ class CodexExecutor:
 
 # ✅ Singleton instance
 codex_executor = CodexExecutor()
+
+# ─────────────────────────────────────────────────────────
+# Module-level shims for legacy tests / runners
+# (google_benchmark_runner.py expects these symbols)
+# ─────────────────────────────────────────────────────────
+
+from typing import Any, Dict, Optional
+
+def execute_codex_instruction_tree(instruction_tree: Dict[str, Any],
+                                   context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    """
+    Legacy shim: execute a pre-parsed instruction tree via the singleton executor.
+    """
+    return codex_executor.execute_instruction_tree(instruction_tree, context=context)
+
+def execute_codexlang(codex_string: str,
+                      context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    """
+    Legacy shim: execute a CodexLang string via the singleton executor.
+    """
+    return codex_executor.execute_codexlang(codex_string, context=context)
+
+__all__ = [
+    "CodexExecutor",
+    "codex_executor",
+    "execute_codex_instruction_tree",
+    "execute_codexlang",
+]

@@ -11,9 +11,8 @@ Integrates with:
 import json
 import os
 from typing import Dict, Any, Union
-
-from backend.modules.dimensions.universal_container_system.hoberman import HobermanContainer
-from backend.modules.dimensions.universal_container_system.symbolic_expansion import SymbolicExpansionContainer
+from backend.modules.dimensions.containers.hoberman_container import HobermanContainer
+from backend.modules.dimensions.containers.symbolic_expansion_container import SymbolicExpansionContainer
 from backend.modules.dimensions.universal_container_system.ucs_runtime import ucs_runtime
 from backend.modules.dimensions.universal_container_system.ucs_base_container import UCSBaseContainer
 from backend.modules.dimensions.universal_container_system.ucs_geometry_loader import UCS_TEMPLATE_DIR
@@ -90,6 +89,10 @@ def auto_load_all_templates():
             containers[container.name if hasattr(container, "name") else file] = container
     return containers
 
+def load_decrypted_container(container_id: str) -> dict:
+    # TEMP STUB — replace with real decryption/load logic
+    from backend.modules.runtime.container_runtime import get_decrypted_current_container
+    return get_decrypted_current_container(container_id)
 
 __all__ = [
     "load_container_from_json",

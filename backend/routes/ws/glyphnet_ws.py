@@ -18,17 +18,20 @@ Handles real-time streaming of glyph activity, entanglement, SoulLaw verdicts, a
 ✅ Ethical Signal Injection & Confidence Tags
 ✅ Live Permission Diff + Identity Color Sync (NEW)
 """
-
+import time
 import asyncio
 import logging
-from fastapi import WebSocket
+from fastapi import APIRouter, WebSocket
 from typing import Dict, List, Any, Optional
 
 from backend.modules.glyphos.glyph_executor import GlyphExecutor
-from backend.modules.consciousness.state_manager import state_manager
 from backend.modules.prediction.predictive_glyph_composer import PredictiveGlyphComposer
 from backend.modules.glyphnet.agent_identity_registry import agent_identity_registry
 from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter, crdt_registry
+from backend.modules.glyphnet.broadcast_throttle import install, throttled_broadcast
+from backend.modules.teleport.portal_manager import PORTALS, create_teleport_packet
+from backend.modules.consciousness.state_manager import STATE
+
 
 logger = logging.getLogger(__name__)
 
@@ -37,6 +40,47 @@ active_connections: List[WebSocket] = []
 
 # Broadcast queue
 event_queue: asyncio.Queue = asyncio.Queue()
+
+# --- FastAPI router + endpoint so main.py can include_router(...) ---
+router = APIRouter()
+
+_loop_started = False  # make sure the background broadcaster is started once
+
+@router.websocket("/ws/glyphnet")
+async def glyphnet_websocket_endpoint(websocket: WebSocket):
+    """
+    Public WS endpoint:
+      - accepts the connection
+      - ensures the broadcast loop is running
+      - receives JSON messages and pipes them to handle_glyphnet_event
+      - cleans up on disconnect
+    """
+    global _loop_started
+
+    await websocket.accept()
+    active_connections.append(websocket)
+
+    # Start background broadcast loop once
+    if not _loop_started:
+        start_glyphnet_ws_loop()
+        _loop_started = True
+
+    # optional hello (safe to keep)
+    try:
+        await websocket.send_json({"type": "status", "message": "🛰️ Connected to GlyphNet WebSocket"})
+    except Exception:
+        # ignore initial send errors
+        pass
+
+    try:
+        while True:
+            msg = await websocket.receive_json()
+            await handle_glyphnet_event(websocket, msg)
+    except Exception:
+        # client closed or bad frame; fall through to cleanup
+        pass
+    finally:
+        disconnect(websocket)
 
 # ✅ Connection Handling
 async def connect(websocket: WebSocket):
@@ -58,6 +102,13 @@ async def broadcast_event(event: Dict[str, Any]):
     """Enqueue a symbolic event for broadcast."""
     await event_queue.put(event)
 
+install(broadcast_event)
+
+# Fire-and-forget, throttled alias for high-volume callers
+def broadcast_event_throttled(event: Dict[str, Any]) -> None:
+    # non-awaiting; lets the throttle coalesce bursts
+    throttled_broadcast(event)
+
 # ✅ Background Broadcast Loop
 async def glyphnet_ws_loop():
     """Async loop that dispatches queued events to all connected clients."""
@@ -76,6 +127,37 @@ async def glyphnet_ws_loop():
 def start_glyphnet_ws_loop():
     """Start the background broadcast loop."""
     asyncio.create_task(glyphnet_ws_loop())
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Throttled broadcast adapter (prevents event floods)
+# Place right after start_glyphnet_ws_loop()
+# ─────────────────────────────────────────────────────────────────────────────
+try:
+    from backend.modules.glyphnet.broadcast_throttle import install, throttled_broadcast
+except Exception:
+    # Soft-fallback if throttle module isn't present yet
+    def install(_):  # no-op
+        pass
+    def throttled_broadcast(event: dict):
+        # naive passthrough if throttle unavailable
+        asyncio.create_task(broadcast_event(event))
+
+# Bridge the throttler (which expects a sender) to our enqueue-based API.
+# Our broadcast_event accepts a *single event dict*. We pass it through.
+def _throttle_sender(event: dict):
+    # Use the existing enqueue path
+    asyncio.create_task(broadcast_event(event))
+
+# Register our sender with the throttle module
+install(_throttle_sender)
+
+# Export a throttled alias others can import and call with a dict.
+def broadcast_event_throttled(event: dict):
+    """
+    Throttled version of broadcast_event(event_dict).
+    Use this in high-volume code paths (e.g., large container loads, atom loops).
+    """
+    throttled_broadcast(event)
 
 # ✅ Agent Identity Handshake
 async def handle_agent_identity_register(websocket: WebSocket, msg: Dict[str, Any]):
@@ -97,7 +179,7 @@ async def handle_agent_identity_register(websocket: WebSocket, msg: Dict[str, An
     })
 
     # Broadcast agent presence to all
-    await broadcast_event({
+    broadcast_event_throttled({
         "type": "agent_joined",
         "agent": agent_data,
         "tags": ["🌐", "🤝"]
@@ -116,7 +198,7 @@ async def broadcast_permission_update(agent_id: str, glyph_id: Optional[str] = N
     }
     if glyph_id and permission:
         payload.update({"glyph_id": glyph_id, "permission": permission})
-    await broadcast_event(payload)
+    broadcast_event_throttled(payload)
     logger.info(f"[GlyphNetWS] Broadcasted glyph_permission_update for {agent_id} (glyph={glyph_id or 'all'})")
 
 # ✅ Incoming WebSocket Event Handler
@@ -147,6 +229,39 @@ async def handle_glyphnet_event(websocket: WebSocket, msg: Dict[str, Any]):
             "predictions": predictions
         })
 
+        # 🌀 Electron-triggered teleport to container
+    elif event_type == "teleport_to_container":
+        target_cid = msg.get("cid")
+        source_cid = msg.get("source_cid")  # optional
+        from backend.modules.consciousness.state_manager import STATE
+        from backend.modules.teleport.portal_manager import PORTALS, create_teleport_packet
+        import time
+
+        if not target_cid:
+            await websocket.send_json({ "error": "Missing target container ID" })
+            return
+
+        # Register portal and teleport packet
+        portal_id = PORTALS.register_portal(source=source_cid or "unknown", target=target_cid)
+        packet = create_teleport_packet(
+            portal_id=portal_id,
+            container_id=source_cid or "unknown",
+            payload={
+                "teleport_reason": "electron_click",
+                "timestamp": time.time(),
+                "trigger": "GHX"
+            }
+        )
+
+        success = PORTALS.teleport(packet)
+
+        await websocket.send_json({
+            "type": "teleport_result",
+            "portal_id": portal_id,
+            "target": target_cid,
+            "success": success
+        })
+
     # 🌐 Agent Identity Registration (A8a)
     elif event_type == "agent_identity_register":
         await handle_agent_identity_register(websocket, msg)
@@ -175,7 +290,7 @@ async def handle_glyphnet_event(websocket: WebSocket, msg: Dict[str, Any]):
             updated_glyph = kg_writer.merge_edit(
                 glyph_id=glyph_id, updates=updates, agent_id=agent_id, version_vector=version_vector
             )
-            await broadcast_event({
+            broadcast_event_throttled({
                 "type": "glyph_updated",
                 "glyph_id": glyph_id,
                 "updates": updates,
@@ -207,11 +322,11 @@ async def handle_glyphnet_event(websocket: WebSocket, msg: Dict[str, Any]):
 # ✅ Lock Overlay Broadcast
 async def broadcast_lock_overlay(state: str, target_id: str, agent_id: str):
     event_type = "entanglement_lock_acquired" if state == "acquired" else "entanglement_lock_released"
-    await broadcast_event({
+    broadcast_event_throttled({
         "type": event_type,
         "target_id": target_id,
         "agent_id": agent_id,
-        "tags": ["↔", "🔒"]
+        "tags": ["↔", "🔒"],
     })
     logger.info(f"[GlyphNetWS] Broadcasted {event_type} for {target_id} by {agent_id}")
 
