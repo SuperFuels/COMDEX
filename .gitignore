@@ -57,3 +57,4 @@ google-cloud-sdk/
 *.tar.gz
 *.zip
 backend/data/knowledge_index.jsonlbackend/data/knowledge_index.jsonl
+backend/data/knowledge_index.jsonl
