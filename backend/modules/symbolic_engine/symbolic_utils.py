@@ -17,7 +17,6 @@
 
 import logging
 from typing import List, Dict, Union, Any
-from backend.modules.glyphos.glyph_trace_logger import glyph_trace
 from backend.modules.codex.codex_metrics import CodexMetrics
 
 logger = logging.getLogger(__name__)
@@ -60,6 +59,8 @@ def trace_back_causal_chain(failed_glyph: Union["GlyphEvent", Dict[str, Any]], d
     Trace backward through the glyph trace log to identify causal ancestry.
     Returns up to `depth` previous glyphs leading to this failure.
     """
+    from backend.modules.glyphos.glyph_trace_logger import glyph_trace  # 🔁 Lazy import to avoid circular import
+
     normalized_failed = normalize_glyph_event(failed_glyph)
     container_id = normalized_failed.get("container_id", "unknown")
     glyph_id = normalized_failed.get("id", "unknown")

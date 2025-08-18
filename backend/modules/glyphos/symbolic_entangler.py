@@ -4,7 +4,9 @@ from typing import Dict, List
 
 from backend.modules.hexcore.memory_engine import log_memory
 from backend.modules.glyphos.symbolic_operator import is_entanglement_operator
-from backend.modules.runtime.container_runtime import get_container_runtime
+def get_runtime():
+    from backend.modules.runtime.container_runtime import get_container_runtime
+    return get_container_runtime
 
 # 🔒 Entanglement database file
 ENTANGLEMENTS_FILE = "backend/data/entanglements.json"
@@ -49,7 +51,7 @@ def get_entangled_containers(container_id: str) -> List[str]:
     return entanglements.get(container_id, [])
 
 def propagate_entangled_memory(container_id: str, memory: Dict) -> None:
-    runtime = get_container_runtime()  # ✅ Access the global runtime instance
+    runtime = get_runtime()  # ✅ Access the global runtime instance
     targets = get_entangled_containers(container_id)
 
     for target_id in targets:

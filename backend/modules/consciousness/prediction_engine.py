@@ -15,7 +15,9 @@ from typing import Dict, Any, List, Optional
 logger = logging.getLogger(__name__)
 
 from backend.modules.dna_chain.switchboard import DNA_SWITCH
-from backend.modules.glyphos.glyph_trace_logger import glyph_trace
+def get_glyph_trace():
+    from backend.modules.glyphos.glyph_trace_logger import glyph_trace
+    return glyph_trace
 from backend.modules.soul.soul_laws import get_soul_laws
 from backend.modules.consciousness.symbolic_gradient_engine import SymbolicGradientEngine
 from backend.modules.knowledge_graph.glyph_feedback_tracer import GlyphFeedbackTracer

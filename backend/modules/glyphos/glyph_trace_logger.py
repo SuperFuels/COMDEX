@@ -16,7 +16,10 @@ def get_broadcast_event():
     return broadcast_event
 
 from backend.modules.glyphvault.vault_bridge import get_container_snapshot_id  # ✅ Snapshot ID fetch
-from backend.modules.replay.glyph_replay_renderer import GlyphReplayRenderer  # ✅ Auto-play renderer link
+def get_glyph_replay_renderer():
+    from backend.modules.replay.glyph_replay_renderer import GlyphReplayRenderer
+    return GlyphReplayRenderer
+    # ✅ Auto-play renderer link
 from backend.modules.sqi.sqi_event_bus import publish_kg_added  # ✅ Debounced KG publisher
 
 # ✅ Optional: config flag for GHX logging (won't crash if config missing)
@@ -45,7 +48,7 @@ class GlyphTraceLogger:
         self.trace_log: List[dict] = []
         self.replay_log: List[dict] = []  # ✅ Replay-specific log
         self.persist = persist
-        self.replay_renderer = GlyphReplayRenderer()  # ✅ Auto-wire renderer
+        self.replay_renderer = GlyphReplayRenderer = get_glyph_replay_renderer()  # ✅ Auto-wire renderer
         self._load_existing_log()
 
         # ✅ Lightweight debounce to reduce broadcast spam for identical payloads

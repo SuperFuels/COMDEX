@@ -4,7 +4,9 @@ from pathlib import Path
 import requests
 from backend.config import GLYPH_API_BASE_URL, ENABLE_GLYPH_LOGGING
 from backend.modules.dna_chain.switchboard import DNA_SWITCH
-from backend.modules.tessaris.tessaris_trigger import trigger_tessaris_from_goal
+def trigger_tessaris_from_goal(*args, **kwargs):
+    from backend.modules.tessaris.tessaris_trigger import trigger_tessaris_from_goal as _trigger
+    return _trigger(*args, **kwargs)
 from backend.modules.glyphos.glyph_mutator import run_self_rewrite
 from backend.modules.glyphos.entanglement_utils import entangle_glyphs
 from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter, kg_writer
