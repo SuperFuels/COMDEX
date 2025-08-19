@@ -4,6 +4,7 @@ from typing import Dict, List
 
 from backend.modules.hexcore.memory_engine import log_memory
 from backend.modules.glyphos.symbolic_operator import is_entanglement_operator
+
 def get_runtime():
     from backend.modules.runtime.container_runtime import get_container_runtime
     return get_container_runtime
@@ -22,6 +23,7 @@ def _save_entanglements(entanglements: Dict[str, List[str]]) -> None:
         json.dump(entanglements, f, indent=2)
 
 def get_entangled_for(glyph: str) -> List[str]:
+    from backend.modules.runtime.container_runtime import get_container_runtime
     entanglements = _load_entanglements()
     results = []
     for source, targets in entanglements.items():

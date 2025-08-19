@@ -29,6 +29,13 @@ interface GlyphDetail {
   observer_trace?: string;
 }
 
+interface SuggestedRewrite {
+  new_glyph: string;
+  goal_match_score?: number;
+  rewrite_success_prob?: number;
+  reason?: string;
+}
+
 interface GlyphEvent {
   glyph: string;
   action: string;
@@ -47,8 +54,16 @@ interface GlyphEvent {
   replay_trace?: boolean;
   collapse_trace?: boolean;
   entangled_identity?: boolean;
+  suggested_rewrite?: SuggestedRewrite; 
+
+  // 🧠 Prediction metadata (NEW)
+  beamSource?: "PredictionBeam" | "DreamBeam" | "TranquilityBeam" | "GHX" | string;
+  confidence?: number;
+  entropy?: number;
+  predicted?: boolean;
 }
 
+  
 interface TickEvent {
   type: 'dimension_tick';
   container: string;
@@ -393,6 +408,32 @@ return (
                     {timestamp ? new Date(timestamp * 1000).toLocaleTimeString() : 'N/A'}
                   </span>
                 </div>
+              {/* 🔁 Suggested Rewrite Panel */}
+              {glyph?.suggested_rewrite && (
+                <div className="mt-1 ml-2 border border-dashed border-yellow-600 p-2 rounded bg-yellow-900/20 text-yellow-200 text-xs font-mono">
+                  <div className="mb-1 font-bold text-yellow-300">🔁 Suggested Rewrite</div>
+                  <div>
+                    <b>New Glyph:</b> <code>{glyph.suggested_rewrite.new_glyph}</code>
+                  </div>
+                  <div>
+                    <b>Goal Match Score:</b>{' '}
+                    {glyph.suggested_rewrite.goal_match_score != null
+                      ? glyph.suggested_rewrite.goal_match_score.toFixed(2)
+                      : 'N/A'}
+                  </div>
+                  <div>
+                    <b>Rewrite Success Probability:</b>{' '}
+                    {glyph.suggested_rewrite.rewrite_success_prob != null
+                      ? `${Math.round(glyph.suggested_rewrite.rewrite_success_prob * 100)}%`
+                      : 'N/A'}
+                  </div>
+                  {glyph.suggested_rewrite.reason && (
+                    <div>
+                      <b>Reason:</b> <span>{glyph.suggested_rewrite.reason}</span>
+                    </div>
+                  )}
+                </div>
+              )}
               </div>
             );
           }
@@ -416,126 +457,158 @@ return (
   const operator = extractOperator(glyphData.glyph);
   const operatorLabel = operatorName(operator);
   const operatorColor = operator ? OPERATOR_COLORS[operator] || 'text-white' : 'text-white';
+
   const isGlyphLog = log.type === 'glyph';
-const glyph = isGlyphLog ? log.data : null;
+  const glyph = isGlyphLog ? log.data : null;
 
-const isLeanGlyph =
-  operator === '⟦ Theorem ⟧' || log.type === 'lean_theorem_executed';
+  const isLeanGlyph =
+    operator === '⟦ Theorem ⟧' || log.type === 'lean_theorem_executed';
 
-const isEntangled =
-  glyph?.glyph?.includes('↔') || glyph?.detail?.entangled_from;
+  const isEntangled =
+    glyph?.glyph?.includes('↔') || glyph?.detail?.entangled_from;
 
-const isCostly = glyph?.cost && glyph.cost > 100;
+  const isPredicted = glyph?.predicted;
+  const beamLabel = glyph?.beamSource || '';
+  const confidence = glyph?.confidence;
+  const entropy = glyph?.entropy;
 
-const key = `${glyph?.glyph || 'unknown'}-${glyph?.timestamp || index}`;
+  const key = `${glyph?.glyph || 'unknown'}-${glyph?.timestamp || index}`;
 
-return (
-  <div
-    key={key}
-    className={`border-b border-white/10 py-1 ${
-      isEntangled ? 'bg-purple-900/10' : ''
-    } hover:bg-slate-800 cursor-pointer`}
-    onMouseEnter={() =>
-      glyph?.glyph && handleHoverNarration(glyph.glyph, glyph.action)
-    }
-  >
-    <div className={`text-sm font-mono ${operatorColor}`}>
-      ⟦ {glyph?.glyph || '???'} ⟧ →{' '}
-      <span className="text-green-400">{glyph?.action || log.action}</span>
+  return (
+    <div
+      key={key}
+      className={`border-b border-white/10 py-1 ${
+        isEntangled ? 'bg-purple-900/10' : ''
+      } hover:bg-slate-800 cursor-pointer`}
+      onMouseEnter={() =>
+        glyph?.glyph && handleHoverNarration(glyph.glyph, glyph.action)
+      }
+    >
+      <div className={`text-sm font-mono ${operatorColor}`}>
+        ⟦ {glyph?.glyph || '???'} ⟧ →{' '}
+        <span className="text-green-400">{glyph?.action || log.action}</span>
 
-      {isLeanGlyph && (
-        <Badge className="ml-2" variant="outline">
-          📘 Lean Theorem
-        </Badge>
-      )}
-      {operator && !isLeanGlyph && (
-        <Badge className="ml-2" variant="outline">
-          {`${operator} ${operatorLabel}`}
-        </Badge>
-      )}
-      {glyph?.trigger_type && (
-        <Badge className="ml-2" variant="secondary">
-          🕒 {glyph.trigger_type}
-        </Badge>
-      )}
-      {glyph?.replay_trace && (
-        <Badge className="ml-2" variant="outline">
-          🛰️ Replay
-        </Badge>
-      )}
-      {glyph?.collapse_trace && (
-        <Badge className="ml-2" variant="outline">
-          📦 Collapse Trace
-        </Badge>
-      )}
-      {glyph?.entangled_identity && (
-        <Badge className="ml-2" variant="outline">
-          ↔ Identity Link
-        </Badge>
-      )}
-      {glyph?.trace_id && (
-        <Badge className="ml-2" variant="outline">
-          🧩 Trace ID
-        </Badge>
-      )}
-      {glyph?.sqi && (
-        <Badge className="ml-2" variant="outline">
-          🌌 SQI
-        </Badge>
-      )}
-      {isEntangled && (
-        <Badge className="ml-2" variant="outline">
-          ↔ Entangled
-        </Badge>
-      )}
-      {glyph?.luxpush && (
-        <Badge className="ml-2" variant="outline">
-          🛰️ GlyphPush
-        </Badge>
-      )}
-      {glyph?.context && (
-        <Badge className="ml-2" variant="outline">
-          🧠 Context Preview
-        </Badge>
-      )}
-      {isCostly && (
-        <Badge className="ml-2" variant="destructive">
-          ⚠️ High Cost
-        </Badge>
-      )}
-      {glyph?.token && glyph?.identity && (
-        <Badge className="ml-2" variant="outline">
-          🔐 {glyph.identity}
-        </Badge>
-      )}
+        {/* 🔮 Beam Prediction Badge */}
+        <span className={`text-xs ${operatorColor}`}>{operatorLabel}</span>
 
-      {/* Buttons */}
-      {glyph?.glyph && (
-        <>
-          <Button
-            className="ml-2 text-xs px-2 py-0 h-6 bg-transparent hover:bg-white/10 border border-white/10"
-            onClick={() => toggleScroll(glyph.glyph)}
-          >
-            🧾 {scrolls[glyph.glyph] ? 'Hide' : 'Show'} Scroll
-          </Button>
+        {isPredicted && (
+          <span className="ml-1 text-xs text-sky-400">
+            🔮 {beamLabel || 'Predicted'}
+            {typeof confidence === 'number' && (
+              <span className="ml-1 text-purple-300">
+                ({Math.round(confidence * 100)}%)
+              </span>
+            )}
+            {typeof entropy === 'number' && (
+              <span className="ml-1 text-yellow-400">
+                ↯ {entropy.toFixed(2)}
+              </span>
+            )}
+          </span>
+        )}
 
-          <Button
-            className="ml-2 text-xs px-2 py-0 h-6 bg-transparent hover:bg-white/10 border border-white/10"
-            onClick={() => toggleContext(glyph.glyph)}
-          >
-            🔍 {contextShown[glyph.glyph] ? 'Hide' : 'Show'} Context
-          </Button>
-        </>
-      )}
+        {isLeanGlyph && (
+          <Badge className="ml-2" variant="outline">
+            📘 Lean Theorem
+          </Badge>
+        )}
+        {operator && !isLeanGlyph && (
+          <Badge className="ml-2" variant="outline">
+            {`${operator} ${operatorLabel}`}
+          </Badge>
+        )}
+        {glyph?.trigger_type && (
+          <Badge className="ml-2" variant="secondary">
+            🕒 {glyph.trigger_type}
+          </Badge>
+        )}
+        {glyph?.replay_trace && (
+          <Badge className="ml-2" variant="outline">
+            🛰️ Replay
+          </Badge>
+        )}
+        {glyph?.collapse_trace && (
+          <Badge className="ml-2" variant="outline">
+            📦 Collapse Trace
+          </Badge>
+        )}
+        {glyph?.entangled_identity && (
+          <Badge className="ml-2" variant="outline">
+            ↔ Identity Link
+          </Badge>
+        )}
+        {glyph?.trace_id && (
+          <Badge className="ml-2" variant="outline">
+            🧩 Trace ID
+          </Badge>
+        )}
+        {glyph?.sqi && (
+          <Badge className="ml-2" variant="outline">
+            🌌 SQI
+          </Badge>
+        )}
+        {isEntangled && (
+          <Badge className="ml-2" variant="outline">
+            ↔ Entangled
+          </Badge>
+        )}
+        {glyph?.luxpush && (
+          <Badge className="ml-2" variant="outline">
+            🛰️ GlyphPush
+          </Badge>
+        )}
+        {glyph?.context && (
+          <Badge className="ml-2" variant="outline">
+            🧠 Context Preview
+          </Badge>
+        )}
+        {isCostly && (
+          <Badge className="ml-2" variant="destructive">
+            ⚠️ High Cost
+          </Badge>
+        )}
+        {glyph?.token && glyph?.identity && (
+          <Badge className="ml-2" variant="outline">
+            🔐 {glyph.identity}
+          </Badge>
+        )}
+        {glyph?.prediction_result && (
+          <Badge className="ml-2" variant="outline">
+            📈 Prediction: {glyph.prediction_result.outcome || 'N/A'} (
+            {glyph.prediction_result.confidence != null
+              ? `${Math.round(glyph.prediction_result.confidence * 100)}%`
+              : '...'}
+            )
+          </Badge>
+        )}
+
+        {/* Buttons */}
+        {glyph?.glyph && (
+          <>
+            <Button
+              className="ml-2 text-xs px-2 py-0 h-6 bg-transparent hover:bg-white/10 border border-white/10"
+              onClick={() => toggleScroll(glyph.glyph)}
+            >
+              🧾 {scrolls[glyph.glyph] ? 'Hide' : 'Show'} Scroll
+            </Button>
+
+            <Button
+              className="ml-2 text-xs px-2 py-0 h-6 bg-transparent hover:bg-white/10 border border-white/10"
+              onClick={() => toggleContext(glyph.glyph)}
+            >
+              🔍 {contextShown[glyph.glyph] ? 'Hide' : 'Show'} Context
+            </Button>
+          </>
+        )}
+      </div>
+
+      <div className="text-xs text-white/60 flex justify-between">
+        <span>{glyph?.source || log.source || 'Unknown Source'}</span>
+        <span>
+          {glyph?.timestamp
+            ? new Date(glyph.timestamp * 1000).toLocaleTimeString()
+            : 'Unknown Time'}
+        </span>
+      </div>
     </div>
-
-    <div className="text-xs text-white/60 flex justify-between">
-      <span>{glyph?.source || log.source || 'Unknown Source'}</span>
-      <span>
-        {glyph?.timestamp
-          ? new Date(glyph.timestamp * 1000).toLocaleTimeString()
-          : 'Unknown Time'}
-      </span>
-    </div>
-  </div>
-);
+  );

@@ -1,58 +1,125 @@
+'use client';
+
 import React, { useEffect, useRef, useState } from 'react';
-import { ForceGraph2D } from 'react-force-graph';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
+import dynamic from 'next/dynamic';
+import { EntangledNode, EntangledLink } from '@/components/EntanglementGraph';
 
-interface Node {
+// Dynamically import the graph so it only runs client-side
+const EntanglementGraph = dynamic(() => import('@/components/EntanglementGraph'), { ssr: false });
+
+interface Glyph {
   id: string;
-  label: string;
   glyph: string;
-}
-
-interface Link {
-  source: string;
-  target: string;
-}
-
-interface GraphData {
-  nodes: Node[];
-  links: Link[];
+  label?: string;
+  entangled?: string[];
 }
 
 export default function EntanglementGraphPage() {
-  const [graphData, setGraphData] = useState<GraphData>({ nodes: [], links: [] });
+  const [glyphs, setGlyphs] = useState<Glyph[]>([]);
+  const [graphData, setGraphData] = useState<{ nodes: EntangledNode[]; links: EntangledLink[] }>({ nodes: [], links: [] });
   const [filter, setFilter] = useState('');
-  const fgRef = useRef<any>();
+  const [liveMode, setLiveMode] = useState(false);
+  const [playing, setPlaying] = useState(false);
+  const [step, setStep] = useState(0);
+  const [wsRef, setWsRef] = useState<WebSocket | null>(null);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  // ✅ Load static seed_entangled.dc.json container
+  // Load collapse trace on mount
   useEffect(() => {
     fetch('/containers/seed_entangled.dc.json')
       .then(res => res.json())
       .then(data => {
-        const nodes = data.glyphs.map((g: any) => ({
-          id: g.id,
-          label: g.label || g.glyph,
-          glyph: g.glyph
-        }));
-        const links: any[] = [];
-        data.glyphs.forEach((g: any) => {
-          if (g.entangled) {
-            g.entangled.forEach((targetId: string) => {
-              links.push({ source: g.id, target: targetId });
-            });
-          }
-        });
-        setGraphData({ nodes, links });
+        const g = data.glyphs || [];
+        setGlyphs(g);
+        setStep(0);
+        injectGlyphs(g.slice(0, 1));
       });
   }, []);
 
+  // Live WebSocket Mode
+  useEffect(() => {
+    if (!liveMode) {
+      if (wsRef) {
+        wsRef.close();
+        setWsRef(null);
+      }
+      return;
+    }
+
+    const ws = new WebSocket('ws://localhost:8000/ws/glyphnet');
+    setWsRef(ws);
+    ws.onmessage = (event) => {
+      try {
+        const msg = JSON.parse(event.data);
+        if (msg.type === 'glyph') {
+          injectGlyphs([msg.payload], true);
+        }
+      } catch (err) {
+        console.error('Invalid glyph message:', err);
+      }
+    };
+    return () => ws.close();
+  }, [liveMode]);
+
+  // Replay mode autoplay
+  useEffect(() => {
+    if (!playing) {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+      return;
+    }
+    intervalRef.current = setInterval(() => {
+      stepForward();
+    }, 1000);
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, [playing, step]);
+
+  const injectGlyphs = (glyphSlice: Glyph[], live = false) => {
+    const nodeMap = new Map(graphData.nodes.map(n => [n.id, n]));
+    const linkSet = new Set(graphData.links.map(l => `${l.source}-${l.target}`));
+    const newNodes = [...graphData.nodes];
+    const newLinks = [...graphData.links];
+
+    for (const g of glyphSlice) {
+      if (!nodeMap.has(g.id)) {
+        newNodes.push({ id: g.id, label: g.label || g.glyph, glyph: g.glyph });
+      }
+      if (Array.isArray(g.entangled)) {
+        for (const target of g.entangled) {
+          const key = `${g.id}-${target}`;
+          if (!linkSet.has(key)) {
+            newLinks.push({ source: g.id, target, label: live ? 'Live' : undefined });
+            linkSet.add(key);
+          }
+        }
+      }
+    }
+    setGraphData({ nodes: newNodes, links: newLinks });
+  };
+
+  const stepForward = () => {
+    if (step < glyphs.length) {
+      const next = glyphs[step];
+      injectGlyphs([next]);
+      setStep(step + 1);
+    } else {
+      setPlaying(false);
+    }
+  };
+
   const filtered = filter
     ? {
-        nodes: graphData.nodes.filter((n) => n.glyph.toLowerCase().includes(filter.toLowerCase())),
-        links: graphData.links.filter((l) =>
-          graphData.nodes.find((n) => n.id === l.source && n.glyph.toLowerCase().includes(filter.toLowerCase())) ||
-          graphData.nodes.find((n) => n.id === l.target && n.glyph.toLowerCase().includes(filter.toLowerCase()))
+        nodes: graphData.nodes.filter(n => n.glyph.toLowerCase().includes(filter.toLowerCase())),
+        links: graphData.links.filter(l =>
+          graphData.nodes.find(n => n.id === l.source && n.glyph.toLowerCase().includes(filter.toLowerCase())) ||
+          graphData.nodes.find(n => n.id === l.target && n.glyph.toLowerCase().includes(filter.toLowerCase()))
         )
       }
     : graphData;
@@ -69,30 +136,25 @@ export default function EntanglementGraphPage() {
               placeholder="Filter glyphs..."
               className="bg-gray-900 border-gray-700 text-white text-sm"
             />
+            <Button onClick={() => setStep(0)} className="text-xs bg-gray-700 hover:bg-gray-600">
+              ⏮️ Reset
+            </Button>
+            <Button onClick={stepForward} className="text-xs bg-gray-700 hover:bg-gray-600">
+              ⏭️ Step
+            </Button>
+            <Button onClick={() => setPlaying(!playing)} className="text-xs bg-purple-700 hover:bg-purple-600">
+              {playing ? '⏸️ Pause' : '▶️ Play'}
+            </Button>
             <Button
-              onClick={() => fgRef.current?.zoomToFit(400)}
-              className="bg-purple-700 hover:bg-purple-600 text-xs px-3 py-1"
+              variant={liveMode ? 'destructive' : 'default'}
+              onClick={() => setLiveMode(!liveMode)}
+              className="text-xs"
             >
-              🎯 Fit View
+              {liveMode ? '⛔ Stop Live' : '🛰️ Live'}
             </Button>
           </div>
         </div>
-        <ForceGraph2D
-          ref={fgRef}
-          graphData={filtered}
-          nodeLabel={(node: Node) => node.label}
-          nodeCanvasObject={(node: Node & { x?: number; y?: number }, ctx: CanvasRenderingContext2D) => {
-            const label = node.label;
-            ctx.font = '10px Sans-Serif';
-            ctx.fillStyle = '#00ffcc';
-            ctx.beginPath();
-            ctx.arc(node.x!, node.y!, 6, 0, 2 * Math.PI, false);
-            ctx.fill();
-            ctx.fillText(label, node.x! + 8, node.y! + 3);
-          }}
-          linkColor={() => '#8888ff'}
-          backgroundColor="#000000"
-        />
+        <EntanglementGraph nodes={filtered.nodes} links={filtered.links} />
       </CardContent>
     </Card>
   );

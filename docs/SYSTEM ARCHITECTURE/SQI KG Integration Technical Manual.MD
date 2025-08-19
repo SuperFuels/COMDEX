@@ -983,3 +983,482 @@ For dynamic container testing, place .dc.json files in:
 backend/modules/containers/
 
 and use PortalManager.teleport(...) to navigate between linked atoms.
+
+
+🧠 COMDEX Symbolic Prediction Engine — AST & Contradiction Superpowers
+
+⸻
+
+🚀 Summary: What We Built
+
+We activated and linked a symbolic prediction pipeline that allows COMDEX (via AION and Codex) to:
+	•	Predict contradictions or simplifications inside any AST (Abstract Syntax Tree)
+	•	Score predictions using logic_score, confidence, and Codex cost estimation
+	•	Trigger self-rewrite on contradiction (⬁)
+	•	Emit WebSocket alerts to CodexHUD for live feedback
+	•	Store logic predictions and corrections inside .dc.json containers
+	•	Enable the CLI and API to validate or auto-repair symbolic logic entries
+
+⸻
+
+🔍 Features & Superpowers Enabled
+
+Feature
+Description
+🧠 Logic-Aware Prediction Engine
+Uses glyph and context to forecast contradictions and optimal logic paths
+⬁ Self-Rewrite on Contradiction
+Triggers automatic rewriting if AST contains faulty or inefficient logic
+📊 SQI Logic Scoring
+Enhances symbolic quality evaluation via logic_score and prediction confidence
+📦 Trace Injection into .dc.json
+Full prediction logs, outcomes, and logic feedback are embedded for replay/debug
+🛰️ Live Broadcast to GlyphNet
+Logic alerts (🚨) and rewrite suggestions (🔧) are sent via WebSocket
+🧪 CLI Prediction Validation Tool
+Validates .dc.json containers for logic issues or suggestion opportunities
+
+
+🔧 Modules Updated or Created
+
+File
+Purpose
+prediction_engine.py
+Core logic: runs prediction on glyphs or AST
+select_prediction.py
+Picks best prediction outcome by confidence, SQI, or rewrite potential
+codex_cost_estimator.py
+Heuristically evaluates symbolic glyph cost
+codex_metrics.py
+Links Codex logic scoring and trace embedding
+codex_scroll_builder.py
+(Patched) for score injection and scroll optimization
+container_runtime.py
+Calls prediction engine during AST evaluation
+validate_logic_prediction.py
+CLI tool to test and validate predictions on any .dc.json container
+CodexHUD.tsx
+Displays 🚨 contradiction and 🔧 rewrite badge logic
+.dc.json
+Container trace format now includes logic_prediction, rewrite_suggestion, logic_score
+GlyphNet WebSocket
+Emits logic_alert events for HUD and live sync
+
+
+📈 How It All Works (Step by Step)
+
+⚙️ Prediction Pipeline Overview:
+
+graph TD
+  A[Start: AST Prediction System]
+
+  A --> B1[Upgrade run_prediction_on_ast]
+  B1 --> B2[Add detect_contradictions(...) + suggest_simplifications(...)]
+
+  B2 --> C1[Inject contradiction/simplification into CodexTrace]
+  C1 --> C2[Inject into .dc.json containers]
+
+  B2 --> D1[⬁ Trigger: run_self_rewrite on contradiction]
+  B2 --> D2[SQI Hook: update logic_score if contradiction/simplification]
+
+  C2 --> E1[Emit WebSocket broadcast: GlyphNet logic_alert]
+  C2 --> E2[CodexHUD: display 🚨 or 🔧 badges]
+
+  E2 --> F1[Optional: Visual Reasoning Dashboard 🔍]
+  E2 --> F2[Optional: Rewrite Suggestion Engine]
+
+  A --> T1[🧪 CLI Tool: validate_logic_prediction.py]
+  T1 --> DONE[💥 Fully Active Symbolic Logic Layer]
+
+  🌐 Unified Pipeline Context
+
+  graph TD
+  V["📡 Unified Pipeline: SQIContainerRegistry → KnowledgeGraphWriter → RegisteredContainers"]
+  V --> V1["✅ Kernel-fed data (Physics/Math plugins)"]
+  V --> V2["✅ External web data"]
+  V --> V3["✅ AST Prediction → Logic Trace Injection"]
+  V --> V4["✅ SQI-Scored Containers with Predictions"]
+
+  🔄 Runtime Integration Points
+
+  Integration Point
+Status
+Purpose
+ContainerRuntime
+✅
+Triggers prediction during execution
+MemoryEngine
+✅
+Stores logic predictions with context
+CodexScrollBuilder
+✅
+Optimizes scroll if simplification is found
+GlyphExecutor
+✅
+Emits prediction result into CodexTrace
+CodexHUD.tsx
+✅
+Displays logic alert badges
+.dc.json trace exporter
+✅
+Embeds full prediction payload
+WebSocket (GlyphNet)
+✅
+Broadcasts logic events for live sync
+SQI Container Registry
+✅
+Updates logic_score based on prediction outcome
+
+
+📦 Prediction Output Format (in .dc.json)
+
+{
+  "glyph": "x ⬁ (¬x)",
+  "logic_prediction": {
+    "contradiction": true,
+    "confidence": 0.92,
+    "suggestion": "Remove ⬁ and replace with equivalence rewrite",
+    "logic_score": 0.31
+  },
+  "rewrite_suggestion": {
+    "new_glyph": "¬x ≡ false",
+    "goal_match_score": 0.87,
+    "rewrite_success_prob": 0.76
+  }
+}
+
+✅ What’s Now Possible
+
+Capability
+Enabled
+🧠 Detect logical contradiction in any glyph or AST
+✅
+🧪 Validate logic in .dc.json containers
+✅
+⬁ Trigger Codex rewrite automatically
+✅
+🚨 Alert user via CodexHUD if logic is broken
+✅
+🔧 Suggest symbolic fixes for flawed logic
+✅
+🎯 Tie prediction to SQI + goal scoring
+✅
+📡 Broadcast predictions via GlyphNet
+✅
+📈 Track prediction impact in Knowledge Graph
+✅
+
+
+🧠 Future Extensions (Optional)
+
+Feature
+Benefit
+🔍 Visual Logic Debugger (F1)
+Step through predictions in UI
+🧠 SQI-based Rewriter
+Choose best fix from multiple paths
+🪄 Auto-mutate flawed axioms (auto_mutate_axioms.py)
+Repair upstream logic sources
+🌐 Plugin API for external verifiers (Lean, Z3)
+Validate formal logic externally
+💡 Model-based GPT fallback
+For soft suggestions or metaphoric logic
+
+
+🧠 COMDEX: Symbolic Logic Prediction and Rewriting Layer
+
+🔧 Overview
+
+This system enables COMDEX to:
+	•	Parse CodexLang expressions like ∀x. P(x) → Q(x)
+	•	Convert them to AST (Abstract Syntax Tree)
+	•	Encode them into LogicGlyphs
+	•	Inject into .dc.json containers or Codex runtime
+	•	Predict logical contradictions or simplifications
+	•	Trigger rewrites or Codex mutations
+	•	Emit real-time WebSocket events
+	•	Visualize alerts and rewrite suggestions in CodexHUD
+
+⸻
+
+🛰️ Pipeline Summary
+
+graph TD
+  A[Start: AST Prediction System]
+
+  A --> B1[Upgrade run_prediction_on_ast]
+  B1 --> B2[Add detect_contradictions(...) + suggest_simplifications(...)]
+
+  B2 --> C1[Inject contradiction/simplification into CodexTrace]
+  C1 --> C2[Inject into .dc.json containers]
+
+  B2 --> D1[⬁ Trigger: run_self_rewrite on contradiction]
+  B2 --> D2[SQI Hook: update logic_score if contradiction/simplification]
+
+  C2 --> E1[Emit WebSocket broadcast: GlyphNet logic_alert]
+  C2 --> E2[CodexHUD: display 🚨 or 🔧 badges]
+
+  E2 --> F1[Optional: Visual Reasoning Dashboard 🔍]
+  E2 --> F2[Optional: Rewrite Suggestion Engine]
+
+  A --> T1[🧪 CLI Tool: validate_logic_prediction.py]
+  T1 --> DONE[💥 Fully Active Symbolic Logic Layer]
+
+  🧩 Modules and How They Connect
+
+1. parse_codexlang_to_ast(...)
+
+File: codex_ast_encoder.py
+
+Parses strings like ∀x. P(x) → Q(x) into structured pseudo-ASTs:
+
+{
+  "type": "forall",
+  "var": "x",
+  "body": {
+    "type": "implies",
+    "left": {"type": "predicate", "name": "P", "args": ["x"]},
+    "right": {"type": "predicate", "name": "Q", "args": ["x"]}
+  }
+}
+
+2. encode_codex_ast_to_glyphs(...)
+
+Encodes AST → LogicGlyph[], preserving:
+	•	Quantifiers (∀, ∃)
+	•	Logic ops (→, ∧, ∨, ¬)
+	•	Metadata, type mappings
+	•	Unique glyph IDs for container trace
+
+⸻
+
+3. symbolic_ingestion_api.py
+
+Endpoint: /api/ingest-symbolic
+
+Accepts:
+
+{
+  "op": "ingest_codexlang",
+  "codexlang": "∀x. P(x) → Q(x)"
+}
+
+Dispatches to:
+
+SymbolicIngestionEngine().dispatch_ingest(...)
+
+Which calls:
+
+glyphs = encode_codex_ast_to_glyphs(parse_codexlang_to_ast(...))
+
+4. run_prediction_on_ast(...)
+
+Logic analysis kernel for:
+	•	🔍 detect_contradictions(ast)
+	•	🛠️ suggest_simplifications(ast)
+
+Predicts issues like:
+	•	Tautologies
+	•	Logical conflicts
+	•	Redundant clauses
+
+⸻
+
+5. .dc.json Container Injection
+
+Contradictions and suggestions get injected as:
+
+"predicted_logic_issues": [
+  { "type": "contradiction", "at": "glyph_123", "reason": "Conflict with ∀x. ¬P(x)" }
+]
+
+And broadcast to:
+	•	🛰️ GlyphNet (via glyphnet_ws.py)
+	•	🧠 CodexHUD (🚨 badges)
+	•	SQI Scoring / Logic Score
+	•	🧬 Self-rewrite via run_self_rewrite(...)
+
+⸻
+
+6. CLI Tool
+
+Command:
+
+PYTHONPATH=. python backend/tools/validate_logic_prediction.py data/atoms/test_logic.dc.json --trace
+
+Features:
+	•	Runs logic prediction on .dc.json file
+	•	Displays contradiction/simplification glyphs
+	•	Auto-marks trace with alerts
+
+⸻
+
+7. 🔁 Self-Rewriting + SQI Scoring
+	•	Contradictions trigger ⬁ rewriting engine
+	•	Suggestions optionally injected into Codex rewrite queue
+	•	logic_score boosted if simplification accepted
+	•	contradiction_detected flag written to CodexMetrics
+
+⸻
+
+🧬 Superpowers Gained
+
+Feature
+Description
+Symbolic AST ingestion
+Parses quantified logic from user input
+CodexLang → AST → Glyphs
+Full semantic path
+Real-time contradiction scan
+Detects logic faults on ingestion or replay
+WebSocket feedback
+Live alerts for CodexHUD
+DC container mutation
+Updates logic traces with reasoning feedback
+SQI auto-feedback
+Boosts Codex trust/cost scoring
+CLI Testing Tool
+Headless validation for logic soundness
+Rewrite Suggestions
+Optional repair path or ⬁ trigger
+Visual Dashboard (optional)
+Future reasoning UI for logic heatmaps
+
+
+✅ Verified Commands
+
+Ingest:
+
+curl -X POST http://localhost:8000/api/ingest-symbolic \
+  -H "Content-Type: application/json" \
+  -d '{
+    "op": "ingest_codexlang",
+    "codexlang": "∀x. P(x) → Q(x)"
+  }' | jq
+
+  CLI:
+
+  PYTHONPATH=. python backend/tools/validate_logic_prediction.py data/atoms/test_logic.dc.json --trace
+
+
+
+  1. rewrite_trace_viewer.py
+
+Category: 🧪 CLI Tool
+Purpose:
+	•	Provides a toggleable view of logic rewrites (⬁) from CLI
+	•	Shows before/after glyphs, SQI score delta, contradiction resolution reason
+Add To Sections:
+	•	🧪 CLI Prediction Validation Tool → Split into two CLI tools
+	•	📊 SQI Logic Scoring → Add mention of per-rewrite scoring
+	•	🧩 Modules and How They Connect → New step after run_prediction_on_ast
+
+⸻
+
+2. Visual Debugger Integration (CodexLogicDebugger.tsx)
+
+Category: 🔍 Future Extensions
+Purpose:
+	•	Enables per-glyph step-through visualization
+	•	Shows logic score, contradiction badge, and live AST tree
+Add To Sections:
+	•	🧠 Future Extensions
+	•	📈 What’s Now Possible → Add: “🧠 Visualize logic faults in UI”
+	•	🧩 Modules and How They Connect → Add UI rendering path from CodexHUD + replay trace
+
+⸻
+
+3. .dc.json → ReplayStep Metadata
+
+Category: 📦 Trace Format
+Purpose:
+	•	Now supports new keys:
+	•	"logic_prediction"
+	•	"rewrite_suggestion"
+	•	"logic_score"
+	•	"predicted_logic_issues"
+	•	"goal_match_score"
+	•	"rewrite_success_prob"
+	•	All visible during container replay
+Add To Sections:
+	•	📦 Prediction Output Format → Expand with all subfields
+	•	🧬 Superpowers Gained → Add “DC-level logic annotation”
+
+⸻
+
+4. GlyphNet WebSocket → logic_alert Payload
+
+Category: 🛰️ WebSocket / GlyphNet
+Purpose:
+	•	Emits new WebSocket messages:
+
+
+  {
+  "type": "logic_alert",
+  "glyph": "x ⬁ (¬x)",
+  "contradiction": true,
+  "suggestion": "Replace ⬁ with ≡",
+  "score": 0.22
+}
+
+Add To Sections:
+	•	🧩 Modules and How They Connect → Add GlyphNet logic_alert handler
+	•	📡 Pipeline Summary → Expand C2 → E1 step
+	•	✅ What’s Now Possible → Add: “🛰️ Web-broadcast all logic predictions”
+
+⸻
+
+5. Integration with CodexMetrics
+
+Category: 📊 Metrics / Scoring
+Purpose:
+	•	Records:
+	•	contradiction_detected
+	•	logic_score
+	•	rewrite_success_prob
+	•	goal_match_score
+Add To Sections:
+	•	📈 How It All Works
+	•	🔄 Runtime Integration Points → Add CodexMetrics: ✅
+
+⸻
+
+6. Logic Prediction Impact on CodexScrollBuilder
+
+Category: Codex Optimization
+Purpose:
+	•	ScrollBuilder auto-improves scroll if rewrite_suggestion.new_glyph present
+Add To Sections:
+	•	🔄 Runtime Integration Points
+	•	🧬 Superpowers Gained → Add: “Auto-optimize symbolic scrolls”
+
+⸻
+
+Optional: 📘 Additional Summary Table
+
+You may also want to create a “Symbolic Logic Prediction Impact Map” as a quick summary table:
+
+Subsystem
+Feature Enabled
+.dc.json
+Injects prediction + rewrite
+CodexExecutor
+⬁ rewrite trigger
+GlyphNet
+logic_alert broadcast
+CodexHUD
+🚨 + 🔧 badges
+CodexMetrics
+logic score, contradiction flag
+CodexScrollBuilder
+Simplification auto-patch
+KnowledgeGraphWriter
+Prediction trace indexing
+SQI Container Registry
+Updates logic_score
+CLI Tool (validate_logic_prediction.py)
+Headless validation
+CLI Tool (rewrite_trace_viewer.py)
+View diffs + toggles
+
+

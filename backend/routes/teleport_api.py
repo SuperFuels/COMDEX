@@ -1,9 +1,11 @@
-# File: backend/routes/teleport_api.py
+# File: backend/routes/api/teleport_api.py
 
 from fastapi import APIRouter, HTTPException
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from backend.modules.dna_chain.teleport import teleport
 from backend.modules.dna_chain.dc_handler import handle_object_interaction
+from backend.modules.runtime.container_runtime import teleport_to_linked_container  # ✅ Add this import
 
 router = APIRouter()
 
@@ -26,3 +28,16 @@ def trigger_teleport(request: TeleportRequest):
         return {"status": "teleport_triggered", "via": "manual", "destination": request.destination}
 
     raise HTTPException(status_code=400, detail="Either object_id or destination must be provided.")
+
+
+# ✅ NEW GET endpoint for GHX/Atom UI
+@router.get("/api/teleport/{container_id}")
+def teleport_to_container(container_id: str):
+    """
+    Used by the GHX/Atom Electron UI to teleport to a linked container.
+    """
+    try:
+        result = teleport_to_linked_container(container_id)
+        return JSONResponse(content=result)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Teleport failed: {str(e)}")

@@ -1,13 +1,13 @@
-# backend/modules/codex/codexlang_rewriter.py
-
 import re
-from typing import Optional
+from typing import Optional, Union, Any
 
 class CodexLangRewriter:
     """
-    Conservative symbolic simplifier for CodexLang expressions.
+    Conservative symbolic simplifier and AST renderer for CodexLang expressions.
+
     - Soft mode keeps original surface form and only prunes trivial sub-terms.
-    - Never collapses an equality A = B into B = B in soft mode.
+    - Aggressive mode canonicalizes simple algebraic terms.
+    - Includes structured rendering of symbolic ASTs (∧, ∨, ∀, ∃, →, etc).
     """
 
     @classmethod
@@ -25,14 +25,9 @@ class CodexLangRewriter:
 
         # In soft mode, only do tiny local rewrites that are safe & readable
         if mode == "soft":
-            # + 0 / 0 + n inside terms, but DO NOT rewrite the whole equality
             s = cls._rewrite_add_zero_soft(s)
-            # * 1 inside terms
             s = cls._rewrite_mul_one_soft(s)
-            # de-double negations ¬¬A -> A (only outside of quoted text)
             s = re.sub(r"¬\s*¬\s*", "", s)
-
-            # Keep equality structure intact
             return s
 
         # Aggressive mode: allow stronger canonicalization (still cautious)
@@ -40,7 +35,7 @@ class CodexLangRewriter:
         s = cls._rewrite_mul_one_soft(s)
         s = re.sub(r"¬\s*¬\s*", "", s)
 
-        # Basic commutativity for + when both sides are vars (n + 0 == 0 + n normalized to n + 0)
+        # Basic commutativity for + when both sides are vars
         s = re.sub(r"\b([a-zA-Z_]\w*)\s*\+\s*0\b", r"\1 + 0", s)
         s = re.sub(r"\b0\s*\+\s*([a-zA-Z_]\w*)\b", r"\1 + 0", s)
 
@@ -48,15 +43,126 @@ class CodexLangRewriter:
 
     @staticmethod
     def _rewrite_add_zero_soft(s: str) -> str:
-        # Rewrite inside parentheses or sub-terms, avoid touching top-level equality comparisons
-        # n + 0  -> n  (but only when clearly a subterm)
         s = re.sub(r"(?<![=<>])\b([a-zA-Z_]\w*)\s*\+\s*0\b", r"\1", s)
         s = re.sub(r"(?<![=<>])\b0\s*\+\s*([a-zA-Z_]\w*)\b", r"\1", s)
         return s
 
     @staticmethod
     def _rewrite_mul_one_soft(s: str) -> str:
-        # n * 1 -> n, 1 * n -> n
         s = re.sub(r"\b([a-zA-Z_]\w*)\s*\*\s*1\b", r"\1", s)
         s = re.sub(r"\b1\s*\*\s*([a-zA-Z_]\w*)\b", r"\1", s)
         return s
+
+    @classmethod
+    def ast_to_codexlang(cls, symbolic_ast: Union[str, dict, list]) -> str:
+        """
+        Class-level fallback for AST → CodexLang rendering.
+        Accepts:
+        - Raw strings
+        - Dict-style symbolic ASTs (used in ∀, ∃, →, ∧, etc)
+        - Lists of terms
+        """
+        renderer = cls()
+        return renderer.render_ast(symbolic_ast)
+
+    def render_ast(self, ast: Any) -> str:
+        """
+        Recursively render structured AST into CodexLang.
+        Supports symbolic logic trees like:
+          ∀x. P(x) → Q(x)
+          ¬(P ∧ Q) ∨ R
+          equals(f(x), y)
+        """
+        if isinstance(ast, str):
+            return self.simplify(ast)
+
+        if isinstance(ast, list):
+            return ", ".join([self.render_ast(item) for item in ast])
+
+        if not isinstance(ast, dict):
+            return self.simplify(str(ast))
+
+        node_type = ast.get("type")
+
+        if node_type == "forall":
+            var = ast.get("var", "?")
+            body = self.render_ast(ast.get("body"))
+            return f"∀{var}. {body}"
+
+        elif node_type == "exists":
+            var = ast.get("var", "?")
+            body = self.render_ast(ast.get("body"))
+            return f"∃{var}. {body}"
+
+        elif node_type == "implies":
+            left = self.render_ast(ast.get("left"))
+            right = self.render_ast(ast.get("right"))
+            return f"{left} → {right}"
+
+        elif node_type == "and":
+            terms = [self.render_ast(t) for t in ast.get("terms", [])]
+            return " ∧ ".join(terms)
+
+        elif node_type == "or":
+            terms = [self.render_ast(t) for t in ast.get("terms", [])]
+            return " ∨ ".join(terms)
+
+        elif node_type == "not":
+            term = self.render_ast(ast.get("term"))
+            return f"¬{term}"
+
+        elif node_type == "equals":
+            left = self.render_ast(ast.get("left"))
+            right = self.render_ast(ast.get("right"))
+            return f"{left} = {right}"
+
+        elif node_type == "predicate":
+            name = ast.get("name", "?")
+            arg = self.render_ast(ast.get("arg", "?"))
+            return f"{name}({arg})"
+
+        elif node_type == "function":
+            name = ast.get("name", "?")
+            args = ", ".join([self.render_ast(a) for a in ast.get("args", [])])
+            return f"{name}({args})"
+
+        return self.simplify(str(ast))
+
+
+# -------------------------
+# 🔁 Rewrite Suggestion Engine
+# -------------------------
+
+def suggest_rewrite_candidates(ast: Union[str, dict]) -> list[dict]:
+    """
+    Suggest simple rewrites for a CodexLang AST.
+    This supports contradiction fixing, simplification, or entropy reduction.
+
+    Returns:
+        List of suggestions like:
+        { "reason": "Double negation", "rewrite": {...} }
+    """
+    suggestions = []
+
+    if isinstance(ast, dict) and ast.get("type") == "not":
+        inner = ast.get("term", {})
+        if isinstance(inner, dict) and inner.get("type") == "not":
+            # ¬(¬P) → P
+            suggestions.append({
+                "reason": "Double negation",
+                "rewrite": inner.get("term")
+            })
+
+    if isinstance(ast, dict) and ast.get("type") == "and":
+        terms = ast.get("terms", [])
+        if "True" in terms or {"type": "constant", "value": "True"} in terms:
+            simplified = [t for t in terms if t != "True" and t != {"type": "constant", "value": "True"}]
+            if simplified:
+                suggestions.append({
+                    "reason": "Identity: P ∧ True → P",
+                    "rewrite": {"type": "and", "terms": simplified}
+                })
+
+    # Future expansion: contradiction detection, entropy path scoring, goal match, etc.
+
+    return suggestions

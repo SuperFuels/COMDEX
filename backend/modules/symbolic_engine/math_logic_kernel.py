@@ -1,5 +1,3 @@
-# 📁 backend/modules/symbolic_engine/math_logic_kernel.py
-
 import re
 from typing import List, Dict, Any, Optional, Tuple
 
@@ -14,6 +12,11 @@ from backend.modules.symbolic_engine.symbolic_utils import parse_logical_operato
 from backend.modules.sqi.sqi_tessaris_bridge import SQIBridge
 from backend.modules.sqi.qglyph_generator import generate_qglyph_from_string
 
+# 🔁 CodexLang + symbolic glyph pipeline
+from backend.modules.codex.codexlang_rewriter import CodexLangRewriter
+from backend.modules.codex.codex_ast_parser import parse_raw_input_to_ast
+from backend.modules.codex.codex_encoder import encode_codex_ast_to_glyphs
+
 
 class MathLogicKernel:
     def __init__(self, container_id: Optional[str] = None):
@@ -21,8 +24,9 @@ class MathLogicKernel:
         self.kg_writer = KnowledgeGraphWriter()
         self.sqi_bridge = SQIBridge()
         self.container_id = container_id or "math_kernel_default"
+        self.rewriter = CodexLangRewriter()
 
-    def prove_theorem(self, assumptions: List[str], conclusion: str) -> Dict[str, Any]:
+    def prove_theorem(self, assumptions: List[str], conclusion: str, raw_input: Optional[str] = None) -> Dict[str, Any]:
         """
         Attempts to prove a conclusion from a set of assumptions.
         If successful, injects into the KG with type ⟦theorem⟧.
@@ -31,22 +35,31 @@ class MathLogicKernel:
             parsed_assumptions = [parse_logical_operators(a) for a in assumptions]
             parsed_conclusion = parse_logical_operators(conclusion)
 
-            # Combine assumptions logically
             combined = And(*parsed_assumptions)
             implication = Implies(combined, parsed_conclusion)
-
             simplified = simplify(implication)
+
             qglyph = generate_qglyph_from_string(str(implication))
+            codexlang, ast, glyphs = self._codex_pipeline(raw_input or conclusion)
 
             result = {
                 "input": str(implication),
                 "simplified": str(simplified),
-                "qglyph": qglyph
+                "qglyph": qglyph,
+                "codexlang": codexlang,
+                "ast": ast,
+                "glyphs": glyphs,
             }
 
             if simplified == True:
                 result["status"] = "✅ Proven"
-                self._inject_fact(conclusion, assumptions, kind="⟦theorem⟧", proof=str(implication))
+                self._inject_fact(
+                    conclusion,
+                    assumptions,
+                    kind="⟦theorem⟧",
+                    proof=str(implication),
+                    extra_meta={"codexlang": codexlang, "ast": ast, "glyphs": glyphs}
+                )
             else:
                 result["status"] = "❌ Unproven"
 
@@ -79,13 +92,16 @@ class MathLogicKernel:
         except Exception as e:
             return {"status": "❌ Error", "error": str(e)}
 
-    def assert_axiom(self, expression: str, label: Optional[str] = None) -> Dict[str, str]:
+    def assert_axiom(self, expression: str, label: Optional[str] = None, raw_input: Optional[str] = None) -> Dict[str, str]:
         """
         Stores an axiom (assumed true) into the KG and container.
         """
         try:
             parsed = parse_logical_operators(expression)
-            self._inject_fact(expression, [], kind="⟦axiom⟧", label=label)
+            codexlang, ast, glyphs = self._codex_pipeline(raw_input or expression)
+            self._inject_fact(expression, [], kind="⟦axiom⟧", label=label, extra_meta={
+                "codexlang": codexlang, "ast": ast, "glyphs": glyphs
+            })
             return {"status": "✅ Axiom Stored", "expression": str(parsed)}
         except Exception as e:
             return {"status": "❌ Failed", "error": str(e)}
@@ -114,7 +130,8 @@ class MathLogicKernel:
         sources: List[str],
         kind: str = "⟦fact⟧",
         proof: Optional[str] = None,
-        label: Optional[str] = None
+        label: Optional[str] = None,
+        extra_meta: Optional[Dict[str, Any]] = None
     ):
         """
         Sends a glyph-based fact into the Knowledge Graph.
@@ -124,8 +141,11 @@ class MathLogicKernel:
             "sources": sources,
             "container_id": self.container_id,
             "proof": proof,
-            "label": label
+            "label": label,
         }
+        if extra_meta:
+            metadata.update(extra_meta)
+
         self.kg_writer.write_fact(expression, metadata)
 
     def _log_sqi_event(self, conclusion: str, assumptions: List[str], implication: str, status: str):
@@ -137,3 +157,16 @@ class MathLogicKernel:
             "assumptions": assumptions,
             "implication": implication
         })
+
+    def _codex_pipeline(self, raw_input: str) -> Tuple[str, Any, Any]:
+        """
+        Converts raw input into CodexLang, AST, and glyphs.
+        Used for deeper knowledge graph registration and glyph injection.
+        """
+        try:
+            ast = parse_raw_input_to_ast(raw_input)
+            codexlang = self.rewriter.ast_to_codexlang(ast)
+            glyphs = encode_codex_ast_to_glyphs(ast)
+            return codexlang, ast, glyphs
+        except Exception as e:
+            return f"❌ CodexLang Error: {e}", None, None

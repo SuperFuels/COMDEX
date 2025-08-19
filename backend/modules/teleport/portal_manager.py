@@ -1,5 +1,3 @@
-# 📁 backend/modules/teleport/portal_manager.py
-
 import time
 import uuid
 from typing import Dict, Optional
@@ -56,13 +54,16 @@ class PortalManager:
 
     def teleport(self, packet) -> bool:
         """
-        Teleport logic: saves current state, loads target container, injects symbolic payload.
+        Teleport logic: saves current state, loads target container, injects symbolic payload,
+        then runs prediction on the new container state.
         """
         global ContainerRuntimeClass
         if ContainerRuntimeClass is None:
             from backend.modules.runtime.container_runtime import ContainerRuntime
             from backend.modules.consciousness.state_manager import STATE
             ContainerRuntimeClass = lambda: ContainerRuntime(state_manager=STATE)
+
+        from backend.modules.consciousness.prediction_engine import PredictionEngine
 
         target_id = self.resolve_target(packet.portal_id)
         if not target_id:
@@ -82,7 +83,23 @@ class PortalManager:
             # Inject payload (e.g. teleport reason, trigger)
             ContainerRuntimeClass().inject_payload(packet.payload)
             print(f"[PortalManager] Teleport successful to {target_id}")
+
+            # Run prediction after teleport
+            from backend.modules.dimension.dimension_engine import get_decrypted_current_container
+            container = get_decrypted_current_container()
+
+            # Optional: restrict to certain glyph types (can disable this block if not needed)
+            supported_types = {"atom", "electron"}
+            should_predict = any(glyph.get("type") in supported_types for glyph in container.get("glyphs", []))
+
+            if should_predict:
+                PredictionEngine().run_prediction_on_container(container, context="teleport")
+                print(f"[PortalManager] Prediction run on teleported container {target_id}")
+            else:
+                print(f"[PortalManager] No supported glyphs for prediction in {target_id}")
+
             return True
+
         except Exception as e:
             print(f"[PortalManager] Teleport exception: {e}")
             return False

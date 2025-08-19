@@ -3,8 +3,10 @@ from __future__ import annotations
 from typing import Dict, Any, Optional, Set, List
 from datetime import datetime
 from math import exp
+from backend.modules.consciousness.prediction_engine import PredictionEngine
+from backend.modules.codex.codex_trace import CodexTrace
 
-# --- Optional UCS address registry hook ------------------------------------
+ # --- Optional UCS address registry hook ------------------------------------
 try:
     # Reuse your UCS address registry if present
     from backend.modules.dimensions.universal_container_system.address_registry import (
@@ -13,6 +15,21 @@ try:
 except Exception:
     def _registry_register(*args, **kwargs):  # no-op fallback
         return {}
+
+from backend.modules.validation.symbolic_container_validator import validate_symbolic_fields
+
+SQI_NS = "ucs://knowledge"
+
+
+def register_container(container: Dict[str, Any]) -> None:
+    if not validate_symbolic_fields(container):
+        raise ValueError("Symbolic container fields are out of sync")
+
+    # Continue with the rest of your registration logic:
+    # - Add to container registry
+    # - Write index
+    # - Export glyph trace, if needed
+    _registry_register(container.get("id"), SQI_NS)
 
 SQI_NS = "ucs://knowledge"
 
@@ -95,6 +112,7 @@ class SQIContainerRegistry:
         return count
 
     # --- allocate or upsert -------------------------------------------------
+    # --- allocate or upsert -------------------------------------------------
     def allocate(self, *, kind: str, domain: str, name: str,
                  meta: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """
@@ -103,6 +121,11 @@ class SQIContainerRegistry:
         cid = name  # keep cid human; UCS can also stamp address elsewhere
         address = self._addr(kind, domain, name)
         now = datetime.utcnow().isoformat()
+
+        # Start with GHX defaults, allowing overrides via meta
+        ghx_meta = {"hover": True, "collapsed": True}
+        if meta and "ghx" in meta and isinstance(meta["ghx"], dict):
+            ghx_meta.update(meta["ghx"])
 
         entry = {
             "id": cid,
@@ -113,11 +136,11 @@ class SQIContainerRegistry:
                 "address": address,
                 "created_by": "SQI",
                 "last_updated": now,
-                # GHX visual defaults (hoverable + collapsed)
-                "ghx": {"hover": True, "collapsed": True},
+                "ghx": ghx_meta,
                 **(meta or {}),
             },
         }
+
         self.index[cid] = entry
         self.by_domain.setdefault(domain, set()).add(cid)
 
@@ -128,13 +151,38 @@ class SQIContainerRegistry:
             pass
         return entry
 
-    def upsert_meta(self, cid: str, patch: Dict[str, Any]) -> Dict[str, Any]:
-        if cid not in self.index:
-            raise ValueError(f"Unknown SQI container: {cid}")
-        entry = self.index[cid]
-        entry["meta"] = {**entry.get("meta", {}), **patch}
-        entry["meta"]["last_updated"] = datetime.utcnow().isoformat()
-        return entry
+        def upsert_meta(self, cid: str, patch: Dict[str, Any]) -> Dict[str, Any]:
+            if cid not in self.index:
+                raise ValueError(f"Unknown SQI container: {cid}")
+
+            entry = self.index[cid]
+            current_meta = entry.get("meta", {})
+            updated_meta = {**current_meta, **patch}
+
+            # Update timestamp
+            updated_meta["last_updated"] = datetime.utcnow().isoformat()
+
+            # --- M1a: Collapsibility State Injection ---
+            if "collapsible" not in updated_meta:
+                updated_meta["collapsible"] = True
+            if "default_state" not in updated_meta:
+                updated_meta["default_state"] = "collapsed"
+
+            # Inject state flags for GHX and HUD logic
+            updated_meta["state_flags"] = {
+                "collapsed": updated_meta["default_state"] == "collapsed",
+                "hover_preview": updated_meta.get("hover_preview", False)
+            }
+
+            # Ensure GHX hover + collapse preview is set
+            ghx_meta = updated_meta.get("ghx", {})
+            ghx_meta.setdefault("hover", True)
+            ghx_meta.setdefault("collapsed", updated_meta["default_state"] == "collapsed")
+            updated_meta["ghx"] = ghx_meta
+
+            # Finalize update
+            entry["meta"] = updated_meta
+            return entry
 
     # --- lookups ------------------------------------------------------------
     def lookup_by_domain(self, domain: str) -> List[str]:
@@ -142,6 +190,34 @@ class SQIContainerRegistry:
 
     def get(self, cid: str) -> Optional[Dict[str, Any]]:
         return self.index.get(cid)
+
+    def evaluate_container(self, container: Dict[str, Any], goal: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        """
+        Public evaluation hook for external systems (Codex, CLI, GHX, etc.)
+        Returns a score dict with debugging fields.
+        """
+        if not container:
+            return {"sqi_score": 0.0, "reason": "empty"}
+
+        goal = goal or {}
+        entry = {
+            "domain": container.get("domain"),
+            "kind": container.get("kind"),
+            "meta": container.get("meta", {}),
+        }
+
+        score = self._score(entry, goal)
+        hover = bool(entry["meta"].get("ghx", {}).get("hover", False))
+        collapsed = bool(entry["meta"].get("ghx", {}).get("collapsed", True))
+
+        return {
+            "sqi_score": score,
+            "domain_match": goal.get("domain") == entry.get("domain"),
+            "age_hours": _age_hours(entry["meta"].get("last_updated")),
+            "glyph_count": int((entry["meta"].get("stats") or {}).get("glyphs", 0)),
+            "ghx_hover": hover,
+            "collapsed": collapsed,
+        }    
 
     # --- legacy scoring helper (kept for compatibility) ---------------------
     def _score(self, entry: Dict[str, Any], goal: Dict[str, Any],

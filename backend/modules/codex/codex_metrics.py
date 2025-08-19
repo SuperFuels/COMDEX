@@ -214,6 +214,37 @@ class CodexMetrics:
             import logging
             logging.getLogger(__name__).warning("record_execution_batch failed: %s", e)    
 
+    @staticmethod
+    def score_alignment(rewrite: dict, active_goals: list) -> float:
+        """
+        Estimate how well the suggested rewrite aligns with active goals.
+        Heuristic: based on symbolic match, variable overlap, or tag alignment.
+        """
+        score = 0.0
+        target = rewrite.get("target", "")
+        replacement = rewrite.get("replacement", "")
+
+        for goal in active_goals:
+            goal_text = str(goal)
+            if target in goal_text:
+                score += 0.3
+            if replacement in goal_text:
+                score += 0.5
+
+        return min(score, 1.0)
+
+    @staticmethod
+    def estimate_rewrite_success(rewrite: dict) -> float:
+        """
+        Estimate the probability that the rewrite will succeed in resolving contradiction or progressing logic.
+        Heuristic: based on common symbolic patterns and replacement structure.
+        """
+        rep = rewrite.get("replacement", "")
+        if "∧" in rep or "¬" in rep:
+            return 0.9  # Strong logical form
+        if "∀" in rep or "∃" in rep:
+            return 0.7  # Quantifiers may be harder to validate
+        return 0.6  # Default baseline
 # ─────────────────────────────────────────────────────────────────────────────
 # Utilities
 # ─────────────────────────────────────────────────────────────────────────────

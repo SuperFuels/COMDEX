@@ -24,7 +24,6 @@ from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGrap
 from backend.modules.symbolic_engine.symbolic_utils import trace_back_causal_chain
 from backend.modules.consciousness.memory_bridge import MemoryBridge  # ✅ Fixed path
 from backend.modules.codex.codex_metrics import CodexMetrics
-from backend.modules.skills.goal_engine import GoalEngine  # ✅ Updated path
 from backend.modules.dna_chain.dna_writer import write_gradient_mutation  # ✅ Updated path
 from backend.modules.consciousness.gradient_entanglement_adapter import GradientEntanglementAdapter
 from backend.modules.knowledge_graph.brain_map_streamer import BrainMapStreamer  # ✅ Live KG updates
@@ -51,6 +50,7 @@ class SymbolicGradientEngine:
         self.container_id = container_id
         self.kg_writer = KnowledgeGraphWriter()
         self.memory_bridge = MemoryBridge(container_id=self.container_id)  # ✅ FIXED: Pass container_id
+        from backend.modules.skills.goal_engine import GoalEngine
         self.goal_engine = GoalEngine()
         self.codex_metrics = CodexMetrics()
         self.entanglement_adapter = GradientEntanglementAdapter()

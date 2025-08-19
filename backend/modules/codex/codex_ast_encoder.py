@@ -1,4 +1,4 @@
-# backend/modules/codex/codex_ast_encoder.py
+# backend/modules/symbolic/codex_ast_encoder.py
 
 from typing import List, Dict, Any, Union
 import re

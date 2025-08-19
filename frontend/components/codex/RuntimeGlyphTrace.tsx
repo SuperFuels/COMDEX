@@ -3,6 +3,13 @@ import useWebSocket from '@/hooks/useWebSocket';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 
+type SuggestedRewrite = {
+  new_glyph: string;
+  goal_match_score?: number;
+  rewrite_success_prob?: number;
+  reason?: string;
+};
+
 type TraceEntry = {
   tick: number;
   glyph: string;
@@ -10,6 +17,7 @@ type TraceEntry = {
   containerId: string;
   event: 'inflate' | 'collapse' | 'entangle' | 'mutate';
   timestamp: number;
+  suggested_rewrite?: SuggestedRewrite;
 };
 
 const glyphEventMap: Record<string, TraceEntry['event']> = {
@@ -35,7 +43,7 @@ export default function RuntimeGlyphTrace() {
 
       // 🔍 Main glyph execution trace
       if (msg.type === 'glyph_execution') {
-        const { glyph, coord, tick, containerId, timestamp } = msg.data;
+        const { glyph, coord, tick, containerId, timestamp, suggested_rewrite } = msg.data;
         const matched = glyph.split('').find((g: string) => g in glyphEventMap);
         if (!matched) return;
 
@@ -45,7 +53,8 @@ export default function RuntimeGlyphTrace() {
           coord,
           containerId,
           timestamp,
-          event: glyphEventMap[matched]
+          event: glyphEventMap[matched],
+          suggested_rewrite: suggested_rewrite || undefined
         };
 
         setTrace(prev => [newEntry, ...prev].slice(0, 100));
@@ -65,12 +74,6 @@ export default function RuntimeGlyphTrace() {
         }
       }
 
-      // Optional: Future entanglement status broadcast
-      if (msg.type === 'entanglement_status') {
-        // You could add logic here to update a separate entanglement status display
-        // console.log("↔ Entanglement status received:", msg.data);
-      }
-
     } catch (e) {
       console.warn('Invalid glyph trace payload:', e);
     }
@@ -82,23 +85,52 @@ export default function RuntimeGlyphTrace() {
       {trace.length === 0 && (
         <div className="text-sm text-neutral-400">No glyph activity detected yet...</div>
       )}
-      <ul className="space-y-1 font-mono text-sm">
+      <ul className="space-y-2 font-mono text-sm">
         {trace.map((entry, idx) => (
           <motion.li
             key={idx}
             initial={{ opacity: 0, y: -6 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.2 }}
-            className={cn('flex justify-between items-center', eventColor[entry.event])}
+            className={cn('flex flex-col gap-1', eventColor[entry.event])}
           >
-            <span>
-              <b>{entry.glyph}</b> at <code>{entry.coord}</code> →{' '}
-              {entry.event === 'entangle' && <span className="ml-1">↔ Entangled</span>}
-              {entry.event === 'inflate' && <span className="ml-1">⧖ Inflation</span>}
-              {entry.event === 'mutate' && <span className="ml-1">⬁ Mutation</span>}
-              {entry.event === 'collapse' && <span className="ml-1">⛒ Collapse</span>}
-            </span>
-            <span className="text-neutral-400">t{entry.tick}</span>
+            <div className="flex justify-between items-center">
+              <span>
+                <b>{entry.glyph}</b> at <code>{entry.coord}</code> →{' '}
+                {entry.event === 'entangle' && <span className="ml-1">↔ Entangled</span>}
+                {entry.event === 'inflate' && <span className="ml-1">⧖ Inflation</span>}
+                {entry.event === 'mutate' && <span className="ml-1">⬁ Mutation</span>}
+                {entry.event === 'collapse' && <span className="ml-1">⛒ Collapse</span>}
+              </span>
+              <span className="text-neutral-400">t{entry.tick}</span>
+            </div>
+
+            {/* 🔁 Suggested Rewrite Panel */}
+            {entry.suggested_rewrite && (
+              <div className="ml-4 border border-dashed border-yellow-600 p-2 rounded bg-yellow-900/20 text-yellow-200 text-xs font-mono">
+                <div className="mb-1 font-bold text-yellow-300">🔁 Suggested Rewrite</div>
+                <div>
+                  <b>New Glyph:</b> <code>{entry.suggested_rewrite.new_glyph}</code>
+                </div>
+                <div>
+                  <b>Goal Match Score:</b>{' '}
+                  {entry.suggested_rewrite.goal_match_score != null
+                    ? entry.suggested_rewrite.goal_match_score.toFixed(2)
+                    : 'N/A'}
+                </div>
+                <div>
+                  <b>Rewrite Success Probability:</b>{' '}
+                  {entry.suggested_rewrite.rewrite_success_prob != null
+                    ? `${Math.round(entry.suggested_rewrite.rewrite_success_prob * 100)}%`
+                    : 'N/A'}
+                </div>
+                {entry.suggested_rewrite.reason && (
+                  <div>
+                    <b>Reason:</b> <span>{entry.suggested_rewrite.reason}</span>
+                  </div>
+                )}
+              </div>
+            )}
           </motion.li>
         ))}
       </ul>

@@ -17,6 +17,8 @@ from backend.modules.dimensions.universal_container_system.ucs_runtime import uc
 from backend.modules.dimensions.universal_container_system.ucs_geometry_loader import UCSGeometryLoader
 from backend.modules.dimensions.ucs.ucs_entanglement import entangle_containers
 from backend.modules.dimensions.universal_container_system.ucs_base_container import UCSBaseContainer
+from backend.modules.consciousness.prediction_engine import PredictionEngine
+from backend.modules.lean.lean_proofverifier import validate_lean_container
 
 try:
     # ✅ Lazy import to avoid circular dependency
@@ -65,8 +67,22 @@ class ContainerRuntime:
         container = self.vault_manager.load_container_by_id(container_id)
         if not container:
             raise Exception(f"Container {container_id} not found or could not be loaded.")
-        
+
+        # ✅ Set container in state
         self.state_manager.set_current_container(container)
+
+        # ✅ Run prediction (B1/B2 logic)
+        from backend.modules.consciousness.prediction_engine import run_prediction_on_container
+        from backend.modules.codex.codex_trace import CodexTrace
+
+        try:
+            prediction = run_prediction_on_container(container)
+            if prediction.get("prediction_count", 0) > 0:
+                self.state_manager.set_metadata("container_prediction", prediction)
+                CodexTrace.log_prediction(prediction)
+        except Exception as e:
+            print(f"⚠️ Prediction failed for container {container_id}: {e}")
+
         return self.get_decrypted_current_container()
 
     @staticmethod
@@ -109,68 +125,78 @@ class ContainerRuntime:
         self.running = False
         print("⏹️ Container Runtime stopped.")
 
-from backend.modules.consciousness.prediction_engine import run_prediction_on_container
+    from backend.modules.consciousness.prediction_engine import run_prediction_on_container
 
-def get_decrypted_current_container(self) -> Dict[str, Any]:
-    container = self.state_manager.get_current_container()
-    encrypted_blob = container.get("encrypted_glyph_data")
-    avatar_state = self.state_manager.get_avatar_state()
+    from backend.modules.lean.lean_utils import is_lean_container
+    from backend.modules.lean.lean_proofverifier import validate_lean_container
 
-    if encrypted_blob:
-        success = self.vault_manager.load_container_glyph_data(
-            encrypted_blob,
-            avatar_state=avatar_state
-        )
-        if success:
-            container["cubes"] = self.vault_manager.get_microgrid().export_index()
-        else:
-            print("⚠️ Warning: Failed to decrypt container glyph data or access denied.")
-            container["cubes"] = {}
+    def get_decrypted_current_container(self) -> Dict[str, Any]:
+        container = self.state_manager.get_current_container()
+        encrypted_blob = container.get("encrypted_glyph_data")
+        avatar_state = self.state_manager.get_avatar_state()
 
-    container_id = container.get("id")
-    seed_links = container.get("entangled", [])
-    for other_id in seed_links:
-        if other_id and other_id != container_id:
-            try:
-                entangle_glyphs("↔", container_id, other_id, sender="container_runtime", push=True)
-            except Exception as e:
-                print(f"⚠️ Failed to seed-entangle {container_id} ↔ {other_id}: {e}")
+        if encrypted_blob:
+            success = self.vault_manager.load_container_glyph_data(
+                encrypted_blob,
+                avatar_state=avatar_state
+            )
+            if success:
+                container["cubes"] = self.vault_manager.get_microgrid().export_index()
+            else:
+                print("⚠️ Warning: Failed to decrypt container glyph data or access denied.")
+                container["cubes"] = {}
 
-    try:
-        resolver = KeyFragmentResolver(container_id)
-        glyphs = list(container.get("cubes", {}).values())
-        resolver.run_full_recombination(glyphs)
-    except Exception as e:
-        print(f"⚠️ Key fragment recombination failed: {e}")
+        container_id = container.get("id")
+        seed_links = container.get("entangled", [])
+        for other_id in seed_links:
+            if other_id and other_id != container_id:
+                try:
+                    entangle_glyphs("↔", container_id, other_id, sender="container_runtime", push=True)
+                except Exception as e:
+                    print(f"⚠️ Failed to seed-entangle {container_id} ↔ {other_id}: {e}")
 
-    if container.get("geometry"):
-        self.geometry_loader.register_geometry(
-            container.get("name", container_id),
-            container.get("symbol", "❔"),
-            container.get("geometry", "unknown")
-        )
-        self.ucs.save_container(container["id"], container)
-
-    self._ensure_registry_entry(container)
-
-    # 🧪 Atom Container Detection
-    if container.get("container_kind") == "atom":
-        container["isAtom"] = True
-        container["electronCount"] = len(container.get("electrons", []))
-
-        # 🔮 B1: Prediction logic for atom containers
         try:
-            predictions = run_prediction_on_container(container)
-            if predictions.get("prediction_count", 0) > 0:
-                logger.info(f"[SQI Predict] ✅ {predictions['prediction_count']} predictions made.")
-                container["predictions"] = predictions
+            resolver = KeyFragmentResolver(container_id)
+            glyphs = list(container.get("cubes", {}).values())
+            resolver.run_full_recombination(glyphs)
         except Exception as e:
-            logger.warning(f"[SQI Predict] ⚠️ Prediction failed: {e}")
-    else:
-        container["isAtom"] = False
-        container["electronCount"] = 0
+            print(f"⚠️ Key fragment recombination failed: {e}")
 
-    return container
+        if container.get("geometry"):
+            self.geometry_loader.register_geometry(
+                container.get("name", container_id),
+                container.get("symbol", "❔"),
+                container.get("geometry", "unknown")
+            )
+            self.ucs.save_container(container["id"], container)
+
+        self._ensure_registry_entry(container)
+
+        # 🧪 Atom Container Detection
+        if container.get("container_kind") == "atom":
+            container["isAtom"] = True
+            container["electronCount"] = len(container.get("electrons", []))
+
+            # 🔮 B1: Prediction logic for atom containers
+            try:
+                predictions = run_prediction_on_container(container)
+                if predictions.get("prediction_count", 0) > 0:
+                    logger.info(f"[SQI Predict] ✅ {predictions['prediction_count']} predictions made.")
+                    container["predictions"] = predictions
+            except Exception as e:
+                logger.warning(f"[SQI Predict] ⚠️ Prediction failed: {e}")
+        else:
+            container["isAtom"] = False
+            container["electronCount"] = 0
+
+        # ✅ Lean Container Validation
+        if is_lean_container(container):
+            try:
+                validate_lean_container(container)
+            except Exception as e:
+                logger.warning(f"⚠️ Lean container validation failed: {e}")
+
+        return container
 
     def unload_container(self, container_id: str) -> bool:
         """
@@ -553,3 +579,33 @@ def get_container_runtime() -> 'ContainerRuntime':
         from backend.modules.consciousness.state_manager import StateManager
         container_runtime_instance = ContainerRuntime(StateManager())
     return container_runtime_instance
+
+# --- 🔁 Electron-triggered QWave Teleport Logic ---
+
+from backend.modules.glyphvault import vault_bridge
+from backend.modules.teleport.teleport_packet import TeleportPacket
+
+
+def teleport_to_linked_container(link_container_id: str) -> Dict[str, Any]:
+    """
+    Given a container ID from an electron node, teleport to its snapshot
+    using symbolic Vault logic and runtime payload injection.
+    """
+    try:
+        snapshot_id = vault_bridge.get_container_snapshot_id(link_container_id)
+        print(f"[TELEPORT] Resolving snapshot for container: {link_container_id} → {snapshot_id}")
+
+        teleport_packet = TeleportPacket(
+            source_container_id="electronic_atom",
+            target_container_id=link_container_id,
+            snapshot_id=snapshot_id,
+            payload={"trigger": "electron_click", "confidence": 0.95}
+        )
+
+        result = inject_payload(teleport_packet)
+        print(f"[TELEPORT] Success: {result}")
+        return {"status": "ok", "snapshot": snapshot_id}
+
+    except Exception as e:
+        print(f"[TELEPORT ERROR] Failed to teleport to {link_container_id}: {e}")
+        return {"status": "error", "message": str(e)}

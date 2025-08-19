@@ -25,7 +25,6 @@ from backend.modules.codex.codex_trace import CodexTrace
 from backend.modules.codex.ops.op_trigger import op_trigger
 from backend.modules.glyphos.codexlang_translator import run_codexlang_string
 from backend.modules.glyphos.glyph_executor import GlyphExecutor
-from backend.modules.tessaris.tessaris_engine import TessarisEngine
 
 # Intelligence & KG
 from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter
@@ -38,10 +37,13 @@ from backend.modules.hexcore.memory_engine import store_memory
 from backend.modules.dna_chain.switchboard import DNA_SWITCH
 from backend.modules.dna_chain.mutation_checker import add_dna_mutation
 from backend.modules.consciousness.state_manager import STATE  # singleton instance
+from backend.modules.codex.rewrite_executor import auto_mutate_container
 
 # SQI + Prediction
-from backend.modules.consciousness.prediction_engine import PredictionEngine
 from backend.modules.sqi.sqi_trace_logger import SQITraceLogger
+TessarisEngine = None
+PredictionEngine = None
+
 try:
     from backend.modules.glyphos.symbolic_entangler import entangle_glyphs
 except Exception:
@@ -94,8 +96,14 @@ class CodexExecutor:
         self.metrics = CodexMetrics()
         self.trace = CodexTrace()
         self.glyph_executor = GlyphExecutor(state_manager=STATE)
+        global TessarisEngine
+        if TessarisEngine is None:
+            from backend.modules.tessaris.tessaris_engine import TessarisEngine
         self.tessaris = TessarisEngine()
         self.kg_writer = KnowledgeGraphWriter()
+        global PredictionEngine
+        if PredictionEngine is None:
+            from backend.modules.consciousness.prediction_engine import PredictionEngine
         self.prediction_engine = PredictionEngine()
         self.prediction_index = PredictionIndex()
         self.sqi_trace = SQITraceLogger()
@@ -146,6 +154,25 @@ class CodexExecutor:
                 result=result,
                 tags=["codex_execution"]
             )
+                        # 🔮 Container-level Prediction (SQI Path Selection)
+            try:
+                cid = context.get("container_id")
+                if cid and isinstance(cid, str) and cid.startswith("dc_"):
+                    prediction_result = self.prediction_engine.run_prediction_on_container(cid)
+                    if prediction_result:
+                        self.kg_writer.store_predictions(
+                            container_id=cid,
+                            predictions=prediction_result.get("predicted_paths", []),
+                            reason="Triggered from CodexExecutor (B2)"
+                        )
+                        self.trace.log_event("prediction", {
+                            "source": "CodexExecutor",
+                            "container_id": cid,
+                            "paths": prediction_result.get("predicted_paths", []),
+                            "metadata": prediction_result.get("metadata", {})
+                        })
+            except Exception as pred_err:
+                logger.warning(f"[CodexExecutor] ⚠️ Container prediction failed: {pred_err}")
 
             # 🔮 Prediction Engine & Index
             predictions = self.prediction_engine.analyze(instruction_tree, context=context)
@@ -162,46 +189,120 @@ class CodexExecutor:
                     )
                 )
 
-            # 🕵️ Introspection: Blindspot/Confidence Drops
-            if cost > 0.85:
-                add_introspection_event(
-                    description=f"High entropy detected ({cost:.2f}) during glyph execution: {glyph}",
-                    source_module="CodexExecutor",
-                    tags=["entropy", "alert"],
-                    confidence=max(0, 1 - cost),
-                    blindspot_trigger="Entropy Spike",
-                    glyph_trace_ref=glyph
-                )
-
+            # 🔁 Self-Rewrite Trigger on Contradiction
             if result.get("status") == "contradiction":
+                reason = result.get("detail", "N/A")
+
+                # 🕵️ Introspection Event
                 add_introspection_event(
-                    description=f"Contradiction detected in glyph {glyph}: {result.get('detail','N/A')}",
+                    description=f"Contradiction detected in glyph {glyph}: {reason}",
                     source_module="CodexExecutor",
                     tags=["contradiction", "self-rewrite"],
                     confidence=0.2,
                     blindspot_trigger="Logic Contradiction"
                 )
+
+                # 🔍 Attempt rewrite suggestion
+                suggestion = None
+                ast = instruction_tree.get("ast")
+
+                # Case 1: Lean container
+                if context.get("container_type") == "lean":
+                    try:
+                        from modules.lean.lean_tactic_suggester import suggest_tactic
+                        suggestion = suggest_tactic(ast)
+                    except Exception as e:
+                        log_warn(f"LeanTacticSuggester failed: {e}")
+
+                # Case 2: Symbolic fallback
+                if not suggestion:
+                    try:
+                        from modules.consciousness.prediction_engine import suggest_simplifications
+                        suggestion = suggest_simplifications(ast)
+                    except Exception as e:
+                        log_warn(f"PredictionEngine simplification failed: {e}")
+
+                # 💡 Save suggestion if available
+                if suggestion:
+                    self.trace.log_event("suggested_rewrite", {
+                        "glyph": glyph,
+                        "suggestion": suggestion,
+                        "origin": "auto_rewrite",
+                        "tags": ["rewrite", "suggestion", "logic"]
+                    })
+
+                    self.sqi_trace.log_suggestion(glyph, suggestion, source="contradiction")
+
+                    broadcast_glyph_event(
+                        glyph=glyph,
+                        action="rewrite_suggestion",
+                        source=source,
+                        scroll=build_scroll_from_glyph(glyph, instruction_tree),
+                        metadata={
+                            "type": "rewrite_suggestion",
+                            "suggestion": suggestion,
+                            "container": context.get("container_id")
+                        }
+                    )
+
+                    # 🧬 DNA Mutation Trace
+                    add_dna_mutation(
+                        label="suggested_rewrite",
+                        glyph=glyph,
+                        entropy_delta=0.3,
+                        suggestion=suggestion,
+                        source_module="CodexExecutor"
+                    )
+
+                    # 🎯 Goal Resolver (optional)
+                    try:
+                        from modules.goals.goal_engine import link_suggestion_to_goals
+                        link_suggestion_to_goals(glyph=glyph, suggestion=suggestion, context=context)
+                    except Exception as ge:
+                        logger.debug(f"[CodexExecutor] Goal resolver hook failed: {ge}")
+
+                # 🔁 Self-Rewrite Invocation
                 self.run_self_rewrite(f"Contradiction: {glyph}", context=context)
 
-            # 🧾 Scroll Builder (GHX Replay)
-            scroll = build_scroll_from_glyph(glyph, instruction_tree)
+                # 🧠 Trace Logging
+                self.trace.log_event("rewrite", {
+                    "glyph": glyph,
+                    "reason": reason,
+                    "container": context.get("container_id"),
+                    "tags": ["contradiction", "rewrite"]
+                })
 
-            # 💾 Memory Storage
-            store_memory({
-                "label": "codex_execution",
-                "content": {"glyph": glyph, "instruction_tree": instruction_tree, "result": result, "cost": cost}
-            })
+                # 🌀 SQI Trace Flag
+                self.sqi_trace.log_collapse(glyph, cost, entangled=True, contradiction=True)
 
-            # 🛰️ GHX Replay + WebSocket Broadcast
-            broadcast_glyph_event(
-                glyph=glyph,
-                action=instruction_tree.get("op", ""),
-                source=source,
-                cost=cost,
-                entangled=True,
-                scroll=scroll,
-                metadata={"container": context.get("container_id")}
-            )
+                # 🛰️ GHX + WebSocket Broadcast
+                scroll = build_scroll_from_glyph(glyph, instruction_tree)
+                broadcast_glyph_event(
+                    glyph=glyph,
+                    action="contradiction",
+                    source=source,
+                    cost=cost,
+                    entangled=True,
+                    scroll=scroll,
+                    metadata={
+                        "type": "contradiction",
+                        "reason": reason,
+                        "container": context.get("container_id")
+                    }
+                )
+
+            else:
+                # ⬁ Standard Scroll + Broadcast
+                scroll = build_scroll_from_glyph(glyph, instruction_tree)
+                broadcast_glyph_event(
+                    glyph=glyph,
+                    action=instruction_tree.get("op", ""),
+                    source=source,
+                    cost=cost,
+                    entangled=True,
+                    scroll=scroll,
+                    metadata={"container": context.get("container_id")}
+                )
 
             elapsed = time.perf_counter() - start_time
             return {"status": "success", "result": result, "cost": cost, "elapsed": elapsed}
@@ -253,7 +354,6 @@ class CodexExecutor:
         self.sqi_trace.reset()
         self.tessaris.reset()
 
-
 # ✅ Singleton instance
 codex_executor = CodexExecutor()
 
@@ -277,6 +377,26 @@ def execute_codexlang(codex_string: str,
     Legacy shim: execute a CodexLang string via the singleton executor.
     """
     return codex_executor.execute_codexlang(codex_string, context=context)
+
+if __name__ == "__main__":
+    import sys, json
+    from backend.modules.dna_chain.dc_handler import load_dc_container
+
+    if len(sys.argv) < 2:
+        print("Usage: python codex_executor.py <path_to_dc.json> [--save]")
+        sys.exit(1)
+
+    path = sys.argv[1]
+    autosave = "--save" in sys.argv
+
+    try:
+        with open(path) as f:
+            container = json.load(f)
+    except Exception as e:
+        print(f"❌ Failed to load container: {e}")
+        sys.exit(1)
+
+    mutated = auto_mutate_container(container, autosave=autosave)
 
 __all__ = [
     "CodexExecutor",

@@ -39,8 +39,8 @@ from backend.modules.codex.collapse_trace_exporter import export_collapse_trace
 
 # Delay import to avoid circular dependency
 def get_tessaris_engine():
-    from backend.modules.tessaris.tessaris_engine import TessarisEngine
-    return TessarisEngine
+    from backend.modules.tessaris.tessaris_engine import TessarisEngine  # <-- moved here
+    return TessarisEngine()
 
 
 # ✅ DNA Switch

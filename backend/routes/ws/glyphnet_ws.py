@@ -97,6 +97,20 @@ def disconnect(websocket: WebSocket):
         active_connections.remove(websocket)
         logger.info(f"WebSocket disconnected: {websocket.client}")
 
+def emit_websocket_event(event_type: str, data: dict):
+    """
+    Emit a generic event to all WebSocket clients.
+    """
+    payload = {
+        "type": event_type,
+        "data": data
+    }
+    for ws in connected_clients:
+        try:
+            asyncio.ensure_future(ws.send_json(payload))
+        except Exception as e:
+            logger.warning(f"[WebSocket] Failed to emit event to client: {e}")
+
 # ✅ Broadcast Event Enqueue
 async def broadcast_event(event: Dict[str, Any]):
     """Enqueue a symbolic event for broadcast."""
@@ -229,7 +243,7 @@ async def handle_glyphnet_event(websocket: WebSocket, msg: Dict[str, Any]):
             "predictions": predictions
         })
 
-        # 🌀 Electron-triggered teleport to container
+    # 🌀 Electron-triggered teleport to container
     elif event_type == "teleport_to_container":
         target_cid = msg.get("cid")
         source_cid = msg.get("source_cid")  # optional
@@ -317,6 +331,35 @@ async def handle_glyphnet_event(websocket: WebSocket, msg: Dict[str, Any]):
                 "type": "entanglement_lock_denied",
                 "glyph_id": glyph_id,
                 "reason": "Locked by another agent"
+            })
+
+    # 🧠 Run Prediction + Emit logic_alert if contradiction (Step 2)
+    elif event_type == "run_prediction":
+        container = msg.get("container", {})
+        container_id = container.get("id", "unknown")
+
+        try:
+            from backend.modules.consciousness import prediction_engine
+            result = prediction_engine.run_prediction_on_container(container)
+
+            contradiction = result.get("symbolic", {}).get("contradiction")
+            if contradiction:
+                emit_websocket_event(
+                    event_type="logic_alert",
+                    data={
+                        "containerId": container_id,
+                        "contradiction": True,
+                        "reason": contradiction.get("reason"),
+                        "score": contradiction.get("score"),
+                        "suggested_rewrite": result["symbolic"].get("rewrite"),
+                    }
+                )
+        except Exception as e:
+            logger.warning(f"[GlyphNetWS] Prediction error: {e}")
+            await websocket.send_json({
+                "type": "logic_alert",
+                "error": "prediction_failed",
+                "reason": str(e)
             })
 
 # ✅ Lock Overlay Broadcast

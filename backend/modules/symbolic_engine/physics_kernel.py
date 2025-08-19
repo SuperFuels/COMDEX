@@ -1,7 +1,8 @@
-# backend/modules/symbolic_engine/physics_kernel.py
 from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Dict, Tuple, Optional, Union
+
+from backend.modules.symbolic_engine.symbolic_ingestion_engine import SymbolicIngestionEngine
 
 Scalar = Union[float, int, str, Dict[str, Any]]
 Vector = Dict[str, Any]  # symbolic vector/tensor node form used across kernels
@@ -36,35 +37,79 @@ def sym(op: str, *args: Any, **meta: Any) -> GlyphNode:
 
 def grad(field: Scalar, coords: Tuple[str, ...] = ("x", "y", "z")) -> GlyphNode:
     """∇f → gradient (symbolic)"""
-    return sym("∇", field, coords)
+    node = sym("∇", field, coords)
+    SymbolicIngestionEngine.ingest_data(
+        {
+            "op": "grad",
+            "args": [field, coords],
+            "codexlang": f"grad({field})",
+            "glyph": node.to_dict(),
+            "domain": "physics.vector"
+        },
+        source="PhysicsKernel",
+        tags=["physics", "grad"]
+    )
+    return node
 
 def div(vec: Vector, coords: Tuple[str, ...] = ("x", "y", "z")) -> GlyphNode:
     """∇·V → divergence (symbolic)"""
-    return sym("∇·", vec, coords)
+    node = sym("∇·", vec, coords)
+    SymbolicIngestionEngine.ingest_data(
+        {
+            "op": "div",
+            "args": [vec, coords],
+            "codexlang": f"div({vec})",
+            "glyph": node.to_dict(),
+            "domain": "physics.vector"
+        },
+        source="PhysicsKernel",
+        tags=["physics", "div"]
+    )
+    return node
 
 def curl(vec: Vector, coords: Tuple[str, ...] = ("x", "y", "z")) -> GlyphNode:
     """∇×V → curl (symbolic)"""
-    return sym("∇×", vec, coords)
+    node = sym("∇×", vec, coords)
+    SymbolicIngestionEngine.ingest_data(
+        {
+            "op": "curl",
+            "args": [vec, coords],
+            "codexlang": f"curl({vec})",
+            "glyph": node.to_dict(),
+            "domain": "physics.vector"
+        },
+        source="PhysicsKernel",
+        tags=["physics", "curl"]
+    )
+    return node
 
 def laplacian(field: Scalar, coords: Tuple[str, ...] = ("x", "y", "z")) -> GlyphNode:
     """Δf (∇²f) → Laplacian (symbolic)"""
-    return sym("Δ", field, coords)
+    node = sym("Δ", field, coords)
+    SymbolicIngestionEngine.ingest_data(
+        {
+            "op": "laplacian",
+            "args": [field, coords],
+            "codexlang": f"laplacian({field})",
+            "glyph": node.to_dict(),
+            "domain": "physics.vector"
+        },
+        source="PhysicsKernel",
+        tags=["physics", "laplacian"]
+    )
+    return node
 
 def d_dt(expr: Any, t: str = "t") -> GlyphNode:
-    """d/dt (time derivative) – linear, product rule can be applied downstream if needed."""
+    """d/dt (time derivative)"""
     return sym("d/dt", expr, t)
 
-
 def tensor_product(a: Any, b: Any) -> GlyphNode:
-    """⊗ – outer/tensor product"""
     return sym("⊗", a, b)
 
 def dot(a: Any, b: Any) -> GlyphNode:
-    """· – dot product"""
     return sym("·", a, b)
 
 def cross(a: Any, b: Any) -> GlyphNode:
-    """× – cross product"""
     return sym("×", a, b)
 
 
@@ -89,7 +134,20 @@ def schrodinger_evolution(psi: Any, H: Any, t: str = "t") -> GlyphNode:
     """iℏ ∂|ψ⟩/∂t = H|ψ⟩  (symbolic statement)"""
     lhs = sym("·", "iℏ", d_dt(psi, t))
     rhs = sym("·", H, psi)
-    return sym("≐", lhs, rhs, equation="Schr")
+    node = sym("≐", lhs, rhs, equation="Schr")
+
+    SymbolicIngestionEngine.ingest_data(
+        {
+            "op": "schrodinger_evolution",
+            "args": [psi, H, t],
+            "codexlang": f"evolve({psi}, {H}, {t})",
+            "glyph": node.to_dict(),
+            "domain": "physics.quantum"
+        },
+        source="PhysicsKernel",
+        tags=["physics", "quantum"]
+    )
+    return node
 
 
 # ---------- GR glyphs (symbolic) ----------
@@ -117,10 +175,21 @@ def stress_energy(T: str = "T_{μν}") -> GlyphNode:
 
 def einstein_equation(G: Any, T: Any) -> GlyphNode:
     """G_{μν} = 8πG T_{μν}   (symbolic)"""
-    return sym("≐", G, sym("·", "8πG", T), equation="Einstein")
+    node = sym("≐", G, sym("·", "8πG", T), equation="Einstein")
+    SymbolicIngestionEngine.ingest_data(
+        {
+            "op": "einstein_equation",
+            "args": [G, T],
+            "codexlang": f"{G} = 8πG * {T}",
+            "glyph": node.to_dict(),
+            "domain": "physics.relativity"
+        },
+        source="PhysicsKernel",
+        tags=["physics", "relativity"]
+    )
+    return node
 
 def einstein_tensor() -> GlyphNode:
-    """G_{μν} = R_{μν} − ½ g_{μν} R"""
     return sym("G_{μν}")
 
 

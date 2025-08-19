@@ -85,22 +85,30 @@ def inject_theorems_into_container(
         name = decl["name"]
         glyph_symbol = decl.get("glyph_symbol", "⟦ Theorem ⟧")
 
+        # Extract enhanced proof metadata
+        lean_proof_snippet = decl.get("body", "").strip()
+        symbolic_proof = codexlang.get("normalized", codexlang.get("logic"))
+        proof_explanation = codexlang.get("explanation", "No explanation available.")
+
         logic_entry = {
             "name": name,
             "symbol": glyph_symbol,
-            "logic": codexlang.get("normalized", codexlang.get("logic")),
+            "logic": symbolic_proof,
             "logic_raw": codexlang.get("logic"),
             "codexlang": codexlang,
             "glyph_tree": decl.get("glyph_tree"),
             "source": lean_path,
-            "body": decl.get("body", ""),
+            "body": lean_proof_snippet,
+            "leanProof": lean_proof_snippet,
+            "symbolicProof": symbolic_proof,
+            "proofExplanation": proof_explanation,
+            "replay_tags": ["📜 Lean Theorem", f"🧠 {glyph_symbol}"],
         }
 
         if overwrite and name in name_to_idx:
             container[logic_field][name_to_idx[name]] = logic_entry
         else:
             container[logic_field].append(logic_entry)
-            # maintain index map for any subsequent duplicates within this run
             name_to_idx[name] = len(container[logic_field]) - 1
 
     # Keep glyphs/tree in sync with logic
@@ -111,7 +119,6 @@ def inject_theorems_into_container(
         normalize_codexlang(container)
         inject_preview_and_links(container)
         register_theorems(container)
-        # clear top-level extras; previews/depends now live per-entry
         container["previews"] = []
         container["dependencies"] = []
 

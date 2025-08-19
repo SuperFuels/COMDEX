@@ -159,17 +159,24 @@ def validate_logic_trees(container: Dict[str, Any]) -> List[str]:
 def normalize_codexlang(container: Dict[str, Any]) -> None:
     """
     Normalize all logic entries using CodexLangRewriter.
-    In-place updates `logic` field of each theorem.
+    In-place updates `logic` and `codexlang.logic` fields of each theorem.
     """
     for entry in container.get("symbolic_logic", []):
-        logic = entry.get("logic", "")
+        logic = entry.get("logic", "") or ""
+        codex = entry.get("codexlang", {}) or {}
+
         try:
-            # Support both static and instance APIs
             simplify = getattr(CodexLangRewriter, "simplify", None)
             if callable(simplify):
-                entry["logic"] = simplify(logic)
+                simplified = simplify(logic)
             else:
-                entry["logic"] = CodexLangRewriter().simplify(logic)  # type: ignore
+                simplified = CodexLangRewriter().simplify(logic)  # type: ignore
+
+            # Update both `logic` and `codexlang.logic`
+            entry["logic"] = simplified
+            if isinstance(codex, dict):
+                codex["logic"] = simplified
+                entry["codexlang"] = codex
         except Exception:
             # Best-effort; leave original logic if normalization fails
             pass

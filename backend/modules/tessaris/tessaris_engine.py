@@ -2,8 +2,8 @@ import uuid
 import json
 import requests
 import time
+from typing import Any, Dict, List, Optional
 
-from typing import Any, Dict, Optional
 from backend.config import GLYPH_API_BASE_URL
 from backend.modules.tessaris.thought_branch import ThoughtBranch, BranchNode
 from backend.modules.glyphos.glyph_logic import interpret_glyph
@@ -19,6 +19,11 @@ from backend.modules.glyphos.glyph_logic import interpret_glyph, detect_contradi
 from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter
 from backend.modules.dimensions.container_expander import ContainerExpander
 from backend.modules.runtime.container_runtime import collapse_container
+from backend.modules.lean.auto_mutate_axioms import suggest_axiom_mutation
+
+from backend.modules.lean.lean_tactic_suggester import suggest_tactics
+from backend.modules.lean.auto_mutate_axioms import suggest_axiom_mutation
+
 
 # Codex integration
 from backend.modules.codex.codex_mind_model import CodexMindModel
@@ -212,19 +217,22 @@ class TessarisEngine:
                 })
                 print(f"  ➤ Glyph {idx}: {glyph} → {result}")
 
+                coord = branch.position.get("coord")
+                container_path = branch.metadata.get("container_path") if branch.metadata else None
+
                 if "⊥" in str(result) or detect_contradiction(str(result)) or cost.total() > 9:
-                    coord = branch.position.get("coord")
-                    container_path = branch.metadata.get("container_path") if branch.metadata else None
                     if coord and container_path:
-                        print(f"⬁ Triggering fallback rewrite for {glyph}")
+                        reason = "contradiction" if "⊥" in str(result) else "high_cost" if cost.total() > 9 else "unknown"
+                        print(f"⬁ Triggering fallback rewrite for glyph: {glyph} due to {reason}")
+
                         MEMORY.store({
                             "label": "fallback_rewrite",
                             "role": "tessaris",
                             "type": "self_rewrite",
-                            "content": f"⬁ Auto-triggered rewrite for glyph {glyph} due to contradiction or entropy.",
+                            "content": f"⬁ Rewrite triggered for glyph {glyph} due to {reason}.",
                             "data": {
                                 "glyph": glyph,
-                                "reason": "contradiction or high cost",
+                                "reason": reason,
                                 "cost": cost.total(),
                                 "coord": coord
                             }
@@ -232,18 +240,27 @@ class TessarisEngine:
 
                         self.kg_writer.log_event("self_rewrite_triggered", {
                             "glyph": glyph,
-                            "reason": "contradiction" if "⊥" in str(result) else "error",
+                            "reason": reason,
                             "cost": cost.total(),
                             "coord": coord,
                         })
-                        success = run_self_rewrite(container_path, coord)
-                        print("♻️ Fallback self-rewrite succeeded." if success else "⚠️ Fallback rewrite failed or skipped.")
+
+                        try:
+                            replacements = run_lean_self_rewrite(glyph)
+                            if replacements:
+                                self.kg_writer.log_event("self_rewrite_result", {
+                                    "replacements": replacements,
+                                    "coord": coord,
+                                })
+                                self.memory_engine.replace_glyph_at(container_path, coord, replacements[0])
+                                print("♻️ Fallback self-rewrite succeeded via Lean.")
+                            else:
+                                print("⚠️ Fallback rewrite returned no results.")
+                        except Exception as e:
+                            print(f"⚠️ Fallback rewrite failed: {e}")
 
                 self.codex_mind.observe(glyph)
                 self.codex_metrics.record_execution()
-
-                coord = branch.position.get("coord")
-                container_path = branch.metadata.get("container_path") if branch.metadata else None
 
                 if glyph.strip().startswith("⟦ Write") or glyph.strip().startswith("⟦ Mutate"):
                     if coord and container_path:
@@ -253,8 +270,146 @@ class TessarisEngine:
                             "cost": cost.total(),
                             "coord": coord,
                         })
+                        try:
+                            replacements = run_lean_self_rewrite(glyph)
+                            if replacements:
+                                self.kg_writer.log_event("self_rewrite_result", {
+                                    "replacements": replacements,
+                                    "coord": coord,
+                                })
+                                self.memory_engine.replace_glyph_at(container_path, coord, replacements[0])
+                                print("♻️ Self-rewriting glyph executed via Lean.")
+                            else:
+                                print("⚠️ Self-rewrite returned no results.")
+                        except Exception as e:
+                            print(f"⚠️ Lean-based self-rewrite failed: {e}")
+
+                        # 🧠 Tactic suggestion
+                        if glyph.strip().startswith("⟦ Mutate"):
+                            try:
+                                tactic_suggestion = suggest_tactics(glyph)
+                                if tactic_suggestion:
+                                    print(f"🧠 Suggested tactic: {tactic_suggestion}")
+                                    self.kg_writer.log_event("tactic_suggestion", {
+                                        "glyph": glyph,
+                                        "suggestion": tactic_suggestion,
+                                        "coord": coord,
+                                    })
+                            except Exception as e:
+                                print(f"⚠️ Tactic suggestion failed: {e}")
+
+                        # 🧬 Axiom mutation
+                        if "⊥" in str(result):
+                            try:
+                                axiom_mutation = suggest_axiom_mutation(glyph)
+                                if axiom_mutation:
+                                    print(f"🧬 Suggested axiom mutation: {axiom_mutation}")
+                                    self.kg_writer.log_event("axiom_mutation_suggestion", {
+                                        "glyph": glyph,
+                                        "suggestion": axiom_mutation,
+                                        "coord": coord,
+                                    })
+                            except Exception as e:
+                                print(f"⚠️ Axiom mutation suggestion failed: {e}")
+
+                        # 🔁 Fallback rewriter
+                        self.kg_writer.log_event("self_rewrite_triggered", {
+                            "glyph": glyph,
+                            "reason": "error",
+                            "coord": coord,
+                            "cost": cost.total() if 'cost' in locals() else None,
+                        })
                         success = run_self_rewrite(container_path, coord)
-                        print("♻️ Self-rewriting glyph executed" if success else "⚠️ Rewrite skipped")
+                        print("♻️ Fallback symbolic rewrite executed." if success else "⚠️ Fallback rewrite failed.")
+
+                if "⟲" in glyph and "Reflect" in result:
+                    MEMORY.store({
+                        "label": "tessaris_reflection",
+                        "role": "tessaris",
+                        "type": "self_reflection",
+                        "content": f"Reflected on glyph {glyph}",
+                        "data": {"glyph": glyph}
+                    })
+                    print(f"🔁 Reflection triggered from ⟲ glyph")
+
+                self._maybe_create_goal(glyph, branch)
+                self._maybe_suggest_boot(glyph, branch)
+
+            except Exception as e:
+                print(f"  ⚠️ Error interpreting glyph {glyph}: {e}")
+                self.codex_metrics.record_error()
+
+                coord = branch.position.get("coord")
+                container_path = branch.metadata.get("container_path") if branch.metadata else None
+
+                if coord and container_path:
+                    MEMORY.store({
+                        "label": "fallback_rewrite_error",
+                        "role": "tessaris",
+                        "type": "self_rewrite",
+                        "content": f"⬁ Rewrite triggered from glyph error: {glyph}",
+                        "data": {
+                            "glyph": glyph,
+                            "exception": str(e),
+                            "coord": coord
+                        }
+                    })
+
+                    self.kg_writer.log_event("self_rewrite_triggered", {
+                        "glyph": glyph,
+                        "reason": "error",
+                        "cost": cost.total() if 'cost' in locals() else None,
+                        "coord": coord,
+                    })
+
+                    try:
+                        replacements = run_lean_self_rewrite(glyph)
+                        if replacements:
+                            self.kg_writer.log_event("self_rewrite_result", {
+                                "replacements": replacements,
+                                "coord": coord,
+                            })
+                            self.memory_engine.replace_glyph_at(container_path, coord, replacements[0])
+                            print("⬁ Auto-rewrite from error succeeded via Lean.")
+                        else:
+                            print("⚠️ Lean rewrite returned no replacements.")
+                    except Exception as e:
+                        print(f"⚠️ Lean rewrite failed: {e}")
+
+                    if glyph.strip().startswith("⟦ Mutate"):
+                        try:
+                            tactic_suggestion = suggest_tactics(glyph)
+                            if tactic_suggestion:
+                                print(f"🧠 Suggested tactic: {tactic_suggestion}")
+                                self.kg_writer.log_event("tactic_suggestion", {
+                                    "glyph": glyph,
+                                    "suggestion": tactic_suggestion,
+                                    "coord": coord,
+                                })
+                        except Exception as e:
+                            print(f"⚠️ Tactic suggestion failed: {e}")
+
+                    if "⊥" in str(result):
+                        try:
+                            axiom_mutation = suggest_axiom_mutation(glyph)
+                            if axiom_mutation:
+                                print(f"🧬 Axiom mutation suggestion: {axiom_mutation}")
+                                self.kg_writer.log_event("axiom_mutation_suggestion", {
+                                    "glyph": glyph,
+                                    "suggestion": axiom_mutation,
+                                    "coord": coord,
+                                })
+                        except Exception as e:
+                            print(f"⚠️ Axiom mutation failed: {e}")
+
+                    self.kg_writer.log_event("self_rewrite_triggered", {
+                        "glyph": glyph,
+                        "reason": "error",
+                        "coord": coord,
+                        "cost": cost.total() if 'cost' in locals() else None,
+                    })
+                    success = run_self_rewrite(container_path, coord)
+                    print("⬁ Fallback symbolic rewrite executed." if success else "⚠️ Fallback auto-rewrite failed.")
 
                 if "⟲" in glyph and "Reflect" in result:
                     MEMORY.store({
@@ -293,8 +448,61 @@ class TessarisEngine:
                         "cost": cost.total() if 'cost' in locals() else None,
                         "coord": coord,
                     })
-                    success = run_self_rewrite(container_path, coord)
-                    print("⬁ Auto-rewrite from error succeeded." if success else "⚠️ Auto-rewrite from error failed or skipped.")
+
+                    try:
+                        replacements = run_lean_self_rewrite(glyph)
+                        if replacements:
+                            self.kg_writer.log_event("self_rewrite_result", {
+                                "replacements": replacements,
+                                "coord": coord,
+                            })
+                            self.memory_engine.replace_glyph_at(container_path, coord, replacements[0])
+                            print("⬁ Auto-rewrite from error succeeded via Lean.")
+                            success = True
+                        else:
+                            print("⚠️ Lean rewrite returned no replacements.")
+                            success = False
+                    except Exception as e:
+                        print(f"⚠️ Lean rewrite failed: {e}")
+
+                        # 🧠 Tactic suggestion for ⟦ Mutate glyphs
+                        if glyph.strip().startswith("⟦ Mutate") and container_path and coord:
+                            try:
+                                tactic_suggestion = suggest_tactics(glyph)
+                                if tactic_suggestion:
+                                    print(f"🧠 Suggested tactic: {tactic_suggestion}")
+                                    self.kg_writer.log_event("tactic_suggestion", {
+                                        "glyph": glyph,
+                                        "suggestion": tactic_suggestion,
+                                        "coord": coord,
+                                    })
+                            except Exception as e:
+                                print(f"⚠️ Tactic suggestion failed: {e}")
+
+                        # 🧬 Axiom mutation fallback on contradiction
+                        if "⊥" in str(result) and container_path and coord:
+                            try:
+                                axiom_mutation = suggest_axiom_mutation(glyph)
+                                if axiom_mutation:
+                                    print(f"🧬 Axiom mutation suggestion: {axiom_mutation}")
+                                    self.kg_writer.log_event("axiom_mutation_suggestion", {
+                                        "glyph": glyph,
+                                        "suggestion": axiom_mutation,
+                                        "coord": coord,
+                                    })
+                            except Exception as e:
+                                print(f"⚠️ Axiom mutation failed: {e}")
+
+                        # 🔁 Final fallback: symbolic self-rewrite
+                        if container_path and coord:
+                            self.kg_writer.log_event("self_rewrite_triggered", {
+                                "glyph": glyph,
+                                "reason": "error",
+                                "coord": coord,
+                                "cost": cost.total() if 'cost' in locals() else None,
+                            })
+                            success = run_self_rewrite(container_path, coord)
+                            print("⬁ Fallback symbolic rewrite executed." if success else "⚠️ Fallback auto-rewrite failed.")
 
     def _send_synthesis(self, branch: ThoughtBranch):
         try:
@@ -460,20 +668,46 @@ class TessarisEngine:
         self.active_branches = []
         self.active_thoughts = []
 
-from typing import Dict, Any, Optional
+    from typing import Dict, Any, Optional
 
-def _summarize_tree(tree: Any) -> Dict[str, Any]:
-    """Minimal structure summary for fallback results."""
-    def _depth(n) -> int:
-        if isinstance(n, dict):
-            ch = n.get("children") or []
-            return 1 + (max((_depth(c) for c in ch), default=0) if isinstance(ch, list) else 0)
-        if isinstance(n, list):
-            return 1 + (max((_depth(c) for c in n), default=0))
-        return 1
-    try:
-        import json
-        size = len(json.dumps(tree, ensure_ascii=False))
-    except Exception:
-        size = len(str(tree))
-    return {"depth": _depth(tree), "size": size}
+    def _summarize_tree(tree: Any) -> Dict[str, Any]:
+        """Minimal structure summary for fallback results."""
+        def _depth(n) -> int:
+            if isinstance(n, dict):
+                ch = n.get("children") or []
+                return 1 + (max((_depth(c) for c in ch), default=0) if isinstance(ch, list) else 0)
+            if isinstance(n, list):
+                return 1 + (max((_depth(c) for c in n), default=0))
+            return 1
+        try:
+            import json
+            size = len(json.dumps(tree, ensure_ascii=False))
+        except Exception:
+            size = len(str(tree))
+        return {"depth": _depth(tree), "size": size}
+
+    def run_lean_self_rewrite(glyph: Dict[str, Any], *, context: Dict[str, Any] = {}) -> List[Dict[str, Any]]:
+        """
+        Attempt to rewrite the given glyph using Lean tactic suggestion or axiom mutation.
+        Used as fallback on contradiction or entropy spike.
+        """
+        from backend.modules.lean.lean_tactic_suggester import suggest_tactic_patch
+        from backend.modules.lean.auto_mutate_axioms import mutate_axioms_for_glyph
+
+        mutated: List[Dict[str, Any]] = []
+
+        if glyph.get("meta", {}).get("leanProof"):
+            try:
+                suggestion = suggest_tactic_patch(glyph)
+                if suggestion:
+                    mutated.append(suggestion)
+            except Exception as e:
+                print(f"⚠️ Lean tactic suggestion failed: {e}")
+
+        try:
+            axiom_mutations = mutate_axioms_for_glyph(glyph)
+            mutated.extend(axiom_mutations)
+        except Exception as e:
+            print(f"⚠️ Axiom mutation failed: {e}")
+
+        return mutated

@@ -33,6 +33,7 @@ except Exception:
 from backend.modules.knowledge_graph.id_utils import generate_uuid
 from backend.modules.knowledge_graph.time_utils import get_current_timestamp
 from backend.modules.sqi.sqi_metadata_embedder import bake_hologram_meta, make_kg_payload
+from backend.modules.knowledge_graph.sqi_fastmap_index import sqi_fastmap
 
 # ✅ Knowledge graph and indexing
 from backend.modules.dna_chain.container_index_writer import add_to_index
@@ -346,6 +347,36 @@ class KnowledgeGraphWriter:
         """
         # HOV1: bake hover/collapse GHX flags into the container meta
         container = bake_hologram_meta(dict(container or {}))
+        # --- K9b: Hover Geometry Metadata + Entanglement Links ---
+        metadata = container.get("metadata", {})
+
+        # Hover summary and GHX hint (used in HUD overlays)
+        metadata.setdefault("hover_summary", f"Container: {container.get('id', 'unknown')}")
+        metadata.setdefault("ghx_hint", "↯ Symbolic Container Overview")
+
+        # Geometry layout type: used in GHX/Atom/Hoberman visuals
+        metadata.setdefault("layout_type", container.get("geometry_type", "grid"))
+
+        # Entangled links (↔ overlay anchors)
+        if "entangled_links" not in metadata:
+            linked = []
+            for glyph in container.get("glyphs", []):
+                entangled = glyph.get("entangled_with")
+                if entangled:
+                    linked.extend(entangled if isinstance(entangled, list) else [entangled])
+            metadata["entangled_links"] = sorted(set(linked))
+
+        # Save metadata back into container
+        container["metadata"] = metadata
+        try:
+            from backend.modules.knowledge_graph.registry.sqi_fastmap_index import sqi_fastmap
+            sqi_fastmap.add_or_update_entry(
+                container_id=container["id"],
+                topic_vector=metadata.get("topics", []),
+                metadata=metadata
+            )
+        except Exception as e:
+            print(f"⚠️ Failed to update SQI FastMap for {container.get('id')}: {e}")
         # HOV2/HOV3: build a KG node payload with GHX viz flags and lazy expansion
         return make_kg_payload(
             {
@@ -417,6 +448,55 @@ class KnowledgeGraphWriter:
         """
         # --- Defensive copy and HOV1–HOV3 injection for the primary container ---
         container = bake_hologram_meta(dict(container or {}))  # HOV1 flags
+
+        # --- K9b: Hover Geometry Metadata + Entanglement Links ---
+        metadata = container.get("metadata", {})
+
+        # Hover summary and GHX hint (used in HUD overlays)
+        metadata.setdefault("hover_summary", f"Container: {container.get('id', 'unknown')}")
+        metadata.setdefault("ghx_hint", "↯ Symbolic Container Overview")
+
+        # Geometry layout type: used in GHX/Atom/Hoberman visuals
+        metadata.setdefault("layout_type", container.get("geometry_type", "grid"))
+
+        # Entangled links (↔ overlay anchors)
+        if "entangled_links" not in metadata:
+            linked = []
+            for glyph in container.get("glyphs", []):
+                entangled = glyph.get("entangled_with")
+                if entangled:
+                    linked.extend(entangled if isinstance(entangled, list) else [entangled])
+            metadata["entangled_links"] = sorted(set(linked))
+
+        # --- K9a: GHX/Hoberman Overlay Fields ---
+        metadata.setdefault("ghx_mode", "hologram")
+        metadata.setdefault("overlay_layers", [])
+
+        # If container has atoms or orbitals, set layout_type and overlays
+        if "atom" in container.get("id", "").lower():
+            metadata["layout_type"] = "atom"
+            metadata["ghx_mode"] = "shell"
+            metadata["overlay_layers"].append("electron_rings")
+
+        # Hoberman-specific override
+        elif any("hoberman" in tag.lower() for tag in container.get("tags", [])):
+            metadata["layout_type"] = "hoberman"
+            metadata["ghx_mode"] = "expanding_sphere"
+            metadata["overlay_layers"].append("symbolic_expansion")
+
+        # Add linkPreview from glyphs (electrons or entangled anchors)
+        link_previews = []
+        for g in container.get("glyphs", []):
+            preview_id = g.get("linkContainerId")
+            if preview_id and preview_id not in link_previews:
+                link_previews.append(preview_id)
+        if link_previews:
+            metadata["linkPreview"] = sorted(link_previews)
+
+        # Save metadata back into container
+        container["metadata"] = metadata
+
+        # --- Build collapsed KG node for main container ---
         kg_node = self.build_node_from_container_for_kg(       # HOV2/HOV3
             container,
             expand=False                                        # collapsed by default
@@ -431,7 +511,6 @@ class KnowledgeGraphWriter:
                 continue
             gtype = g.get("type")
             if gtype == "kg_node" and isinstance(g.get("metadata"), dict):
-                # keep original metadata shape, annotate type for clarity
                 nodes.append({**g["metadata"], "type": "kg_node"})
             elif gtype == "kg_edge" and isinstance(g.get("metadata"), dict):
                 edges.append({
@@ -505,8 +584,7 @@ class KnowledgeGraphWriter:
                 except Exception as e:
                     print(f"⚠️ Skipped SQI registry entry '{cid}': {e}")
         except Exception:
-            # Fine if registry is not available in this context
-            pass
+            pass  # Fine if registry is not available
 
         # Final assignment
         pack["nodes"] = existing_nodes
@@ -526,6 +604,34 @@ class KnowledgeGraphWriter:
                 "status": "saved"
             }))
         return str(out_path)
+
+    def inject_prediction_trace(container: dict, prediction_result: dict) -> None:
+        """
+        Injects prediction result, contradiction/simplification status,
+        and metadata (confidence, entropy, suggestion) into the container.
+
+        Also prepares it for SQI scoring and replay badge rendering.
+        """
+        container.setdefault("prediction", {}).update(prediction_result)
+
+        status = prediction_result.get("status", "")
+        if status in {"contradiction", "simplify"}:
+            container.setdefault("metadata", {})["replaySuggested"] = True
+            container["prediction"]["trigger_replay"] = True
+
+        # Trace metadata for GHX + Holographic Viewers
+        trace = {
+            "type": "logic_prediction",
+            "status": status,
+            "confidence": prediction_result.get("confidence"),
+            "entropy": prediction_result.get("entropy"),
+            "suggestion": prediction_result.get("suggestion"),
+        }
+
+        container.setdefault("logic_trace", []).append(trace)
+
+        # Mark for SQI graph tracking
+        container.setdefault("sqi", {})["last_prediction"] = trace
 
     # inside KnowledgeGraphWriter
     def save_pack_for_container(self, container_id: str, filename: str | None = None):
@@ -755,6 +861,29 @@ class KnowledgeGraphWriter:
             "content": f"{container_a} <-> {container_b}",
         }
         add_to_index("knowledge_index.entanglements", entangle_entry)
+
+    def inject_logic_trace_data(trace: dict, logic_prediction: dict, rewrite_suggestion: dict = None):
+        """
+        Adds logic prediction and rewrite metadata to CodexTrace entries.
+
+        Parameters:
+            trace (dict): The CodexTrace or glyph trace entry being written.
+            logic_prediction (dict): Dict with keys: 'contradiction', 'confidence', 'suggestion', 'logic_score'.
+            rewrite_suggestion (dict): Optional dict with keys: 'new_glyph', 'goal_match_score', 'rewrite_success_prob'.
+        """
+        trace["logic_prediction"] = {
+            "contradiction": logic_prediction.get("contradiction", False),
+            "confidence": logic_prediction.get("confidence", 0.0),
+            "suggestion": logic_prediction.get("suggestion", ""),
+            "logic_score": logic_prediction.get("logic_score", 0.0),
+        }
+        
+        if rewrite_suggestion:
+            trace["rewrite_suggestion"] = {
+                "new_glyph": rewrite_suggestion.get("new_glyph", ""),
+                "goal_match_score": rewrite_suggestion.get("goal_match_score", 0.0),
+                "rewrite_success_prob": rewrite_suggestion.get("rewrite_success_prob", 0.0),
+            }
 
     def merge_edit(self, glyph_id: str, updates: Dict[str, Any], agent_id: str, version_vector: Dict[str, int]):
         global _KG_BUSY

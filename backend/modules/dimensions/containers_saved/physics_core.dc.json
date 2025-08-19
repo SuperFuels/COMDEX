@@ -19772,9 +19772,2295 @@
         "local": 1
       },
       "source_plugin": "KG"
+    },
+    {
+      "id": "8d2200d1-e74f-459e-a5cb-c667c2faf5ec",
+      "type": "kg_node",
+      "content": "KGNode:newton_laws label=Newton's Laws",
+      "timestamp": "2025-08-19T19:59:20.071218",
+      "metadata": {
+        "node_id": "newton_laws",
+        "label": "Newton's Laws",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "mech"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "f73858bf-2656-4d82-aee7-6c5f6e0150cb",
+      "type": "kg_node",
+      "content": "KGNode:maxwell_eqs label=Maxwell's Eqns",
+      "timestamp": "2025-08-19T19:59:20.072487",
+      "metadata": {
+        "node_id": "maxwell_eqs",
+        "label": "Maxwell's Eqns",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "em"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "71f21aa7-8348-4ded-b902-f0ba9ab7b7f3",
+      "type": "kg_node",
+      "content": "KGNode:first_law label=1st Law",
+      "timestamp": "2025-08-19T19:59:20.073775",
+      "metadata": {
+        "node_id": "first_law",
+        "label": "1st Law",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "thermo"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "ea82b145-f69b-4cde-8a79-05926a2a5dd0",
+      "type": "kg_node",
+      "content": "KGNode:dirac_field label=Dirac Field",
+      "timestamp": "2025-08-19T19:59:20.074856",
+      "metadata": {
+        "node_id": "dirac_field",
+        "label": "Dirac Field",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "qft"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "13b18940-1153-49a7-af36-08923833d455",
+      "type": "kg_edge",
+      "content": "KGEdge:newton_laws->maxwell_eqs rel=informs",
+      "timestamp": "2025-08-19T19:59:20.077088",
+      "metadata": {
+        "from": "newton_laws",
+        "to": "maxwell_eqs",
+        "relation": "informs"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "1b2d7492-c93f-42c3-90ac-83237cbdb0f6",
+      "type": "kg_edge",
+      "content": "KGEdge:first_law->maxwell_eqs rel=constraints",
+      "timestamp": "2025-08-19T19:59:20.079265",
+      "metadata": {
+        "from": "first_law",
+        "to": "maxwell_eqs",
+        "relation": "constraints"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "2614befe-843e-4121-928e-bd5c5e001975",
+      "type": "kg_edge",
+      "content": "KGEdge:dirac_field->maxwell_eqs rel=couples",
+      "timestamp": "2025-08-19T19:59:20.081848",
+      "metadata": {
+        "from": "dirac_field",
+        "to": "maxwell_eqs",
+        "relation": "couples"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "5e2aa436-9b7f-47c4-8ff6-8fbc78f5126c",
+      "type": "kg_node",
+      "content": "KGNode:newton_laws label=Newton's Laws",
+      "timestamp": "2025-08-19T20:06:27.902703",
+      "metadata": {
+        "node_id": "newton_laws",
+        "label": "Newton's Laws",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "mech"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "ce27c849-d491-4edf-8600-ef0a123cdd8e",
+      "type": "kg_node",
+      "content": "KGNode:maxwell_eqs label=Maxwell's Eqns",
+      "timestamp": "2025-08-19T20:06:27.904017",
+      "metadata": {
+        "node_id": "maxwell_eqs",
+        "label": "Maxwell's Eqns",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "em"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "ae90996c-d48b-4754-b911-9a68d80faf8f",
+      "type": "kg_node",
+      "content": "KGNode:first_law label=1st Law",
+      "timestamp": "2025-08-19T20:06:27.905070",
+      "metadata": {
+        "node_id": "first_law",
+        "label": "1st Law",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "thermo"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "41a7eb51-116f-4a6f-899f-7016f3b94494",
+      "type": "kg_node",
+      "content": "KGNode:dirac_field label=Dirac Field",
+      "timestamp": "2025-08-19T20:06:27.906125",
+      "metadata": {
+        "node_id": "dirac_field",
+        "label": "Dirac Field",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "qft"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "8a3923a1-00a4-4194-93a0-3b1b655ccf60",
+      "type": "kg_edge",
+      "content": "KGEdge:newton_laws->maxwell_eqs rel=informs",
+      "timestamp": "2025-08-19T20:06:27.908023",
+      "metadata": {
+        "from": "newton_laws",
+        "to": "maxwell_eqs",
+        "relation": "informs"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "08e04098-46aa-41fb-bc92-752544082f6e",
+      "type": "kg_edge",
+      "content": "KGEdge:first_law->maxwell_eqs rel=constraints",
+      "timestamp": "2025-08-19T20:06:27.909830",
+      "metadata": {
+        "from": "first_law",
+        "to": "maxwell_eqs",
+        "relation": "constraints"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "8dea798f-97c7-4dc8-983b-0b24e54912de",
+      "type": "kg_edge",
+      "content": "KGEdge:dirac_field->maxwell_eqs rel=couples",
+      "timestamp": "2025-08-19T20:06:27.912122",
+      "metadata": {
+        "from": "dirac_field",
+        "to": "maxwell_eqs",
+        "relation": "couples"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "59dac1a6-344a-43c0-af7f-9c0a31675e99",
+      "type": "kg_node",
+      "content": "KGNode:newton_laws label=Newton's Laws",
+      "timestamp": "2025-08-19T20:09:03.452934",
+      "metadata": {
+        "node_id": "newton_laws",
+        "label": "Newton's Laws",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "mech"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "c002cd14-7f6e-40b7-8158-273510080b85",
+      "type": "kg_node",
+      "content": "KGNode:maxwell_eqs label=Maxwell's Eqns",
+      "timestamp": "2025-08-19T20:09:03.454241",
+      "metadata": {
+        "node_id": "maxwell_eqs",
+        "label": "Maxwell's Eqns",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "em"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "eaa8f7ca-a398-4863-8f5d-1c51c361951a",
+      "type": "kg_node",
+      "content": "KGNode:first_law label=1st Law",
+      "timestamp": "2025-08-19T20:09:03.455257",
+      "metadata": {
+        "node_id": "first_law",
+        "label": "1st Law",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "thermo"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "05c60ba4-7c1e-4707-be98-31247e022eea",
+      "type": "kg_node",
+      "content": "KGNode:dirac_field label=Dirac Field",
+      "timestamp": "2025-08-19T20:09:03.456276",
+      "metadata": {
+        "node_id": "dirac_field",
+        "label": "Dirac Field",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "qft"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "9779f1e6-cbed-4c7f-b0ea-909c742853d4",
+      "type": "kg_edge",
+      "content": "KGEdge:newton_laws->maxwell_eqs rel=informs",
+      "timestamp": "2025-08-19T20:09:03.458554",
+      "metadata": {
+        "from": "newton_laws",
+        "to": "maxwell_eqs",
+        "relation": "informs"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "02272013-9f3f-4fdd-a873-9a2bf497759d",
+      "type": "kg_edge",
+      "content": "KGEdge:first_law->maxwell_eqs rel=constraints",
+      "timestamp": "2025-08-19T20:09:03.461651",
+      "metadata": {
+        "from": "first_law",
+        "to": "maxwell_eqs",
+        "relation": "constraints"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "e5e99c07-378a-4341-9b0c-a0df446ba96e",
+      "type": "kg_edge",
+      "content": "KGEdge:dirac_field->maxwell_eqs rel=couples",
+      "timestamp": "2025-08-19T20:09:03.463517",
+      "metadata": {
+        "from": "dirac_field",
+        "to": "maxwell_eqs",
+        "relation": "couples"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "21a4992c-c1cc-410b-ad8a-3fbbc873996d",
+      "type": "kg_node",
+      "content": "KGNode:newton_laws label=Newton's Laws",
+      "timestamp": "2025-08-19T20:10:05.845120",
+      "metadata": {
+        "node_id": "newton_laws",
+        "label": "Newton's Laws",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "mech"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "4e979543-ad9a-40e1-9ea8-afc819b5e216",
+      "type": "kg_node",
+      "content": "KGNode:maxwell_eqs label=Maxwell's Eqns",
+      "timestamp": "2025-08-19T20:10:05.846436",
+      "metadata": {
+        "node_id": "maxwell_eqs",
+        "label": "Maxwell's Eqns",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "em"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "feb2fdd9-8638-4b37-842f-f4b8d377760f",
+      "type": "kg_node",
+      "content": "KGNode:first_law label=1st Law",
+      "timestamp": "2025-08-19T20:10:05.847522",
+      "metadata": {
+        "node_id": "first_law",
+        "label": "1st Law",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "thermo"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "75bd553d-89b7-451d-b963-2b9f873f2648",
+      "type": "kg_node",
+      "content": "KGNode:dirac_field label=Dirac Field",
+      "timestamp": "2025-08-19T20:10:05.848982",
+      "metadata": {
+        "node_id": "dirac_field",
+        "label": "Dirac Field",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "qft"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "b78a21e1-e16a-44cd-a0ec-a187b64e0299",
+      "type": "kg_edge",
+      "content": "KGEdge:newton_laws->maxwell_eqs rel=informs",
+      "timestamp": "2025-08-19T20:10:05.851356",
+      "metadata": {
+        "from": "newton_laws",
+        "to": "maxwell_eqs",
+        "relation": "informs"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "300cb7a8-8b23-43ee-8614-712a6ce5f365",
+      "type": "kg_edge",
+      "content": "KGEdge:first_law->maxwell_eqs rel=constraints",
+      "timestamp": "2025-08-19T20:10:05.853654",
+      "metadata": {
+        "from": "first_law",
+        "to": "maxwell_eqs",
+        "relation": "constraints"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "84bf212e-a4f1-4957-9d70-435a3e9e1a29",
+      "type": "kg_edge",
+      "content": "KGEdge:dirac_field->maxwell_eqs rel=couples",
+      "timestamp": "2025-08-19T20:10:05.856068",
+      "metadata": {
+        "from": "dirac_field",
+        "to": "maxwell_eqs",
+        "relation": "couples"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "bc9dfce9-f412-45fa-8ee3-522da8c69c65",
+      "type": "kg_node",
+      "content": "KGNode:newton_laws label=Newton's Laws",
+      "timestamp": "2025-08-19T20:11:13.953366",
+      "metadata": {
+        "node_id": "newton_laws",
+        "label": "Newton's Laws",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "mech"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "4ae60a6a-e020-4b82-92a6-0f719f9c3ce3",
+      "type": "kg_node",
+      "content": "KGNode:maxwell_eqs label=Maxwell's Eqns",
+      "timestamp": "2025-08-19T20:11:13.954687",
+      "metadata": {
+        "node_id": "maxwell_eqs",
+        "label": "Maxwell's Eqns",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "em"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "bf0d60a6-6e45-42d5-aa3e-4ab0fa128012",
+      "type": "kg_node",
+      "content": "KGNode:first_law label=1st Law",
+      "timestamp": "2025-08-19T20:11:13.955743",
+      "metadata": {
+        "node_id": "first_law",
+        "label": "1st Law",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "thermo"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "9526e1cd-96d8-41cd-8d2e-265b39c8a769",
+      "type": "kg_node",
+      "content": "KGNode:dirac_field label=Dirac Field",
+      "timestamp": "2025-08-19T20:11:13.956785",
+      "metadata": {
+        "node_id": "dirac_field",
+        "label": "Dirac Field",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "qft"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "5b080363-ff03-4bf3-a71c-81526a93eb5c",
+      "type": "kg_edge",
+      "content": "KGEdge:newton_laws->maxwell_eqs rel=informs",
+      "timestamp": "2025-08-19T20:11:13.958655",
+      "metadata": {
+        "from": "newton_laws",
+        "to": "maxwell_eqs",
+        "relation": "informs"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "bdd41144-4e20-40a5-84e9-acdcaf4ac77c",
+      "type": "kg_edge",
+      "content": "KGEdge:first_law->maxwell_eqs rel=constraints",
+      "timestamp": "2025-08-19T20:11:13.960488",
+      "metadata": {
+        "from": "first_law",
+        "to": "maxwell_eqs",
+        "relation": "constraints"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "1471a6f8-6ffe-4817-ae8f-fab3225553a6",
+      "type": "kg_edge",
+      "content": "KGEdge:dirac_field->maxwell_eqs rel=couples",
+      "timestamp": "2025-08-19T20:11:13.962314",
+      "metadata": {
+        "from": "dirac_field",
+        "to": "maxwell_eqs",
+        "relation": "couples"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "cb6e9750-a27b-4046-9606-689c19f731ba",
+      "type": "kg_node",
+      "content": "KGNode:newton_laws label=Newton's Laws",
+      "timestamp": "2025-08-19T20:12:12.160483",
+      "metadata": {
+        "node_id": "newton_laws",
+        "label": "Newton's Laws",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "mech"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "c600edc2-e5ce-438c-8760-fe236e2e1a93",
+      "type": "kg_node",
+      "content": "KGNode:maxwell_eqs label=Maxwell's Eqns",
+      "timestamp": "2025-08-19T20:12:12.161797",
+      "metadata": {
+        "node_id": "maxwell_eqs",
+        "label": "Maxwell's Eqns",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "em"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "60c81659-53f3-43cd-a31d-e499a8b3bceb",
+      "type": "kg_node",
+      "content": "KGNode:first_law label=1st Law",
+      "timestamp": "2025-08-19T20:12:12.162863",
+      "metadata": {
+        "node_id": "first_law",
+        "label": "1st Law",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "thermo"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "d4b4e843-3574-4fe5-96ef-0cba52e4fbcb",
+      "type": "kg_node",
+      "content": "KGNode:dirac_field label=Dirac Field",
+      "timestamp": "2025-08-19T20:12:12.163928",
+      "metadata": {
+        "node_id": "dirac_field",
+        "label": "Dirac Field",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "qft"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "4e86bbd6-e2bc-44dd-ad91-3bc9eced9cec",
+      "type": "kg_edge",
+      "content": "KGEdge:newton_laws->maxwell_eqs rel=informs",
+      "timestamp": "2025-08-19T20:12:12.165801",
+      "metadata": {
+        "from": "newton_laws",
+        "to": "maxwell_eqs",
+        "relation": "informs"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "9d52efa5-6c99-49ee-9d6b-482925746a83",
+      "type": "kg_edge",
+      "content": "KGEdge:first_law->maxwell_eqs rel=constraints",
+      "timestamp": "2025-08-19T20:12:12.167675",
+      "metadata": {
+        "from": "first_law",
+        "to": "maxwell_eqs",
+        "relation": "constraints"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "cece92da-c71d-4539-bbe4-66bff2d8793b",
+      "type": "kg_edge",
+      "content": "KGEdge:dirac_field->maxwell_eqs rel=couples",
+      "timestamp": "2025-08-19T20:12:12.169541",
+      "metadata": {
+        "from": "dirac_field",
+        "to": "maxwell_eqs",
+        "relation": "couples"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "c857d744-dac2-4f94-a4b8-d43c5fa72a09",
+      "type": "kg_node",
+      "content": "KGNode:newton_laws label=Newton's Laws",
+      "timestamp": "2025-08-19T20:13:09.179233",
+      "metadata": {
+        "node_id": "newton_laws",
+        "label": "Newton's Laws",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "mech"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "189569f2-5c12-4747-b35e-d9325beb62af",
+      "type": "kg_node",
+      "content": "KGNode:maxwell_eqs label=Maxwell's Eqns",
+      "timestamp": "2025-08-19T20:13:09.180549",
+      "metadata": {
+        "node_id": "maxwell_eqs",
+        "label": "Maxwell's Eqns",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "em"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "d20f6024-eff8-46e7-94a3-c9cdfb767d0d",
+      "type": "kg_node",
+      "content": "KGNode:first_law label=1st Law",
+      "timestamp": "2025-08-19T20:13:09.181656",
+      "metadata": {
+        "node_id": "first_law",
+        "label": "1st Law",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "thermo"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "fdfadd3c-bc72-4f63-9264-75a61b076d92",
+      "type": "kg_node",
+      "content": "KGNode:dirac_field label=Dirac Field",
+      "timestamp": "2025-08-19T20:13:09.182703",
+      "metadata": {
+        "node_id": "dirac_field",
+        "label": "Dirac Field",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "qft"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "068d5a55-4d2a-4f4a-81d5-0877ee5e6d94",
+      "type": "kg_edge",
+      "content": "KGEdge:newton_laws->maxwell_eqs rel=informs",
+      "timestamp": "2025-08-19T20:13:09.184636",
+      "metadata": {
+        "from": "newton_laws",
+        "to": "maxwell_eqs",
+        "relation": "informs"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "094186b5-240c-461e-a9b6-a082d398d1bc",
+      "type": "kg_edge",
+      "content": "KGEdge:first_law->maxwell_eqs rel=constraints",
+      "timestamp": "2025-08-19T20:13:09.186519",
+      "metadata": {
+        "from": "first_law",
+        "to": "maxwell_eqs",
+        "relation": "constraints"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "2fce5903-e848-4ec2-8452-bbb3daad83de",
+      "type": "kg_edge",
+      "content": "KGEdge:dirac_field->maxwell_eqs rel=couples",
+      "timestamp": "2025-08-19T20:13:09.188423",
+      "metadata": {
+        "from": "dirac_field",
+        "to": "maxwell_eqs",
+        "relation": "couples"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "86bff8df-c35d-47c7-b7b3-6cbafa18be35",
+      "type": "kg_node",
+      "content": "KGNode:newton_laws label=Newton's Laws",
+      "timestamp": "2025-08-19T20:20:38.306008",
+      "metadata": {
+        "node_id": "newton_laws",
+        "label": "Newton's Laws",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "mech"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "3789c095-c5f8-4e7d-a61a-f91a1ca87223",
+      "type": "kg_node",
+      "content": "KGNode:maxwell_eqs label=Maxwell's Eqns",
+      "timestamp": "2025-08-19T20:20:38.307321",
+      "metadata": {
+        "node_id": "maxwell_eqs",
+        "label": "Maxwell's Eqns",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "em"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "c87a254f-0c4a-4665-a5d3-f67b7d3be1f7",
+      "type": "kg_node",
+      "content": "KGNode:first_law label=1st Law",
+      "timestamp": "2025-08-19T20:20:38.308357",
+      "metadata": {
+        "node_id": "first_law",
+        "label": "1st Law",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "thermo"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "41575b02-e636-4946-9d94-3ebf77eebe6a",
+      "type": "kg_node",
+      "content": "KGNode:dirac_field label=Dirac Field",
+      "timestamp": "2025-08-19T20:20:38.309400",
+      "metadata": {
+        "node_id": "dirac_field",
+        "label": "Dirac Field",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "qft"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "0ecb877a-b244-4a40-bda4-50217f32a70a",
+      "type": "kg_edge",
+      "content": "KGEdge:newton_laws->maxwell_eqs rel=informs",
+      "timestamp": "2025-08-19T20:20:38.311300",
+      "metadata": {
+        "from": "newton_laws",
+        "to": "maxwell_eqs",
+        "relation": "informs"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "d5d91d07-b5cb-4d1b-ad72-a6877165313c",
+      "type": "kg_edge",
+      "content": "KGEdge:first_law->maxwell_eqs rel=constraints",
+      "timestamp": "2025-08-19T20:20:38.313210",
+      "metadata": {
+        "from": "first_law",
+        "to": "maxwell_eqs",
+        "relation": "constraints"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "e3199d60-c784-4554-8d88-dcce242e9480",
+      "type": "kg_edge",
+      "content": "KGEdge:dirac_field->maxwell_eqs rel=couples",
+      "timestamp": "2025-08-19T20:20:38.315096",
+      "metadata": {
+        "from": "dirac_field",
+        "to": "maxwell_eqs",
+        "relation": "couples"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "42e4f7e6-4dba-4b5e-b8e4-958c9920c947",
+      "type": "kg_node",
+      "content": "KGNode:newton_laws label=Newton's Laws",
+      "timestamp": "2025-08-19T20:26:59.440042",
+      "metadata": {
+        "node_id": "newton_laws",
+        "label": "Newton's Laws",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "mech"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "3c89d9ea-57b9-4239-a098-e83eb4014d43",
+      "type": "kg_node",
+      "content": "KGNode:maxwell_eqs label=Maxwell's Eqns",
+      "timestamp": "2025-08-19T20:26:59.441379",
+      "metadata": {
+        "node_id": "maxwell_eqs",
+        "label": "Maxwell's Eqns",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "em"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "6e4115cb-af69-4d8c-80c2-1b5199e40a5a",
+      "type": "kg_node",
+      "content": "KGNode:first_law label=1st Law",
+      "timestamp": "2025-08-19T20:26:59.442439",
+      "metadata": {
+        "node_id": "first_law",
+        "label": "1st Law",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "thermo"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "7b3b206e-ea6b-4101-9d31-3238586378af",
+      "type": "kg_node",
+      "content": "KGNode:dirac_field label=Dirac Field",
+      "timestamp": "2025-08-19T20:26:59.443495",
+      "metadata": {
+        "node_id": "dirac_field",
+        "label": "Dirac Field",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "qft"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "eeae9e85-c82b-4dc7-bf5c-c61b3a0c26bc",
+      "type": "kg_edge",
+      "content": "KGEdge:newton_laws->maxwell_eqs rel=informs",
+      "timestamp": "2025-08-19T20:26:59.445406",
+      "metadata": {
+        "from": "newton_laws",
+        "to": "maxwell_eqs",
+        "relation": "informs"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "b8853014-741e-40ec-a4ce-4875be6e5c63",
+      "type": "kg_edge",
+      "content": "KGEdge:first_law->maxwell_eqs rel=constraints",
+      "timestamp": "2025-08-19T20:26:59.447261",
+      "metadata": {
+        "from": "first_law",
+        "to": "maxwell_eqs",
+        "relation": "constraints"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "5ce1f42f-a2b2-494e-9314-57e53ef3aad4",
+      "type": "kg_edge",
+      "content": "KGEdge:dirac_field->maxwell_eqs rel=couples",
+      "timestamp": "2025-08-19T20:26:59.449104",
+      "metadata": {
+        "from": "dirac_field",
+        "to": "maxwell_eqs",
+        "relation": "couples"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "23ed7783-af3d-47f2-916b-4134975b7201",
+      "type": "kg_node",
+      "content": "KGNode:newton_laws label=Newton's Laws",
+      "timestamp": "2025-08-19T20:30:49.528766",
+      "metadata": {
+        "node_id": "newton_laws",
+        "label": "Newton's Laws",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "mech"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "072eb579-e739-4cfd-84b0-2924c6692fe4",
+      "type": "kg_node",
+      "content": "KGNode:maxwell_eqs label=Maxwell's Eqns",
+      "timestamp": "2025-08-19T20:30:49.530247",
+      "metadata": {
+        "node_id": "maxwell_eqs",
+        "label": "Maxwell's Eqns",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "em"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "6280108c-b393-4d04-81bf-4a814d053645",
+      "type": "kg_node",
+      "content": "KGNode:first_law label=1st Law",
+      "timestamp": "2025-08-19T20:30:49.531429",
+      "metadata": {
+        "node_id": "first_law",
+        "label": "1st Law",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "thermo"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "63074ecc-d65e-4764-b286-4340d6d3b5c6",
+      "type": "kg_node",
+      "content": "KGNode:dirac_field label=Dirac Field",
+      "timestamp": "2025-08-19T20:30:49.532669",
+      "metadata": {
+        "node_id": "dirac_field",
+        "label": "Dirac Field",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "qft"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "afc6e69f-abee-4c58-9935-6e4c34d1982b",
+      "type": "kg_edge",
+      "content": "KGEdge:newton_laws->maxwell_eqs rel=informs",
+      "timestamp": "2025-08-19T20:30:49.534867",
+      "metadata": {
+        "from": "newton_laws",
+        "to": "maxwell_eqs",
+        "relation": "informs"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "1c4ff9d6-878e-446a-8f55-c4a4001a4a69",
+      "type": "kg_edge",
+      "content": "KGEdge:first_law->maxwell_eqs rel=constraints",
+      "timestamp": "2025-08-19T20:30:49.537057",
+      "metadata": {
+        "from": "first_law",
+        "to": "maxwell_eqs",
+        "relation": "constraints"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "213b7335-f896-415d-aef6-55c975511441",
+      "type": "kg_edge",
+      "content": "KGEdge:dirac_field->maxwell_eqs rel=couples",
+      "timestamp": "2025-08-19T20:30:49.539014",
+      "metadata": {
+        "from": "dirac_field",
+        "to": "maxwell_eqs",
+        "relation": "couples"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "98df0bd3-a4b6-42ee-81a5-1e95b8b66dd5",
+      "type": "kg_node",
+      "content": "KGNode:newton_laws label=Newton's Laws",
+      "timestamp": "2025-08-19T20:36:20.111785",
+      "metadata": {
+        "node_id": "newton_laws",
+        "label": "Newton's Laws",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "mech"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "d6a069c6-1f2c-43a4-8a4a-4ff3bbfca354",
+      "type": "kg_node",
+      "content": "KGNode:maxwell_eqs label=Maxwell's Eqns",
+      "timestamp": "2025-08-19T20:36:20.113984",
+      "metadata": {
+        "node_id": "maxwell_eqs",
+        "label": "Maxwell's Eqns",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "em"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "6efa01a7-19d9-4ba4-a45c-950fecabd869",
+      "type": "kg_node",
+      "content": "KGNode:first_law label=1st Law",
+      "timestamp": "2025-08-19T20:36:20.115802",
+      "metadata": {
+        "node_id": "first_law",
+        "label": "1st Law",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "thermo"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "a67d080c-b5fc-4033-b4c4-3e7144fdefb9",
+      "type": "kg_node",
+      "content": "KGNode:dirac_field label=Dirac Field",
+      "timestamp": "2025-08-19T20:36:20.117611",
+      "metadata": {
+        "node_id": "dirac_field",
+        "label": "Dirac Field",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "qft"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "da576ca9-7b48-4db9-813a-736f8992a237",
+      "type": "kg_edge",
+      "content": "KGEdge:newton_laws->maxwell_eqs rel=informs",
+      "timestamp": "2025-08-19T20:36:20.120910",
+      "metadata": {
+        "from": "newton_laws",
+        "to": "maxwell_eqs",
+        "relation": "informs"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "417b80e1-6fc4-48cd-9528-969f807357e3",
+      "type": "kg_edge",
+      "content": "KGEdge:first_law->maxwell_eqs rel=constraints",
+      "timestamp": "2025-08-19T20:36:20.123622",
+      "metadata": {
+        "from": "first_law",
+        "to": "maxwell_eqs",
+        "relation": "constraints"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "7c1b2f7b-c419-40bb-9cda-2574e70c2d21",
+      "type": "kg_edge",
+      "content": "KGEdge:dirac_field->maxwell_eqs rel=couples",
+      "timestamp": "2025-08-19T20:36:20.126048",
+      "metadata": {
+        "from": "dirac_field",
+        "to": "maxwell_eqs",
+        "relation": "couples"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "3f990202-dba2-4420-ac74-898201fa8c9a",
+      "type": "kg_node",
+      "content": "KGNode:newton_laws label=Newton's Laws",
+      "timestamp": "2025-08-19T20:39:06.840609",
+      "metadata": {
+        "node_id": "newton_laws",
+        "label": "Newton's Laws",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "mech"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "23e71597-c26b-4ad9-8aff-5c9fb8abdafc",
+      "type": "kg_node",
+      "content": "KGNode:maxwell_eqs label=Maxwell's Eqns",
+      "timestamp": "2025-08-19T20:39:06.842793",
+      "metadata": {
+        "node_id": "maxwell_eqs",
+        "label": "Maxwell's Eqns",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "em"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "cab36f12-a05f-4076-a6f5-42ac152f1b3b",
+      "type": "kg_node",
+      "content": "KGNode:first_law label=1st Law",
+      "timestamp": "2025-08-19T20:39:06.844685",
+      "metadata": {
+        "node_id": "first_law",
+        "label": "1st Law",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "thermo"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "6c5a80f9-5005-4a64-9e64-9de332acf65e",
+      "type": "kg_node",
+      "content": "KGNode:dirac_field label=Dirac Field",
+      "timestamp": "2025-08-19T20:39:06.846579",
+      "metadata": {
+        "node_id": "dirac_field",
+        "label": "Dirac Field",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "qft"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "f687cae2-242e-4334-b853-61cd0455c535",
+      "type": "kg_edge",
+      "content": "KGEdge:newton_laws->maxwell_eqs rel=informs",
+      "timestamp": "2025-08-19T20:39:06.849959",
+      "metadata": {
+        "from": "newton_laws",
+        "to": "maxwell_eqs",
+        "relation": "informs"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "026319df-a0b7-4a86-b3a5-c5a8bbda890b",
+      "type": "kg_edge",
+      "content": "KGEdge:first_law->maxwell_eqs rel=constraints",
+      "timestamp": "2025-08-19T20:39:06.853413",
+      "metadata": {
+        "from": "first_law",
+        "to": "maxwell_eqs",
+        "relation": "constraints"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "009d61a6-19bf-4d3f-88ae-759214459f9f",
+      "type": "kg_edge",
+      "content": "KGEdge:dirac_field->maxwell_eqs rel=couples",
+      "timestamp": "2025-08-19T20:39:06.857082",
+      "metadata": {
+        "from": "dirac_field",
+        "to": "maxwell_eqs",
+        "relation": "couples"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "8ddb6a4b-80d5-4822-bdc4-a93b235995ce",
+      "type": "kg_node",
+      "content": "KGNode:newton_laws label=Newton's Laws",
+      "timestamp": "2025-08-19T20:45:02.018454",
+      "metadata": {
+        "node_id": "newton_laws",
+        "label": "Newton's Laws",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "mech"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "ff8aaee2-b019-4506-8cf3-093a0ecfc0e6",
+      "type": "kg_node",
+      "content": "KGNode:maxwell_eqs label=Maxwell's Eqns",
+      "timestamp": "2025-08-19T20:45:02.020163",
+      "metadata": {
+        "node_id": "maxwell_eqs",
+        "label": "Maxwell's Eqns",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "em"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "2563864f-c0f7-4ab9-b2a8-f1e1c890a187",
+      "type": "kg_node",
+      "content": "KGNode:first_law label=1st Law",
+      "timestamp": "2025-08-19T20:45:02.021435",
+      "metadata": {
+        "node_id": "first_law",
+        "label": "1st Law",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "thermo"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "572b2bc2-2ea7-428f-92e0-a10ed9f9c9df",
+      "type": "kg_node",
+      "content": "KGNode:dirac_field label=Dirac Field",
+      "timestamp": "2025-08-19T20:45:02.022643",
+      "metadata": {
+        "node_id": "dirac_field",
+        "label": "Dirac Field",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "qft"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "b23f508f-d9d3-4337-bff9-abc594ed472d",
+      "type": "kg_edge",
+      "content": "KGEdge:newton_laws->maxwell_eqs rel=informs",
+      "timestamp": "2025-08-19T20:45:02.024971",
+      "metadata": {
+        "from": "newton_laws",
+        "to": "maxwell_eqs",
+        "relation": "informs"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "92af886e-38ac-4054-8da2-acfb33e22d0e",
+      "type": "kg_edge",
+      "content": "KGEdge:first_law->maxwell_eqs rel=constraints",
+      "timestamp": "2025-08-19T20:45:02.027089",
+      "metadata": {
+        "from": "first_law",
+        "to": "maxwell_eqs",
+        "relation": "constraints"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "008c19a9-0f4e-4882-bdfc-ec85072ac9f0",
+      "type": "kg_edge",
+      "content": "KGEdge:dirac_field->maxwell_eqs rel=couples",
+      "timestamp": "2025-08-19T20:45:02.029103",
+      "metadata": {
+        "from": "dirac_field",
+        "to": "maxwell_eqs",
+        "relation": "couples"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "a50adb56-b602-4825-8688-ac299c2c5863",
+      "type": "kg_node",
+      "content": "KGNode:newton_laws label=Newton's Laws",
+      "timestamp": "2025-08-19T20:47:00.857806",
+      "metadata": {
+        "node_id": "newton_laws",
+        "label": "Newton's Laws",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "mech"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "413d8b1f-37b5-42a7-b5a2-802a2f410630",
+      "type": "kg_node",
+      "content": "KGNode:maxwell_eqs label=Maxwell's Eqns",
+      "timestamp": "2025-08-19T20:47:00.859231",
+      "metadata": {
+        "node_id": "maxwell_eqs",
+        "label": "Maxwell's Eqns",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "em"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "92207f32-b38f-41e9-a461-ba0c5e9787bf",
+      "type": "kg_node",
+      "content": "KGNode:first_law label=1st Law",
+      "timestamp": "2025-08-19T20:47:00.860359",
+      "metadata": {
+        "node_id": "first_law",
+        "label": "1st Law",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "thermo"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "affc1434-6ef1-4bf0-88d6-618693e5a1d0",
+      "type": "kg_node",
+      "content": "KGNode:dirac_field label=Dirac Field",
+      "timestamp": "2025-08-19T20:47:00.861822",
+      "metadata": {
+        "node_id": "dirac_field",
+        "label": "Dirac Field",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "qft"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "74af255b-804a-4181-acf7-f17cb1397037",
+      "type": "kg_edge",
+      "content": "KGEdge:newton_laws->maxwell_eqs rel=informs",
+      "timestamp": "2025-08-19T20:47:00.863832",
+      "metadata": {
+        "from": "newton_laws",
+        "to": "maxwell_eqs",
+        "relation": "informs"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "1d257c10-16ae-46f1-9a70-b6cf1bb65a25",
+      "type": "kg_edge",
+      "content": "KGEdge:first_law->maxwell_eqs rel=constraints",
+      "timestamp": "2025-08-19T20:47:00.865821",
+      "metadata": {
+        "from": "first_law",
+        "to": "maxwell_eqs",
+        "relation": "constraints"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "2b8fb73c-5b2d-4772-9314-2e096706f679",
+      "type": "kg_edge",
+      "content": "KGEdge:dirac_field->maxwell_eqs rel=couples",
+      "timestamp": "2025-08-19T20:47:00.867774",
+      "metadata": {
+        "from": "dirac_field",
+        "to": "maxwell_eqs",
+        "relation": "couples"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "0768ef0e-7ec5-4a69-af58-4ba4ed2d51b2",
+      "type": "kg_node",
+      "content": "KGNode:newton_laws label=Newton's Laws",
+      "timestamp": "2025-08-19T20:48:00.548320",
+      "metadata": {
+        "node_id": "newton_laws",
+        "label": "Newton's Laws",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "mech"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "20bceebe-d121-4d2a-9729-132f4f3034e8",
+      "type": "kg_node",
+      "content": "KGNode:maxwell_eqs label=Maxwell's Eqns",
+      "timestamp": "2025-08-19T20:48:00.549673",
+      "metadata": {
+        "node_id": "maxwell_eqs",
+        "label": "Maxwell's Eqns",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "em"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "e3393c86-e071-483b-ad76-7e1afb38849f",
+      "type": "kg_node",
+      "content": "KGNode:first_law label=1st Law",
+      "timestamp": "2025-08-19T20:48:00.550777",
+      "metadata": {
+        "node_id": "first_law",
+        "label": "1st Law",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "thermo"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "86b5766f-edc9-425b-9e49-a57c9bcb5657",
+      "type": "kg_node",
+      "content": "KGNode:dirac_field label=Dirac Field",
+      "timestamp": "2025-08-19T20:48:00.551854",
+      "metadata": {
+        "node_id": "dirac_field",
+        "label": "Dirac Field",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "qft"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "64c94bd3-75e7-4139-8521-1df245441268",
+      "type": "kg_edge",
+      "content": "KGEdge:newton_laws->maxwell_eqs rel=informs",
+      "timestamp": "2025-08-19T20:48:00.554002",
+      "metadata": {
+        "from": "newton_laws",
+        "to": "maxwell_eqs",
+        "relation": "informs"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "89207ada-08bd-40a9-a0cc-703370947e17",
+      "type": "kg_edge",
+      "content": "KGEdge:first_law->maxwell_eqs rel=constraints",
+      "timestamp": "2025-08-19T20:48:00.556318",
+      "metadata": {
+        "from": "first_law",
+        "to": "maxwell_eqs",
+        "relation": "constraints"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "4e9e5ef5-a282-4b65-b3d8-380adc812668",
+      "type": "kg_edge",
+      "content": "KGEdge:dirac_field->maxwell_eqs rel=couples",
+      "timestamp": "2025-08-19T20:48:00.558303",
+      "metadata": {
+        "from": "dirac_field",
+        "to": "maxwell_eqs",
+        "relation": "couples"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "fbe04e6a-1f6b-4e50-b409-bf7d6f54eadb",
+      "type": "kg_node",
+      "content": "KGNode:newton_laws label=Newton's Laws",
+      "timestamp": "2025-08-19T20:53:17.345961",
+      "metadata": {
+        "node_id": "newton_laws",
+        "label": "Newton's Laws",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "mech"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "330dde12-bfba-4a63-98e2-b32298a8a30c",
+      "type": "kg_node",
+      "content": "KGNode:maxwell_eqs label=Maxwell's Eqns",
+      "timestamp": "2025-08-19T20:53:17.347798",
+      "metadata": {
+        "node_id": "maxwell_eqs",
+        "label": "Maxwell's Eqns",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "em"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "56cfb73e-79fc-43eb-af9f-45d5d8da559f",
+      "type": "kg_node",
+      "content": "KGNode:first_law label=1st Law",
+      "timestamp": "2025-08-19T20:53:17.349150",
+      "metadata": {
+        "node_id": "first_law",
+        "label": "1st Law",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "thermo"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "99a2e426-e698-42b5-9c1a-04d4b3db9bfa",
+      "type": "kg_node",
+      "content": "KGNode:dirac_field label=Dirac Field",
+      "timestamp": "2025-08-19T20:53:17.350516",
+      "metadata": {
+        "node_id": "dirac_field",
+        "label": "Dirac Field",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "qft"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "08457035-e114-4617-96c6-405caae22fb1",
+      "type": "kg_edge",
+      "content": "KGEdge:newton_laws->maxwell_eqs rel=informs",
+      "timestamp": "2025-08-19T20:53:17.352903",
+      "metadata": {
+        "from": "newton_laws",
+        "to": "maxwell_eqs",
+        "relation": "informs"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "c1f2a58e-5443-4b7d-b186-4ad8365349bd",
+      "type": "kg_edge",
+      "content": "KGEdge:first_law->maxwell_eqs rel=constraints",
+      "timestamp": "2025-08-19T20:53:17.355316",
+      "metadata": {
+        "from": "first_law",
+        "to": "maxwell_eqs",
+        "relation": "constraints"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "bb26378e-471e-4b97-9993-03626d721130",
+      "type": "kg_edge",
+      "content": "KGEdge:dirac_field->maxwell_eqs rel=couples",
+      "timestamp": "2025-08-19T20:53:17.357310",
+      "metadata": {
+        "from": "dirac_field",
+        "to": "maxwell_eqs",
+        "relation": "couples"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "46e08711-69be-46f9-866a-974440f4e842",
+      "type": "kg_node",
+      "content": "KGNode:newton_laws label=Newton's Laws",
+      "timestamp": "2025-08-19T21:01:18.895553",
+      "metadata": {
+        "node_id": "newton_laws",
+        "label": "Newton's Laws",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "mech"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "196ce839-3c6a-45d4-a7ea-5f22e5cb4319",
+      "type": "kg_node",
+      "content": "KGNode:maxwell_eqs label=Maxwell's Eqns",
+      "timestamp": "2025-08-19T21:01:18.896906",
+      "metadata": {
+        "node_id": "maxwell_eqs",
+        "label": "Maxwell's Eqns",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "em"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "bb523a93-264b-4ac0-a43e-a0b61b4f7284",
+      "type": "kg_node",
+      "content": "KGNode:first_law label=1st Law",
+      "timestamp": "2025-08-19T21:01:18.898036",
+      "metadata": {
+        "node_id": "first_law",
+        "label": "1st Law",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "thermo"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "b5a01d5a-4a24-4c37-b546-1b30b51ebd5a",
+      "type": "kg_node",
+      "content": "KGNode:dirac_field label=Dirac Field",
+      "timestamp": "2025-08-19T21:01:18.899765",
+      "metadata": {
+        "node_id": "dirac_field",
+        "label": "Dirac Field",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "qft"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "07cabb1d-ddde-4408-bfeb-8701b2b6137f",
+      "type": "kg_edge",
+      "content": "KGEdge:newton_laws->maxwell_eqs rel=informs",
+      "timestamp": "2025-08-19T21:01:18.903395",
+      "metadata": {
+        "from": "newton_laws",
+        "to": "maxwell_eqs",
+        "relation": "informs"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "21bd5c01-0fea-478b-ab47-c5ee373388da",
+      "type": "kg_edge",
+      "content": "KGEdge:first_law->maxwell_eqs rel=constraints",
+      "timestamp": "2025-08-19T21:01:18.907031",
+      "metadata": {
+        "from": "first_law",
+        "to": "maxwell_eqs",
+        "relation": "constraints"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "a1270df3-8efb-4b85-9b1d-b4f3f3c1447f",
+      "type": "kg_edge",
+      "content": "KGEdge:dirac_field->maxwell_eqs rel=couples",
+      "timestamp": "2025-08-19T21:01:18.910210",
+      "metadata": {
+        "from": "dirac_field",
+        "to": "maxwell_eqs",
+        "relation": "couples"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "c292e26f-d3a8-406e-85cf-3fd458d57e31",
+      "type": "kg_node",
+      "content": "KGNode:newton_laws label=Newton's Laws",
+      "timestamp": "2025-08-19T21:02:57.231912",
+      "metadata": {
+        "node_id": "newton_laws",
+        "label": "Newton's Laws",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "mech"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "6280dbb9-50be-4663-bc2f-1f3362dcf12f",
+      "type": "kg_node",
+      "content": "KGNode:maxwell_eqs label=Maxwell's Eqns",
+      "timestamp": "2025-08-19T21:02:57.234156",
+      "metadata": {
+        "node_id": "maxwell_eqs",
+        "label": "Maxwell's Eqns",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "em"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "f5f0dede-e2b8-4a27-98a1-e90dbd09963c",
+      "type": "kg_node",
+      "content": "KGNode:first_law label=1st Law",
+      "timestamp": "2025-08-19T21:02:57.235628",
+      "metadata": {
+        "node_id": "first_law",
+        "label": "1st Law",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "thermo"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "0da77937-afc5-478f-92fc-617ed6595d3b",
+      "type": "kg_node",
+      "content": "KGNode:dirac_field label=Dirac Field",
+      "timestamp": "2025-08-19T21:02:57.236765",
+      "metadata": {
+        "node_id": "dirac_field",
+        "label": "Dirac Field",
+        "source": "physics_core",
+        "domain": "physics_core",
+        "category": "qft"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "226b0953-394a-4e5e-84b9-3cc3714c0760",
+      "type": "kg_edge",
+      "content": "KGEdge:newton_laws->maxwell_eqs rel=informs",
+      "timestamp": "2025-08-19T21:02:57.238793",
+      "metadata": {
+        "from": "newton_laws",
+        "to": "maxwell_eqs",
+        "relation": "informs"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "8e2f1823-c454-42da-8c2e-9097891e4072",
+      "type": "kg_edge",
+      "content": "KGEdge:first_law->maxwell_eqs rel=constraints",
+      "timestamp": "2025-08-19T21:02:57.241194",
+      "metadata": {
+        "from": "first_law",
+        "to": "maxwell_eqs",
+        "relation": "constraints"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
+    },
+    {
+      "id": "48cd69e3-cec1-4c3a-be04-cb8dc4a3a021",
+      "type": "kg_edge",
+      "content": "KGEdge:dirac_field->maxwell_eqs rel=couples",
+      "timestamp": "2025-08-19T21:02:57.243544",
+      "metadata": {
+        "from": "dirac_field",
+        "to": "maxwell_eqs",
+        "relation": "couples"
+      },
+      "tags": [],
+      "agent_id": "local",
+      "version_vector": {
+        "local": 1
+      },
+      "source_plugin": "KG"
     }
   ],
-  "last_updated": "2025-08-15T14:11:55.122049",
+  "last_updated": "2025-08-19T21:02:57.243563",
   "type": "container",
   "atoms": [],
   "meta": {

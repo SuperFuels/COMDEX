@@ -151,7 +151,6 @@ from backend.routes import aion_suggest
 from backend.routes import aion_core
 from backend.routes import dna_chain
 from backend.routes import dna_logs
-from backend.routes import teleport_api
 from backend.routes import aion_routes
 from backend.routes import glyph_mutate
 from backend.routes import ws_route
@@ -195,7 +194,9 @@ from backend.routes.sqi_route import router as sqi_route_router
 from backend.routes.sqi_kernels import router as sqi_kernels_router
 from backend.routes.sqi_relink import router as sqi_relink_router
 from backend.api import teleport_handler
-
+from backend.routes.teleport_api import router as teleport_api
+from backend.api import symbolic_ingestion_api
+from backend.api.symbolic_ingestion_api import router as symbolic_router
 
 # ✅ WebSocket route
 from backend.api import ws
@@ -252,7 +253,6 @@ app.include_router(aion_core.router, prefix="/api/aion")
 app.include_router(dna_chain.router)
 app.include_router(dna_logs.router)
 app.include_router(ws.router)
-app.include_router(teleport_api.router)
 app.include_router(aion_routes.router)
 app.include_router(glyph_mutate.router)
 app.include_router(ws_route.router)
@@ -295,6 +295,9 @@ app.include_router(sqi_route_router)
 app.include_router(sqi_kernels_router)
 app.include_router(sqi_relink_router)
 app.include_router(teleport_handler.router)
+app.include_router(teleport_api) 
+app.include_router(symbolic_ingestion_api.router)
+app.include_router(symbolic_router)
 
 # ── 16) Serve uploaded images
 app.mount("/uploaded_images", StaticFiles(directory="uploaded_images"), name="uploaded_images")

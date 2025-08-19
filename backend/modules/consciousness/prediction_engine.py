@@ -9,6 +9,8 @@ import uuid
 import random
 import math
 import logging
+import json
+import time
 from datetime import datetime, timezone
 from typing import Dict, Any, List, Optional
 
@@ -27,9 +29,24 @@ from backend.modules.glyphos.glyph_quantum_core import GlyphQuantumCore
 from backend.modules.consciousness.gradient_entanglement_adapter import GradientEntanglementAdapter
 from backend.modules.knowledge_graph.entanglement_fusion import EntanglementFusion
 from backend.modules.hexcore.memory_engine import MEMORY
-from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter
 from backend.modules.codex.codex_trace import CodexTrace
 from backend.modules.codex.codex_metrics import calculate_glyph_cost as estimate_glyph_cost
+from backend.modules.codex.codex_metrics import CodexMetrics
+from backend.modules.codex.metric_utils import estimate_glyph_cost
+from backend.modules.lean.lean_proofverifier import is_logically_valid
+from backend.modules.codex.rewrite_executor import apply_rewrite
+from backend.modules.codex.dna_mutation_tracker import add_dna_mutation
+from backend.modules.glyphos.glyph_broadcast import broadcast_prediction_event
+from backend.modules.prediction.prediction_utils import extract_prediction_path, score_predictive_path, detects_conflicting_predicts
+from backend.modules.codex.codexlang_rewriter import CodexLangRewriter, suggest_rewrite_candidates, suggest_simplifications
+
+try:
+    from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter
+except ImportError as e:
+    import logging
+    logging.warning(f"[PredictionEngine] Failed to import KnowledgeGraphWriter: {e}")
+    KnowledgeGraphWriter = None
+
 
 try:
     from backend.modules.tessaris.tessaris_engine import TessarisEngine
@@ -51,6 +68,7 @@ class PredictionEngine:
         self.memory_engine = memory_engine or (MemoryEngine() if MemoryEngine else None)
         self.tessaris_engine = tessaris_engine or (TessarisEngine() if TessarisEngine else None)
         self.dream_core = dream_core or (DreamCore() if DreamCore else None)
+        self.soul_laws = get_soul_laws()
 
         self.gradient_engine = SymbolicGradientEngine()
         self.feedback_tracer = GlyphFeedbackTracer(container_id=self.container_id)
@@ -60,84 +78,577 @@ class PredictionEngine:
         self.quantum_core = GlyphQuantumCore(container_id=self.container_id)
         self.history = []
 
+    def detects_conflicting_predicts(current_text, glyphs):
+        for glyph in glyphs:
+            if glyph["text"] != current_text and glyph["text"] in current_text:
+                return True
+        return False
 
-def run_prediction_on_container(container: dict) -> dict:
-    """
-    Run prediction logic on a symbolic container.
-    Picks optimal paths for atoms, electrons, etc.
-    Returns a dictionary of predicted glyph outcomes.
-    """
-    predictions = {}
-    glyphs = container.get("glyphs", [])
+    def extract_prediction_path(text):
+        # crude fallback – customize for your AST/glyph format
+        try:
+            return text.split("Predicts(")[1].split(")")[0]
+        except:
+            return "Unknown"
 
-    for glyph in glyphs:
-        gid = glyph.get("id")
-        gtype = glyph.get("type")
-        meta = glyph.get("meta", {})
-        outcomes = meta.get("predictive_outcomes", [])
+    def score_predictive_path(path):
+        # stub – replace with actual SQI scoring logic if needed
+        return {
+            "stability": round(random.uniform(0.4, 1.0), 3),
+            "resonance": round(random.uniform(0.2, 0.9), 3),
+            "entropy": round(random.uniform(0.1, 0.7), 3),
+        }
 
-        print(f"🔍 Glyph: {gid}, Type: {gtype}, Outcomes: {len(outcomes)}")
+    def _run_prediction_on_ast(self, ast_or_raw: dict) -> dict:
+        from backend.modules.codex.codex_metrics import CodexMetrics
+        from backend.modules.lean.lean_tactic_suggester import suggest_tactics
+        from backend.modules.codex.codex_lang_rewriter import suggest_rewrite_candidates
+        from backend.modules.codex.codex_trace import CodexTrace
+        from backend.modules.knowledge_graph.knowledge_graph_writer import inject_trace_metadata
 
-        if gtype in ("electron", "atom"):
-            if not outcomes:
-                logger.warning(f"[Prediction] No candidates found for {gtype} glyph {gid}")
-                continue
+        if ast_or_raw is None:
+            return {"status": "error", "detail": "No AST provided"}
 
-            best = select_best_prediction(outcomes, context=glyph)
-            if best:
-                predictions[gid] = {
-                    "label": best.get("label", "unknown"),
-                    "logic_score": best.get("logic_score", 0),
-                    "all_candidates": outcomes,
-                    "source_metadata": meta,
-                }
-                print(f"✅ Best for {gid}: {best.get('label')} [score: {best.get('logic_score', 0)}]")
-                logger.info(f"[Prediction] {gid} ({gtype}) → {best.get('label')} [score: {best.get('logic_score', 0)}]")
-                CodexTrace.log_prediction(gid, gtype, best)
+        try:
+            # ✅ If it's already normalized
+            if ast_or_raw.get("type") in {"logic_block", "glyph_program"}:
+                result = self._analyze_ast_tree(ast_or_raw)
+
+            # ⚛ Electron prediction logic
+            elif "electrons" in ast_or_raw:
+                result = self._analyze_electron_predictions(ast_or_raw["electrons"])
+
             else:
-                print(f"⚠️ No valid prediction selected for {gid}")
-                logger.warning(f"[Prediction] No valid prediction selected for {gid} ({gtype})")
+                # 🧠 Normalize lowercase CodexLang AST if needed
+                normalized = self._normalize_codexlang_ast(ast_or_raw)
+                result = self._analyze_ast_tree(normalized)
 
-    if container.get("id"):
-        print(f"🧠 Writing {len(predictions)} predictions to KG for container: {container['id']}")
-        KnowledgeGraphWriter.store_predictions(container["id"], predictions)
+            # --- 🔍 CONTRADICTION INJECTION ---
+            self._inject_contradiction_flags(ast_or_raw)
 
-    return predictions
+            # --- 🧠 SQI SCORING ---
+            self._compute_sqi_scores(ast_or_raw)
+
+            # --- 🎞️ TRACE REPLAY INJECTION ---
+            self._inject_trace_metadata(ast_or_raw, result)
+
+            # --- 🔁 AUTO-REWRITE ON CONTRADICTION ---
+            if result.get("status") == "contradiction":
+                goal_repr = ast_or_raw.get("repr") or ast_or_raw.get("raw") or str(ast_or_raw)
+                tactics = suggest_tactics(goal_repr, context=[])
+
+                rewrites = suggest_rewrite_candidates(ast_or_raw)
+                if rewrites:
+                    best = rewrites[0]
+                    rewritten_ast = best.get("ast")
+                    label = best.get("label")
+
+                    # Log rewrite trace
+                    CodexTrace.log_prediction("⊥", "rewrite", label)
+
+                    # Inject trace
+                    inject_trace_metadata(result.get("containerId"), {
+                        "type": "rewrite",
+                        "from": goal_repr,
+                        "to": label,
+                        "tactics": tactics
+                    })
+
+                    # ♻️ Retry prediction with rewritten AST
+                    rewritten_result = self._run_prediction_on_ast(rewritten_ast)
+                    rewritten_result["original"] = goal_repr
+                    rewritten_result["wasRewritten"] = True
+                    return rewritten_result
+
+            return result
+
+        except Exception as e:
+            return {
+                "status": "error",
+                "detail": f"Unknown AST structure: {e}"
+            }
+
+    def _normalize_codexlang_ast(self, ast: dict) -> dict:
+        """
+        Converts lowercase internal CodexLang-style AST to normalized form.
+        Example: 'forall' → 'ForAll', 'predicate' → Codex predicate structure.
+        """
+        if ast["type"] == "forall":
+            return {
+                "type": "ForAll",
+                "var": ast["variable"],
+                "body": self._normalize_codexlang_ast(ast["body"])
+            }
+        elif ast["type"] == "implies":
+            return {
+                "type": "Implies",
+                "left": self._normalize_codexlang_ast(ast["left"]),
+                "right": self._normalize_codexlang_ast(ast["right"])
+            }
+        elif ast["type"] == "predicate":
+            return {
+                "type": "call",
+                "name": ast["name"],
+                "args": [{"type": "variable", "value": arg} for arg in ast["args"]]
+            }
+        elif ast["type"] == "not":
+            return {
+                "type": "not",
+                "value": self._normalize_codexlang_ast(ast["value"])
+            }
+        elif ast["type"] == "and":
+            return {
+                "type": "and",
+                "left": self._normalize_codexlang_ast(ast["left"]),
+                "right": self._normalize_codexlang_ast(ast["right"])
+            }
+        elif ast["type"] == "or":
+            return {
+                "type": "or",
+                "left": self._normalize_codexlang_ast(ast["left"]),
+                "right": self._normalize_codexlang_ast(ast["right"])
+            }
+        else:
+            raise ValueError(f"Unsupported node type: {ast.get('type')}")
+
+    def _analyze_ast_tree(self, ast: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Run AST-level prediction logic.
+        Includes contradiction detection, simplification suggestions,
+        and basic inference reasoning for logic-based glyphs.
+        """
+
+        def detect_contradictions(node: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+            def ast_equal(a: Dict[str, Any], b: Dict[str, Any]) -> bool:
+                if a.get("type") != b.get("type"):
+                    return False
+                if a.get("type") in {"symbol", "variable"}:
+                    return a.get("value") == b.get("value")
+                if a.get("type") == "call":
+                    return (
+                        a.get("name") == b.get("name") and
+                        all(ast_equal(x, y) for x, y in zip(a.get("args", []), b.get("args", [])))
+                    )
+                if a.get("type") == "not":
+                    return ast_equal(a.get("value"), b.get("value"))
+                if a.get("type") in {"and", "or", "implies", "iff"}:
+                    return ast_equal(a.get("left"), b.get("left")) and ast_equal(a.get("right"), b.get("right"))
+                return False
+
+            # Detect: P(x) ∧ ¬P(x)
+            if node.get("type") == "and":
+                left = node.get("left")
+                right = node.get("right")
+                if right and right.get("type") == "not":
+                    if ast_equal(left, right.get("value")):
+                        return {
+                            "expression": node,
+                            "reason": "⚛ Contradiction: P(x) ∧ ¬P(x) detected",
+                            "score": 0.95
+                        }
+            return None
+
+        # ✅ New logic: handle ForAll (universal quantifier)
+        if ast.get("type") == "ForAll":
+            var_name = ast.get("var")
+            body = ast.get("body")
+
+            if not var_name or not body:
+                return {
+                    "status": "error",
+                    "detail": "Malformed ForAll: missing 'var' or 'body'"
+                }
+
+            example = { "type": "variable", "value": var_name }
+
+            def substitute(node):
+                if node.get("type") == "variable" and node.get("value") == var_name:
+                    return example
+                elif node.get("type") == "call":
+                    return {
+                        "type": "call",
+                        "name": node["name"],
+                        "args": [substitute(arg) for arg in node.get("args", [])]
+                    }
+                elif node.get("type") in {"not", "symbol"}:
+                    return { **node, "value": substitute(node["value"]) } if "value" in node else node
+                elif node.get("type") in {"and", "or", "implies", "iff"}:
+                    return {
+                        "type": node["type"],
+                        "left": substitute(node["left"]),
+                        "right": substitute(node["right"])
+                    }
+                elif node.get("type") == "predicate":
+                    return {
+                        "type": "predicate",
+                        "operator": node["operator"],
+                        "operands": [substitute(arg) for arg in node.get("operands", [])]
+                    }
+                return node
+
+            substituted = substitute(body)
+            return _analyze_ast_tree(substituted)
+
+        # ✅ Otherwise, continue normally
+        contradiction = detect_contradictions(ast)
+        if contradiction:
+            return {
+                "status": "contradiction",
+                "detail": contradiction["reason"],
+                "score": contradiction["score"]
+            }
+
+        return {
+            "status": "ok",
+            "detail": "No contradictions detected"
+        }
 
 
-def select_best_prediction(outcomes: list, context: dict) -> dict:
+    def _analyze_electron_predictions(electrons: List[dict]) -> dict:
+        best_electron = None
+        best_confidence = -1.0
+        prediction_summary = []
+
+        for electron in electrons:
+            glyphs = electron.get("glyphs", [])
+            label = electron.get("meta", {}).get("label", "unknown")
+
+            for glyph in glyphs:
+                if glyph["type"] == "predictive":
+                    prediction_summary.append({
+                        "label": label,
+                        "value": glyph["value"],
+                        "confidence": glyph["confidence"]
+                    })
+
+                    if glyph["confidence"] > best_confidence:
+                        best_confidence = glyph["confidence"]
+                        best_electron = {
+                            "label": label,
+                            "value": glyph["value"],
+                            "confidence": glyph["confidence"]
+                        }
+
+        if best_electron:
+            return {
+                "status": "prediction",
+                "best_path": best_electron,
+                "summary": prediction_summary
+            }
+        else:
+            return {
+                "status": "error",
+                "detail": "No predictive glyphs found in electrons"
+            }
+
+    def _inject_contradiction_flags(self, ast_or_raw: dict):
+        """Flag glyphs that contradict others (simple implication or mutually exclusive logic)."""
+        glyphs = ast_or_raw.get("glyph_grid", [])
+        contradiction_pairs = []
+
+        # Example: simple same-subject, different prediction detection
+        prediction_map = {}
+
+        for glyph in glyphs:
+            text = glyph.get("text", "")
+            if "Predicts" in text and "Electron" in text:
+                for line in text.split("∨"):
+                    parts = line.split("Predicts")
+                    if len(parts) > 1:
+                        prediction = parts[-1].strip().strip("()\"")
+                        if prediction in prediction_map:
+                            contradiction_pairs.append((prediction, prediction_map[prediction]))
+                        else:
+                            prediction_map[prediction] = glyph["id"]
+
+        # Inject into glyph metadata
+        for glyph in glyphs:
+            glyph["metadata"] = glyph.get("metadata", {})
+            for p1, p2 in contradiction_pairs:
+                if p1 in glyph["text"] or p2 in glyph["text"]:
+                    glyph["metadata"]["contradiction"] = True
+
+    def _compute_sqi_scores(self, ast_or_raw: dict):
+        """Inject symbolic quality scores into prediction glyphs."""
+        import random  # Replace with real scoring later
+
+        glyphs = ast_or_raw.get("glyph_grid", [])
+        for glyph in glyphs:
+            if "Predicts" in glyph.get("text", ""):
+                glyph["metadata"] = glyph.get("metadata", {})
+                glyph["metadata"]["sqi_score"] = {
+                    "stability": round(random.uniform(0.7, 1.0), 3),
+                    "entropy": round(random.uniform(0.0, 0.4), 3),
+                    "resonance": round(random.uniform(0.5, 1.0), 3),
+                }
+
+    def _inject_trace_metadata(self, ast_or_raw: dict, result: dict):
+        """Inject result summary into trace metadata for CodexHUD / GHX replay."""
+        trace = ast_or_raw.setdefault("traceMetadata", {})
+        trace["predictionInjected"] = True
+        trace["predictionResult"] = result
+
+    def _trigger_rewrite_if_needed(self, ast_or_raw: dict, result: dict):
+        """If contradiction found, invoke Codex self-rewrite logic."""
+        from backend.modules.prediction.suggestion_engine import suggest_simplifications
+
+        suggestions = suggest_simplifications(ast_or_raw)
+        if suggestions:
+            result["rewriteSuggestions"] = suggestions
+            result["status"] = "rewrite_suggested"
+
+    def detect_contradictions(node: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        """
+        Detects contradictions in logic ASTs, such as: P(x) ∧ ¬P(x)
+        Returns a contradiction report if found, else None.
+        """
+
+        def ast_equal(a: Dict[str, Any], b: Dict[str, Any]) -> bool:
+            # Recursive structural equality for AST nodes
+            if a.get("type") != b.get("type"):
+                return False
+            if a.get("type") in {"symbol", "variable"}:
+                return a.get("value") == b.get("value")
+            if a.get("type") == "call":
+                return (
+                    a.get("name") == b.get("name") and
+                    all(ast_equal(x, y) for x, y in zip(a.get("args", []), b.get("args", [])))
+                )
+            if a.get("type") == "not":
+                return ast_equal(a.get("value"), b.get("value"))
+            if a.get("type") in {"and", "or", "implies", "iff"}:
+                return ast_equal(a.get("left"), b.get("left")) and ast_equal(a.get("right"), b.get("right"))
+            return False
+
+        # Check for pattern: P(x) ∧ ¬P(x)
+        if node.get("type") == "and":
+            left = node.get("left")
+            right = node.get("right")
+            if right and right.get("type") == "not":
+                if ast_equal(left, right.get("value")):
+                    return {
+                        "expression": node,
+                        "reason": "⚛ Contradiction: P(x) ∧ ¬P(x) detected",
+                        "score": 0.95
+                    }
+
+        return None
+        @staticmethod
+        def suggest_simplifications(ast: dict) -> dict:
+            """
+            Analyze the AST for possible simplifications or rewrites to resolve contradictions.
+            Includes prediction, symbolic suggestion, and scoring.
+            """
+            from backend.modules.codex.codex_metric import CodexMetrics
+            from backend.modules.consciousness.goal_engine import GoalEngine
+            from backend.modules.symbolic_engine.logic_prediction_utils import detect_contradictions
+
+            def symbolic_suggestion(node: Dict[str, Any]) -> str | None:
+                """
+                Suggests: ¬(P → Q) ⇒ P ∧ ¬Q (implication negation rule)
+                """
+                if node.get("type") == "not":
+                    inner = node.get("value", {})
+                    if inner.get("type") == "implies":
+                        return "🧬 Simplification: ¬(P → Q) ⇒ P ∧ ¬Q"
+                return None
+
+            result: Dict[str, Any] = {}
+
+            # 🔍 Primary prediction logic
+            if ast.get("type") == "implication":
+                result["prediction"] = "Q(x) likely true if P(x) true"
+                result["reasoning"] = "Based on implication structure."
+            elif ast.get("type") == "forall":
+                result["prediction"] = "Applies universally; may require counterexample search."
+                result["reasoning"] = "Universal quantifier detected"
+            else:
+                result["prediction"] = "Unable to infer"
+                result["reasoning"] = "Unhandled AST type"
+
+            # 🔎 Detect contradiction
+            contradiction = detect_contradictions(ast)
+            if contradiction:
+                result["contradiction"] = contradiction
+
+            # 🧬 Suggest symbolic simplification
+            simplification = symbolic_suggestion(ast)
+            if simplification:
+                result["simplification"] = simplification
+
+                # Example placeholder rewrite structure (expand later)
+                suggested_rewrite = {
+                    "type": "replace_node",
+                    "target": "¬(P → Q)",
+                    "replacement": "P ∧ ¬Q"
+                }
+
+                # 🎯 Active goal scoring
+                active_goals = GoalEngine.get_active_goals()
+                goal_score = CodexMetrics.score_alignment(suggested_rewrite, active_goals)
+                success_prob = CodexMetrics.estimate_rewrite_success(suggested_rewrite)
+
+                result["rewrite"] = suggested_rewrite
+                result["goal_match_score"] = goal_score
+                result["rewrite_success_prob"] = success_prob
+
+            return result
+
+
+    from backend.modules.lean.lean_tactic_suggester import suggest_simplifications
+
+    import time  # Ensure this is imported at the top
+
+@classmethod
+def run_prediction_on_container(cls, container: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     """
-    Evaluate list of outcome dicts and choose the most optimal one.
-    Applies SQI-inspired logic score, entropy penalty, cost penalty,
-    and goal alignment reward.
+    Full prediction pipeline with:
+    - AST inspection
+    - Contradiction detection (glyph + logic)
+    - Rewrite suggestion
+    - .dc.json trace injection
+    - SQI scoring
+    - Lean proof verification
+    - Optional live application + DNA mutation
     """
+    contradiction_found = False
     scored = []
 
-    for outcome in outcomes:
-        glyph = outcome.get("glyph", {})
-        logic = outcome.get("logic_score", 0) or 0
-        entropy = outcome.get("entropy_delta", 0) or 0
-        goal_alignment = outcome.get("goal_score", 0) or 0
-        cost = estimate_glyph_cost(glyph) if glyph else 0
+    # 🧠 Check for glyph-level contradictions and SQI scoring
+    for glyph in container.get("glyph_grid", []):
+        if "Predicts" in glyph.get("text", ""):
+            path = extract_prediction_path(glyph["text"])
+            score = score_predictive_path(path)
+            glyph.setdefault("metadata", {})["sqiScore"] = score
 
-        score = (
-            (logic * 2.0) -
-            (entropy * 1.5) -
-            (cost * 0.8) +
-            (goal_alignment * 2.5)
-        )
+            if "¬" in glyph["text"] or detects_conflicting_predicts(glyph["text"], container["glyph_grid"]):
+                glyph.setdefault("metadata", {})["contradictionDetected"] = True
+                contradiction_found = True
 
-        scored.append((score, outcome))
+    # 📘 Logic-level contradiction detection + rewrite scoring
+    expr = container.get("logic", {}).get("expression")
+    if expr:
+        suggestions = suggest_rewrite_candidates(expr)
 
-    if not scored:
-        logger.warning("[Prediction] No outcomes could be scored. Choosing randomly.")
-        return random.choice(outcomes)
+        for s in suggestions:
+            original = s.get("from")
+            proposed = s.get("to")
+            reason = s.get("reason", "unspecified")
 
-    scored.sort(reverse=True, key=lambda x: x[0])
-    best_score, best_outcome = scored[0]
+            score = cls.score_rewrite_suggestion(original, proposed, container)
+            valid = is_logically_valid(proposed)
 
-    logger.debug(f"[Prediction] Best score: {best_score} for outcome: {best_outcome.get('label', 'N/A')}")
-    return best_outcome
+            trace_entry = {
+                "from": original,
+                "to": proposed,
+                "reason": reason,
+                "entropy_delta": score["entropy_delta"],
+                "goal_match_score": score["goal_match_score"],
+                "rewrite_success_prob": score["rewrite_success_prob"],
+                "logically_valid": valid
+            }
+            scored.append(trace_entry)
+
+            # Inject into .dc.json trace
+            container.setdefault("trace", {}).setdefault("predictions", {}).setdefault("rewrites", []).append(trace_entry)
+
+            # ✅ Apply live rewrite if valid and confident
+            if valid and score["rewrite_success_prob"] > 0.8:
+                apply_rewrite(container.get("id"), proposed)
+                add_dna_mutation(original, proposed, reason=reason)
+
+            # 🌐 Broadcast via GlyphNet
+            broadcast_prediction_event(container_id=container.get("id"), event=trace_entry)
+
+    # 🎞️ Inject trace metadata
+    container.setdefault("traceMetadata", {})["predictionResult"] = {
+        "status": "contradiction" if contradiction_found else "ok",
+        "sqiTrace": True,
+        "timestamp": time.time()
+    }
+
+    # ⬁ Suggest simplifications if glyph-level contradiction was found
+    if contradiction_found:
+        from backend.modules.codex.codexlang_rewriter import suggest_simplifications
+        container["traceMetadata"]["rewriteSuggestions"] = suggest_simplifications(container)
+
+    return {
+        "status": "contradiction" if contradiction_found else "ok",
+        "rewrites": scored,
+        "detail": "Contradiction(s) flagged in glyphs" if contradiction_found else "No contradictions detected"
+    }
+
+    @classmethod
+    def score_rewrite_suggestion(cls, original: str, proposed: str, container: Dict[str, Any]) -> Dict[str, float]:
+        """
+        Score rewrite on:
+        - Entropy reduction
+        - Goal alignment
+        - Rewrite success probability
+        """
+        original_entropy = cls.estimate_entropy(original)
+        proposed_entropy = cls.estimate_entropy(proposed)
+        goal_match = cls.estimate_goal_alignment(proposed, container)
+
+        return {
+            "entropy_delta": original_entropy - proposed_entropy,
+            "goal_match_score": goal_match,
+            "rewrite_success_prob": min(1.0, goal_match + (original_entropy - proposed_entropy) / 10.0)
+        }
+
+    @staticmethod
+    def estimate_entropy(expr: str) -> float:
+        # Very simple entropy proxy based on length and symbolic density
+        length = len(expr)
+        symbols = len([c for c in expr if not c.isalnum()])
+        return (symbols + 1) * (length ** 0.5)
+
+    @staticmethod
+    def estimate_goal_alignment(expr: str, container: Dict[str, Any]) -> float:
+        goals = container.get("goals", [])
+        matches = [g for g in goals if g in expr]
+        return min(1.0, len(matches) / max(1, len(goals)))
+
+    @staticmethod
+    def load_container_from_path(path: str) -> dict:
+        from backend.modules.utils.file_loader import load_dc_container
+        return load_dc_container(path)
+
+    def select_best_prediction(outcomes: list, context: dict) -> dict:
+        """
+        Evaluate list of outcome dicts and choose the most optimal one.
+        Applies SQI-inspired logic score, entropy penalty, cost penalty,
+        and goal alignment reward.
+        """
+        scored = []
+
+        for outcome in outcomes:
+            glyph = outcome.get("glyph", {})
+            logic = outcome.get("logic_score", 0) or 0
+            entropy = outcome.get("entropy_delta", 0) or 0
+            goal_alignment = outcome.get("goal_score", 0) or 0
+            cost = estimate_glyph_cost(glyph) if glyph else 0
+
+            score = (
+                (logic * 2.0) -
+                (entropy * 1.5) -
+                (cost * 0.8) +
+                (goal_alignment * 2.5)
+            )
+
+            scored.append((score, outcome))
+
+        if not scored:
+            logger.warning("[Prediction] No outcomes could be scored. Choosing randomly.")
+            return random.choice(outcomes)
+
+        scored.sort(reverse=True, key=lambda x: x[0])
+        best_score, best_outcome = scored[0]
+
+        # Optional debug output
+        logger.debug(f"[Prediction] Best score: {best_score} for outcome: {best_outcome.get('label', 'N/A')}")
+
+        return best_outcome
 
     async def forecast_hyperdrive(self, hyperdrive_engine) -> Dict:
         """
@@ -395,24 +906,13 @@ def select_best_prediction(outcomes: list, context: dict) -> dict:
 
     def reset_history(self):
         self.history.clear()
-# === SQI A2–A5: PredictionEngine for atoms/electrons with SoulLaw ===
 
-try:
-    from backend.modules.soullaw.soul_law_validator import get_soul_laws
-except ImportError:
-    get_soul_laws = lambda: []
+    # === SQI A2–A5: PredictionEngine for atoms/electrons with SoulLaw ===
 
-class PredictionEngine:
-    def __init__(self):
-        self.soul_laws = get_soul_laws()
-
-    def run_prediction_on_container(self, container: Dict[str, Any]) -> Dict[str, Any]:
-        container_type = container.get("type", "")
-        if container_type == "atom":
-            return self._predict_atom(container)
-        else:
-            logger.warning(f"PredictionEngine: Unsupported container type: {container_type}")
-            return {}
+    try:
+        from backend.modules.soullaw.soul_law_validator import get_soul_laws
+    except ImportError:
+        get_soul_laws = lambda: []
 
     def _predict_atom(self, container: Dict[str, Any]) -> Dict[str, Any]:
         electrons = container.get("electrons", [])
@@ -422,17 +922,19 @@ class PredictionEngine:
             label = electron.get("meta", {}).get("label", f"e⁻ {idx+1}")
             glyphs = electron.get("glyphs", [])
 
+            # ✅ A5: SoulLaw validation
             if not self._passes_soul_law(glyphs):
-                logger.warning(f"⚠️ SoulLaw violation in electron: {label}")
+                logger.warning(f"⚠️ SoulLaw violation detected in electron: {label}")
                 continue
 
+            # ✅ A3: Confidence scoring
             best = max(glyphs, key=lambda g: g.get("confidence", 0), default=None)
             if best:
                 predictions.append({
                     "electron": label,
                     "selected": best.get("value"),
                     "confidence": best.get("confidence"),
-                    "linkContainerId": electron.get("meta", {}).get("linkContainerId")
+                    "linkContainerId": electron.get("meta", {}).get("linkContainerId", None)
                 })
 
         return {
@@ -449,10 +951,25 @@ class PredictionEngine:
                     return False
         return True
 
-# Optional external function (if needed elsewhere)
-prediction_engine = PredictionEngine()
+# ✅ Singleton instance
+_prediction_engine_instance = None
 
+def get_prediction_engine():
+    global _prediction_engine_instance
+    if _prediction_engine_instance is None:
+        _prediction_engine_instance = PredictionEngine()
+    return _prediction_engine_instance
+
+# ✅ Public wrapper for container-level prediction
 def run_prediction_on_container(container: Dict[str, Any]) -> Dict[str, Any]:
-    return prediction_engine.run_prediction_on_container(container)
-    
-__all__ = ["run_prediction_on_container", "select_best_prediction"]
+    return get_prediction_engine().run_prediction_on_container(container)
+
+# ✅ Public wrapper for AST-level prediction
+def run_prediction_on_ast(ast_or_raw: dict) -> dict:
+    return get_prediction_engine()._run_prediction_on_ast(ast_or_raw)
+
+__all__ = [
+    "run_prediction_on_container",
+    "run_prediction_on_ast",
+    "select_best_prediction"
+]
