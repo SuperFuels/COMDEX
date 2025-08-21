@@ -1,4 +1,4 @@
-# backend/modules/glyphos/mutation_checker.py
+# backend/modules/dna_chain/mutation_checker.py
 """
 🧬 mutation_checker.py
 

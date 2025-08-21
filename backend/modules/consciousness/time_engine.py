@@ -6,7 +6,7 @@ import json
 from backend.modules.dna_chain.switchboard import DNA_SWITCH
 DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
 
-from backend.modules.consciousness.state_manager import StateManager
+from backend.modules.consciousness.state_manager import state_manager
 
 class TimeEngine:
     def __init__(self):
@@ -14,7 +14,7 @@ class TimeEngine:
         self.last_sleep = datetime.datetime.utcnow()
         self.sleep_interval_hours = 24  # Can adjust based on stress/fatigue
         self.force_sleep_hour = 3  # UTC 3AM is default sleep time
-        self.state_manager = StateManager()
+        self.state_manager = state_manager  # ✅ Use shared singleton
         self.current_container = None
 
     def check_if_sleep_needed(self):

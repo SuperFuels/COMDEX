@@ -23,6 +23,7 @@ import asyncio
 import logging
 from fastapi import APIRouter, WebSocket
 from typing import Dict, List, Any, Optional
+from typing import TYPE_CHECKING
 
 from backend.modules.glyphos.glyph_executor import GlyphExecutor
 from backend.modules.prediction.predictive_glyph_composer import PredictiveGlyphComposer
@@ -31,7 +32,10 @@ from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGrap
 from backend.modules.glyphnet.broadcast_throttle import install, throttled_broadcast
 from backend.modules.teleport.portal_manager import PORTALS, create_teleport_packet
 from backend.modules.consciousness.state_manager import STATE
+from backend.modules.websocket_manager import send_ws_message
 
+if TYPE_CHECKING:
+    from backend.modules.symbolic_engine.math_logic_kernel import LogicGlyph
 
 logger = logging.getLogger(__name__)
 
@@ -373,6 +377,34 @@ async def broadcast_lock_overlay(state: str, target_id: str, agent_id: str):
     })
     logger.info(f"[GlyphNetWS] Broadcasted {event_type} for {target_id} by {agent_id}")
 
+def broadcast_symbolic_glyph(glyph: "LogicGlyph") -> None:
+    """
+    Broadcasts a symbolic glyph (QGlyph or otherwise) to all connected WebSocket listeners.
+    Includes metadata flags and robust serialization.
+    """
+    try:
+        # Attempt to serialize glyph intelligently
+        if hasattr(glyph, "serialize"):
+            glyph_payload = glyph.serialize()
+        elif hasattr(glyph, "to_dict"):
+            glyph_payload = glyph.to_dict()
+        else:
+            glyph_payload = str(glyph)
+
+        payload = {
+            "type": "symbolic_glyph",
+            "id": glyph.metadata.get("id", None),
+            "qglyph": glyph.metadata.get("qglyph", False),
+            "entangled": glyph.metadata.get("entangled", False),
+            "predictive": glyph.metadata.get("predictive", False),
+            "payload": glyph_payload,
+        }
+
+        send_ws_message(json.dumps(payload))
+
+    except Exception as e:
+        logger.warning(f"Failed to broadcast symbolic glyph: {e}")
+
 # ✅ Entanglement Broadcast
 def push_entanglement_update(from_id: str, to_id: str,
     ghx_projection_id: Optional[str] = None,
@@ -473,3 +505,9 @@ async def stream_replay_frame(frame_index: int, glyph_state: Dict[str, Any], con
     }
     await broadcast_event(event)
     logger.debug(f"[GlyphNetWS] Streamed replay frame {frame_index} for container {container_id}")
+
+# ─────────────────────────────────────────────────────────────────────────────
+# ✅ Alias for backward compatibility
+# This allows other modules to import broadcast_glyph_event without error
+# ─────────────────────────────────────────────────────────────────────────────
+broadcast_glyph_event = broadcast_event_throttled

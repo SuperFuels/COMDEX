@@ -6,16 +6,17 @@ from sympy.logic.boolalg import Boolean
 from sympy.core.relational import Relational
 from sympy.core.sympify import SympifyError
 
+
 from backend.modules.symbolic_engine.math_kernel import MathKernel
 from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter
 from backend.modules.symbolic_engine.symbolic_utils import parse_logical_operators
-from backend.modules.sqi.sqi_tessaris_bridge import SQIBridge
-from backend.modules.sqi.qglyph_generator import generate_qglyph_from_string
+from backend.modules.sqi.sqi_tessaris_bridge import SQITessarisBridge
+from backend.modules.sqi.qglyph_utils import generate_qglyph_from_string
 
-# 🔁 CodexLang + symbolic glyph pipeline
 from backend.modules.codex.codexlang_rewriter import CodexLangRewriter
-from backend.modules.codex.codex_ast_parser import parse_raw_input_to_ast
-from backend.modules.codex.codex_encoder import encode_codex_ast_to_glyphs
+from backend.modules.symbolic.codex_ast_parser import parse_codexlang_to_ast
+from backend.modules.codex.codex_ast_encoder import encode_codex_ast_to_glyphs
+from backend.modules.symbolic_engine.symbolic_kernels.logic_glyphs import LogicGlyph
 
 
 class MathLogicKernel:
@@ -149,6 +150,9 @@ class MathLogicKernel:
         self.kg_writer.write_fact(expression, metadata)
 
     def _log_sqi_event(self, conclusion: str, assumptions: List[str], implication: str, status: str):
+        """
+        Logs proof attempt to SQI system.
+        """
         self.sqi_bridge.log_trace({
             "type": "symbolic_proof_attempt",
             "container": self.container_id,

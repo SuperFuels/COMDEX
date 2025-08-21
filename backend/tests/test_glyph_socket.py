@@ -5,13 +5,11 @@ from backend.modules.glyphnet.glyph_socket import GlyphSocket
 from backend.modules.teleport.teleport_packet import TeleportPacket
 from backend.modules.teleport.portal_manager import PortalManager
 from backend.modules.runtime.container_runtime import ContainerRuntime
-from backend.modules.consciousness.state_manager import StateManager
-
+from backend.modules.consciousness.state_manager import state_manager
 
 @pytest.fixture(scope="module")
 def setup_environment():
-    # ✅ Setup state manager and runtime
-    state_manager = StateManager()
+    # ✅ Use shared state manager singleton
     runtime = ContainerRuntime(state_manager=state_manager)
 
     # ✅ Save containers via runtime's public API

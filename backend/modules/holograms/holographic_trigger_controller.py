@@ -23,6 +23,12 @@ class HolographicTriggerController:
                 )
                 if triggered_glyph:
                     triggered.append(triggered_glyph)
+                if triggered:
+                    try:
+                        from backend.modules.hologram.symbolic_hsx_bridge import SymbolicHSXBridge
+                        SymbolicHSXBridge.broadcast_glyphs(triggered, observer=self.avatar.get("id", "unknown"))
+                    except Exception:
+                        pass
         return triggered
 
     def _check_observer_gaze(self, glyph: Dict) -> bool:

@@ -8,7 +8,7 @@ from backend.modules.memory.memory_bridge import MemoryBridge
 
 class GlyphRuntimeLoop:
     def __init__(self, debug: bool = True):
-        self.state_manager = StateManager()
+        self.state_manager = state_manager 
         self.executor = GlyphExecutor(self.state_manager)
         self.seen_glyphs = set()
         self.debug = debug

@@ -1,3 +1,5 @@
+from typing import Optional
+
 from backend.modules.glyphvault.container_vault_manager import ContainerVaultManager
 from backend.modules.glyphvault.key_manager import key_manager
 from backend.modules.dimensions.universal_container_system.ucs_runtime import get_ucs_runtime  # ✅ UCS Runtime sync
@@ -17,7 +19,15 @@ def get_state():
 
 # Load encryption key securely from key manager singleton
 ENCRYPTION_KEY = key_manager.key
-vault_manager = ContainerVaultManager(ENCRYPTION_KEY)
+vault_manager: Optional[ContainerVaultManager] = None
+
+def get_vault_manager():
+    global vault_manager
+    if vault_manager is None:
+        from backend.modules.glyphvault.container_vault_manager import ContainerVaultManager
+        from backend.settings.encryption_config import ENCRYPTION_KEY  # or wherever it's defined
+        vault_manager = ContainerVaultManager(ENCRYPTION_KEY)
+    return vault_manager
 
 def decrypt_glyph_vault(container_data: dict, avatar_state: dict = None) -> dict:
     """

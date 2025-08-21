@@ -1,4 +1,4 @@
-# mutation_scorer.py
+# backend/modules/dna_chain/mutation_scorer.py
 # 🧠 Rule-based mutation scoring + logging
 
 from typing import Dict

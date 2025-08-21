@@ -137,3 +137,50 @@ def debug_print_glyph_chain(chain: List[Dict[str, Any]]):
     for i, g in enumerate(chain):
         logger.info(f"Step {i+1}: {g.get('operator')} | ID={g.get('id')} | Confidence={g.get('confidence')} | Entropy={g.get('entropy')}")
     logger.info("===========================")
+
+# ──────────────────────────────────────────────
+# 🔠 Logic Expression Parser (→ sympy)
+# ──────────────────────────────────────────────
+import re
+from sympy import sympify, Symbol
+from sympy.logic.boolalg import And, Or, Not, Implies, Equivalent
+
+def parse_logical_operators(expr: str):
+    """
+    Parses a string containing symbolic logic operators into a sympy logic expression.
+    Supports standard and symbolic forms:
+    ∧, ∨, ¬, →, ↔, ⇒, ⇔
+    """
+    if not expr or not isinstance(expr, str):
+        raise ValueError("Expected string input for logical expression.")
+
+    replacements = {
+        "∧": "&",
+        "∨": "|",
+        "¬": "~",
+        "→": ">>",
+        "⇒": ">>",
+        "↔": "<<>>",
+        "⇔": "<<>>",
+    }
+
+    # Replace all symbolic operators
+    for symbol, repl in replacements.items():
+        expr = expr.replace(symbol, repl)
+
+    # Normalize spacing and symbols
+    expr = expr.replace(" and ", " & ").replace(" or ", " | ").replace(" not ", " ~ ")
+    expr = expr.replace("==", "<<>>")
+
+    # Replace equivalence with proper sympy call
+    if "<<" in expr and ">>" in expr:
+        expr = re.sub(r"(.*?)<<>>(.*)", r"Equivalent(\1, \2)", expr)
+
+    # Sanitize leftover symbols
+    expr = expr.strip()
+
+    try:
+        parsed = sympify(expr, evaluate=True)
+        return parsed
+    except Exception as e:
+        raise ValueError(f"Could not parse expression '{expr}': {e}")

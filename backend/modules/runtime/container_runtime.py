@@ -65,26 +65,31 @@ class ContainerRuntime:
 
     def load_and_activate_container(self, container_id: str) -> Dict[str, Any]:
         container = self.vault_manager.load_container_by_id(container_id)
-        if not container:
-            raise Exception(f"Container {container_id} not found or could not be loaded.")
 
-        # ✅ Set container in state
+        if container is None:
+            raise ValueError(f"❌ Container '{container_id}' could not be loaded (got None).")
+
+        if not isinstance(container, dict):
+            raise TypeError(f"❌ Invalid container format for '{container_id}': expected dict, got {type(container).__name__}")
+
+        # ✅ Set container in both internal runtime and state manager
+        self.container = container
         self.state_manager.set_current_container(container)
 
-        # ✅ Run prediction (B1/B2 logic)
-        from backend.modules.consciousness.prediction_engine import run_prediction_on_container
-        from backend.modules.codex.codex_trace import CodexTrace
-
+        # ✅ Run predictions (B1/B2 logic) BEFORE decrypting
         try:
+            from backend.modules.codex.codex_trace import CodexTrace
+
             prediction = run_prediction_on_container(container)
             if prediction.get("prediction_count", 0) > 0:
                 self.state_manager.set_metadata("container_prediction", prediction)
                 CodexTrace.log_prediction(prediction)
         except Exception as e:
-            print(f"⚠️ Prediction failed for container {container_id}: {e}")
+            print(f"⚠️ Prediction failed for container '{container_id}': {e}")
 
+        # ✅ Decrypt and finalize
         return self.get_decrypted_current_container()
-
+    
     @staticmethod
     def load_container_from_path(path: str) -> dict:
         """
@@ -92,7 +97,10 @@ class ContainerRuntime:
         """
         from backend.modules.utils.file_loader import load_dc_container
         return load_dc_container(path)
-    container_runtime_instance = None
+
+
+    # Optional global instance (singleton pattern)
+    container_runtime_instance: Optional["ContainerRuntime"] = None
 
     def _init_executor(self, state_manager: StateManager):
         """
@@ -127,11 +135,12 @@ class ContainerRuntime:
 
     from backend.modules.consciousness.prediction_engine import run_prediction_on_container
 
-    from backend.modules.lean.lean_utils import is_lean_container
-    from backend.modules.lean.lean_proofverifier import validate_lean_container
-
     def get_decrypted_current_container(self) -> Dict[str, Any]:
         container = self.state_manager.get_current_container()
+        
+        if container is None:
+            raise ValueError("❌ No current container loaded (state_manager returned None)")
+
         encrypted_blob = container.get("encrypted_glyph_data")
         avatar_state = self.state_manager.get_avatar_state()
 
@@ -158,7 +167,7 @@ class ContainerRuntime:
         try:
             resolver = KeyFragmentResolver(container_id)
             glyphs = list(container.get("cubes", {}).values())
-            resolver.run_full_recombination(glyphs)
+            resolver.recombine_all(glyphs)
         except Exception as e:
             print(f"⚠️ Key fragment recombination failed: {e}")
 
@@ -188,7 +197,7 @@ class ContainerRuntime:
         else:
             container["isAtom"] = False
             container["electronCount"] = 0
-
+        from backend.modules.lean.lean_utils import is_lean_container
         # ✅ Lean Container Validation
         if is_lean_container(container):
             try:
@@ -217,7 +226,6 @@ class ContainerRuntime:
         except Exception as e:
             print(f"❌ unload_container error for {container_id}: {e}")
             return False
-
     def log_glyph_trace(self, container_id: str, data: dict):
         """
         Log glyph trace for a container (lazy import).
@@ -230,11 +238,11 @@ class ContainerRuntime:
         cubes = container.get("cubes", {})
         tick_log = {"executed": []}
 
-        # ✅ Check SoulLaw once per container session (not every tick)
+        # ✅ Check SoulLaw once per container session
         cid = container.get("id")
         if cid and cid not in self._soullaw_checked_containers:
             try:
-                self.ucs.soul_law.validate_access(container)  # or validate_container(...) depending on API
+                self.ucs.soul_law.validate_access(container)
                 self._soullaw_checked_containers.add(cid)
                 print(f"🔒 UCS SoulLaw checked once for container {cid}.")
             except Exception as e:
@@ -246,10 +254,9 @@ class ContainerRuntime:
             if len(self.rewind_buffer) > self.max_rewind:
                 self.rewind_buffer.pop(0)
 
-        # ✅ Glyph watcher for runtime bytecode
         self.glyph_watcher.scan_for_bytecode()
 
-        # ✅ Iterate over glyph cubes
+        # ✅ Execute glyphs
         for coord_str, data in cubes.items():
             if "glyph" in data and data["glyph"]:
                 try:
@@ -262,16 +269,14 @@ class ContainerRuntime:
                         self.fork_entangled_path(container, coord_str, glyph_str)
                         print(f"🔀 Entangled fork triggered at {coord_str}")
 
-                    # ⧖ Time collapse glyph
+                    # ⧖ SoulLaw collapse glyph
                     if "⧖" in glyph_str:
                         avatar_state = self.state_manager.get_avatar_state()
-
                         verdict = SoulLawValidator.evaluate_glyph(
                             glyph_str,
                             identity=avatar_state.get("id") if avatar_state else None
                         )
 
-                        # Trace logging only – container-level SoulLaw is already enforced in run_tick()
                         container.setdefault("soul_law_trace", []).append({
                             "coord": coord_str,
                             "glyph": glyph_str,
@@ -280,7 +285,6 @@ class ContainerRuntime:
                             "timestamp": time.time()
                         })
 
-                        # WebSocket broadcast
                         self.websocket.broadcast({
                             "type": "soul_law_event",
                             "data": {
@@ -293,7 +297,6 @@ class ContainerRuntime:
                             }
                         })
 
-                        # Collapse trace export
                         export_collapse_trace(
                             expression=glyph_str,
                             output=verdict,
@@ -303,7 +306,6 @@ class ContainerRuntime:
                             extra={"coord": coord_str, "trigger_metadata": {"source": "ContainerRuntime"}}
                         )
 
-                        # Glyph event broadcast
                         broadcast_glyph_event({
                             "type": "glyph_execution",
                             "data": {
@@ -316,7 +318,7 @@ class ContainerRuntime:
                             }
                         })
 
-                    # Execute glyph asynchronously
+                    # Asynchronous execution
                     coro = self.executor.execute_glyph_at(x, y, z)
                     asyncio.run_coroutine_threadsafe(coro, self.async_loop)
                     tick_log["executed"].append(coord_str)
@@ -324,7 +326,7 @@ class ContainerRuntime:
                 except Exception as e:
                     print(f"❌ Failed to execute glyph at {coord_str}: {e}")
 
-        # ✅ UCS Visualization Sync (highlight container in GHX)
+        # ✅ Visual highlight
         if container.get("id"):
             try:
                 self.ucs.visualizer.highlight(container["id"])
@@ -332,22 +334,20 @@ class ContainerRuntime:
             except Exception as e:
                 print(f"⚠️ UCS visualization sync failed: {e}")
 
-        # ✅ Tick counter & metadata
         self.tick_counter += 1
         tick_log["timestamp"] = time.time()
         tick_log["tick"] = self.tick_counter
 
-        # ✅ Container loop rewind
+        # ✅ Container rewind loop
         if self.loop_enabled and self.tick_counter % self.loop_interval == 0:
             if self.rewind_buffer:
                 rewind_state = self.rewind_buffer[0]
                 container["cubes"] = rewind_state["cubes"].copy()
                 print("🔄 Container loop: state rewound.")
 
-        # ✅ Decay handling
         self.apply_decay(container["cubes"])
 
-        # ✅ Time dilation pacing
+        # ✅ Time dilation
         if self.ucs_features.get("time_dilation"):
             factor = self.ucs_features.get("time_dilation_factor", 1.0)
             time.sleep(self.tick_interval * (1 / factor))
@@ -355,23 +355,14 @@ class ContainerRuntime:
         return tick_log
 
     def _ensure_registry_entry(self, container: Dict[str, Any]) -> None:
-        """
-        Ensure the container is registered/stamped in UCS:
-        - creates/merges the container record
-        - enforces meta.address + hub wormhole
-        - writes global registry
-        Idempotent (runs only once per container id per runtime boot).
-        """
         cid = container.get("id")
         if not cid or cid in self._registered_once:
             return
         try:
-            # register_container enforces address+wormhole+registry (per your UCSRuntime patch)
             self.ucs.register_container(cid, container)
-            # save_container re-enforces and marks active
             self.ucs.save_container(cid, container)
             self._registered_once.add(cid)
-            # (optional) geometry notify—safe if you want more visuals:
+
             if container.get("geometry"):
                 try:
                     self.geometry_loader.register_geometry(
@@ -389,12 +380,10 @@ class ContainerRuntime:
         microgrid = self.vault_manager.get_microgrid()
         glyph_data = microgrid.export_index()
 
-        # ✅ Inject SoulLaw collapse trace into container metadata
         from backend.modules.codex.symbolic_key_deriver import export_collapse_trace_with_soullaw_metadata
         try:
             avatar_state = self.state_manager.get_avatar_state()
             identity = avatar_state.get("id") if avatar_state else None
-
             collapse_metadata = export_collapse_trace_with_soullaw_metadata(identity=identity)
             container["collapse_metadata"] = collapse_metadata
             print("🔐 Injected SoulLaw collapse trace into container metadata.")
@@ -431,7 +420,6 @@ class ContainerRuntime:
             }
         }
 
-        # ✅ Register forked container in state manager
         self.state_manager.all_containers[entangled_id] = forked_container
         print(f"🌌 Forked entangled container: {entangled_id}")
 

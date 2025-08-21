@@ -1,5 +1,5 @@
 # backend/modules/sqi/sqi_tessaris_bridge.py
-
+from __future__ import annotations
 from typing import Dict, Any, List, Optional, Tuple
 
 # Use the active singleton/instance exposed by UCS
@@ -215,13 +215,11 @@ def execute_route(plan: Dict[str, Any], ctx: Dict[str, Any]) -> Dict[str, Any]:
     return out
 
 # ── Existing SQI ↔ Tessaris bridge (left intact) ─────────────────────────────
-
-from backend.modules.tessaris.tessaris_engine import TessarisEngine
 from backend.modules.sqi.entangler_engine import EntanglerEngine
 from backend.modules.sqi.glyph_collapse_trigger import GlyphCollapseTrigger
 
 class SQITessarisBridge:
-    def __init__(self, tessaris_engine: TessarisEngine):
+    def __init__(self, tessaris_engine: "TessarisEngine"):
         self.tessaris = tessaris_engine
         self.entangler = EntanglerEngine()
         self.collapser = GlyphCollapseTrigger()

@@ -140,12 +140,30 @@ class CodexMetrics:
     def record_entangled_pair(self):
         self.metrics["entangled_pairs"] += 1
 
+    def record_mutation_test(self, glyph: str, suggestion: Any, success: bool, context: Dict[str, Any]):
+        try:
+            self.record_event("mutation_test", {
+                "glyph": glyph,
+                "success": success,
+                "suggestion": suggestion,
+                "container": context.get("container_id"),
+                "tags": ["mutation", "rewrite", "codex"]
+            })
+        except Exception as e:
+            logger.warning(f"[CodexMetrics] Failed to record mutation test: {e}")
+
     def record_confidence_event(self, score: float):
         self.metrics["confidence_events"] += 1
         bounded = max(0.0, min(1.0, score))
         self.confidence_scores.append(bounded)
         if len(self.confidence_scores) > 100:
             self.confidence_scores = self.confidence_scores[-100:]
+
+    def record_glyph_generated(self, glyph: dict, source: str = "creative_synthesis"):
+        self.metrics["glyphs_generated"] = self.metrics.get("glyphs_generated", 0) + 1
+        label = glyph.get("glyph") or glyph.get("label") or "unknown"
+        self.by_glyph[label] += 1
+        self.by_source[source] += 1
 
     def record_blindspot_event(self, reason: str, glyph: str, meta: dict = None):
         self.metrics["blindspot_events"] += 1
@@ -248,6 +266,45 @@ class CodexMetrics:
 # ─────────────────────────────────────────────────────────────────────────────
 # Utilities
 # ─────────────────────────────────────────────────────────────────────────────
+def record_mutation_event(event: dict) -> None:
+    """
+    Record a DNA mutation event into Codex metrics/logs.
+
+    Args:
+        event: A mutation dictionary with keys like original, mutated, metadata, etc.
+    """
+    if not isinstance(event, dict):
+        return
+
+    print(f"[CodexMetrics] Mutation recorded — reason: {event.get('metadata', {}).get('reason', 'unknown')}")
+
+    entropy = event.get("metadata", {}).get("entropy_delta")
+    success = event.get("metadata", {}).get("rewrite_success_prob")
+
+    if entropy is not None:
+        print(f"  ⤷ Entropy Δ: {entropy}")
+    if success is not None:
+        print(f"  ⤷ Success Prob: {success}")
+
+def record_sqi_score_event(event: dict) -> None:
+    """
+    Record an SQI scoring event during glyph mutation analysis.
+
+    Args:
+        event: Dictionary with mutation_id, goal_match_score, entropy_delta, etc.
+    """
+    log_entry = {
+        "type": "sqi_score",
+        "timestamp": event.get("timestamp"),
+        "mutation_id": event.get("mutation_id"),
+        "container_id": event.get("container_id"),
+        "goal_match_score": event.get("goal_match_score"),
+        "rewrite_success_prob": event.get("rewrite_success_prob"),
+        "entropy_delta": event.get("entropy_delta"),
+    }
+
+    # You can later route this to a metrics DB or .dc file
+    print(f"[CodexMetrics] SQI Score Event → {log_entry}")
 
 def score_glyph_tree(tree):
     score = 0
@@ -300,3 +357,4 @@ __all__ = [
     "calculate_glyph_cost",
     "log_benchmark_result",
 ]
+codex_metrics = CodexMetrics()

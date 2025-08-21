@@ -12,16 +12,15 @@ from backend.modules.dna_chain.switchboard import DNA_SWITCH
 DNA_SWITCH.register(__file__)
 
 # Core imports
-from backend.modules.consciousness.state_manager import StateManager
 from backend.modules.aion.dream_core import DreamCore
 from backend.modules.hexcore.memory_engine import MEMORY, store_container_metadata
 
 # Test container path
 CONTAINER_PATH = "backend/modules/dimensions/containers/test_mutation.dc.json"
+from backend.modules.consciousness.state_manager import state_manager
 
 def main():
     print(f"🧪 Loading container from: {CONTAINER_PATH}")
-    state_manager = StateManager()
     container = state_manager.load_container_from_file(CONTAINER_PATH)
 
     print("🧠 Storing container metadata in memory...")

@@ -2,6 +2,7 @@ from datetime import datetime
 import os, json
 from typing import Dict, Any
 from copy import deepcopy
+from backend.modules.lean.lean_utils import is_lean_container
 
 def get_state(engine) -> Dict[str, Any]:
     """Returns current engine state snapshot with harmonics and SQI context."""
@@ -20,7 +21,6 @@ def get_state(engine) -> Dict[str, Any]:
         "last_sqi_adjustments": getattr(engine, "last_sqi_adjustments", {}),
         "tick_count": getattr(engine, "tick_count", 0),
     }
-
 
 def set_state(engine, state: Dict[str, Any]):
     """Restores engine state from a snapshot with harmonic validation and container sync."""
@@ -55,23 +55,15 @@ def set_state(engine, state: Dict[str, Any]):
         if hasattr(engine, "_resync_harmonics"):
             engine._resync_harmonics()
 
-    # ✅ Logging
     print(f"✅ Engine state restored: {stage_name} ({len(engine.particles)} particles)")
 
-
 def compute_score(engine):
-    """
-    Calculates stability score factoring:
-    • Drift penalty (low = better)
-    • Exhaust penalty (energy spikes)
-    • SQI bonus (if drift improves)
-    • Harmonic coherence weight
-    """
+    """Calculates stability score: drift, exhaust, SQI, harmonic weight."""
     drift_window = engine.resonance_filtered[-10:]
     drift_penalty = (max(drift_window) - min(drift_window)) if drift_window else 0.0
     exhaust_penalty = sum(e.get("impact_speed", 0) for e in engine.exhaust_log[-5:]) / max(len(engine.exhaust_log[-5:]), 1)
 
-    # ✅ SQI bonus
+    # SQI bonus if drift improves
     sqi_bonus = 0.0
     if getattr(engine, "last_sqi_adjustments", {}):
         prev_drift = getattr(engine, "_prev_drift_for_score", drift_penalty)
@@ -79,7 +71,7 @@ def compute_score(engine):
             sqi_bonus = 0.3
         engine._prev_drift_for_score = drift_penalty
 
-    # ✅ Harmonic coherence weight
+    # Harmonic coherence bonus
     coherence = getattr(engine, "last_harmonic_coherence", 1.0)
     harmonic_bonus = (coherence - 0.7) * 0.5 if coherence else 0.0
 
@@ -89,14 +81,12 @@ def compute_score(engine):
     score = -(drift_penalty * 1.5 + exhaust_penalty) + sqi_bonus + harmonic_bonus
     print(f"🏆 [Score] Drift={drift_penalty:.3f}, Exhaust={exhaust_penalty:.2f}, SQI Bonus={sqi_bonus:.2f}, Harmonic Bonus={harmonic_bonus:.2f} → Score={score:.4f}")
 
-    # Auto-track best score if improved
     if engine.best_score is None or score > engine.best_score:
         engine.best_score = score
         engine.best_fields = deepcopy(engine.fields)
         engine.best_particles = deepcopy(engine.particles)
 
     return score
-
 
 def export_best_state(engine):
     """Exports best engine state snapshot (with harmonics)."""
@@ -114,8 +104,6 @@ def export_best_state(engine):
     with open(best_path, "w") as f:
         json.dump(data, f, indent=2)
     print(f"💾 Best state exported: {best_path}")
-
-from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.state_snapshot import get_state, set_state
 
 # ===============================
 # 🧠 Class Wrapper (StateManager)
@@ -136,3 +124,18 @@ class StateManager:
     @staticmethod
     def export_best_snapshot(engine):
         return export_best_state(engine)
+
+    @staticmethod
+    def get_current_container():
+        """Stub to satisfy ContainerRuntime contract — unused in CreativeCore."""
+        return None
+
+    @staticmethod
+    def get_current_container_id() -> str:
+        """Stub to satisfy ContainerRuntime contract — static test ID."""
+        return "atom_electrons_test"
+
+    @staticmethod
+    def set_current_container(container_id: str):
+        """Stub — no runtime container switching in this context."""
+        pass

@@ -1,9 +1,10 @@
 import re
+from backend.modules.symbolic.codex_ast_types import CodexAST
 
 def parse_codexlang_to_ast(expression: str) -> dict:
     """
     Converts a simple CodexLang expression to a pseudo-AST structure.
-    For now, supports only ∀x. P(x) → Q(x)
+    Currently supports only the pattern: ∀x. P(x) → Q(x)
     """
     if "∀" in expression and "→" in expression:
         # Example: ∀x. P(x) → Q(x)
@@ -21,3 +22,10 @@ def parse_codexlang_to_ast(expression: str) -> dict:
             }
 
     raise ValueError(f"Unsupported or invalid CodexLang: {expression}")
+
+def parse_codex_ast_from_json(ast_json: dict) -> CodexAST:
+    """
+    Parses a Codex AST from a JSON object and returns a CodexAST instance.
+    This is used by the Codex mutation API endpoint.
+    """
+    return CodexAST(**ast_json)

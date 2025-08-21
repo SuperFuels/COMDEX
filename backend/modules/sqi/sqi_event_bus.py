@@ -21,6 +21,12 @@ import threading
 from collections import OrderedDict
 from typing import Dict, Callable, Optional
 
+from datetime import datetime
+from backend.modules.codex.codex_metrics import record_sqi_score_event
+from backend.modules.knowledge_graph.knowledge_graph_writer import write_glyph_event
+from backend.modules.symbolic.symbolic_broadcast import broadcast_glyph_event
+
+
 # -----------------------------------------------------------------------------
 # Environment flags
 # -----------------------------------------------------------------------------
@@ -326,6 +332,57 @@ if os.getenv("SQI_HEARTBEAT", "true").lower() == "true":
         iv = 5.0
     emit_heartbeat(interval=iv)
 
+def emit_sqi_mutation_score_if_applicable(event: Dict[str, Any]) -> None:
+    """
+    Emit SQI score and feedback based on mutation evaluation metadata.
+
+    Args:
+        event: A mutation dictionary containing:
+            - metadata.entropy_delta (float)
+            - metadata.rewrite_success_prob (float)
+            - metadata.goal_match_score (float)
+            - original (dict)
+            - mutated (dict)
+    """
+    if not isinstance(event, dict):
+        return
+
+    metadata = event.get("metadata", {})
+    delta = metadata.get("entropy_delta")
+    success_prob = metadata.get("rewrite_success_prob")
+    goal_score = metadata.get("goal_match_score")
+    container_id = event.get("metadata", {}).get("container_id") or event.get("container_id")
+
+    score_payload = {
+        "timestamp": datetime.utcnow().isoformat(),
+        "event_type": "SQI_MUTATION_EVAL",
+        "container_id": container_id,
+        "entropy_delta": delta,
+        "rewrite_success_prob": success_prob,
+        "goal_match_score": goal_score,
+        "mutation_id": event.get("mutation_id"),
+    }
+
+    # 📊 1. Record the event for long-term metric tracking
+    record_sqi_score_event(score_payload)
+
+    # 🧠 2. Write to .dc container trace (via KG)
+    write_glyph_event(
+        container_id=container_id,
+        glyph=event.get("mutated", {}),
+        event_type="sqiMutationScore",
+        metadata=score_payload
+    )
+
+    # 🌐 3. Emit via GlyphNet WebSocket
+    broadcast_glyph_event({
+        "type": "sqi_score_event",
+        "container_id": container_id,
+        "payload": score_payload
+    })
+
+    # 🧾 Optional CLI/Dev log
+    print(f"[SQI] Mutation ΔEntropy={delta}, Success={success_prob}, GoalScore={goal_score}")
 # -----------------------------------------------------------------------------
 # Cleanup
 # -----------------------------------------------------------------------------

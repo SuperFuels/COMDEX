@@ -8,8 +8,8 @@ from backend.modules.glyphvault.vault_logger import log_event
 from backend.modules.glyphvault.vault_audit import VAULT_AUDIT
 
 def get_state():
-    from backend.modules.consciousness.state_manager import STATE
-    return STATE
+    from backend.modules.consciousness.state_manager_module import StateManager
+    return StateManager
 
 VAULT_DIR = os.path.join(os.path.dirname(__file__), "../../vault_snapshots")
 os.makedirs(VAULT_DIR, exist_ok=True)
@@ -157,6 +157,7 @@ class VaultManager:
             return True
         return False
 
+# 🔐 Vault singleton
 from backend.modules.glyphvault.key_manager import key_manager
 ENCRYPTION_KEY = key_manager.key
 VAULT = VaultManager(ENCRYPTION_KEY)

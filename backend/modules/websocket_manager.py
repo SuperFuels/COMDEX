@@ -1,8 +1,11 @@
 from fastapi import WebSocket
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, TYPE_CHECKING
 from collections import defaultdict
 import asyncio
 import json
+
+if TYPE_CHECKING:
+    from backend.modules.symbolic_engine.math_logic_kernel import LogicGlyph
 
 class WebSocketClient:
     def __init__(self, websocket: WebSocket):
@@ -81,5 +84,27 @@ manager = websocket_manager  # <-- added
 async def broadcast_event(tag: str, payload: Dict[str, Any]):
     await websocket_manager.broadcast(payload, tag=tag)
 
+# ✅ New symbolic glyph broadcaster
+async def broadcast_symbolic_glyph(glyph: "LogicGlyph"):
+    """
+    Broadcasts a newly generated symbolic glyph to WebSocket listeners.
+    """
+    payload = {
+        "type": "symbolic_glyph",
+        "glyph": glyph.to_dict() if hasattr(glyph, "to_dict") else str(glyph),
+    }
+    await broadcast_event("symbolic_glyph", payload)
+
+# ✅ Legacy alias for compatibility
+async def send_ws_message(payload: Dict[str, Any], tag: Optional[str] = None):
+    await broadcast_event(tag, payload)
+
 # Optional: make public API explicit
-__all__ = ["WebSocketManager", "websocket_manager", "manager", "broadcast_event"]
+__all__ = [
+    "WebSocketManager",
+    "websocket_manager",
+    "manager",
+    "broadcast_event",
+    "broadcast_symbolic_glyph",
+    "send_ws_message",  # <- included now
+]

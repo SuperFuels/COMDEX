@@ -88,3 +88,12 @@ class TraceIndex:
         for e in self.events:
             counts[e.op] = counts.get(e.op, 0) + 1
         return counts
+
+
+def inject_trace_event(container: Dict, event: Dict):
+    """
+    Injects a symbolic trace event into the container's 'trace' stream.
+    """
+    if "trace" not in container:
+        container["trace"] = []
+    container["trace"].append(event)

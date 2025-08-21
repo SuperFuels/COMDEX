@@ -197,6 +197,8 @@ from backend.api import teleport_handler
 from backend.routes.teleport_api import router as teleport_api
 from backend.api import symbolic_ingestion_api
 from backend.api.symbolic_ingestion_api import router as symbolic_router
+from backend.routes import codex_mutate
+from backend.api import symbol_tree
 
 # ✅ WebSocket route
 from backend.api import ws
@@ -298,6 +300,8 @@ app.include_router(teleport_handler.router)
 app.include_router(teleport_api) 
 app.include_router(symbolic_ingestion_api.router)
 app.include_router(symbolic_router)
+app.include_router(codex_mutate.router)
+app.include_router(symbol_tree.router)
 
 # ── 16) Serve uploaded images
 app.mount("/uploaded_images", StaticFiles(directory="uploaded_images"), name="uploaded_images")
@@ -335,6 +339,10 @@ def health_check():
     except OperationalError:
         logger.error("❌ Database connection failed.", exc_info=True)
         return {"status": "error", "database": "not connected"}
+
+@app.websocket("/websocket/symbol_tree/{container_id}")
+async def websocket_endpoint(websocket: WebSocket, container_id: str):
+    await stream_symbol_tree(websocket, container_id)
 
 # ── 20) Dream cycle endpoint for Cloud Scheduler
 @app.post("/api/aion/run-dream")

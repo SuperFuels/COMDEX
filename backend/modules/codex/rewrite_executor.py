@@ -1,9 +1,13 @@
 import copy
+import json
 from backend.modules.codex.codex_metrics import CodexMetrics
 from backend.modules.symbolic_engine.math_logic_kernel import LogicGlyph
-from backend.modules.symbolic_engine.rewriters.codex_lang_rewriter import CodexLangRewriter
-from backend.modules.symbolic_engine.rewriters.simplifier import suggest_rewrite_candidates
-from backend.modules.knowledge_graph.knowledge_trace_utils import inject_into_trace
+from backend.modules.codex.codexlang_rewriter import (
+    CodexLangRewriter,
+    suggest_rewrite_candidates,
+)
+from backend.modules.knowledge_graph.knowledge_graph_writer import inject_into_trace
+
 
 def auto_mutate_container(container: dict, autosave: bool = False) -> dict:
     """
@@ -18,6 +22,7 @@ def auto_mutate_container(container: dict, autosave: bool = False) -> dict:
     mutated = copy.deepcopy(container)
     mutation_trace = []
 
+    # Check multiple sections where glyphs may exist
     sections = ["glyphs", "glyph_grid", "electrons"]
 
     for section in sections:
@@ -51,19 +56,19 @@ def auto_mutate_container(container: dict, autosave: bool = False) -> dict:
                         "rewritten": codex_form,
                         "reason": suggestion.get("reason", "unspecified")
                     })
-                    break  # Apply only first suggestion
+                    break  # Apply only the first suggestion
 
     if mutation_trace:
         inject_into_trace(mutated, {
             "event": "auto_mutation",
             "details": mutation_trace
         })
+
         CodexMetrics.record_mutation_event(mutated.get("id", "unknown"), mutation_trace)
 
         print(f"🧬 Auto-mutation applied: {len(mutation_trace)} rewrites")
 
         if autosave and "id" in mutated:
-            import json
             out_path = f"containers/{mutated['id']}.dc.json"
             with open(out_path, "w") as f:
                 json.dump(mutated, f, indent=2)
@@ -72,3 +77,39 @@ def auto_mutate_container(container: dict, autosave: bool = False) -> dict:
         print("ℹ️ No rewrites were applicable.")
 
     return mutated
+
+
+def apply_rewrite(glyph: LogicGlyph, goal_context=None):
+    """
+    Attempt a symbolic rewrite on the given glyph.
+    Uses CodexLangRewriter and simplifier utilities.
+
+    Args:
+        glyph: LogicGlyph to mutate or simplify.
+        goal_context: Optional goal alignment context (for scoring).
+
+    Returns:
+        A tuple of (rewritten_glyph, trace_entry)
+    """
+    rewriter = CodexLangRewriter()
+    candidates = suggest_rewrite_candidates(glyph)
+
+    if not candidates:
+        return glyph, {
+            "type": "rewrite",
+            "status": "no_candidates",
+            "original": glyph.to_dict()
+        }
+
+    # Use first candidate
+    new_glyph = rewriter.apply_rewrite(glyph, candidates[0])
+
+    trace_entry = {
+        "type": "rewrite",
+        "original": glyph.to_dict(),
+        "candidate": candidates[0],
+        "rewritten": new_glyph.to_dict(),
+        "status": "success"
+    }
+
+    return new_glyph, trace_entry

@@ -3,6 +3,10 @@
 import uuid
 from typing import List, Dict, Any
 
+from backend.modules.symbolic_engine.math_logic_kernel import LogicGlyph
+from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter
+from backend.modules.codex.codex_lang_rewriter import CodexLangRewriter
+
 class QGlyphGenerator:
     def __init__(self):
         self.generated = []
@@ -34,3 +38,34 @@ class QGlyphGenerator:
 
     def get_generated_log(self) -> List[Dict[str, Any]]:
         return self.generated
+
+# -------------------------
+# ✅ ADDITION: String → QGlyph Parser
+# -------------------------
+
+def generate_qglyph_from_string(raw_string: str, metadata: dict = None) -> LogicGlyph:
+    """
+    Converts a raw symbolic string into a Q-Glyph compatible LogicGlyph,
+    with metadata injected and KG registration.
+
+    Args:
+        raw_string (str): Symbolic logic string.
+        metadata (dict): Optional container, trace, entanglement info.
+
+    Returns:
+        LogicGlyph: QGlyph-compatible logic glyph.
+    """
+    glyph = CodexLangRewriter.parse_string_to_glyph(raw_string)
+
+    # Mark as QGlyph and inject metadata
+    if metadata:
+        glyph.metadata.update(metadata)
+
+    glyph.metadata["qglyph"] = True
+    glyph.metadata["source"] = "QGlyphGen"
+    glyph.metadata["entangled"] = metadata.get("entangled", False) if metadata else False
+
+    # Inject into Knowledge Graph
+    KnowledgeGraphWriter.inject_glyph(glyph)
+
+    return glyph

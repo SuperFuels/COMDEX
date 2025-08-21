@@ -77,12 +77,12 @@ end
 %% STEP 3: SYMBOLIC ⇄ LEAN CONVERSION
 %% =========================
 subgraph CONV [🔄 Symbolic ⇄ Lean Conversion Pipeline]
-    CONV1["`symbolic_to_lean.py`: Symbolic AST → Lean export"]
-    CONV2["`lean_to_symbolic.py`: Lean proof → Symbolic glyphs"]
-    CONV3["`symbolic_explainer.py`: Glyph → English trace"]
-    CONV4["Embed both symbolic + Lean versions in each `.dc` container"]
-    CONV5["Round-trip verification: Lean proof validation"]
-    CONV6["Hologram tagging: embed proof state as GHX object"]
+    CONV1[✅"`symbolic_to_lean.py`: Symbolic AST → Lean export"]
+    CONV2[✅"`lean_to_symbolic.py`: Lean proof → Symbolic glyphs"]
+    CONV3[✅"`symbolic_explainer.py`: Glyph → English trace"]
+    CONV4[✅"Embed both symbolic + Lean versions in each `.dc` container"]
+    CONV5[✅"Round-trip verification: Lean proof validation"]
+    CONV6[✅"Hologram tagging: embed proof state as GHX object"]
 end
 
 %% =========================

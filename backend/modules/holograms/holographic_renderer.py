@@ -87,6 +87,12 @@ class HolographicRenderer:
                 })
 
         self.rendered_projection = projection
+        try:
+            from backend.modules.hologram.symbolic_hsx_bridge import SymbolicHSXBridge
+            SymbolicHSXBridge.broadcast_glyphs(projection, observer=self.observer_id)
+        except Exception:
+            logger.warning("HSXBridge not available, skipping overlay broadcast.")
+            
         return projection
 
     def _is_visible_to_observer(self, glyph: Dict[str, Any]) -> bool:

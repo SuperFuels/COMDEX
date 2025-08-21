@@ -270,17 +270,19 @@ class MilestoneTracker:
         in the symbolic reasoning chain is detected.
         """
         from backend.modules.glyphos.glyph_executor import GlyphExecutor
-        from backend.modules.consciousness.state_manager import StateManager
+        from backend.modules.consciousness.state_manager import state_manager  # ✅ shared instance
 
         print(f"🔄 {reason}")
         try:
-            # Create a temporary GlyphExecutor to dispatch ⮁ glyph trigger
-            state_manager = StateManager()
+            # Use shared state_manager instance
             executor = GlyphExecutor(state_manager)
 
-            # For demonstration, triggering at a default coordinate; replace as needed
-            # Alternatively, you can parameterize x,y,z coordinates or container_id
-            await executor.trigger_glyph_remotely(container_id=state_manager.get_current_container_id(), x=0, y=0, z=0, source="MilestoneTracker")
+            # Trigger ⮁ at origin (or update coordinates if needed)
+            await executor.trigger_glyph_remotely(
+                container_id=state_manager.get_current_container_id(),
+                x=0, y=0, z=0,
+                source="MilestoneTracker"
+            )
             print("✅ Self-rewrite glyph ⮁ triggered successfully.")
         except Exception as e:
             print(f"⚠️ Failed to trigger self-rewrite glyph: {e}")

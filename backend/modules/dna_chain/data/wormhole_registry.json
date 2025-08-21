@@ -124,5 +124,12 @@
     "meta": {
       "reason": "auto_hub"
     }
+  },
+  "atom_electrons_test→ucs_hub": {
+    "from": "atom_electrons_test",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
   }
 }

@@ -17,6 +17,10 @@ from backend.modules.dimensions.universal_container_system.ucs_runtime import uc
 from backend.modules.dimensions.universal_container_system.ucs_base_container import UCSBaseContainer
 from backend.modules.dimensions.universal_container_system.ucs_geometry_loader import UCS_TEMPLATE_DIR
 
+# ✅ NEW import for runtime fix
+from backend.modules.runtime.container_runtime import ContainerRuntime
+from backend.modules.consciousness.state_manager import StateManager
+
 
 def load_container_from_json(container_json: Dict[str, Any]) -> Union[UCSBaseContainer, HobermanContainer, SymbolicExpansionContainer, Dict[str, Any]]:
     """
@@ -89,13 +93,19 @@ def auto_load_all_templates():
             containers[container.name if hasattr(container, "name") else file] = container
     return containers
 
+
 def load_decrypted_container(container_id: str) -> dict:
-    # TEMP STUB — replace with real decryption/load logic
-    from backend.modules.runtime.container_runtime import get_decrypted_current_container
-    return get_decrypted_current_container(container_id)
+    """
+    Securely load a decrypted container using the active runtime instance.
+    """
+    state_manager = StateManager()
+    runtime = ContainerRuntime(state_manager)
+    return runtime.get_decrypted_current_container(container_id)
+
 
 __all__ = [
     "load_container_from_json",
     "load_container_from_file",
     "auto_load_all_templates",
+    "load_decrypted_container",
 ]

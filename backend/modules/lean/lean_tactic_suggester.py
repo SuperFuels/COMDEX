@@ -2,7 +2,7 @@
 
 from typing import List, Dict, Optional
 from backend.modules.codex.codex_trace import CodexTrace
-from backend.modules.codex.codex_lang_rewriter import suggest_rewrite_candidates
+from backend.modules.codex.codexlang_rewriter import suggest_rewrite_candidates
 from backend.modules.codex.codex_ast_encoder import parse_codexlang_to_ast
 import logging
 

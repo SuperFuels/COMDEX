@@ -56,8 +56,10 @@ class GlyphRuntime:
 
 # Optional CLI runner
 if __name__ == "__main__":
+    import asyncio
+    from backend.modules.consciousness.state_manager import state_manager
+
     async def main():
-        state_manager = StateManager()
         runtime = GlyphRuntime(state_manager)
         await runtime.run(duration_seconds=10)
 

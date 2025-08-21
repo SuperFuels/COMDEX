@@ -5688,9 +5688,4897 @@
       "domain": "physics_core",
       "category": "qft",
       "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "newton_laws",
+      "label": "Newton's Laws",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "mech",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "maxwell_eqs",
+      "label": "Maxwell's Eqns",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "em",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "first_law",
+      "label": "1st Law",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "thermo",
+      "type": "kg_node"
+    },
+    {
+      "node_id": "dirac_field",
+      "label": "Dirac Field",
+      "source": "physics_core",
+      "domain": "physics_core",
+      "category": "qft",
+      "type": "kg_node"
     }
   ],
   "links": [
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
+    {
+      "src": "newton_laws",
+      "dst": "maxwell_eqs",
+      "relation": "informs"
+    },
+    {
+      "src": "first_law",
+      "dst": "maxwell_eqs",
+      "relation": "constraints"
+    },
+    {
+      "src": "dirac_field",
+      "dst": "maxwell_eqs",
+      "relation": "couples"
+    },
     {
       "src": "newton_laws",
       "dst": "maxwell_eqs",

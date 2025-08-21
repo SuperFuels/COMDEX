@@ -36,9 +36,9 @@ from backend.modules.codex.metric_utils import estimate_glyph_cost
 from backend.modules.lean.lean_proofverifier import is_logically_valid
 from backend.modules.codex.rewrite_executor import apply_rewrite
 from backend.modules.codex.dna_mutation_tracker import add_dna_mutation
-from backend.modules.glyphos.glyph_broadcast import broadcast_prediction_event
-from backend.modules.prediction.prediction_utils import extract_prediction_path, score_predictive_path, detects_conflicting_predicts
-from backend.modules.codex.codexlang_rewriter import CodexLangRewriter, suggest_rewrite_candidates, suggest_simplifications
+from backend.modules.symbolic.symbolic_broadcast import broadcast_glyph_event
+from backend.modules.codex.codexlang_rewriter import CodexLangRewriter, suggest_rewrite_candidates
+from backend.modules.prediction.suggestion_engine import suggest_simplifications
 
 try:
     from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter
@@ -388,11 +388,15 @@ class PredictionEngine:
         trace["predictionInjected"] = True
         trace["predictionResult"] = result
 
-    def _trigger_rewrite_if_needed(self, ast_or_raw: dict, result: dict):
-        """If contradiction found, invoke Codex self-rewrite logic."""
+    def _trigger_rewrite_if_needed(self, ast_or_raw: dict, result: dict) -> None:
+        """
+        Check the AST or raw input for logical contradictions or simplification opportunities.
+        If any are found, annotate the result with rewrite suggestions.
+        """
         from backend.modules.prediction.suggestion_engine import suggest_simplifications
 
         suggestions = suggest_simplifications(ast_or_raw)
+
         if suggestions:
             result["rewriteSuggestions"] = suggestions
             result["status"] = "rewrite_suggested"
@@ -431,152 +435,95 @@ class PredictionEngine:
                         "reason": "⚛ Contradiction: P(x) ∧ ¬P(x) detected",
                         "score": 0.95
                     }
-
         return None
-        @staticmethod
-        def suggest_simplifications(ast: dict) -> dict:
-            """
-            Analyze the AST for possible simplifications or rewrites to resolve contradictions.
-            Includes prediction, symbolic suggestion, and scoring.
-            """
-            from backend.modules.codex.codex_metric import CodexMetrics
-            from backend.modules.consciousness.goal_engine import GoalEngine
-            from backend.modules.symbolic_engine.logic_prediction_utils import detect_contradictions
 
-            def symbolic_suggestion(node: Dict[str, Any]) -> str | None:
-                """
-                Suggests: ¬(P → Q) ⇒ P ∧ ¬Q (implication negation rule)
-                """
-                if node.get("type") == "not":
-                    inner = node.get("value", {})
-                    if inner.get("type") == "implies":
-                        return "🧬 Simplification: ¬(P → Q) ⇒ P ∧ ¬Q"
-                return None
+    @classmethod
+    def run_prediction_on_container(cls, container: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        """
+        Full prediction pipeline with:
+        - AST inspection
+        - Contradiction detection (glyph + logic)
+        - Rewrite suggestion
+        - .dc.json trace injection
+        - SQI scoring
+        - Lean proof verification
+        - Optional live application + DNA mutation
+        """
+        contradiction_found = False
+        scored = []
 
-            result: Dict[str, Any] = {}
+        # 🧠 Check for glyph-level contradictions and SQI scoring
+        for glyph in container.get("glyph_grid", []):
+            if "Predicts" in glyph.get("text", ""):
+                path = extract_prediction_path(glyph["text"])
+                score = score_predictive_path(path)
+                glyph.setdefault("metadata", {})["sqiScore"] = score
 
-            # 🔍 Primary prediction logic
-            if ast.get("type") == "implication":
-                result["prediction"] = "Q(x) likely true if P(x) true"
-                result["reasoning"] = "Based on implication structure."
-            elif ast.get("type") == "forall":
-                result["prediction"] = "Applies universally; may require counterexample search."
-                result["reasoning"] = "Universal quantifier detected"
-            else:
-                result["prediction"] = "Unable to infer"
-                result["reasoning"] = "Unhandled AST type"
+                if "¬" in glyph["text"] or detects_conflicting_predicts(glyph["text"], container["glyph_grid"]):
+                    glyph.setdefault("metadata", {})["contradictionDetected"] = True
+                    contradiction_found = True
 
-            # 🔎 Detect contradiction
-            contradiction = detect_contradictions(ast)
-            if contradiction:
-                result["contradiction"] = contradiction
+        # 📘 Logic-level contradiction detection + rewrite scoring
+        expr = container.get("logic", {}).get("expression")
+        if expr:
+            suggestions = suggest_rewrite_candidates(expr)
 
-            # 🧬 Suggest symbolic simplification
-            simplification = symbolic_suggestion(ast)
-            if simplification:
-                result["simplification"] = simplification
+            for s in suggestions:
+                original = s.get("from")
+                proposed = s.get("to")
+                reason = s.get("reason", "unspecified")
 
-                # Example placeholder rewrite structure (expand later)
-                suggested_rewrite = {
-                    "type": "replace_node",
-                    "target": "¬(P → Q)",
-                    "replacement": "P ∧ ¬Q"
+                score = cls.score_rewrite_suggestion(original, proposed, container)
+                valid = is_logically_valid(proposed)
+
+                trace_entry = {
+                    "from": original,
+                    "to": proposed,
+                    "reason": reason,
+                    "entropy_delta": score["entropy_delta"],
+                    "goal_match_score": score["goal_match_score"],
+                    "rewrite_success_prob": score["rewrite_success_prob"],
+                    "logically_valid": valid
                 }
+                scored.append(trace_entry)
 
-                # 🎯 Active goal scoring
-                active_goals = GoalEngine.get_active_goals()
-                goal_score = CodexMetrics.score_alignment(suggested_rewrite, active_goals)
-                success_prob = CodexMetrics.estimate_rewrite_success(suggested_rewrite)
+                # Inject into .dc.json trace
+                container.setdefault("trace", {}).setdefault("predictions", {}).setdefault("rewrites", []).append(trace_entry)
 
-                result["rewrite"] = suggested_rewrite
-                result["goal_match_score"] = goal_score
-                result["rewrite_success_prob"] = success_prob
+                # ✅ Apply live rewrite if valid and confident
+                if valid and score["rewrite_success_prob"] > 0.8:
+                    apply_rewrite(container.get("id"), proposed)
+                    add_dna_mutation(original, proposed, reason=reason)
 
-            return result
+                # 🌐 Broadcast via Codex WebSocket
+                broadcast_glyph_event(
+                    event_type="prediction",
+                    glyph=trace_entry.get("glyph") or trace_entry.get("proposed"),
+                    container_id=container.get("id"),
+                    coord=trace_entry.get("coord", "0:0"),
+                    extra={
+                        "score": score,
+                        "reason": reason,
+                        "origin": "prediction_engine"
+                    }
+                )
 
+        # 🎞️ Inject trace metadata
+        container.setdefault("traceMetadata", {})["predictionResult"] = {
+            "status": "contradiction" if contradiction_found else "ok",
+            "sqiTrace": True,
+            "timestamp": time.time()
+        }
 
-    from backend.modules.lean.lean_tactic_suggester import suggest_simplifications
+        # ⬁ Suggest simplifications if glyph-level contradiction was found
+        if contradiction_found:
+            container["traceMetadata"]["rewriteSuggestions"] = PredictionEngine.suggest_simplifications(container)
 
-    import time  # Ensure this is imported at the top
-
-@classmethod
-def run_prediction_on_container(cls, container: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-    """
-    Full prediction pipeline with:
-    - AST inspection
-    - Contradiction detection (glyph + logic)
-    - Rewrite suggestion
-    - .dc.json trace injection
-    - SQI scoring
-    - Lean proof verification
-    - Optional live application + DNA mutation
-    """
-    contradiction_found = False
-    scored = []
-
-    # 🧠 Check for glyph-level contradictions and SQI scoring
-    for glyph in container.get("glyph_grid", []):
-        if "Predicts" in glyph.get("text", ""):
-            path = extract_prediction_path(glyph["text"])
-            score = score_predictive_path(path)
-            glyph.setdefault("metadata", {})["sqiScore"] = score
-
-            if "¬" in glyph["text"] or detects_conflicting_predicts(glyph["text"], container["glyph_grid"]):
-                glyph.setdefault("metadata", {})["contradictionDetected"] = True
-                contradiction_found = True
-
-    # 📘 Logic-level contradiction detection + rewrite scoring
-    expr = container.get("logic", {}).get("expression")
-    if expr:
-        suggestions = suggest_rewrite_candidates(expr)
-
-        for s in suggestions:
-            original = s.get("from")
-            proposed = s.get("to")
-            reason = s.get("reason", "unspecified")
-
-            score = cls.score_rewrite_suggestion(original, proposed, container)
-            valid = is_logically_valid(proposed)
-
-            trace_entry = {
-                "from": original,
-                "to": proposed,
-                "reason": reason,
-                "entropy_delta": score["entropy_delta"],
-                "goal_match_score": score["goal_match_score"],
-                "rewrite_success_prob": score["rewrite_success_prob"],
-                "logically_valid": valid
-            }
-            scored.append(trace_entry)
-
-            # Inject into .dc.json trace
-            container.setdefault("trace", {}).setdefault("predictions", {}).setdefault("rewrites", []).append(trace_entry)
-
-            # ✅ Apply live rewrite if valid and confident
-            if valid and score["rewrite_success_prob"] > 0.8:
-                apply_rewrite(container.get("id"), proposed)
-                add_dna_mutation(original, proposed, reason=reason)
-
-            # 🌐 Broadcast via GlyphNet
-            broadcast_prediction_event(container_id=container.get("id"), event=trace_entry)
-
-    # 🎞️ Inject trace metadata
-    container.setdefault("traceMetadata", {})["predictionResult"] = {
-        "status": "contradiction" if contradiction_found else "ok",
-        "sqiTrace": True,
-        "timestamp": time.time()
-    }
-
-    # ⬁ Suggest simplifications if glyph-level contradiction was found
-    if contradiction_found:
-        from backend.modules.codex.codexlang_rewriter import suggest_simplifications
-        container["traceMetadata"]["rewriteSuggestions"] = suggest_simplifications(container)
-
-    return {
-        "status": "contradiction" if contradiction_found else "ok",
-        "rewrites": scored,
-        "detail": "Contradiction(s) flagged in glyphs" if contradiction_found else "No contradictions detected"
-    }
+        return {
+            "status": "contradiction" if contradiction_found else "ok",
+            "rewrites": scored,
+            "detail": "Contradiction(s) flagged in glyphs" if contradiction_found else "No contradictions detected"
+        }
 
     @classmethod
     def score_rewrite_suggestion(cls, original: str, proposed: str, container: Dict[str, Any]) -> Dict[str, float]:

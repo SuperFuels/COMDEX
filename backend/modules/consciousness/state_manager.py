@@ -27,7 +27,10 @@ import asyncio  # ✅ Coroutine handling
 import threading  # ✅ Pause/resume lock
 
 # ✅ Lean container support
-from backend.modules.lean.lean_utils import is_lean_universal_container_system
+from backend.modules.lean.lean_utils import (
+    is_lean_container,
+    is_lean_universal_container_system
+)
 
 # ✅ DNA Switch
 from backend.modules.dna_chain.switchboard import DNA_SWITCH
@@ -73,6 +76,7 @@ class StateManager:
             "available_containers": []
         }
         self.memory_snapshot = {}
+        self.state = {}
         self.agent_states = self.load_agent_states()
         self.current_container = None
         self.loaded_containers = {}
@@ -102,6 +106,10 @@ class StateManager:
             "vault_manager": self.vault_manager,
             "time_controller": self.time_controller,
         }
+
+    def get_avatar_state(self):
+        """Return the current avatar state if available."""
+        return self.state.get("avatar", {})
 
     # ──────────────────────────────
     # ✅ Pause/Resume Control
@@ -164,7 +172,7 @@ class StateManager:
             container = load_dimension(container_id)
 
             # ✅ Lean container detection
-            if is_lean_container(container_id) or container.get("metadata", {}).get("origin") == "lean_import":
+            if is_lean_container(container) or container.get("metadata", {}).get("origin") == "lean_import":
                 MEMORY({
                     "type": "lean_container_loaded",
                     "container_id": container_id,

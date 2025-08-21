@@ -34,6 +34,10 @@ from backend.modules.knowledge_graph.id_utils import generate_uuid
 from backend.modules.knowledge_graph.time_utils import get_current_timestamp
 from backend.modules.sqi.sqi_metadata_embedder import bake_hologram_meta, make_kg_payload
 from backend.modules.knowledge_graph.sqi_fastmap_index import sqi_fastmap
+from backend.modules.dimensions.containers.container_loader import load_decrypted_container
+from backend.modules.dimensions.universal_container_system.ucs_runtime import ucs_runtime
+from backend.modules.knowledge_graph.indexes.trace_index import inject_trace_event
+from backend.modules.codex.codex_metrics import codex_metrics
 
 # ✅ Knowledge graph and indexing
 from backend.modules.dna_chain.container_index_writer import add_to_index
@@ -1169,10 +1173,38 @@ class KnowledgeGraphWriter:
         glyphs = self.container.get("glyph_grid", [])
         return glyphs[-limit:]
 
-
 # ──────────────────────────────
 # write_glyph_entry (updated)
 # ──────────────────────────────
+
+def store_generated_glyph(glyph: Dict[str, Any]):
+    """
+    Store a generated glyph into the appropriate container and update trace metadata.
+    """
+    container_id = glyph.get("containerId") or glyph.get("targetContainer")
+    if not container_id:
+        raise ValueError("Generated glyph is missing 'containerId' or 'targetContainer' field")
+
+    container = load_decrypted_container(container_id)
+    if not container:
+        raise FileNotFoundError(f"Container '{container_id}' not found or could not be loaded.")
+
+    # Inject into symbolic trace stream
+    inject_trace_event(container, {
+        "event": "glyph_generated",
+        "glyph": glyph,
+        "timestamp": glyph.get("timestamp"),
+        "source": "creative_synthesis"
+    })
+
+    # Optional Codex/SQI log update
+    codex_metrics.record_glyph_generated(glyph)
+
+    # Persist updated container
+    ucs_runtime.save_container(container_id, container)
+
+    print(f"✅ Stored generated glyph into container '{container_id}'")
+
 def write_glyph_entry(
     glyph: str, g_type: str, g_tag: str, g_value: str, ops_chain: list,
     context: Dict[str, Any], cost, timestamp: float, tags: list,
@@ -1246,8 +1278,76 @@ def write_glyph_entry(
 
     return entry  # <-- Ensure function return stays intact
 
+def get_glyph_trace_for_container(container_id: str) -> list:
+    """
+    Retrieve the symbolic glyph trace from a container by its ID.
+    Returns a list of glyphs (or symbolic nodes) for replay / prediction.
+    """
+    from backend.modules.knowledge_graph.container_loader import load_container_by_id
+
+    container = load_container_by_id(container_id)
+    if not container:
+        raise ValueError(f"Container {container_id} not found")
+
+    # Extract trace from metadata or replay path
+    if "symbolic_trace" in container:
+        return container["symbolic_trace"]
+
+    # Optional fallback: GHX field
+    if "GHX" in container:
+        return container["GHX"].get("trace", [])
+
+    raise ValueError(f"No glyph trace found in container {container_id}")
+
+def inject_into_trace(trace: List[Dict[str, Any]], entry: Dict[str, Any]) -> List[Dict[str, Any]]:
+    """
+    Inject a symbolic rewrite, prediction, or event into a Codex or KG trace list.
+
+    Args:
+        trace: Existing execution trace list (from a .dc container or live runtime).
+        entry: A dictionary containing the trace event (e.g., rewrite, prediction, etc.).
+
+    Returns:
+        The updated trace list with the new entry appended.
+    """
+    if not isinstance(trace, list):
+        trace = []
+
+    if isinstance(entry, dict):
+        trace.append(entry)
+
+    return trace
+
+def write_glyph_event(
+    event_type: str,
+    event: dict,
+    container_id: str = None
+) -> None:
+    """
+    Write a glyph-related event (mutation, prediction, rewrite, etc.)
+    into the knowledge graph trace system.
+
+    Args:
+        event_type: Type of event (e.g. 'dna_mutation', 'rewrite', etc.)
+        event: Dictionary containing event details.
+        container_id: Optional container to tag for context.
+    """
+    if not isinstance(event, dict):
+        return
+
+    # Inject into live .dc trace if container is active
+    from backend.modules.runtime.container_runtime import VAULT
+    container = VAULT.get(container_id) if container_id else None
+
+    if container is not None:
+        container.setdefault("trace", {}).setdefault(event_type, []).append(event)
+
+    print(f"[KGWriter] Event: {event_type} → {container_id} | {event.get('reason', '')}")
+
 
 # ──────────────────────────────
 # Global KG Writer Instance
 # ──────────────────────────────
+
+__all__ = ["kg_writer", "store_generated_glyph"]
 kg_writer = KnowledgeGraphWriter()

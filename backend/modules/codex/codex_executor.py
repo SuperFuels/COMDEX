@@ -39,6 +39,16 @@ from backend.modules.dna_chain.mutation_checker import add_dna_mutation
 from backend.modules.consciousness.state_manager import STATE  # singleton instance
 from backend.modules.codex.rewrite_executor import auto_mutate_container
 
+from backend.modules.codex.codexlang_rewriter import CodexLangRewriter
+from backend.modules.codex.codex_ast_encoder import encode_codex_ast_to_glyphs
+from backend.modules.symbolic.symbolic_inference_engine import run_symbolic_inference
+from backend.modules.consciousness.logic_prediction_utils import detect_contradictions
+from backend.modules.dna_chain.dna_utils import extract_glyph_diff
+from backend.modules.dna_chain.mutation_scorer import score_mutation
+
+# ⬁ Self-Rewrite Imports
+from backend.modules.codex.scroll_mutation_engine import mutate_scroll_tree
+
 # SQI + Prediction
 from backend.modules.sqi.sqi_trace_logger import SQITraceLogger
 TessarisEngine = None
@@ -154,7 +164,8 @@ class CodexExecutor:
                 result=result,
                 tags=["codex_execution"]
             )
-                        # 🔮 Container-level Prediction (SQI Path Selection)
+
+            # 🔮 Container-level Prediction (SQI Path Selection)
             try:
                 cid = context.get("container_id")
                 if cid and isinstance(cid, str) and cid.startswith("dc_"):
@@ -206,46 +217,33 @@ class CodexExecutor:
                 suggestion = None
                 ast = instruction_tree.get("ast")
 
-                # Case 1: Lean container
-                if context.get("container_type") == "lean":
-                    try:
+                try:
+                    if context.get("container_type") == "lean":
                         from modules.lean.lean_tactic_suggester import suggest_tactic
                         suggestion = suggest_tactic(ast)
-                    except Exception as e:
-                        log_warn(f"LeanTacticSuggester failed: {e}")
+                except Exception as e:
+                    logger.warning(f"[CodexExecutor] Lean tactic suggestion failed: {e}")
 
-                # Case 2: Symbolic fallback
-                if not suggestion:
-                    try:
-                        from modules.consciousness.prediction_engine import suggest_simplifications
+                try:
+                    if not suggestion:
+                        from modules.consciousness.prediction_engine import suggest_simplifications, goal_match_score
                         suggestion = suggest_simplifications(ast)
-                    except Exception as e:
-                        log_warn(f"PredictionEngine simplification failed: {e}")
 
-                # 💡 Save suggestion if available
+                        # ✅ Optional SQI feedback if rewrite suggestion includes a rewritten glyph
+                        rewritten_glyph = suggestion.get("rewritten_glyph") if suggestion else None
+                        if glyph and rewritten_glyph:
+                            score = goal_match_score(glyph, rewritten_glyph)
+                            if score and score > 0.6:
+                                self.sqi_trace.adjust_weights(
+                                    glyph=rewritten_glyph,
+                                    feedback={"goal_match_score": score},
+                                    reason="Successful mutation alignment"
+                                )
+                except Exception as e:
+                    logger.warning(f"[CodexExecutor] Fallback simplification suggestion failed: {e}")
+
                 if suggestion:
-                    self.trace.log_event("suggested_rewrite", {
-                        "glyph": glyph,
-                        "suggestion": suggestion,
-                        "origin": "auto_rewrite",
-                        "tags": ["rewrite", "suggestion", "logic"]
-                    })
-
-                    self.sqi_trace.log_suggestion(glyph, suggestion, source="contradiction")
-
-                    broadcast_glyph_event(
-                        glyph=glyph,
-                        action="rewrite_suggestion",
-                        source=source,
-                        scroll=build_scroll_from_glyph(glyph, instruction_tree),
-                        metadata={
-                            "type": "rewrite_suggestion",
-                            "suggestion": suggestion,
-                            "container": context.get("container_id")
-                        }
-                    )
-
-                    # 🧬 DNA Mutation Trace
+                    # 📦 DNA Trace
                     add_dna_mutation(
                         label="suggested_rewrite",
                         glyph=glyph,
@@ -254,28 +252,49 @@ class CodexExecutor:
                         source_module="CodexExecutor"
                     )
 
-                    # 🎯 Goal Resolver (optional)
+                    # 🛰️ WebSocket Broadcast
+                    scroll = build_scroll_from_glyph(glyph, instruction_tree)
+                    broadcast_glyph_event(
+                        glyph=glyph,
+                        action="rewrite_suggestion",
+                        source=source,
+                        scroll=scroll,
+                        metadata={
+                            "type": "rewrite_suggestion",
+                            "suggestion": suggestion,
+                            "container": context.get("container_id")
+                        }
+                    )
+
+                    # 📊 Trace + SQI Trace
+                    self.trace.log_event("suggested_rewrite", {
+                        "glyph": glyph,
+                        "suggestion": suggestion,
+                        "origin": "auto_rewrite",
+                        "tags": ["rewrite", "suggestion"]
+                    })
+                    self.sqi_trace.log_suggestion(glyph, suggestion, source="contradiction")
+
+                    # 🎯 Goal Engine Hook
                     try:
                         from modules.goals.goal_engine import link_suggestion_to_goals
                         link_suggestion_to_goals(glyph=glyph, suggestion=suggestion, context=context)
                     except Exception as ge:
                         logger.debug(f"[CodexExecutor] Goal resolver hook failed: {ge}")
 
-                # 🔁 Self-Rewrite Invocation
+                # 🔁 Self-Rewrite Execution
                 self.run_self_rewrite(f"Contradiction: {glyph}", context=context)
 
-                # 🧠 Trace Logging
+                # 🧠 Trace + SQI Flag
                 self.trace.log_event("rewrite", {
                     "glyph": glyph,
                     "reason": reason,
                     "container": context.get("container_id"),
                     "tags": ["contradiction", "rewrite"]
                 })
-
-                # 🌀 SQI Trace Flag
                 self.sqi_trace.log_collapse(glyph, cost, entangled=True, contradiction=True)
 
-                # 🛰️ GHX + WebSocket Broadcast
+                # 🛰️ Final Broadcast for Contradiction
                 scroll = build_scroll_from_glyph(glyph, instruction_tree)
                 broadcast_glyph_event(
                     glyph=glyph,
@@ -290,9 +309,8 @@ class CodexExecutor:
                         "container": context.get("container_id")
                     }
                 )
-
             else:
-                # ⬁ Standard Scroll + Broadcast
+                # ⬁ Normal Execution Broadcast
                 scroll = build_scroll_from_glyph(glyph, instruction_tree)
                 broadcast_glyph_event(
                     glyph=glyph,
