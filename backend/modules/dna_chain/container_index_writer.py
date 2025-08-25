@@ -134,8 +134,8 @@ def add_to_index(index_name: str, entry: Dict[str, Any]):
 
     # ✅ Knowledge Graph validation (Rubric check)
     try:
-        from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter
-        kgw = KnowledgeGraphWriter()
+        from backend.modules.knowledge_graph.kg_writer_singleton import kg_writer
+        kgw = kg_writer
         container["rubric_report"] = kgw.validate_knowledge_graph()
     except Exception as e:
         container["rubric_report_error"] = f"Failed to validate rubric: {str(e)}"

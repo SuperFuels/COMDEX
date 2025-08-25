@@ -7,7 +7,7 @@ import json, os
 
 from backend.modules.sqi.sqi_math_adapter import compute_drift
 from backend.modules.sqi.kg_bridge import write_report_to_kg as write_drift_report_to_kg
-from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter
+from backend.modules.knowledge_graph.kg_writer_singleton import get_kg_writer
 
 router = APIRouter(prefix="/api/sqi/kg", tags=["SQI-KG"])
 
@@ -35,12 +35,12 @@ def push_drift(req: DriftToKGReq):
 
 @router.get("/nodes")
 def list_nodes(kind: str | None = None, limit: int = 50):
-    kg = KnowledgeGraphWriter()
+    kg = get_kg_writer()
     return {"nodes": kg.list_nodes(kind=kind, limit=limit)}
 
 @router.get("/nodes/{node_id}")
 def get_node(node_id: str):
-    kg = KnowledgeGraphWriter()
+    kg = get_kg_writer()
     node = kg.read_node(node_id)
     if not node:
         raise HTTPException(404, "node not found")
@@ -76,6 +76,7 @@ def list_ucs_containers():
 
 @router.post("/export-pack/{cid}")
 def export_pack(cid: str, filename: str | None = None):
+    kg = get_kg_writer()
     c = _get_container(cid)
     if not c:
         raise HTTPException(404, f"Container not found in UCS: {cid}")
@@ -84,14 +85,12 @@ def export_pack(cid: str, filename: str | None = None):
     out_path = Path("backend/modules/dimensions/containers/kg_exports") / out
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
-    w = KnowledgeGraphWriter()
-    saved = w.export_pack(c, out_path)
+    saved = kg.export_pack(c, out_path)
     return {"status": "ok", "file": saved}
 
-# -- Debug: compute on-disk path for a container and whether it exists
 @router.get("/container-path/{cid}")
 def get_container_path(cid: str):
-    kg = KnowledgeGraphWriter()
+    kg = get_kg_writer()
     path = kg._container_path_for(cid)  # implementation detail but handy
     exists = False
     try:

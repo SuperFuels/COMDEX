@@ -18,7 +18,7 @@ Maps glyph ancestry, traces causal paths, and injects symbolic gradient zones fo
 
 import logging
 from typing import List, Optional, Dict, Any
-from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter
+from backend.modules.knowledge_graph.kg_writer_singleton import get_kg_writer
 from backend.modules.codex.codex_metrics import CodexMetrics
 from backend.modules.glyphos.symbolic_entangler import get_entangled_for, get_entangled_targets
 from backend.modules.glyphvault.soul_law_validator import filter_unethical_feedback
@@ -35,7 +35,7 @@ class GlyphFeedbackTracer:
             container_id (str): Contextual container ID for MemoryBridge lineage tracking.
         """
         self.container_id = container_id
-        self.writer = KnowledgeGraphWriter()
+        self.writer = get_kg_writer()
         self.metrics = CodexMetrics()
         self.memory = MemoryBridge(container_id=self.container_id)  # ✅ FIXED: Pass container_id explicitly
 

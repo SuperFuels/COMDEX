@@ -19,6 +19,7 @@ from typing import Dict, Any, List, Optional
 from json import JSONDecodeError
 
 # Core subsystems
+from backend.modules.dimensions.universal_container_system.ucs_utils import normalize_container_dict
 from backend.modules.dimensions.universal_container_system.ucs_geometry_loader import (
     UCSGeometryLoader,
 )
@@ -156,6 +157,8 @@ def _normalize_atoms(obj: dict) -> List[dict]:
 # ─────────────────────────────────────────────────────────────────────────────
 # UCS Runtime (MODULE-LEVEL, not nested in GHXVisualizer)
 # ─────────────────────────────────────────────────────────────────────────────
+from backend.modules.sqi.sqi_container_registry import SQIContainerRegistry
+
 class UCSRuntime:
     def __init__(self) -> None:
         self.containers: Dict[str, Dict[str, Any]] = {}
@@ -171,6 +174,9 @@ class UCSRuntime:
         self._ghx_registered: set[str] = set()
 
         self.active_container_name: Optional[str] = None
+
+        # ✅ Add this line
+        self.container_registry = SQIContainerRegistry()
 
         # Ensure a minimal hub exists and is registered once
         if DEFAULT_HUB_ID not in self.containers:
@@ -195,6 +201,16 @@ class UCSRuntime:
                 )
             except Exception:
                 pass
+    def register(self, container):
+        """
+        Register a container into the UCS runtime system.
+        """
+        cid = getattr(container, "id", None)
+        if not cid:
+            raise ValueError("Cannot register container without an ID.")
+
+        self.containers[cid] = container
+        print(f"📦 [UCS] Registered container '{cid}'")
 
     def _ghx_register_once(self, cid: str, name: Optional[str] = None) -> None:
         if cid in self._ghx_registered:
@@ -864,39 +880,43 @@ class UCSRuntime:
     ) -> Dict[str, Any]:
         """
         Ensure a container record exists, is safely (re)merged, and ready to host atoms.
+
         - Idempotent (safe to call many times)
-        - Keeps existing fields unless explicitly overwritten by container_data
-        - Always provides `atoms` dict
-        - Enforces meta.address + hub wormhole + registry entry
-        - Maintains optional container_index (if present)
-        Returns the (updated) container dict.
+        - Preserves existing fields unless explicitly overwritten by container_data
+        - Always ensures an 'atoms' dict is present
+        - Auto-registers meta.address + wormhole link + container_index if available
+        - GHX visualizer registration is safe and optional
+        - Resilient to partial failure (does not raise)
         """
-        # Pull existing instance if present
+
+        # Pull existing instance (or empty shell)
         existing = self.containers.get(container_name, {}) or {}
 
-        # Normalize incoming data
+        # ✅ Normalize input (supports dict or UCS container object)
         if container_data is None:
             container_data = {}
+        else:
+            container_data = normalize_container_dict(container_data)
+
         container_data.setdefault("id", container_name)
         container_data.setdefault("type", existing.get("type", "container"))
 
-        # Merge shallow (prefer new keys, retain prior unless overwritten)
+        # Merge (new keys overwrite, keep old unless replaced)
         merged = {**existing, **container_data}
 
-        # Always ensure atoms bucket
+        # Ensure atom storage bucket exists
         merged.setdefault("atoms", {})
 
-        # Save to runtime container registry
+        # Save into runtime registry
         self.containers[container_name] = merged
 
-        # Ensure address + wormhole + global registry link
+        # Step 1: Ensure address and wormhole links
         try:
             self._ensure_address_and_wormhole(container_name, merged)
-        except Exception:
-            # Non-fatal — runtime must remain resilient
-            pass
+        except Exception as e:
+            print(f"[⚠️ register_container] Failed wormhole/address for '{container_name}': {e}")
 
-        # Update container_index (if runtime maintains one)
+        # Step 2: Optionally update internal container_index if it exists
         try:
             idx = getattr(self, "container_index", None)
             if isinstance(idx, dict):
@@ -906,18 +926,20 @@ class UCSRuntime:
                     "address": meta.get("address"),
                     "type": merged.get("type", "container"),
                 }
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"[⚠️ register_container] Failed container_index update for '{container_name}': {e}")
 
-        # Notify visualizer (safe no-op if unavailable)
+        # Step 3: Notify GHX visualizer (safe even if missing)
         try:
             if getattr(self, "visualizer", None):
-                self._ghx_register_once(merged.get("id") or merged.get("name") or cid, merged.get("name"))
-        except Exception:
-            pass
+                cid = merged.get("id") or merged.get("name") or container_name
+                cname = merged.get("name") or container_name
+                self._ghx_register_once(cid, cname)
+        except Exception as e:
+            print(f"[⚠️ register_container] GHX visualizer register failed for '{container_name}': {e}")
 
+        print(f"[✅ UCSRuntime] Registered container: {container_name}")
         return merged
-
     
     def resolve_atom(self, key: str) -> Optional[str]:
         """
@@ -1133,25 +1155,31 @@ def _alias(name: str):
         raise NotImplementedError(f"{name} is not implemented in UCSRuntime")
     return _missing
 
+# ---------------------------------------------------------
+# ✅ Public API + Aliases
+# ---------------------------------------------------------
 
+# Global UCS Runtime Singleton
+_ucs_runtime_instance: UCSRuntime = UCSRuntime()
 
-# Optional legacy aliases
+def get_ucs_runtime() -> UCSRuntime:
+    return _ucs_runtime_instance
+
+# Optional legacy aliases (resolved after class definition)
 load_dc_container = _alias("load_container_from_path")
-load_container_from_path = _alias("load_container_from_path")  # optional duplicate
-load_container = _alias("load_container")                      
+load_container_from_path = _alias("load_container_from_path")
+load_container = _alias("load_container")
 expand_container = _alias("expand_container")
 collapse_container = _alias("collapse_container")
 embed_glyph_block_into_container = _alias("embed_glyph_block_into_container")
 
-# ---------------------------------------------------------
-# ✅ Public API
-# ---------------------------------------------------------
 __all__ = [
     "UCSRuntime",
     "ucs_runtime",
     "get_ucs_runtime",
     "load_dc_container",
     "load_container_from_path",
+    "load_container",
     "expand_container",
     "collapse_container",
     "embed_glyph_block_into_container",

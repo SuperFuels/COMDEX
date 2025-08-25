@@ -20,7 +20,7 @@ Handles symbolic backpropagation-like feedback, goal drift correction, and adapt
 """
 
 from typing import List, Dict, Union
-from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter
+from backend.modules.knowledge_graph.kg_writer_singleton import get_kg_writer
 from backend.modules.symbolic_engine.symbolic_utils import trace_back_causal_chain
 from backend.modules.consciousness.memory_bridge import MemoryBridge  # ✅ Fixed path
 from backend.modules.codex.codex_metrics import CodexMetrics
@@ -48,7 +48,7 @@ class SymbolicGradientEngine:
             container_id (str): Container context for gradient operations.
         """
         self.container_id = container_id
-        self.kg_writer = KnowledgeGraphWriter()
+        self.kg_writer = get_kg_writer()
         self.memory_bridge = MemoryBridge(container_id=self.container_id)  # ✅ FIXED: Pass container_id
         from backend.modules.skills.goal_engine import GoalEngine
         self.goal_engine = GoalEngine()

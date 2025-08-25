@@ -34,7 +34,7 @@ from backend.modules.dimensions.universal_container_system.ucs_runtime import uc
 from backend.modules.dimensions.universal_container_system.ucs_geometry_loader import UCSGeometryLoader
 # REMOVED: conflicting import from backend.modules.dimensions.ucs.ucs_entanglement
 from backend.modules.glyphvault.soul_law_validator import SoulLawValidator
-from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter
+from backend.modules.knowledge_graph.kg_writer_singleton import get_kg_writer
 from backend.modules.dna_chain.container_index_writer import add_to_index
 from backend.modules.websocket_manager import broadcast_event as broadcast_glyph_event
 
@@ -259,7 +259,7 @@ class ContainerExpander:
         self.container_id = container_id
         self.geometry_loader = UCSGeometryLoader()
         self.ucs = ucs_runtime
-        self.kg_writer = KnowledgeGraphWriter()
+        self.kg_writer = kg_writer
 
         # ✅ Get or init container state from UCS
         container = self._get_container()
@@ -394,12 +394,14 @@ class ContainerExpander:
 
         # 🧠 Knowledge Graph indexing (links geometry to KG for GHX/Entanglement views)
         try:
-            KnowledgeGraphWriter().index_geometry(
+            from backend.modules.glyphvault.kg_writer_singleton import get_kg_writer
+            get_kg_writer().index_geometry(
                 container_id=self.container_id,
                 name=container_name,
                 symbol=container_symbol,
                 geometry=geometry
             )
+            
         except Exception as e:  # non-fatal
             print(f"[WARN] KG index failed for container {self.container_id}: {e}")
 
@@ -430,7 +432,7 @@ class ContainerExpander:
         # ✅ Load domain pack into KG (physics_core → KG nodes/edges)
         if self.container_id == "physics_core":
             try:
-                from backend.modules.knowledge_graph.knowledge_graph_writer import kg_writer
+                from backend.modules.knowledge_graph.kg_writer_singleton import kg_writer
                 kg_writer.load_domain_pack("physics_core", container)
             except Exception as e:
                 print(f"⚠️ KG domain load skipped: {e}")

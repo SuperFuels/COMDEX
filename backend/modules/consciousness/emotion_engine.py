@@ -22,7 +22,7 @@ from backend.modules.dna_chain.switchboard import DNA_SWITCH
 DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
 
 # ✅ Knowledge Graph Writer for emotion logging
-from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter
+from backend.modules.knowledge_graph.kg_writer_singleton import get_kg_writer 
 
 # ✅ Updated time tracking (replaces deprecated time_engine)
 from backend.modules.dimensions.time_controller import TimeController
@@ -44,7 +44,7 @@ class EmotionEngine:
     def __init__(self):
         self.current_emotion = "neutral"
         self.history = []
-        self.graph = KnowledgeGraphWriter()
+        self.graph = get_kg_writer()
 
     def interpret_input(self, text: str) -> str:
         # Naive keyword-based sentiment interpretation

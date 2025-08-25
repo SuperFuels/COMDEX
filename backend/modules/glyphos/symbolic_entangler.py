@@ -2,7 +2,6 @@ import json
 import os
 from typing import Dict, List
 
-from backend.modules.hexcore.memory_engine import log_memory
 from backend.modules.glyphos.symbolic_operator import is_entanglement_operator
 
 def get_runtime():
@@ -33,6 +32,8 @@ def get_entangled_for(glyph: str) -> List[str]:
     return list(set(results))
 
 def entangle_containers(source_id: str, target_id: str) -> None:
+    from backend.modules.hexcore.memory_engine import log_memory 
+
     entanglements = _load_entanglements()
 
     if source_id not in entanglements:

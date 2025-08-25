@@ -4,12 +4,12 @@ import re
 import json
 import logging
 from typing import Dict, Any, List
-from backend.modules.hexcore.memory_engine import store_memory
 
 logger = logging.getLogger(__name__)
 
 # ✅ Shared Soul Law definition
 def get_soul_laws() -> List[Dict[str, Any]]:
+    from backend.modules.hexcore.memory_engine import store_memory
     return [
         {
             "id": 1,

@@ -3,7 +3,7 @@ from backend.modules.dimensions.universal_container_system.ucs_runtime import uc
 from backend.modules.dimensions.universal_container_system.ucs_geometry_loader import UCSGeometryLoader
 from backend.modules.dimensions.universal_container_system.ucs_entanglement import entangle_containers
 from backend.modules.soullaw.soul_law_validator import SoulLawValidator
-from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter
+from backend.modules.knowledge_graph.kg_writer_singleton import kg_writer
 from backend.modules.websocket_manager import broadcast_glyph_event
 from backend.modules.sqi.sqi_event_bus import emit_sqi_event
 import time
@@ -26,7 +26,7 @@ class ContainerLinker:
         self.address_book = global_address_book if global_address_book is not None else {}
         self.ucs = ucs_runtime
         self.geometry_loader = UCSGeometryLoader()
-        self.kg_writer = KnowledgeGraphWriter()
+        self.kg_writer = kg_writer
 
     def link(self, source_id: str, target_id: str, direction: str, bidirectional: bool = True) -> bool:
         if source_id not in self.registry or target_id not in self.registry:

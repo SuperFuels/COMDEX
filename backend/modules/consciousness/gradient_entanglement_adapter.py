@@ -16,12 +16,12 @@ Propagates QGlyph collapse and symbolic gradient feedback across entangled ances
 
 from typing import Dict, List
 from backend.modules.glyphos.symbolic_entangler import get_entangled_for
-from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter
+from backend.modules.knowledge_graph.kg_writer_singleton import get_kg_writer
 from backend.modules.codex.codex_metrics import CodexMetrics
 
 class GradientEntanglementAdapter:
     def __init__(self):
-        self.kg_writer = KnowledgeGraphWriter()
+        self.kg_writer = get_kg_writer()
         self.codex_metrics = CodexMetrics()
 
     def propagate_from_collapse(self, collapse_result: Dict):

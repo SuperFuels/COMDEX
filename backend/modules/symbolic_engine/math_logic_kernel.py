@@ -8,10 +8,10 @@ from sympy.core.sympify import SympifyError
 
 
 from backend.modules.symbolic_engine.math_kernel import MathKernel
-from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter
 from backend.modules.symbolic_engine.symbolic_utils import parse_logical_operators
 from backend.modules.sqi.sqi_tessaris_bridge import SQITessarisBridge
 from backend.modules.sqi.qglyph_utils import generate_qglyph_from_string
+from backend.modules.knowledge_graph.kg_writer_singleton import get_kg_writer
 
 from backend.modules.codex.codexlang_rewriter import CodexLangRewriter
 from backend.modules.symbolic.codex_ast_parser import parse_codexlang_to_ast
@@ -22,9 +22,9 @@ from backend.modules.symbolic_engine.symbolic_kernels.logic_glyphs import LogicG
 class MathLogicKernel:
     def __init__(self, container_id: Optional[str] = None):
         self.math_kernel = MathKernel()
-        self.kg_writer = KnowledgeGraphWriter()
-        self.sqi_bridge = SQIBridge()
-        self.container_id = container_id or "math_kernel_default"
+        self.container_id = container_id
+        self.kg_writer = get_kg_writer()
+        self.sqi_bridge = SQITessarisBridge()
         self.rewriter = CodexLangRewriter()
 
     def prove_theorem(self, assumptions: List[str], conclusion: str, raw_input: Optional[str] = None) -> Dict[str, Any]:

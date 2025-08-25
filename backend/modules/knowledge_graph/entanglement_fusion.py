@@ -21,7 +21,7 @@ import asyncio
 import json
 from typing import Dict, List, Any
 
-from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter
+from backend.modules.knowledge_graph.kg_writer_singleton import get_kg_writer
 from backend.modules.codex.codex_metrics import CodexMetrics
 from backend.modules.glyphos.symbolic_entangler import get_entangled_for, get_entangled_targets
 from backend.modules.knowledge_graph.brain_map_streamer import BrainMapStreamer
@@ -32,7 +32,7 @@ from backend.modules.soul.soul_laws import enforce_soul_laws  # 🛡 Ethical che
 
 class EntanglementFusion:
     def __init__(self):
-        self.kg_writer = KnowledgeGraphWriter()
+        self.kg_writer = get_kg_writer()
         self.metrics = CodexMetrics()
         self.brain_streamer = BrainMapStreamer()
 

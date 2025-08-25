@@ -23,7 +23,7 @@ from typing import Dict, Callable, Optional
 
 from datetime import datetime
 from backend.modules.codex.codex_metrics import record_sqi_score_event
-from backend.modules.knowledge_graph.knowledge_graph_writer import write_glyph_event
+from backend.modules.knowledge_graph.kg_writer_singleton import write_glyph_event
 from backend.modules.symbolic.symbolic_broadcast import broadcast_glyph_event
 
 

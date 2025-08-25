@@ -6,7 +6,7 @@ from datetime import datetime
 
 from backend.modules.sqi.sqi_container_registry import sqi_registry
 from backend.modules.sqi.sqi_materializer import materialize_entry
-from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter
+from backend.modules.knowledge_graph.kg_writer_singleton import get_kg_writer
 
 def ingest_physics_fact(name: str, data: Dict[str, Any], container_id: str | None = None) -> Dict[str, Any]:
     """
@@ -29,7 +29,7 @@ def ingest_physics_fact(name: str, data: Dict[str, Any], container_id: str | Non
             pass
 
     # Build node & persist
-    kg = KnowledgeGraphWriter()
+    kg = get_kg_writer()
     node_id = data.get("id", name)
     node = {
         "id": node_id,

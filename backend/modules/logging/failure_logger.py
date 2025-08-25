@@ -9,12 +9,9 @@ DNA_SWITCH.register(__file__)
 load_dotenv()
 DISABLE_FAILURE_GLYPHS = os.getenv("DISABLE_FAILURE_GLYPHS", "false").lower() == "true"
 
-# ✅ Knowledge Graph Writer
-from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter
-
 class FailureLogger:
     def __init__(self):
-        self.kg_writer = KnowledgeGraphWriter()
+        self.kg_writer = None
         self.disable_glyphs = DISABLE_FAILURE_GLYPHS
 
     def log_failure(self, failure_type, message, context=None):
@@ -25,6 +22,11 @@ class FailureLogger:
             return
 
         try:
+            # ✅ Defer import until needed (avoids circular import)
+            if self.kg_writer is None:
+                from backend.modules.knowledge_graph.kg_writer_singleton import get_kg_writer
+                self.kg_writer = get_kg_writer()
+
             self.kg_writer.inject_glyph(
                 content=message,
                 glyph_type="failure",

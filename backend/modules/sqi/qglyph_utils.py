@@ -1,7 +1,7 @@
 import uuid
 from typing import Dict, List, Optional, TYPE_CHECKING
 
-from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter
+from backend.modules.knowledge_graph.kg_writer_singleton import get_kg_writer
 from backend.modules.codex.codexlang_rewriter import CodexLangRewriter
 from backend.modules.codex.codex_metrics import CodexMetrics
 from backend.modules.websocket_manager import broadcast_event
@@ -69,8 +69,9 @@ def generate_qglyph_from_string(
     if metadata:
         glyph.metadata.update(metadata)
 
-    if inject:
-        KnowledgeGraphWriter.inject_glyph(glyph)
+        if inject:
+            kg_writer = get_kg_writer()
+            kg_writer.inject_glyph(glyph)
 
     CodexMetrics.score_glyph_tree(glyph)
 

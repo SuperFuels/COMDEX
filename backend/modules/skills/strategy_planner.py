@@ -8,7 +8,8 @@ from backend.modules.logging.failure_logger import FailureLogger
 from backend.modules.codex.codex_trace import CodexTrace
 from backend.modules.skills.goal_engine import GOALS
 from backend.modules.skills.goal_engine import GoalEngine  # Added for goal linkage
-from backend.modules.knowledge_graph.knowledge_graph_writer import kg_writer
+# ✅ Deferred Knowledge Graph Writer (Fix circular import)
+from backend.modules.knowledge_graph.kg_writer_singleton import get_strategy_planner_kg_writer
 
 # ✅ DNA Switch
 from backend.modules.dna_chain.switchboard import DNA_SWITCH
@@ -47,7 +48,7 @@ class StrategyPlanner:
 
         # ✅ R4e–R4h: Inject plan glyph into knowledge graph
         try:
-            kg_writer.inject_glyph(
+            get_strategy_planner_kg_writer().inject_glyph(
                 content=str(strategy.get("steps", [])),
                 glyph_type="plan",
                 metadata={
@@ -59,9 +60,9 @@ class StrategyPlanner:
                 },
                 plugin="StrategyPlanner"
             )
-            print(f"📡 Injected planning glyph into KG for goal: {strategy.get('goal')}")
         except Exception as e:
-            print(f"⚠️ Failed to inject plan glyph into KG: {e}")
+            print(f"⚠️ Failed to inject strategy glyph: {e}")
+            self.failure_logger.log_failure("plan_glyph_injection", str(e), context="StrategyPlanner")
 
         return strategy
 

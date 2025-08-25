@@ -11,7 +11,7 @@ from backend.modules.tessaris.tessaris_intent_executor import execute_glyph_pack
 from backend.modules.consciousness.state_manager import STATE
 
 # ✅ NEW: Knowledge Graph integration for A5c
-from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter
+from backend.modules.knowledge_graph.kg_writer_singleton import get_kg_writer
 from backend.modules.knowledge_graph.indexes.stats_index import build_stats_index
 
 # Optional WebSocket push
@@ -164,7 +164,7 @@ class GlyphSynthesisEngine:
         """
         Dynamically synthesize glyphs based on Knowledge Graph density and entropy.
         """
-        kgw = KnowledgeGraphWriter()
+        kgw = get_kg_writer()
         stats = kgw.validate_knowledge_graph()
         total_glyphs = stats["total_glyphs"]
         entropy = stats["stats_index"]["summary"].get("entropy", 0.0)

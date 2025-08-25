@@ -6,7 +6,6 @@ from pathlib import Path
 
 from backend.modules.codex.codex_metrics import CodexMetrics
 from backend.modules.dna_chain.dc_handler import load_dc_container
-from backend.routes.ws.glyphnet_ws import emit_websocket_event
 
 def verify_or_mutate(container) -> bool:
     """
@@ -14,7 +13,7 @@ def verify_or_mutate(container) -> bool:
     """
     from backend.modules.codex.codex_executor import auto_mutate_container  # ✅ Lazy import avoids circular loop
     from backend.modules.lean.lean_proofverifier import validate_lean_container
-    from backend.routes.ws.glyphnet_ws import emit_websocket_event
+    from backend.routes.ws.glyphnet_ws import emit_websocket_event  # ✅ Deferred import avoids circular import
 
     container_id = container.get("containerId", "unknown")
 

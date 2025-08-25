@@ -1,5 +1,5 @@
 from backend.modules.dimensions.container_expander import ContainerExpander
-from backend.modules.knowledge_graph.knowledge_graph_writer import kg_writer
+from backend.modules.knowledge_graph.kg_writer_singleton import kg_writer
 
 # Seed + auto-load into KG (ContainerExpander already calls load_domain_pack for physics_core)
 exp = ContainerExpander("physics_core")

@@ -4,7 +4,7 @@ from __future__ import annotations
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
-from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter
+from backend.modules.knowledge_graph.kg_writer_singleton import get_kg_writer
 
 router = APIRouter(prefix="/sqi", tags=["SQI-Relink"])
 
@@ -13,7 +13,7 @@ class RelinkReq(BaseModel):
 
 @router.post("/relink")
 def relink(req: RelinkReq):
-    kg = KnowledgeGraphWriter()
+    kg = get_kg_writer()
     try:
         # If you have a real link-builder, call it here; otherwise do a light re-export
         out = kg.save_pack_for_container(req.container_id)  # helper we added earlier

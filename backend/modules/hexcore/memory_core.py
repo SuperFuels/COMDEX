@@ -7,14 +7,14 @@ from backend.modules.dna_chain.switchboard import DNA_SWITCH
 DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
 
 # ✅ IGI Knowledge Graph integration
-from backend.modules.knowledge.knowledge_graph_writer import KnowledgeGraphWriter
+from backend.modules.knowledge_graph.kg_writer_singleton import kg_writer
 
 MEMORY_FILE = Path(__file__).parent / "aion_memory.json"
 
 class MemoryCore:
     def __init__(self):
         self.memories = []
-        self.writer = KnowledgeGraphWriter()
+        self.writer = kg_writer
         self.load()
 
     def load(self):

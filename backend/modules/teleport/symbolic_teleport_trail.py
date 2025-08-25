@@ -3,7 +3,7 @@
 from typing import List, Optional, Dict, Any
 from uuid import uuid4
 from backend.modules.symbolic.symbol_tree_generator import SymbolicMeaningTree, SymbolicTreeNode
-from backend.modules.knowledge_graph.knowledge_graph_writer import inject_symbolic_trace
+from backend.modules.knowledge_graph.kg_writer_singleton import inject_symbolic_trace
 from backend.modules.codex.codex_metric import CodexMetrics
 from backend.modules.teleport.portal_manager import TeleportPacket
 

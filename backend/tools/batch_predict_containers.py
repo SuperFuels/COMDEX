@@ -12,7 +12,7 @@ from backend.modules.symbolic.soul_law_validator import is_soullaw_locked
 from backend.modules.codex.codex_executor import execute_instruction_tree
 from backend.modules.codex.codex_metrics import CodexMetrics
 from backend.modules.glyphnet.glyphnet_ws import emit_websocket_event
-from backend.modules.knowledge_graph.knowledge_graph_writer import save_container_to_disk
+from backend.modules.knowledge_graph.kg_writer_singleton import save_container_to_disk
 
 # Toggle features
 ENABLE_GLYPHNET_BROADCAST = True

@@ -154,7 +154,6 @@ class UCSBaseContainer:
             print(f"🔒 SoulLaw validated once for {key}")
         else:
             # Keep a breadcrumb so we know why we’re not re-validating every time
-            # (helps when debugging slow loops)
             pass
 
     # ---------------------------------------------------------
@@ -201,3 +200,23 @@ class UCSBaseContainer:
             "meta": {"address": f"ucs://local/{container_id}#container"},
         }
         connect_container_to_hub(doc, hub_id=hub_id)  # no-op if helper stubbed
+
+    # ---------------------------------------------------------
+    # ✅ NEW: Dict Export for Runtime Injection / Registry
+    # ---------------------------------------------------------
+    def to_dict(self) -> dict:
+        """Export container to dict for runtime registration."""
+        return {
+            "id": getattr(self, "id", None) or self.name,
+            "name": self.name,
+            "type": self.container_type or "container",
+            "geometry": self.geometry,
+            "meta": {"address": f"ucs://local/{self.name}#container"},
+            "atoms": getattr(self, "atoms", {}),
+            "features": self.features,
+            "runtime": {
+                "time_dilation": self.time_dilation,
+                "micro_grid": self.micro_grid.serialize() if self.micro_grid else None,
+            },
+            "state": self.state,
+        }

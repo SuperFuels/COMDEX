@@ -8,7 +8,7 @@ from backend.modules.dna_chain.switchboard import DNA_SWITCH
 # ✅ NEW imports for KG-driven reasoning
 from backend.modules.knowledge_graph.indexes.stats_index import build_stats_index  # or correct index
 from backend.modules.knowledge_graph.indexes.tag_index import get_glyphs_by_tag
-from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter
+from backend.modules.knowledge_graph.kg_writer_singleton import get_kg_writer
 from backend.modules.glyphos.symbol_graph import symbol_graph  # ✅ A5b
 
 # Attempt safe imports for optional systems
@@ -286,8 +286,9 @@ def update_logic_from_kg():
     feed changes into the Symbol Graph, and trigger adaptive glyph synthesis.
     """
     from backend.modules.glyphos.glyph_synthesis_engine import glyph_synthesizer  # ✅ A5c link
+    from backend.modules.knowledge_graph.kg_writer_singleton import get_kg_writer  # ✅ FIX: Safe import
 
-    kgw = KnowledgeGraphWriter()
+    kgw = get_kg_writer()
     stats = kgw.validate_knowledge_graph()
 
     total_glyphs = stats["total_glyphs"]

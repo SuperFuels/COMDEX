@@ -4,7 +4,7 @@ import uuid
 from typing import List, Dict, Any
 
 from backend.modules.symbolic_engine.math_logic_kernel import LogicGlyph
-from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter
+from backend.modules.knowledge_graph.kg_writer_singleton import KnowledgeGraphWriter
 from backend.modules.codex.codex_lang_rewriter import CodexLangRewriter
 
 class QGlyphGenerator:

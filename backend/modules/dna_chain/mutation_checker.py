@@ -16,7 +16,7 @@ Design Rubric:
 import re
 from typing import List, Dict, Optional
 from backend.modules.soul.soul_laws import get_soul_laws
-from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter
+from backend.modules.knowledge_graph.kg_writer_singleton import get_kg_writer
 
 def check_mutation_against_soul_laws(diff_text: str) -> List[Dict]:
     """
@@ -61,7 +61,7 @@ def add_dna_mutation(
     entropy_delta = estimate_entropy_change(from_glyph, to_glyph)
     violations = check_mutation_against_soul_laws(diff)
 
-    writer = KnowledgeGraphWriter()
+    writer = get_kg_writer()
     writer.inject_glyph(
         content=diff,
         glyph_type="mutation",

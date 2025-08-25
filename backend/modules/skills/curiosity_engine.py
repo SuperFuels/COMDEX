@@ -8,7 +8,7 @@ DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
 
 # ✅ Index + Glyph Injection
 from backend.modules.knowledge_graph.indexes import curiosity_index
-from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter
+from backend.modules.knowledge_graph.kg_writer_singleton import kg_writer
 
 # ✅ Paths
 MEMORY_FILE = os.path.join(os.path.dirname(__file__), "aion_memory.json")
@@ -47,7 +47,7 @@ def run_inference():
     learned_titles = {s["title"] for s in memory if s.get("status") == "learned"}
     existing_titles = {s["title"] for s in memory}
 
-    writer = KnowledgeGraphWriter()
+    writer = kg_writer
     added_count = 0
 
     for skill in memory:

@@ -164,7 +164,17 @@ class KnowledgeGraphWriter:
         This bypasses the default active container.
         Also auto-exports a KG snapshot for persistence in kg_exports/.
         """
+        # 🔄 Normalize UCS container to dict if needed
+        if not isinstance(container, dict) and hasattr(container, "to_dict"):
+            container = container.to_dict()
+        elif not isinstance(container, dict) and hasattr(container, "payload"):
+            container = container.payload
+
+        # ✅ Prevent any failure from legacy logic expecting dict
+        container = dict(container)
+
         self._container = container
+
         # 🔄 Automatically export the attached container's KG to kg_exports/<name>.kg.json
         try:
             self._auto_export_attached()
@@ -577,7 +587,7 @@ class KnowledgeGraphWriter:
 
         # --- Collect SQI registry containers as extra KG nodes (collapsed) ---
         try:
-            from backend.modules.sqi.sqi_container_registry import sqi_registry
+            from backend.modules.sqi.sqi_container_registry import _registry_register
             for cid, entry in (sqi_registry.index or {}).items():
                 try:
                     node = make_kg_payload({"id": cid, "meta": entry.get("meta", {})}, expand=False)
@@ -1277,13 +1287,12 @@ def write_glyph_entry(
         create_task(lazy_broadcast_anchor_update(glyph, anchor))
 
     return entry  # <-- Ensure function return stays intact
-
 def get_glyph_trace_for_container(container_id: str) -> list:
     """
     Retrieve the symbolic glyph trace from a container by its ID.
     Returns a list of glyphs (or symbolic nodes) for replay / prediction.
     """
-    from backend.modules.knowledge_graph.container_loader import load_container_by_id
+    from backend.modules.dimensions.containers.container_loader import load_container_by_id  # ✅ Corrected path
 
     container = load_container_by_id(container_id)
     if not container:

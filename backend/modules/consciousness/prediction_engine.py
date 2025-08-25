@@ -28,7 +28,6 @@ from backend.modules.glyphos.symbolic_entangler import get_entangled_for
 from backend.modules.glyphos.glyph_quantum_core import GlyphQuantumCore
 from backend.modules.consciousness.gradient_entanglement_adapter import GradientEntanglementAdapter
 from backend.modules.knowledge_graph.entanglement_fusion import EntanglementFusion
-from backend.modules.hexcore.memory_engine import MEMORY
 from backend.modules.codex.codex_trace import CodexTrace
 from backend.modules.codex.codex_metrics import calculate_glyph_cost as estimate_glyph_cost
 from backend.modules.codex.codex_metrics import CodexMetrics
@@ -40,13 +39,14 @@ from backend.modules.symbolic.symbolic_broadcast import broadcast_glyph_event
 from backend.modules.codex.codexlang_rewriter import CodexLangRewriter, suggest_rewrite_candidates
 from backend.modules.prediction.suggestion_engine import suggest_simplifications
 
-try:
-    from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter
-except ImportError as e:
-    import logging
-    logging.warning(f"[PredictionEngine] Failed to import KnowledgeGraphWriter: {e}")
-    KnowledgeGraphWriter = None
+from backend.modules.knowledge_graph.kg_writer_singleton import get_kg_writer
 
+def get_prediction_kg_writer():
+    try:
+        return get_kg_writer()
+    except Exception as e:
+        logging.warning(f"[PredictionEngine] Failed to get KnowledgeGraphWriter instance: {e}")
+        return None
 
 try:
     from backend.modules.tessaris.tessaris_engine import TessarisEngine
@@ -104,7 +104,11 @@ class PredictionEngine:
         from backend.modules.lean.lean_tactic_suggester import suggest_tactics
         from backend.modules.codex.codex_lang_rewriter import suggest_rewrite_candidates
         from backend.modules.codex.codex_trace import CodexTrace
-        from backend.modules.knowledge_graph.knowledge_graph_writer import inject_trace_metadata
+        inject_trace_metadata = None
+        try:
+            from backend.modules.knowledge_graph.kg_writer_singleton import inject_trace_metadata
+        except ImportError:
+            pass
 
         if ast_or_raw is None:
             return {"status": "error", "detail": "No AST provided"}
@@ -437,8 +441,7 @@ class PredictionEngine:
                     }
         return None
 
-    @classmethod
-    def run_prediction_on_container(cls, container: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    def run_prediction_on_container(self, container: Dict[str, Any], context: Optional[str] = None) -> Optional[Dict[str, Any]]:
         """
         Full prediction pipeline with:
         - AST inspection
@@ -448,9 +451,11 @@ class PredictionEngine:
         - SQI scoring
         - Lean proof verification
         - Optional live application + DNA mutation
+        - Electron glyph prediction (atom containers)
         """
         contradiction_found = False
         scored = []
+        electron_predictions = []
 
         # 🧠 Check for glyph-level contradictions and SQI scoring
         for glyph in container.get("glyph_grid", []):
@@ -462,6 +467,21 @@ class PredictionEngine:
                 if "¬" in glyph["text"] or detects_conflicting_predicts(glyph["text"], container["glyph_grid"]):
                     glyph.setdefault("metadata", {})["contradictionDetected"] = True
                     contradiction_found = True
+
+        # ⚛️ Electron-based predictive glyph selection
+        for e in container.get("electrons", []):
+            label = e.get("meta", {}).get("label", "unknown")
+            best = max(e.get("glyphs", []), key=lambda g: g.get("confidence", 0), default=None)
+            if best:
+                prediction = {
+                    "electron": label,
+                    "selected_prediction": best["value"],
+                    "confidence": best["confidence"]
+                }
+                electron_predictions.append(prediction)
+
+        if electron_predictions:
+            container.setdefault("trace", {}).setdefault("predictions", {})["electrons"] = electron_predictions
 
         # 📘 Logic-level contradiction detection + rewrite scoring
         expr = container.get("logic", {}).get("expression")
@@ -504,7 +524,7 @@ class PredictionEngine:
                     extra={
                         "score": score,
                         "reason": reason,
-                        "origin": "prediction_engine"
+                        "origin": context or "prediction_engine"
                     }
                 )
 
@@ -512,7 +532,8 @@ class PredictionEngine:
         container.setdefault("traceMetadata", {})["predictionResult"] = {
             "status": "contradiction" if contradiction_found else "ok",
             "sqiTrace": True,
-            "timestamp": time.time()
+            "timestamp": time.time(),
+            "context": context or "prediction_engine"
         }
 
         # ⬁ Suggest simplifications if glyph-level contradiction was found
@@ -522,6 +543,7 @@ class PredictionEngine:
         return {
             "status": "contradiction" if contradiction_found else "ok",
             "rewrites": scored,
+            "electron_predictions": electron_predictions,
             "detail": "Contradiction(s) flagged in glyphs" if contradiction_found else "No contradictions detected"
         }
 

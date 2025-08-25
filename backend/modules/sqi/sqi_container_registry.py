@@ -3,10 +3,8 @@ from __future__ import annotations
 from typing import Dict, Any, Optional, Set, List
 from datetime import datetime
 from math import exp
-from backend.modules.consciousness.prediction_engine import PredictionEngine
 from backend.modules.codex.codex_trace import CodexTrace
-
- # --- Optional UCS address registry hook ------------------------------------
+# --- Optional UCS address registry hook ------------------------------------
 try:
     # Reuse your UCS address registry if present
     from backend.modules.dimensions.universal_container_system.address_registry import (
@@ -17,19 +15,7 @@ except Exception:
         return {}
 
 from backend.modules.validation.symbolic_container_validator import validate_symbolic_fields
-
-SQI_NS = "ucs://knowledge"
-
-
-def register_container(container: Dict[str, Any]) -> None:
-    if not validate_symbolic_fields(container):
-        raise ValueError("Symbolic container fields are out of sync")
-
-    # Continue with the rest of your registration logic:
-    # - Add to container registry
-    # - Write index
-    # - Export glyph trace, if needed
-    _registry_register(container.get("id"), SQI_NS)
+from backend.modules.symbolic.symbol_tree_generator import build_tree_from_container, export_tree_to_kg
 
 SQI_NS = "ucs://knowledge"
 
@@ -40,6 +26,43 @@ _DEFAULT_WEIGHTS = {
     "size_bias":   -0.5,   # penalize very large containers (spread out)
     "hot_flag":     1.5,   # meta.hot=True gets a boost
 }
+
+def register_container(container: Union[Dict[str, Any], Any]) -> None:
+    print("[🔁] Live register_container() called")
+
+    # --- Step 1: Extract container ID safely ---
+    if isinstance(container, dict):
+        # 🧪 Validate raw JSON structure
+        if not validate_symbolic_fields(container):
+            raise ValueError("❌ Symbolic container fields are out of sync (missing 'id', 'glyphs', or symbolic header)")
+        container_id = container.get("id") or container.get("containerId")
+    else:
+        # ✅ UCSBaseContainer or compatible runtime object
+        container_id = getattr(container, "id", None)
+        if not container_id and hasattr(container, "container_id"):
+            container_id = getattr(container, "container_id")
+
+    if not container_id:
+        raise ValueError("❌ Container is missing a valid 'id' or 'container_id'")
+
+    # --- Step 2: Register with SQI symbolic container namespace ---
+    _registry_register(container_id, SQI_NS)
+    print(f"[🧠] Registered symbolic container: {container_id}")
+
+    # --- Step 3: Build and export Symbolic Meaning Tree ---
+    try:
+        from backend.modules.symbolic.symbol_tree_generator import (
+            build_tree_from_container,
+            export_tree_to_kg,
+        )
+        tree = build_tree_from_container(container_id)
+        if tree and tree.root:
+            export_tree_to_kg(tree)
+            print(f"[🌳] Symbolic Tree auto-exported to KG for container: {container_id}")
+        else:
+            print(f"[⚠️] Empty symbolic tree generated for: {container_id}")
+    except Exception as e:
+        print(f"[‼️] Symbolic Tree export failed for {container_id}: {e}")
 
 def _age_hours(iso: Optional[str]) -> float:
     """Convert ISO8601 to approximate age in hours. Missing/bad -> very old."""
@@ -191,7 +214,7 @@ class SQIContainerRegistry:
     def get(self, cid: str) -> Optional[Dict[str, Any]]:
         return self.index.get(cid)
 
-    def evaluate_container(self, container: Dict[str, Any], goal: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    def evaluate_container(self, container: Union[Dict[str, Any], Any], goal: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """
         Public evaluation hook for external systems (Codex, CLI, GHX, etc.)
         Returns a score dict with debugging fields.
@@ -200,10 +223,21 @@ class SQIContainerRegistry:
             return {"sqi_score": 0.0, "reason": "empty"}
 
         goal = goal or {}
+
+        # Handle meta field safely (works for dict or object)
+        if isinstance(container, dict):
+            domain = container.get("domain")
+            kind = container.get("kind")
+            meta = container.get("meta", {})
+        else:
+            domain = getattr(container, "domain", None)
+            kind = getattr(container, "kind", None)
+            meta = getattr(container, "meta", None) or {}
+
         entry = {
-            "domain": container.get("domain"),
-            "kind": container.get("kind"),
-            "meta": container.get("meta", {}),
+            "domain": domain,
+            "kind": kind,
+            "meta": meta,
         }
 
         score = self._score(entry, goal)
@@ -217,7 +251,24 @@ class SQIContainerRegistry:
             "glyph_count": int((entry["meta"].get("stats") or {}).get("glyphs", 0)),
             "ghx_hover": hover,
             "collapsed": collapsed,
-        }    
+        } 
+
+        # --- global access / safe singleton -------------------------
+    _global_instance: Optional[SQIContainerRegistry] = None
+
+    @classmethod
+    def get_instance(cls) -> SQIContainerRegistry:
+        if cls._global_instance is None:
+            cls._global_instance = cls()
+        return cls._global_instance
+
+    @classmethod
+    def keys(cls) -> List[str]:
+        return list(cls.get_instance().index.keys())
+
+    @classmethod
+    def get_all_container_ids(cls) -> List[str]:
+        return list(cls.get_instance().index.keys())
 
     # --- legacy scoring helper (kept for compatibility) ---------------------
     def _score(self, entry: Dict[str, Any], goal: Dict[str, Any],

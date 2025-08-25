@@ -14,7 +14,6 @@ from backend.modules.hologram.symbolic_hsx_bridge import SymbolicHSXBridge
 
 logger = logging.getLogger(__name__)
 
-
 class QuantumMorphicRuntime:
     def __init__(self, ghx_packet: Dict[str, Any], avatar_state: Dict[str, Any]):
         self.packet = ghx_packet
@@ -56,7 +55,7 @@ class QuantumMorphicRuntime:
         Inject predictive glyph overlays into the GHX projection based on active goals.
         """
         try:
-            predictions = run_prediction_on_container(self.packet)
+            predictions = run_prediction_on_container(self.packet, context="ghx")
             self.active_overlay = predictions
             return predictions
         except Exception as e:
@@ -89,7 +88,7 @@ class QuantumMorphicRuntime:
         - Goal alignment score
         - Codex metrics
         """
-        glyphs = self.renderer.rendered_projection
+        glyphs = self.renderer.rendered_projection or []
         goal_score = self.metrics.score_glyph_tree(glyphs)
 
         return {
@@ -102,7 +101,10 @@ class QuantumMorphicRuntime:
             "metrics": {
                 "glyph_count": len(glyphs),
                 "avg_entropy": self.metrics.entropy_level(glyphs),
-                "collapse_rate": sum(1 for g in glyphs if g.get("collapse_trace")) / len(glyphs)
+                "collapse_rate": (
+                    sum(1 for g in glyphs if g.get("collapse_trace")) / len(glyphs)
+                    if glyphs else 0
+                )
             },
             "morphic_state": {
                 "nodes": glyphs,

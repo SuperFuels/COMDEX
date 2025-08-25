@@ -2,7 +2,7 @@ from typing import Dict, Any, List
 from backend.modules.consciousness.prediction_engine import suggest_simplifications
 from backend.modules.symbolic.symbolic_broadcast import broadcast_glyph_event
 from backend.modules.consciousness.logic_prediction_utils import detect_contradictions
-from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter
+from backend.modules.knowledge_graph.kg_writer_singleton import get_kg_writer
 from backend.modules.codex.codex_metrics import score_glyph_tree
 
 # Optional import if Lean proof support is present
@@ -22,7 +22,7 @@ class SymbolicInferenceEngine:
     """
 
     def __init__(self):
-        self.writer = KnowledgeGraphWriter()
+        self.writer = get_kg_writer()
 
     def analyze_container(self, container: Dict[str, Any]) -> Dict[str, Any]:
         """

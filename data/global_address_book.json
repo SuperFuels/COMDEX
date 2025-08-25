@@ -142,5 +142,14 @@
     "meta": {
       "address": "ucs://local/SEC-chamber-3#container"
     }
+  },
+  "ElectronShell Test Atom": {
+    "id": "ElectronShell Test Atom",
+    "name": "ElectronShell Test Atom",
+    "geometry": "tesseract",
+    "type": "container",
+    "meta": {
+      "address": "ucs://local/ElectronShell Test Atom#container"
+    }
   }
 }

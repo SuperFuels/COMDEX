@@ -115,8 +115,8 @@ class MemoryEngine:
         Lazy-load KnowledgeGraphWriter only when needed to avoid circular imports.
         """
         if self.kg_writer is None:
-            from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter
-            self.kg_writer = KnowledgeGraphWriter()
+            from backend.modules.knowledge_graph.kg_writer_singleton import kg_writer
+            self.kg_writer = kg_writer
         return self.kg_writer
 
     def detect_tags(self, content):

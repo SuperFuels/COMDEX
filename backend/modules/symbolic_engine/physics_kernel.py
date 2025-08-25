@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from typing import Any, Dict, Tuple, Optional, Union
 
 from backend.modules.symbolic_engine.symbolic_ingestion_engine import SymbolicIngestionEngine
+from backend.modules.knowledge_graph.kg_writer_singleton import kg_writer
 
 Scalar = Union[float, int, str, Dict[str, Any]]
 Vector = Dict[str, Any]  # symbolic vector/tensor node form used across kernels
@@ -24,207 +25,216 @@ class GlyphNode:
         }
 
 
-# ---------- Helpers ----------
-
 def is_symbolic(x: Any) -> bool:
     return isinstance(x, GlyphNode) or isinstance(x, dict)
+
 
 def sym(op: str, *args: Any, **meta: Any) -> GlyphNode:
     return GlyphNode(op=op, args=args, meta=meta or None)
 
 
-# ---------- Core vector/tensor field ops ----------
+class PhysicsKernel:
+    def __init__(self, container_id: Optional[str] = None):
+        self.container_id = container_id or "physics_kernel_default"
+        self.kg_writer = kg_writer
+        self.ingestion_engine = SymbolicIngestionEngine()
 
-def grad(field: Scalar, coords: Tuple[str, ...] = ("x", "y", "z")) -> GlyphNode:
-    """∇f → gradient (symbolic)"""
-    node = sym("∇", field, coords)
-    SymbolicIngestionEngine.ingest_data(
-        {
-            "op": "grad",
-            "args": [field, coords],
-            "codexlang": f"grad({field})",
-            "glyph": node.to_dict(),
-            "domain": "physics.vector"
-        },
-        source="PhysicsKernel",
-        tags=["physics", "grad"]
-    )
-    return node
+    def write_glyph_to_kg(self, glyph):
+        self.kg_writer.write(glyph.to_dict())
 
-def div(vec: Vector, coords: Tuple[str, ...] = ("x", "y", "z")) -> GlyphNode:
-    """∇·V → divergence (symbolic)"""
-    node = sym("∇·", vec, coords)
-    SymbolicIngestionEngine.ingest_data(
-        {
-            "op": "div",
-            "args": [vec, coords],
-            "codexlang": f"div({vec})",
-            "glyph": node.to_dict(),
-            "domain": "physics.vector"
-        },
-        source="PhysicsKernel",
-        tags=["physics", "div"]
-    )
-    return node
+    # ---------- Vector/Tensor Field Ops ----------
 
-def curl(vec: Vector, coords: Tuple[str, ...] = ("x", "y", "z")) -> GlyphNode:
-    """∇×V → curl (symbolic)"""
-    node = sym("∇×", vec, coords)
-    SymbolicIngestionEngine.ingest_data(
-        {
-            "op": "curl",
-            "args": [vec, coords],
-            "codexlang": f"curl({vec})",
-            "glyph": node.to_dict(),
-            "domain": "physics.vector"
-        },
-        source="PhysicsKernel",
-        tags=["physics", "curl"]
-    )
-    return node
+    def grad(self, field: Scalar, coords: Tuple[str, ...] = ("x", "y", "z")) -> GlyphNode:
+        node = sym("∇", field, coords)
+        self.ingestion_engine.ingest_data(
+            {
+                "op": "grad",
+                "args": [field, coords],
+                "codexlang": f"grad({field})",
+                "glyph": node.to_dict(),
+                "domain": "physics.vector",
+                "container": self.container_id,
+            },
+            source="PhysicsKernel",
+            tags=["physics", "grad"]
+        )
+        return node
 
-def laplacian(field: Scalar, coords: Tuple[str, ...] = ("x", "y", "z")) -> GlyphNode:
-    """Δf (∇²f) → Laplacian (symbolic)"""
-    node = sym("Δ", field, coords)
-    SymbolicIngestionEngine.ingest_data(
-        {
-            "op": "laplacian",
-            "args": [field, coords],
-            "codexlang": f"laplacian({field})",
-            "glyph": node.to_dict(),
-            "domain": "physics.vector"
-        },
-        source="PhysicsKernel",
-        tags=["physics", "laplacian"]
-    )
-    return node
+    def div(self, vec: Vector, coords: Tuple[str, ...] = ("x", "y", "z")) -> GlyphNode:
+        node = sym("∇·", vec, coords)
+        self.ingestion_engine.ingest_data(
+            {
+                "op": "div",
+                "args": [vec, coords],
+                "codexlang": f"div({vec})",
+                "glyph": node.to_dict(),
+                "domain": "physics.vector",
+                "container": self.container_id,
+            },
+            source="PhysicsKernel",
+            tags=["physics", "div"]
+        )
+        return node
 
-def d_dt(expr: Any, t: str = "t") -> GlyphNode:
-    """d/dt (time derivative)"""
-    return sym("d/dt", expr, t)
+    def curl(self, vec: Vector, coords: Tuple[str, ...] = ("x", "y", "z")) -> GlyphNode:
+        node = sym("∇×", vec, coords)
+        self.ingestion_engine.ingest_data(
+            {
+                "op": "curl",
+                "args": [vec, coords],
+                "codexlang": f"curl({vec})",
+                "glyph": node.to_dict(),
+                "domain": "physics.vector",
+                "container": self.container_id,
+            },
+            source="PhysicsKernel",
+            tags=["physics", "curl"]
+        )
+        return node
 
-def tensor_product(a: Any, b: Any) -> GlyphNode:
-    return sym("⊗", a, b)
+    def laplacian(self, field: Scalar, coords: Tuple[str, ...] = ("x", "y", "z")) -> GlyphNode:
+        node = sym("Δ", field, coords)
+        self.ingestion_engine.ingest_data(
+            {
+                "op": "laplacian",
+                "args": [field, coords],
+                "codexlang": f"laplacian({field})",
+                "glyph": node.to_dict(),
+                "domain": "physics.vector",
+                "container": self.container_id,
+            },
+            source="PhysicsKernel",
+            tags=["physics", "laplacian"]
+        )
+        return node
 
-def dot(a: Any, b: Any) -> GlyphNode:
-    return sym("·", a, b)
+    def d_dt(self, expr: Any, t: str = "t") -> GlyphNode:
+        return sym("d/dt", expr, t)
 
-def cross(a: Any, b: Any) -> GlyphNode:
-    return sym("×", a, b)
+    def tensor_product(self, a: Any, b: Any) -> GlyphNode:
+        return sym("⊗", a, b)
+
+    def dot(self, a: Any, b: Any) -> GlyphNode:
+        return sym("·", a, b)
+
+    def cross(self, a: Any, b: Any) -> GlyphNode:
+        return sym("×", a, b)
+
+    # ---------- Quantum Glyphs ----------
+
+    def ket(self, label: str) -> GlyphNode:
+        return sym("|ψ⟩", label)
+
+    def bra(self, label: str) -> GlyphNode:
+        return sym("⟨ψ|", label)
+
+    def operator(self, name: str, arg: Any = None) -> GlyphNode:
+        return sym("Â", name, arg)
+
+    def hamiltonian(self, H_name: str = "H") -> GlyphNode:
+        return sym("H", H_name)
+
+    def commutator(self, A: Any, B: Any) -> GlyphNode:
+        return sym("[ , ]", A, B)
+
+    def schrodinger_evolution(self, psi: Any, H: Any, t: str = "t") -> GlyphNode:
+        lhs = self.dot("iℏ", self.d_dt(psi, t))
+        rhs = self.dot(H, psi)
+        node = sym("≐", lhs, rhs, equation="Schr")
+
+        self.ingestion_engine.ingest_data(
+            {
+                "op": "schrodinger_evolution",
+                "args": [psi, H, t],
+                "codexlang": f"evolve({psi}, {H}, {t})",
+                "glyph": node.to_dict(),
+                "domain": "physics.quantum",
+                "container": self.container_id,
+            },
+            source="PhysicsKernel",
+            tags=["physics", "quantum"]
+        )
+        return node
+
+    # ---------- General Relativity Glyphs ----------
+
+    def metric(self, g_symbol: str = "g") -> GlyphNode:
+        return sym("g_{μν}", g_symbol)
+
+    def inverse_metric(self, g_inv_symbol: str = "g^{-1}") -> GlyphNode:
+        return sym("g^{μν}", g_inv_symbol)
+
+    def covariant_derivative(self, expr: Any, index: str = "μ") -> GlyphNode:
+        return sym("∇_μ", expr, index)
+
+    def riemann(self) -> GlyphNode:
+        return sym("R^ρ_{σμν}")
+
+    def ricci(self) -> GlyphNode:
+        return sym("R_{μν}")
+
+    def ricci_scalar(self) -> GlyphNode:
+        return sym("R")
+
+    def stress_energy(self, T: str = "T_{μν}") -> GlyphNode:
+        return sym("T_{μν}", T)
+
+    def einstein_tensor(self) -> GlyphNode:
+        return sym("G_{μν}")
+
+    def einstein_equation(self, G: Any, T: Any) -> GlyphNode:
+        node = sym("≐", G, sym("·", "8πG", T), equation="Einstein")
+
+        self.ingestion_engine.ingest_data(
+            {
+                "op": "einstein_equation",
+                "args": [G, T],
+                "codexlang": f"{G} = 8πG * {T}",
+                "glyph": node.to_dict(),
+                "domain": "physics.relativity",
+                "container": self.container_id,
+            },
+            source="PhysicsKernel",
+            tags=["physics", "relativity"]
+        )
+        return node
 
 
-# ---------- Quantum glyphs (symbolic) ----------
+# ---------- Public Registry ----------
 
-def ket(label: str) -> GlyphNode:
-    return sym("|ψ⟩", label)
-
-def bra(label: str) -> GlyphNode:
-    return sym("⟨ψ|", label)
-
-def operator(name: str, arg: Any = None) -> GlyphNode:
-    return sym("Â", name, arg)
-
-def hamiltonian(H_name: str = "H") -> GlyphNode:
-    return sym("H", H_name)
-
-def commutator(A: Any, B: Any) -> GlyphNode:
-    return sym("[ , ]", A, B)
-
-def schrodinger_evolution(psi: Any, H: Any, t: str = "t") -> GlyphNode:
-    """iℏ ∂|ψ⟩/∂t = H|ψ⟩  (symbolic statement)"""
-    lhs = sym("·", "iℏ", d_dt(psi, t))
-    rhs = sym("·", H, psi)
-    node = sym("≐", lhs, rhs, equation="Schr")
-
-    SymbolicIngestionEngine.ingest_data(
-        {
-            "op": "schrodinger_evolution",
-            "args": [psi, H, t],
-            "codexlang": f"evolve({psi}, {H}, {t})",
-            "glyph": node.to_dict(),
-            "domain": "physics.quantum"
-        },
-        source="PhysicsKernel",
-        tags=["physics", "quantum"]
-    )
-    return node
-
-
-# ---------- GR glyphs (symbolic) ----------
-
-def metric(g_symbol: str = "g") -> GlyphNode:
-    return sym("g_{μν}", g_symbol)
-
-def inverse_metric(g_inv_symbol: str = "g^{-1}") -> GlyphNode:
-    return sym("g^{μν}", g_inv_symbol)
-
-def covariant_derivative(expr: Any, index: str = "μ") -> GlyphNode:
-    return sym("∇_μ", expr, index)
-
-def riemann() -> GlyphNode:
-    return sym("R^ρ_{σμν}")
-
-def ricci() -> GlyphNode:
-    return sym("R_{μν}")
-
-def ricci_scalar() -> GlyphNode:
-    return sym("R")
-
-def stress_energy(T: str = "T_{μν}") -> GlyphNode:
-    return sym("T_{μν}", T)
-
-def einstein_equation(G: Any, T: Any) -> GlyphNode:
-    """G_{μν} = 8πG T_{μν}   (symbolic)"""
-    node = sym("≐", G, sym("·", "8πG", T), equation="Einstein")
-    SymbolicIngestionEngine.ingest_data(
-        {
-            "op": "einstein_equation",
-            "args": [G, T],
-            "codexlang": f"{G} = 8πG * {T}",
-            "glyph": node.to_dict(),
-            "domain": "physics.relativity"
-        },
-        source="PhysicsKernel",
-        tags=["physics", "relativity"]
-    )
-    return node
-
-def einstein_tensor() -> GlyphNode:
-    return sym("G_{μν}")
-
-
-# ---------- Registry (so other modules can “discover” physics ops) ----------
+DEFAULT_KERNEL = PhysicsKernel()
 
 REGISTRY: Dict[str, Any] = {
     # vector/tensor calculus
-    "grad": grad,
-    "div": div,
-    "curl": curl,
-    "laplacian": laplacian,
-    "d_dt": d_dt,
-    "tensor_product": tensor_product,
-    "dot": dot,
-    "cross": cross,
+    "grad": DEFAULT_KERNEL.grad,
+    "div": DEFAULT_KERNEL.div,
+    "curl": DEFAULT_KERNEL.curl,
+    "laplacian": DEFAULT_KERNEL.laplacian,
+    "d_dt": DEFAULT_KERNEL.d_dt,
+    "tensor_product": DEFAULT_KERNEL.tensor_product,
+    "dot": DEFAULT_KERNEL.dot,
+    "cross": DEFAULT_KERNEL.cross,
 
     # quantum
-    "ket": ket,
-    "bra": bra,
-    "operator": operator,
-    "hamiltonian": hamiltonian,
-    "commutator": commutator,
-    "schrodinger_evolution": schrodinger_evolution,
+    "ket": DEFAULT_KERNEL.ket,
+    "bra": DEFAULT_KERNEL.bra,
+    "operator": DEFAULT_KERNEL.operator,
+    "hamiltonian": DEFAULT_KERNEL.hamiltonian,
+    "commutator": DEFAULT_KERNEL.commutator,
+    "schrodinger_evolution": DEFAULT_KERNEL.schrodinger_evolution,
 
     # GR
-    "metric": metric,
-    "inverse_metric": inverse_metric,
-    "covariant_derivative": covariant_derivative,
-    "riemann": riemann,
-    "ricci": ricci,
-    "ricci_scalar": ricci_scalar,
-    "stress_energy": stress_energy,
-    "einstein_tensor": einstein_tensor,
-    "einstein_equation": einstein_equation,
+    "metric": DEFAULT_KERNEL.metric,
+    "inverse_metric": DEFAULT_KERNEL.inverse_metric,
+    "covariant_derivative": DEFAULT_KERNEL.covariant_derivative,
+    "riemann": DEFAULT_KERNEL.riemann,
+    "ricci": DEFAULT_KERNEL.ricci,
+    "ricci_scalar": DEFAULT_KERNEL.ricci_scalar,
+    "stress_energy": DEFAULT_KERNEL.stress_energy,
+    "einstein_tensor": DEFAULT_KERNEL.einstein_tensor,
+    "einstein_equation": DEFAULT_KERNEL.einstein_equation,
 }
+
 
 def get_registry() -> Dict[str, Any]:
     return dict(REGISTRY)

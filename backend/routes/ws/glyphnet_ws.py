@@ -28,11 +28,13 @@ from typing import TYPE_CHECKING
 from backend.modules.glyphos.glyph_executor import GlyphExecutor
 from backend.modules.prediction.predictive_glyph_composer import PredictiveGlyphComposer
 from backend.modules.glyphnet.agent_identity_registry import agent_identity_registry
-from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter, crdt_registry
+from backend.modules.knowledge_graph.crdt_registry_singleton import get_crdt_registry
 from backend.modules.glyphnet.broadcast_throttle import install, throttled_broadcast
 from backend.modules.teleport.portal_manager import PORTALS, create_teleport_packet
 from backend.modules.consciousness.state_manager import STATE
 from backend.modules.websocket_manager import send_ws_message
+from backend.modules.knowledge_graph.kg_writer_singleton import get_kg_writer
+kg_writer = get_kg_writer()
 
 if TYPE_CHECKING:
     from backend.modules.symbolic_engine.math_logic_kernel import LogicGlyph
@@ -303,10 +305,15 @@ async def handle_glyphnet_event(websocket: WebSocket, msg: Dict[str, Any]):
         agent_id = payload.get("agent_id", "anonymous")
         version_vector = payload.get("version_vector", {})
 
-        kg_writer = KnowledgeGraphWriter()
+        from backend.modules.knowledge_graph.kg_writer_singleton import get_kg_writer
+        kg_writer = get_kg_writer()
+
         try:
             updated_glyph = kg_writer.merge_edit(
-                glyph_id=glyph_id, updates=updates, agent_id=agent_id, version_vector=version_vector
+                glyph_id=glyph_id,
+                updates=updates,
+                agent_id=agent_id,
+                version_vector=version_vector
             )
             broadcast_event_throttled({
                 "type": "glyph_updated",
@@ -328,6 +335,10 @@ async def handle_glyphnet_event(websocket: WebSocket, msg: Dict[str, Any]):
     elif event_type == "entanglement_lock":
         glyph_id = msg.get("glyph_id")
         agent_id = msg.get("agent_id")
+        
+        from backend.modules.knowledge_graph.crdt_registry_singleton import get_crdt_registry
+        crdt_registry = get_crdt_registry()
+
         if crdt_registry.acquire_lock(glyph_id, agent_id):
             await broadcast_lock_overlay("acquired", glyph_id, agent_id)
         else:

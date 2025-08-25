@@ -27,7 +27,7 @@ from backend.modules.glyphos.codexlang_translator import run_codexlang_string
 from backend.modules.glyphos.glyph_executor import GlyphExecutor
 
 # Intelligence & KG
-from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter
+from backend.modules.knowledge_graph.kg_writer_singleton import get_kg_writer
 from backend.modules.knowledge_graph.indexes.introspection_index import add_introspection_event
 from backend.modules.knowledge_graph.indexes.prediction_index import PredictionIndex, PredictedGlyph
 
@@ -110,7 +110,7 @@ class CodexExecutor:
         if TessarisEngine is None:
             from backend.modules.tessaris.tessaris_engine import TessarisEngine
         self.tessaris = TessarisEngine()
-        self.kg_writer = KnowledgeGraphWriter()
+        self.kg_writer = get_kg_writer()
         global PredictionEngine
         if PredictionEngine is None:
             from backend.modules.consciousness.prediction_engine import PredictionEngine

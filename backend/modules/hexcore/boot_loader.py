@@ -5,9 +5,15 @@ from pathlib import Path
 from typing import Optional, Dict, Any
 
 from backend.modules.skills.milestone_tracker import MilestoneTracker
-from backend.modules.knowledge_graph.knowledge_graph_writer import kg_writer
 from backend.modules.dimensions.universal_container_system.ucs_runtime import ucs_runtime
 from backend.modules.dimensions.containers.tesseract_hub import ensure_tesseract_hub
+
+try:
+    from backend.modules.knowledge_graph.kg_writer_singleton import get_kg_writer
+    kg_writer = get_kg_writer()
+except Exception as e:
+    print(f"[boot_loader] ⚠️ Failed to import kg_writer: {e}")
+    kg_writer = None
 
 # HQ / Tesseract hub (idempotent creator)
 try:
@@ -65,7 +71,7 @@ def boot():
 
     # Load boot goals into KG (if any)
     boot_goals = load_boot_goals()
-    if boot_goals:
+    if boot_goals and kg_writer:
         kg_writer.write_knowledge("boot_goals", boot_goals)
 
     print("[boot_loader] Boot sequence complete.")

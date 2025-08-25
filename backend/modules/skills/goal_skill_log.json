@@ -317,5 +317,110 @@
     "message": "Teleported to container: atom_electrons_test",
     "success": true,
     "timestamp": "2025-08-21T17:19:02.274017"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: atom_electrons_test",
+    "success": true,
+    "timestamp": "2025-08-22T14:15:08.372081"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: atom_electrons_test",
+    "success": true,
+    "timestamp": "2025-08-22T14:54:24.626259"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: atom_electrons_test",
+    "success": true,
+    "timestamp": "2025-08-22T16:21:23.869726"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: atom_electrons_test",
+    "success": true,
+    "timestamp": "2025-08-22T16:46:39.505635"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: atom_electrons_test",
+    "success": true,
+    "timestamp": "2025-08-22T16:48:33.898956"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: atom_electrons_test",
+    "success": true,
+    "timestamp": "2025-08-22T16:50:57.439989"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: atom_electrons_test",
+    "success": true,
+    "timestamp": "2025-08-22T17:04:33.629761"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: atom_electrons_test",
+    "success": true,
+    "timestamp": "2025-08-22T17:07:17.091031"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: atom_electrons_test",
+    "success": true,
+    "timestamp": "2025-08-22T17:07:18.228359"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: atom_electrons_test",
+    "success": true,
+    "timestamp": "2025-08-22T17:13:44.965971"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: atom_electrons_test",
+    "success": true,
+    "timestamp": "2025-08-22T17:13:45.919549"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: atom_electrons_test",
+    "success": true,
+    "timestamp": "2025-08-22T17:30:16.422412"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: atom_electrons_test",
+    "success": true,
+    "timestamp": "2025-08-22T17:30:17.427332"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: atom_electrons_test",
+    "success": true,
+    "timestamp": "2025-08-22T20:04:12.546715"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: atom_electrons_test",
+    "success": true,
+    "timestamp": "2025-08-22T20:04:13.614095"
   }
 ]

@@ -9,10 +9,14 @@ def trigger_tessaris_from_goal(*args, **kwargs):
     return _trigger(*args, **kwargs)
 from backend.modules.glyphos.glyph_mutator import run_self_rewrite
 from backend.modules.glyphos.entanglement_utils import entangle_glyphs
-from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter, kg_writer
-
-# ✅ Initialize Knowledge Graph Writer (no duplicate import)
-kg_writer = KnowledgeGraphWriter()
+# ⏳ Delayed Knowledge Graph Writer to avoid circular import
+kg_writer = None
+def get_goal_engine_kg_writer():
+    global kg_writer
+    if kg_writer is None:
+        from backend.modules.knowledge_graph.kg_writer_singleton import get_kg_writer
+        kg_writer = get_kg_writer()
+    return kg_writer
 
 # ✅ Awareness tag tracing
 from backend.modules.glyphnet.glyphnet_trace import log_trace_event
@@ -148,7 +152,7 @@ class GoalEngine:
             return goal
 
         try:
-            kg_writer.inject_glyph(
+            get_goal_engine_kg_writer().inject_glyph(
                 content=goal.get("description", ""),
                 glyph_type="goal",
                 metadata={
@@ -226,7 +230,7 @@ class GoalEngine:
 
         # Optional: Inject into KG explicitly with awareness tag
         try:
-            kg_writer.inject_glyph(
+            get_goal_engine_kg_writer().inject_glyph(
                 content=desc,
                 glyph_type="goal",
                 metadata={

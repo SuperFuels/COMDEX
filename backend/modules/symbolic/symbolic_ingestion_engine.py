@@ -2,7 +2,7 @@ from typing import Dict, Any, Optional
 from datetime import datetime
 import hashlib
 
-from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter
+from backend.modules.knowledge_graph.kg_writer_singleton import get_kg_writer
 from backend.modules.codex.codexlang_rewriter import CodexLangRewriter
 from backend.modules.codex.symbolic_registry import symbolic_registry
 from backend.modules.symbolic.symbolic_parser import parse_raw_input_to_ast
@@ -20,7 +20,7 @@ def is_logic_expression(expr: str) -> bool:
 
 class SymbolicIngestionEngine:
     def __init__(self):
-        self.graph_writer = KnowledgeGraphWriter()
+        self.graph_writer = get_kg_writer()
         self.registry = SQIContainerRegistry()
         self.rewriter = CodexLangRewriter()
 

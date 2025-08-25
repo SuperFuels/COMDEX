@@ -7,7 +7,7 @@ from backend.modules.consciousness.prediction_engine import run_prediction_on_as
 from backend.modules.codex.codex_ast_encoder import encode_codex_ast_to_glyphs
 from backend.modules.codex.codex_executor import execute_instruction_tree
 from backend.modules.codex.codex_metrics import CodexMetrics
-from backend.modules.knowledge_graph.knowledge_graph_writer import inject_prediction_trace
+from backend.modules.knowledge_graph.kg_writer_singleton import inject_prediction_trace
 from backend.routes.ws.glyphnet_ws import emit_websocket_event
 
 from backend.modules.lean.lean_proofverifier import validate_lean_container

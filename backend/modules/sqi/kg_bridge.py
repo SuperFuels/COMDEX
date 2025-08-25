@@ -31,13 +31,13 @@ def _to_kg_nodes(report: DriftReport) -> List[Dict[str, Any]]:
 
 def write_report_to_kg(report: DriftReport) -> Dict[str, Any]:
     try:
-        from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter
+        from backend.modules.knowledge_graph.kg_writer_singleton import kg_writer
     except Exception:
         # fallback: return structure for logging
         return {"written": 0, "reason": "KG writer not available", "payload": _to_kg_nodes(report)}
 
     nodes = _to_kg_nodes(report)
-    kg = KnowledgeGraphWriter()
+    kg = kg_writer
     written = 0
     for n in nodes:
         try:

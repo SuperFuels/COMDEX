@@ -1,5 +1,5 @@
 import csv
-from backend.modules.knowledge_graph.knowledge_graph_writer import add_source, link_source
+from backend.modules.knowledge_graph.kg_writer_singleton import add_source, link_source
 
 def load_biology_sources(csv_path):
     with open(csv_path) as f:

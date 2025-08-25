@@ -7,7 +7,7 @@ import random
 
 from backend.modules.dna_chain.mutation_scorer import score_mutation
 from backend.modules.dna_chain.mutation_checker import check_mutation_against_soul_laws, estimate_entropy_change
-from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter
+from backend.modules.knowledge_graph.kg_writer_singleton import get_kg_writer
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from backend.modules.symbolic_engine.math_logic_kernel import LogicGlyph
@@ -61,7 +61,7 @@ def suggest_mutations_for_glyph(glyph: "LogicGlyph") -> List["LogicGlyph"]:
         mutated.metadata["score"] = score
 
         # Inject into knowledge graph
-        writer = KnowledgeGraphWriter()
+        writer = get_kg_writer()
         writer.inject_glyph(
             content=f"{from_str} ⟶ {to_str}",
             glyph_type="mutation",

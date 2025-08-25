@@ -6,7 +6,7 @@ from backend.modules.codex.codexlang_rewriter import (
     CodexLangRewriter,
     suggest_rewrite_candidates,
 )
-from backend.modules.knowledge_graph.knowledge_graph_writer import inject_into_trace
+from backend.modules.knowledge_graph.kg_writer_singleton import get_kg_writer
 
 
 def auto_mutate_container(container: dict, autosave: bool = False) -> dict:
@@ -59,7 +59,7 @@ def auto_mutate_container(container: dict, autosave: bool = False) -> dict:
                     break  # Apply only the first suggestion
 
     if mutation_trace:
-        inject_into_trace(mutated, {
+        get_kg_writer().inject_trace_event(mutated, {
             "event": "auto_mutation",
             "details": mutation_trace
         })

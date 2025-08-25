@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from backend.modules.knowledge_graph.knowledge_graph_writer import write_glyph_event
+from backend.modules.knowledge_graph.kg_writer_singleton import write_glyph_event
 from backend.modules.codex.codex_metrics import record_mutation_event
 from backend.modules.sqi.sqi_event_bus import emit_sqi_mutation_score_if_applicable
 from backend.modules.symbolic.symbolic_broadcast import broadcast_glyph_event

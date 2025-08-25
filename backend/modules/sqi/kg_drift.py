@@ -17,7 +17,8 @@ def _get_kg_writer():
     Lazy import to avoid circular import chains.
     Returns the shared KnowledgeGraphWriter instance (kg_writer).
     """
-    from backend.modules.knowledge_graph.knowledge_graph_writer import kg_writer
+    from backend.modules.knowledge_graph.kg_writer_singleton import kg_writer
+    kg_writer = get_kg_writer()
     return kg_writer
 
 def _augment_with_suggestions(container: Dict[str, Any], report: Dict[str, Any]) -> None:

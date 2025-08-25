@@ -186,10 +186,10 @@
     }
   },
   "atom_electrons_test": {
-    "address": "ucs://local/atom_electrons_test#atom",
-    "kind": "atom",
+    "address": "ucs://local/ElectronShell Test Atom#container",
+    "kind": "container",
     "meta": {
-      "address": "ucs://local/atom_electrons_test#atom"
+      "address": "ucs://local/ElectronShell Test Atom#container"
     }
   }
 }

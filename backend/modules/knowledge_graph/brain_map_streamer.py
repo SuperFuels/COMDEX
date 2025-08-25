@@ -22,13 +22,13 @@ import asyncio
 from typing import Dict, Any, List
 from fastapi import WebSocket
 from backend.modules.codex.codex_metrics import CodexMetrics
-from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter
+from backend.modules.knowledge_graph.kg_writer_singleton import get_kg_writer 
 from backend.modules.glyphos.symbolic_entangler import get_entangled_for, get_entangled_targets
 
 class BrainMapStreamer:
     def __init__(self):
         self.clients: List[WebSocket] = []
-        self.kg_writer = KnowledgeGraphWriter()
+        self.kg_writer = get_kg_writer()
         self.metrics = CodexMetrics()
 
     # ──────────────────────────────

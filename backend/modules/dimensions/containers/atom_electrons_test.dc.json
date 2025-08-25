@@ -2,6 +2,13 @@
   "id": "atom_electrons_test",
   "type": "atom",
   "name": "ElectronShell Test Atom",
+  "description": "Test container for GHX orbital rendering and symbolic prediction.",
+  "created_on": "2025-08-22T00:00:00Z",
+  "dna_switch": {
+    "enabled": true,
+    "mutation_id": null,
+    "entropy": 0.0
+  },
   "isAtom": true,
   "position": [0, 0, 0],
   "electronCount": 12,
@@ -89,4 +96,4 @@
     "description": "Test atom for GHX orbital rendering",
     "origin": "Generated for visual test"
   }
-}
+} 

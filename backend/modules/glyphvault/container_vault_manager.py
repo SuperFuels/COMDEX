@@ -9,27 +9,27 @@ from backend.modules.glyphvault.glyph_encryptor import GlyphEncryptor
 from backend.modules.glyphos.microgrid_index import MicrogridIndex
 from backend.modules.glyphvault.soul_law_validator import soul_law_validator  # ✅ SoulLaw validation
 from backend.modules.dimensions.universal_container_system.ucs_runtime import get_ucs_runtime  # ✅ UCS sync for vault ops
-from backend.modules.glyphvault.kg_writer_singleton import get_kg_writer  # ✅ Safe KG writer import
+from backend.modules.knowledge_graph.kg_writer_singleton import get_kg_writer  # ✅ Safe KG writer import
 
 logger = logging.getLogger(__name__)
 _vmanager_seen = set()
 
 class ContainerVaultManager:
-    """
-    Manages encrypted glyph data vaults for .dc containers.
-    Handles serialization, encryption, decryption, and loading glyph metadata into MicrogridIndex.
-    Includes SoulLaw validation, KG logging, and UCS integration.
-    """
-
     def __init__(self, encryption_key: bytes):
         self.encryptor = GlyphEncryptor(encryption_key)
         self.microgrid = MicrogridIndex()
-        self.kg_writer = get_kg_writer()
-        try:
-            from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter
-            self.kg_writer = KnowledgeGraphWriter()
-        except ImportError:
-            logger.warning("[Vault] KG Writer unavailable due to circular import")
+        self._kg_writer = None  # Delayed init to avoid circular import
+
+    @property
+    def kg_writer(self):
+        if self._kg_writer is None:
+            try:
+                from backend.modules.knowledge_graph.kg_writer_singleton import get_kg_writer
+                self._kg_writer = get_kg_writer()
+            except Exception as e:
+                logger.warning(f"[Vault] Failed to load KG Writer: {e}")
+                self._kg_writer = None
+        return self._kg_writer     
 
     def save_container_glyph_data(self, glyph_data: dict, associated_data: Optional[bytes] = None) -> bytes:
         """
