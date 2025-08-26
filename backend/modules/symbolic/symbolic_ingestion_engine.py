@@ -12,6 +12,9 @@ from backend.modules.sqi.sqi_container_registry import SQIContainerRegistry
 # NEW: logic parser for ∀x. P(x) → Q(x)
 from backend.modules.codex.codexlang_parser import parse_codexlang_to_ast
 
+# NEW: SymbolNet enrichment engine
+from backend.modules.symbolnet.symbolnet_ingestor import SymbolNetIngestor
+
 
 def is_logic_expression(expr: str) -> bool:
     """Rough check for logic symbols like ∀, ∃, →, ∧, ¬, etc."""
@@ -23,6 +26,7 @@ class SymbolicIngestionEngine:
         self.graph_writer = get_kg_writer()
         self.registry = SQIContainerRegistry()
         self.rewriter = CodexLangRewriter()
+        self.symbolnet = SymbolNetIngestor()
 
     def dispatch_ingest(
         self,
@@ -75,13 +79,16 @@ class SymbolicIngestionEngine:
         # 3. Encode CodexLang into glyphs
         glyphs = encode_codex_ast_to_glyphs(codex_lang)
 
-        # 4. Generate content hash to prevent duplication
+        # 4. Enrich glyphs via SymbolNet (external semantics)
+        enriched = self.symbolnet.enrich_glyphs(glyphs)
+
+        # 5. Generate content hash to prevent duplication
         content_hash = hashlib.sha256(raw_content.encode()).hexdigest()
 
-        # 5. Determine container type (Fact, Project, Note, etc.)
+        # 6. Determine container type (Fact, Project, Note, etc.)
         container_type = self._infer_container_type(metadata)
 
-        # 6. Construct symbolic knowledge packet
+        # 7. Construct symbolic knowledge packet
         packet = {
             "content_hash": content_hash,
             "source": source,
@@ -90,7 +97,7 @@ class SymbolicIngestionEngine:
             "raw_content": raw_content,
             "symbolic_ast": symbolic_ast,
             "codex_lang": codex_lang,
-            "glyphs": glyphs,
+            "glyphs": enriched,  # use enriched glyphs
             "domains": metadata.get("domains", []),
             "tags": metadata.get("tags", []),
             "origin": metadata.get("origin", source),
@@ -100,13 +107,13 @@ class SymbolicIngestionEngine:
             "source_type": metadata.get("source_type", "plugin" if plugin_id else "user"),
         }
 
-        # 7. Register symbolic entry
+        # 8. Register symbolic entry
         symbolic_registry.register(name=content_hash, glyph_tree=symbolic_ast)
 
-        # 8. Inject into Knowledge Graph
+        # 9. Inject into Knowledge Graph
         container_id = self.graph_writer.store_symbolic_fact(packet)
 
-        # 9. Register in SQIContainerRegistry
+        # 10. Register in SQIContainerRegistry
         self.registry.register_entry(container_id, packet)
 
         return {
@@ -114,7 +121,7 @@ class SymbolicIngestionEngine:
             "status": "ingested",
             "hash": content_hash,
             "container_type": container_type,
-            "glyph_count": len(glyphs),
+            "glyph_count": len(enriched),
         }
 
     def _infer_container_type(self, metadata: Dict[str, Any]) -> str:

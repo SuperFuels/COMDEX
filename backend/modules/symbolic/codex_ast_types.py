@@ -1,3 +1,5 @@
+# File: backend/modules/codex/codex_ast_types.py
+
 from typing import List, Dict, Any
 
 
@@ -6,26 +8,30 @@ class CodexAST:
     Wrapper class for CodexLang AST nodes.
     Used for standardized manipulation, equality checking, and serialization.
     """
-    def __init__(self, node: Dict[str, Any]):
+    def __init__(self, node: Dict[str, Any], metadata: Dict[str, Any] = None):
         self.node = node
+        self.metadata = metadata or {}
 
     def to_dict(self) -> Dict[str, Any]:
-        return self.node
+        return {
+            "ast": self.node,
+            "metadata": self.metadata
+        }
 
     @staticmethod
     def from_dict(data: Dict[str, Any]) -> "CodexAST":
-        return CodexAST(data)
+        return CodexAST(data.get("ast", data), metadata=data.get("metadata", {}))
 
     def get_type(self) -> str:
         return self.node.get("type", "")
 
     def __repr__(self) -> str:
-        return f"CodexAST({self.node})"
+        return f"CodexAST({self.node}, metadata={self.metadata})"
 
     def __eq__(self, other) -> bool:
         if not isinstance(other, CodexAST):
             return False
-        return self.node == other.node
+        return self.node == other.node and self.metadata == other.metadata
 
 
 # === Constructors ===

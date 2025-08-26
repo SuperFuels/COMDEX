@@ -4,8 +4,7 @@ from typing import List, Dict, Any, Union
 import re
 
 from backend.modules.codex.codexlang_types import CodexAST
-from backend.modules.symbolic_engine.symbolic_kernels.logic_glyphs import LogicGlyph
-
+from backend.modules.symbolic_engine.symbolic_kernels.logic_glyphs import EncodedLogicGlyph as LogicGlyph
 
 def parse_codexlang_to_ast(expression: str) -> dict:
     """
@@ -43,20 +42,19 @@ def encode_codex_ast_to_glyphs(ast: Union[CodexAST, Dict[str, Any]]) -> List[Log
             operands = node.args
             encoded_operands = []
             for arg in operands:
-                if isinstance(arg, CodexAST) or isinstance(arg, dict):
+                if isinstance(arg, (CodexAST, dict)):
                     subglyph = traverse(arg)
                     glyphs.append(subglyph)
                     encoded_operands.append(subglyph.get("id", subglyph))
                 else:
                     encoded_operands.append(arg)
 
-            glyph = LogicGlyph(
-                type="symbolic",
-                operator=op,
+            glyph = LogicGlyph.create(
+                symbol=op,
                 operands=encoded_operands,
                 metadata=node.meta
             )
-            return glyph.encode()
+            return glyph
 
         elif isinstance(node, dict):
             node_type = node.get("type")
@@ -64,82 +62,73 @@ def encode_codex_ast_to_glyphs(ast: Union[CodexAST, Dict[str, Any]]) -> List[Log
             operands = node.get("operands", [])
             metadata = node.get("metadata", {})
 
-            # Special handling for quantifiers and logic structures
             if node_type == "ForAll":
-                glyph = LogicGlyph(
-                    type="logic",
-                    operator="∀",
+                glyph = LogicGlyph.create(
+                    symbol="∀",
                     operands=[node["var"], traverse(node["body"]).get("id")],
                     metadata=metadata
                 )
-                return glyph.encode()
+                return glyph
 
             elif node_type == "Exists":
-                glyph = LogicGlyph(
-                    type="logic",
-                    operator="∃",
+                glyph = LogicGlyph.create(
+                    symbol="∃",
                     operands=[node["var"], traverse(node["body"]).get("id")],
                     metadata=metadata
                 )
-                return glyph.encode()
+                return glyph
 
             elif node_type == "Implies":
-                glyph = LogicGlyph(
-                    type="logic",
-                    operator="→",
+                glyph = LogicGlyph.create(
+                    symbol="→",
                     operands=[traverse(node["left"]).get("id"), traverse(node["right"]).get("id")],
                     metadata=metadata
                 )
-                return glyph.encode()
+                return glyph
 
             elif node_type == "Equiv":
-                glyph = LogicGlyph(
-                    type="logic",
-                    operator="↔",
+                glyph = LogicGlyph.create(
+                    symbol="↔",
                     operands=[traverse(node["left"]).get("id"), traverse(node["right"]).get("id")],
                     metadata=metadata
                 )
-                return glyph.encode()
+                return glyph
 
             elif node_type == "Not":
-                glyph = LogicGlyph(
-                    type="logic",
-                    operator="¬",
+                glyph = LogicGlyph.create(
+                    symbol="¬",
                     operands=[traverse(node["expr"]).get("id")],
                     metadata=metadata
                 )
-                return glyph.encode()
+                return glyph
 
             elif node_type == "And":
                 ops = [traverse(child).get("id") for child in node["args"]]
-                glyph = LogicGlyph(
-                    type="logic",
-                    operator="∧",
+                glyph = LogicGlyph.create(
+                    symbol="∧",
                     operands=ops,
                     metadata=metadata
                 )
-                return glyph.encode()
+                return glyph
 
             elif node_type == "Or":
                 ops = [traverse(child).get("id") for child in node["args"]]
-                glyph = LogicGlyph(
-                    type="logic",
-                    operator="∨",
+                glyph = LogicGlyph.create(
+                    symbol="∨",
                     operands=ops,
                     metadata=metadata
                 )
-                return glyph.encode()
+                return glyph
 
             elif node_type == "predicate":
-                glyph = LogicGlyph(
-                    type="logic",
-                    operator=operator,
+                glyph = LogicGlyph.create(
+                    symbol=operator,
                     operands=operands,
                     metadata=metadata
                 )
-                return glyph.encode()
+                return glyph
 
-            # Generic fallback for any other logic/math/operator types
+            # Fallback
             encoded_operands = []
             for operand in operands:
                 if isinstance(operand, (dict, CodexAST)):
@@ -149,13 +138,12 @@ def encode_codex_ast_to_glyphs(ast: Union[CodexAST, Dict[str, Any]]) -> List[Log
                 else:
                     encoded_operands.append(operand)
 
-            glyph = LogicGlyph(
-                type=_map_type(node_type),
-                operator=operator,
+            glyph = LogicGlyph.create(
+                symbol=operator,
                 operands=encoded_operands,
                 metadata=metadata
             )
-            return glyph.encode()
+            return glyph
 
         else:
             raise TypeError(f"Unsupported AST node type: {type(node)}")
@@ -163,7 +151,6 @@ def encode_codex_ast_to_glyphs(ast: Union[CodexAST, Dict[str, Any]]) -> List[Log
     root_glyph = traverse(ast)
     glyphs.append(root_glyph)
     return glyphs
-
 
 def _map_type(ast_type: str) -> str:
     """Map AST node type to glyph category."""

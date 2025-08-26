@@ -1,6 +1,6 @@
 import re
 from typing import Union, List, Dict, Any
-
+from backend.modules.symbolic.codex_ast_types import CodexAST
 
 def tokenize_codexlang(expr: str) -> List[str]:
     # Basic tokenization for logic expressions
@@ -84,6 +84,22 @@ def parse_codexlang_to_ast(expr: str) -> Dict[str, Any]:
     if not tokens:
         return {"type": "empty"}
     return parse_expression(tokens)
+
+def parse_codexlang(code: str) -> CodexAST:
+    """
+    Parse a CodexLang string like 'greater_than(x, y)' into a CodexAST.
+    """
+    try:
+        if '(' not in code or ')' not in code:
+            raise ValueError("CodexLang must contain parentheses: e.g., 'add(x, y)'")
+
+        fn = code.split('(', 1)[0].strip()
+        args = code.split('(', 1)[1].rsplit(')', 1)[0].split(',')
+        args = [a.strip() for a in args if a.strip()]
+        return CodexAST({"root": fn, "args": args})
+
+    except Exception as e:
+        raise ValueError(f"Invalid input for CodexLang parsing: {code}") from e
 
 
 # Example:

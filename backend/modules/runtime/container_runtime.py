@@ -19,6 +19,8 @@ from backend.modules.dimensions.ucs.ucs_entanglement import entangle_containers
 from backend.modules.dimensions.universal_container_system.ucs_base_container import UCSBaseContainer
 from backend.modules.consciousness.prediction_engine import PredictionEngine
 from backend.modules.lean.lean_proofverifier import validate_lean_container
+from backend.modules.qfield.qfc_ws_broadcast import send_qfc_payload
+from backend.modules.qfield.qfc_utils import build_qfc_view
 
 try:
     # ✅ Lazy import to avoid circular dependency
@@ -89,6 +91,7 @@ class ContainerRuntime:
 
         # ✅ Decrypt and finalize
         return self.get_decrypted_current_container()
+        
     
     @staticmethod
     def load_container_from_path(path: str) -> dict:
@@ -137,7 +140,7 @@ class ContainerRuntime:
 
     def get_decrypted_current_container(self) -> Dict[str, Any]:
         container = self.state_manager.get_current_container()
-        
+
         if container is None:
             raise ValueError("❌ No current container loaded (state_manager returned None)")
 
@@ -197,13 +200,36 @@ class ContainerRuntime:
         else:
             container["isAtom"] = False
             container["electronCount"] = 0
-        from backend.modules.lean.lean_utils import is_lean_container
+
         # ✅ Lean Container Validation
+        from backend.modules.lean.lean_utils import is_lean_container
         if is_lean_container(container):
             try:
                 validate_lean_container(container)
             except Exception as e:
                 logger.warning(f"⚠️ Lean container validation failed: {e}")
+
+        # ✅ Live QFC Broadcast (only for atom containers)
+        if container.get("isAtom"):
+            try:
+                from backend.modules.qfield.qfc_utils import build_qfc_view
+                from backend.modules.qfield.qfc_bridge import send_qfc_payload
+
+                qfc_payload = build_qfc_view(container)
+                send_qfc_payload(qfc_payload)
+            except Exception as e:
+                print(f"⚠️ QFC broadcast failed for atom container {container.get('id')}: {e}")
+
+        # 🔁 Replay Trigger (if trace field exists)
+        if "replay_trace" in container:
+            try:
+                from backend.modules.qfield.qfc_utils import build_qfc_view
+                from backend.modules.qfield.qfc_bridge import send_qfc_payload
+
+                qfc_payload = build_qfc_view(container, mode="replay")
+                send_qfc_payload(qfc_payload, mode="replay")
+            except Exception as e:
+                logger.warning(f"⚠️ QFC replay broadcast failed: {e}")
 
         return container
 

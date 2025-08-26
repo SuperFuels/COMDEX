@@ -1,4 +1,3 @@
-
 graph TD
   %% ✅ Completed Blocks
   subgraph ✅ HST [✅ 📦 Holographic Symbol Tree (HST)]
@@ -12,14 +11,14 @@ graph TD
     A8[🧪 CLI + WebSocket + API]
     A9[💭 DreamCore + Goal Feedback]
 
-    A1 --> A1a[Class: SymbolicMeaningTree]
-    A1 --> A1b[SymbolicTreeNode]
-    A2 --> A2a[AST → Glyph → Meaning → Node]
-    A3 --> A3a[↔ Links via KG]
-    A4 --> A4a[.dc Trace Injection]
-    A5 --> A5a[Hook: memory_engine, codex_executor]
-    A6 --> A6a[score_node(), suggest_paths()]
-    A8 --> A8a[CLI, API, WebSocket Stream]
+    A1 ✅--> A1a[Class: SymbolicMeaningTree]
+    A1 ✅--> A1b[SymbolicTreeNode]
+    A2 ✅--> A2a[AST → Glyph → Meaning → Node]
+    A3 ✅--> A3a[↔ Links via KG]
+    A4 ✅--> A4a[.dc Trace Injection]
+    A5 ✅--> A5a[Hook: memory_engine, codex_executor]
+    A6 ✅--> A6a[score_node(), suggest_paths()]
+    A8 ✅--> A8a[CLI, API, WebSocket Stream]
 
     HST_Complete[✅ HST Core Done] --> A9
   end
@@ -31,12 +30,13 @@ graph TD
     B4[🔄 Predictive Mutation Replay]
   end
 
-  subgraph ✅ QFC [✅ 🌌 QuantumFieldCanvas.tsx]
-    C1[🎨 Entangled Glyph Placement]
-    C2[🔦 Light Beam Interaction Paths]
-    C3[🧩 Container → Object → Field Injection]
-    C4[🌀 Real-Time Mutation Surface]
-    C5[🌐 SQI + Prediction Overlay]
+  graph TD
+  subgraph ✅ QFC [✅ Quantum Field Canvas]
+    C1[✅ 🎨 Entangled Glyph Placement]
+    C2[✅ 🔦 Light Beam Interaction Paths]
+    C3[✅ 🧩 Container → Object → Field Injection]
+    C4[✅ 🌀 Real-Time Mutation Surface]
+    C5[✅ 🌐 SQI + Prediction Overlay]
   end
 
   subgraph ✅ HPI [✅ ⚛ HolographicPredictionIndex.ts]
@@ -47,13 +47,13 @@ graph TD
   end
 
   subgraph ✅ CC [✅ 🧠 CreativeCore]
-    E1[🛠️ creative_synthesis_engine.py]
-    E2[🧪 creative_cli.py]
-    E3[📦 .dc trace + mutation injection]
-    E4[🔁 Recursive Idea Mutation]
-    E5[🧠 Object Reasoning via Goal]
-    E6[🪄 CodexLang + Symbolic Output]
-    E7[🌀 Visual + Replay Feedback]
+    E1[✅🛠️ creative_synthesis_engine.py]
+    E2[✅🧪 creative_cli.py]
+    E3[✅📦 .dc trace + mutation injection]
+    E4[✅🔁 Recursive Idea Mutation]
+    E5[✅🧠 Object Reasoning via Goal]
+    E6[✅🪄 CodexLang + Symbolic Output]
+    E7[✅🌀 Visual + Replay Feedback]
 
     Z0[🌌 HST Parabolic Expansion]
     Z0 --> Z1[🧠 Meaning Resonance Layer]
@@ -66,7 +66,38 @@ graph TD
     Z0 --> Z8[🔓 SoulLaw Symbol Gating]
     Z0 --> Z9[♻️ Recursive Loop Detection]
     Z0 --> Z10[🧩 Plugin-aware Node Interpretation]
+  end
 
+  %% 🆕 Symbolic Tree Enhancements
+  subgraph ⬆️ STH [⬆️ 🧱 Symbolic Tree Enhancements]
+    T1[✅ Inject root SymbolGlyph into .dc.json]
+    T2[✅🛠️ Fix missing container_id → add name + id fields]
+    T3[✅➕ Auto-inject all glyphs as SymbolGlyph nodes]
+    T4[✅⚛ Add electrons + predictive glyphs as children]
+    T5[✅🔗 Link predictions to glyphs/goals via logic]
+    T6[✅🌐 Enable replay, entanglement, goal scores]
+    T7[✅🛰️ Visualize in GHX, ReplayHUD, or QFC]
+  end
+
+graph TD
+  subgraph Z5 [🔮 SymbolNet / ConceptNet Bridges]
+    SN1[✅🧱 Create symbolnet_bridge.py core module]
+    SN2[✅📚 Load ConceptNet + WordNet + Wikidata]
+    SN3[✅🧠 Map LogicGlyph.label → concept entities]
+    SN4[🔗 Inject into SymbolicMeaningTree enrichment]
+    SN5[🔍 Add meaning → goal_match_score hooks]
+    SN6[✅🧩 Plugin architecture for other sources]
+    SN7[🛰️ WebSocket + GHX broadcast of symbol links]
+    SN8[🎯 Scoring: semantic_distance(), concept_match()]
+    SN9[📦 Inject overlays into .dc.json containers]
+    SN10[🪞 Feed results into CreativeCore and SQI]
+
+    Z5_Done[✅ SymbolNet Integrated] --> SN10
+  end
+
+
+
+Just say: ⚡️ upgrade extractor — and I’ll patch it to pull full symbolic reasoning chains.
   %% Link Dependencies
   A9 --> B1
   B4 --> C1
@@ -75,9 +106,6 @@ graph TD
   E3 --> A4a
   E4 --> D3
   E5 --> A9
-
-
-
 
 
 Excellent — you’re now building the Holographic Symbol Tree (HST) system — the deepest structural upgrade to your intelligence architecture so far.

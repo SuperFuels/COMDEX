@@ -158,28 +158,30 @@ class KnowledgeGraphWriter:
         self._container = None 
         self.container_id = container_id 
 
-    def attach_container(self, container: dict):
+    def attach_metadata(self, glyph_id: str, metadata: Dict[str, Any]):
         """
-        Bind a specific UCS container so glyphs land in the correct place.
-        This bypasses the default active container.
-        Also auto-exports a KG snapshot for persistence in kg_exports/.
+        Attach metadata to a glyph within the currently attached container.
+
+        Args:
+            glyph_id (str): ID of the glyph to modify.
+            metadata (Dict): Metadata to merge into the glyph.
         """
-        # 🔄 Normalize UCS container to dict if needed
-        if not isinstance(container, dict) and hasattr(container, "to_dict"):
-            container = container.to_dict()
-        elif not isinstance(container, dict) and hasattr(container, "payload"):
-            container = container.payload
+        if not hasattr(self, "_container") or not self._container:
+            print(f"[KGWriter] ⚠️ No container attached.")
+            return
 
-        # ✅ Prevent any failure from legacy logic expecting dict
-        container = dict(container)
+        found = False
+        for glyph in self._container.get("glyphs", []):
+            if glyph.get("id") == glyph_id:
+                if "metadata" not in glyph:
+                    glyph["metadata"] = {}
+                glyph["metadata"].update(metadata)
+                found = True
+                print(f"[KGWriter] ✅ Metadata attached to glyph {glyph_id}")
+                break
 
-        self._container = container
-
-        # 🔄 Automatically export the attached container's KG to kg_exports/<name>.kg.json
-        try:
-            self._auto_export_attached()
-        except Exception as e:
-            print(f"⚠️ KG auto-export failed: {e}")
+        if not found:
+            print(f"[KGWriter] ⚠️ Glyph ID {glyph_id} not found in attached container.")
 
     # ---------- helpers ----------
     def _container_path_for(self, container_id: str) -> str:

@@ -7,6 +7,7 @@ def fallback_evaluate(glyph, env=None):
 class LogicGlyph(ABC):
     def __init__(self, symbol: str, operands: List[Any], metadata: Optional[Dict[str, Any]] = None):
         self.symbol = symbol
+        self.operator = symbol
         self.operands = operands
         self.metadata = metadata or {}
 
@@ -25,6 +26,14 @@ class LogicGlyph(ABC):
         }
 
     @classmethod
+    def create(cls, symbol: str, operands: List[Any], metadata: Optional[Dict[str, Any]] = None):
+        """
+        Factory method to produce a safe concrete glyph for AST/Codex encoding.
+        Always returns an EncodedLogicGlyph, even if called on LogicGlyph.
+        """
+        return EncodedLogicGlyph(symbol, operands, metadata)
+
+    @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'LogicGlyph':
         glyph_cls = {
             "ImplicationGlyph": ImplicationGlyph,
@@ -40,16 +49,16 @@ class LogicGlyph(ABC):
             "SymbolGlyph": SymbolGlyph,
         }.get(data["type"])
 
-        if not glyph_cls:
-            raise ValueError(f"Unknown glyph type: {data['type']}")
-
         operands = [
             LogicGlyph.from_dict(op) if isinstance(op, dict) else op
             for op in data.get("operands", [])
         ]
         metadata = data.get("metadata", {})
 
-        # special cases: SymbolGlyph, TrueGlyph, etc.
+        if glyph_cls is None:
+            # Fallback to safe encoding
+            return EncodedLogicGlyph(data.get("symbol", "∅"), operands, metadata)
+
         if glyph_cls == SymbolGlyph:
             return SymbolGlyph(data["symbol"])
         if glyph_cls in (TrueGlyph, FalseGlyph):
@@ -144,13 +153,39 @@ class ProofStepGlyph(LogicGlyph):
 
 
 # Atomic Symbol Glyph
+from backend.modules.symbolnet.symbolnet_bridge import get_definitions  # add to top
+
 class SymbolGlyph(LogicGlyph):
-    def __init__(self, name: str): super().__init__(name, [])
+    def __init__(
+        self,
+        label: str,
+        value: Any = None,
+        metadata: Optional[Dict[str, Any]] = None
+    ):
+        self.label = label
+        self.value = value
+        symbol = label
+        operands = [value] if value is not None else []
+        metadata = metadata or {}
+
+        # 🧠 Add semantic context if missing
+        if "semantic_context" not in metadata:
+            try:
+                context = get_definitions(label)
+                if context:
+                    metadata["semantic_context"] = context
+            except Exception:
+                metadata["semantic_context"] = []
+
+        super().__init__(symbol, operands, metadata)
+
     def evaluate(self, env: Optional[Dict[str, Any]] = None):
         if env is None:
             return False
         return env.get(self.symbol, False)
-    def __repr__(self): return self.symbol
+
+    def __repr__(self):
+        return f"SymbolGlyph(label={self.label}, value={self.value})"
 
 
 # Registry System
@@ -185,3 +220,11 @@ logic_registry.register("proof", ProofStepGlyph)
 # Expression Tree Composer (Preview for GHX/CodexLang)
 def compose_logic_tree(glyphs: List[LogicGlyph]) -> str:
     return ' ⇒ '.join(map(str, glyphs))
+
+# -- Safe Concrete Glyph for AST Encoding --
+class EncodedLogicGlyph(LogicGlyph):
+    def evaluate(self, env: Optional[Dict[str, Any]] = None):
+        return None
+
+    def __repr__(self):
+        return f"EncodedGlyph({self.symbol}, {self.operands})"

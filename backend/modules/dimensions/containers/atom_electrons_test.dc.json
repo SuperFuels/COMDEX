@@ -1,99 +1,111 @@
 {
   "id": "atom_electrons_test",
-  "type": "atom",
-  "name": "ElectronShell Test Atom",
-  "description": "Test container for GHX orbital rendering and symbolic prediction.",
-  "created_on": "2025-08-22T00:00:00Z",
-  "dna_switch": {
-    "enabled": true,
-    "mutation_id": null,
-    "entropy": 0.0
-  },
-  "isAtom": true,
-  "position": [0, 0, 0],
-  "electronCount": 12,
-  "electrons": [
+  "glyphs": [
     {
-      "meta": { "label": "e⁻ 1", "linkContainerId": "test_target_1" },
-      "glyphs": [
-        { "type": "predictive", "value": "⚛ Path A", "confidence": 0.61 },
-        { "type": "predictive", "value": "🧬 Mutation B", "confidence": 0.38 }
-      ]
+      "label": "atom",
+      "value": "Hydrogen",
+      "metadata": {
+        "symbol": "H",
+        "protons": 1,
+        "electrons": 1
+      }
     },
     {
-      "meta": { "label": "e⁻ 2", "linkContainerId": "test_target_2" },
-      "glyphs": [
-        { "type": "predictive", "value": "⚛ Path B", "confidence": 0.72 },
-        { "type": "predictive", "value": "🧬 Mutation C", "confidence": 0.27 }
-      ]
-    },
-    {
-      "meta": { "label": "e⁻ 3", "linkContainerId": "test_target_3" },
-      "glyphs": [
-        { "type": "predictive", "value": "⚛ Path C", "confidence": 0.88 }
-      ]
-    },
-    {
-      "meta": { "label": "e⁻ 4", "linkContainerId": "test_target_4" },
-      "glyphs": [
-        { "type": "predictive", "value": "⚛ Path D", "confidence": 0.54 },
-        { "type": "predictive", "value": "🧬 Mutation D", "confidence": 0.44 }
-      ]
-    },
-    {
-      "meta": { "label": "e⁻ 5", "linkContainerId": "test_target_5" },
-      "glyphs": [
-        { "type": "predictive", "value": "⚛ Path E", "confidence": 0.67 }
-      ]
-    },
-    {
-      "meta": { "label": "e⁻ 6", "linkContainerId": "test_target_6" },
-      "glyphs": [
-        { "type": "predictive", "value": "⚛ Path F", "confidence": 0.43 },
-        { "type": "predictive", "value": "🧬 Mutation E", "confidence": 0.55 }
-      ]
-    },
-    {
-      "meta": { "label": "e⁻ 7", "linkContainerId": "test_target_7" },
-      "glyphs": [
-        { "type": "predictive", "value": "⚛ Path G", "confidence": 0.79 }
-      ]
-    },
-    {
-      "meta": { "label": "e⁻ 8", "linkContainerId": "test_target_8" },
-      "glyphs": [
-        { "type": "predictive", "value": "⚛ Path H", "confidence": 0.52 },
-        { "type": "predictive", "value": "🧬 Mutation F", "confidence": 0.45 }
-      ]
-    },
-    {
-      "meta": { "label": "e⁻ 9", "linkContainerId": "test_target_9" },
-      "glyphs": [
-        { "type": "predictive", "value": "⚛ Path I", "confidence": 0.60 }
-      ]
-    },
-    {
-      "meta": { "label": "e⁻ 10", "linkContainerId": "test_target_10" },
-      "glyphs": [
-        { "type": "predictive", "value": "⚛ Path J", "confidence": 0.69 }
-      ]
-    },
-    {
-      "meta": { "label": "e⁻ 11", "linkContainerId": "test_target_11" },
-      "glyphs": [
-        { "type": "predictive", "value": "⚛ Path K", "confidence": 0.56 },
-        { "type": "predictive", "value": "🧬 Mutation G", "confidence": 0.42 }
-      ]
-    },
-    {
-      "meta": { "label": "e⁻ 12", "linkContainerId": "test_target_12" },
-      "glyphs": [
-        { "type": "predictive", "value": "⚛ Path L", "confidence": 0.64 }
-      ]
+      "label": "electron",
+      "value": "e1",
+      "metadata": {
+        "orbit": 1,
+        "charge": -1
+      }
     }
   ],
   "metadata": {
-    "description": "Test atom for GHX orbital rendering",
-    "origin": "Generated for visual test"
+    "description": "Minimal test container for symbolic tree generation.",
+    "type": "atom"
+  },
+  "symbolic": {
+    "glyphTrace": [
+      {
+        "label": "atom",
+        "value": "Hydrogen",
+        "metadata": {
+          "symbol": "H",
+          "protons": 1,
+          "electrons": 1
+        }
+      },
+      {
+        "label": "electron",
+        "value": "e1",
+        "metadata": {
+          "orbit": 1,
+          "charge": -1
+        }
+      }
+    ]
+  },
+  "symbolTree": {
+    "container_id": "atom_electrons_test",
+    "root": {
+      "id": "cb03962e-fb83-4587-bae0-e139282a3632",
+      "glyph": {
+        "type": "SymbolGlyph",
+        "symbol": "container",
+        "operands": [
+          "atom_electrons_test"
+        ],
+        "metadata": {
+          "type": "container",
+          "id": "atom_electrons_test"
+        }
+      },
+      "children": [
+        {
+          "id": "41621b8a-21e1-4c73-acbc-6d54ddb1add5",
+          "glyph": {
+            "type": "SymbolGlyph",
+            "symbol": "glyph",
+            "operands": [
+              "atom"
+            ],
+            "metadata": {
+              "id": null,
+              "type": "glyph"
+            }
+          },
+          "children": [],
+          "entangled_ids": [],
+          "replayed_from": null,
+          "mutation_source": null,
+          "goal_score": null,
+          "sqi_score": null
+        },
+        {
+          "id": "eb272725-c076-4615-9c7c-eb6331ed6f54",
+          "glyph": {
+            "type": "SymbolGlyph",
+            "symbol": "glyph",
+            "operands": [
+              "electron"
+            ],
+            "metadata": {
+              "id": null,
+              "type": "glyph"
+            }
+          },
+          "children": [],
+          "entangled_ids": [],
+          "replayed_from": null,
+          "mutation_source": null,
+          "goal_score": null,
+          "sqi_score": null
+        }
+      ],
+      "entangled_ids": [],
+      "replayed_from": null,
+      "mutation_source": null,
+      "goal_score": null,
+      "sqi_score": null
+    }
   }
-} 
+}

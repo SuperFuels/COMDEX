@@ -9,8 +9,11 @@ import sys
 import os
 import warnings
 
+logger = logging.getLogger(__name__)
+
 from backend.modules.symbolic_engine.symbolic_kernels.logic_glyphs import SymbolGlyph
 from backend.modules.symbolic.symbolic_meaning_tree import SymbolicMeaningTree
+from backend.modules.symbolic.symbolic_tree_node import SymbolicTreeNode
 
 def safe_load_container_by_id(container_id_or_path: str) -> Any:
     """
@@ -50,7 +53,6 @@ def safe_load_container_by_id(container_id_or_path: str) -> Any:
                 f"  Legacy error: {inner_e}"
             )
 
-
 def inject_symbolic_tree(container_id_or_path: str, verbose: bool = True) -> None:
     """
     Inject symbolic meaning tree into the specified container.
@@ -69,39 +71,62 @@ def inject_symbolic_tree(container_id_or_path: str, verbose: bool = True) -> Non
 def build_symbolic_tree_from_container(container: Dict) -> SymbolicMeaningTree:
     """
     Build a SymbolicMeaningTree from a .dc.json container.
-    Looks for glyphs, logic entries, predictions, and other symbolic structures.
+    Looks for glyphs, predictions, and other symbolic structures.
     """
     container_id = container.get("id") or "unknown_container"
+    container_name = container.get("name") or container_id
 
-    # ✅ 1. Build root glyph + node
+    # ✅ 1. Root node from container
     root_glyph = SymbolGlyph(
-    label="container",
-    value=container.get("name") or container_id,
-    metadata={"type": "container", "id": container_id}
+        label="container",
+        value=container_name,
+        metadata={"type": "container", "id": container_id}
     )
     root_node = SymbolicTreeNode(glyph=root_glyph)
     tree = SymbolicMeaningTree(root=root_node, container_id=container_id)
 
-    # ✅ 2. Add glyphs
-    for glyph in container.get("glyphs", []):
+    # ✅ 2. Add direct glyphs
+    glyph_entries = container.get("glyphs", [])
+    if not glyph_entries:
+        logger.warning(f"[⚠️] No glyphs found in container {container_id}")
+
+    for glyph in glyph_entries:
         tree.add_node(
             label="glyph",
             value=glyph.get("label") or glyph.get("name") or glyph.get("id") or "unknown",
-            metadata={"id": glyph.get("id"), "type": "glyph"}
+            metadata={
+                "id": glyph.get("id"),
+                "type": "glyph"
+            },
+            parent=root_node
         )
 
-    # ✅ 3. Add predictions from electrons
-    for electron in container.get("electrons", []):
-        for pred in electron.get("predict", []):
-            tree.add_node(
-                label="prediction",
-                value=pred.get("label") or "unknown",
-                metadata={
-                    "source_electron": electron.get("id"),
-                    "type": "prediction"
-                }
-            )
+    # ✅ 3. Attach electrons under root (if it's an atom container)
+    electrons = container.get("electrons", [])
+    for electron in electrons:
+        glyph = ensure_glyph(electron.get("glyph", {}))  # Assumes "glyph" is embedded
+        e_node = SymbolicTreeNode(glyph=glyph, parent=root_node)
+        root_node.children.append(e_node)
+        tree.node_index[e_node.id] = e_node
 
+        # ➕ Predictions nested under each electron
+        preds = electron.get("predictions", [])
+        for pred in preds:
+            pred_glyph = ensure_glyph(pred)
+            pred_glyph.metadata["linked_goal_id"] = electron.get("linked_goal_id")
+
+            # ✅ Enrich metadata
+            pred_glyph.metadata["type"] = "prediction"
+            pred_glyph.metadata["parent_electron_id"] = e_node.id
+            pred_glyph.metadata["goal_match_score"] = pred.get("goal_match_score", 0.0)
+            pred_glyph.metadata["rewrite_success_prob"] = pred.get("rewrite_success_prob", 0.0)
+
+            # ➕ Add prediction node under electron
+            p_node = SymbolicTreeNode(glyph=pred_glyph, parent=e_node)
+            e_node.children.append(p_node)
+            tree.node_index[p_node.id] = p_node
+
+    logger.info(f"[🌳] SymbolicMeaningTree built for container {container_id} with {len(tree.node_index)} nodes.")
     return tree
 
 def resolve_container(input_arg: str) -> dict:
@@ -147,7 +172,7 @@ import uuid
 from backend.modules.symbolic_engine.symbolic_kernels.logic_glyphs import SymbolGlyph
 @dataclass
 class SymbolicTreeNode:
-    glyph: LogicGlyph
+    glyph: SymbolGlyph
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     children: List['SymbolicTreeNode'] = field(default_factory=list)
     parent: Optional['SymbolicTreeNode'] = None
@@ -170,14 +195,20 @@ class SymbolicTreeNode:
         }
 
 
+from dataclasses import dataclass, field
+from typing import Dict
+
 @dataclass
 class SymbolicMeaningTree:
     root: SymbolicTreeNode
     container_id: str
     node_index: Dict[str, SymbolicTreeNode] = field(default_factory=dict)
+    metadata: dict = field(default_factory=dict)  # <-- Add this field
 
     def __post_init__(self):
         self.node_index[self.root.id] = self.root
+        self.metadata["container_id"] = self.container_id
+        self.metadata["container_name"] = getattr(self.root.glyph.metadata, "container_name", None) or self.container_id
 
     def add_node(self, label: str, value: str, metadata: Optional[dict] = None, parent: Optional[SymbolicTreeNode] = None) -> str:
         # 🌱 Build a SymbolGlyph from label/value/metadata
@@ -193,7 +224,7 @@ class SymbolicMeaningTree:
         self.node_index[node.id] = node
         return node.id
 
-    def replay_path(self, node_id: str) -> List[LogicGlyph]:
+    def replay_path(self, node_id: str) -> List[SymbolGlyph]:
         path = []
         node = self.node_index.get(node_id)
         while node:
@@ -201,7 +232,7 @@ class SymbolicMeaningTree:
             node = node.parent
         return list(reversed(path))
 
-    def mutate_path(self, from_node_id: str, new_glyph: LogicGlyph) -> SymbolicTreeNode:
+    def mutate_path(self, from_node_id: str, new_glyph: SymbolGlyph) -> SymbolicTreeNode:
         parent_node = self.node_index.get(from_node_id)
         new_node = SymbolicTreeNode(glyph=new_glyph, parent=parent_node, mutation_source=from_node_id)
         parent_node.children.append(new_node)
@@ -262,7 +293,7 @@ def build_tree_from_container(container: Union[str, dict, object]) -> SymbolicMe
         raise ValueError(f"No glyph trace found for container {container_id}")
 
     def ensure_glyph(g):
-        if isinstance(g, LogicGlyph):
+        if isinstance(g, SymbolGlyph):
             return g
         return SymbolGlyph(
             label=g.get("label", "unknown"),
@@ -270,8 +301,17 @@ def build_tree_from_container(container: Union[str, dict, object]) -> SymbolicMe
             metadata=g.get("metadata", {})
         )
 
+    def attach_replay_data(node: SymbolicTreeNode, glyph: SymbolGlyph):
+        if "replay" in glyph.metadata:
+            node.metadata["replay"] = glyph.metadata["replay"]
+        if "entangled_with" in glyph.metadata:
+            node.metadata["entangled_with"] = glyph.metadata["entangled_with"]
+
+    # Build root node from trace
     root_glyph = ensure_glyph(trace[0])
     root_node = SymbolicTreeNode(glyph=root_glyph)
+    attach_replay_data(root_node, root_glyph)
+
     tree = SymbolicMeaningTree(root=root_node, container_id=container_id)
     tree.node_index[root_node.id] = root_node
 
@@ -279,6 +319,7 @@ def build_tree_from_container(container: Union[str, dict, object]) -> SymbolicMe
     for raw_glyph in trace[1:]:
         glyph = ensure_glyph(raw_glyph)
         node = SymbolicTreeNode(glyph=glyph, parent=current)
+        attach_replay_data(node, glyph)
         current.children.append(node)
         tree.node_index[node.id] = node
         current = node
@@ -286,7 +327,62 @@ def build_tree_from_container(container: Union[str, dict, object]) -> SymbolicMe
     logger.info(f"Built SymbolicMeaningTree for container {container_id} with {len(tree.node_index)} nodes.")
     return tree
 
-def inject_mutation_path(tree: SymbolicMeaningTree, from_node_id: str, new_glyph: LogicGlyph) -> SymbolicTreeNode:
+def build_qfc_view(container_data: Dict) -> Dict:
+    """
+    Builds a QFC-ready node+link+trail structure from a .dc.json container
+    """
+    tree = build_symbolic_tree_from_container(container_data)
+
+    nodes = []
+    links = []
+
+    for node in tree.iter_nodes():
+        g = node.glyph
+        nid = node.id
+
+        # 🌌 Node rendering data
+        node_data = {
+            "id": nid,
+            "label": g.label,
+            "position": node.metadata.get("qfc_position", [0, 0, 0]),
+            "containerId": g.metadata.get("linkContainerId"),
+            "color": g.metadata.get("color"),
+            "predicted": g.metadata.get("type") == "prediction",
+            "trailId": g.metadata.get("trail_id"),
+            "sqiScore": getattr(node, "sqi_score", None),
+            "goalMatchScore": g.metadata.get("goal_match_score"),
+            "rewriteSuccessProb": g.metadata.get("rewrite_success_prob"),
+        }
+
+        # 🧬 Optional enhancements
+        if "entangled_with" in node.metadata:
+            node_data["entangledWith"] = node.metadata["entangled_with"]
+        if "replay" in node.metadata:
+            node_data["replay"] = node.metadata["replay"]
+
+        nodes.append(node_data)
+
+        # ➰ Link to children
+        for child in node.children:
+            links.append({
+                "source": nid,
+                "target": child.id,
+                "type": g.metadata.get("link_type", "entangled"),
+            })
+
+    return {
+        "nodes": nodes,
+        "links": links,
+        "containerId": tree.container_id,
+        "rootNodeId": tree.root.id,
+    }
+
+def stream_tree_to_qfc(container_data: Dict):
+    from backend.modules.qfield.qfc_bridge import send_qfc_payload
+    payload = build_qfc_view(container_data)
+    send_qfc_payload(payload)
+
+def inject_mutation_path(tree: SymbolicMeaningTree, from_node_id: str, new_glyph: SymbolGlyph) -> SymbolicTreeNode:
     node = tree.mutate_path(from_node_id, new_glyph)
     logger.info(f"Injected mutation from {from_node_id} into tree for container {tree.container_id}")
     return node
@@ -303,6 +399,19 @@ def score_path_with_SQI(tree: SymbolicMeaningTree):
         score = engine.score_node(node.glyph)
         node.sqi_score = score
         logger.debug(f"SQI score for node {node.id}: {score}")
+
+def visualize_path(tree: SymbolicMeaningTree, mode: str = "GHX"):
+    if mode == "GHX":
+        from backend.modules.hologram.ghx_encoder import render_symbolic_tree_to_ghx
+        render_symbolic_tree_to_ghx(tree)
+    elif mode == "ReplayHUD":
+        from backend.modules.runtime.replay_hud import stream_tree_to_hud
+        stream_tree_to_hud(tree)
+    elif mode == "QFC":
+        from backend.modules.qfield.qfc_streamer import stream_tree_to_qfc
+        stream_tree_to_qfc(tree)
+    else:
+        logger.warning(f"Unknown visualization mode: {mode}")
 
 def visualize_path(tree: SymbolicMeaningTree, mode: str = "GHX"):
     logger.info(f"Visualizing symbolic tree for {tree.container_id} in mode {mode}")
@@ -351,7 +460,7 @@ def inject_symbolic_tree(container_arg: str):
             container_id = container.get("id") or os.path.splitext(os.path.basename(container_arg))[0]
 
         else:
-            # 🧠 Case 2: Treat as container ID
+            # 🧠 Case 2: Treat as UCS container ID
             container = safe_load_container_by_id(container_arg)
 
             # 🧯 Fallback: Try to load from containers/<id>.dc.json if not found
@@ -367,21 +476,38 @@ def inject_symbolic_tree(container_arg: str):
             else:
                 container_id = getattr(container, "id", None) or getattr(container, "container_id", None) or container_arg
 
-        # 🔁 Register into symbolic + SQI container registry
-        safe_register_container(container)
+        # 🔁 Try registering into symbolic container registry (may fail if missing symbolic fields)
+        try:
+            safe_register_container(container)
+        except Exception as e:
+            logger.warning(f"[⚠️] Could not register container in UCS registry: {e}")
 
-        # 🌳 Build Symbol Tree and evaluate with SQI
-        tree = build_tree_from_container(container)
-        score_path_with_SQI(tree)
-        export_tree_to_kg(tree)
+        # 🌳 Build Symbol Tree
+        tree = build_symbolic_tree_from_container(container)
 
-        # 💾 Save updated container if CLI-based
+        # ✅ Merge with existing tree if needed
+        if "symbolTree" in container and isinstance(container["symbolTree"], dict):
+            existing_tree = container["symbolTree"]
+            merged_tree = {**existing_tree, **tree.to_dict()}
+            container["symbolTree"] = merged_tree
+            logger.info(f"[🔁] Merged symbolic tree with existing tree in container '{container_id}'")
+        else:
+            container["symbolTree"] = tree.to_dict()
+            logger.info(f"[🆕] Injected new symbolic tree into container '{container_id}'")
+
+        # 🧠 SQI evaluation and KG export (optional for full containers)
+        try:
+            score_path_with_SQI(tree)
+            export_tree_to_kg(tree)
+        except Exception as e:
+            logger.warning(f"[⚠️] Skipping SQI/Export: {e}")
+
+        # 💾 Save updated container
         if container_arg.endswith(".dc.json") or (isinstance(container, dict) and container_id):
             output_path = container_arg if container_arg.endswith(".dc.json") else f"containers/{container_id}.dc.json"
-            container["symbolTree"] = tree.to_dict()
             with open(output_path, 'w') as f:
                 json.dump(container, f, indent=2)
-            logger.info(f"Injected symbolic tree into {output_path} with {len(tree.node_index)} nodes.")
+            logger.info(f"[💾] Saved symbolic tree to {output_path} with {len(tree.node_index)} nodes.")
 
         print(f"[✅] Symbolic Tree injected into: {container_id}")
 
@@ -396,6 +522,9 @@ if __name__ == "__main__":
     import json
     import os
 
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
+
     if len(sys.argv) < 2:
         print("Usage: symbol_tree_generator.py <container_id | path/to/container.dc.json>")
         sys.exit(1)
@@ -403,21 +532,28 @@ if __name__ == "__main__":
     container_arg = sys.argv[1]
 
     try:
-        # 🔁 Load + inject symbolic tree
-        container = safe_load_container_by_id(container_arg)
-        tree = build_symbolic_tree_from_container(container)
-        container["symbolTree"] = tree.to_dict()
-
-        print(f"✅ Symbolic tree injected with {len(tree.node_index)} nodes.")
-
-        # 💾 Save updated container if CLI-based
-        container_id = container.get("id") or os.path.basename(container_arg).replace(".dc.json", "")
-        if container_arg.endswith(".dc.json") or (isinstance(container, dict) and container_id):
-            output_path = container_arg if container_arg.endswith(".dc.json") else f"containers/{container_id}.dc.json"
-            with open(output_path, 'w') as f:
-                json.dump(container, f, indent=2)
-            logging.info(f"Injected symbolic tree into {output_path} with {len(tree.node_index)} nodes.")
+        # ✅ Try full symbolic injection (with UCS registry + SQI)
+        inject_symbolic_tree(container_arg)
 
     except Exception as e:
-        print(f"[❌] Failed: {e}")
-        logging.error(f"Symbolic tree injection failed: {e}")
+        logger.warning(f"[⚠️ Fallback] Full injector failed, trying minimal tree injection: {e}")
+
+        try:
+            # ✅ Minimal fallback: load raw .dc.json and inject basic tree
+            if not os.path.exists(container_arg):
+                raise FileNotFoundError(f"File not found: {container_arg}")
+
+            with open(container_arg, 'r') as f:
+                container = json.load(f)
+
+            tree = build_symbolic_tree_from_container(container)
+            container["symbolTree"] = tree.to_dict()
+
+            with open(container_arg, 'w') as f:
+                json.dump(container, f, indent=2)
+
+            print(f"[✅] Fallback symbolic tree injected into {container_arg} with {len(tree.node_index)} nodes.")
+
+        except Exception as fallback_error:
+            print(f"[❌] Fallback failed: {fallback_error}")
+            logger.error(f"Symbolic tree fallback injection failed: {fallback_error}")
