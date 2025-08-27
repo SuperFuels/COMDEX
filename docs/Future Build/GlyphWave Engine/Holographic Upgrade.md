@@ -1,3 +1,17 @@
+FOLLOW UP TASKS NOT COMPLETED;
+graph TD
+  D0[🌌 Deferred HST Enhancements]
+
+  D0 --> D1[🎞️ Add Symbolic Replay View in GHX]
+  D0 --> D2[🔍 Hoverable Metadata Panels in GHX/QFC]
+  D0 --> D3[📊 Score Timeline Overlays (entropy, goals)]
+  D0 --> D4[🧬 Fork Comparator for Multiverse Nodes]
+  D0 --> D5[🌐 Web API Endpoint to Access HST Tree]
+  D0 --> D6[🛠️ Plugin Registry CLI Tool]
+  D0 --> D7[🌈 Holographic Diff Viewer for Symbol Mutations]
+  D0 --> D8[🧠 Save/Load Introspection Trails as HST Snapshots]
+
+
 graph TD
   %% ✅ Completed Blocks
   subgraph ✅ HST [✅ 📦 Holographic Symbol Tree (HST)]
@@ -56,16 +70,28 @@ graph TD
     E7[✅🌀 Visual + Replay Feedback]
 
     Z0[🌌 HST Parabolic Expansion]
-    Z0 --> Z1[🧠 Meaning Resonance Layer]
-    Z0 --> Z2[🔮 Futurespace Node Injection]
-    Z0 --> Z3[🪞 Introspective Reflection Scores]
-    Z0 --> Z4[🧬 Ripple Map of Symbol Mutations]
-    Z0 --> Z5[🌐 SymbolNet/ConceptNet Bridges]
-    Z0 --> Z6[🌀 Multiverse Tree Forks]
-    Z0 --> Z7[🧭 Vector Field Goal Pressure]
-    Z0 --> Z8[🔓 SoulLaw Symbol Gating]
-    Z0 --> Z9[♻️ Recursive Loop Detection]
-    Z0 --> Z10[🧩 Plugin-aware Node Interpretation]
+    Z0 --> Z1✅[🧠 Meaning Resonance Layer]
+    Z0 --> Z2✅[🔮 Futurespace Node Injection]
+    Z0 --> Z3✅[🪞 Introspective Reflection Scores]
+    Z0 --> Z4✅[🧬 Ripple Map of Symbol Mutations]
+    Z0 --> Z5✅[🌐 SymbolNet/ConceptNet Bridges]
+    Z0 --> Z6✅[[🌀 Multiverse Tree Forks]
+    Z0 --> Z7✅[🧭 Vector Field Goal Pressure]
+    Z0 --> Z8✅[🔓 SoulLaw Symbol Gating]
+    Z0 --> Z9✅[♻️ Recursive Loop Detection]
+    Z0 --> Z10✅[🧩 Plugin-aware Node Interpretation]
+    graph TD
+  F0[🔥 HST Integration and Runtime Hook Tasks]
+
+  F0 --> F1[🔁 Connect HST Modules to PredictionEngine]
+  F0 --> F2[🧠 Wire HST Scorers into CreativeCore]
+  F0 --> F3[📦 Inject SymbolicMeaningTree into .dc containers]
+  F0 --> F4[🧪 Add CLI Tool to Run Full HST Pipeline on a Container]
+  F0 --> F5[🛰️ Enable GHX/QFC Visualization Overlay]
+  F0 --> F6[♻️ Mutation Hook to Update Ripple Maps]
+  F0 --> F7[🎯 Use Goal Pressure Map in Mutation Selection]
+  F0 --> F8[🚦 Add SoulLawGate to Mutation Filter Logic]
+  F0 --> F9[🧩 Load Plugin Extensions on Tree Injection]
   end
 
   %% 🆕 Symbolic Tree Enhancements
@@ -84,8 +110,8 @@ graph TD
     SN1[✅🧱 Create symbolnet_bridge.py core module]
     SN2[✅📚 Load ConceptNet + WordNet + Wikidata]
     SN3[✅🧠 Map LogicGlyph.label → concept entities]
-    SN4[🔗 Inject into SymbolicMeaningTree enrichment]
-    SN5[🔍 Add meaning → goal_match_score hooks]
+    SN4[✅🔗 Inject into SymbolicMeaningTree enrichment]
+    SN5[✅🔍 Add meaning → goal_match_score hooks]
     SN6[✅🧩 Plugin architecture for other sources]
     SN7[🛰️ WebSocket + GHX broadcast of symbol links]
     SN8[🎯 Scoring: semantic_distance(), concept_match()]

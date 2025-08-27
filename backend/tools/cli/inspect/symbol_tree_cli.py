@@ -9,7 +9,7 @@ from rich import print
 
 # Symbolic Tree Core
 from backend.modules.symbolic.symbol_tree_generator import (
-    generate_symbol_tree_from_file,
+    build_symbolic_tree_from_container,  # ✅ FIXED
     inject_mutation_path,
     score_path_with_SQI,
 )
@@ -17,7 +17,7 @@ from backend.modules.symbolic.symbol_tree_generator import (
 # Glyph Construction
 from backend.modules.symbolic_engine.symbolic_kernels.logic_glyphs import LogicGlyph
 from backend.modules.codex.symbolic_registry import symbolic_registry
-from backend.modules.dimensions.universal_container_system.container_loader import load_container_from_file
+from backend.modules.dimensions.containers.container_loader import load_container_from_file
 
 
 def build_tree_from_container(container_id_or_path):
@@ -29,7 +29,7 @@ def build_tree_from_container(container_id_or_path):
     else:
         raise ValueError(f"Unsupported container ID or path: {container_id_or_path}")
 
-    return generate_symbol_tree_from_file(container)
+    return build_symbolic_tree_from_container(container)  # ✅ FIXED
 
 
 def visualize_tree(tree, mode="ascii"):
@@ -69,6 +69,7 @@ def main():
     try:
         # 🧠 Build tree from container
         tree = build_tree_from_container(args.container_id)
+        print(f"\n[✅] Built tree with {len(tree.node_index)} nodes.")
 
         # 🔁 Inject a mutation glyph if provided
         if args.inject_glyph:

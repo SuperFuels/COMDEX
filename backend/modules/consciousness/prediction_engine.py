@@ -441,6 +441,8 @@ class PredictionEngine:
                     }
         return None
 
+    from backend.modules.symbolic.hst.hst_injection_utils import inject_hst_to_container
+
     def run_prediction_on_container(self, container: Dict[str, Any], context: Optional[str] = None) -> Optional[Dict[str, Any]]:
         """
         Full prediction pipeline with:
@@ -452,6 +454,7 @@ class PredictionEngine:
         - Lean proof verification
         - Optional live application + DNA mutation
         - Electron glyph prediction (atom containers)
+        - HST (SymbolicMeaningTree) injection
         """
         contradiction_found = False
         scored = []
@@ -493,7 +496,7 @@ class PredictionEngine:
                 proposed = s.get("to")
                 reason = s.get("reason", "unspecified")
 
-                score = cls.score_rewrite_suggestion(original, proposed, container)
+                score = self.score_rewrite_suggestion(original, proposed, container)
                 valid = is_logically_valid(proposed)
 
                 trace_entry = {
@@ -539,6 +542,20 @@ class PredictionEngine:
         # ⬁ Suggest simplifications if glyph-level contradiction was found
         if contradiction_found:
             container["traceMetadata"]["rewriteSuggestions"] = PredictionEngine.suggest_simplifications(container)
+
+        # ✅ Inject SymbolicMeaningTree after prediction phase
+        inject_hst_to_container(container, context={
+            "container_path": container.get("id", "unknown"),
+            "coord": container.get("coord", "0:0"),
+            "source": context or "prediction_engine"
+        })
+
+        # 🌐 Stream HST via WebSocket to GHX/QFC
+        from backend.modules.symbolic.hst.hst_websocket_streamer import stream_hst_to_websocket
+        stream_hst_to_websocket(
+            container_id=container.get("id", "unknown"),
+            context="prediction_engine"
+        )
 
         return {
             "status": "contradiction" if contradiction_found else "ok",

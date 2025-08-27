@@ -151,5 +151,14 @@
     "meta": {
       "address": "ucs://local/ElectronShell Test Atom#container"
     }
+  },
+  "Container-atom_electrons_test": {
+    "id": "Container-atom_electrons_test",
+    "name": "Container-atom_electrons_test",
+    "geometry": "tesseract",
+    "type": "container",
+    "meta": {
+      "address": "ucs://local/Container-atom_electrons_test#container"
+    }
   }
 }

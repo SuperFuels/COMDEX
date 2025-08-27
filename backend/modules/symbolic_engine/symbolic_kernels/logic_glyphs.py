@@ -151,10 +151,6 @@ class ProofStepGlyph(LogicGlyph):
             "notes": self.metadata.get("notes"),
         }
 
-
-# Atomic Symbol Glyph
-from backend.modules.symbolnet.symbolnet_bridge import get_definitions  # add to top
-
 class SymbolGlyph(LogicGlyph):
     def __init__(
         self,
@@ -171,9 +167,10 @@ class SymbolGlyph(LogicGlyph):
         # 🧠 Add semantic context if missing
         if "semantic_context" not in metadata:
             try:
+                # 🔁 Local import to avoid circular dependency
+                from backend.modules.symbolnet.symbolnet_bridge import get_definitions
                 context = get_definitions(label)
-                if context:
-                    metadata["semantic_context"] = context
+                metadata["semantic_context"] = context if context else []
             except Exception:
                 metadata["semantic_context"] = []
 

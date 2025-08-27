@@ -35,6 +35,12 @@ except ImportError:
 
 ENCRYPTION_KEY = b'\x00' * 32  # Placeholder key
 
+def container_id_to_path(container_id: str) -> str:
+        """
+        Resolves a container_id like 'dc_xyz123' into the full filesystem path of the container.
+        Adjust if your container structure ever changes.
+        """
+        return f"backend/modules/dimensions/containers/{container_id}.dc.json"
 
 class ContainerRuntime:
     def __init__(self, state_manager: StateManager, tick_interval: float = 2.0):
@@ -91,8 +97,7 @@ class ContainerRuntime:
 
         # ✅ Decrypt and finalize
         return self.get_decrypted_current_container()
-        
-    
+
     @staticmethod
     def load_container_from_path(path: str) -> dict:
         """
@@ -231,6 +236,10 @@ class ContainerRuntime:
             except Exception as e:
                 logger.warning(f"⚠️ QFC replay broadcast failed: {e}")
 
+        # 🧠 Inject Holographic Symbol Tree
+        from backend.modules.symbolic.hst.hst_injection_utils import inject_hst_to_container
+        container = inject_hst_to_container(container, context={"container_path": container.get("id", "unknown")})
+
         return container
 
     def unload_container(self, container_id: str) -> bool:
@@ -252,6 +261,7 @@ class ContainerRuntime:
         except Exception as e:
             print(f"❌ unload_container error for {container_id}: {e}")
             return False
+            
     def log_glyph_trace(self, container_id: str, data: dict):
         """
         Log glyph trace for a container (lazy import).
@@ -403,6 +413,11 @@ class ContainerRuntime:
 
     def save_container(self):
         container = self.state_manager.get_current_container()
+
+        # 🧠 Inject HST before export
+        from backend.modules.symbolic.hst.hst_injection_utils import inject_symbolic_tree_to_container_dict
+        container = inject_symbolic_tree_to_container_dict(container)
+
         microgrid = self.vault_manager.get_microgrid()
         glyph_data = microgrid.export_index()
 

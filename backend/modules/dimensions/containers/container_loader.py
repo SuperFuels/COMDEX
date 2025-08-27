@@ -18,9 +18,9 @@ from backend.modules.dimensions.containers.symbolic_expansion_container import S
 from backend.modules.dimensions.universal_container_system.ucs_base_container import UCSBaseContainer
 from backend.modules.dimensions.universal_container_system.ucs_geometry_loader import UCS_TEMPLATE_DIR
 from backend.modules.dna_chain.dc_handler import load_dimension
-from backend.modules.runtime.container_runtime import ContainerRuntime
 from backend.modules.consciousness.state_manager import StateManager
 from backend.modules.dimensions.universal_container_system.ucs_runtime import get_ucs_runtime
+
 
 # ✅ Symbolic Container Registration Hook
 from backend.modules.sqi.sqi_container_registry import _registry_register
@@ -104,6 +104,7 @@ def load_container_from_json(container_json: Dict[str, Any]) -> Union[UCSBaseCon
     return container_json
 
 def register_container(container_id: str, container_path: str) -> dict:
+    from backend.modules.runtime.container_runtime import ContainerRuntime
     """
     Load a .dc.json container and register it into the UCS runtime and KG registry.
 
@@ -172,6 +173,7 @@ def auto_load_all_templates():
 
 
 def load_decrypted_container(container_id: str) -> dict:
+    from backend.modules.runtime.container_runtime import ContainerRuntime
     """
     Securely load a decrypted container using the active runtime instance.
     """

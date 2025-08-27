@@ -222,7 +222,7 @@ class KnowledgeGraphWriter:
         with open(path, "w", encoding="utf-8") as f:
             json.dump(container, f, indent=2)
             logger.info(f"[KG] Predictions saved to container: {path}")
-
+    
     def _safe_load_container(self, path: str) -> dict:
         if os.path.exists(path):
             with open(path, "r", encoding="utf-8") as f:
@@ -1188,6 +1188,34 @@ class KnowledgeGraphWriter:
 # ──────────────────────────────
 # write_glyph_entry (updated)
 # ──────────────────────────────
+def store_container_metadata(container_path: str, coord: str, metadata: dict):
+        """
+        Store metadata into a symbolic container file, such as trace logs, HST info, etc.
+        Appends into container['metadata']['injectionLog'].
+        """
+        if not os.path.exists(container_path):
+            logger.warning(f"[KG] Metadata injection failed — container not found: {container_path}")
+            return
+
+        try:
+            with open(container_path, "r", encoding="utf-8") as f:
+                container = json.load(f)
+        except Exception as e:
+            logger.error(f"[KG] Failed to read container {container_path}: {e}")
+            return
+
+        # Inject into container metadata
+        container.setdefault("metadata", {}).setdefault("injectionLog", []).append({
+            "coord": coord,
+            **metadata
+        })
+
+        try:
+            with open(container_path, "w", encoding="utf-8") as f:
+                json.dump(container, f, indent=2)
+                logger.info(f"[KG] ✅ Metadata injected into: {container_path}")
+        except Exception as e:
+            logger.error(f"[KG] Failed to write container {container_path}: {e}")
 
 def store_generated_glyph(glyph: Dict[str, Any]):
     """

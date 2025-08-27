@@ -68,7 +68,14 @@ def inject_symbolic_tree(container_id_or_path: str, verbose: bool = True) -> Non
         import logging
         logging.error(f"Failed to inject symbolic tree: {e}")
 
-def build_symbolic_tree_from_container(container: Dict) -> SymbolicMeaningTree:
+def build_symbolic_tree_from_container(container: Union[Dict, Any]) -> SymbolicMeaningTree:
+    # Normalize UCSBaseContainer to dict
+    if hasattr(container, "to_dict"):
+        container = container.to_dict()
+
+    container_id = container.get("id") or "unknown_container"
+    container_name = container.get("name") or container_id
+    ...
     """
     Build a SymbolicMeaningTree from a .dc.json container.
     Looks for glyphs, predictions, and other symbolic structures.
@@ -104,6 +111,7 @@ def build_symbolic_tree_from_container(container: Dict) -> SymbolicMeaningTree:
     # ✅ 3. Attach electrons under root (if it's an atom container)
     electrons = container.get("electrons", [])
     for electron in electrons:
+        # 📦 Ensure glyph for this electron
         glyph = ensure_glyph(electron.get("glyph", {}))  # Assumes "glyph" is embedded
         e_node = SymbolicTreeNode(glyph=glyph, parent=root_node)
         root_node.children.append(e_node)
@@ -125,6 +133,49 @@ def build_symbolic_tree_from_container(container: Dict) -> SymbolicMeaningTree:
             p_node = SymbolicTreeNode(glyph=pred_glyph, parent=e_node)
             e_node.children.append(p_node)
             tree.node_index[p_node.id] = p_node
+
+    # ✅ 4. Recursively attach any nested atoms or sub-structures (optional future-proofing)
+    sub_atoms = container.get("atoms", [])
+    for atom in sub_atoms:
+        atom_name = atom.get("name") or atom.get("id") or "anonymous_atom"
+        atom_glyph = SymbolGlyph(label="atom", value=atom_name, metadata={"type": "atom", "id": atom.get("id")})
+        atom_node = SymbolicTreeNode(glyph=atom_glyph, parent=root_node)
+        root_node.children.append(atom_node)
+        tree.node_index[atom_node.id] = atom_node
+
+        # ⚛ Recursively attach glyphs inside the atom
+        atom_glyphs = atom.get("glyphs", [])
+        for glyph in atom_glyphs:
+            tree.add_node(
+                label="glyph",
+                value=glyph.get("label") or glyph.get("name") or glyph.get("id") or "unknown",
+                metadata={
+                    "id": glyph.get("id"),
+                    "type": "glyph",
+                    "atom_id": atom.get("id")
+                },
+                parent=atom_node
+            )
+
+        # ⚛ Recursively attach electrons in sub-atom
+        sub_electrons = atom.get("electrons", [])
+        for electron in sub_electrons:
+            e_glyph = ensure_glyph(electron.get("glyph", {}))
+            e_node = SymbolicTreeNode(glyph=e_glyph, parent=atom_node)
+            atom_node.children.append(e_node)
+            tree.node_index[e_node.id] = e_node
+
+            # ➕ Add predictions
+            for pred in electron.get("predictions", []):
+                pred_glyph = ensure_glyph(pred)
+                pred_glyph.metadata["type"] = "prediction"
+                pred_glyph.metadata["goal_match_score"] = pred.get("goal_match_score", 0.0)
+                pred_glyph.metadata["rewrite_success_prob"] = pred.get("rewrite_success_prob", 0.0)
+                pred_glyph.metadata["parent_electron_id"] = e_node.id
+
+                p_node = SymbolicTreeNode(glyph=pred_glyph, parent=e_node)
+                e_node.children.append(p_node)
+                tree.node_index[p_node.id] = p_node
 
     logger.info(f"[🌳] SymbolicMeaningTree built for container {container_id} with {len(tree.node_index)} nodes.")
     return tree
@@ -181,18 +232,39 @@ class SymbolicTreeNode:
     mutation_source: Optional[str] = None
     goal_score: Optional[float] = None
     sqi_score: Optional[float] = None
+    semantic_context: Optional[str] = None  # 🌐 New: meaning group
+    semantic_links: List[Dict[str, Any]] = field(default_factory=list) 
 
-    def to_dict(self):
+    def to_dict(self) -> Dict[str, Any]:
         return {
             "id": self.id,
             "glyph": self.glyph.to_dict(),
-            "children": [child.to_dict() for child in self.children],
             "entangled_ids": self.entangled_ids,
             "replayed_from": self.replayed_from,
             "mutation_source": self.mutation_source,
             "goal_score": self.goal_score,
             "sqi_score": self.sqi_score,
+            "semantic_context": self.semantic_context,
+            "semantic_links": self.semantic_links,
+            "children": [child.to_dict() for child in self.children],
         }
+
+    @staticmethod
+    def from_dict(data: Dict[str, Any]) -> 'SymbolicTreeNode':
+        glyph = SymbolGlyph.from_dict(data["glyph"])
+        node = SymbolicTreeNode(
+            glyph=glyph,
+            id=data.get("id", str(uuid4())),
+            entangled_ids=data.get("entangled_ids", []),
+            replayed_from=data.get("replayed_from"),
+            mutation_source=data.get("mutation_source"),
+            goal_score=data.get("goal_score"),
+            sqi_score=data.get("sqi_score"),
+            semantic_context=data.get("semantic_context"),
+            semantic_links=data.get("semantic_links", [])
+        )
+        node.children = [SymbolicTreeNode.from_dict(child) for child in data.get("children", [])]
+        return node
 
 
 from dataclasses import dataclass, field
@@ -264,15 +336,15 @@ def generate_symbol_tree_from_file(container_path: str):
     return tree
 
 def preview_tree(container_path: str):
-    """
-    Load and display a symbolic tree summary for CLI/debug usage.
-    """
     tree = generate_symbol_tree_from_file(container_path)
 
     print(f"\n🌳 [bold]Symbolic Meaning Tree for:[/bold] {container_path}")
     print(f"[cyan]Root Glyph:[/cyan] {tree.root.glyph}")
     print(f"[cyan]Nodes:[/cyan] {len(tree.node_index)}")
-    print(f"[cyan]Children:[/cyan] {sum(len(n.children) for n in tree.node_index.values())}")
+
+    # 🔍 Add diagnostics:
+    print(f"[dim]Node IDs:[/dim] {list(tree.node_index.keys())}")
+    print(f"[dim]Trace Length:[/dim] {len(build_tree_from_container(container_path).node_index)}")
 
 # --- Tree Construction + Injection Logic -----------------------------------------
 
@@ -457,7 +529,10 @@ def inject_symbolic_tree(container_arg: str):
         if container_arg.endswith(".dc.json") and os.path.exists(container_arg):
             with open(container_arg, 'r') as f:
                 container = json.load(f)
-            container_id = container.get("id") or os.path.splitext(os.path.basename(container_arg))[0]
+            if isinstance(container, dict):
+                container_id = container.get("id") or os.path.splitext(os.path.basename(container_arg))[0]
+            else:
+                raise ValueError(f"[❌] Loaded non-dict container from file: {container_arg}")
 
         else:
             # 🧠 Case 2: Treat as UCS container ID
@@ -469,8 +544,11 @@ def inject_symbolic_tree(container_arg: str):
                 if os.path.exists(fallback_path):
                     with open(fallback_path, 'r') as f:
                         container = json.load(f)
-                    container_id = container.get("id") or container_arg
-                    logger.warning(f"[Fallback] Loaded container from file: {fallback_path}")
+                    if isinstance(container, dict):
+                        container_id = container.get("id") or container_arg
+                        logger.warning(f"[Fallback] Loaded container from file: {fallback_path}")
+                    else:
+                        raise ValueError(f"[❌] Loaded non-dict container from fallback file: {fallback_path}")
                 else:
                     raise ValueError(f"Container '{container_arg}' not found in UCS or file path: {fallback_path}")
             else:
@@ -484,16 +562,20 @@ def inject_symbolic_tree(container_arg: str):
 
         # 🌳 Build Symbol Tree
         tree = build_symbolic_tree_from_container(container)
+        tree_dict = tree.to_dict()
 
-        # ✅ Merge with existing tree if needed
-        if "symbolTree" in container and isinstance(container["symbolTree"], dict):
-            existing_tree = container["symbolTree"]
-            merged_tree = {**existing_tree, **tree.to_dict()}
-            container["symbolTree"] = merged_tree
-            logger.info(f"[🔁] Merged symbolic tree with existing tree in container '{container_id}'")
+        # ✅ Inject symbolic tree based on container type
+        if isinstance(container, dict):
+            if "symbolTree" in container and isinstance(container["symbolTree"], dict):
+                merged_tree = {**container["symbolTree"], **tree_dict}
+                container["symbolTree"] = merged_tree
+                logger.info(f"[🔁] Merged symbolic tree with existing tree in container '{container_id}'")
+            else:
+                container["symbolTree"] = tree_dict
+                logger.info(f"[🆕] Injected new symbolic tree into container '{container_id}'")
         else:
-            container["symbolTree"] = tree.to_dict()
-            logger.info(f"[🆕] Injected new symbolic tree into container '{container_id}'")
+            setattr(container, "symbolTree", tree_dict)
+            logger.info(f"[🧬] Injected symbolic tree into UCS container object: '{container_id}'")
 
         # 🧠 SQI evaluation and KG export (optional for full containers)
         try:
@@ -502,8 +584,8 @@ def inject_symbolic_tree(container_arg: str):
         except Exception as e:
             logger.warning(f"[⚠️] Skipping SQI/Export: {e}")
 
-        # 💾 Save updated container
-        if container_arg.endswith(".dc.json") or (isinstance(container, dict) and container_id):
+        # 💾 Save updated container if dict-based
+        if isinstance(container, dict) and (container_arg.endswith(".dc.json") or container_id):
             output_path = container_arg if container_arg.endswith(".dc.json") else f"containers/{container_id}.dc.json"
             with open(output_path, 'w') as f:
                 json.dump(container, f, indent=2)
@@ -530,30 +612,35 @@ if __name__ == "__main__":
         sys.exit(1)
 
     container_arg = sys.argv[1]
+    is_path = os.path.exists(container_arg)
 
     try:
-        # ✅ Try full symbolic injection (with UCS registry + SQI)
+        # ✅ Attempt full symbolic tree injection via UCS + Knowledge Graph
         inject_symbolic_tree(container_arg)
 
     except Exception as e:
-        logger.warning(f"[⚠️ Fallback] Full injector failed, trying minimal tree injection: {e}")
-
+        logger.warning(f"[⚠️ Fallback] Full injector failed: {e}")
         try:
-            # ✅ Minimal fallback: load raw .dc.json and inject basic tree
-            if not os.path.exists(container_arg):
-                raise FileNotFoundError(f"File not found: {container_arg}")
+            # 🧯 Fallback: Use raw file from known container directory if needed
+            if container_arg.endswith(".dc.json") and os.path.exists(container_arg):
+                file_path = container_arg
+            else:
+                file_path = f"backend/modules/dimensions/containers/{container_arg}.dc.json"
 
-            with open(container_arg, 'r') as f:
+            if not os.path.exists(file_path):
+                raise FileNotFoundError(f"File not found: {file_path}")
+
+            with open(file_path, 'r') as f:
                 container = json.load(f)
 
             tree = build_symbolic_tree_from_container(container)
             container["symbolTree"] = tree.to_dict()
 
-            with open(container_arg, 'w') as f:
+            with open(file_path, 'w') as f:
                 json.dump(container, f, indent=2)
 
-            print(f"[✅] Fallback symbolic tree injected into {container_arg} with {len(tree.node_index)} nodes.")
+            print(f"[✅] Fallback symbolic tree injected into {file_path} with {len(tree.node_index)} nodes.")
 
         except Exception as fallback_error:
-            print(f"[❌] Fallback failed: {fallback_error}")
-            logger.error(f"Symbolic tree fallback injection failed: {fallback_error}")
+            logger.error(f"[❌] Fallback symbolic tree injection failed: {fallback_error}")
+            print(f"[❌] Failed: {fallback_error}")

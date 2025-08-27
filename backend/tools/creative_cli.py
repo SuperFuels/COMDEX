@@ -5,8 +5,14 @@ from rich import print
 from backend.modules.creative.creative_synthesis_engine import CreativeSynthesisEngine
 from backend.modules.runtime.container_runtime import ContainerRuntime
 from backend.modules.consciousness.state_manager import state_manager
-from backend.modules.dimensions.universal_container_system.ucs_runtime import get_ucs_runtime  # ✅ Fallback to UCS
-from backend.modules.utils.trace_logger import trace_log_if_available  # Optional trace stub
+from backend.modules.dimensions.universal_container_system.ucs_runtime import get_ucs_runtime
+from backend.modules.utils.trace_logger import trace_log_if_available
+
+# 🧠 HST + WebSocket tools
+from backend.modules.symbolic.hst.symbol_tree_generator import build_symbolic_tree_from_container
+from backend.modules.symbolic.hst.symbolic_tree_injector import inject_symbolic_tree
+from backend.modules.dna_chain.dc_handler import load_dc_container
+from backend.modules.symbolic.hst.hst_websocket_streamer import stream_hst_to_websocket
 
 
 def run_creative_session(container_id: str, prompt: str, max_depth: int = 3, verbose: bool = False):
@@ -18,7 +24,6 @@ def run_creative_session(container_id: str, prompt: str, max_depth: int = 3, ver
         container = runtime.get_decrypted_current_container()
 
         if container is None:
-            # Attempt fallback from UCS
             print(f"[yellow]⚠️ ContainerRuntime failed, attempting UCS fallback...[/yellow]")
             container = get_ucs_runtime().get_container(container_id)
 
@@ -57,8 +62,26 @@ def run_creative_session(container_id: str, prompt: str, max_depth: int = 3, ver
         print("\n[bold green]Creative Output:[/bold green]")
         print(json.dumps(result, indent=2))
 
+        # 🌲 Inject Holographic Symbol Tree (HST) after synthesis
+        try:
+            if isinstance(container_id, str) and container_id.startswith(("dc_", "atom_", "hoberman_")):
+                container_obj = load_dc_container(container_id)
+                tree = build_symbolic_tree_from_container(container_obj)
+                inject_symbolic_tree(container_id, tree)
+                print(f"\n[cyan]✅ HST injected for {container_id} with {len(tree.node_index)} nodes[/cyan]")
+
+                # 🌐 Stream to GHX/QFC via WebSocket
+                stream_hst_to_websocket(
+                    container_id=container_id,
+                    context="creative_cli"
+                )
+
+        except Exception as hst_err:
+            print(f"[yellow]⚠️ HST injection or streaming failed: {hst_err}[/yellow]")
+
     except Exception as e:
         print(f"[red]Error:[/red] Creative synthesis failed: {e}")
+
 
 def main():
     parser = argparse.ArgumentParser(description="CreativeCore CLI Tool")

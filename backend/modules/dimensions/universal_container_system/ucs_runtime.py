@@ -1114,37 +1114,28 @@ class UCSRuntime:
         self.save_container(name, c)
 
 # ---------------------------------------------------------
-# ✅ Singleton + Safe Legacy Aliases
+# ✅ Singleton Initialization + Safe Legacy Aliases
 # ---------------------------------------------------------
-ucs_runtime = UCSRuntime()
 
-# Optional SQIRuntime alias — only create if truly needed
-try:
-    SQIRuntime = UCSRuntime
-    ucs_runtime.sqi = SQIRuntime()
-except Exception as e:
-    # SQIRuntime not essential; log or ignore
-    pass
+_ucs_singleton: Optional[UCSRuntime] = None
 
-# ─────────────────────────────
-# Singleton + public API start
-# ─────────────────────────────
-from typing import Optional  # ignore if already imported at top
-
-_ucs_singleton: Optional["UCSRuntime"] = None
-
-def get_ucs_runtime() -> "UCSRuntime":
+def get_ucs_runtime() -> UCSRuntime:
     global _ucs_singleton
     if _ucs_singleton is None:
         _ucs_singleton = UCSRuntime()
+        try:
+            _ucs_singleton.sqi = UCSRuntime()  # Optional SQIRuntime alias
+        except Exception:
+            pass
     return _ucs_singleton
 
-# Back-compat name: some code imports this directly
+# Back-compat singleton alias
 ucs_runtime = get_ucs_runtime()
 
 # ---------------------------------------------------------
 # Legacy compatibility shims (safe getattr so missing attrs don't break import)
 # ---------------------------------------------------------
+
 def _alias(name: str):
     """Return bound UCSRuntime method if it exists, else raise AttributeError on call."""
     attr = getattr(ucs_runtime, name, None)
@@ -1159,13 +1150,7 @@ def _alias(name: str):
 # ✅ Public API + Aliases
 # ---------------------------------------------------------
 
-# Global UCS Runtime Singleton
-_ucs_runtime_instance: UCSRuntime = UCSRuntime()
-
-def get_ucs_runtime() -> UCSRuntime:
-    return _ucs_runtime_instance
-
-# Optional legacy aliases (resolved after class definition)
+# Legacy method aliases
 load_dc_container = _alias("load_container_from_path")
 load_container_from_path = _alias("load_container_from_path")
 load_container = _alias("load_container")

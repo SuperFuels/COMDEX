@@ -47,7 +47,7 @@
   "symbolTree": {
     "container_id": "atom_electrons_test",
     "root": {
-      "id": "cb03962e-fb83-4587-bae0-e139282a3632",
+      "id": "0448bb52-b440-449f-9d35-ccf39c0581c6",
       "glyph": {
         "type": "SymbolGlyph",
         "symbol": "container",
@@ -56,12 +56,20 @@
         ],
         "metadata": {
           "type": "container",
-          "id": "atom_electrons_test"
+          "id": "atom_electrons_test",
+          "semantic_context": []
         }
       },
+      "entangled_ids": [],
+      "replayed_from": null,
+      "mutation_source": null,
+      "goal_score": null,
+      "sqi_score": null,
+      "semantic_context": null,
+      "semantic_links": [],
       "children": [
         {
-          "id": "41621b8a-21e1-4c73-acbc-6d54ddb1add5",
+          "id": "db429440-1a2d-46a9-b152-f9fd7c3a2310",
           "glyph": {
             "type": "SymbolGlyph",
             "symbol": "glyph",
@@ -70,18 +78,21 @@
             ],
             "metadata": {
               "id": null,
-              "type": "glyph"
+              "type": "glyph",
+              "semantic_context": []
             }
           },
-          "children": [],
           "entangled_ids": [],
           "replayed_from": null,
           "mutation_source": null,
           "goal_score": null,
-          "sqi_score": null
+          "sqi_score": null,
+          "semantic_context": null,
+          "semantic_links": [],
+          "children": []
         },
         {
-          "id": "eb272725-c076-4615-9c7c-eb6331ed6f54",
+          "id": "029cfb55-4246-4214-b316-fc27870d36c0",
           "glyph": {
             "type": "SymbolGlyph",
             "symbol": "glyph",
@@ -90,22 +101,95 @@
             ],
             "metadata": {
               "id": null,
-              "type": "glyph"
+              "type": "glyph",
+              "semantic_context": []
             }
           },
-          "children": [],
           "entangled_ids": [],
           "replayed_from": null,
           "mutation_source": null,
           "goal_score": null,
-          "sqi_score": null
+          "sqi_score": null,
+          "semantic_context": null,
+          "semantic_links": [],
+          "children": []
         }
-      ],
-      "entangled_ids": [],
-      "replayed_from": null,
-      "mutation_source": null,
-      "goal_score": null,
-      "sqi_score": null
+      ]
+    }
+  },
+  "hst": {
+    "symbolicTree": {
+      "container_id": "atom_electrons_test",
+      "root": {
+        "id": "47e726ef-447b-49ad-992b-b06852aa8232",
+        "glyph": {
+          "type": "SymbolGlyph",
+          "symbol": "container",
+          "operands": [
+            "atom_electrons_test"
+          ],
+          "metadata": {
+            "type": "container",
+            "id": "atom_electrons_test",
+            "semantic_context": []
+          }
+        },
+        "entangled_ids": [],
+        "replayed_from": null,
+        "mutation_source": null,
+        "goal_score": null,
+        "sqi_score": null,
+        "semantic_context": null,
+        "semantic_links": [],
+        "children": [
+          {
+            "id": "9a7c9996-ab15-492b-82b4-027ea94d988b",
+            "glyph": {
+              "type": "SymbolGlyph",
+              "symbol": "glyph",
+              "operands": [
+                "atom"
+              ],
+              "metadata": {
+                "id": null,
+                "type": "glyph",
+                "semantic_context": []
+              }
+            },
+            "entangled_ids": [],
+            "replayed_from": null,
+            "mutation_source": null,
+            "goal_score": null,
+            "sqi_score": null,
+            "semantic_context": null,
+            "semantic_links": [],
+            "children": []
+          },
+          {
+            "id": "0fb6069f-9bea-4a64-b70c-ce26412c8a6c",
+            "glyph": {
+              "type": "SymbolGlyph",
+              "symbol": "glyph",
+              "operands": [
+                "electron"
+              ],
+              "metadata": {
+                "id": null,
+                "type": "glyph",
+                "semantic_context": []
+              }
+            },
+            "entangled_ids": [],
+            "replayed_from": null,
+            "mutation_source": null,
+            "goal_score": null,
+            "sqi_score": null,
+            "semantic_context": null,
+            "semantic_links": [],
+            "children": []
+          }
+        ]
+      }
     }
   }
 }

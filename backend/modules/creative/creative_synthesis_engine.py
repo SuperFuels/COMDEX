@@ -11,6 +11,7 @@ from backend.modules.consciousness.prediction_engine import suggest_simplificati
 from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.sqi_reasoning_module import SQIReasoningEngine
 from backend.modules.codex.codex_metrics import CodexMetrics
 from backend.modules.lean.lean_utils import is_lean_container
+from backend.modules.symbolic.symbolnet_bridge import semantic_distance
 
 
 class MutationOption:
@@ -66,7 +67,23 @@ class CreativeSynthesisEngine:
         entropy = self.metrics.entropy_level(glyph)
         goal_match = self.metrics.goal_match_score(glyph, goal) if goal else 0.5
         sqi_score = self.sqi.score_node(glyph)
-        return 0.4 * (1 - entropy) + 0.3 * goal_match + 0.3 * sqi_score
+
+        # 🔍 Semantic score via SymbolNet bridge
+        semantic_score = 0.0
+        if goal and glyph.get("label"):
+            try:
+                semantic_score = semantic_distance(glyph["label"], goal)
+            except Exception as e:
+                print(f"[⚠️] Semantic scoring failed: {e}")
+                semantic_score = 0.0
+
+        # Store score in metadata (optional)
+        if "metadata" not in glyph:
+            glyph["metadata"] = {}
+        glyph["metadata"]["semantic_goal_score"] = semantic_score
+
+        # Weighted scoring including semantic alignment
+        return 0.3 * (1 - entropy) + 0.25 * goal_match + 0.25 * sqi_score + 0.2 * semantic_score
 
     def recursive_synthesize(self, glyph: Dict[str, Any], depth: int = 2, goal: Optional[str] = None, verbose: bool = False) -> Dict[str, Any]:
         best = glyph

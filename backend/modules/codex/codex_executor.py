@@ -30,6 +30,7 @@ from backend.modules.glyphos.glyph_executor import GlyphExecutor
 from backend.modules.knowledge_graph.kg_writer_singleton import get_kg_writer
 from backend.modules.knowledge_graph.indexes.introspection_index import add_introspection_event
 from backend.modules.knowledge_graph.indexes.prediction_index import PredictionIndex, PredictedGlyph
+from backend.modules.symbolic.hst.symbolic_tree_injector import inject_symbolic_tree
 
 # Memory & DNA
 from backend.modules.consciousness.memory_bridge import MemoryBridge
@@ -168,7 +169,7 @@ class CodexExecutor:
             # 🔮 Container-level Prediction (SQI Path Selection)
             try:
                 cid = context.get("container_id")
-                if cid and isinstance(cid, str) and cid.startswith("dc_"):
+                if cid and isinstance(cid, str) and cid.startswith(("dc_", "atom_", "hoberman_", "sec_", "symmetry_", "exotic_", "ucs_", "qfc_")):
                     prediction_result = self.prediction_engine.run_prediction_on_container(cid)
                     if prediction_result:
                         self.kg_writer.store_predictions(
@@ -323,6 +324,33 @@ class CodexExecutor:
                 )
 
             elapsed = time.perf_counter() - start_time
+
+            # 🧠 Inject Holographic Symbol Tree (HST) for introspection
+            try:
+                from backend.modules.symbolic.hst.symbol_tree_generator import build_symbolic_tree_from_container
+                from backend.modules.symbolic.hst.symbolic_tree_injector import inject_symbolic_tree
+                from backend.modules.symbolic.hst.hst_websocket_streamer import stream_hst_to_websocket
+                from backend.modules.dna_chain.dc_handler import load_dc_container
+
+                cid = context.get("container_id")
+                if cid and isinstance(cid, str) and cid.startswith((
+                    "dc_", "atom_", "hoberman_", "sec_", "symmetry_", "exotic_", "ucs_", "qfc_"
+                )):
+                    container = load_dc_container(cid)
+                    tree = build_symbolic_tree_from_container(container)
+                    inject_symbolic_tree(cid, tree)
+
+                    # ✅ Send to GHX/QFC WebSocket overlay
+                    stream_hst_to_websocket(cid, tree, context="prediction_engine")
+
+                    self.trace.log_event("hst_injected", {
+                        "container_id": cid,
+                        "node_count": len(tree.nodes),
+                        "tags": ["hst", "introspection"]
+                    })
+            except Exception as hst_err:
+                logger.warning(f"[CodexExecutor] ⚠️ HST injection failed: {hst_err}")
+
             return {"status": "success", "result": result, "cost": cost, "elapsed": elapsed}
 
         except Exception as e:
