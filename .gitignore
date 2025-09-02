@@ -1,60 +1,69 @@
-# Node modules
+# ------------------------------
+# 📦 Node.js Modules
+# ------------------------------
 node_modules/
 frontend/node_modules/
 backend/node_modules/
 
-# Next.js build and cache
+# ------------------------------
+# ⚙️ Next.js Build + Cache
+# ------------------------------
 .next/
 
-# Environment files
+# ------------------------------
+# 🌱 Environment Files
+# ------------------------------
 .env
 .env.local
 backend/.env
 backend/.env.local
 
-# Python virtual environments
+# ------------------------------
+# 🐍 Python Virtual Environments
+# ------------------------------
+venv*/
 backend/venv*/
 backend/venv_test*/
-venv*/
 COMDEX_restore/
 
-*.log
-*.db
-
-# Python cache and compiled files
+# ------------------------------
+# 🐍 Python Caches & Compiled
+# ------------------------------
 __pycache__/
 *.py[cod]
 *.so
+*.log
+*.db
 
-# Firebase cache
+# ------------------------------
+# 🔥 Firebase Hosting Cache
+# ------------------------------
 .firebase/**/hosting.*.cache
 
-# Hardhat files
+# ------------------------------
+# 💎 Hardhat + Solidity
+# ------------------------------
 /cache
 /artifacts
-
-# TypeChain files
 /typechain
 /typechain-types
-
-# Solidity coverage files
 /coverage
 /coverage.json
-
-# Hardhat Ignition deployments
 ignition/deployments/chain-31337
 
-backend/venv*
-backend/venv/
-backend/venv_test/
-backend/venv_test/*
-backend/venv_test/**/*
-google-cloud-sdk/
-google-cloud-sdk-448.0.0-linux-x86_64.tar.gz
-google-cloud-sdk/
-google-cloud-sdk-448.0.0-linux-x86_64.tar.gz
+# ------------------------------
+# ☁️ Google Cloud SDK
+# ------------------------------
 google-cloud-sdk/
 *.tar.gz
 *.zip
-backend/data/knowledge_index.jsonlbackend/data/knowledge_index.jsonl
+
+# ------------------------------
+# 🧠 Symbolic Intelligence Artifacts
+# ------------------------------
 backend/data/knowledge_index.jsonl
+
+# ------------------------------
+# 🚫 Git LFS-Limited Files (Too Large)
+# ------------------------------
+backend/data/conceptnet/numberbatch-en-19.08.txt
