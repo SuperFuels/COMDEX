@@ -1,5 +1,6 @@
 from typing import List, Optional, Dict, Any
 from uuid import uuid4
+from datetime import datetime
 import random
 
 from backend.modules.codex.codexlang_rewriter import CodexLangRewriter
@@ -11,7 +12,8 @@ from backend.modules.consciousness.prediction_engine import suggest_simplificati
 from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.sqi_reasoning_module import SQIReasoningEngine
 from backend.modules.codex.codex_metrics import CodexMetrics
 from backend.modules.lean.lean_utils import is_lean_container
-from backend.modules.symbolic.symbolnet_bridge import semantic_distance
+from backend.modules.symbolnet.symbolnet_bridge import semantic_distance
+from backend.modules.symbolnet.symbolnet_overlay_loader import enrich_glyph_with_symbolnet_overlay
 
 
 class MutationOption:
@@ -58,6 +60,13 @@ class CreativeSynthesisEngine:
         for feature in features:
             for alt in self._generate_feature_alternatives(feature):
                 mutated = self.rewriter.mutate_feature(glyph, feature, alt)
+
+                # ✅ Ensure mutated glyph has required fields
+                if "name" not in mutated:
+                    mutated["name"] = mutated.get("label") or "Unnamed Synthesis"
+                if "created_on" not in mutated:
+                    mutated["created_on"] = datetime.utcnow().isoformat()
+
                 score = self.evaluate_mutation(mutated, goal)
                 options.append(MutationOption(f"{feature} → {alt}", mutated, score))
 
@@ -68,21 +77,17 @@ class CreativeSynthesisEngine:
         goal_match = self.metrics.goal_match_score(glyph, goal) if goal else 0.5
         sqi_score = self.sqi.score_node(glyph)
 
-        # 🔍 Semantic score via SymbolNet bridge
         semantic_score = 0.0
         if goal and glyph.get("label"):
             try:
                 semantic_score = semantic_distance(glyph["label"], goal)
             except Exception as e:
                 print(f"[⚠️] Semantic scoring failed: {e}")
-                semantic_score = 0.0
 
-        # Store score in metadata (optional)
         if "metadata" not in glyph:
             glyph["metadata"] = {}
         glyph["metadata"]["semantic_goal_score"] = semantic_score
 
-        # Weighted scoring including semantic alignment
         return 0.3 * (1 - entropy) + 0.25 * goal_match + 0.25 * sqi_score + 0.2 * semantic_score
 
     def recursive_synthesize(self, glyph: Dict[str, Any], depth: int = 2, goal: Optional[str] = None, verbose: bool = False) -> Dict[str, Any]:
@@ -97,6 +102,12 @@ class CreativeSynthesisEngine:
             best = mutations[0].mutated_glyph
             if verbose:
                 print(f"[{i+1}] Selected mutation: {mutations[0].description}")
+
+        if "name" not in best:
+            best["name"] = best.get("label") or best.get("symbol") or "Unnamed Synthesis"
+        if "created_on" not in best:
+            best["created_on"] = datetime.utcnow().isoformat()
+
         return best
 
     def record_failed_path(self, glyph: Dict[str, Any]):
@@ -143,6 +154,14 @@ class CreativeSynthesisEngine:
 
         if visualize:
             self.trigger_qfc_visualization(result)
+        except Exception as e:
+            print(f"[⚠️] Failed to enrich with SymbolNet overlay: {e}")
+
+        # ✅ Final fallback to enforce name and creation time
+        if "name" not in result:
+            result["name"] = result.get("label") or result.get("symbol") or "Unnamed Synthesis"
+        if "created_on" not in result:
+            result["created_on"] = datetime.utcnow().isoformat()
 
         store_generated_glyph(result)
         return result
@@ -178,6 +197,12 @@ class CreativeSynthesisEngine:
 
         if glyph is None:
             raise ValueError("Missing required glyph input for synthesis.")
+
+        # ✅ Ensure name and created_on on input
+        if "name" not in glyph:
+            glyph["name"] = glyph.get("label") or glyph.get("symbol") or "Unnamed Synthesis"
+        if "created_on" not in glyph:
+            glyph["created_on"] = datetime.utcnow().isoformat()
 
         return self.generate_and_store(
             glyph=glyph,

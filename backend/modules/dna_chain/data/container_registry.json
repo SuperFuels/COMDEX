@@ -186,10 +186,26 @@
     }
   },
   "atom_electrons_test": {
-    "address": "ucs://local/ElectronShell Test Atom#container",
+    "address": "ucs://local/atom_electrons_test#container",
     "kind": "container",
     "meta": {
-      "address": "ucs://local/ElectronShell Test Atom#container"
+      "address": "ucs://local/atom_electrons_test#container"
+    }
+  },
+  "torus_test": {
+    "address": "ucs://local/torus_test#container",
+    "kind": "container",
+    "meta": {
+      "address": "ucs://local/torus_test#container"
+    }
+  },
+  "kg_writer_test": {
+    "address": "ucs://local/kg_writer_test#sourcecode",
+    "kind": "sourcecode",
+    "meta": {
+      "title": "KG Writer Compression Test",
+      "description": "Benchmark symbolic ingestion on knowledge_graph_writer.py",
+      "address": "ucs://local/kg_writer_test#sourcecode"
     }
   }
 }

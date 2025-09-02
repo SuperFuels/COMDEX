@@ -1,0 +1,226 @@
+{
+  "log": [
+    {
+      "action": "mutation",
+      "mutation": {
+        "from": "unknown",
+        "to": "Fusion()",
+        "reason": "symbolic fragment fusion",
+        "timestamp": "2025-08-28T18:13:08.632229"
+      }
+    },
+    {
+      "action": "mutation",
+      "mutation": {
+        "from": "unknown",
+        "to": "Fusion()",
+        "reason": "symbolic fragment fusion",
+        "timestamp": "2025-08-28T18:13:08.704394"
+      }
+    },
+    {
+      "action": "mutation",
+      "mutation": {
+        "from": "unknown",
+        "to": "Fusion()",
+        "reason": "symbolic fragment fusion",
+        "timestamp": "2025-08-28T18:13:09.566838"
+      }
+    },
+    {
+      "action": "mutation",
+      "mutation": {
+        "from": {
+          "text": "unknown"
+        },
+        "to": {
+          "text": "Fusion()"
+        },
+        "reason": "symbolic fragment fusion",
+        "timestamp": "2025-08-28T18:58:28.775757"
+      }
+    },
+    {
+      "action": "mutation",
+      "mutation": {
+        "from": {
+          "text": "unknown"
+        },
+        "to": {
+          "text": "Fusion()"
+        },
+        "reason": "symbolic fragment fusion",
+        "timestamp": "2025-08-28T18:58:28.849905"
+      }
+    },
+    {
+      "action": "mutation",
+      "mutation": {
+        "from": {
+          "text": "unknown"
+        },
+        "to": {
+          "text": "Fusion()"
+        },
+        "reason": "symbolic fragment fusion",
+        "timestamp": "2025-08-28T18:58:29.746173"
+      }
+    },
+    {
+      "action": "mutation",
+      "mutation": {
+        "from": {
+          "text": "unknown"
+        },
+        "to": {
+          "text": "Fusion()"
+        },
+        "reason": "symbolic fragment fusion",
+        "timestamp": "2025-08-28T19:06:00.500528"
+      }
+    },
+    {
+      "action": "mutation",
+      "mutation": {
+        "from": {
+          "text": "unknown"
+        },
+        "to": {
+          "text": "Fusion()"
+        },
+        "reason": "symbolic fragment fusion",
+        "timestamp": "2025-08-28T19:06:00.577632"
+      }
+    },
+    {
+      "action": "mutation",
+      "mutation": {
+        "from": {
+          "text": "unknown"
+        },
+        "to": {
+          "text": "Fusion()"
+        },
+        "reason": "symbolic fragment fusion",
+        "timestamp": "2025-08-28T19:06:01.451641"
+      }
+    },
+    {
+      "action": "mutation",
+      "mutation": {
+        "from": {
+          "text": "unknown"
+        },
+        "to": {
+          "text": "Fusion()"
+        },
+        "reason": "symbolic fragment fusion",
+        "timestamp": "2025-08-28T19:10:56.588994"
+      }
+    },
+    {
+      "action": "mutation",
+      "mutation": {
+        "from": {
+          "text": "unknown"
+        },
+        "to": {
+          "text": "Fusion()"
+        },
+        "reason": "symbolic fragment fusion",
+        "timestamp": "2025-08-28T19:10:56.665710"
+      }
+    },
+    {
+      "action": "mutation",
+      "mutation": {
+        "from": {
+          "text": "unknown"
+        },
+        "to": {
+          "text": "Fusion()"
+        },
+        "reason": "symbolic fragment fusion",
+        "timestamp": "2025-08-28T19:10:57.533771"
+      }
+    },
+    {
+      "action": "mutation",
+      "mutation": {
+        "from": {
+          "text": "unknown"
+        },
+        "to": {
+          "text": "Fusion()"
+        },
+        "reason": "symbolic fragment fusion",
+        "timestamp": "2025-08-28T19:13:17.566345"
+      }
+    },
+    {
+      "action": "mutation",
+      "mutation": {
+        "from": {
+          "text": "unknown"
+        },
+        "to": {
+          "text": "Fusion()"
+        },
+        "reason": "symbolic fragment fusion",
+        "timestamp": "2025-08-28T19:13:17.645134"
+      }
+    },
+    {
+      "action": "mutation",
+      "mutation": {
+        "from": {
+          "text": "unknown"
+        },
+        "to": {
+          "text": "Fusion()"
+        },
+        "reason": "symbolic fragment fusion",
+        "timestamp": "2025-08-28T19:13:18.534226"
+      }
+    },
+    {
+      "action": "mutation",
+      "mutation": {
+        "from": {
+          "text": "unknown"
+        },
+        "to": {
+          "text": "Fusion()"
+        },
+        "reason": "symbolic fragment fusion",
+        "timestamp": "2025-08-29T13:17:19.200411"
+      }
+    },
+    {
+      "action": "mutation",
+      "mutation": {
+        "from": {
+          "text": "unknown"
+        },
+        "to": {
+          "text": "Fusion()"
+        },
+        "reason": "symbolic fragment fusion",
+        "timestamp": "2025-08-29T13:17:19.407375"
+      }
+    },
+    {
+      "action": "mutation",
+      "mutation": {
+        "from": {
+          "text": "unknown"
+        },
+        "to": {
+          "text": "Fusion()"
+        },
+        "reason": "symbolic fragment fusion",
+        "timestamp": "2025-08-29T13:17:20.733427"
+      }
+    }
+  ]
+}

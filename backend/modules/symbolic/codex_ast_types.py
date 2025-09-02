@@ -8,31 +8,47 @@ class CodexAST:
     Wrapper class for CodexLang AST nodes.
     Used for standardized manipulation, equality checking, and serialization.
     """
-    def __init__(self, node: Dict[str, Any], metadata: Dict[str, Any] = None):
-        self.node = node
+
+    def __init__(self, ast: Dict[str, Any], metadata: Dict[str, Any] = None):
+        self.node = ast  # Legacy alias
+        self.ast = ast
         self.metadata = metadata or {}
 
     def to_dict(self) -> Dict[str, Any]:
         return {
-            "ast": self.node,
+            "ast": self.ast,
             "metadata": self.metadata
         }
 
     @staticmethod
     def from_dict(data: Dict[str, Any]) -> "CodexAST":
-        return CodexAST(data.get("ast", data), metadata=data.get("metadata", {}))
+        return CodexAST(
+            ast=data.get("ast", data),
+            metadata=data.get("metadata", {})
+        )
 
     def get_type(self) -> str:
-        return self.node.get("type", "")
+        return self.ast.get("type", "")
+
+    @property
+    def root(self) -> Any:
+        return self.ast.get("root", None)
+
+    @property
+    def args(self) -> Any:
+        return self.ast.get("args", [])
+
+    @property
+    def meta(self) -> Dict[str, Any]:
+        return self.metadata
 
     def __repr__(self) -> str:
-        return f"CodexAST({self.node}, metadata={self.metadata})"
+        return f"CodexAST({self.ast}, metadata={self.metadata})"
 
     def __eq__(self, other) -> bool:
         if not isinstance(other, CodexAST):
             return False
-        return self.node == other.node and self.metadata == other.metadata
-
+        return self.ast == other.ast and self.metadata == other.metadata
 
 # === Constructors ===
 
@@ -109,7 +125,11 @@ def is_logical_operator(node: Dict[str, Any]) -> bool:
 def is_terminal(node: Dict[str, Any]) -> bool:
     return node.get("type") in {"true", "false", "symbol", "variable"}
 
-
+def make_unknown() -> CodexAST:
+    return CodexAST(
+        ast={"root": "unknown", "args": []},
+        metadata={}
+    )
 # === Traversal ===
 
 def traverse_ast(node: Dict[str, Any]) -> List[Dict[str, Any]]:

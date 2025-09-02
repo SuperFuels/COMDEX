@@ -340,14 +340,107 @@ def _tree_depth(node) -> int:
         return 1 + (max((_tree_depth(ch) for ch in node), default=0))
     return 1
 
-def log_benchmark_result(result: dict):
-    print(f"\n[Benchmark] {result['glyph']}")
-    print(f"  ⏱️  Classical Time: {result['classical_time']}s")
-    print(f"  🧬 QGlyph Time:    {result['qglyph_time']}s")
-    print(f"  📏 Depths → Classical: {result['depth_classical']} | QGlyph: {result['depth_qglyph']}")
-    print(f"  🔁 Compression Ratio: {result['compression_ratio']}×")
-    print(f"  ⚡ Speedup Ratio:      {result['speedup_ratio']}×")
-    print(f"  🧿 QGlyph ID: {result['qglyph_id']}")
+def estimate_compression_stats(container: dict) -> dict:
+    """
+    Estimate compression stats from a container containing raw source,
+    symbolic tree, and glyphs.
+    """
+    import json
+    from math import log2
+
+    # Use 'source' instead of 'code' for CodexLang containers
+    raw_source = container.get("source", "")
+    try:
+        raw_size = len(raw_source.encode("utf-8"))
+    except Exception:
+        raw_size = 0
+
+    tree = container.get("symbolic_tree", {})
+    glyphs = container.get("glyphs", [])
+
+    # Size of symbolic tree in bytes
+    try:
+        tree_bytes = json.dumps(tree).encode("utf-8")
+        tree_size = len(tree_bytes)
+    except Exception:
+        tree_size = 0
+
+    # Compression ratio: raw vs symbolic tree
+    try:
+        compression_ratio = round(raw_size / tree_size, 3) if tree_size else 0.0
+    except Exception:
+        compression_ratio = 0.0
+
+    # Symbolic depth from tree metadata
+    try:
+        symbolic_depth = tree.get("depth", 0) if isinstance(tree, dict) else 0
+        symbolic_depth = int(symbolic_depth) if symbolic_depth is not None else 0
+    except Exception:
+        symbolic_depth = 0
+
+    # Entropy estimate based on unique glyph diversity
+    try:
+        unique_glyphs = set(str(g) for g in glyphs)
+        p = 1 / len(unique_glyphs) if unique_glyphs else 1
+        entropy = -len(glyphs) * p * log2(p) if p > 0 else 0.0
+    except Exception:
+        entropy = 0.0
+
+    return {
+        "raw_size": raw_size,
+        "tree_size": tree_size,
+        "compression_ratio": float(compression_ratio),
+        "symbolic_depth": symbolic_depth,
+        "container_id": container.get("id", "unknown"),
+        "source_file": container.get("source_file", "N/A"),
+        "entropy": float(round(entropy, 3)),
+    }
+
+import json
+from typing import Optional
+
+def log_benchmark_result(result: dict, to_file: Optional[str] = None):
+    """
+    Log benchmark metrics for a CodexLang or glyph compression test.
+    Optionally writes to a file in JSONL format.
+    """
+    print(f"\n[Benchmark] {result.get('glyph', '[unknown glyph]')}")
+
+    classical_time = result.get('classical_time')
+    qglyph_time = result.get('qglyph_time')
+    depth_classical = result.get('depth_classical')
+    depth_qglyph = result.get('depth_qglyph')
+    compression_ratio = result.get('compression_ratio')
+    speedup_ratio = result.get('speedup_ratio')
+    qglyph_id = result.get('qglyph_id')
+
+    # 🛡️ Safe float casting for formatting
+    def fmt_float(val, digits=4, suffix="s"):
+        try:
+            return f"{float(val):.{digits}f}{suffix}"
+        except (TypeError, ValueError):
+            return "N/A"
+
+    def fmt_ratio(val, digits=2):
+        try:
+            return f"{float(val):.{digits}f}×"
+        except (TypeError, ValueError):
+            return "N/A"
+
+    print(f"  ⏱️  Classical Time: {fmt_float(classical_time)}")
+    print(f"  🧬 QGlyph Time:    {fmt_float(qglyph_time)}")
+    print(f"  📏 Depths → Classical: {depth_classical or 'N/A'} | QGlyph: {depth_qglyph or 'N/A'}")
+    print(f"  🔁 Compression Ratio: {fmt_ratio(compression_ratio)}")
+    print(f"  ⚡ Speedup Ratio:      {fmt_ratio(speedup_ratio)}")
+    print(f"  🧿 QGlyph ID: {qglyph_id or '[none]'}")
+
+    # 💾 Save to JSONL file
+    if to_file:
+        try:
+            with open(to_file, "a", encoding="utf-8") as f:
+                f.write(json.dumps(result, indent=2) + "\n")
+        except Exception as e:
+            print(f"⚠️ Failed to write benchmark to file: {e}")
 
 __all__ = [
     "record_execution_metrics",
@@ -355,6 +448,7 @@ __all__ = [
     "CodexMetrics",
     "score_glyph_tree",
     "calculate_glyph_cost",
-    "log_benchmark_result",
+    "log_benchmark_result", 
+    "estimate_compression_stats", 
 ]
 codex_metrics = CodexMetrics()

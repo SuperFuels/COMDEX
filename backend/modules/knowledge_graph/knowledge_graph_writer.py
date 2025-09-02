@@ -621,33 +621,71 @@ class KnowledgeGraphWriter:
             }))
         return str(out_path)
 
-    def inject_prediction_trace(container: dict, prediction_result: dict) -> None:
+    def inject_prediction_trace(container: dict, prediction_result: dict, *, origin: str = "prediction") -> None:
         """
         Injects prediction result, contradiction/simplification status,
         and metadata (confidence, entropy, suggestion) into the container.
 
-        Also prepares it for SQI scoring and replay badge rendering.
+        Also tracks full mutation history (trace_id, origin, parent_id),
+        and enables GHX/QFC replay overlay reconstruction.
         """
-        container.setdefault("prediction", {}).update(prediction_result)
 
+        # Make sure container has the necessary fields
+        container.setdefault("prediction", {}).update(prediction_result)
+        container.setdefault("logic_trace", [])
+
+        # Detect status and trigger replay flag
         status = prediction_result.get("status", "")
         if status in {"contradiction", "simplify"}:
             container.setdefault("metadata", {})["replaySuggested"] = True
             container["prediction"]["trigger_replay"] = True
 
-        # Trace metadata for GHX + Holographic Viewers
+        # Generate trace metadata
+        trace_id = str(uuid.uuid4())
+        parent_id = None
+        if container["logic_trace"]:
+            parent_id = container["logic_trace"][-1].get("trace_id")
+
         trace = {
             "type": "logic_prediction",
+            "trace_id": trace_id,
+            "parent_id": parent_id,
+            "timestamp": datetime.utcnow().isoformat(),
+            "origin": origin,  # e.g. "initial", "mutation", "prediction", "teleport"
             "status": status,
             "confidence": prediction_result.get("confidence"),
             "entropy": prediction_result.get("entropy"),
             "suggestion": prediction_result.get("suggestion"),
+            "mutated_fields": prediction_result.get("mutated_fields", []),
+            "mutation_type": prediction_result.get("mutation_type", None),
         }
 
-        container.setdefault("logic_trace", []).append(trace)
+        # Append trace
+        container["logic_trace"].append(trace)
 
-        # Mark for SQI graph tracking
+        # Optionally mark last trace for SQI scoring or GHX rendering
         container.setdefault("sqi", {})["last_prediction"] = trace
+        container.setdefault("replay", {})["last_trace_id"] = trace_id
+
+    def resolve_replay_chain(container: dict, start_id: Optional[str] = None) -> List[dict]:
+        """
+        Walks the logic_trace in reverse via parent_id links to reconstruct
+        a full symbolic replay path (e.g. for GHX/QFC overlay or audit).
+        """
+        traces = container.get("logic_trace", [])
+        if not traces:
+            return []
+
+        trace_by_id = {t["trace_id"]: t for t in traces if "trace_id" in t}
+        current = trace_by_id.get(start_id) if start_id else traces[-1]
+        chain = []
+
+        while current:
+            chain.append(current)
+            pid = current.get("parent_id")
+            current = trace_by_id.get(pid)
+
+        return list(reversed(chain))
 
     # inside KnowledgeGraphWriter
     def save_pack_for_container(self, container_id: str, filename: str | None = None):
@@ -780,6 +818,14 @@ class KnowledgeGraphWriter:
             # 🔀 CRDT merge & increment
             merged_version = crdt_registry.merge_vector(glyph_id, version_vector or {})
             crdt_registry.increment_clock(glyph_id, agent_id)
+
+            # 🛡️ Wrap string content if necessary
+            if isinstance(content, str):
+                content = {
+                    "type": "symbol",
+                    "text": content,
+                    "metadata": metadata or {}
+                }
 
             # ✅ Auto-tagging based on glyph operators
             auto_tags = self._derive_auto_tags(content)
@@ -973,6 +1019,7 @@ class KnowledgeGraphWriter:
         )
 
     def link_source(self, node_id: str, source_id: str, relation: str = "supports"):
+        self.add_edge(node_id, source_id, relation)
         try:
             self.write_link_entry(node_id, source_id, relation)
         except Exception:
@@ -1004,12 +1051,6 @@ class KnowledgeGraphWriter:
             metadata={"node_id": node_id, **(source or {})},
             plugin="KG"
         )
-
-    def link_source(self, node_id: str, source_id: str, relation: str = "supports"):
-        """
-        Link a node to a source with a 'supports' (or custom) relation, as a normal KG edge.
-        """
-        return self.add_edge(node_id, source_id, relation)
 
     def inject_plugin_aware(self, content: str, glyph_type: str, plugin_name: str, metadata: Optional[Dict[str, Any]] = None):
         return self.inject_glyph(content=content, glyph_type=glyph_type, metadata=metadata, plugin=plugin_name)

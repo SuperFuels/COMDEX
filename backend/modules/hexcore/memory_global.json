@@ -56,5 +56,15 @@
     "label": "container:atom_electrons_test",
     "content": "[\ud83d\udce6] Container metadata\nContainer ID: atom_electrons_test\nName: ElectronShell Test Atom\nDescription: Test container for GHX orbital rendering and symbolic prediction.\nOrigin: \nCreated On: 2025-08-22T00:00:00Z\nContainer Type: atom\nTotal Cubes: 0\nMutations: 0\nConnections: None\nDNA Switch: none (undefined)",
     "timestamp": "2025-08-22T17:07:18.203815"
+  },
+  {
+    "label": "container:torus_test",
+    "content": "[\ud83d\udce6] Container Torus Test activated.",
+    "timestamp": "2025-08-28T17:00:19.329229"
+  },
+  {
+    "label": "container:torus_test",
+    "content": "[\ud83d\udce6] Container metadata\nContainer ID: torus_test\nName: Torus Test\nDescription: A symbolic test container representing a torus structure for feedback stabilization.\nOrigin: \nCreated On: 2025-08-28T17:23:21.003623\nContainer Type: generic\nTotal Cubes: 1\nMutations: 0\nConnections: None\nDNA Switch: none (undefined)",
+    "timestamp": "2025-08-28T17:31:43.914933"
   }
 ]

@@ -5,8 +5,12 @@ import GHXSignatureTrail from './GHXSignatureTrail';
 import axios from 'axios';
 import useWebSocket from '../../hooks/useWebSocket';
 import React, { useMemo, useRef, useState, useEffect } from "react";
-import { ElectronOrbit } from "@/components/GHX/atoms/electronOrbit";
-import { ElectronShells, buildElectronShells } from "./atoms/electronOrbit";
+import { ElectronShells, buildElectronShells, ElectronOrbit } from "@/components/GHX/atoms/electronOrbit";
+import { GHXReplaySelector } from '@/components/GHX/GHXReplaySelector';
+import { GHXTeleportTrail } from '@/components/GHX/GHXTeleportTrail';
+import { GHXAnchorMemory } from '@/components/GHX/GHXAnchorMemory';
+import { SymbolicTeleportPath } from '@/components/GHX/SymbolicTeleportPath';
+import { DreamGhostEntry } from '@/components/GHX/DreamGhostEntry';
 
 declare global {
   interface Window {
@@ -36,6 +40,8 @@ const fetchHoverGHX = async (cid: string) => {
     return null;
   }
 };
+
+const [setHoveredNodeId] = useState<string | null>(null);
 
 const setCollapse = async (cid: string, collapsed: boolean, opts?: {mode?: string; snapshot_rate?: number; density?: string}) => {
   const q = new URLSearchParams({ collapsed: String(collapsed) });
@@ -98,6 +104,7 @@ useEffect(() => {
         position: [Math.random() * 6 - 3, Math.random() * 4 - 2, Math.random() * 4 - 2],
         memoryEcho: isEcho,
         predictive: isDream,
+        entangled_with: g.metadata?.entangled_ids || [],
         entangled: g.metadata?.entangled_ids || [],
         reasoning_chain: g.metadata?.reasoning_chain || null,
         prediction_path: g.metadata?.predicted_path || [],
@@ -124,9 +131,8 @@ useEffect(() => {
 
   return { holograms, echoes, dreams, setHolograms };
 };
-
 type GlyphHologramProps = {
-  cid: string; // ← ensure parent passes container id
+  cid: string;
   glyph: string;
   position: [number, number, number];
   memoryEcho?: boolean;
@@ -139,16 +145,34 @@ type GlyphHologramProps = {
   permission: "hidden" | "read-only" | "editable" | "full";
   onClick?: () => void;
   onTeleport?: (cid: string) => void;
+  onHover?: (id: string | null) => void;
+  collapsed?: boolean;
+  collapseTime?: number;
+  phase?: string;
 };
 
 const GlyphHologram = ({
   cid,
-  glyph, position, memoryEcho, predictive, reasoning_chain, prediction_path = [],
-  anchor, agent_id, locked, permission, onClick
+  glyph,
+  position,
+  memoryEcho,
+  predictive,
+  reasoning_chain,
+  prediction_path = [],
+  anchor,
+  agent_id,
+  locked,
+  permission,
+  onClick,
+  onTeleport,
+  onHover,
+  collapsed,
+  collapseTime,
+  phase,
 }: GlyphHologramProps) => {
   const meshRef = useRef<any>();
   const [hovered, setHovered] = useState(false);
-  
+
   const isMutation = glyph === "⬁";
 
   useFrame(({ clock }) => {
@@ -166,13 +190,14 @@ const GlyphHologram = ({
     }
   });
 
-  // 🚫 Restricted Mode: Hide unauthorized glyphs
   if (permission === "hidden") return null;
+
   const emissiveColor = memoryEcho ? "#222222" : predictive ? "#2299ff" : getAgentColor(agent_id);
   const opacity = permission === "read-only" ? 0.25 : (memoryEcho ? 0.35 : predictive ? 0.5 : 1);
 
   return (
     <group>
+      {/* ◉ Main Glyph */}
       <mesh
         ref={meshRef}
         position={position}
@@ -180,8 +205,7 @@ const GlyphHologram = ({
         onPointerOver={async (e) => {
           e.stopPropagation();
           setHovered(true);
-
-          // 🔥 Trigger backend hover baking (HOV1–HOV3)
+          onHover?.(cid);
           if (cid) {
             setHoverCid(cid);
             const baked = await fetchHoverGHX(cid);
@@ -191,6 +215,7 @@ const GlyphHologram = ({
         onPointerOut={(e) => {
           e.stopPropagation();
           setHovered(false);
+          onHover?.(null);
           setHoverCid(null);
           setHoverMeta(null);
         }}
@@ -204,7 +229,7 @@ const GlyphHologram = ({
           color={memoryEcho ? "#111111" : predictive ? "#113355" : isMutation ? "#220000" : "black"}
         />
 
-        {/* 🔒 Lock Overlay */}
+        {/* 🔒 Lock Icon */}
         {locked && (
           <Html center>
             <div style={{
@@ -216,7 +241,7 @@ const GlyphHologram = ({
           </Html>
         )}
 
-        {/* 🛰 GHX Hover Preview (uses backend-baked metadata) */}
+        {/* 🧠 Hover Metadata */}
         {hovered && hoverCid && hoverMeta && (
           <Html center distanceFactor={12}>
             <div style={{
@@ -231,17 +256,17 @@ const GlyphHologram = ({
               backdropFilter: "blur(4px)",
               whiteSpace: "pre-wrap"
             }}>
-              <div style={{fontWeight: 700, marginBottom: 6}}>
+              <div style={{ fontWeight: 700, marginBottom: 6 }}>
                 {hoverMeta.container_id ?? hoverCid} — GHX (collapsed: {String(hoverMeta.collapsed ?? false)})
               </div>
-              <code style={{display: "block", maxHeight: 180, overflow: "auto"}}>
+              <code style={{ display: "block", maxHeight: 180, overflow: "auto" }}>
                 {JSON.stringify(hoverMeta, null, 2)}
               </code>
             </div>
           </Html>
         )}
 
-        {/* 🧑‍🚀 Agent + Reasoning UI */}
+        {/* 🔤 Glyph Label */}
         <Html center>
           <div style={{
             color: emissiveColor,
@@ -252,16 +277,8 @@ const GlyphHologram = ({
             filter: permission === "read-only" ? "blur(1px)" : "none"
           }}>
             {glyph}
-            {agent_id && (
-              <div style={{ fontSize: "0.7em", color: emissiveColor }}>
-                🧑‍🚀 {agent_id}
-              </div>
-            )}
-            {reasoning_chain && (
-              <div style={{ fontSize: "0.7em", color: "#88ccff", marginTop: "4px" }}>
-                💭 {reasoning_chain.slice(0, 40)}...
-              </div>
-            )}
+            {agent_id && <div style={{ fontSize: "0.7em", color: emissiveColor }}>🧑‍🚀 {agent_id}</div>}
+            {reasoning_chain && <div style={{ fontSize: "0.7em", color: "#88ccff", marginTop: "4px" }}>💭 {reasoning_chain.slice(0, 40)}...</div>}
             {isMutation && <div style={{ fontSize: "0.8em", color: "#ff6666" }}>⬁</div>}
             {hovered && predictive && prediction_path.length > 0 && (
               <div style={{
@@ -293,7 +310,7 @@ const GlyphHologram = ({
         </Html>
       </mesh>
 
-      {/* ✅ Anchor marker visualization */}
+      {/* 📍 Anchor Visual Line */}
       {anchor && (
         <>
           <mesh position={[position[0], position[1] - 1.5, position[2]]}>
@@ -316,38 +333,55 @@ const GlyphHologram = ({
           </line>
         </>
       )}
+
+      {/* 🌈 D01a: Phase Gradient Ring */}
+      {phase && (
+        <mesh position={position}>
+          <ringGeometry args={[0.5, 0.7, 32]} />
+          <meshBasicMaterial
+            transparent
+            opacity={0.3}
+            color={getPhaseColor(phase)}
+            side={2}
+          />
+        </mesh>
+      )}
+
+      {/* 🔥 D01c: Collapse Heatmap Shell */}
+      {collapsed && collapseTime && (
+        <mesh position={position}>
+          <sphereGeometry args={[0.55, 32, 32]} />
+          <meshBasicMaterial
+            color={getCollapseHeatColor(collapseTime)}
+            transparent
+            opacity={0.25}
+          />
+        </mesh>
+      )}
+
+      {/* ⚡ D01b: Entanglement Lines → handled globally via LightLinker */}
     </group>
   );
 };
 
-const LightLinks = ({ glyphs }: any) => {
-  const lines: any[] = [];
-  glyphs.forEach((g: any) => {
-    if (g.entangled) {
-      g.entangled.forEach((targetId: string) => {
-        const target = glyphs.find((other: any) => other.id === targetId);
-        if (target) lines.push([g.position, target.position]);
-      });
-    }
-  });
-  return (
-    <>
-      {lines.map((line, idx) => (
-        <line key={idx}>
-          <bufferGeometry attach="geometry">
-            <bufferAttribute
-              attach="attributes-position"
-              count={2}
-              array={new Float32Array([...line[0], ...line[1]])}
-              itemSize={3}
-            />
-          </bufferGeometry>
-          <lineBasicMaterial color="violet" linewidth={2} />
-        </line>
-      ))}
-    </>
-  );
-};
+// 🧠 Helpers for overlays
+function getPhaseColor(phase: string) {
+  switch (phase) {
+    case "dream": return "#6666ff";
+    case "prediction": return "#88ccff";
+    case "mutation": return "#ff6666";
+    case "collapse": return "#ffcc00";
+    default: return "#cccccc";
+  }
+}
+
+function getCollapseHeatColor(collapseTime: number) {
+  const age = Date.now() - collapseTime;
+  if (age < 5000) return "#ff3300";
+  if (age < 10000) return "#ffaa00";
+  if (age < 20000) return "#ffff66";
+  return "#cccccc";
+}
 // ===== Electron Shells for Atom Containers =========================================
 
 type Electron = {
@@ -596,6 +630,7 @@ const router = useRouter();
     <ambientLight intensity={0.4} />
     <pointLight position={[10, 10, 10]} intensity={1} />
 
+    {/* 🌙 Dreams */}
     {dreams.map((g) => (
       <GlyphHologram
         key={`dream-${g.id}`}
@@ -605,13 +640,13 @@ const router = useRouter();
         isAtom={g.isAtom}
         electronCount={g.electronCount}
         electrons={g.electrons}
-        onTeleport={(containerId: string) => {
-          router.push(`/container/${containerId}`);
-        }}
+        onTeleport={(containerId: string) => router.push(`/container/${containerId}`)}
         onClick={() => setSelectedGlyph(g)}
+        onHover={setHoveredNodeId}
       />
     ))}
 
+    {/* 🔁 Echoes */}
     {echoes.map((g) => (
       <GlyphHologram
         key={`echo-${g.id}`}
@@ -621,13 +656,13 @@ const router = useRouter();
         isAtom={g.isAtom}
         electronCount={g.electronCount}
         electrons={g.electrons}
-        onTeleport={(containerId: string) => {
-          router.push(`/container/${containerId}`);
-        }}
+        onTeleport={(containerId: string) => router.push(`/container/${containerId}`)}
         onClick={() => setSelectedGlyph(g)}
+        onHover={setHoveredNodeId}
       />
     ))}
 
+    {/* 🧬 Holograms */}
     {holograms.map((g) => (
       <GlyphHologram
         key={g.id}
@@ -637,14 +672,13 @@ const router = useRouter();
         isAtom={g.isAtom}
         electronCount={g.electronCount}
         electrons={g.electrons}
-        onTeleport={(containerId: string) => {
-          router.push(`/container/${containerId}`);
-        }}
+        onTeleport={(containerId: string) => router.push(`/container/${containerId}`)}
         onClick={() => setSelectedGlyph(g)}
+        onHover={setHoveredNodeId}
       />
     ))}
 
-    {/* ⚛ Render electrons using reusable ElectronShells */}
+    {/* ⚛ ElectronShells for atoms */}
     {holograms.concat(dreams).map((g) =>
       g.isAtom && g.electrons ? (
         <ElectronShells
@@ -654,102 +688,47 @@ const router = useRouter();
           onTeleport={(cid) => {
             if (cid) {
               console.log("🧬 Teleporting to:", cid);
-              window?.GHX_ON_TELEPORT?.(cid); // fallback hook
+              window?.GHX_ON_TELEPORT?.(cid);
             }
           }}
         />
       ) : null
     )}
 
+    {/* 🔁 C07 – GHX Replay Selector */}
+    {trace.length > 0 && (
+      <GHXReplaySelector trace={trace} onSelect={(idx) => setSelectedGlyph(trace[idx])} />
+    )}
+
+    {/* 🌐 C08 – GHX Teleport Trail */}
+    {selectedGlyph?.teleportTrail && (
+      <GHXTeleportTrail trail={selectedGlyph.teleportTrail} />
+    )}
+
+    {/* 📍 C09 – GHX Anchor Memory Replay */}
+    {selectedGlyph?.anchorMemory && (
+      <GHXAnchorMemory anchors={selectedGlyph.anchorMemory} />
+    )}
+
+    {/* 🌀 C10 – Symbolic Teleport Visualizer */}
+    {selectedGlyph?.symbolicPath && (
+      <SymbolicTeleportPath path={selectedGlyph.symbolicPath} />
+    )}
+
+    {/* 👻 D01 – DreamOS Ghost Entry */}
+    {selectedGlyph?.ghostEntry && (
+      <DreamGhostEntry position={selectedGlyph.ghostEntry} label="👻 Ghost Entry" />
+    )}
+
+    {/* 🔗 D01b – Entanglement Links */}
+    <EntanglementTracer glyphs={[...holograms, ...echoes, ...dreams]} />
+
+    {/* 🌈 D01a – LightLinks Phase Overlay */}
     <LightLinks glyphs={[...holograms, ...dreams]} />
+
+    {/* ♾️ SQI Visuals */}
     <QEntropySpiral />
     <GHXSignatureTrail identity={"AION-000X"} radius={2.2} />
     <OrbitControls />
   </Canvas>
 </>
-
-export default function GHXVisualizer() {
-  // 🔗 HOV backend-baked metadata (per-hover)
-  const [hoverCid, setHoverCid] = useState<string | null>(null);
-  const [hoverMeta, setHoverMeta] = useState<any>(null); // Optional: better type later
-
-  return (
-    <>
-      <Canvas>
-        {/* 🧠 Canvas contents */}
-        <LightLinks glyphs={[...holograms, ...dreams]} />
-        <QEntropySpiral />
-        <GHXSignatureTrail identity={"AION-000X"} radius={2.2} />
-        <OrbitControls />
-      </Canvas>
-      
-      {/* ✅ Timeline Identity Strip */}
-      <div
-        style={{
-          position: "absolute",
-          bottom: 0,
-          left: 0,
-          width: "100%",
-          display: "flex",
-          flexDirection: "row",
-          background: "rgba(10,10,20,0.7)",
-          padding: "4px",
-        }}
-      >
-        {/* 🔽 GHX Expand/Collapse Control */}
-        {hoverCid && (
-          <div style={{
-            position: "absolute", top: 8, right: 8, zIndex: 1000,
-            background: "rgba(10,10,20,0.7)", padding: "8px 10px", borderRadius: 6, border: "1px solid #333"
-          }}>
-            <div style={{ fontSize: 12, opacity: 0.75, marginBottom: 6 }}>Container: {hoverCid}</div>
-            <button
-              onClick={async () => {
-                try {
-                  await setCollapse(hoverCid, false);
-                  const baked = await fetchHoverGHX(hoverCid);
-                  if (baked) setHoverMeta(baked);
-                } catch (e) {
-                  console.error(e);
-                }
-              }}
-              style={{ marginRight: 8 }}
-            >
-              Expand
-            </button>
-            <button
-              onClick={async () => {
-                try {
-                  await setCollapse(hoverCid, true);
-                  const baked = await fetchHoverGHX(hoverCid);
-                  if (baked) setHoverMeta(baked);
-                } catch (e) {
-                  console.error(e);
-                }
-              }}
-            >
-              Collapse
-            </button>
-          </div>
-        )}
-
-        {[...holograms, ...dreams, ...echoes].slice(0, 20).map((g) => (
-          <div
-            key={g.id}
-            style={{
-              width: "18px",
-              height: "18px",
-              background: getAgentColor(g.agent_id),
-              borderRadius: "50%",
-              margin: "0 2px",
-              border: "1px solid #444",
-            }}
-            title={`${g.agent_id} (${g.permission})`}
-            onMouseEnter={() => setHoverCid(g.id)}
-            onMouseLeave={() => setHoverCid(null)}
-          />
-        ))}
-      </div>
-    </>
-  );
-}

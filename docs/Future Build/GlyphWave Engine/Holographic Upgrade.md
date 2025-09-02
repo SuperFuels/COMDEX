@@ -1,7 +1,7 @@
 FOLLOW UP TASKS NOT COMPLETED;
 graph TD
   D0[🌌 Deferred HST Enhancements]
-
+    A7[🔭 Teleport + GWave + Beam Links]
   D0 --> D1[🎞️ Add Symbolic Replay View in GHX]
   D0 --> D2[🔍 Hoverable Metadata Panels in GHX/QFC]
   D0 --> D3[📊 Score Timeline Overlays (entropy, goals)]
@@ -11,19 +11,84 @@ graph TD
   D0 --> D7[🌈 Holographic Diff Viewer for Symbol Mutations]
   D0 --> D8[🧠 Save/Load Introspection Trails as HST Snapshots]
 
+You’re correct — since GWave and Beam systems are not yet initialized, task A7: 🔭 Teleport + GWave + Beam Links should be deferred. Here’s a precise breakdown of what A7 is intended to accomplish when ready:
+
+⸻
+
+🔭 A7: Teleport + GWave + Beam Links — Full Task Breakdown
+
+This task links SymbolicMeaningTree nodes to teleportation portals, GWave beams, and entangled knowledge streams for real-time symbolic traversal and prediction routing.
+
+⸻
+
+✅ GOALS
+	1.	Symbolic Node Teleportation
+	•	Add linkContainerId, teleportTarget, or portalId to relevant tree nodes.
+	•	Allow a node to be a live jump point into another container, atom, or QFC zone.
+	2.	GWave Beam Embedding
+	•	Emit symbolic “beams” connecting one glyph/node to another across containers.
+	•	Beams encode symbolic meaning, goal alignment, and prediction certainty.
+	•	Use QGlyph or GWaveBeamPacket structures for streaming.
+	3.	Entangled Symbolic Links
+	•	Create entangled_ids fields on tree nodes representing symbolic entanglement (e.g., two concepts fused during reasoning).
+	•	Synchronize these links across GHX/QFC rendering.
+
+⸻
+
+🔗 DATA STRUCTURE UPGRADES
+	•	Add to each SymbolicTreeNode:
+
+
+{
+  "teleportTarget": "container_xyz",
+  "gwaveBeam": {
+    "target": "symbol_id",
+    "beam_type": "entangled_reasoning",
+    "confidence": 0.92
+  },
+  "entangled_ids": ["symbol_abc", "symbol_def"]
+}
+
+🔧 CODE MODULES INVOLVED
+	•	symbolic_teleport_trail.py → handles teleportTarget resolution.
+	•	gwave_emitter.py or gwave_beam_transmitter.py (future) → emits GWave beams.
+	•	symbolic_tree_generator.py → node augmentation.
+	•	qglyph_utils.py → manages entanglement metadata.
+
+⸻
+
+🌌 FRONTEND / GHX-QFC IMPACT
+	•	GHX and QFC will visualize:
+	•	🔵 Teleport points with click-to-jump symbols.
+	•	🌐 GWave beams as animated lines between nodes.
+	•	🧬 Entangled nodes with a shared glow or oscillation.
+	•	Clicking a teleport node = jumping to its target container with trail preserved.
+
+⸻
+
+🧠 EXAMPLE USE CASE
+	•	A symbolic node in container A refers to a glyph in container B.
+	•	We embed a teleport beam from node A → B.
+	•	A GWave beam overlays the GHX field.
+	•	Replay through the tree includes cross-container symbolic jumps, enabling recursive or entangled reasoning.
+
+⸻
+
+Would you like me to move this to the deferred task list and mark it as:
+“❌ Deferred until GWave + Beam systems are live”?
 
 graph TD
   %% ✅ Completed Blocks
   subgraph ✅ HST [✅ 📦 Holographic Symbol Tree (HST)]
-    A1[🧠 SymbolicMeaningTree Class]
-    A2[🧬 Glyph ↔ Meaning Extraction]
-    A3[⛓️ Entanglement Link Resolver]
-    A4[⏳ Replay + Mutation History]
-    A5[🌐 KG + AION + CodexCore Integration]
-    A6[🎯 Prediction + SQI Hooks]
+    A1✅[🧠 SymbolicMeaningTree Class]
+    A2✅[🧬 Glyph ↔ Meaning Extraction]
+    A3✅[⛓️ Entanglement Link Resolver]
+    A4✅[⏳ Replay + Mutation History]
+    A5✅[🌐 KG + AION + CodexCore Integration]
+    A6✅[🎯 Prediction + SQI Hooks]
     A7[🔭 Teleport + GWave + Beam Links]
-    A8[🧪 CLI + WebSocket + API]
-    A9[💭 DreamCore + Goal Feedback]
+    A8✅[🧪 CLI + WebSocket + API]
+    A9✅[💭 DreamCore + Goal Feedback]
 
     A1 ✅--> A1a[Class: SymbolicMeaningTree]
     A1 ✅--> A1b[SymbolicTreeNode]
@@ -38,10 +103,10 @@ graph TD
   end
 
   subgraph ✅ STT [✅ 🪞 Symbolic Teleport Trail]
-    B1[⚛ Symbolic Path Chain Builder]
-    B2[🧭 Container ↔ Electron ↔ QFC Links]
-    B3[🌌 Trail Visualization Metadata]
-    B4[🔄 Predictive Mutation Replay]
+    B1✅[⚛ Symbolic Path Chain Builder]
+    B2✅[🧭 Container ↔ Electron ↔ QFC Links]
+    B3✅[🌌 Trail Visualization Metadata]
+    B4✅[🔄 Predictive Mutation Replay]
   end
 
   graph TD
@@ -54,10 +119,10 @@ graph TD
   end
 
   subgraph ✅ HPI [✅ ⚛ HolographicPredictionIndex.ts]
-    D1[🧠 SQI Scoring Per Electron Glyph]
-    D2[🌌 Preview Probable Paths]
-    D3[🛰️ Broadcast Predicted Trails]
-    D4[🔍 Visual Hint: goal_match_score, entropy]
+    D1✅[🧠 SQI Scoring Per Electron Glyph]
+    D2✅[🌌 Preview Probable Paths]
+    D3✅[🛰️ Broadcast Predicted Trails]
+    D4✅[🔍 Visual Hint: goal_match_score, entropy]
   end
 
   subgraph ✅ CC [✅ 🧠 CreativeCore]
@@ -83,15 +148,15 @@ graph TD
     graph TD
   F0[🔥 HST Integration and Runtime Hook Tasks]
 
-  F0 --> F1[🔁 Connect HST Modules to PredictionEngine]
-  F0 --> F2[🧠 Wire HST Scorers into CreativeCore]
-  F0 --> F3[📦 Inject SymbolicMeaningTree into .dc containers]
-  F0 --> F4[🧪 Add CLI Tool to Run Full HST Pipeline on a Container]
-  F0 --> F5[🛰️ Enable GHX/QFC Visualization Overlay]
-  F0 --> F6[♻️ Mutation Hook to Update Ripple Maps]
-  F0 --> F7[🎯 Use Goal Pressure Map in Mutation Selection]
-  F0 --> F8[🚦 Add SoulLawGate to Mutation Filter Logic]
-  F0 --> F9[🧩 Load Plugin Extensions on Tree Injection]
+  F0 --> F1✅[🔁 Connect HST Modules to PredictionEngine]
+  F0 --> F2✅[🧠 Wire HST Scorers into CreativeCore]
+  F0 --> F3✅[📦 Inject SymbolicMeaningTree into .dc containers]
+  F0 --> F4✅[🧪 Add CLI Tool to Run Full HST Pipeline on a Container]
+  F0 --> F5✅[🛰️ Enable GHX/QFC Visualization Overlay]
+  F0 --> F6✅[♻️ Mutation Hook to Update Ripple Maps]
+  F0 --> F7✅[🎯 Use Goal Pressure Map in Mutation Selection]
+  F0 --> F8✅[🚦 Add SoulLawGate to Mutation Filter Logic]
+  F0 --> F9✅[🧩 Load Plugin Extensions on Tree Injection]
   end
 
   %% 🆕 Symbolic Tree Enhancements
@@ -113,10 +178,10 @@ graph TD
     SN4[✅🔗 Inject into SymbolicMeaningTree enrichment]
     SN5[✅🔍 Add meaning → goal_match_score hooks]
     SN6[✅🧩 Plugin architecture for other sources]
-    SN7[🛰️ WebSocket + GHX broadcast of symbol links]
-    SN8[🎯 Scoring: semantic_distance(), concept_match()]
-    SN9[📦 Inject overlays into .dc.json containers]
-    SN10[🪞 Feed results into CreativeCore and SQI]
+    SN7[✅🛰️ WebSocket + GHX broadcast of symbol links]
+    SN8[✅🎯 Scoring: semantic_distance(), concept_match()]
+    SN9[✅📦 Inject overlays into .dc.json containers]
+    SN10[✅🪞 Feed results into CreativeCore and SQI]
 
     Z5_Done[✅ SymbolNet Integrated] --> SN10
   end

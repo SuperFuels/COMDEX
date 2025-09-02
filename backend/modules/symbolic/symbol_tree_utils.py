@@ -21,3 +21,15 @@ def safe_load_container_by_id(container_id_or_path: str) -> Any:
         ucs_runtime.load_container(container_id)
 
     return ucs_runtime.get_container(container_id)
+
+def resolve_electron_links(electron: Dict[str, Any], glyph: SymbolGlyph, node: SymbolicTreeNode):
+    """
+    Injects cross-container/QFC link metadata into the glyph and morphic overlay.
+    """
+    link_container_id = electron.get("linkContainerId")
+    visualize_flag = electron.get("visualizeInQFC", False)
+
+    if link_container_id:
+        glyph.metadata["linkContainerId"] = link_container_id
+        glyph.metadata["visualizeInQFC"] = visualize_flag
+        node.morphic_overlay["qfc_overlay_target"] = link_container_id

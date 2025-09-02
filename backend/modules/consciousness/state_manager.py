@@ -455,5 +455,21 @@ def get_agent_state(agent_id):
 def update_agent_state(agent_id, updates):
     return STATE.update_agent_state(agent_id, updates)
 
+# ✅ Local dummy fallback for test/CLI contexts
+class DummyStateManager:
+    def __init__(self):
+        self._current_container_id = None
+
+    def set_status(self, *args, **kwargs): pass
+    def update_progress(self, *args, **kwargs): pass
+    def log_event(self, *args, **kwargs): pass
+    def reset(self): pass
+
+    def get_current_container(self):
+        return self._current_container_id
+
+    def set_current_container(self, container_id: str):
+        self._current_container_id = container_id
+
 # ✅ Global instance for compatibility
 state_manager = StateManager()

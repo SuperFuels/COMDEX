@@ -38,7 +38,8 @@ from backend.modules.codex.dna_mutation_tracker import add_dna_mutation
 from backend.modules.symbolic.symbolic_broadcast import broadcast_glyph_event
 from backend.modules.codex.codexlang_rewriter import CodexLangRewriter, suggest_rewrite_candidates
 from backend.modules.prediction.suggestion_engine import suggest_simplifications
-
+from backend.modules.symbolic.symbolic_meaning_tree import SymbolicMeaningTree
+from backend.modules.symbolnet.symbolnet_utils import concept_match, semantic_distance
 from backend.modules.knowledge_graph.kg_writer_singleton import get_kg_writer
 
 def get_prediction_kg_writer():
@@ -60,7 +61,6 @@ DNA_SWITCH.register(__file__)
 def get_estimate_codex_cost():
     from backend.modules.codex.codex_executor import estimate_codex_cost
     return estimate_codex_cost
-
 
 class PredictionEngine:
     def __init__(self, container_id: str = "global", memory_engine=None, tessaris_engine=None, dream_core=None):
@@ -460,18 +460,34 @@ class PredictionEngine:
         scored = []
         electron_predictions = []
 
-        # 🧠 Check for glyph-level contradictions and SQI scoring
-        for glyph in container.get("glyph_grid", []):
-            if "Predicts" in glyph.get("text", ""):
-                path = extract_prediction_path(glyph["text"])
-                score = score_predictive_path(path)
-                glyph.setdefault("metadata", {})["sqiScore"] = score
+        # 🧠 Check for glyph-level contradictions, SQI scoring, and semantic similarity
+        goal_label = container.get("goal", {}).get("label") or "energy"  # Replace "energy" if needed
 
-                if "¬" in glyph["text"] or detects_conflicting_predicts(glyph["text"], container["glyph_grid"]):
-                    glyph.setdefault("metadata", {})["contradictionDetected"] = True
+        for glyph in container.get("glyph_grid", []):
+            text = glyph.get("text", "")
+            label = glyph.get("label") or text
+            metadata = glyph.setdefault("metadata", {})
+
+            # SQI score from path prediction
+            if "Predicts" in text:
+                path = extract_prediction_path(text)
+                score = score_predictive_path(path)
+                metadata["sqiScore"] = score
+
+                # Contradiction detection
+                if "¬" in text or detects_conflicting_predicts(text, container["glyph_grid"]):
+                    metadata["contradictionDetected"] = True
                     contradiction_found = True
 
-        # ⚛️ Electron-based predictive glyph selection
+            # 🌐 Inject SymbolNet scores
+            try:
+                from backend.modules.symbolnet.symbolnet_utils import concept_match, semantic_distance
+                metadata["semantic_score"] = concept_match(label, goal_label)
+                metadata["semantic_distance"] = semantic_distance(label, goal_label)
+            except Exception as e:
+                print(f"[PredictionEngine] ⚠️ Semantic scoring failed for glyph '{label}': {e}")
+
+                # ⚛️ Electron-based predictive glyph selection with SymbolNet scoring
         for e in container.get("electrons", []):
             label = e.get("meta", {}).get("label", "unknown")
             best = max(e.get("glyphs", []), key=lambda g: g.get("confidence", 0), default=None)
@@ -481,10 +497,27 @@ class PredictionEngine:
                     "selected_prediction": best["value"],
                     "confidence": best["confidence"]
                 }
+
+                # 🎯 Add SymbolNet semantic scores relative to container goal
+                try:
+                    goal_label = container.get("goal", {}).get("label") or "energy"
+                    scores = self.enrich_with_symbolnet_scores(best["value"], goal_label)
+                    prediction.update(scores)
+                except Exception as e:
+                    print(f"[PredictionEngine] ⚠️ Failed to enrich electron prediction with SymbolNet scores: {e}")
+
                 electron_predictions.append(prediction)
 
         if electron_predictions:
             container.setdefault("trace", {}).setdefault("predictions", {})["electrons"] = electron_predictions
+        # 🧠 Print Top 3 electrons by SQI score if available
+        try:
+            top3 = sorted(electron_predictions, key=lambda x: x.get("confidence", 0), reverse=True)[:3]
+            print("[PredictionEngine] Top 3 electrons by SQI confidence:")
+            for ep in top3:
+                print(f" • {ep['electron']} → {ep['selected_prediction']} ({ep['confidence']:.3f})")
+        except Exception as e:
+            print(f"[PredictionEngine] ⚠️ Failed to print top electrons: {e}")
 
         # 📘 Logic-level contradiction detection + rewrite scoring
         expr = container.get("logic", {}).get("expression")
@@ -517,6 +550,7 @@ class PredictionEngine:
                 if valid and score["rewrite_success_prob"] > 0.8:
                     apply_rewrite(container.get("id"), proposed)
                     add_dna_mutation(original, proposed, reason=reason)
+                    inject_sqi_scores_into_container(container)  
 
                 # 🌐 Broadcast via Codex WebSocket
                 broadcast_glyph_event(
@@ -550,6 +584,28 @@ class PredictionEngine:
             "source": context or "prediction_engine"
         })
 
+        try:
+            from backend.modules.symbolic.hst.symbolic_tree_generator import build_symbolic_tree_from_container
+            tree = build_symbolic_tree_from_container(container)
+            predicted_paths = self.generate_probable_paths(tree)
+
+            # 🎯 Enrich each predicted path with SymbolNet scores relative to goal
+            goal_label = container.get("goal", {}).get("label", "energy")
+            for path in predicted_paths:
+                label = path.get("label")
+                if label:
+                    try:
+                        scores = self.enrich_with_symbolnet_scores(label, goal_label)
+                        path.update(scores)
+                    except Exception as score_err:
+                        print(f"[PredictionEngine] ⚠️ Failed to score path '{label}': {score_err}")
+
+            container["predicted_paths"] = predicted_paths
+            self.logger.info(f"[PredictionEngine] Injected {len(predicted_paths)} probable paths")
+
+        except Exception as path_err:
+            self.logger.warning(f"[PredictionEngine] ⚠️ Failed to generate probable paths: {path_err}")
+
         # 🌐 Stream HST via WebSocket to GHX/QFC
         from backend.modules.symbolic.hst.hst_websocket_streamer import stream_hst_to_websocket
         stream_hst_to_websocket(
@@ -557,12 +613,100 @@ class PredictionEngine:
             context="prediction_engine"
         )
 
+        # 🛰️ Broadcast and enrich replay trails if available
+        try:
+            from backend.modules.symbolic.hst.hst_websocket_streamer import broadcast_replay_paths
+            replay_paths = container.get("trace", {}).get("replayPaths", [])
+            goal_label = container.get("goal", {}).get("label", "energy")
+
+            # 🎯 Add SymbolNet scores to each replay path
+            for path in replay_paths:
+                label = path.get("label")
+                scores = self.enrich_with_symbolnet_scores(label, goal_label)
+                path.update(scores)
+            
+                # 🔁 🔥 Optional SQI Flags
+                if scores.get("concept_match_score", 0) > 0.9:
+                    path["sqi_lock"] = True
+                if scores.get("semantic_distance", 1.0) < 0.2:
+                    path["entropy_spike"] = True
+
+            # 📦 Inject SymbolNet overlay for GHX/QFC visualization
+            enriched_overlay = []
+            for path in replay_paths:
+                label = path.get("label")
+                scores = self.enrich_with_symbolnet_scores(label, goal_label)
+                overlay_entry = {
+                    "label": label,
+                    **scores,
+                    "highlight": scores.get("concept_match_score", 0) > 0.7,
+                    "intensity": scores.get("concept_match_score", 0)
+                }
+                enriched_overlay.append(overlay_entry)
+
+            container.setdefault("traceMetadata", {})["symbolnetOverlay"] = {
+                "replayPaths": enriched_overlay,
+                "source": "PredictionEngine"
+            }
+
+            if replay_paths:
+                broadcast_replay_paths(
+                    container_id=container.get("id", "unknown"),
+                    replay_paths=replay_paths,
+                    context="prediction_engine"
+                )
+
+        except Exception as e:
+            print(f"[PredictionEngine] ⚠️ Failed to broadcast replay trails: {e}")
+
+        # 🧠 Inject SQI scores into container-level structure (including electrons)
+        try:
+            from backend.modules.sqi.sqi_scorer import inject_sqi_scores_into_container
+            inject_sqi_scores_into_container(container)
+        except Exception as sqi_err:
+            print(f"[PredictionEngine] ⚠️ Failed to inject SQI scores: {sqi_err}")
+
         return {
             "status": "contradiction" if contradiction_found else "ok",
             "rewrites": scored,
             "electron_predictions": electron_predictions,
             "detail": "Contradiction(s) flagged in glyphs" if contradiction_found else "No contradictions detected"
         }
+
+    def enrich_with_symbolnet_scores(self, label: str, goal_label: str) -> Dict[str, float]:
+        if not label or not goal_label:
+            return {"semantic_score": 0.0, "semantic_distance": 1.0}
+        return {
+            "semantic_score": concept_match(label, goal_label),
+            "semantic_distance": semantic_distance(label, goal_label)
+        }
+
+    def generate_probable_paths(self, tree: SymbolicMeaningTree) -> List[Dict[str, Any]]:
+        """
+        Generate probable reasoning or mutation paths from a symbolic tree.
+        Uses goal_match, entropy, entanglement to project likely futures.
+        """
+        probable_paths = []
+
+        # Select top 3 high goal_match nodes
+        top_nodes = sorted(
+            tree.node_index.values(),
+            key=lambda n: n.morphic_overlay.get("goal_match", 0),
+            reverse=True,
+        )[:3]
+
+        for i, node in enumerate(top_nodes):
+            path = {
+                "path_id": f"future_{i+1:03}",
+                "glyph_sequence": [node.glyph_id],
+                "goal_trace": [node.morphic_overlay.get("node_type", "unknown")],
+                "mutation_trail": node.morphic_overlay.get("mutation_path", []),
+                "source_node": node.id,
+                "predicted_entropy": node.morphic_overlay.get("entropy"),
+            }
+            probable_paths.append(path)
+
+        return probable_paths    
 
     @classmethod
     def score_rewrite_suggestion(cls, original: str, proposed: str, container: Dict[str, Any]) -> Dict[str, float]:

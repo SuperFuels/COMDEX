@@ -16,5 +16,65 @@
     "reason": "Revert terminal title to original for clarity.",
     "approved": true,
     "timestamp": "2025-07-07T00:04:35.672596"
+  },
+  {
+    "proposal_id": "c67e7778-7f80-4862-997f-d410f9eee506",
+    "file": "backend/modules/symbolic/symbolic_pattern_engine.py",
+    "timestamp": "2025-08-28T18:58:28.776292",
+    "reason": "symbolic fragment fusion",
+    "replaced_code": "unknown",
+    "new_code": "Fusion()",
+    "approved": false,
+    "applied_successfully": false
+  },
+  {
+    "proposal_id": "b9b4bf4d-3f37-42a1-b0af-f9a32b138f78",
+    "file": "backend/modules/symbolic/symbolic_pattern_engine.py",
+    "timestamp": "2025-08-28T18:58:28.850300",
+    "reason": "symbolic fragment fusion",
+    "replaced_code": "unknown",
+    "new_code": "Fusion()",
+    "approved": false,
+    "applied_successfully": false
+  },
+  {
+    "proposal_id": "0cc07953-1459-40ea-a128-3832e48afc3f",
+    "file": "backend/modules/symbolic/symbolic_pattern_engine.py",
+    "timestamp": "2025-08-28T18:58:29.746582",
+    "reason": "symbolic fragment fusion",
+    "replaced_code": "unknown",
+    "new_code": "Fusion()",
+    "approved": false,
+    "applied_successfully": false
+  },
+  {
+    "proposal_id": "a898f778-1de3-4212-9892-e1421b6bef88",
+    "file": "backend/modules/symbolic/symbolic_pattern_engine.py",
+    "timestamp": "2025-08-28T19:10:56.589427",
+    "reason": "symbolic fragment fusion",
+    "replaced_code": "unknown",
+    "new_code": "Fusion()",
+    "approved": false,
+    "applied_successfully": false
+  },
+  {
+    "proposal_id": "58fcba26-aaa8-42aa-9171-0468c009a704",
+    "file": "backend/modules/symbolic/symbolic_pattern_engine.py",
+    "timestamp": "2025-08-28T19:10:56.666232",
+    "reason": "symbolic fragment fusion",
+    "replaced_code": "unknown",
+    "new_code": "Fusion()",
+    "approved": false,
+    "applied_successfully": false
+  },
+  {
+    "proposal_id": "51e35f75-5129-4c75-b51b-249b3640c147",
+    "file": "backend/modules/symbolic/symbolic_pattern_engine.py",
+    "timestamp": "2025-08-28T19:10:57.534306",
+    "reason": "symbolic fragment fusion",
+    "replaced_code": "unknown",
+    "new_code": "Fusion()",
+    "approved": false,
+    "applied_successfully": false
   }
 ]

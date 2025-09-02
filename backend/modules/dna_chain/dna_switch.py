@@ -148,6 +148,32 @@ def apply_dna_switch(file_path: str, new_code: str) -> bool:
         print(f"❌ DNA switch failed for {file_path}: {e}")
         return False
 
+def add_dna_mutation(from_glyph: dict, to_glyph: dict, reason: str = "pattern_recombination") -> bool:
+    """
+    Record a DNA mutation from one glyph to another with reason.
+    Saves to dna_switch_log.json for audit, and creates a proposal.
+    """
+    mutation_entry = {
+        "from": from_glyph,
+        "to": to_glyph,
+        "reason": reason,
+        "timestamp": datetime.utcnow().isoformat()
+    }
+
+    # Save to switch log
+    log_dna_switch({
+        "action": "mutation",
+        "mutation": mutation_entry
+    })
+
+    # Also propose as formal DNA mutation
+    try:
+        from backend.modules.dna_chain.dna_writer import propose_dna_mutation
+        propose_dna_mutation(from_glyph, to_glyph, reason)
+    except Exception as e:
+        print(f"⚠️ Failed to propose DNA mutation: {e}")
+
+    return True
 
 # 🧠 Switch log for audit
 def log_dna_switch(entry: dict):
@@ -182,3 +208,4 @@ DNA_SWITCH = DNAModuleSwitch()
 
 # ✅ Re-export symbolic mutation proposal function from dna_writer
 from backend.modules.dna_chain.dna_writer import propose_dna_mutation
+__all__ = ["add_dna_mutation"]

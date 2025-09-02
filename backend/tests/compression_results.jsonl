@@ -1,0 +1,80 @@
+{
+  "raw_size": 1052,
+  "tree_size": 622398,
+  "compression_ratio": 0.002,
+  "symbolic_depth": 0,
+  "container_id": "test_compression_container",
+  "source_file": "backend/tests/test_glyphlogic_module.codex",
+  "entropy": -0.0,
+  "glyph": "[CodexLang:test_compression_container]",
+  "qglyph_id": "[not used]",
+  "depth_classical": null,
+  "depth_qglyph": 0,
+  "classical_time": "N/A",
+  "qglyph_time": "N/A",
+  "speedup_ratio": "N/A"
+}
+{
+  "raw_size": 1052,
+  "tree_size": 622398,
+  "compression_ratio": 0.002,
+  "symbolic_depth": 0,
+  "container_id": "test_compression_container",
+  "source_file": "backend/tests/test_glyphlogic_module.codex",
+  "entropy": -0.0,
+  "glyph": "[CodexLang:test_compression_container]",
+  "qglyph_id": "[not used]",
+  "depth_classical": null,
+  "depth_qglyph": 0,
+  "classical_time": "N/A",
+  "qglyph_time": "N/A",
+  "speedup_ratio": "N/A"
+}
+{
+  "raw_size": 1052,
+  "tree_size": 622398,
+  "compression_ratio": 0.002,
+  "symbolic_depth": 0,
+  "container_id": "test_compression_container",
+  "source_file": "backend/tests/test_glyphlogic_module.codex",
+  "entropy": -0.0,
+  "glyph": "[CodexLang:test_compression_container]",
+  "qglyph_id": "[not used]",
+  "depth_classical": null,
+  "depth_qglyph": 0,
+  "classical_time": "N/A",
+  "qglyph_time": "N/A",
+  "speedup_ratio": "N/A"
+}
+{
+  "raw_size": 1052,
+  "tree_size": 622398,
+  "compression_ratio": 0.002,
+  "symbolic_depth": 0,
+  "container_id": "test_compression_container",
+  "source_file": "backend/tests/test_glyphlogic_module.codex",
+  "entropy": -0.0,
+  "glyph": "[CodexLang:test_compression_container]",
+  "qglyph_id": "[not used]",
+  "depth_classical": null,
+  "depth_qglyph": 0,
+  "classical_time": "N/A",
+  "qglyph_time": "N/A",
+  "speedup_ratio": "N/A"
+}
+{
+  "raw_size": 1052,
+  "tree_size": 622398,
+  "compression_ratio": 0.002,
+  "symbolic_depth": 0,
+  "container_id": "test_compression_container",
+  "source_file": "backend/tests/test_glyphlogic_module.codex",
+  "entropy": -0.0,
+  "glyph": "[CodexLang:test_compression_container]",
+  "qglyph_id": "[not used]",
+  "depth_classical": null,
+  "depth_qglyph": 0,
+  "classical_time": "N/A",
+  "qglyph_time": "N/A",
+  "speedup_ratio": "N/A"
+}

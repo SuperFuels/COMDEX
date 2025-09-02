@@ -1,3 +1,5 @@
+# File: backend/modules/teleport/teleport_packet.py
+
 from typing import Dict, Any
 from datetime import datetime
 import uuid
@@ -56,13 +58,20 @@ async def send_glyphpush_packet(data: Dict[str, Any]) -> bool:
         from backend.modules.runtime.container_runtime import ContainerRuntime
         container_id = data.get("from")
         target_id = data.get("to") or container_id
+        now = datetime.utcnow().timestamp()
+
         payload = {
             "replay_trace": data.get("trace", []),
             "trigger": data.get("trigger"),
             "meta": {
                 "seed": data.get("glyph"),
                 "origin": container_id,
-                "mode": "replay"
+                "mode": "replay",
+                "phase_info": {
+                    "emitted_by": "teleport_packet",
+                    "timestamp_seed": now,
+                    "warp_context": "edge"
+                }
             }
         }
 

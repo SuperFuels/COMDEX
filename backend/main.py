@@ -201,6 +201,7 @@ from backend.routes import codex_mutate
 from backend.api import symbol_tree
 from backend.api import qfc_api
 from backend.api.routes import symbolnet_api
+from backend.api import symbolic_tree_api
 
 # ✅ WebSocket route
 from backend.api import ws
@@ -306,6 +307,7 @@ app.include_router(codex_mutate.router)
 app.include_router(symbol_tree.router)
 app.include_router(qfc_api.router)
 app.include_router(symbolnet_api.router)
+app.include_router(symbolic_tree_api.router)
 
 # ── 16) Serve uploaded images
 app.mount("/uploaded_images", StaticFiles(directory="uploaded_images"), name="uploaded_images")

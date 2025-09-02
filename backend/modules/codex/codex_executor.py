@@ -16,8 +16,9 @@ Executes CodexLang & glyphs with:
 """
 
 import time
-import logging
 from typing import Any, Dict, Optional
+import logging
+logger = logging.getLogger(__name__)
 
 # Core imports
 from backend.modules.codex.codex_metrics import CodexMetrics
@@ -170,7 +171,8 @@ class CodexExecutor:
             try:
                 cid = context.get("container_id")
                 if cid and isinstance(cid, str) and cid.startswith(("dc_", "atom_", "hoberman_", "sec_", "symmetry_", "exotic_", "ucs_", "qfc_")):
-                    prediction_result = self.prediction_engine.run_prediction_on_container(cid)
+                    from backend.modules.consciousness.prediction_engine import PredictionEngine
+                    prediction_result = PredictionEngine().run_prediction_on_container(cid)
                     if prediction_result:
                         self.kg_writer.store_predictions(
                             container_id=cid,
@@ -327,27 +329,32 @@ class CodexExecutor:
 
             # 🧠 Inject Holographic Symbol Tree (HST) for introspection
             try:
-                from backend.modules.symbolic.hst.symbol_tree_generator import build_symbolic_tree_from_container
-                from backend.modules.symbolic.hst.symbolic_tree_injector import inject_symbolic_tree
+                from backend.modules.symbolic.symbol_tree_generator import inject_symbolic_tree
                 from backend.modules.symbolic.hst.hst_websocket_streamer import stream_hst_to_websocket
                 from backend.modules.dna_chain.dc_handler import load_dc_container
+                from backend.modules.hologram.ghx_replay_broadcast import emit_replay_trace
 
                 cid = context.get("container_id")
                 if cid and isinstance(cid, str) and cid.startswith((
                     "dc_", "atom_", "hoberman_", "sec_", "symmetry_", "exotic_", "ucs_", "qfc_"
                 )):
+                    inject_symbolic_tree(cid)  # 🌱 Injects and builds the tree internally
+
                     container = load_dc_container(cid)
-                    tree = build_symbolic_tree_from_container(container)
-                    inject_symbolic_tree(cid, tree)
+                    tree = container.get("symbolic_tree")
 
-                    # ✅ Send to GHX/QFC WebSocket overlay
-                    stream_hst_to_websocket(cid, tree, context="prediction_engine")
+                    if tree:
+                        # ✅ Stream to GHX/QFC overlay
+                        stream_hst_to_websocket(cid, tree, context="prediction_engine")
 
-                    self.trace.log_event("hst_injected", {
-                        "container_id": cid,
-                        "node_count": len(tree.nodes),
-                        "tags": ["hst", "introspection"]
-                    })
+                        # 🛰️ Broadcast replay trace overlay
+                        emit_replay_trace(cid, tree)
+
+                        self.trace.log_event("hst_injected", {
+                            "container_id": cid,
+                            "node_count": len(tree.nodes),
+                            "tags": ["hst", "introspection"]
+                        })
             except Exception as hst_err:
                 logger.warning(f"[CodexExecutor] ⚠️ HST injection failed: {hst_err}")
 

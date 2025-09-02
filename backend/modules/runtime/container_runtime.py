@@ -2,6 +2,8 @@ import time
 import threading
 import asyncio
 from typing import Dict, Any, Optional
+import logging
+logger = logging.getLogger(__name__)
 
 from backend.modules.consciousness.state_manager import StateManager
 from backend.modules.websocket_manager import WebSocketManager, broadcast_event  
@@ -175,7 +177,8 @@ class ContainerRuntime:
         try:
             resolver = KeyFragmentResolver(container_id)
             glyphs = list(container.get("cubes", {}).values())
-            resolver.recombine_all(glyphs)
+            from backend.modules.symbolic.symbolic_pattern_engine import SymbolicPatternEngine
+            SymbolicPatternEngine.recombine_all(glyphs, container_id)
         except Exception as e:
             print(f"⚠️ Key fragment recombination failed: {e}")
 
@@ -197,9 +200,19 @@ class ContainerRuntime:
             # 🔮 B1: Prediction logic for atom containers
             try:
                 predictions = run_prediction_on_container(container)
+
+                # 🧠 B6c: Attach entangled replay trails if entangled_wave is present
+                from backend.modules.glyphwave.utils.entanglement_graph_utils import attach_entangled_graph_to_container
+
+                entangled_wave = predictions.get("entangled_wave")
+                if entangled_wave:
+                    attach_entangled_graph_to_container(container, entangled_wave)
+
                 if predictions.get("prediction_count", 0) > 0:
                     logger.info(f"[SQI Predict] ✅ {predictions['prediction_count']} predictions made.")
                     container["predictions"] = predictions
+                else:
+                    logger.info("[SQI Predict] No predictions generated.")
             except Exception as e:
                 logger.warning(f"[SQI Predict] ⚠️ Prediction failed: {e}")
         else:
@@ -239,6 +252,12 @@ class ContainerRuntime:
         # 🧠 Inject Holographic Symbol Tree
         from backend.modules.symbolic.hst.hst_injection_utils import inject_hst_to_container
         container = inject_hst_to_container(container, context={"container_path": container.get("id", "unknown")})
+
+        # 📽️ Inject Replay Paths from SymbolicMeaningTree
+        from backend.modules.symbolic.hst.symbol_tree_replay import build_symbol_tree_replay_paths
+        replay_data = build_symbol_tree_replay_paths(container)
+        if replay_data:
+            container.setdefault("trace", {})["replayPaths"] = replay_data
 
         return container
 
@@ -510,12 +529,19 @@ class ContainerRuntime:
             if payload.get("entangled_identity"):
                 target_container["entangled_identity"] = payload["entangled_identity"]
 
+            # 🔁 New: phase metadata from teleport
+            meta = payload.get("meta", {})
+            phase_info = meta.get("phase_info")
+            if phase_info:
+                target_container["phase_at_warp_edge"] = phase_info
+
             # ✅ Sync to UCS runtime (register updated container state)
             self.ucs.save_container(target_container["id"], target_container)
             print(f"🛰️ GlyphPush replay loaded and UCS-synced for container: {target_container.get('id')}")
 
         except Exception as e:
             print(f"❌ Failed to load GlyphPush packet: {e}")
+
 
     async def run_replay(self, replay_glyphs: list[dict], container_id: Optional[str] = None):
         """
@@ -585,7 +611,49 @@ class ContainerRuntime:
 
         print(f"✅ Glyph replay completed: {len(replay_glyphs)} glyphs from tick {start_tick} → {end_tick}")
 
+
 from backend.modules.dimensions.container_expander import ContainerExpander
+
+def safe_load_container_by_id(container_id_or_path: str) -> Dict[str, Any]:
+    """
+    Attempts to load a container either from a file path or from the vault by ID.
+    Injects a dummy state manager if none is available (for test/CLI contexts).
+    """
+    import os
+    from backend.modules.runtime.container_runtime import ContainerRuntime
+
+    # ✅ Local dummy fallback
+    class DummyStateManager:
+        def __init__(self):
+            self._current_container_id = None
+
+        # Basic status / event hooks
+        def set_status(self, *args, **kwargs): pass
+        def update_progress(self, *args, **kwargs): pass
+        def log_event(self, *args, **kwargs): pass
+        def reset(self): pass
+
+        # Container tracking
+        def get_current_container_id(self):
+            return self._current_container_id
+
+        def set_current_container(self, container_id: str):
+            self._current_container_id = container_id
+
+        def get_current_container(self):  # For GlyphExecutor
+            return self._current_container_id
+
+        # ✅ Add this to fix latest crash
+        def get_avatar_state(self):
+            return {"name": "DummyAvatar", "memory": {}}
+
+    # ✅ File path override
+    if container_id_or_path.endswith(".json") or os.path.exists(container_id_or_path):
+        return ContainerRuntime.load_container_from_path(container_id_or_path)
+
+    # ✅ Vault/container ID load
+    runtime = ContainerRuntime(state_manager=DummyStateManager())
+    return runtime.load_and_activate_container(container_id_or_path)
 
 def expand_universal_container_system(container_id: str, direction: str = "z", layers: int = 1) -> str:
     """High-level wrapper for UCS-based expansion."""

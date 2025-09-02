@@ -1,10 +1,9 @@
-# backend/modules/symbolic/codex_ast_encoder.py
-
 from typing import List, Dict, Any, Union
 import re
 
 from backend.modules.codex.codexlang_types import CodexAST
 from backend.modules.symbolic_engine.symbolic_kernels.logic_glyphs import EncodedLogicGlyph as LogicGlyph
+
 
 def parse_codexlang_to_ast(expression: str) -> dict:
     """
@@ -36,16 +35,26 @@ def encode_codex_ast_to_glyphs(ast: Union[CodexAST, Dict[str, Any]]) -> List[Log
     """
     glyphs: List[LogicGlyph] = []
 
+    def safe_id(glyph: Union[LogicGlyph, Dict]) -> str:
+        return glyph.get("id") if isinstance(glyph, dict) else getattr(glyph, "id", str(glyph))
+
+    def normalize_symbol(symbol: Union[str, Dict[str, Any], None]) -> str:
+        if isinstance(symbol, str):
+            return symbol
+        elif isinstance(symbol, dict):
+            return symbol.get("name") or symbol.get("value") or "unknown"
+        return "unknown"
+
     def traverse(node: Union[CodexAST, Dict[str, Any]]) -> LogicGlyph:
         if isinstance(node, CodexAST):
-            op = node.root
+            op = normalize_symbol(node.root)
             operands = node.args
             encoded_operands = []
             for arg in operands:
                 if isinstance(arg, (CodexAST, dict)):
                     subglyph = traverse(arg)
                     glyphs.append(subglyph)
-                    encoded_operands.append(subglyph.get("id", subglyph))
+                    encoded_operands.append(safe_id(subglyph))
                 else:
                     encoded_operands.append(arg)
 
@@ -58,14 +67,14 @@ def encode_codex_ast_to_glyphs(ast: Union[CodexAST, Dict[str, Any]]) -> List[Log
 
         elif isinstance(node, dict):
             node_type = node.get("type")
-            operator = node.get("operator")
+            operator = normalize_symbol(node.get("operator"))
             operands = node.get("operands", [])
             metadata = node.get("metadata", {})
 
             if node_type == "ForAll":
                 glyph = LogicGlyph.create(
                     symbol="∀",
-                    operands=[node["var"], traverse(node["body"]).get("id")],
+                    operands=[node["var"], safe_id(traverse(node["body"]))],
                     metadata=metadata
                 )
                 return glyph
@@ -73,7 +82,7 @@ def encode_codex_ast_to_glyphs(ast: Union[CodexAST, Dict[str, Any]]) -> List[Log
             elif node_type == "Exists":
                 glyph = LogicGlyph.create(
                     symbol="∃",
-                    operands=[node["var"], traverse(node["body"]).get("id")],
+                    operands=[node["var"], safe_id(traverse(node["body"]))],
                     metadata=metadata
                 )
                 return glyph
@@ -81,7 +90,10 @@ def encode_codex_ast_to_glyphs(ast: Union[CodexAST, Dict[str, Any]]) -> List[Log
             elif node_type == "Implies":
                 glyph = LogicGlyph.create(
                     symbol="→",
-                    operands=[traverse(node["left"]).get("id"), traverse(node["right"]).get("id")],
+                    operands=[
+                        safe_id(traverse(node["left"])),
+                        safe_id(traverse(node["right"]))
+                    ],
                     metadata=metadata
                 )
                 return glyph
@@ -89,7 +101,10 @@ def encode_codex_ast_to_glyphs(ast: Union[CodexAST, Dict[str, Any]]) -> List[Log
             elif node_type == "Equiv":
                 glyph = LogicGlyph.create(
                     symbol="↔",
-                    operands=[traverse(node["left"]).get("id"), traverse(node["right"]).get("id")],
+                    operands=[
+                        safe_id(traverse(node["left"])),
+                        safe_id(traverse(node["right"]))
+                    ],
                     metadata=metadata
                 )
                 return glyph
@@ -97,13 +112,13 @@ def encode_codex_ast_to_glyphs(ast: Union[CodexAST, Dict[str, Any]]) -> List[Log
             elif node_type == "Not":
                 glyph = LogicGlyph.create(
                     symbol="¬",
-                    operands=[traverse(node["expr"]).get("id")],
+                    operands=[safe_id(traverse(node["expr"]))],
                     metadata=metadata
                 )
                 return glyph
 
             elif node_type == "And":
-                ops = [traverse(child).get("id") for child in node["args"]]
+                ops = [safe_id(traverse(child)) for child in node["args"]]
                 glyph = LogicGlyph.create(
                     symbol="∧",
                     operands=ops,
@@ -112,7 +127,7 @@ def encode_codex_ast_to_glyphs(ast: Union[CodexAST, Dict[str, Any]]) -> List[Log
                 return glyph
 
             elif node_type == "Or":
-                ops = [traverse(child).get("id") for child in node["args"]]
+                ops = [safe_id(traverse(child)) for child in node["args"]]
                 glyph = LogicGlyph.create(
                     symbol="∨",
                     operands=ops,
@@ -122,24 +137,24 @@ def encode_codex_ast_to_glyphs(ast: Union[CodexAST, Dict[str, Any]]) -> List[Log
 
             elif node_type == "predicate":
                 glyph = LogicGlyph.create(
-                    symbol=operator,
+                    symbol=normalize_symbol(operator),
                     operands=operands,
                     metadata=metadata
                 )
                 return glyph
 
-            # Fallback
+            # Fallback for unknown or custom node types
             encoded_operands = []
             for operand in operands:
                 if isinstance(operand, (dict, CodexAST)):
                     subglyph = traverse(operand)
                     glyphs.append(subglyph)
-                    encoded_operands.append(subglyph.get("id", subglyph))
+                    encoded_operands.append(safe_id(subglyph))
                 else:
                     encoded_operands.append(operand)
 
             glyph = LogicGlyph.create(
-                symbol=operator,
+                symbol=normalize_symbol(operator),
                 operands=encoded_operands,
                 metadata=metadata
             )
@@ -162,6 +177,20 @@ def _map_type(ast_type: str) -> str:
         return "vector"
     return "symbolic"  # fallback
 
+import ast as py_ast
+from backend.modules.symbolic.codex_ast_types import CodexAST, make_unknown
+
+
+def parse_python_file_to_codex_ast(code: str) -> CodexAST:
+    try:
+        # This parses valid Python source code to an AST
+        parsed_ast = py_ast.parse(code)
+        # 🧠 TODO: Convert to structured CodexAST tree here.
+        # For now, we stub with `make_unknown` to simulate AST wrapping
+        return make_unknown()
+    except Exception as e:
+        print(f"Error parsing Python code: {e}")
+        return make_unknown()
 
 # Example glyph:
 # {

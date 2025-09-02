@@ -1,7 +1,16 @@
-import React, { useRef } from 'react';
+// File: GHXSignatureTrail.tsx
+
+import React, { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { Html } from '@react-three/drei';
+
+interface TrailOverlayMetadata {
+  label: string;
+  concept_match_score?: number;
+  semantic_distance?: number;
+  intensity?: number; // optional glow intensity for trail
+}
 
 // Helper: convert soulHash or identity into color hue
 function soulHashToHue(soulHash: string): number {
@@ -16,16 +25,23 @@ export default function GHXSignatureTrail({
   identity = "GHXNode.identity",
   radius = 2.2,
   speed = 1,
+  overlayMetadata = [],
 }: {
   identity?: string;
   radius?: number;
   speed?: number;
+  overlayMetadata?: TrailOverlayMetadata[];
 }) {
   const trailRef = useRef<any>();
 
-  // Derive color from soul identity
   const hue = soulHashToHue(identity);
-  const color = new THREE.Color(`hsl(${hue}, 80%, 60%)`);
+  const baseColor = useMemo(() => new THREE.Color(`hsl(${hue}, 80%, 60%)`), [hue]);
+
+  // Compute glow from overlay intensity (fallback to 1.0)
+  const emissiveIntensity = useMemo(() => {
+    const max = overlayMetadata?.[0]?.intensity ?? 1;
+    return Math.min(2.5, Math.max(0.5, max)); // Clamp
+  }, [overlayMetadata]);
 
   useFrame(({ clock }) => {
     if (trailRef.current) {
@@ -40,10 +56,14 @@ export default function GHXSignatureTrail({
   return (
     <mesh ref={trailRef}>
       <torusGeometry args={[0.2, 0.05, 16, 100]} />
-      <meshStandardMaterial color={color} emissive={color} emissiveIntensity={1.5} />
+      <meshStandardMaterial
+        color={baseColor}
+        emissive={baseColor}
+        emissiveIntensity={emissiveIntensity}
+      />
       <Html center>
         <div style={{
-          color: color.getStyle(),
+          color: baseColor.getStyle(),
           fontSize: "0.9em",
           fontWeight: "bold",
           opacity: 0.9,

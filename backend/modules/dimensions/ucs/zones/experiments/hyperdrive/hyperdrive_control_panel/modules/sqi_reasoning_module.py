@@ -33,7 +33,12 @@ class SQIReasoningEngine:
     def analyze_trace(self, trace: Dict[str, Any]) -> Dict[str, Any]:
         if not self.enabled:
             print("🛑 [SQI] Disabled: Skipping analysis.")
-            return {"drift": 0.0, "drift_trend": "—", "avg_exhaust": 0.0, "fields": trace.get("fields", {})}
+            return {
+                "drift": 0.0,
+                "drift_trend": "—",
+                "avg_exhaust": 0.0,
+                "fields": trace.get("fields", {}),
+            }
 
         resonance = trace.get("resonance", [])
         fields = trace.get("fields", {})
@@ -42,8 +47,8 @@ class SQIReasoningEngine:
 
         drift = (max(resonance) - min(resonance)) if resonance else 0.0
         avg_exhaust = sum(exhaust) / len(exhaust) if exhaust else 0.0
-        drift_trend = None
 
+        drift_trend = None
         if self.last_drift is not None:
             drift_trend = "↑" if drift > self.last_drift else "↓" if drift < self.last_drift else "→"
 
@@ -61,8 +66,84 @@ class SQIReasoningEngine:
         if len(self.analysis_history) > 20:
             self.analysis_history.pop(0)
 
-        return {"drift": drift, "drift_trend": drift_trend, "avg_exhaust": avg_exhaust, "fields": fields, "stage": stage}
+        # ---------------------------------------
+        # 🧠 SymbolNet Semantic Overlay Analysis
+        # ---------------------------------------
+        from backend.modules.symbolic.hst.hst_semantic_scoring import concept_match, semantic_distance
 
+        symbolnet = trace.get("symbolnet", {})
+        semantic_scores = []
+
+        for glyph_id, meta in symbolnet.items():
+            label = meta.get("label")
+            if not label:
+                continue
+
+            distance = semantic_distance(label, "goal")      # You may make this dynamic
+            match_score = concept_match(label, "goal")
+
+            semantic_scores.append({
+                "glyph": glyph_id,
+                "label": label,
+                "distance": distance,
+                "match_score": match_score
+            })
+
+        avg_match = (
+            sum(s["match_score"] for s in semantic_scores) / len(semantic_scores)
+            if semantic_scores else 0.0
+        )
+        avg_dist = (
+            sum(s["distance"] for s in semantic_scores) / len(semantic_scores)
+            if semantic_scores else 1.0
+        )
+
+        print(f"🧠 [SQI] SymbolNet: avg_match={avg_match:.3f}, avg_distance={avg_dist:.3f}")
+
+        # Final enriched analysis object
+        return {
+            "drift": drift,
+            "drift_trend": drift_trend,
+            "avg_exhaust": avg_exhaust,
+            "fields": fields,
+            "stage": stage,
+            "semantic_score": avg_match,
+            "semantic_distance": avg_dist,
+            "symbolnet": semantic_scores
+        }
+
+    # -------------------------
+    # 🎯 SYMBOLIC NODE SCORING
+    # -------------------------
+    def score_node(self, node: Any) -> float:
+        """
+        Scores a SymbolicMeaningTree node based on semantic match to goal.
+        Supports both dict and SymbolGlyph node formats.
+        """
+        if not self.enabled:
+            return 0.0
+
+        from backend.modules.symbolic.hst.hst_semantic_scoring import concept_match, semantic_distance
+
+        # Extract label safely from dict or SymbolGlyph
+        if isinstance(node, dict):
+            label = node.get("label") or node.get("glyph") or ""
+        else:
+            label = getattr(node, "label", "") or getattr(node, "glyph", "")
+
+        if not isinstance(label, str) or not label.strip():
+            return 0.0
+
+        try:
+            match = concept_match(label, "goal")  # You can later parameterize "goal"
+            dist = semantic_distance(label, "goal")
+
+            score = match * (1.0 - dist)
+            print(f"[SQI] Scored node: label='{label}', match={match:.3f}, dist={dist:.3f}, score={score:.3f}")
+            return score
+        except Exception as e:
+            print(f"[SQI] Error scoring node '{label}': {e}")
+            return 0.0
     # -------------------------
     # 🔧 ADJUSTMENT RECOMMENDER (FIXED)
     # -------------------------

@@ -7,8 +7,9 @@ from backend.modules.codex.codexlang_rewriter import CodexLangRewriter
 from backend.modules.codex.codex_ast_encoder import encode_codex_ast_to_glyphs
 from backend.modules.symbolic_engine.symbolic_kernels.logic_glyphs import LogicGlyph
 from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter
-from backend.modules.dna_chain.dna_switch import add_dna_mutation
-from backend.modules.codex.codex_metric import CodexMetrics
+from backend.modules.dna_chain.dna_proposer import propose_dna_mutation
+from backend.modules.codex.codex_metrics import CodexMetrics
+from backend.modules.knowledge_graph.knowledge_graph_writer import store_generated_glyph
 
 class SymbolicPatternEngine:
     """
@@ -41,7 +42,7 @@ class SymbolicPatternEngine:
         return len(tokens_a & tokens_b) / len(tokens_a | tokens_b)
 
     @classmethod
-    def recombine_all(cls, fragments: List[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
+    def recombine_all(cls, fragments: List[Dict[str, Any]], container_id: Optional[str] = None) -> Optional[Dict[str, Any]]:
         """
         Attempt to recombine symbolic fragments into a unified prediction or fused glyph.
         Stores into KG, emits DNA mutation, and returns result.
@@ -49,14 +50,18 @@ class SymbolicPatternEngine:
         if not fragments:
             return None
 
+        import hashlib, time
+        from typing import List, Dict, Any, Optional
+
         combined_text = " + ".join([f.get("text", "") for f in fragments if f.get("text")])
         origin_ids = [f.get("id") for f in fragments if "id" in f]
-
         fused_text = f"Fusion({combined_text})"
 
         fused_glyph = {
             "type": "symbol",
             "text": fused_text,
+            "name": f"fused_{hashlib.sha256(fused_text.encode()).hexdigest()[:10]}",
+            "label": "Recombined Fragment",
             "metadata": {
                 "recombinedFrom": origin_ids,
                 "confidence": 0.91,
@@ -65,19 +70,60 @@ class SymbolicPatternEngine:
             }
         }
 
-        # Inject into KG
-        KnowledgeGraphWriter.store_symbolic_glyph(fused_glyph)
+        if container_id:
+            fused_glyph["containerId"] = container_id
+            fused_glyph["targetContainer"] = container_id
 
-        # Log mutation
-        add_dna_mutation(
-            from_glyph=" + ".join(origin_ids),
-            to_glyph=fused_text,
-            reason="symbolic fragment fusion"
-        )
+        # Inject into Knowledge Graph
+        try:
+            from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGraphWriter
+            if container_id:
+                KnowledgeGraphWriter.inject_glyph(
+                    container_id,
+                    content=fused_glyph,
+                    glyph_type="symbol",
+                    metadata=fused_glyph.get("metadata", {}),
+                    tags=["fragment_fusion", "symbolic_pattern"],
+                )
+            else:
+                from backend.modules.knowledge_graph.kg_utils import store_generated_glyph
+                store_generated_glyph(fused_glyph)
+        except Exception as e:
+            print(f"⚠️ KG injection failed: {e}")
 
-        # Score it
-        CodexMetrics.record_confidence_event(fused_glyph, fused_glyph["metadata"].get("confidence", 0.91))
+        # DNA mutation logging and proposal
+        try:
+            from backend.modules.dna_chain.dna_switch import add_dna_mutation
+            from backend.modules.dna_chain.dna_proposer import propose_dna_mutation
 
+            from_glyph = {"text": " + ".join(origin_ids) if origin_ids else "unknown"}
+            to_glyph = {"text": fused_text}
+
+            add_dna_mutation(
+                from_glyph=from_glyph,
+                to_glyph=to_glyph,
+                reason="symbolic fragment fusion"
+            )
+
+            propose_dna_mutation(
+                reason="symbolic fragment fusion",
+                file="backend/modules/symbolic/symbolic_pattern_engine.py",
+                replaced_code=from_glyph["text"],
+                new_logic=fused_text  
+            )
+        except Exception as e:
+            print(f"⚠️ DNA mutation logging failed: {e}")
+
+        # Confidence scoring
+        try:
+            from backend.modules.codex.codex_metrics import CodexMetrics
+            metrics = CodexMetrics()
+            score = fused_glyph.get("metadata", {}).get("confidence", 0.91)
+            metrics.record_confidence_event(score)
+        except Exception as e:
+            print(f"⚠️ Confidence scoring failed: {e}")
+
+        print(f"[🧩] Fused {len(fragments)} fragments → {fused_glyph['name']}")
         return fused_glyph
 
     @classmethod

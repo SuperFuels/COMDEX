@@ -174,17 +174,18 @@ def add_to_index(index_name: str, entry: Dict[str, Any]):
 
     # ✅ WebSocket broadcast for live index updates (guard)
     try:
-        ws_manager.broadcast({
-            "type": "index_update",
-            "data": {
-                "container_id": container.get("id"),
-                "index_name": index_name,
-                "entry": index_entry,
-                "timestamp": get_current_timestamp()
-            }
-        })
+        if hasattr(ws_manager, "broadcast"):
+            import asyncio
+            asyncio.create_task(ws_manager.broadcast({
+                "type": "index_update",
+                "data": {
+                    "container_id": container.get("id"),
+                    "index_name": index_name,
+                    "entry": index_entry,
+                    "timestamp": get_current_timestamp()
+                }
+            }))
     except Exception as e:
-        # In CLI/test, ws may not be active — don’t fail
         print(f"⚠️ WS broadcast skipped: {e}")
 
     # ✅ Emit SQI event (index type aware)
