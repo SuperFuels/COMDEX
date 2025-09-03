@@ -1,4 +1,5 @@
 // utils/useWebSocket.ts
+
 import { useEffect, useRef, useState } from 'react'
 import { playGlyphNarration } from '@/utils/hologram_audio'
 
@@ -69,6 +70,12 @@ export default function useWebSocket(
         if (type === 'glyph_execution' && data.payload?.glyph) {
           const symbol = data.payload.glyph
           playGlyphNarration(symbol)
+        }
+
+        // 🔥 Handle collapse + decoherence metrics
+        if (type === 'collapse_metrics' && data.event_type === 'collapse_tick') {
+          console.log('Collapse/sec:', data.collapse_per_sec)
+          console.log('Decoherence:', data.decoherence_rate)
         }
 
         onMessage(data)

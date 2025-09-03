@@ -13,6 +13,9 @@ from ..glyphnet.ephemeral_key_manager import get_ephemeral_key_manager
 # ✅ Symbolic key derivation for advanced entropy-driven keys
 from ..glyphnet.symbolic_key_derivation import symbolic_key_deriver
 
+# ✅ Rate limit enforcement for abuse protection
+from backend.modules.security.rate_limit_manager import rate_limit_manager
+
 logger = logging.getLogger(__name__)
 
 def create_gip_packet(payload: Dict[str, Any], sender: str, target: Optional[str] = None, packet_type: str = "glyph_push", 
@@ -150,8 +153,13 @@ def push_symbolic_packet(packet: Dict[str, Any]) -> bool:
     Returns:
         True if push succeeded, False otherwise.
     """
+    sender_id = packet.get("sender")
+    if not rate_limit_manager.allow_request(sender_id):
+        logger.warning(f"[AbuseGuard] Rate limit exceeded for sender: {sender_id}. Packet rejected.")
+        return False
+
     try:
-        logger.info(f"[GlyphNetPacket] Pushing packet from {packet.get('sender')} to {packet.get('target', 'broadcast')}")
+        logger.info(f"[GlyphNetPacket] Pushing packet from {sender_id} to {packet.get('target', 'broadcast')}")
         # TODO: Implement real transmission here, e.g. WebSocket, radio, beacon, etc.
         return True
     except Exception as e:

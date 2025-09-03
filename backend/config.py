@@ -34,5 +34,12 @@ if ENABLE_GLYPH_LOGGING == "":
 else:
     ENABLE_GLYPH_LOGGING = ENABLE_GLYPH_LOGGING == "true"
 
+# ✅ GlyphWave Enable Toggle (env override, defaults to True)
+GW_ENABLED = os.getenv("GW_ENABLED", "").lower()
+if GW_ENABLED == "":
+    GW_ENABLED = True  # default if not set in env
+else:
+    GW_ENABLED = GW_ENABLED == "true"
+
 # ✅ Glyph API base URL (used by glyph_api_client.py and runtime synthesis)
 GLYPH_API_BASE_URL = os.getenv("GLYPH_API_BASE_URL", "http://localhost:8000")

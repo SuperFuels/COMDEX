@@ -60,6 +60,15 @@ def entangle_glyphs(
     if not container_b_id:
         container_b_id = container_a_id
 
+    # 🔐 Validate container existence (anti-spoofing)
+    container_a = get_container_by_id(container_a_id)
+    container_b = get_container_by_id(container_b_id)
+
+    if container_a is None:
+        raise ValueError(f"Invalid container_a_id: {container_a_id}")
+    if container_b is None:
+        raise ValueError(f"Invalid container_b_id: {container_b_id}")
+
     memory_entry = {
         "type": "entanglement",
         "glyph": glyph,
@@ -73,9 +82,6 @@ def entangle_glyphs(
     store_memory(memory_entry)
 
     # Update container metadata
-    container_a = get_container_by_id(container_a_id)
-    container_b = get_container_by_id(container_b_id)
-
     for container, other_id in [(container_a, container_b_id), (container_b, container_a_id)]:
         if container:
             entangled = container.setdefault("entangled", [])

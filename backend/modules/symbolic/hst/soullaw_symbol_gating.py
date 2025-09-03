@@ -45,8 +45,19 @@ class SoulLawSymbolGate:
 
                 logger.debug(f"[🔓] Node {node_id} SoulLaw: {gating_status}")
 
+                # 🔐 Log + veto unsafe collapse states
+                if gating_status == "blocked":
+                    logger.warning(f"[SoulLaw] 🚫 Blocked collapse: Node {node_id} — Violations: {result['violations']}")
+
             except Exception as e:
                 logger.warning(f"[⚠️] SoulLaw evaluation failed for node {node_id}: {e}")
 
         logger.info(f"[🔓] Applied SoulLaw gating to {len(gating_report)} nodes.")
         return gating_report
+
+    def has_violations(self, gating_report: Dict[str, Dict]) -> bool:
+        """
+        Checks if any node in the gating report has a blocked status.
+        Useful to intercept measurement or collapse calls.
+        """
+        return any(r.get("status") == "blocked" for r in gating_report.values())

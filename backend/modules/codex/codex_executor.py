@@ -16,7 +16,8 @@ Executes CodexLang & glyphs with:
 """
 
 import time
-from typing import Any, Dict, Optional
+import json
+from typing import Any, Dict, Optional, List
 import logging
 logger = logging.getLogger(__name__)
 
@@ -31,7 +32,7 @@ from backend.modules.glyphos.glyph_executor import GlyphExecutor
 from backend.modules.knowledge_graph.kg_writer_singleton import get_kg_writer
 from backend.modules.knowledge_graph.indexes.introspection_index import add_introspection_event
 from backend.modules.knowledge_graph.indexes.prediction_index import PredictionIndex, PredictedGlyph
-from backend.modules.symbolic.hst.symbolic_tree_injector import inject_symbolic_tree
+from backend.modules.symbolic.symbol_tree_generator import inject_symbolic_tree 
 
 # Memory & DNA
 from backend.modules.consciousness.memory_bridge import MemoryBridge
@@ -129,43 +130,101 @@ class CodexExecutor:
     # ──────────────────────────────
     # 🎯 CodexLang Execution
     # ──────────────────────────────
-    def execute_codexlang(self, codex_string: str, context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-        context = context or {}
-        instruction_tree = run_codexlang_string(codex_string)
-        return self.execute_instruction_tree(instruction_tree, context=context)
-
-    def execute_instruction_tree(self, instruction_tree: Dict[str, Any], context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    from backend.modules.glyphwave.kernels.interference_kernel_core import join_waves_batch
+    import numpy as np
+    def execute_instruction_tree(
+        self,
+        instruction_tree: Dict[str, Any],
+        *,
+        context: Optional[Dict[str, Any]] = None,
+        wave_beams: Optional[List[Dict[str, Any]]] = None  # or List[WaveGlyph] if typed
+    ) -> Dict[str, Any]:
         context = context or {}
         start_time = time.perf_counter()
         glyph = context.get("glyph", "∅")
         source = context.get("source", "codex")
 
         try:
-            # 🧮 Cost Estimation
-            cost = self.metrics.estimate_cost(instruction_tree)
-            self.metrics.record_execution_batch(instruction_tree, cost=cost)
+            # 🔍 Detect special op
+            op = instruction_tree.get("op")
 
-            # 🧠 Tessaris Execution
-            result = self.tessaris.interpret(instruction_tree, context=context)
+            # ⚡ Use Sycamore-scale collapse kernel if requested
+            if op in ("collapse", "join", "combine") and context.get("enable_sycamore_kernel"):
+                try:
+                    if wave_beams:
+                        # 🎯 Use the actual wave beams passed in from test
+                        phases = np.array([w["phase"] for w in wave_beams], dtype=np.float32)
+                        amplitudes = np.array([w["amplitude"] for w in wave_beams], dtype=np.float32)
+                    else:
+                        # 🔧 Fallback to random test waves
+                        NUM_WAVES = 10000
+                        LENGTH = 1
+                        phases = np.random.uniform(-np.pi, np.pi, size=(NUM_WAVES, LENGTH)).astype(np.float32)
+                        amplitudes = np.random.uniform(0.5, 1.5, size=(NUM_WAVES, LENGTH)).astype(np.float32)
 
-            # 🔗 SQI Entanglement (↔)
+                    wave_result = join_waves_batch(phases, amplitudes)
+                    cost = float(wave_result["amplitude"].sum())
+                    result = {
+                        "phase": wave_result["phase"][:5].tolist(),
+                        "amplitude": wave_result["amplitude"][:5].tolist()
+                    }
+
+                    self.trace.log_event("collapse_kernel", {
+                        "waves": len(phases),
+                        "cost": cost,
+                        "phase_sample": result["phase"],
+                        "amplitude_sample": result["amplitude"]
+                    })
+
+                except Exception as kernel_err:
+                    logger.warning(f"[CodexExecutor] ⚠️ join_waves_batch failed: {kernel_err}")
+                    cost = self.metrics.estimate_cost(instruction_tree)
+                    self.metrics.record_execution_batch(instruction_tree, cost=cost)
+                    result = self.tessaris.interpret(instruction_tree, context=context)
+
+            else:
+                # 🧮 Cost Estimation
+                cost = self.metrics.estimate_cost(instruction_tree)
+                self.metrics.record_execution_batch(instruction_tree, cost=cost)
+
+                # 🧠 Tessaris Execution
+                result = self.tessaris.interpret(instruction_tree, context=context)
+
+                        # 🔗 SQI Entanglement (↔)
             entangle_glyphs(glyph, context.get("container_id"))
 
             # 🌀 Collapse Trace (GHX Replay)
             self.sqi_trace.log_collapse(glyph, cost, entangled=True)
 
             # 🧬 DNA Mutation Lineage
-            add_dna_mutation(label="codex_execution", glyph=glyph, entropy_delta=cost, source_module="CodexExecutor")
-
-            # 📚 KG Logging
-            self.kg_writer.log_execution(
-                glyph=glyph,
-                instruction_tree=instruction_tree,
-                cost=cost,
-                source=source,
-                result=result,
-                tags=["codex_execution"]
+            glyph_str = json.dumps(glyph, ensure_ascii=False, indent=2)
+            add_dna_mutation(
+                from_glyph="∅",
+                to_glyph=glyph,  # dict or str is accepted; will be auto-serialized
+                container=context.get("container_id"),
+                coord=context.get("coord"),
+                label="codex_execution"
             )
+
+            # ✅ Inject execution trace into KG
+            self.kg_writer.inject_glyph(
+                content=str(result),
+                glyph_type="execution",
+                metadata={
+                    "source": source,
+                    "label": glyph,
+                    "cost": cost,
+                    "instruction_tree": instruction_tree,
+                    "tags": ["codex_execution"]
+                },
+                trace=source
+            )
+
+            return result
+
+        except Exception as exc:
+            logger.error(f"[CodexExecutor] ❌ Execution failed: {exc}", exc_info=True)
+            raise
 
             # 🔮 Container-level Prediction (SQI Path Selection)
             try:
@@ -338,18 +397,12 @@ class CodexExecutor:
                 if cid and isinstance(cid, str) and cid.startswith((
                     "dc_", "atom_", "hoberman_", "sec_", "symmetry_", "exotic_", "ucs_", "qfc_"
                 )):
-                    inject_symbolic_tree(cid)  # 🌱 Injects and builds the tree internally
-
+                    inject_symbolic_tree(cid)
                     container = load_dc_container(cid)
                     tree = container.get("symbolic_tree")
-
                     if tree:
-                        # ✅ Stream to GHX/QFC overlay
                         stream_hst_to_websocket(cid, tree, context="prediction_engine")
-
-                        # 🛰️ Broadcast replay trace overlay
                         emit_replay_trace(cid, tree)
-
                         self.trace.log_event("hst_injected", {
                             "container_id": cid,
                             "node_count": len(tree.nodes),

@@ -1,4 +1,11 @@
 from typing import Dict, List, Any
+import time
+
+# Optional: hook into live metrics bus if present
+try:
+    from backend.modules.sqi.metrics_bus import metrics_bus
+except ImportError:
+    metrics_bus = None
 
 
 def score_electron_glyph(glyph: Dict[str, Any]) -> float:
@@ -55,7 +62,8 @@ def score_all_electrons(container: Dict[str, Any]) -> List[Dict[str, Any]]:
         if glyph.get("type") != "electron":
             continue
 
-        score = score_electron_glyph(glyph)
+        old_score = glyph.get("sqi_score", None)
+        new_score = score_electron_glyph(glyph)
 
         status = None
         trace = glyph.get("logic_trace", [])
@@ -66,10 +74,24 @@ def score_all_electrons(container: Dict[str, Any]) -> List[Dict[str, Any]]:
 
         results.append({
             "id": glyph.get("id"),
-            "score": score,
+            "score": new_score,
             "label": glyph.get("label", ""),
             "status": status,
         })
+
+        # Optional: Track coherence gain/loss
+        if old_score is not None and metrics_bus:
+            delta = new_score - old_score
+            metrics_bus.push({
+                "event_type": "coherence_shift",
+                "node_id": glyph.get("id"),
+                "label": glyph.get("label", ""),
+                "delta": delta,
+                "old_score": old_score,
+                "new_score": new_score,
+                "status": status,
+                "timestamp": time.time(),
+            })
 
     return sorted(results, key=lambda x: -x["score"])
 

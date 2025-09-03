@@ -1201,6 +1201,8 @@ class KnowledgeGraphWriter:
 
     # ── Internals ──
     def _derive_auto_tags(self, content: str) -> list:
+        if isinstance(content, dict):
+            content = json.dumps(content, ensure_ascii=False)
         tags = []
         if "↔" in content: tags.append("entangled")
         if "⧖" in content: tags.append("collapse")

@@ -14,6 +14,7 @@ Design Rubric:
 """
 
 import re
+import json
 from typing import List, Dict, Optional
 from backend.modules.soul.soul_laws import get_soul_laws
 from backend.modules.knowledge_graph.kg_writer_singleton import get_kg_writer
@@ -48,30 +49,44 @@ def estimate_entropy_change(before: str, after: str) -> float:
     return round(delta, 3)
 
 def add_dna_mutation(
-    from_glyph: str,
-    to_glyph: str,
+    from_glyph,
+    to_glyph,
     container: Optional[str] = None,
     coord: Optional[str] = None,
     label: str = "dna_mutation"
 ):
     """
-    H4b–H4c: Injects a mutation event into the knowledge graph with full metadata.
+    Inject a glyph mutation event into the Knowledge Graph.
+    Ensures string serialization and SoulLaw compliance.
     """
-    diff = f"{from_glyph.strip()} ⟶ {to_glyph.strip()}"
-    entropy_delta = estimate_entropy_change(from_glyph, to_glyph)
-    violations = check_mutation_against_soul_laws(diff)
+    def ensure_str(val):
+        if isinstance(val, dict):
+            return json.dumps(val, ensure_ascii=False, indent=2)
+        return str(val)
 
+    # ✅ Serialize inputs
+    from_glyph_str = ensure_str(from_glyph)
+    to_glyph_str = ensure_str(to_glyph)
+
+    # ✅ Create string diff
+    diff_str = f"{from_glyph_str.strip()} ⟶ {to_glyph_str.strip()}"
+
+    # ✅ Run checks
+    entropy_delta = estimate_entropy_change(from_glyph_str, to_glyph_str)
+    violations = check_mutation_against_soul_laws(diff_str)
+
+    # ✅ Inject mutation into KG
     writer = get_kg_writer()
     writer.inject_glyph(
-        content=diff,
+        content=str(diff_str) if not isinstance(diff_str, str) else diff_str,  # Must be str, never dict
         glyph_type="mutation",
         metadata={
             "source": "DNA",
             "label": label,
             "violations": violations,
             "entropy_delta": entropy_delta,
-            "from": from_glyph,
-            "to": to_glyph,
+            "from": from_glyph_str,
+            "to": to_glyph_str,
             "container": container,
             "coord": coord,
         },

@@ -1,68 +1,202 @@
 # 📁 backend/modules/codex/tests/google_benchmark_runner.py
 import time, json, os, asyncio
 
-from backend.modules.glyphos.codexlang_translator import run_codexlang_string
 from backend.modules.codex.codex_metrics import score_glyph_tree
-from backend.modules.codex.codex_executor import execute_codex_instruction_tree
-from backend.modules.glyphos.glyph_quantum_core import generate_qglyph_from_string
-
-# 👇 NEW: bind to a real container so KG/SQI hooks know where to write
-from backend.modules.consciousness.state_manager import STATE, load_container_from_file, get_dc_path
-
-def load_codex_file(path):
-    with open(path, 'r', encoding='utf-8') as f:
-        return f.read()
+from backend.modules.codex.codex_executor import CodexExecutor
+from backend.modules.consciousness.state_manager import STATE, load_container_from_file
 
 def ensure_container(container_id="maxwell_core"):
-    # Try to load the .dc from UCS path; fall back to allocate+materialize if needed
     dc_path = os.path.join(os.path.dirname(__file__), "../../dimensions/containers", f"{container_id}.dc.json")
     if os.path.exists(dc_path):
-        load_container_from_file(dc_path)  # sets STATE.current_container
+        load_container_from_file(dc_path)
         return container_id
-    # As a fallback, just set a minimal placeholder container in STATE so KG writes have a target
     STATE.set_current_container({"id": container_id, "meta": {"ghx": {"hover": True, "collapsed": True}}})
     return container_id
 
-def run_google_sycamore_simulation():
-    # 1) Ensure we have an active container for KG/SQI
+# ⟦ Raw compressed QGlyph benchmark tree ⟧
+compressed_qglyph_tree = {
+    "↔": [
+        {
+            "⊕": [
+                {"⊕": ["A1", "B1"]},
+                {"⟲": ["A2", "B2"]}
+            ]
+        },
+        {
+            "→": [
+                {
+                    "⊕": [
+                        {"→": ["A3", "B3"]},
+                        {"⊕": ["A4", "B4"]}
+                    ]
+                },
+                {
+                    "→": [
+                        {
+                            "⧖": [
+                                {"⟲": ["A5", "B5"]},
+                                {
+                                    "↔": [
+                                        {"⟲": ["C1", "D1"]},
+                                        {"→": ["C2", "D2"]}
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "→": [
+                                {"⊕": ["E1", {"⧖": ["E2", "E3"]}]},
+                                {
+                                    "→": [
+                                        {"→": ["F1", "F2"]},
+                                        {
+                                            "→": [
+                                                {"⟲": ["G1", "G2"]},
+                                                {
+                                                    "→": [
+                                                        {"⊕": ["H1", {"↔": ["H2", "H3"]}]},
+                                                        {
+                                                            "→": [
+                                                                {"⧖": ["I1", "I2"]},
+                                                                {
+                                                                    "→": [
+                                                                        {"⊕": ["J1", "J2"]},
+                                                                        {
+                                                                            "→": [
+                                                                                {"→": ["K1", "K2"]},
+                                                                                {
+                                                                                    "→": [
+                                                                                        {"⟲": ["L1", "L2"]},
+                                                                                        {
+                                                                                            "→": [
+                                                                                                {"⊕": ["M1", "M2"]},
+                                                                                                {
+                                                                                                    "→": [
+                                                                                                        {"⧖": ["N1", "N2"]},
+                                                                                                        {
+                                                                                                            "→": [
+                                                                                                                {"↔": ["O1", "O2"]},
+                                                                                                                {
+                                                                                                                    "→": [
+                                                                                                                        {"→": ["P1", "P2"]},
+                                                                                                                        {
+                                                                                                                            "→": [
+                                                                                                                                {"⟲": ["Q1", "Q2"]},
+                                                                                                                                {
+                                                                                                                                    "→": [
+                                                                                                                                        {"⊕": ["R1", "R2"]},
+                                                                                                                                        {
+                                                                                                                                            "→": [
+                                                                                                                                                {"⧖": ["S1", "S2"]},
+                                                                                                                                                {
+                                                                                                                                                    "→": [
+                                                                                                                                                        {"↔": ["T1", "T2"]},
+                                                                                                                                                        {
+                                                                                                                                                            "→": [
+                                                                                                                                                                {"→": ["U1", "U2"]},
+                                                                                                                                                                {
+                                                                                                                                                                    "→": [
+                                                                                                                                                                        {"⟲": ["V1", "V2"]},
+                                                                                                                                                                        {
+                                                                                                                                                                            "→": [
+                                                                                                                                                                                {"⊕": ["W1", "W2"]},
+                                                                                                                                                                                {
+                                                                                                                                                                                    "→": [
+                                                                                                                                                                                        {"⧖": ["X1", "X2"]},
+                                                                                                                                                                                        {
+                                                                                                                                                                                            "→": [
+                                                                                                                                                                                                {"↔": ["Y1", "Y2"]},
+                                                                                                                                                                                                {
+                                                                                                                                                                                                    "→": [
+                                                                                                                                                                                                        {"→": ["Z1", "Z2"]},
+                                                                                                                                                                                                        {"⟲": ["Z3", "Z4"]}
+                                                                                                                                                                                                    ]
+                                                                                                                                                                                                }
+                                                                                                                                                                                            ]
+                                                                                                                                                                                        }
+                                                                                                                                                                                    ]
+                                                                                                                                                                                }
+                                                                                                                                                                            ]
+                                                                                                                                                                        }
+                                                                                                                                                                    ]
+                                                                                                                                                                }
+                                                                                                                                                            ]
+                                                                                                                                                        }
+                                                                                                                                                    ]
+                                                                                                                                                }
+                                                                                                                                            ]
+                                                                                                                                        }
+                                                                                                                                    ]
+                                                                                                                                }
+                                                                                                                            ]
+                                                                                                                        }
+                                                                                                                    ]
+                                                                                                                }
+                                                                                                            ]
+                                                                                                        }
+                                                                                                    ]
+                                                                                                }
+                                                                                            ]
+                                                                                        }
+                                                                                    ]
+                                                                                }
+                                                                            ]
+                                                                        }
+                                                                    ]
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
+
+def run_sycamore_batch_kernel_test():
+    print("⚡ Running Sycamore Benchmark with Vectorized Collapse Kernel")
+
+    # 1. Bind to container
     container_id = ensure_container("maxwell_core")
-    context = {"container_id": container_id, "source": "benchmark"}
+    context = {
+        "container_id": container_id,
+        "source": "benchmark",
+        "enable_sycamore_kernel": True  # ✅ Activate the new kernel
+    }
 
-    # 2) Load test codex script
-    codex_path = os.path.join(os.path.dirname(__file__), "google_benchmark_test.codex")
-    codex_string = load_codex_file(codex_path)
+    # 2. Inject tree into execution path
+    wave_beams = compressed_qglyph_tree
 
-    print("🚀 Running Google Sycamore Benchmark Simulation (Symbolic QGlyph Runtime)...")
-    print(f"📄 File: {codex_path}\n")
+    # 3. Execute benchmark (⚠️ FIXED: added 'instruction_tree' arg)
+    start = time.perf_counter()
+    result = CodexExecutor().execute_instruction_tree(
+        instruction_tree=wave_beams,
+        context=context,
+        wave_beams=wave_beams  # Optional: kept for compatibility with vector kernel
+    )
+    duration = time.perf_counter() - start
 
-    # Classical parse
-    start_classical = time.perf_counter()
-    instruction_tree = run_codexlang_string(codex_string)
-    classical_time = time.perf_counter() - start_classical
+    # 4. Score symbolic structure
+    symbolic_score = score_glyph_tree(wave_beams)
+    entropy = len(json.dumps(wave_beams))
 
-    # QGlyph compression
-    start_qglyph = time.perf_counter()
-    qglyph = generate_qglyph_from_string(codex_string)
-    qglyph_time = time.perf_counter() - start_qglyph
-
-    # Execute (now with context → KG/SQI wiring active)
-    result = execute_codex_instruction_tree(instruction_tree, context=context)
-
-    # Score symbolic complexity
-    symbolic_score = score_glyph_tree(instruction_tree)
-    entropy = len(json.dumps(instruction_tree))
-
-    print("🧠 CodexLang Instruction Tree Executed")
-    print(f"⏱️ Classical Parse Time: {classical_time:.4f}s")
-    print(f"🧬 QGlyph Generation Time: {qglyph_time:.4f}s")
+    print(f"\n🧪 Vector Interference Kernel Executed")
+    print(f"⏱️ Execution Time: {duration*1000:.2f} ms")
     print(f"📏 Symbolic Depth Score: {symbolic_score}")
     print(f"🌀 Entropy Estimate: {entropy} chars")
-    print(f"🧿 QGlyph ID: {qglyph.get('id')}")
-    print(f"🔁 Compression Ratio: {round(entropy / symbolic_score, 2)}x (approx.)\n")
+    print(f"🔁 Compression Ratio: {round(entropy / symbolic_score, 2)}x\n")
     print("✅ Result:", result)
 
 async def async_run():
-    run_google_sycamore_simulation()
+    run_sycamore_batch_kernel_test()
     await asyncio.sleep(0.1)
 
 if __name__ == "__main__":

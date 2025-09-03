@@ -3,10 +3,12 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 class KeyManager:
     """
     Centralized encryption key manager.
     Loads key securely from environment or config.
+    Also tracks the Vault public identity for signature attribution.
     """
 
     # Default fallback key for testing only (32 bytes)
@@ -14,6 +16,7 @@ class KeyManager:
 
     def __init__(self):
         self._key = None
+        self._public_id = os.getenv("GLYPHVAULT_PUBLIC_ID") or "VAULT://unknown"
         self.load_key()
 
     def load_key(self):
@@ -42,6 +45,13 @@ class KeyManager:
         if self._key is None:
             raise RuntimeError("Encryption key not loaded or invalid")
         return self._key
+
+    @property
+    def public_id(self):
+        """
+        Returns the Vault public identity (used in signature_block["signer"]).
+        """
+        return self._public_id
 
 
 # Singleton instance

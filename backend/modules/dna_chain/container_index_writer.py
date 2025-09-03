@@ -7,7 +7,7 @@ from typing import Dict, Any
 from datetime import datetime
 import uuid
 import os
-import json  # ✅ added
+import json 
 
 from backend.modules.dimensions.universal_container_system.ucs_runtime import ucs_runtime
 from backend.modules.websocket_manager import WebSocketManager
@@ -100,7 +100,13 @@ def _get_or_create_index(container: Dict[str, Any], index_name: str):
 
 def _create_index_entry(entry: Dict[str, Any]) -> Dict[str, Any]:
     glyph_id = entry.get("id", generate_uuid())
-    glyph_hash = entry.get("hash", hashlib.sha256(entry["content"].encode()).hexdigest())
+    
+    # Safely handle content: serialize if dict, leave as-is if str
+    glyph_content = entry["content"]
+    if isinstance(glyph_content, dict):
+        glyph_content = json.dumps(glyph_content, sort_keys=True)
+
+    glyph_hash = entry.get("hash", hashlib.sha256(glyph_content.encode()).hexdigest())
     timestamp = entry.get("timestamp", get_current_timestamp())
 
     return {
@@ -261,3 +267,22 @@ def add_failure_entry(reason: str, caused_by: str = "unknown"):
     }
     add_to_index("failure_index", entry)
     return failure_id
+
+def add_gwv_trace_entry(trace_str: str, container_id: str = None):
+    """
+    Injects a symbolic collapse/decoherence replay trace (GWV) into the container as a 'trace' entry.
+    This is used to persist symbolic runtime data inside `.dc.json` containers.
+    """
+    trace_id = generate_uuid()
+
+    entry = {
+        "id": trace_id,
+        "type": "trace",
+        "content": trace_str,
+        "timestamp": get_current_timestamp(),
+        "metadata": {
+            "tags": ["gwv", "replay", "collapse", "decoherence"],
+        }
+    }
+    add_to_index("trace_index", entry)
+    return trace_id

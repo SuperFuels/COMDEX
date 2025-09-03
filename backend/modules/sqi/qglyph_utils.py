@@ -5,7 +5,7 @@ from backend.modules.knowledge_graph.kg_writer_singleton import get_kg_writer
 from backend.modules.codex.codexlang_rewriter import CodexLangRewriter
 from backend.modules.codex.codex_metrics import CodexMetrics
 from backend.modules.websocket_manager import broadcast_event
-from backend.modules.symbolic.mutation_engine import suggest_mutations_for_glyph
+from backend.modules.symbolic.mutation_suggestions import suggest_mutations_for_glyph
 
 if TYPE_CHECKING:
     from backend.modules.symbolic_engine.math_logic_kernel import LogicGlyph

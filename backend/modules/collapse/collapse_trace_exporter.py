@@ -20,14 +20,18 @@ try:
 except Exception:
     _SIMPLIFIER = None
 
+# Optional ethics filter
+try:
+    from backend.modules.soul.soullaw_symbol_gating import evaluate_soullaw_violations
+except Exception:
+    evaluate_soullaw_violations = None
+
 EXPORT_DIR = Path("data/collapse_traces")
 EXPORT_DIR.mkdir(parents=True, exist_ok=True)
-
 
 def _safe_filename(stem: str) -> str:
     """Sanitize a filename stem (no path separators)."""
     return "".join(c for c in stem if c.isalnum() or c in ("-", "_")) or "trace"
-
 
 def _normalize_entanglement_links(glyphs: List[Dict[str, Any]]) -> None:
     """
@@ -51,7 +55,6 @@ def _normalize_entanglement_links(glyphs: List[Dict[str, Any]]) -> None:
         if isinstance(ent, list):
             g["entangled"] = sorted(set(ent))
 
-
 def _simplify_codexlang(glyphs: List[Dict[str, Any]]) -> None:
     """Attempt to simplify CodexLang entries using CodexLangRewriter."""
     if not _SIMPLIFIER:
@@ -66,6 +69,17 @@ def _simplify_codexlang(glyphs: List[Dict[str, Any]]) -> None:
             except Exception:
                 continue
 
+def _apply_soullaw_gate(glyphs: List[Dict[str, Any]]) -> None:
+    """Apply SoulLaw evaluation to symbolic glyphs."""
+    if evaluate_soullaw_violations:
+        try:
+            status_map = evaluate_soullaw_violations(glyphs)
+            for g in glyphs:
+                gid = g.get("id")
+                if gid and gid in status_map:
+                    g["soullaw_status"] = status_map[gid]
+        except Exception as e:
+            print(f"[⚠️ SoulLaw evaluation skipped]: {e}")
 
 def _compute_codex_summary(glyphs: List[Dict[str, Any]]) -> Dict[str, Any]:
     """
@@ -82,7 +96,6 @@ def _compute_codex_summary(glyphs: List[Dict[str, Any]]) -> Dict[str, Any]:
         typ = g.get("type") or "unknown"
         summary["types"][typ] = summary["types"].get(typ, 0) + 1
     return summary
-
 
 def export_collapse_trace(
     state: Dict[str, Any],
@@ -106,6 +119,7 @@ def export_collapse_trace(
     if isinstance(glyphs, list):
         _normalize_entanglement_links(glyphs)
         _simplify_codexlang(glyphs)
+        _apply_soullaw_gate(glyphs)
         state["codex_summary"] = _compute_codex_summary(glyphs)
 
     if filename is None:
@@ -122,7 +136,7 @@ def export_collapse_trace(
 
     # 🔮 Inject glyph trace if provided
     if glyph_trace:
-        # 🎯 Inject scoring into suggested rewrites
+        # 🌟 Inject scoring into suggested rewrites
         try:
             from backend.modules.codex.codex_metric import CodexMetrics
             from backend.modules.goal_engine import GoalEngine
@@ -143,13 +157,12 @@ def export_collapse_trace(
 
         state["glyph_trace"] = glyph_trace  # Reassign updated trace
 
-    # 💾 Write to disk
+    # 📂 Write to disk
     with filepath.open("w", encoding="utf-8") as f:
         json.dump(state, f, indent=4, ensure_ascii=False)
 
-    print(f"💾 Collapse trace exported: {filepath}")
+    print(f"📂 Collapse trace exported: {filepath}")
     return str(filepath)
-
 
 def load_collapse_trace(filename: str) -> Dict[str, Any]:
     """
@@ -173,7 +186,6 @@ def load_collapse_trace(filename: str) -> Dict[str, Any]:
     print(f"📂 Collapse trace loaded: {p}")
     return trace
 
-
 # --- Listing helpers -------------------------------------------------------
 
 def iter_collapse_trace_files(limit: int = 50) -> List[Tuple[str, float]]:
@@ -188,7 +200,6 @@ def iter_collapse_trace_files(limit: int = 50) -> List[Tuple[str, float]]:
         reverse=True,
     )[: max(0, int(limit))]
     return [(str(p), p.stat().st_mtime) for p in files]
-
 
 def get_recent_collapse_traces(limit: int = 50, load: bool = True) -> List[Dict[str, Any]]:
     """
@@ -212,7 +223,6 @@ def get_recent_collapse_traces(limit: int = 50, load: bool = True) -> List[Dict[
         else:
             results.append({"path": path, "timestamp": mtime})
     return results
-
 
 __all__ = [
     "export_collapse_trace",

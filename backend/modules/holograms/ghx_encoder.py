@@ -175,7 +175,14 @@ def encode_glyphs_to_ghx(container: Dict[str, Any], qglyph_string: str = "", obs
                 "observer": observer_hash
             }
         })
+    # 🔐 Inject Vault Signature Block
+    from backend.modules.glyphvault.vault_key_manager import VaultKeyManager
+    try:
+        vault_origin_id = VaultKeyManager.get_public_id()
+    except Exception:
+        vault_origin_id = f"vault_{observer_hash}"
 
+    ghx_meta["signed_by"] = vault_origin_id
     return {
         **ghx_meta,
         "holograms": holograms

@@ -1,7 +1,13 @@
-# File: backend/modules/glyphwave/core/wave_state.py
-
 from typing import List, Dict, Tuple
 import time
+
+# ✅ NEW: Fast vectorized interference kernels with GPU fallback
+try:
+    from backend.modules.glyphwave.kernels.jax_interference_kernel import join_waves_batch
+    GPU_ENABLED = True
+except ImportError:
+    from backend.modules.glyphwave.kernels.interference_kernel_core import join_waves_batch
+    GPU_ENABLED = False
 
 class EntangledWave:
     def __init__(self, mode: str = "bidirectional"):
@@ -48,6 +54,13 @@ class EntangledWave:
     def debug_links(self) -> Dict[int, List[int]]:
         """Return a readable entanglement map for debug."""
         return self.entangled_map
+
+    def collapse_all(self) -> Dict:
+        """
+        Collapse all entangled waves using the fast vectorized interference kernel.
+        Returns: collapsed payload dictionary (combined symbolic state).
+        """
+        return join_waves_batch(self.waves)
 
 class WaveState:
     def __init__(self, origin_trace=None, payload=None, metadata=None):

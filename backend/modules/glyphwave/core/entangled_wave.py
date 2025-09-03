@@ -1,7 +1,15 @@
 # backend/modules/glyphwave/core/entangled_wave.py
 from typing import List, Dict
-from backend.modules.glyphwave.core.wave_state import WaveState
+import time
 
+from backend.modules.glyphwave.core.wave_state import WaveState
+from backend.modules.glyphwave.kernels.interference_kernel_core import join_waves_batch
+
+try:
+    import jax
+    DEVICE_TYPE = jax.devices()[0].device_kind if jax.devices() else "Unknown"
+except Exception:
+    DEVICE_TYPE = "Unavailable"
 
 class EntangledWave:
     def __init__(self, mode: str = "bidirectional"):
@@ -106,3 +114,27 @@ class EntangledWave:
             "links": links,
             "mode": self.mode
         }
+
+    # ✅ F03: Collapse with GPU metrics
+    def collapse_all(self) -> Dict:
+        """
+        Collapse all entangled waves using the fast vectorized GPU/MLX-compatible kernel.
+        Returns a payload with symbolic results + performance metrics.
+        """
+        start_time = time.time()
+        result = join_waves_batch(self.waves)
+        duration_ms = round((time.time() - start_time) * 1000, 3)
+
+        metrics = {
+            "collapse_time_ms": duration_ms,
+            "device": DEVICE_TYPE,
+            "num_waves": len(self.waves),
+            "timestamp": time.time()
+        }
+
+        # Inject metrics
+        result["collapse_metrics"] = metrics
+        for wave in self.waves:
+            wave.metadata["collapse_metrics"] = metrics
+
+        return result

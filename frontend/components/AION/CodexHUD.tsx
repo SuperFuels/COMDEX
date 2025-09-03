@@ -12,6 +12,7 @@ import axios from "axios";
 import { useGlyphReplay } from "@/hooks/useGlyphReplay";
 import { ReplayHUD } from "@/components/CodexHUD/ReplayHUD";
 import { ReplayListPanel } from "@/components/CodexHUD/ReplayListPanel";
+import { useCollapseMetrics } from "@/hooks/useCollapseMetrics";
 
 interface GlyphDetail {
   energy?: number;
@@ -216,6 +217,14 @@ export default function CodexHUD({
   const { replays, latestTrace, handleReplayClick } = useGlyphReplay();
   const [showReplayPanel, setShowReplayPanel] = useState(false);
 
+  // ✅ Add collapse metrics hook here
+  const {
+    collapseHistory,
+    decoherenceHistory,
+    latestCollapse,
+    latestDecoherence
+  } = useCollapseMetrics();
+
   const totalGlyphs = events.filter(e => e.type === 'glyph' || e.type === 'gip').length;
   const triggeredGlyphs = events.filter(e => (e.type === 'glyph' || e.type === 'gip') && e.data.action).length;
 
@@ -382,7 +391,18 @@ return (
           </Button>
         </div>
       </div>
-
+      {latestCollapse != null && latestDecoherence != null && (
+        <div className="text-xs text-green-300 font-mono mt-2 border border-green-700 rounded p-2 bg-black/50">
+          <div className="flex justify-between">
+            <div>
+              🧠 <strong>Collapse Rate:</strong> {latestCollapse.toFixed(2)} / sec
+            </div>
+            <div>
+              🌀 <strong>Decoherence:</strong> {(latestDecoherence * 100).toFixed(1)}%
+            </div>
+          </div>
+        </div>
+      )}
       <div className="text-xs text-purple-300 mt-2">
         🧠 Replay features enabled:
         <ul className="list-disc pl-4 space-y-1 mt-1">

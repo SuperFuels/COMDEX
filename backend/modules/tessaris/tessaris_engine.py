@@ -30,13 +30,35 @@ from backend.modules.codex.codex_mind_model import CodexMindModel
 from backend.modules.codex.codex_metrics import CodexMetrics
 from backend.modules.codex.codex_cost_estimator import CodexCostEstimator
 
+from typing import Dict, Any, Optional
+from backend.modules.skills.goal_engine import GoalEngine
+
+# Register the module to the DNA switch system
 DNA_SWITCH.register(__file__)
 
+# ── Goal Trigger ──
 def trigger_from_goal(goal_data):
-    from backend.modules.skills.goal_engine import GoalEngine
     engine = GoalEngine()
     return engine.process_goal(goal_data)
 
+# ── Utility: Tree Summarizer ──
+def _summarize_tree(tree: Any) -> Dict[str, Any]:
+    """Minimal structure summary for fallback results."""
+    def _depth(n) -> int:
+        if isinstance(n, dict):
+            ch = n.get("children") or []
+            return 1 + (max((_depth(c) for c in ch), default=0) if isinstance(ch, list) else 0)
+        if isinstance(n, list):
+            return 1 + max((_depth(c) for c in n), default=0)
+        return 1
+
+    try:
+        import json
+        size = len(json.dumps(tree, ensure_ascii=False))
+    except Exception:
+        size = len(str(tree))
+
+    return {"depth": _depth(tree), "size": size}
 
 class TessarisEngine:
     def __init__(self, container_id="default"):
@@ -667,24 +689,6 @@ class TessarisEngine:
     def clear(self):
         self.active_branches = []
         self.active_thoughts = []
-
-    from typing import Dict, Any, Optional
-
-    def _summarize_tree(tree: Any) -> Dict[str, Any]:
-        """Minimal structure summary for fallback results."""
-        def _depth(n) -> int:
-            if isinstance(n, dict):
-                ch = n.get("children") or []
-                return 1 + (max((_depth(c) for c in ch), default=0) if isinstance(ch, list) else 0)
-            if isinstance(n, list):
-                return 1 + (max((_depth(c) for c in n), default=0))
-            return 1
-        try:
-            import json
-            size = len(json.dumps(tree, ensure_ascii=False))
-        except Exception:
-            size = len(str(tree))
-        return {"depth": _depth(tree), "size": size}
 
     def run_lean_self_rewrite(glyph: Dict[str, Any], *, context: Dict[str, Any] = {}) -> List[Dict[str, Any]]:
         """

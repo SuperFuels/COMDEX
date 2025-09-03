@@ -11,6 +11,7 @@ import { GHXTeleportTrail } from '@/components/GHX/GHXTeleportTrail';
 import { GHXAnchorMemory } from '@/components/GHX/GHXAnchorMemory';
 import { SymbolicTeleportPath } from '@/components/GHX/SymbolicTeleportPath';
 import { DreamGhostEntry } from '@/components/GHX/DreamGhostEntry';
+import { getSignatureStatusBadge } from "@/utils/ghx_signature_utils";
 
 declare global {
   interface Window {
@@ -195,6 +196,10 @@ const GlyphHologram = ({
   const emissiveColor = memoryEcho ? "#222222" : predictive ? "#2299ff" : getAgentColor(agent_id);
   const opacity = permission === "read-only" ? 0.25 : (memoryEcho ? 0.35 : predictive ? 0.5 : 1);
 
+  const signatureStatus = hoverMeta?.signature_block?.verified;
+  const signatureBadge = signatureStatus === true ? "✅" : signatureStatus === false ? "❌" : "⧖";
+  const signatureColor = signatureStatus === true ? "#00ff88" : signatureStatus === false ? "#ff3366" : "#cccccc";
+
   return (
     <group>
       {/* ◉ Main Glyph */}
@@ -240,6 +245,19 @@ const GlyphHologram = ({
             }}>🔒</div>
           </Html>
         )}
+
+        {/* 🔏 Signature Status Badge */}
+        {hovered && hoverMeta?.signature_block && (
+          <Html center>
+            <div style={{
+              fontSize: "1.4em",
+              color: signatureColor,
+              textShadow: `0 0 6px ${signatureColor}`,
+              marginTop: "-32px",
+            }}>{signatureBadge}</div>
+          </Html>
+        )}
+      </mesh>
 
         {/* 🧠 Hover Metadata */}
         {hovered && hoverCid && hoverMeta && (

@@ -123,71 +123,71 @@ end
 subgraph P3 [🌈 P3 • GHX + HUD + Telemetry]
   D01✅[🌈 D1: GHX Visualizer]
   D01a✅[Render phase gradient overlays]
-  D01b[Show entanglement link lines]
-  D01c[Collapse heatmap mode]
+  D01b✅[Show entanglement link lines]
+  D01c✅[Collapse heatmap mode]
 
-  D02[📈 D2: Metrics Bus]
-  D02a[Track coherence gain/loss]
-  D02b[Live collapse + decoherence rate]
-  D02c[Push to SQI / CodexHUD metrics overlay]
+  D02✅[📈 D2: Metrics Bus]
+  D02a✅[Track coherence gain/loss]
+  D02b✅[Live collapse + decoherence rate]
+  D02c✅[Push to SQI / CodexHUD metrics overlay]
 
-  D03[📆 D3: Replay + Snapshots]
-  D03a[Snapshot ring buffer to .gwv]
-  D03b[Inject traces into .dc.json]
-  D03c[Replay via WaveScope panel]
+  D03✅[📆 D3: Replay + Snapshots]
+  D03a✅[Snapshot ring buffer to .gwv]
+  D03b✅[Inject traces into .dc.json]
+  D03c✅[Replay via WaveScope panel]
 end
 
 %% ====== PHASE 4: SECURITY & ETHICS ======
 subgraph P4 [🛡️ P4 • Security & Ethics]
-  E01[🛡️ E1: SoulLaw gate]
-  E01a[Intercept measurement calls]
-  E01b[Run SoulLaw ethics filters]
-  E01c[Log + veto unsafe collapse states]
+  E01✅[🛡️ E1: SoulLaw gate]
+  E01a✅[Intercept measurement calls]
+  E01b✅[Run SoulLaw ethics filters]
+  E01c✅[Log + veto unsafe collapse states]
 
-  E02[🔐 E2: Vault/Crypto tags]
-  E02a[Sign WaveGlyph metadata fields]
-  E02b[Attach vault origin IDs]
-  E02c[Prevent spoofed entanglement injections]
+  E02✅[🔐 E2: Vault/Crypto tags]
+  E02a✅[Sign WaveGlyph metadata fields]
+  E02b✅[Attach vault origin IDs]
+  E02c✅[Prevent spoofed entanglement injections]
 
-  E03[❌ E3: Abuse Guards]
-  E03a[Rate-limit push_wave() bursts]
-  E03b[Sandbox unsafe kernel paths]
-  E03c[Fail-closed mode for toxic glyphs]
+  E03✅[❌ E3: Abuse Guards]
+  E03a✅[Rate-limit push_wave() bursts]
+  E03b✅[Sandbox unsafe kernel paths]
+  E03c✅[Fail-closed mode for toxic glyphs]
 end
 
 %% ====== PHASE 5: PERFORMANCE ======
 subgraph P5 [🚀 P5 • Performance]
-  F01[🚀 F1: SIMD/NumPy Path]
-  F01a[Vectorize core kernel math]
-  F01b[Batch lattice ops with NumPy arrays]
+  F01✅[🚀 F1: SIMD/NumPy Path]
+  F01a✅[Vectorize core kernel math]
+  F01b[✅Batch lattice ops with NumPy arrays]
 
-  F02[🚀 F2: Interference cache]
-  F02a[Memoize repeated wave interference]
-  F02b[Evict by field volatility entropy]
+  F02✅[🚀 F2: Interference cache]
+  F02a✅[Memoize repeated wave interference]
+  F02b✅[Evict by field volatility entropy]
 
-  F03[🚀 F3: GPU/MLX backend shim]
-  F03a[Optional: JAX/CUDA backend test rig]
-  F03b[Offload merge/interfere kernels]
+  F03✅[🚀 F3: GPU/MLX backend shim]
+  F03a✅[Optional: JAX/CUDA backend test rig]
+  F03b✅[Offload merge/interfere kernels]
 end
 
 %% ====== PHASE 6: TESTING & ROLLOUT ======
 subgraph P6 [🧪 P6 • Testing & Rollout]
   G01[🧪 G1: Golden Tests]
-  G01a[Test collapse determinism]
-  G01b[Test entangle→collapse integrity]
+  G01a[✅ Test collapse determinism]
+  G01b[✅ Test entangle→collapse integrity]
 
   G02[🧪 G2: Soak Tests]
-  G02a[Run long-lifecycle glyphs]
-  G02b[Test backpressure + overflow decay]
+  G02a[✅ Run long-lifecycle glyphs]
+  G02b[✅ Test backpressure + overflow decay]
 
   G03[🧪 G3: Canary + Fallback]
-  G03a[Flip GW_ENABLED only on Hoberman/SEC]
-  G03b[A/B fallback to legacy SQI event bus]
+  G03a[✅ Flip GW_ENABLED only on Hoberman/SEC]
+  G03b[✅ A/B fallback to legacy SQI event bus]
 
   G04[📚 G4: Docs + Dev Guide]
-  G04a[Dev install + kernel structure]
-  G04b[Protocol overview + API examples]
-  G04c[Replay, debug, HUD panel usage]
+  G04a[✅ Dev install + kernel structure]
+  G04b[✅ Protocol overview + API examples]
+  G04c[✅ Replay, debug, HUD panel usage]
 end
 
 graph TD
