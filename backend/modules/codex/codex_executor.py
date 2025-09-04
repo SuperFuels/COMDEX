@@ -144,6 +144,14 @@ class CodexExecutor:
         glyph = context.get("glyph", "∅")
         source = context.get("source", "codex")
 
+        # 🔐 Enforce QKD-required policy
+        try:
+            from backend.modules.glyphwave.qkd.qkd_policy_enforcer import QKDPolicyEnforcer
+            QKDPolicyEnforcer.enforce_if_required(context)
+        except Exception as qkd_err:
+            logger.error(f"[CodexExecutor] QKD policy enforcement failed: {qkd_err}")
+            raise
+
         try:
             # 🔍 Detect special op
             op = instruction_tree.get("op")

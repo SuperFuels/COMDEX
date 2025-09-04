@@ -263,6 +263,14 @@ class CodexMetrics:
         if "∀" in rep or "∃" in rep:
             return 0.7  # Quantifiers may be harder to validate
         return 0.6  # Default baseline
+
+    @staticmethod
+    def record_log_event(level: str, message: str, trace_id: Optional[str] = None):
+        # You can expand this to emit to DB, file, HUD, etc.
+        log_line = f"[METRIC][{level.upper()}] {message}"
+        if trace_id:
+            log_line += f" | trace_id={trace_id}"
+        print(log_line)
 # ─────────────────────────────────────────────────────────────────────────────
 # Utilities
 # ─────────────────────────────────────────────────────────────────────────────

@@ -1,6 +1,15 @@
+import datetime
+import logging
 from typing import Dict, Any
 from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.hyperdrive_tuning_constants_module import HyperdriveTuningConstants
 from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.sqi_controller_module import SQIController
+
+logger = logging.getLogger(__name__)
+SQI_EVENT_LOG = []
+
+# Optional: Provide a dummy broadcast function if GHX not connected
+def broadcast_ghx_event(event: Dict):
+    pass  # Or leave unimplemented if not in scope
 
 class SQIReasoningEngine:
     """
@@ -237,3 +246,37 @@ class SQIReasoningEngine:
         cost = drift * weight * base_cost
         print(f"[SQI] Drift Cost → Drift={drift:.3f} | Weight={weight:.2f} | Cost={cost:.3f}")
         return cost
+
+def log_sqi_event(event: Dict):
+    """
+    Log an event into the SQI reasoning engine.
+
+    This is used to track symbolic logic events that contribute to reasoning,
+    QKD integrity, collapse triggers, and replay.
+
+    The event dict should include fields like:
+    - type
+    - timestamp
+    - status
+    - sender_id / receiver_id
+    - collapse_hash
+    - fingerprint
+    - detail (optional)
+    """
+    # ✅ Add system timestamp if missing
+    if "logged_at" not in event:
+        event["logged_at"] = datetime.datetime.now(datetime.UTC).isoformat()
+
+    # ✅ Append to internal log
+    SQI_EVENT_LOG.append(event)
+
+    # ✅ Print to log (optional, or make togglable)
+    logger.info(f"[SQI_EVENT] {event['type']} — {event.get('status', 'ok')}")
+
+    # ✅ Broadcast to GHX replay if available
+    if broadcast_ghx_event:
+        broadcast_ghx_event(event)
+
+    # ✅ Future: Add hooks for CodexMetrics, DreamOS, etc.
+
+    return event

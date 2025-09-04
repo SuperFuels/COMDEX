@@ -5,6 +5,8 @@ from backend.modules.websocket_manager import broadcast_event
 from backend.modules.symbolic.symbol_tree_generator import SymbolicMeaningTree
 from backend.modules.sqi.metrics_bus import metrics_bus
 from backend.modules.symbolic.decoherence import calc_decoherence
+from backend.modules.glyphwave.gwip.gwip_encoder import encode_gwip_packet
+from backend.modules.glyphwave.carrier.carrier_types import CarrierType
 
 # 🧩 Metrics + Feedback
 from backend.modules.symbolic.metrics_logger import log_metrics
@@ -170,3 +172,37 @@ async def stream_symbolic_tree_replay(tree: SymbolicMeaningTree, container_id: s
         # 🔁 Reset tick
         collapse_counter = 0
         last_tick_time = time.time()
+
+async def emit_gwave_replay(wave):
+    """
+    Broadcast a single GWave replay packet with carrier metadata over WebSocket.
+    Also emits overlay info for HUD.
+    """
+    try:
+        packet = encode_gwip_packet(
+            wave=wave,
+            carrier_type=wave.carrier_type,
+            modulation_strategy=wave.modulation_strategy,
+            delay_ms=wave.delay_ms
+        )
+
+        # 🎯 Broadcast full carrier trace
+        await broadcast_event("glyphwave.replay", {
+            "type": "carrier_trace",
+            "packet": packet
+        })
+
+        # 🖥️ HUD overlay injection
+        await broadcast_event("glyphwave.overlay", {
+            "type": "carrier_overlay",
+            "wave_id": wave.id,
+            "carrier_type": getattr(wave.carrier_type, "name", str(wave.carrier_type)),
+            "modulation_strategy": wave.modulation_strategy,
+            "coherence": wave.coherence,
+            "delay_ms": round(wave.delay_ms, 2),
+        })
+
+        print(f"[GWIP] 📡 Carrier packet broadcasted for wave {wave.id} ({wave.carrier_type.name} / {wave.modulation_strategy})")
+
+    except Exception as e:
+        print(f"[GWIP] ⚠️ Failed to emit carrier trace: {e}")

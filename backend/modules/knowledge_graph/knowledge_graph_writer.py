@@ -38,6 +38,7 @@ from backend.modules.dimensions.containers.container_loader import load_decrypte
 from backend.modules.dimensions.universal_container_system.ucs_runtime import ucs_runtime
 from backend.modules.knowledge_graph.indexes.trace_index import inject_trace_event
 from backend.modules.codex.codex_metrics import codex_metrics
+from backend.modules.glyphwave.qwave.qwave_writer import collect_qwave_beams, export_qwave_beams
 
 # ✅ Knowledge graph and indexing
 from backend.modules.dna_chain.container_index_writer import add_to_index
@@ -1102,8 +1103,21 @@ class KnowledgeGraphWriter:
         return True  
 
     def export_pack(self, container: dict, out_path: str):
+        # ⬇️ Inject QWave Beams into glyph_grid
+        try:
+            container_id = container.get("id")
+            if container_id:
+                from backend.modules.glyphwave.qwave.qwave_writer import collect_qwave_beams, export_qwave_beams
+                beams = collect_qwave_beams(container_id)
+                export_qwave_beams(container, beams, context={"frame": "mutated"})
+                print(f"📡 Injected {len(beams)} QWave beams into container during KG export.")
+        except Exception as e:
+            print(f"⚠️ Failed to inject QWave beams in KGWriter: {e}")
+
+        # Continue with glyph grid export
         nodes = [g for g in container.get("glyph_grid", []) if g.get("type") == "kg_node"]
         edges = [g for g in container.get("glyph_grid", []) if g.get("type") == "kg_edge"]
+
         pack = {
             "id": container.get("id"),
             "name": container.get("name"),
@@ -1119,6 +1133,7 @@ class KnowledgeGraphWriter:
                 for e in edges if "metadata" in e
             ],
         }
+
         import json, os
         os.makedirs(os.path.dirname(out_path), exist_ok=True)
         with open(out_path, "w") as f:
@@ -1426,6 +1441,29 @@ def write_glyph_event(
 
     print(f"[KGWriter] Event: {event_type} → {container_id} | {event.get('reason', '')}")
 
+# === [A2a] Export QWave Beams for Container ===
+
+def export_qwave_beams(container: dict, beams: list, context: dict = None):
+    """
+    Injects QWave beams into the container under the symbolic export section.
+    """
+    if "symbolic" not in container:
+        container["symbolic"] = {}
+
+    container["symbolic"]["qwave_beams"] = []
+
+    for beam in beams:
+        container["symbolic"]["qwave_beams"].append({
+            "beam_id": beam.get("id"),
+            "source_id": beam.get("source"),
+            "target_id": beam.get("target"),
+            "carrier_type": beam.get("carrier_type"),
+            "modulation_strategy": beam.get("modulation_strategy"),
+            "coherence": beam.get("coherence"),
+            "entangled_path": beam.get("entangled_path"),
+            "mutation_trace": beam.get("mutation_trace"),
+            "collapse_state": context.get("frame") if context else None
+        })
 
 # ──────────────────────────────
 # Global KG Writer Instance

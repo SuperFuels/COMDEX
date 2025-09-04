@@ -189,11 +189,33 @@ class SoulLawValidator:
         return True
 
     @staticmethod
-    def validate_navigation_link(source_container: dict, target_container: dict):
-        """Block forbidden container links (e.g., secure → public)."""
-        if "secure" in source_container.get("tags", []) and "public" in target_container.get("tags", []):
+    def validate_navigation_link(
+        source_container: dict,
+        target_container: dict,
+        link_metadata: Optional[dict] = None
+    ):
+        """Block forbidden container links (e.g., secure → public), unless long-range quantum/optical override applies."""
+        source_tags = source_container.get("tags", [])
+        target_tags = target_container.get("tags", [])
+
+        if "secure" in source_tags and "public" in target_tags:
+            # 🛡️ SoulLaw Override for Long-Range Links
+            if link_metadata:
+                carrier = link_metadata.get("carrier_type", "").upper()
+                intent = link_metadata.get("intent", "").lower()
+                distance = link_metadata.get("distance_km", 0)
+                override_flag = link_metadata.get("soul_law_override", False)
+
+                if (
+                    carrier in ("QUANTUM", "OPTICAL") and
+                    (intent == "long_range" or distance >= 1000 or override_flag is True)
+                ):
+                    print(f"⚠️ SoulLaw override: secure→public allowed via long-range {carrier} link ({distance}km)")
+                    return  # ✅ Override allowed
+
             raise PermissionError("❌ SoulLaw: Secure container cannot link to public.")
-        print(f"✅ SoulLaw: Navigation link allowed {source_container['id']} → {target_container['id']}")
+
+        print(f"✅ SoulLaw: Navigation link allowed {source_container.get('id', '?')} → {target_container.get('id', '?')}")
 
     # -----------------------
     # 🔐 Seed locks

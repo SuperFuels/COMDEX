@@ -6,6 +6,7 @@ import numpy as np
 from backend.modules.glyphwave.core.wave_state import WaveState
 from backend.modules.glyphwave.core.entangled_wave import EntangledWave
 from backend.modules.symbolgraph.symbolgraph_adapter import get_bias_vector
+from backend.modules.glyphwave.visual.emit_gwave_replay import emit_gwave_replay
 
 
 def interfere(w1: WaveState, w2: WaveState) -> WaveState:
@@ -79,6 +80,43 @@ def join_waves_batch(waves: List[WaveState]) -> WaveState:
         metadata={"timestamp": timestamp}
     )
 
+def join_waves_batch(waves: List[WaveState]) -> WaveState:
+    """
+    Join multiple waves using batched complex vector addition (NumPy).
+    Much faster than sequential joining for large wave lists.
+    Emits a GHX replay snapshot after merge.
+    """
+    if not waves:
+        raise ValueError("No waves to join.")
+    if len(waves) == 1:
+        return waves[0]
+
+    phases = np.array([w.payload["phase"] for w in waves])
+    amplitudes = np.array([w.payload["amplitude"] for w in waves])
+    z_all = np.exp(1j * phases) * amplitudes
+
+    z_sum = np.sum(z_all, axis=0)
+    amplitude = np.abs(z_sum)
+    phase = np.angle(z_sum)
+
+    coherence = np.mean([w.payload["coherence"] for w in waves])
+    origin_trace = list(set(o for w in waves for o in w.origin_trace))
+    timestamp = max(w.metadata.get("timestamp", 0.0) for w in waves)
+
+    result_wave = WaveState(
+        payload={
+            "phase": phase,
+            "amplitude": amplitude,
+            "coherence": coherence
+        },
+        origin_trace=origin_trace,
+        metadata={"timestamp": timestamp}
+    )
+
+    # 🧠 Emit GHX replay snapshot for visualization
+    emit_gwave_replay(result_wave)
+
+    return result_wave
 
 def entangle(waves: List[WaveState], mode: str = "bidirectional") -> EntangledWave:
     """

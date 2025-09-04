@@ -1,42 +1,77 @@
-# File: backend/modules/glyphwave/core/wave_state_store.py
-
-from typing import Dict, Optional, List
+from typing import Dict, Optional, List, Any
 from .wave_state import WaveState
+from backend.modules.glyphwave.holographic.ghx_replay_broadcast import emit_gwave_replay
 
 
 class WaveStateStore:
     """
     In-memory store of WaveState objects for GlyphWave.
-    Tracks currently active symbolic waves prior to transmission or interference.
+    Tracks currently active symbolic waves, along with optional carrier metadata
+    and cached CodexLang execution results.
     """
 
     def __init__(self):
         self._store: Dict[str, WaveState] = {}
+        self._carrier_info: Dict[str, Dict[str, Any]] = {}
+        self._cached_scores: Dict[str, Dict[str, Any]] = {}  # ✅ wave_id -> {sqi_score, prediction, collapse_state}
 
-    def add_wave(self, wave: WaveState) -> None:
-        """Adds or updates a wave by its origin ID."""
+    def add_wave(self, wave: WaveState, carrier_type: Optional[str] = None, modulation: Optional[str] = None) -> None:
+        """
+        Adds or updates a wave by its origin ID, along with optional carrier metadata.
+        Emits GHX replay for visual sync.
+        """
         if not wave.id:
             raise ValueError("WaveState must have a unique `id` to be stored.")
+
         self._store[wave.id] = wave
 
+        if carrier_type or modulation:
+            self._carrier_info[wave.id] = {
+                "carrier_type": carrier_type,
+                "modulation": modulation,
+            }
+
+        emit_gwave_replay(wave)  # 🧠 Emits live trace to GHX visual system
+
     def get_wave(self, wave_id: str) -> Optional[WaveState]:
-        """Retrieve a wave by its ID."""
         return self._store.get(wave_id)
 
+    def get_carrier_info(self, wave_id: str) -> Optional[Dict[str, Any]]:
+        return self._carrier_info.get(wave_id)
+
     def remove_wave(self, wave_id: str) -> None:
-        """Delete a wave from the store."""
         self._store.pop(wave_id, None)
+        self._carrier_info.pop(wave_id, None)
+        self._cached_scores.pop(wave_id, None)  # ✅ Ensure cached results are removed too
 
     def all_waves(self) -> List[WaveState]:
-        """Returns all wave states currently stored."""
         return list(self._store.values())
 
     def clear(self) -> None:
-        """Clears all stored wave states."""
         self._store.clear()
+        self._carrier_info.clear()
+        self._cached_scores.clear()  # ✅ Clear cache on reset
 
     def snapshot(self) -> Dict[str, dict]:
         """
-        Export all wave states as dicts (for transmission or diagnostics).
+        Export all wave states as dicts, including carrier info if present.
         """
-        return {wid: wave.to_dict() for wid, wave in self._store.items()}
+        return {
+            wid: {
+                "wave": wave.to_dict(),
+                "carrier": self._carrier_info.get(wid, {}),
+                "cached": self._cached_scores.get(wid, {})  # ✅ Include cached scores in snapshot
+            }
+            for wid, wave in self._store.items()
+        }
+
+    # ✅ New: Caching logic for SQI results
+    def cache_prediction(self, wave_id: str, sqi_score: float, collapse_state: str, prediction: Any) -> None:
+        self._cached_scores[wave_id] = {
+            "sqi_score": sqi_score,
+            "collapse_state": collapse_state,
+            "prediction": prediction
+        }
+
+    def get_cached_prediction(self, wave_id: str) -> Optional[Dict[str, Any]]:
+        return self._cached_scores.get(wave_id)

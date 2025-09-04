@@ -1031,5 +1031,19 @@
     "message": "Teleported to container: maxwell_core",
     "success": true,
     "timestamp": "2025-09-03T07:23:16.886360"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: maxwell_core",
+    "success": true,
+    "timestamp": "2025-09-03T19:59:16.693861"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: maxwell_core",
+    "success": true,
+    "timestamp": "2025-09-03T20:11:43.157066"
   }
 ]

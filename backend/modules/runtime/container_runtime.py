@@ -457,6 +457,17 @@ class ContainerRuntime:
         except Exception as e:
             print(f"❌ Failed to encrypt and save container glyph data: {e}")
 
+        # === [A2a] Inject QWave Beams ===
+        try:
+            from backend.modules.glyphwave.qwave.qwave_writer import collect_qwave_beams, export_qwave_beams
+            container_id = container.get("id")
+            if container_id:
+                beams = collect_qwave_beams(container_id)
+                export_qwave_beams(container, beams, context={"frame": "collapsed"})
+                print(f"📡 Injected {len(beams)} QWave beams into container.")
+        except Exception as e:
+            print(f"⚠️ Failed to inject QWave beams: {e}")
+
     def fork_entangled_path(self, container: Dict[str, Any], coord: str, glyph: str):
         original_name = container.get("id", "default")
         entangled_id = f"{original_name}_entangled"

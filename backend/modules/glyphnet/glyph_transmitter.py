@@ -1,26 +1,45 @@
-# backend/modules/glyphnet/glyph_transmitter.py
-
 import logging
+import time
 from typing import List, Literal, Dict, Optional
+
 import numpy as np
 
 from backend.modules.glyphnet.glyphwave_encoder import glyphs_to_waveform, save_wavefile
+from backend.modules.glyphwave.carrier.carrier_scheduler import CarrierScheduler
 
 try:
     import sounddevice as sd
 except ImportError:
     sd = None
 
+# 🔐 QKD + Encryption Imports (Q1f/Q1g)
+from backend.modules.glyphwave.qkd_handshake import GKeyStore
+from backend.modules.glyphwave.qkd.gkey_encryptor import GWaveEncryptor
+from backend.modules.glyphwave.qkd.qkd_policy_enforcer import QKDPolicyEnforcer
+from backend.modules.exceptions.tampered_payload import TamperedPayloadError
+
+# 🔭 Holographic Projection (H7)
+from backend.modules.glyphwave.holographic_projection import generate_ghx_projection
+
 logger = logging.getLogger(__name__)
 
 CHANNEL = Literal["audio", "led", "rf"]
 
-def transmit_glyphs(symbols: List[str], channel: CHANNEL = "audio", gain: float = 0.7, duration: float = 2.0) -> Dict[str, any]:
+# ──────────────────────────────────────────────
+# 🎙️ Symbolic Glyph Transmission (raw channel)
+# ──────────────────────────────────────────────
+def transmit_glyphs(
+    symbols: List[str],
+    channel: CHANNEL = "audio",
+    gain: float = 0.7,
+    duration: float = 2.0
+) -> Dict[str, any]:
     """
     Transmit symbolic glyphs through a selected physical channel.
     """
     try:
-        waveform = glyphs_to_waveform(symbols, gain=gain)
+        waveform = glyphs_to_waveform(symbols)
+
         response = {"status": "ok", "channel": channel}
 
         if channel == "audio":
@@ -47,3 +66,116 @@ def transmit_glyphs(symbols: List[str], channel: CHANNEL = "audio", gain: float 
     except Exception as e:
         logger.exception("[Transmitter] Failed to transmit glyphs")
         return {"status": "error", "error": str(e)}
+
+# ──────────────────────────────────────────────
+# 📡 QKD-Protected Wave Transmission
+# ──────────────────────────────────────────────
+def push_wave(wave_packet: dict, max_retries: int = 1) -> dict:
+    """
+    Push a symbolic wave packet using QKD encryption, with auto-renegotiation on failure.
+    Also selects optimal carrier/modulation before transmission.
+    """
+    sender = wave_packet.get("sender_id")
+    recipient = wave_packet.get("recipient_id")
+    payload = wave_packet.get("payload", {})
+    channel = wave_packet.get("channel", "audio")
+    gain = wave_packet.get("gain", 0.7)
+    duration = wave_packet.get("duration", 2.0)
+
+    # 🧠 Carrier Selection
+    carrier_type, modulation = CarrierScheduler.select(
+        payload=payload,
+        sender_id=sender,
+        recipient_id=recipient,
+        context=wave_packet.get("context", {})
+    )
+
+    # Inject carrier metadata
+    wave_packet["carrier"] = {
+        "type": carrier_type.name,
+        "modulation": modulation
+    }
+
+    # 🔭 H7: Inject GHX projection beam if container is present
+    container = payload.get("container")
+    if container:
+        ghx_beam = generate_ghx_projection(container)
+        wave_packet["ghx_beam"] = ghx_beam
+
+    # 🔐 QKD Enforcement
+    qkd_enforcer = QKDPolicyEnforcer()
+
+    if not qkd_enforcer.enforce_policy(wave_packet):
+        logger.warning("[QKD] Policy enforcement failed — wave blocked")
+        return {
+            "status": "blocked",
+            "reason": "QKD policy violation",
+            "qkd_used": False
+        }
+
+    if not qkd_enforcer.is_qkd_required(wave_packet):
+        # QKD not required: transmit raw glyphs
+        symbols = payload.get("symbols", [])
+        transmit_result = transmit_glyphs(symbols, channel=channel, gain=gain, duration=duration)
+        return {
+            "status": transmit_result.get("status", "ok"),
+            "qkd_used": False,
+            "carrier_type": carrier_type.name,
+            "modulation": modulation,
+            "transmitted_payload": payload
+        }
+
+    # ✅ QKD Required: encrypt + retry if tampered
+    gkey_store = GKeyStore()
+    attempts = 0
+    while attempts <= max_retries:
+        gkey_pair = gkey_store.get_key_pair(sender, recipient)
+        if not gkey_pair:
+            logger.error(f"[QKD] No GKey found for {sender} → {recipient}")
+            return {
+                "status": "error",
+                "error": "Missing GKey",
+                "qkd_used": False
+            }
+
+        encryptor = GWaveEncryptor(gkey_pair)
+        encrypted_blob = encryptor.encrypt_payload(payload)
+
+        wrapped_payload = {
+            "encrypted": encrypted_blob,
+            "qkd_encrypted": True,
+            "original_sender": sender,
+            "qkd_metadata": {
+                "sender": sender,
+                "recipient": recipient
+            },
+            "carrier": {
+                "type": carrier_type.name,
+                "modulation": modulation
+            }
+        }
+
+        try:
+            _ = encryptor.decrypt_payload({"encrypted": encrypted_blob})
+            logger.info(f"[QKD] Payload encrypted successfully for {sender} → {recipient}")
+
+            return {
+                "status": "ok",
+                "qkd_used": True,
+                "carrier_type": carrier_type.name,
+                "modulation": modulation,
+                "transmitted_payload": wrapped_payload
+            }
+
+        except TamperedPayloadError:
+            logger.warning(f"[QKD] Decryption failed — triggering renegotiation attempt {attempts + 1}/{max_retries}")
+            gkey_store.renegotiate(sender, recipient)
+            attempts += 1
+            time.sleep(2 ** attempts)
+
+    return {
+        "status": "error",
+        "error": "QKD renegotiation failed",
+        "qkd_used": True,
+        "attempts": attempts
+    }

@@ -905,3 +905,195 @@ G04c – Replay & HUD Guide
 GHX panel fully documented
 
 
+📡 GlyphWave: Carrier Protocol Layer — Technical Documentation & User Guide
+
+🧩 Overview
+
+The GlyphWave Carrier Protocol Layer defines the physical and simulated transmission methods for symbol-bearing WaveGlyphs. It introduces carrier types (e.g., QUANTUM, OPTICAL, RADIO, SIMULATED) and handles coherence modeling, modulation strategies, latency simulation, goal-matching, and ethics enforcement for long-range symbolic projections.
+
+This layer is foundational for encoding, transmitting, and validating symbolic packets across physical and virtual networks within the SQI runtime.
+
+⸻
+
+🔧 Architecture
+
+✅ H1: Carrier Types
+
+The system supports four core carrier_type values:
+	•	QUANTUM: Quantum-entangled, coherence-sensitive links
+	•	OPTICAL: High-speed light-based holographic beams
+	•	RADIO: Legacy simulated waveforms
+	•	SIMULATED: Internal/test-mode carrier used in virtual containers
+
+These are stored in .gwip (GlyphWave Information Packet) headers and telemetry logs.
+
+✅ H2: Extended GWIP Schema
+
+Each .gwip packet now includes:
+
+{
+  "carrier_type": "OPTICAL",
+  "latency_ms": 2.5,
+  "coherence": 0.91,
+  "modulation_strategy": "WDM"
+}
+
+Fields:
+	•	carrier_type: As defined above
+	•	latency_ms: Simulated or real-world delay
+	•	coherence: Measured or inferred signal quality (0.0–1.0)
+	•	modulation_strategy: Strategy used for encoding (see below)
+
+✅ H3: Modulation Strategies
+
+Defined strategies include:
+	•	WDM: Wavelength Division Multiplexing (for optical beams)
+	•	QKD: Quantum Key Distribution modulation
+	•	SimPhase: Simulated symbolic phase shift encoding
+	•	LegacyFM: Fallback radio frequency modulation
+
+These are registered in the modulation scheduler and matched per carrier_type.
+
+⸻
+
+🧠 Runtime Execution
+
+✅ H4: Carrier Selection Scheduler
+
+The WaveScheduler selects the optimal carrier_type based on:
+	•	Link intent (short_range, long_range, internal)
+	•	Distance and latency profiles
+	•	Container preferences
+	•	Active modulation compatibility
+
+Example:
+
+carrier = schedule_carrier(intent="long_range", distance_km=3200)
+
+✅ H5: Latency and Delay Profiles
+
+Simulated or measured latency is injected into replay and runtime logic. Each carrier type has default latency bounds:
+	•	QUANTUM: 0.1ms–1.0ms
+	•	OPTICAL: 1ms–10ms
+	•	RADIO: 20ms–50ms
+	•	SIMULATED: 0ms (default)
+
+✅ H6: Replay + Telemetry Injection
+
+Carrier metadata is injected into:
+	•	GHXTimeline replay overlays
+	•	WaveScope coherence decay viewers
+	•	collapse_trace_exporter logs
+	•	WebSocket HUD broadcast packets
+
+⸻
+
+🌈 Holographic Sync
+
+✅ H7: Container Projection via Light Beams
+
+Containers projected into the environment (e.g., avatars, HUDs) are encoded via generate_ghx_projection(container), producing a beam-compatible holographic structure.
+
+This integrates:
+	•	Spatial coordinates
+	•	Symbol metadata
+	•	Coherence field
+	•	Carrier modulation ID
+
+✅ H8: Goal-Matching by Coherence
+
+When beams transmit symbolic data, coherence is used as a goal-matching threshold. Low coherence reduces match probability, triggering feedback or retransmission.
+
+The logic hooks into evaluate_goal_match(symbol, receiver) and is visible in:
+	•	GHX HUD overlays
+	•	Codex collapse scoring
+	•	Symbol prediction accuracy metrics
+
+⸻
+
+🔒 Security Layer
+
+✅ H9: QKD Simulation + Tamper Detection
+
+Quantum carriers use the GWaveEncryptor:
+	•	Encrypts .gwip payloads using AES-GCM
+	•	Derives key from collapse_hash (QKD simulation)
+	•	Injects salt, nonce, tag for verification
+
+Tampering raises TamperedPayloadError, and the packet is rejected.
+
+See: backend/modules/glyphwave/security/gwave_encryptor.py
+
+✅ H10: SoulLaw Override for Long-Range Quantum/Optical Links
+
+The SoulLaw validator now allows conditional overrides for long-range secure → public container links:
+
+if (
+  carrier in ("QUANTUM", "OPTICAL") and
+  (intent == "long_range" or distance_km >= 1000 or soul_law_override)
+):
+  allow()
+
+This override is registered inside soul_law_validator.py and soullaw_symbol_gating.py.
+
+Used for trusted long-range transmission with ethical approval or administrative override.
+
+⸻
+
+🧪 Developer Usage Guide
+
+How to Send a GlyphWave Packet with Carrier Metadata
+
+from backend.modules.glyphwave.transmit import push_wave
+
+push_wave(
+    container=my_container,
+    carrier_type="QUANTUM",
+    intent="long_range",
+    distance_km=2500,
+    modulation_strategy="QKD",
+    soul_law_override=True
+)
+
+How to Generate a GHX Projection
+
+from backend.modules.glyphwave.holographic_projection import generate_ghx_projection
+
+beam = generate_ghx_projection(container)
+
+How to Override SoulLaw for Long-Range Optical Links
+
+validate_navigation_link(
+    source_container, target_container,
+    link_metadata={
+        "carrier_type": "OPTICAL",
+        "intent": "long_range",
+        "distance_km": 1200,
+        "soul_law_override": True
+    }
+)
+
+
+⸻
+
+📝 Key Notes
+	•	Coherence < 0.5 triggers carrier_gate = fail in soullaw_symbol_gating.py
+	•	Only QUANTUM/OPTICAL carriers can trigger long-range overrides
+	•	Modulation and carrier metadata is replay-visible in GHX and CodexHUD
+	•	Quantum packets must pass tamper-check or will be auto-rejected
+
+⸻
+
+✅ Completed Tasks Summary
+
+ID	Task Description	Status
+H1	Define carrier types	✅ Done
+H2	Extend GWIP schema	✅ Done
+H3	Modulation strategies	✅ Done
+H4	Carrier selection logic	✅ Done
+H5	Latency simulation	✅ Done
+H6	Telemetry + replay injection	✅ Done
+H7	Holographic container projection	✅ Done
+H8	Goal matching via coherence	✅ Done
+H9	QKD + tamper detection	✅ Done
+H10	SoulLaw long-range override	✅ Done

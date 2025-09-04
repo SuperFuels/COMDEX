@@ -81,6 +81,74 @@ def export_collapse_trace(
     except Exception as e:
         logger.error(f"[CollapseTraceExporter] Failed to export collapse trace: {e}")
 
+def log_collapse_trace(wave: "WaveState") -> None:
+    """
+    Logs a symbolic collapse trace directly from a WaveState instance.
+    """
+    try:
+        timestamp = datetime.utcnow().timestamp()
+
+        trace = {
+            "type": "collapse_trace",
+            "event": "collapse",
+            "wave_id": wave.id,
+            "carrier_type": wave.carrier_type,
+            "modulation_strategy": wave.modulation_strategy,
+            "delay_ms": wave.delay_ms,
+            "coherence": getattr(wave, "coherence", None),
+            "origin_trace": wave.origin_trace,
+            "glyph_data": wave.glyph_data,
+            "metadata": wave.metadata,
+            "timestamp": timestamp,
+        }
+
+        os.makedirs(os.path.dirname(EXPORT_PATH), exist_ok=True)
+        with open(EXPORT_PATH, "a", encoding="utf-8") as f:
+            json.dump(trace, f, ensure_ascii=False)
+            f.write("\n")
+
+        logger.info(f"[CollapseTraceExporter] Logged collapse trace for WaveState {wave.id}")
+
+    except Exception as e:
+        logger.error(f"[CollapseTraceExporter] Failed to log WaveState collapse trace: {e}")
+
+def log_beam_prediction(
+    container_id: str,
+    beam_id: str,
+    prediction: Optional[str],
+    sqi_score: Optional[float],
+    collapse_state: Optional[str] = None,
+    metadata: Optional[Dict[str, Any]] = None,
+) -> None:
+    """
+    Logs a prediction + SQI score emitted during wave collapse simulation.
+
+    Used for GHX replay, compliance, mutation audit, etc.
+    """
+    try:
+        timestamp = datetime.utcnow().timestamp()
+
+        trace = {
+            "type": "beam_prediction",
+            "event": "sqi_prediction",
+            "container_id": container_id,
+            "beam_id": beam_id,
+            "prediction": prediction,
+            "sqi_score": sqi_score,
+            "collapse_state": collapse_state,
+            "metadata": metadata or {},
+            "timestamp": timestamp,
+        }
+
+        os.makedirs(os.path.dirname(EXPORT_PATH), exist_ok=True)
+        with open(EXPORT_PATH, "a", encoding="utf-8") as f:
+            json.dump(trace, f, ensure_ascii=False)
+            f.write("\n")
+
+        logger.info(f"[CollapseTraceExporter] Logged beam prediction for {beam_id}")
+
+    except Exception as e:
+        logger.error(f"[CollapseTraceExporter] Failed to log beam prediction: {e}")
 
 def log_soullaw_event(
     verdict: str,  # "violation" or "approval"
@@ -166,4 +234,5 @@ __all__ = [
     "export_collapse_trace",
     "log_soullaw_event",
     "get_recent_collapse_traces",
+    "log_beam_prediction",
 ]

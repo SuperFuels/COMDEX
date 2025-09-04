@@ -71,12 +71,17 @@ def encode_glyphs_to_ghx(container: Dict[str, Any], qglyph_string: str = "", obs
         entangled = glyph.get("entangled", []) or get_entangled_links(glyph_id)
         light_logic = generate_light_logic(symbol)
         position = generate_spatial_coordinates(glyph_id)
-        cost = calculate_glyph_cost({"glyph": symbol})  # ✅ Updated call to pass glyph wrapped dict
+        cost = calculate_glyph_cost({"glyph": symbol})
         replay = trace_glyph_execution_path(glyph_id)
         narration = generate_narration(symbol, label)
 
         operator_sequence.append(symbol)
         is_memory_echo = glyph_id in memory_echo_ids
+
+        # ✅ Pull prediction + SQI values if available
+        prediction = glyph.get("prediction")
+        sqi_score = glyph.get("sqi_score")
+        collapse_state = glyph.get("collapse_state")
 
         state_snapshot = {
             "symbol": symbol,
@@ -86,7 +91,10 @@ def encode_glyphs_to_ghx(container: Dict[str, Any], qglyph_string: str = "", obs
             "entangled": entangled,
             "qentropy_state": entropy_hash,
             "reconstruct_logic": light_logic,
-            "memory_echo": is_memory_echo
+            "memory_echo": is_memory_echo,
+            "prediction": prediction,
+            "sqi_score": sqi_score,
+            "collapse_state": collapse_state,
         }
 
         holograms.append({
@@ -103,6 +111,9 @@ def encode_glyphs_to_ghx(container: Dict[str, Any], qglyph_string: str = "", obs
             "state_snapshot": state_snapshot,
             "memory_echo": is_memory_echo,
             "tts_ready": True,
+            "prediction": prediction,
+            "sqi_score": sqi_score,
+            "collapse_state": collapse_state,
             "access_control": {
                 "entropy_gate": entropy_hash if entropy_hash else None,
                 "allowed_observers": [observer_hash] if observer_hash else []
@@ -293,3 +304,6 @@ def export_ghx(container: Dict[str, Any], output_path: str, qglyph_string: str =
     ghx_data = encode_glyphs_to_ghx(container, qglyph_string=qglyph_string, observer_id=observer_id)
     with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(ghx_data, f, indent=2)
+    print(f"✅ GHX file exported to: {output_path} "
+          f"({len(ghx_data.get('holograms', []))} holograms, "
+          f"qglyph={bool(qglyph_string)}, observer={observer_id})")
