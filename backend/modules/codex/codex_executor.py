@@ -48,6 +48,9 @@ from backend.modules.symbolic.symbolic_inference_engine import run_symbolic_infe
 from backend.modules.consciousness.logic_prediction_utils import detect_contradictions
 from backend.modules.dna_chain.dna_utils import extract_glyph_diff
 from backend.modules.dna_chain.mutation_scorer import score_mutation
+from backend.modules.glyphwave.core.beam_logger import log_beam_prediction
+from backend.modules.glyphwave.emit_beam import emit_qwave_beam
+from backend.modules.creative.innovation_scorer import get_innovation_score
 
 # ⬁ Self-Rewrite Imports
 from backend.modules.codex.scroll_mutation_engine import mutate_scroll_tree
@@ -363,6 +366,38 @@ class CodexExecutor:
                     "tags": ["contradiction", "rewrite"]
                 })
                 self.sqi_trace.log_collapse(glyph, cost, entangled=True, contradiction=True)
+
+                # 🌊 QWave Beam + Innovation Hook
+                try:
+                    source_glyph = glyph
+                    mutated_glyph = suggestion.get("rewritten_glyph")
+                    container_id = context.get("container_id")
+
+                    if source_glyph and mutated_glyph and container_id:
+                        # 🧠 Innovation Score
+                        innovation_score = get_innovation_score(source_glyph, mutated_glyph)
+
+                        # 🌊 Log Beam Prediction (with SQI + Innovation score)
+                        log_beam_prediction({
+                            "source": source_glyph,
+                            "result": mutated_glyph,
+                            "container_id": container_id,
+                            "sqi_score": cost,
+                            "innovation_score": innovation_score,
+                            "mutation_type": "contradiction_rewrite"
+                        })
+
+                        # 🔌 Emit QWave Beam
+                        emit_qwave_beam({
+                            "source": source_glyph,
+                            "target": mutated_glyph,
+                            "sqi_score": cost,
+                            "innovation_score": innovation_score,
+                            "container_id": container_id,
+                            "tags": ["rewrite", "contradiction", "mutation"]
+                        })
+                except Exception as beam_ex:
+                    logger.warning(f"[CodexExecutor] QWave/Innovation hook failed: {beam_ex}")
 
                 # 🛰️ Final Broadcast for Contradiction
                 scroll = build_scroll_from_glyph(glyph, instruction_tree)

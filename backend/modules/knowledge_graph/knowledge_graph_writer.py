@@ -606,6 +606,20 @@ class KnowledgeGraphWriter:
         # Final assignment
         pack["nodes"] = existing_nodes
 
+        # --- Inject QWave beam data if available ---
+        if "qwave" in container:
+            qwave = container["qwave"]
+            if isinstance(qwave, dict):
+                beams = qwave.get("beams")
+                mod = qwave.get("modulation_strategy")
+                mv_frame = qwave.get("multiverse_frame")
+                if beams:
+                    pack["qwave"] = {
+                        "beams": beams,
+                        "modulation_strategy": mod,
+                        "multiverse_frame": mv_frame
+                    }
+
         # --- Write pack to disk ---
         out_path = Path(out_path)
         out_path.parent.mkdir(parents=True, exist_ok=True)

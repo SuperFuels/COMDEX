@@ -6,6 +6,8 @@ import logging
 import hashlib
 import importlib
 from typing import Optional, Dict, Any
+from backend.modules.soul.soul_laws import enforce_soul_laws
+from backend.modules.codex.collapse_trace_exporter import log_soullaw_event
 
 logger = logging.getLogger(__name__)
 
@@ -305,6 +307,34 @@ class SoulLawValidator:
 
         return feedback
 
+def validate_beam_event(beam):
+    """
+    Validate a beam event against SoulLaw constraints.
+    Returns True if allowed, or raises an exception/logs violation.
+    """
+    if not beam:
+        raise ValueError("Empty beam event.")
+
+    if not beam.get("source") or not beam.get("target"):
+        raise ValueError("Missing source or target in beam.")
+
+    # ✅ Check beam content for SoulLaw violations
+    beam_str = json.dumps(beam)
+    violations = get_violations(beam_str)
+
+    if violations:
+        log_soullaw_event({
+            "event_type": "beam_violation",
+            "beam_id": beam.get("id"),
+            "container_id": beam.get("container_id"),
+            "violations": violations,
+            "source": beam.get("source"),
+            "target": beam.get("target"),
+            "timestamp": beam.get("timestamp"),
+        })
+        raise ValueError(f"❌ SoulLaw violation(s) in beam: {violations}")
+
+    return True
 
 # --------------------------------------------------------------------------------------
 # 🔁 Lazy Singleton Accessor (public)

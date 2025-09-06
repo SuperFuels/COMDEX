@@ -9,9 +9,22 @@ format for symbolic replay, GHX visualization, or entanglement analysis.
 
 import os
 import json
+import time
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, List, Tuple
+
+TRACE_LOG_PATH = os.getenv("TRACE_LOG_PATH", "./logs/collapse_traces.jsonl")
+
+from backend.modules.glyphwave.core.beam_state import (
+    filter_beams_by_collapse_status,
+    group_beams_by_tick,
+    extract_unique_ticks,
+)
+
+# Core modules
+from backend.modules.creative.innovation_scorer import compute_innovation_score
+from backend.modules.creative.innovation_memory_tracker import log_event as log_innovation_event
 
 # Optional simplifier
 try:
@@ -26,8 +39,63 @@ try:
 except Exception:
     evaluate_soullaw_violations = None
 
+# Setup export path
 EXPORT_DIR = Path("data/collapse_traces")
 EXPORT_DIR.mkdir(parents=True, exist_ok=True)
+
+# --- Collapse Event Logging ------------------------------------------------
+from sqlalchemy.orm import Session
+from backend.database import get_db  # ✅ Correct import
+from backend.models.fork import Fork
+
+def get_forks_by_wave_id(wave_id: str) -> List[Dict[str, Any]]:
+    """
+    Retrieve symbolic wave forks associated with a given wave_id from the DB.
+    """
+    db: Session = next(get_db())
+    forks = (
+        db.query(Fork)
+        .filter(Fork.parent_wave_id == wave_id)
+        .all()
+    )
+    return [
+        {
+            "id": fork.id,
+            "sqi_score": fork.sqi_score,
+        }
+        for fork in forks
+    ]
+
+def log_event_to_disk(event: Dict[str, Any], filename: str = "beam_collapse_log.jsonl"):
+    """
+    Append a collapse/beam event to the disk log.
+    """
+    filepath = EXPORT_DIR / filename
+    with filepath.open("a", encoding="utf-8") as f:
+        json.dump(event, f)
+        f.write("\n")
+
+def log_beam_collapse(wave_id: str, collapse_state: Dict[str, Any]):
+    """
+    Logs the collapse of a wave, including any forks it merged from.
+    """
+    forks = get_forks_by_wave_id(wave_id)
+    event = {
+        "wave_id": wave_id,
+        "collapsed": True,
+        "collapse_state": collapse_state,
+        "timestamp": time.time(),
+        "merged_forks": [
+            {
+                "fork_id": fork["id"],
+                "collapsed_from": wave_id,
+                "sqi_score": fork.get("sqi_score"),
+                "merge_flag": True,
+            }
+            for fork in forks
+        ]
+    }
+    log_event_to_disk(event)
 
 def _safe_filename(stem: str) -> str:
     """Sanitize a filename stem (no path separators)."""
@@ -121,6 +189,16 @@ def export_collapse_trace(
         _simplify_codexlang(glyphs)
         _apply_soullaw_gate(glyphs)
         state["codex_summary"] = _compute_codex_summary(glyphs)
+    
+        # 🧠 Inject innovation scores into glyphs
+        try:
+            for g in glyphs:
+                if "innovation_score" not in g:
+                    score = compute_innovation_score(g)
+                    if score is not None:
+                        g["innovation_score"] = round(score, 4)
+        except Exception as e:
+            print(f"[⚠️ Innovation scoring skipped]: {e}")
 
     if filename is None:
         ts = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
@@ -156,6 +234,28 @@ def export_collapse_trace(
             print(f"[⚠️ Rewrite scoring skipped]: {e}")
 
         state["glyph_trace"] = glyph_trace  # Reassign updated trace
+
+    if "wave_state" in locals() or "wave_state" in globals():
+        qwave = getattr(wave_state, "qwave", None)
+        if qwave:
+            state["qwave"] = {
+                "beams": qwave.get("beams"),
+                "modulation_strategy": qwave.get("modulation_strategy"),
+                "multiverse_frame": qwave.get("multiverse_frame"),
+            }
+    
+        # 🧠 Log exported collapse into innovation memory
+    try:
+        log_innovation_event({
+            "source": "collapse_trace_exporter",
+            "label": state.get("label") or filename,
+            "glyphs": glyphs if isinstance(glyphs, list) else [],
+            "timestamp": datetime.utcnow().isoformat(),
+            "codex_summary": state.get("codex_summary"),
+        })
+        print("🧠 Collapse trace innovation logged to memory tracker.")
+    except Exception as e:
+        print(f"[⚠️ Innovation memory logging failed]: {e}")
 
     # 📂 Write to disk
     with filepath.open("w", encoding="utf-8") as f:
@@ -201,28 +301,106 @@ def iter_collapse_trace_files(limit: int = 50) -> List[Tuple[str, float]]:
     )[: max(0, int(limit))]
     return [(str(p), p.stat().st_mtime) for p in files]
 
-def get_recent_collapse_traces(limit: int = 50, load: bool = True) -> List[Dict[str, Any]]:
+def get_recent_collapse_traces(
+    path: str = TRACE_LOG_PATH,
+    show_collapsed: bool = True,
+    limit: int = 50,
+    include_metadata: bool = True
+) -> Dict[str, Any]:
     """
-    Return recent collapse traces. If load=True, parse JSON and include path/mtime.
-    Otherwise returns metadata entries only.
+    Loads collapse trace data from the given path (default to TRACE_LOG_PATH),
+    applies optional filtering and returns grouped beams for replay.
+
+    Args:
+        path (str): Path to .dc.json trace file.
+        show_collapsed (bool): Whether to include collapsed branches.
+        limit (int): Max entries to return (if streaming format later).
+        include_metadata (bool): If true, include path/timestamp.
+
+    Returns:
+        Dict: {
+            "ticks": [tick ints],
+            "grouped_beams": {tick: [beams]},
+            "all_beams": [beams],
+            "path": str (if include_metadata),
+            "timestamp": float (if include_metadata)
+        }
     """
-    results: List[Dict[str, Any]] = []
-    for path, mtime in iter_collapse_trace_files(limit=limit):
-        if load:
-            try:
-                with open(path, "r", encoding="utf-8") as f:
-                    data = json.load(f)
-                if isinstance(data, dict):
-                    data.setdefault("path", path)
-                    data.setdefault("timestamp", mtime)
-                    results.append(data)
-                else:
-                    results.append({"path": path, "timestamp": mtime, "data": data})
-            except Exception:
-                continue
-        else:
-            results.append({"path": path, "timestamp": mtime})
-    return results
+    if not os.path.exists(path):
+        return {"ticks": [], "grouped_beams": {}, "all_beams": []}
+
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except Exception as e:
+        return {"error": str(e), "ticks": [], "grouped_beams": {}, "all_beams": []}
+
+    # Apply collapse status filter
+    filtered = filter_beams_by_collapse_status(data, show_collapsed=show_collapsed)
+    grouped = group_beams_by_tick(filtered)
+    ticks = extract_unique_ticks(filtered)
+
+    result = {
+        "ticks": ticks,
+        "grouped_beams": grouped,
+        "all_beams": filtered,
+    }
+
+    if include_metadata:
+        result["path"] = path
+        result["timestamp"] = os.path.getmtime(path)
+
+    return result
+
+import os
+
+TRACE_LOG_PATH_JSONL = "/backend/data/logs/collapse_trace_log.jsonl"
+TRACE_LOG_PATH_JSON = "/backend/data/logs/collapse_trace_log.dc.json"
+
+def get_recent_collapse_traces(limit: int = 100) -> List[Dict]:
+    """
+    Return the most recent collapse traces from either .jsonl or .dc.json file.
+    Prioritizes .dc.json for full structured reads.
+    """
+    traces = []
+
+    # Prefer full .dc.json for structured access
+    if os.path.exists(TRACE_LOG_PATH_JSON):
+        try:
+            with open(TRACE_LOG_PATH_JSON, "r") as f:
+                all_traces = json.load(f)
+                traces = all_traces[-limit:]
+        except Exception as e:
+            print(f"[CollapseTrace] Error reading JSON: {e}")
+
+    # Fallback: streaming .jsonl if .dc.json missing
+    elif os.path.exists(TRACE_LOG_PATH_JSONL):
+        try:
+            with open(TRACE_LOG_PATH_JSONL, "r") as f:
+                lines = f.readlines()[-limit:]
+                traces = [json.loads(line) for line in lines if line.strip()]
+        except Exception as e:
+            print(f"[CollapseTrace] Error reading JSONL: {e}")
+
+    else:
+        print("[CollapseTrace] No trace files found.")
+
+    return traces
+
+def derive_beam_style(collapse_state: str) -> str:
+    """
+    Map collapse state to frontend beam style.
+    """
+    if collapse_state == "live":
+        return "glow"  # 🟢 glowing beam
+    elif collapse_state == "collapsed":
+        return "faded"  # 🔴 faded
+    elif collapse_state == "predicted":
+        return "dashed"  # 🟠 dashed
+    elif collapse_state == "contradicted":
+        return "broken"  # ⚫ broken
+    else:
+        return "default"
 
 __all__ = [
     "export_collapse_trace",

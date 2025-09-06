@@ -12,6 +12,7 @@ from backend.modules.sqi.sqi_container_registry import SQIContainerRegistry
 from backend.modules.codex.codexlang_parser import parse_codexlang_to_ast
 from backend.modules.symbolnet.symbolnet_ingestor import SymbolNetIngestor
 from backend.modules.runtime.container_runtime import safe_load_container_by_id
+from backend.modules.glyphwave.core.beam_logger import emit_qwave_beam  # 🛰️ A8c hook
 
 
 def is_logic_expression(expr: str) -> bool:
@@ -110,6 +111,22 @@ class SymbolicIngestionEngine:
 
         # 10. Register in SQI registry
         self.registry.register_entry(container_id, packet)
+
+        # 🛰️ 11. Emit QWave Beam (A8c) for ingestion event
+        try:
+            emit_qwave_beam(
+                glyph_id=enriched[0]["id"] if enriched else "unknown",
+                result={"raw": raw_content, "codex_lang": codex_lang},
+                source="symbolic_ingestion",
+                context={"container_id": container_id},
+                state="ingested",
+                metadata={
+                    "domain": metadata.get("domains", ["general"])[0],
+                    "tag_count": len(metadata.get("tags", []))
+                }
+            )
+        except Exception as beam_err:
+            print(f"[SymbolicIngestion] ⚠️ Failed to emit QWave beam: {beam_err}")
 
         return {
             "container_id": container_id,

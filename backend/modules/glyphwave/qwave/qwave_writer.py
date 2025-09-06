@@ -1,5 +1,11 @@
+import hashlib
+import time
 from typing import Optional, List, Dict
-from backend.modules.glyphwave.wave_state import get_active_wave_state_by_container_id
+from backend.modules.glyphwave.core.wave_state import get_active_wave_state_by_container_id
+
+def generate_qwave_id(glyph_id: str, state: str = "", tick: int = None) -> str:
+    base = f"{glyph_id}:{state}:{tick or int(time.time() * 1000)}"
+    return hashlib.sha256(base.encode()).hexdigest()[:16]
 
 def collect_qwave_beams(container_id: str) -> List[Dict]:
     """

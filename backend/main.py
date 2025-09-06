@@ -202,6 +202,8 @@ from backend.api import symbol_tree
 from backend.api import qfc_api
 from backend.api.routes import symbolnet_api
 from backend.api import symbolic_tree_api
+from routes.collapse_trace_api import router as collapse_trace_router
+from backend.routes.dev import glyphwave_test_router
 
 # ✅ WebSocket route
 from backend.api import ws
@@ -308,6 +310,8 @@ app.include_router(symbol_tree.router)
 app.include_router(qfc_api.router)
 app.include_router(symbolnet_api.router)
 app.include_router(symbolic_tree_api.router)
+app.include_router(collapse_trace_router)
+app.include_router(glyphwave_test_router.router)
 
 # ── 16) Serve uploaded images
 app.mount("/uploaded_images", StaticFiles(directory="uploaded_images"), name="uploaded_images")

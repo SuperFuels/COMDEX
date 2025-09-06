@@ -1,22 +1,21 @@
-# backend/modules/glyphwave/core/carrier_memory.py
 """
 CarrierMemory: GlyphWave signal buffer and routing interface.
 Handles active propagation, wave storage, and `.gip` serialization.
 """
 
 from typing import List, Optional, Dict
-from backend.modules.glyphwave.core.wave_state import WaveState
 from backend.modules.glyphwave.core.entangled_wave import EntangledWave
 import time
 import uuid
 
+
 class CarrierMemory:
     def __init__(self):
-        self.live_buffer: List[WaveState] = []
+        self.live_buffer = []
         self.entangled_buffer: List[EntangledWave] = []
         self.timestamped_packets: Dict[str, float] = {}  # wave_id → timestamp
 
-    def send_wave(self, wave: WaveState) -> str:
+    def send_wave(self, wave) -> str:
         """Emit a WaveState into carrier memory with trace timestamp."""
         wave_id = str(uuid.uuid4())
         wave.metadata["wave_id"] = wave_id
@@ -34,11 +33,11 @@ class CarrierMemory:
         self.timestamped_packets[entangled_id] = entangled.timestamp
         return entangled_id
 
-    def receive_latest(self, count: int = 1) -> List[WaveState]:
+    def receive_latest(self, count: int = 1) -> List["WaveState"]:
         """Retrieve the most recent wave signals."""
         return self.live_buffer[-count:]
 
-    def receive_all(self) -> List[WaveState]:
+    def receive_all(self) -> List["WaveState"]:
         """Return all wave packets in buffer."""
         return list(self.live_buffer)
 
@@ -63,7 +62,7 @@ class CarrierMemory:
             })
         return packets
 
-    def get_wave_by_id(self, wave_id: str) -> Optional[WaveState]:
+    def get_wave_by_id(self, wave_id: str) -> Optional["WaveState"]:
         for wave in self.live_buffer:
             if wave.metadata.get("wave_id") == wave_id:
                 return wave
@@ -75,3 +74,9 @@ class CarrierMemory:
             "entangled_count": len(self.entangled_buffer),
             "latest_wave": self.live_buffer[-1].metadata if self.live_buffer else None
         }
+
+
+# Lazy import for type hints
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from backend.modules.glyphwave.core.wave_state import WaveState

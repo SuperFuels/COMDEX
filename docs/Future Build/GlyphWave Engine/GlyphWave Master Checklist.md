@@ -316,82 +316,82 @@ graph TD
 %% ══════════════════════════════
 %% 🛰 QWave Symbolic Beam System
 %% ══════════════════════════════
-✅ A[🛰 QWave Symbolic Beam System] --> A1[📦 Define QWave Beam Format]
-✅ A1 --> A1a[Define: sourceGlyph, targetGlyph, beamType, strength, color]
-✅ A1 --> A1b[Optional fields: prediction, SQI_score, collapseStatus]
-✅ A1 --> A1c[Support beam states: live, predicted, contradicted, collapsed]
+ A[🛰 QWave Symbolic Beam System] --> A1[📦 Define QWave Beam Format]
+ A1 --> A1a✅[Define: sourceGlyph, targetGlyph, beamType, strength, color]
+ A1 --> A1b✅[Optional fields: prediction, SQI_score, collapseStatus]
+ A1 --> A1c✅[Support beam states: live, predicted, contradicted, collapsed]
 
-A --> A2[📁 Inject QWave Beams into .dc Containers]
-A2 --> A2a[Patch `knowledge_graph_writer.py` to export beams]
-A2 --> A2b[Link beams to glyphs, entangled paths, mutation history]
-A2 --> A2c[Save multiverse frame: original, mutated, collapsed]
+A --> A2✅[📁 Inject QWave Beams into .dc Containers]
+A2 --> A2a✅[Patch `knowledge_graph_writer.py` to export beams]
+A2 --> A2b✅[Link beams to glyphs, entangled paths, mutation history]
+A2 --> A2c✅[Save multiverse frame: original, mutated, collapsed]
 
-A --> A3[🧠 SQI Drift + Resonance Overlays]
-A3 --> A3a[Use SQI drift score → beam glow, pulse frequency]
-A3 --> A3b[Contradictions → broken or red beam style]
-A3 --> A3c[Log into `codex_metric.py`, `sqi_reasoning_module.py`]
+A --> A3✅[🧠 SQI Drift + Resonance Overlays]
+A3 --> A3a✅[Use SQI drift score → beam glow, pulse frequency]
+A3 --> A3b✅[Contradictions → broken or red beam style]
+A3 --> A3c✅[Log into `codex_metric.py`, `sqi_reasoning_module.py`]
 
 A --> A4[🌌 Multiverse Mutation Chains]
-A4 --> A4a[Patch `CreativeCore` to emit forks as beams]
-A4 --> A4b[Each fork beam includes `mutation_cause` tag]
-A4 --> A4c[Collapse forks → beam merges with `collapsed` state]
+A4 --> A4a✅[Patch `CreativeCore` to emit forks as beams]
+A4 --> A4b✅[Each fork beam includes `mutation_cause` tag]
+A4 --> A4c✅[Collapse forks → beam merges with `collapsed` state]
 
-A --> A5[🎞️ Beam Replay + Collapse Viewer]
-A5 --> A5a[Render past beam paths from container trace]
-A5 --> A5b[Toggle collapse simulation: hide dead forks, resolved branches]
-A5 --> A5c[Trace beam per tick or execution ID]
+A --> A5✅[🎞️ Beam Replay + Collapse Viewer]
+A5 --> A5a✅[Render past beam paths from container trace]
+A5 --> A5b✅[Toggle collapse simulation: hide dead forks, resolved branches]
+A5 --> A5c✅[Trace beam per tick or execution ID]
 
-A --> A6[⚛ Integrate QWave into QuantumFieldCanvas]
-A6 --> A6a[Add beam rendering layer to `QuantumFieldCanvas`]
-A6 --> A6b[Animate propagation, decay, coherence overlays]
-A6 --> A6c[Snap to entangled glyphs in polar grid]
-A6 --> A6d[Toggle prediction/contradiction/SQI overlays]
+A --> A6✅[⚛ Integrate QWave into QuantumFieldCanvas]
+A6 --> A6a✅[Add beam rendering layer to `QuantumFieldCanvas`]
+A6 --> A6b✅[Animate propagation, decay, coherence overlays]
+A6 --> A6c✅[Snap to entangled glyphs in polar grid]
+A6 --> A6d✅[Toggle prediction/contradiction/SQI overlays]
 
-A --> A7[🧪 Developer Testing + Simulation Tools]
-A7 --> A7a[Test .dc container with mixed beam types]
-A7 --> A7b[Simulate beam forks, contradictions, collapse]
-A7 --> A7c[Add CLI + API: inject synthetic beam packets]
+A --> A✅[🧪 Developer Testing + Simulation Tools]
+A7 --> A7a✅[Test .dc container with mixed beam types]
+A7 --> A7b✅[Simulate beam forks, contradictions, collapse]
+A7 --> A7c✅[Add CLI + API: inject synthetic beam packets]
 
-A --> A8[🔌 Full System Integration Points]
-A8 --> A8a[Hook into `codex_executor.py` on mutation]
-A8 --> A8b[Hook into `prediction_engine.py` forecast]
-A8 --> A8c[Hook into `symbolic_ingestion_engine.py` logic]
-A8 --> A8d[Hook into `GHXVisualizer.tsx` if needed visually]
+A --> A8✅[🔌 Full System Integration Points]
+A8 --> A8a✅[Hook into `codex_executor.py` on mutation]
+A8 --> A8b✅[Hook into `prediction_engine.py` forecast]
+A8 --> A8c✅[Hook into `symbolic_ingestion_engine.py` logic]
+A8 --> A8d✅[Hook into `GHXVisualizer.tsx` if needed visually]
 
-A --> A9[📖 Schema + Dev Documentation]
-A9 --> A9a[Update container schema: QWave beams]
-A9 --> A9b[Document beam field meanings, states]
-A9 --> A9c[Add examples in dev notebooks + API logs]
+A --> A9✅[📖 Schema + Dev Documentation]
+A9 --> A9a✅[Update container schema: QWave beams]
+A9 --> A9b✅[Document beam field meanings, states]
+A9 --> A9c✅[Add examples in dev notebooks + API logs]
 
 %% ══════════════════════════════
 %% 🌐 GlyphWave Carrier System Skeletons
 %% ══════════════════════════════
 B[🌐 GlyphWave Core Skeleton Modules] --> B1[📁 constants.py]
-B --> B2[🧩 feature_flag.py]
-B --> B3[📐 interfaces.py → IGlyphWaveCarrier, PhaseScheduler]
-B --> B4[📡 gwip_codec.py → .gip ⇄ .gwip format translation]
-B --> B5[🕰️ scheduler.py → PLL, drift, jitter management]
-B --> B6[📦 carrier_memory.py → buffers for transmit/recv]
-B --> B7[📊 wavescope.py → logs, SNR, throughput metrics]
-B --> B8[🚀 runtime.py → orchestration, thread manager]
+B -->✅ B2[🧩 feature_flag.py]
+B -->✅ B3[📐 interfaces.py → IGlyphWaveCarrier, PhaseScheduler]
+B -->✅ B4[📡 gwip_codec.py → .gip ⇄ .gwip format translation]
+B -->✅ B5[🕰️ scheduler.py → PLL, drift, jitter management]
+B -->✅ B6[📦 carrier_memory.py → buffers for transmit/recv]
+B -->✅ B7[📊 wavescope.py → logs, SNR, throughput metrics]
+B -->✅ B8[🚀 runtime.py → orchestration, thread manager]
 
 %% ══════════════════════════════
 %% 🔁 Adapters + SQI Bus Hooks
 %% ══════════════════════════════
 C[🔁 GlyphWave Adapters + Hooks] --> C1[🔌 adapters.py]
-C1 --> C1a[Send path → wrap send_packet(gip)]
-C1 --> C1b[Recv path → call recv_packet() before legacy handler]
+C1 --> ✅C1a[Send path → wrap send_packet(gip)]
+C1 --> ✅C1b[Recv path → call recv_packet() before legacy handler]
 
-C --> C2[📬 sqi_event_bus_gw.py]
-C2 --> C2a[Wrap sqi_event_bus.publish → gw_sqi_publish]
-C2 --> C2b[Feature-gate with GW_ENABLED per container/class]
+C --> C2✅[📬 sqi_event_bus_gw.py]
+C2 --> ✅C2a[Wrap sqi_event_bus.publish → gw_sqi_publish]
+C2 --> ✅C2b[Feature-gate with GW_ENABLED per container/class]
 
 %% ══════════════════════════════
 %% 🧪 Optional FastAPI Dev Router
 %% ══════════════════════════════
 D[🧪 FastAPI Dev Tools] --> D1[/gw/state → GET]
-D --> D2[/gw/send → POST test GIP or GWIP]
-D --> D3[/gw/recv → GET pending packets]
+D --> ✅D2[/gw/send → POST test GIP or GWIP]
+D --> ✅D3[/gw/recv → GET pending packets]
 
 %% ══════════════════════════════
 %% 🗝️ Execution Order

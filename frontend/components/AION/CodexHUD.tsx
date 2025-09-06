@@ -13,6 +13,7 @@ import { useGlyphReplay } from "@/hooks/useGlyphReplay";
 import { ReplayHUD } from "@/components/CodexHUD/ReplayHUD";
 import { ReplayListPanel } from "@/components/CodexHUD/ReplayListPanel";
 import { useCollapseMetrics } from "@/hooks/useCollapseMetrics";
+import { useWaveTelemetry } from "@/hooks/useWaveTelemetry";
 
 interface GlyphDetail {
   energy?: number;
@@ -228,6 +229,16 @@ export default function CodexHUD({
   const totalGlyphs = events.filter(e => e.type === 'glyph' || e.type === 'gip').length;
   const triggeredGlyphs = events.filter(e => (e.type === 'glyph' || e.type === 'gip') && e.data.action).length;
 
+  const { metrics } = useWaveTelemetry();
+
+  const collapseRate = metrics.filter(m => m.event === "beam_emitted").length;
+
+  const avgCoherence = (() => {
+    const beamEvents = metrics.filter(m => m.meta?.coherence !== undefined);
+    return beamEvents.length
+      ? (beamEvents.reduce((sum, m) => sum + (m.meta.coherence || 0), 0) / beamEvents.length).toFixed(2)
+      : "—";
+  })();
   useEffect(() => {
     playGlyphNarration(`Loaded ${totalGlyphs} glyphs, ${triggeredGlyphs} triggered.`);
   }, [totalGlyphs, triggeredGlyphs]);
@@ -403,6 +414,13 @@ return (
           </div>
         </div>
       )}
+      <div className="text-xs p-2 bg-black/50 rounded-lg shadow mt-2">
+        <div>📉 Collapse Rate: <strong>{collapseRate}/s</strong></div>
+        <div>📡 Avg Coherence: <strong>{avgCoherence}</strong></div>
+        {parseFloat(avgCoherence) < 0.5 && avgCoherence !== "—" && (
+          <div className="text-red-500 animate-pulse">⚠️ Low Coherence Detected</div>
+        )}
+      </div>
       <div className="text-xs text-purple-300 mt-2">
         🧠 Replay features enabled:
         <ul className="list-disc pl-4 space-y-1 mt-1">

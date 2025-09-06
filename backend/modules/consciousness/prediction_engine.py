@@ -41,6 +41,7 @@ from backend.modules.prediction.suggestion_engine import suggest_simplifications
 from backend.modules.symbolic.symbolic_meaning_tree import SymbolicMeaningTree
 from backend.modules.symbolnet.symbolnet_utils import concept_match, semantic_distance
 from backend.modules.knowledge_graph.kg_writer_singleton import get_kg_writer
+from backend.modules.glyphwave.emit_beam import emit_qwave_beam
 
 def get_prediction_kg_writer():
     try:
@@ -665,6 +666,24 @@ class PredictionEngine:
             inject_sqi_scores_into_container(container)
         except Exception as sqi_err:
             print(f"[PredictionEngine] ⚠️ Failed to inject SQI scores: {sqi_err}")
+
+        # ✅ Emit QWave Beam for prediction output
+        try:
+            top_prediction = electron_predictions[0] if electron_predictions else None
+            if top_prediction:
+                emit_qwave_beam(
+                    glyph_id=top_prediction["selected_prediction"],
+                    result=top_prediction,
+                    source="prediction_engine",
+                    context={"container_id": container.get("id")},
+                    state="predicted",
+                    metadata={
+                        "confidence": top_prediction.get("confidence"),
+                        "electron": top_prediction.get("electron")
+                    }
+                )
+        except Exception as e:
+            print(f"[PredictionEngine] ⚠️ Failed to emit QWave beam: {e}")
 
         return {
             "status": "contradiction" if contradiction_found else "ok",

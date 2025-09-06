@@ -61,11 +61,11 @@ class GWaveEncryptor:
         Decrypt a base64-encoded AES-GCM ciphertext back to a payload dictionary.
         """
         try:
-            inner = encrypted.get("encrypted", {})
-            nonce = base64.b64decode(inner["nonce"])
-            tag = base64.b64decode(inner["tag"])
-            ciphertext = base64.b64decode(inner["payload"])
-            salt = base64.b64decode(inner.get("salt", "Z3dhdmUtc3RhdGljLXNhbHQ="))  # fallback static salt
+            # Use flat dict structure — not nested in "encrypted"
+            nonce = base64.b64decode(encrypted["nonce"])
+            tag = base64.b64decode(encrypted["tag"])
+            ciphertext = base64.b64decode(encrypted["payload"])
+            salt = base64.b64decode(encrypted.get("salt", "Z3dhdmUtc3RhdGljLXNhbHQ="))  # fallback static salt
 
             key = self._derive_key(self.gkey["collapse_hash"], salt)
             cipher = AES.new(key, AES.MODE_GCM, nonce=nonce)

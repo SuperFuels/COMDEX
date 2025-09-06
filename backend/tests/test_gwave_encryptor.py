@@ -1,5 +1,6 @@
 import pytest
 from backend.modules.glyphwave.qkd.gkey_encryptor import GWaveEncryptor
+from backend.modules.exceptions.tampered_payload import TamperedPayloadError
 
 
 @pytest.fixture
@@ -38,7 +39,7 @@ def test_different_keys_fail_decryption(sample_payload):
 
     encrypted = encryptor1.encrypt_payload(sample_payload)
 
-    with pytest.raises(ValueError):
+    with pytest.raises(TamperedPayloadError):
         _ = encryptor2.decrypt_payload(encrypted)
 
 
@@ -54,7 +55,7 @@ def test_payload_tampering_fails(sample_gkey, sample_payload):
     # Tamper with ciphertext
     encrypted["payload"] = encrypted["payload"][:-4] + "AAAA"
 
-    with pytest.raises(ValueError):
+    with pytest.raises(TamperedPayloadError):
         _ = encryptor.decrypt_payload(encrypted)
 
 

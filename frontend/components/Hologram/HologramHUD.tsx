@@ -8,8 +8,8 @@ import useWebSocket from "@/utils/useWebSocket";
 import useCollapseMetrics from "@/hooks/useCollapseMetrics";
 import CollapseGraph from "@/components/Hologram/CollapseGraph";
 import { WaveScopePanel } from "@/components/WaveScope/WaveScopePanel"; 
-import { useCollapseMetrics } from "@/hooks/useCollapseMetrics";
 import { MODULATION_METADATA, ModulationStrategy } from "@/lib/glyphwave/modulationMetadata";
+import useCollapseTrace from "@/hooks/useCollapseTrace";
 
 type HUDProps = {
   projectionId?: string;
@@ -47,7 +47,16 @@ export default function HologramHUD({
   const [replayMode, setReplayMode] = useState(false);
   const [traceOverlay, setTraceOverlay] = useState(false);
   const [replayProgress, setReplayProgress] = useState(0);
-  const [showWaveScope, setShowWaveScope] = useState(false); // ✅ NEW TOGGLE
+  const [showWaveScope, setShowWaveScope] = useState(false);
+
+  const [showCollapsed, setShowCollapsed] = useState(true);
+  const { data, loading } = useCollapseTrace(showCollapsed);
+  const [tickIndex, setTickIndex] = useState(0);
+  const ticks = data?.ticks || [];
+  const grouped = data?.grouped_beams || {};
+  const currentTick = ticks[tickIndex] ?? 0;
+  const currentBeams = grouped[currentTick] || [];
+  const liveTick = ticks[tickIndex] ?? null;
 
   const {
     collapseHistory,
@@ -301,42 +310,100 @@ return (
           🌌 Toggle Layout
         </button>
       </div>
+<div className="mt-4">
 
-      {/* 🎥 Recording Controls */}
-      <div className="flex justify-between items-center mt-3">
-        <button
-          onClick={() =>
-            isRecording
-              ? stopRecording()
-              : startRecording(document.querySelector("canvas")!)
-          }
-          className={`px-3 py-1 text-xs rounded shadow ${
-            isRecording
-              ? "bg-red-500 hover:bg-red-600"
-              : "bg-green-500 hover:bg-green-600"
-          }`}
-        >
-          {isRecording ? "⏹ Stop Recording" : "🎥 Start Recording"}
-        </button>
-        {downloadUrl && (
-          <button
-            onClick={downloadRecording}
-            className="px-3 py-1 text-xs bg-blue-500 hover:bg-blue-600 rounded shadow"
-          >
-            💾 Save Video
-          </button>
-        )}
-      </div>
-
-      {/* ⏳ GHX Timeline Replay */}
-      {renderedGlyphs.length > 0 && setCurrentGlyph && (
-        <div className="pt-3">
-          <GHXTimeline
-            glyphs={renderedGlyphs}
-            onSelectGlyph={setCurrentGlyph}
-          />
-        </div>
-      )}
-    </div>
+  {/* 🎥 Recording Controls */}
+  <div className="flex justify-between items-center mt-3">
+    <button
+      onClick={() =>
+        isRecording
+          ? stopRecording()
+          : startRecording(document.querySelector("canvas")!)
+      }
+      className={`px-3 py-1 text-xs rounded shadow ${
+        isRecording
+          ? "bg-red-500 hover:bg-red-600"
+          : "bg-green-500 hover:bg-green-600"
+      }`}
+    >
+      {isRecording ? "⏹ Stop Recording" : "🎥 Start Recording"}
+    </button>
+    {downloadUrl && (
+      <button
+        onClick={downloadRecording}
+        className="px-3 py-1 text-xs bg-blue-500 hover:bg-blue-600 rounded shadow"
+      >
+        💾 Save Video
+      </button>
+    )}
   </div>
-);
+
+  {/* ⏮️ Tick Navigation Controls */}
+  {ticks.length > 0 && (
+    <div className="flex items-center space-x-3 mt-2 text-xs text-white">
+      <button
+        className="px-2 py-1 bg-gray-700 hover:bg-gray-600 rounded"
+        onClick={() => setTickIndex((prev) => Math.max(prev - 1, 0))}
+        disabled={tickIndex === 0}
+      >
+        ⏮ Prev
+      </button>
+      <span className="px-2">
+        Tick {tickIndex + 1} / {ticks.length} (#{currentTick})
+      </span>
+      <button
+        className="px-2 py-1 bg-gray-700 hover:bg-gray-600 rounded"
+        onClick={() => setTickIndex((prev) => Math.min(prev + 1, ticks.length - 1))}
+        disabled={tickIndex >= ticks.length - 1}
+      >
+        Next ⏭
+      </button>
+    </div>
+  )}
+
+  {/* 🔦 Current Beams at Tick */}
+  {currentBeams.length > 0 ? (
+    <div className="mt-2 text-xs text-yellow-300 max-h-32 overflow-y-auto">
+      <strong>Beams at Tick #{currentTick}:</strong>
+      <ul className="list-disc pl-4">
+        {currentBeams.map((beam) => (
+          <li key={beam.glyph_id || beam.symbol}>
+            {beam.symbol} ({(beam.glyph_id || "").slice(0, 6)}) — {beam.collapse_state}
+          </li>
+        ))}
+      </ul>
+    </div>
+  ) : (
+    <div className="mt-2 text-xs text-gray-400 italic">
+      No beams at this tick.
+    </div>
+  )}
+
+  {/* ⏳ GHX Timeline Replay */}
+  <div className="pt-3">
+    {replayMode ? (
+      <GHXTimeline
+        glyphs={data?.all_beams || []}
+        showCollapsed={showCollapsed}
+        onToggleCollapse={setShowCollapsed}
+        onSelectGlyph={(glyph) => {
+          // Optional: focus camera or highlight glyph in 3D view
+        }}
+      />
+    ) : (
+      renderedGlyphs.length > 0 &&
+      setCurrentGlyph && (
+        <GHXTimeline
+          glyphs={renderedGlyphs}
+          onSelectGlyph={setCurrentGlyph}
+        />
+      )
+    )}
+
+    {liveTick !== null && (
+      <div className="text-xs text-green-300 mt-1">
+        Live Tick: {liveTick}
+      </div>
+    )}
+  </div>
+</div>

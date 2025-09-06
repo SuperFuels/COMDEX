@@ -17,6 +17,7 @@ from backend.modules.glyphwave.qkd_handshake import GKeyStore
 from backend.modules.glyphwave.qkd.gkey_encryptor import GWaveEncryptor
 from backend.modules.glyphwave.qkd.qkd_policy_enforcer import QKDPolicyEnforcer
 from backend.modules.exceptions.tampered_payload import TamperedPayloadError
+from backend.modules.glyphwave.telemetry_handler import log_beam
 
 # 🔭 Holographic Projection (H7)
 from backend.modules.glyphwave.holographic_projection import generate_ghx_projection
@@ -74,6 +75,7 @@ def push_wave(wave_packet: dict, max_retries: int = 1) -> dict:
     """
     Push a symbolic wave packet using QKD encryption, with auto-renegotiation on failure.
     Also selects optimal carrier/modulation before transmission.
+    Emits telemetry via log_beam().
     """
     sender = wave_packet.get("sender_id")
     recipient = wave_packet.get("recipient_id")
@@ -107,6 +109,7 @@ def push_wave(wave_packet: dict, max_retries: int = 1) -> dict:
 
     if not qkd_enforcer.enforce_policy(wave_packet):
         logger.warning("[QKD] Policy enforcement failed — wave blocked")
+        log_beam("blocked", signal_power=0.0, noise_power=1e-4, meta={"sender": sender, "recipient": recipient})
         return {
             "status": "blocked",
             "reason": "QKD policy violation",
@@ -117,6 +120,20 @@ def push_wave(wave_packet: dict, max_retries: int = 1) -> dict:
         # QKD not required: transmit raw glyphs
         symbols = payload.get("symbols", [])
         transmit_result = transmit_glyphs(symbols, channel=channel, gain=gain, duration=duration)
+
+        log_beam(
+            "emitted",
+            signal_power=0.03,
+            noise_power=1e-5,
+            meta={
+                "qkd_used": False,
+                "sender": sender,
+                "recipient": recipient,
+                "carrier": carrier_type.name,
+                "modulation": modulation
+            }
+        )
+
         return {
             "status": transmit_result.get("status", "ok"),
             "qkd_used": False,
@@ -132,6 +149,7 @@ def push_wave(wave_packet: dict, max_retries: int = 1) -> dict:
         gkey_pair = gkey_store.get_key_pair(sender, recipient)
         if not gkey_pair:
             logger.error(f"[QKD] No GKey found for {sender} → {recipient}")
+            log_beam("error", signal_power=0.0, noise_power=1e-4, meta={"error": "Missing GKey", "sender": sender})
             return {
                 "status": "error",
                 "error": "Missing GKey",
@@ -156,8 +174,22 @@ def push_wave(wave_packet: dict, max_retries: int = 1) -> dict:
         }
 
         try:
+            # Test decryption (simulate receiver validation)
             _ = encryptor.decrypt_payload({"encrypted": encrypted_blob})
             logger.info(f"[QKD] Payload encrypted successfully for {sender} → {recipient}")
+
+            log_beam(
+                "emitted",
+                signal_power=0.07,
+                noise_power=1e-6,
+                meta={
+                    "qkd_used": True,
+                    "sender": sender,
+                    "recipient": recipient,
+                    "carrier": carrier_type.name,
+                    "modulation": modulation
+                }
+            )
 
             return {
                 "status": "ok",
@@ -172,6 +204,20 @@ def push_wave(wave_packet: dict, max_retries: int = 1) -> dict:
             gkey_store.renegotiate(sender, recipient)
             attempts += 1
             time.sleep(2 ** attempts)
+
+    # ❌ Max attempts failed
+    log_beam(
+        "failed",
+        signal_power=0.0,
+        noise_power=5e-4,
+        meta={
+            "qkd_used": True,
+            "error": "QKD renegotiation failed",
+            "sender": sender,
+            "recipient": recipient,
+            "attempts": attempts
+        }
+    )
 
     return {
         "status": "error",

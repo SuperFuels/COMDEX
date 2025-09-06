@@ -137,6 +137,7 @@ def log_beam_prediction(
             "sqi_score": sqi_score,
             "collapse_state": collapse_state,
             "metadata": metadata or {},
+            "raw_codexlang": (metadata or {}).get("raw_codexlang"),
             "timestamp": timestamp,
         }
 

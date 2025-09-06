@@ -1,8 +1,6 @@
-# backend/modules/glyphwave/core/entangled_wave.py
 from typing import List, Dict
 import time
 
-from backend.modules.glyphwave.core.wave_state import WaveState
 from backend.modules.glyphwave.kernels.interference_kernel_core import join_waves_batch
 
 try:
@@ -11,10 +9,11 @@ try:
 except Exception:
     DEVICE_TYPE = "Unavailable"
 
+
 class EntangledWave:
     def __init__(self, mode: str = "bidirectional"):
         self.mode = mode
-        self.waves: List[WaveState] = []
+        self.waves: List["WaveState"] = []
         self.entanglement_map: Dict[int, List[int]] = {}
 
         # ✅ B6a additions
@@ -22,7 +21,7 @@ class EntangledWave:
         self.reverse_links: Dict[str, List[str]] = {}  # entangled wave_id → source wave_ids
         self.entangled_ids: Dict[int, str] = {}        # index → entangled_id
 
-    def add_wave(self, wave: WaveState, index: int):
+    def add_wave(self, wave: "WaveState", index: int):
         self.waves.append(wave)
         self.entanglement_map[index] = []
 
@@ -138,3 +137,20 @@ class EntangledWave:
             wave.metadata["collapse_metrics"] = metrics
 
         return result
+
+    # ✅ NEW: From glyphs → builds an EntangledWave object from glyph list
+    @classmethod
+    def from_glyphs(cls, glyphs: List[Dict]) -> "EntangledWave":
+        """
+        Create an EntangledWave instance from a list of glyph dicts.
+        Each glyph is transformed into a WaveState, entangled bidirectionally.
+        """
+        from backend.modules.glyphwave.core.wave_state import WaveState  # ⏳ delay to break import loop
+
+        entangled = cls(mode="bidirectional")
+        for idx, glyph in enumerate(glyphs):
+            wave = WaveState.from_glyph_dict(glyph)
+            entangled.add_wave(wave, index=idx)
+
+        entangled.generate_links()
+        return entangled

@@ -166,3 +166,44 @@ def suggest_rewrite_candidates(ast: Union[str, dict]) -> list[dict]:
     # Future expansion: contradiction detection, entropy path scoring, goal match, etc.
 
     return suggestions
+
+def extract_prediction_metadata(ast: Union[dict, str]) -> dict:
+    """
+    Extract embedded prediction metadata from an AST (if present).
+    Returns:
+        {
+            "prediction": str | None,
+            "sqi_score": float,
+            "collapse_state": str
+        }
+    """
+    if not isinstance(ast, dict):
+        return {"prediction": None, "sqi_score": 0.0, "collapse_state": "unknown"}
+
+    meta = ast.get("metadata", {})
+    return {
+        "prediction": meta.get("prediction", None),
+        "sqi_score": float(meta.get("sqi_score", 0.0)),
+        "collapse_state": meta.get("collapse_state", "unknown")
+    }
+
+
+def score_rewrite_candidate(candidate: dict) -> float:
+    """
+    Score a single rewrite candidate using embedded metadata.
+    Higher score = better candidate.
+
+    Uses:
+    - SQI score as base
+    - Collapse state bonuses
+    - Future: prediction quality, entropy gain, etc.
+    """
+    metadata = extract_prediction_metadata(candidate)
+    score = metadata["sqi_score"]
+
+    if metadata["collapse_state"] == "collapsed":
+        score += 0.2
+    elif metadata["collapse_state"] == "entangled":
+        score += 0.1
+
+    return score

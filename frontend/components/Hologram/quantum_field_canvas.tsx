@@ -1,10 +1,23 @@
+// File: frontend/components/QuantumField/QuantumFieldCanvas.tsx
+
 import React, { useRef, useEffect, useState } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, Html } from "@react-three/drei";
 import * as THREE from "three";
 import { Card } from "@/components/ui/card";
+import { QWaveBeam } from "@/components/QuantumField/beam_renderer";
 
-interface GlyphNode {
+const [beamData, setBeamData] = useState<any | null>(null);
+
+useEffect(() => {
+  fetch("/api/test-mixed-beams")
+    .then((res) => res.json())
+    .then(setBeamData)
+    .catch(console.error);
+}, []);
+
+// Types
+export interface GlyphNode {
   id: string;
   label: string;
   position: [number, number, number];
@@ -15,21 +28,26 @@ interface GlyphNode {
   goalMatchScore?: number;
   rewriteSuccessProb?: number;
   entropy?: number;
+  tick?: number;
+  collapse_state?: string;
 }
 
 interface Link {
   source: string;
   target: string;
   type?: "entangled" | "teleport" | "logic";
+  tick?: number;
 }
 
 interface QuantumFieldCanvasProps {
   nodes: GlyphNode[];
   links: Link[];
+  tickFilter?: number;
+  showCollapsed?: boolean;
   onTeleport?: (targetContainerId: string) => void;
 }
 
-// 🎨 Color links by type
+// 🎨 Link color by type
 const getLinkColor = (type?: string): string => {
   switch (type) {
     case "entangled":
@@ -43,7 +61,14 @@ const getLinkColor = (type?: string): string => {
   }
 };
 
-const Node = ({ node, onTeleport }: { node: GlyphNode; onTeleport?: (id: string) => void }) => {
+// 🌐 Individual glyph node
+const Node = ({
+  node,
+  onTeleport,
+}: {
+  node: GlyphNode;
+  onTeleport?: (id: string) => void;
+}) => {
   const ref = useRef<THREE.Mesh>(null);
   const [hovered, setHovered] = useState(false);
   const pulseRef = useRef(0);
@@ -97,13 +122,25 @@ const Node = ({ node, onTeleport }: { node: GlyphNode; onTeleport?: (id: string)
               ♾ Entropy: {node.entropy.toFixed(2)}
             </p>
           )}
+          {node.collapse_state && (
+            <p className="text-gray-500">Collapse: {node.collapse_state}</p>
+          )}
         </Card>
       </Html>
     </mesh>
   );
 };
 
-const LinkLine = ({ source, target, type }: { source: GlyphNode; target: GlyphNode; type?: string }) => {
+// 🔗 Visual link line
+const LinkLine = ({
+  source,
+  target,
+  type,
+}: {
+  source: GlyphNode;
+  target: GlyphNode;
+  type?: string;
+}) => {
   const points = [
     new THREE.Vector3(...source.position),
     new THREE.Vector3(...target.position),
@@ -117,8 +154,27 @@ const LinkLine = ({ source, target, type }: { source: GlyphNode; target: GlyphNo
   );
 };
 
-const QuantumFieldCanvas: React.FC<QuantumFieldCanvasProps> = ({ nodes, links, onTeleport }) => {
+// 🧠 Main QFC Component
+const QuantumFieldCanvas: React.FC<QuantumFieldCanvasProps> = ({
+  nodes,
+  links,
+  tickFilter,
+  showCollapsed = true,
+  onTeleport,
+}) => {
   const getNodeById = (id: string) => nodes.find((n) => n.id === id);
+
+  const filteredNodes = nodes.filter((node) => {
+    const matchTick = tickFilter === undefined || node.tick === tickFilter;
+    const matchCollapse =
+      showCollapsed || node.collapse_state !== "collapsed";
+    return matchTick && matchCollapse;
+  });
+
+  const filteredLinks = links.filter((link) => {
+    const matchTick = tickFilter === undefined || link.tick === tickFilter;
+    return matchTick;
+  });
 
   return (
     <div className="h-full w-full">
@@ -127,18 +183,72 @@ const QuantumFieldCanvas: React.FC<QuantumFieldCanvasProps> = ({ nodes, links, o
         <pointLight position={[10, 10, 10]} />
         <OrbitControls enableZoom enablePan enableRotate />
 
-        {/* 🔗 Render links */}
-        {links.map((link, i) => {
+        {/* 🔗 Render filtered links */}
+        {filteredLinks.map((link, i) => {
           const source = getNodeById(link.source);
           const target = getNodeById(link.target);
           if (!source || !target) return null;
           return (
-            <LinkLine key={i} source={source} target={target} type={link.type} />
+            <LinkLine
+              key={i}
+              source={source}
+              target={target}
+              type={link.type}
+            />
           );
         })}
 
-        {/* ⚛ Render nodes */}
-        {nodes.map((node) => (
+        {/* 💫 Render QWaveBeams between nodes */}
+        {filteredLinks.map((link, i) => {
+          const source = getNodeById(link.source);
+          const target = getNodeById(link.target);
+          if (!source || !target) return null;
+
+          return (
+            <QWaveBeam
+              key={`beam-${i}`}
+              source={source.position}
+              target={target.position}
+              prediction={source.predicted || target.predicted}
+              collapseState={source.collapse_state || target.collapse_state}
+              sqiScore={
+                source.goalMatchScore ??
+                source.rewriteSuccessProb ??
+                target.goalMatchScore ??
+                target.rewriteSuccessProb ??
+                0
+              }
+              show={true}
+            />
+          );
+        })}
+
+        {/* 🌈 Render glyphs from beamData if present */}
+        {beamData?.glyphs?.map((glyph: BeamGlyphNode) => (
+          <Node key={`beam-glyph-${glyph.id}`} node={glyph} onTeleport={onTeleport} />
+        ))}
+
+        {/* 🚀 Render mixed QWave beams from beamData */}
+        {beamData?.beams?.map((beam: any) => (
+          <QWaveBeam
+            key={`mixed-beam-${beam.id}`}
+            source={beam.source}
+            target={beam.target}
+            prediction={beam.predicted}
+            collapseState={beam.collapse_state}
+            sqiScore={beam.sqiScore || 0}
+            show={true}
+          />
+        ))}
+
+        {/* ⚛ Render filtered nodes */}
+        {filteredNodes.map((node) => (
+          <Node key={node.id} node={node} onTeleport={onTeleport} />
+        ))}
+      </Canvas>
+
+        {/* ⚛ Render filtered nodes */}
+        {filteredNodes.map((node) => (
           <Node key={node.id} node={node} onTeleport={onTeleport} />
         ))}
       </Canvas>
@@ -148,11 +258,14 @@ const QuantumFieldCanvas: React.FC<QuantumFieldCanvasProps> = ({ nodes, links, o
 
 export default QuantumFieldCanvas;
 
-// ✅ Wrapper to load data from API
-export const QuantumFieldCanvasLoader: React.FC<{ containerId: string; onTeleport?: (id: string) => void }> = ({
-  containerId,
-  onTeleport,
-}) => {
+// 🧲 Loader Wrapper
+import { snapToPolarGrid } from "@/components/QuantumField/polar_snap"; // ⬅️ ADD THIS IMPORT
+export const QuantumFieldCanvasLoader: React.FC<{
+  containerId: string;
+  tickFilter?: number;
+  showCollapsed?: boolean;
+  onTeleport?: (id: string) => void;
+}> = ({ containerId, tickFilter, showCollapsed, onTeleport }) => {
   const [data, setData] = useState<{ nodes: GlyphNode[]; links: Link[] }>({
     nodes: [],
     links: [],
@@ -161,8 +274,26 @@ export const QuantumFieldCanvasLoader: React.FC<{ containerId: string; onTelepor
   useEffect(() => {
     fetch(`/api/qfc_view/${containerId}`)
       .then((res) => res.json())
-      .then((json) => setData(json));
+      .then((json) => {
+        const nodes = json.nodes;
+        const links = json.links;
+
+        // 🧭 Snap to polar grid around first node (if exists)
+        const centerId = nodes[0]?.id;
+        const snappedNodes = centerId
+          ? snapToPolarGrid(nodes, centerId)
+          : nodes;
+
+        setData({ nodes: snappedNodes, links });
+      });
   }, [containerId]);
 
-  return <QuantumFieldCanvas {...data} onTeleport={onTeleport} />;
+  return (
+    <QuantumFieldCanvas
+      {...data}
+      tickFilter={tickFilter}
+      showCollapsed={showCollapsed}
+      onTeleport={onTeleport}
+    />
+  );
 };

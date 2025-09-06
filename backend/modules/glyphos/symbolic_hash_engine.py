@@ -8,16 +8,30 @@ def normalize_glyph(glyph: Union[str, Dict[str, Any]]) -> str:
     """
     Normalize a glyph input (str or dict) into a consistent canonical string.
     - Strings are trimmed and returned as-is.
-    - Dicts are converted to a sorted JSON string for stable hashing.
+    - Dicts are converted to a sorted JSON string, optionally prioritizing key metadata fields.
+    - CodexAST objects with .to_dict() are serialized with only relevant metadata.
     """
     if isinstance(glyph, str):
         return glyph.strip()
-    elif isinstance(glyph, dict):
-        return json.dumps(glyph, sort_keys=True, separators=(',', ':'))
+
     elif hasattr(glyph, "to_dict"):
-        return json.dumps(glyph.to_dict(), sort_keys=True, separators=(',', ':'))
+        glyph_dict = glyph.to_dict()
+    elif isinstance(glyph, dict):
+        glyph_dict = glyph
     else:
         raise TypeError(f"Unsupported glyph type for hashing: {type(glyph)}")
+
+    # 🧠 Prioritize important metadata fields (optional)
+    important_metadata = {}
+    meta = glyph_dict.get("metadata", {})
+    if isinstance(meta, dict):
+        for k in ("prediction", "sqi_score", "collapse_state"):
+            if k in meta:
+                important_metadata[k] = meta[k]
+
+    hash_friendly_dict = dict(glyph_dict)  # Shallow copy
+    hash_friendly_dict["__hash_metadata__"] = important_metadata
+    return json.dumps(hash_friendly_dict, sort_keys=True, separators=(',', ':'))
 
 def symbolic_hash(
     glyph: Union[str, Dict[str, Any]],

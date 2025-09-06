@@ -25,6 +25,7 @@ from datetime import datetime
 from backend.modules.codex.codex_metrics import record_sqi_score_event
 from backend.modules.knowledge_graph.kg_writer_singleton import write_glyph_event
 from backend.modules.symbolic.symbolic_broadcast import broadcast_glyph_event
+from backend.modules.sqi import sqi_event_bus_gw
 
 
 # -----------------------------------------------------------------------------
@@ -470,3 +471,6 @@ def _maybe_link_relations(entry: dict, external_hash: Optional[str]) -> None:
             knowledge_index.add_link(my_hash, other_hash, relation=meta.get("relation", "relates_to"))
         except Exception:
             pass
+
+from backend.modules.sqi import sqi_event_bus_gw
+sqi_event_bus_gw.init_gw_publish_wrapper(publish)

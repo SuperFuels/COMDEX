@@ -1,12 +1,12 @@
 graph TD
   A[🧠 CreativeCore: Symbolic Innovation Engine] --> A1(🌌 QuantumFieldCanvas Renderer)
   A --> A2(🔧 Control Surface Recognition Engine)
-  A --> A3(🪞 Symbolic Mutation Engine)
-  A --> A4(🧵 Threaded Innovation Chains)
+  A --> ✅A3(🪞 Symbolic Mutation Engine)
+  A --> ✅A4(🧵 Threaded Innovation Chains)
   A --> A5(🧬 Knowledge Canvas Mutation Engine)
   A --> A6(🌐 Container Spawn + Injection System)
-  A --> A7(💡 Innovation Evaluation Core)
-  A --> A8(📦 Registry & Feedback Loop)
+  A --> ✅A7(💡 Innovation Evaluation Core)
+  A --> ✅A8(📦 Registry & Feedback Loop)
   A --> A9(📡 QWave Beam Integration)
   A --> A10(🎞️ Replay + Iteration Viewer)
   A --> A11(🧠 DreamJump Field Integration)
@@ -25,16 +25,16 @@ graph TD
   A2 --> A2c(Manipulable Attribute Detector)
 
   %% Subtasks under Mutation Engine
-  A3 --> A3a(Symbolic Trait Injection)
-  A3 --> A3b(Innovation Layer 1: what can be changed)
-  A3 --> A3c(Innovation Layer 2: redefine what "can't" be changed)
-  A3 --> A3d(Material/Function/Behavior Synthesizer)
+  A3 --> ✅A3a(Symbolic Trait Injection)
+  A3 --> ✅A3b(Innovation Layer 1: what can be changed)
+  A3 --> ✅A3c(Innovation Layer 2: redefine what "can't" be changed)
+  A3 --> ✅A3d(Material/Function/Behavior Synthesizer)
 
   %% Subtasks under Threaded Chains
-  A4 --> A4a(Recursive Chain Tracking)
-  A4 --> A4b(Multi-path Parallel Thought Threads)
-  A4 --> A4c(Dead End Detection)
-  A4 --> A4d(Chain Collapse or Fork Logic)
+  A4 --> ✅A4a(Recursive Chain Tracking)
+  A4 --> ✅A4b(Multi-path Parallel Thought Threads)
+  A4 --> ✅A4c(Dead End Detection)
+  A4 --> ✅A4d(Chain Collapse or Fork Logic)
 
   %% Subtasks under Knowledge Mutation
   A5 --> A5a(Knowledge Graph Hook)
@@ -49,16 +49,16 @@ graph TD
   A6 --> A6d(Container ↔ Canvas ↔ SQI Linker)
 
   %% Subtasks under Innovation Evaluation
-  A7 --> A7a(Use CodexCore to Score Options)
-  A7 --> A7b(Filter via SoulLaw, Logic Validity, DreamCore)
-  A7 --> A7c(Predictive Outcome Estimator)
+  A7 --> ✅A7a(Use CodexCore to Score Options)
+  A7 --> ✅A7b(Filter via SoulLaw, Logic Validity, DreamCore)
+  A7 --> ✅A7c(Predictive Outcome Estimator)
   A7 --> A7d(Symbolic Gradient Backpropagation [if added])
 
   %% Subtasks under Feedback
-  A8 --> A8a(Container Snapshots of Each Step)
-  A8 --> A8b(Register as Milestone or Goal)
-  A8 --> A8c(Save to Registry: Innovations, Failures, Paths)
-  A8 --> A8d(Reinforce via Self-Improving Feedback)
+  A8 --> ✅A8a(Container Snapshots of Each Step)
+  A8 --> ✅A8b(Register as Milestone or Goal)
+  A8 --> ✅A8c(Save to Registry: Innovations, Failures, Paths)
+  A8 --> ✅A8d(Reinforce via Self-Improving Feedback)
 
   %% Subtasks under QWave
   A9 --> A9a(Light Beams Between Nodes)

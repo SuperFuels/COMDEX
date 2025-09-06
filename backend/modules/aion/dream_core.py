@@ -36,6 +36,7 @@ from backend.database import get_db
 from backend.models.dream import Dream
 from backend.modules.holograms.ghx_encoder import encode_ghx_from_scroll
 from backend.modules.codex.collapse_trace_exporter import export_collapse_trace
+from backend.modules.creative.innovation_memory_tracker import log_event as log_innovation_event
 
 # Delay import to avoid circular dependency
 def get_tessaris_engine():
@@ -295,6 +296,20 @@ class DreamCore:
             except Exception as e:
                 self.codex_metrics.record_error()
                 print(f"🚨 Codex execution error: {e}")
+
+            # 💡 Log innovation from dream into memory tracker
+            try:
+                log_innovation_event({
+                    "source": "dream_core",
+                    "label": dream_label,
+                    "glyphs": branch.glyphs,
+                    "reflection": reflection_output,
+                    "timestamp": timestamp,
+                    "boot_skill": selected["title"] if selected else None,
+                })
+                print("🧠 Dream innovation logged to memory tracker.")
+            except Exception as e:
+                print(f"⚠️ Failed to log dream innovation: {e}")
 
             # 🧠 Extract and queue intents from dream glyphs
             self.tessaris.extract_intents_from_glyphs(branch.glyphs, metadata={

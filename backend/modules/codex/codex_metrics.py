@@ -53,7 +53,16 @@ class CodexMetricsShim:
     @staticmethod
     def record_execution_metrics(**kwargs) -> Dict[str, Any]:
         return record_execution_metrics(**kwargs)
-
+        
+def log_collapse_metric(container_id: str, beam_id: str, score: float, state: str):
+    """
+    Lightweight logger for symbolic wave collapse metrics.
+    Logs collapse outcome for Codex beams with SQI score.
+    """
+    try:
+        print(f"[CodexMetric] Beam {beam_id} in {container_id} → SQI={score}, state={state}")
+    except Exception as e:
+        print(f"[CodexMetric] Failed to log collapse metric: {e}")
 # ─────────────────────────────────────────────────────────────────────────────
 # 📈 Full metrics class with cost estimation
 # ─────────────────────────────────────────────────────────────────────────────

@@ -1,5 +1,5 @@
 from typing import Dict, Optional, List, Any
-from .wave_state import WaveState
+from backend.modules.glyphwave.core.wave_state import WaveState
 from backend.modules.glyphwave.holographic.ghx_replay_broadcast import emit_gwave_replay
 
 

@@ -3,39 +3,71 @@ import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
 import { playGlyphNarration } from "@/utils/hologram_audio";
 import { cn } from "@/lib/utils";
-import { MODULATION_METADATA, ModulationStrategy } from "@/symbolic/modulation_meta"; // ✅ Add modulation metadata
+import { MODULATION_METADATA, ModulationStrategy } from "@/symbolic/modulation_meta";
 
-interface GHXTimelineProps {
-  glyphs: {
-    glyph_id: string;
-    symbol: string;
-    timestamp: string;
-    cost?: number;
-    entangled?: string[];
-    collapse_trace?: boolean;
-    modulation_strategy?: string;
-    coherence_score?: number;
-  }[];
-  onSelectGlyph?: (glyph: any) => void;
+interface GlyphType {
+  glyph_id: string;
+  symbol: string;
+  timestamp: string;
+  cost?: number;
+  entangled?: string[];
+  collapse_trace?: boolean;
+  modulation_strategy?: string;
+  coherence_score?: number;
+  tick?: number;
+  collapse_state?: string;
 }
 
-export default function GHXTimeline({ glyphs, onSelectGlyph }: GHXTimelineProps) {
-  const [index, setIndex] = useState(0);
+interface GHXTimelineProps {
+  glyphs: GlyphType[];
+  onSelectGlyph?: (glyph: any) => void;
+  showCollapsed?: boolean;
+  onToggleCollapse?: (val: boolean) => void;
+}
+
+function groupGlyphsByTick(glyphs: GlyphType[]) {
+  const grouped: Record<number, GlyphType[]> = {};
+  for (const g of glyphs) {
+    const tick = g.tick ?? 0;
+    if (!grouped[tick]) grouped[tick] = [];
+    grouped[tick].push(g);
+  }
+  return grouped;
+}
+
+export default function GHXTimeline({
+  glyphs,
+  onSelectGlyph,
+  showCollapsed = true,
+  onToggleCollapse,
+}: GHXTimelineProps) {
+  const [tickIndex, setTickIndex] = useState<number>(0);
   const [hovered, setHovered] = useState<number | null>(null);
-  const currentGlyph = glyphs[index] || null;
+
+  const filteredGlyphs = showCollapsed
+    ? glyphs
+    : glyphs.filter((g) => g.collapse_state !== "collapsed");
+
+  const groupedBeams = groupGlyphsByTick(filteredGlyphs);
+  const ticks = Object.keys(groupedBeams)
+    .map(Number)
+    .sort((a, b) => a - b);
+  const currentTick = ticks[tickIndex] ?? 0;
+  const currentBeams = groupedBeams[currentTick] || [];
+
   const sliderRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (hovered !== null && glyphs[hovered]) {
-      playGlyphNarration(glyphs[hovered].symbol);
+    if (hovered !== null && currentBeams[hovered]) {
+      playGlyphNarration(currentBeams[hovered].symbol);
     }
-  }, [hovered]);
+  }, [hovered, currentBeams]);
 
   useEffect(() => {
-    if (onSelectGlyph && currentGlyph) {
-      onSelectGlyph(currentGlyph);
+    if (onSelectGlyph && currentBeams.length > 0) {
+      onSelectGlyph(currentBeams[0]);
     }
-  }, [index]);
+  }, [tickIndex]);
 
   const getCoherenceShade = (score?: number) => {
     if (score === undefined) return "";
@@ -47,21 +79,31 @@ export default function GHXTimeline({ glyphs, onSelectGlyph }: GHXTimelineProps)
 
   return (
     <div className="w-full px-4 py-2 bg-black/80 rounded-md">
+      <div className="flex items-center mb-3">
+        <label className="text-white text-sm mr-2">Show Collapsed</label>
+        <input
+          type="checkbox"
+          checked={showCollapsed}
+          onChange={(e) => onToggleCollapse?.(e.target.checked)}
+          className="scale-125"
+        />
+      </div>
+
       <div className="text-xs text-white mb-2">
-        Replay Step: {index + 1} / {glyphs.length}
+        Tick: {tickIndex + 1} / {ticks.length} — Beams: {currentBeams.length}
       </div>
 
       <Slider
         min={0}
-        max={glyphs.length - 1}
+        max={ticks.length - 1}
         step={1}
-        value={[index]}
-        onValueChange={([i]) => setIndex(i)}
+        value={[tickIndex]}
+        onValueChange={([i]) => setTickIndex(i)}
         className="w-full"
       />
 
       <div className="flex flex-wrap gap-2 mt-3">
-        {glyphs.map((g, i) => {
+        {currentBeams.map((g, i) => {
           const modulationStrategy = g.modulation_strategy as ModulationStrategy;
           const meta = modulationStrategy ? MODULATION_METADATA[modulationStrategy] : null;
           const coherenceClass = getCoherenceShade(g.coherence_score);
@@ -71,21 +113,27 @@ export default function GHXTimeline({ glyphs, onSelectGlyph }: GHXTimelineProps)
               key={g.glyph_id}
               className={cn(
                 "text-sm px-2 py-1 rounded cursor-pointer border border-white/10 transition-all duration-200",
-                index === i ? "bg-purple-600 text-white" : coherenceClass || "bg-gray-700 text-gray-300",
+                coherenceClass || "bg-gray-700 text-gray-300",
                 g.coherence_score !== undefined && g.coherence_score < 0.3 && "blur-[1px] skew-x-1"
               )}
-              onClick={() => setIndex(i)}
+              onClick={() => onSelectGlyph?.(g)}
               onMouseEnter={() => setHovered(i)}
               onMouseLeave={() => setHovered(null)}
             >
               {g.symbol}
-              {g.collapse_trace && <Badge className="ml-1 text-[10px] bg-yellow-500">⧖</Badge>}
-              {g.entangled?.length > 0 && <Badge className="ml-1 text-[10px] bg-fuchsia-500">↔</Badge>}
+
+              {g.collapse_trace && (
+                <Badge className="ml-1 text-[10px] bg-yellow-500">⧖</Badge>
+              )}
+              {g.entangled?.length > 0 && (
+                <Badge className="ml-1 text-[10px] bg-fuchsia-500">↔</Badge>
+              )}
               {g.cost && (
                 <Badge className="ml-1 text-[10px] bg-blue-600">
                   {g.cost.toFixed(2)}
                 </Badge>
               )}
+
               {modulationStrategy && (
                 <div className="text-[10px] mt-1 text-gray-300">
                   {meta?.emoji || ""} {meta?.short || modulationStrategy}

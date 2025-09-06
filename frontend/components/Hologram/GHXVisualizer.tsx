@@ -12,6 +12,15 @@ import { GHXAnchorMemory } from '@/components/GHX/GHXAnchorMemory';
 import { SymbolicTeleportPath } from '@/components/GHX/SymbolicTeleportPath';
 import { DreamGhostEntry } from '@/components/GHX/DreamGhostEntry';
 import { getSignatureStatusBadge } from "@/utils/ghx_signature_utils";
+import { InnovationOverlay } from "@/components/CreativeCore/InnovationOverlay";
+import { useCollapseMetrics } from '@/hooks/useCollapseMetrics';
+
+const {
+  latestCollapse,
+  latestDecoherence,
+  collapseHistory,
+  decoherenceHistory,
+} = useCollapseMetrics();
 
 declare global {
   interface Window {
@@ -27,6 +36,7 @@ export function drawLinkArrows(containerLinks: Record<string, any>) {
     });
   });
 }
+
 // 🔗 HOV backend-baked metadata (per-hover)
   const [hoverCid, setHoverCid] = useState<string | null>(null);
   const [hoverMeta, setHoverMeta] = useState<any>(null);
@@ -748,5 +758,41 @@ const router = useRouter();
     <QEntropySpiral />
     <GHXSignatureTrail identity={"AION-000X"} radius={2.2} />
     <OrbitControls />
-  </Canvas>
+</Canvas>
+
+{/* 📡 Telemetry Overlay (Collapse Rate / Coherence / Beam Count) */}
+<div className="absolute bottom-4 right-4 text-xs p-2 bg-black/60 rounded-lg shadow-lg text-white z-50">
+  <div>
+    📉 Collapse Rate: <strong>{latestCollapse !== null ? `${latestCollapse}/s` : "—"}</strong>
+  </div>
+  <div>
+    📡 Avg Coherence: <strong>
+      {decoherenceHistory.length
+        ? (
+            decoherenceHistory.reduce((sum, val) => sum + val, 0) /
+            decoherenceHistory.length
+          ).toFixed(2)
+        : "—"}
+    </strong>
+  </div>
+  <div>
+    💥 Beam Emissions: <strong>{collapseHistory.length}</strong>
+  </div>
+
+  {/* Warnings */}
+  {decoherenceHistory.length > 0 &&
+    (decoherenceHistory.reduce((a, b) => a + b, 0) / decoherenceHistory.length) < 0.5 && (
+      <div className="text-red-500 animate-pulse mt-1">
+        ⚠️ Low Coherence Detected
+      </div>
+  )}
+  {snrStatus === "low" && (
+    <div className="text-yellow-400 mt-1 animate-pulse">
+      ⚠️ SNR Anomaly
+    </div>
+  )}
+</div>
+
+{/* 🧠 Inject Innovation Overlay UI */}
+<InnovationOverlay />
 </>

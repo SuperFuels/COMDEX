@@ -119,7 +119,6 @@ def _create_index_entry(entry: Dict[str, Any]) -> Dict[str, Any]:
         "plugin": entry.get("plugin", None),
     }
 
-
 def add_to_index(index_name: str, entry: Dict[str, Any]):
     """
     Adds a symbolic glyph entry to a container-level index,
@@ -267,6 +266,30 @@ def add_failure_entry(reason: str, caused_by: str = "unknown"):
     }
     add_to_index("failure_index", entry)
     return failure_id
+
+def add_innovation_score_entry(wave_id: str, parent_wave_id: str, score: float, glow: float, pulse: float, cause: str):
+    """
+    Adds an innovation score entry to the container index for replay or HUD rendering.
+    """
+    entry = {
+        "id": generate_uuid(),
+        "type": "innovation_score",
+        "content": {
+            "wave_id": wave_id,
+            "parent_wave_id": parent_wave_id,
+            "score": score,
+            "glow": glow,
+            "pulse": pulse,
+            "cause": cause,
+        },
+        "timestamp": get_current_timestamp(),
+        "metadata": {
+            "tags": ["innovation", "score", "fork"],
+            "origin": "creative_core"
+        }
+    }
+    add_to_index("innovation_index", entry)
+    return entry["id"]
 
 def add_gwv_trace_entry(trace_str: str, container_id: str = None):
     """

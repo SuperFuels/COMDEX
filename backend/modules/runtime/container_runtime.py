@@ -44,6 +44,17 @@ def container_id_to_path(container_id: str) -> str:
         """
         return f"backend/modules/dimensions/containers/{container_id}.dc.json"
 
+# --- QWave Beam Buffer -------------------------------------
+_container_beam_buffers = {}  # container_id → list of beam dicts
+
+def append_beam_to_container(container_id: str, beam: dict):
+    if container_id not in _container_beam_buffers:
+        _container_beam_buffers[container_id] = []
+    _container_beam_buffers[container_id].append(beam)
+
+def get_beams_for_container(container_id: str) -> list:
+    return _container_beam_buffers.get(container_id, [])
+
 class ContainerRuntime:
     def __init__(self, state_manager: StateManager, tick_interval: float = 2.0):
         self.state_manager = state_manager
@@ -440,6 +451,7 @@ class ContainerRuntime:
         microgrid = self.vault_manager.get_microgrid()
         glyph_data = microgrid.export_index()
 
+        # 🔐 SoulLaw metadata injection
         from backend.modules.codex.symbolic_key_deriver import export_collapse_trace_with_soullaw_metadata
         try:
             avatar_state = self.state_manager.get_avatar_state()
@@ -450,6 +462,7 @@ class ContainerRuntime:
         except Exception as e:
             print(f"⚠️ Failed to inject collapse metadata: {e}")
 
+        # 💾 Encrypt + save glyph data
         try:
             encrypted_blob = self.vault_manager.save_container_glyph_data(glyph_data)
             container["encrypted_glyph_data"] = encrypted_blob
@@ -457,16 +470,30 @@ class ContainerRuntime:
         except Exception as e:
             print(f"❌ Failed to encrypt and save container glyph data: {e}")
 
-        # === [A2a] Inject QWave Beams ===
+        # 📡 Inject QWave Beams
         try:
-            from backend.modules.glyphwave.qwave.qwave_writer import collect_qwave_beams, export_qwave_beams
+            from backend.modules.container_runtime import get_beams_for_container
             container_id = container.get("id")
             if container_id:
-                beams = collect_qwave_beams(container_id)
-                export_qwave_beams(container, beams, context={"frame": "collapsed"})
+                beams = get_beams_for_container(container_id)
+                container["qwave_beams"] = beams
                 print(f"📡 Injected {len(beams)} QWave beams into container.")
         except Exception as e:
             print(f"⚠️ Failed to inject QWave beams: {e}")
+
+        # ✅ Final persistence
+        try:
+            # Option 1: Persist to Vault
+            self.vault_manager.write_final_container(container)
+            print(f"✅ Container '{container.get('id')}' successfully written to Vault.")
+        except Exception as e:
+            print(f"⚠️ Failed to write container to Vault: {e}")
+            # Option 2: Fallback — persist via StateManager
+            try:
+                self.state_manager.save_current_container(container)
+                print(f"✅ Container '{container.get('id')}' saved via StateManager fallback.")
+            except Exception as e2:
+                print(f"❌ Failed to save container via fallback: {e2}")
 
     def fork_entangled_path(self, container: Dict[str, Any], coord: str, glyph: str):
         original_name = container.get("id", "default")

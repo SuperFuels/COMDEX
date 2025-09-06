@@ -7,6 +7,10 @@ from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_cont
 logger = logging.getLogger(__name__)
 SQI_EVENT_LOG = []
 
+# ✅ SQI Drift Logger Function (used for GHX + HUD overlays)
+def log_sqi_drift(container_id: str, beam_id: str, glow: float, frequency: float):
+    print(f"[SQI] Drift beam {beam_id} in {container_id} → glow={glow:.2f}, pulse={frequency:.2f}Hz")
+
 # Optional: Provide a dummy broadcast function if GHX not connected
 def broadcast_ghx_event(event: Dict):
     pass  # Or leave unimplemented if not in scope
@@ -75,6 +79,56 @@ class SQIReasoningEngine:
         if len(self.analysis_history) > 20:
             self.analysis_history.pop(0)
 
+        # ---------------------------------------
+        # 🌟 INNOVATION SCORING + HUD Streaming
+        # ---------------------------------------
+        try:
+            from backend.modules.creative.innovation_scorer import InnovationScorer
+            scorer = InnovationScorer()
+            symbolic_tree = trace.get("symbolnet", {})  # Use symbolnet as proxy
+            innovation_score = scorer.compute_innovation_score(symbolic_tree)
+            print(f"🌟 [SQI] Innovation Score: {innovation_score:.3f}")
+
+            # Embed in return payload
+            enriched["innovation_score"] = innovation_score
+
+            # Broadcast to GHX / HUD
+            broadcast_ghx_event({
+                "type": "sqi_metric",
+                "metric": "innovation_score",
+                "value": innovation_score,
+                "beam_id": beam_id,
+                "container_id": container_id,
+                "timestamp": datetime.datetime.utcnow().isoformat()
+            })
+        except Exception as e:
+            print(f"⚠️ [SQI] Innovation scoring failed: {e}")
+
+        # ---------------------------------------
+        # 📡 Optional Metadata: container/beam
+        # ---------------------------------------
+        container_id = trace.get("container_id", "N/A")
+        beam_id = trace.get("beam_id", "unknown")
+
+        # ---------------------------------------
+        # 🪩 Log Drift → Glow = drift, Pulse = exhaust
+        # ---------------------------------------
+        try:
+            log_sqi_drift(container_id=container_id, beam_id=beam_id, glow=drift, frequency=avg_exhaust)
+        except Exception as e:
+            print(f"[SQI] Failed to log drift: {e}")
+
+        # Return initial analysis (symbolic overlay follows later)
+        enriched = {
+            "drift": drift,
+            "drift_trend": drift_trend,
+            "avg_exhaust": avg_exhaust,
+            "fields": fields,
+            "stage": stage,
+            "semantic_score": avg_match,
+            "semantic_distance": avg_dist,
+            "symbolnet": semantic_scores
+        }
         # ---------------------------------------
         # 🧠 SymbolNet Semantic Overlay Analysis
         # ---------------------------------------

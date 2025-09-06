@@ -1,0 +1,1 @@
+{"id": "6e12547b-9d89-44b2-8ad9-207f7bfb5e1d", "timestamp": "2025-09-05T20:41:34.248686Z", "source": {"id": "glyph_1"}, "target": {"id": "glyph_2"}, "sqi_score": 0.92, "innovation_score": 0.81, "container_id": "container_xyz", "tags": ["mutation", "rewrite"], "type": "qwave_beam"}
