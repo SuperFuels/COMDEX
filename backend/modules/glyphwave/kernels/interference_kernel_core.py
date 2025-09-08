@@ -78,3 +78,43 @@ def join_waves_batch(waves: List[WaveState]) -> WaveState:
     timestamp = max(w.timestamp for w in waves)
 
     return WaveState(phase, amplitude, coherence, origin_trace, timestamp)
+
+# -- Collapse Interface --
+import logging
+
+try:
+    from backend.modules.gpu.gpu_collapse_accelerator import collapse_symbolic_wave_gpu
+    GPU_AVAILABLE = True
+except ImportError:
+    GPU_AVAILABLE = False
+
+logger = logging.getLogger(__name__)
+
+
+def collapse_wave_superposition(wave: WaveState, use_gpu: bool = True) -> WaveState:
+    """
+    Collapse symbolic wave superposition into final WaveState.
+    Uses GPU acceleration if available and requested.
+    """
+    collapse_start = time.time()
+    try:
+        if use_gpu and GPU_AVAILABLE:
+            collapsed = collapse_symbolic_wave_gpu(wave)
+            logger.debug(f"[Collapse] GPU used for beam {getattr(wave, 'id', 'N/A')}")
+        else:
+            collapsed = join_waves_batch([wave])
+            logger.debug(f"[Collapse] CPU fallback for beam {getattr(wave, 'id', 'N/A')}")
+
+        collapse_time = time.time() - collapse_start
+        if hasattr(collapsed, 'collapse_metadata'):
+            collapsed.collapse_metadata['duration'] = collapse_time
+        else:
+            collapsed.collapse_metadata = {'duration': collapse_time}
+
+        return collapsed
+
+    except Exception as e:
+        logger.error(f"[Collapse] Failed to collapse beam {getattr(wave, 'id', 'N/A')}: {e}", exc_info=True)
+        # Return as-is, mark error
+        wave.status = "collapse_failed"
+        return wave

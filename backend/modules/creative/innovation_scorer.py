@@ -132,3 +132,9 @@ def detect_contradictions(tree: Dict[str, Any]) -> float:
         return 0.0
 
     return min(contradiction_count / total, 1.0)
+
+def get_innovation_score(idea: Dict[str, Any], mutated: Union[bool, Dict[str, Any]] = False) -> float:
+    """
+    Wrapper for backward compatibility with systems calling `get_innovation_score`.
+    """
+    return compute_innovation_score(idea, mutated=mutated)

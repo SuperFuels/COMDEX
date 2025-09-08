@@ -421,6 +421,25 @@ return (
           <div className="text-red-500 animate-pulse">⚠️ Low Coherence Detected</div>
         )}
       </div>
+      {/* 🔮 Real-Time Beam Predictions */}
+      <div className="text-xs mt-2 bg-slate-900/80 border border-indigo-600 rounded-lg p-2 font-mono text-indigo-200 shadow-md">
+        <div className="mb-1 text-indigo-300 font-semibold">🔮 Beam Prediction Metrics</div>
+        {events.slice(0, 5).map((entry, idx) => {
+          if (entry.type !== 'glyph' && entry.type !== 'gip') return null;
+          const g = entry.data as GlyphEvent;
+          if (!g.predicted) return null;
+          return (
+            <div key={`beam-pred-${idx}`} className="text-xs flex justify-between border-b border-white/10 py-1">
+              <span className="truncate">
+                ⟦ {g.glyph} ⟧ → <span className="text-green-400">{g.action}</span>
+              </span>
+              <span>
+                ↯ {g.entropy?.toFixed(2) ?? '—'} | 🎯 {g.confidence != null ? `${Math.round(g.confidence * 100)}%` : '—'}
+              </span>
+            </div>
+          );
+        })}
+      </div>
       <div className="text-xs text-purple-300 mt-2">
         🧠 Replay features enabled:
         <ul className="list-disc pl-4 space-y-1 mt-1">

@@ -1,0 +1,32 @@
+{
+  "id": "test_beam_001",
+  "logic_tree": {
+    "type": "root",
+    "children": [
+      {
+        "type": "leaf",
+        "label": "\u2295 XOR",
+        "children": []
+      }
+    ]
+  },
+  "glyphs": [
+    {
+      "id": "e1",
+      "type": "electron",
+      "label": "truth-electron",
+      "prediction": {
+        "confidence": 0.91,
+        "entropy": 0.12,
+        "status": "valid"
+      }
+    }
+  ],
+  "metadata": {},
+  "symbolic_metadata": {},
+  "qscore_metrics": {},
+  "soullaw_status": "unknown",
+  "soullaw_violations": [],
+  "history": [],
+  "phase": 0.0
+}

@@ -159,6 +159,21 @@ class CodexExecutor:
             # 🔍 Detect special op
             op = instruction_tree.get("op")
 
+            # 🔁 Beam-Based Opcode Execution (QWave)
+            if op in ("⧜", "⧝", "↔", "⧠", "⋰", "⋱"):  # or use SymbolicOpCode if available
+                try:
+                    from backend.codexcore_virtual.virtual_cpu_beam_core import execute_qwave_opcode
+                    beam_result = execute_qwave_opcode(instruction_tree, context=context)
+                    self.trace.log_event("beam_execution", {
+                        "op": op,
+                        "glyph": glyph,
+                        "result": beam_result,
+                        "tags": ["qwave", "symbolic"]
+                    })
+                    return {"status": "success", "result": beam_result, "cost": 0.0}
+                except Exception as beam_exec_err:
+                    logger.warning(f"[CodexExecutor] ⚠️ QWave beam opcode execution failed: {beam_exec_err}")
+
             # ⚡ Use Sycamore-scale collapse kernel if requested
             if op in ("collapse", "join", "combine") and context.get("enable_sycamore_kernel"):
                 try:

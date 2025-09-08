@@ -307,35 +307,47 @@ class SoulLawValidator:
 
         return feedback
 
-def validate_beam_event(beam):
-    """
-    Validate a beam event against SoulLaw constraints.
-    Returns True if allowed, or raises an exception/logs violation.
-    """
-    if not beam:
-        raise ValueError("Empty beam event.")
+    def validate_beam_event(self, beam: dict) -> bool:
+        """
+        Validate a beam event against SoulLaw constraints.
+        Returns True if allowed. Logs violations or approvals to KG + GlyphNet.
+        """
+        if not beam:
+            raise ValueError("Empty beam event.")
 
-    if not beam.get("source") or not beam.get("target"):
-        raise ValueError("Missing source or target in beam.")
+        if not beam.get("source") or not beam.get("target"):
+            raise ValueError("Missing source or target in beam.")
 
-    # ✅ Check beam content for SoulLaw violations
-    beam_str = json.dumps(beam)
-    violations = get_violations(beam_str)
+        try:
+            violations = evaluate_soullaw_violations(beam)
+            is_blocked = violations.get("blocked", False)
+            violation_list = violations.get("violations", [])
 
-    if violations:
-        log_soullaw_event({
-            "event_type": "beam_violation",
-            "beam_id": beam.get("id"),
-            "container_id": beam.get("container_id"),
-            "violations": violations,
-            "source": beam.get("source"),
-            "target": beam.get("target"),
-            "timestamp": beam.get("timestamp"),
-        })
-        raise ValueError(f"❌ SoulLaw violation(s) in beam: {violations}")
+            if is_blocked:
+                reason = ", ".join(violation_list) or "unspecified violation"
 
-    return True
+                # 🟥 Log violation to KG + broadcast
+                log_soullaw_event({
+                    "event_type": "beam_violation",
+                    "beam_id": beam.get("id"),
+                    "container_id": beam.get("container_id"),
+                    "violations": violation_list,
+                    "source": beam.get("source"),
+                    "target": beam.get("target"),
+                    "timestamp": beam.get("timestamp"),
+                })
 
+                self._inject_violation("beam_violation", reason)
+                return False
+
+            else:
+                # 🟩 Approval path
+                self._inject_approval("beam_approved", "Beam passed SoulLaw check")
+                return True
+
+        except Exception as e:
+            self._inject_violation("beam_validation_error", str(e))
+            raise
 # --------------------------------------------------------------------------------------
 # 🔁 Lazy Singleton Accessor (public)
 # --------------------------------------------------------------------------------------

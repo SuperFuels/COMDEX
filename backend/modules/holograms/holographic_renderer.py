@@ -9,10 +9,10 @@ from typing import Dict, List, Optional, Any
 
 from backend.modules.codex.codex_trace import trace_glyph_execution_path
 from backend.modules.codex.codex_metrics import calculate_glyph_cost
+
 try:
     from backend.modules.glyphos.symbolic_entangler import get_entangled_links
 except Exception:
-    # Minimal no-op shim to keep renderer working even if entangler isn’t available
     def get_entangled_links(*args, **kwargs):
         return []
 
@@ -20,6 +20,13 @@ try:
     from backend.modules.holograms.ghx_encoder import glyph_color_map, glyph_intensity_map
 except Exception:
     from .ghx_encoder import glyph_color_map, glyph_intensity_map  # type: ignore
+
+# ✅ CodexLang HUD streaming import
+try:
+    from backend.modules.codex.codex_websocket_interface import send_codex_ws_event
+except Exception:
+    def send_codex_ws_event(event_type: str, payload: dict):
+        print(f"[Fallback HUD] {event_type} → {json.dumps(payload)}")
 
 logger = logging.getLogger(__name__)
 
@@ -73,7 +80,7 @@ class HolographicRenderer:
                 "replay": replay,
                 "cost": cost,
                 "timestamp": timestamp,
-                "lazy_triggered": not self.lazy_mode  # True if not lazy or already loaded
+                "lazy_triggered": not self.lazy_mode
             }
             projection.append(light_packet)
 
@@ -87,12 +94,28 @@ class HolographicRenderer:
                 })
 
         self.rendered_projection = projection
+
+        # ✅ CodexLang HUD stream (after projection render)
+        try:
+            send_codex_ws_event("hud_ghx_projection", {
+                "event": "ghx_projection_ready",
+                "observer": self.observer_id,
+                "container_id": self.ghx.get("container_id"),
+                "glyph_count": len(projection),
+                "lazy_mode": self.lazy_mode,
+                "ghx_version": self.ghx.get("ghx_version", "1.0"),
+                "replay_enabled": self.ghx.get("replay_enabled", False)
+            })
+        except Exception as e:
+            logger.warning(f"[HUD] Failed to stream CodexLang HUD: {e}")
+
+        # Optional HSX broadcast
         try:
             from backend.modules.hologram.symbolic_hsx_bridge import SymbolicHSXBridge
             SymbolicHSXBridge.broadcast_glyphs(projection, observer=self.observer_id)
         except Exception:
             logger.warning("HSXBridge not available, skipping overlay broadcast.")
-            
+
         return projection
 
     def _is_visible_to_observer(self, glyph: Dict[str, Any]) -> bool:
@@ -109,10 +132,6 @@ class HolographicRenderer:
         return False
 
     def _is_in_view(self, glyph: Dict[str, Any]) -> bool:
-        """
-        Placeholder for future camera/frustum/gaze check.
-        For now, default to False to simulate lazy triggering.
-        """
         return False  # Set True manually to test eager expansion
 
     def trigger_projection(self, glyph_id: str, method: str = "gaze") -> Optional[Dict]:

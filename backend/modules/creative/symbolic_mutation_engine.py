@@ -1,8 +1,26 @@
+# File: backend/modules/creative/symbolic_mutation_engine.py
+
+"""
+symbolic_mutation_engine.py
+
+Performs symbolic logic tree mutations and beam-aware variant generation.
+Used by CodexExecutor, SQI Kernel, and Virtual CPU for beam path exploration.
+Includes logic + beam mutation, SQI fork support, and entropy scoring hooks.
+"""
+
 import copy
 import random
+import logging
+import uuid
 from typing import Any, Dict, List
 
-# Define the list of allowed mutation operations
+from backend.modules.glyphwave.core.wave_state import WaveState
+from backend.modules.codex.beam_history import register_beam_mutation
+from backend.modules.codex.symbolic_entropy import compute_entropy_metrics
+from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.sqi_reasoning_module import SQIReasoningEngine
+
+logger = logging.getLogger(__name__)
+
 MUTATION_OPERATIONS = [
     "rename_node",
     "flip_operator",
@@ -13,11 +31,115 @@ MUTATION_OPERATIONS = [
     "change_value",
 ]
 
+def mutate_beam(original_beam: WaveState, max_variants: int = 3) -> WaveState:
+    """
+    Generate symbolic variants of the beam’s internal logic and mutate beam metadata.
+    Returns one selected mutated beam. Beam fork logic handled by fork_beam_paths().
+    """
+    base_tree = getattr(original_beam, "logic_tree", None)
+    if not base_tree:
+        logger.warning("[Mutation] Beam missing logic_tree; skipping mutation")
+        return original_beam
+
+    variants = mutate_symbolic_logic(base_tree, max_variants=max_variants)
+    chosen = random.choice(variants)
+
+    mutated_beam = copy.deepcopy(original_beam)
+    mutated_beam.logic_tree = chosen
+    mutated_beam.phase += random.uniform(-0.1, 0.1)
+    mutated_beam.amplitude *= random.uniform(0.9, 1.1)
+    mutated_beam.coherence *= random.uniform(0.95, 1.05)
+    mutated_beam.origin_trace.append("mutation")
+    mutated_beam.status = "mutated"
+    mutated_beam.id = getattr(mutated_beam, "id", str(uuid.uuid4()))
+
+    # Re-score SQI and recompute entropy
+    sqi_engine = SQIReasoningEngine()
+    mutated_beam.sqi_score = sqi_engine.score_node(mutated_beam.logic_tree)
+    mutated_beam.entropy = compute_entropy_metrics(mutated_beam)
+
+    # Register mutation in beam history
+    register_beam_mutation(
+        beam_id=mutated_beam.id,
+        mutation={
+            "type": "symbolic_mutation",
+            "details": {
+                "from": original_beam.logic_tree.get("label", "unknown"),
+                "to": mutated_beam.logic_tree.get("label", "unknown"),
+                "mutation_ops": [
+                    node.get("mutation_note")
+                    for node in mutated_beam.logic_tree.get("children", [])
+                    if node.get("mutated")
+                ]
+            }
+        },
+        container_id=getattr(mutated_beam, "container_id", None),
+        symbolic_context={
+            "sqi_score": mutated_beam.sqi_score,
+            "entropy": mutated_beam.entropy,
+            "trace": mutated_beam.origin_trace,
+            "status": mutated_beam.status
+        },
+        broadcast=True
+    )
+
+    return mutated_beam
+
+def fork_beam_paths(original_beam: WaveState, forks: int = 3) -> List[WaveState]:
+    """
+    Create multiple mutated versions of a beam for speculative execution.
+    Each variant receives symbolic + wave property mutation.
+    """
+    base_tree = getattr(original_beam, "logic_tree", None)
+    if not base_tree:
+        return [original_beam]
+
+    logic_variants = mutate_symbolic_logic(base_tree, max_variants=forks)
+    forked_beams = []
+
+    for variant in logic_variants:
+        b = copy.deepcopy(original_beam)
+        b.logic_tree = variant
+        b.phase += random.uniform(-0.15, 0.15)
+        b.amplitude *= random.uniform(0.85, 1.15)
+        b.coherence *= random.uniform(0.9, 1.1)
+        b.origin_trace.append("fork")
+        b.status = "forked"
+        b.id = getattr(b, "id", str(uuid.uuid4()))
+
+        sqi_engine = SQIReasoningEngine()
+        b.sqi_score = sqi_engine.score_node(b.logic_tree)
+        b.entropy = compute_entropy_metrics(b)
+
+        register_beam_mutation(
+            beam_id=b.id,
+            mutation={
+                "type": "symbolic_fork",
+                "details": {
+                    "from": original_beam.logic_tree.get("label", "unknown"),
+                    "to": b.logic_tree.get("label", "unknown"),
+                    "mutation_ops": [
+                        node.get("mutation_note")
+                        for node in b.logic_tree.get("children", [])
+                        if node.get("mutated")
+                    ]
+                }
+            },
+            container_id=getattr(b, "container_id", None),
+            symbolic_context={
+                "sqi_score": b.sqi_score,
+                "entropy": b.entropy,
+                "trace": b.origin_trace,
+                "status": b.status
+            },
+            broadcast=True
+        )
+
+        forked_beams.append(b)
+
+    return forked_beams
 
 def mutate_symbolic_logic(tree: Dict[str, Any], max_variants: int = 3) -> List[Dict[str, Any]]:
-    """
-    Perform multiple symbolic mutations on a logic tree to produce creative variants.
-    """
     variants = []
     for _ in range(max_variants):
         variant = copy.deepcopy(tree)
@@ -25,29 +147,17 @@ def mutate_symbolic_logic(tree: Dict[str, Any], max_variants: int = 3) -> List[D
         variants.append(variant)
     return variants
 
-
 def apply_random_mutations(node: Dict[str, Any], depth: int = 0, max_depth: int = 3):
-    """
-    Recursively apply mutations to a symbolic tree.
-    """
     if depth > max_depth:
         return
-
-    # Mutate current node
     if random.random() < 0.4:
         operation = random.choice(MUTATION_OPERATIONS)
         apply_mutation(node, operation)
-
-    # Recurse into children
     for child in node.get("children", []):
         if isinstance(child, dict):
             apply_random_mutations(child, depth + 1, max_depth)
 
-
 def apply_mutation(node: Dict[str, Any], operation: str):
-    """
-    Applies a single mutation operation to a symbolic node.
-    """
     if operation == "rename_node":
         old_label = node.get("label", "")
         node["label"] = f"{old_label}_v{random.randint(1, 99)}"
@@ -85,14 +195,9 @@ def apply_mutation(node: Dict[str, Any], operation: str):
             node["value"] += perturb
             node["mutation_note"] = f"changed value by {perturb:.2f}"
 
-    # Add mutation flag for visibility
     node["mutated"] = True
 
-
 def flip_operator(op: str) -> str:
-    """
-    Returns a flipped logical operator.
-    """
     opposites = {
         "AND": "OR",
         "OR": "AND",

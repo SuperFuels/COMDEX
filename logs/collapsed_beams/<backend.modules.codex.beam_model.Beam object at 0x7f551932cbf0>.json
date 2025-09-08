@@ -1,0 +1,31 @@
+{
+  "id": "tick_test_001",
+  "logic_tree": {
+    "type": "root",
+    "children": [
+      {
+        "type": "leaf",
+        "label": "\u2297 AND",
+        "children": []
+      }
+    ]
+  },
+  "glyphs": [],
+  "phase": 0.5500952117508826,
+  "amplitude": 0.999666244488191,
+  "coherence": 1.0183458346301455,
+  "origin_trace": [
+    "test",
+    "mutation"
+  ],
+  "status": "mutated",
+  "sqi_score": 0.0,
+  "entropy": -0.0,
+  "drift_cost": null,
+  "drift_signature": null,
+  "soullaw_status": "blocked",
+  "soullaw_violations": [
+    "avatar",
+    "container"
+  ]
+}

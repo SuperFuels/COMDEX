@@ -16,6 +16,8 @@ interface GlyphType {
   coherence_score?: number;
   tick?: number;
   collapse_state?: string;
+  sqi_score?: number;
+  tick_duration_ms?: number;
 }
 
 interface GHXTimelineProps {
@@ -142,6 +144,16 @@ export default function GHXTimeline({
               {g.coherence_score !== undefined && (
                 <div className="text-[10px] text-white/70">
                   🧬 {Math.round(g.coherence_score * 100)}% coherence
+                </div>
+              )}
+              {g.sqi_score !== undefined && (
+                <div className="text-[10px] text-white/70">
+                  🔮 SQI: {g.sqi_score.toFixed(2)}
+                </div>
+              )}
+              {g.tick_duration_ms !== undefined && (
+                <div className="text-[10px] text-white/70">
+                  ⏱️ {g.tick_duration_ms.toFixed(1)} ms
                 </div>
               )}
             </div>

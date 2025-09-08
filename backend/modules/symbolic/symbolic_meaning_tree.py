@@ -1,6 +1,6 @@
 # backend/modules/symbolic/symbolic_meaning_tree.py
 
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 
 class SymbolicMeaningTree:
     def __init__(self, root_glyph: str, nodes: List[Dict], edges: List[Dict]):
@@ -45,6 +45,29 @@ class SymbolicMeaningTree:
             root_glyph = nodes[0]["id"]  # Fallback
 
         return cls(root_glyph=root_glyph, nodes=nodes, edges=edges)
+
+    @classmethod
+    def from_beam(cls, beam: Any) -> "SymbolicMeaningTree":
+        """
+        Create a SymbolicMeaningTree from a WaveState beam object.
+        Extracts minimal structure using beam.glyph_data and ID fields.
+        This is used for benchmarks and simplified symbolic traces.
+        """
+        glyph_id = getattr(beam, "glyph_id", "beam_glyph")
+        glyph_data = getattr(beam, "glyph_data", {})
+
+        root_node = {
+            "id": glyph_id,
+            "label": glyph_data.get("label", glyph_id),
+            "type": glyph_data.get("type", "wave"),
+            "metadata": glyph_data,
+        }
+
+        return cls(
+            root_glyph=glyph_id,
+            nodes=[root_node],
+            edges=[],
+        )
 
     def print_summary(self):
         """

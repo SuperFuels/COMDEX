@@ -4,10 +4,7 @@ from typing import Optional, Dict, Any
 from backend.modules.glyphwave.core.beam_logger import log_beam_prediction
 from backend.modules.glyphwave.core.wave_state import WaveState
 from backend.modules.glyphwave.qwave.qwave_writer import generate_qwave_id
-from backend.modules.glyphvault.soul_law_validator import validate_beam_event
-
-# ✅ NEW: Import for writing beam to container memory
-from backend.modules.container.container_runtime import append_beam_to_container
+from backend.modules.glyphvault.soul_law_validator import SoulLawValidator
 
 # 🔋 Optional: metrics streaming or WebSocket hooks can go here
 # from backend.modules.glyphwave.hud.metric_streamer import stream_beam_metric
@@ -24,6 +21,9 @@ def emit_qwave_beam(
     """
     Emits a QWave beam event into the symbolic telemetry system.
     """
+
+    # 🔄 Lazy import to avoid circular dependency
+    from backend.modules.runtime.container_runtime import append_beam_to_container
 
     timestamp = time.time()
     context = context or {}
@@ -52,21 +52,21 @@ def emit_qwave_beam(
 
     # ✅ Validate via SoulLaw filter
     try:
-        validate_beam_event(wave_dict)
+        SoulLawValidator().validate_beam_event(wave_dict)
     except Exception as e:
         print(f"[emit_qwave_beam] ⚠️ SoulLaw validation failed: {e}")
-
-    # 📡 Log or broadcast beam
-    try:
-        log_beam_prediction(wave_dict)
-    except Exception as e:
-        print(f"[emit_qwave_beam] ⚠️ Failed to log symbolic beam: {e}")
 
     # ✅ NEW: Inject into container memory for later .dc.json export
     try:
         append_beam_to_container(container_id, wave_dict)
     except Exception as e:
         print(f"[emit_qwave_beam] ⚠️ Failed to append beam to container: {e}")
+
+    # 📡 Log or broadcast beam
+    try:
+        log_beam_prediction(wave_dict)
+    except Exception as e:
+        print(f"[emit_qwave_beam] ⚠️ Failed to log symbolic beam: {e}")
 
     # 📊 Optional: HUD / metric streamer
     # stream_beam_metric(wave_dict)

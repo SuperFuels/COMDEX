@@ -1,0 +1,100 @@
+[
+  {
+    "timestamp": "2025-09-07T20:51:09.849502",
+    "beam_id": {
+      "id": "test_beam_001",
+      "logic_tree": {
+        "type": "root",
+        "children": [
+          {
+            "type": "leaf",
+            "label": "\u2295 XOR",
+            "children": []
+          }
+        ],
+        "label": "_v39",
+        "mutation_note": "renamed node",
+        "mutated": true
+      },
+      "glyphs": [
+        {
+          "id": "e1",
+          "type": "electron",
+          "label": "truth-electron",
+          "prediction": {
+            "confidence": 0.91,
+            "entropy": 0.12,
+            "status": "valid"
+          },
+          "sqi_score": 0.9980000000000001
+        }
+      ],
+      "phase": 0.42924557695894194,
+      "amplitude": 1.0988995200061111,
+      "coherence": 1.0103418101893435,
+      "origin_trace": [
+        "seed",
+        "mutation"
+      ],
+      "status": "mutated",
+      "sqi_score": 0.9980000000000001,
+      "entropy": 1.0,
+      "drift_cost": null,
+      "drift_signature": null,
+      "soullaw_status": "blocked",
+      "soullaw_violations": [
+        "avatar",
+        "container"
+      ]
+    },
+    "container_id": null,
+    "event": "collapse",
+    "details": {
+      "id": "test_beam_001",
+      "logic_tree": {
+        "type": "root",
+        "children": [
+          {
+            "type": "leaf",
+            "label": "\u2295 XOR",
+            "children": []
+          }
+        ],
+        "label": "_v39",
+        "mutation_note": "renamed node",
+        "mutated": true
+      },
+      "glyphs": [
+        {
+          "id": "e1",
+          "type": "electron",
+          "label": "truth-electron",
+          "prediction": {
+            "confidence": 0.91,
+            "entropy": 0.12,
+            "status": "valid"
+          },
+          "sqi_score": 0.9980000000000001
+        }
+      ],
+      "phase": 0.42924557695894194,
+      "amplitude": 1.0988995200061111,
+      "coherence": 1.0103418101893435,
+      "origin_trace": [
+        "seed",
+        "mutation"
+      ],
+      "status": "mutated",
+      "sqi_score": 0.9980000000000001,
+      "entropy": 1.0,
+      "drift_cost": null,
+      "drift_signature": null,
+      "soullaw_status": "blocked",
+      "soullaw_violations": [
+        "avatar",
+        "container"
+      ]
+    },
+    "symbolic_context": null
+  }
+]

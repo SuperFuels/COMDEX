@@ -10,12 +10,10 @@ Optional SQI bus mix-in to route events through GlyphWave when enabled.
 """
 
 from typing import Dict, Any, Callable, Optional
-
-from backend.modules.glyphwave.adapters import send_packet, recv_packet
 from backend.modules.glyphwave.feature_flag import gw_enabled
-from backend.modules.glyphwave.telemetry.wave_scope import wave_scope, maybe_stream_to_websocket
-from backend.modules.telemetry.telemetry_handler import stream_to_hud
-
+from backend.modules.glyphwave.wavescope import WaveScope
+from backend.modules.glyphwave.telemetry_handler import log_beam, get_wave_scope
+from backend.modules.glyphwave.adapters.glyphnet_adapter import send_packet, recv_packet
 # 🔁 Fallback publish function (e.g. sqi_event_bus.publish)
 _fallback_publish: Optional[Callable[[Dict[str, Any]], None]] = None
 

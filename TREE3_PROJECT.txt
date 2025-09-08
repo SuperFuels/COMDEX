@@ -141,12 +141,19 @@
 │   ├── contract_1.pdf
 │   ├── create_tables.py
 │   ├── data/
+│   │   ├── conceptnet/
+│   │   │   └── numberbatch-en-19.08.txt
 │   │   ├── domain_goals.json
 │   │   ├── knowledge_index.jsonl
+│   │   ├── logs/
+│   │   │   ├── collapse_trace_log.dc.json
+│   │   │   └── collapse_trace_log.jsonl
 │   │   ├── privacy_vault.json
 │   │   └── problem_graphs/
 │   │       └── problem_graphs.dc.json
 │   ├── database.py
+│   ├── db/
+│   │   └── fork_logger.py
 │   ├── drop_tables.py
 │   ├── generated_pdfs/
 │   │   └── 42.pdf
@@ -157,6 +164,7 @@
 │   │   ├── contract.py
 │   │   ├── deal.py
 │   │   ├── dream.py
+│   │   ├── fork.py
 │   │   ├── intent_log.py
 │   │   ├── product.py
 │   │   ├── shipment.py
@@ -186,6 +194,7 @@
 │   │   ├── benchmark/
 │   │   │   └── real_qubit_simulator.py
 │   │   ├── codex/
+│   │   │   ├── __init__.py
 │   │   │   ├── auto_mutate_container.py
 │   │   │   ├── benchmark_runner.py
 │   │   │   ├── codex_ast_encoder.py
@@ -258,7 +267,11 @@
 │   │   │   ├── symbolic_gradient_engine.py
 │   │   │   └── time_engine.py
 │   │   ├── creative/
-│   │   │   └── creative_synthesis_engine.py
+│   │   │   ├── creative_core.py
+│   │   │   ├── creative_synthesis_engine.py
+│   │   │   ├── innovation_memory_tracker.py
+│   │   │   ├── innovation_scorer.py
+│   │   │   └── symbolic_mutation_engine.py
 │   │   ├── dimensions/
 │   │   │   ├── __init__.py
 │   │   │   ├── aion_start.dc.json
@@ -312,6 +325,10 @@
 │   │   │   ├── writable_guard.py
 │   │   │   ├── writable_modules.json
 │   │   │   └── writable_modules_config.json
+│   │   ├── dreamos/
+│   │   │   ├── ghost_entry.py
+│   │   │   ├── ghost_memory_writer.py
+│   │   │   └── ghost_overlay.py
 │   │   ├── encryption/
 │   │   │   ├── README_GlyphEncryption.md
 │   │   │   ├── Symbolic Key Derivation Module Documentation.md
@@ -326,6 +343,8 @@
 │   │   │   ├── symbolic_encryption_handler.py
 │   │   │   ├── vault_exporter.py
 │   │   │   └── vault_importer.py
+│   │   ├── exceptions/
+│   │   │   └── tampered_payload.py
 │   │   ├── gip/
 │   │   │   ├── gip_adapter_http.py
 │   │   │   ├── gip_adapter_net.py
@@ -340,6 +359,11 @@
 │   │   │   ├── gip_websocket_interface.py
 │   │   │   ├── glyphnet_ws_interface.py
 │   │   │   └── luxnet_simulator.py
+│   │   ├── glyphcore/
+│   │   │   ├── action_context_builder.py
+│   │   │   ├── action_policy_map.py
+│   │   │   ├── glyphcore_action_switch.py
+│   │   │   └── glyphcore_runner.py
 │   │   ├── glyphnet/
 │   │   │   ├── GlyphNetDebugger.tsx
 │   │   │   ├── agent_identity_registry.py
@@ -369,9 +393,13 @@
 │   │   │   ├── glyphnet_satellite_mode.py
 │   │   │   ├── glyphnet_terminal.py
 │   │   │   ├── glyphnet_trace.py
+│   │   │   ├── glyphnet_transceiver.py
+│   │   │   ├── glyphnet_transport.py
 │   │   │   ├── glyphwave_encoder.py
 │   │   │   ├── glyphwave_simulator.py
 │   │   │   ├── identity_registry.py
+│   │   │   ├── qkd_fingerprint.py
+│   │   │   ├── qkd_router.py
 │   │   │   ├── replay_timeline_renderer.py
 │   │   │   ├── symbolic_key_derivation.py
 │   │   │   └── time_locked_key_manager.py
@@ -431,24 +459,40 @@
 │   │   │   ├── vault_audit_api.py
 │   │   │   ├── vault_bridge.py
 │   │   │   ├── vault_logger.py
-│   │   │   └── vault_manager.py
+│   │   │   ├── vault_manager.py
+│   │   │   └── waveglyph_signer.py
 │   │   ├── glyphwave/
 │   │   │   ├── adapters/
 │   │   │   ├── adapters.py
+│   │   │   ├── carrier/
 │   │   │   ├── carrier_memory.py
 │   │   │   ├── constants.py
 │   │   │   ├── core/
+│   │   │   ├── emit_beam.py
 │   │   │   ├── emitters/
+│   │   │   ├── engine/
 │   │   │   ├── feature_flag.py
+│   │   │   ├── gkey_model.py
+│   │   │   ├── gpu/
+│   │   │   ├── gwip/
 │   │   │   ├── gwip_codec.py
+│   │   │   ├── gwv_writer.py
+│   │   │   ├── holographic_projection.py
 │   │   │   ├── interfaces.py
 │   │   │   ├── kernels/
 │   │   │   ├── models/
+│   │   │   ├── performance/
 │   │   │   ├── physics/
+│   │   │   ├── protocol/
+│   │   │   ├── qkd/
+│   │   │   ├── qkd_handshake.py
+│   │   │   ├── qwave/
 │   │   │   ├── runtime.py
 │   │   │   ├── scheduler.py
+│   │   │   ├── telemetry_handler.py
 │   │   │   ├── tests/
 │   │   │   ├── types/
+│   │   │   ├── utils/
 │   │   │   └── wavescope.py
 │   │   ├── hexcore/
 │   │   │   ├── __init__.py
@@ -564,7 +608,8 @@
 │   │   │   ├── __init__.py
 │   │   │   └── scroll_builder.py
 │   │   ├── security/
-│   │   │   └── key_fragment_resolver.py
+│   │   │   ├── key_fragment_resolver.py
+│   │   │   └── rate_limit_manager.py
 │   │   ├── sim/
 │   │   │   └── grid_engine.py
 │   │   ├── skills/
@@ -638,6 +683,9 @@
 │   │   │   ├── voice_interface.py
 │   │   │   └── voice_interface_test.py
 │   │   ├── soul/
+│   │   │   ├── fail_closed_guard.py
+│   │   │   ├── intercept_measurements.py
+│   │   │   ├── sandbox_kernel_guard.py
 │   │   │   └── soul_laws.py
 │   │   ├── sqi/
 │   │   │   ├── __init__.py
@@ -648,6 +696,7 @@
 │   │   │   ├── kg_bridge.py
 │   │   │   ├── kg_drift.py
 │   │   │   ├── knowledge_relinker.py
+│   │   │   ├── metrics_bus.py
 │   │   │   ├── observer_bias.py
 │   │   │   ├── observer_engine.py
 │   │   │   ├── qbit_format.py
@@ -665,13 +714,23 @@
 │   │   │   ├── sqi_scorer.py
 │   │   │   ├── sqi_tessaris_bridge.py
 │   │   │   └── sqi_trace_logger.py
+│   │   ├── symbolgraph/
+│   │   │   ├── symbolgraph_adapter.py
+│   │   │   └── symbolgraph_store.py
 │   │   ├── symbolic/
 │   │   │   ├── __init__.py
 │   │   │   ├── codex_ast_parser.py
 │   │   │   ├── codex_ast_types.py
+│   │   │   ├── decoherence.py
+│   │   │   ├── decoherence_alerts.py
 │   │   │   ├── hst/
+│   │   │   ├── metrics_hooks.py
+│   │   │   ├── metrics_logger.py
 │   │   │   ├── mutation_engine.py
+│   │   │   ├── mutation_suggestions.py
+│   │   │   ├── mutation_trigger.py
 │   │   │   ├── natural_language_parser.py
+│   │   │   ├── runtime_feedback.py
 │   │   │   ├── symbol_tree_generator.py
 │   │   │   ├── symbol_tree_utils.py
 │   │   │   ├── symbolic_broadcast.py
@@ -762,6 +821,7 @@
 │   │   ├── aion_suggest.py
 │   │   ├── aion_synthesize_glyphs.py
 │   │   ├── aion_tessaris_intents.py
+│   │   ├── api_collapse_trace.py
 │   │   ├── auth.py
 │   │   ├── avatar_runtime.py
 │   │   ├── buyer.py
@@ -773,10 +833,13 @@
 │   │   ├── contract_1.pdf
 │   │   ├── contracts.py
 │   │   ├── deal.py
+│   │   ├── dev/
+│   │   │   └── glyphwave_test_router.py
 │   │   ├── dna_chain.py
 │   │   ├── dna_logs.py
 │   │   ├── game.py
 │   │   ├── game_event.py
+│   │   ├── ghost_routes.py
 │   │   ├── ghx_control.py
 │   │   ├── ghx_encode.py
 │   │   ├── gip_router.py
@@ -784,6 +847,7 @@
 │   │   ├── glyphnet_command_api.py
 │   │   ├── glyphnet_transport_api.py
 │   │   ├── glyphnet_vault_api.py
+│   │   ├── gwv_trace_loader.py
 │   │   ├── knowledge_graph_api.py
 │   │   ├── lean_inject.py
 │   │   ├── lean_inject_api.py
@@ -840,6 +904,7 @@
 │   │   ├── dna_cli.py
 │   │   ├── examples/
 │   │   │   └── physics_demo.codex
+│   │   ├── export_latest_collapse.py
 │   │   ├── generate_tree3.py
 │   │   ├── ingest_symbolic.py
 │   │   ├── log_milestone.py
@@ -853,6 +918,7 @@
 │   │   ├── run_tessaris_cli.py
 │   │   ├── simulate_diff_check.py
 │   │   ├── simulate_goal_run.py
+│   │   ├── test_export_qwave.py
 │   │   ├── test_glyph_ws_broadcast.py
 │   │   ├── test_kg_seed_physics.py
 │   │   ├── test_mutation_and_dream.py
@@ -927,31 +993,54 @@
 │   │   ├── __init__.py
 │   │   ├── comdex/
 │   │   │   └── test_codex_goal_mutation.py
+│   │   ├── compression_results.jsonl
 │   │   ├── ethics_sim_test.py
 │   │   ├── glyph_encryption_test.py
+│   │   ├── kg_writer_compression_test.py
+│   │   ├── test_backpressure_overflow.py
+│   │   ├── test_canary_toggle.py
+│   │   ├── test_codex_executor_qkd_block.py
 │   │   ├── test_codex_fabric.py
 │   │   ├── test_codex_self_rewrite.py
+│   │   ├── test_codexlang_rewriter.py
+│   │   ├── test_collapse_determinism.py
 │   │   ├── test_curiosity_index.py
 │   │   ├── test_dimension_thought_runner.py
 │   │   ├── test_dna_registry.py
 │   │   ├── test_dream_index.py
+│   │   ├── test_emit_qwave_chain.py
+│   │   ├── test_entanglement_integrity.py
+│   │   ├── test_full_symbolic_compression.py
+│   │   ├── test_glyph_lifecycle.py
 │   │   ├── test_glyph_mutator.py
 │   │   ├── test_glyph_reversibility.py
 │   │   ├── test_glyph_runtime_loop.py
 │   │   ├── test_glyph_socket.py
 │   │   ├── test_glyph_trigger_engine.py
+│   │   ├── test_glyphlogic_module.codex
+│   │   ├── test_glyphlogic_module.py
+│   │   ├── test_glyphnet_qkd_policy.py
+│   │   ├── test_gwave_encryptor.py
+│   │   ├── test_import_fork.py
+│   │   ├── test_innovation_scorer.py
+│   │   ├── test_interference_kernel_core.py
+│   │   ├── test_interference_speed.py
 │   │   ├── test_introspection_index.py
 │   │   ├── test_kg_bus_ingest.py
 │   │   ├── test_kg_entangle.py
 │   │   ├── test_kg_predictive_fork.py
 │   │   ├── test_knowledge_pack.py
 │   │   ├── test_lean_scroll_output.py
+│   │   ├── test_log_beam.py
 │   │   ├── test_math_core_seed.py
 │   │   ├── test_mutate_glyph.py
 │   │   ├── test_physics_core_seed.py
 │   │   ├── test_physics_kernel.py
 │   │   ├── test_physics_ops.py
 │   │   ├── test_portal_dispatch.py
+│   │   ├── test_push_wave_qkd.py
+│   │   ├── test_push_wave_qkd_retry.py
+│   │   ├── test_qkd_handshake.py
 │   │   ├── test_reverse_loader.py
 │   │   ├── test_self_rewrite_loop.py
 │   │   ├── test_semantic_scoring.py
@@ -1014,14 +1103,19 @@
 ├── cloud_sql_proxy
 ├── cloudbuild.yaml
 ├── cloudrun-env.yaml
+├── containers/
+│   └── kg_writer_test.dc.json
 ├── cue-today
 ├── data/
 │   ├── collapse_traces/
 │   │   ├── collapse_trace_20250818_213714.dc.json
-│   │   └── collapse_trace_20250818_213715.dc.json
+│   │   ├── collapse_trace_20250818_213715.dc.json
+│   │   └── collapse_trace_20250904_213322.dc.json
 │   ├── global_address_book.json
 │   ├── hyperdrive_idle_state.json
 │   ├── kg_runtime.json
+│   ├── logs/
+│   │   └── collapse_trace_log.dc.json
 │   ├── personality_traits.json
 │   ├── qwave_logs/
 │   │   ├── ecu_runtime_latest.jsonl
@@ -1269,7 +1363,6 @@
 │   │   │   └── SQI NEXUS.MD
 │   │   ├── SQI Containers & graphs
 │   │   ├── SQI MATHS & KNOWLEDGE.md
-│   │   ├── SQI Upgrades/
 │   │   ├── Screenshot 2025-07-28 at 22.36.57.png
 │   │   ├── Search Engine.md
 │   │   ├── Symbolic Memory Architecture.md
@@ -1350,6 +1443,8 @@
 │   │   ├── QGlyph Whitepaper.md
 │   │   ├── QWave Engine & Resonant Warp Propulsion White Paper.md
 │   │   ├── QWave Engine – Full Technical Consensus.md
+│   │   ├── Quantum Key Distribution (QKD).md
+│   │   ├── Qwave Beams - SQI, Codex Core.md
 │   │   ├── RNA & Ribosome.md
 │   │   ├── SQI How to Use Knowledge Scaffolding Containers.md
 │   │   ├── SQI KG Integration Technical Manual.MD
@@ -1378,7 +1473,8 @@
 │   │   ├── symbolic-causal intelligence engine.md
 │   │   ├── white paper - GlyphWave Engine: A Unified Optical–Quantum Carrier Layer for SQI and Beyond.md
 │   │   ├── white paper.md
-│   │   └── 📡 GlyphWave Protocol & Beam System – Technical Architecture & Usage Guide.md
+│   │   ├── 📡 GlyphWave Protocol & Beam System – Technical Architecture & Usage Guide.md
+│   │   └── 🛰 QWave Symbolic Beam System Advaced.md
 │   ├── TIME STAMP GLYPH.md
 │   ├── Tessaris/
 │   │   ├── Screenshot 2025-07-08 at 22.08.45.png
@@ -1476,11 +1572,19 @@
 │   │   │   ├── SymbolicExpansionSphere.tsx
 │   │   │   └── WormholeRenderer.tsx
 │   │   ├── CreateProductForm.tsx
+│   │   ├── CreativeCore/
+│   │   │   ├── InnovationOverlay.tsx
+│   │   │   └── InnovationScoreOverlay.tsx
 │   │   ├── DarkModeToggle.tsx
 │   │   ├── DnaLogViewer.tsx
 │   │   ├── DreamReflections.tsx
 │   │   ├── EscrowActions.tsx
 │   │   ├── GHX/
+│   │   │   ├── DreamGhostEntry.tsx
+│   │   │   ├── GHXAnchorMemory.tsx
+│   │   │   ├── GHXReplaySelector.tsx
+│   │   │   ├── GHXTeleportTrail.tsx
+│   │   │   ├── SymbolicTeleportPath.tsx
 │   │   │   └── atoms/
 │   │   ├── GlyphLab/
 │   │   │   └── PluginManager.tsx
@@ -1492,12 +1596,14 @@
 │   │   ├── Hologram/
 │   │   │   ├── AvatarThoughtAura.tsx
 │   │   │   ├── AvatarThoughtProjection.tsx
+│   │   │   ├── CollapseGraph.tsx
 │   │   │   ├── DreamPulseSpiral.tsx
 │   │   │   ├── GHXReplaySlider.tsx
 │   │   │   ├── GHXSignatureTrail.tsx
 │   │   │   ├── GHXTimeline.tsx
 │   │   │   ├── GHXTrailCanvas.tsx
 │   │   │   ├── GHXVisualizer.tsx
+│   │   │   ├── HeatMapOverlay.tsx
 │   │   │   ├── HologramHUD.tsx
 │   │   │   ├── HolographicViewer.tsx
 │   │   │   ├── MemoryBridgeBeams.tsx
@@ -1516,6 +1622,10 @@
 │   │   ├── Navbar.tsx
 │   │   ├── PdfModal.tsx
 │   │   ├── ProductCard.tsx
+│   │   ├── QuantumField/
+│   │   │   ├── beam_renderer.tsx
+│   │   │   ├── overlay_toggles.tsx
+│   │   │   └── polar_snap.ts
 │   │   ├── QuoteModal.module.css
 │   │   ├── QuoteModal.tsx
 │   │   ├── SQI/
@@ -1530,6 +1640,8 @@
 │   │   ├── SwapBar.tsx
 │   │   ├── SwapPanel.tsx
 │   │   ├── WalletConnect.tsx
+│   │   ├── WaveScope/
+│   │   │   └── WaveScopePanel.tsx
 │   │   ├── codex/
 │   │   │   ├── CodexDiffViewer.tsx
 │   │   │   ├── CodexLangEditor.tsx
@@ -1570,14 +1682,20 @@
 │   │   ├── useAvatarGlyphs.ts
 │   │   ├── useCanvasRecorder.ts
 │   │   ├── useCodexCoreProjection.ts
+│   │   ├── useCollapseMetrics.ts
+│   │   ├── useCollapseTrace.ts
 │   │   ├── useEscrowContract.ts
+│   │   ├── useGWVReplay.ts
 │   │   ├── useGlyphReplay.ts
 │   │   ├── useMemoryBridge.ts 
 │   │   ├── useSupplierDashboard.ts
+│   │   ├── useWaveTelemetry.ts
 │   │   └── useWebSocket.ts
 │   ├── lib/
 │   │   ├── api.ts
 │   │   ├── escrow.ts
+│   │   ├── glyphwave/
+│   │   │   └── modulationMetadata.ts
 │   │   ├── hologram/
 │   │   │   ├── entanglement_link_resolver.ts
 │   │   │   ├── ghx_trail_renderer.ts
@@ -1617,7 +1735,8 @@
 │   │   │   └── vaultUI.tsx
 │   │   ├── api/
 │   │   │   ├── aion.ts
-│   │   │   └── shipments.js
+│   │   │   ├── shipments.js
+│   │   │   └── test-mixed-beams.ts
 │   │   ├── buyer/
 │   │   │   └── dashboard.tsx
 │   │   ├── codex/
@@ -1713,6 +1832,369 @@
 │   ├── yarn-packages-frontend.txt
 │   └── yarn-packages-lock.txt
 ├── gcloud
+├── google-cloud-cli-460.0.0-linux-x86_64.tar.gz
+├── google-cloud-sdk/
+│   ├── .install/
+│   │   ├── .download/
+│   │   ├── anthoscli-linux-x86_64.manifest
+│   │   ├── anthoscli-linux-x86_64.snapshot.json
+│   │   ├── anthoscli.manifest
+│   │   ├── anthoscli.snapshot.json
+│   │   ├── bq-nix.manifest
+│   │   ├── bq-nix.snapshot.json
+│   │   ├── bq.manifest
+│   │   ├── bq.snapshot.json
+│   │   ├── bundled-python3-unix-linux-x86_64.manifest
+│   │   ├── bundled-python3-unix-linux-x86_64.snapshot.json
+│   │   ├── bundled-python3-unix.manifest
+│   │   ├── bundled-python3-unix.snapshot.json
+│   │   ├── core-nix.manifest
+│   │   ├── core-nix.snapshot.json
+│   │   ├── core.manifest
+│   │   ├── core.snapshot.json
+│   │   ├── gcloud-crc32c-linux-x86_64.manifest
+│   │   ├── gcloud-crc32c-linux-x86_64.snapshot.json
+│   │   ├── gcloud-crc32c.manifest
+│   │   ├── gcloud-crc32c.snapshot.json
+│   │   ├── gcloud-deps-linux-x86_64.manifest
+│   │   ├── gcloud-deps-linux-x86_64.snapshot.json
+│   │   ├── gcloud-deps.manifest
+│   │   ├── gcloud-deps.snapshot.json
+│   │   ├── gcloud.manifest
+│   │   ├── gcloud.snapshot.json
+│   │   ├── gsutil-nix.manifest
+│   │   ├── gsutil-nix.snapshot.json
+│   │   ├── gsutil.manifest
+│   │   └── gsutil.snapshot.json
+│   ├── LICENSE
+│   ├── README
+│   ├── RELEASE_NOTES
+│   ├── VERSION
+│   ├── bin/
+│   │   ├── anthoscli
+│   │   ├── bootstrapping/
+│   │   │   ├── .default_components
+│   │   │   ├── __init__.py
+│   │   │   ├── bootstrapping.py
+│   │   │   ├── bq.py
+│   │   │   ├── gsutil.py
+│   │   │   ├── install.py
+│   │   │   ├── java_dev_appserver.py
+│   │   │   └── setup.py
+│   │   ├── bq
+│   │   ├── dev_appserver.py
+│   │   ├── docker-credential-gcloud
+│   │   ├── gcloud
+│   │   ├── gcloud-crc32c
+│   │   ├── git-credential-gcloud.sh
+│   │   ├── gsutil
+│   │   └── java_dev_appserver.sh
+│   ├── completion.bash.inc
+│   ├── completion.zsh.inc
+│   ├── data/
+│   │   └── cli/
+│   │       ├── bq.json
+│   │       ├── gcloud.json
+│   │       ├── gcloud_completions.py
+│   │       └── gsutil.json
+│   ├── deb/
+│   │   └── mapping/
+│   │       ├── command_mapping.yaml
+│   │       └── component_mapping.yaml
+│   ├── install.bat
+│   ├── install.sh
+│   ├── lib/
+│   │   ├── gcloud.py
+│   │   ├── googlecloudsdk/
+│   │   │   ├── __init__.py
+│   │   │   ├── api_lib/
+│   │   │   ├── calliope/
+│   │   │   ├── command_lib/
+│   │   │   ├── core/
+│   │   │   ├── gcloud_main.py
+│   │   │   ├── generated_clients/
+│   │   │   ├── schemas/
+│   │   │   └── third_party/
+│   │   ├── surface/
+│   │   │   ├── __init__.py
+│   │   │   ├── access_approval/
+│   │   │   ├── access_context_manager/
+│   │   │   ├── active_directory/
+│   │   │   ├── ai/
+│   │   │   ├── ai_platform/
+│   │   │   ├── alloydb/
+│   │   │   ├── anthos/
+│   │   │   ├── api_gateway/
+│   │   │   ├── apigee/
+│   │   │   ├── app/
+│   │   │   ├── apphub/
+│   │   │   ├── artifacts/
+│   │   │   ├── asset/
+│   │   │   ├── assured/
+│   │   │   ├── auth/
+│   │   │   ├── authz_toolkit/
+│   │   │   ├── backup_dr/
+│   │   │   ├── batch/
+│   │   │   ├── beyondcorp/
+│   │   │   ├── bigtable/
+│   │   │   ├── billing/
+│   │   │   ├── blockchain_node_engine/
+│   │   │   ├── bms/
+│   │   │   ├── bq/
+│   │   │   ├── builds/
+│   │   │   ├── cbrs_spectrum_access/
+│   │   │   ├── certificate_manager/
+│   │   │   ├── cheat_sheet.py
+│   │   │   ├── cloud_shell/
+│   │   │   ├── code/
+│   │   │   ├── commerce_procurement/
+│   │   │   ├── components/
+│   │   │   ├── composer/
+│   │   │   ├── compute/
+│   │   │   ├── config/
+│   │   │   ├── container/
+│   │   │   ├── data_catalog/
+│   │   │   ├── data_fusion/
+│   │   │   ├── database_migration/
+│   │   │   ├── dataflow/
+│   │   │   ├── datapipelines/
+│   │   │   ├── dataplex/
+│   │   │   ├── dataproc/
+│   │   │   ├── dataproc_gdc/
+│   │   │   ├── datastore/
+│   │   │   ├── datastream/
+│   │   │   ├── deploy/
+│   │   │   ├── deployment_manager/
+│   │   │   ├── dialogflow/
+│   │   │   ├── dlp/
+│   │   │   ├── dns/
+│   │   │   ├── docker.py
+│   │   │   ├── domains/
+│   │   │   ├── edge_cache/
+│   │   │   ├── edge_cloud/
+│   │   │   ├── emulators/
+│   │   │   ├── endpoints/
+│   │   │   ├── error_reporting/
+│   │   │   ├── essential_contacts/
+│   │   │   ├── eventarc/
+│   │   │   ├── fault_injection/
+│   │   │   ├── feedback.py
+│   │   │   ├── filestore/
+│   │   │   ├── firebase/
+│   │   │   ├── firestore/
+│   │   │   ├── functions/
+│   │   │   ├── genomics/
+│   │   │   ├── healthcare/
+│   │   │   ├── help.py
+│   │   │   ├── iam/
+│   │   │   ├── iap/
+│   │   │   ├── identity/
+│   │   │   ├── ids/
+│   │   │   ├── immersive_stream/
+│   │   │   ├── info.py
+│   │   │   ├── infra_manager/
+│   │   │   ├── init.py
+│   │   │   ├── interactive.py
+│   │   │   ├── iot/
+│   │   │   ├── kms/
+│   │   │   ├── kuberun/
+│   │   │   ├── lifesciences/
+│   │   │   ├── logging/
+│   │   │   ├── looker/
+│   │   │   ├── media/
+│   │   │   ├── memcache/
+│   │   │   ├── meta/
+│   │   │   ├── metastore/
+│   │   │   ├── microservices/
+│   │   │   ├── migration/
+│   │   │   ├── ml/
+│   │   │   ├── monitoring/
+│   │   │   ├── mps/
+│   │   │   ├── netapp/
+│   │   │   ├── network_connectivity/
+│   │   │   ├── network_management/
+│   │   │   ├── network_security/
+│   │   │   ├── network_services/
+│   │   │   ├── notebooks/
+│   │   │   ├── org_policies/
+│   │   │   ├── organizations/
+│   │   │   ├── orglifecycle/
+│   │   │   ├── parallelstore/
+│   │   │   ├── policy_intelligence/
+│   │   │   ├── policy_troubleshoot/
+│   │   │   ├── privateca/
+│   │   │   ├── projects/
+│   │   │   ├── publicca/
+│   │   │   ├── pubsub/
+│   │   │   ├── quotas/
+│   │   │   ├── recaptcha/
+│   │   │   ├── recommender/
+│   │   │   ├── redis/
+│   │   │   ├── remote_build_execution/
+│   │   │   ├── resource_config/
+│   │   │   ├── resource_manager/
+│   │   │   ├── resource_settings/
+│   │   │   ├── run/
+│   │   │   ├── runtime_config/
+│   │   │   ├── scc/
+│   │   │   ├── scheduler/
+│   │   │   ├── secrets/
+│   │   │   ├── service_directory/
+│   │   │   ├── service_extensions/
+│   │   │   ├── services/
+│   │   │   ├── source/
+│   │   │   ├── source_manager/
+│   │   │   ├── spanner/
+│   │   │   ├── spectrum_access/
+│   │   │   ├── sql/
+│   │   │   ├── stacks/
+│   │   │   ├── storage/
+│   │   │   ├── survey.py
+│   │   │   ├── tasks/
+│   │   │   ├── telco_automation/
+│   │   │   ├── terraform/
+│   │   │   ├── topic/
+│   │   │   ├── trace/
+│   │   │   ├── transcoder/
+│   │   │   ├── transfer/
+│   │   │   ├── unlock.py
+│   │   │   ├── version.py
+│   │   │   ├── vmware/
+│   │   │   ├── web_security_scanner/
+│   │   │   ├── workbench/
+│   │   │   ├── workflows/
+│   │   │   ├── workspace_add_ons/
+│   │   │   └── workstations/
+│   │   └── third_party/
+│   │       ├── antlr3/
+│   │       ├── apitools/
+│   │       ├── argcomplete/
+│   │       ├── argparse/
+│   │       ├── backports/
+│   │       ├── boto3/
+│   │       ├── botocore/
+│   │       ├── cachetools/
+│   │       ├── certifi/
+│   │       ├── chardet/
+│   │       ├── cloudsdk/
+│   │       ├── concurrent/
+│   │       ├── containerregistry/
+│   │       ├── contextlib2/
+│   │       ├── dateutil/
+│   │       ├── dns/
+│   │       ├── docker/
+│   │       ├── dulwich/
+│   │       ├── fancy_urllib/
+│   │       ├── fasteners/
+│   │       ├── frozendict/
+│   │       ├── functools32/
+│   │       ├── gae_ext_runtime/
+│   │       ├── gcloud_crcmod/
+│   │       ├── google/
+│   │       ├── google_auth_httplib2/
+│   │       ├── google_auth_oauthlib/
+│   │       ├── hcl2/
+│   │       ├── httplib2/
+│   │       ├── httplib2shim/
+│   │       ├── idna/
+│   │       ├── ipaddr/
+│   │       ├── ipaddress/
+│   │       ├── jmespath/
+│   │       ├── jsonschema/
+│   │       ├── kubernetes/
+│   │       ├── lark/
+│   │       ├── mako/
+│   │       ├── markupsafe/
+│   │       ├── ml_sdk/
+│   │       ├── monotonic/
+│   │       ├── oauth2client/
+│   │       ├── oauthlib/
+│   │       ├── overrides/
+│   │       ├── packaging/
+│   │       ├── pkg_resources/
+│   │       ├── portpicker/
+│   │       ├── prompt_toolkit/
+│   │       ├── proto/
+│   │       ├── pubsublite/
+│   │       ├── pyasn1/
+│   │       ├── pyasn1_modules/
+│   │       ├── pygments/
+│   │       ├── pyparsing/
+│   │       ├── pytz/
+│   │       ├── pyu2f/
+│   │       ├── requests/
+│   │       ├── requests_oauthlib/
+│   │       ├── rsa/
+│   │       ├── ruamel/
+│   │       ├── s3transfer/
+│   │       ├── setuptools/
+│   │       ├── six/
+│   │       ├── socks/
+│   │       ├── sqlparse/
+│   │       ├── uritemplate/
+│   │       ├── urllib3/
+│   │       ├── wcwidth/
+│   │       ├── websocket/
+│   │       ├── win_inet_pton/
+│   │       └── yaml/
+│   ├── path.bash.inc
+│   ├── path.fish.inc
+│   ├── path.zsh.inc
+│   ├── platform/
+│   │   ├── anthoscli_licenses/
+│   │   │   ├── LICENSES.txt
+│   │   │   └── lib.zip
+│   │   ├── bq/
+│   │   │   ├── LICENSE.txt
+│   │   │   ├── MANIFEST.in
+│   │   │   ├── README.txt
+│   │   │   ├── VERSION
+│   │   │   ├── bigquery_client.py
+│   │   │   ├── bq.py
+│   │   │   ├── bq_auth_flags.py
+│   │   │   ├── bq_flags.py
+│   │   │   ├── bq_utils.py
+│   │   │   ├── credential_loader.py
+│   │   │   ├── discovery_documents/
+│   │   │   ├── discovery_next/
+│   │   │   ├── remove_pyreadline.py
+│   │   │   ├── table_formatter.py
+│   │   │   ├── third_party/
+│   │   │   ├── utils/
+│   │   │   └── wrapped_credentials.py
+│   │   ├── bundledpythonunix/
+│   │   │   ├── bin/
+│   │   │   ├── include/
+│   │   │   ├── lib/
+│   │   │   └── share/
+│   │   ├── ext-runtime/
+│   │   │   ├── custom/
+│   │   │   ├── go/
+│   │   │   ├── java/
+│   │   │   ├── nodejs/
+│   │   │   ├── php/
+│   │   │   ├── python/
+│   │   │   └── ruby/
+│   │   ├── gcloud-crc32c_licenses/
+│   │   │   └── LICENSES.txt
+│   │   └── gsutil/
+│   │       ├── CHANGES.md
+│   │       ├── CHECKSUM
+│   │       ├── CONTRIBUTING.md
+│   │       ├── LICENSE
+│   │       ├── MANIFEST.in
+│   │       ├── README.md
+│   │       ├── VERSION
+│   │       ├── gslib/
+│   │       ├── gsutil
+│   │       ├── gsutil.py
+│   │       ├── setup.py
+│   │       └── third_party/
+│   ├── properties
+│   └── rpm/
+│       └── mapping/
+│           ├── command_mapping.yaml
+│           └── component_mapping.yaml
 ├── hardhat.config.ts
 ├── ignition/
 │   └── modules/
@@ -1720,6 +2202,7 @@
 ├── inspect_root_db.py
 ├── live_ignition_plot.py
 ├── logs/
+│   ├── beam_traces.jsonl
 │   ├── glyph_trace_log.json
 │   ├── personality_log.json
 │   └── trigger_logs/

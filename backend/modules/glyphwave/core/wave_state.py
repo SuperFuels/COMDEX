@@ -1,4 +1,5 @@
 import time
+import datetime
 from typing import List, Dict, Tuple, Optional
 from backend.modules.codex.collapse_trace_exporter import log_beam_prediction
 from backend.modules.codex.codex_metrics import log_collapse_metric
@@ -86,18 +87,30 @@ class WaveState:
         tick: Optional[int] = None,
         state: Optional[str] = None,
         container_id: Optional[str] = None,
-        source: Optional[str] = None,   
-        target: Optional[str] = None,      
+        source: Optional[str] = None,
+        target: Optional[str] = None,
+        timestamp: Optional[str] = None,  # ✅ ADDED timestamp arg
     ):
+        self.wave_id = wave_id
+        self.glyph_data = glyph_data or {}
+        self.glyph_id = glyph_id
+        self.carrier_type = carrier_type
+        self.modulation_strategy = modulation_strategy
+        self.delay_ms = delay_ms
+        self.origin_trace = origin_trace or []
+        self.metadata = metadata or {}
+        self.prediction = prediction
+        self.sqi_score = sqi_score
+        self.collapse_state = collapse_state
+        self.entangled_wave = entangled_wave
+        self.tick = tick or 0
+        self.state = state or "active"
+        self.container_id = container_id
+
         self.source = source or self.glyph_data.get("source", "unknown")
         self.target = target or self.glyph_data.get("target", "unknown")
 
-        self.container_id = container_id
-        self.tick = tick or 0
-        self.state = state or "active"    
-        self.source = source
-        self.timestamp = timestamp
-        self.entangled_wave = entangled_wave
+        self.timestamp = timestamp or datetime.datetime.utcnow().isoformat() + "Z"
 
         # ✅ Safe fallback handling
         if entangled_wave:

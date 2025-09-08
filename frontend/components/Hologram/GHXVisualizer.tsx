@@ -14,6 +14,10 @@ import { DreamGhostEntry } from '@/components/GHX/DreamGhostEntry';
 import { getSignatureStatusBadge } from "@/utils/ghx_signature_utils";
 import { InnovationOverlay } from "@/components/CreativeCore/InnovationOverlay";
 import { useCollapseMetrics } from '@/hooks/useCollapseMetrics';
+import { useCodexHUD } from "@/hooks/useCodexHUD"; // HUD overlay stream
+import { useHUDToggles } from "@/hooks/useHUDToggles"; // HUD test toggles
+import { useRouter } from "next/router";
+
 
 const {
   latestCollapse,
@@ -78,7 +82,8 @@ const useGHXGlyphs = () => {
   const [holograms, setHolograms] = useState<any[]>([]);
   const [echoes, setEchoes] = useState<any[]>([]);
   const [dreams, setDreams] = useState<any[]>([]);
-
+  const { enableCodexHUD, enableGHXOverlay } = useHUDToggles();
+  const codexHUD = useCodexHUD(); // live CodexLang beam HUD feed
   const handleTeleport = (targetId: string) => {
     if (!targetId) return;
     // Replace with your teleport system
@@ -647,9 +652,6 @@ const QEntropySpiral = () => {
       agentColors[data.agent.agent_id || data.agent.name] = data.agent.color;
     }
   });
-
-import { useRouter } from "next/router";
-import { ElectronShells, buildElectronShells } from "./atoms/electronOrbit";
 
 const router = useRouter();
 

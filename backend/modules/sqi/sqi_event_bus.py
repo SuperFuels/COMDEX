@@ -472,5 +472,5 @@ def _maybe_link_relations(entry: dict, external_hash: Optional[str]) -> None:
         except Exception:
             pass
 
-from backend.modules.sqi import sqi_event_bus_gw
+from backend.modules.sqi.sqi_event_bus_gw import publish
 sqi_event_bus_gw.init_gw_publish_wrapper(publish)

@@ -9,7 +9,7 @@ Purpose:
 """
 
 from typing import Optional, Dict, Any
-from .wave_scope import WaveScope
+from .wavescope import WaveScope
 
 # Singleton instance of WaveScope
 _wave_scope = WaveScope()

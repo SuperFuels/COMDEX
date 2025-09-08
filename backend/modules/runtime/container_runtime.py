@@ -23,6 +23,7 @@ from backend.modules.consciousness.prediction_engine import PredictionEngine
 from backend.modules.lean.lean_proofverifier import validate_lean_container
 from backend.modules.qfield.qfc_ws_broadcast import send_qfc_payload
 from backend.modules.qfield.qfc_utils import build_qfc_view
+from backend.modules.qwave.beam_controller import BeamController
 
 try:
     # ✅ Lazy import to avoid circular dependency
@@ -79,10 +80,33 @@ class ContainerRuntime:
         self._registered_once: set[str] = set()
         self._soullaw_checked_containers: set[str] = set()
         self._soul_law_checked = set() 
+        self.beam_controller: Optional[BeamController] = None
+        self.beam_enabled: bool = False
+        self.test_toggles = {
+            "beam_mode": False,
+            "enable_sqi": True,
+            "enable_logging": True,
+            "enable_replay": False,
+            "test_mode": False
+        }
 
     def set_active_container(self, container_id: str):
         self.active_container_id = container_id
         self._soullaw_checked_containers.discard(container_id)  # or self._soullaw_checked_containers.clear() for per-session
+
+    def start_beam_loop(self, config: Optional[dict] = None):
+        config = config or {}
+        config.setdefault("tick_rate", self.tick_interval)
+        config.setdefault("container_id", self.active_container_id)
+        config.setdefault("enable_sqi", self.test_toggles["enable_sqi"])
+        config.setdefault("enable_logging", self.test_toggles["enable_logging"])
+        config.setdefault("enable_replay", self.test_toggles["enable_replay"])
+        config.setdefault("test_mode", self.test_toggles["test_mode"])
+
+        self.beam_controller = BeamController(config=config)
+        threading.Thread(target=self.beam_controller.start, daemon=True).start()
+        self.beam_enabled = True
+        print(f"🚀 Beam loop started for container: {self.active_container_id}")
 
     def load_and_activate_container(self, container_id: str) -> Dict[str, Any]:
         container = self.vault_manager.load_container_by_id(container_id)
@@ -144,11 +168,13 @@ class ContainerRuntime:
         asyncio.set_event_loop(self.async_loop)
         self.async_loop.run_forever()
 
-    def start(self):
+    def start(self, enable_beam: bool = False):
         if not self.running:
             self.running = True
             threading.Thread(target=self.run_loop, daemon=True).start()
             print("▶️ Container Runtime started.")
+            if enable_beam:
+                self.start_beam_loop()
 
     def stop(self):
         self.running = False

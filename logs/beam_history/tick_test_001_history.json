@@ -1,0 +1,121 @@
+[
+  {
+    "timestamp": "2025-09-07T23:12:56.780347",
+    "beam_id": "tick_test_001",
+    "container_id": "ucs_ephemeral",
+    "event": "mutation",
+    "mutation": {
+      "type": "symbolic_mutation",
+      "details": {
+        "from": "unknown",
+        "to": "unknown",
+        "mutation_ops": []
+      }
+    },
+    "symbolic_context": {
+      "sqi_score": 0.0,
+      "entropy": -0.0,
+      "trace": [
+        "test",
+        "mutation"
+      ],
+      "status": "mutated"
+    }
+  },
+  {
+    "timestamp": "2025-09-07T23:12:56.787591",
+    "beam_id": "tick_test_001",
+    "container_id": "ucs_ephemeral",
+    "event": "mutation",
+    "mutation": {
+      "type": "symbolic_mutation",
+      "details": {
+        "from": "unknown",
+        "to": "unknown",
+        "mutation_ops": [
+          "renamed node"
+        ]
+      }
+    },
+    "symbolic_context": {
+      "sqi_score": 0.0,
+      "entropy": -0.0,
+      "trace": [
+        "test",
+        "mutation"
+      ],
+      "status": "mutated"
+    }
+  },
+  {
+    "timestamp": "2025-09-07T23:12:56.789990",
+    "beam_id": "tick_test_001",
+    "container_id": "ucs_ephemeral",
+    "event": "mutation",
+    "mutation": {
+      "type": "symbolic_mutation",
+      "details": {
+        "from": "unknown",
+        "to": "unknown",
+        "mutation_ops": []
+      }
+    },
+    "symbolic_context": {
+      "sqi_score": 0.0,
+      "entropy": -0.0,
+      "trace": [
+        "test",
+        "mutation"
+      ],
+      "status": "mutated"
+    }
+  },
+  {
+    "timestamp": "2025-09-07T23:12:56.792321",
+    "beam_id": "tick_test_001",
+    "container_id": "ucs_ephemeral",
+    "event": "mutation",
+    "mutation": {
+      "type": "symbolic_mutation",
+      "details": {
+        "from": "unknown",
+        "to": "unknown",
+        "mutation_ops": []
+      }
+    },
+    "symbolic_context": {
+      "sqi_score": 0.0,
+      "entropy": -0.0,
+      "trace": [
+        "test",
+        "mutation"
+      ],
+      "status": "mutated"
+    }
+  },
+  {
+    "timestamp": "2025-09-07T23:12:56.794539",
+    "beam_id": "tick_test_001",
+    "container_id": "ucs_ephemeral",
+    "event": "mutation",
+    "mutation": {
+      "type": "symbolic_mutation",
+      "details": {
+        "from": "unknown",
+        "to": "unknown",
+        "mutation_ops": [
+          null
+        ]
+      }
+    },
+    "symbolic_context": {
+      "sqi_score": 0.0,
+      "entropy": -0.0,
+      "trace": [
+        "test",
+        "mutation"
+      ],
+      "status": "mutated"
+    }
+  }
+]

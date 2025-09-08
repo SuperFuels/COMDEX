@@ -1,0 +1,72 @@
+[
+  {
+    "timestamp": "2025-09-07T23:11:20.195996",
+    "beam_id": {
+      "id": "tick_test_001",
+      "logic_tree": {
+        "type": "root",
+        "children": [
+          {
+            "type": "leaf",
+            "label": "\u2297 AND",
+            "children": [],
+            "mutated": true
+          }
+        ]
+      },
+      "glyphs": [],
+      "phase": 0.5799232698078364,
+      "amplitude": 1.017082527099493,
+      "coherence": 1.014802522538534,
+      "origin_trace": [
+        "test",
+        "mutation"
+      ],
+      "status": "mutated",
+      "sqi_score": 0.0,
+      "entropy": -0.0,
+      "drift_cost": null,
+      "drift_signature": null,
+      "soullaw_status": "blocked",
+      "soullaw_violations": [
+        "avatar",
+        "container"
+      ]
+    },
+    "container_id": null,
+    "event": "collapse",
+    "details": {
+      "id": "tick_test_001",
+      "logic_tree": {
+        "type": "root",
+        "children": [
+          {
+            "type": "leaf",
+            "label": "\u2297 AND",
+            "children": [],
+            "mutated": true
+          }
+        ]
+      },
+      "glyphs": [],
+      "phase": 0.5799232698078364,
+      "amplitude": 1.017082527099493,
+      "coherence": 1.014802522538534,
+      "origin_trace": [
+        "test",
+        "mutation"
+      ],
+      "status": "mutated",
+      "sqi_score": 0.0,
+      "entropy": -0.0,
+      "drift_cost": null,
+      "drift_signature": null,
+      "soullaw_status": "blocked",
+      "soullaw_violations": [
+        "avatar",
+        "container"
+      ]
+    },
+    "symbolic_context": null
+  }
+]

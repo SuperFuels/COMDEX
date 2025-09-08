@@ -1,4 +1,4 @@
-# glyphnet_transceiver.py
+# backend/modules/glyphnet/glyphnet_transceiver.py
 
 import logging
 from typing import Optional, Callable, Dict, Any
@@ -79,3 +79,16 @@ class GlyphNetTransceiver:
         Sets a callback for handling successfully received GIP packets.
         """
         self.on_packet_received = callback
+
+# ════════════════════════════════════════════════════════════════
+# 🔁 Singleton Wrapper for Global Packet Transmission
+# ════════════════════════════════════════════════════════════════
+
+_transceiver_instance = GlyphNetTransceiver()
+
+def transmit_gwave_packet(packet: Dict[str, Any]) -> Optional[bytes]:
+    """
+    Global helper to transmit a GIP packet via the default GlyphNet transceiver.
+    Used in runtime modules to avoid direct transceiver instantiation.
+    """
+    return _transceiver_instance.send_packet(packet)

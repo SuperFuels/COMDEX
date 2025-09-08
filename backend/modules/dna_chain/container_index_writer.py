@@ -223,6 +223,15 @@ def add_goal_entry(goal_str: str, source: str = "memory"):
     add_to_index("goal_index", entry)
     return goal_id
 
+def get_active_container_ids() -> list:
+    """
+    Returns a list of currently active container IDs.
+    In practice, this often contains just one container.
+    """
+    ucs = _get_ucs()
+    container = ucs.get("active_container", {})
+    cid = container.get("id")
+    return [cid] if cid else []
 
 def add_dream_entry(dream_str: str, category: str = "vision"):
     """

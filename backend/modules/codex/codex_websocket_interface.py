@@ -147,7 +147,15 @@ async def codex_ws_handler(websocket: WebSocket):
 async def start_codex_ws_server(websocket: WebSocket):
     await codex_ws_handler(websocket)
 
-
 # ✅ Fallback CLI/Test compatible event stub
 async def send_codex_ws_event(event_type: str, payload: dict):
-    print(f"[CodexWS] {event_type} → {json.dumps(payload)}")
+    message = json.dumps({
+        "type": event_type,
+        "payload": payload
+    })
+
+    for client in connected_clients.copy():
+        try:
+            await client.send_text(message)
+        except:
+            connected_clients.discard(client)

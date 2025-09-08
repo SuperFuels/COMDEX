@@ -247,11 +247,45 @@ const QuantumFieldCanvas: React.FC<QuantumFieldCanvasProps> = ({
         ))}
       </Canvas>
 
-        {/* ⚛ Render filtered nodes */}
-        {filteredNodes.map((node) => (
-          <Node key={node.id} node={node} onTeleport={onTeleport} />
-        ))}
-      </Canvas>
+      {/* 📤 Collapse Timeline Export + Tick Overlay */}
+      <div className="absolute top-4 right-4 text-xs text-white bg-black/70 rounded-md p-2 z-50">
+        <div>
+          🕓 Tick Filter: <strong>{tickFilter ?? "—"}</strong>
+        </div>
+        <div>
+          📉 Collapsed Nodes:{" "}
+          <strong>
+            {nodes.filter((n) => n.collapse_state === "collapsed").length}
+          </strong>
+        </div>
+        <button
+          className="mt-2 px-3 py-1 bg-indigo-600 hover:bg-indigo-500 rounded text-white text-xs"
+          onClick={() => {
+            const exportData = nodes
+              .filter((n) => showCollapsed || n.collapse_state !== "collapsed")
+              .map((n) => ({
+                id: n.id,
+                label: n.label,
+                tick: n.tick,
+                state: n.collapse_state,
+                entropy: n.entropy,
+                goalMatchScore: n.goalMatchScore,
+                rewriteSuccessProb: n.rewriteSuccessProb,
+              }));
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], {
+              type: "application/json",
+            });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `collapse_timeline_tick${tickFilter ?? "all"}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+          }}
+        >
+          ⬇️ Export Collapse Timeline
+        </button>
+      </div>
     </div>
   );
 };
