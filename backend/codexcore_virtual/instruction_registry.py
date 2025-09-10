@@ -200,6 +200,44 @@ def _safe_register(symbol: str, handler: Callable[..., Any]):
         pass
 
 # --------------------------
+# CodexLang Command Shim
+# --------------------------
+
+def register_codex_command(symbol: str):
+    """
+    Decorator to register a CodexLang command using the InstructionRegistry.
+    Equivalent to: registry.register(symbol, fn)
+    """
+    def decorator(fn):
+        registry.register(symbol, fn)
+        return fn
+    return decorator
+
+def execute_codex_command(symbol: str, operand: Any) -> Any:
+    """
+    Backward-compatible execution interface for CodexLang.
+    """
+    return registry.execute(symbol, operand)
+
+def execute_codex_command_v2(symbol: str, *args, **kwargs) -> Any:
+    """
+    Modern CodexLang multi-argument execution wrapper.
+    """
+    return registry.execute_v2(symbol, *args, **kwargs)
+
+def override_codex_command(symbol: str, fn):
+    """
+    Force override of a CodexLang command.
+    """
+    registry.override(symbol, fn)
+
+def get_registered_codex_commands():
+    """
+    Returns a dict of all registered CodexLang command names to function names.
+    """
+    return registry.list_instructions()
+
+# --------------------------
 # Bind physics symbols
 # --------------------------
 

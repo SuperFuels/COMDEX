@@ -23,7 +23,7 @@ from backend.modules.consciousness.prediction_engine import PredictionEngine
 from backend.modules.lean.lean_proofverifier import validate_lean_container
 from backend.modules.qfield.qfc_ws_broadcast import send_qfc_payload
 from backend.modules.qfield.qfc_utils import build_qfc_view
-from backend.modules.qwave.beam_controller import BeamController
+from backend.modules.glyphwave.qwave.beam_controller import BeamController
 
 try:
     # ✅ Lazy import to avoid circular dependency

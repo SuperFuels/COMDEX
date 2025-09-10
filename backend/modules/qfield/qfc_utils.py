@@ -1,6 +1,16 @@
+# 📄 backend/modules/qfield/qfc_utils.py
 import uuid
 import math
-from typing import Dict, List, Any, Tuple
+import os
+import json
+import re
+from typing import Dict, List, Any, Tuple, Optional
+
+# Default QFC Sheet directory (can be overridden)
+QFC_SHEET_DIR = os.getenv("QFC_SHEET_DIR", "backend/data/qfc_sheets")
+
+# Allowed filename characters
+VALID_ID_PATTERN = re.compile(r"^[a-zA-Z0-9_\-]+$")
 
 # Optional: Import the broadcaster for live updates
 try:
@@ -27,6 +37,67 @@ def build_qfc_view(container: Dict[str, Any], mode: str = "live") -> Dict[str, A
         broadcast_qfc_update(container.get("id"), qfc_data)
 
     return qfc_data
+
+def sanitize_sheet_id(sheet_id: str) -> str:
+    """
+    Validates and sanitizes the sheet ID to prevent injection or traversal.
+    """
+    if not VALID_ID_PATTERN.match(sheet_id):
+        raise ValueError(f"Invalid QFC sheet ID: '{sheet_id}'")
+    return sheet_id
+
+
+def get_qfc_sheet_path(sheet_id: str) -> str:
+    """
+    Constructs the full path to the QFC sheet file.
+    """
+    sanitized_id = sanitize_sheet_id(sheet_id)
+    return os.path.join(QFC_SHEET_DIR, f"{sanitized_id}.sqs.json")
+
+
+def load_qfc_by_id(sheet_id: str, silent: bool = False) -> Dict[str, Any]:
+    """
+    Loads a QFC sheet from the filesystem by ID.
+
+    Args:
+        sheet_id (str): Unique identifier for the QFC sheet (filename without extension)
+        silent (bool): If True, returns {} instead of raising if not found
+
+    Returns:
+        Dict[str, Any]: The loaded QFC sheet contents
+    """
+    path = get_qfc_sheet_path(sheet_id)
+
+    if not os.path.exists(path):
+        if silent:
+            return {}
+        raise FileNotFoundError(f"QFC sheet not found: {path}")
+
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+
+        # Optional basic validation
+        if not isinstance(data, dict) or "nodes" not in data or "links" not in data:
+            raise ValueError(f"Malformed QFC sheet: {sheet_id}")
+
+        return data
+
+    except json.JSONDecodeError as e:
+        raise ValueError(f"Invalid JSON in QFC sheet {sheet_id}: {e}")
+
+def save_qfc_sheet(sheet_id: str, data: Dict[str, Any]) -> str:
+    """
+    Saves a QFC sheet to disk.
+    """
+    sanitized_id = sanitize_sheet_id(sheet_id)
+    os.makedirs(QFC_SHEET_DIR, exist_ok=True)
+    path = get_qfc_sheet_path(sanitized_id)
+
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2)
+
+    return path
 
 def build_qfc_nodes_and_links(container: Dict[str, Any]) -> Tuple[List[Dict], List[Dict]]:
     """

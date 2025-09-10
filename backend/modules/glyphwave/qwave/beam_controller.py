@@ -1,10 +1,17 @@
 import time
 import threading
 
-from backend.modules.glyphwave.core.wave_state import WaveState
-from backend.modules.collapse.collapse_timeline_writer import log_collapse_tick
+from backend.modules.glyphwave.core.wave_state import WaveState, ENTANGLED_WAVE_STORE
+from backend.modules.sqi.metrics.collapse_timeline_writer import log_collapse_tick
 from backend.modules.sqi.sqi_scorer import score_all_electrons
 from backend.modules.websocket_manager import broadcast_event
+
+# ✅ New QFC WebSocket stream helper
+from backend.modules.visualization.stream_qfc_from_entangled_wave import stream_qfc_from_entangled_wave
+from backend.modules.visualization.qfc_payload_utils import to_qfc_payload
+from backend.modules.visualization.broadcast_qfc_update import broadcast_qfc_update
+import asyncio
+
 
 class BeamController:
     def __init__(self, config=None):
@@ -18,13 +25,13 @@ class BeamController:
         self.container_id = config.get("container_id", "unknown.dc")
         self.enable_telemetry = config.get("enable_telemetry", False)
         self.enable_hud = config.get("enable_hud", False)
+        self.enable_qfc_stream = config.get("enable_qfc_stream", True)
 
         self._running = False
         self._tick_count = 0
         self._collapse_rate_history = []
 
     def _log_hud_overlay(self, wave_state):
-        # Simple print-based HUD
         print(f"[HUD] BeamTick {self._tick_count} | SQI: {wave_state.last_sqi_score:.2f}")
 
     def _record_telemetry(self, tick_duration_ms):
@@ -65,7 +72,37 @@ class BeamController:
                 if self.enable_telemetry:
                     self._record_telemetry((time.time() - tick_start) * 1000)
 
-                # ✅ Broadcast WebSocket HUD update if test mode enabled
+                # ✅ Primary: Stream entangled wave to QFC
+                if self.enable_qfc_stream:
+                    ew = ENTANGLED_WAVE_STORE.get(self.container_id)
+                    if ew:
+                        try:
+                            stream_qfc_from_entangled_wave(self.container_id, ew)
+                        except Exception as stream_err:
+                            print(f"[⚠️ QFC] Failed to stream from entangled wave: {stream_err}")
+                    else:
+                        # 🔁 Fallback: Stream from WaveState directly
+                        try:
+                            node_payload = {
+                                "glyph": "🌀",
+                                "op": "beam_tick",
+                                "metadata": {
+                                    "tick": self._tick_count,
+                                    "sqi_score": wave_state.last_sqi_score,
+                                    "entropy": wave_state.entropy if hasattr(wave_state, "entropy") else None,
+                                    "coherence": wave_state.coherence
+                                }
+                            }
+                            context = {
+                                "container_id": self.container_id,
+                                "source_node": wave_state.id
+                            }
+                            qfc_payload = to_qfc_payload(node_payload, context)
+                            asyncio.create_task(broadcast_qfc_update(self.container_id, qfc_payload))
+                        except Exception as qfc_fallback_err:
+                            print(f"[⚠️ QFC Fallback] Failed to stream from WaveState: {qfc_fallback_err}")
+
+                # ✅ WebSocket HUD (test only)
                 if self.test_mode:
                     hud_payload = {
                         "type": "beam_hud_update",

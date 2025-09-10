@@ -1,36 +1,42 @@
-// File: frontend/components/QuantumField/QuantumFieldCanvas.tsx
+// File: frontend/components/Hologram/quantum_field_canvas.tsx
 
 import React, { useRef, useEffect, useState } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, Html } from "@react-three/drei";
 import * as THREE from "three";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { QWaveBeam } from "@/components/QuantumField/beam_renderer";
+import { QWaveBeam, BeamProps } from "@/components/QuantumField/beam_renderer";
+import TraceCollapseRenderer from "@/components/QuantumField/Replay/trace_collapse_renderer";
+import HolographicCausalityTrails, {
+  CausalityTrailSegment,
+} from "@/components/QuantumField/Replay/holographic_causality_trails";
+import { snapToPolarGrid } from "@/components/QuantumField/polar_snap";
+import { useQfcSocket } from "@/hooks/useQfcSocket";
+import HoverAgentLogicView from "@/components/QuantumField/Memory/hover_agent_logic_view";
+import { QWavePreviewPanel } from "@/components/QuantumField/QWavePreviewPanel";
+import { EntropyNode } from "@/components/QuantumField/styling/EntropyNode";
+import HighlightedOperator from "@/components/QuantumField/highlighted_symbolic_operators";
+import PredictedLayerRenderer from "@/components/QuantumField/PredictedLayerRenderer";
+import ClusterZoomRenderer from "@/components/QuantumField/cluster_zoom_renderer";
+import EmotionOverlay from "@/components/QuantumField/EmotionOverlay";
+import ScrollReplayOverlay from "@/components/QuantumField/ScrollReplayOverlay";
+import StrategyOverlay from "@/components/QuantumField/StrategyOverlay";
+import ObserverViewport from "@/components/QuantumField/ObserverViewport";
+import MemoryScroller from "@/components/QuantumField/MemoryScroller";
+import HoverMutationTrace from "@/components/QuantumField/HoverMutationTrace";
+import MultiNodeCollapseTrail from "@/components/QuantumField/MultiNodeCollapseTrail";
+import BreakthroughDeadendTrail from "@/components/QuantumField/BreakthroughDeadendTrail";
+import BeamLogicOverlay from "@/components/QuantumField/BeamLogicOverlay";
+import { rerouteBeam } from "./beam_rerouter";
+import { useQFCFocus } from "@/hooks/useQFCFocus";
+import { GlyphNode } from "@/types/qfc";
+import {
+  HtmlEmotionPulse,
+  MeshEmotionPulse,
+} from "@/components/QuantumField/EmotionPulseOverlay";
 
-const [beamData, setBeamData] = useState<any | null>(null);
-
-useEffect(() => {
-  fetch("/api/test-mixed-beams")
-    .then((res) => res.json())
-    .then(setBeamData)
-    .catch(console.error);
-}, []);
-
-// Types
-export interface GlyphNode {
-  id: string;
-  label: string;
-  position: [number, number, number];
-  containerId?: string;
-  predicted?: boolean;
-  color?: string;
-  trailId?: string;
-  goalMatchScore?: number;
-  rewriteSuccessProb?: number;
-  entropy?: number;
-  tick?: number;
-  collapse_state?: string;
-}
+// ------------------ Types ------------------
 
 interface Link {
   source: string;
@@ -47,7 +53,96 @@ interface QuantumFieldCanvasProps {
   onTeleport?: (targetContainerId: string) => void;
 }
 
-// 🎨 Link color by type
+// ------------------ Main Component ------------------
+
+// Optional — only if you're rendering collapse trail overlays:
+
+interface QuantumFieldCanvasProps {
+  nodes: GlyphNode[];
+  links: Link[];
+  tickFilter?: number;
+  showCollapsed?: boolean;
+  onTeleport?: (targetContainerId: string) => void;
+
+  predictedMode?: boolean;
+  predictedOverlay?: {
+    nodes: GlyphNode[];
+    links: Link[];
+  };
+} => {
+  const [showPredictedLayer, setShowPredictedLayer] = useState(false);
+  const [predictedMode, setPredictedMode] = useState(false);
+  const [predictedOverlay, setPredictedOverlay] = useState(false);
+  const [splitScreen, setSplitScreen] = useState(false);
+  const [beamData, setBeamData] = useState<any | null>(null);
+  const [selectedBeam, setSelectedBeam] = useState<any | null>(null);
+  const [selectedBranch, setSelectedBranch] = useState("trail-1");
+  const availableBranches = ["trail-1", "trail-2", "trail-3"];
+  const [observerPosition, setObserverPosition] = useState<[number, number, number]>([0, 0, 0]);
+  const observerDirection: [number, number, number] = [0, 0, -1]; // forward facing direction
+  const collapseTrails = [ ... ];
+  const breakthroughTrails = [ ... ];
+  const deadendTrails = [ ... ];
+
+
+  useEffect(() => {
+    fetch("/api/test-mixed-beams")
+      .then((res) => res.json())
+      .then(setBeamData)
+      .catch(console.error);
+  }, []);
+
+  const handleRetryFromBranch = async () => {
+    const res = await fetch("/api/mutate_from_branch", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ trailId: selectedBranch }),
+    });
+
+    const result = await res.json();
+    broadcast_qfc_update(result); // 🔁 Push new glyphs/beams into QFC live
+  };
+  const specialOps = new Set(["⧖", "↔", "⬁", "🧬", "🪞"]);
+
+  return (
+    <div className="relative w-full h-full">
+      {/* 🎛️ Controls Panel */}
+      <div className="absolute top-4 left-4 z-50 space-y-2">
+        <Button
+          className="text-xs px-3 py-1 h-8 bg-blue-900 hover:bg-blue-800"
+          onClick={() => setShowPredictedLayer(!showPredictedLayer)}
+        >
+          🔮 {showPredictedLayer ? "Hide" : "Show"} Predicted Layer
+        </Button>
+        <Button
+          className="text-xs px-3 py-1 h-8 bg-purple-700 hover:bg-purple-600"
+          onClick={() => setSplitScreen(!splitScreen)}
+        >
+          🧠 {splitScreen ? "Unsplit View" : "Split Reality / Dream"}
+        </Button>
+        <Button
+          className="text-xs px-3 py-1 h-8 bg-slate-700 hover:bg-slate-600"
+          onClick={() => setPredictedMode(!predictedMode)}
+        >
+          🌓 {predictedMode ? "Normal" : "Fade Real Nodes"}
+        </Button>
+        <Button
+          className="text-xs px-3 py-1 h-8 bg-sky-900 hover:bg-sky-800"
+          onClick={() => setPredictedOverlay(!predictedOverlay)}
+        >
+          🌐 {predictedOverlay ? "Hide Overlay" : "Show Overlay"}
+        </Button>
+      </div>
+
+      {/* Canvas and core rendering logic goes here */}
+      {/* ... you can continue refactoring the rest of the canvas, node rendering, beams, overlays, etc. */}
+    </div>
+  );
+};
+
+export default QuantumFieldCanvas;
+
+// 🎨 Get link color by type
 const getLinkColor = (type?: string): string => {
   switch (type) {
     case "entangled":
@@ -61,7 +156,7 @@ const getLinkColor = (type?: string): string => {
   }
 };
 
-// 🌐 Individual glyph node
+// 🌐 Glyph Node Component
 const Node = ({
   node,
   onTeleport,
@@ -74,13 +169,15 @@ const Node = ({
   const pulseRef = useRef(0);
 
   useFrame(() => {
-    if (ref.current && node.predicted) {
-      pulseRef.current += 0.05;
-      const scale = 1 + 0.1 * Math.sin(pulseRef.current);
-      ref.current.scale.set(scale, scale, scale);
-    }
-    if (ref.current && hovered) {
-      ref.current.rotation.y += 0.01;
+    if (ref.current) {
+      if (node.predicted) {
+        pulseRef.current += 0.05;
+        const scale = 1 + 0.1 * Math.sin(pulseRef.current);
+        ref.current.scale.set(scale, scale, scale);
+      }
+      if (hovered) {
+        ref.current.rotation.y += 0.01;
+      }
     }
   });
 
@@ -94,53 +191,59 @@ const Node = ({
     >
       <sphereGeometry args={[0.3, 32, 32]} />
       <meshStandardMaterial
-        color={node.color || (node.predicted ? "#00ffff" : "#ffffff")}
-        emissive={node.predicted ? "#00ffff" : "#000000"}
-        emissiveIntensity={node.predicted ? 1.5 : 0}
+        color={
+          node.locked
+            ? "#ff3333"
+            : node.color || (node.predicted ? "#00ffff" : "#ffffff")
+        }
+        emissive={
+          node.locked
+            ? "#ff3333"
+            : node.predicted
+            ? "#00ffff"
+            : "#000000"
+        }
+        emissiveIntensity={node.locked ? 2.0 : node.predicted ? 1.5 : 0}
       />
+
+      {/* 🟢 Emotion Pulse Overlay */}
+      {node.emotion && (
+        <>
+          <MeshEmotionPulse node={node} />
+          <HtmlEmotionPulse node={node} />
+        </>
+      )}
+
+      {/* 🏷️ Label UI */}
       <Html>
         <Card className="p-2 rounded-xl shadow-lg text-xs text-center bg-white/80 backdrop-blur">
-          <p className="font-bold">{node.label}</p>
-          {node.predicted && (
-            <p className="text-yellow-500 font-semibold">Predicted</p>
-          )}
-          {node.trailId && (
-            <p className="text-pink-500">Trail: {node.trailId}</p>
-          )}
-          {typeof node.goalMatchScore === "number" && (
-            <p className="text-green-600">
-              🎯 Goal: {Math.round(node.goalMatchScore * 100)}%
-            </p>
-          )}
-          {typeof node.rewriteSuccessProb === "number" && (
-            <p className="text-blue-600">
-              🔁 Rewrite: {Math.round(node.rewriteSuccessProb * 100)}%
-            </p>
-          )}
-          {typeof node.entropy === "number" && (
-            <p className="text-red-600">
-              ♾ Entropy: {node.entropy.toFixed(2)}
-            </p>
-          )}
-          {node.collapse_state && (
-            <p className="text-gray-500">Collapse: {node.collapse_state}</p>
-          )}
+          ...
         </Card>
       </Html>
+
+      {/* 🔒 Floating lock */}
+      {node.locked && (
+        <Html
+          position={[
+            node.position[0],
+            node.position[1] + 1.5,
+            node.position[2],
+          ]}
+        >
+          <div className="text-2xl text-red-500 font-bold drop-shadow">🔒</div>
+        </Html>
+      )}
     </mesh>
   );
 };
 
-// 🔗 Visual link line
-const LinkLine = ({
-  source,
-  target,
-  type,
-}: {
+// 🔗 Visual Link Line Component
+const LinkLine: React.FC<{
   source: GlyphNode;
   target: GlyphNode;
   type?: string;
-}) => {
+  isDream?: boolean;
+}> = ({ source, target, type, isDream = false }) => {
   const points = [
     new THREE.Vector3(...source.position),
     new THREE.Vector3(...target.position),
@@ -148,159 +251,582 @@ const LinkLine = ({
   const geometry = new THREE.BufferGeometry().setFromPoints(points);
 
   return (
-    <line geometry={geometry}>
-      <lineBasicMaterial attach="material" color={getLinkColor(type)} linewidth={2} />
+    <line>
+      <primitive object={geometry} attach="geometry" />
+      <lineBasicMaterial
+        attach="material"
+        color={isDream ? "#d946ef" : "#888"}
+        linewidth={1}
+        transparent
+        opacity={isDream ? 0.4 : 1}
+      />
     </line>
   );
 };
 
-// 🧠 Main QFC Component
-const QuantumFieldCanvas: React.FC<QuantumFieldCanvasProps> = ({
-  nodes,
-  links,
-  tickFilter,
-  showCollapsed = true,
-  onTeleport,
-}) => {
   const getNodeById = (id: string) => nodes.find((n) => n.id === id);
 
-  const filteredNodes = nodes.filter((node) => {
-    const matchTick = tickFilter === undefined || node.tick === tickFilter;
-    const matchCollapse =
-      showCollapsed || node.collapse_state !== "collapsed";
-    return matchTick && matchCollapse;
-  });
+  // 🔁 Load QWave Beams
+  useEffect(() => {
+    fetch("/api/test-mixed-beams")
+      .then((res) => res.json())
+      .then(setBeamData)
+      .catch(console.error);
+  }, []);
 
-  const filteredLinks = links.filter((link) => {
-    const matchTick = tickFilter === undefined || link.tick === tickFilter;
-    return matchTick;
-  });
+  // 🧪 Static Test Collapse Trails
+  const collapseTrails = [
+    {
+      id: "trail-1",
+      path: [
+        [0, 0, 0],
+        [1, 2, 0],
+        [2, 4, 0],
+      ],
+      color: "#ffaa00",
+    },
+  ];
+
+  const breakthroughTrails = [
+    {
+      points: [
+        [0, 0, 0],
+        [1.5, 0.5, 0],
+        [2.2, 1.2, 0],
+      ],
+      type: "breakthrough",
+    },
+  ];
+
+  const deadendTrails = [
+    {
+      points: [
+        [1, -1, 0],
+        [1.5, -1.5, 0],
+        [2.0, -2.0, 0],
+      ],
+      type: "deadend",
+    },
+  ];
+
+  // 🌌 Q11c: Merge Predicted (Dream) Nodes + Links into Main Canvas
+  const predictedNodes: GlyphNode[] = []; // hook up to qfcData?.predictedNodes
+  const predictedLinks: any[] = [];
+
+  const mergedNodes = [
+    ...nodes.filter((node) => {
+      const matchTick = tickFilter === undefined || node.tick === tickFilter;
+      const matchCollapse =
+        showCollapsed || node.collapse_state !== "collapsed";
+      return matchTick && matchCollapse;
+    }),
+    ...predictedNodes
+      .filter((pn) => !nodes.some((n) => n.id === pn.id))
+      .map((pn) => ({
+        ...pn,
+        isDream: true,
+      })),
+  ];
+
+  const mergedLinks = [
+    ...links.filter((link) => {
+      const matchTick = tickFilter === undefined || link.tick === tickFilter;
+      return matchTick;
+    }),
+    ...predictedLinks
+      .filter(
+        (pl) =>
+          !links.some(
+            (l) => l.source === pl.source && l.target === pl.target
+          )
+      )
+      .map((pl) => ({
+        ...pl,
+        isDream: true,
+      })),
+  ];
+
+  // ✅ QWave Beam Rendering with Logic Overlays
+  const qwaveBeams = (beamData || [])
+    .filter((beam) => beam.source && beam.target)
+    .map(
+      ({
+        source,
+        target,
+        qwave,
+        id,
+        predicted,
+        collapse_state,
+        sqiScore,
+      }: BeamProps) => {
+        const hasLogicPacket = qwave?.logic_packet;
+        const midPosition: [number, number, number] = [
+          (source[0] + target[0]) / 2,
+          (source[1] + target[1]) / 2,
+          (source[2] + target[2]) / 2,
+        ];
+
+        return (
+          <React.Fragment key={`beam-${id}`}>
+            <group
+              onClick={() =>
+                setSelectedBeam({
+                  source,
+                  target,
+                  qwave,
+                  id,
+                  predicted,
+                  collapse_state,
+                  sqiScore,
+                })
+              }
+            >
+              <QWaveBeam
+                source={source}
+                target={target}
+                prediction={predicted}
+                collapseState={collapse_state}
+                sqiScore={sqiScore || 0}
+                show={true}
+              />
+            </group>
+
+            {hasLogicPacket && (
+              <BeamLogicOverlay
+                position={midPosition}
+                packet={qwave.logic_packet}
+                visible={true}
+              />
+            )}
+          </React.Fragment>
+        );
+      }
+  );
 
   return (
-    <div className="h-full w-full">
-      <Canvas camera={{ position: [0, 0, 10], fov: 50 }}>
-        <ambientLight intensity={0.7} />
-        <pointLight position={[10, 10, 10]} />
-        <OrbitControls enableZoom enablePan enableRotate />
+    <>
+      {/* 🧠 Render QWave Beams */}
+      {qwaveBeams}
 
-        {/* 🔗 Render filtered links */}
-        {filteredLinks.map((link, i) => {
-          const source = getNodeById(link.source);
-          const target = getNodeById(link.target);
-          if (!source || !target) return null;
-          return (
-            <LinkLine
-              key={i}
-              source={source}
-              target={target}
-              type={link.type}
-            />
-          );
-        })}
-
-        {/* 💫 Render QWaveBeams between nodes */}
-        {filteredLinks.map((link, i) => {
-          const source = getNodeById(link.source);
-          const target = getNodeById(link.target);
-          if (!source || !target) return null;
-
-          return (
-            <QWaveBeam
-              key={`beam-${i}`}
-              source={source.position}
-              target={target.position}
-              prediction={source.predicted || target.predicted}
-              collapseState={source.collapse_state || target.collapse_state}
-              sqiScore={
-                source.goalMatchScore ??
-                source.rewriteSuccessProb ??
-                target.goalMatchScore ??
-                target.rewriteSuccessProb ??
-                0
-              }
-              show={true}
-            />
-          );
-        })}
-
-        {/* 🌈 Render glyphs from beamData if present */}
-        {beamData?.glyphs?.map((glyph: BeamGlyphNode) => (
-          <Node key={`beam-glyph-${glyph.id}`} node={glyph} onTeleport={onTeleport} />
-        ))}
-
-        {/* 🚀 Render mixed QWave beams from beamData */}
-        {beamData?.beams?.map((beam: any) => (
-          <QWaveBeam
-            key={`mixed-beam-${beam.id}`}
-            source={beam.source}
-            target={beam.target}
-            prediction={beam.predicted}
-            collapseState={beam.collapse_state}
-            sqiScore={beam.sqiScore || 0}
-            show={true}
-          />
-        ))}
-
-        {/* ⚛ Render filtered nodes */}
-        {filteredNodes.map((node) => (
-          <Node key={node.id} node={node} onTeleport={onTeleport} />
-        ))}
-      </Canvas>
-
-      {/* 📤 Collapse Timeline Export + Tick Overlay */}
-      <div className="absolute top-4 right-4 text-xs text-white bg-black/70 rounded-md p-2 z-50">
-        <div>
-          🕓 Tick Filter: <strong>{tickFilter ?? "—"}</strong>
-        </div>
-        <div>
-          📉 Collapsed Nodes:{" "}
-          <strong>
-            {nodes.filter((n) => n.collapse_state === "collapsed").length}
-          </strong>
-        </div>
-        <button
-          className="mt-2 px-3 py-1 bg-indigo-600 hover:bg-indigo-500 rounded text-white text-xs"
-          onClick={() => {
-            const exportData = nodes
-              .filter((n) => showCollapsed || n.collapse_state !== "collapsed")
-              .map((n) => ({
-                id: n.id,
-                label: n.label,
-                tick: n.tick,
-                state: n.collapse_state,
-                entropy: n.entropy,
-                goalMatchScore: n.goalMatchScore,
-                rewriteSuccessProb: n.rewriteSuccessProb,
-              }));
-            const blob = new Blob([JSON.stringify(exportData, null, 2)], {
-              type: "application/json",
-            });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = `collapse_timeline_tick${tickFilter ?? "all"}.json`;
-            a.click();
-            URL.revokeObjectURL(url);
-          }}
+      {/* 🔘 HUD Controls */}
+      <div className="absolute top-4 left-4 z-50 space-y-2">
+        <Button
+          className="text-xs px-3 py-1 h-8 bg-blue-900 hover:bg-blue-800"
+          onClick={() => setShowPredictedLayer(!showPredictedLayer)}
         >
-          ⬇️ Export Collapse Timeline
-        </button>
+          🔮 {showPredictedLayer ? "Hide" : "Show"} Predicted Layer
+        </Button>
+        <Button
+          className="text-xs px-3 py-1 h-8 bg-purple-700 hover:bg-purple-600"
+          onClick={() => setSplitScreen(!splitScreen)}
+        >
+          🧠 {splitScreen ? "Unsplit View" : "Split Reality / Dream"}
+        </Button>
+        <Button
+          className="text-xs px-3 py-1 h-8 bg-slate-700 hover:bg-slate-600"
+          onClick={() => setPredictedMode(!predictedMode)}
+        >
+          🌓 {predictedMode ? "Normal" : "Fade Real Nodes"}
+        </Button>
+        <Button
+          className="text-xs px-3 py-1 h-8 bg-sky-900 hover:bg-sky-800"
+          onClick={() => setPredictedOverlay(!predictedOverlay)}
+        >
+          🌐 {predictedOverlay ? "Hide Overlay" : "Show Overlay"}
+        </Button>
       </div>
+      {/* 🔁 Branch Selection + Retry */}
+      <div className="absolute top-4 right-4 z-50 w-64">
+        <ReplayBranchSelector
+          availableBranches={availableBranches}
+          selectedBranch={selectedBranch}
+          onSelect={setSelectedBranch}
+          onRetry={handleRetryFromBranch}
+        />
+      </div>
+      {/* 🧠 Canvas Views */}
+      <div className="h-full w-full relative flex">
+        {splitScreen ? (
+          // 🟢 Split View: Real vs Dream
+          <div className="w-1/2 h-full border-r border-slate-700">
+            <Canvas camera={{ position: [0, 0, 10], fov: 50 }}>
+              <ambientLight intensity={0.7} />
+              <pointLight position={[10, 10, 10]} />
+              <OrbitControls
+                enableZoom
+                enablePan
+                enableRotate
+                target={new THREE.Vector3(...observerPosition)}
+              />
+
+              {/* 🌐 Symbolic QWave Beams */}
+              {beamData.map((beam, idx) => (
+                <group key={idx} onClick={() => setSelectedBeam(beam)}>
+                  <QWaveBeam {...beam} />
+                </group>
+              ))}
+
+              {/* 🌈 Nodes (Real + Dream) */}
+              {mergedNodes.map((node) => {
+                const inView = isInObserverView(node.position, observerPosition, observerDirection);
+
+                return (
+                  <React.Fragment key={node.id}>
+                    {(node.source === "dream" || node.isDream) && (
+                      <mesh position={node.position}>
+                        <ringGeometry args={[0.6, 0.75, 32]} />
+                        <meshBasicMaterial
+                          color="#d946ef"
+                          transparent
+                          opacity={0.75}
+                        />
+                      </mesh>
+                    )}
+
+                    <Node node={node} onTeleport={onTeleport} highlight={inView} />
+
+                  {/* ✨ Entropy Overlay */}
+                  {typeof node.entropy === "number" && (
+                    <EntropyNode
+                      position={node.position}
+                      entropy={node.entropy}
+                      nodeId={node.id}
+                    />
+                  )}
+
+                  {/* 🧠 Symbolic Memory Trace */}
+                  {node.memoryTrace && (
+                    <HoverAgentLogicView
+                      position={[
+                        node.position[0],
+                        node.position[1] + 1.2,
+                        node.position[2],
+                      ]}
+                      logicSummary={node.memoryTrace.summary}
+                      containerId={node.memoryTrace.containerId}
+                      agentId={node.memoryTrace.agentId}
+                    />
+                  )}
+                </React.Fragment>
+              ))}
+
+              {/* 🔗 Merged Links (Real + Dream) */}
+              {mergedLinks.map((link, i) => {
+                const source = getNodeById(link.source);
+                const target = getNodeById(link.target);
+                if (!source || !target) return null;
+                return (
+                  <LinkLine
+                    key={`link-${i}`}
+                    source={source}
+                    target={target}
+                    type={link.type}
+                  />
+                );
+              })}
+
+              {/* 🔮 Predicted Layer Overlay */}
+              {showPredictedLayer && (
+                <PredictedLayerRenderer
+                  nodes={qfcData?.predictedNodes || []}
+                  links={qfcData?.predictedLinks || []}
+                />
+              )}
+
+              {/* 💫 Optional HUD Layers */}
+              <EmotionOverlay visible={emotionOverlayEnabled} />
+              <ScrollReplayOverlay visible={scrollReplayActive} />
+              <StrategyOverlay visible={strategyOverlayEnabled} />
+              <ObserverViewport enabled={observerMode} />
+              <MemoryScroller active={memoryScrollerActive} />
+            </Canvas>
+          </div>
+        ) : (
+          // 🔁 Default Unified View
+          <Canvas camera={{ position: [0, 0, 10], fov: 50 }}>
+            <ambientLight intensity={0.7} />
+            <pointLight position={[10, 10, 10]} />
+            <OrbitControls
+              enableZoom
+              enablePan
+              enableRotate
+              target={new THREE.Vector3(...observerPosition)}
+            />
+
+            {/* 🔮 Predicted Overlay */}
+            {showPredictedLayer && (
+              <PredictedLayerRenderer
+                nodes={qfcData?.predictedNodes || []}
+                links={qfcData?.predictedLinks || []}
+                visible={true}
+              />
+            )}
+
+            {/* 🔗 Links */}
+            {mergedLinks.map((link, i) => {
+              const source = getNodeById(link.source);
+              const target = getNodeById(link.target);
+              if (!source || !target) return null;
+              return (
+                <LinkLine
+                  key={`link-${i}`}
+                  source={source}
+                  target={target}
+                  type={link.type}
+                />
+              );
+            })}
+          </Canvas>
+          </div> {/* end of split-screen real view left half */}
+
+          {/* 💫 Render QWaveBeams between nodes (mergedLinks) */}
+          {mergedLinks.map((link, i) => {
+            const source = getNodeById(link.source);
+            const target = getNodeById(link.target);
+            if (!source || !target) return null;
+
+            return (
+              <group key={`beam-${i}`} onClick={() => setSelectedBeam(link)}>
+                <QWaveBeam
+                  source={source.position}
+                  target={target.position}
+                  prediction={source.predicted || target.predicted}
+                  collapseState={source.collapse_state || target.collapse_state}
+                  sqiScore={
+                    source.goalMatchScore ??
+                    source.rewriteSuccessProb ??
+                    target.goalMatchScore ??
+                    target.rewriteSuccessProb ??
+                    0
+                  }
+                  show={true}
+                />
+              </group>
+            );
+          })}
+
+          {/* 🌈 Glyph Nodes from beamData */}
+          {beamData?.glyphs?.map((glyph: any) => (
+            <React.Fragment key={`beam-glyph-${glyph.id}`}>
+              <Node node={glyph} onTeleport={onTeleport} />
+              {specialOps.has(glyph.value) && glyph.type === "operator" && (
+                <HighlightedOperator value={glyph.value} position={glyph.position} />
+              )}
+            </React.Fragment>
+          ))}
+
+          {/* 🚀 Mixed Beams with rerouted paths */}
+          {beamData?.beams?.map((beam: any) => {
+            const { id, source, target, predicted, collapse_state, sqiScore } = beam;
+            const reroutedPath = rerouteBeam(source, target, focusPoint);
+
+            return (
+              <QWaveBeam
+                key={`mixed-beam-${id}`}
+                path={reroutedPath}
+                prediction={predicted}
+                collapseState={collapse_state}
+                sqiScore={sqiScore || 0}
+                show={true}
+              />
+            );
+          })}
+
+          {/* ⚛ Filtered Node Rendering */}
+          {filteredNodes.map((node) => (
+            <React.Fragment key={node.id}>
+              {/* 🧠 Node */}
+              <Node node={node} onTeleport={onTeleport} />
+
+              {/* 🔒 SoulLaw Lock */}
+              {node.locked && (
+                <Html
+                  position={[
+                    node.position[0],
+                    node.position[1] + 1.5,
+                    node.position[2],
+                  ]}
+                >
+                  <div className="text-2xl text-red-500 font-bold drop-shadow">
+                    🔒
+                  </div>
+                </Html>
+              )}
+
+              {/* 🎨 Entropy Overlay */}
+              {typeof node.entropy === "number" && (
+                <EntropyNode
+                  position={node.position}
+                  entropy={node.entropy}
+                  nodeId={node.id}
+                />
+              )}
+
+              {/* 🧠 Memory Trace Hover */}
+              {node.memoryTrace && (
+                <HoverAgentLogicView
+                  position={[
+                    node.position[0],
+                    node.position[1] + 1.2,
+                    node.position[2],
+                  ]}
+                  logicSummary={node.memoryTrace.summary}
+                  containerId={node.memoryTrace.containerId}
+                  agentId={node.memoryTrace.agentId}
+                />
+              )}
+
+              {/* ➕ Spawn Container Button */}
+              <Html
+                position={[
+                  node.position[0] + 0.8,
+                  node.position[1] + 1.2,
+                  node.position[2],
+                ]}
+              >
+                <button
+                  className="text-xs bg-emerald-600 hover:bg-emerald-500 text-white px-2 py-1 rounded shadow"
+                  onClick={async () => {
+                    try {
+                      const res = await fetch("/api/spawn_container_from_node", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ nodeId: node.id }),
+                      });
+                      const data = await res.json();
+                      if (data.success && data.newContainerId) {
+                        alert(`✅ Container spawned: ${data.newContainerId}`);
+                      } else {
+                        alert("⚠️ Failed to spawn container.");
+                      }
+                    } catch (err) {
+                      alert("🚨 Spawn failed: " + err);
+                    }
+                  }}
+                >
+                  ➕ Spawn
+                </button>
+              </Html>
+            </React.Fragment>
+          ))}
+
+          {/* 🔍 Zoom Highlights */}
+          <ClusterZoomRenderer
+            nodes={filteredNodes}
+            radius={2.5}
+            onZoomed={(ids) => console.log("🔍 Zoomed cluster:", ids)}
+          />
+
+          {/* 🧠 Collapse + Causality Trails */}
+          <TraceCollapseRenderer trails={collapseTrails} color="#ffaa00" />
+          <HoverMutationTrace
+            trails={hoverMutationTrails}
+            hoveredNodeId={hoveredNode?.id}
+          />
+          <HolographicCausalityTrails trails={causalitySegments} />
+          <BreakthroughDeadendTrail
+            segments={[...(breakthroughTrails || []), ...(deadendTrails || [])]}
+            visible={true}
+          />
+          <MultiNodeCollapseTrail segments={multiCollapseTrails} visible={true} />
+
+          {/* 🔬 QWave Preview Panel */}
+          {selectedBeam?.id && (
+            <QWavePreviewPanel
+              selectedBeamId={selectedBeam.id}
+              beamMetadata={selectedBeam.qwave}
+            />
+          )}
+
+  {/* 🌐 Predicted Overlay (Real View) */}
+  {predictedOverlay && (
+    <PredictedLayerRenderer
+      nodes={qfcData?.predictedNodes || []}
+      links={qfcData?.predictedLinks || []}
+      visible={true}
+    />
+  )}
+
+  {/* 🔮 Dream QFC Canvas (Right side) */}
+  <div className="w-1/2 h-full">
+    <Canvas camera={{ position: [0, 0, 10], fov: 50 }}>
+      <ambientLight intensity={0.5} />
+      <pointLight position={[5, 5, 5]} />
+      <OrbitControls
+        enableZoom
+        enablePan
+        enableRotate
+        target={new THREE.Vector3(...observerPosition)}
+      />
+
+      {/* 🔮 Predicted Layer */}
+      <PredictedLayerRenderer
+        nodes={qfcData?.predictedNodes || []}
+        links={qfcData?.predictedLinks || []}
+        visible={true}
+      />
+
+      {/* 💫 Dream Visual Layers */}
+      <EmotionOverlay visible={emotionOverlayEnabled} />
+      <ScrollReplayOverlay visible={scrollReplayActive} />
+      <StrategyOverlay visible={strategyOverlayEnabled} />
+      <ObserverViewport enabled={observerMode} />
+      <MemoryScroller active={memoryScrollerActive} />
+    </Canvas>
+  </div> {/* End of right-side canvas */}
+
+
+  {/* 📤 Collapse Timeline Export + Tick Info Panel */}
+  <div className="absolute top-4 right-4 text-xs text-white bg-black/70 rounded-md p-2 z-50 space-y-2">
+    <div>
+      🕓 Tick Filter: <strong>{tickFilter ?? "—"}</strong>
     </div>
-  );
-};
+    <div>
+      📉 Collapsed Nodes:{" "}
+      <strong>{nodes.filter((n: any) => n.collapse_state === "collapsed").length}</strong>
+    </div>
+    <button
+      className="w-full mt-1 px-3 py-1 bg-indigo-600 hover:bg-indigo-500 rounded text-white"
+      onClick={() => {
+        const exportData = nodes
+          .filter((n: any) => showCollapsed || n.collapse_state !== "collapsed")
+          .map((n: any) => ({
+            id: n.id,
+            label: n.label,
+            tick: n.tick,
+            state: n.collapse_state,
+            entropy: n.entropy,
+            goalMatchScore: n.goalMatchScore,
+            rewriteSuccessProb: n.rewriteSuccessProb,
+          }));
 
-export default QuantumFieldCanvas;
+        const blob = new Blob([JSON.stringify(exportData, null, 2)], {
+          type: "application/json",
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `collapse_timeline_tick${tickFilter ?? "all"}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+      }}
+    >
+      ⬇️ Export Collapse Timeline
+    </button>
+  </div> {/* End of right-side export panel */}
+      </div> {/* End of right-side export panel */}
+    </div> {/* End of full canvas wrapper */}
+          </div> // 🧠 End of full layout wrapper
+        );
+    }; // ✅ Correctly close the QuantumFieldCanvas component
 
-// 🧲 Loader Wrapper
-import { snapToPolarGrid } from "@/components/QuantumField/polar_snap"; // ⬅️ ADD THIS IMPORT
 export const QuantumFieldCanvasLoader: React.FC<{
   containerId: string;
   tickFilter?: number;
   showCollapsed?: boolean;
   onTeleport?: (id: string) => void;
 }> = ({ containerId, tickFilter, showCollapsed, onTeleport }) => {
-  const [data, setData] = useState<{ nodes: GlyphNode[]; links: Link[] }>({
+  const [data, setData] = useState<{ nodes: any[]; links: any[] }>({
     nodes: [],
     links: [],
   });
@@ -309,25 +835,84 @@ export const QuantumFieldCanvasLoader: React.FC<{
     fetch(`/api/qfc_view/${containerId}`)
       .then((res) => res.json())
       .then((json) => {
-        const nodes = json.nodes;
-        const links = json.links;
+        const rawNodes = json.nodes || [];
+        const links = json.links || [];
 
-        // 🧭 Snap to polar grid around first node (if exists)
-        const centerId = nodes[0]?.id;
+        const centerId = rawNodes[0]?.id;
         const snappedNodes = centerId
-          ? snapToPolarGrid(nodes, centerId)
-          : nodes;
+          ? snapToPolarGrid(rawNodes, centerId)
+          : rawNodes;
 
-        setData({ nodes: snappedNodes, links });
+        const annotatedNodes = snappedNodes.map((node: any) => {
+          const glyphTrace = node.glyphTrace ?? node.memory ?? null;
+
+          let goalType: "goal" | "strategy" | "milestone" | null = null;
+          const label = node.label?.toLowerCase() ?? "";
+          if (label.includes("goal")) goalType = "goal";
+          else if (label.includes("strategy")) goalType = "strategy";
+          else if (label.includes("milestone")) goalType = "milestone";
+
+          let memoryTrace = null;
+          if (Array.isArray(glyphTrace) && glyphTrace.length > 0) {
+            const last = glyphTrace[glyphTrace.length - 1];
+            memoryTrace = {
+              summary: last.summary || last.intent || "Observed symbolic memory",
+              containerId: node.containerId || containerId,
+              agentId: node.agentId || "aion-agent",
+            };
+          }
+
+          return {
+            ...node,
+            goalType,
+            memoryTrace,
+            containerId: node.containerId || containerId || "kevin_1244.dc.json",
+          };
+        });
+
+        setData({ nodes: annotatedNodes, links });
       });
   }, [containerId]);
+
+  useQfcSocket(containerId, (payload) => {
+    setData((prev) => ({
+      nodes: [...prev.nodes, ...(payload.nodes || [])],
+      links: [...prev.links, ...(payload.links || [])],
+    }));
+  });
 
   return (
     <QuantumFieldCanvas
       {...data}
       tickFilter={tickFilter}
       showCollapsed={showCollapsed}
-      onTeleport={onTeleport}
+      onTeleport={(id) => {
+        const node = data.nodes.find((n) => n.id === id);
+        const targetContainer = node?.containerId;
+        if (targetContainer) {
+          window.location.href = `/dimension/${targetContainer.replace(".dc.json", "")}`;
+        } else {
+          alert("⚠️ No container ID found for node: " + id);
+        }
+      }}
     />
   );
 };
+
+// 🔍 Utility to check if a node is within observer's field of view
+function isInObserverView(
+  nodePosition: [number, number, number],
+  observerPosition: [number, number, number],
+  direction: [number, number, number],
+  fovAngle: number = Math.PI / 3 // 60° default
+) {
+  const vecToNode = new THREE.Vector3(
+    nodePosition[0] - observerPosition[0],
+    nodePosition[1] - observerPosition[1],
+    nodePosition[2] - observerPosition[2]
+  ).normalize();
+
+  const observerDir = new THREE.Vector3(...direction).normalize();
+  const angle = observerDir.angleTo(vecToNode);
+  return angle <= fovAngle / 2;
+}

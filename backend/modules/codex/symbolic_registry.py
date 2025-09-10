@@ -52,7 +52,7 @@ class SymbolicRegistry:
 
     def __repr__(self):
         keys = list(self.registry.keys())
-        preview = ", ".join(keys[:5]) + ("..." if len(keys) > 5 else "")
+        preview = ", ".join(keys[:5]) + ("..." if len(self.registry) > 5 else "")
         return f"<SymbolicRegistry size={len(self.registry)} keys=[{preview}]>"
 
 

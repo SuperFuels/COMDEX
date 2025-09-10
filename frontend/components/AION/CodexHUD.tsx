@@ -543,6 +543,12 @@ return (
     >
       <div className={`text-sm font-mono ${operatorColor}`}>
         ⟦ {glyph?.glyph || '???'} ⟧ →{' '}
+        {/* 🌟 Highlight symbolic operator if matched */}
+        {['⧖', '↔', '⬁', '🧬', '🪞'].some((op) => glyph?.glyph?.includes(op)) && (
+          <span className="ml-2 text-lg font-bold animate-pulse text-pink-400">
+            {glyph.glyph.match(/[⧖↔⬁🧬🪞]/)?.[0]} Operator
+          </span>
+        )}
         <span className="text-green-400">{glyph?.action || log.action}</span>
 
         {/* 🔮 Beam Prediction Badge */}
@@ -605,8 +611,8 @@ return (
           </Badge>
         )}
         {isEntangled && (
-          <Badge className="ml-2" variant="outline">
-            ↔ Entangled
+          <Badge className="ml-2 bg-purple-800 border-purple-500 text-purple-100" variant="outline">
+            ↔ Entangled Cluster
           </Badge>
         )}
         {glyph?.luxpush && (

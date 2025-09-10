@@ -101,6 +101,13 @@ async def startup_event():
             logger.info("[startup] Tesseract HQ ensured (tesseract_hq).")
         except Exception as e:
             logger.warning(f"[startup] Failed to ensure Tesseract HQ: {e}")
+            # ✅ Seed pattern registry once at startup
+        try:
+            from backend.modules.patterns.seed_patterns import seed_builtin_patterns
+            seed_builtin_patterns()
+            logger.info("✅ Seeded built-in symbolic patterns.")
+        except Exception as e:
+            logger.warning(f"Failed to seed built-in patterns: {e}")
 
     # Preload UCS container templates (.dc.json) into runtime
     try:

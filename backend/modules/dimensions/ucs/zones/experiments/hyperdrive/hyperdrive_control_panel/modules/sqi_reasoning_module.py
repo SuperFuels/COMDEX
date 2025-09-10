@@ -3,6 +3,8 @@ import logging
 from typing import Dict, Any
 from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.hyperdrive_tuning_constants_module import HyperdriveTuningConstants
 from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.sqi_controller_module import SQIController
+from backend.modules.visualization.qfc_websocket_bridge import broadcast_qfc_update
+from backend.modules.visualization.glyph_to_qfc import to_qfc_payload
 
 logger = logging.getLogger(__name__)
 SQI_EVENT_LOG = []
@@ -162,6 +164,30 @@ class SQIReasoningEngine:
         )
 
         print(f"🧠 [SQI] SymbolNet: avg_match={avg_match:.3f}, avg_distance={avg_dist:.3f}")
+
+        # ✅ LIVE QFC BROADCAST (new node for drift/exhaust/symbolnet)
+        try:
+            node_payload = {
+                "glyph": "Σ",
+                "op": "collapse",
+                "metadata": {
+                    "drift": drift,
+                    "exhaust": avg_exhaust,
+                    "semantic_score": avg_match,
+                    "stage": stage,
+                    "trace_id": trace.get("trace_id"),
+                }
+            }
+
+            context = {
+                "container_id": trace.get("container_id", "unknown"),
+                "source_node": trace.get("beam_id", "origin")
+            }
+
+            qfc_payload = to_qfc_payload(node_payload, context)
+            await broadcast_qfc_update(context["container_id"], qfc_payload)
+        except Exception as qfc_err:
+            print(f"[⚠️ SQI→QFC] Failed to broadcast collapse: {qfc_err}")
 
         # Final enriched analysis object
         return {

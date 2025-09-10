@@ -68,3 +68,25 @@ def log_collapse_event(
             f.write(json.dumps(event) + "\n")
     except Exception as e:
         print(f"[Timeline] ⚠️ Failed to write collapse event for beam {beam.id}: {e}")
+
+def log_collapse_tick(wave_state, profile_data: Optional[Dict[str, Any]] = None):
+    """
+    Adapter function used by BeamController to log the current collapse tick
+    based on wave state. It wraps log_collapse_event for each beam.
+    """
+    tick_num = profile_data.get("tick_index", 0) if profile_data else 0
+    tick_start_time = None
+
+    if profile_data and "tick_duration_ms" in profile_data:
+        tick_start_time = time.time() - (profile_data["tick_duration_ms"] / 1000.0)
+
+    container_id = getattr(wave_state, "container_id", None)
+
+    for beam in getattr(wave_state, "beams", []):
+        log_collapse_event(
+            beam=beam,
+            tick_num=tick_num,
+            container_id=container_id,
+            tick_start_time=tick_start_time,
+            profile_data=profile_data
+        )

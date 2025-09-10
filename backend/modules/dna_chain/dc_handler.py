@@ -253,11 +253,6 @@ def load_dc_container(container_id):
 
     return container
 
-def save_dc_container(container_id, data):
-    path = get_dc_path(container_id)
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2)
-
 def list_cubes(container_id):
     container = load_dc_container(container_id)
     return list(container.get("cubes", {}).keys())
@@ -389,13 +384,19 @@ def _coord_key(coord: Tuple[int, int, int]) -> str:
     x, y, z = coord
     return f"{int(x)},{int(y)},{int(z)}"
 
+from backend.modules.glyphvault.container_vault_integration import encrypt_and_embed_glyph_vault
+
 def save_dc_container(container_id: str, container: Dict[str, Any]) -> None:
     """
-    Persist a container back to its .dc.json file.
-    Uses get_dc_path(container_id) from this module.
+    Persist a container to its .dc.json path.
+    - Encrypts the glyph vault before saving.
+    - Ensures directory path exists.
     """
-    path = get_dc_path(container_id)  # must already exist in this module
+    container = encrypt_and_embed_glyph_vault(container)  # Optional, but important if vaults are active
+
+    path = get_dc_path(container_id)
     os.makedirs(os.path.dirname(path), exist_ok=True)
+
     with open(path, "w", encoding="utf-8") as f:
         json.dump(container, f, ensure_ascii=False, indent=2)
 
@@ -562,14 +563,6 @@ def load_dimension_by_file(file_path: str):
         })
 
     return container
-
-def save_dc_container(container_id, data):
-    # NEW: Encrypt glyph vault before saving
-    data = encrypt_and_embed_glyph_vault(data)
-
-    path = get_dc_path(container_id)
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2)
 
 def inject_glyphs_into_container(container_filename: str, glyphs: List[dict], source: str = "manual") -> bool:
     """

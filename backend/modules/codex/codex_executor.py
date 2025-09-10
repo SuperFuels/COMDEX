@@ -51,6 +51,7 @@ from backend.modules.dna_chain.mutation_scorer import score_mutation
 from backend.modules.glyphwave.core.beam_logger import log_beam_prediction
 from backend.modules.glyphwave.emit_beam import emit_qwave_beam
 from backend.modules.creative.innovation_scorer import get_innovation_score
+from backend.modules.codex.codex_scroll_builder import build_scroll_from_glyph
 
 # ⬁ Self-Rewrite Imports
 from backend.modules.codex.scroll_mutation_engine import mutate_scroll_tree
@@ -67,16 +68,12 @@ except Exception:
         # no-op fallback for tests
         return []
 
-# websocket broadcaster lives under routes/ws in this repo
-try:
-    from backend.routes.ws.glyphnet_ws import broadcast_glyph_event
-except Exception:
-    def broadcast_glyph_event(*args, **kwargs):
-        # no-op fallback for tests
-        return None
-
 # GHX & GlyphNet
-
+try:
+    from backend.modules.visualization.qfc_websocket_bridge import broadcast_qfc_update
+except Exception:
+    async def broadcast_qfc_update(*args, **kwargs):
+        return None  # no-op fallback for test environments
 try:
     from backend.modules.scrolls.scroll_builder import build_scroll_from_glyph
 except ImportError:
@@ -145,6 +142,45 @@ class CodexExecutor:
         context = context or {}
         start_time = time.perf_counter()
         glyph = context.get("glyph", "∅")
+        # 🌐 WebSocket Broadcast + Pattern Hooks
+        try:
+            from backend.routes.ws.glyphnet_ws import broadcast_glyph_event
+        except Exception:
+            def broadcast_glyph_event(*args, **kwargs):
+                return None  # no-op fallback
+
+        try:
+            from backend.modules.codex.codex_scroll_builder import build_scroll_from_glyph
+            scroll = build_scroll_from_glyph(glyph.get("glyphs", [])) if glyph else None
+
+            if scroll:
+                broadcast_glyph_event(
+                    glyph=glyph,
+                    action=instruction_tree.get("op", ""),
+                    source=source,
+                    cost=0.0,
+                    entangled=True,
+                    scroll=scroll,
+                    metadata={"container": context.get("container_id")}
+                )
+        except Exception as e:
+            logger.warning(f"[CodexExecutor] WebSocket broadcast failed: {e}")
+
+        # 🔁 Auto-trigger pattern hooks if applicable
+        if isinstance(glyph, dict) and glyph.get("glyphs"):
+            try:
+                from backend.modules.patterns.pattern_prediction_hooks import (
+                    broadcast_pattern_prediction,
+                    auto_trigger_qfc_from_pattern,
+                    trigger_emotion_bridge_from_pattern,
+                )
+
+                broadcast_pattern_prediction(glyph)
+                auto_trigger_qfc_from_pattern(glyph)
+                trigger_emotion_bridge_from_pattern(glyph)
+
+            except Exception as e:
+                logger.warning(f"[CodexExecutor] Pattern hook failed: {e}")
         source = context.get("source", "codex")
 
         # 🔐 Enforce QKD-required policy
@@ -443,7 +479,18 @@ class CodexExecutor:
                 )
 
             elapsed = time.perf_counter() - start_time
-
+            # 🔄 QFC WebSocket Update (New glyphs / beams)
+            try:
+                container_id = context.get("container_id")
+                if container_id and glyph and isinstance(glyph, dict):
+                    from backend.modules.visualization.glyph_to_qfc import convert_glyph_to_qfc_node
+                    qfc_node = convert_glyph_to_qfc_node(glyph)
+                    await broadcast_qfc_update(container_id, {
+                        "nodes": [qfc_node],
+                        "links": []  # or inferred symbolic links if applicable
+                    })
+            except Exception as qfc_err:
+                logger.warning(f"[CodexExecutor] ⚠️ QFC update failed: {qfc_err}")
             # 🧠 Inject Holographic Symbol Tree (HST) for introspection
             try:
                 from backend.modules.symbolic.symbol_tree_generator import inject_symbolic_tree
@@ -480,6 +527,27 @@ class CodexExecutor:
                 tags=["error", "execution"],
                 confidence=0.1
             )
+            return {"status": "error", "error": str(e)}
+
+    # ──────────────────────────────
+    # ✨ CodexLang Execution (String Input)
+    # ──────────────────────────────
+    def execute_codexlang(self, codex_string: str, context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        """
+        Executes a CodexLang string by compiling it and passing it to the instruction executor.
+        """
+        try:
+            # Compile the CodexLang string into an instruction tree
+            instruction_tree = run_codexlang_string(codex_string)
+
+            if not instruction_tree or not isinstance(instruction_tree, dict):
+                raise ValueError("Failed to compile CodexLang string into a valid instruction tree.")
+
+            # Execute the compiled tree
+            return self.execute_instruction_tree(instruction_tree, context=context)
+
+        except Exception as e:
+            logger.error(f"[CodexExecutor] CodexLang execution failed: {e}", exc_info=True)
             return {"status": "error", "error": str(e)}
 
     # ──────────────────────────────

@@ -83,6 +83,38 @@ def mutate_beam(original_beam: WaveState, max_variants: int = 3) -> WaveState:
         broadcast=True
     )
 
+    # ✅ QFC Broadcast for mutated beam
+    try:
+        from backend.modules.visualization.qfc_payload_utils import to_qfc_payload
+        from backend.modules.visualization.broadcast_qfc_update import broadcast_qfc_update
+        import asyncio
+
+        node_payload = {
+            "glyph": "✹",
+            "op": "mutate",
+            "metadata": {
+                "sqi_score": mutated_beam.sqi_score,
+                "entropy": mutated_beam.entropy,
+                "status": mutated_beam.status,
+                "mutation_ops": [
+                    node.get("mutation_note")
+                    for node in mutated_beam.logic_tree.get("children", [])
+                    if node.get("mutated")
+                ],
+            }
+        }
+
+        context = {
+            "container_id": getattr(mutated_beam, "container_id", "unknown"),
+            "source_node": original_beam.id
+        }
+
+        qfc_payload = to_qfc_payload(node_payload, context)
+        asyncio.create_task(broadcast_qfc_update(context["container_id"], qfc_payload))
+
+    except Exception as qfc_err:
+        print(f"[Mutation→QFC] ⚠️ Failed to stream mutation to QFC: {qfc_err}")
+
     return mutated_beam
 
 def fork_beam_paths(original_beam: WaveState, forks: int = 3) -> List[WaveState]:
@@ -211,3 +243,83 @@ def flip_operator(op: str) -> str:
         "<": ">",
     }
     return opposites.get(op, f"¬{op}")
+
+class SymbolicMutationEngine:
+    """
+    Provides mutation utilities for symbolic logic patterns and trees.
+    Supports both single mutation and variant generation.
+    """
+
+    def __init__(self, max_depth: int = 3):
+        self.max_depth = max_depth
+
+    def mutate_from_pattern(self, pattern: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Perform a single symbolic mutation on the given pattern.
+        """
+        variants = self._mutate_symbolic_logic(pattern, max_variants=1)
+        return variants[0] if variants else pattern
+
+    def mutate_variants(self, pattern: Dict[str, Any], count: int = 3) -> List[Dict[str, Any]]:
+        """
+        Generate multiple symbolic mutation variants.
+        """
+        return self._mutate_symbolic_logic(pattern, max_variants=count)
+
+    def _mutate_symbolic_logic(self, tree: Dict[str, Any], max_variants: int = 3) -> List[Dict[str, Any]]:
+        variants = []
+        for _ in range(max_variants):
+            variant = copy.deepcopy(tree)
+            self._apply_random_mutations(variant)
+            variants.append(variant)
+        return variants
+
+    def _apply_random_mutations(self, node: Dict[str, Any], depth: int = 0):
+        if depth > self.max_depth:
+            return
+        if random.random() < 0.4:
+            operation = random.choice(MUTATION_OPERATIONS)
+            self._apply_mutation(node, operation)
+        for child in node.get("children", []):
+            if isinstance(child, dict):
+                self._apply_random_mutations(child, depth + 1)
+
+    def _apply_mutation(self, node: Dict[str, Any], operation: str):
+        if operation == "rename_node":
+            old_label = node.get("label", "")
+            node["label"] = f"{old_label}_v{random.randint(1, 99)}"
+            node["mutation_note"] = "renamed node"
+
+        elif operation == "flip_operator":
+            if "op" in node:
+                node["op"] = flip_operator(node["op"])
+                node["mutation_note"] = "flipped operator"
+
+        elif operation == "inject_contradiction":
+            node["contradiction"] = True
+            node["label"] = f"¬({node.get('label', '')})"
+            node["mutation_note"] = "injected contradiction"
+
+        elif operation == "duplicate_subtree":
+            if "children" in node and node["children"]:
+                chosen = random.choice(node["children"])
+                node["children"].append(copy.deepcopy(chosen))
+                node["mutation_note"] = "duplicated subtree"
+
+        elif operation == "remove_leaf":
+            if "children" in node and len(node["children"]) > 1:
+                node["children"].pop(random.randint(0, len(node["children"]) - 1))
+                node["mutation_note"] = "removed leaf"
+
+        elif operation == "swap_branches":
+            if "children" in node and len(node["children"]) >= 2:
+                random.shuffle(node["children"])
+                node["mutation_note"] = "swapped branches"
+
+        elif operation == "change_value":
+            if "value" in node and isinstance(node["value"], (int, float)):
+                perturb = random.uniform(-1.0, 1.0)
+                node["value"] += perturb
+                node["mutation_note"] = f"changed value by {perturb:.2f}"
+
+        node["mutated"] = True

@@ -34,3 +34,19 @@ export interface Glyph {
   value: string;
   action: string;
 }
+
+export interface GlyphNode {
+  id: string;
+  label: string;
+  position: [number, number, number];
+  emotion?: string;
+  tick?: number;
+  source?: string;
+  entanglement?: any;
+  entangled?: boolean;
+  tranquilityScore?: number;
+  containerId?: string;
+  summary?: string;
+  memorySummary?: string;
+  intent?: string;
+}

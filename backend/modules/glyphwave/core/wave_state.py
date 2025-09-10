@@ -69,6 +69,49 @@ class EntangledWave:
         """
         return join_waves_batch(self.waves)
 
+    def to_qfc_payload(self) -> Dict[str, Any]:
+        """
+        Convert entangled waves into a QFC payload with nodes and links.
+        Includes SQI, prediction, collapse_state, and style metadata.
+        Auto-triggers collapse if required metadata is missing.
+        """
+        # 🧠 Auto-collapse if critical metadata is missing
+        if any(w.sqi_score is None or w.collapse_state is None for w in self.waves):
+            print("⚠️ Auto-collapsing due to missing SQI/collapse metadata...")
+            self.finalize_collapse()
+
+        nodes = []
+        links = []
+
+        for i, wave in enumerate(self.waves):
+            node = {
+                "id": wave.id,
+                "label": wave.glyph_data.get("label", wave.glyph_id),
+                "containerId": wave.container_id or "unknown",
+                "sqi_score": wave.sqi_score,
+                "collapse_state": wave.collapse_state,
+                "prediction": wave.prediction,
+                "metadata": wave.metadata,
+            }
+            nodes.append(node)
+
+            # 🧬 Generate links from entanglement structure
+            for j in self.get_entangled_indices(i):
+                target_wave = self.waves[j]
+                links.append({
+                    "source": wave.id,
+                    "target": target_wave.id,
+                    "type": "entangled",
+                    "collapse_state": wave.collapse_state,
+                    "sqi_score": wave.sqi_score,
+                    "metadata": wave.metadata,
+                })
+
+        return {
+            "nodes": nodes,
+            "links": links,
+        }
+
 class WaveState:
     def __init__(
         self,
@@ -390,3 +433,38 @@ def get_active_wave_state_by_container_id(container_id: str) -> Optional[Dict]:
         "entangled_beams": entangled_beams,
     }
 
+    def to_qfc_payload(self) -> Dict[str, List[Dict]]:
+        """
+        Convert this WaveState into a symbolic QFC render payload with node + optional link.
+        Useful for HUD updates, live canvas rendering, or beam overlay.
+        """
+        node = {
+            "id": self.id,
+            "label": self.glyph_data.get("label", self.glyph_id),
+            "type": self.glyph_data.get("type", "wave"),
+            "containerId": self.container_id or "unknown",
+            "metadata": self.metadata,
+            "prediction": self.prediction,
+            "sqi_score": self.sqi_score,
+            "collapse_state": self.collapse_state,
+            "origin_trace": self.origin_trace,
+        }
+
+        link = None
+        if self.source and self.target and self.source != self.target:
+            link = {
+                "id": f"{self.source}__{self.target}",
+                "source": self.source,
+                "target": self.target,
+                "metadata": {
+                    "carrier_type": self.carrier_type,
+                    "modulation_strategy": self.modulation_strategy,
+                    "collapse_state": self.collapse_state,
+                    "sqi_score": self.sqi_score,
+                }
+            }
+
+        return {
+            "nodes": [node],
+            "links": [link] if link else []
+        }

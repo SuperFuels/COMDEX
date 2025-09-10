@@ -20,21 +20,25 @@
     "incremental": true,
 
     // ── 3) Type Definitions ───────────────────────────────────────────────────
-    //    Include Node, Next.js, React, and React-DOM
     "types": ["node", "next", "react", "react-dom"],
 
     // ── 4) Path Aliases ───────────────────────────────────────────────────────
-    "baseUrl": ".",
+    "baseUrl": ".",  // 👈 base is frontend/
     "paths": {
-      "@/constants/*":   ["constants/*"],
-      "@/types":         ["types/index.ts"],
-      "@/types/*":       ["types/*"],
-      "@/lib/*":         ["lib/*"],
-      "@/components/*":  ["components/*"],
-      "@/components/ui/*": ["components/ui/*"],       // ✅ Added for Card, Badge, Button
-      "@/hooks/*":       ["hooks/*"],
-      "@/utils/*":       ["utils/*"],
-      "@/styles/*":      ["styles/*"]
+      "@/constants/*":         ["./constants/*"],
+      "@/types":               ["./types/index.ts"],
+      "@/types/*":             ["./types/*"],
+      "@/lib/*":               ["./lib/*"],
+      "@/components/*":        ["./components/*"],
+      "@/components/ui/*":     ["./components/ui/*"],
+      "@/hooks/*":             ["./hooks/*"],
+      "@/utils/*":             ["./utils/*"],
+      "@/styles/*":            ["./styles/*"],
+
+      // 🆕 Cross-project aliases (relative to frontend/)
+      "@modules/*":            ["../backend/modules/*"],
+      "@types/qfc":            ["../types/qfc.ts"],
+      "@types/*":              ["../types/*"]
     }
   },
 

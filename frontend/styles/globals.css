@@ -234,6 +234,22 @@ body {
   }
 }
 
+/* Custom Animation for Strategy Suggestions */
+@keyframes fadeInScale {
+  0% {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fadeInScale {
+  animation: fadeInScale 0.4s ease-out forwards;
+}
+
 @layer base {
   * {
     @apply border-border;

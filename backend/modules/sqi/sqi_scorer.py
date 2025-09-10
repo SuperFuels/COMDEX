@@ -95,6 +95,54 @@ def score_all_electrons(container: Dict[str, Any]) -> List[Dict[str, Any]]:
 
     return sorted(results, key=lambda x: -x["score"])
 
+def score_pattern_sqi(pattern: Dict[str, Any]) -> float:
+    """
+    Compute an SQI score for a symbolic pattern based on:
+    - Uniqueness (entropy)
+    - Symmetry (repetition)
+    - Length normalization
+    - Optional: trigger logic, alignment, emotion, etc.
+
+    Returns:
+        float score in [0.0, 1.0]
+    """
+    glyphs = pattern.get("glyphs", [])
+    if not glyphs:
+        return 0.0
+
+    total = len(glyphs)
+    from backend.modules.patterns.pattern_registry import stringify_glyph
+    unique = len(set(stringify_glyph(g) for g in glyphs))
+    symmetry = total - unique  # higher means more repetition
+    entropy_ratio = unique / total if total else 0.0
+
+    # Weight config
+    w_entropy = 0.6
+    w_symmetry = 0.3
+    w_length_bonus = 0.1
+
+    # Score composition
+    score = (
+        (1.0 - entropy_ratio) * w_entropy +
+        (symmetry / total) * w_symmetry +
+        min(0.1, total / 20.0) * w_length_bonus
+    )
+
+    return round(min(max(score, 0.0), 1.0), 4)
+
+def compute_entropy(glyphs: List[str]) -> float:
+    if not glyphs:
+        return 1.0
+    unique = set(glyphs)
+    return 1.0 - (len(unique) / len(glyphs))
+
+
+def compute_symmetry_score(glyphs: List[str]) -> float:
+    if not glyphs:
+        return 0.0
+    reversed_glyphs = glyphs[::-1]
+    matches = sum(1 for a, b in zip(glyphs, reversed_glyphs) if a == b)
+    return matches / len(glyphs)
 
 def inject_sqi_scores_into_container(container: Dict[str, Any]) -> Dict[str, Any]:
     """

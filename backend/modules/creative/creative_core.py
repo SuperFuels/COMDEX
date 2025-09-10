@@ -21,6 +21,7 @@ from backend.modules.glyphwave.gwip.gwip_encoder import encode_gwip_packet
 from backend.modules.websocket_manager import broadcast_event
 
 from backend.modules.dna_chain.container_index_writer import add_innovation_score_entry
+from backend.modules.glyphwave.qwave.qwave_transfer_sender import send_qwave_transfer
 
 # Configuration
 CREATIVE_BEAM_STYLE = CarrierType.FORK
@@ -144,13 +145,52 @@ def emit_creative_fork(
             "timestamp": fork_wave.timestamp,
         }
 
+        # ✅ Step 6.5: Track emitted fork
         forks_emitted.append(fork_wave)
+
+        # ✅ Step 7: Emit via GlyphWave/WebSocket
         print(f"[CreativeCore] 📡 Emitting fork beam {fork_wave.id} (score={score:.3f})")
+        try:
+            broadcast_event("glyphwave.fork_beam", broadcast_payload)
+        except Exception as e:
+            print(f"[CreativeCore] ⚠️ WebSocket broadcast failed: {e}")
+
+        # ✅ Step 7.5: Realtime QWave Transfer
+        try:
+            send_qwave_transfer(container_id, source="creative_core", beam_data=fork_wave)
+        except Exception as e:
+            print(f"[CreativeCore] ⚠️ QWave transfer failed: {e}")
 
         # 🌐 Step 7: Send to GHX/WebSocket
         try:
             broadcast_event("glyphwave.fork_beam", broadcast_payload)
         except Exception as e:
             print(f"[CreativeCore] ⚠️ WebSocket broadcast failed: {e}")
+                # ✅ Step 8: QFC Live Broadcast
+        try:
+            from backend.modules.visualization.qfc_payload_utils import to_qfc_payload
+            from backend.modules.visualization.broadcast_qfc_update import broadcast_qfc_update
+            import asyncio
+
+            node_payload = {
+                "glyph": "✦",
+                "op": "creative_fork",
+                "metadata": {
+                    "glow": glow,
+                    "pulse": pulse,
+                    "innovation_score": score,
+                    "reason": reason,
+                    "wave_id": fork_wave.id
+                }
+            }
+            context = {
+                "container_id": container_id,
+                "source_node": original_wave.id
+            }
+            qfc_payload = to_qfc_payload(node_payload, context)
+            asyncio.create_task(broadcast_qfc_update(container_id, qfc_payload))
+
+        except Exception as qfc_err:
+            print(f"[CreativeCore] ⚠️ QFC broadcast failed for fork {fork_wave.id}: {qfc_err}")
 
     return forks_emitted

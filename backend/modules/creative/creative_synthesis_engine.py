@@ -14,6 +14,9 @@ from backend.modules.codex.codex_metrics import CodexMetrics
 from backend.modules.lean.lean_utils import is_lean_container
 from backend.modules.symbolnet.symbolnet_bridge import semantic_distance
 from backend.modules.symbolnet.symbolnet_overlay_loader import enrich_glyph_with_symbolnet_overlay
+from backend.modules.patterns.pattern_qfc_triggers import auto_trigger_qfc_from_pattern
+from backend.modules.patterns.pattern_emotion_bridge import trigger_emotion_bridge_from_pattern
+from backend.modules.patterns.pattern_websocket_broadcast import broadcast_pattern_prediction
 
 
 class MutationOption:
@@ -84,6 +87,20 @@ class CreativeSynthesisEngine:
             except Exception as e:
                 print(f"[⚠️] Semantic scoring failed: {e}")
 
+        # ✅ Auto-trigger symbolic pattern engine hooks if pattern-like
+        if glyph.get("glyphs"):
+            try:
+                from backend.modules.patterns.pattern_websocket_broadcast import broadcast_pattern_prediction
+                from backend.modules.patterns.pattern_qfc_triggers import auto_trigger_qfc_from_pattern
+                from backend.modules.patterns.pattern_emotion_bridge import trigger_emotion_bridge_from_pattern
+
+                broadcast_pattern_prediction(glyph)                 # 📡 CodexLang HUD
+                auto_trigger_qfc_from_pattern(glyph)                # 🔁 QFC trigger
+                trigger_emotion_bridge_from_pattern(glyph)          # 🧠 Emotion sync
+            except Exception as e:
+                print(f"[⚠️] Pattern broadcast trigger failed: {e}")
+
+        # 📊 Embed score in metadata
         if "metadata" not in glyph:
             glyph["metadata"] = {}
         glyph["metadata"]["semantic_goal_score"] = semantic_score
@@ -164,6 +181,15 @@ class CreativeSynthesisEngine:
             result["created_on"] = datetime.utcnow().isoformat()
 
         store_generated_glyph(result)
+
+        # Optional: Re-broadcast the final result
+        if result.get("glyphs"):
+            try:
+                broadcast_pattern_prediction(result)
+                auto_trigger_qfc_from_pattern(result)
+                trigger_emotion_bridge_from_pattern(result)
+            except Exception as e:
+                print(f"[⚠️] Final synthesis pattern trigger failed: {e}")
         return result
 
     def auto_correct_contradictions(self, glyph: Dict[str, Any]) -> Dict[str, Any]:

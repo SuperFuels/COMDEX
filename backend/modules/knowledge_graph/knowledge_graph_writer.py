@@ -18,6 +18,7 @@ Design Rubric:
 """
 import importlib
 import os, json
+import uuid
 import datetime
 from pathlib import Path
 from typing import Optional, Dict, Any, Tuple, List
@@ -755,25 +756,19 @@ class KnowledgeGraphWriter:
         anchor: Optional[Dict[str, Any]] = None,
         agent_id: str = "local",
         version_vector: Optional[Dict[str, int]] = None,
-        # NEW:
         tags: Optional[list] = None,
     ):
-        # ── Recursion/rehydration storm guard ───────────────────────────────────
         global _KG_BUSY
         if _KG_BUSY:
-            # Drop (or queue) to prevent infinite re-entry loops
             return
         _KG_BUSY = True
         try:
-            # ── Broadcaster (prefer throttled alias; fall back to async enqueue) ─
             _broadcast_sync = None
             _broadcast_async = None
             try:
-                # throttled alias accepts a single event dict (sync)
                 from backend.routes.ws.glyphnet_ws import broadcast_event_throttled as _broadcast_sync  # type: ignore
             except Exception:
                 try:
-                    # async enqueue taking a single event dict
                     from backend.routes.ws.glyphnet_ws import broadcast_event as _broadcast_async  # type: ignore
                 except Exception:
                     _broadcast_async = None
@@ -781,10 +776,9 @@ class KnowledgeGraphWriter:
             import inspect, asyncio
 
             def _emit(event_dict: dict):
-                """Send event via throttled sync if available; otherwise via async enqueue."""
                 try:
                     if _broadcast_sync:
-                        _broadcast_sync(event_dict)  # sync throttled path
+                        _broadcast_sync(event_dict)
                         return
                     if _broadcast_async:
                         if inspect.iscoroutinefunction(_broadcast_async):
@@ -798,14 +792,11 @@ class KnowledgeGraphWriter:
                     else:
                         print(f"[SIM:FALLBACK] Broadcast: {event_dict}")
                 except Exception:
-                    # Never let broadcast failures bubble into KG write path
                     pass
 
-            # ── Original logic (unchanged, just routed through _emit) ────────────
             glyph_id = generate_uuid()
             timestamp = get_current_timestamp()
 
-            # 🔒 Standard Lock Enforcement
             if not crdt_registry.acquire_lock(glyph_id, agent_id):
                 raise RuntimeError(f"Glyph {glyph_id} is locked by another agent.")
 
@@ -816,7 +807,6 @@ class KnowledgeGraphWriter:
                 "tags": ["🔒"]
             })
 
-            # ↔ Entanglement Lock Enforcement
             entangled_group = None
             if metadata and "entangled_ids" in metadata:
                 entangled_group = "|".join(sorted(metadata["entangled_ids"]))
@@ -830,11 +820,9 @@ class KnowledgeGraphWriter:
                     "tags": ["↔", "🔒"]
                 })
 
-            # 🔀 CRDT merge & increment
             merged_version = crdt_registry.merge_vector(glyph_id, version_vector or {})
             crdt_registry.increment_clock(glyph_id, agent_id)
 
-            # 🛡️ Wrap string content if necessary
             if isinstance(content, str):
                 content = {
                     "type": "symbol",
@@ -842,7 +830,6 @@ class KnowledgeGraphWriter:
                     "metadata": metadata or {}
                 }
 
-            # ✅ Auto-tagging based on glyph operators
             auto_tags = self._derive_auto_tags(content)
             final_tags = list(set(auto_tags + (tags or [])))
 
@@ -852,7 +839,7 @@ class KnowledgeGraphWriter:
                 "content": content,
                 "timestamp": timestamp,
                 "metadata": metadata or {},
-                "tags": final_tags,  # manual + auto
+                "tags": final_tags,
                 "agent_id": agent_id,
                 "version_vector": merged_version
             }
@@ -868,8 +855,27 @@ class KnowledgeGraphWriter:
             self._write_to_container(entry)
             add_to_index("knowledge_index.glyph", entry)
 
+            # ✅ QFC Broadcast Injection
+            try:
+                from backend.modules.visualization.qfc_payload_utils import to_qfc_payload
+                from backend.modules.visualization.broadcast_qfc_update import broadcast_qfc_update
+
+                node_payload = {
+                    "glyph": glyph_type,
+                    "op": "inject",
+                    "metadata": metadata or {},
+                }
+                context = {
+                    "container_id": metadata.get("container_id", "unknown") if metadata else "unknown",
+                    "source_node": metadata.get("node_id", "origin") if metadata else "origin"
+                }
+
+                qfc_payload = to_qfc_payload(node_payload, context)
+                asyncio.create_task(broadcast_qfc_update(context["container_id"], qfc_payload))
+            except Exception as qfc_err:
+                print(f"[⚠️ KG→QFC] Failed to broadcast injected glyph: {qfc_err}")
+
             if anchor:
-                # lazy async anchor broadcast (works in app & CLI)
                 try:
                     from backend.routes.ws.glyphnet_ws import broadcast_anchor_update  # type: ignore
                     if inspect.iscoroutinefunction(broadcast_anchor_update):
@@ -879,11 +885,10 @@ class KnowledgeGraphWriter:
                         except RuntimeError:
                             asyncio.run(broadcast_anchor_update(glyph_id, anchor))
                     else:
-                        broadcast_anchor_update(glyph_id, anchor)  # sync impl fallback
+                        broadcast_anchor_update(glyph_id, anchor)
                 except Exception:
                     pass
 
-            # 🔓 Release locks and emit
             crdt_registry.release_lock(glyph_id, agent_id)
             _emit({
                 "type": "lock_released",
@@ -1175,6 +1180,28 @@ class KnowledgeGraphWriter:
             metadata=md,
             agent_id=agent_id,
             plugin="SQI"
+        )
+
+    def inject_pattern(self, container_id: str, pattern_trace: dict):
+        """
+        Inject a pattern trace as a glyph into the KG.
+        This is called by the SymbolicPatternEngine when a pattern is detected.
+        """
+        label = pattern_trace.get("name", "Unnamed Pattern")
+        glyph_id = pattern_trace.get("pattern_id", str(uuid.uuid4()))
+        tags = pattern_trace.get("glyphs", [])
+        sqi = pattern_trace.get("sqi_score", 0.0)
+
+        return self.inject_glyph(
+            content=f"Pattern: {label}",
+            glyph_type="pattern",
+            metadata={
+                "id": glyph_id,
+                "name": label,
+                "glyphs": tags,
+                "sqi_score": sqi
+            },
+            plugin="PatternEngine"
         )
 
     def write_drift_report(self,

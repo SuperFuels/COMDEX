@@ -1,7 +1,7 @@
 graph TD
   Q[🌌 QuantumFieldCanvas (QFC)] --> Q1(🧱 Scaffold + Spatial Engine)
   Q --> Q2(🔮 Object/Entity Renderer)
-  Q --> Q3(💡 Beam + Link Visualizer)
+  Q -->✅ Q3(💡 Beam + Link Visualizer)
   Q --> Q4(🎞️ Replay & Causality Trail System)
   Q --> Q5(⚛ Atom + Electron Visualizer)
   Q --> Q6(🧠 Memory Node / Knowledge Linker)
@@ -12,126 +12,126 @@ graph TD
   Q --> Q11(🌀 DreamField / Alternate Dimension View)
 
   %% Subtasks under Scaffold
-  Q1 --> Q1a(Grid + Polar + Nested Field Modes)
-  Q1 --> Q1b(Snap/Place + Zoom Controls)
-  Q1 --> Q1c(3D Layers + Depth Field)
-  Q1 --> Q1d(Camera Rotation + Gaze Support)
+  Q1 -->✅ Q1a(Grid + Polar + Nested Field Modes)
+  Q1 -->✅ Q1b(Snap/Place + Zoom Controls)
+  Q1 -->✅ Q1c(3D Layers + Depth Field)
+  Q1 -->✅Q1d(Camera Rotation + Gaze Support)
 
   %% Subtasks under Object Renderer
-  Q2 --> Q2a(Atom, Electron, Glyph Node Types)
-  Q2 --> Q2b(Hover Tooltips: Metadata, Links, Status)
-  Q2 --> Q2c(QGlyph ↔ Symbolic View Toggle)
-  Q2 --> Q2d(Glyph Sprite Visuals + Entangled Badges)
+  Q2 -->✅ Q2a(Atom, Electron, Glyph Node Types)
+  Q2 -->✅ Q2b(Hover Tooltips: Metadata, Links, Status)
+  Q2 -->✅ Q2c(QGlyph ↔ Symbolic View Toggle)
+  Q2 -->✅ Q2d(Glyph Sprite Visuals + Entangled Badges)
 
   %% Subtasks under Beam Visualizer
-  Q3 --> Q3a(Entangled Beams: ↔)
-  Q3 --> Q3b(Causal Arrows: ⧖)
-  Q3 --> Q3c(QWave Light Tunnels: 💡)
-  Q3 --> Q3d(Symbolic Meaning / Gradient Mapping)
+  Q3 -->✅ Q3a(Entangled Beams: ↔)
+  Q3 -->✅ Q3b(Causal Arrows: ⧖)
+  Q3 -->✅ Q3c(QWave Light Tunnels: 💡)
+  Q3 -->✅ Q3d(Symbolic Meaning / Gradient Mapping)
 
   %% Subtasks under Replay
-  Q4 --> Q4a(Timeline Slider + Scrubber)
-  Q4 --> Q4b(Forked Path Visualizer: 🪞)
-  Q4 --> Q4c(Trace Collapse + Rewind)
-  Q4 --> Q4d(Holographic Causality Trails)
+  Q4 -->✅ Q4a(Timeline Slider + Scrubber)
+  Q4 -->✅ Q4b(Forked Path Visualizer: 🪞)
+  Q4 -->✅ Q4c(Trace Collapse + Rewind)
+  Q4 -->✅ Q4d(Holographic Causality Trails)
 
   %% Subtasks under Atom View
-  Q5 --> Q5a(Nucleus + Electron Orbit Layers)
-  Q5 --> Q5b(Electron Hover/Click: Predictive Glyphs)
-  Q5 --> Q5c(Snap to Energy Shells)
-  Q5 --> Q5d(Memory-Echo Ring Beams)
+  Q5 -->✅ Q5a(Nucleus + Electron Orbit Layers)
+  Q5 -->✅ Q5b(Electron Hover/Click: Predictive Glyphs)
+  Q5 -->✅ Q5c(Snap to Energy Shells)
+  Q5 -->✅ Q5d(Memory-Echo Ring Beams)
 
   %% Subtasks under Memory/Knowledge
-  Q6 --> Q6a(Knowledge Node Placement)
-  Q6 --> Q6b(Memory Embedding via GlyphTrace)
-  Q6 --> Q6c(Goal / Strategy / Milestone Nodes)
-  Q6 --> Q6d(Hover View: Past Container/Agent Logic)
+  Q6 -->✅ Q6a(Knowledge Node Placement)
+  Q6 -->✅ Q6b(Memory Embedding via GlyphTrace)
+  Q6 -->✅ Q6c(Goal / Strategy / Milestone Nodes)
+  Q6 -->✅ Q6d(Hover View: Past Container/Agent Logic)
 
   %% Subtasks under Container Integration
-  Q7 --> Q7a(Click ↔ Teleport to Container)
-  Q7 --> Q7b(Spawn New Containers via CreativeCore)
-  Q7 --> Q7c(Live Container ↔ QFC Sync)
-  Q7 --> Q7d(Save QFC state to `.dc.json`)
+  Q7 -->✅ Q7a(Click ↔ Teleport to Container)
+  Q7 -->✅ Q7b(Spawn New Containers via CreativeCore)
+  Q7 -->✅ Q7c(Live Container ↔ QFC Sync)
+  Q7 -->✅ Q7d(Save QFC state to `.dc.json`)
 
   %% Subtasks under QWave
-  Q8 --> Q8a(Beam QWave Visual Packets)
-  Q8 --> Q8b(Show Emotion, Memory, Logic via Beam Color/Shape)
-  Q8 --> Q8c(Realtime QWave Transfer)
-  Q8 --> Q8d(Decryptable QWave Preview UI)
+  Q8 -->✅ Q8a(Beam QWave Visual Packets)
+  Q8 -->✅ Q8b(Show Emotion, Memory, Logic via Beam Color/Shape)
+  Q8 -->✅ Q8c(Realtime QWave Transfer)
+  Q8 -->✅ Q8d(Decryptable QWave Preview UI)
 
   %% Subtasks under Styling
-  Q9 --> Q9a(Highlight Symbolic Operators: ⧖ ↔ ⬁ 🧬 🪞)
-  Q9 --> Q9b(Entropy/Density Color Map)
-  Q9 --> Q9c(SoulLaw Lock Indicators)
-  Q9 --> Q9d(Glyph Cluster Zoom/Group Animations)
+  Q9 -->✅ Q9a(Highlight Symbolic Operators: ⧖ ↔ ⬁ 🧬 🪞)
+  Q9 -->✅ Q9b(Entropy/Density Color Map)
+  Q9 -->✅ Q9c(SoulLaw Lock Indicators)
+  Q9 -->✅ Q9d(Glyph Cluster Zoom/Group Animations)
 
   %% Subtasks under Interaction Engine
-  Q10 --> Q10a(Click to Expand Glyph Info)
-  Q10 --> Q10b(Drag/Drop Objects Between Fields)
-  Q10 --> Q10c(Snap to Grid, Polar, or Tree Layout)
-  Q10 --> Q10d(Memory Recall Drag → Canvas)
+  Q10 -->✅ Q10a(Click to Expand Glyph Info)
+  Q10 -->✅ Q10b(Drag/Drop Objects Between Fields)
+  Q10 -->✅ Q10c(Snap to Grid, Polar, or Tree Layout)
+  Q10 -->✅ Q10d(Memory Recall Drag → Canvas)
 
   %% Subtasks under DreamField
-  Q11 --> Q11a(Alt-Layer View: Predicted Outcomes)
-  Q11 --> Q11b(Split-Screen: Reality vs DreamField)
-  Q11 --> Q11c(Merge Dream into Main QFC)
-  Q11 --> Q11d(Dream-origin Node Markers)
+  Q11 -->✅ Q11a(Alt-Layer View: Predicted Outcomes)
+  Q11 -->✅ Q11b(Split-Screen: Reality vs DreamField)
+  Q11 -->✅ Q11c(Merge Dream into Main QFC)
+  Q11 -->✅ Q11d(Dream-origin Node Markers)
 
 %%🌌 QFC — Visualization & Reasoning Upgrades
 checklist
   title 🌌 QuantumFieldCanvas — Enhancements
 
-  section Intelligent Beam Routing
-    [ ] Enable QWaves inside light beams
-    [ ] Add logic packets (trace back, infer forward)
-    [ ] Allow beam rerouting based on reasoning focus
-    [ ] Glow beams based on memory weight / frequency
+section Intelligent Beam Routing
+  [✅] Enable QWaves inside light beams 
+  [✅] Add logic packets (trace back, infer forward)
+  [ ] Allow beam rerouting based on reasoning focus
+  [ ] Glow beams based on memory weight / frequency
 
-  section Emotion-Aware Visualization
-    [ ] Visualize glyphs based on emotional metadata
-    [ ] Pulse/highlight frustration, curiosity, insight
-    [ ] Integrate EmotionEngine → QFC overlays
+section Emotion-Aware Visualization
+  [✅] Visualize glyphs based on emotional metadata 
+  [ ] Pulse/highlight frustration, curiosity, insight
+  [✅] Integrate EmotionEngine → QFC overlays 
 
-  section Replayable Innovation Streams
-    [ ] Add rewind button for glyph trace timeline
-    [ ] Allow AION to select earlier branches
-    [ ] Support mutation retry from older versions
+section Replayable Innovation Streams
+  [✅] Add rewind button for glyph trace timeline
+  [ ] Allow AION to select earlier branches
+  [ ] Support mutation retry from older versions
 
-    %%🌌 QFC — Observer Viewport + Idea Scroll
+%%🌌 QFC — Observer Viewport + Idea Scroll
 checklist
   title 🌌 QFC — Observer Viewport + Idea Scroll
 
   section 👁️ Observer Core (Central POV)
-    [ ] Add camera/viewpoint anchor (center of attention)
+    [✅] Add camera/viewpoint anchor (center of attention) 
     [ ] Lock "field origin" to observer location
     [ ] Allow QFC rotation around observer for mental scanning
     [ ] Add directional focus (e.g. front vs periphery of field)
 
   section 🔁 Memory Scroller
-    [ ] Design horizontal scroll of semantically related concepts
+    [✅] Design horizontal scroll of semantically related concepts 
     [ ] Rank by relevance to active glyph / problem
     [ ] Allow drag-and-drop into main canvas
     [ ] Optionally play QWave / emotion pulse on hover
     [ ] Highlight based on previous entanglement / insight history
 
   section 📥 Pull-to-Field Interaction
-    [ ] `pull_to_field(glyph)` triggers insertion + replay
-    [ ] Bind scroll items to container IDs or glyph previews
+    [✅] `pull_to_field(glyph)` triggers insertion + replay
+    [✅] Bind scroll items to container IDs or glyph previews
     [ ] Enable "field suggestion mode" with automatic beam trials
 
-    %%Scroll Replay & Strategy Suggestions
+%%Scroll Replay & Strategy Suggestions
 checklist
   title 🌀 Scroll Replay + Strategic Insight Overlay
 
   section 🎞️ Scroll Replay Mode
-    [ ] Let AION rewind scroll + field interaction history
-    [ ] Replay idea mutations with hoverable trace
-    [ ] Visualize past dead ends / breakthroughs
+    [✅] Let AION rewind scroll + field interaction history 
+    [✅] Replay idea mutations with hoverable trace 
+    [✅] Visualize past dead ends / breakthroughs
 
   section 🧭 Strategy Overlay
-    [ ] Show “most innovative” previous idea pulls
-    [ ] Rank past glyph trials based on Tranquility scoring
-    [ ] Highlight scroll items that *almost* worked before
+    [✅] Show “most innovative” previous idea pulls 
+    [✅] Rank past glyph trials based on Tranquility scoring 
+    [✅] Highlight scroll items that *almost* worked before
 
 🧠 Design Summary
 🔧 Feature                                                  💬 Description

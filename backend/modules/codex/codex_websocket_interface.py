@@ -159,3 +159,12 @@ async def send_codex_ws_event(event_type: str, payload: dict):
             await client.send_text(message)
         except:
             connected_clients.discard(client)
+
+import asyncio
+
+def send_codex_ws_event_sync(event_type: str, payload: dict):
+    try:
+        asyncio.create_task(send_codex_ws_event(event_type, payload))
+    except RuntimeError:
+        # No running loop — fallback (e.g., during test)
+        print(f"⚠️ WS broadcast skipped: no running event loop")
