@@ -85,7 +85,7 @@ def mutate_beam(original_beam: WaveState, max_variants: int = 3) -> WaveState:
 
     # ✅ QFC Broadcast for mutated beam
     try:
-        from backend.modules.visualization.qfc_payload_utils import to_qfc_payload
+        from backend.modules.visualization.glyph_to_qfc import to_qfc_payload
         from backend.modules.visualization.broadcast_qfc_update import broadcast_qfc_update
         import asyncio
 
@@ -111,6 +111,27 @@ def mutate_beam(original_beam: WaveState, max_variants: int = 3) -> WaveState:
 
         qfc_payload = to_qfc_payload(node_payload, context)
         asyncio.create_task(broadcast_qfc_update(context["container_id"], qfc_payload))
+
+        # 🌊 Emit QWave Beam for symbolic mutation
+        from backend.modules.glyphwave.emitters.qwave_emitter import emit_qwave_beam
+        beam_payload = {
+            "event": "symbolic_mutation",
+            "glyph": "✹",
+            "mutation_ops": [
+                node.get("mutation_note")
+                for node in mutated_beam.logic_tree.get("children", [])
+                if node.get("mutated")
+            ],
+            "sqi_score": mutated_beam.sqi_score,
+            "entropy": mutated_beam.entropy,
+            "status": mutated_beam.status,
+            "beam_id": mutated_beam.id
+        }
+        asyncio.create_task(emit_qwave_beam(
+            source="symbolic_mutation",
+            payload=beam_payload,
+            context=context
+        ))
 
     except Exception as qfc_err:
         print(f"[Mutation→QFC] ⚠️ Failed to stream mutation to QFC: {qfc_err}")

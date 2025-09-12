@@ -1,7 +1,12 @@
 import json
 import os
 import uuid
+import asyncio
 from datetime import datetime
+# 🔌 GHX Broadcast Hook for A8c Symbolic Ingestion
+from backend.modules.qfield.qfc_utils import build_qfc_payload
+from backend.modules.visualization.broadcast_qfc_update import broadcast_qfc_update
+
 
 # Optional in-memory log (can be exposed for HUD, dev tools, etc.)
 RECENT_BEAM_LOGS = []
@@ -66,3 +71,45 @@ def serialize_glyph(glyph):
     if hasattr(glyph, "id"):
         return {"id": glyph.id}
     return str(glyph)
+
+def emit_qwave_beam(
+    glyph_id: str,
+    result: dict,
+    source: str,
+    context: dict,
+    state: str = "ingested",
+    metadata: dict = None
+):
+    """
+    Emit a QWave beam (A8c telemetry) after symbolic ingestion or mutation.
+    """
+
+    packet = {
+        "id": str(uuid.uuid4()),
+        "type": "qwave_beam",
+        "glyph_id": glyph_id,
+        "source": source,
+        "state": state,
+        "timestamp": datetime.utcnow().isoformat(),
+        "codex_lang": result.get("codex_lang"),
+        "raw": result.get("raw"),
+        "context": context or {},
+        "metadata": metadata or {}
+    }
+
+    container_id = context.get("container_id", "unknown.dc")
+
+    # Format into QFC payload
+    qfc_payload = build_qfc_payload(
+        {
+            "glyph": "📡",
+            "op": "emit_beam",
+            "metadata": packet
+        },
+        context={"container_id": container_id}
+    )
+
+    try:
+        asyncio.create_task(broadcast_qfc_update(container_id, qfc_payload))
+    except RuntimeError:
+        asyncio.run(broadcast_qfc_update(container_id, qfc_payload))

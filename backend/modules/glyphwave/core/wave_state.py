@@ -1,6 +1,6 @@
 import time
 import datetime
-from typing import List, Dict, Tuple, Optional
+from typing import List, Dict, Tuple, Optional, Any
 from backend.modules.codex.collapse_trace_exporter import log_beam_prediction
 from backend.modules.codex.codex_metrics import log_collapse_metric
 from backend.modules.collapse.collapse_trace_exporter import log_beam_collapse
@@ -132,7 +132,11 @@ class WaveState:
         container_id: Optional[str] = None,
         source: Optional[str] = None,
         target: Optional[str] = None,
-        timestamp: Optional[str] = None,  # ✅ ADDED timestamp arg
+        timestamp: Optional[str] = None,  
+        glow_intensity: Optional[float] = None,
+        pulse_frequency: Optional[float] = None,
+        mutation_type: Optional[str] = None,
+        mutation_cause: Optional[str] = None,
     ):
         self.wave_id = wave_id
         self.glyph_data = glyph_data or {}
@@ -149,6 +153,10 @@ class WaveState:
         self.tick = tick or 0
         self.state = state or "active"
         self.container_id = container_id
+        self.glow_intensity = glow_intensity or 0.0
+        self.pulse_frequency = pulse_frequency or 0.0
+        self.mutation_type = mutation_type or "none"
+        self.mutation_cause = mutation_cause or "unknown"
 
         self.source = source or self.glyph_data.get("source", "unknown")
         self.target = target or self.glyph_data.get("target", "unknown")

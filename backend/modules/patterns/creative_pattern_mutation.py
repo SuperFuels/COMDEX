@@ -4,7 +4,7 @@ from typing import List, Dict, Any, Optional
 
 from backend.modules.patterns.pattern_registry import PatternRegistry
 from backend.modules.patterns.symbolic_pattern_engine import SymbolicPatternEngine
-from backend.modules.qwave.qwave_transfer_sender import send_qwave_transfer
+from backend.modules.glyphwave.qwave.qwave_transfer_sender import send_qwave_transfer
 
 
 class CreativePatternMutation:

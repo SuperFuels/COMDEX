@@ -50,6 +50,9 @@
 ├── Dockerfile.scheduler
 ├── README.md
 ├── WHERE
+├── a9f1_batches/
+│   ├── autotune_output_1000.txt
+│   └── autotune_plot_1000.png
 ├── alembic/
 │   ├── README
 │   ├── env.py
@@ -116,6 +119,7 @@
 │   │   ├── symbolic_ingestion_api.py
 │   │   ├── symbolic_tree_api.py
 │   │   ├── teleport_handler.py
+│   │   ├── test_mixed_beams.py
 │   │   └── ws.py
 │   ├── bump_alembic_head.py
 │   ├── cli_tools/
@@ -134,7 +138,8 @@
 │   │   ├── instruction_set.py
 │   │   ├── instruction_tree_parser.py
 │   │   ├── symbolic_instruction_set.py
-│   │   └── symbolic_register.py
+│   │   ├── symbolic_register.py
+│   │   └── virtual_cpu_beam_core.py
 │   ├── config/
 │   │   └── avatar_state.json
 │   ├── config.py
@@ -148,9 +153,12 @@
 │   │   ├── logs/
 │   │   │   ├── collapse_trace_log.dc.json
 │   │   │   └── collapse_trace_log.jsonl
+│   │   ├── patterns/
+│   │   │   └── pattern_registry.json
 │   │   ├── privacy_vault.json
-│   │   └── problem_graphs/
-│   │       └── problem_graphs.dc.json
+│   │   ├── problem_graphs/
+│   │   │   └── problem_graphs.dc.json
+│   │   └── qfc_sheets/
 │   ├── database.py
 │   ├── db/
 │   │   └── fork_logger.py
@@ -196,11 +204,17 @@
 │   │   ├── codex/
 │   │   │   ├── __init__.py
 │   │   │   ├── auto_mutate_container.py
+│   │   │   ├── beam_callbacks.py
+│   │   │   ├── beam_event_bus.py
+│   │   │   ├── beam_history.py
+│   │   │   ├── beam_history_viewer.py
+│   │   │   ├── beam_model.py
 │   │   │   ├── benchmark_runner.py
 │   │   │   ├── codex_ast_encoder.py
 │   │   │   ├── codex_autopilot.py
 │   │   │   ├── codex_boot.py
 │   │   │   ├── codex_context_adapter.py
+│   │   │   ├── codex_context_tools.py
 │   │   │   ├── codex_core.py
 │   │   │   ├── codex_cost_estimator.py
 │   │   │   ├── codex_emulator.py
@@ -232,7 +246,10 @@
 │   │   │   ├── rewrite_executor.py
 │   │   │   ├── scroll_mutation_engine.py
 │   │   │   ├── sycamore_runner.py
+│   │   │   ├── symbolic_entropy.py
 │   │   │   ├── symbolic_key_deriver.py
+│   │   │   ├── symbolic_metadata.py
+│   │   │   ├── symbolic_qscore_hooks.py
 │   │   │   ├── symbolic_registry.py
 │   │   │   ├── tests/
 │   │   │   └── virtual/
@@ -449,6 +466,7 @@
 │   │   │   └── trigger_on_glyph_loop.py
 │   │   ├── glyphvault/
 │   │   │   ├── GlyphVault Architecture.md
+│   │   │   ├── beam_registry.py
 │   │   │   ├── config.py
 │   │   │   ├── container_vault_integration.py
 │   │   │   ├── container_vault_manager.py
@@ -462,8 +480,8 @@
 │   │   │   ├── vault_manager.py
 │   │   │   └── waveglyph_signer.py
 │   │   ├── glyphwave/
+│   │   │   ├── __init__.py
 │   │   │   ├── adapters/
-│   │   │   ├── adapters.py
 │   │   │   ├── carrier/
 │   │   │   ├── carrier_memory.py
 │   │   │   ├── constants.py
@@ -583,6 +601,23 @@
 │   │   │   └── failure_logger.py
 │   │   ├── memory/
 │   │   │   └── compression.py
+│   │   ├── patterns/
+│   │   │   ├── codex_pattern_commands.py
+│   │   │   ├── creative_pattern_mutation.py
+│   │   │   ├── dc_pattern_injector.py
+│   │   │   ├── pattern_crdt_sync.py
+│   │   │   ├── pattern_emotion_bridge.py
+│   │   │   ├── pattern_kg_bridge.py
+│   │   │   ├── pattern_prediction_hooks.py
+│   │   │   ├── pattern_qfc_bridge.py
+│   │   │   ├── pattern_qfc_triggers.py
+│   │   │   ├── pattern_registry.py
+│   │   │   ├── pattern_sqi_scorer.py
+│   │   │   ├── pattern_trace_replay.py
+│   │   │   ├── pattern_utils.py
+│   │   │   ├── pattern_websocket_broadcast.py
+│   │   │   ├── seed_patterns.py
+│   │   │   └── symbolic_pattern_engine.py
 │   │   ├── physics/
 │   │   │   ├── physics_kernel_ingest.py
 │   │   │   └── physics_kernel_mock.py
@@ -593,6 +628,7 @@
 │   │   │   └── suggestion_engine.py
 │   │   ├── qfield/
 │   │   │   ├── qfc_bridge.py
+│   │   │   ├── qfc_trigger_engine.py
 │   │   │   ├── qfc_utils.py
 │   │   │   └── qfc_ws_broadcast.py
 │   │   ├── quantum/
@@ -600,9 +636,15 @@
 │   │   ├── replay/
 │   │   │   └── glyph_replay_renderer.py
 │   │   ├── runtime/
+│   │   │   ├── beam_buffer.py
+│   │   │   ├── beam_queue.py
+│   │   │   ├── beam_scheduler.py
+│   │   │   ├── beam_tick_loop.py
+│   │   │   ├── container_injector.py
 │   │   │   ├── container_path_utils.py
 │   │   │   ├── container_runtime.py
 │   │   │   ├── entangled_runtime_forker.py
+│   │   │   ├── hud_beam_visualizer.py
 │   │   │   └── observer_path_selector.py
 │   │   ├── scrolls/
 │   │   │   ├── __init__.py
@@ -693,9 +735,11 @@
 │   │   │   ├── entangler_engine.py
 │   │   │   ├── glyph_collapse_trigger.py
 │   │   │   ├── glyphnet_sync_layer.py
+│   │   │   ├── gpu_collapse_accelerator.py
 │   │   │   ├── kg_bridge.py
 │   │   │   ├── kg_drift.py
 │   │   │   ├── knowledge_relinker.py
+│   │   │   ├── metrics/
 │   │   │   ├── metrics_bus.py
 │   │   │   ├── observer_bias.py
 │   │   │   ├── observer_engine.py
@@ -703,8 +747,11 @@
 │   │   │   ├── qglyph_generator.py
 │   │   │   ├── qglyph_trace_logger.py
 │   │   │   ├── qglyph_utils.py
+│   │   │   ├── sqi_beam_kernel.py
+│   │   │   ├── sqi_beam_logger.py
 │   │   │   ├── sqi_container_registry.py
 │   │   │   ├── sqi_drift.py
+│   │   │   ├── sqi_drift_analyzer.py
 │   │   │   ├── sqi_event_bus.py
 │   │   │   ├── sqi_event_bus_gw.py
 │   │   │   ├── sqi_harmonics.py
@@ -788,8 +835,17 @@
 │   │   │   └── symbolic_container_validator.py
 │   │   ├── visualization/
 │   │   │   ├── __init__.py
+│   │   │   ├── beam_logic_packet_builder.ts
+│   │   │   ├── beam_payload_builder.py
+│   │   │   ├── broadcast_qfc_update.py
+│   │   │   ├── container_qfc_sync.py
+│   │   │   ├── glyph_to_qfc.py
+│   │   │   ├── qfc_renderer_trigger.py
+│   │   │   ├── qfc_state_exporter.py
 │   │   │   ├── qfc_websocket_bridge.py
-│   │   │   └── quantum_field_canvas_api.py
+│   │   │   ├── quantum_field_canvas_api.py
+│   │   │   ├── stream_qfc_from_entangled_wave.py
+│   │   │   └── trigger_qfc_render.py
 │   │   ├── websocket/
 │   │   │   └── symbol_tree_stream.py
 │   │   └── websocket_manager.py
@@ -997,7 +1053,9 @@
 │   │   ├── ethics_sim_test.py
 │   │   ├── glyph_encryption_test.py
 │   │   ├── kg_writer_compression_test.py
+│   │   ├── test_a9f1_beam_benchmark.py
 │   │   ├── test_backpressure_overflow.py
+│   │   ├── test_beam_tick_loop.py
 │   │   ├── test_canary_toggle.py
 │   │   ├── test_codex_executor_qkd_block.py
 │   │   ├── test_codex_fabric.py
@@ -1034,6 +1092,7 @@
 │   │   ├── test_log_beam.py
 │   │   ├── test_math_core_seed.py
 │   │   ├── test_mutate_glyph.py
+│   │   ├── test_pattern_engine_runtime.py
 │   │   ├── test_physics_core_seed.py
 │   │   ├── test_physics_kernel.py
 │   │   ├── test_physics_ops.py
@@ -1047,6 +1106,7 @@
 │   │   ├── test_sqi_container_phase.py
 │   │   ├── test_sqi_drift.py
 │   │   ├── test_sqi_harmonics.py
+│   │   ├── test_sycamore_benchmark.py
 │   │   ├── test_symbolic_hsx.py
 │   │   ├── test_symbolic_key_derivation.py
 │   │   ├── test_teleport_mutation.py
@@ -1067,6 +1127,7 @@
 │   │   ├── import_revert_scanner.py
 │   │   ├── import_scanner.py
 │   │   ├── nl_to_ast_cli.py
+│   │   ├── qwave_beam_cli.py
 │   │   ├── test_import.py
 │   │   ├── test_qfc_view.py
 │   │   ├── test_symbolnet_cli.py
@@ -1275,7 +1336,8 @@
 │   │   │   ├── GlyphChain Checklist.md
 │   │   │   ├── GlyphChain Key Doc.md
 │   │   │   ├── GlyphChain.md
-│   │   │   └── Vault.md
+│   │   │   ├── Vault.md
+│   │   │   └── 🧬 QuantumScan.md
 │   │   ├── GlyphNet/
 │   │   │   ├── Glyph Internet Protocol.md
 │   │   │   ├── GlyphNet Checklist.md
@@ -1303,6 +1365,10 @@
 │   │   │   ├── Holographic Knowledge Systems.MD
 │   │   │   ├── Language.md
 │   │   │   └── mathmatics.md
+│   │   ├── Libraries/
+│   │   │   ├── ALL PY Replacements.md
+│   │   │   ├── SymPy.md
+│   │   │   └── pattern SymPy.md
 │   │   ├── MasteryEngine: The Will to Perfect.md
 │   │   ├── Multi-Scale Atomic Expansion .md
 │   │   ├── Multiverse/
@@ -1352,11 +1418,19 @@
 │   │   │   ├── Symbolic Super Computer checklist.md
 │   │   │   └── 🧠 Symbolic Quantum Supremacy.md
 │   │   ├── SCI/
+│   │   │   ├── 4D GraphSheets.md
+│   │   │   ├── Business Creation Sheet.md
 │   │   │   ├── CreativeCore.md
+│   │   │   ├── MetaSheet (.sqs.meta.json).md
 │   │   │   ├── Quantum Field Canvas.md
 │   │   │   ├── Spatial Cognition Interface.md
+│   │   │   ├── Symbolic Quantum Spreadsheet (SQS).md
 │   │   │   ├── Tranquility Engine.md
-│   │   │   └── starting document.md
+│   │   │   ├── sheet ideas.md
+│   │   │   ├── starting document.md
+│   │   │   ├── story Sheet.md
+│   │   │   ├── ⚡ CircuitSheet – Symbolic IOT + Logic Flow Designer.md
+│   │   │   └── 🧠 FlowSheet.md
 │   │   ├── SQI/
 │   │   │   ├── Action Switch.md
 │   │   │   ├── SKETCH.MD
@@ -1438,11 +1512,13 @@
 │   │   ├── IGI Checklist.md
 │   │   ├── Knowledge Graph White Paper.md
 │   │   ├── Master Codex Manifest.md
+│   │   ├── Patterns Glyphs technical doc.md
 │   │   ├── Pulse Output Calculation Basis.md
 │   │   ├── QGlyph Technical Guide.md
 │   │   ├── QGlyph Whitepaper.md
 │   │   ├── QWave Engine & Resonant Warp Propulsion White Paper.md
 │   │   ├── QWave Engine – Full Technical Consensus.md
+│   │   ├── Quantum Filed Canvas Technical Doc.md
 │   │   ├── Quantum Key Distribution (QKD).md
 │   │   ├── Qwave Beams - SQI, Codex Core.md
 │   │   ├── RNA & Ribosome.md
@@ -1465,6 +1541,7 @@
 │   │   ├── Screenshot 2025-08-10 at 15.37.31.png
 │   │   ├── Screenshot 2025-08-10 at 15.38.53.png
 │   │   ├── Screenshot 2025-08-10 at 15.40.00.png
+│   │   ├── SymPy Whitepaper.md
 │   │   ├── Symbolic Cognition Whitepaper.md
 │   │   ├── Symbolic Quantum Intelligence vs. Classical Quantum Systems.md
 │   │   ├── Symbolic Quantum Mechanics.md
@@ -1623,9 +1700,37 @@
 │   │   ├── PdfModal.tsx
 │   │   ├── ProductCard.tsx
 │   │   ├── QuantumField/
+│   │   │   ├── AtomView/
+│   │   │   ├── BeamLogicOverlay.tsx
+│   │   │   ├── BreakthroughDeadendTrail.tsx
+│   │   │   ├── EmotionOverlay.tsx
+│   │   │   ├── EmotionPulseOverlay.tsx
+│   │   │   ├── HoverMutationTrace.tsx
+│   │   │   ├── HoverStrategySuggestions.tsx
+│   │   │   ├── LinkLine.tsx
+│   │   │   ├── Memory/
+│   │   │   ├── MemoryScroller.tsx
+│   │   │   ├── MultiNodeCollapseTrail.tsx
+│   │   │   ├── Node.tsx
+│   │   │   ├── ObserverViewport.tsx
+│   │   │   ├── PredictedLayerRenderer.tsx
+│   │   │   ├── QWavePreviewPanel.tsx
+│   │   │   ├── Replay/
+│   │   │   ├── ReplayBranchSelector.tsx
+│   │   │   ├── ScrollReplayOverlay.tsx
+│   │   │   ├── SplitScreenView.tsx
+│   │   │   ├── StrategyOverlay.tsx
 │   │   │   ├── beam_renderer.tsx
+│   │   │   ├── beam_rerouter.ts
+│   │   │   ├── camera_controls.tsx
+│   │   │   ├── cluster_zoom_renderer.tsx
+│   │   │   ├── grid_utils.ts
+│   │   │   ├── highlighted_symbolic_operators.tsx
 │   │   │   ├── overlay_toggles.tsx
-│   │   │   └── polar_snap.ts
+│   │   │   ├── polar_snap.ts
+│   │   │   ├── qfc_focus_context.tsx
+│   │   │   ├── spatial_engine.tsx
+│   │   │   └── styling/
 │   │   ├── QuoteModal.module.css
 │   │   ├── QuoteModal.tsx
 │   │   ├── SQI/
@@ -1654,7 +1759,9 @@
 │   │   │   ├── EntanglementGraph.tsx
 │   │   │   ├── EntanglementLinks.tsx
 │   │   │   ├── GlyphLogEntry.tsx
-│   │   │   └── RuntimeGlyphTrace.tsx
+│   │   │   ├── PatternOverlay.tsx
+│   │   │   ├── RuntimeGlyphTrace.tsx
+│   │   │   └── ghx_pattern_overlay.tsx
 │   │   ├── debugger/
 │   │   │   └── CodexLogicDebugger.tsx
 │   │   ├── holography/
@@ -1687,7 +1794,9 @@
 │   │   ├── useEscrowContract.ts
 │   │   ├── useGWVReplay.ts
 │   │   ├── useGlyphReplay.ts
-│   │   ├── useMemoryBridge.ts 
+│   │   ├── useMemoryBridge.ts
+│   │   ├── useQFCFocus.tsx
+│   │   ├── useQfcSocket.ts
 │   │   ├── useSupplierDashboard.ts
 │   │   ├── useWaveTelemetry.ts
 │   │   └── useWebSocket.ts
@@ -1735,7 +1844,10 @@
 │   │   │   └── vaultUI.tsx
 │   │   ├── api/
 │   │   │   ├── aion.ts
+│   │   │   ├── mutate_from_branch.ts
+│   │   │   ├── qfc/
 │   │   │   ├── shipments.js
+│   │   │   ├── spawn_container_from_node.ts
 │   │   │   └── test-mixed-beams.ts
 │   │   ├── buyer/
 │   │   │   └── dashboard.tsx
@@ -1819,13 +1931,16 @@
 │   │   ├── atom.ts
 │   │   ├── global.d.ts
 │   │   ├── index.ts
+│   │   ├── qfc.ts
 │   │   └── siwe.d.ts
 │   ├── types.ts
 │   ├── utils/
 │   │   ├── auth.ts
 │   │   ├── authGuard.ts
 │   │   ├── pdf.ts
-│   │   ├── socket.ts 
+│   │   ├── pull_to_field.ts
+│   │   ├── qfc_websocket_bridge.ts
+│   │   ├── socket.ts
 │   │   ├── tokenIcons.ts
 │   │   └── ws.ts
 │   ├── vercel.json
@@ -2202,7 +2317,123 @@
 ├── inspect_root_db.py
 ├── live_ignition_plot.py
 ├── logs/
+│   ├── beam_history/
+│   │   ├── <Beam id=test_beam_001 glyphs=1 phase=0.46 amp=0.92 coh=0.99 trace=2 violations=2>_history.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x726c61671760>_history.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x726c61672930>_history.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x726c61673a70>_history.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x726c6168cf80>_history.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x726c6861f350>_history.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x741716428c50>_history.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x7450f51a8dd0>_history.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x750d12a6f6e0>_history.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x750d12aa0bf0>_history.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x750d12aa0d70>_history.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x750d12aa2030>_history.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x750d19a45a00>_history.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x758bf1b6b470>_history.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x7692a580fbf0>_history.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x7692a5848a10>_history.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x7692a5848b30>_history.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x7692a584a270>_history.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x7692ac965df0>_history.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x76deef9bda60>_history.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x77b0ab1487a0>_history.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x77b0ab1487d0>_history.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x77b0ab149ee0>_history.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x77b0ab14b0e0>_history.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x77b0b22a2870>_history.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x78b149764950>_history.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x78b149766060>_history.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x78b149767260>_history.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x78b14f2e4ef0>_history.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x78b15072e7b0>_history.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x78f9083c1400>_history.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x78f9083c27e0>_history.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x78f908526240>_history.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x78f908584320>_history.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x78f90affd580>_history.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x796dc12387a0>_history.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x796dc1239f40>_history.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x796dc123b230>_history.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x796dc6de9eb0>_history.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x796dc837a660>_history.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x7a4954f09400>_history.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x7a495b78a480>_history.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x7a495b7e2ae0>_history.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x7a495b7e2c30>_history.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x7a495e2a8620>_history.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x7ddd14f7c200>_history.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x7ddd14f7d730>_history.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x7ddd14f7eba0>_history.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x7ddd15d4aba0>_history.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x7ddd179bd430>_history.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x7f55193092e0>_history.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x7f551930a450>_history.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x7f551930b920>_history.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x7f551932cbf0>_history.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x7f5520473a70>_history.json
+│   │   ├── test_beam_001_history.json
+│   │   └── tick_test_001_history.json
 │   ├── beam_traces.jsonl
+│   ├── collapse_timeline/
+│   │   └── ucs_ephemeral.timeline.jsonl
+│   ├── collapsed_beams/
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x726c61671760>.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x726c61672930>.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x726c61673a70>.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x726c6168cf80>.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x726c6861f350>.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x741716428c50>.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x7450f51a8dd0>.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x750d12a6f6e0>.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x750d12aa0bf0>.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x750d12aa0d70>.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x750d12aa2030>.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x750d19a45a00>.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x758bf1b6b470>.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x7692a580fbf0>.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x7692a5848a10>.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x7692a5848b30>.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x7692a584a270>.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x7692ac965df0>.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x76deef9bda60>.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x77b0ab1487a0>.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x77b0ab1487d0>.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x77b0ab149ee0>.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x77b0ab14b0e0>.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x77b0b22a2870>.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x78b149764950>.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x78b149766060>.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x78b149767260>.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x78b14f2e4ef0>.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x78b15072e7b0>.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x78f9083c1400>.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x78f9083c27e0>.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x78f908526240>.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x78f908584320>.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x78f90affd580>.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x796dc12387a0>.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x796dc1239f40>.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x796dc123b230>.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x796dc6de9eb0>.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x796dc837a660>.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x7a4954f09400>.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x7a495b78a480>.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x7a495b7e2ae0>.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x7a495b7e2c30>.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x7a495e2a8620>.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x7ddd14f7c200>.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x7ddd14f7d730>.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x7ddd14f7eba0>.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x7ddd15d4aba0>.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x7ddd179bd430>.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x7f55193092e0>.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x7f551930a450>.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x7f551930b920>.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x7f551932cbf0>.json
+│   │   ├── <backend.modules.codex.beam_model.Beam object at 0x7f5520473a70>.json
+│   │   └── test_beam_001.json
 │   ├── glyph_trace_log.json
 │   ├── personality_log.json
 │   └── trigger_logs/

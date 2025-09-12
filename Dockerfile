@@ -13,7 +13,7 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         git build-essential libffi-dev libpq-dev libjpeg-dev \
         libcairo2 libpango-1.0-0 libpangocairo-1.0-0 \
-        libgdk-pixbuf2.0-0 shared-mime-info ca-certificates && \
+        libgdk-pixbuf-xlib-2.0-0 shared-mime-info ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
 # --- Install Python Dependencies ---

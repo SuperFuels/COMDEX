@@ -1,12 +1,22 @@
-from typing import List, Dict, Any
+# File: backend/modules/patterns/codex_pattern_commands.py
+
+from typing import List, Dict, Any, Union
+
 from backend.modules.patterns.symbolic_pattern_engine import SymbolicPatternEngine
-from backend.modules.patterns.pattern_registry import Pattern, registry
-from backend.codexcore_virtual.instruction_registry import register_codex_command
-from backend.modules.codex.codex_context_tools import CodexContext
+from backend.modules.patterns.creative_pattern_mutation import CreativePatternMutation
 from backend.modules.patterns.pattern_prediction_hooks import PatternPredictionHooks
+from backend.modules.patterns.pattern_registry import Pattern, registry as pattern_registry
+from backend.modules.codex.codex_context_tools import CodexContext
+from backend.codexcore_virtual.instruction_registry import register_codex_command
 
+# Shared instances
 engine = SymbolicPatternEngine()
+mutator = CreativePatternMutation()
+hooks = PatternPredictionHooks()
 
+# --------------------------------------------------------
+# CodexLang Commands
+# --------------------------------------------------------
 
 @register_codex_command("detect_pattern")
 def detect_pattern_cmd(args: Dict[str, Any], ctx: CodexContext):
@@ -39,29 +49,21 @@ def predict_next_cmd(args: Dict[str, Any], ctx: CodexContext):
     Predicts next glyphs given a glyph prefix.
     Usage: predict_next sequence=["⊕", "↔"]
     """
-    hooks = PatternPredictionHooks()
     sequence = args.get("sequence", [])
     predictions = hooks.suggest_next_glyphs(sequence)
     return {"predictions": predictions}
 
 
 # --------------------------------------------------------
-# Utility: Detect patterns in a container
+# Container Utility: Pattern Detection
 # --------------------------------------------------------
-
-from backend.modules.patterns.symbolic_pattern_engine import SymbolicPatternEngine
-
-engine = SymbolicPatternEngine()
 
 def detect_pattern_in_container(container: Dict[str, Any]) -> List[Dict[str, Any]]:
     """
     Detects symbolic patterns inside a .dc container by scanning its glyph sequence.
-    Supports both flat glyph lists and symbolic trees.
+    Supports both flat glyphs and symbolic trees.
     """
-    # ✅ Try flat glyphs first
     glyphs = container.get("glyphs") or container.get("content", {}).get("glyphs")
-
-    # ✅ Fallback: extract from symbolic_tree if flat glyphs are missing
     if not glyphs:
         symbolic_tree = container.get("symbolic_tree", {})
         glyphs = _extract_all_glyphs_from_tree(symbolic_tree)
@@ -70,10 +72,10 @@ def detect_pattern_in_container(container: Dict[str, Any]) -> List[Dict[str, Any
         return []
 
     matched_patterns: List[Pattern] = engine.detect_patterns(glyphs)
-    return matched_patterns
+    return [p.to_dict() for p in matched_patterns]
 
 
-def _extract_all_glyphs_from_tree(tree: Dict[str, Any]) -> List[Dict[str, Any]]:
+def _extract_all_glyphs_from_tree(tree: Dict[str, Any]) -> List[str]:
     """
     Recursively extract glyphs from a symbolic_tree["nodes"] list.
     """
@@ -82,43 +84,42 @@ def _extract_all_glyphs_from_tree(tree: Dict[str, Any]) -> List[Dict[str, Any]]:
 
     for node in nodes:
         glyph = node.get("glyph")
-        if glyph:
+        if isinstance(glyph, str):
             glyphs.append(glyph)
-            # Recurse if nested glyphs (e.g. type=expression)
-            if isinstance(glyph, dict) and "glyphs" in glyph:
-                glyphs.extend(_extract_nested_glyphs(glyph["glyphs"]))
+        elif isinstance(glyph, dict) and "glyphs" in glyph:
+            glyphs.extend(_extract_nested_glyphs(glyph["glyphs"]))
 
     return glyphs
 
 
-def _extract_nested_glyphs(glyph_list: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+def _extract_nested_glyphs(glyph_list: List[Dict[str, Any]]) -> List[str]:
     """
     Helper to recursively extract all nested glyphs from an expression.
     """
     extracted = []
     for glyph in glyph_list:
-        extracted.append(glyph)
-        if isinstance(glyph, dict) and "glyphs" in glyph:
+        if isinstance(glyph, str):
+            extracted.append(glyph)
+        elif isinstance(glyph, dict) and "glyphs" in glyph:
             extracted.extend(_extract_nested_glyphs(glyph["glyphs"]))
     return extracted
 
-# --------------------------------------------------------
-# Utility: Mutate pattern inside container
-# --------------------------------------------------------
 
-from backend.modules.patterns.creative_pattern_mutation import CreativePatternMutation
+# --------------------------------------------------------
+# Container Utility: Mutate Pattern
+# --------------------------------------------------------
 
 def mutate_pattern_in_container(container: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Applies creative mutation to a container using detected patterns.
+    """
     print("🧬 Starting mutation for container:", container.get("id"))
 
-    mutator = CreativePatternMutation()
     mutations = mutator.propose_mutations_for_container(container, strategy="divergent")
-
     if not mutations:
         print("❌ No pattern matched.")
         return {"error": "No pattern matched."}
 
-    # Apply first mutation to container
     mutated_pattern = mutations[0]
     container.setdefault("patterns", []).append(mutated_pattern)
     container["glyphs"] = mutated_pattern["glyphs"]
@@ -130,20 +131,18 @@ def mutate_pattern_in_container(container: Dict[str, Any]) -> Dict[str, Any]:
         "strategy": mutated_pattern.get("mutation_strategy", "unknown")
     }
 
+
 # --------------------------------------------------------
-# Utility: Predict next glyphs from container
+# Container Utility: Predict from Tree
 # --------------------------------------------------------
 
-def predict_next_from_pattern(container: Dict[str, Any]) -> List[Dict[str, Any]]:
+def predict_next_from_pattern(container: Dict[str, Any]) -> List[str]:
     """
     Predicts the next likely glyphs from the first expression in the symbolic tree.
     """
-    hooks = PatternPredictionHooks()
     nodes = container.get("symbolic_tree", {}).get("nodes", [])
-
     for node in nodes:
         glyphs = node.get("glyph", {}).get("glyphs")
         if glyphs and isinstance(glyphs, list):
             return hooks.suggest_next_glyphs(glyphs)
-
     return []

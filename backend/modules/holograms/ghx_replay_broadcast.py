@@ -7,6 +7,7 @@ from backend.modules.sqi.metrics_bus import metrics_bus
 from backend.modules.symbolic.decoherence import calc_decoherence
 from backend.modules.glyphwave.gwip.gwip_encoder import encode_gwip_packet
 from backend.modules.glyphwave.carrier.carrier_types import CarrierType
+from backend.modules.glyphwave.emitters.qwave_emitter import emit_qwave_beam
 
 # 🧩 Metrics + Feedback
 from backend.modules.symbolic.metrics_logger import log_metrics
@@ -76,6 +77,30 @@ async def stream_symbolic_tree_replay(tree: SymbolicMeaningTree, container_id: s
             "goals": payload["goalScores"],
         })
 
+    # 🌊 Emit QWave beam for symbolic replay
+    try:
+        beam_payload = {
+            "event": "symbolic_tree_replay",
+            "container_id": container_id,
+            "replay_path_count": len(tree.trace.replayPaths or []),
+            "entropy_summary": tree.trace.entropyOverlay,
+            "goal_node_count": len(payload.get("goalScores", {})),
+            "tags": ["ghx_replay", "symbolic_broadcast"]
+        }
+
+        context = {
+            "container_id": container_id,
+            "source_node": "ghx_replay_engine"
+        }
+
+        await emit_qwave_beam(
+            source="ghx_replay",
+            payload=beam_payload,
+            context=context
+        )
+
+    except Exception as e:
+        print(f"[GHX→QWave] ⚠️ Failed to emit QWave beam: {e}")
     # ─────────────────────────────────────────────────────────────
     # 📈 Collapse/Decoherence Metrics
     # ─────────────────────────────────────────────────────────────
@@ -108,6 +133,29 @@ async def stream_symbolic_tree_replay(tree: SymbolicMeaningTree, container_id: s
             "timestamp": time.time(),
             "event_type": "collapse_tick"
         }
+
+        # 📡 QFC Tick Broadcast
+        from backend.modules.sci.qfc_ws_broadcaster import broadcast_qfc_tick_update
+
+        qfc_snapshot = {
+            "nodes": tree.trace.visual_nodes,
+            "links": tree.trace.visual_links,
+            "glyphs": tree.trace.raw_glyphs,
+            "scrolls": tree.trace.attached_scrolls,
+            "qwaveBeams": tree.trace.qwave_beams,
+            "entanglement": tree.trace.entanglement_map,
+            "sqi_metrics": tree.trace.sqi_summary,
+            "camera": tree.trace.camera_frame,
+            "reflection_tags": tree.trace.reflection_tags,
+        }
+
+        await broadcast_qfc_tick_update(
+            tick_id=collapse_counter,
+            frame_state=qfc_snapshot,
+            observer_id="hud_ghx_1",
+            total_ticks=None,
+            source="GHXReplay"
+        )
 
         metrics_bus.push(metrics_payload)
 

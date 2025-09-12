@@ -47,53 +47,68 @@ def score_electron_glyph(glyph: Dict[str, Any]) -> float:
     return max(0.0, min(total_score, 1.0))
 
 
-def score_all_electrons(container: Dict[str, Any]) -> List[Dict[str, Any]]:
+def score_all_electrons(data: Any) -> Dict[str, Dict[str, Any]]:
     """
-    Scan all glyphs in a container, find those of type 'electron',
-    and score them using SQI logic.
+    Accepts either:
+    - A Codex container dict with "glyphs" (legacy mode), OR
+    - A list of WaveState or glyph dicts (EntangledWave mode)
 
     Returns:
-        List of dicts with {id, score, label, status}
+        Dict mapping glyph id → score payload
     """
-    glyphs = container.get("glyphs", [])
-    results = []
+    from backend.modules.sqi.metrics_bus import metrics_bus
+
+    results = {}
+
+    if isinstance(data, dict) and "glyphs" in data:
+        glyphs = data["glyphs"]
+    elif isinstance(data, list):
+        glyphs = data
+    else:
+        return {}
 
     for glyph in glyphs:
-        if glyph.get("type") != "electron":
-            continue
+        if isinstance(glyph, dict):
+            gid = glyph.get("id") or glyph.get("uid")
+            label = glyph.get("label", "")
+            score = score_electron_glyph(glyph)
+            status = "unknown"
+            trace = glyph.get("logic_trace", [])
+            if trace and isinstance(trace, list):
+                status = trace[-1].get("status", "unknown")
+            elif "prediction" in glyph:
+                status = glyph["prediction"].get("status", "unknown")
+        else:
+            # Assume it's a WaveState object
+            gid = getattr(glyph, "id", None)
+            label = getattr(glyph, "label", "")
+            metadata = getattr(glyph, "metadata", {})
+            score = score_electron_glyph(metadata)
+            status = metadata.get("prediction", {}).get("status", "unknown")
 
-        old_score = glyph.get("sqi_score", None)
-        new_score = score_electron_glyph(glyph)
-
-        status = None
-        trace = glyph.get("logic_trace", [])
-        if trace and isinstance(trace, list):
-            status = trace[-1].get("status")
-        if not status:
-            status = glyph.get("prediction", {}).get("status", "unknown")
-
-        results.append({
-            "id": glyph.get("id"),
-            "score": new_score,
-            "label": glyph.get("label", ""),
+        results[gid] = {
+            "id": gid,
+            "score": score,
+            "label": label,
             "status": status,
-        })
+        }
 
-        # Optional: Track coherence gain/loss
-        if old_score is not None and metrics_bus:
-            delta = new_score - old_score
-            metrics_bus.push({
-                "event_type": "coherence_shift",
-                "node_id": glyph.get("id"),
-                "label": glyph.get("label", ""),
-                "delta": delta,
-                "old_score": old_score,
-                "new_score": new_score,
-                "status": status,
-                "timestamp": time.time(),
-            })
+        if metrics_bus and gid:
+            old_score = glyph.get("sqi_score", None) if isinstance(glyph, dict) else None
+            if old_score is not None:
+                delta = score - old_score
+                metrics_bus.push({
+                    "event_type": "coherence_shift",
+                    "node_id": gid,
+                    "label": label,
+                    "delta": delta,
+                    "old_score": old_score,
+                    "new_score": score,
+                    "status": status,
+                    "timestamp": time.time(),
+                })
 
-    return sorted(results, key=lambda x: -x["score"])
+    return results
 
 def score_pattern_sqi(pattern: Dict[str, Any]) -> float:
     """

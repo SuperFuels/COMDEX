@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Query
 from typing import Any
-from backend.modules.glyphwave.core.collapse_trace_exporter import get_recent_collapse_traces
+from backend.modules.collapse.collapse_trace_exporter import get_recent_collapse_traces
 
 router = APIRouter()
 

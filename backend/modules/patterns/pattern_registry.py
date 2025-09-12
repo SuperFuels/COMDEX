@@ -5,7 +5,7 @@ import hashlib
 from typing import List, Dict, Optional, Any, Union
 from difflib import SequenceMatcher
 from backend.modules.sqi.sqi_scorer import compute_entropy, compute_symmetry_score
-from backend.modules.visualization.qfc_payload_utils import to_qfc_payload
+from backend.modules.visualization.glyph_to_qfc import to_qfc_payload
 from backend.modules.visualization.broadcast_qfc_update import broadcast_qfc_update
 import asyncio
 

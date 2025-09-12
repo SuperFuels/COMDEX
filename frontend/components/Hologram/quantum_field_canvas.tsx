@@ -8,10 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { QWaveBeam, BeamProps } from "@/components/QuantumField/beam_renderer";
 import TraceCollapseRenderer from "@/components/QuantumField/Replay/trace_collapse_renderer";
-import HolographicCausalityTrails, {
-  CausalityTrailSegment,
-} from "@/components/QuantumField/Replay/holographic_causality_trails";
-import { snapToPolarGrid } from "@/components/QuantumField/polar_snap";
+import { snapToEntangledMemoryLayout } from "@/lib/layout";
 import { useQfcSocket } from "@/hooks/useQfcSocket";
 import HoverAgentLogicView from "@/components/QuantumField/Memory/hover_agent_logic_view";
 import { QWavePreviewPanel } from "@/components/QuantumField/QWavePreviewPanel";
@@ -35,6 +32,10 @@ import {
   HtmlEmotionPulse,
   MeshEmotionPulse,
 } from "@/components/QuantumField/EmotionPulseOverlay";
+import HolographicCausalityTrails, {
+  CausalityTrailSegment,
+} from "@/components/QuantumField/Replay/holographic_causality_trails";
+import HoverMemorySummary from "components/Hologram/HoverMemorySummary";
 
 // ------------------ Types ------------------
 
@@ -76,6 +77,8 @@ interface QuantumFieldCanvasProps {
   const [splitScreen, setSplitScreen] = useState(false);
   const [beamData, setBeamData] = useState<any | null>(null);
   const [selectedBeam, setSelectedBeam] = useState<any | null>(null);
+  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
+  const controlsRef = useRef<any>(null); // OrbitControls
   const [selectedBranch, setSelectedBranch] = useState("trail-1");
   const availableBranches = ["trail-1", "trail-2", "trail-3"];
   const [observerPosition, setObserverPosition] = useState<[number, number, number]>([0, 0, 0]);
@@ -83,6 +86,9 @@ interface QuantumFieldCanvasProps {
   const collapseTrails = [ ... ];
   const breakthroughTrails = [ ... ];
   const deadendTrails = [ ... ];
+  const [replayFrames, setReplayFrames] = useState<any[]>([]);
+  const [isReplaying, setIsReplaying] = useState(false);
+  const [playbackIndex, setPlaybackIndex] = useState(0);
 
 
   useEffect(() => {
@@ -91,6 +97,23 @@ interface QuantumFieldCanvasProps {
       .then(setBeamData)
       .catch(console.error);
   }, []);
+  // 🎬 Replay playback loop
+  useEffect(() => {
+    if (!isReplaying) return;
+
+  const interval = setInterval(() => {
+    setPlaybackIndex((prev) => {
+      if (prev >= replayFrames.length - 1) {
+        clearInterval(interval);
+        setIsReplaying(false);
+        return prev;
+      }
+      return prev + 1;
+    });
+  }, 100); // ⏱️ 100ms per frame
+
+    return () => clearInterval(interval);
+  }, [isReplaying, replayFrames]);
 
   const handleRetryFromBranch = async () => {
     const res = await fetch("/api/mutate_from_branch", {
@@ -103,9 +126,55 @@ interface QuantumFieldCanvasProps {
     broadcast_qfc_update(result); // 🔁 Push new glyphs/beams into QFC live
   };
   const specialOps = new Set(["⧖", "↔", "⬁", "🧬", "🪞"]);
+  const [focusedNode, setFocusedNode] = useState<string | null>(null);
+  const handleDroppedScroll = async (glyph: string, scroll: string) => {
+    console.log("📥 Dropped Scroll:", glyph, scroll);
+
+    try {
+      const response = await fetch("/api/inject_scroll", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ glyph, scroll }),
+      });
+
+      const result = await response.json();
+
+      // ⬆️ Inject response into QFC field live
+      if (result && result.glyphs) {
+        broadcast_qfc_update(result); // 🚀 Inject into QFC
+        setOrbitTargetToGlyph(glyph); // 🎯 Optional: center to glyph
+
+        // 🎥 Capture current frame after successful scroll injection
+        const frame = {
+          timestamp: Date.now(),
+          glyphs: props.nodes,
+          links: props.links,
+          observer: observerPosition,
+          branch: selectedBranch,
+          scrolls: [{ glyph, scroll }],
+        };
+        setReplayFrames((prev) => [...prev, frame]);
+      } else {
+        console.warn("⚠️ No glyphs returned from scroll injection");
+      }
+    } catch (err) {
+      console.error("❌ Scroll injection failed:", err);
+    }
+  };
 
   return (
-    <div className="relative w-full h-full">
+    <div
+        className="relative w-full h-full"
+        onDrop={(e) => {
+          e.preventDefault();
+          const data = e.dataTransfer.getData("application/glyph-scroll");
+          if (data) {
+            const { glyph, scroll } = JSON.parse(data);
+            handleDroppedScroll(glyph, scroll);
+          }
+        }}
+        onDragOver={(e) => e.preventDefault()}
+      >
       {/* 🎛️ Controls Panel */}
       <div className="absolute top-4 left-4 z-50 space-y-2">
         <Button
@@ -264,7 +333,54 @@ const LinkLine: React.FC<{
   );
 };
 
+  // 💠 ReplayPulse Overlay for Entangled Nodes
+  const ReplayPulse: React.FC<{ position: [number, number, number] }> = ({ position }) => {
+    const pulseRef = useRef<THREE.Mesh>(null);
+
+    useFrame(({ clock }) => {
+      const scale = 1 + Math.sin(clock.getElapsedTime() * 4) * 0.2;
+      if (pulseRef.current) {
+        pulseRef.current.scale.set(scale, scale, scale);
+      }
+    });
+
+    return (
+      <mesh position={position} ref={pulseRef}>
+        <ringGeometry args={[0.5, 0.6, 32]} />
+        <meshBasicMaterial color="#00ffcc" transparent opacity={0.6} />
+      </mesh>
+    );
+  };
   const getNodeById = (id: string) => nodes.find((n) => n.id === id);
+
+  const setOrbitTargetToGlyph = (glyphId: string) => {
+    const node = nodes.find((n) => n.id === glyphId);
+    if (!node || !cameraRef.current || !controlsRef.current) return;
+
+    const target = new THREE.Vector3(...node.position);
+
+    // Smooth camera animation
+    new TWEEN.Tween(controlsRef.current.target)
+      .to(target, 1000)
+      .easing(TWEEN.Easing.Quadratic.Out)
+      .onUpdate(() => {
+        controlsRef.current.update();
+      })
+      .start();
+
+    // Optionally move the camera itself
+    new TWEEN.Tween(cameraRef.current.position)
+      .to(
+        {
+          x: target.x + 5,
+          y: target.y + 5,
+          z: target.z + 5,
+        },
+        1000
+      )
+      .easing(TWEEN.Easing.Quadratic.Out)
+      .start();
+  };
 
   // 🔁 Load QWave Beams
   useEffect(() => {
@@ -402,11 +518,50 @@ const LinkLine: React.FC<{
         );
       }
   );
-
+  const setOrbitTargetToGlyph = (glyph: string) => {
+    const node = mergedNodes.find((n) => n.glyph === glyph);
+    if (node) {
+      console.log("🎯 Centering to glyph node:", glyph, node.position);
+      setObserverPosition(node.position);
+    } else {
+      console.warn("❌ Glyph not found in nodes:", glyph);
+    }
+  };
+  const renderReplayFrame = (frame: any) => {
+    return (
+      <>
+        {frame.glyphs.map((node: any, idx: number) => (
+          <Node
+            key={idx}
+            node={node}
+            onTeleport={onTeleport}
+            highlight={true}
+            className="ring-2 ring-yellow-400 scale-105"
+          />
+        ))}
+        {frame.links.map((link: any, idx: number) => (
+          <LinkComponent key={idx} link={link} />
+        ))}
+      </>
+    );
+  };
   return (
     <>
       {/* 🧠 Render QWave Beams */}
       {qwaveBeams}
+      {/* 🌀 Replay Beam Trails */}
+      {isReplaying &&
+        replayFrames[playbackIndex]?.links?.map((link: any, idx: number) => {
+          if (!link.trail) return null;
+          return (
+            <ReplayBeamTrail
+              key={`replay-trail-${idx}`}
+              trail={link.trail}
+              type={link.collapseState || "collapsed"}
+              tick={link.tick}
+            />
+          );
+        })}
 
       {/* 🔘 HUD Controls */}
       <div className="absolute top-4 left-4 z-50 space-y-2">
@@ -423,6 +578,12 @@ const LinkLine: React.FC<{
           🧠 {splitScreen ? "Unsplit View" : "Split Reality / Dream"}
         </Button>
         <Button
+          className="text-xs px-3 py-1 h-8 bg-green-900 hover:bg-green-800"
+          onClick={() => setIsReplaying(!isReplaying)}
+        >
+          {isReplaying ? "⏸ Pause Replay" : "▶️ Start Replay"}
+        </Button>
+        <Button
           className="text-xs px-3 py-1 h-8 bg-slate-700 hover:bg-slate-600"
           onClick={() => setPredictedMode(!predictedMode)}
         >
@@ -435,6 +596,11 @@ const LinkLine: React.FC<{
           🌐 {predictedOverlay ? "Hide Overlay" : "Show Overlay"}
         </Button>
       </div>
+      {isReplaying && replayFrames[playbackIndex] && (
+        <div className="absolute top-4 right-4 text-xs bg-black/70 text-white p-2 rounded z-50">
+          ⏪ Replaying Frame #{playbackIndex}
+        </div>
+      )}
       {/* 🔁 Branch Selection + Retry */}
       <div className="absolute top-4 right-4 z-50 w-64">
         <ReplayBranchSelector
@@ -449,10 +615,16 @@ const LinkLine: React.FC<{
         {splitScreen ? (
           // 🟢 Split View: Real vs Dream
           <div className="w-1/2 h-full border-r border-slate-700">
-            <Canvas camera={{ position: [0, 0, 10], fov: 50 }}>
+            <Canvas
+              camera={{ position: [0, 0, 10], fov: 50 }}
+              onCreated={({ camera }) => {
+                cameraRef.current = camera;
+              }}
+            >
               <ambientLight intensity={0.7} />
               <pointLight position={[10, 10, 10]} />
               <OrbitControls
+                ref={controlsRef}
                 enableZoom
                 enablePan
                 enableRotate
@@ -467,6 +639,11 @@ const LinkLine: React.FC<{
               ))}
 
               {/* 🌈 Nodes (Real + Dream) */}
+              {isReplaying && replayFrames[playbackIndex] && (
+                <>
+                  {renderReplayFrame(replayFrames[playbackIndex])}
+                </>
+              )}
               {mergedNodes.map((node) => {
                 const inView = isInObserverView(node.position, observerPosition, observerDirection);
 
@@ -483,7 +660,12 @@ const LinkLine: React.FC<{
                       </mesh>
                     )}
 
-                    <Node node={node} onTeleport={onTeleport} highlight={inView} />
+                    <Node
+                      node={node}
+                      onTeleport={onTeleport}
+                      highlight={inView}
+                      className={node.glyph === focusedNode ? "ring-2 ring-green-400 scale-110" : ""}
+                    />
 
                   {/* ✨ Entropy Overlay */}
                   {typeof node.entropy === "number" && (
@@ -493,16 +675,15 @@ const LinkLine: React.FC<{
                       nodeId={node.id}
                     />
                   )}
-
-                  {/* 🧠 Symbolic Memory Trace */}
+                  {/* 🧠 Hover Memory Summary */}
                   {node.memoryTrace && (
-                    <HoverAgentLogicView
+                    <HoverMemorySummary
                       position={[
                         node.position[0],
-                        node.position[1] + 1.2,
+                        node.position[1] + 1.5,
                         node.position[2],
                       ]}
-                      logicSummary={node.memoryTrace.summary}
+                      summary={node.memoryTrace.summary}
                       containerId={node.memoryTrace.containerId}
                       agentId={node.memoryTrace.agentId}
                     />
@@ -831,6 +1012,57 @@ export const QuantumFieldCanvasLoader: React.FC<{
     links: [],
   });
 
+// ✅ Inject scrolls into active field via backend + auto-focus on glyph
+  useEffect(() => {
+    const handleScrollInjection = async (event: any) => {
+      const { glyphId, scrollContent } = event.detail || {};
+      console.log("📥 Scroll Inject Event:", glyphId, scrollContent);
+
+      try {
+        const response = await fetch("/api/inject_scroll", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ glyph: glyphId, scroll: scrollContent }),
+        });
+
+        const result = await response.json();
+
+        if (result && result.glyphs) {
+          // 🚀 Inject returned glyph nodes into QFC
+          setData((prev) => {
+            const updatedNodes = [...prev.nodes, ...result.glyphs];
+            // 💡 Animate camera to focus on injected glyph after render
+            setTimeout(() => {
+              setOrbitTargetToGlyph(glyphId);
+            }, 100);
+            return {
+              ...prev,
+              nodes: updatedNodes,
+            };
+          });
+
+          console.log("✅ Scroll injected and rendered:", result.glyphs);
+        } else {
+          console.warn("⚠️ No glyphs returned from scroll injection");
+        }
+      } catch (err) {
+        console.error("❌ Scroll injection failed:", err);
+      }
+    };
+
+    window.addEventListener("scroll_injected", handleScrollInjection);
+    return () => {
+      window.removeEventListener("scroll_injected", handleScrollInjection);
+    };
+  }, []);
+
+    window.addEventListener("scroll_injected", handleScrollInjection);
+    return () => {
+      window.removeEventListener("scroll_injected", handleScrollInjection);
+    };
+  }, []);
+
+  // 📡 Load initial QFC data
   useEffect(() => {
     fetch(`/api/qfc_view/${containerId}`)
       .then((res) => res.json())
@@ -839,9 +1071,7 @@ export const QuantumFieldCanvasLoader: React.FC<{
         const links = json.links || [];
 
         const centerId = rawNodes[0]?.id;
-        const snappedNodes = centerId
-          ? snapToPolarGrid(rawNodes, centerId)
-          : rawNodes;
+        const snappedNodes = snapToEntangledMemoryLayout(rawNodes, containerId);
 
         const annotatedNodes = snappedNodes.map((node: any) => {
           const glyphTrace = node.glyphTrace ?? node.memory ?? null;
@@ -874,6 +1104,7 @@ export const QuantumFieldCanvasLoader: React.FC<{
       });
   }, [containerId]);
 
+  // 🔄 Live updates from socket
   useQfcSocket(containerId, (payload) => {
     setData((prev) => ({
       nodes: [...prev.nodes, ...(payload.nodes || [])],

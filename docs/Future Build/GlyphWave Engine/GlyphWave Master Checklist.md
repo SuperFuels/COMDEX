@@ -1,3 +1,127 @@
+
+NEXT GEN UPGRADE TO QKD
+graph TD
+  Q2[🔐 Q2: Symbolic QKD Enhancements Roadmap]
+
+  Q2a[Q2a: QKey Expiry + Renewable Key Rings]
+  Q2b[Q2b: Multi-agent Consensus Signing]
+  Q2c[Q2c: GKey Holographic Signatures (Avatar-bound)]
+  Q2d[Q2d: Emotion/Intention-Filtered QKey Issuance]
+
+  Q2 --> Q2a
+  Q2 --> Q2b
+  Q2 --> Q2c
+  Q2 --> Q2d
+
+  %% Q2a subtasks
+  Q2a1[Define QKey expiry metadata (⏳ expires_at)]
+  Q2a2[Implement renewable key ring structure in GKeyStore]
+  Q2a3[Auto-renew via QKD renegotiation logic]
+  Q2a4[Emit expiry warnings in SQI + HUD]
+
+  Q2a --> Q2a1 --> Q2a2 --> Q2a3 --> Q2a4
+
+  %% Q2b subtasks
+  Q2b1[Define multi-agent consensus schema (M-of-N policy)]
+  Q2b2[Update QKD handshake to request cosigners]
+  Q2b3[Integrate CodexCore agent trust registry]
+  Q2b4[Enforce consensus at collapse+execution time]
+
+  Q2b --> Q2b1 --> Q2b2 --> Q2b3 --> Q2b4
+
+  %% Q2c subtasks
+  Q2c1[Hash avatar memory trace into GKey]
+  Q2c2[Use GHX projection ID as signature root]
+  Q2c3[Enforce signature match during decryption]
+  Q2c4[Log avatar-binding to SQI + KG]
+
+  Q2c --> Q2c1 --> Q2c2 --> Q2c3 --> Q2c4
+
+  %% Q2d subtasks
+  Q2d1[Fetch current emotional/intent traits from AION memory]
+  Q2d2[Inject symbolic filters into QKey issuance logic]
+  Q2d3[Gate QKey handshake based on SoulLaw]
+  Q2d4[Emit rejection or “fuzzy” fallback key if mismatch]
+
+  Q2d --> Q2d1 --> Q2d2 --> Q2d3 --> Q2d4
+
+🧠 Summary of Each Submodule
+
+🔐 Q2a: QKey Expiry + Renewable Key Rings
+	•	Add expiration field (e.g., expires_at)
+	•	Enable renewable key rings with GKey rotation
+	•	Trigger HUD + CodexLang logic warnings
+	•	Auto-renew via symbolic QKD renegotiation
+
+👥 Q2b: Multi-agent Consensus Signing
+	•	Support M-of-N co-signature policies (e.g., 2 of 3 trusted agents)
+	•	Require agent consensus before collapse execution
+	•	Enforce trust using CodexCore identity registries
+
+🧬 Q2c: GKey Holographic Signatures (Avatar Memory)
+	•	Embed avatar memory trace hash into GKey
+	•	Tie GKey to GHX projection ID or memory fragment
+	•	Ensure decryption only works with valid memory state
+
+❤️‍🔥 Q2d: Emotion/Intention-Filtered QKey Issuance
+	•	Read user traits (emotion, intention) from AION memory
+	•	Enforce issuance policies via SoulLaw
+	•	Gate QKey handshake if user intent doesn’t align
+	•	Allow “fuzzy key” or denial fallback
+
+🧩 Legend
+Icon
+Type
+🧠
+Core symbolic/math logic
+🔌
+API / Adapter / Bridge
+🌈
+GHX/Visualization
+📈
+Metrics / Replay
+🛡️
+Ethics/Security Controls
+🚀
+Performance
+🧪
+Testing / QA
+📚
+Docs + Ops/Dev Guides
+🎛️
+Config/Flags
+📦
+Bundle/snapshot system
+
+
+🧠 Key Concepts + Glossary
+Symbol
+Meaning
+🛰️
+QWave = symbolic beam between glyphs or logic nodes
+🌌
+Multiverse = forked symbolic execution states
+🧠
+SQI = coherence, drift, contradiction signals
+⚛️
+Forks and collapses = beam mutations/merges
+🎞️
+Replay = beam traces through time or mutation
+📦
+.dc.json containers now store beam + fork data
+🔁
+Transparent adapter to retrofit GlyphNet/SQI
+📐
+GWIP = encoded photon-packet format
+🧩
+Feature-flagged, back-compatible modules
+🚀
+Runtime kernel orchestrates symbolic packet flow
+
+
+
+
+
 =====================================================
 %% ✅ MASTER CHECKLIST: GlyphWave Engine – Full Task Map
 %% Includes subtasks for execution tracking
@@ -406,124 +530,6 @@ E6 --> E7[A9 → Schema + Documentation]
 
 
 
-NEXT GEN UPGRADE TO QKD
-graph TD
-  Q2[🔐 Q2: Symbolic QKD Enhancements Roadmap]
-
-  Q2a[Q2a: QKey Expiry + Renewable Key Rings]
-  Q2b[Q2b: Multi-agent Consensus Signing]
-  Q2c[Q2c: GKey Holographic Signatures (Avatar-bound)]
-  Q2d[Q2d: Emotion/Intention-Filtered QKey Issuance]
-
-  Q2 --> Q2a
-  Q2 --> Q2b
-  Q2 --> Q2c
-  Q2 --> Q2d
-
-  %% Q2a subtasks
-  Q2a1[Define QKey expiry metadata (⏳ expires_at)]
-  Q2a2[Implement renewable key ring structure in GKeyStore]
-  Q2a3[Auto-renew via QKD renegotiation logic]
-  Q2a4[Emit expiry warnings in SQI + HUD]
-
-  Q2a --> Q2a1 --> Q2a2 --> Q2a3 --> Q2a4
-
-  %% Q2b subtasks
-  Q2b1[Define multi-agent consensus schema (M-of-N policy)]
-  Q2b2[Update QKD handshake to request cosigners]
-  Q2b3[Integrate CodexCore agent trust registry]
-  Q2b4[Enforce consensus at collapse+execution time]
-
-  Q2b --> Q2b1 --> Q2b2 --> Q2b3 --> Q2b4
-
-  %% Q2c subtasks
-  Q2c1[Hash avatar memory trace into GKey]
-  Q2c2[Use GHX projection ID as signature root]
-  Q2c3[Enforce signature match during decryption]
-  Q2c4[Log avatar-binding to SQI + KG]
-
-  Q2c --> Q2c1 --> Q2c2 --> Q2c3 --> Q2c4
-
-  %% Q2d subtasks
-  Q2d1[Fetch current emotional/intent traits from AION memory]
-  Q2d2[Inject symbolic filters into QKey issuance logic]
-  Q2d3[Gate QKey handshake based on SoulLaw]
-  Q2d4[Emit rejection or “fuzzy” fallback key if mismatch]
-
-  Q2d --> Q2d1 --> Q2d2 --> Q2d3 --> Q2d4
-
-🧠 Summary of Each Submodule
-
-🔐 Q2a: QKey Expiry + Renewable Key Rings
-	•	Add expiration field (e.g., expires_at)
-	•	Enable renewable key rings with GKey rotation
-	•	Trigger HUD + CodexLang logic warnings
-	•	Auto-renew via symbolic QKD renegotiation
-
-👥 Q2b: Multi-agent Consensus Signing
-	•	Support M-of-N co-signature policies (e.g., 2 of 3 trusted agents)
-	•	Require agent consensus before collapse execution
-	•	Enforce trust using CodexCore identity registries
-
-🧬 Q2c: GKey Holographic Signatures (Avatar Memory)
-	•	Embed avatar memory trace hash into GKey
-	•	Tie GKey to GHX projection ID or memory fragment
-	•	Ensure decryption only works with valid memory state
-
-❤️‍🔥 Q2d: Emotion/Intention-Filtered QKey Issuance
-	•	Read user traits (emotion, intention) from AION memory
-	•	Enforce issuance policies via SoulLaw
-	•	Gate QKey handshake if user intent doesn’t align
-	•	Allow “fuzzy key” or denial fallback
-
-🧩 Legend
-Icon
-Type
-🧠
-Core symbolic/math logic
-🔌
-API / Adapter / Bridge
-🌈
-GHX/Visualization
-📈
-Metrics / Replay
-🛡️
-Ethics/Security Controls
-🚀
-Performance
-🧪
-Testing / QA
-📚
-Docs + Ops/Dev Guides
-🎛️
-Config/Flags
-📦
-Bundle/snapshot system
-
-
-🧠 Key Concepts + Glossary
-Symbol
-Meaning
-🛰️
-QWave = symbolic beam between glyphs or logic nodes
-🌌
-Multiverse = forked symbolic execution states
-🧠
-SQI = coherence, drift, contradiction signals
-⚛️
-Forks and collapses = beam mutations/merges
-🎞️
-Replay = beam traces through time or mutation
-📦
-.dc.json containers now store beam + fork data
-🔁
-Transparent adapter to retrofit GlyphNet/SQI
-📐
-GWIP = encoded photon-packet format
-🧩
-Feature-flagged, back-compatible modules
-🚀
-Runtime kernel orchestrates symbolic packet flow
 
 
 

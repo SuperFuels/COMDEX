@@ -27,6 +27,9 @@ from backend.modules.codex.codex_trace import CodexTrace
 from backend.modules.codex.ops.op_trigger import op_trigger
 from backend.modules.glyphos.codexlang_translator import run_codexlang_string
 from backend.modules.glyphos.glyph_executor import GlyphExecutor
+from backend.core.plugins.plugin_manager import register_all_plugins, get_plugin, get_all_plugins
+from backend.modules.glyphwave.emitters.qwave_emitter import emit_qwave_beam
+from backend.modules.codex.rewrite_engine import RewriteEngine
 
 # Intelligence & KG
 from backend.modules.knowledge_graph.kg_writer_singleton import get_kg_writer
@@ -119,6 +122,8 @@ class CodexExecutor:
             from backend.modules.consciousness.prediction_engine import PredictionEngine
         self.prediction_engine = PredictionEngine()
         self.prediction_index = PredictionIndex()
+        # 🔌 Load and register cognition plugins
+        register_all_plugins()
         self.sqi_trace = SQITraceLogger()
         # Resolve the active container id for memory scoping
         try:
@@ -241,12 +246,70 @@ class CodexExecutor:
                 except Exception as kernel_err:
                     logger.warning(f"[CodexExecutor] ⚠️ join_waves_batch failed: {kernel_err}")
                     cost = self.metrics.estimate_cost(instruction_tree)
+                    if cost > 0.85:
+                        beam_payload = {
+                            "event": "high_entropy_execution",
+                            "glyph": glyph,
+                            "sqi_score": cost,
+                            "container_id": context.get("container_id"),
+                            "tags": ["sqi_spike", "entropy"]
+                        }
+                        await emit_qwave_beam(source="sqi_spike", payload=beam_payload, context=context)
                     self.metrics.record_execution_batch(instruction_tree, cost=cost)
                     result = self.tessaris.interpret(instruction_tree, context=context)
+
+                    # 🌊 Emit QWave Beam after fallback symbolic mutation
+                    beam_payload = {
+                        "mutation_type": "symbolic_mutation",
+                        "original_glyph": glyph,
+                        "mutated_tree": instruction_tree,
+                        "container_id": context.get("container_id")
+                    }
+                    await emit_qwave_beam(source="mutation", payload=beam_payload, context=context)
+
+                # 🔄 Plugin Mutation + Synthesis Hooks
+                try:
+                    from backend.core.plugins.plugin_manager import get_all_plugins
+                    for plugin in get_all_plugins():
+                        # Mutation hook
+                        if hasattr(plugin, "mutate"):
+                            logic_str = str(instruction_tree)
+                            mutated_logic = plugin.mutate(logic_str)
+                            if mutated_logic and mutated_logic != logic_str:
+                                logger.debug(f"[Plugin] {plugin.__class__.__name__} mutated logic:\n{mutated_logic}")
+                                # Optional: parse mutated_logic back to instruction_tree here if needed
+
+                                # 🌊 Emit QWave Beam for plugin mutation
+                                beam_payload = {
+                                    "mutation_type": "plugin_mutation",
+                                    "plugin": plugin.__class__.__name__,
+                                    "original_logic": logic_str,
+                                    "mutated_logic": mutated_logic,
+                                    "container_id": context.get("container_id")
+                                }
+                                await emit_qwave_beam(source="mutation", payload=beam_payload, context=context)
+
+                        # Synthesis hook
+                        if hasattr(plugin, "synthesize"):
+                            synthesis_goal = context.get("synthesis_goal", "evolve_instruction")
+                            synthesized_logic = plugin.synthesize(synthesis_goal)
+                            if synthesized_logic:
+                                logger.debug(f"[Plugin] {plugin.__class__.__name__} synthesized logic: {synthesized_logic}")
+                except Exception as plugin_hook_err:
+                    logger.warning(f"[Plugin] mutation/synthesis hook failed: {plugin_hook_err}")
 
             else:
                 # 🧮 Cost Estimation
                 cost = self.metrics.estimate_cost(instruction_tree)
+                if cost > 0.85:
+                    beam_payload = {
+                        "event": "high_entropy_execution",
+                        "glyph": glyph,
+                        "sqi_score": cost,
+                        "container_id": context.get("container_id"),
+                        "tags": ["sqi_spike", "entropy"]
+                    }
+                    await emit_qwave_beam(source="sqi_spike", payload=beam_payload, context=context)
                 self.metrics.record_execution_batch(instruction_tree, cost=cost)
 
                 # 🧠 Tessaris Execution
@@ -281,6 +344,29 @@ class CodexExecutor:
                 },
                 trace=source
             )
+
+            # ✅ Plugin Trigger Hook
+            try:
+                from backend.core.plugins.plugin_manager import get_all_plugins
+                for plugin in get_all_plugins():
+                    if hasattr(plugin, "trigger"):
+                        plugin.trigger({
+                            "event_type": "execute_instruction",
+                            "glyph": glyph,
+                            "result": result,
+                            "context": context
+                        })
+            except Exception as plugin_trigger_err:
+                logger.warning(f"[Plugin] trigger hook failed: {plugin_trigger_err}")
+
+            # 📡 Plugin QFC Broadcast Hook
+            try:
+                from backend.core.plugins.plugin_manager import get_all_plugins
+                for plugin in get_all_plugins():
+                    if hasattr(plugin, "broadcast_qfc_update"):
+                        plugin.broadcast_qfc_update()
+            except Exception as plugin_broadcast_err:
+                logger.warning(f"[Plugin] QFC broadcast hook failed: {plugin_broadcast_err}")
 
             return result
 
@@ -439,14 +525,15 @@ class CodexExecutor:
                         })
 
                         # 🔌 Emit QWave Beam
-                        emit_qwave_beam({
+                        beam_payload = {
                             "source": source_glyph,
                             "target": mutated_glyph,
                             "sqi_score": cost,
                             "innovation_score": innovation_score,
                             "container_id": container_id,
                             "tags": ["rewrite", "contradiction", "mutation"]
-                        })
+                        }
+                        await emit_qwave_beam(source="contradiction", payload=beam_payload, context=context)
                 except Exception as beam_ex:
                     logger.warning(f"[CodexExecutor] QWave/Innovation hook failed: {beam_ex}")
 
@@ -485,9 +572,9 @@ class CodexExecutor:
                 if container_id and glyph and isinstance(glyph, dict):
                     from backend.modules.visualization.glyph_to_qfc import convert_glyph_to_qfc_node
                     qfc_node = convert_glyph_to_qfc_node(glyph)
-                    await broadcast_qfc_update(container_id, {
+                    broadcast_qfc_update(container_id, {
                         "nodes": [qfc_node],
-                        "links": []  # or inferred symbolic links if applicable
+                        "links": []
                     })
             except Exception as qfc_err:
                 logger.warning(f"[CodexExecutor] ⚠️ QFC update failed: {qfc_err}")

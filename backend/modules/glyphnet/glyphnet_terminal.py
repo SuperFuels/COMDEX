@@ -1,3 +1,5 @@
+# File: backend/modules/glyphnet/glyphnet_terminal.py
+
 import time
 import logging
 from typing import Dict, Any, List, Optional
@@ -11,19 +13,18 @@ from ..codex.codex_trace import CodexTrace
 from ..glyphos.codexlang_translator import run_codexlang_string
 from ..glyphos.symbolic_entangler import entangle_glyphs
 from ..glyphnet.glyphnet_packet import push_symbolic_packet
-from ..glyphnet.glyphnet_crypto import encrypt_packet  # 🔐 Encryption layer
-from ..encryption.glyph_vault import GlyphVault  # 🧠 Vault Access
-from ..glyphnet.ephemeral_key_manager import get_ephemeral_key_manager  # Ephemeral AES keys for fallback encryption
-from ..glyphnet.symbolic_key_derivation import symbolic_key_deriver  # <-- Added for symbolic context
+from ..glyphnet.glyphnet_crypto import encrypt_packet
+from ..encryption.glyph_vault import GlyphVault
+from ..glyphnet.ephemeral_key_manager import get_ephemeral_key_manager
+from ..glyphnet.symbolic_key_derivation import symbolic_key_deriver
 
 logger = logging.getLogger(__name__)
 
-# History and log buffers
+# Log buffers
 command_history: List[str] = []
-last_result: Dict[str, Any] = []
+last_result: Dict[str, Any] = {}
 _log_history: List[Dict[str, Any]] = []
 
-# Basic identity whitelist
 AUTHORIZED_TOKENS = {"root_token", "aion_admin", "dev_override"}
 
 
@@ -32,7 +33,6 @@ def validate_identity(token: str) -> bool:
 
 
 def get_public_key_for_identity(identity: str) -> Optional[bytes]:
-    # Stubbed RSA public key lookup (replace with real key registry in future)
     try:
         with open(f"keys/{identity}_public.pem", "rb") as f:
             return f.read()
@@ -41,10 +41,6 @@ def get_public_key_for_identity(identity: str) -> Optional[bytes]:
 
 
 def push_to_glyphnet(result: Dict[str, Any], sender: str, target_id: Optional[str] = None, encrypt: bool = False):
-    """
-    Sends symbolic result to GlyphNet for symbolic delivery via GlyphPush.
-    Optionally encrypts using RSA public key or Ephemeral AES session key based on target identity.
-    """
     try:
         packet = {
             "type": "glyph_push",
@@ -55,10 +51,11 @@ def push_to_glyphnet(result: Dict[str, Any], sender: str, target_id: Optional[st
         if target_id:
             packet["target"] = target_id
 
+        push_mode = "plain"
+
         if encrypt and target_id:
             key = get_public_key_for_identity(target_id)
             if key:
-                # Encrypt using RSA public key
                 encrypted_packet = encrypt_packet(packet, key)
                 push_symbolic_packet({
                     "type": "glyph_push_encrypted",
@@ -67,25 +64,21 @@ def push_to_glyphnet(result: Dict[str, Any], sender: str, target_id: Optional[st
                     "payload": encrypted_packet,
                     "timestamp": time.time(),
                 })
-                logger.info(f"[GlyphPush🔐] Encrypted packet sent from {sender} to {target_id} using RSA")
-                return
+                push_mode = "rsa"
+                logger.info(f"[GlyphPush🔐] Encrypted via RSA: {sender} → {target_id}")
             else:
-                # Fallback: encrypt using ephemeral AES key with symbolic derivation context
                 ephemeral_manager = get_ephemeral_key_manager()
-                # Prepare symbolic context params (example: default trust/emotion; customize as needed)
+                seed_phrase = f"GlyphPush:{sender}->{target_id}"
                 symbolic_trust = 0.7
                 symbolic_emotion = 0.5
-                seed_phrase = f"GlyphPush:{sender}->{target_id}"
 
-                aes_key = ephemeral_manager.get_key(target_id)
-                if aes_key is None:
-                    # Generate key with symbolic params if not existing
-                    aes_key = ephemeral_manager.generate_key(
-                        target_id,
-                        trust_level=symbolic_trust,
-                        emotion_level=symbolic_emotion,
-                        seed_phrase=seed_phrase
-                    )
+                aes_key = ephemeral_manager.get_key(target_id) or ephemeral_manager.generate_key(
+                    target_id,
+                    trust_level=symbolic_trust,
+                    emotion_level=symbolic_emotion,
+                    seed_phrase=seed_phrase
+                )
+
                 if aes_key:
                     from ..glyphnet.glyphnet_crypto import aes_encrypt_packet
                     encrypted_packet = aes_encrypt_packet(packet, aes_key)
@@ -96,17 +89,19 @@ def push_to_glyphnet(result: Dict[str, Any], sender: str, target_id: Optional[st
                         "payload": encrypted_packet,
                         "timestamp": time.time(),
                     })
-                    logger.info(f"[GlyphPush🔐] Encrypted packet sent from {sender} to {target_id} using Ephemeral AES key")
-                    return
+                    push_mode = "aes"
+                    logger.info(f"[GlyphPush🔐] Encrypted via AES: {sender} → {target_id}")
                 else:
-                    logger.warning(f"[GlyphPush🔐] No ephemeral AES key for {target_id}, sending unencrypted")
+                    logger.warning(f"[GlyphPush] No AES key available for {target_id}. Skipping encryption.")
 
-        # Default unencrypted push
-        push_symbolic_packet(packet)
-        logger.info(f"[GlyphPush] Sent symbolic packet from {sender} to {target_id or 'broadcast'}")
+        if push_mode == "plain":
+            push_symbolic_packet(packet)
+            logger.info(f"[GlyphPush] Sent unencrypted packet: {sender} → {target_id or 'broadcast'}")
+
+        result["push_mode"] = push_mode
 
     except Exception as e:
-        logger.warning(f"[GlyphPush] Delivery failed: {e}")
+        logger.warning(f"[GlyphPush❌] Delivery failed: {e}")
 
 
 def run_symbolic_command(command: str, token: str = "", push: bool = False, target_id: Optional[str] = None, encrypt: bool = False) -> Dict[str, Any]:
@@ -115,7 +110,7 @@ def run_symbolic_command(command: str, token: str = "", push: bool = False, targ
 
     start = time.time()
     try:
-        result = run_codexlang_string(command)
+        result = run_codexlang_string(command) or {}
         duration = round(time.time() - start, 4)
 
         command_history.append(command)
@@ -143,7 +138,7 @@ def run_symbolic_command(command: str, token: str = "", push: bool = False, targ
         }
 
     except Exception as e:
-        logger.exception("[Terminal] CodexLang execution failed")
+        logger.exception("[Terminal❌] CodexLang execution failed")
         return {
             "status": "error",
             "message": str(e),
@@ -155,7 +150,7 @@ def execute_terminal_command(command: str, payload: Dict[str, Any]) -> Dict[str,
     try:
         token = payload.get("token", "")
         if not validate_identity(token):
-            return {"status": "unauthorized", "error": "Invalid or missing token"}
+            return {"status": "unauthorized", "error": "Invalid token"}
 
         trace_id = payload.get("trace_id")
         enable_push = payload.get("enable_push", False)
@@ -177,13 +172,13 @@ def execute_terminal_command(command: str, payload: Dict[str, Any]) -> Dict[str,
             if trace_id:
                 CodexTrace.log_event("terminal_glyph_executed", {
                     "trace_id": trace_id,
-                    "glyph": glyph_data.get("glyph"),
+                    "glyph": glyph_data.get("glyph", "[no-glyph]"),
                     "result": result
                 })
 
             log_entry = {
                 "type": "glyph_execution",
-                "glyph": glyph_data.get("glyph"),
+                "glyph": glyph_data.get("glyph", "[unknown]"),
                 "result": result,
                 "context": context,
                 "timestamp": time.time(),
@@ -247,7 +242,7 @@ def execute_terminal_command(command: str, payload: Dict[str, Any]) -> Dict[str,
             return {"status": "error", "error": f"Unknown terminal command: {command}"}
 
     except Exception as e:
-        logger.exception("[Terminal] Execution failed")
+        logger.exception("[Terminal❌] Execution failed")
         return {"status": "error", "error": str(e)}
 
 
@@ -266,4 +261,4 @@ def store_log(entry: Dict[str, Any]):
 
 
 def get_recent_logs() -> List[Dict[str, Any]]:
-    return LOG_BUFFER[-200:]
+    return _log_history[-200:]

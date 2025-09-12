@@ -8,7 +8,7 @@ from backend.modules.websocket_manager import broadcast_event
 
 # ✅ New QFC WebSocket stream helper
 from backend.modules.visualization.stream_qfc_from_entangled_wave import stream_qfc_from_entangled_wave
-from backend.modules.visualization.qfc_payload_utils import to_qfc_payload
+from backend.modules.visualization.glyph_to_qfc import to_qfc_payload
 from backend.modules.visualization.broadcast_qfc_update import broadcast_qfc_update
 import asyncio
 
@@ -98,6 +98,7 @@ class BeamController:
                                 "source_node": wave_state.id
                             }
                             qfc_payload = to_qfc_payload(node_payload, context)
+                            import asyncio
                             asyncio.create_task(broadcast_qfc_update(self.container_id, qfc_payload))
                         except Exception as qfc_fallback_err:
                             print(f"[⚠️ QFC Fallback] Failed to stream from WaveState: {qfc_fallback_err}")

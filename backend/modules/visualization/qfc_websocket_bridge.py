@@ -1,16 +1,23 @@
-# ✅ File: backend/modules/visualization/qfc_websocket_bridge.py
-
 import asyncio
 import inspect
 from typing import Dict, Any, List, Union
 from fastapi import WebSocket
-from backend.modules.websocket.websocket_manager import websocket_manager
+from backend.modules.websocket_manager import websocket_manager
 
 # 🌐 Track container-specific sockets (live sync)
 active_qfc_sockets: Dict[str, WebSocket] = {}
 
+# 🔐 Safe coercion for hashable/loggable source values
+def coerce_source(value: Any) -> str:
+    try:
+        if isinstance(value, (dict, list)):
+            return f"invalid_source_{hash(str(value))}"
+        return str(value)
+    except Exception:
+        return f"invalid_source_{id(value)}"
+
 # 📡 Broadcast QFC update to all connected clients (via websocket_manager)
-def send_qfc_update(render_packet: Dict[str, Any]) -> None:
+async def send_qfc_update(render_packet: Dict[str, Any]) -> None:
     """
     Send a symbolic update to all connected QFC WebSocket clients.
 
@@ -18,33 +25,16 @@ def send_qfc_update(render_packet: Dict[str, Any]) -> None:
         render_packet (Dict[str, Any]): Data payload containing QWave beams, glyphs, etc.
     """
     try:
-        websocket_manager.broadcast("qfc_update", {
+        source = coerce_source(render_packet.get("source", "unknown"))
+
+        await websocket_manager.broadcast("qfc_update", {
             "type": "qfc_update",
-            "source": render_packet.get("source", "unknown"),
+            "source": source,
             "payload": render_packet.get("payload", {}),
         })
         print("🚀 QFC WebSocket update broadcasted.")
     except Exception as e:
         print(f"❌ Failed to broadcast QFC update: {e}")
-
-# ⚙️ Direct stream to a single WebSocket client
-def send_qfc_update_to_socket(socket: WebSocket, payload: Dict[str, Any]) -> None:
-    """
-    Send QFC update directly to a specific client.
-
-    Args:
-        socket (WebSocket): Target WebSocket connection
-        payload (Dict[str, Any]): Data packet to transmit
-    """
-    try:
-        socket.send_json({
-            "type": "qfc_update",
-            "source": payload.get("source", "direct"),
-            "payload": payload.get("payload", {}),
-        })
-        print("📤 Sent QFC update to single socket.")
-    except Exception as e:
-        print(f"⚠️ Failed to send QFC update to socket: {e}")
 
 # 🧠 Register live QFC sync socket for a specific container
 async def register_qfc_socket(container_id: str, websocket: WebSocket):
@@ -75,10 +65,9 @@ async def broadcast_qfc_update(container_id: str, payload: Dict[str, Any]):
         except Exception as e:
             print(f"❌ Failed to send live QFC sync: {e}")
 
-
-# ────────────────────────────────────────────────────────────────
-# ✅ NEW: Multi-node or beam-based QFC stream to frontend
-# ────────────────────────────────────────────────────────────────
+# ───────────────────────────────────────────────
+# ✅ Async-compatible fire-and-forget dispatcher
+# ───────────────────────────────────────────────
 
 def _is_coroutine_fn(fn):
     return inspect.iscoroutinefunction(fn)
@@ -96,6 +85,7 @@ def safe_fire_and_forget(coro_or_fn, *args, **kwargs):
     except Exception as e:
         print(f"⚠️ QFC Bridge fallback dispatch failed: {e}")
 
+# 🌈 Stream symbolic beam updates to all clients (non-container specific)
 def broadcast_qfc_beams(container_id: str, payload: Union[Dict[str, Any], List[Dict[str, Any]]]):
     """
     Broadcast multi-packet QFC visual data (e.g. QWave beams, traces) to the frontend.
@@ -105,9 +95,11 @@ def broadcast_qfc_beams(container_id: str, payload: Union[Dict[str, Any], List[D
         payload = [payload]
 
     message = {
-        "container_id": container_id,
-        "type": "qfc_stream",
-        "updates": payload
+        "source": f"container::{container_id}",
+        "payload": {
+            "updates": payload,
+            "type": "qfc_stream"
+        }
     }
 
     safe_fire_and_forget(send_qfc_update, message)

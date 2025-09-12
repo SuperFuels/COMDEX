@@ -185,7 +185,8 @@ class SQIReasoningEngine:
             }
 
             qfc_payload = to_qfc_payload(node_payload, context)
-            await broadcast_qfc_update(context["container_id"], qfc_payload)
+            import asyncio
+            asyncio.create_task(broadcast_qfc_update(context["container_id"], qfc_payload))
         except Exception as qfc_err:
             print(f"[⚠️ SQI→QFC] Failed to broadcast collapse: {qfc_err}")
 

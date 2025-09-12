@@ -468,58 +468,77 @@ class ContainerRuntime:
             print(f"⚠️ UCS registry ensure failed for {cid}: {e}")
 
     def save_container(self):
-        container = self.state_manager.get_current_container()
+    container = self.state_manager.get_current_container()
 
-        # 🧠 Inject HST before export
-        from backend.modules.symbolic.hst.hst_injection_utils import inject_symbolic_tree_to_container_dict
-        container = inject_symbolic_tree_to_container_dict(container)
+    # 🧠 Inject HST before export
+    from backend.modules.symbolic.hst.hst_injection_utils import inject_symbolic_tree_to_container_dict
+    container = inject_symbolic_tree_to_container_dict(container)
 
-        microgrid = self.vault_manager.get_microgrid()
-        glyph_data = microgrid.export_index()
+    microgrid = self.vault_manager.get_microgrid()
+    glyph_data = microgrid.export_index()
 
-        # 🔐 SoulLaw metadata injection
-        from backend.modules.codex.symbolic_key_deriver import export_collapse_trace_with_soullaw_metadata
+    # 🔐 SoulLaw metadata injection
+    from backend.modules.codex.symbolic_key_deriver import export_collapse_trace_with_soullaw_metadata
+    try:
+        avatar_state = self.state_manager.get_avatar_state()
+        identity = avatar_state.get("id") if avatar_state else None
+        collapse_metadata = export_collapse_trace_with_soullaw_metadata(identity=identity)
+        container["collapse_metadata"] = collapse_metadata
+        print("🔐 Injected SoulLaw collapse trace into container metadata.")
+    except Exception as e:
+        print(f"⚠️ Failed to inject collapse metadata: {e}")
+
+    # 💾 Encrypt + save glyph data
+    try:
+        encrypted_blob = self.vault_manager.save_container_glyph_data(glyph_data)
+        container["encrypted_glyph_data"] = encrypted_blob
+        print(f"💾 Container glyph data encrypted and saved, size: {len(encrypted_blob)} bytes")
+    except Exception as e:
+        print(f"❌ Failed to encrypt and save container glyph data: {e}")
+
+    # 📡 Inject QWave Beams
+    try:
+        from backend.modules.container_runtime import get_beams_for_container
+        container_id = container.get("id")
+        if container_id:
+            beams = get_beams_for_container(container_id)
+            container["qwave_beams"] = beams
+            print(f"📡 Injected {len(beams)} QWave beams into container.")
+    except Exception as e:
+        print(f"⚠️ Failed to inject QWave beams: {e}")
+
+    # 📦 SCI Serializer Export
+    try:
+        from backend.modules.sci.sci_serializer import serialize_field_session
+        sci_export = serialize_field_session(container)
+        from datetime import datetime
+        import os, json
+
+        timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+        filename = f"session_{timestamp}.dc.json"
+        output_path = f"./saved_sessions/{filename}"
+
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        with open(output_path, "w", encoding="utf-8") as f:
+            json.dump(sci_export, f, indent=2)
+
+        print(f"📦 SCI session exported to {output_path}")
+    except Exception as e:
+        print(f"⚠️ SCI Serializer export failed: {e}")
+
+    # ✅ Final persistence
+    try:
+        # Option 1: Persist to Vault
+        self.vault_manager.write_final_container(container)
+        print(f"✅ Container '{container.get('id')}' successfully written to Vault.")
+    except Exception as e:
+        print(f"⚠️ Failed to write container to Vault: {e}")
+        # Option 2: Fallback — persist via StateManager
         try:
-            avatar_state = self.state_manager.get_avatar_state()
-            identity = avatar_state.get("id") if avatar_state else None
-            collapse_metadata = export_collapse_trace_with_soullaw_metadata(identity=identity)
-            container["collapse_metadata"] = collapse_metadata
-            print("🔐 Injected SoulLaw collapse trace into container metadata.")
-        except Exception as e:
-            print(f"⚠️ Failed to inject collapse metadata: {e}")
-
-        # 💾 Encrypt + save glyph data
-        try:
-            encrypted_blob = self.vault_manager.save_container_glyph_data(glyph_data)
-            container["encrypted_glyph_data"] = encrypted_blob
-            print(f"💾 Container glyph data encrypted and saved, size: {len(encrypted_blob)} bytes")
-        except Exception as e:
-            print(f"❌ Failed to encrypt and save container glyph data: {e}")
-
-        # 📡 Inject QWave Beams
-        try:
-            from backend.modules.container_runtime import get_beams_for_container
-            container_id = container.get("id")
-            if container_id:
-                beams = get_beams_for_container(container_id)
-                container["qwave_beams"] = beams
-                print(f"📡 Injected {len(beams)} QWave beams into container.")
-        except Exception as e:
-            print(f"⚠️ Failed to inject QWave beams: {e}")
-
-        # ✅ Final persistence
-        try:
-            # Option 1: Persist to Vault
-            self.vault_manager.write_final_container(container)
-            print(f"✅ Container '{container.get('id')}' successfully written to Vault.")
-        except Exception as e:
-            print(f"⚠️ Failed to write container to Vault: {e}")
-            # Option 2: Fallback — persist via StateManager
-            try:
-                self.state_manager.save_current_container(container)
-                print(f"✅ Container '{container.get('id')}' saved via StateManager fallback.")
-            except Exception as e2:
-                print(f"❌ Failed to save container via fallback: {e2}")
+            self.state_manager.save_current_container(container)
+            print(f"✅ Container '{container.get('id')}' saved via StateManager fallback.")
+        except Exception as e2:
+            print(f"❌ Failed to save container via fallback: {e2}")
 
     def fork_entangled_path(self, container: Dict[str, Any], coord: str, glyph: str):
         original_name = container.get("id", "default")

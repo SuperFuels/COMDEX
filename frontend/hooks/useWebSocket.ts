@@ -1,7 +1,7 @@
-// utils/useWebSocket.ts
+// frontend/hooks/useWebSocket.ts
 
 import { useEffect, useRef, useState } from 'react'
-import { playGlyphNarration } from '@/utils/hologram_audio'
+import { playGlyphNarration } from '../components/ui/hologram_audio'
 
 function getWssUrl(path: string): string {
   if (typeof window === 'undefined') return ''

@@ -1,5 +1,3 @@
-# pattern_sqi_scorer.py
-
 import math
 from typing import Dict, List, Optional
 from statistics import mean
@@ -8,6 +6,7 @@ from .pattern_registry import PatternRegistry
 from backend.modules.sqi.sqi_scorer import compute_entropy, compute_symmetry_score
 from backend.modules.patterns.pattern_kg_bridge import get_kg_motif_similarity
 from backend.modules.sqi.sqi_prediction_adapter import score_prediction_alignment
+from backend.modules.glyphwave.emitters.qwave_emitter import emit_qwave_beam
 
 class PatternSQIScorer:
     """
@@ -23,7 +22,6 @@ class PatternSQIScorer:
         """
         Evaluate and return a detailed SQI score dictionary for a pattern.
         """
-
         glyphs = pattern.get("glyphs", [])
         if not glyphs:
             return {"sqi_score": 0.0}
@@ -121,19 +119,34 @@ class PatternSQIScorer:
         compression_ratio = unique / total
         return 1.0 - compression_ratio
 
-    def attach_sqi_score(self, pattern: Dict) -> Dict:
+    async def attach_sqi_score(self, pattern: Dict, context: Optional[Dict] = None) -> Dict:
         """
         Mutates the pattern dictionary in-place by adding 'sqi_score'.
+        Also emits a QWave beam if the score exceeds threshold.
         """
         scores = self.score_pattern(pattern)
         pattern.update(scores)
+
+        if scores.get("sqi_score", 0.0) > 0.85:
+            beam_payload = {
+                "event": "high_sqi_pattern",
+                "pattern_signature": pattern.get("signature"),
+                "glyphs": pattern.get("glyphs"),
+                "sqi_score": scores["sqi_score"],
+                "tags": ["pattern", "sqi_spike", "symbolic_resonance"],
+                "container_id": context.get("container_id") if context else None
+            }
+            await emit_qwave_beam(source="pattern_sqi_scorer", payload=beam_payload, context=context or {})
+        
         return pattern
 
-    def score_all_patterns(self, patterns: List[Dict]) -> List[Dict]:
+    async def score_all_patterns(self, patterns: List[Dict], context: Optional[Dict] = None) -> List[Dict]:
         """
         Batch process a list of patterns and append SQI scores to each.
+        Emits QWave beams for high-SQI patterns.
         """
-        return [self.attach_sqi_score(p) for p in patterns]
+        import asyncio
+        return await asyncio.gather(*(self.attach_sqi_score(p, context=context) for p in patterns))
 
 # Singleton
 pattern_sqi_scorer = PatternSQIScorer()

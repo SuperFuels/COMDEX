@@ -7,13 +7,14 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Play, Pause, Download, Eye, EyeOff } from 'lucide-react';
-import { playGlyphNarration } from "@/utils/hologram_audio";
-import axios from "axios";
+import { playGlyphNarration } from "@/components/ui/hologram_audio";
+import axios from "axios"
 import { useGlyphReplay } from "@/hooks/useGlyphReplay";
 import { ReplayHUD } from "@/components/CodexHUD/ReplayHUD";
 import { ReplayListPanel } from "@/components/CodexHUD/ReplayListPanel";
 import { useCollapseMetrics } from "@/hooks/useCollapseMetrics";
 import { useWaveTelemetry } from "@/hooks/useWaveTelemetry";
+import { GHXVisualizerField } from '@/components/Hologram/ghx_visualizer_field'
 
 interface GlyphDetail {
   energy?: number;
@@ -96,12 +97,17 @@ function hasAction(log: EventLog): log is { action: string } {
 }
 
 // ✅ Use in rendering
-const isLeanGlyph =
-  operator === '⟦ Theorem ⟧' || log.type === 'lean_theorem_executed';
+{eventLogs.map((log, index) => {
+  const isLeanGlyph =
+    (log.type === 'glyph' && log.data.operator === '⟦ Theorem ⟧') ||
+    log.type === 'lean_theorem_executed';
 
-<span className="text-green-400">
-  {hasAction(log) ? log.action : ''}
-</span>
+  return (
+    <div key={index} className="text-green-400">
+      {hasAction(log) ? log.action : ''}
+    </div>
+  );
+})}
 
 const COST_WARNING_THRESHOLD = 7;
 
@@ -188,6 +194,7 @@ interface CodexHUDProps {
   onTraceOverlayToggle?: (state: boolean) => void;
   onLayoutToggle?: () => void;
   onExport?: () => void;
+  containerId?: string;
 }
 
 interface SoulLawEvent {
@@ -206,7 +213,8 @@ export default function CodexHUD({
   onReplayToggle,
   onTraceOverlayToggle,
   onLayoutToggle,
-  onExport
+  onExport,
+  containerId
 }: CodexHUDProps) {
   const [events, setEvents] = useState<EventLog[]>([]);
   const [filter, setFilter] = useState('');
@@ -218,13 +226,20 @@ export default function CodexHUD({
   const { replays, latestTrace, handleReplayClick } = useGlyphReplay();
   const [showReplayPanel, setShowReplayPanel] = useState(false);
 
-  // ✅ Add collapse metrics hook here
-  const {
-    collapseHistory,
-    decoherenceHistory,
-    latestCollapse,
-    latestDecoherence
-  } = useCollapseMetrics();
+  const [showGHX, setShowGHX] = useState(true)
+  const [qkdLocked, setQkdLocked] = useState(false)
+  const [lastPattern, setLastPattern] = useState<string | null>(null)
+  const { collapseHistory, decoherenceHistory, latestCollapse, latestDecoherence } = useCollapseMetrics()
+
+  useEffect(() => {
+    onEvent('qkd_status', (data) => {
+      setQkdLocked(data.locked)
+    })
+
+    onEvent('pattern_match', (data) => {
+      setLastPattern(data.pattern_id || 'Unknown Pattern')
+    })
+  }, [])
 
   const totalGlyphs = events.filter(e => e.type === 'glyph' || e.type === 'gip').length;
   const triggeredGlyphs = events.filter(e => (e.type === 'glyph' || e.type === 'gip') && e.data.action).length;
@@ -339,168 +354,241 @@ const toggleContext = (glyph: string) => {
 };
 
 return (
-  <Card className="w-full max-h-[450px] bg-black text-white border border-green-700 shadow-lg rounded-xl p-2 mt-4 relative">
-    <CardContent>
-
-      <ReplayHUD latestTrace={latestTrace} />
-
-      {showReplayPanel && (
-        <ReplayListPanel replays={replays} onReplayClick={handleReplayClick} />
-      )}
-
-      <div className="flex justify-between items-center mb-2">
-        <h2 className="text-lg font-bold text-green-400">🧠 Codex Runtime HUD</h2>
-        <span className="text-sm">
-          Codex: {codexConnected ? '🟢 Connected' : '🔴 Disconnected'}
-        </span>
+  <div className="relative w-full h-full">
+    {/* ✅ GHX + Collapse + Pattern HUD Overlay */}
+    <div className="flex items-center justify-between px-4 py-2 text-sm bg-white/5 border-b border-white/10">
+      {/* 🧠 Collapse Metrics */}
+      <div className="flex space-x-4 text-xs text-gray-300">
+        <span>🧠 Collapse/sec: {metrics.collapsePerSecond?.toFixed(2)}</span>
+        <span>⧖ Decoherence: {latestDecoherence}</span>
+        <span>📈 Coherence: {metrics.coherence?.toFixed(2)}</span>
       </div>
 
-      <div className="absolute top-2 right-2 z-50">
-        <Button onClick={() => setShowReplayPanel(!showReplayPanel)}>
-          🧪 {showReplayPanel ? 'Hide Replay' : 'Show Replay'}
-        </Button>
-      </div>
+      {/* 🔐 QKD Lock + 🧬 Pattern Match */}
+      <div className="flex items-center space-x-2">
+        <Badge
+          variant="outline"
+          className={qkdLocked ? "text-green-400" : "text-red-400"}
+        >
+          {qkdLocked ? "QKD: Locked" : "QKD: Unlocked"}
+        </Badge>
 
-      <div className="flex items-center justify-between mb-2 gap-2">
-        <Input
-          placeholder="🔍 Filter glyphs..."
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          className="bg-gray-900 border-gray-700 text-white text-sm"
-        />
-        <div className="flex gap-2">
-          <Button
-            className="text-xs px-3 py-1 h-8 bg-purple-800 hover:bg-purple-700"
-            onClick={handleReplayToggle}
-          >
-            {isReplay ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-            <span className="ml-1">{isReplay ? "Pause" : "Replay"}</span>
-          </Button>
-          <Button
-            className="text-xs px-3 py-1 h-8 bg-cyan-800 hover:bg-cyan-700"
-            onClick={handleExport}
-          >
-            📀 Export GHX
-          </Button>
-          <Button
-            className="text-xs px-3 py-1 h-8 bg-pink-800 hover:bg-pink-700"
-            onClick={handleGazeToggle}
-          >
-            👁️ Gaze Mode: {gazeMode ? 'On' : 'Off'}
-          </Button>
-          <Button
-            className="text-xs px-3 py-1 h-8 bg-yellow-800 hover:bg-yellow-700"
-            onClick={() => setShowReplayPanel(!showReplayPanel)}
-          >
-            🎞️ Replay List
-          </Button>
-          <Button
-            className="text-xs px-3 py-1 h-8 bg-gray-700 hover:bg-gray-600"
-            onClick={onTraceOverlayToggle}
-          >
-            🔍 Trace: {showTrace ? 'On' : 'Off'}
-          </Button>
-        </div>
-      </div>
-      {latestCollapse != null && latestDecoherence != null && (
-        <div className="text-xs text-green-300 font-mono mt-2 border border-green-700 rounded p-2 bg-black/50">
-          <div className="flex justify-between">
-            <div>
-              🧠 <strong>Collapse Rate:</strong> {latestCollapse.toFixed(2)} / sec
-            </div>
-            <div>
-              🌀 <strong>Decoherence:</strong> {(latestDecoherence * 100).toFixed(1)}%
-            </div>
-          </div>
-        </div>
-      )}
-      <div className="text-xs p-2 bg-black/50 rounded-lg shadow mt-2">
-        <div>📉 Collapse Rate: <strong>{collapseRate}/s</strong></div>
-        <div>📡 Avg Coherence: <strong>{avgCoherence}</strong></div>
-        {parseFloat(avgCoherence) < 0.5 && avgCoherence !== "—" && (
-          <div className="text-red-500 animate-pulse">⚠️ Low Coherence Detected</div>
+        {lastPattern && (
+          <Badge variant="secondary" className="text-purple-300">
+            🧬 Pattern: {lastPattern}
+          </Badge>
         )}
       </div>
-      {/* 🔮 Real-Time Beam Predictions */}
-      <div className="text-xs mt-2 bg-slate-900/80 border border-indigo-600 rounded-lg p-2 font-mono text-indigo-200 shadow-md">
-        <div className="mb-1 text-indigo-300 font-semibold">🔮 Beam Prediction Metrics</div>
-        {events.slice(0, 5).map((entry, idx) => {
-          if (entry.type !== 'glyph' && entry.type !== 'gip') return null;
-          const g = entry.data as GlyphEvent;
-          if (!g.predicted) return null;
-          return (
-            <div key={`beam-pred-${idx}`} className="text-xs flex justify-between border-b border-white/10 py-1">
-              <span className="truncate">
-                ⟦ {g.glyph} ⟧ → <span className="text-green-400">{g.action}</span>
-              </span>
-              <span>
-                ↯ {g.entropy?.toFixed(2) ?? '—'} | 🎯 {g.confidence != null ? `${Math.round(g.confidence * 100)}%` : '—'}
-              </span>
-            </div>
-          );
-        })}
-      </div>
-      <div className="text-xs text-purple-300 mt-2">
-        🧠 Replay features enabled:
-        <ul className="list-disc pl-4 space-y-1 mt-1">
-          <li>↔ Entangled Glyphs</li>
-          <li>⧖ Delay Badge</li>
-          <li>🪞 Mirror Trails</li>
-          <li>🛰️ GlyphPush Events</li>
-          <li>⬁ Mutation Badge</li>
-          <li>🧬 DNA Trigger</li>
-          <li>⮁ Self-Rewrite Trigger</li>
-        </ul>
-      </div>
+    </div>
 
-      <ScrollArea className="h-[320px] pr-2 mt-2">
-        {filteredEvents.map((entry, index) => {
-          if (entry.type === 'tick') {
-            const { container, timestamp } = entry.data;
+    <Card className="w-full max-h-[450px] bg-black text-white border border-green-700 shadow-lg rounded-xl p-2 mt-4 relative">
+      <CardContent>
+        <ReplayHUD latestTrace={latestTrace} />
+
+        {showReplayPanel && (
+          <ReplayListPanel replays={replays} onReplayClick={handleReplayClick} />
+        )}
+
+        <div className="flex justify-between items-center mb-2">
+          <h2 className="text-lg font-bold text-green-400">🧠 Codex Runtime HUD</h2>
+          <span className="text-sm">
+            Codex: {codexConnected ? '🟢 Connected' : '🔴 Disconnected'}
+          </span>
+        </div>
+
+        <div className="absolute top-2 right-2 z-50">
+          <Button onClick={() => setShowReplayPanel(!showReplayPanel)}>
+            🧪 {showReplayPanel ? 'Hide Replay' : 'Show Replay'}
+          </Button>
+        </div>
+
+        <Button
+          className="ml-2 text-xs px-2 py-0 h-6 bg-transparent hover:bg-white/10 border border-white/10"
+          onClick={() => setShowGHX(!showGHX)}
+        >
+          {showGHX ? '🛑 Hide GHX' : '🌌 Show GHX'}
+        </Button>
+
+        <div className="flex items-center justify-between mb-2 gap-2">
+          <Input
+            placeholder="🔍 Filter glyphs..."
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            className="bg-gray-900 border-gray-700 text-white text-sm"
+          />
+          <div className="flex gap-2">
+            <Button
+              className="text-xs px-3 py-1 h-8 bg-purple-800 hover:bg-purple-700"
+              onClick={handleReplayToggle}
+            >
+              {isReplay ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+              <span className="ml-1">{isReplay ? "Pause" : "Replay"}</span>
+            </Button>
+            <Button
+              className="text-xs px-3 py-1 h-8 bg-cyan-800 hover:bg-cyan-700"
+              onClick={handleExport}
+            >
+              📀 Export GHX
+            </Button>
+            <Button
+              className="text-xs px-3 py-1 h-8 bg-pink-800 hover:bg-pink-700"
+              onClick={handleGazeToggle}
+            >
+              👁️ Gaze Mode: {gazeMode ? 'On' : 'Off'}
+            </Button>
+            <Button
+              className="text-xs px-3 py-1 h-8 bg-yellow-800 hover:bg-yellow-700"
+              onClick={() => setShowReplayPanel(!showReplayPanel)}
+            >
+              🎞️ Replay List
+            </Button>
+            <Button
+              className="text-xs px-3 py-1 h-8 bg-gray-700 hover:bg-gray-600"
+              onClick={onTraceOverlayToggle}
+            >
+              🔍 Trace: {showTrace ? 'On' : 'Off'}
+            </Button>
+          </div>
+        </div>
+
+        {latestCollapse != null && latestDecoherence != null && (
+          <div className="text-xs text-green-300 font-mono mt-2 border border-green-700 rounded p-2 bg-black/50">
+            <div className="flex justify-between">
+              <div>
+                🧠 <strong>Collapse Rate:</strong> {latestCollapse.toFixed(2)} / sec
+              </div>
+              <div>
+                🌀 <strong>Decoherence:</strong> {(latestDecoherence * 100).toFixed(1)}%
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div className="text-xs p-2 bg-black/50 rounded-lg shadow mt-2">
+          <div>📉 Collapse Rate: <strong>{collapseRate}/s</strong></div>
+          <div>📡 Avg Coherence: <strong>{avgCoherence}</strong></div>
+          {parseFloat(avgCoherence) < 0.5 && avgCoherence !== "—" && (
+            <div className="text-red-500 animate-pulse">⚠️ Low Coherence Detected</div>
+          )}
+        </div>
+
+        {/* 🔮 Real-Time Beam Predictions */}
+        <div className="text-xs mt-2 bg-slate-900/80 border border-indigo-600 rounded-lg p-2 font-mono text-indigo-200 shadow-md">
+          <div className="mb-1 text-indigo-300 font-semibold">🔮 Beam Prediction Metrics</div>
+          {events.slice(0, 5).map((entry, idx) => {
+            if (entry.type !== 'glyph' && entry.type !== 'gip') return null;
+            const g = entry.data as GlyphEvent;
+            if (!g.predicted) return null;
             return (
-              <div key={`tick-${container}-${timestamp}`} className="border-b border-white/10 py-1">
-                <div className="text-sm text-cyan-300 font-mono">
-                  🧱 Tick from <b>{container}</b> at{' '}
-                  <span className="text-white">
-                    {timestamp ? new Date(timestamp * 1000).toLocaleTimeString() : 'N/A'}
-                  </span>
+              <div key={`beam-pred-${idx}`} className="text-xs flex justify-between border-b border-white/10 py-1">
+                <span className="truncate">
+                  ⟦ {g.glyph} ⟧ → <span className="text-green-400">{g.action}</span>
+                </span>
+                <span>
+                  ↯ {g.entropy?.toFixed(2) ?? '—'} | 🎯 {g.confidence != null ? `${Math.round(g.confidence * 100)}%` : '—'}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="text-xs text-purple-300 mt-2">
+          🧠 Replay features enabled:
+          <ul className="list-disc pl-4 space-y-1 mt-1">
+            <li>↔ Entangled Glyphs</li>
+            <li>⧖ Delay Badge</li>
+            <li>🪞 Mirror Trails</li>
+            <li>🛰️ GlyphPush Events</li>
+            <li>⬁ Mutation Badge</li>
+            <li>🧬 DNA Trigger</li>
+            <li>⮁ Self-Rewrite Trigger</li>
+          </ul>
+        </div>
+        {/* ✅ Draggable Scroll Panel */}
+        {Object.keys(scrolls).length > 0 && (
+          <div className="mt-4 p-2 border border-white/10 rounded bg-slate-800">
+            <h3 className="text-sm font-bold text-green-400 mb-2">🧾 Active Scrolls</h3>
+            <div className="flex flex-wrap gap-2">
+              {Object.entries(scrolls).map(([glyph, scroll]) => (
+                <div
+                  key={glyph}
+                  draggable
+                  onDragStart={(e) => {
+                    e.dataTransfer.setData("application/glyph-scroll", JSON.stringify({ glyph, scroll }));
+                    e.dataTransfer.effectAllowed = "move";
+                  }}
+                  className="p-2 border border-white/10 rounded bg-slate-900 cursor-grab hover:bg-slate-700 w-[200px] overflow-hidden"
+                >
+                  <div className="text-green-300 font-mono text-xs mb-1 truncate">🧾 {glyph}</div>
+                  <pre className="text-white text-xs whitespace-pre-wrap max-h-[120px] overflow-auto">{scroll}</pre>
                 </div>
-              {/* 🔁 Suggested Rewrite Panel */}
-              {glyph?.suggested_rewrite && (
-                <div className="mt-1 ml-2 border border-dashed border-yellow-600 p-2 rounded bg-yellow-900/20 text-yellow-200 text-xs font-mono">
-                  <div className="mb-1 font-bold text-yellow-300">🔁 Suggested Rewrite</div>
-                  <div>
-                    <b>New Glyph:</b> <code>{glyph.suggested_rewrite.new_glyph}</code>
+              ))}
+            </div>
+          </div>
+        )}
+        <ScrollArea className="h-[320px] pr-2 mt-2">
+          {filteredEvents.map((entry, index) => {
+            if (entry.type === 'tick') {
+              const { container, timestamp } = entry.data;
+              return (
+                <div key={`tick-${container}-${timestamp}`} className="border-b border-white/10 py-1">
+                  <div className="text-sm text-cyan-300 font-mono">
+                    🧱 Tick from <b>{container}</b> at{' '}
+                    <span className="text-white">
+                      {timestamp ? new Date(timestamp * 1000).toLocaleTimeString() : 'N/A'}
+                    </span>
                   </div>
-                  <div>
-                    <b>Goal Match Score:</b>{' '}
-                    {glyph.suggested_rewrite.goal_match_score != null
-                      ? glyph.suggested_rewrite.goal_match_score.toFixed(2)
-                      : 'N/A'}
-                  </div>
-                  <div>
-                    <b>Rewrite Success Probability:</b>{' '}
-                    {glyph.suggested_rewrite.rewrite_success_prob != null
-                      ? `${Math.round(glyph.suggested_rewrite.rewrite_success_prob * 100)}%`
-                      : 'N/A'}
-                  </div>
-                  {glyph.suggested_rewrite.reason && (
-                    <div>
-                      <b>Reason:</b> <span>{glyph.suggested_rewrite.reason}</span>
+                  {glyph?.suggested_rewrite && (
+                    <div className="mt-1 ml-2 border border-dashed border-yellow-600 p-2 rounded bg-yellow-900/20 text-yellow-200 text-xs font-mono">
+                      <div className="mb-1 font-bold text-yellow-300">🔁 Suggested Rewrite</div>
+                      <div>
+                        <b>New Glyph:</b> <code>{glyph.suggested_rewrite.new_glyph}</code>
+                      </div>
+                      <div>
+                        <b>Goal Match Score:</b>{' '}
+                        {glyph.suggested_rewrite.goal_match_score != null
+                          ? glyph.suggested_rewrite.goal_match_score.toFixed(2)
+                          : 'N/A'}
+                      </div>
+                      <div>
+                        <b>Rewrite Success Probability:</b>{' '}
+                        {glyph.suggested_rewrite.rewrite_success_prob != null
+                          ? `${Math.round(glyph.suggested_rewrite.rewrite_success_prob * 100)}%`
+                          : 'N/A'}
+                      </div>
+                      {glyph.suggested_rewrite.reason && (
+                        <div>
+                          <b>Reason:</b> <span>{glyph.suggested_rewrite.reason}</span>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
-              )}
-              </div>
-            );
-          }
+              );
+            }
 
-          const log = entry.data;
+            const log = entry.data;
+            if (!('glyph' in log)) return null;
+            // ... rest of glyph event rendering logic ...
+          })}
+        </ScrollArea>
+      </CardContent>
+    </Card>
+    {/* ✅ GHX Visualizer Field – Floating (Sticky Bottom) */}
+    {showGHX && (
+      <div className="fixed bottom-0 left-0 w-full bg-black/80 z-50">
+        <GHXVisualizerField containerId={containerId} />
+      </div>
+    )}
 
-          if (!('glyph' in log)) return null; // skip non-GlyphEvents
-
-        events.map((log, index) => {
-  if (log.type !== 'glyph' || !log.data) return null;
+    {/* ✅ GHX Visualizer Field (Optional Toggle) */}
+    {showGHX && (
+      <div className="mt-4 border-t border-white/10 pt-2">
+        <GHXVisualizerField />
+      </div>
+    )}
+  </div>
+);
 
   const glyphData = log.data as GlyphEvent;
 

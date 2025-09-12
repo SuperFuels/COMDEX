@@ -44929,5 +44929,7 @@
   "wormholes": [
     "ucs_hub"
   ],
-  "atom_ids": []
+  "atom_ids": [],
+  "qwave_beams": [],
+  "multiverse_frame": "mutated"
 }

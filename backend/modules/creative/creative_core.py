@@ -1,5 +1,6 @@
 import time
 import uuid
+import asyncio
 from typing import Any, Dict, List, Optional
 
 from dotenv import load_dotenv
@@ -11,6 +12,7 @@ password = os.environ.get("POSTGRES_PASSWORD")
 from backend.modules.creative.symbolic_mutation_engine import mutate_symbolic_logic
 from backend.modules.creative.innovation_scorer import compute_innovation_score
 from backend.modules.creative.innovation_memory_tracker import track_innovation, log_event
+from backend.modules.glyphwave.emitters.qwave_emitter import emit_qwave_beam
 
 from backend.modules.sqi.sqi_reasoning_module import log_sqi_drift
 from backend.modules.codex.codex_metric import log_collapse_metric
@@ -22,6 +24,9 @@ from backend.modules.websocket_manager import broadcast_event
 
 from backend.modules.dna_chain.container_index_writer import add_innovation_score_entry
 from backend.modules.glyphwave.qwave.qwave_transfer_sender import send_qwave_transfer
+from backend.modules.visualization.glyph_to_qfc import to_qfc_payload
+from backend.modules.visualization.broadcast_qfc_update import broadcast_qfc_update
+
 
 # Configuration
 CREATIVE_BEAM_STYLE = CarrierType.FORK
@@ -155,42 +160,37 @@ def emit_creative_fork(
         except Exception as e:
             print(f"[CreativeCore] ⚠️ WebSocket broadcast failed: {e}")
 
-        # ✅ Step 7.5: Realtime QWave Transfer
+        # ✅ Step 7.5: Realtime QWave Transfer (via emitter)
         try:
-            send_qwave_transfer(container_id, source="creative_core", beam_data=fork_wave)
-        except Exception as e:
-            print(f"[CreativeCore] ⚠️ QWave transfer failed: {e}")
-
-        # 🌐 Step 7: Send to GHX/WebSocket
-        try:
-            broadcast_event("glyphwave.fork_beam", broadcast_payload)
-        except Exception as e:
-            print(f"[CreativeCore] ⚠️ WebSocket broadcast failed: {e}")
-                # ✅ Step 8: QFC Live Broadcast
-        try:
-            from backend.modules.visualization.qfc_payload_utils import to_qfc_payload
-            from backend.modules.visualization.broadcast_qfc_update import broadcast_qfc_update
-            import asyncio
-
-            node_payload = {
-                "glyph": "✦",
-                "op": "creative_fork",
-                "metadata": {
+            emit_qwave_beam(
+                beam=fork_wave,
+                container_id=container_id,
+                source="creative_core",
+                metadata={
+                    "innovation_score": score,
                     "glow": glow,
                     "pulse": pulse,
-                    "innovation_score": score,
                     "reason": reason,
-                    "wave_id": fork_wave.id
                 }
-            }
-            context = {
-                "container_id": container_id,
-                "source_node": original_wave.id
-            }
-            qfc_payload = to_qfc_payload(node_payload, context)
-            asyncio.create_task(broadcast_qfc_update(container_id, qfc_payload))
+            )
+        except Exception as e:
+            print(f"[CreativeCore] ⚠️ QWave emitter failed: {e}")
 
-        except Exception as qfc_err:
-            print(f"[CreativeCore] ⚠️ QFC broadcast failed for fork {fork_wave.id}: {qfc_err}")
+        # ✅ Step 8: GHX + QFC WebSocket Broadcast (modular inside emitter)
+        try:
+            from backend.modules.glyphwave.emitters.qwave_emitter import emit_qwave_beam
+            emit_qwave_beam(
+                beam=fork_wave,
+                container_id=container_id,
+                source="creative_core",
+                metadata={
+                    "innovation_score": score,
+                    "glow": glow,
+                    "pulse": pulse,
+                    "reason": reason,
+                }
+            )
+        except Exception as e:
+            print(f"[CreativeCore] ⚠️ QWave/GHX/QFC broadcast failed: {e}")
 
     return forks_emitted

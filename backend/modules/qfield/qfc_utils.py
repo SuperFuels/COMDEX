@@ -206,3 +206,24 @@ def build_qfc_nodes_and_links(container: Dict[str, Any]) -> Tuple[List[Dict], Li
         recurse_tree(symbol_tree.get("root", {}))
 
     return nodes, links
+
+def build_qfc_payload(node_payload: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Builds a lightweight QFC payload for WebSocket streaming from a single glyph node + context.
+    This is used as a fallback if no entangled wave is available.
+    """
+    return {
+        "type": "qfc",
+        "mode": "fallback",
+        "containerId": context.get("container_id"),
+        "nodes": [
+            {
+                "id": context.get("source_node", "unknown"),
+                "label": node_payload.get("glyph", "∅"),
+                "type": "beam_tick",
+                "position": [0, 0, 0],
+                "metadata": node_payload.get("metadata", {})
+            }
+        ],
+        "links": []
+    }
