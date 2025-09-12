@@ -91,9 +91,9 @@ type EventLog =
   | { type: 'entanglement'; data: EntanglementEvent }
   | { type: 'lean_theorem_executed'; action: string; source?: string };
 
-// ✅ Add type guard (if needed)
-function hasAction(log: EventLog): log is { action: string } {
-  return 'action' in log && typeof log.action === 'string';
+// ✅ Add type guard (looser version)
+function hasAction(log: EventLog): log is (EventLog & { action: string }) {
+  return "action" in log && typeof (log as any).action === "string";
 }
 
 // ✅ Use in rendering
