@@ -1,25 +1,17 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // ✅ Trailing slashes can help with consistent routing
+  // ✅ Keep API routes & middleware working (do NOT use `output: 'export'`)
+  reactStrictMode: true,
+
+  // Quality-of-life toggles (safe to keep)
   trailingSlash: true,
+  images: { unoptimized: true },
+  eslint: { ignoreDuringBuilds: true },
 
-  // ✅ Disable Next.js image optimization (ok if using <img> tags)
-  images: {
-    unoptimized: true,
-  },
-
-  // ✅ Skip ESLint during CI builds to prevent breaking deployments
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-
-  // ✅ Expose environment variable(s) to browser
+  // Expose public env values to the client
   env: {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
   },
-
-  // ✅ Enable static export mode for Docker copy to work
-  output: 'export',
 };
 
 module.exports = nextConfig;

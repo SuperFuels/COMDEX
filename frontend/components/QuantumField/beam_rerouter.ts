@@ -1,4 +1,4 @@
-// File: frontend/components/QuantumField/beam_reroute.ts
+// File: frontend/components/QuantumField/beam_rerouter.ts
 
 /**
  * Reroutes a beam path through a cognitive focus point (if available),

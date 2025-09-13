@@ -2,6 +2,7 @@ import time
 import threading
 import asyncio
 from typing import Dict, Any, Optional
+from datetime import datetime, timezone
 import logging
 logger = logging.getLogger(__name__)
 
@@ -467,78 +468,178 @@ class ContainerRuntime:
         except Exception as e:
             print(f"⚠️ UCS registry ensure failed for {cid}: {e}")
 
-    def save_container(self):
-    container = self.state_manager.get_current_container()
+    def collapse_container(self, container_id: str, reason: str = "manual") -> str:
+        """
+        Delegate to the module-level collapse_container to preserve the
+        original behavior (ContainerExpander call + string return) and
+        the added side-effects (persist, visualizer, WS). Then run the
+        export/metadata side-effects best-effort.
+        """
+        # Import lazily to avoid circular import timing issues
+        from backend.modules.runtime import container_runtime as _cr
+        result = _cr.collapse_container(container_id, reason)
 
-    # 🧠 Inject HST before export
-    from backend.modules.symbolic.hst.hst_injection_utils import inject_symbolic_tree_to_container_dict
-    container = inject_symbolic_tree_to_container_dict(container)
-
-    microgrid = self.vault_manager.get_microgrid()
-    glyph_data = microgrid.export_index()
-
-    # 🔐 SoulLaw metadata injection
-    from backend.modules.codex.symbolic_key_deriver import export_collapse_trace_with_soullaw_metadata
-    try:
-        avatar_state = self.state_manager.get_avatar_state()
-        identity = avatar_state.get("id") if avatar_state else None
-        collapse_metadata = export_collapse_trace_with_soullaw_metadata(identity=identity)
-        container["collapse_metadata"] = collapse_metadata
-        print("🔐 Injected SoulLaw collapse trace into container metadata.")
-    except Exception as e:
-        print(f"⚠️ Failed to inject collapse metadata: {e}")
-
-    # 💾 Encrypt + save glyph data
-    try:
-        encrypted_blob = self.vault_manager.save_container_glyph_data(glyph_data)
-        container["encrypted_glyph_data"] = encrypted_blob
-        print(f"💾 Container glyph data encrypted and saved, size: {len(encrypted_blob)} bytes")
-    except Exception as e:
-        print(f"❌ Failed to encrypt and save container glyph data: {e}")
-
-    # 📡 Inject QWave Beams
-    try:
-        from backend.modules.container_runtime import get_beams_for_container
-        container_id = container.get("id")
-        if container_id:
-            beams = get_beams_for_container(container_id)
-            container["qwave_beams"] = beams
-            print(f"📡 Injected {len(beams)} QWave beams into container.")
-    except Exception as e:
-        print(f"⚠️ Failed to inject QWave beams: {e}")
-
-    # 📦 SCI Serializer Export
-    try:
-        from backend.modules.sci.sci_serializer import serialize_field_session
-        sci_export = serialize_field_session(container)
-        from datetime import datetime
-        import os, json
-
-        timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
-        filename = f"session_{timestamp}.dc.json"
-        output_path = f"./saved_sessions/{filename}"
-
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        with open(output_path, "w", encoding="utf-8") as f:
-            json.dump(sci_export, f, indent=2)
-
-        print(f"📦 SCI session exported to {output_path}")
-    except Exception as e:
-        print(f"⚠️ SCI Serializer export failed: {e}")
-
-    # ✅ Final persistence
-    try:
-        # Option 1: Persist to Vault
-        self.vault_manager.write_final_container(container)
-        print(f"✅ Container '{container.get('id')}' successfully written to Vault.")
-    except Exception as e:
-        print(f"⚠️ Failed to write container to Vault: {e}")
-        # Option 2: Fallback — persist via StateManager
+        # Run post-collapse exports/metadata (best-effort)
         try:
-            self.state_manager.save_current_container(container)
-            print(f"✅ Container '{container.get('id')}' saved via StateManager fallback.")
-        except Exception as e2:
-            print(f"❌ Failed to save container via fallback: {e2}")
+            self._post_collapse_side_effects(container_id)
+        except Exception as e:
+            print(f"⚠️ Post-collapse side effects failed: {e}")
+
+        return result
+
+
+    # ---------------- internal helpers ----------------
+
+    def _post_collapse_side_effects(self, container_id: str) -> None:
+        """
+        Replicates the original export pipeline:
+        - HST injection
+        - Microgrid glyph export
+        - SoulLaw metadata injection
+        - Encrypt + save glyph data
+        - Inject QWave beams
+        - SCI serializer export to ./saved_sessions/session_*.dc.json
+        - Final persistence (Vault → StateManager fallback)
+        All steps are best-effort with clear logs.
+        """
+        # Fetch the current container dict, fall back to stub
+        try:
+            container = self.state_manager.get_current_container()
+        except Exception:
+            container = {"id": container_id}
+
+        if not isinstance(container, dict):
+            container = {"id": container_id}
+
+        # 🧠 Inject HST before export
+        try:
+            inject_fn = None
+            try:
+                # canonical name (your original)
+                from backend.modules.symbolic.hst.hst_injection_utils import (
+                    inject_symbolic_tree_to_container_dict as inject_fn,  # type: ignore
+                )
+            except Exception:
+                try:
+                    # common alt name used in some branches
+                    from backend.modules.symbolic.hst.hst_injection_utils import (
+                        inject_symbolic_tree_into_container_dict as inject_fn,  # type: ignore
+                    )
+                except Exception:
+                    inject_fn = None
+
+            if inject_fn:
+                maybe_container = inject_fn(container)
+                if isinstance(maybe_container, dict):
+                    container = maybe_container
+            else:
+                print("ℹ️ HST injection helper not found; skipping.")
+        except Exception as e:
+            print(f"⚠️ HST injection failed: {e}")
+
+        # 📡 Microgrid glyph export
+        glyph_data = None
+        try:
+            if hasattr(self, "vault_manager") and self.vault_manager:
+                microgrid = self.vault_manager.get_microgrid()
+                glyph_data = microgrid.export_index()
+        except Exception as e:
+            print(f"⚠️ Microgrid export failed: {e}")
+
+        # 🔐 SoulLaw metadata injection
+        try:
+            from backend.modules.codex.symbolic_key_deriver import (
+                export_collapse_trace_with_soullaw_metadata,
+            )
+            try:
+                avatar_state = (
+                    self.state_manager.get_avatar_state() if hasattr(self, "state_manager") else None
+                )
+                identity = avatar_state.get("id") if isinstance(avatar_state, dict) else None
+            except Exception:
+                identity = None
+
+            collapse_metadata = export_collapse_trace_with_soullaw_metadata(identity=identity)
+            container["collapse_metadata"] = collapse_metadata
+            print("🔐 Injected SoulLaw collapse trace into container metadata.")
+        except Exception as e:
+            print(f"⚠️ Failed to inject collapse metadata: {e}")
+
+        # 💾 Encrypt + save glyph data
+        try:
+            if glyph_data is not None and hasattr(self, "vault_manager") and self.vault_manager:
+                encrypted_blob = self.vault_manager.save_container_glyph_data(glyph_data)
+                container["encrypted_glyph_data"] = encrypted_blob
+                size = None
+                try:
+                    size = len(encrypted_blob)
+                except Exception:
+                    pass
+                print(f"💾 Container glyph data encrypted and saved, size: {size if size is not None else '?'} bytes")
+        except Exception as e:
+            print(f"❌ Failed to encrypt and save container glyph data: {e}")
+
+        # 📡 Inject QWave Beams
+        try:
+            beams = []
+            get_beams = None
+            try:
+                # legacy path some branches use
+                from backend.modules.container_runtime import get_beams_for_container as get_beams  # type: ignore
+            except Exception:
+                try:
+                    # alt path if beams live with qwave sender utilities
+                    from backend.modules.glyphwave.qwave.qwave_transfer_sender import (  # type: ignore
+                        get_beams_for_container as get_beams,
+                    )
+                except Exception:
+                    get_beams = None
+
+            cid = container.get("id")
+            if get_beams and cid:
+                beams = get_beams(cid) or []
+                container["qwave_beams"] = beams
+                print(f"📡 Injected {len(beams)} QWave beams into container.")
+            elif not get_beams:
+                print("ℹ️ get_beams_for_container not available; skipping beam injection.")
+        except Exception as e:
+            print(f"⚠️ Failed to inject QWave beams: {e}")
+
+        # 📦 SCI Serializer Export
+        try:
+            from backend.modules.sci.sci_serializer import serialize_field_session
+            sci_export = serialize_field_session(container)
+
+            from datetime import datetime, UTC
+            import os, json
+
+            timestamp = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
+            filename = f"session_{timestamp}.dc.json"
+            output_path = f"./saved_sessions/{filename}"
+
+            os.makedirs(os.path.dirname(output_path), exist_ok=True)
+            with open(output_path, "w", encoding="utf-8") as f:
+                json.dump(sci_export, f, indent=2)
+
+            print(f"📦 SCI session exported to {output_path}")
+        except Exception as e:
+            print(f"⚠️ SCI Serializer export failed: {e}")
+
+        # ✅ Final persistence
+        try:
+            if hasattr(self, "vault_manager") and self.vault_manager:
+                self.vault_manager.write_final_container(container)
+                print(f"✅ Container '{container.get('id')}' successfully written to Vault.")
+            else:
+                raise RuntimeError("vault_manager unavailable")
+        except Exception as e:
+            print(f"⚠️ Failed to write container to Vault: {e}")
+            try:
+                if hasattr(self, "state_manager") and self.state_manager:
+                    self.state_manager.save_current_container(container)
+                    print(f"✅ Container '{container.get('id')}' saved via StateManager fallback.")
+            except Exception as e2:
+                print(f"❌ Failed to save container via fallback: {e2}")
 
     def fork_entangled_path(self, container: Dict[str, Any], coord: str, glyph: str):
         original_name = container.get("id", "default")
@@ -743,11 +844,96 @@ def expand_universal_container_system(container_id: str, direction: str = "z", l
     expander = ContainerExpander(container_id)
     return expander.grow_space(direction=direction, layers=layers)
 
-def collapse_container(container_id: str) -> str:
-    """Collapses a container (reduces runtime space and updates UCS)."""
-    expander = ContainerExpander(container_id)
-    result = expander.grow_space(direction="z", layers=-1)
-    return f"🔻 Collapsed container {container_id}: {result}"
+def collapse_container(container_id: str, reason: str = "manual") -> str:
+    """
+    Collapses a container (reduces runtime space and updates UCS).
+    - Preserves original behavior by calling ContainerExpander.grow_space("z", -1)
+      and returning the same style of message.
+    - Adds side effects: stamps collapse metadata, persists via ucs_runtime,
+      optional visualizer log, and best-effort WS broadcast.
+    """
+    # 1) Original behavior: try ContainerExpander and capture its result text
+    result_text = "ok"
+    try:
+        from backend.modules.runtime.container_expander import ContainerExpander
+        expander = ContainerExpander(container_id)
+        expander_result = expander.grow_space(direction="z", layers=-1)
+        result_text = expander_result if isinstance(expander_result, str) else str(expander_result)
+    except Exception as e:
+        # Keep going even if the expander is unavailable; preserve a useful note
+        result_text = f"no-expander: {e.__class__.__name__}"
+
+    # 2) Side-effects (best-effort; never raise)
+    _collapse_side_effects(container_id, reason)
+
+    # 3) Preserve original return contract
+    return f"🔻 Collapsed container {container_id}: {result_text}"
+
+
+def _collapse_side_effects(container_id: str, reason: str) -> None:
+    """Stamp collapse metadata, persist, visualize, and notify. Best-effort, no raises."""
+    when = datetime.now(timezone.utc).isoformat()
+
+    # Resolve a container dict (favor ucs_runtime; fall back to ephemeral).
+    container: Dict[str, Any] = {"id": container_id}
+    ucs_runtime = None
+    try:
+        from backend.modules.dimensions.universal_container_system.ucs_runtime import ucs_runtime as _ucs_rt
+        ucs_runtime = _ucs_rt
+    except Exception:
+        pass
+
+    # Try loading an existing container if possible
+    if ucs_runtime is not None:
+        try:
+            if hasattr(ucs_runtime, "load_container"):
+                loaded = ucs_runtime.load_container(container_id)
+                if isinstance(loaded, dict) and loaded:
+                    container = loaded
+            elif hasattr(ucs_runtime, "get_active_container"):
+                active = ucs_runtime.get_active_container()
+                if isinstance(active, dict) and active.get("id") == container_id:
+                    container = active
+        except Exception:
+            pass
+
+    # Stamp metadata
+    try:
+        container["last_collapse"] = when
+        container["last_collapse_reason"] = reason
+    except Exception:
+        pass
+
+    # Persist
+    if ucs_runtime is not None:
+        try:
+            ucs_runtime.save_container(container_id, container)
+        except Exception:
+            pass
+
+        # Optional visualizer hook
+        try:
+            if getattr(ucs_runtime, "visualizer", None):
+                ucs_runtime.visualizer.log_event(container_id, "Container collapsed")
+        except Exception:
+            pass
+
+    # WS notify (best-effort; don’t error if no loop)
+    try:
+        from backend.modules.websocket_manager import broadcast_event  # async
+        payload = {
+            "type": "container_collapsed",
+            "container_id": container_id,
+            "reason": reason,
+            "timestamp": when,
+        }
+        try:
+            loop = asyncio.get_running_loop()
+            loop.create_task(broadcast_event("container.events", payload))
+        except RuntimeError:
+            print("⚠️ container collapse broadcast skipped: no running event loop")
+    except Exception:
+        pass
 
 def get_container_runtime() -> 'ContainerRuntime':
     """

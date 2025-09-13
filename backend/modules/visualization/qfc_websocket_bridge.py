@@ -27,11 +27,14 @@ async def send_qfc_update(render_packet: Dict[str, Any]) -> None:
     try:
         source = coerce_source(render_packet.get("source", "unknown"))
 
-        await websocket_manager.broadcast("qfc_update", {
+        payload = {
             "type": "qfc_update",
             "source": source,
             "payload": render_packet.get("payload", {}),
-        })
+        }
+
+        # ✅ Correct argument order: message first, then tag via keyword
+        await websocket_manager.broadcast(payload, tag="qfc_update")
         print("🚀 QFC WebSocket update broadcasted.")
     except Exception as e:
         print(f"❌ Failed to broadcast QFC update: {e}")

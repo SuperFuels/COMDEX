@@ -8,20 +8,65 @@ from datetime import datetime
 import uuid
 import os
 import json 
+import asyncio
+from datetime import timezone
 
 from backend.modules.dimensions.universal_container_system.ucs_runtime import ucs_runtime
 from backend.modules.websocket_manager import WebSocketManager
 
 _soullaw_checked_ids = set()
 
+def _utc_now_iso() -> str:
+    # timezone-aware ISO string, no trailing 'Z' to avoid double-UTC issues
+    return datetime.now(timezone.utc).isoformat()
+
 def get_current_timestamp() -> str:
-    return datetime.utcnow().isoformat()
+    return _utc_now_iso()
 
 def generate_uuid() -> str:
     return str(uuid.uuid4())
 
 # ✅ WebSocket for live UI updates
 ws_manager = WebSocketManager()
+
+# ---- Safe broadcast helper (works with or without an active loop) ----
+try:
+    # Prefer the shared broadcast_event(tag, payload) if available
+    from backend.modules.websocket_manager import broadcast_event as _broadcast_event
+except Exception:
+    _broadcast_event = None
+
+def _safe_ws_broadcast_message(message: Dict[str, Any]) -> None:
+    """
+    Broadcast a message safely:
+    - If broadcast_event(tag, payload) exists, use it (tag=message["type"])
+    - Else fall back to the local ws_manager.broadcast(message)
+    - Handles both cases whether an event loop is running or not
+    """
+    # Preferred: shared broadcast_event(tag, payload)
+    if _broadcast_event and isinstance(message, dict) and "type" in message:
+        tag = message.get("type")
+        try:
+            loop = asyncio.get_running_loop()
+            loop.create_task(_broadcast_event(tag, message))
+            return
+        except RuntimeError:
+            try:
+                asyncio.run(_broadcast_event(tag, message))
+                return
+            except Exception as e:
+                print(f"⚠️ WS broadcast skipped: {e}")
+
+    # Fallback: instance method on local WebSocketManager
+    if hasattr(ws_manager, "broadcast"):
+        try:
+            loop = asyncio.get_running_loop()
+            loop.create_task(ws_manager.broadcast(message))
+        except RuntimeError:
+            try:
+                asyncio.run(ws_manager.broadcast(message))
+            except Exception as e:
+                print(f"⚠️ WS broadcast skipped: {e}")
 
 # ---------- CLI/Test fallback ----------
 # In-memory UCS stub used when the real state_manager/ucs isn’t available.
@@ -43,7 +88,7 @@ def _append_jsonl(index_name: str, entry: Dict[str, Any], path: str = _JSONL_MIR
     try:
         os.makedirs(os.path.dirname(path), exist_ok=True)
         rec = {
-            "ts": datetime.utcnow().isoformat(),
+            "ts": get_current_timestamp(),
             "index": index_name,
             "entry": entry,
         }
@@ -131,7 +176,7 @@ def add_to_index(index_name: str, entry: Dict[str, Any]):
     index = _get_or_create_index(container, index_name)
     index_entry = _create_index_entry(entry)
     index.append(index_entry)
-    container["last_index_update"] = datetime.utcnow().isoformat()
+    container["last_index_update"] = get_current_timestamp()
 
     # ✅ Mirror to JSONL if running without a real UCS (CLI/test)
     if ucs is _EPHEMERAL_UCS or ucs.get("_ephemeral") is True:
@@ -177,21 +222,17 @@ def add_to_index(index_name: str, entry: Dict[str, Any]):
     except Exception as e:
         print(f"⚠️ GHX visualization logging failed: {e}")
 
-    # ✅ WebSocket broadcast for live index updates (guard)
-    try:
-        if hasattr(ws_manager, "broadcast"):
-            import asyncio
-            asyncio.create_task(ws_manager.broadcast({
-                "type": "index_update",
-                "data": {
-                    "container_id": container.get("id"),
-                    "index_name": index_name,
-                    "entry": index_entry,
-                    "timestamp": get_current_timestamp()
-                }
-            }))
-    except Exception as e:
-        print(f"⚠️ WS broadcast skipped: {e}")
+    # ✅ WebSocket broadcast for live index updates (guarded + loop-safe)
+    message = {
+        "type": "index_update",
+        "data": {
+            "container_id": container.get("id"),
+            "index_name": index_name,
+            "entry": index_entry,
+            "timestamp": get_current_timestamp()
+        }
+    }
+    _safe_ws_broadcast_message(message)
 
     # ✅ Emit SQI event (index type aware)
     try:

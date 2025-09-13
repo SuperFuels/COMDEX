@@ -39,9 +39,9 @@ D3✅[🔄 Field-to-Memory Writeback Hooks]:::output
 D4✅[📊 Field Metrics: Entropy, Confidence, Novelty]:::output
 D5✅[🌱 Session Seeding for Future Re-entry]:::output
 
-E[Future Expansion]:::future
-E1[🧬 DNA Switch for SCI Self-Growth]:::future
-E2[🧪 Workspace ↔ Research Engine Linkage]:::future
+E✅[Future Expansion]:::future
+E1✅[🧬 DNA Switch for SCI Self-Growth]:::future
+E2✅[🧪 Workspace ↔ Research Engine Linkage]:::future
 E3[🌍 Multi-Agent Collaboration in Shared Field]:::future
 E4[🧩 External Plugin Runtime + Import Hooks]:::future
 

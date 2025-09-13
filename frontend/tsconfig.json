@@ -48,7 +48,7 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx"
-  ],
+, "../types/y-websocket-utils.d.ts"  ],
   "exclude": [
     "node_modules"
   ]

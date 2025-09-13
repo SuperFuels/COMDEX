@@ -4,7 +4,7 @@ import json
 from typing import Dict, Any
 from backend.modules.visualization.qfc_websocket_bridge import send_qfc_update
 
-def trigger_qfc_render(payload: Dict[str, Any], source: str = "creative_synthesis") -> None:
+async def trigger_qfc_render(payload: Dict[str, Any], source: str = "creative_synthesis") -> None:
     """
     Trigger a Quantum Field Canvas (QFC) render update based on a symbolic glyph payload.
     This function sends a structured WebSocket update to the QFC viewer.
@@ -14,14 +14,14 @@ def trigger_qfc_render(payload: Dict[str, Any], source: str = "creative_synthesi
         source (str): Source tag for the render event (e.g., 'creative_synthesis', 'mutation_loop')
     """
     try:
-        render_packet = {
-            "type": "qfc_render_trigger",
-            "source": source,
-            "payload": payload
-        }
+            render_packet = {
+                "type": "qfc_render_trigger",
+                "source": source,
+                "payload": payload
+            }
 
-        send_qfc_update(render_packet)
-        print(f"🎨 QFC render triggered successfully from [{source}]")
+            await send_qfc_update(render_packet)  # ✅ Properly awaited
+            print(f"🎨 QFC render triggered successfully from [{source}]")
 
-    except Exception as e:
-        print(f"⚠️ Failed to trigger QFC render from [{source}]: {e}")
+        except Exception as e:
+            print(f"⚠️ Failed to trigger QFC render from [{source}]: {e}")

@@ -221,6 +221,256 @@
         "reason": "symbolic fragment fusion",
         "timestamp": "2025-08-29T13:17:20.733427"
       }
+    },
+    {
+      "action": "set_flag",
+      "container_id": "test_container_001",
+      "flag": "self_growth",
+      "value": true,
+      "actor": "unit_test",
+      "reason": "enable for forks",
+      "timestamp": "2025-09-12T14:38:58.290171Z",
+      "env": "development"
+    },
+    {
+      "action": "set_flag",
+      "container_id": "test_container_001",
+      "flag": "growth_factor",
+      "value": 2,
+      "actor": "unit_test",
+      "reason": "broaden search",
+      "timestamp": "2025-09-12T14:38:58.704166Z",
+      "env": "development"
+    },
+    {
+      "action": "set_flag",
+      "container_id": "test_container_001",
+      "flag": "self_growth",
+      "value": true,
+      "actor": "unit_test",
+      "reason": "enable self_growth",
+      "timestamp": "2025-09-12T15:11:06.703411Z",
+      "env": "development"
+    },
+    {
+      "action": "set_flag",
+      "container_id": "test_container_001",
+      "flag": "growth_factor",
+      "value": 2,
+      "actor": "unit_test",
+      "reason": "set growth_factor",
+      "timestamp": "2025-09-12T15:11:06.704700Z",
+      "env": "development"
+    },
+    {
+      "action": "set_flag",
+      "container_id": "test_container_001",
+      "flag": "self_growth",
+      "value": true,
+      "actor": "unit_test",
+      "reason": "enable",
+      "timestamp": "2025-09-12T15:15:21.495280Z",
+      "env": "development"
+    },
+    {
+      "action": "set_flag",
+      "container_id": "test_container_001",
+      "flag": "growth_factor",
+      "value": 2,
+      "actor": "unit_test",
+      "reason": "double forks",
+      "timestamp": "2025-09-12T15:15:21.496520Z",
+      "env": "development"
+    },
+    {
+      "action": "set_flag",
+      "container_id": "test_container_001",
+      "flag": "self_growth",
+      "value": false,
+      "actor": "unit_test",
+      "reason": "disable",
+      "timestamp": "2025-09-12T15:15:21.503130Z",
+      "env": "development"
+    },
+    {
+      "action": "set_flag",
+      "container_id": "test_container_001",
+      "flag": "self_growth",
+      "value": true,
+      "actor": "unit_test",
+      "reason": "enable",
+      "timestamp": "2025-09-12T15:20:53.666975Z",
+      "env": "development"
+    },
+    {
+      "action": "set_flag",
+      "container_id": "test_container_001",
+      "flag": "growth_factor",
+      "value": 2,
+      "actor": "unit_test",
+      "reason": "double forks",
+      "timestamp": "2025-09-12T15:20:53.668951Z",
+      "env": "development"
+    },
+    {
+      "action": "set_flag",
+      "container_id": "test_container_001",
+      "flag": "self_growth",
+      "value": false,
+      "actor": "unit_test",
+      "reason": "disable",
+      "timestamp": "2025-09-12T15:20:53.679427Z",
+      "env": "development"
+    },
+    {
+      "action": "set_flag",
+      "container_id": "test_container_001",
+      "flag": "self_growth",
+      "value": true,
+      "actor": "unit_test",
+      "reason": "enable",
+      "timestamp": "2025-09-12T15:22:30.190630Z",
+      "env": "development"
+    },
+    {
+      "action": "set_flag",
+      "container_id": "test_container_001",
+      "flag": "growth_factor",
+      "value": 2,
+      "actor": "unit_test",
+      "reason": "double forks",
+      "timestamp": "2025-09-12T15:22:30.192138Z",
+      "env": "development"
+    },
+    {
+      "action": "set_flag",
+      "container_id": "test_container_001",
+      "flag": "self_growth",
+      "value": false,
+      "actor": "unit_test",
+      "reason": "disable",
+      "timestamp": "2025-09-12T15:22:30.201117Z",
+      "env": "development"
+    },
+    {
+      "action": "set_flag",
+      "container_id": "test_container_001",
+      "flag": "self_growth",
+      "value": true,
+      "actor": "unit_test",
+      "reason": "enable",
+      "timestamp": "2025-09-12T15:26:15.419675Z",
+      "env": "development"
+    },
+    {
+      "action": "set_flag",
+      "container_id": "test_container_001",
+      "flag": "growth_factor",
+      "value": 2,
+      "actor": "unit_test",
+      "reason": "double forks",
+      "timestamp": "2025-09-12T15:26:15.421141Z",
+      "env": "development"
+    },
+    {
+      "action": "set_flag",
+      "container_id": "test_container_001",
+      "flag": "self_growth",
+      "value": false,
+      "actor": "unit_test",
+      "reason": "disable",
+      "timestamp": "2025-09-12T15:26:15.687162Z",
+      "env": "development"
+    },
+    {
+      "action": "set_flag",
+      "container_id": "test_container_001",
+      "flag": "self_growth",
+      "value": true,
+      "actor": "unit_test",
+      "reason": "enable",
+      "timestamp": "2025-09-12T15:30:20.728689Z",
+      "env": "development"
+    },
+    {
+      "action": "set_flag",
+      "container_id": "test_container_001",
+      "flag": "growth_factor",
+      "value": 2,
+      "actor": "unit_test",
+      "reason": "double forks",
+      "timestamp": "2025-09-12T15:30:20.730122Z",
+      "env": "development"
+    },
+    {
+      "action": "set_flag",
+      "container_id": "test_container_001",
+      "flag": "self_growth",
+      "value": false,
+      "actor": "unit_test",
+      "reason": "disable",
+      "timestamp": "2025-09-12T15:30:20.751722Z",
+      "env": "development"
+    },
+    {
+      "action": "set_flag",
+      "container_id": "test_container_001",
+      "flag": "self_growth",
+      "value": true,
+      "actor": "unit_test",
+      "reason": "enable",
+      "timestamp": "2025-09-12T15:52:01.424699Z",
+      "env": "development"
+    },
+    {
+      "action": "set_flag",
+      "container_id": "test_container_001",
+      "flag": "growth_factor",
+      "value": 2,
+      "actor": "unit_test",
+      "reason": "double forks",
+      "timestamp": "2025-09-12T15:52:01.426251Z",
+      "env": "development"
+    },
+    {
+      "action": "set_flag",
+      "container_id": "test_container_001",
+      "flag": "self_growth",
+      "value": false,
+      "actor": "unit_test",
+      "reason": "disable",
+      "timestamp": "2025-09-12T15:52:01.450043Z",
+      "env": "development"
+    },
+    {
+      "action": "set_flag",
+      "container_id": "test_container_001",
+      "flag": "self_growth",
+      "value": true,
+      "actor": "unit_test",
+      "reason": "enable",
+      "timestamp": "2025-09-12T15:57:08.808691Z",
+      "env": "development"
+    },
+    {
+      "action": "set_flag",
+      "container_id": "test_container_001",
+      "flag": "growth_factor",
+      "value": 2,
+      "actor": "unit_test",
+      "reason": "double forks",
+      "timestamp": "2025-09-12T15:57:08.810272Z",
+      "env": "development"
+    },
+    {
+      "action": "set_flag",
+      "container_id": "test_container_001",
+      "flag": "self_growth",
+      "value": false,
+      "actor": "unit_test",
+      "reason": "disable",
+      "timestamp": "2025-09-12T15:57:08.835060Z",
+      "env": "development"
     }
   ]
 }

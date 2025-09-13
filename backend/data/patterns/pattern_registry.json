@@ -25,5 +25,30 @@
     "signature": "1a53920047dd6e2b",
     "entropy": 0.0,
     "symmetry": 0.3333333333333333
+  },
+  {
+    "name": "XOR Pattern",
+    "pattern_id": "pattern-68d4c387",
+    "glyphs": [
+      {
+        "type": "variable"
+      },
+      {
+        "type": "operator",
+        "value": "\u2295"
+      },
+      {
+        "type": "variable"
+      }
+    ],
+    "type": "logic",
+    "trigger_logic": "a \u2295 b",
+    "prediction": [],
+    "sqi_score": null,
+    "source_container": null,
+    "metadata": {},
+    "signature": "a13105de54755dee",
+    "entropy": 0.33333333333333337,
+    "symmetry": 1.0
   }
 ]

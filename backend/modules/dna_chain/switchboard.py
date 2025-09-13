@@ -3,6 +3,7 @@
 import json
 import os
 import datetime
+from datetime import datetime, timezone
 
 # ===== 🧠 Core DNA SWITCH Implementation =====
 
@@ -18,7 +19,7 @@ class DNASwitch:
 
     def register(self, file_path, type_hint="unspecified"):
         file_path = file_path.replace("\\", "/")
-        now = datetime.datetime.utcnow().isoformat() + "Z"
+        now = datetime.now(timezone.utc).isoformat()
         dna_id = file_path.replace("/", ".").replace(".py", "").replace(".tsx", "")
 
         self.registry[file_path] = {

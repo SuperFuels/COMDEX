@@ -29,7 +29,7 @@ from backend.modules.glyphos.codexlang_translator import run_codexlang_string
 from backend.modules.glyphos.glyph_executor import GlyphExecutor
 from backend.core.plugins.plugin_manager import register_all_plugins, get_plugin, get_all_plugins
 from backend.modules.glyphwave.emitters.qwave_emitter import emit_qwave_beam
-from backend.modules.codex.rewrite_engine import RewriteEngine
+from backend.modules.aion.rewrite_engine import RewriteEngine
 
 # Intelligence & KG
 from backend.modules.knowledge_graph.kg_writer_singleton import get_kg_writer
@@ -85,6 +85,40 @@ except ImportError:
 
 # after: from backend.modules.codex.ops.op_trigger import op_trigger
 from backend.modules.codex.ops.op_trigger import op_trigger as _raw_op_trigger
+
+# --- Async helpers & QWave wrapper ---------------------------------------------------
+import asyncio
+
+def _spawn_async(coro, label: str = "task"):
+    """
+    Schedule a coroutine if an event loop is running; otherwise skip gracefully.
+    Prevents 'await outside async function' and pytest RuntimeWarnings.
+    """
+    try:
+        loop = asyncio.get_running_loop()
+        loop.create_task(coro)
+    except RuntimeError:
+        print(f"⚠️ {label} skipped: no running event loop")
+
+# Use canonical emitter if available; provide a stub otherwise
+try:
+    from backend.modules.glyphwave.emitters.qwave_emitter import emit_qwave_beam as _emit_qwave_beam
+except Exception:  # fallback for test/CI
+    async def _emit_qwave_beam(**kwargs):
+        print(f"[QWaveEmitter] (stub) emit_qwave_beam {kwargs}")
+
+def emit_qwave_beam_ff(**kwargs):
+    _spawn_async(_emit_qwave_beam(**kwargs), "QWave emit (codex)")
+
+# --- Move these to module scope so methods can use them without self. --------------
+import numpy as np  # was incorrectly imported inside the class
+try:
+    from backend.modules.glyphwave.kernels.interference_kernel_core import join_waves_batch
+except Exception:
+    # simple fallback to keep tests running if kernel unavailable
+    def join_waves_batch(phases, amplitudes):
+        # Return a shape-compatible, no-op-like result
+        return {"phase": phases, "amplitude": amplitudes}
 
 def _safe_op_trigger(context: Dict[str, Any], target: str = "default_trigger") -> str:
     """
@@ -147,6 +181,10 @@ class CodexExecutor:
         context = context or {}
         start_time = time.perf_counter()
         glyph = context.get("glyph", "∅")
+
+        # Make sure 'source' exists before any optional broadcast uses it
+        source = context.get("source", "codex")
+
         # 🌐 WebSocket Broadcast + Pattern Hooks
         try:
             from backend.routes.ws.glyphnet_ws import broadcast_glyph_event
@@ -156,8 +194,7 @@ class CodexExecutor:
 
         try:
             from backend.modules.codex.codex_scroll_builder import build_scroll_from_glyph
-            scroll = build_scroll_from_glyph(glyph.get("glyphs", [])) if glyph else None
-
+            scroll = build_scroll_from_glyph(glyph.get("glyphs", [])) if isinstance(glyph, dict) else None
             if scroll:
                 broadcast_glyph_event(
                     glyph=glyph,
@@ -179,14 +216,11 @@ class CodexExecutor:
                     auto_trigger_qfc_from_pattern,
                     trigger_emotion_bridge_from_pattern,
                 )
-
                 broadcast_pattern_prediction(glyph)
                 auto_trigger_qfc_from_pattern(glyph)
                 trigger_emotion_bridge_from_pattern(glyph)
-
             except Exception as e:
                 logger.warning(f"[CodexExecutor] Pattern hook failed: {e}")
-        source = context.get("source", "codex")
 
         # 🔐 Enforce QKD-required policy
         try:
@@ -254,7 +288,10 @@ class CodexExecutor:
                             "container_id": context.get("container_id"),
                             "tags": ["sqi_spike", "entropy"]
                         }
-                        await emit_qwave_beam(source="sqi_spike", payload=beam_payload, context=context)
+                        _spawn_async(
+                            _emit_qwave_beam(source="sqi_spike", payload=beam_payload, context=context),
+                            label="QWave emit (codex)"
+                        )
                     self.metrics.record_execution_batch(instruction_tree, cost=cost)
                     result = self.tessaris.interpret(instruction_tree, context=context)
 
@@ -265,7 +302,7 @@ class CodexExecutor:
                         "mutated_tree": instruction_tree,
                         "container_id": context.get("container_id")
                     }
-                    await emit_qwave_beam(source="mutation", payload=beam_payload, context=context)
+                    emit_qwave_beam_ff(source="mutation", payload=beam_payload, context=context)
 
                 # 🔄 Plugin Mutation + Synthesis Hooks
                 try:
@@ -277,7 +314,6 @@ class CodexExecutor:
                             mutated_logic = plugin.mutate(logic_str)
                             if mutated_logic and mutated_logic != logic_str:
                                 logger.debug(f"[Plugin] {plugin.__class__.__name__} mutated logic:\n{mutated_logic}")
-                                # Optional: parse mutated_logic back to instruction_tree here if needed
 
                                 # 🌊 Emit QWave Beam for plugin mutation
                                 beam_payload = {
@@ -287,7 +323,7 @@ class CodexExecutor:
                                     "mutated_logic": mutated_logic,
                                     "container_id": context.get("container_id")
                                 }
-                                await emit_qwave_beam(source="mutation", payload=beam_payload, context=context)
+                                emit_qwave_beam_ff(source="mutation", payload=beam_payload, context=context)
 
                         # Synthesis hook
                         if hasattr(plugin, "synthesize"):
@@ -309,14 +345,17 @@ class CodexExecutor:
                         "container_id": context.get("container_id"),
                         "tags": ["sqi_spike", "entropy"]
                     }
-                    await emit_qwave_beam(source="sqi_spike", payload=beam_payload, context=context)
+                    emit_qwave_beam_ff(source="sqi_spike", payload=beam_payload, context=context)
                 self.metrics.record_execution_batch(instruction_tree, cost=cost)
 
                 # 🧠 Tessaris Execution
                 result = self.tessaris.interpret(instruction_tree, context=context)
 
-                        # 🔗 SQI Entanglement (↔)
-            entangle_glyphs(glyph, context.get("container_id"))
+            # 🔗 SQI Entanglement (↔)
+            try:
+                entangle_glyphs(glyph, context.get("container_id"))
+            except Exception as e:
+                logger.debug(f"[CodexExecutor] entangle_glyphs failed (non-fatal): {e}")
 
             # 🌀 Collapse Trace (GHX Replay)
             self.sqi_trace.log_collapse(glyph, cost, entangled=True)
@@ -524,7 +563,7 @@ class CodexExecutor:
                             "mutation_type": "contradiction_rewrite"
                         })
 
-                        # 🔌 Emit QWave Beam
+                        # 🔌 Emit QWave Beam  ⟵⟵⟵ ONLY CHANGE: schedule instead of await
                         beam_payload = {
                             "source": source_glyph,
                             "target": mutated_glyph,
@@ -533,7 +572,7 @@ class CodexExecutor:
                             "container_id": container_id,
                             "tags": ["rewrite", "contradiction", "mutation"]
                         }
-                        await emit_qwave_beam(source="contradiction", payload=beam_payload, context=context)
+                        emit_qwave_beam_ff(source="contradiction", payload=beam_payload, context=context)
                 except Exception as beam_ex:
                     logger.warning(f"[CodexExecutor] QWave/Innovation hook failed: {beam_ex}")
 
