@@ -11,11 +11,11 @@ ACTIVE_PLUGINS: Dict[str, Any] = {}
 
 # Mapping of plugin module paths to their class names
 PLUGIN_CLASSES = {
-    "core.plugins.aion_engine_dock": "AIONEngineDock",
-    "core.plugins.codexcore_trigger_hub": "CodexCoreTriggerHub",
-    "core.plugins.mutation_innovation_toolkit": "MutationInnovationToolkit",
-    "core.plugins.tranquility_auto_iteration": "TranquilityAutoIteration",
-    "core.plugins.pattern_reflection_oracle": "PatternReflectionOracle",
+    "backend.core.plugins.aion_engine_dock": "AIONEngineDock",
+    "backend.core.plugins.codexcore_trigger_hub": "CodexCoreTriggerHub",
+    "backend.core.plugins.mutation_innovation_toolkit": "MutationInnovationToolkit",
+    "backend.core.plugins.tranquility_auto_iteration": "TranquilityAutoIteration",
+    "backend.core.plugins.pattern_reflection_oracle": "PatternReflectionOracle",
 }
 
 def register_all_plugins() -> None:

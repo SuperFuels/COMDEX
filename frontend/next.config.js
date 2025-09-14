@@ -1,7 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // ✅ Keep API routes & middleware working (do NOT use `output: 'export'`)
+  // ✅ Keep API routes & middleware working
   reactStrictMode: true,
+
+  // ✅ Force Pages Router (disable App Router detection)
+  experimental: {
+    appDir: false,
+  },
 
   // Quality-of-life toggles (safe to keep)
   trailingSlash: true,

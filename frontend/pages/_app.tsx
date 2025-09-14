@@ -27,7 +27,7 @@ export default function MyApp({ Component, pageProps }: AppProps) {
         <Navbar />
 
         {/* ─── Page Content ─────────────────────────────────────────── */}
-        <main className="flex-1 bg-bg-page">
+        <main className="flex-1 bg-background">
           <Component {...pageProps} />
         </main>
       </div>

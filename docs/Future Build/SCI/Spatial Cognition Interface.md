@@ -42,8 +42,8 @@ D5✅[🌱 Session Seeding for Future Re-entry]:::output
 E✅[Future Expansion]:::future
 E1✅[🧬 DNA Switch for SCI Self-Growth]:::future
 E2✅[🧪 Workspace ↔ Research Engine Linkage]:::future
-E3[🌍 Multi-Agent Collaboration in Shared Field]:::future
-E4[🧩 External Plugin Runtime + Import Hooks]:::future
+E3✅[🌍 Multi-Agent Collaboration in Shared Field]:::future
+E4✅[🧩 External Plugin Runtime + Import Hooks]:::future
 
 A –> A1 –> A2 –> A3 –> A4 –> A5 –> A6
 A6 –> B1 –> B2 –> B3 –> B4 –> B5

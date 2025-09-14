@@ -66,5 +66,210 @@
     "label": "container:torus_test",
     "content": "[\ud83d\udce6] Container metadata\nContainer ID: torus_test\nName: Torus Test\nDescription: A symbolic test container representing a torus structure for feedback stabilization.\nOrigin: \nCreated On: 2025-08-28T17:23:21.003623\nContainer Type: generic\nTotal Cubes: 1\nMutations: 0\nConnections: None\nDNA Switch: none (undefined)",
     "timestamp": "2025-08-28T17:31:43.914933"
+  },
+  {
+    "role": "glyph",
+    "label": "THINK",
+    "content": "THINK:\u27e6 Theorem \u27e7 | example_lean_theorem : (A \u2194 B) \u2295 (B \u2194 C) \u2192 (A \u2194 C) \u2192 Prove \u27e7",
+    "metadata": {
+      "origin_id": "94c9a744-8826-4d2c-a958-1bd6024a5119",
+      "children": []
+    },
+    "timestamp": "2025-09-14T14:59:40.431677"
+  },
+  {
+    "role": "glyph",
+    "label": "THINK",
+    "content": "THINK:THINK",
+    "metadata": {
+      "origin_id": "aba45836-d81d-4a8a-8f7a-23bf12652a49",
+      "children": [
+        "\u0394",
+        "\u2295"
+      ]
+    },
+    "timestamp": "2025-09-14T16:26:22.652894"
+  },
+  {
+    "label": "tessaris_exec_aba45836-d81d-4a8a-8f7a-23bf12652a49",
+    "role": "tessaris",
+    "type": "thought_branch",
+    "content": "Glyph logic executed from origin aba45836-d81d-4a8a-8f7a-23bf12652a49",
+    "data": {
+      "glyphs": [
+        "THINK"
+      ],
+      "metadata": {
+        "context": {
+          "metadata": {
+            "origin": "lean_import",
+            "description": "A=B, B=C \u21d2 A=C under XOR implication"
+          },
+          "source": "lean_benchmark"
+        },
+        "source": "glyph_logic.THINK"
+      },
+      "position": 0
+    },
+    "timestamp": "2025-09-14T16:26:22.887175"
+  },
+  {
+    "label": "tessaris_exec_e81ae894-795a-46aa-a22f-62d2d631a4cf",
+    "role": "tessaris",
+    "type": "thought_branch",
+    "content": "Glyph logic executed from origin e81ae894-795a-46aa-a22f-62d2d631a4cf",
+    "data": {
+      "glyphs": [
+        {
+          "id": "glyph_169748d7-ec4f-4cb9-8540-ef2153448ace",
+          "origin_id": "glyph_169748d7-ec4f-4cb9-8540-ef2153448ace",
+          "symbol": "THINK",
+          "payload": {
+            "logic": "\u27e6 Theorem \u27e7 | example_lean_theorem : (A \u2194 B) \u2295 (B \u2194 C) \u2192 (A \u2194 C) \u2192 Prove \u27e7",
+            "source": "lean"
+          }
+        }
+      ],
+      "metadata": {
+        "context": {
+          "metadata": {
+            "origin": "lean_import",
+            "description": "A=B, B=C \u21d2 A=C under XOR implication"
+          },
+          "source": "lean_benchmark"
+        },
+        "source": "glyph_logic.THINK"
+      },
+      "position": 0
+    },
+    "timestamp": "2025-09-14T16:36:17.440471"
+  },
+  {
+    "label": "tessaris_exec_bfddb3cd-460f-41ec-81a0-f059c6d56100",
+    "role": "tessaris",
+    "type": "thought_branch",
+    "content": "Glyph logic executed from origin bfddb3cd-460f-41ec-81a0-f059c6d56100",
+    "data": {
+      "glyphs": [
+        {
+          "id": "glyph_d75e5fc2-7a31-4ba9-ae0e-06e9698bca94",
+          "origin_id": "glyph_d75e5fc2-7a31-4ba9-ae0e-06e9698bca94",
+          "symbol": "THINK",
+          "payload": {
+            "logic": "\u27e6 Theorem \u27e7 | example_lean_theorem : (A \u2194 B) \u2295 (B \u2194 C) \u2192 (A \u2194 C) \u2192 Prove \u27e7",
+            "source": "lean"
+          }
+        }
+      ],
+      "metadata": {
+        "context": {
+          "metadata": {
+            "origin": "lean_import",
+            "description": "A=B, B=C \u21d2 A=C under XOR implication"
+          },
+          "source": "lean_benchmark"
+        },
+        "source": "glyph_logic.THINK"
+      },
+      "position": 0
+    },
+    "timestamp": "2025-09-14T16:37:14.366225"
+  },
+  {
+    "label": "THINK",
+    "content": "{\"glyph\": \"THINK\", \"origin_id\": \"c501dfe9-abde-46fd-a075-a35d8595884e\", \"children\": []}",
+    "timestamp": "2025-09-14T16:46:41.580713"
+  },
+  {
+    "label": "thought_branch_log",
+    "content": "{\"origin_id\": \"c501dfe9-abde-46fd-a075-a35d8595884e\", \"glyphs\": [{\"id\": \"glyph_561b5355-3631-428e-9b90-8fb42ac32c24\", \"origin_id\": \"glyph_561b5355-3631-428e-9b90-8fb42ac32c24\", \"symbol\": \"THINK\", \"payload\": {\"logic\": \"\u27e6 Theorem \u27e7 | example_lean_theorem : (A \u2194 B) \u2295 (B \u2194 C) \u2192 (A \u2194 C) \u2192 Prove \u27e7\", \"source\": \"lean\"}}], \"metadata\": {\"context\": {\"metadata\": {\"origin\": \"lean_import\", \"description\": \"A=B, B=C \u21d2 A=C under XOR implication\"}, \"source\": \"lean_benchmark\"}, \"source\": \"glyph_logic.THINK\"}, \"position\": {\"index\": 0, \"coord\": null}, \"root\": {\"id\": \"ff397841-2df8-4e09-a8d9-a95d0efd8d88\", \"symbol\": \"THINK\", \"symbol_key\": \"THINK\", \"source\": \"THINK\", \"metadata\": {}, \"children\": []}}",
+    "timestamp": "2025-09-14T16:46:41.797534"
+  },
+  {
+    "label": "tessaris_exec_c501dfe9-abde-46fd-a075-a35d8595884e",
+    "role": "tessaris",
+    "type": "thought_branch",
+    "content": "Glyph logic executed from origin c501dfe9-abde-46fd-a075-a35d8595884e",
+    "data": {
+      "glyphs": [
+        {
+          "id": "glyph_561b5355-3631-428e-9b90-8fb42ac32c24",
+          "origin_id": "glyph_561b5355-3631-428e-9b90-8fb42ac32c24",
+          "symbol": "THINK",
+          "payload": {
+            "logic": "\u27e6 Theorem \u27e7 | example_lean_theorem : (A \u2194 B) \u2295 (B \u2194 C) \u2192 (A \u2194 C) \u2192 Prove \u27e7",
+            "source": "lean"
+          }
+        }
+      ],
+      "metadata": {
+        "context": {
+          "metadata": {
+            "origin": "lean_import",
+            "description": "A=B, B=C \u21d2 A=C under XOR implication"
+          },
+          "source": "lean_benchmark"
+        },
+        "source": "glyph_logic.THINK"
+      },
+      "position": {
+        "index": 0,
+        "coord": null
+      }
+    },
+    "timestamp": "2025-09-14T16:46:41.825549"
+  },
+  {
+    "type": "cost_estimate",
+    "glyph": {
+      "id": "glyph_561b5355-3631-428e-9b90-8fb42ac32c24",
+      "origin_id": "glyph_561b5355-3631-428e-9b90-8fb42ac32c24",
+      "symbol": "THINK",
+      "payload": {
+        "logic": "\u27e6 Theorem \u27e7 | example_lean_theorem : (A \u2194 B) \u2295 (B \u2194 C) \u2192 (A \u2194 C) \u2192 Prove \u27e7",
+        "source": "lean"
+      }
+    },
+    "cost": 0,
+    "detail": {
+      "energy": 0,
+      "ethics_risk": 0,
+      "delay": 0,
+      "opportunity_loss": 0
+    },
+    "label": "log",
+    "content": "{}",
+    "timestamp": "2025-09-14T16:46:41.849495"
+  },
+  {
+    "label": "thought_branch_log",
+    "content": "{\"origin_id\": \"1361af70-d197-432f-a339-7c2b13036669\", \"glyphs\": [\"THINK\"], \"metadata\": {\"context\": {\"metadata\": {\"origin\": \"lean_import\", \"description\": \"A=B, B=C \u21d2 A=C under XOR implication\"}, \"source\": \"lean_benchmark\"}, \"source\": \"glyph_logic.THINK\"}, \"position\": {\"index\": 0, \"coord\": null}, \"root\": {\"id\": \"15b65a2c-cdd3-4bd2-bf11-0f7767edfbc9\", \"symbol\": \"THINK\", \"symbol_key\": \"THINK\", \"source\": \"THINK\", \"metadata\": {}, \"children\": []}}",
+    "timestamp": "2025-09-14T16:52:41.539408"
+  },
+  {
+    "label": "tessaris_exec_1361af70-d197-432f-a339-7c2b13036669",
+    "role": "tessaris",
+    "type": "thought_branch",
+    "content": "Glyph logic executed from origin 1361af70-d197-432f-a339-7c2b13036669",
+    "data": {
+      "glyphs": [
+        "THINK"
+      ],
+      "metadata": {
+        "context": {
+          "metadata": {
+            "origin": "lean_import",
+            "description": "A=B, B=C \u21d2 A=C under XOR implication"
+          },
+          "source": "lean_benchmark"
+        },
+        "source": "glyph_logic.THINK"
+      },
+      "position": {
+        "index": 0,
+        "coord": null
+      }
+    },
+    "timestamp": "2025-09-14T16:52:41.582501"
   }
 ]

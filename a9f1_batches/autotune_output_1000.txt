@@ -1,13 +1,17 @@
+
+🚀 A9f1 Autotuned Benchmark | 1000 beams in batches of 250
+
+🔁 Batch 1/4
 🔁 Batch 2/4
 🔁 Batch 3/4
 🔁 Batch 4/4
 
-⏱️ Total Time: 3903.38 ms
-🧮 Per Beam: 3.903 ms
+⏱️ Total Time: 7722.66 ms
+🧮 Per Beam: 7.723 ms
 📊 Avg Score: 1359874.00
-🌀 Avg Entropy: 260643.10
+🌀 Avg Entropy: 260642.56
 🔁 Compression Ratio: 0.1917x
-📉 Lowest SQI: 0.053 (Beam: beam_945852)
-📈 Highest SQI: 1.000 (Beam: beam_543616)
+📉 Lowest SQI: 0.039 (Beam: beam_802011)
+📈 Highest SQI: 1.000 (Beam: beam_838229)
 📉 Saved plot to: a9f1_batches/autotune_plot_1000.png
 

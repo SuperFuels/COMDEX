@@ -100,6 +100,7 @@ class MemoryEngine:
         self.embeddings = []
         self.model = SentenceTransformer("./models/all-MiniLM-L6-v2", local_files_only=True)
         self.agents = []
+        self.duplicate_threshold = 0.95
 
         self.memory_file = Path(__file__).parent / f"memory_{self.container_id}.json"
         self.embedding_file = Path(__file__).parent / f"embeddings_{self.container_id}.json"
@@ -111,12 +112,13 @@ class MemoryEngine:
         self.load_embeddings()
 
     def _get_kg_writer(self):
-        """
-        Lazy-load KnowledgeGraphWriter only when needed to avoid circular imports.
-        """
+        """Lazy + safe import to avoid errors during tests."""
         if self.kg_writer is None:
-            from backend.modules.knowledge_graph.kg_writer_singleton import kg_writer
-            self.kg_writer = kg_writer
+            try:
+                from backend.modules.knowledge_graph.kg_writer_singleton import kg_writer
+                self.kg_writer = kg_writer
+            except Exception:
+                self.kg_writer = None
         return self.kg_writer
 
     def detect_tags(self, content):
@@ -130,12 +132,65 @@ class MemoryEngine:
         return tags
 
     def is_duplicate(self, new_embedding):
+        """
+        Robust duplicate check:
+        - Handles empty store
+        - Normalizes shapes to (1, D) vs (N, D)
+        - Early-returns on dim mismatch instead of crashing
+        """
+        # No baseline embeddings? nothing to compare
         if not self.embeddings:
             return False
-        embeddings_tensor = torch.stack(self.embeddings) if isinstance(self.embeddings, list) else self.embeddings
-        similarities = util.cos_sim(new_embedding, embeddings_tensor)[0]
-        max_sim = float(similarities.max())
-        return max_sim > 0.95
+
+        # --- normalize new_embedding -> torch.FloatTensor (1, D)
+        try:
+            if isinstance(new_embedding, torch.Tensor):
+                ne = new_embedding.detach().to(torch.float32)
+            else:
+                ne = torch.tensor(new_embedding, dtype=torch.float32)
+            if ne.ndim == 1:
+                ne = ne.unsqueeze(0)
+            if ne.numel() == 0:
+                return False
+        except Exception:
+            return False
+
+        # --- normalize existing embeddings -> torch.FloatTensor (N, D)
+        try:
+            if isinstance(self.embeddings, list):
+                emb_list = []
+                for e in self.embeddings:
+                    if isinstance(e, torch.Tensor):
+                        emb_list.append(e.detach().to(torch.float32))
+                    else:
+                        emb_list.append(torch.tensor(e, dtype=torch.float32))
+                if not emb_list:
+                    return False
+                E = torch.stack(emb_list, dim=0)
+            else:
+                E = self.embeddings
+                if isinstance(E, torch.Tensor):
+                    E = E.detach().to(torch.float32)
+                else:
+                    E = torch.tensor(E, dtype=torch.float32)
+            if E.ndim == 1:
+                E = E.unsqueeze(0)
+            if E.numel() == 0:
+                return False
+        except Exception:
+            return False
+
+        # --- dimension mismatch? do not attempt similarity
+        if ne.shape[-1] != E.shape[-1]:
+            return False
+
+        try:
+            sims = util.cos_sim(ne, E)[0]  # (N,)
+            max_sim = float(sims.max()) if sims.numel() else 0.0
+            threshold = getattr(self, "duplicate_threshold", 0.95)
+            return max_sim >= threshold
+        except Exception:
+            return False
 
     @staticmethod
     def get_runtime_entropy_snapshot():
@@ -205,7 +260,21 @@ class MemoryEngine:
 
         content = memory_obj["content"]
         label = memory_obj["label"]
-        embedding = self.model.encode(content, convert_to_tensor=True).to(torch.float32)
+
+        # 🔒 Ensure content is a string for the embedder
+        if not isinstance(content, str):
+            try:
+                content = json.dumps(content, ensure_ascii=False)
+            except Exception:
+                content = str(content)
+        memory_obj["content"] = content
+
+        # Encode to a dense vector (D,)
+        embedding = self.model.encode(content, convert_to_tensor=True)
+        if not isinstance(embedding, torch.Tensor):
+            embedding = torch.tensor(embedding, dtype=torch.float32)
+        else:
+            embedding = embedding.to(torch.float32)
 
         if self.is_duplicate(embedding):
             print(f"⚠️ Duplicate memory ignored: {label}")
@@ -216,10 +285,11 @@ class MemoryEngine:
         if tags:
             memory_obj["milestone_tags"] = tags
 
-        # ✅ Attach scrolls if glyph available
-        if memory_obj.get("glyph") or memory_obj.get("glyph_tree"):
+        # ✅ Attach scrolls if glyph available (and is structured)
+        glyph_payload = memory_obj.get("glyph") or memory_obj.get("glyph_tree")
+        if isinstance(glyph_payload, (dict, list)):
             try:
-                scroll_data = build_scroll_from_glyph(memory_obj.get("glyph") or memory_obj.get("glyph_tree"))
+                scroll_data = build_scroll_from_glyph(glyph_payload)
                 memory_obj["scroll_preview"] = scroll_data.get("codexlang")
                 memory_obj["scroll_tree"] = scroll_data.get("tree")
                 print("🌀 Attached scroll to memory entry.")
@@ -255,23 +325,25 @@ class MemoryEngine:
         # ✅ ⏱️ H1: Inject glyph trace into container
         if ENABLE_GLYPH_LOGGING:
             try:
-                self.kg_writer.inject_glyph(
-                    content=content,
-                    glyph_type="memory",
-                    metadata={
-                        "label": label,
+                writer = self._get_kg_writer()
+                if writer:
+                    writer.inject_glyph(
+                        content=content,
+                        glyph_type="memory",
+                        metadata={
+                            "label": label,
+                            "timestamp": memory_obj["timestamp"],
+                            "tags": tags,
+                            "container": self.container_id
+                        },
+                        plugin="MemoryEngine"
+                    )
+                    print(f"🧠 Glyph injected into container for {label}")
+                    add_to_index("memory_index.glyph", {
+                        "text": content,
                         "timestamp": memory_obj["timestamp"],
-                        "tags": tags,
-                        "container": self.container_id
-                    },
-                    plugin="MemoryEngine"
-                )
-                print(f"🧠 Glyph injected into container for {label}")
-                add_to_index("memory_index.glyph", {
-                    "text": content,
-                    "timestamp": memory_obj["timestamp"],
-                    "hash": hash(content)
-                })
+                        "hash": hash(content)
+                    })
             except Exception as e:
                 print(f"⚠️ Glyph injection failed: {e}")
 
