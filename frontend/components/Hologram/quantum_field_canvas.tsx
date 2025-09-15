@@ -6,8 +6,8 @@ import { OrbitControls, Html } from "@react-three/drei";
 import * as THREE from "three";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { useSharedField } from "../../../collab/useSharedField";
-import { PresenceLayer } from "../../../collab/PresenceLayer";
+import { useSharedField } from "../../collab/useSharedField";
+import { PresenceLayer } from "../../collab/PresenceLayer";
 // Keep your existing feature imports
 import { QWaveBeam, BeamProps } from "@/components/QuantumField/beam_renderer";
 import TraceCollapseRenderer from "@/components/QuantumField/Replay/trace_collapse_renderer";

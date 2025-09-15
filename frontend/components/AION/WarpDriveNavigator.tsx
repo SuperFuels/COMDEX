@@ -4,7 +4,9 @@ import { useEffect, useRef, useState } from 'react';
 import { Html, Line } from '@react-three/drei';
 import { useThree, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
+import axios from 'axios'; // Added import for API calls
 
+// Define types to resolve potential type errors
 interface Zone {
   id: string;
   name: string;
@@ -26,6 +28,7 @@ export default function WarpDriveNavigator({ zones, onWarpComplete }: WarpDriveN
   const [warpStartPos, setWarpStartPos] = useState<[number, number, number] | null>(null);
   const [warpEndPos, setWarpEndPos] = useState<[number, number, number] | null>(null);
   const [scannerSweep, setScannerSweep] = useState(0);
+  const [engineState, setEngineState] = useState<{ engineStage?: string; nested_containers?: any[]; particles?: any[] }>({}); // Added state with default
 
   const targetRef = useRef<[number, number, number] | null>(null);
 

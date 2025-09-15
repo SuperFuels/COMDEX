@@ -1,14 +1,11 @@
-// File: frontend/tsconfig.json
 {
   "compilerOptions": {
-    // ── 1) Target / Module / JSX settings ──────────────────────────────────────
     "target": "ES2020",
     "lib": ["dom", "dom.iterable", "esnext"],
     "module": "ESNext",
     "moduleResolution": "Node",
     "jsx": "preserve",
 
-    // ── 2) Strictness / Interop / No Emission ────────────────────────────────
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
@@ -19,37 +16,34 @@
     "skipLibCheck": true,
     "incremental": true,
 
-    // ── 3) Type Definitions ───────────────────────────────────────────────────
     "types": ["node", "next", "react", "react-dom"],
 
-    // ── 4) Path Aliases ───────────────────────────────────────────────────────
-    "baseUrl": ".",  // 👈 base is frontend/
+    "baseUrl": ".",
     "paths": {
-      "@/constants/*":         ["./constants/*"],
-      "@/types":               ["./types/index.ts"],
-      "@/types/*":             ["./types/*"],
-      "@/lib/*":               ["./lib/*"],                
-      "@/lib/colors/*":        ["./lib/colors/*"],        
-      "@/components/*":        ["./components/*"],
-      "@/components/ui/*":     ["./components/ui/*"],
-      "@/hooks/*":             ["./hooks/*"],
-      "@/utils/*":             ["./utils/*"],
-      "@/styles/*":            ["./styles/*"],
+      "@/*": ["./*"],
 
-      // 🆕 Cross-project aliases (relative to frontend/)
-      "@modules/*":            ["../backend/modules/*"],
-      "@types/qfc":            ["../types/qfc.ts"],
-      "@types/*":              ["../types/*"]
+      "@/constants/*": ["./constants/*"],
+      "@/types": ["./types/index.ts"],
+      "@/types/*": ["./types/*"],
+      "@/lib/*": ["./lib/*"],
+      "@/lib/colors/*": ["./lib/colors/*"],
+      "@/components/*": ["./components/*"],
+      "@/components/ui/*": ["./components/ui/*"],
+      "@/hooks/*": ["./hooks/*"],
+      "@/utils/*": ["./utils/*"],
+      "@/styles/*": ["./styles/*"],
+      "@/collab/*": ["./collab/*"],
+
+      "@modules/*": ["../backend/modules/*"],
+      "@types/qfc": ["../types/qfc.ts"],
+      "@types/*": ["../types/*"]
     }
   },
-
-  // ── 5) Which files to include / exclude ────────────────────────────────────
   "include": [
     "next-env.d.ts",
     "**/*.ts",
-    "**/*.tsx"
-, "../types/y-websocket-utils.d.ts"  ],
-  "exclude": [
-    "node_modules"
-  ]
+    "**/*.tsx",
+    "../types/y-websocket-utils.d.ts"
+  ],
+  "exclude": ["node_modules"]
 }
