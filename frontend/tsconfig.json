@@ -21,7 +21,6 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./*"],
-
       "@/constants/*": ["./constants/*"],
       "@/types": ["./types/index.ts"],
       "@/types/*": ["./types/*"],
@@ -33,7 +32,6 @@
       "@/utils/*": ["./utils/*"],
       "@/styles/*": ["./styles/*"],
       "@/collab/*": ["./collab/*"],
-
       "@modules/*": ["../backend/modules/*"],
       "@types/qfc": ["../types/qfc.ts"],
       "@types/*": ["../types/*"]
@@ -43,7 +41,7 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    "../types/y-websocket-utils.d.ts"
+    "y-websocket-utils.d.ts"
   ],
   "exclude": ["node_modules"]
 }
