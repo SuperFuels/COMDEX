@@ -214,6 +214,7 @@ from backend.api.workspace import workspace_router
 from backend.modules.patterns.seed_patterns import seed_builtin_patterns
 from backend.api import api_atomsheet
 from backend.api import api_sheets
+from backend.api.api_lightcone import router as lightcone_router
 
 # ✅ WebSocket route
 from backend.api import ws
@@ -324,6 +325,7 @@ app.include_router(glyphwave_test_router.router)
 app.include_router(workspace_router)
 app.include_router(api_atomsheet.router)
 app.include_router(api_sheets.router)
+app.include_router(lightcone_router)
 seed_builtin_patterns()
 
 # ── 16) Serve uploaded images

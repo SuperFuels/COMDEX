@@ -1,8 +1,8 @@
 // File: frontend/pages/sci/sci_atomsheet_panel.tsx
-// 🎛 SCI AtomSheet Panel – B5.1 + C8: Modular Panel Plugins + Dev Test Fallbacks + Hover Overlay
+// 🎛 SCI AtomSheet Panel – Full Upgrade: Phase 5/6/7 integrations, LiveHUD, LightCone, QFC, Dev Fallback
 
-import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/router";
 import { CardContent } from "@/components/ui/card";
 import {
   Tooltip,
@@ -11,12 +11,13 @@ import {
 } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 
-// 🔌 Modular UI Plugins
+// 🔌 Modular UI Panels
 import EmotionSQIPanel from "@/components/SQS/EmotionSQIPanel";
 import { CellOverlayPanel } from "@/components/SQS/CellOverlayPanel";
 import { SheetTraceViewer } from "@/components/SQS/SheetTraceViewer";
+import { LiveQpuCpuPanel } from "@/components/SQS/LiveQpuCpuPanel";
 
-// 🧠 Type for cells
+// 🧠 Type for GlyphCell
 interface GlyphCell {
   id: string;
   logic: string;
@@ -39,82 +40,50 @@ const DEV_MODE = process.env.NODE_ENV !== "production";
 const BASE_API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
 const AUTH_TOKEN = "valid_token";
 
+// Placeholder dev fallback sheet
+const exampleSheet = {
+  cells: [
+    {
+      id: "A1",
+      logic: "x + 2",
+      position: [0, 0, 0, 0],
+      emotion: "inspired",
+      prediction: "x predicts 2",
+      trace: [],
+      sqi_score: 0.5,
+      validated: true,
+      linked_cells: [],
+    },
+    {
+      id: "B1",
+      logic: "y * 3",
+      position: [1, 0, 0, 0],
+      emotion: "curious",
+      prediction: "",
+      trace: [],
+      sqi_score: 0.5,
+      validated: true,
+      linked_cells: [],
+    },
+  ],
+};
+
+// Utility to render CodexLang to human-readable string (placeholder)
+const tryInterpret = (logic: string) => `⟦${logic}⟧`;
+
 export default function SCIAtomSheetPanel() {
+  const router = useRouter();
+
   const [cells, setCells] = useState<GlyphCell[]>([]);
-  const [rawMode, setRawMode] = useState(false);
   const [sheetFile, setSheetFile] = useState("example_sheet.sqs.json");
+  const [rawMode, setRawMode] = useState(false);
   const [hoveredCell, setHoveredCell] = useState<GlyphCell | null>(null);
   const [lightconeTrace, setLightconeTrace] = useState<any[]>([]);
   const [traceMode, setTraceMode] = useState<"forward" | "reverse">("forward");
 
-  const router = useRouter();
-
-  export default function SCIAtomSheetPanel() {
-  const [cells, setCells] = useState<GlyphCell[]>([]);
-  const [rawMode, setRawMode] = useState(false);
-  const [sheetFile, setSheetFile] = useState("example_sheet.sqs.json");
-  const [hoveredCell, setHoveredCell] = useState<GlyphCell | null>(null);
-  const [lightconeTrace, setLightconeTrace] = useState<any[]>([]);
-  const [traceMode, setTraceMode] = useState<"forward" | "reverse">("forward");
-  const router = useRouter();
-
-  // 🔭 Fetch LightCone trace for QFC projection
-  async function fetchLightConeQFC(entryId: string, direction: "forward" | "reverse") {
-    try {
-      const res = await fetch(`${BASE_API_URL}/lightcone_qfc?file=${sheetFile}&entry_id=${entryId}&direction=${direction}`, {
-        headers: { Authorization: `Bearer ${AUTH_TOKEN}` },
-      });
-      const data = await res.json();
-      console.log("🌌 LightCone QFC nodes:", data.nodes);
-      return data.nodes || [];
-    } catch (err) {
-      console.error("❌ Failed to fetch LightCone QFC nodes:", err);
-      return [];
-    }
-  }
-
-  // 🌐 Unified HUD updater for a single cell
-  async function updateLiveHUD(cellId: string) {
-    try {
-      // 1️⃣ Fetch LightCone QFC trace
-      const lightconeNodes = await fetchLightConeQFC(cellId, traceMode);
-
-      // 2️⃣ Fetch entangled / prediction fork updates
-      let entangledUpdates: any[] = [];
-      try {
-        const res = await fetch(`${BASE_API_URL}/qfc_entangled?cell_id=${cellId}&file=${sheetFile}`, {
-          headers: { Authorization: `Bearer ${AUTH_TOKEN}` },
-        });
-        const data = await res.json();
-        entangledUpdates = data.updates || [];
-      } catch (err) {
-        console.warn(`⚠️ Failed to fetch entangled/fork updates for ${cellId}:`, err);
-      }
-
-      // 3️⃣ Merge into single HUD state
-      setLightconeTrace([...lightconeNodes, ...entangledUpdates]);
-      console.log(`📡 Live HUD updated for ${cellId}`, { lightconeNodes, entangledUpdates });
-    } catch (err) {
-      console.error(`❌ Failed to update live HUD for ${cellId}:`, err);
-      setLightconeTrace([]);
-    }
-  }
-
-  // 🔭 Fetch live entanglement & prediction forks for QFC HUD
-  async function fetchEntangledQFC(cellId: string) {
-    try {
-      const res = await fetch(`${BASE_API_URL}/qfc_entanglement?cell_id=${cellId}`, {
-        headers: { Authorization: `Bearer ${AUTH_TOKEN}` },
-      });
-      const data = await res.json();
-      console.log("🌈 QFC Entangled updates:", data);
-      return data.updates || [];
-    } catch (err) {
-      console.error("❌ Failed to fetch QFC entanglement:", err);
-      return [];
-    }
-  }
-
+  // ──────────────────────────────
+  // Update sheet file from query param
+  // ──────────────────────────────
   useEffect(() => {
     const fileParam = router.query.file;
     if (typeof fileParam === "string") {
@@ -122,6 +91,9 @@ export default function SCIAtomSheetPanel() {
     }
   }, [router.query.file]);
 
+  // ──────────────────────────────
+  // Fetch AtomSheet (live or dev fallback)
+  // ──────────────────────────────
   const fetchSheet = async () => {
     if (!DEV_MODE) {
       try {
@@ -136,10 +108,11 @@ export default function SCIAtomSheetPanel() {
           }))
         );
       } catch (err) {
-        console.error("Failed to fetch AtomSheet:", err);
+        console.error("❌ Failed to fetch AtomSheet:", err);
         setCells([]);
       }
     } else {
+      // Dev fallback
       setCells(
         exampleSheet.cells.map((cell) => ({
           ...cell,
@@ -149,25 +122,65 @@ export default function SCIAtomSheetPanel() {
     }
   };
 
-  // 🔭 Fetch LightCone trace for HUD projection
-  async function fetchLightConeTrace(entryId: string, direction: "forward" | "reverse") {
-    try {
-      const res = await fetch(`${BASE_API_URL}/lightcone?entry_id=${entryId}&direction=${direction}`, {
-        headers: { Authorization: `Bearer ${AUTH_TOKEN}` },
-      });
-      const data = await res.json();
-      console.log("🌌 LightCone Trace:", data);
-      setLightconeTrace(data || []);
-    } catch (err) {
-      console.error("❌ Failed to fetch LightCone trace:", err);
-      setLightconeTrace([]);
-    }
-  }
-
   useEffect(() => {
     fetchSheet();
   }, [sheetFile]);
 
+  // ──────────────────────────────
+  // Fetch LightCone QFC / HUD projection
+  // ──────────────────────────────
+  const fetchLightConeQFC = async (entryId: string, direction: "forward" | "reverse") => {
+    try {
+      const res = await fetch(
+        `${BASE_API_URL}/lightcone?file=${sheetFile}&entry_id=${entryId}&direction=${direction}`,
+        { headers: { Authorization: `Bearer ${AUTH_TOKEN}` } }
+      );
+      const data = await res.json();
+      return data.trace || [];
+    } catch (err) {
+      console.error(`❌ Failed to fetch LightCone QFC nodes for ${entryId}:`, err);
+      return [];
+    }
+  };
+
+  const updateLiveHUD = async (cellId: string) => {
+    try {
+      const lightconeNodes = await fetchLightConeQFC(cellId, traceMode);
+      // Optionally fetch entanglement / prediction fork updates
+      let entangledUpdates: any[] = [];
+      try {
+        const res = await fetch(
+          `${BASE_API_URL}/qfc_entanglement?cell_id=${cellId}&file=${sheetFile}`,
+          { headers: { Authorization: `Bearer ${AUTH_TOKEN}` } }
+        );
+        const data = await res.json();
+        entangledUpdates = data.updates || [];
+      } catch (err) {
+        console.warn(`⚠️ Failed to fetch entangled updates for ${cellId}:`, err);
+      }
+      setLightconeTrace([...lightconeNodes, ...entangledUpdates]);
+    } catch (err) {
+      console.error(`❌ LiveHUD update failed for ${cellId}:`, err);
+      setLightconeTrace([]);
+    }
+  };
+
+  const fetchEntangledQFC = async (cellId: string) => {
+    try {
+      const res = await fetch(`${BASE_API_URL}/qfc_entangled?cell_id=${cellId}`, {
+        headers: { Authorization: `Bearer ${AUTH_TOKEN}` },
+      });
+      const data = await res.json();
+      return data.updates || [];
+    } catch (err) {
+      console.error(`❌ Failed to fetch entangled QFC for ${cellId}:`, err);
+      return [];
+    }
+  };
+
+  // ──────────────────────────────
+  // Build 4D grid from loaded cells
+  // ──────────────────────────────
   const maxX = Math.max(...cells.map((c) => c.position?.[0] ?? 0), 0);
   const maxY = Math.max(...cells.map((c) => c.position?.[1] ?? 0), 0);
   const maxZ = Math.max(...cells.map((c) => c.position?.[2] ?? 0), 0);
@@ -189,40 +202,51 @@ export default function SCIAtomSheetPanel() {
   if (cells.length === 0)
     return <div className="p-6 text-red-500">Error loading sheet</div>;
 
-  return (
-    <div className="p-6 relative">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold">🧠 Symbolic AtomSheet Viewer</h2>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={fetchSheet}>🔁 Reload</Button>
-          <Button variant="outline" onClick={() => setRawMode(!rawMode)}>
-            {rawMode ? "🔣 Show CodexLang" : "🧬 Show Raw"}
-          </Button>
-          <Button variant="outline" onClick={() => setTraceMode(prev => prev === "forward" ? "reverse" : "forward")}>
-            🌌 {traceMode === "forward" ? "→ Forward" : "← Reverse"}
-          </Button>
-        </div>
+  // ──────────────────────────────
+  // (Render section begins below)
+  // ──────────────────────────────
+
+return (
+  <div className="p-6 relative">
+    {/* ───────────── HEADER ───────────── */}
+    <div className="flex justify-between items-center mb-4">
+      <h2 className="text-2xl font-bold">🧠 Symbolic AtomSheet Viewer</h2>
+      <div className="flex gap-2">
+        <Button variant="outline" onClick={fetchSheet}>🔁 Reload</Button>
+        <Button variant="outline" onClick={() => setRawMode(!rawMode)}>
+          {rawMode ? "🔣 Show CodexLang" : "🧬 Show Raw"}
+        </Button>
+        <Button variant="outline" onClick={() => setTraceMode(prev => prev === "forward" ? "reverse" : "forward")}>
+          🌌 {traceMode === "forward" ? "→ Forward" : "← Reverse"}
+        </Button>
       </div>
+    </div>
 
-      {lightconeTrace.length > 0 && (
-        <div className="mb-4">
-          <h4 className="text-md font-semibold">🌌 LightCone Trace</h4>
-          <SheetTraceViewer trace={lightconeTrace} />
-        </div>
-      )}
+    {/* ───────────── LIGHTCONE TRACE ───────────── */}
+    {lightconeTrace.length > 0 && (
+      <div className="mb-4">
+        <h4 className="text-md font-semibold">🌌 LightCone Trace</h4>
+        <SheetTraceViewer trace={lightconeTrace} />
+      </div>
+    )}
 
-      {grid.map((zLayers, t) => (
-        <div key={`time-${t}`} className="mb-4">
-          <h3 className="text-lg font-semibold">Time Layer {t}</h3>
-          {zLayers.map((rows, z) => (
-            <div key={`z-${z}`} className="mb-2">
-              <h4 className="text-md font-medium">Z Level {z}</h4>
-              <div
-                className="grid gap-2"
-                style={{
-                  gridTemplateColumns: `repeat(${maxX + 1}, minmax(100px, 1fr))`,
-                }}
-              >
+    {/* ───────────── LIVE QPU/CPU PANEL ───────────── */}
+    <div className="mb-4">
+      <h4 className="text-md font-semibold">⚛️ Live CPU / QPU Metrics</h4>
+      <LiveQpuCpuPanel containerId={sheetFile} />
+    </div>
+
+    {/* ───────────── GRID ───────────── */}
+    {grid.map((zLayers, t) => (
+      <div key={`time-${t}`} className="mb-4">
+        <h3 className="text-lg font-semibold">Time Layer {t}</h3>
+        {zLayers.map((rows, z) => (
+          <div key={`z-${z}`} className="mb-2">
+            <h4 className="text-md font-medium">Z Level {z}</h4>
+            <div
+              className="grid gap-2"
+              style={{ gridTemplateColumns: `repeat(${maxX + 1}, minmax(100px, 1fr))` }}
+            >
               {rows.map((row, y) =>
                 row?.map((cell, x) => (
                   <Tooltip key={`${t}-${z}-${y}-${x}`}>
@@ -232,15 +256,11 @@ export default function SCIAtomSheetPanel() {
                         draggable
                         onMouseEnter={() => {
                           setHoveredCell(cell || null);
-
-                          if (cell?.id) {
-                            // 🌐 Unified HUD update (LightCone + entangled/fork updates)
-                            updateLiveHUD(cell.id);
-                          }
+                          if (cell?.id) updateLiveHUD(cell.id);
                         }}
                         onMouseLeave={() => {
                           setHoveredCell(null);
-                          setLightconeTrace([]); // Clear HUD when leaving cell
+                          setLightconeTrace([]);
                         }}
                         onDragStart={(e: React.DragEvent<HTMLDivElement>) =>
                           cell && e.dataTransfer.setData("cell", JSON.stringify(cell))
@@ -253,10 +273,7 @@ export default function SCIAtomSheetPanel() {
                                 {rawMode ? cell.logic : cell.codexlang_render}
                               </div>
                               <div className="flex justify-between text-[10px] pt-1">
-                                <EmotionSQIPanel
-                                  emotion={cell.emotion}
-                                  sqi={cell.sqi_score}
-                                />
+                                <EmotionSQIPanel emotion={cell.emotion} sqi={cell.sqi_score} />
                                 {cell.prediction && (
                                   <span className="text-yellow-300">🔮 {cell.prediction}</span>
                                 )}
@@ -282,20 +299,20 @@ export default function SCIAtomSheetPanel() {
                   </Tooltip>
                 ))
               )}
-              </div>
             </div>
-          ))}
-        </div>
-      ))}
+          </div>
+        ))}
+      </div>
+    ))}
 
-      {hoveredCell && (
-        <div className="absolute top-0 right-0 p-4 z-50">
-          <CellOverlayPanel cell={hoveredCell} />
-        </div>
-      )}
-    </div>
-  );
-}
+    {/* ───────────── HOVER PANEL ───────────── */}
+    {hoveredCell && (
+      <div className="absolute top-0 right-0 p-4 z-50">
+        <CellOverlayPanel cell={hoveredCell} />
+      </div>
+    )}
+  </div>
+);
 
 // 🧪 DEV fallback
 const exampleSheet: { cells: GlyphCell[] } = {

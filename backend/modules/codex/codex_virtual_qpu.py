@@ -30,6 +30,7 @@ class CodexVirtualQPU:
         self.use_qpu: bool = use_qpu
         self.metrics_enabled: bool = True
         self.reset_metrics()
+        self.opcode_metrics: Dict[str, Dict[str, Any]] = {}  # {cell_id: {opcode: {count, fp4_time, fp8_time, int8_time, total_time}}}
 
     # -------------------
     # Precision Simulation (FP4 / FP8 / INT8)
@@ -108,7 +109,9 @@ class CodexVirtualQPU:
     # -------------------
     def execute_cell_token(self, token: Dict[str, Any], context: Optional[Dict[str, Any]] = None):
         """
-        Execute a single token as a QPU instruction, with metrics and optional low-precision.
+        Execute a single token as a QPU instruction, with metrics, 
+        optional low-precision simulation (FP4/FP8/INT8), per-op profiling (G3),
+        and live HUD integration.
         """
         context = context or {}
         cell: Optional[GlyphCell] = context.get("cell")
@@ -117,14 +120,61 @@ class CodexVirtualQPU:
         try:
             result = execute_qpu_opcode(token["value"], [token], cell, context)
 
-            # Apply symbolic FP4/FP8/INT8 transformation to numeric results
+            # -------------------
+            # Track FP precision timings
+            # -------------------
             if isinstance(result, float):
+                # FP4
+                fp4_start = perf_counter()
                 result_fp4 = self.to_fp4(result)
-                result_fp8 = self.to_fp8(result)
-                result_int8 = self.to_int8(result)
-                context["last_precision"] = {"fp4": result_fp4, "fp8": result_fp8, "int8": result_int8}
+                fp4_elapsed = perf_counter() - fp4_start
 
-            # Increment per-token metric
+                # FP8
+                fp8_start = perf_counter()
+                result_fp8 = self.to_fp8(result)
+                fp8_elapsed = perf_counter() - fp8_start
+
+                # INT8
+                int8_start = perf_counter()
+                result_int8 = self.to_int8(result)
+                int8_elapsed = perf_counter() - int8_start
+
+                # Store in context for HUD or logging
+                context["last_precision"] = {
+                    "fp4": result_fp4,
+                    "fp8": result_fp8,
+                    "int8": result_int8
+                }
+
+                # Track per-token per-precision metrics
+                self.token_metrics.setdefault(token["value"], []).append({
+                    "total": elapsed,
+                    "fp4": fp4_elapsed,
+                    "fp8": fp8_elapsed,
+                    "int8": int8_elapsed
+                })
+
+            # -------------------
+            # Track per-op metrics for the cell (NEW)
+            # -------------------
+            if cell and cell.id:
+                if cell.id not in self.opcode_metrics:
+                    self.opcode_metrics[cell.id] = {}
+                op_stats = self.opcode_metrics[cell.id].setdefault(token["value"], {
+                    "count": 0,
+                    "total_time": 0.0,
+                    "fp4_time": 0.0,
+                    "fp8_time": 0.0,
+                    "int8_time": 0.0
+                })
+                op_stats["count"] += 1
+                op_stats["total_time"] += elapsed
+                if isinstance(result, float):
+                    op_stats["fp4_time"] += fp4_elapsed
+                    op_stats["fp8_time"] += fp8_elapsed
+                    op_stats["int8_time"] += int8_elapsed
+
+            # Increment mutation count per token
             self.metrics["mutation_count"] += 1
 
         except Exception as e:
@@ -133,8 +183,34 @@ class CodexVirtualQPU:
         finally:
             elapsed = perf_counter() - start_time
             self.metrics["execution_time"] += elapsed
-            # Track per-token timings for profiling (G3)
-            self.token_metrics.setdefault(token.get("value", "?"), []).append(elapsed)
+            # Track per-token total execution time for profiling
+            self.token_metrics.setdefault(token.get("value", "?"), []).append({"total": elapsed})
+            record_trace(token.get("value", "?"), f"[Token Metrics] exec_time={elapsed:.6f}s")
+
+        return result
+
+        # -------------------
+        # Broadcast enhanced per-cell metrics for live HUD (G3)
+        # -------------------
+        if "container_id" in context and cell.id:
+            try:
+                broadcast_qfc_update(context["container_id"], {
+                    "type": "qpu_cell_update",
+                    "cell_id": cell.id,
+                    "sqi": cell.sqi_score,
+                    "mutation_count": self.metrics["mutation_count"],
+                    "exec_time": perf_counter() - start_time,
+                    "token_metrics": self.token_metrics.get(cell.logic, []),
+                    "opcode_breakdown": self.opcode_metrics.get(cell.id, {})  # NEW
+                })
+            except Exception as e:
+                record_trace(cell.id, f"[QPU Broadcast Error] {e}")
+
+        finally:
+            elapsed = perf_counter() - start_time
+            self.metrics["execution_time"] += elapsed
+            # Track per-token total execution time for profiling
+            self.token_metrics.setdefault(token.get("value", "?"), []).append({"total": elapsed})
             record_trace(token.get("value", "?"), f"[Token Metrics] exec_time={elapsed:.6f}s")
 
         return result
@@ -165,8 +241,14 @@ class CodexVirtualQPU:
         cell: GlyphCell,
         context: Optional[Dict[str, Any]] = None
     ) -> List[Any]:
+        """
+        Execute a single GlyphCell using the symbolic QPU ISA.
+        Captures per-token FP precision timings, mutation counts,
+        opcode breakdowns, and broadcasts enhanced metrics to LiveQpuCpuPanel (G3).
+        """
         context = context or {}
         context.setdefault("entangled_cells", [])
+
         if not self.use_qpu:
             record_trace(cell.id, "[QPU Disabled] Skipping execution")
             return []
@@ -190,14 +272,31 @@ class CodexVirtualQPU:
                     record_trace(cell.id, f"[QPU Error] Token '{token.get('value', '?')}' failed: {e}")
                     results.append(f"[Error {token.get('value', '?')}]")
 
+            # Update SQI score
             prev_sqi = cell.sqi_score or 0.0
             cell.sqi_score = score_sqi(cell)
             self.metrics["sqi_shift"] += cell.sqi_score - prev_sqi
             cell.prediction_forks = cell.prediction_forks or []
 
+            # Hooks
             self.hook_to_sqs_engine(cell, context)
-            if "container_id" in context:
-                self.broadcast_to_qfc(cell, context["container_id"])
+
+            # -------------------
+            # Broadcast enhanced per-cell metrics for live HUD (G3)
+            # -------------------
+            if "container_id" in context and cell.id:
+                try:
+                    broadcast_qfc_update(context["container_id"], {
+                        "type": "qpu_cell_update",
+                        "cell_id": cell.id,
+                        "sqi": cell.sqi_score,
+                        "mutation_count": self.metrics["mutation_count"],
+                        "exec_time": perf_counter() - start_time,
+                        "token_metrics": self.token_metrics.get(cell.logic, []),
+                        "opcode_breakdown": self.opcode_metrics.get(cell.id, {})  # NEW
+                    })
+                except Exception as e:
+                    record_trace(cell.id, f"[QPU Broadcast Error] {e}")
 
         finally:
             elapsed = perf_counter() - start_time
@@ -206,29 +305,56 @@ class CodexVirtualQPU:
 
         return results
 
-    # -------------------
-    # Execute full sheet (bulk)
-    # -------------------
+# -------------------
+# Execute full sheet (bulk)
+# -------------------
     def execute_sheet(
         self,
         cells: List[GlyphCell],
         context: Optional[Dict[str, Any]] = None
     ) -> Dict[str, List[Any]]:
+        """
+        Execute a full sheet of GlyphCells on the symbolic QPU.
+        Captures per-token metrics, per-op metrics, and broadcasts
+        both per-cell and aggregate sheet metrics (G3).
+        """
         context = context or {}
         context["sheet_cells"] = cells
         sheet_results: Dict[str, List[Any]] = {}
         start_time = perf_counter()
 
+        # Execute each cell
         for cell in cells:
             sheet_results[cell.id] = self.execute_cell(cell, context)
 
-        # Aggregate metrics for sheet
+        # -------------------
+        # Aggregate per-sheet metrics for debugging or reporting (G3)
+        # -------------------
+        sheet_token_metrics: Dict[str, Any] = {}
+        sheet_opcode_metrics: Dict[str, Any] = {}
+        for cell in cells:
+            sheet_token_metrics[cell.id] = self.token_metrics.get(cell.logic, [])
+            sheet_opcode_metrics[cell.id] = self.opcode_metrics.get(cell.id, {})
+
         record_trace("sheet", f"[QPU Sheet Metrics] {self.dump_metrics()}")
+        record_trace("sheet", f"[QPU Sheet Token Metrics] {sheet_token_metrics}")
+        record_trace("sheet", f"[QPU Sheet Opcode Metrics] {sheet_opcode_metrics}")
+
+        # Optional: broadcast aggregate sheet metrics
+        if context.get("container_id"):
+            try:
+                broadcast_qfc_update(context["container_id"], {
+                    "type": "qpu_sheet_metrics",
+                    "sheet_token_metrics": sheet_token_metrics,
+                    "sheet_opcode_metrics": sheet_opcode_metrics,  # NEW
+                    "aggregate_metrics": self.dump_metrics()
+                })
+            except Exception as e:
+                record_trace("sheet", f"[QPU Sheet Broadcast Error] {e}")
 
         elapsed = perf_counter() - start_time
         record_trace("sheet", f"[Sheet Execution] elapsed={elapsed:.6f}s")
         return sheet_results
-
 
 # -------------------
 # Standalone CLI Test
@@ -249,13 +375,15 @@ if __name__ == "__main__":
     qpu = CodexVirtualQPU()
 
     # Execute single cell
+    print("\n💡 Executing single cell on QPU...")
     result = qpu.execute_cell(test_cell, context={"container_id": "default_container"})
     print("Execution Result:", result)
     print("Prediction Forks:", test_cell.prediction_forks)
     print("SQI Score:", test_cell.sqi_score)
     print("QPU Metrics:", qpu.dump_metrics())
 
-    # Optional: Execute a small sheet
+    # Execute a small sheet
+    print("\n💡 Executing a small sheet of 3 cells on QPU...")
     sheet = [
         GlyphCell(id=f"cell_{i}", logic="⊕ ↔ ⟲ → ✦", position=[i, 0])
         for i in range(3)
@@ -263,3 +391,5 @@ if __name__ == "__main__":
     sheet_results = qpu.execute_sheet(sheet, context={"container_id": "default_container"})
     print("Sheet Results:", sheet_results)
     print("Sheet Metrics:", qpu.dump_metrics())
+
+    print("\n✅ QPU standalone test complete.")

@@ -1,3 +1,6 @@
+# ===============================
+# 📁 backend/modules/symbolic_spreadsheet/models/glyph_cell.py
+# ===============================
 """
 ⚛️ GlyphCell — Core symbolic data model for 4D AtomSheet in the SQS system.
 
@@ -14,7 +17,8 @@ SQI scoring, execution result, and references to linked or nested logic.
     )
 """
 
-from typing import List, Dict, Optional, Any
+from typing import List, Dict, Optional, Any, Union
+from datetime import datetime
 
 from backend.modules.patterns.pattern_trace_engine import record_trace
 
@@ -23,11 +27,11 @@ try:
     from backend.modules.patterns.symbolic_pattern_engine import SymbolicPatternEngine
     _pattern_engine = SymbolicPatternEngine()
 
-    def detect_patterns(logic: str):
+    def detect_patterns(logic: str) -> List[Dict[str, Any]]:
         glyphs = [{"type": "symbol", "text": logic}]
         return _pattern_engine.detect_patterns(glyphs)
 except ImportError:
-    def detect_patterns(logic: str):
+    def detect_patterns(logic: str) -> List[Dict[str, Any]]:
         return []
 
 REQUIRED_FIELDS = {"id", "logic", "position"}
@@ -50,23 +54,29 @@ class GlyphCell:
         mutation_type: Optional[str] = None,
         mutation_parent_id: Optional[str] = None,
         mutation_score: Optional[float] = None,
-        mutation_timestamp: Optional[str] = None
+        mutation_timestamp: Optional[Union[str, datetime]] = None
     ):
         self.id = id
         self.logic = logic
-        self.position = position if len(position) == 4 else [*position, *[0] * (4 - len(position))]
+        self.position = (position + [0] * 4)[:4]  # normalize to 4D
         self.emotion = emotion
         self.prediction = prediction
         self.trace = trace or []
         self.result = result
         self.sqi_score = sqi_score
         self.validated = validated
-        self.linked_cells = linked_cells or []
+        self.linked_cells = [((lc + [0] * 4)[:4] if isinstance(lc, list) else lc) for lc in (linked_cells or [])]
         self.nested_logic = nested_logic
         self.mutation_type = mutation_type
         self.mutation_parent_id = mutation_parent_id
         self.mutation_score = mutation_score
-        self.mutation_timestamp = mutation_timestamp
+        if isinstance(mutation_timestamp, datetime):
+            self.mutation_timestamp = mutation_timestamp.isoformat()
+        else:
+            self.mutation_timestamp = mutation_timestamp
+
+        # Cache for pattern detection per cell
+        self._pattern_cache: Optional[List[str]] = None
 
     def __repr__(self):
         return (
@@ -74,7 +84,7 @@ class GlyphCell:
             f"sqi={self.sqi_score:.2f}, emotion={self.emotion}, validated={self.validated})"
         )
 
-    def append_trace(self, message: str):
+    def append_trace(self, message: str) -> None:
         """➕ Add a message to the execution trace log."""
         self.trace.append(message)
         record_trace(self.id, message)
@@ -86,37 +96,48 @@ class GlyphCell:
             A simplified string, or None if no nested logic.
         """
         if self.nested_logic and self.nested_logic.strip():
-            if "if" in self.nested_logic:
-                return self.nested_logic.split("if", 1)[-1].strip()
-            return self.nested_logic.strip()
+            nested = self.nested_logic.strip()
+            if "if" in nested:
+                return nested.split("if", 1)[-1].strip()
+            return nested
         return None
 
     def detect_patterns(self) -> List[str]:
         """
-        🧠 Detect symbolic patterns using pattern engine (Phase 2/3).
+        🧠 Detect symbolic patterns using the pattern engine (Phase 2/3).
         Returns:
-            List of matched pattern names or types.
+            List of matched pattern names.
         """
-        matches = detect_patterns(self.logic)
-        return [m.get("name", "") for m in matches] if isinstance(matches, list) else []
+        if self._pattern_cache is not None:
+            return self._pattern_cache
+
+        try:
+            matches = detect_patterns(self.logic)
+            if isinstance(matches, list):
+                self._pattern_cache = [m.get("name", "") for m in matches]
+            else:
+                self._pattern_cache = []
+        except Exception as e:
+            record_trace(self.id, f"[Pattern Detection Error] {e}")
+            self._pattern_cache = []
+
+        return self._pattern_cache
 
     def compute_sqi(self) -> float:
         """
-        📈 Compute SQI score based on trace, emotion, logic, and prediction.
+        📈 Compute SQI score based on trace, emotion, logic, prediction, and mutation.
         Returns:
             SQI score (float in [0.0, 1.0])
         """
-        if not isinstance(self, GlyphCell):
-            raise TypeError("compute_sqi requires a GlyphCell instance")
-
         base = 0.5
         trace_bonus = 0.2 * len(self.trace)
         emotion_bonus = 0.3 if self.emotion == "inspired" else 0.0
         prediction_bonus = 0.1 * len(self.prediction.split()) if self.prediction else 0.0
         logic_bonus = 0.05 * len(self.logic.split()) if self.logic else 0.0
         pattern_bonus = 0.1 * len(self.detect_patterns())
+        mutation_bonus = 0.05 * (self.mutation_score or 0.0)
 
-        total = base + trace_bonus + emotion_bonus + prediction_bonus + logic_bonus + pattern_bonus
+        total = base + trace_bonus + emotion_bonus + prediction_bonus + logic_bonus + pattern_bonus + mutation_bonus
         self.sqi_score = min(1.0, total)
         return self.sqi_score
 
@@ -124,25 +145,22 @@ class GlyphCell:
         """
         ✅ Ensure the cell is valid and safe to execute.
         Returns:
-            A dict: { "valid": bool, "errors": List[str] }
+            Dict: { "valid": bool, "errors": List[str] }
         """
         errors = []
-
         if len(self.position) != 4:
             errors.append(f"Position must be 4D: {self.position}")
-        if any(len(pos) != 4 for pos in self.linked_cells):
-            errors.append(f"All linked_cells must be 4D: {self.linked_cells}")
-        if self.nested_logic and not self.nested_logic.strip():
+        for lc in self.linked_cells:
+            if not isinstance(lc, list) or len(lc) != 4:
+                errors.append(f"All linked_cells must be 4D: {self.linked_cells}")
+        if self.nested_logic is not None and not self.nested_logic.strip():
             errors.append("nested_logic is non-empty but blank")
 
-        return {
-            "valid": len(errors) == 0,
-            "errors": errors
-        }
+        return {"valid": len(errors) == 0, "errors": errors}
 
-    def to_dict(self, include_empty: bool = False) -> Dict:
+    def to_dict(self, include_empty: bool = False) -> Dict[str, Any]:
         """
-        📤 Serialize cell to dictionary (e.g., for .sqs.json or .dc.json).
+        📤 Serialize cell to dictionary (for .sqs.json or .dc.json).
         Args:
             include_empty (bool): If False, skip optional empty fields.
         Returns:
@@ -172,7 +190,7 @@ class GlyphCell:
         }
 
     @staticmethod
-    def from_dict(data: Dict) -> "GlyphCell":
+    def from_dict(data: Dict[str, Any]) -> "GlyphCell":
         """
         📥 Create a GlyphCell from a dictionary.
         Args:

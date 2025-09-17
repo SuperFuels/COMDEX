@@ -12,7 +12,6 @@ Symbolic QPU ISA for CodexCore
 """
 
 from typing import Any, Dict, List, Optional
-from datetime import datetime
 import time
 import yaml
 from backend.modules.symbolic_spreadsheet.models.glyph_cell import GlyphCell
@@ -39,56 +38,59 @@ QPU_METRICS: Dict[str, float] = {
 # -------------------------------
 # Helper: Log metrics & timing
 # -------------------------------
-def log_qpu_op(op_name: str):
+def log_qpu_op(op_name: str) -> float:
+    """Log QPU opcode execution and track execution time."""
+    start_time = time.time()
     if GLOBAL_QPU_FLAGS["metrics_enabled"]:
-        start_time = time.time()
         QPU_METRICS["ops_executed"] += 1
         print(f"[QPU] Executed opcode: {op_name}")
-        QPU_METRICS[f"{op_name}_time"] = time.time() - start_time
+    elapsed = time.time() - start_time
+    QPU_METRICS[f"{op_name}_time"] = elapsed
+    return elapsed
 
 # -------------------------------
 # Core Opcode Implementations
 # -------------------------------
-def op_AND(args: List[Any], context: Dict[str, Any], registers: Optional[Dict[str, Any]] = None) -> str:
+def op_AND(args: List[Any], context: Dict[str, Any], registers: Optional[Dict[str, Any]] = None) -> List[str]:
     log_qpu_op("AND ⊕")
-    return " + ".join(map(str, args))
+    return [str(a) for a in args]
 
-def op_EQ(args: List[Any], context: Dict[str, Any], registers: Optional[Dict[str, Any]] = None) -> str:
+def op_EQ(args: List[Any], context: Dict[str, Any], registers: Optional[Dict[str, Any]] = None) -> List[str]:
     log_qpu_op("EQUIVALENCE ↔")
     if len(args) < 2:
-        return "[EQ ERROR: Need 2 args]"
+        return ["[EQ ERROR: Need 2 args]"]
     context.setdefault("entangled_pairs", []).append((args[0], args[1]))
     QPU_METRICS["entangle_count"] += 1
     cell: Optional[GlyphCell] = context.get("cell")
     if cell:
         cell.append_trace(f"[QPU] Entangled {args[0]} ↔ {args[1]} state={hash(args[0]) ^ hash(args[1])}")
-    return f"[Entangled {args[0]} ↔ {args[1]}]"
+    return [f"[Entangled {args[0]} ↔ {args[1]}]"]
 
 def op_MUTATE(args: List[Any], context: Dict[str, Any], registers: Optional[Dict[str, Any]] = None) -> List[str]:
     log_qpu_op("MUTATE ⟲")
     return [f"{a}_mut" for a in args]
 
-def op_DELAY(args: List[Any], context: Dict[str, Any], registers: Optional[Dict[str, Any]] = None) -> str:
+def op_DELAY(args: List[Any], context: Dict[str, Any], registers: Optional[Dict[str, Any]] = None) -> List[str]:
     log_qpu_op("DELAY ⧖")
-    return f"[Delayed {args}]"
+    return [f"[Delayed {args}]"]
 
-def op_TRIGGER(args: List[Any], context: Dict[str, Any], registers: Optional[Dict[str, Any]] = None) -> str:
+def op_TRIGGER(args: List[Any], context: Dict[str, Any], registers: Optional[Dict[str, Any]] = None) -> List[str]:
     log_qpu_op("TRIGGER →")
     target = args[0] if args else "default_trigger"
     context.setdefault("triggered_ops", []).append(target)
-    return f"[Triggered {target}]"
+    return [f"[Triggered {target}]"]
 
-def op_COMPRESS(args: List[Any], context: Dict[str, Any], registers: Optional[Dict[str, Any]] = None) -> str:
+def op_COMPRESS(args: List[Any], context: Dict[str, Any], registers: Optional[Dict[str, Any]] = None) -> List[str]:
     log_qpu_op("COMPRESS ∇")
-    return f"[Compressed {args}]"
+    return [f"[Compressed {args}]"]
 
 def op_NEGATE(args: List[Any], context: Dict[str, Any], registers: Optional[Dict[str, Any]] = None) -> List[str]:
     log_qpu_op("NEGATE ⊗")
     return [f"¬{a}" for a in args]
 
-def op_MILESTONE(args: List[Any], context: Dict[str, Any], registers: Optional[Dict[str, Any]] = None) -> str:
+def op_MILESTONE(args: List[Any], context: Dict[str, Any], registers: Optional[Dict[str, Any]] = None) -> List[str]:
     log_qpu_op("MILESTONE ✦")
-    return f"[Milestone {args}]"
+    return [f"[Milestone {args}]"]
 
 # -------------------------------
 # Quantum Primitives (Stubs)
@@ -141,13 +143,14 @@ def execute_qpu_opcode(
     args: List[Any],
     cell: Optional[GlyphCell] = None,
     context: Optional[Dict[str, Any]] = None
-) -> Any:
+) -> List[str]:
     context = context or {}
-    cell = cell or GlyphCell(id="unknown", logic="", position=[0,0,0,0])
+    if not cell:
+        cell = GlyphCell(id="unknown", logic="", position=[0,0,0,0])
     try:
         func = SYMBOLIC_QPU_OPS.get(op)
         if not func:
-            return f"[UnknownOpcode {op}]"
+            return [f"[UnknownOpcode {op}]"]
 
         context["cell"] = cell  # Provide cell to op functions for hooks
         result = func(args, context)
@@ -159,7 +162,7 @@ def execute_qpu_opcode(
         return result
     except Exception as e:
         record_trace(cell.id, f"[QPU Error] {op}: {e}")
-        return f"[Error {op}: {e}]"
+        return [f"[Error {op}: {e}]"]
 
 # -------------------------------
 # Load opcode registry from YAML (optional)
@@ -169,8 +172,10 @@ def load_opcode_registry_from_yaml(filepath: str) -> None:
     try:
         with open(filepath, "r") as f:
             opcodes_yaml = yaml.safe_load(f)
-        SYMBOLIC_QPU_OPS = {op["symbol"]: globals().get(f"op_{op['name']}", lambda *a, **k: "[Stub]") 
-                            for op in opcodes_yaml}
+        SYMBOLIC_QPU_OPS = {
+            op["symbol"]: globals().get(f"op_{op['name']}", lambda a,c,r=None: [f"[Stub]"])
+            for op in opcodes_yaml
+        }
         print(f"[QPU] Loaded {len(SYMBOLIC_QPU_OPS)} opcodes from {filepath}")
     except Exception as e:
         print(f"[QPU Error] Failed to load YAML opcodes: {e}")
@@ -178,7 +183,7 @@ def load_opcode_registry_from_yaml(filepath: str) -> None:
 # -------------------------------
 # Populate the default opcode registry
 # -------------------------------
-SYMBOLIC_QPU_OPS = {
+SYMBOLIC_QPU_OPS: Dict[str, Any] = {
     "⊕": op_AND,
     "↔": op_EQ,
     "⟲": op_MUTATE,
