@@ -1,12 +1,10 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { Html, Line } from '@react-three/drei';
+import { Html } from '@react-three/drei';
 import { useThree, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import axios from 'axios'; // Added import for API calls
 
-// Define types to resolve potential type errors
 interface Zone {
   id: string;
   name: string;
@@ -28,11 +26,10 @@ export default function WarpDriveNavigator({ zones, onWarpComplete }: WarpDriveN
   const [warpStartPos, setWarpStartPos] = useState<[number, number, number] | null>(null);
   const [warpEndPos, setWarpEndPos] = useState<[number, number, number] | null>(null);
   const [scannerSweep, setScannerSweep] = useState(0);
-  const [engineState, setEngineState] = useState<{ engineStage?: string; nested_containers?: any[]; particles?: any[] }>({}); // Added state with default
 
   const targetRef = useRef<[number, number, number] | null>(null);
 
-  // 🔑 Hotkey Warp (keys 1–4 to jump between zones quickly)
+  // 1–4 hotkeys to warp
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       if (['1', '2', '3', '4'].includes(e.key)) {
@@ -44,14 +41,13 @@ export default function WarpDriveNavigator({ zones, onWarpComplete }: WarpDriveN
     return () => window.removeEventListener('keydown', handleKey);
   }, [zones]);
 
-  // 🌌 Initiate warp to selected zone
   const initiateWarp = (newZoneId: string) => {
     const currentPos = zones.find((z) => z.id === zone)?.position || [0, 0, 0];
     const targetPos = zones.find((z) => z.id === newZoneId)?.position || [0, 0, 0];
 
     setWarpStartPos(currentPos);
     setWarpEndPos(targetPos);
-    setWarpTrail((prev) => [...prev.slice(-2), currentPos]); // Keep last 3 trails
+    setWarpTrail((prev) => [...prev.slice(-2), currentPos]); // keep last 3 points
     setIsWarping(true);
     setWarpProgress(0);
     setZone(newZoneId);
@@ -69,12 +65,12 @@ export default function WarpDriveNavigator({ zones, onWarpComplete }: WarpDriveN
     }, 50);
   };
 
-  // 🔭 Scanner sweep & smooth camera follow
+  // camera follow + scanner sweep
   useFrame(() => {
     if (!isWarping) setScannerSweep((s) => (s + 0.02) % (Math.PI * 2));
     if (targetRef.current) {
       const [x, y, z] = targetRef.current;
-      camera.position.lerp({ x: x + 5, y: y + 4, z: z + 5 }, 0.05);
+      camera.position.lerp({ x: x + 5, y: y + 4, z: z + 5 } as any, 0.05);
       camera.lookAt(x, y, z);
     }
   });
@@ -82,25 +78,30 @@ export default function WarpDriveNavigator({ zones, onWarpComplete }: WarpDriveN
   useEffect(() => {
     const zonePos = zones.find((z) => z.id === zone)?.position;
     if (zonePos) targetRef.current = zonePos;
-  }, [zone]);
+  }, [zone, zones]);
 
   return (
     <>
-      {/* 🚀 Warp Trail Lines */}
-      {warpTrail.map((pos, idx) =>
-        idx < warpTrail.length - 1 && (
-          <Line
-            key={idx}
-            points={[warpTrail[idx], warpTrail[idx + 1]]}
-            color="#ffaa00"
-            lineWidth={1.5}
-            transparent
-            opacity={0.5}
-          />
-        )
-      )}
+      {/* 🚀 Warp Trail (native three.js line segments) */}
+      {warpTrail.slice(0, -1).map((p, idx) => {
+        const next = warpTrail[idx + 1];
+        const positions = new Float32Array([p[0], p[1], p[2], next[0], next[1], next[2]]);
+        return (
+          <line key={idx}>
+            <bufferGeometry>
+              <bufferAttribute
+                attach="attributes-position"
+                array={positions}
+                count={2}
+                itemSize={3}
+              />
+            </bufferGeometry>
+            <lineBasicMaterial color="#ffaa00" transparent opacity={0.5} />
+          </line>
+        );
+      })}
 
-      {/* 🌌 Warp Arc Visualization */}
+      {/* 🌌 Warp Arc */}
       {isWarping && warpStartPos && warpEndPos && (
         <WarpArc start={warpStartPos} end={warpEndPos} />
       )}
@@ -115,7 +116,7 @@ export default function WarpDriveNavigator({ zones, onWarpComplete }: WarpDriveN
         />
       ))}
 
-      {/* HUD Overlay during Warp */}
+      {/* HUD during warp */}
       {isWarping && (
         <Html fullscreen>
           <div className="flex flex-col items-center justify-center w-full h-full bg-black/90 text-white z-50">
@@ -140,15 +141,27 @@ function WarpArc({ start, end }: { start: [number, number, number]; end: [number
     (start[1] + end[1]) / 2 + 8,
     (start[2] + end[2]) / 2,
   ];
+
+  // Build a small polyline through start → mid → end
+  const points = [
+    new THREE.Vector3(...start),
+    new THREE.Vector3(...mid),
+    new THREE.Vector3(...end),
+  ];
+  const positions = new Float32Array(points.flatMap((p) => [p.x, p.y, p.z]));
+
   return (
-    <Line
-      points={[start, mid, end]}
-      color="#00f0ff"
-      lineWidth={3}
-      dashed
-      dashSize={0.3}
-      gapSize={0.2}
-    />
+    <line>
+      <bufferGeometry>
+        <bufferAttribute
+          attach="attributes-position"
+          array={positions}
+          count={points.length}
+          itemSize={3}
+        />
+      </bufferGeometry>
+      <lineBasicMaterial color="#00f0ff" transparent opacity={0.8} />
+    </line>
   );
 }
 
@@ -166,6 +179,7 @@ function ZoneBeacon({
   useFrame(({ clock }) => {
     if (ref.current) ref.current.scale.setScalar(1 + 0.15 * Math.sin(clock.elapsedTime * 2));
   });
+
   return (
     <group position={zone.position} onClick={onClick}>
       <mesh ref={ref}>
@@ -178,6 +192,7 @@ function ZoneBeacon({
           opacity={0.6}
         />
       </mesh>
+
       {/* Rotating Scanner Ring */}
       <mesh rotation={[0, scannerSweep, 0]}>
         <torusGeometry args={[2, 0.05, 16, 64]} />
@@ -189,6 +204,7 @@ function ZoneBeacon({
           opacity={0.4}
         />
       </mesh>
+
       <Html distanceFactor={12}>
         <div className="text-center text-white text-sm bg-black/50 px-2 py-1 rounded cursor-pointer">
           🚀 {zone.name}

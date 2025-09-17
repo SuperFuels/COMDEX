@@ -30,6 +30,26 @@ MUTATION_OPERATIONS = [
     "swap_branches",
     "change_value",
 ]
+# 🌈 Emotion-weighted operation bias
+# 🌈 Emotion-weighted operation bias
+EMOTION_MUTATION_WEIGHTS = {
+    "joy": {"duplicate_subtree": 0.4, "rename_node": 0.3},
+    "sadness": {"remove_leaf": 0.5, "inject_contradiction": 0.3},
+    "fear": {"inject_contradiction": 0.5, "flip_operator": 0.4},
+    "wonder": {"swap_branches": 0.4, "change_value": 0.3},
+    "anger": {"remove_leaf": 0.4, "inject_contradiction": 0.4},
+    "trust": {"rename_node": 0.4, "duplicate_subtree": 0.3},
+    "anticipation": {"change_value": 0.4, "swap_branches": 0.3},
+    "disgust": {"remove_leaf": 0.5, "inject_contradiction": 0.4},
+}
+
+def pick_weighted_operation(emotion: str) -> str:
+    weights = EMOTION_MUTATION_WEIGHTS.get(emotion, {})
+    if not weights:
+        return random.choice(MUTATION_OPERATIONS)
+    
+    ops, probs = zip(*weights.items())
+    return random.choices(ops, probs)[0]
 
 def mutate_beam(original_beam: WaveState, max_variants: int = 3) -> WaveState:
     """
@@ -55,7 +75,29 @@ def mutate_beam(original_beam: WaveState, max_variants: int = 3) -> WaveState:
 
     # Re-score SQI and recompute entropy
     sqi_engine = SQIReasoningEngine()
-    mutated_beam.sqi_score = sqi_engine.score_node(mutated_beam.logic_tree)
+    raw_score = sqi_engine.score_node(mutated_beam.logic_tree)
+
+    # Attach mutation tracking fields to the beam if it's derived from a GlyphCell (optional)
+    try:
+        from datetime import datetime
+
+        mutated_beam.mutation_type = "entropic"
+        mutated_beam.mutation_parent_id = original_beam.id
+        mutated_beam.mutation_score = raw_score
+        mutated_beam.mutation_timestamp = datetime.utcnow().isoformat() + "Z"
+
+    except Exception as mutation_track_err:
+        print(f"[MutationTracking] ⚠️ Failed to tag mutation metadata: {mutation_track_err}")
+
+    # 🧬 Mutation-aware SQI boost/penalty
+    try:
+        from backend.modules.symbolic_spreadsheet.scoring.sqi_scorer import adjust_sqi_for_mutation
+        adjusted_score = adjust_sqi_for_mutation(raw_score, mutated_beam.logic_tree)
+        mutated_beam.sqi_score = adjusted_score
+    except Exception as sqi_err:
+        print(f"[Mutation→SQI] ⚠️ Failed to apply mutation-aware SQI: {sqi_err}")
+        mutated_beam.sqi_score = raw_score
+
     mutated_beam.entropy = compute_entropy_metrics(mutated_beam)
 
     # Register mutation in beam history
@@ -203,9 +245,15 @@ def mutate_symbolic_logic(tree: Dict[str, Any], max_variants: int = 3) -> List[D
 def apply_random_mutations(node: Dict[str, Any], depth: int = 0, max_depth: int = 3):
     if depth > max_depth:
         return
+
     if random.random() < 0.4:
-        operation = random.choice(MUTATION_OPERATIONS)
+        emotion = node.get("emotion", None)
+        if emotion:
+            operation = pick_weighted_operation(emotion)
+        else:
+            operation = random.choice(MUTATION_OPERATIONS)
         apply_mutation(node, operation)
+
     for child in node.get("children", []):
         if isinstance(child, dict):
             apply_random_mutations(child, depth + 1, max_depth)
@@ -298,9 +346,15 @@ class SymbolicMutationEngine:
     def _apply_random_mutations(self, node: Dict[str, Any], depth: int = 0):
         if depth > self.max_depth:
             return
+
         if random.random() < 0.4:
-            operation = random.choice(MUTATION_OPERATIONS)
+            emotion = node.get("emotion", None)
+            if emotion:
+                operation = pick_weighted_operation(emotion)
+            else:
+                operation = random.choice(MUTATION_OPERATIONS)
             self._apply_mutation(node, operation)
+
         for child in node.get("children", []):
             if isinstance(child, dict):
                 self._apply_random_mutations(child, depth + 1)

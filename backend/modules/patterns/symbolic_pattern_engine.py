@@ -12,7 +12,7 @@ from backend.modules.patterns.pattern_qfc_bridge import PatternQFCBridge
 from backend.modules.patterns.pattern_emotion_bridge import trigger_emotion_from_pattern
 from backend.modules.patterns.pattern_prediction_hooks import PatternPredictionHooks
 from backend.modules.patterns.pattern_utils import extract_all_glyphs
-
+from backend.modules.glyphos.glyph_tokenizer import tokenize_symbol_text_to_glyphs
 from .pattern_registry import PatternRegistry, Pattern, stringify_glyph
 
 logger = logging.getLogger(__name__)
@@ -36,13 +36,36 @@ class SymbolicPatternEngine:
         Detects known patterns in a flat list of glyphs.
         Returns list of matched pattern dictionaries.
         """
+        from backend.modules.glyphos.glyph_tokenizer import tokenize_symbol_text_to_glyphs
+
         matches: List[Dict[str, Any]] = []
 
         print(f"🌟 Detecting patterns in container: {container_id}")
-        print("📦 Input glyphs:", glyphs)
+        print("📦 Raw input glyphs:", glyphs)
+
+        # ✅ Step 1: Preprocess symbol glyphs into tokenized glyphs
+        processed_glyphs = []
+        for glyph in glyphs:
+            if glyph.get("type") == "symbol" and "text" in glyph:
+                print(f"🧩 Expanding symbol glyph: {glyph['text']}")
+                expanded = tokenize_symbol_text_to_glyphs(glyph["text"])
+                print(f"    → Tokenized as: {expanded}")
+                processed_glyphs.extend(expanded)
+            else:
+                processed_glyphs.append(glyph)
+
+        glyphs = processed_glyphs
+        print("🧠 Final preprocessed glyphs:", glyphs)
+
+        # ✅ Step 2: Load all known patterns
         all_patterns = self.registry.get_all_patterns()
         print(f"📚 Loaded {len(all_patterns)} patterns in registry")
 
+        for idx, pattern in enumerate(all_patterns):
+            print(f"🔸 Pattern {idx+1}: {pattern.name}")
+            print(f"    └─ Glyphs: {pattern.glyphs}")
+
+        # ✅ Step 3: Attempt pattern matching
         for pattern in all_patterns:
             print(f"\n🔍 Checking pattern: {pattern.name}")
             print("🔸 Pattern glyphs:", pattern.glyphs)
@@ -184,3 +207,14 @@ class SymbolicPatternEngine:
         Export all known patterns in JSON for review or training.
         """
         return json.dumps([p.to_dict() for p in self.registry.get_all_patterns()], indent=2)
+
+# Singleton instance for external use
+_pattern_engine = SymbolicPatternEngine()
+
+def detect_patterns_from_logic(logic: str) -> List[Dict[str, Any]]:
+    """
+    🔍 Wrapper for external systems to use pattern detection on a single logic string.
+    This wraps the full engine using dummy glyphs.
+    """
+    glyphs = [{"text": logic, "id": "temp"}]
+    return _pattern_engine.detect_patterns(glyphs)

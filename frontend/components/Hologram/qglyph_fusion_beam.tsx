@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { animated, useSpring } from "@react-spring/three";
@@ -24,8 +24,9 @@ const logicColors: Record<string, string> = {
 
 function computeGradientColor(entropy?: number, cost?: number, type?: string): string {
   if (type && logicColors[type]) return logicColors[type];
-  const hue = (entropy || 0.5) * 240 - (cost || 0) * 40;
-  return `hsl(${Math.max(0, Math.min(300, hue))}, 100%, 55%)`;
+  const hue = (entropy ?? 0.5) * 240 - (cost ?? 0) * 40;
+  const clamped = Math.max(0, Math.min(300, hue));
+  return `hsl(${clamped}, 100%, 55%)`;
 }
 
 export const QGlyphFusionBeam: React.FC<BeamProps> = ({
@@ -41,11 +42,10 @@ export const QGlyphFusionBeam: React.FC<BeamProps> = ({
   const beamRef = useRef<THREE.Mesh>(null!);
   const materialRef = useRef<THREE.MeshBasicMaterial>(null!);
 
-  const color = useMemo(() => computeGradientColor(entropy, cost, logicType), [
-    entropy,
-    cost,
-    logicType,
-  ]);
+  const color = useMemo(
+    () => computeGradientColor(entropy, cost, logicType),
+    [entropy, cost, logicType]
+  );
 
   const direction = useMemo(() => {
     const dir = new THREE.Vector3().subVectors(target, source);
@@ -60,24 +60,36 @@ export const QGlyphFusionBeam: React.FC<BeamProps> = ({
     };
   }, [source, target]);
 
-  const animatedProps = useSpring({
-    scale: pulseSpeed
-      ? {
-          to: async (next) => {
-            while (true) {
-              await next({ scale: [1.25, 1, 1.25] });
-              await next({ scale: [1, 1, 1] });
-            }
-          },
-        }
-      : { scale: [1, 1, 1] },
-    config: { duration: 1500 / pulseSpeed },
-  });
+  // ✅ useSpring tuple form: [springValues, api]
+  const [spring, api] = useSpring(() => ({
+    scale: [1, 1, 1] as [number, number, number],
+    config: { duration: 800 },
+  }));
+
+  // Drive the pulsing animation with the api to avoid tuple typing errors
+  useEffect(() => {
+    api.stop();
+    if (pulseSpeed > 0) {
+      api.start({
+        to: async (next) => {
+          // simple breathing loop
+          // eslint-disable-next-line no-constant-condition
+          while (true) {
+            await next({ scale: [1.25, 1, 1.25] as [number, number, number] });
+            await next({ scale: [1, 1, 1] as [number, number, number] });
+          }
+        },
+        config: { duration: Math.max(1, 1500 / pulseSpeed) },
+      });
+    } else {
+      api.start({ to: { scale: [1, 1, 1] as [number, number, number] } });
+    }
+  }, [pulseSpeed, api]);
 
   useFrame(() => {
     if (materialRef.current) {
       materialRef.current.color.set(color);
-      materialRef.current.opacity = 0.5 + 0.4 * Math.sin(Date.now() * 0.005 * pulseSpeed);
+      materialRef.current.opacity = 0.5 + 0.4 * Math.sin(Date.now() * 0.005 * Math.max(0.01, pulseSpeed));
     }
   });
 
@@ -87,7 +99,7 @@ export const QGlyphFusionBeam: React.FC<BeamProps> = ({
         ref={beamRef}
         position={source.clone().add(target).multiplyScalar(0.5)}
         rotation={direction.rotation}
-        scale={animatedProps.scale}
+        scale={spring.scale}
         onClick={onClick}
       >
         <cylinderGeometry args={[0.03, 0.03, direction.length, 8]} />

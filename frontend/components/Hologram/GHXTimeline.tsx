@@ -1,9 +1,33 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Slider } from "@/components/ui/slider";
+"use client";
+
+import React, { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
-import { playGlyphNarration } from "@/utils/hologram_audio";
 import { cn } from "@/lib/utils";
-import { MODULATION_METADATA, ModulationStrategy } from "@/symbolic/modulation_meta";
+
+/* -------- Minimal local fallbacks so the file is self-contained -------- */
+
+// tiny “narrate glyph” shim (no-op on the server)
+const playGlyphNarration = (symbol: string) => {
+  if (typeof window === "undefined") return;
+  try {
+    // keep silent by default; uncomment to hear speech:
+    // window.speechSynthesis?.speak(new SpeechSynthesisUtterance(symbol));
+  } catch {
+    /* ignore */
+  }
+};
+
+type ModulationStrategy = string;
+const MODULATION_METADATA: Record<
+  string,
+  { emoji?: string; short?: string }
+> = {
+  secure: { emoji: "🔒", short: "Secure" },
+  stealth: { emoji: "🕶️", short: "Stealth" },
+  fast: { emoji: "⚡", short: "Fast" },
+};
+
+/* ------------------------------- Types --------------------------------- */
 
 interface GlyphType {
   glyph_id: string;
@@ -22,10 +46,12 @@ interface GlyphType {
 
 interface GHXTimelineProps {
   glyphs: GlyphType[];
-  onSelectGlyph?: (glyph: any) => void;
+  onSelectGlyph?: (glyph: GlyphType) => void;
   showCollapsed?: boolean;
   onToggleCollapse?: (val: boolean) => void;
 }
+
+/* ------------------------------ Helpers -------------------------------- */
 
 function groupGlyphsByTick(glyphs: GlyphType[]) {
   const grouped: Record<number, GlyphType[]> = {};
@@ -36,6 +62,16 @@ function groupGlyphsByTick(glyphs: GlyphType[]) {
   }
   return grouped;
 }
+
+const getCoherenceShade = (score?: number) => {
+  if (score === undefined) return "";
+  if (score >= 0.9) return "bg-green-700";
+  if (score >= 0.6) return "bg-yellow-700";
+  if (score >= 0.3) return "bg-orange-700";
+  return "bg-red-700";
+};
+
+/* ----------------------------- Component ------------------------------- */
 
 export default function GHXTimeline({
   glyphs,
@@ -54,30 +90,24 @@ export default function GHXTimeline({
   const ticks = Object.keys(groupedBeams)
     .map(Number)
     .sort((a, b) => a - b);
+
   const currentTick = ticks[tickIndex] ?? 0;
-  const currentBeams = groupedBeams[currentTick] || [];
+  const currentBeams: GlyphType[] = groupedBeams[currentTick] || [];
 
-  const sliderRef = useRef<HTMLDivElement>(null);
-
+  // play a tiny narration when you hover a glyph
   useEffect(() => {
     if (hovered !== null && currentBeams[hovered]) {
       playGlyphNarration(currentBeams[hovered].symbol);
     }
   }, [hovered, currentBeams]);
 
+  // auto-select first glyph on tick change
   useEffect(() => {
     if (onSelectGlyph && currentBeams.length > 0) {
       onSelectGlyph(currentBeams[0]);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tickIndex]);
-
-  const getCoherenceShade = (score?: number) => {
-    if (score === undefined) return "";
-    if (score >= 0.9) return "bg-green-700";
-    if (score >= 0.6) return "bg-yellow-700";
-    if (score >= 0.3) return "bg-orange-700";
-    return "bg-red-700";
-  };
 
   return (
     <div className="w-full px-4 py-2 bg-black/80 rounded-md">
@@ -95,19 +125,24 @@ export default function GHXTimeline({
         Tick: {tickIndex + 1} / {ticks.length} — Beams: {currentBeams.length}
       </div>
 
-      <Slider
+      {/* Native range input instead of a custom Slider */}
+      <input
+        type="range"
         min={0}
-        max={ticks.length - 1}
+        max={Math.max(0, ticks.length - 1)}
         step={1}
-        value={[tickIndex]}
-        onValueChange={([i]) => setTickIndex(i)}
-        className="w-full"
+        value={tickIndex}
+        onChange={(e) => setTickIndex(Number(e.target.value))}
+        className="w-full accent-cyan-400"
+        aria-label="Timeline tick"
       />
 
       <div className="flex flex-wrap gap-2 mt-3">
-        {currentBeams.map((g, i) => {
+        {currentBeams.map((g: GlyphType, i: number) => {
           const modulationStrategy = g.modulation_strategy as ModulationStrategy;
-          const meta = modulationStrategy ? MODULATION_METADATA[modulationStrategy] : null;
+          const meta = modulationStrategy
+            ? MODULATION_METADATA[modulationStrategy] ?? null
+            : null;
           const coherenceClass = getCoherenceShade(g.coherence_score);
 
           return (
@@ -116,7 +151,9 @@ export default function GHXTimeline({
               className={cn(
                 "text-sm px-2 py-1 rounded cursor-pointer border border-white/10 transition-all duration-200",
                 coherenceClass || "bg-gray-700 text-gray-300",
-                g.coherence_score !== undefined && g.coherence_score < 0.3 && "blur-[1px] skew-x-1"
+                g.coherence_score !== undefined &&
+                  g.coherence_score < 0.3 &&
+                  "blur-[1px] skew-x-1"
               )}
               onClick={() => onSelectGlyph?.(g)}
               onMouseEnter={() => setHovered(i)}
@@ -127,10 +164,10 @@ export default function GHXTimeline({
               {g.collapse_trace && (
                 <Badge className="ml-1 text-[10px] bg-yellow-500">⧖</Badge>
               )}
-              {g.entangled?.length > 0 && (
+              {g.entangled?.length ? (
                 <Badge className="ml-1 text-[10px] bg-fuchsia-500">↔</Badge>
-              )}
-              {g.cost && (
+              ) : null}
+              {typeof g.cost === "number" && (
                 <Badge className="ml-1 text-[10px] bg-blue-600">
                   {g.cost.toFixed(2)}
                 </Badge>
@@ -141,17 +178,17 @@ export default function GHXTimeline({
                   {meta?.emoji || ""} {meta?.short || modulationStrategy}
                 </div>
               )}
-              {g.coherence_score !== undefined && (
+              {typeof g.coherence_score === "number" && (
                 <div className="text-[10px] text-white/70">
                   🧬 {Math.round(g.coherence_score * 100)}% coherence
                 </div>
               )}
-              {g.sqi_score !== undefined && (
+              {typeof g.sqi_score === "number" && (
                 <div className="text-[10px] text-white/70">
                   🔮 SQI: {g.sqi_score.toFixed(2)}
                 </div>
               )}
-              {g.tick_duration_ms !== undefined && (
+              {typeof g.tick_duration_ms === "number" && (
                 <div className="text-[10px] text-white/70">
                   ⏱️ {g.tick_duration_ms.toFixed(1)} ms
                 </div>

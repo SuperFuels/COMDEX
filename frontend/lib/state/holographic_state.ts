@@ -1,6 +1,7 @@
-import { create } from 'zustand';
+// frontend/lib/state/holographic_state.ts
+import create from "zustand";
 
-interface SymbolicNode {
+export interface SymbolicNode {
   id: string;
   label: string;
   type: string;
@@ -14,7 +15,7 @@ interface SymbolicNode {
   children: SymbolicNode[];
 }
 
-interface SymbolicTree {
+export interface SymbolicTree {
   tree_id: string;
   root: SymbolicNode;
   timestamp: string;
@@ -23,7 +24,7 @@ interface SymbolicTree {
   supports_replay: boolean;
 }
 
-interface HolographicState {
+export interface HolographicState {
   activeContainerId: string | null;
   setActiveContainerId: (id: string | null) => void;
 
@@ -36,11 +37,11 @@ interface HolographicState {
 
 export const useHolographicState = create<HolographicState>((set) => ({
   activeContainerId: null,
-  setActiveContainerId: (id) => set({ activeContainerId: id }),
+  setActiveContainerId: (id: string | null) => set({ activeContainerId: id }),
 
   treeData: null,
-  setTreeData: (tree) => set({ treeData: tree }),
+  setTreeData: (tree: SymbolicTree | null) => set({ treeData: tree }),
 
   currentNodeId: null,
-  setCurrentNodeId: (id) => set({ currentNodeId: id }),
+  setCurrentNodeId: (id: string | null) => set({ currentNodeId: id }),
 }));

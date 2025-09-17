@@ -1,14 +1,27 @@
 // components/QuantumField/Node.tsx
 import React, { useRef, useEffect, useState } from "react";
-import { Html } from "@react-three/drei";
 import * as THREE from "three";
-import { GlyphNode } from "@/types/qfc";
+import type { GlyphNode as BaseGlyphNode } from "@/types/qfc";
+
+/**
+ * Extend the upstream QFC GlyphNode with fields that may be present at runtime
+ * but aren't declared in the base type. All extensions are optional to keep
+ * this component tolerant to different payload shapes.
+ */
+type ViewGlyphNode = BaseGlyphNode & {
+  id: string; // most QFC nodes carry an id
+  position: [number, number, number] | THREE.Vector3;
+  containerId?: string;
+  source?: string;         // e.g. "dream"
+  locked?: boolean;        // runtime flag
+  color?: string;          // runtime color override
+};
 
 type NodeProps = {
-  node: GlyphNode;
+  node: ViewGlyphNode;
   onTeleport?: (id: string) => void;
   predictedMode?: boolean;
-  highlight?: boolean; // ✅ NEW
+  highlight?: boolean;
 };
 
 export const Node: React.FC<NodeProps> = ({
@@ -21,42 +34,49 @@ export const Node: React.FC<NodeProps> = ({
   const [hovered, setHovered] = useState(false);
 
   const handleClick = () => {
-    if (onTeleport) onTeleport(node.containerId || node.id);
+    const targetId = node.containerId ?? node.id;
+    if (onTeleport) onTeleport(targetId);
   };
 
-  const actualColor = node.locked ? "#ff3333" : node.color || "#00ffcc";
-  const baseEmissive = node.locked ? "#ff3333" : "#000000";
-  const defaultIntensity = node.locked ? 2.0 : 0;
+  const isLocked = Boolean(node.locked);
+  const actualColor = node.color ?? (isLocked ? "#ff3333" : "#00ffcc");
+  const baseEmissive = isLocked ? "#ff3333" : "#000000";
+  const defaultIntensity = isLocked ? 2.0 : 0;
 
-  // 🌟 Animation effect for highlight + hover
+  // Animate highlight pulse or subtle hover spin
   useEffect(() => {
-    if (!meshRef.current) return;
-
     const mesh = meshRef.current;
-    let frameId: number;
-    let pulse = 0;
+    if (!mesh) return;
+
+    let frameId = 0;
+    let t = 0;
 
     const animate = () => {
       if (highlight) {
-        pulse += 0.1;
-        const scale = 1 + 0.1 * Math.sin(pulse);
-        mesh.scale.set(scale, scale, scale);
+        t += 0.1;
+        const s = 1 + 0.1 * Math.sin(t);
+        mesh.scale.set(s, s, s);
       } else if (hovered) {
         mesh.rotation.y += 0.01;
       }
       frameId = requestAnimationFrame(animate);
     };
 
-    animate();
-
+    frameId = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(frameId);
   }, [highlight, hovered]);
+
+  // Normalize position for r3f <mesh position={...}>
+  const position: [number, number, number] =
+    node.position instanceof THREE.Vector3
+      ? [node.position.x, node.position.y, node.position.z]
+      : node.position;
 
   return (
     <>
       <mesh
         ref={meshRef}
-        position={node.position}
+        position={position}
         onClick={handleClick}
         onPointerOver={() => setHovered(true)}
         onPointerOut={() => setHovered(false)}
@@ -73,7 +93,7 @@ export const Node: React.FC<NodeProps> = ({
 
       {/* 🔮 Dream-Origin Marker */}
       {node.source === "dream" && (
-        <mesh position={node.position}>
+        <mesh position={position}>
           <ringGeometry args={[0.6, 0.75, 32]} />
           <meshBasicMaterial color="#d946ef" transparent opacity={0.75} />
         </mesh>
@@ -81,3 +101,5 @@ export const Node: React.FC<NodeProps> = ({
     </>
   );
 };
+
+export default Node;

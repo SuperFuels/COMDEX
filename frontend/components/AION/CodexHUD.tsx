@@ -215,7 +215,8 @@ export default function CodexHUD({
   const [showGHX, setShowGHX] = useState(true);
   const [qkdLocked, setQkdLocked] = useState(false);
   const [lastPattern, setLastPattern] = useState<string | null>(null);
-  const { collapseHistory, decoherenceHistory, latestCollapse, latestDecoherence } = useCollapseMetrics();
+  const { collapseHistory, decoherenceHistory, latestCollapse, latestDecoherence } =
+    useCollapseMetrics();
 
   const wsUrl = "/ws/codex";
   const gipWsUrl = "/ws/glyphnet";
@@ -256,40 +257,50 @@ export default function CodexHUD({
   // ✅ Use in rendering
   const renderLogs = events.map((log, index) => {
     const isLeanGlyph =
-      (log.type === 'glyph' && log.data.detail?.operator === '⟦ Theorem ⟧') ||
-      log.type === 'lean_theorem_executed';
+      (log.type === "glyph" && log.data.detail?.operator === "⟦ Theorem ⟧") ||
+      log.type === "lean_theorem_executed";
 
     return (
       <div key={index} className="text-green-400">
-        {hasAction(log) ? log.action : ''}
+        {hasAction(log) ? log.action : ""}
       </div>
     );
   });
 
-  const totalGlyphs = events.filter(
-    (e) => e.type === 'glyph' || e.type === 'gip'
-  ).length;
+  const totalGlyphs = events.filter((e) => e.type === "glyph" || e.type === "gip").length;
 
   const triggeredGlyphs = events.filter(
-    (e) =>
-      (e.type === 'glyph' || e.type === 'gip') &&
-      (e as any).data?.action
+    (e) => (e.type === "glyph" || e.type === "gip") && (e as any).data?.action
   ).length;
 
-  const { metrics } = useWaveTelemetry();
+  // ────────────────────────────────────────────────────────────────────────────────
+  // Wave telemetry (requires a container id). Fall back to a sane default/global id.
+  // Also add explicit types to avoid implicit-any errors in filters/reduces.
+  // ────────────────────────────────────────────────────────────────────────────────
+  type WaveMetric = { event: string; meta?: { coherence?: number } | Record<string, unknown> };
 
-  const collapseRate = metrics.filter((m) => m.event === 'beam_emitted').length;
+  const telemetryContainerId =
+    (typeof window !== "undefined" && (window as any).GHX_CURRENT_CONTAINER_ID) || "global";
+
+  const rawTelemetry = useWaveTelemetry(telemetryContainerId);
+  const waveMetrics: WaveMetric[] =
+    rawTelemetry && 'metrics' in (rawTelemetry as any) && Array.isArray((rawTelemetry as any).metrics)
+      ? (rawTelemetry as any).metrics
+      : [];
+
+  // Rough “rate” proxy: number of recent beam events in the in-memory buffer
+  const collapseRate = waveMetrics.filter((m: WaveMetric) => m.event === "beam_emitted").length;
 
   const avgCoherence = (() => {
-    const beamEvents = metrics.filter((m) => m.meta?.coherence !== undefined);
-    return beamEvents.length
-      ? (
-          beamEvents.reduce(
-            (sum, m) => sum + (m.meta?.coherence || 0),
-            0
-          ) / beamEvents.length
-        ).toFixed(2)
-      : '—';
+    const beamEvents = waveMetrics.filter(
+      (m: WaveMetric) => typeof (m.meta as any)?.coherence === "number"
+    );
+    if (!beamEvents.length) return "—";
+    const sum = beamEvents.reduce(
+      (acc: number, m: WaveMetric) => acc + Number((m.meta as any).coherence ?? 0),
+      0
+    );
+    return (sum / beamEvents.length).toFixed(2);
   })();
 
   useEffect(() => {

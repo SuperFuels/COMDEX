@@ -1,14 +1,17 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
+import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
-import dynamic from 'next/dynamic';
-import { EntangledNode, EntangledLink } from '@/components/EntanglementGraph';
+import type { EntangledNode, EntangledLink } from '@/components/codex/EntanglementGraph';
 
 // Dynamically import the graph so it only runs client-side
-const EntanglementGraph = dynamic(() => import('@/components/EntanglementGraph'), { ssr: false });
+const EntanglementGraph = dynamic(
+  () => import('@/components/codex/EntanglementGraph'),
+  { ssr: false }
+);
 
 interface Glyph {
   id: string;
@@ -19,7 +22,10 @@ interface Glyph {
 
 export default function EntanglementGraphPage() {
   const [glyphs, setGlyphs] = useState<Glyph[]>([]);
-  const [graphData, setGraphData] = useState<{ nodes: EntangledNode[]; links: EntangledLink[] }>({ nodes: [], links: [] });
+  const [graphData, setGraphData] = useState<{ nodes: EntangledNode[]; links: EntangledLink[] }>({
+    nodes: [],
+    links: [],
+  });
   const [filter, setFilter] = useState('');
   const [liveMode, setLiveMode] = useState(false);
   const [playing, setPlaying] = useState(false);
@@ -30,22 +36,23 @@ export default function EntanglementGraphPage() {
   // Load collapse trace on mount
   useEffect(() => {
     fetch('/containers/seed_entangled.dc.json')
-      .then(res => res.json())
-      .then(data => {
-        const g = data.glyphs || [];
+      .then((res) => res.json())
+      .then((data) => {
+        const g: Glyph[] = data.glyphs || [];
         setGlyphs(g);
         setStep(0);
         injectGlyphs(g.slice(0, 1));
+      })
+      .catch(() => {
+        // ignore seed failure for now
       });
   }, []);
 
   // Live WebSocket Mode
   useEffect(() => {
     if (!liveMode) {
-      if (wsRef) {
-        wsRef.close();
-        setWsRef(null);
-      }
+      wsRef?.close();
+      setWsRef(null);
       return;
     }
 
@@ -55,7 +62,7 @@ export default function EntanglementGraphPage() {
       try {
         const msg = JSON.parse(event.data);
         if (msg.type === 'glyph') {
-          injectGlyphs([msg.payload], true);
+          injectGlyphs([msg.payload as Glyph], true);
         }
       } catch (err) {
         console.error('Invalid glyph message:', err);
@@ -79,11 +86,11 @@ export default function EntanglementGraphPage() {
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [playing, step]);
+  }, [playing, step]); // step in deps keeps consistent progression
 
   const injectGlyphs = (glyphSlice: Glyph[], live = false) => {
-    const nodeMap = new Map(graphData.nodes.map(n => [n.id, n]));
-    const linkSet = new Set(graphData.links.map(l => `${l.source}-${l.target}`));
+    const nodeMap = new Map(graphData.nodes.map((n) => [n.id, n]));
+    const linkSet = new Set(graphData.links.map((l) => `${l.source}-${l.target}`));
     const newNodes = [...graphData.nodes];
     const newLinks = [...graphData.links];
 
@@ -108,21 +115,29 @@ export default function EntanglementGraphPage() {
     if (step < glyphs.length) {
       const next = glyphs[step];
       injectGlyphs([next]);
-      setStep(step + 1);
+      setStep((s) => s + 1);
     } else {
       setPlaying(false);
     }
   };
 
-  const filtered = filter
-    ? {
-        nodes: graphData.nodes.filter(n => n.glyph.toLowerCase().includes(filter.toLowerCase())),
-        links: graphData.links.filter(l =>
-          graphData.nodes.find(n => n.id === l.source && n.glyph.toLowerCase().includes(filter.toLowerCase())) ||
-          graphData.nodes.find(n => n.id === l.target && n.glyph.toLowerCase().includes(filter.toLowerCase()))
-        )
-      }
-    : graphData;
+  const filtered =
+    filter.trim().length > 0
+      ? {
+          nodes: graphData.nodes.filter((n) =>
+            n.glyph.toLowerCase().includes(filter.toLowerCase())
+          ),
+          links: graphData.links.filter(
+            (l) =>
+              graphData.nodes.find(
+                (n) => n.id === l.source && n.glyph.toLowerCase().includes(filter.toLowerCase())
+              ) ||
+              graphData.nodes.find(
+                (n) => n.id === l.target && n.glyph.toLowerCase().includes(filter.toLowerCase())
+              )
+          ),
+        }
+      : graphData;
 
   return (
     <Card className="w-full h-[90vh] bg-black text-white mt-4">
@@ -136,19 +151,31 @@ export default function EntanglementGraphPage() {
               placeholder="Filter glyphs..."
               className="bg-gray-900 border-gray-700 text-white text-sm"
             />
-            <Button onClick={() => setStep(0)} className="text-xs bg-gray-700 hover:bg-gray-600">
+            <Button
+              onClick={() => setStep(0)}
+              className="text-xs bg-gray-700 hover:bg-gray-600"
+            >
               ⏮️ Reset
             </Button>
-            <Button onClick={stepForward} className="text-xs bg-gray-700 hover:bg-gray-600">
+            <Button
+              onClick={stepForward}
+              className="text-xs bg-gray-700 hover:bg-gray-600"
+            >
               ⏭️ Step
             </Button>
-            <Button onClick={() => setPlaying(!playing)} className="text-xs bg-purple-700 hover:bg-purple-600">
+            <Button
+              onClick={() => setPlaying((p) => !p)}
+              className="text-xs bg-purple-700 hover:bg-purple-600"
+            >
               {playing ? '⏸️ Pause' : '▶️ Play'}
             </Button>
             <Button
-              variant={liveMode ? 'destructive' : 'default'}
-              onClick={() => setLiveMode(!liveMode)}
-              className="text-xs"
+              onClick={() => setLiveMode((v) => !v)}
+              className={`text-xs ${
+                liveMode
+                  ? 'bg-red-600 hover:bg-red-500'
+                  : 'bg-blue-600 hover:bg-blue-500'
+              }`}
             >
               {liveMode ? '⛔ Stop Live' : '🛰️ Live'}
             </Button>

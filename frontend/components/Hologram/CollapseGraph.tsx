@@ -11,7 +11,7 @@ import {
   Legend,
   ResponsiveContainer
 } from "recharts";
-import useCollapseMetrics from "@/hooks/useCollapseMetrics";
+import { useCollapseMetrics } from "@/hooks/useCollapseMetrics";
 
 type GraphPoint = {
   time: number;

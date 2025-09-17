@@ -3,23 +3,21 @@ import { animated, useSpring } from "@react-spring/three";
 import { useFrame } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 import * as THREE from "three";
-import type { AtomModel, Vec3, ContainerInfo } from "@/types/atom";
+import type { AtomModel, Vec3 } from "@/types/atom";
+
+// Minimal shape you use from `container`
+type ContainerInfoLite = { name?: string };
 
 interface AtomContainerProps {
-  key?: string; // usually not needed unless in a map
   position?: Vec3;
   atom: AtomModel;
-  container?: ContainerInfo; // 👈 optional container info
+  container?: ContainerInfoLite;
 }
 
-const AtomContainer: React.FC<AtomContainerProps> = ({
-  position,
-  atom,
-  container,
-}) => {
+const AtomContainer: React.FC<AtomContainerProps> = ({ position, atom, container }) => {
   const groupRef = useRef<THREE.Group>(null);
 
-  // Destructure props for easier access
+  // Pull fields from the atom model
   const { viz = {}, id, containerId } = atom;
   const {
     glyph,
@@ -31,14 +29,14 @@ const AtomContainer: React.FC<AtomContainerProps> = ({
   } = viz;
 
   /** ===== Scale Animation (Hoberman-style expansion) ===== **/
-  const targetScale =
-    soulLocked || logicDepth === 0 ? 0.001 : 0.4 + logicDepth * 0.12;
+  const targetScale = soulLocked || logicDepth === 0 ? 0.001 : 0.4 + logicDepth * 0.12;
 
   const { scale } = useSpring({
     scale: targetScale,
     config: { mass: 2, tension: 200, friction: 25 },
   });
 
+  // Spring value -> vec3
   const animatedScale = scale.to((s) => [s, s, s]) as unknown as Vec3;
 
   /** ===== Color logic based on glyph type ===== **/

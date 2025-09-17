@@ -2,14 +2,15 @@ import os
 import json
 import uuid
 import hashlib
+import asyncio
 from typing import List, Dict, Optional, Any, Union
 from difflib import SequenceMatcher
+
 from backend.modules.sqi.sqi_scorer import compute_entropy, compute_symmetry_score
 from backend.modules.visualization.glyph_to_qfc import to_qfc_payload
 from backend.modules.visualization.broadcast_qfc_update import broadcast_qfc_update
-import asyncio
 
-# Path to saved pattern definitions
+# 📦 Path to saved pattern definitions
 PATTERN_DB_PATH = "backend/data/patterns/pattern_registry.json"
 
 def stringify_glyph(glyph: Union[str, Dict[str, Any]]) -> str:
@@ -22,17 +23,18 @@ def stringify_glyph(glyph: Union[str, Dict[str, Any]]) -> str:
 
 
 class Pattern:
-    def __init__(self,
-                 name: str,
-                 glyphs: List[Union[str, Dict[str, Any]]],
-                 pattern_type: str,
-                 trigger_logic: str = "",
-                 prediction: Optional[List[Union[str, Dict[str, Any]]]] = None,
-                 sqi_score: Optional[float] = None,
-                 source_container: Optional[str] = None,
-                 metadata: Optional[Dict[str, Any]] = None,
-                 pattern_id: Optional[str] = None):
-
+    def __init__(
+        self,
+        name: str,
+        glyphs: List[Union[str, Dict[str, Any]]],
+        pattern_type: str,
+        trigger_logic: str = "",
+        prediction: Optional[List[Union[str, Dict[str, Any]]]] = None,
+        sqi_score: Optional[float] = None,
+        source_container: Optional[str] = None,
+        metadata: Optional[Dict[str, Any]] = None,
+        pattern_id: Optional[str] = None,
+    ):
         self.name = name
         self.glyphs = glyphs
         self.type = pattern_type

@@ -1,6 +1,6 @@
 // frontend/lib/hologram/entanglement_link_resolver.ts
 
-import { HolographicTree, SymbolicNode } from "@/../lib/types/symbolic_types";
+import { HolographicTree, SymbolicNode } from "@/lib/types/symbolic_types";
 
 export interface EntanglementResolutionResult {
   forwardMap: Record<string, Set<string>>;

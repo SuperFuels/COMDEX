@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
-import { useWebSocket } from "@/hooks/useWebSocket";
+import { useMemo, useState } from "react";
+import useWebSocket from "@/hooks/useWebSocket";
 
 interface MemoryGlyph {
   symbol: string;
@@ -15,41 +15,39 @@ export type MemoryBridge = {
   weight?: number;
 };
 
-export function useMemoryBridge(containerId: string): {
-  activeBridges: MemoryBridge[];
-  memoryGlyphs: MemoryGlyph[];
-} {
+export function useMemoryBridge(
+  containerId: string
+): { activeBridges: MemoryBridge[]; memoryGlyphs: MemoryGlyph[] } {
   const [memoryGlyphs, setMemoryGlyphs] = useState<MemoryGlyph[]>([]);
-  const wsUrl = `/ws/glyphnet/${containerId}`;
-  const { lastJsonMessage } = useWebSocket(wsUrl);
 
-  useEffect(() => {
-    if (lastJsonMessage?.event === "memory_sync") {
-      const { glyphs } = lastJsonMessage.payload || {};
+  const wsUrl = `/ws/glyphnet/${containerId}`;
+
+  // Your hook expects (url, onMessage). It returns { socket, connected, emit } and
+  // does NOT expose `lastJsonMessage`, so handle messages here.
+  useWebSocket(wsUrl, (msg: any) => {
+    const event = msg?.event ?? msg?.type;
+    if (event === "memory_sync") {
+      const glyphs = msg?.payload?.glyphs ?? msg?.glyphs;
       if (Array.isArray(glyphs)) {
-        setMemoryGlyphs(glyphs);
+        setMemoryGlyphs(glyphs as MemoryGlyph[]);
       }
     }
-  }, [lastJsonMessage]);
+  });
 
   const glyphMap = useMemo(() => {
-    const map: { [glyph_id: string]: MemoryGlyph } = {};
-    for (const g of memoryGlyphs) {
-      map[g.glyph_id] = g;
-    }
+    const map: Record<string, MemoryGlyph> = {};
+    for (const g of memoryGlyphs) map[g.glyph_id] = g;
     return map;
   }, [memoryGlyphs]);
 
-  const activeBridges = useMemo(() => {
+  const activeBridges = useMemo<MemoryBridge[]>(() => {
     const bridges: MemoryBridge[] = [];
-
     for (const glyph of memoryGlyphs) {
       const fromSymbol = glyph.symbol;
-      const entangledIds = glyph.entangled || [];
-
+      const entangledIds = glyph.entangled ?? [];
       for (const toId of entangledIds) {
         const toGlyph = glyphMap[toId];
-        if (toGlyph && toGlyph.symbol) {
+        if (toGlyph?.symbol) {
           bridges.push({
             from: fromSymbol,
             to: toGlyph.symbol,
@@ -58,7 +56,6 @@ export function useMemoryBridge(containerId: string): {
         }
       }
     }
-
     return bridges;
   }, [memoryGlyphs, glyphMap]);
 

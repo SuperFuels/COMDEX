@@ -1,8 +1,8 @@
 // ✅ File: frontend/components/QuantumField/AtomView/atom_orbit_renderer.tsx
+"use client";
 
 import React from "react";
 import * as THREE from "three";
-import { useFrame } from "@react-three/fiber";
 
 interface OrbitLayerProps {
   radius: number;
@@ -13,8 +13,8 @@ interface OrbitLayerProps {
 }
 
 /**
- * 🔄 Renders a circular orbit layer around the nucleus.
- * Can be used to represent electron shells or energy levels.
+ * 🔄 Renders a circular orbit layer around the nucleus (as a Three.js Line).
+ * Uses <primitive> to avoid the DOM <line> type collision in TSX.
  */
 const OrbitLayer: React.FC<OrbitLayerProps> = ({
   radius,
@@ -24,7 +24,7 @@ const OrbitLayer: React.FC<OrbitLayerProps> = ({
   thickness = 1,
 }) => {
   const points = React.useMemo(() => {
-    const pts = [];
+    const pts: THREE.Vector3[] = [];
     for (let i = 0; i <= segments; i++) {
       const angle = (i / segments) * Math.PI * 2;
       pts.push(new THREE.Vector3(Math.cos(angle) * radius, Math.sin(angle) * radius, 0));
@@ -32,19 +32,33 @@ const OrbitLayer: React.FC<OrbitLayerProps> = ({
     return pts;
   }, [radius, segments]);
 
-  const geometry = new THREE.BufferGeometry().setFromPoints(points);
+  const geometry = React.useMemo(() => {
+    const g = new THREE.BufferGeometry();
+    g.setFromPoints(points);
+    return g;
+  }, [points]);
 
-  return (
-    <line geometry={geometry}>
-      <lineBasicMaterial
-        attach="material"
-        color={color}
-        transparent
-        opacity={opacity}
-        linewidth={thickness}
-      />
-    </line>
+  const material = React.useMemo(
+    () =>
+      new THREE.LineBasicMaterial({
+        color: new THREE.Color(color),
+        transparent: true,
+        opacity,
+        linewidth: thickness, // note: most WebGL implementations ignore linewidth
+      }),
+    [color, opacity, thickness]
   );
+
+  const line = React.useMemo(() => new THREE.Line(geometry, material), [geometry, material]);
+
+  React.useEffect(() => {
+    return () => {
+      geometry.dispose();
+      material.dispose();
+    };
+  }, [geometry, material]);
+
+  return <primitive object={line} />;
 };
 
 interface AtomNucleusProps {
@@ -61,13 +75,16 @@ const AtomNucleus: React.FC<AtomNucleusProps> = ({
   color = "#ffaa00",
   glow = true,
 }) => {
-  const material = new THREE.MeshBasicMaterial({ color });
-  if (glow) material.emissive = new THREE.Color(color);
-
   return (
     <mesh position={[0, 0, 0]}>
       <sphereGeometry args={[radius, 32, 32]} />
-      <meshBasicMaterial color={color} />
+      <meshStandardMaterial
+        color={color}
+        emissive={glow ? color : undefined}
+        emissiveIntensity={glow ? 0.6 : 0}
+        roughness={0.4}
+        metalness={0.1}
+      />
     </mesh>
   );
 };

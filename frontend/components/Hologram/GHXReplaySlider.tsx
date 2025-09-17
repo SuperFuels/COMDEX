@@ -1,13 +1,22 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Slider } from "@/components/ui/slider";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { GHXPacket } from "@/types/ghx_types";
+
+// Minimal types needed for this component
+type GHXFrame = {
+  entangled_links?: any[];
+  // other frame fields are ignored by this control
+  [key: string]: any;
+};
+
+type GHXProjection = {
+  light_field: GHXFrame[];
+};
 
 type Props = {
-  projection: GHXPacket | null;
-  onFrameSelect: (frameIndex: number, glyph: any, entangledLinks?: any[]) => void;
+  projection: GHXProjection | null;
+  onFrameSelect: (frameIndex: number, glyph: GHXFrame, entangledLinks?: any[]) => void;
   onPlayToggle?: (playing: boolean) => void;
 };
 
@@ -15,32 +24,32 @@ export default function GHXReplaySlider({ projection, onFrameSelect, onPlayToggl
   const [frame, setFrame] = useState(0);
   const [playing, setPlaying] = useState(false);
 
-  const totalFrames = projection?.light_field.length || 0;
+  const totalFrames = projection?.light_field.length ?? 0;
 
   // 🔄 Auto-play progression
   useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (playing && totalFrames > 0) {
-      interval = setInterval(() => {
-        setFrame((prev) => {
-          const next = (prev + 1) % totalFrames;
-          emitFrameSelect(next);
-          return next;
-        });
-      }, 800);
-    }
-    return () => clearInterval(interval);
+    if (!playing || totalFrames === 0) return;
+
+    const id = window.setInterval(() => {
+      setFrame((prev) => {
+        const next = (prev + 1) % totalFrames;
+        emitFrameSelect(next);
+        return next;
+      });
+    }, 800);
+
+    return () => window.clearInterval(id);
   }, [playing, totalFrames]);
 
   const emitFrameSelect = (frameIndex: number) => {
     if (!projection) return;
     const glyph = projection.light_field[frameIndex];
-    const entangledLinks = glyph?.entangled_links || []; // 🔗 Supports replay-linked ↔ paths
+    const entangledLinks = glyph?.entangled_links ?? [];
     onFrameSelect(frameIndex, glyph, entangledLinks);
   };
 
-  const handleChange = (val: number[]) => {
-    const frameIndex = val[0];
+  const handleRangeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const frameIndex = Number(e.target.value);
     setFrame(frameIndex);
     emitFrameSelect(frameIndex);
   };
@@ -48,7 +57,7 @@ export default function GHXReplaySlider({ projection, onFrameSelect, onPlayToggl
   const handleToggle = () => {
     const next = !playing;
     setPlaying(next);
-    if (onPlayToggle) onPlayToggle(next);
+    onPlayToggle?.(next);
   };
 
   if (!projection || totalFrames === 0) return null;
@@ -56,18 +65,27 @@ export default function GHXReplaySlider({ projection, onFrameSelect, onPlayToggl
   return (
     <div className="flex flex-col items-center w-full gap-2 px-4 py-2 bg-black/30 rounded-lg">
       <div className="flex items-center w-full gap-4">
-        <Button onClick={handleToggle} variant="ghost" size="sm">
+        {/* Our Button type doesn't support variant/size; style with classes */}
+        <Button
+          onClick={handleToggle}
+          className="h-8 px-3 border border-input bg-background hover:bg-accent hover:text-accent-foreground"
+        >
           {playing ? "⏸ Pause" : "▶️ Play"}
         </Button>
-        <Slider
+
+        {/* Native range input instead of @/components/ui/slider */}
+        <input
+          type="range"
           min={0}
-          max={totalFrames - 1}
+          max={Math.max(0, totalFrames - 1)}
           step={1}
-          value={[frame]}
-          onValueChange={handleChange}
-          className="w-full"
+          value={frame}
+          onChange={handleRangeChange}
+          className="w-full accent-cyan-400"
+          aria-label="Replay frame"
         />
       </div>
+
       <span className="text-xs text-white/70">
         Frame {frame + 1} / {totalFrames}
       </span>

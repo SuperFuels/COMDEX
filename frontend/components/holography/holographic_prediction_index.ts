@@ -1,6 +1,10 @@
 // File: frontend/components/holography/holographic_prediction_index.ts
 
-import { GlyphNode } from "@/types/glyphs";
+// Minimal shape we need for contradiction checks.
+// (Avoids importing '@/types/glyphs' which may not exist in this project.)
+type GlyphNodeLike = {
+  entropy?: number;
+};
 
 export type PredictionOverlay = {
   glyphId: string;
@@ -39,13 +43,13 @@ export class HolographicPredictionIndex {
     this.overlays.clear();
   }
 
-  // Utility: highlight glyphs above a confidence threshold
+  /** Highlight glyphs above a confidence threshold. */
   getHighConfidenceGlyphs(threshold = 0.75): PredictionOverlay[] {
     return this.getAllOverlays().filter((p) => p.confidence >= threshold);
   }
 
-  // Utility: detect contradictions
-  detectContradictions(glyphMap: Map<string, GlyphNode>): string[] {
+  /** Detect contradictions using a provided glyph map (only needs .entropy). */
+  detectContradictions(glyphMap: Map<string, GlyphNodeLike>): string[] {
     const contradictory: string[] = [];
     this.overlays.forEach((overlay, id) => {
       const node = glyphMap.get(id);
@@ -59,14 +63,14 @@ export class HolographicPredictionIndex {
     return contradictory;
   }
 
-  // Utility: teleportable glyphs
+  /** Teleportable glyphs from overlay data. */
   getTeleportPaths(): { from: string; to: string }[] {
     return this.getAllOverlays()
-      .filter((p) => p.teleportTargetId)
+      .filter((p) => !!p.teleportTargetId)
       .map((p) => ({ from: p.glyphId, to: p.teleportTargetId! }));
   }
 
-  // Debug / summary view
+  /** Debug / summary view. */
   summarize(): string {
     return `HolographicPredictionIndex with ${this.overlays.size} overlays.`;
   }

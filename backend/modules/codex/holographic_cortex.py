@@ -2,6 +2,8 @@
 
 import datetime
 import random
+import math
+
 from backend.modules.codex.codex_core import CodexCore
 from backend.modules.glyphos.codex_trace import CodexTrace
 

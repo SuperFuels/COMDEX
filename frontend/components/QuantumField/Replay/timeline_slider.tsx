@@ -1,13 +1,15 @@
-import React, { useState, useEffect } from "react";
-import { Slider } from "@/components/ui/slider";
-import { PlayIcon, PauseIcon, RewindIcon } from "lucide-react";
+'use client';
+
+import React, { useEffect, useState } from 'react';
+import { PlayIcon, PauseIcon, RewindIcon } from 'lucide-react';
 
 interface TimelineSliderProps {
   maxTick: number;
   currentTick: number;
   onTickChange: (tick: number) => void;
   autoPlay?: boolean;
-  speed?: number; // ms per tick
+  /** ms per tick */
+  speed?: number;
 }
 
 const TimelineSlider: React.FC<TimelineSliderProps> = ({
@@ -17,17 +19,27 @@ const TimelineSlider: React.FC<TimelineSliderProps> = ({
   autoPlay = false,
   speed = 1000,
 }) => {
-  const [tick, setTick] = useState(currentTick);
-  const [playing, setPlaying] = useState(autoPlay);
+  const [tick, setTick] = useState<number>(currentTick ?? 0);
+  const [playing, setPlaying] = useState<boolean>(autoPlay);
 
+  // keep internal state in sync with parent
   useEffect(() => {
-    setTick(currentTick);
-  }, [currentTick]);
+    setTick(Math.min(currentTick ?? 0, maxTick));
+  }, [currentTick, maxTick]);
 
+  // clamp if maxTick shrinks
+  useEffect(() => {
+    if (tick > maxTick) {
+      setTick(maxTick);
+      onTickChange(maxTick);
+    }
+  }, [maxTick]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // autoplay loop
   useEffect(() => {
     if (!playing) return;
-    const interval = setInterval(() => {
-      setTick((prev) => {
+    const id = setInterval(() => {
+      setTick(prev => {
         const next = prev + 1;
         if (next > maxTick) {
           setPlaying(false);
@@ -37,14 +49,14 @@ const TimelineSlider: React.FC<TimelineSliderProps> = ({
         return next;
       });
     }, speed);
-    return () => clearInterval(interval);
+    return () => clearInterval(id);
   }, [playing, maxTick, speed, onTickChange]);
 
-  const handleSliderChange = (val: number[]) => {
-    const newTick = val[0];
+  const handleRangeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newTick = Number(e.target.value);
     setTick(newTick);
     onTickChange(newTick);
-    setPlaying(false); // pause autoplay when user manually changes
+    setPlaying(false); // pause when user scrubs
   };
 
   return (
@@ -58,32 +70,35 @@ const TimelineSlider: React.FC<TimelineSliderProps> = ({
               setPlaying(false);
             }}
             title="Rewind"
+            className="p-1 rounded hover:bg-white/10"
           >
             <RewindIcon className="w-4 h-4" />
           </button>
 
           <button
-            onClick={() => setPlaying((p) => !p)}
-            title={playing ? "Pause" : "Play"}
+            onClick={() => setPlaying(p => !p)}
+            title={playing ? 'Pause' : 'Play'}
+            className="p-1 rounded hover:bg-white/10"
           >
-            {playing ? (
-              <PauseIcon className="w-4 h-4" />
-            ) : (
-              <PlayIcon className="w-4 h-4" />
-            )}
+            {playing ? <PauseIcon className="w-4 h-4" /> : <PlayIcon className="w-4 h-4" />}
           </button>
         </div>
+
         <div>
           Tick: <strong>{tick}</strong> / {maxTick}
         </div>
       </div>
-      <Slider
+
+      {/* Native range slider (no external UI dep) */}
+      <input
+        type="range"
         min={0}
         max={maxTick}
         step={1}
-        value={[tick]}
-        onValueChange={handleSliderChange}
-        className="w-full"
+        value={tick}
+        onChange={handleRangeChange}
+        className="w-full accent-cyan-400"
+        aria-label="Timeline tick"
       />
     </div>
   );

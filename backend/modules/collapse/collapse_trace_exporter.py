@@ -13,6 +13,7 @@ import time
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, List, Tuple
+from backend.models.fork import Fork
 
 TRACE_LOG_PATH = os.getenv("TRACE_LOG_PATH", "./logs/collapse_traces.jsonl")
 
@@ -25,6 +26,7 @@ from backend.modules.glyphwave.core.beam_state import (
 # Core modules
 from backend.modules.creative.innovation_scorer import compute_innovation_score
 from backend.modules.creative.innovation_memory_tracker import log_event as log_innovation_event
+from backend.modules.symbolic_spreadsheet.models.glyph_cell import GlyphCell
 
 # Optional simplifier
 try:
@@ -96,6 +98,63 @@ def log_beam_collapse(wave_id: str, collapse_state: Dict[str, Any]):
         ]
     }
     log_event_to_disk(event)
+
+def export_collapse_trace_from_sheet(
+    cells: List[GlyphCell],
+    out_path: str = "collapse_trace.dc.json",
+    container_id: str = "sheet_runtime",
+    metadata: dict = {}
+):
+    """
+    Exports the current state of an AtomSheet (list of GlyphCells) into a .dc.json trace container.
+    """
+    if not cells:
+        print("[⚠️] No cells to export.")
+        return
+
+    print(f"[📦] Exporting collapse trace for {len(cells)} cells → {out_path}")
+
+    snapshot = {
+        "type": "DimensionContainer",
+        "id": container_id,
+        "format": "dc.json",
+        "version": "1.0",
+        "exported_at": datetime.utcnow().isoformat() + "Z",
+        "metadata": metadata,
+        "cells": [],
+        "traces": [],
+    }
+
+    for cell in cells:
+        snapshot["cells"].append({
+            "id": cell.id,
+            "logic": cell.logic,
+            "position": cell.position,
+            "emotion": cell.emotion,
+            "prediction": cell.prediction,
+            "sqi": cell.sqi_score,
+            "result": cell.result,
+            "validated": cell.validated,
+            "linked": cell.linked_cells,
+            "nested": cell.nested_logic,
+            # 🧬 Mutation tracking fields
+            "mutation_type": getattr(cell, "mutation_type", None),
+            "mutation_parent_id": getattr(cell, "mutation_parent_id", None),
+            "mutation_score": getattr(cell, "mutation_score", None),
+            "mutation_timestamp": getattr(cell, "mutation_timestamp", datetime.utcnow().isoformat() + "Z"),
+        })
+
+        if cell.trace:
+            snapshot["traces"].append({
+                "cell_id": cell.id,
+                "events": cell.trace,
+            })
+
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+    with open(out_path, "w", encoding="utf-8") as f:
+        json.dump(snapshot, f, indent=2)
+
+    print(f"[✅] Collapse trace exported to {out_path}")
 
 def _safe_filename(stem: str) -> str:
     """Sanitize a filename stem (no path separators)."""
@@ -407,4 +466,5 @@ __all__ = [
     "load_collapse_trace",
     "iter_collapse_trace_files",
     "get_recent_collapse_traces",
+    "export_collapse_trace_from_sheet",  
 ]

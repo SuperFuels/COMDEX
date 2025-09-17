@@ -55,6 +55,7 @@ from backend.modules.glyphwave.core.beam_logger import log_beam_prediction
 from backend.modules.glyphwave.emit_beam import emit_qwave_beam
 from backend.modules.creative.innovation_scorer import get_innovation_score
 from backend.modules.codex.codex_scroll_builder import build_scroll_from_glyph
+from backend.modules.symbolic_spreadsheet.models.glyph_cell import GlyphCell
 
 # ⬁ Self-Rewrite Imports
 from backend.modules.codex.scroll_mutation_engine import mutate_scroll_tree
@@ -686,6 +687,27 @@ class CodexExecutor:
 
         self.kg_writer.log_execution(glyph=glyph, result=result, source="glyph")
         entangle_glyphs(glyph, context.get("container_id"))
+        return result
+
+    def run_glyphcell(self, cell: GlyphCell, context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        """
+        Execute a GlyphCell's CodexLang logic field.
+        """
+        context = context or {}
+        context["cell_id"] = cell.id
+        context["emotion"] = cell.emotion
+        context["coord"] = cell.position
+        context["linked"] = cell.linked_cells
+        context["nested"] = cell.nested_logic
+        context["container_id"] = context.get("container_id", "unknown_container")
+
+        # Use logic string as CodexLang source
+        logic = cell.logic.strip()
+        result = self.execute_codexlang(logic, context=context)
+
+        # Store results back into cell
+        cell.result = result.get("result")
+        cell.validated = result.get("status") == "success"
         return result
 
     # ──────────────────────────────

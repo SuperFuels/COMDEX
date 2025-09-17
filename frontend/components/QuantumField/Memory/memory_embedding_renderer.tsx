@@ -1,6 +1,6 @@
 // ✅ File: frontend/components/QuantumField/Memory/memory_embedding_renderer.tsx
 
-import React from "react";
+import React, { useMemo, useEffect } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 
@@ -13,32 +13,41 @@ export interface MemoryEmbedding {
 }
 
 const MemoryTraceLine: React.FC<{ trace: MemoryEmbedding }> = ({ trace }) => {
-  const ref = React.useRef<THREE.Line>(null);
-  const materialRef = React.useRef<THREE.LineBasicMaterial>(null);
+  // Build geometry from points
+  const geometry = useMemo(() => {
+    const points = trace.tracePath.map(([x, y, z]) => new THREE.Vector3(x, y, z));
+    return new THREE.BufferGeometry().setFromPoints(points);
+  }, [trace.tracePath]);
 
+  // Material (we'll animate its opacity)
+  const material = useMemo(() => {
+    const m = new THREE.LineBasicMaterial({
+      color: new THREE.Color(trace.color ?? "#99ffcc"),
+      transparent: true,
+      opacity: trace.intensity ?? 0.6,
+    });
+    return m;
+  }, [trace.color, trace.intensity]);
+
+  // The actual three.js Line object
+  const line = useMemo(() => new THREE.Line(geometry, material), [geometry, material]);
+
+  // Animate material opacity (pulse)
   useFrame(({ clock }) => {
-    if (materialRef.current) {
-      const pulse = 0.4 + 0.4 * Math.sin(clock.getElapsedTime() * 2);
-      materialRef.current.opacity = (trace.intensity ?? 0.6) * pulse;
-    }
+    const pulse = 0.4 + 0.4 * Math.sin(clock.getElapsedTime() * 2);
+    material.opacity = (trace.intensity ?? 0.6) * pulse;
   });
 
-  const geometry = new THREE.BufferGeometry().setFromPoints(
-    trace.tracePath.map(([x, y, z]) => new THREE.Vector3(x, y, z))
-  );
+  // Cleanup GPU resources when dependencies change/unmount
+  useEffect(() => {
+    return () => {
+      geometry.dispose();
+      material.dispose();
+    };
+  }, [geometry, material]);
 
-  return (
-    <line ref={ref} geometry={geometry} visible>
-      <lineBasicMaterial
-        ref={materialRef}
-        attach="material"
-        color={trace.color || "#99ffcc"}
-        transparent
-        opacity={trace.intensity ?? 0.6}
-        linewidth={2}
-      />
-    </line>
-  );
+  // Use <primitive> to avoid SVG <line> typing conflicts
+  return <primitive object={line} />;
 };
 
 const MemoryEmbeddingRenderer: React.FC<{ embeddings: MemoryEmbedding[] }> = ({ embeddings }) => {

@@ -1,4 +1,5 @@
 // File: frontend/components/GlyphNet/GlyphNetTerminal.tsx
+"use client";
 
 import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
@@ -14,7 +15,7 @@ export default function GlyphNetTerminal() {
   const [replayMode, setReplayMode] = useState(false);
 
   // ✅ Handle messages from backend
-  const { emit } = useWebSocket("/ws/glyphnet", (msg: any) => {
+  const { emit } = useWebSocket("/ws/glyphnet", (msg: unknown) => {
     const message = typeof msg === "string" ? msg : JSON.stringify(msg);
     setLog((prev) => [`📩 ${message}`, ...prev]);
   });
@@ -24,7 +25,7 @@ export default function GlyphNetTerminal() {
     if (!trimmed) return;
 
     try {
-      const [_, glyph, target] = trimmed.match(/send (.+) to (.+)/i) || [];
+      const [, glyph, target] = trimmed.match(/send (.+) to (.+)/i) || [];
       if (glyph && target) {
         const packet = {
           type: "symbolic_thought",
@@ -64,7 +65,10 @@ export default function GlyphNetTerminal() {
       const res = await fetch("/api/glyphnet/collapse_trace");
       const data = await res.json();
       if (data.status === "ok" && Array.isArray(data.traces)) {
-        const traceLog = data.traces.map((t) => `🛰️ REPLAY: ${t.expression} → ${t.output}`);
+        const traceLog = data.traces.map(
+          (t: { expression: string; output: string }) =>
+            `🛰️ REPLAY: ${t.expression} → ${t.output}`
+        );
         setLog((prev) => [...traceLog, ...prev]);
       } else {
         setLog((prev) => ["⚠️ Failed to load replay traces", ...prev]);
@@ -95,7 +99,11 @@ export default function GlyphNetTerminal() {
           <Button onClick={handleRun} disabled={loading}>
             {loading ? "Running..." : "Run"}
           </Button>
-          <Button variant="outline" onClick={() => setReplayMode((r) => !r)}>
+          {/* No `variant` prop on our Button type; style with classes */}
+          <Button
+            onClick={() => setReplayMode((r) => !r)}
+            className="border border-input bg-background hover:bg-accent hover:text-accent-foreground"
+          >
             {replayMode ? "🔁 Replay: ON" : "Replay: OFF"}
           </Button>
         </div>

@@ -1,105 +1,137 @@
 // frontend/hooks/useWebSocket.ts
+import { useEffect, useRef, useState } from "react";
+import { playGlyphNarration } from "@/components/ui/hologram_audio";
 
-import { useEffect, useRef, useState } from 'react'
-import { playGlyphNarration } from '../components/ui/hologram_audio'
+// Build a ws/wss URL from a path or absolute URL
+export function getWssUrl(pathOrUrl: string): string {
+  if (typeof window === "undefined") return "";
 
-function getWssUrl(path: string): string {
-  if (typeof window === 'undefined') return ''
-
-  const wsProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws'
-
-  // Use explicit WebSocket URL if provided
-  const rawSocketUrl = process.env.NEXT_PUBLIC_SOCKET_URL
-  if (rawSocketUrl) {
-    const cleanedHost = rawSocketUrl.replace(/^wss?:\/\//, '').replace(/\/+$/, '')
-    const cleanedPath = path.startsWith('/') ? path : `/${path}`
-    return `${wsProtocol}://${cleanedHost}${cleanedPath}`
+  // If they pass an absolute ws(s):// or http(s):// URL, normalize it.
+  if (/^wss?:\/\//i.test(pathOrUrl)) return pathOrUrl.replace(/^http/, "ws");
+  if (/^https?:\/\//i.test(pathOrUrl)) {
+    const u = new URL(pathOrUrl);
+    u.protocol = u.protocol === "https:" ? "wss:" : "ws:";
+    return u.toString();
   }
 
-  // Fallback to API URL
-  const apiBase = process.env.NEXT_PUBLIC_API_URL || ''
-  const cleanedHost =
-    apiBase
-      .replace(/^https?:\/\//, '')
-      .replace(/\/+api\/?$/, '') || window.location.host
+  const wsProtocol = window.location.protocol === "https:" ? "wss" : "ws";
 
-  const cleanedPath = path.startsWith('/') ? path : `/${path}`
-  return `${wsProtocol}://${cleanedHost}${cleanedPath}`
+  // Optional explicit socket host
+  const raw = process.env.NEXT_PUBLIC_SOCKET_URL;
+  if (raw) {
+    const host = raw.replace(/^wss?:\/\//, "").replace(/\/+$/, "");
+    const seg = pathOrUrl.startsWith("/") ? pathOrUrl : `/${pathOrUrl}`;
+    return `${wsProtocol}://${host}${seg}`;
+  }
+
+  // Fallback to API base or current host
+  const apiBase = process.env.NEXT_PUBLIC_API_URL || "";
+  const host =
+    apiBase
+      .replace(/^https?:\/\//, "")
+      .replace(/\/+api\/?$/, "") || window.location.host;
+
+  const seg = pathOrUrl.startsWith("/") ? pathOrUrl : `/${pathOrUrl}`;
+  return `${wsProtocol}://${host}${seg}`;
 }
 
+type MsgHandler = (data: any) => void;
+
+/**
+ * Unified WebSocket hook
+ * - Works with either pattern:
+ *   a) const { emit } = useWebSocket(path, onMessage)
+ *   b) const { sendJsonMessage, lastJsonMessage } = useWebSocket(path)
+ */
 export default function useWebSocket(
-  path: string,
-  onMessage: (data: any) => void,
+  pathOrUrl: string,
+  onMessage?: MsgHandler,
   filterType?: string[]
 ) {
-  const socketRef = useRef<WebSocket | null>(null)
-  const [connected, setConnected] = useState(false)
+  const socketRef = useRef<WebSocket | null>(null);
+  const [connected, setConnected] = useState(false);
+  const [lastJsonMessage, setLastJsonMessage] = useState<any>(null);
 
   useEffect(() => {
-    const url = getWssUrl(path)
-    if (!url.startsWith('ws')) {
-      console.warn('[WebSocket] Invalid URL:', url)
-      return
+    // SSR guard
+    if (typeof window === "undefined") return;
+
+    const url = getWssUrl(pathOrUrl);
+    if (!/^wss?:\/\//i.test(url)) {
+      console.warn("[WebSocket] Invalid URL:", url);
+      return;
     }
 
-    const socket = new WebSocket(url)
-    socketRef.current = socket
+    const socket = new WebSocket(url);
+    socketRef.current = socket;
 
     socket.onopen = () => {
-      console.info(`[WebSocket] Connected to ${url}`)
-      setConnected(true)
-    }
+      setConnected(true);
+      // console.info(`[WebSocket] Connected: ${url}`);
+    };
 
     socket.onclose = () => {
-      console.warn('[WebSocket] Disconnected from', url)
-      setConnected(false)
-    }
+      setConnected(false);
+      // console.warn("[WebSocket] Disconnected:", url);
+    };
 
     socket.onerror = (e) => {
-      console.error('[WebSocket] Error:', e)
-      setConnected(false)
-    }
+      setConnected(false);
+      // console.error("[WebSocket] Error:", e);
+    };
 
     socket.onmessage = (event) => {
+      let data: any = event.data;
       try {
-        const data = JSON.parse(event.data)
-        const type = data?.type || data?.event
-        if (!type || (filterType && !filterType.includes(type))) return
-
-        // 🎙️ Trigger narration if glyph symbol is available
-        if (type === 'glyph_execution' && data.payload?.glyph) {
-          const symbol = data.payload.glyph
-          playGlyphNarration(symbol)
-        }
-
-        // 🔥 Handle collapse + decoherence metrics
-        if (type === 'collapse_metrics' && data.event_type === 'collapse_tick') {
-          console.log('Collapse/sec:', data.collapse_per_sec)
-          console.log('Decoherence:', data.decoherence_rate)
-        }
-
-        onMessage(data)
-      } catch (err) {
-        console.warn('[WebSocket] Invalid message:', event.data)
+        data = JSON.parse(event.data);
+      } catch {
+        // leave as raw if not JSON
       }
-    }
+
+      const msgType = data?.type || data?.event;
+      if (filterType?.length && msgType && !filterType.includes(msgType)) return;
+
+      // Optional nicety: narrate glyphs when we see them
+      if (msgType === "glyph_execution" && data?.payload?.glyph) {
+        playGlyphNarration(data.payload.glyph);
+      }
+
+      setLastJsonMessage(data);
+      onMessage?.(data);
+    };
 
     return () => {
-      socket.close()
-    }
-  }, [path, onMessage, filterType?.join(',')])
+      socket.close();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathOrUrl, filterType?.join(",")]); // keep deps stable
 
-  const emit = (event: string, data: any) => {
-    if (socketRef.current?.readyState === WebSocket.OPEN) {
-      socketRef.current.send(JSON.stringify({ event, ...data }))
-    } else {
-      console.warn('[WebSocket] Cannot emit — socket not open:', event)
+  const sendJsonMessage = (payload: any) => {
+    const s = socketRef.current;
+    if (!s || s.readyState !== WebSocket.OPEN) {
+      console.warn("[WebSocket] Cannot send — socket not open");
+      return;
     }
-  }
+    s.send(typeof payload === "string" ? payload : JSON.stringify(payload));
+  };
+
+  // Back-compat alias for existing code
+  const emit = (event: string, data: any) =>
+    sendJsonMessage({ event, ...data });
+
+  const close = () => socketRef.current?.close();
 
   return {
     socket: socketRef.current,
     connected,
+    // New/expected API:
+    sendJsonMessage,
+    lastJsonMessage,
+    // Back-compat:
     emit,
-  }
+    close,
+  };
 }
+
+/** Lightweight alias you can import if you prefer a named export */
+export const useQfcSocket = useWebSocket;

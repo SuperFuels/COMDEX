@@ -3,6 +3,7 @@ import React from "react";
 import { Html } from "@react-three/drei";
 import { pull_to_field } from "@/utils/pull_to_field";
 import useWebSocket from "@/hooks/useWebSocket";
+import type { GlyphNode } from "@/types/qfc"; // ✅ bring in the expected type
 
 interface StrategySuggestion {
   nodeId: string;
@@ -36,6 +37,12 @@ const goalDeltaColor = (delta: number) => {
   return "text-red-300";
 };
 
+// 🔁 Adapter: StrategySuggestion -> GlyphNode (adds the required `id`)
+const toGlyphNode = (s: StrategySuggestion): GlyphNode => ({
+  ...(s as unknown as Omit<GlyphNode, "id">),
+  id: s.nodeId,
+});
+
 const HoverStrategySuggestions: React.FC<HoverStrategySuggestionsProps> = ({
   suggestions,
   visible,
@@ -44,8 +51,8 @@ const HoverStrategySuggestions: React.FC<HoverStrategySuggestionsProps> = ({
   if (!visible || suggestions.length === 0) return null;
 
   // 🛰️ Setup WebSocket connection based on first containerId
-  const containerId = suggestions?.[0]?.containerId || "default.dc.json";
-  const { emit } = useWebSocket(`/qfc/${containerId}`, () => {});
+  const containerIdFromList = suggestions?.[0]?.containerId || "default.dc.json";
+  const { emit } = useWebSocket(`/qfc/${containerIdFromList}`, () => {});
 
   return (
     <>
@@ -85,7 +92,7 @@ const HoverStrategySuggestions: React.FC<HoverStrategySuggestionsProps> = ({
                 </span>
                 <br />
                 🎯 Goal Δ:{" "}
-                <span className={`${goalDeltaColor(goalDelta)}`}>
+                <span className={goalDeltaColor(goalDelta)}>
                   {goalDelta.toFixed(2)}
                 </span>
               </div>
@@ -101,11 +108,9 @@ const HoverStrategySuggestions: React.FC<HoverStrategySuggestionsProps> = ({
                 onClick={(e) => {
                   e.stopPropagation();
                   onPull?.(suggestion);
-                  pull_to_field(
-                    suggestion,
-                    containerId || "default.dc.json",
-                    emit
-                  );
+                  // ✅ convert to GlyphNode to satisfy pull_to_field typing
+                  const node = toGlyphNode(suggestion);
+                  pull_to_field(node, containerId || "default.dc.json", emit);
                 }}
                 className="mt-2 text-[10px] px-2 py-1 bg-indigo-600 hover:bg-indigo-500 text-white rounded shadow w-full"
               >

@@ -18,7 +18,8 @@ interface VortexRendererProps {
 
 const VortexRenderer: React.FC<VortexRendererProps> = ({ position, container }) => {
   const funnelRef = useRef<THREE.Mesh>(null);
-  const swirlParticlesRef = useRef<THREE.Points>(null);
+  // NOTE: use `null!` so the ref is a MutableRefObject and `.current` is writable
+  const swirlParticlesRef = useRef<THREE.Points>(null!);
   const glyphOrbitRef = useRef<THREE.Group>(null);
   const distortionRef = useRef<THREE.Mesh>(null);
 
@@ -26,26 +27,34 @@ const VortexRenderer: React.FC<VortexRendererProps> = ({ position, container }) 
   useEffect(() => {
     const particles = 400;
     const positions = new Float32Array(particles * 3);
+
     for (let i = 0; i < particles; i++) {
       const angle = Math.random() * Math.PI * 2;
       const radius = Math.random() * 4;
       const height = Math.random() * 6 - 3;
-      positions[i * 3] = Math.cos(angle) * radius;
+      positions[i * 3 + 0] = Math.cos(angle) * radius;
       positions[i * 3 + 1] = height;
       positions[i * 3 + 2] = Math.sin(angle) * radius;
     }
+
     const geo = new THREE.BufferGeometry();
     geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-    swirlParticlesRef.current = new THREE.Points(
-      geo,
-      new THREE.PointsMaterial({
-        color: "#00ffff",
-        size: 0.06,
-        transparent: true,
-        opacity: 0.8,
-        blending: THREE.AdditiveBlending,
-      })
-    );
+
+    const mat = new THREE.PointsMaterial({
+      color: "#00ffff",
+      size: 0.06,
+      transparent: true,
+      opacity: 0.8,
+      blending: THREE.AdditiveBlending,
+    });
+
+    swirlParticlesRef.current = new THREE.Points(geo, mat);
+
+    // cleanup GPU resources if this ever re-runs/unmounts
+    return () => {
+      geo.dispose();
+      mat.dispose();
+    };
   }, []);
 
   /** 🔮 Glyph Orbit Projectors */
@@ -89,6 +98,7 @@ const VortexRenderer: React.FC<VortexRendererProps> = ({ position, container }) 
     }
 
     if (glyphOrbitRef.current) {
+      const len = glyphOrbitRef.current.children.length || 1;
       glyphOrbitRef.current.children.forEach((glyph, i) => {
         const angle = t * 0.6 + i * (Math.PI / 2);
         glyph.position.set(Math.cos(angle) * 3, Math.sin(angle) * 1.5, Math.sin(angle) * 3);
@@ -133,7 +143,14 @@ const VortexRenderer: React.FC<VortexRendererProps> = ({ position, container }) 
 
       {/* 🏷 Label */}
       <Html distanceFactor={12}>
-        <div style={{ textAlign: "center", fontSize: "0.8rem", color: "#00ffff", textShadow: "0 0 12px #00f0ff" }}>
+        <div
+          style={{
+            textAlign: "center",
+            fontSize: "0.8rem",
+            color: "#00ffff",
+            textShadow: "0 0 12px #00f0ff",
+          }}
+        >
           🌀 {container.name}
         </div>
       </Html>

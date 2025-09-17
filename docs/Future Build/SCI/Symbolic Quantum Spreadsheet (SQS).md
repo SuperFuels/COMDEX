@@ -62,6 +62,107 @@ classDef plugin fill:#003322,color:#cfc,stroke:#0f0;
 classDef use fill:#221100,color:#ffc,stroke:#cc0;
 classDef build fill:#222222,color:#fff,stroke:#aaa;
 
+
+
+%% QVC-BUILD-TREE :: Symbolic Quantum Spreadsheet System (SQS)
+%% Phased development plan using checklist structure
+
+flowchart TD
+
+%% ───── Phase 1 ─────
+subgraph Phase_1["🧮 Phase 1: Symbolic Spreadsheet Core"]
+    A1✅[🧩 symbolic_spreadsheet_engine.py]
+    A2✅[📦 .sqs.json spec (starter format)]
+    A3✅[⚛️ GlyphCell model (logic, emotion, prediction, trace, score)]
+    A4✅[🔢 load_sqs() + execute_cell(cell)]
+    A5✅[📈 SQI: score_sqi(cell) placeholder]
+    A6✅[🌐 Global toggles: lightcone_trace, ethics_enabled, replay_enabled]
+end
+
+%% ───── Phase 2 ─────
+subgraph Phase_2["🎛 Phase 2: SCI Plugin + UI Panel"]
+    B1✅[🧩 sci_atomsheet_panel.tsx]
+    B2✅[🖼 Load and render .sqs.json as grid]
+    B3✅[🖱 Highlight cell on hover]
+    B4✅[📊 Show logic, SQI, emotion inline]
+    B5✅[🔁 Toggle CodexLang view / raw view]
+    B6✅[🧠 Bind sheet engine hooks to panel]
+end
+
+%% ───── Phase 3 ─────
+subgraph Phase_3["🧠 Phase 3: SymPy + Mutation Layer"]
+    C1✅[⚙️ sympy_sheet_executor.py]
+    C2✅[∑ Parse cell.logic as symbolic expressions]
+    C3✅[ Solve/validate with sympy]
+    C4✅[🧬 Auto-trigger mutations on contradiction]
+    C5✅[✨ Mutation engine: score novelty vs harmony]
+    C6✅[💡 Emotion-weighted entropy]
+    C7✅[📈 SQI logic boost/penalty]
+end
+
+%% ───── Phase 4 ─────
+subgraph Phase_4["⏳ Phase 4: Replay + Collapse + QFC"]
+    D1✅[🔄 Load .dc.json from .sqs.json]
+    D2✅[🧠 Collapse trace hooks from GHX]
+    D3✅[🧬 Symbolically track mutations over time]
+    D4✅[🎞 Enable step-through replay]
+end
+
+%% ───── Phase 5 ─────
+subgraph Phase_5["🧬 Phase 5: CodexLang Tracing + LightCone"]
+    E1✅[🧠 Pipe CodexLang into GlyphCell.logic]
+    E2✅[🌌 LightCone execution (forward/reverse)]
+    E3✅[♻️ Reflexive symbol trace → QFC]
+end
+
+%% ───── Phase 6 ─────
+subgraph Phase_6["⚖️ Phase 6: SoulLaw, Entanglement, Ethics"]
+    F1✅[🧑‍⚖️ SoulLaw pre-filter (forbidden patterns)]
+    F2✅[🧾 Post-run audit + violation annotations]
+    F3✅[🔗 Entangled logic links between cells]
+    F4✅[🔮 Prediction forks tied to logic + emotion]
+end
+
+%% ───── Phase 7 ─────
+subgraph Phase_7["⚛️ Phase 7: QPU ISA + Symbolic Hardware"]
+    G1[💻 Define symbolic QPU ISA (opcodes, entanglement)]
+    G2[🧪 Begin CPU emulation layer]
+    G3[📉 Profile symbolic op types → FP4/INT8 mapping]
+end
+
+%% ───── Support Tasks ─────
+subgraph Support["📁 SUPPORT TASKS"]
+    S1[📦 Symbolic Quantum Container Spec (.sqs.json, .qfc.json)]
+    S2[🧠 GlyphRuntimeWeight scoring system]
+    S3[🧑‍⚖️ SoulLawViolation spec + quarantine hooks]
+    S4[❤️ EmotionProfile → execution bias]
+    S5[🧾 Breadcrumb metadata: /Codex/Mutation/⬁/Entangled/↔]
+    S6[🗂 UUIDv7 file ID for containers]
+end
+
+%% ───── Deferred ─────
+subgraph Deferred["🕓 Deferred Features (Phase 6+)"]
+    DF1[🔬 QPU ISA / FPGA build]
+    DF2[🧠 Reflexive GRU per-cell memory]
+    DF3[⬁ Emotion mutation-driven branching]
+    DF4[💾 Full CodexLang-to-QPU serialization]
+    DF5[🧠 H100/B200 Entanglement replay hardware]
+end
+
+%% ⏳ Immediate Action
+subgraph Now["⏳ NEXT STEP — Start Phase 1"]
+    NA1✅[ Scaffold .sqs.json format]
+    NA2✅[ Implement symbolic_spreadsheet_engine.py]
+    NA3✅[ Add SQI scoring placeholder]
+    NA4✅[ Bind engine to .sqs.json loader]
+end
+
+
+
+
+
+
+
 🧠 Key Design Notes: SQS + AtomSheet System
 Component
 Purpose

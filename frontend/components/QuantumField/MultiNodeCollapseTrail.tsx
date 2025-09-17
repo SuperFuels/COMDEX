@@ -1,12 +1,16 @@
+// frontend/components/QuantumField/MultiNodeCollapseTrail.tsx
 import React from "react";
-import { Line } from "@react-three/drei";
+
+/** Basic vec3 tuple */
+type Vec3 = [number, number, number];
 
 interface CollapseTrailSegment {
   id: string;
-  from: [number, number, number];
-  to: [number, number, number];
-  type?: string;
-  strength?: number; // Optional SQI collapse strength
+  from: Vec3;
+  to: Vec3;
+  type?: "entangled" | "decay" | "cascade" | string;
+  /** Optional SQI collapse strength (0..1) used for opacity accenting */
+  strength?: number;
 }
 
 interface MultiNodeCollapseTrailProps {
@@ -14,7 +18,31 @@ interface MultiNodeCollapseTrailProps {
   visible?: boolean;
 }
 
-const getColorByType = (type: string = "") => {
+/** Tiny raw line helper to avoid drei <Line> typing/derivatives requirements */
+const SimpleLine: React.FC<{
+  from: Vec3;
+  to: Vec3;
+  color?: string;
+  opacity?: number;
+}> = ({ from, to, color = "#ffffff", opacity = 0.8 }) => {
+  // Standard WebGL lines ignore thickness (linewidth) in most browsers.
+  // If you need thick lines later, switch to three-stdlib Line2.
+  return (
+    <line>
+      <bufferGeometry>
+        <bufferAttribute
+          attach="attributes-position"
+          count={2}
+          itemSize={3}
+          array={new Float32Array([...from, ...to])}
+        />
+      </bufferGeometry>
+      <lineBasicMaterial color={color} transparent opacity={opacity} />
+    </line>
+  );
+};
+
+const colorByType = (type?: string) => {
   switch (type) {
     case "entangled":
       return "#00e0ff"; // cyan
@@ -27,24 +55,26 @@ const getColorByType = (type: string = "") => {
   }
 };
 
-const MultiNodeCollapseTrail: React.FC<MultiNodeCollapseTrailProps> = ({ segments, visible = true }) => {
-  if (!visible || segments.length === 0) return null;
+const MultiNodeCollapseTrail: React.FC<MultiNodeCollapseTrailProps> = ({
+  segments,
+  visible = true,
+}) => {
+  if (!visible || !segments?.length) return null;
 
   return (
     <>
       {segments.map((seg) => {
-        const color = getColorByType(seg.type);
-        const width = 0.15 + (seg.strength || 0) * 0.3; // thickness = base + collapse strength
+        const color = colorByType(seg.type);
+        // Emphasize stronger collapses with a bit more opacity.
+        const opacity = Math.min(1, 0.5 + (seg.strength ?? 0) * 0.5);
 
         return (
-          <Line
+          <SimpleLine
             key={seg.id}
-            points={[seg.from, seg.to]}
+            from={seg.from}
+            to={seg.to}
             color={color}
-            lineWidth={width}
-            dashed={false}
-            transparent
-            opacity={0.8}
+            opacity={opacity}
           />
         );
       })}

@@ -1,24 +1,46 @@
-import { useEffect, useState } from "react";
-import { GlyphTraceEntry } from "@/types/glyph";
-import { useWebSocket } from "@/hooks/useWebSocket";
+import { useState } from "react";
+import useWebSocket from "./useWebSocket";
 
-// Optionally parameterize this by containerId or HUD scope
-export function useAvatarGlyphs(containerId: string) {
+// Minimal glyph shape we actually use here.
+// (Avoids depending on a missing "@/types/glyph")
+export type GlyphTraceEntry = {
+  symbol: string;
+  glyph_id?: string;
+  trigger_state?: string;
+  [k: string]: unknown;
+};
+
+/**
+ * Live list of "interesting" avatar glyphs for a container.
+ * Filters to symbols we care about or anything currently "triggered".
+ */
+export function useAvatarGlyphs(containerId: string): GlyphTraceEntry[] {
   const [activeGlyphs, setActiveGlyphs] = useState<GlyphTraceEntry[]>([]);
-  const wsUrl = `/ws/glyphnet/${containerId}`;
-  const { lastJsonMessage } = useWebSocket(wsUrl);
 
-  useEffect(() => {
-    if (lastJsonMessage?.event === "glyph_trace") {
-      const { glyphs } = lastJsonMessage.payload || {};
-      if (glyphs?.length) {
-        const filtered = glyphs.filter((g: GlyphTraceEntry) =>
-          ["↔", "⧖", "⬁", "🧠"].includes(g.symbol) || g.trigger_state === "triggered"
+  // Our useWebSocket expects (url, onMessage, options?)
+  useWebSocket(`/ws/glyphnet/${containerId}`, (raw: unknown) => {
+    const msg = typeof raw === "string" ? safeParse(raw) : (raw as any);
+
+    if (msg?.event === "glyph_trace") {
+      const glyphs = (msg.payload?.glyphs ?? []) as GlyphTraceEntry[];
+      if (Array.isArray(glyphs)) {
+        const filtered = glyphs.filter(
+          (g) =>
+            ["↔", "⧖", "⬁", "🧠"].includes(g.symbol) ||
+            g.trigger_state === "triggered"
         );
         setActiveGlyphs(filtered);
       }
     }
-  }, [lastJsonMessage]);
+  });
 
   return activeGlyphs;
+}
+
+function safeParse(s: string) {
+  try {
+    return JSON.parse(s);
+  } catch {
+    return null;
+  }
 }
