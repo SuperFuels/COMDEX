@@ -56,6 +56,7 @@ from backend.modules.glyphwave.emit_beam import emit_qwave_beam
 from backend.modules.creative.innovation_scorer import get_innovation_score
 from backend.modules.codex.codex_scroll_builder import build_scroll_from_glyph
 from backend.modules.symbolic_spreadsheet.models.glyph_cell import GlyphCell
+from backend.modules.codex.codex_virtual_qpu import CodexVirtualQPU
 
 # ⬁ Self-Rewrite Imports
 from backend.modules.codex.scroll_mutation_engine import mutate_scroll_tree
@@ -143,10 +144,25 @@ logger = logging.getLogger(__name__)
 
 
 class CodexExecutor:
-    def __init__(self):
+    def __init__(self, use_qpu: bool = False):
         self.metrics = CodexMetrics()
         self.trace = CodexTrace()
         self.glyph_executor = GlyphExecutor(state_manager=STATE)
+
+        # QPU setup
+        self.use_qpu: bool = use_qpu
+        self.qpu: Optional[CodexVirtualQPU] = None
+        if self.use_qpu:
+            try:
+                from backend.modules.codex.codex_virtual_qpu import CodexVirtualQPU
+                self.qpu = CodexVirtualQPU(use_qpu=True)
+                logger.info("[CodexExecutor] QPU backend initialized")
+            except Exception as e:
+                logger.warning(f"[CodexExecutor] Failed to initialize QPU: {e}")
+                self.qpu = None
+                self.use_qpu = False
+
+        # Tessaris Engine
         global TessarisEngine
         if TessarisEngine is None:
             from backend.modules.tessaris.tessaris_engine import TessarisEngine
@@ -692,6 +708,7 @@ class CodexExecutor:
     def run_glyphcell(self, cell: GlyphCell, context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """
         Execute a GlyphCell's CodexLang logic field.
+        Supports optional QPU execution, SQI scoring, and QFC broadcasting.
         """
         context = context or {}
         context["cell_id"] = cell.id
@@ -701,14 +718,90 @@ class CodexExecutor:
         context["nested"] = cell.nested_logic
         context["container_id"] = context.get("container_id", "unknown_container")
 
-        # Use logic string as CodexLang source
         logic = cell.logic.strip()
-        result = self.execute_codexlang(logic, context=context)
+
+        # -------------------
+        # QPU path
+        # -------------------
+        if self.use_qpu and self.qpu:
+            from backend.modules.symbolic_spreadsheet.scoring.sqi_scorer import score_sqi
+            from backend.modules.glyphos.glyph_tokenizer import tokenize_symbol_text_to_glyphs
+
+            tokens = tokenize_symbol_text_to_glyphs(logic)
+            qpu_results = []
+
+            for token in tokens:
+                try:
+                    res = self.qpu.execute_cell(token, context=context)
+                except Exception as e:
+                    res = f"[QPU ERROR {token.get('value', '?')}: {str(e)}]"
+                qpu_results.append(res)
+
+            # Update SQI
+            prev_sqi = cell.sqi_score or 0.0
+            cell.sqi_score = score_sqi(cell)
+            if hasattr(self.qpu, "metrics"):
+                # Track SQI delta in QPU metrics
+                self.qpu.metrics["sqi_shift"] += cell.sqi_score - prev_sqi
+
+            # Broadcast results and metrics to QFC
+            try:
+                from backend.modules.visualization.qfc_websocket_bridge import broadcast_qfc_update
+                container_id = context.get("container_id", "unknown_container")
+                payload = {
+                    "nodes": [{"cell_id": cell.id, "sqi": cell.sqi_score}],
+                    "links": []
+                }
+
+                if hasattr(self.qpu, "get_qpu_metrics"):
+                    try:
+                        payload["qpu_metrics"] = self.qpu.get_qpu_metrics()
+                    except Exception:
+                        payload["qpu_metrics"] = {}
+
+                broadcast_qfc_update(container_id, payload)
+            except Exception as e:
+                # Non-fatal: log internally if desired
+                record_trace(cell.id, f"[QPU Broadcast Error]: {e}")
+
+            result = {"result": qpu_results, "status": "success", "qpu": True}
+
+        # -------------------
+        # Legacy path
+        # -------------------
+        else:
+            result = self.execute_codexlang(logic, context=context)
 
         # Store results back into cell
         cell.result = result.get("result")
         cell.validated = result.get("status") == "success"
+
         return result
+
+    def execute_sheet(self, cells: List[GlyphCell], context: Optional[Dict[str, Any]] = None) -> Dict[str, List[Any]]:
+        """
+        Execute a full sheet of GlyphCells, optionally on the QPU backend.
+        Aggregates QPU metrics and records execution traces.
+        """
+        context = context or {}
+        context["sheet_cells"] = cells
+        sheet_results: Dict[str, List[Any]] = {}
+        from time import perf_counter
+        start_time = perf_counter()
+
+        if self.use_qpu and self.qpu:
+            for cell in cells:
+                sheet_results[cell.id] = self.run_glyphcell(cell, context)
+            # Aggregate QPU metrics
+            metrics = self.qpu.dump_metrics()
+            record_trace("sheet", f"[QPU Sheet Metrics] {metrics}")
+        else:
+            for cell in cells:
+                sheet_results[cell.id] = self.run_glyphcell(cell, context)
+
+        elapsed = perf_counter() - start_time
+        record_trace("sheet", f"[Sheet Execution] elapsed={elapsed:.6f}s")
+        return sheet_results
 
     # ──────────────────────────────
     # 🔀 Trigger Ops
@@ -744,23 +837,98 @@ codex_executor = CodexExecutor()
 
 from typing import Any, Dict, Optional
 
-def execute_codex_instruction_tree(instruction_tree: Dict[str, Any],
-                                   context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+# ──────────────────────────────
+# Legacy / Convenience Shims
+# ──────────────────────────────
+
+def execute_codex_instruction_tree(
+    instruction_tree: Dict[str, Any],
+    context: Optional[Dict[str, Any]] = None
+) -> Dict[str, Any]:
     """
     Legacy shim: execute a pre-parsed instruction tree via the singleton executor.
     """
     return codex_executor.execute_instruction_tree(instruction_tree, context=context)
 
-def execute_codexlang(codex_string: str,
-                      context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+
+def execute_codexlang(
+    self,
+    codex_string: str,
+    context: Optional[Dict[str, Any]] = None
+) -> Dict[str, Any]:
     """
-    Legacy shim: execute a CodexLang string via the singleton executor.
+    Executes a CodexLang string.
+
+    If QPU is enabled, the string is tokenized and executed in bulk on the
+    QPU ISA, optionally handling multiple GlyphCells at once.
     """
-    return codex_executor.execute_codexlang(codex_string, context=context)
+    context = context or {}
+    start_time = perf_counter()
+
+    # -------------------
+    # QPU bulk path
+    # -------------------
+    if self.use_qpu and self.qpu:
+        from backend.modules.symbolic_spreadsheet.models.glyph_cell import GlyphCell
+        from backend.modules.symbolic_spreadsheet.scoring.sqi_scorer import score_sqi
+        from backend.modules.glyphos.glyph_tokenizer import tokenize_symbol_text_to_glyphs
+
+        # Tokenize the full CodexLang string
+        tokens = tokenize_symbol_text_to_glyphs(codex_string)
+        qpu_results: List[Any] = []
+
+        # Treat each token as a pseudo-cell for QPU execution
+        for token in tokens:
+            # Create a temporary GlyphCell wrapper for hooks (optional)
+            pseudo_cell = GlyphCell(
+                id=f"qpu_temp_{token['value']}",
+                logic=token["value"],
+                position=context.get("coord", [0, 0])
+            )
+            # Inject context reference to pseudo_cell
+            context["cell"] = pseudo_cell
+
+            try:
+                res = self.qpu.execute_cell(token, context=context)
+            except Exception as e:
+                res = f"[QPU ERROR {token.get('value', '?')}: {str(e)}]"
+            qpu_results.append(res)
+
+            # Update SQI per pseudo-cell
+            pseudo_cell.sqi_score = score_sqi(pseudo_cell)
+
+        # Aggregate QPU metrics
+        metrics = self.qpu.dump_metrics()
+        record_trace("codexlang_bulk_qpu", f"[QPU Bulk Metrics] {metrics}")
+
+        result = {"result": qpu_results, "status": "success", "qpu": True, "metrics": metrics}
+
+    # -------------------
+    # Legacy path
+    # -------------------
+    else:
+        try:
+            # Compile CodexLang string into instruction tree
+            instruction_tree = run_codexlang_string(codex_string)
+            if not instruction_tree or not isinstance(instruction_tree, dict):
+                raise ValueError("Failed to compile CodexLang string into a valid instruction tree.")
+            result = self.execute_instruction_tree(instruction_tree, context=context)
+        except Exception as e:
+            result = {"status": "error", "error": str(e)}
+
+    elapsed = perf_counter() - start_time
+    record_trace("codexlang_execution", f"[CodexLang] elapsed={elapsed:.6f}s")
+    return result
+
+
+# ──────────────────────────────
+# CLI / Standalone Execution
+# ──────────────────────────────
 
 if __name__ == "__main__":
     import sys, json
     from backend.modules.dna_chain.dc_handler import load_dc_container
+    from backend.modules.codex.rewrite_executor import auto_mutate_container
 
     if len(sys.argv) < 2:
         print("Usage: python codex_executor.py <path_to_dc.json> [--save]")
@@ -777,6 +945,12 @@ if __name__ == "__main__":
         sys.exit(1)
 
     mutated = auto_mutate_container(container, autosave=autosave)
+    print(f"✅ Container processed. Autosave={autosave}")
+
+
+# ──────────────────────────────
+# Module exports
+# ──────────────────────────────
 
 __all__ = [
     "CodexExecutor",

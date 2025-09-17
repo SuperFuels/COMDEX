@@ -9,6 +9,10 @@ active_qfc_sockets: Dict[str, WebSocket] = {}
 
 # 🔐 Safe coercion for hashable/loggable source values
 def coerce_source(value: Any) -> str:
+    """
+    Convert any value to a string suitable for source tagging.
+    Falls back to hash/id for non-serializable objects.
+    """
     try:
         if isinstance(value, (dict, list)):
             return f"invalid_source_{hash(str(value))}"
@@ -41,6 +45,9 @@ async def send_qfc_update(render_packet: Dict[str, Any]) -> None:
 
 # 🧠 Register live QFC sync socket for a specific container
 async def register_qfc_socket(container_id: str, websocket: WebSocket):
+    """
+    Accepts a WebSocket and registers it to a specific container ID.
+    """
     await websocket.accept()
     active_qfc_sockets[container_id] = websocket
     print(f"🔌 WebSocket registered for QFC container: {container_id}")
@@ -76,6 +83,10 @@ def _is_coroutine_fn(fn):
     return inspect.iscoroutinefunction(fn)
 
 def safe_fire_and_forget(coro_or_fn, *args, **kwargs):
+    """
+    Execute a coroutine or function safely without awaiting.
+    Falls back to asyncio.run if no running loop exists.
+    """
     try:
         if _is_coroutine_fn(coro_or_fn):
             try:
@@ -92,7 +103,7 @@ def safe_fire_and_forget(coro_or_fn, *args, **kwargs):
 def broadcast_qfc_beams(container_id: str, payload: Union[Dict[str, Any], List[Dict[str, Any]]]):
     """
     Broadcast multi-packet QFC visual data (e.g. QWave beams, traces) to the frontend.
-    This bypasses container-specific WebSocket and goes to all clients via `send_qfc_update`.
+    Bypasses container-specific WebSocket and goes to all clients via `send_qfc_update`.
     """
     if not isinstance(payload, list):
         payload = [payload]
@@ -106,3 +117,19 @@ def broadcast_qfc_beams(container_id: str, payload: Union[Dict[str, Any], List[D
     }
 
     safe_fire_and_forget(send_qfc_update, message)
+
+
+# ───────────────────────────────────────────────
+# 🛠 Optional helper: broadcast QPU / CPU metrics live
+# ───────────────────────────────────────────────
+
+def broadcast_cpu_qpu_metrics(container_id: str, metrics: Dict[str, Any], cpu: bool = False):
+    """
+    Send CPU or QPU benchmark / execution metrics to frontend.
+    """
+    metric_type = "cpu_metrics" if cpu else "qpu_metrics"
+    payload = {
+        "type": metric_type,
+        "metrics": metrics
+    }
+    safe_fire_and_forget(broadcast_qfc_beams, container_id, payload)

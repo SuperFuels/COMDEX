@@ -125,9 +125,26 @@ end
 
 %% ───── Phase 7 ─────
 subgraph Phase_7["⚛️ Phase 7: QPU ISA + Symbolic Hardware"]
-    G1[💻 Define symbolic QPU ISA (opcodes, entanglement)]
-    G2[🧪 Begin CPU emulation layer]
-    G3[📉 Profile symbolic op types → FP4/INT8 mapping]
+
+    G1✅[💻 Define symbolic QPU ISA (opcodes, entanglement)] ✅ Completed
+        - SYMBOLIC_QPU_OPS defined
+        - opcodes: ⊕, ↔, ⟲, →, ⧖, ∇, ⊗, ✦ implemented
+        - Stubs for entanglement / collapse / superposition
+        - QPU metrics, SQI integration, prediction forks
+        - run_glyphcell / execute_sheet / execute_codexlang wired to QPU
+
+    G2[🧪 Begin CPU emulation layer] ⚠️ In Progress / Partially Completed
+        - CodexVirtualCPU fully implemented
+        - CodexExecutor patched to optionally use QPU
+        - run_glyphcell, execute_sheet, execute_codexlang patched for QPU
+        - Remaining: Full G2 “symbolic CPU emulation layer” for timing, op type mapping, and possibly low-level memory/register simulation.
+
+    G3[📉 Profile symbolic op types → FP4/INT8 mapping] ⬜ Not Started
+        - No profiling implemented yet
+        - No FP4/FP8/INT8 mapping of symbolic ops
+        - Future step: Analyze op execution, precision requirements, and potential hardware mapping
+
+end
 end
 
 %% ───── Support Tasks ─────
