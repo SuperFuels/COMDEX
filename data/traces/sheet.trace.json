@@ -206,5 +206,1069 @@
   {
     "timestamp": "2025-09-18T09:14:36.942348Z",
     "message": "[Sheet Execution] elapsed=0.187740s"
+  },
+  {
+    "timestamp": "2025-09-18T10:11:39.140337Z",
+    "message": "[QPU Sheet Metrics] {'execution_time': 0.0836727969981439, 'sqi_shift': 2.0, 'mutation_count': 12}"
+  },
+  {
+    "timestamp": "2025-09-18T10:11:39.141674Z",
+    "message": "[QPU Sheet Token Metrics] {'c0': {'\u27f2': [{'total': 0.0020542349993775133, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.002567374000136624, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2207': [{'total': 0.001962894999451237, 'fp4': 5.490999683388509e-06, 'fp8': 2.275000952067785e-06, 'int8': 2.7050009521190077e-06}, {'total': 0.0023448169995390344, 'fp4': 5.099000190966763e-06, 'fp8': 2.122998921549879e-06, 'int8': 3.315999492770061e-06}], '\u2295': [{'total': 0.0016243030004261527, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.0014973559991631191, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2726': [{'total': 0.0025458930012973724, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.004944771999362274, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2192': [{'total': 0.002301917998920544, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.005621315000098548, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2194': [{'total': 0.001910195998789277, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.004571776000375394, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}]}, 'c1': {'\u27f2': [{'total': 0.0020542349993775133, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.002567374000136624, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2207': [{'total': 0.001962894999451237, 'fp4': 5.490999683388509e-06, 'fp8': 2.275000952067785e-06, 'int8': 2.7050009521190077e-06}, {'total': 0.0023448169995390344, 'fp4': 5.099000190966763e-06, 'fp8': 2.122998921549879e-06, 'int8': 3.315999492770061e-06}], '\u2295': [{'total': 0.0016243030004261527, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.0014973559991631191, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2726': [{'total': 0.0025458930012973724, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.004944771999362274, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2192': [{'total': 0.002301917998920544, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.005621315000098548, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2194': [{'total': 0.001910195998789277, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.004571776000375394, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}]}}"
+  },
+  {
+    "timestamp": "2025-09-18T10:11:39.142983Z",
+    "message": "[QPU Sheet Opcode Metrics] {'c0': {'\u2295': {'count': 1, 'total_time': 0.0016243030004261527, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2207': {'count': 1, 'total_time': 0.001962894999451237, 'fp4_time': 5.490999683388509e-06, 'fp8_time': 2.275000952067785e-06, 'int8_time': 2.7050009521190077e-06}, '\u2194': {'count': 1, 'total_time': 0.001910195998789277, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u27f2': {'count': 1, 'total_time': 0.0020542349993775133, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2192': {'count': 1, 'total_time': 0.002301917998920544, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2726': {'count': 1, 'total_time': 0.0025458930012973724, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}, 'c1': {'\u2295': {'count': 1, 'total_time': 0.0014973559991631191, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2207': {'count': 1, 'total_time': 0.0023448169995390344, 'fp4_time': 5.099000190966763e-06, 'fp8_time': 2.122998921549879e-06, 'int8_time': 3.315999492770061e-06}, '\u2194': {'count': 1, 'total_time': 0.004571776000375394, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u27f2': {'count': 1, 'total_time': 0.002567374000136624, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2192': {'count': 1, 'total_time': 0.005621315000098548, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2726': {'count': 1, 'total_time': 0.004944771999362274, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}}"
+  },
+  {
+    "timestamp": "2025-09-18T10:11:39.143863Z",
+    "message": "[Sheet Execution] elapsed=0.054910s"
+  },
+  {
+    "timestamp": "2025-09-18T10:31:59.058921Z",
+    "message": "[QPU Sheet Metrics] {'execution_time': 0.08927195999967807, 'sqi_shift': 2.0, 'mutation_count': 12}"
+  },
+  {
+    "timestamp": "2025-09-18T10:31:59.059945Z",
+    "message": "[QPU Sheet Token Metrics] {'c0': {'\u2192': [{'total': 0.003146975999698043, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.0030383319990505697, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2295': [{'total': 0.002880116999222082, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.00251162899985502, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2726': [{'total': 0.0036952890004613437, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.0034110180004063295, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2194': [{'total': 0.003182892000040738, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.0033294959994236706, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u27f2': [{'total': 0.0031373870006063953, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.002773338001134107, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2207': [{'total': 0.003179626999553875, 'fp4': 6.391999704646878e-06, 'fp8': 2.5650006136856973e-06, 'int8': 3.1159997888607904e-06}, {'total': 0.002679072000319138, 'fp4': 7.01300086802803e-06, 'fp8': 3.006000042660162e-06, 'int8': 3.876999471685849e-06}]}, 'c1': {'\u2192': [{'total': 0.003146975999698043, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.0030383319990505697, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2295': [{'total': 0.002880116999222082, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.00251162899985502, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2726': [{'total': 0.0036952890004613437, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.0034110180004063295, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2194': [{'total': 0.003182892000040738, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.0033294959994236706, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u27f2': [{'total': 0.0031373870006063953, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.002773338001134107, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2207': [{'total': 0.003179626999553875, 'fp4': 6.391999704646878e-06, 'fp8': 2.5650006136856973e-06, 'int8': 3.1159997888607904e-06}, {'total': 0.002679072000319138, 'fp4': 7.01300086802803e-06, 'fp8': 3.006000042660162e-06, 'int8': 3.876999471685849e-06}]}}"
+  },
+  {
+    "timestamp": "2025-09-18T10:31:59.060915Z",
+    "message": "[QPU Sheet Opcode Metrics] {'c0': {'\u2295': {'count': 1, 'total_time': 0.002880116999222082, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2207': {'count': 1, 'total_time': 0.003179626999553875, 'fp4_time': 6.391999704646878e-06, 'fp8_time': 2.5650006136856973e-06, 'int8_time': 3.1159997888607904e-06}, '\u2194': {'count': 1, 'total_time': 0.003182892000040738, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u27f2': {'count': 1, 'total_time': 0.0031373870006063953, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2192': {'count': 1, 'total_time': 0.003146975999698043, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2726': {'count': 1, 'total_time': 0.0036952890004613437, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}, 'c1': {'\u2295': {'count': 1, 'total_time': 0.00251162899985502, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2207': {'count': 1, 'total_time': 0.002679072000319138, 'fp4_time': 7.01300086802803e-06, 'fp8_time': 3.006000042660162e-06, 'int8_time': 3.876999471685849e-06}, '\u2194': {'count': 1, 'total_time': 0.0033294959994236706, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u27f2': {'count': 1, 'total_time': 0.002773338001134107, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2192': {'count': 1, 'total_time': 0.0030383319990505697, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2726': {'count': 1, 'total_time': 0.0034110180004063295, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}}"
+  },
+  {
+    "timestamp": "2025-09-18T10:31:59.061894Z",
+    "message": "[Sheet Execution] elapsed=0.056990s"
+  },
+  {
+    "timestamp": "2025-09-18T10:50:10.826448Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-18T10:50:37.532087Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-18T10:52:25.483896Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-18T10:52:25.512058Z",
+    "message": "[QPU Sheet Metrics] {'execution_time': 0.03937905100065109, 'sqi_shift': 1.0, 'mutation_count': 6}"
+  },
+  {
+    "timestamp": "2025-09-18T10:52:25.513086Z",
+    "message": "[QPU Sheet Token Metrics] {'s0': {'\u27f2': [{'total': 0.0025837539997155545, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2192': [{'total': 0.002820726000209106, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2726': [{'total': 0.003136696001092787, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2207': [{'total': 0.002359124999202322, 'fp4': 4.9390000640414655e-06, 'fp8': 2.6249999791616574e-06, 'int8': 2.885999492718838e-06}], '\u2194': [{'total': 0.002966459000163013, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2295': [{'total': 0.002451106000080472, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}]}}"
+  },
+  {
+    "timestamp": "2025-09-18T10:52:25.514162Z",
+    "message": "[QPU Sheet Opcode Metrics] {'s0': {'\u2295': {'count': 1, 'total_time': 0.002451106000080472, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2207': {'count': 1, 'total_time': 0.002359124999202322, 'fp4_time': 4.9390000640414655e-06, 'fp8_time': 2.6249999791616574e-06, 'int8_time': 2.885999492718838e-06}, '\u2194': {'count': 1, 'total_time': 0.002966459000163013, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u27f2': {'count': 1, 'total_time': 0.0025837539997155545, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2192': {'count': 1, 'total_time': 0.002820726000209106, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2726': {'count': 1, 'total_time': 0.003136696001092787, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}}"
+  },
+  {
+    "timestamp": "2025-09-18T10:52:25.762246Z",
+    "message": "[BeamStore Persist Warn] (sqlite3.ProgrammingError) Error binding parameter 7: type 'dict' is not supported\n[SQL: INSERT INTO beam_events (beam_id, cell_id, sheet_run_id, container_id, eid, stage, token, result, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id]\n[parameters: ('beam_s0_eq_entangle_1758192745495', 's0', '695c1bde', 'phase8_stages', 'eid::695c1bde::416356670', 'entangle', {'type': 'operator', 'value': '\u2194'}, 'null', '2025-09-18T10:52:25.495455')]\n(Background on this error at: https://sqlalche.me/e/20/f405)"
+  },
+  {
+    "timestamp": "2025-09-18T10:52:25.763314Z",
+    "message": "[Sheet Execution] elapsed=0.275031s"
+  },
+  {
+    "timestamp": "2025-09-18T10:52:53.173799Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-18T10:52:53.189249Z",
+    "message": "[QPU Sheet Metrics] {'execution_time': 0.01733810000041558, 'sqi_shift': 1.0, 'mutation_count': 3}"
+  },
+  {
+    "timestamp": "2025-09-18T10:52:53.190354Z",
+    "message": "[QPU Sheet Token Metrics] {'v0': {'\u2726': [{'total': 0.0022506219993374543, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2194': [{'total': 0.0024131450009008404, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2295': [{'total': 0.002175592000639881, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}]}}"
+  },
+  {
+    "timestamp": "2025-09-18T10:52:53.191424Z",
+    "message": "[QPU Sheet Opcode Metrics] {'v0': {'\u2295': {'count': 1, 'total_time': 0.002175592000639881, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2194': {'count': 1, 'total_time': 0.0024131450009008404, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2726': {'count': 1, 'total_time': 0.0022506219993374543, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}}"
+  },
+  {
+    "timestamp": "2025-09-18T10:52:53.198717Z",
+    "message": "[BeamStore Persist Warn] (sqlite3.ProgrammingError) Error binding parameter 7: type 'dict' is not supported\n[SQL: INSERT INTO beam_events (beam_id, cell_id, sheet_run_id, container_id, eid, stage, token, result, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id]\n[parameters: ('beam_v0_eq_entangle_1758192773181', 'v0', 'f2bc7c87', 'phase8_vis', 'eid::f2bc7c87::2887585327', 'entangle', {'type': 'operator', 'value': '\u2194'}, 'null', '2025-09-18T10:52:53.181907')]\n(Background on this error at: https://sqlalche.me/e/20/f405)"
+  },
+  {
+    "timestamp": "2025-09-18T10:52:53.201145Z",
+    "message": "[Sheet Execution] elapsed=0.022849s"
+  },
+  {
+    "timestamp": "2025-09-18T10:53:18.606140Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-18T10:53:18.621441Z",
+    "message": "[QPU Sheet Metrics] {'execution_time': 0.014869100001305924, 'sqi_shift': 1.0, 'mutation_count': 3}"
+  },
+  {
+    "timestamp": "2025-09-18T10:53:18.622903Z",
+    "message": "[QPU Sheet Token Metrics] {'a0': {'\u2207': [{'total': 0.0016729740000300808, 'fp4': 5.841000529471785e-06, 'fp8': 2.553999365773052e-06, 'int8': 2.655000571394339e-06}], '\u2194': [{'total': 0.0022346019995893585, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2295': [{'total': 0.001707798001007177, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}]}}"
+  },
+  {
+    "timestamp": "2025-09-18T10:53:18.624333Z",
+    "message": "[QPU Sheet Opcode Metrics] {'a0': {'\u2295': {'count': 1, 'total_time': 0.001707798001007177, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2207': {'count': 1, 'total_time': 0.0016729740000300808, 'fp4_time': 5.841000529471785e-06, 'fp8_time': 2.553999365773052e-06, 'int8_time': 2.655000571394339e-06}, '\u2194': {'count': 1, 'total_time': 0.0022346019995893585, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}}"
+  },
+  {
+    "timestamp": "2025-09-18T10:53:18.634604Z",
+    "message": "[BeamStore Persist Warn] (sqlite3.ProgrammingError) Error binding parameter 7: type 'dict' is not supported\n[SQL: INSERT INTO beam_events (beam_id, cell_id, sheet_run_id, container_id, eid, stage, token, result, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id]\n[parameters: ('beam_a0_eq_entangle_1758192798617', 'a0', 'runX', 'phase8_ca', 'eid::runX::3619210160', 'entangle', {'type': 'operator', 'value': '\u2194'}, 'null', '2025-09-18T10:53:18.617187')]\n(Background on this error at: https://sqlalche.me/e/20/f405)"
+  },
+  {
+    "timestamp": "2025-09-18T10:53:18.637121Z",
+    "message": "[Sheet Execution] elapsed=0.025490s"
+  },
+  {
+    "timestamp": "2025-09-18T10:53:18.646898Z",
+    "message": "[QPU Sheet Metrics] {'execution_time': 0.028442291999454028, 'sqi_shift': 2.0, 'mutation_count': 6}"
+  },
+  {
+    "timestamp": "2025-09-18T10:53:18.648097Z",
+    "message": "[QPU Sheet Token Metrics] {'b0': {'\u2207': [{'total': 0.0016729740000300808, 'fp4': 5.841000529471785e-06, 'fp8': 2.553999365773052e-06, 'int8': 2.655000571394339e-06}, {'total': 0.001723358000162989, 'fp4': 6.172000212245621e-06, 'fp8': 2.7350015443516895e-06, 'int8': 3.757000740733929e-06}], '\u2194': [{'total': 0.0022346019995893585, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.0022611919994233176, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2295': [{'total': 0.001707798001007177, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.001415452999935951, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}]}}"
+  },
+  {
+    "timestamp": "2025-09-18T10:53:18.649296Z",
+    "message": "[QPU Sheet Opcode Metrics] {'b0': {'\u2295': {'count': 1, 'total_time': 0.001415452999935951, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2207': {'count': 1, 'total_time': 0.001723358000162989, 'fp4_time': 6.172000212245621e-06, 'fp8_time': 2.7350015443516895e-06, 'int8_time': 3.757000740733929e-06}, '\u2194': {'count': 1, 'total_time': 0.0022611919994233176, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}}"
+  },
+  {
+    "timestamp": "2025-09-18T10:53:18.653009Z",
+    "message": "[BeamStore Persist Warn] (sqlite3.ProgrammingError) Error binding parameter 7: type 'dict' is not supported\n[SQL: INSERT INTO beam_events (beam_id, cell_id, sheet_run_id, container_id, eid, stage, token, result, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id]\n[parameters: ('beam_b0_eq_entangle_1758192798642', 'b0', 'runX', 'phase8_cb', 'eid::runX::3619210160', 'entangle', {'type': 'operator', 'value': '\u2194'}, 'null', '2025-09-18T10:53:18.642925')]\n(Background on this error at: https://sqlalche.me/e/20/f405)"
+  },
+  {
+    "timestamp": "2025-09-18T10:53:18.654225Z",
+    "message": "[Sheet Execution] elapsed=0.015935s"
+  },
+  {
+    "timestamp": "2025-09-18T10:54:00.061577Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-18T10:54:00.130836Z",
+    "message": "[QPU Sheet Metrics] {'execution_time': 0.10917500600226049, 'sqi_shift': 2.0, 'mutation_count': 12}"
+  },
+  {
+    "timestamp": "2025-09-18T10:54:00.132081Z",
+    "message": "[QPU Sheet Token Metrics] {'c0': {'\u2194': [{'total': 0.004412158001287025, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.004255163999914657, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2726': [{'total': 0.003909539000233053, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.0038642149993393105, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u27f2': [{'total': 0.0036308079997979803, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.0036608050013455795, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2295': [{'total': 0.0036247369989723666, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.0032847520014911424, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2192': [{'total': 0.003811746000792482, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.00377156099966669, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2207': [{'total': 0.0034782339989760658, 'fp4': 6.0709990066243336e-06, 'fp8': 2.644999767653644e-06, 'int8': 3.646999175543897e-06}, {'total': 0.0048737189990788465, 'fp4': 6.391999704646878e-06, 'fp8': 3.417000698391348e-06, 'int8': 3.086001015617512e-06}]}, 'c1': {'\u2194': [{'total': 0.004412158001287025, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.004255163999914657, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2726': [{'total': 0.003909539000233053, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.0038642149993393105, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u27f2': [{'total': 0.0036308079997979803, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.0036608050013455795, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2295': [{'total': 0.0036247369989723666, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.0032847520014911424, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2192': [{'total': 0.003811746000792482, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.00377156099966669, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2207': [{'total': 0.0034782339989760658, 'fp4': 6.0709990066243336e-06, 'fp8': 2.644999767653644e-06, 'int8': 3.646999175543897e-06}, {'total': 0.0048737189990788465, 'fp4': 6.391999704646878e-06, 'fp8': 3.417000698391348e-06, 'int8': 3.086001015617512e-06}]}}"
+  },
+  {
+    "timestamp": "2025-09-18T10:54:00.133340Z",
+    "message": "[QPU Sheet Opcode Metrics] {'c0': {'\u2295': {'count': 1, 'total_time': 0.0036247369989723666, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2207': {'count': 1, 'total_time': 0.0034782339989760658, 'fp4_time': 6.0709990066243336e-06, 'fp8_time': 2.644999767653644e-06, 'int8_time': 3.646999175543897e-06}, '\u2194': {'count': 1, 'total_time': 0.004412158001287025, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u27f2': {'count': 1, 'total_time': 0.0036308079997979803, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2192': {'count': 1, 'total_time': 0.003811746000792482, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2726': {'count': 1, 'total_time': 0.003909539000233053, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}, 'c1': {'\u2295': {'count': 1, 'total_time': 0.0032847520014911424, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2207': {'count': 1, 'total_time': 0.0048737189990788465, 'fp4_time': 6.391999704646878e-06, 'fp8_time': 3.417000698391348e-06, 'int8_time': 3.086001015617512e-06}, '\u2194': {'count': 1, 'total_time': 0.004255163999914657, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u27f2': {'count': 1, 'total_time': 0.0036608050013455795, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2192': {'count': 1, 'total_time': 0.00377156099966669, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2726': {'count': 1, 'total_time': 0.0038642149993393105, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}}"
+  },
+  {
+    "timestamp": "2025-09-18T10:54:00.142648Z",
+    "message": "[BeamStore Persist Warn] (sqlite3.ProgrammingError) Error binding parameter 7: type 'dict' is not supported\n[SQL: INSERT INTO beam_events (beam_id, cell_id, sheet_run_id, container_id, eid, stage, token, result, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id]\n[parameters: ('beam_c0_eq_entangle_1758192840076', 'c0', '22427f8a', 'phase8_test_container', 'eid::22427f8a::113314975', 'entangle', {'type': 'operator', 'value': '\u2194'}, 'null', '2025-09-18T10:54:00.076515')]\n(Background on this error at: https://sqlalche.me/e/20/f405)"
+  },
+  {
+    "timestamp": "2025-09-18T10:54:00.144006Z",
+    "message": "[Sheet Execution] elapsed=0.077525s"
+  },
+  {
+    "timestamp": "2025-09-18T11:15:46.687146Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-18T11:21:16.313223Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-18T11:21:16.363906Z",
+    "message": "[QPU Sheet Metrics] {'execution_time': 0.07527435700285423, 'sqi_shift': 1.0, 'mutation_count': 6}"
+  },
+  {
+    "timestamp": "2025-09-18T11:21:16.365306Z",
+    "message": "[QPU Sheet Token Metrics] {'s0': {'\u2192': [{'total': 0.00516040399998019, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2726': [{'total': 0.005198315000598086, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u27f2': [{'total': 0.004988582999430946, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2194': [{'total': 0.008594837001510314, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2295': [{'total': 0.004280502000256092, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2207': [{'total': 0.004337378000855097, 'fp4': 4.858999091084115e-06, 'fp8': 1.332000465481542e-06, 'int8': 1.972999598365277e-06}]}}"
+  },
+  {
+    "timestamp": "2025-09-18T11:21:16.366702Z",
+    "message": "[QPU Sheet Opcode Metrics] {'s0': {'\u2295': {'count': 1, 'total_time': 0.004280502000256092, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2207': {'count': 1, 'total_time': 0.004337378000855097, 'fp4_time': 4.858999091084115e-06, 'fp8_time': 1.332000465481542e-06, 'int8_time': 1.972999598365277e-06}, '\u2194': {'count': 1, 'total_time': 0.008594837001510314, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u27f2': {'count': 1, 'total_time': 0.004988582999430946, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2192': {'count': 1, 'total_time': 0.00516040399998019, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2726': {'count': 1, 'total_time': 0.005198315000598086, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}}"
+  },
+  {
+    "timestamp": "2025-09-18T11:21:16.401098Z",
+    "message": "[Sheet Execution] elapsed=0.080984s"
+  },
+  {
+    "timestamp": "2025-09-18T11:21:16.424667Z",
+    "message": "[QPU Sheet Metrics] {'execution_time': 0.029852212999685435, 'sqi_shift': 1.0, 'mutation_count': 3}"
+  },
+  {
+    "timestamp": "2025-09-18T11:21:16.425986Z",
+    "message": "[QPU Sheet Token Metrics] {'v0': {'\u2194': [{'total': 0.006409956999050337, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2726': [{'total': 0.00333834200137062, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2295': [{'total': 0.0030847489997540833, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}]}}"
+  },
+  {
+    "timestamp": "2025-09-18T11:21:16.427348Z",
+    "message": "[QPU Sheet Opcode Metrics] {'v0': {'\u2295': {'count': 1, 'total_time': 0.0030847489997540833, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2194': {'count': 1, 'total_time': 0.006409956999050337, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2726': {'count': 1, 'total_time': 0.00333834200137062, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}}"
+  },
+  {
+    "timestamp": "2025-09-18T11:21:16.443855Z",
+    "message": "[Sheet Execution] elapsed=0.036862s"
+  },
+  {
+    "timestamp": "2025-09-18T11:21:16.461428Z",
+    "message": "[QPU Sheet Metrics] {'execution_time': 0.02386624799692072, 'sqi_shift': 1.0, 'mutation_count': 3}"
+  },
+  {
+    "timestamp": "2025-09-18T11:21:16.462862Z",
+    "message": "[QPU Sheet Token Metrics] {'a0': {'\u2207': [{'total': 0.0026743019989226013, 'fp4': 6.793001375626773e-06, 'fp8': 2.373999450355768e-06, 'int8': 3.6870005715172738e-06}], '\u2194': [{'total': 0.004932438998366706, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2295': [{'total': 0.002404839999144315, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}]}}"
+  },
+  {
+    "timestamp": "2025-09-18T11:21:16.464214Z",
+    "message": "[QPU Sheet Opcode Metrics] {'a0': {'\u2295': {'count': 1, 'total_time': 0.002404839999144315, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2207': {'count': 1, 'total_time': 0.0026743019989226013, 'fp4_time': 6.793001375626773e-06, 'fp8_time': 2.373999450355768e-06, 'int8_time': 3.6870005715172738e-06}, '\u2194': {'count': 1, 'total_time': 0.004932438998366706, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}}"
+  },
+  {
+    "timestamp": "2025-09-18T11:21:16.481619Z",
+    "message": "[Sheet Execution] elapsed=0.034641s"
+  },
+  {
+    "timestamp": "2025-09-18T11:21:16.494739Z",
+    "message": "[QPU Sheet Metrics] {'execution_time': 0.0432382949948078, 'sqi_shift': 2.0, 'mutation_count': 6}"
+  },
+  {
+    "timestamp": "2025-09-18T11:21:16.496155Z",
+    "message": "[QPU Sheet Token Metrics] {'b0': {'\u2207': [{'total': 0.0026743019989226013, 'fp4': 6.793001375626773e-06, 'fp8': 2.373999450355768e-06, 'int8': 3.6870005715172738e-06}, {'total': 0.002001036000365275, 'fp4': 3.7970003177179024e-06, 'fp8': 1.0920011845882982e-06, 'int8': 1.9239996618125588e-06}], '\u2194': [{'total': 0.004932438998366706, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.004230677999657928, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2295': [{'total': 0.002404839999144315, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.0019272779991297284, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}]}}"
+  },
+  {
+    "timestamp": "2025-09-18T11:21:16.497581Z",
+    "message": "[QPU Sheet Opcode Metrics] {'b0': {'\u2295': {'count': 1, 'total_time': 0.0019272779991297284, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2207': {'count': 1, 'total_time': 0.002001036000365275, 'fp4_time': 3.7970003177179024e-06, 'fp8_time': 1.0920011845882982e-06, 'int8_time': 1.9239996618125588e-06}, '\u2194': {'count': 1, 'total_time': 0.004230677999657928, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}}"
+  },
+  {
+    "timestamp": "2025-09-18T11:21:16.511626Z",
+    "message": "[Sheet Execution] elapsed=0.028548s"
+  },
+  {
+    "timestamp": "2025-09-18T11:26:09.620041Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-18T11:26:09.680132Z",
+    "message": "[QPU Sheet Metrics] {'execution_time': 0.0925623330003873, 'sqi_shift': 1.0, 'mutation_count': 6}"
+  },
+  {
+    "timestamp": "2025-09-18T11:26:09.681585Z",
+    "message": "[QPU Sheet Token Metrics] {'s0': {'\u2192': [{'total': 0.005886359998839907, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2726': [{'total': 0.0062765680013399106, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2295': [{'total': 0.005328067998561892, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2207': [{'total': 0.005327186001522932, 'fp4': 6.322001354419626e-06, 'fp8': 2.91600008495152e-06, 'int8': 2.5350000214530155e-06}], '\u27f2': [{'total': 0.006897285999002634, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2194': [{'total': 0.010783712999909767, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}]}}"
+  },
+  {
+    "timestamp": "2025-09-18T11:26:09.683056Z",
+    "message": "[QPU Sheet Opcode Metrics] {'s0': {'\u2295': {'count': 1, 'total_time': 0.005328067998561892, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2207': {'count': 1, 'total_time': 0.005327186001522932, 'fp4_time': 6.322001354419626e-06, 'fp8_time': 2.91600008495152e-06, 'int8_time': 2.5350000214530155e-06}, '\u2194': {'count': 1, 'total_time': 0.010783712999909767, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u27f2': {'count': 1, 'total_time': 0.006897285999002634, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2192': {'count': 1, 'total_time': 0.005886359998839907, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2726': {'count': 1, 'total_time': 0.0062765680013399106, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}}"
+  },
+  {
+    "timestamp": "2025-09-18T11:26:09.723860Z",
+    "message": "[Sheet Execution] elapsed=0.097037s"
+  },
+  {
+    "timestamp": "2025-09-18T11:26:09.748252Z",
+    "message": "[QPU Sheet Metrics] {'execution_time': 0.03566031800073688, 'sqi_shift': 1.0, 'mutation_count': 3}"
+  },
+  {
+    "timestamp": "2025-09-18T11:26:09.749853Z",
+    "message": "[QPU Sheet Token Metrics] {'v0': {'\u2726': [{'total': 0.003983967999374727, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2295': [{'total': 0.0037479880011233035, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2194': [{'total': 0.007840488000510959, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}]}}"
+  },
+  {
+    "timestamp": "2025-09-18T11:26:09.751415Z",
+    "message": "[QPU Sheet Opcode Metrics] {'v0': {'\u2295': {'count': 1, 'total_time': 0.0037479880011233035, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2194': {'count': 1, 'total_time': 0.007840488000510959, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2726': {'count': 1, 'total_time': 0.003983967999374727, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}}"
+  },
+  {
+    "timestamp": "2025-09-18T11:26:09.767900Z",
+    "message": "[Sheet Execution] elapsed=0.040547s"
+  },
+  {
+    "timestamp": "2025-09-18T11:26:09.789916Z",
+    "message": "[QPU Sheet Metrics] {'execution_time': 0.03235595900332555, 'sqi_shift': 1.0, 'mutation_count': 3}"
+  },
+  {
+    "timestamp": "2025-09-18T11:26:09.791655Z",
+    "message": "[QPU Sheet Token Metrics] {'a0': {'\u2207': [{'total': 0.003959793000831269, 'fp4': 6.321999535430223e-06, 'fp8': 1.913000232889317e-06, 'int8': 2.164000761695206e-06}], '\u2295': [{'total': 0.0033367200012435205, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2194': [{'total': 0.0067909990011685295, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}]}}"
+  },
+  {
+    "timestamp": "2025-09-18T11:26:09.793723Z",
+    "message": "[QPU Sheet Opcode Metrics] {'a0': {'\u2295': {'count': 1, 'total_time': 0.0033367200012435205, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2207': {'count': 1, 'total_time': 0.003959793000831269, 'fp4_time': 6.321999535430223e-06, 'fp8_time': 1.913000232889317e-06, 'int8_time': 2.164000761695206e-06}, '\u2194': {'count': 1, 'total_time': 0.0067909990011685295, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}}"
+  },
+  {
+    "timestamp": "2025-09-18T11:26:09.809608Z",
+    "message": "[Sheet Execution] elapsed=0.038738s"
+  },
+  {
+    "timestamp": "2025-09-18T11:26:09.825595Z",
+    "message": "[QPU Sheet Metrics] {'execution_time': 0.05628093700215686, 'sqi_shift': 2.0, 'mutation_count': 6}"
+  },
+  {
+    "timestamp": "2025-09-18T11:26:09.827137Z",
+    "message": "[QPU Sheet Token Metrics] {'b0': {'\u2207': [{'total': 0.003959793000831269, 'fp4': 6.321999535430223e-06, 'fp8': 1.913000232889317e-06, 'int8': 2.164000761695206e-06}, {'total': 0.002491691999239265, 'fp4': 4.188001184957102e-06, 'fp8': 1.75300010596402e-06, 'int8': 2.4239998310804367e-06}], '\u2295': [{'total': 0.0033367200012435205, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.0023566899999423185, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2194': [{'total': 0.0067909990011685295, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.005309131998728844, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}]}}"
+  },
+  {
+    "timestamp": "2025-09-18T11:26:09.828720Z",
+    "message": "[QPU Sheet Opcode Metrics] {'b0': {'\u2295': {'count': 1, 'total_time': 0.0023566899999423185, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2207': {'count': 1, 'total_time': 0.002491691999239265, 'fp4_time': 4.188001184957102e-06, 'fp8_time': 1.75300010596402e-06, 'int8_time': 2.4239998310804367e-06}, '\u2194': {'count': 1, 'total_time': 0.005309131998728844, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}}"
+  },
+  {
+    "timestamp": "2025-09-18T11:26:09.845475Z",
+    "message": "[Sheet Execution] elapsed=0.034314s"
+  },
+  {
+    "timestamp": "2025-09-18T13:32:38.171924Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-18T13:38:13.903527Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-18T13:41:11.721718Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-18T13:41:11.924396Z",
+    "message": "[QPU Sheet Metrics] {'execution_time': 0.387108487999285, 'sqi_shift': 1.0, 'mutation_count': 3}"
+  },
+  {
+    "timestamp": "2025-09-18T13:41:11.925867Z",
+    "message": "[QPU Sheet Token Metrics] {'c0': {'\u2295': [{'total': 0.17612656199980847, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2194': [{'total': 0.008555164999961562, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2726': [{'total': 0.006061160999706772, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}]}}"
+  },
+  {
+    "timestamp": "2025-09-18T13:41:11.927284Z",
+    "message": "[QPU Sheet Opcode Metrics] {'c0': {'\u2295': {'count': 1, 'total_time': 0.17612656199980847, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2194': {'count': 1, 'total_time': 0.008555164999961562, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2726': {'count': 1, 'total_time': 0.006061160999706772, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}}"
+  },
+  {
+    "timestamp": "2025-09-18T13:41:11.929890Z",
+    "message": "[Phase9] timeline size=21"
+  },
+  {
+    "timestamp": "2025-09-18T13:41:12.007945Z",
+    "message": "[BeamStore Persist Warn] (sqlite3.ProgrammingError) Error binding parameter 7: type 'dict' is not supported\n[SQL: INSERT INTO beam_events (beam_id, cell_id, sheet_run_id, container_id, eid, stage, token, result, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id]\n[parameters: ('beam_c0_dream_1758202871928', 'c0', '312cef8a', 'phase9_it', 'eid::312cef8a::231709174', 'dream', {'type': 'operator', 'value': '\u2234'}, 'null', '2025-09-18T13:41:11.928542+00:00')]\n(Background on this error at: https://sqlalche.me/e/20/f405)"
+  },
+  {
+    "timestamp": "2025-09-18T13:41:12.009487Z",
+    "message": "[Sheet Execution] elapsed=0.282368s"
+  },
+  {
+    "timestamp": "2025-09-18T13:41:12.015039Z",
+    "message": "[Phase9] timeline size=4"
+  },
+  {
+    "timestamp": "2025-09-18T13:41:12.082626Z",
+    "message": "[QPU Sheet Metrics] {'execution_time': 0.12304790700000012, 'sqi_shift': 1.0, 'mutation_count': 3}"
+  },
+  {
+    "timestamp": "2025-09-18T13:41:12.084078Z",
+    "message": "[QPU Sheet Token Metrics] {'v0': {'\u2295': [{'total': 0.04618045000006532, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2194': [{'total': 0.008485886000016762, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2726': [{'total': 0.004399569999804953, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}]}}"
+  },
+  {
+    "timestamp": "2025-09-18T13:41:12.085674Z",
+    "message": "[QPU Sheet Opcode Metrics] {'v0': {'\u2295': {'count': 1, 'total_time': 0.04618045000006532, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2194': {'count': 1, 'total_time': 0.008485886000016762, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2726': {'count': 1, 'total_time': 0.004399569999804953, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}}"
+  },
+  {
+    "timestamp": "2025-09-18T13:41:12.088762Z",
+    "message": "[Phase9] timeline size=22"
+  },
+  {
+    "timestamp": "2025-09-18T13:41:12.094120Z",
+    "message": "[BeamStore Persist Warn] (sqlite3.ProgrammingError) Error binding parameter 7: type 'dict' is not supported\n[SQL: INSERT INTO beam_events (beam_id, cell_id, sheet_run_id, container_id, eid, stage, token, result, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id]\n[parameters: ('beam_v0_dream_1758202872087', 'v0', 'b779ddfe', 'phase9_k_override', 'eid::b779ddfe::231709174', 'dream', {'type': 'operator', 'value': '\u2234'}, 'null', '2025-09-18T13:41:12.087052+00:00')]\n(Background on this error at: https://sqlalche.me/e/20/f405)"
+  },
+  {
+    "timestamp": "2025-09-18T13:41:12.095647Z",
+    "message": "[Sheet Execution] elapsed=0.077918s"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:21.437323Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:21.779796Z",
+    "message": "[QPU Sheet Metrics] {'execution_time': 0.15946398700089048, 'sqi_shift': 2.0, 'mutation_count': 12}"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:21.781540Z",
+    "message": "[QPU Sheet Token Metrics] {'c0': {'\u2192': [{'total': 0.005337040000085835, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.004947663000166358, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u27f2': [{'total': 0.005271356999401178, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.004722071000287542, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2295': [{'total': 0.0052381650002644164, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.004330781999669853, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2207': [{'total': 0.005154288999619894, 'fp4': 6.441000550694298e-06, 'fp8': 2.214000232925173e-06, 'int8': 3.717000254255254e-06}, {'total': 0.004454693000297993, 'fp4': 5.610000698652584e-06, 'fp8': 2.7350006348569877e-06, 'int8': 2.924999535025563e-06}], '\u2726': [{'total': 0.005599488999905589, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.0049804340005721315, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2194': [{'total': 0.0102638130001651, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.009311325000453508, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}]}, 'c1': {'\u2192': [{'total': 0.005337040000085835, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.004947663000166358, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u27f2': [{'total': 0.005271356999401178, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.004722071000287542, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2295': [{'total': 0.0052381650002644164, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.004330781999669853, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2207': [{'total': 0.005154288999619894, 'fp4': 6.441000550694298e-06, 'fp8': 2.214000232925173e-06, 'int8': 3.717000254255254e-06}, {'total': 0.004454693000297993, 'fp4': 5.610000698652584e-06, 'fp8': 2.7350006348569877e-06, 'int8': 2.924999535025563e-06}], '\u2726': [{'total': 0.005599488999905589, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.0049804340005721315, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2194': [{'total': 0.0102638130001651, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.009311325000453508, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}]}}"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:21.783273Z",
+    "message": "[QPU Sheet Opcode Metrics] {'c0': {'\u2295': {'count': 1, 'total_time': 0.0052381650002644164, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2207': {'count': 1, 'total_time': 0.005154288999619894, 'fp4_time': 6.441000550694298e-06, 'fp8_time': 2.214000232925173e-06, 'int8_time': 3.717000254255254e-06}, '\u2194': {'count': 1, 'total_time': 0.0102638130001651, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u27f2': {'count': 1, 'total_time': 0.005271356999401178, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2192': {'count': 1, 'total_time': 0.005337040000085835, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2726': {'count': 1, 'total_time': 0.005599488999905589, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}, 'c1': {'\u2295': {'count': 1, 'total_time': 0.004330781999669853, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2207': {'count': 1, 'total_time': 0.004454693000297993, 'fp4_time': 5.610000698652584e-06, 'fp8_time': 2.7350006348569877e-06, 'int8_time': 2.924999535025563e-06}, '\u2194': {'count': 1, 'total_time': 0.009311325000453508, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u27f2': {'count': 1, 'total_time': 0.004722071000287542, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2192': {'count': 1, 'total_time': 0.004947663000166358, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2726': {'count': 1, 'total_time': 0.0049804340005721315, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}}"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:21.833379Z",
+    "message": "[Sheet Execution] elapsed=0.145737s"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:21.902302Z",
+    "message": "[QPU Sheet Metrics] {'execution_time': 0.11366783600078634, 'sqi_shift': 1.0, 'mutation_count': 6}"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:21.904074Z",
+    "message": "[QPU Sheet Token Metrics] {'s0': {'\u2192': [{'total': 0.00753174500005116, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u27f2': [{'total': 0.006810167999901751, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2295': [{'total': 0.009462287999667751, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2207': [{'total': 0.006578616000297188, 'fp4': 4.126999556319788e-06, 'fp8': 1.1319998520775698e-06, 'int8': 1.8439995983499102e-06}], '\u2726': [{'total': 0.007056989000375324, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2194': [{'total': 0.013214370000241615, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}]}}"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:21.905887Z",
+    "message": "[QPU Sheet Opcode Metrics] {'s0': {'\u2295': {'count': 1, 'total_time': 0.009462287999667751, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2207': {'count': 1, 'total_time': 0.006578616000297188, 'fp4_time': 4.126999556319788e-06, 'fp8_time': 1.1319998520775698e-06, 'int8_time': 1.8439995983499102e-06}, '\u2194': {'count': 1, 'total_time': 0.013214370000241615, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u27f2': {'count': 1, 'total_time': 0.006810167999901751, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2192': {'count': 1, 'total_time': 0.00753174500005116, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2726': {'count': 1, 'total_time': 0.007056989000375324, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}}"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:21.938390Z",
+    "message": "[Sheet Execution] elapsed=0.100692s"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:21.964817Z",
+    "message": "[QPU Sheet Metrics] {'execution_time': 0.03785534199869289, 'sqi_shift': 1.0, 'mutation_count': 3}"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:21.967025Z",
+    "message": "[QPU Sheet Token Metrics] {'a0': {'\u2295': [{'total': 0.0037772389996462152, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2207': [{'total': 0.004211127999951714, 'fp4': 4.397999873617664e-06, 'fp8': 1.0020003173849545e-06, 'int8': 2.2539998099091463e-06}], '\u2194': [{'total': 0.008379416999559908, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}]}}"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:21.969408Z",
+    "message": "[QPU Sheet Opcode Metrics] {'a0': {'\u2295': {'count': 1, 'total_time': 0.0037772389996462152, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2207': {'count': 1, 'total_time': 0.004211127999951714, 'fp4_time': 4.397999873617664e-06, 'fp8_time': 1.0020003173849545e-06, 'int8_time': 2.2539998099091463e-06}, '\u2194': {'count': 1, 'total_time': 0.008379416999559908, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}}"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:21.992286Z",
+    "message": "[Sheet Execution] elapsed=0.049766s"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:22.018762Z",
+    "message": "[QPU Sheet Metrics] {'execution_time': 0.07912231599857478, 'sqi_shift': 2.0, 'mutation_count': 6}"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:22.020638Z",
+    "message": "[QPU Sheet Token Metrics] {'b0': {'\u2295': [{'total': 0.0037772389996462152, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.003941091999877244, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2207': [{'total': 0.004211127999951714, 'fp4': 4.397999873617664e-06, 'fp8': 1.0020003173849545e-06, 'int8': 2.2539998099091463e-06}, {'total': 0.0041652930003692745, 'fp4': 4.919000275549479e-06, 'fp8': 2.0140005290159024e-06, 'int8': 2.804999894578941e-06}], '\u2194': [{'total': 0.008379416999559908, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.010021160999713175, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}]}}"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:22.022489Z",
+    "message": "[QPU Sheet Opcode Metrics] {'b0': {'\u2295': {'count': 1, 'total_time': 0.003941091999877244, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2207': {'count': 1, 'total_time': 0.0041652930003692745, 'fp4_time': 4.919000275549479e-06, 'fp8_time': 2.0140005290159024e-06, 'int8_time': 2.804999894578941e-06}, '\u2194': {'count': 1, 'total_time': 0.010021160999713175, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}}"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:22.040462Z",
+    "message": "[Sheet Execution] elapsed=0.045851s"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:22.074857Z",
+    "message": "[QPU Sheet Metrics] {'execution_time': 0.05311158200038335, 'sqi_shift': 1.0, 'mutation_count': 3}"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:22.076675Z",
+    "message": "[QPU Sheet Token Metrics] {'v0': {'\u2295': [{'total': 0.004964905000633735, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2726': [{'total': 0.006801391999943007, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2194': [{'total': 0.011601278999478382, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}]}}"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:22.078521Z",
+    "message": "[QPU Sheet Opcode Metrics] {'v0': {'\u2295': {'count': 1, 'total_time': 0.004964905000633735, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2194': {'count': 1, 'total_time': 0.011601278999478382, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2726': {'count': 1, 'total_time': 0.006801391999943007, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}}"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:22.098331Z",
+    "message": "[Sheet Execution] elapsed=0.054345s"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:22.134770Z",
+    "message": "[QPU Sheet Metrics] {'execution_time': 0.05603325500032952, 'sqi_shift': 1.0, 'mutation_count': 3}"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:22.136743Z",
+    "message": "[QPU Sheet Token Metrics] {'c0': {'\u2295': [{'total': 0.006017469000653364, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2726': [{'total': 0.0064696429999457905, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2194': [{'total': 0.011958185999901616, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}]}}"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:22.138671Z",
+    "message": "[QPU Sheet Opcode Metrics] {'c0': {'\u2295': {'count': 1, 'total_time': 0.006017469000653364, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2194': {'count': 1, 'total_time': 0.011958185999901616, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2726': {'count': 1, 'total_time': 0.0064696429999457905, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}}"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:22.142060Z",
+    "message": "[Phase9] timeline size=21"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:22.147546Z",
+    "message": "[BeamStore Persist Warn] (sqlite3.ProgrammingError) Error binding parameter 7: type 'dict' is not supported\n[SQL: INSERT INTO beam_events (beam_id, cell_id, sheet_run_id, container_id, eid, stage, token, result, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id]\n[parameters: ('beam_c0_dream_1758204802140', 'c0', '83dc7dc9', 'phase9_it', 'eid::83dc7dc9::1823579979', 'dream', {'type': 'operator', 'value': '\u2234'}, 'null', '2025-09-18T14:13:22.140374+00:00')]\n(Background on this error at: https://sqlalche.me/e/20/f405)"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:22.149490Z",
+    "message": "[Sheet Execution] elapsed=0.047615s"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:22.155323Z",
+    "message": "[Phase9] timeline size=4"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:22.196031Z",
+    "message": "[QPU Sheet Metrics] {'execution_time': 0.06482429500010767, 'sqi_shift': 1.0, 'mutation_count': 3}"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:22.198028Z",
+    "message": "[QPU Sheet Token Metrics] {'v0': {'\u2295': [{'total': 0.006599475999792048, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2726': [{'total': 0.007627764000062598, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2194': [{'total': 0.014243863000046986, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}]}}"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:22.200006Z",
+    "message": "[QPU Sheet Opcode Metrics] {'v0': {'\u2295': {'count': 1, 'total_time': 0.006599475999792048, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2194': {'count': 1, 'total_time': 0.014243863000046986, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2726': {'count': 1, 'total_time': 0.007627764000062598, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}}"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:22.204336Z",
+    "message": "[Phase9] timeline size=22"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:22.210158Z",
+    "message": "[BeamStore Persist Warn] (sqlite3.ProgrammingError) Error binding parameter 7: type 'dict' is not supported\n[SQL: INSERT INTO beam_events (beam_id, cell_id, sheet_run_id, container_id, eid, stage, token, result, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id]\n[parameters: ('beam_v0_dream_1758204802202', 'v0', 'bf69b222', 'phase9_k_override', 'eid::bf69b222::1823579979', 'dream', {'type': 'operator', 'value': '\u2234'}, 'null', '2025-09-18T14:13:22.202063+00:00')]\n(Background on this error at: https://sqlalche.me/e/20/f405)"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:22.212079Z",
+    "message": "[Sheet Execution] elapsed=0.053616s"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:22.236173Z",
+    "message": "[QPU Sheet Metrics] {'execution_time': 0.033695201002046815, 'sqi_shift': 1.0, 'mutation_count': 6}"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:22.237944Z",
+    "message": "[QPU Sheet Token Metrics] {'p10a': {'\u2207': [{'total': 0.0014542740000251797, 'fp4': 3.7669997254852206e-06, 'fp8': 9.420000424142927e-07, 'int8': 2.023999513767194e-06}, {'total': 0.0016899239999474958, 'fp4': 3.635999746620655e-06, 'fp8': 1.3130002116668038e-06, 'int8': 2.1440000637085177e-06}, {'total': 0.002048363000540121, 'fp4': 3.697000465763267e-06, 'fp8': 1.692999830993358e-06, 'int8': 2.214000232925173e-06}], '\u2295': [{'total': 0.0016408320007030852, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.0020536120000542724, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2194': [{'total': 0.004779430000780849, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}]}}"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:22.239832Z",
+    "message": "[QPU Sheet Opcode Metrics] {'p10a': {'\u2207': {'count': 3, 'total_time': 0.0051925610005127965, 'fp4_time': 1.1099999937869143e-05, 'fp8_time': 3.9480000850744545e-06, 'int8_time': 6.381999810400885e-06}, '\u2295': {'count': 2, 'total_time': 0.0036944440007573576, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2194': {'count': 1, 'total_time': 0.004779430000780849, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}}"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:22.302432Z",
+    "message": "[Sheet Execution] elapsed=0.086702s"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.320821Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.448037Z",
+    "message": "[QPU Sheet Metrics] {'execution_time': 0.2027258299976893, 'sqi_shift': 2.0, 'mutation_count': 12}"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.450172Z",
+    "message": "[QPU Sheet Token Metrics] {'c0': {'\u2207': [{'total': 0.0066083419997085, 'fp4': 5.681000402546488e-06, 'fp8': 1.8339997041039169e-06, 'int8': 2.083999788737856e-06}, {'total': 0.005471920999298163, 'fp4': 5.610000698652584e-06, 'fp8': 2.585000402177684e-06, 'int8': 3.05499997921288e-06}], '\u27f2': [{'total': 0.007087275999765552, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.00573956999960501, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2726': [{'total': 0.007330829999773414, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.006589507000171579, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2295': [{'total': 0.006706475000100909, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.005327030999978888, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2192': [{'total': 0.00718742199933331, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.005990158999338746, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2194': [{'total': 0.01393210900005215, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.011293646000012814, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}]}, 'c1': {'\u2207': [{'total': 0.0066083419997085, 'fp4': 5.681000402546488e-06, 'fp8': 1.8339997041039169e-06, 'int8': 2.083999788737856e-06}, {'total': 0.005471920999298163, 'fp4': 5.610000698652584e-06, 'fp8': 2.585000402177684e-06, 'int8': 3.05499997921288e-06}], '\u27f2': [{'total': 0.007087275999765552, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.00573956999960501, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2726': [{'total': 0.007330829999773414, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.006589507000171579, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2295': [{'total': 0.006706475000100909, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.005327030999978888, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2192': [{'total': 0.00718742199933331, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.005990158999338746, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2194': [{'total': 0.01393210900005215, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.011293646000012814, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}]}}"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.452214Z",
+    "message": "[QPU Sheet Opcode Metrics] {'c0': {'\u2295': {'count': 1, 'total_time': 0.006706475000100909, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2207': {'count': 1, 'total_time': 0.0066083419997085, 'fp4_time': 5.681000402546488e-06, 'fp8_time': 1.8339997041039169e-06, 'int8_time': 2.083999788737856e-06}, '\u2194': {'count': 1, 'total_time': 0.01393210900005215, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u27f2': {'count': 1, 'total_time': 0.007087275999765552, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2192': {'count': 1, 'total_time': 0.00718742199933331, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2726': {'count': 1, 'total_time': 0.007330829999773414, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}, 'c1': {'\u2295': {'count': 1, 'total_time': 0.005327030999978888, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2207': {'count': 1, 'total_time': 0.005471920999298163, 'fp4_time': 5.610000698652584e-06, 'fp8_time': 2.585000402177684e-06, 'int8_time': 3.05499997921288e-06}, '\u2194': {'count': 1, 'total_time': 0.011293646000012814, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u27f2': {'count': 1, 'total_time': 0.00573956999960501, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2192': {'count': 1, 'total_time': 0.005990158999338746, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2726': {'count': 1, 'total_time': 0.006589507000171579, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}}"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.513174Z",
+    "message": "[Sheet Execution] elapsed=0.181392s"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.587738Z",
+    "message": "[QPU Sheet Metrics] {'execution_time': 0.12229985300109547, 'sqi_shift': 1.0, 'mutation_count': 6}"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.589804Z",
+    "message": "[QPU Sheet Token Metrics] {'s0': {'\u2207': [{'total': 0.007383769000625762, 'fp4': 3.977999767812435e-06, 'fp8': 1.3119997674948536e-06, 'int8': 2.0529996618279256e-06}], '\u27f2': [{'total': 0.007913035999990825, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2726': [{'total': 0.007949855999868305, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2295': [{'total': 0.007687139000154275, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2192': [{'total': 0.007876077999753761, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2194': [{'total': 0.015440023000337533, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}]}}"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.591816Z",
+    "message": "[QPU Sheet Opcode Metrics] {'s0': {'\u2295': {'count': 1, 'total_time': 0.007687139000154275, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2207': {'count': 1, 'total_time': 0.007383769000625762, 'fp4_time': 3.977999767812435e-06, 'fp8_time': 1.3119997674948536e-06, 'int8_time': 2.0529996618279256e-06}, '\u2194': {'count': 1, 'total_time': 0.015440023000337533, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u27f2': {'count': 1, 'total_time': 0.007913035999990825, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2192': {'count': 1, 'total_time': 0.007876077999753761, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2726': {'count': 1, 'total_time': 0.007949855999868305, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}}"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.626696Z",
+    "message": "[Sheet Execution] elapsed=0.108617s"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.657474Z",
+    "message": "[QPU Sheet Metrics] {'execution_time': 0.04593903800014232, 'sqi_shift': 1.0, 'mutation_count': 3}"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.659524Z",
+    "message": "[QPU Sheet Token Metrics] {'a0': {'\u2207': [{'total': 0.006127544999799284, 'fp4': 4.348000402387697e-06, 'fp8': 1.5420000636368059e-06, 'int8': 2.5840008675004356e-06}], '\u2295': [{'total': 0.0042585969995343476, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2194': [{'total': 0.00977595300082612, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}]}}"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.661610Z",
+    "message": "[QPU Sheet Opcode Metrics] {'a0': {'\u2295': {'count': 1, 'total_time': 0.0042585969995343476, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2207': {'count': 1, 'total_time': 0.006127544999799284, 'fp4_time': 4.348000402387697e-06, 'fp8_time': 1.5420000636368059e-06, 'int8_time': 2.5840008675004356e-06}, '\u2194': {'count': 1, 'total_time': 0.00977595300082612, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}}"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.683307Z",
+    "message": "[Sheet Execution] elapsed=0.052485s"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.709731Z",
+    "message": "[QPU Sheet Metrics] {'execution_time': 0.08602703700034908, 'sqi_shift': 2.0, 'mutation_count': 6}"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.712498Z",
+    "message": "[QPU Sheet Token Metrics] {'b0': {'\u2207': [{'total': 0.006127544999799284, 'fp4': 4.348000402387697e-06, 'fp8': 1.5420000636368059e-06, 'int8': 2.5840008675004356e-06}, {'total': 0.0037611589996231487, 'fp4': 5.249999958323315e-06, 'fp8': 1.942999915627297e-06, 'int8': 2.6649995561456308e-06}], '\u2295': [{'total': 0.0042585969995343476, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.003844354000648309, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2194': [{'total': 0.00977595300082612, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.009704819999569736, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}]}}"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.714742Z",
+    "message": "[QPU Sheet Opcode Metrics] {'b0': {'\u2295': {'count': 1, 'total_time': 0.003844354000648309, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2207': {'count': 1, 'total_time': 0.0037611589996231487, 'fp4_time': 5.249999958323315e-06, 'fp8_time': 1.942999915627297e-06, 'int8_time': 2.6649995561456308e-06}, '\u2194': {'count': 1, 'total_time': 0.009704819999569736, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}}"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.734714Z",
+    "message": "[Sheet Execution] elapsed=0.049150s"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.776488Z",
+    "message": "[QPU Sheet Metrics] {'execution_time': 0.06527224499950535, 'sqi_shift': 1.0, 'mutation_count': 3}"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.778623Z",
+    "message": "[QPU Sheet Token Metrics] {'v0': {'\u2726': [{'total': 0.00692331899972487, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2295': [{'total': 0.00794901400058734, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2194': [{'total': 0.013933040999290824, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}]}}"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.780769Z",
+    "message": "[QPU Sheet Opcode Metrics] {'v0': {'\u2295': {'count': 1, 'total_time': 0.00794901400058734, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2194': {'count': 1, 'total_time': 0.013933040999290824, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2726': {'count': 1, 'total_time': 0.00692331899972487, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}}"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.807121Z",
+    "message": "[Sheet Execution] elapsed=0.068318s"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.854188Z",
+    "message": "[QPU Sheet Metrics] {'execution_time': 0.07428219200119202, 'sqi_shift': 1.0, 'mutation_count': 3}"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.856436Z",
+    "message": "[QPU Sheet Token Metrics] {'c0': {'\u2726': [{'total': 0.00796447300035652, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2295': [{'total': 0.009867790000498644, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2194': [{'total': 0.015319387999625178, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}]}}"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.858895Z",
+    "message": "[QPU Sheet Opcode Metrics] {'c0': {'\u2295': {'count': 1, 'total_time': 0.009867790000498644, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2194': {'count': 1, 'total_time': 0.015319387999625178, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2726': {'count': 1, 'total_time': 0.00796447300035652, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}}"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.863844Z",
+    "message": "[Phase9] timeline size=21"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.870435Z",
+    "message": "[BeamStore Persist Warn] (sqlite3.ProgrammingError) Error binding parameter 7: type 'dict' is not supported\n[SQL: INSERT INTO beam_events (beam_id, cell_id, sheet_run_id, container_id, eid, stage, token, result, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id]\n[parameters: ('beam_c0_dream_1758205255861', 'c0', '945ab1bb', 'phase9_it', 'eid::945ab1bb::553788251', 'dream', {'type': 'operator', 'value': '\u2234'}, 'null', '2025-09-18T14:20:55.861289+00:00')]\n(Background on this error at: https://sqlalche.me/e/20/f405)"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.872660Z",
+    "message": "[Sheet Execution] elapsed=0.061232s"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.879093Z",
+    "message": "[Phase9] timeline size=4"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.921272Z",
+    "message": "[QPU Sheet Metrics] {'execution_time': 0.06504373899952043, 'sqi_shift': 1.0, 'mutation_count': 3}"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.924359Z",
+    "message": "[QPU Sheet Token Metrics] {'v0': {'\u2726': [{'total': 0.006805039000028046, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2295': [{'total': 0.0075093229997946764, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2194': [{'total': 0.01433942899984686, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}]}}"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.927376Z",
+    "message": "[QPU Sheet Opcode Metrics] {'v0': {'\u2295': {'count': 1, 'total_time': 0.0075093229997946764, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2194': {'count': 1, 'total_time': 0.01433942899984686, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2726': {'count': 1, 'total_time': 0.006805039000028046, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}}"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.932798Z",
+    "message": "[Phase9] timeline size=22"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.940606Z",
+    "message": "[BeamStore Persist Warn] (sqlite3.ProgrammingError) Error binding parameter 7: type 'dict' is not supported\n[SQL: INSERT INTO beam_events (beam_id, cell_id, sheet_run_id, container_id, eid, stage, token, result, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id]\n[parameters: ('beam_v0_dream_1758205255929', 'v0', 'd999f01c', 'phase9_k_override', 'eid::d999f01c::3298162809a2b542', 'dream', {'type': 'operator', 'value': '\u2234'}, 'null', '2025-09-18T14:20:55.929923+00:00')]\n(Background on this error at: https://sqlalche.me/e/20/f405)"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.943595Z",
+    "message": "[Sheet Execution] elapsed=0.060604s"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.982367Z",
+    "message": "[QPU Sheet Metrics] {'execution_time': 0.059447546998853795, 'sqi_shift': 1.0, 'mutation_count': 6}"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.984656Z",
+    "message": "[QPU Sheet Token Metrics] {'p10a': {'\u2207': [{'total': 0.003218816999833507, 'fp4': 5.6009994295891374e-06, 'fp8': 1.7940001271199435e-06, 'int8': 2.3840002540964633e-06}, {'total': 0.004246976000104041, 'fp4': 4.547999196802266e-06, 'fp8': 1.8629998521646485e-06, 'int8': 2.674999450391624e-06}, {'total': 0.0032353169999623788, 'fp4': 2.9049997465335764e-06, 'fp8': 1.1120000635855831e-06, 'int8': 1.5929999790387228e-06}], '\u2295': [{'total': 0.0034103039997717133, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.00416052399941691, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2194': [{'total': 0.007263595000040368, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}]}}"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.986879Z",
+    "message": "[QPU Sheet Opcode Metrics] {'p10a': {'\u2207': {'count': 3, 'total_time': 0.010701109999899927, 'fp4_time': 1.305399837292498e-05, 'fp8_time': 4.769000042870175e-06, 'int8_time': 6.65199968352681e-06}, '\u2295': {'count': 2, 'total_time': 0.007570827999188623, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2194': {'count': 1, 'total_time': 0.007263595000040368, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}}"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:56.073461Z",
+    "message": "[Sheet Execution] elapsed=0.125720s"
+  },
+  {
+    "timestamp": "2025-09-18T14:32:27.935831Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-18T14:32:27.972898Z",
+    "message": "[QPU Sheet Metrics] {'execution_time': 0.051475097000547976, 'sqi_shift': 2.0, 'mutation_count': 3}"
+  },
+  {
+    "timestamp": "2025-09-18T14:32:27.975214Z",
+    "message": "[QPU Sheet Token Metrics] {'c1': {'\u2207': [{'total': 0.0065393140002925065, 'fp4': 5.9809999584103934e-06, 'fp8': 1.903999873320572e-06, 'int8': 2.8250005925656296e-06}], '\u2194': [{'total': 0.014244501000575838, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}]}, 'c2': {'\u2295': [{'total': 0.0014478519997283001, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}]}}"
+  },
+  {
+    "timestamp": "2025-09-18T14:32:27.977576Z",
+    "message": "[QPU Sheet Opcode Metrics] {'c1': {'\u2207': {'count': 1, 'total_time': 0.0065393140002925065, 'fp4_time': 5.9809999584103934e-06, 'fp8_time': 1.903999873320572e-06, 'int8_time': 2.8250005925656296e-06}, '\u2194': {'count': 1, 'total_time': 0.014244501000575838, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}, 'c2': {'\u2295': {'count': 1, 'total_time': 0.0014478519997283001, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}}"
+  },
+  {
+    "timestamp": "2025-09-18T14:32:28.003623Z",
+    "message": "[Phase10/QFC] container batch: ok=3 error=0 total=3"
+  },
+  {
+    "timestamp": "2025-09-18T14:32:28.049379Z",
+    "message": "[Sheet Execution] elapsed=0.107419s"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:04.917115Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:05.756526Z",
+    "message": "[QPU Sheet Metrics] {'execution_time': 0.41521625799987305, 'sqi_shift': 2.0, 'mutation_count': 12}"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:05.758761Z",
+    "message": "[QPU Sheet Token Metrics] {'c0': {'\u2192': [{'total': 0.008201667999969686, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.008636079999973845, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2295': [{'total': 0.009630939999965449, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.0073668869999892195, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2207': [{'total': 0.007880469000042467, 'fp4': 8.155000045917404e-06, 'fp8': 2.6750000188258127e-06, 'int8': 3.215999981875939e-06}, {'total': 0.006924942999944506, 'fp4': 6.522000035147357e-06, 'fp8': 2.5350000214530155e-06, 'int8': 2.7749999844672857e-06}], '\u2194': [{'total': 0.015847288000031767, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.01391995799997403, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u27f2': [{'total': 0.00887241099997027, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.007802472999969723, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2726': [{'total': 0.008447918000001664, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.008711730999948486, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}]}, 'c1': {'\u2192': [{'total': 0.008201667999969686, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.008636079999973845, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2295': [{'total': 0.009630939999965449, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.0073668869999892195, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2207': [{'total': 0.007880469000042467, 'fp4': 8.155000045917404e-06, 'fp8': 2.6750000188258127e-06, 'int8': 3.215999981875939e-06}, {'total': 0.006924942999944506, 'fp4': 6.522000035147357e-06, 'fp8': 2.5350000214530155e-06, 'int8': 2.7749999844672857e-06}], '\u2194': [{'total': 0.015847288000031767, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.01391995799997403, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u27f2': [{'total': 0.00887241099997027, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.007802472999969723, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2726': [{'total': 0.008447918000001664, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.008711730999948486, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}]}}"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:05.761021Z",
+    "message": "[QPU Sheet Opcode Metrics] {'c0': {'\u2295': {'count': 1, 'total_time': 0.009630939999965449, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2207': {'count': 1, 'total_time': 0.007880469000042467, 'fp4_time': 8.155000045917404e-06, 'fp8_time': 2.6750000188258127e-06, 'int8_time': 3.215999981875939e-06}, '\u2194': {'count': 1, 'total_time': 0.015847288000031767, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u27f2': {'count': 1, 'total_time': 0.00887241099997027, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2192': {'count': 1, 'total_time': 0.008201667999969686, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2726': {'count': 1, 'total_time': 0.008447918000001664, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}, 'c1': {'\u2295': {'count': 1, 'total_time': 0.0073668869999892195, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2207': {'count': 1, 'total_time': 0.006924942999944506, 'fp4_time': 6.522000035147357e-06, 'fp8_time': 2.5350000214530155e-06, 'int8_time': 2.7749999844672857e-06}, '\u2194': {'count': 1, 'total_time': 0.01391995799997403, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u27f2': {'count': 1, 'total_time': 0.007802472999969723, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2192': {'count': 1, 'total_time': 0.008636079999973845, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2726': {'count': 1, 'total_time': 0.008711730999948486, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}}"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.018150Z",
+    "message": "[Sheet Execution] elapsed=0.567929s"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.166944Z",
+    "message": "[QPU Sheet Metrics] {'execution_time': 0.26701626499982467, 'sqi_shift': 1.0, 'mutation_count': 6}"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.169263Z",
+    "message": "[QPU Sheet Token Metrics] {'s0': {'\u2192': [{'total': 0.01043266500005302, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2295': [{'total': 0.07408294300000762, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2207': [{'total': 0.008061826999892219, 'fp4': 6.000999974276056e-06, 'fp8': 1.9929999552914524e-06, 'int8': 2.6349999870944885e-06}], '\u2194': [{'total': 0.016489027000034184, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u27f2': [{'total': 0.008380141999964508, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2726': [{'total': 0.008796198999903027, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}]}}"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.171561Z",
+    "message": "[QPU Sheet Opcode Metrics] {'s0': {'\u2295': {'count': 1, 'total_time': 0.07408294300000762, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2207': {'count': 1, 'total_time': 0.008061826999892219, 'fp4_time': 6.000999974276056e-06, 'fp8_time': 1.9929999552914524e-06, 'int8_time': 2.6349999870944885e-06}, '\u2194': {'count': 1, 'total_time': 0.016489027000034184, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u27f2': {'count': 1, 'total_time': 0.008380141999964508, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2192': {'count': 1, 'total_time': 0.01043266500005302, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2726': {'count': 1, 'total_time': 0.008796198999903027, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}}"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.212739Z",
+    "message": "[Sheet Execution] elapsed=0.188416s"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.298914Z",
+    "message": "[QPU Sheet Metrics] {'execution_time': 0.1546541069998284, 'sqi_shift': 1.0, 'mutation_count': 3}"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.301454Z",
+    "message": "[QPU Sheet Token Metrics] {'a0': {'\u2207': [{'total': 0.004857532999949399, 'fp4': 4.619000037564547e-06, 'fp8': 1.1719999974957318e-06, 'int8': 1.9940000584028894e-06}], '\u2295': [{'total': 0.0587274139999181, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2194': [{'total': 0.01049693599998136, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}]}}"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.304023Z",
+    "message": "[QPU Sheet Opcode Metrics] {'a0': {'\u2295': {'count': 1, 'total_time': 0.0587274139999181, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2207': {'count': 1, 'total_time': 0.004857532999949399, 'fp4_time': 4.619000037564547e-06, 'fp8_time': 1.1719999974957318e-06, 'int8_time': 1.9940000584028894e-06}, '\u2194': {'count': 1, 'total_time': 0.01049693599998136, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}}"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.331249Z",
+    "message": "[Sheet Execution] elapsed=0.114109s"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.413522Z",
+    "message": "[QPU Sheet Metrics] {'execution_time': 0.3070476609997286, 'sqi_shift': 2.0, 'mutation_count': 6}"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.415830Z",
+    "message": "[QPU Sheet Token Metrics] {'b0': {'\u2207': [{'total': 0.004857532999949399, 'fp4': 4.619000037564547e-06, 'fp8': 1.1719999974957318e-06, 'int8': 1.9940000584028894e-06}, {'total': 0.005140310999991016, 'fp4': 5.810999937239103e-06, 'fp8': 1.6829999367473647e-06, 'int8': 2.694999921004637e-06}], '\u2295': [{'total': 0.0587274139999181, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.059260810000068886, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2194': [{'total': 0.01049693599998136, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.00919868099992982, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}]}}"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.418170Z",
+    "message": "[QPU Sheet Opcode Metrics] {'b0': {'\u2295': {'count': 1, 'total_time': 0.059260810000068886, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2207': {'count': 1, 'total_time': 0.005140310999991016, 'fp4_time': 5.810999937239103e-06, 'fp8_time': 1.6829999367473647e-06, 'int8_time': 2.694999921004637e-06}, '\u2194': {'count': 1, 'total_time': 0.00919868099992982, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}}"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.440904Z",
+    "message": "[Sheet Execution] elapsed=0.107157s"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.546920Z",
+    "message": "[QPU Sheet Metrics] {'execution_time': 0.1911882050001168, 'sqi_shift': 1.0, 'mutation_count': 3}"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.549848Z",
+    "message": "[QPU Sheet Token Metrics] {'v0': {'\u2295': [{'total': 0.06820265300007122, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2726': [{'total': 0.008728322000024491, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2194': [{'total': 0.014323451999985082, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}]}}"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.552691Z",
+    "message": "[QPU Sheet Opcode Metrics] {'v0': {'\u2295': {'count': 1, 'total_time': 0.06820265300007122, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2194': {'count': 1, 'total_time': 0.014323451999985082, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2726': {'count': 1, 'total_time': 0.008728322000024491, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}}"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.582012Z",
+    "message": "[Sheet Execution] elapsed=0.136911s"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.632698Z",
+    "message": "[QPU Sheet Metrics] {'execution_time': 0.0805575179998641, 'sqi_shift': 1.0, 'mutation_count': 3}"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.635084Z",
+    "message": "[QPU Sheet Token Metrics] {'c0': {'\u2295': [{'total': 0.009265404999950988, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2726': [{'total': 0.008993848000045546, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2194': [{'total': 0.017590463999908934, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}]}}"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.637426Z",
+    "message": "[QPU Sheet Opcode Metrics] {'c0': {'\u2295': {'count': 1, 'total_time': 0.009265404999950988, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2194': {'count': 1, 'total_time': 0.017590463999908934, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2726': {'count': 1, 'total_time': 0.008993848000045546, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}}"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.641925Z",
+    "message": "[Phase9] timeline size=21"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.648110Z",
+    "message": "[BeamStore Persist Warn] (sqlite3.ProgrammingError) Error binding parameter 7: type 'dict' is not supported\n[SQL: INSERT INTO beam_events (beam_id, cell_id, sheet_run_id, container_id, eid, stage, token, result, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id]\n[parameters: ('beam_c0_dream_1758209886639', 'c0', 'ecf2e127', 'phase9_it', 'eid::ecf2e127::3142938070', 'dream', {'type': 'operator', 'value': '\u2234'}, 'null', '2025-09-18T15:38:06.639547+00:00')]\n(Background on this error at: https://sqlalche.me/e/20/f405)"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.650644Z",
+    "message": "[Sheet Execution] elapsed=0.064469s"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.657585Z",
+    "message": "[Phase9] timeline size=4"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.851638Z",
+    "message": "[QPU Sheet Metrics] {'execution_time': 0.37011438700005783, 'sqi_shift': 1.0, 'mutation_count': 3}"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.854065Z",
+    "message": "[QPU Sheet Token Metrics] {'v0': {'\u2295': [{'total': 0.008356867999964379, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2726': [{'total': 0.007898472000078982, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2194': [{'total': 0.1648409660000425, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}]}}"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.856533Z",
+    "message": "[QPU Sheet Opcode Metrics] {'v0': {'\u2295': {'count': 1, 'total_time': 0.008356867999964379, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2194': {'count': 1, 'total_time': 0.1648409660000425, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2726': {'count': 1, 'total_time': 0.007898472000078982, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}}"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.860625Z",
+    "message": "[Phase9] timeline size=22"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.867414Z",
+    "message": "[BeamStore Persist Warn] (sqlite3.ProgrammingError) Error binding parameter 7: type 'dict' is not supported\n[SQL: INSERT INTO beam_events (beam_id, cell_id, sheet_run_id, container_id, eid, stage, token, result, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id]\n[parameters: ('beam_v0_dream_1758209886858', 'v0', '6efad910', 'phase9_k_override', 'eid::6efad910::3142938070', 'dream', {'type': 'operator', 'value': '\u2234'}, 'null', '2025-09-18T15:38:06.858657+00:00')]\n(Background on this error at: https://sqlalche.me/e/20/f405)"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.869837Z",
+    "message": "[Sheet Execution] elapsed=0.208821s"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.971477Z",
+    "message": "[QPU Sheet Metrics] {'execution_time': 0.18304654099972595, 'sqi_shift': 1.0, 'mutation_count': 6}"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.973898Z",
+    "message": "[QPU Sheet Token Metrics] {'p10a': {'\u2207': [{'total': 0.05825643199989372, 'fp4': 6.841999947937438e-06, 'fp8': 2.48499998178886e-06, 'int8': 3.0859999924359727e-06}, {'total': 0.004383857999982865, 'fp4': 2.8949999659744208e-06, 'fp8': 8.309999657285516e-07, 'int8': 1.5330000451285741e-06}, {'total': 0.004532475000019076, 'fp4': 3.557000013643119e-06, 'fp8': 1.824000037231599e-06, 'int8': 2.1140000399100245e-06}], '\u2295': [{'total': 0.004664301999923737, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.004770871000005172, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2194': [{'total': 0.009926419999942482, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}]}}"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.976381Z",
+    "message": "[QPU Sheet Opcode Metrics] {'p10a': {'\u2207': {'count': 3, 'total_time': 0.06717276499989566, 'fp4_time': 1.3293999927554978e-05, 'fp8_time': 5.139999984749011e-06, 'int8_time': 6.733000077474571e-06}, '\u2295': {'count': 2, 'total_time': 0.009435172999928909, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2194': {'count': 1, 'total_time': 0.009926419999942482, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}}"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:07.078969Z",
+    "message": "[Sheet Execution] elapsed=0.204910s"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:07.118981Z",
+    "message": "[QPU Sheet Metrics] {'execution_time': 0.05992009400006282, 'sqi_shift': 2.0, 'mutation_count': 3}"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:07.121442Z",
+    "message": "[QPU Sheet Token Metrics] {'c1': {'\u2207': [{'total': 0.008908448000056524, 'fp4': 4.609000029631716e-06, 'fp8': 1.6340000001946464e-06, 'int8': 1.8929999896499794e-06}], '\u2194': [{'total': 0.015680026000040925, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}]}, 'c2': {'\u2295': [{'total': 0.0017629929999429805, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}]}}"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:07.123933Z",
+    "message": "[QPU Sheet Opcode Metrics] {'c1': {'\u2207': {'count': 1, 'total_time': 0.008908448000056524, 'fp4_time': 4.609000029631716e-06, 'fp8_time': 1.6340000001946464e-06, 'int8_time': 1.8929999896499794e-06}, '\u2194': {'count': 1, 'total_time': 0.015680026000040925, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}, 'c2': {'\u2295': {'count': 1, 'total_time': 0.0017629929999429805, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}}"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:07.155554Z",
+    "message": "[Phase10/QFC] container batch: ok=3 error=0 total=3"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:07.192580Z",
+    "message": "[Sheet Execution] elapsed=0.109127s"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:07.287022Z",
+    "message": "[QPU Sheet Metrics] {'execution_time': 0.1569946219999565, 'sqi_shift': 2.0, 'mutation_count': 8}"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:07.289528Z",
+    "message": "[QPU Sheet Token Metrics] {'c1': {'\u2192': [{'total': 0.009050583999965056, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2295': [{'total': 0.009340926000049876, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.001913874000024407, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2207': [{'total': 0.008595204000016565, 'fp4': 3.907000063918531e-06, 'fp8': 1.0019999763244414e-06, 'int8': 1.7730000081428443e-06}], '\u2194': [{'total': 0.017828699000006054, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.004284492000010687, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u27f2': [{'total': 0.009138978999999381, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2726': [{'total': 0.009301903999926253, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}]}, 'c2': {'\u2295': [{'total': 0.009340926000049876, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.001913874000024407, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2194': [{'total': 0.017828699000006054, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.004284492000010687, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}]}}"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:07.292065Z",
+    "message": "[QPU Sheet Opcode Metrics] {'c1': {'\u2295': {'count': 1, 'total_time': 0.009340926000049876, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2207': {'count': 1, 'total_time': 0.008595204000016565, 'fp4_time': 3.907000063918531e-06, 'fp8_time': 1.0019999763244414e-06, 'int8_time': 1.7730000081428443e-06}, '\u2194': {'count': 1, 'total_time': 0.017828699000006054, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u27f2': {'count': 1, 'total_time': 0.009138978999999381, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2192': {'count': 1, 'total_time': 0.009050583999965056, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2726': {'count': 1, 'total_time': 0.009301903999926253, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}, 'c2': {'\u2295': {'count': 1, 'total_time': 0.001913874000024407, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2194': {'count': 1, 'total_time': 0.004284492000010687, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}}"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:07.335980Z",
+    "message": "[Sheet Execution] elapsed=0.138795s"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:37.000940Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:37.873611Z",
+    "message": "[QPU Sheet Metrics] {'execution_time': 0.3174472179996428, 'sqi_shift': 2.0, 'mutation_count': 12}"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:37.876873Z",
+    "message": "[QPU Sheet Token Metrics] {'c0': {'\u2207': [{'total': 0.009297305000018241, 'fp4': 5.200000032345997e-06, 'fp8': 1.4419999843084952e-06, 'int8': 2.0539998786262004e-06}, {'total': 0.009565685999859852, 'fp4': 4.999000111638452e-06, 'fp8': 1.8930002170236548e-06, 'int8': 3.0649998734588735e-06}], '\u2726': [{'total': 0.010789802000090276, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.013479806000077588, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2192': [{'total': 0.010835928000005879, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.010114129999919896, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2295': [{'total': 0.009682743999974264, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.009362605999967855, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u27f2': [{'total': 0.009678236999889123, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.010065118000056827, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2194': [{'total': 0.018760818999908224, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.019210299999940617, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}]}, 'c1': {'\u2207': [{'total': 0.009297305000018241, 'fp4': 5.200000032345997e-06, 'fp8': 1.4419999843084952e-06, 'int8': 2.0539998786262004e-06}, {'total': 0.009565685999859852, 'fp4': 4.999000111638452e-06, 'fp8': 1.8930002170236548e-06, 'int8': 3.0649998734588735e-06}], '\u2726': [{'total': 0.010789802000090276, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.013479806000077588, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2192': [{'total': 0.010835928000005879, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.010114129999919896, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2295': [{'total': 0.009682743999974264, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.009362605999967855, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u27f2': [{'total': 0.009678236999889123, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.010065118000056827, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2194': [{'total': 0.018760818999908224, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.019210299999940617, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}]}}"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:37.880541Z",
+    "message": "[QPU Sheet Opcode Metrics] {'c0': {'\u2295': {'count': 1, 'total_time': 0.009682743999974264, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2207': {'count': 1, 'total_time': 0.009297305000018241, 'fp4_time': 5.200000032345997e-06, 'fp8_time': 1.4419999843084952e-06, 'int8_time': 2.0539998786262004e-06}, '\u2194': {'count': 1, 'total_time': 0.018760818999908224, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u27f2': {'count': 1, 'total_time': 0.009678236999889123, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2192': {'count': 1, 'total_time': 0.010835928000005879, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2726': {'count': 1, 'total_time': 0.010789802000090276, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}, 'c1': {'\u2295': {'count': 1, 'total_time': 0.009362605999967855, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2207': {'count': 1, 'total_time': 0.009565685999859852, 'fp4_time': 4.999000111638452e-06, 'fp8_time': 1.8930002170236548e-06, 'int8_time': 3.0649998734588735e-06}, '\u2194': {'count': 1, 'total_time': 0.019210299999940617, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u27f2': {'count': 1, 'total_time': 0.010065118000056827, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2192': {'count': 1, 'total_time': 0.010114129999919896, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2726': {'count': 1, 'total_time': 0.013479806000077588, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}}"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:37.958248Z",
+    "message": "[Sheet Execution] elapsed=0.266707s"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.050043Z",
+    "message": "[QPU Sheet Metrics] {'execution_time': 0.15265045699993607, 'sqi_shift': 1.0, 'mutation_count': 6}"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.052667Z",
+    "message": "[QPU Sheet Token Metrics] {'s0': {'\u2207': [{'total': 0.009261849000040456, 'fp4': 3.936999974030186e-06, 'fp8': 1.0119999842572724e-06, 'int8': 1.7729998944560066e-06}], '\u2726': [{'total': 0.009455168999920716, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2192': [{'total': 0.01033875000007356, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2295': [{'total': 0.01156649299991841, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u27f2': [{'total': 0.009309748000077889, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2194': [{'total': 0.018211142999916774, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}]}}"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.055309Z",
+    "message": "[QPU Sheet Opcode Metrics] {'s0': {'\u2295': {'count': 1, 'total_time': 0.01156649299991841, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2207': {'count': 1, 'total_time': 0.009261849000040456, 'fp4_time': 3.936999974030186e-06, 'fp8_time': 1.0119999842572724e-06, 'int8_time': 1.7729998944560066e-06}, '\u2194': {'count': 1, 'total_time': 0.018211142999916774, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u27f2': {'count': 1, 'total_time': 0.009309748000077889, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2192': {'count': 1, 'total_time': 0.01033875000007356, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2726': {'count': 1, 'total_time': 0.009455168999920716, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}}"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.100523Z",
+    "message": "[Sheet Execution] elapsed=0.136982s"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.134542Z",
+    "message": "[QPU Sheet Metrics] {'execution_time': 0.05025995100004366, 'sqi_shift': 1.0, 'mutation_count': 3}"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.137193Z",
+    "message": "[QPU Sheet Token Metrics] {'a0': {'\u2295': [{'total': 0.0054006770001251425, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2194': [{'total': 0.011082979000093474, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2207': [{'total': 0.005447073999903296, 'fp4': 3.617000174926943e-06, 'fp8': 8.919998890632996e-07, 'int8': 2.153999957954511e-06}]}}"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.139830Z",
+    "message": "[QPU Sheet Opcode Metrics] {'a0': {'\u2295': {'count': 1, 'total_time': 0.0054006770001251425, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2207': {'count': 1, 'total_time': 0.005447073999903296, 'fp4_time': 3.617000174926943e-06, 'fp8_time': 8.919998890632996e-07, 'int8_time': 2.153999957954511e-06}, '\u2194': {'count': 1, 'total_time': 0.011082979000093474, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}}"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.166967Z",
+    "message": "[Sheet Execution] elapsed=0.061958s"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.197214Z",
+    "message": "[QPU Sheet Metrics] {'execution_time': 0.09771926300004452, 'sqi_shift': 2.0, 'mutation_count': 6}"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.199918Z",
+    "message": "[QPU Sheet Token Metrics] {'b0': {'\u2295': [{'total': 0.0054006770001251425, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.006366009999965172, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2194': [{'total': 0.011082979000093474, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.009706639000114592, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2207': [{'total': 0.005447073999903296, 'fp4': 3.617000174926943e-06, 'fp8': 8.919998890632996e-07, 'int8': 2.153999957954511e-06}, {'total': 0.004832315999919956, 'fp4': 4.63800006400561e-06, 'fp8': 1.633000010770047e-06, 'int8': 3.8470000163215445e-06}]}}"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.202586Z",
+    "message": "[QPU Sheet Opcode Metrics] {'b0': {'\u2295': {'count': 1, 'total_time': 0.006366009999965172, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2207': {'count': 1, 'total_time': 0.004832315999919956, 'fp4_time': 4.63800006400561e-06, 'fp8_time': 1.633000010770047e-06, 'int8_time': 3.8470000163215445e-06}, '\u2194': {'count': 1, 'total_time': 0.009706639000114592, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}}"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.228253Z",
+    "message": "[Sheet Execution] elapsed=0.058592s"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.276871Z",
+    "message": "[QPU Sheet Metrics] {'execution_time': 0.07642100199996094, 'sqi_shift': 1.0, 'mutation_count': 3}"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.279571Z",
+    "message": "[QPU Sheet Token Metrics] {'v0': {'\u2295': [{'total': 0.008931221000011647, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2194': [{'total': 0.01652152700012266, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2726': [{'total': 0.008569755999815243, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}]}}"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.282355Z",
+    "message": "[QPU Sheet Opcode Metrics] {'v0': {'\u2295': {'count': 1, 'total_time': 0.008931221000011647, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2194': {'count': 1, 'total_time': 0.01652152700012266, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2726': {'count': 1, 'total_time': 0.008569755999815243, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}}"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.311876Z",
+    "message": "[Sheet Execution] elapsed=0.079121s"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.371386Z",
+    "message": "[QPU Sheet Metrics] {'execution_time': 0.09409805800009963, 'sqi_shift': 1.0, 'mutation_count': 3}"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.374443Z",
+    "message": "[QPU Sheet Token Metrics] {'c0': {'\u2295': [{'total': 0.011191091000000597, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2194': [{'total': 0.020425769999974364, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2726': [{'total': 0.010325114000124813, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}]}}"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.377466Z",
+    "message": "[QPU Sheet Opcode Metrics] {'c0': {'\u2295': {'count': 1, 'total_time': 0.011191091000000597, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2194': {'count': 1, 'total_time': 0.020425769999974364, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2726': {'count': 1, 'total_time': 0.010325114000124813, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}}"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.382518Z",
+    "message": "[Phase9] timeline size=21"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.389456Z",
+    "message": "[BeamStore Persist Warn] (sqlite3.ProgrammingError) Error binding parameter 7: type 'dict' is not supported\n[SQL: INSERT INTO beam_events (beam_id, cell_id, sheet_run_id, container_id, eid, stage, token, result, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id]\n[parameters: ('beam_c0_dream_1758210158379', 'c0', 'ed00b00a', 'phase9_it', 'eid::ed00b00a::1600205727', 'dream', {'type': 'operator', 'value': '\u2234'}, 'null', '2025-09-18T15:42:38.379891+00:00')]\n(Background on this error at: https://sqlalche.me/e/20/f405)"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.392191Z",
+    "message": "[Sheet Execution] elapsed=0.076100s"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.398971Z",
+    "message": "[Phase9] timeline size=4"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.450130Z",
+    "message": "[QPU Sheet Metrics] {'execution_time': 0.08182941400013988, 'sqi_shift': 1.0, 'mutation_count': 3}"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.452838Z",
+    "message": "[QPU Sheet Token Metrics] {'v0': {'\u2295': [{'total': 0.010242580000067392, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2194': [{'total': 0.01746446900006049, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2726': [{'total': 0.008702383999889207, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}]}}"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.455561Z",
+    "message": "[QPU Sheet Opcode Metrics] {'v0': {'\u2295': {'count': 1, 'total_time': 0.010242580000067392, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2194': {'count': 1, 'total_time': 0.01746446900006049, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2726': {'count': 1, 'total_time': 0.008702383999889207, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}}"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.460245Z",
+    "message": "[Phase9] timeline size=22"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.467526Z",
+    "message": "[BeamStore Persist Warn] (sqlite3.ProgrammingError) Error binding parameter 7: type 'dict' is not supported\n[SQL: INSERT INTO beam_events (beam_id, cell_id, sheet_run_id, container_id, eid, stage, token, result, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id]\n[parameters: ('beam_v0_dream_1758210158457', 'v0', 'c3bbaf1e', 'phase9_k_override', 'eid::c3bbaf1e::1600205727', 'dream', {'type': 'operator', 'value': '\u2234'}, 'null', '2025-09-18T15:42:38.457966+00:00')]\n(Background on this error at: https://sqlalche.me/e/20/f405)"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.470944Z",
+    "message": "[Sheet Execution] elapsed=0.067958s"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.538481Z",
+    "message": "[QPU Sheet Metrics] {'execution_time': 0.11045744300031402, 'sqi_shift': 1.0, 'mutation_count': 6}"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.541307Z",
+    "message": "[QPU Sheet Token Metrics] {'p10a': {'\u2295': [{'total': 0.00705398500008414, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.006163812000067992, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2194': [{'total': 0.014826111000047604, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2207': [{'total': 0.006423748000088381, 'fp4': 4.368999952930608e-06, 'fp8': 1.7330000900983578e-06, 'int8': 2.7060000320489053e-06}, {'total': 0.006089714000154345, 'fp4': 3.626000079748337e-06, 'fp8': 1.5430000530614052e-06, 'int8': 2.4250000478787115e-06}, {'total': 0.00797092699986024, 'fp4': 3.0960000003688037e-06, 'fp8': 8.219999472203199e-07, 'int8': 1.6029998732847162e-06}]}}"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.544210Z",
+    "message": "[QPU Sheet Opcode Metrics] {'p10a': {'\u2207': {'count': 3, 'total_time': 0.020484389000102965, 'fp4_time': 1.1091000033047749e-05, 'fp8_time': 4.098000090380083e-06, 'int8_time': 6.733999953212333e-06}, '\u2295': {'count': 2, 'total_time': 0.013217797000152132, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2194': {'count': 1, 'total_time': 0.014826111000047604, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}}"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.672079Z",
+    "message": "[Sheet Execution] elapsed=0.196733s"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.723211Z",
+    "message": "[QPU Sheet Metrics] {'execution_time': 0.07824190300016198, 'sqi_shift': 2.0, 'mutation_count': 3}"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.726079Z",
+    "message": "[QPU Sheet Token Metrics] {'c1': {'\u2194': [{'total': 0.021282629000097586, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2207': [{'total': 0.011070656999891071, 'fp4': 3.8470000163215445e-06, 'fp8': 9.919999683916103e-07, 'int8': 1.9040001006942475e-06}]}, 'c2': {'\u2295': [{'total': 0.002223662999995213, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}]}}"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.728888Z",
+    "message": "[QPU Sheet Opcode Metrics] {'c1': {'\u2207': {'count': 1, 'total_time': 0.011070656999891071, 'fp4_time': 3.8470000163215445e-06, 'fp8_time': 9.919999683916103e-07, 'int8_time': 1.9040001006942475e-06}, '\u2194': {'count': 1, 'total_time': 0.021282629000097586, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}, 'c2': {'\u2295': {'count': 1, 'total_time': 0.002223662999995213, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}}"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.767449Z",
+    "message": "[Phase10/QFC] container batch: ok=3 error=0 total=3"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.815388Z",
+    "message": "[Sheet Execution] elapsed=0.138466s"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.939495Z",
+    "message": "[QPU Sheet Metrics] {'execution_time': 0.207513003999793, 'sqi_shift': 2.0, 'mutation_count': 8}"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.942391Z",
+    "message": "[QPU Sheet Token Metrics] {'c1': {'\u2207': [{'total': 0.011267363999877489, 'fp4': 3.7370000427472405e-06, 'fp8': 9.319999207946239e-07, 'int8': 1.7929999103216687e-06}], '\u2726': [{'total': 0.011725580000074842, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2192': [{'total': 0.011653665000039837, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2295': [{'total': 0.012073159000010492, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.0024920539999584435, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u27f2': [{'total': 0.011609533999944688, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2194': [{'total': 0.024215727999944647, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.006953277000093294, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}]}, 'c2': {'\u2295': [{'total': 0.012073159000010492, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.0024920539999584435, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '\u2194': [{'total': 0.024215727999944647, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}, {'total': 0.006953277000093294, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}]}}"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.945269Z",
+    "message": "[QPU Sheet Opcode Metrics] {'c1': {'\u2295': {'count': 1, 'total_time': 0.012073159000010492, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2207': {'count': 1, 'total_time': 0.011267363999877489, 'fp4_time': 3.7370000427472405e-06, 'fp8_time': 9.319999207946239e-07, 'int8_time': 1.7929999103216687e-06}, '\u2194': {'count': 1, 'total_time': 0.024215727999944647, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u27f2': {'count': 1, 'total_time': 0.011609533999944688, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2192': {'count': 1, 'total_time': 0.011653665000039837, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2726': {'count': 1, 'total_time': 0.011725580000074842, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}, 'c2': {'\u2295': {'count': 1, 'total_time': 0.0024920539999584435, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}, '\u2194': {'count': 1, 'total_time': 0.006953277000093294, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}}"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:39.003801Z",
+    "message": "[Sheet Execution] elapsed=0.182874s"
   }
 ]

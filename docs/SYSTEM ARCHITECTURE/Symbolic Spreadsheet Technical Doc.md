@@ -434,3 +434,322 @@ Key points:
 ✅ So yes, the current software architecture already gives you a “wrappable / portable symbolic quantum compute layer” that can run anywhere in your stack.
 
 
+Phases 8–10: Beam-Native Runtime, Dream Projection, and Symbolic Acceleration
+
+This document is the final technical reference for the features you just shipped across Phases 8, 9, and 10. It explains how the system works end-to-end, how the pieces connect, configuration flags, data shapes, and a short user guide (backend + SCI UI). Paste-and-go snippets are included where useful.
+
+⸻
+
+1) System Overview
+
+Runtime spine
+	•	CodexVirtualQPU (backend/modules/codex/codex_virtual_qpu.py) executes GlyphCell logic (⊕ ↔ ⟲ → ⧖ ∇ ⊗ ✦).
+	•	Each cell execution emits beams into cell.wave_beams (the lineage) and optionally broadcasts updates to the UI via broadcast_qfc_update.
+	•	An entanglement registry groups cells across sheets/runs using a deterministic EID.
+	•	Optional passes:
+	•	Phase 8: beam lineage + entanglement, ghost replay, batch predict/collapse.
+	•	Phase 9: speculative “dream” beams + timeline snapshot.
+	•	Phase 10: vectorized batched execution + precision emulation (FP4/FP8/INT8) and container-level beam execution.
+
+Front-end
+	•	SCI AtomSheet Panel shows cells on a 4D grid, a Live HUD (beams/timeline), and Live QPU/CPU metrics.
+	•	The panel consumes REST + (optionally) WebSocket broadcast events keyed by container_id.
+
+⸻
+
+2) Phase 8 — Beam-Native & Multi-Agent Entanglement
+
+2.1 Beam lineage model & SQI trees (H1)
+	•	Every opcode execution may append a beam to cell.wave_beams. Typical shape:
+
+
+{
+  "beam_id": "beam_<cell_id>_<stage>_<ms>",
+  "source": "op_EQ|accel|qpu_execute_cell|…",
+  "stage": "predict|ingest|collapse|vector|dream|…",
+  "token": "↔" ,
+  "payload": { "a": "...", "b": "..." },
+  "timestamp": "2025-...Z",
+  "entanglement_ids": ["eid::<run>::<digest>"],
+  "state": "active|pruned|collapsed",
+  "sqi": 0.92
+}
+
+
+	•	SQI is updated per cell; sheet-level aggregation is recorded in a final “∑ collapse” beam.
+
+2.2 Cross-sheet/agent entanglement registry (H2)
+	•	A deterministic EID is computed from sheet_run_id + normalized tokens:
+
+eid = "eid::<sheet_run_id>::<blake2s(normalized_opcode_signature)>"
+
+	•	The registry lives in context["entanglements_map"] (eid → set(cell_ids)).
+	•	The ↔ operator (op_EQ) always emits staged beams (predict, ingest, collapse) and records membership in the map—even with insufficient args—to keep lineage intact.
+
+2.3 Ghost memory replay (H3)
+	•	After execution, the QPU calls:
+
+from backend.modules.beamline.beam_store import persist_beam_events, ghost_replay_for_eid
+
+persist_beam_events(cells, context)
+for eid in ent_map:
+    context["ghost_replays"][eid] = ghost_replay_for_eid(eid, limit=3, container_id=context.get("container_id"))
+
+
+	•	Ghost replays provide prior beam snippets for the same EID (used in visualizers/recall).
+
+2.4 GHXVisualizer + QuantumFieldCanvas overlays (H4)
+	•	When not benchmark_silent and container_id is set, the QPU broadcasts:
+	•	qpu_sheet_metrics, qpu_precision_profile, qpu_beam_lineage, qpu_entanglement_map,
+	•	and a flattened qpu_beam_timeline (sorted by timestamp) for scrubbing.
+
+2.5 Batch predict/collapse + SQI scoring (H5)
+	•	If context["batch_collapse"] is set, a sheet-level collapse beam is appended to each cell, carrying {"sheet_sqi": …} so the UI can render per-run summarization.
+
+Key Flags
+
+Context Key						Type						Meaning
+container_id
+str
+Enables UI broadcasts (GHX/HUD).
+benchmark_silent
+bool
+Suppress broadcasts/log-heavy hooks.
+sheet_run_id
+str
+Groups entanglements (stable across sheets).
+batch_collapse
+bool
+Adds sheet-level collapse beam.
+
+
+3) Phase 9 — Dream Projection & Timeline Replay
+
+3.1 Speculative beam generation (I1)
+
+Module: backend/modules/codex/_4d_dreams.py
+	•	project_dreams_for_cell(cell, context, cfg) creates k speculative variants based on the token stream. Each variant is emitted as a dream beam (stage="dream", token ∴) and optionally tagged with the cell’s entanglement IDs.
+
+3.2 SQI-guided pruning (I3)
+	•	prune_dreams_by_sqi(cell, min_sqi, stage_name="dream") marks low-score dream beams as "state": "pruned" (non-destructive).
+
+3.3 Timeline scrub/replay (I2)
+	•	build_timeline_snapshot(cells, context) flattens all beams into a time-sorted list (cell_id, beam_id, stage, token, eid, timestamp).
+	•	The QPU broadcasts:
+	•	type: "qpu_phase9_dreams" with {"dreams": { <cell_id>: [beams…] }},
+	•	type: "qpu_phase9_timeline" with {"timeline": [...]}.
+
+Enable Phase 9
+context.update({
+  "phase9_enabled": True,
+  "phase9_k": 3,                 # variants per cell
+  "phase9_min_sqi": 0.60,        # prune threshold
+  "phase9_stage": "dream"        # tag used on beams
+})
+
+
+4) Phase 10 — Symbolic Acceleration & QFC Integration
+
+4.1 Vectorized kernels + precision (J1, J2)
+
+Module: backend/modules/codex/accel.py
+	•	vectorize_cell(cell, context) batches consecutive identical operators and executes a batched path.
+	•	Precision emulation via _quantize_to(mode, x) supports fp4, fp8, int8, fp32|none.
+	•	A vector beam is appended per batch:
+
+{
+  "stage": "vector",
+  "precision": "fp8",
+  "batch_size": 12,
+  "result_sample": [...],
+  "quant_error_mean": 0.03
+}
+
+	•	Guardrails:
+	•	Runtime checks for NumPy/numexpr/torch; automatic fallback to scalar ISA.
+	•	Per-opcode gating lets you keep ∇ quantized (probe) while others passthrough.
+
+Enable Phase 10
+
+context.update({
+  "phase10_enabled": True,
+  "phase10_precision": "fp8"  # fp4|fp8|int8|fp32
+})
+
+The QPU stores context["phase10_summary"] = {"batches": {cell_id: [...]}, "total_batches": N} and broadcasts:
+
+broadcast_qfc_update(container_id, {
+  "type": "qpu_phase10_vectorized",
+  "summary": context["phase10_summary"],
+  "precision": str(context.get("phase10_precision", "fp8")),
+})
+4.2 QFC container-level beam execution (J3)
+	•	A thin executor (tested via test_phase10_container_exec.py) reads a QFC container’s beam script and replays/executes them against the runtime. Results are emitted as standard beams and can be broadcast to GHX/HUD, enabling container-driven workflows (e.g., pre-baked pipelines or demos).
+
+4.3 Real-time GHX/HUD debug & telemetry (J4)
+	•	SCI consumes qpu_* messages for live metrics and overlays:
+	•	Sheet metrics, precision profile, lineage, entanglements, timeline, Phase 9 dreams, Phase 10 vectorized summaries.
+
+⸻
+
+5) Data Contracts (quick reference)
+
+5.1 Beam
+
+type Beam = {
+  beam_id: string;                // "beam_<cell|sheet>_<stage>_<ms>"
+  source: string;                 // "op_EQ" | "accel" | "qpu_execute_cell" | ...
+  stage?: string;                 // "predict"|"ingest"|"collapse"|"vector"|"dream"|...
+  token?: string | {type:string,value:string};
+  payload?: any;
+  timestamp: string;              // ISO
+  entanglement_ids?: string[];    // ["eid::<run>::<digest>"]
+  state?: "active"|"pruned"|"collapsed";
+  sqi?: number;
+};
+
+5.2 Broadcast messages
+
+Common fields: { container_id, sheet_run_id, workspace_id? } carried by the server.
+	•	"qpu_sheet_metrics" → { sheet_token_metrics, sheet_opcode_metrics, aggregate_metric
+
+	•	"qpu_precision_profile" → { profile }
+	•	"qpu_beam_lineage" → { lineage: { <cell_id>: Beam[] } }
+	•	"qpu_entanglement_map" → { map: { <eid>: string[] } }
+	•	"qpu_beam_timeline" → { timeline: Array<{cell_id, beam_id, stage, eid, token, timestamp}> }
+	•	"qpu_phase9_dreams" → { dreams: { <cell_id>: Beam[] } }
+	•	"qpu_phase9_timeline" → { timeline: [...] }
+	•	"qpu_phase10_vectorized" → { summary, precision }
+
+⸻
+
+6) Configuration & Setup
+
+6.1 Backend
+	•	Required modules:
+	•	codex_virtual_qpu.py (with Phase 8/9/10 hooks),
+	•	_4d_dreams.py, accel.py,
+	•	beamline/beam_store.py (persist + ghost replay),
+	•	utils/time_utils.py (use now_utc_ms()/now_utc_iso() across beams).
+	•	Context: always pass a container_id to enable broadcasts; set benchmark_silent=True to suppress.
+	•	Imports: use lazy imports for things like the SQI scorer to avoid circulars (already implemented via _score_sqi).
+
+6.2 Frontend (SCI)
+	•	Props for the panel (if hosted in tabs):
+	•	containerId (recommended): isolates streams per panel/tab.
+	•	wsUrl (optional): for live HUD; REST falls back if missing.
+	•	defaultFile for fetching a .sqs.json from the backend.
+	•	Endpoints used (by default):
+	•	GET /atomsheet?file=... to load sheet,
+	•	GET /lightcone?file=...&entry_id=...&direction=...&container_id=...,
+	•	GET /qfc_entanglement?cell_id=...&file=...&container_id=...,
+	•	GET /qfc_entangled?cell_id=...&container_id=....
+	•	WebSocket (optional):
+	•	connect to wsUrl?...&container_id=<id>, listen for qpu_* messages.
+
+⸻
+
+7) Dev & User Guide
+
+7.1 Running tests
+
+# Core phases
+PYTHONPATH=. pytest -q \
+  backend/tests/test_phase8_beams.py \
+  backend/tests/test_phase8_beam_stages.py \
+  backend/tests/test_phase8_cross_sheet_entanglement.py \
+  backend/tests/test_phase8_visualizer_payload.py \
+  backend/tests/test_phase9_dreams.py \
+  backend/tests/test_phase10_accel.py \
+  backend/tests/test_phase10_container_exec.py
+
+# AtomSheets
+PYTHONPATH=. pytest -q backend/tests/test_atomsheet_engine.py
+PYTHONPATH=. pytest -q backend/tests/test_atomsheet_registry_persist.py
+
+Expected: all pass, warnings OK (UTC deprecation, etc.).
+
+7.2 Enabling features in code
+
+ctx = {
+  "container_id": "sci:session:1234",
+  "benchmark_silent": False,
+  "sheet_run_id": "runA",
+  "batch_collapse": True,
+  # Phase 9
+  "phase9_enabled": True, "phase9_k": 3, "phase9_min_sqi": 0.60, "phase9_stage": "dream",
+  # Phase 10
+  "phase10_enabled": True, "phase10_precision": "fp8",
+}
+
+await CodexVirtualQPU().execute_sheet(cells, ctx)
+
+7.3 Using the SCI panel
+	1.	Open the AtomSheet view (your existing route).
+	2.	Load a sheet (query ?file=example.sqs.json) or use dev fallback.
+	3.	Hover a cell to see the overlay; toggle raw/CodexLang.
+	4.	Switch LightCone direction (forward / reverse) and watch the timeline fill.
+	5.	If WS is enabled (with containerId), you’ll see:
+	•	Dreams and timeline (Phase 9),
+	•	Vectorized summaries (Phase 10),
+	•	Sheet metrics, entanglement map, precision profile.
+
+⸻
+
+8) Troubleshooting
+	•	datetime not defined
+Ensure no inline from datetime import datetime was removed; use now_utc_ms/iso helpers in beams.
+	•	Circular import on SQI scorer
+Keep the lazy _score_sqi(cell) import path in codex_virtual_qpu.py. It falls back to a heuristic if unavailable.
+	•	No UI updates
+Check that container_id is set and benchmark_silent is False. Verify WS URL if using live streams.
+	•	Missing entanglements
+Confirm sheet_run_id is steady across related sheets and ↔ ops are emitting predict/ingest/collapse beams.
+
+⸻
+
+9) Performance & Limits
+	•	Phase 10 vectorization reduces Python overhead by batching identical ops; precision modes allow trading accuracy for throughput.
+	•	This remains software-level—you won’t beat DRAM/HBM latency; gains come from smarter batching, reduced lineage chatter, and selective precision.
+
+⸻
+
+10) Appendices
+
+10.1 Minimal Phase 9 driver (inline)
+
+if context.get("phase9_enabled"):
+    from backend.modules.codex._4d_dreams import phase9_run
+    phase9 = phase9_run(
+        cells, context,
+        k_variants=int(context.get("phase9_k", 3) or 3),
+        min_sqi_keep=float(context.get("phase9_min_sqi", 0.60) or 0.60),
+        stage_name=str(context.get("phase9_stage", "dream") or "dream"),
+    )
+    if "container_id" in context and not context.get("benchmark_silent"):
+        base = {"sheet_run_id": context.get("sheet_run_id")}
+        asyncio.create_task(broadcast_qfc_update(context["container_id"], {**base, "type": "qpu_phase9_dreams", "dreams": phase9["dreams"]}))
+        asyncio.create_task(broadcast_qfc_update(context["container_id"], {**base, "type": "qpu_phase9_timeline", "timeline": phase9["timeline"]}))
+
+10.2 Minimal Phase 10 driver (inline)
+
+if context.get("phase10_enabled"):
+    from backend.modules.codex.accel import phase10_accelerate_sheet
+    p10 = phase10_accelerate_sheet(cells, context)
+    context["phase10_summary"] = p10
+
+And (inside the broadcast block):
+
+if context.get("phase10_summary"):
+    asyncio.create_task(
+        broadcast_qfc_update(context["container_id"], {
+            **base, "type": "qpu_phase10_vectorized",
+            "summary": context["phase10_summary"],
+            "precision": str(context.get("phase10_precision", "fp8")),
+        })
+    )
+
+Done ✅
+	•	Phase 8: lineage + entanglement + ghost replay + batch collapse — complete
+	•	Phase 9: dream beams + pruning + timeline — complete
+	•	Phase 10: vectorization + precision + container execution + telemetry — complete

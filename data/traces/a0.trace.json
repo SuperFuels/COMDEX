@@ -1,0 +1,794 @@
+[
+  {
+    "timestamp": "2025-09-18T10:53:18.612227Z",
+    "message": "\ud83d\udd17 Entanglement applied"
+  },
+  {
+    "timestamp": "2025-09-18T10:53:18.612505Z",
+    "message": "\ud83d\udca5 Collapse triggered"
+  },
+  {
+    "timestamp": "2025-09-18T10:53:18.612945Z",
+    "message": "\ud83d\udd2e Superposition enabled"
+  },
+  {
+    "timestamp": "2025-09-18T10:53:18.613234Z",
+    "message": "\ud83d\udd2e Prediction forks updated: ['']"
+  },
+  {
+    "timestamp": "2025-09-18T10:53:18.613559Z",
+    "message": "[QPU EXEC] \u2295([{'type': 'operator', 'value': '\u2295'}]) \u2192 [\"{'type': 'operator', 'value': '\u2295'}\"]"
+  },
+  {
+    "timestamp": "2025-09-18T10:53:18.614542Z",
+    "message": "[QPU Executed] \u2295: [\"{'type': 'operator', 'value': '\u2295'}\"]"
+  },
+  {
+    "timestamp": "2025-09-18T10:53:18.614901Z",
+    "message": "\ud83d\udd17 Entanglement applied"
+  },
+  {
+    "timestamp": "2025-09-18T10:53:18.615198Z",
+    "message": "\ud83d\udca5 Collapse triggered"
+  },
+  {
+    "timestamp": "2025-09-18T10:53:18.615496Z",
+    "message": "\ud83d\udd2e Superposition enabled"
+  },
+  {
+    "timestamp": "2025-09-18T10:53:18.615822Z",
+    "message": "\ud83d\udd2e Prediction forks updated: ['']"
+  },
+  {
+    "timestamp": "2025-09-18T10:53:18.616162Z",
+    "message": "[QPU EXEC] \u2207([{'type': 'operator', 'value': '\u2207'}]) \u2192 0.6783496428174624"
+  },
+  {
+    "timestamp": "2025-09-18T10:53:18.616904Z",
+    "message": "[QPU Executed] \u2207: 0.6783496428174624"
+  },
+  {
+    "timestamp": "2025-09-18T10:53:18.617260Z",
+    "message": "[Beam eq/entangle] eid=eid::runX::3619210160 payload={'note': 'insufficient_args'}"
+  },
+  {
+    "timestamp": "2025-09-18T10:53:18.617607Z",
+    "message": "\ud83d\udd17 Entanglement applied"
+  },
+  {
+    "timestamp": "2025-09-18T10:53:18.617959Z",
+    "message": "\ud83d\udca5 Collapse triggered"
+  },
+  {
+    "timestamp": "2025-09-18T10:53:18.618291Z",
+    "message": "\ud83d\udd2e Superposition enabled"
+  },
+  {
+    "timestamp": "2025-09-18T10:53:18.618624Z",
+    "message": "\ud83d\udd2e Prediction forks updated: ['']"
+  },
+  {
+    "timestamp": "2025-09-18T10:53:18.619049Z",
+    "message": "[QPU EXEC] \u2194([{'type': 'operator', 'value': '\u2194'}]) \u2192 ['[EQ ERROR: Need 2 args]']"
+  },
+  {
+    "timestamp": "2025-09-18T10:53:18.619999Z",
+    "message": "[QPU Executed] \u2194: ['[EQ ERROR: Need 2 args]']"
+  },
+  {
+    "timestamp": "2025-09-18T10:53:18.620402Z",
+    "message": "[QPU Hook] SQI updated: 1.0"
+  },
+  {
+    "timestamp": "2025-09-18T10:53:18.620809Z",
+    "message": "[QPU Metrics] exec_time=0.009254s"
+  },
+  {
+    "timestamp": "2025-09-18T11:15:46.856884Z",
+    "message": "\ud83d\udd17 Entanglement applied"
+  },
+  {
+    "timestamp": "2025-09-18T11:15:46.857295Z",
+    "message": "\ud83d\udca5 Collapse triggered"
+  },
+  {
+    "timestamp": "2025-09-18T11:15:46.857665Z",
+    "message": "\ud83d\udd2e Superposition enabled"
+  },
+  {
+    "timestamp": "2025-09-18T11:15:46.858064Z",
+    "message": "\ud83d\udd2e Prediction forks updated: ['']"
+  },
+  {
+    "timestamp": "2025-09-18T11:15:46.858453Z",
+    "message": "[QPU EXEC] \u2295([{'type': 'operator', 'value': '\u2295'}]) \u2192 [\"{'type': 'operator', 'value': '\u2295'}\"]"
+  },
+  {
+    "timestamp": "2025-09-18T11:15:46.859490Z",
+    "message": "[QPU Executed] \u2295: [\"{'type': 'operator', 'value': '\u2295'}\"]"
+  },
+  {
+    "timestamp": "2025-09-18T11:15:46.859910Z",
+    "message": "\ud83d\udd17 Entanglement applied"
+  },
+  {
+    "timestamp": "2025-09-18T11:15:46.860279Z",
+    "message": "\ud83d\udca5 Collapse triggered"
+  },
+  {
+    "timestamp": "2025-09-18T11:15:46.860651Z",
+    "message": "\ud83d\udd2e Superposition enabled"
+  },
+  {
+    "timestamp": "2025-09-18T11:15:46.861085Z",
+    "message": "\ud83d\udd2e Prediction forks updated: ['']"
+  },
+  {
+    "timestamp": "2025-09-18T11:15:46.861510Z",
+    "message": "[QPU EXEC] \u2207([{'type': 'operator', 'value': '\u2207'}]) \u2192 0.6661377375232067"
+  },
+  {
+    "timestamp": "2025-09-18T11:15:46.862379Z",
+    "message": "[QPU Executed] \u2207: 0.6661377375232067"
+  },
+  {
+    "timestamp": "2025-09-18T11:15:46.862872Z",
+    "message": "[Beam eq/entangle] stage=predict eid=eid::runX::ce8463755c3311ee payload={'note': 'insufficient_args'}"
+  },
+  {
+    "timestamp": "2025-09-18T11:15:46.863302Z",
+    "message": "[Beam eq/entangle] stage=ingest eid=eid::runX::ce8463755c3311ee payload={'note': 'insufficient_args'}"
+  },
+  {
+    "timestamp": "2025-09-18T11:15:46.863852Z",
+    "message": "[Beam eq/entangle] stage=collapse eid=eid::runX::ce8463755c3311ee payload={'note': 'insufficient_args'}"
+  },
+  {
+    "timestamp": "2025-09-18T11:15:46.864287Z",
+    "message": "[QPU] Entangled eid=eid::runX::ce8463755c3311ee"
+  },
+  {
+    "timestamp": "2025-09-18T11:15:46.864736Z",
+    "message": "\ud83d\udd17 Entanglement applied"
+  },
+  {
+    "timestamp": "2025-09-18T11:15:46.865202Z",
+    "message": "\ud83d\udca5 Collapse triggered"
+  },
+  {
+    "timestamp": "2025-09-18T11:15:46.865643Z",
+    "message": "\ud83d\udd2e Superposition enabled"
+  },
+  {
+    "timestamp": "2025-09-18T11:15:46.866141Z",
+    "message": "\ud83d\udd2e Prediction forks updated: ['']"
+  },
+  {
+    "timestamp": "2025-09-18T11:15:46.866685Z",
+    "message": "[QPU EXEC] \u2194([{'type': 'operator', 'value': '\u2194'}]) \u2192 ['[Entangled eid=eid::runX::ce8463755c3311ee]']"
+  },
+  {
+    "timestamp": "2025-09-18T11:15:46.867619Z",
+    "message": "[QPU Executed] \u2194: ['[Entangled eid=eid::runX::ce8463755c3311ee]']"
+  },
+  {
+    "timestamp": "2025-09-18T11:15:46.868276Z",
+    "message": "[QPU Metrics] exec_time=0.011449s"
+  },
+  {
+    "timestamp": "2025-09-18T11:21:16.446935Z",
+    "message": "\ud83d\udd17 Entanglement applied"
+  },
+  {
+    "timestamp": "2025-09-18T11:21:16.447396Z",
+    "message": "\ud83d\udca5 Collapse triggered"
+  },
+  {
+    "timestamp": "2025-09-18T11:21:16.447852Z",
+    "message": "\ud83d\udd2e Superposition enabled"
+  },
+  {
+    "timestamp": "2025-09-18T11:21:16.448306Z",
+    "message": "\ud83d\udd2e Prediction forks updated: ['']"
+  },
+  {
+    "timestamp": "2025-09-18T11:21:16.448802Z",
+    "message": "[QPU EXEC] \u2295([{'type': 'operator', 'value': '\u2295'}]) \u2192 [\"{'type': 'operator', 'value': '\u2295'}\"]"
+  },
+  {
+    "timestamp": "2025-09-18T11:21:16.449951Z",
+    "message": "[QPU Executed] \u2295: [\"{'type': 'operator', 'value': '\u2295'}\"]"
+  },
+  {
+    "timestamp": "2025-09-18T11:21:16.450449Z",
+    "message": "\ud83d\udd17 Entanglement applied"
+  },
+  {
+    "timestamp": "2025-09-18T11:21:16.450933Z",
+    "message": "\ud83d\udca5 Collapse triggered"
+  },
+  {
+    "timestamp": "2025-09-18T11:21:16.451400Z",
+    "message": "\ud83d\udd2e Superposition enabled"
+  },
+  {
+    "timestamp": "2025-09-18T11:21:16.451887Z",
+    "message": "\ud83d\udd2e Prediction forks updated: ['']"
+  },
+  {
+    "timestamp": "2025-09-18T11:21:16.452428Z",
+    "message": "[QPU EXEC] \u2207([{'type': 'operator', 'value': '\u2207'}]) \u2192 0.6581411091833134"
+  },
+  {
+    "timestamp": "2025-09-18T11:21:16.453582Z",
+    "message": "[QPU Executed] \u2207: 0.6581411091833134"
+  },
+  {
+    "timestamp": "2025-09-18T11:21:16.454407Z",
+    "message": "[Beam eq/entangle] stage=predict eid=eid::runX::ce8463755c3311ee payload={'note': 'insufficient_args'}"
+  },
+  {
+    "timestamp": "2025-09-18T11:21:16.455072Z",
+    "message": "[Beam eq/entangle] stage=ingest eid=eid::runX::ce8463755c3311ee payload={'note': 'insufficient_args'}"
+  },
+  {
+    "timestamp": "2025-09-18T11:21:16.455559Z",
+    "message": "[Beam eq/entangle] stage=collapse eid=eid::runX::ce8463755c3311ee payload={'note': 'insufficient_args'}"
+  },
+  {
+    "timestamp": "2025-09-18T11:21:16.456060Z",
+    "message": "[QPU] Entangled eid=eid::runX::ce8463755c3311ee"
+  },
+  {
+    "timestamp": "2025-09-18T11:21:16.456554Z",
+    "message": "\ud83d\udd17 Entanglement applied"
+  },
+  {
+    "timestamp": "2025-09-18T11:21:16.457063Z",
+    "message": "\ud83d\udca5 Collapse triggered"
+  },
+  {
+    "timestamp": "2025-09-18T11:21:16.457565Z",
+    "message": "\ud83d\udd2e Superposition enabled"
+  },
+  {
+    "timestamp": "2025-09-18T11:21:16.458086Z",
+    "message": "\ud83d\udd2e Prediction forks updated: ['']"
+  },
+  {
+    "timestamp": "2025-09-18T11:21:16.458625Z",
+    "message": "[QPU EXEC] \u2194([{'type': 'operator', 'value': '\u2194'}]) \u2192 ['[Entangled eid=eid::runX::ce8463755c3311ee]']"
+  },
+  {
+    "timestamp": "2025-09-18T11:21:16.459576Z",
+    "message": "[QPU Executed] \u2194: ['[Entangled eid=eid::runX::ce8463755c3311ee]']"
+  },
+  {
+    "timestamp": "2025-09-18T11:21:16.460168Z",
+    "message": "[QPU Hook] SQI updated: 1.0"
+  },
+  {
+    "timestamp": "2025-09-18T11:21:16.460700Z",
+    "message": "[QPU Metrics] exec_time=0.013855s"
+  },
+  {
+    "timestamp": "2025-09-18T11:26:09.770821Z",
+    "message": "\ud83d\udd17 Entanglement applied"
+  },
+  {
+    "timestamp": "2025-09-18T11:26:09.771444Z",
+    "message": "\ud83d\udca5 Collapse triggered"
+  },
+  {
+    "timestamp": "2025-09-18T11:26:09.772068Z",
+    "message": "\ud83d\udd2e Superposition enabled"
+  },
+  {
+    "timestamp": "2025-09-18T11:26:09.772666Z",
+    "message": "\ud83d\udd2e Prediction forks updated: ['']"
+  },
+  {
+    "timestamp": "2025-09-18T11:26:09.773335Z",
+    "message": "[QPU EXEC] \u2295([{'type': 'operator', 'value': '\u2295'}]) \u2192 [\"{'type': 'operator', 'value': '\u2295'}\"]"
+  },
+  {
+    "timestamp": "2025-09-18T11:26:09.774772Z",
+    "message": "[QPU Executed] \u2295: [\"{'type': 'operator', 'value': '\u2295'}\"]"
+  },
+  {
+    "timestamp": "2025-09-18T11:26:09.775432Z",
+    "message": "\ud83d\udd17 Entanglement applied"
+  },
+  {
+    "timestamp": "2025-09-18T11:26:09.776149Z",
+    "message": "\ud83d\udca5 Collapse triggered"
+  },
+  {
+    "timestamp": "2025-09-18T11:26:09.777089Z",
+    "message": "\ud83d\udd2e Superposition enabled"
+  },
+  {
+    "timestamp": "2025-09-18T11:26:09.777956Z",
+    "message": "\ud83d\udd2e Prediction forks updated: ['']"
+  },
+  {
+    "timestamp": "2025-09-18T11:26:09.778640Z",
+    "message": "[QPU EXEC] \u2207([{'type': 'operator', 'value': '\u2207'}]) \u2192 0.6414039800998157"
+  },
+  {
+    "timestamp": "2025-09-18T11:26:09.779717Z",
+    "message": "[QPU Executed] \u2207: 0.6414039800998157"
+  },
+  {
+    "timestamp": "2025-09-18T11:26:09.780434Z",
+    "message": "[Beam eq/entangle] stage=entangle eid=eid::runX::ce8463755c3311ee payload={'note': 'insufficient_args'}"
+  },
+  {
+    "timestamp": "2025-09-18T11:26:09.781120Z",
+    "message": "[Beam eq/entangle] stage=predict eid=eid::runX::ce8463755c3311ee payload={'note': 'insufficient_args'}"
+  },
+  {
+    "timestamp": "2025-09-18T11:26:09.781809Z",
+    "message": "[Beam eq/entangle] stage=ingest eid=eid::runX::ce8463755c3311ee payload={'note': 'insufficient_args'}"
+  },
+  {
+    "timestamp": "2025-09-18T11:26:09.782466Z",
+    "message": "[Beam eq/entangle] stage=collapse eid=eid::runX::ce8463755c3311ee payload={'note': 'insufficient_args'}"
+  },
+  {
+    "timestamp": "2025-09-18T11:26:09.783117Z",
+    "message": "[QPU] Entangled eid=eid::runX::ce8463755c3311ee"
+  },
+  {
+    "timestamp": "2025-09-18T11:26:09.783799Z",
+    "message": "\ud83d\udd17 Entanglement applied"
+  },
+  {
+    "timestamp": "2025-09-18T11:26:09.784435Z",
+    "message": "\ud83d\udca5 Collapse triggered"
+  },
+  {
+    "timestamp": "2025-09-18T11:26:09.785098Z",
+    "message": "\ud83d\udd2e Superposition enabled"
+  },
+  {
+    "timestamp": "2025-09-18T11:26:09.785771Z",
+    "message": "\ud83d\udd2e Prediction forks updated: ['']"
+  },
+  {
+    "timestamp": "2025-09-18T11:26:09.786460Z",
+    "message": "[QPU EXEC] \u2194([{'type': 'operator', 'value': '\u2194'}]) \u2192 ['[Entangled eid=eid::runX::ce8463755c3311ee]']"
+  },
+  {
+    "timestamp": "2025-09-18T11:26:09.787628Z",
+    "message": "[QPU Executed] \u2194: ['[Entangled eid=eid::runX::ce8463755c3311ee]']"
+  },
+  {
+    "timestamp": "2025-09-18T11:26:09.788329Z",
+    "message": "[QPU Hook] SQI updated: 1.0"
+  },
+  {
+    "timestamp": "2025-09-18T11:26:09.789022Z",
+    "message": "[QPU Metrics] exec_time=0.018268s"
+  },
+  {
+    "timestamp": "2025-09-18T13:41:12.013854Z",
+    "message": "[Phase9] projected 2 dream(s)"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:21.942185Z",
+    "message": "\ud83d\udd17 Entanglement applied"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:21.942932Z",
+    "message": "\ud83d\udca5 Collapse triggered"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:21.943656Z",
+    "message": "\ud83d\udd2e Superposition enabled"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:21.944382Z",
+    "message": "\ud83d\udd2e Prediction forks updated: ['']"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:21.945140Z",
+    "message": "[QPU EXEC] \u2295([{'type': 'operator', 'value': '\u2295'}]) \u2192 [\"{'type': 'operator', 'value': '\u2295'}\"]"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:21.946755Z",
+    "message": "[QPU Executed] \u2295: [\"{'type': 'operator', 'value': '\u2295'}\"]"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:21.947716Z",
+    "message": "\ud83d\udd17 Entanglement applied"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:21.948589Z",
+    "message": "\ud83d\udca5 Collapse triggered"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:21.949381Z",
+    "message": "\ud83d\udd2e Superposition enabled"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:21.950147Z",
+    "message": "\ud83d\udd2e Prediction forks updated: ['']"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:21.950921Z",
+    "message": "[QPU EXEC] \u2207([{'type': 'operator', 'value': '\u2207'}]) \u2192 0.6507023851462033"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:21.952203Z",
+    "message": "[QPU Executed] \u2207: 0.6507023851462033"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:21.953052Z",
+    "message": "[Beam eq/entangle] stage=entangle eid=eid::runX::ce8463755c3311ee payload={'note': 'insufficient_args'}"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:21.953831Z",
+    "message": "[Beam eq/entangle] stage=predict eid=eid::runX::ce8463755c3311ee payload={'note': 'insufficient_args'}"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:21.954653Z",
+    "message": "[Beam eq/entangle] stage=ingest eid=eid::runX::ce8463755c3311ee payload={'note': 'insufficient_args'}"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:21.955592Z",
+    "message": "[Beam eq/entangle] stage=collapse eid=eid::runX::ce8463755c3311ee payload={'note': 'insufficient_args'}"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:21.956356Z",
+    "message": "[QPU] Entangled eid=eid::runX::ce8463755c3311ee"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:21.957257Z",
+    "message": "\ud83d\udd17 Entanglement applied"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:21.958149Z",
+    "message": "\ud83d\udca5 Collapse triggered"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:21.958972Z",
+    "message": "\ud83d\udd2e Superposition enabled"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:21.959772Z",
+    "message": "\ud83d\udd2e Prediction forks updated: ['']"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:21.960548Z",
+    "message": "[QPU EXEC] \u2194([{'type': 'operator', 'value': '\u2194'}]) \u2192 ['[Entangled eid=eid::runX::ce8463755c3311ee]']"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:21.961789Z",
+    "message": "[QPU Executed] \u2194: ['[Entangled eid=eid::runX::ce8463755c3311ee]']"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:21.962772Z",
+    "message": "[QPU Hook] SQI updated: 1.0"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:21.963694Z",
+    "message": "[QPU Metrics] exec_time=0.021488s"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:22.154011Z",
+    "message": "[Phase9] projected 2 dream(s)"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.630650Z",
+    "message": "\ud83d\udd17 Entanglement applied"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.631455Z",
+    "message": "\ud83d\udca5 Collapse triggered"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.632246Z",
+    "message": "\ud83d\udd2e Superposition enabled"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.633066Z",
+    "message": "\ud83d\udd2e Prediction forks updated: ['']"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.633901Z",
+    "message": "[QPU EXEC] \u2295([{'type': 'operator', 'value': '\u2295'}]) \u2192 [\"{'type': 'operator', 'value': '\u2295'}\"]"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.635594Z",
+    "message": "[QPU Executed] \u2295: [\"{'type': 'operator', 'value': '\u2295'}\"]"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.636879Z",
+    "message": "\ud83d\udd17 Entanglement applied"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.638150Z",
+    "message": "\ud83d\udca5 Collapse triggered"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.639292Z",
+    "message": "\ud83d\udd2e Superposition enabled"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.640266Z",
+    "message": "\ud83d\udd2e Prediction forks updated: ['']"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.641806Z",
+    "message": "[QPU EXEC] \u2207([{'type': 'operator', 'value': '\u2207'}]) \u2192 0.6459292038890576"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.643359Z",
+    "message": "[QPU Executed] \u2207: 0.6459292038890576"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.644330Z",
+    "message": "[Beam eq/entangle] stage=entangle eid=eid::runX::ce8463755c3311ee payload={'note': 'insufficient_args'}"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.645257Z",
+    "message": "[Beam eq/entangle] stage=predict eid=eid::runX::ce8463755c3311ee payload={'note': 'insufficient_args'}"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.646169Z",
+    "message": "[Beam eq/entangle] stage=ingest eid=eid::runX::ce8463755c3311ee payload={'note': 'insufficient_args'}"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.647226Z",
+    "message": "[Beam eq/entangle] stage=collapse eid=eid::runX::ce8463755c3311ee payload={'note': 'insufficient_args'}"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.648132Z",
+    "message": "[QPU] Entangled eid=eid::runX::ce8463755c3311ee"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.649201Z",
+    "message": "\ud83d\udd17 Entanglement applied"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.650318Z",
+    "message": "\ud83d\udca5 Collapse triggered"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.651229Z",
+    "message": "\ud83d\udd2e Superposition enabled"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.652138Z",
+    "message": "\ud83d\udd2e Prediction forks updated: ['']"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.653082Z",
+    "message": "[QPU EXEC] \u2194([{'type': 'operator', 'value': '\u2194'}]) \u2192 ['[Entangled eid=eid::runX::ce8463755c3311ee]']"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.654476Z",
+    "message": "[QPU Executed] \u2194: ['[Entangled eid=eid::runX::ce8463755c3311ee]']"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.655408Z",
+    "message": "[QPU Hook] SQI updated: 1.0"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.656316Z",
+    "message": "[QPU Metrics] exec_time=0.025777s"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.877458Z",
+    "message": "[Phase9] projected 2 dream(s)"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.270597Z",
+    "message": "\ud83d\udd17 Entanglement applied"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.271591Z",
+    "message": "\ud83d\udca5 Collapse triggered"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.272516Z",
+    "message": "\ud83d\udd2e Superposition enabled"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.273441Z",
+    "message": "\ud83d\udd2e Prediction forks updated: ['']"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.274385Z",
+    "message": "[QPU EXEC] \u2295([{'type': 'operator', 'value': '\u2295'}]) \u2192 [\"{'type': 'operator', 'value': '\u2295'}\"]"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.276112Z",
+    "message": "[QPU Executed] \u2295: [\"{'type': 'operator', 'value': '\u2295'}\"]"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.277081Z",
+    "message": "\ud83d\udd17 Entanglement applied"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.278002Z",
+    "message": "\ud83d\udca5 Collapse triggered"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.278919Z",
+    "message": "\ud83d\udd2e Superposition enabled"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.279963Z",
+    "message": "\ud83d\udd2e Prediction forks updated: ['']"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.280936Z",
+    "message": "[QPU EXEC] \u2207([{'type': 'operator', 'value': '\u2207'}]) \u2192 0.626898468227451"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.282345Z",
+    "message": "[QPU Executed] \u2207: 0.626898468227451"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.283353Z",
+    "message": "[Beam eq/entangle] stage=entangle eid=eid::runX::ce8463755c3311ee payload={'note': 'insufficient_args'}"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.284325Z",
+    "message": "[Beam eq/entangle] stage=predict eid=eid::runX::ce8463755c3311ee payload={'note': 'insufficient_args'}"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.285406Z",
+    "message": "[Beam eq/entangle] stage=ingest eid=eid::runX::ce8463755c3311ee payload={'note': 'insufficient_args'}"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.286381Z",
+    "message": "[Beam eq/entangle] stage=collapse eid=eid::runX::ce8463755c3311ee payload={'note': 'insufficient_args'}"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.287359Z",
+    "message": "[QPU] Entangled eid=eid::runX::ce8463755c3311ee"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.288390Z",
+    "message": "\ud83d\udd17 Entanglement applied"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.289413Z",
+    "message": "\ud83d\udca5 Collapse triggered"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.290424Z",
+    "message": "\ud83d\udd2e Superposition enabled"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.291418Z",
+    "message": "\ud83d\udd2e Prediction forks updated: ['']"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.292515Z",
+    "message": "[QPU EXEC] \u2194([{'type': 'operator', 'value': '\u2194'}]) \u2192 ['[Entangled eid=eid::runX::ce8463755c3311ee]']"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.294440Z",
+    "message": "[QPU Executed] \u2194: ['[Entangled eid=eid::runX::ce8463755c3311ee]']"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.295916Z",
+    "message": "[QPU Hook] SQI updated: 1.0"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.297289Z",
+    "message": "[QPU Metrics] exec_time=0.080572s"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.655821Z",
+    "message": "[Phase9] projected 2 dream(s)"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.104824Z",
+    "message": "\ud83d\udd17 Entanglement applied"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.105856Z",
+    "message": "\ud83d\udca5 Collapse triggered"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.106878Z",
+    "message": "\ud83d\udd2e Superposition enabled"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.107895Z",
+    "message": "\ud83d\udd2e Prediction forks updated: ['']"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.108996Z",
+    "message": "[QPU EXEC] \u2295([{'type': 'operator', 'value': '\u2295'}]) \u2192 [\"{'type': 'operator', 'value': '\u2295'}\"]"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.111033Z",
+    "message": "[QPU Executed] \u2295: [\"{'type': 'operator', 'value': '\u2295'}\"]"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.112204Z",
+    "message": "\ud83d\udd17 Entanglement applied"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.113252Z",
+    "message": "\ud83d\udca5 Collapse triggered"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.114384Z",
+    "message": "\ud83d\udd2e Superposition enabled"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.115434Z",
+    "message": "\ud83d\udd2e Prediction forks updated: ['']"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.116510Z",
+    "message": "[QPU EXEC] \u2207([{'type': 'operator', 'value': '\u2207'}]) \u2192 0.6404741395951769"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.118078Z",
+    "message": "[QPU Executed] \u2207: 0.6404741395951769"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.119173Z",
+    "message": "[Beam eq/entangle] stage=entangle eid=eid::runX::ce8463755c3311ee payload={'note': 'insufficient_args'}"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.120231Z",
+    "message": "[Beam eq/entangle] stage=predict eid=eid::runX::ce8463755c3311ee payload={'note': 'insufficient_args'}"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.121290Z",
+    "message": "[Beam eq/entangle] stage=ingest eid=eid::runX::ce8463755c3311ee payload={'note': 'insufficient_args'}"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.122351Z",
+    "message": "[Beam eq/entangle] stage=collapse eid=eid::runX::ce8463755c3311ee payload={'note': 'insufficient_args'}"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.123430Z",
+    "message": "[QPU] Entangled eid=eid::runX::ce8463755c3311ee"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.124551Z",
+    "message": "\ud83d\udd17 Entanglement applied"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.125674Z",
+    "message": "\ud83d\udca5 Collapse triggered"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.126801Z",
+    "message": "\ud83d\udd2e Superposition enabled"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.127907Z",
+    "message": "\ud83d\udd2e Prediction forks updated: ['']"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.129035Z",
+    "message": "[QPU EXEC] \u2194([{'type': 'operator', 'value': '\u2194'}]) \u2192 ['[Entangled eid=eid::runX::ce8463755c3311ee]']"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.130688Z",
+    "message": "[QPU Executed] \u2194: ['[Entangled eid=eid::runX::ce8463755c3311ee]']"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.131941Z",
+    "message": "[QPU Hook] SQI updated: 1.0"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.133078Z",
+    "message": "[QPU Metrics] exec_time=0.028329s"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.397213Z",
+    "message": "[Phase9] projected 2 dream(s)"
+  }
+]

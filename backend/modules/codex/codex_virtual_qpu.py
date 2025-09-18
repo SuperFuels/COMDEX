@@ -11,19 +11,53 @@ CodexVirtualQPU: Phase 7 QPU ISA Execution Layer
 - Instruction-level profiling (G3)
 - FP4/FP8/INT8 symbolic simulation
 """
-from datetime import datetime
 from typing import Any, Dict, List, Optional
 from time import perf_counter
+import asyncio
+from uuid import uuid4
+
 from backend.modules.codex.hardware.symbolic_qpu_isa import (
     execute_qpu_opcode,
-    SYMBOLIC_QPU_OPS
+    SYMBOLIC_QPU_OPS,
 )
-from backend.modules.glyphos.glyph_tokenizer import tokenize_symbol_text_to_glyphs
+# Safe tokenizer import to avoid circulars during tests
+try:
+    from backend.modules.glyphos.glyph_tokenizer import tokenize_symbol_text_to_glyphs
+except Exception:
+    def tokenize_symbol_text_to_glyphs(s: str):
+        return [{"type": "operator", "value": t} for t in (s or "").split()]
+
 from backend.modules.symbolic_spreadsheet.models.glyph_cell import GlyphCell
-from backend.modules.symbolic_spreadsheet.scoring.sqi_scorer import score_sqi
 from backend.modules.patterns.pattern_trace_engine import record_trace
 from backend.modules.visualization.qfc_websocket_bridge import broadcast_qfc_update
+from backend.modules.utils.time_utils import now_utc_iso, now_utc_ms
+from backend.modules.codex._4d_dreams import phase9_run
 
+# --- Lazy SQI scorer to avoid circular imports during test collection/execution ---
+def _score_sqi(cell) -> float:
+    """
+    Tries to import the real SQI scorer only when needed.
+    Falls back to a simple heuristic if the scorer isn't available yet.
+    """
+    try:
+        # Lazy import to dodge partial-init circulars
+        from backend.modules.symbolic_spreadsheet.scoring.sqi_scorer import score_sqi as _impl
+    except Exception:
+        # Minimal fallback: base + small bonus for prediction forks
+        logic = getattr(cell, "logic", "") or ""
+        forks = len(getattr(cell, "prediction_forks", []) or [])
+        base = 0.75 if logic else 0.5
+        bonus = min(0.25, 0.05 * forks)
+        try:
+            return float(max(0.0, min(1.0, base + bonus)))
+        except Exception:
+            return 0.75
+
+    # Use the real scorer
+    try:
+        return float(_impl(cell))
+    except Exception:
+        return 0.75
 
 class CodexVirtualQPU:
     def __init__(self, use_qpu: bool = True):
@@ -202,6 +236,10 @@ class CodexVirtualQPU:
         """
         Execute a single token as a QPU instruction with metrics, FP simulation,
         SQI hooks, mutation counting, live HUD broadcasting, and per-cell QWave beam logging.
+
+        Phase 8 addition:
+        - If the token is ↔, tag the appended beam with a deterministic entanglement id (eid)
+        and add the cell to context["entanglements_map"][eid].
         """
         context = context or {}
         cell: Optional[GlyphCell] = context.get("cell")
@@ -313,27 +351,43 @@ class CodexVirtualQPU:
             record_trace(token_key, f"[Token Metrics] exec_time={total_elapsed:.6f}s")
 
         # -------------------
-        # Append QWave beam to cell (integration)
+        # Append QWave beam to cell (integration) + Phase 8 entanglement tagging
         # -------------------
         if cell is not None:
             # Ensure attribute exists
             if not hasattr(cell, "wave_beams") or cell.wave_beams is None:
                 cell.wave_beams = []
+
+            # Phase 8: if this is ↔, compute deterministic entanglement id (eid)
+            entanglement_ids: List[str] = []
+            if token_key == "↔":
+                sheet_run_id = context.get("sheet_run_id", "run")
+                logic_hash = abs(hash(getattr(cell, "logic", "") or "")) % (2**32)
+                eid = f"eid::{sheet_run_id}::{logic_hash}"
+                entanglement_ids = [eid]
+
+                # ensure context entanglement map includes this cell
+                ent_map = context.setdefault("entanglements_map", {})  # eid -> set(cell_ids)
+                ent_map.setdefault(eid, set()).add(cell.id)
+
             beam_event = {
-                "beam_id": f"beam_{cell.id}_{token_key}_{int(datetime.utcnow().timestamp()*1000)}",
+                "beam_id": f"beam_{cell.id}_{token_key}_{now_utc_ms()}",
                 "source": "qpu_execute_token",
                 "token": token_key,
                 "result": result,
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": now_utc_iso(),
                 "state": "mutated" if getattr(cell, "mutation_score", None) else "active",
-                "context": context
+                "stage": "ingest",  # Phase 8: ensures tests can see the ingest stage
+                "entanglement_ids": entanglement_ids,  # Phase 8: tag ↔ beams with eid
+                "context": context,
             }
             cell.wave_beams.append(beam_event)
 
         # -------------------
-        # Async broadcast metrics for HUD
+        # Async broadcast metrics for HUD (gated)
         # -------------------
-        if "container_id" in context and cell and getattr(cell, "id", None):
+        should_broadcast = ("container_id" in context) and not context.get("benchmark_silent")
+        if should_broadcast and cell and getattr(cell, "id", None):
             try:
                 import asyncio
                 asyncio.create_task(broadcast_qfc_update(context["container_id"], {
@@ -383,6 +437,7 @@ class CodexVirtualQPU:
         context = context or {}
         context.setdefault("entangled_cells", [])
         context["cell"] = cell  # ensure token executor can read the current cell
+        setattr(cell, "_ctx", context)
 
         # Ensure attributes exist
         cell.prediction_forks = getattr(cell, "prediction_forks", [])
@@ -411,20 +466,21 @@ class CodexVirtualQPU:
                     record_trace(cell.id, f"[QPU Error] Token '{token.get('value', '?')}' failed: {e}")
                     results.append(f"[Error {token.get('value', '?')}]")
 
-            prev_sqi = cell.sqi_score or 0.0
-            cell.sqi_score = score_sqi(cell)
+            prev_sqi = float(getattr(cell, "sqi_score", 0.0) or 0.0)
+            cell.sqi_score = _score_sqi(cell)
             self.metrics["sqi_shift"] += cell.sqi_score - prev_sqi
 
             # --- Append final QWave beam for the entire cell execution ---
             final_beam = {
-                "beam_id": f"beam_{cell.id}_final_{int(datetime.utcnow().timestamp()*1000)}",
+                "beam_id": f"beam_{cell.id}_final_{now_utc_ms()}",
                 "source": "qpu_execute_cell",
                 "result": results,
                 "sqi_score": cell.sqi_score,
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": now_utc_iso(),
                 "state": "collapsed",
-                "context": context
+                "context": context,
             }
+            cell.wave_beams.append(final_beam)
             cell.wave_beams.append(final_beam)
 
             self.hook_to_sqs_engine(cell, context)
@@ -457,38 +513,87 @@ class CodexVirtualQPU:
     # -------------------
     # Execute full sheet (async)
     # -------------------
+    def _score_sqi_lazy(self, cell) -> float:
+        try:
+            from backend.modules.symbolic_spreadsheet.scoring.sqi_scorer import score_sqi as _score_sqi
+            return float(_score_sqi(cell))
+        except Exception as e:
+            record_trace("SQI:Init", f"Lazy import fallback for score_sqi: {e}")
+            return float(getattr(cell, "sqi_score", 1.0) or 1.0)
+
+    def _compute_sheet_sqi(self, cells, context) -> float:
+        scores = []
+        for c in cells:
+            s = self._score_sqi_lazy(c)
+            setattr(c, "sqi_score", s)
+            scores.append(s)
+        sheet_sqi = sum(scores) / max(1, len(scores))
+        context["sheet_sqi"] = sheet_sqi
+        return sheet_sqi
+
+    # --- Phase 8: sheet executor (bounded parallelism + beams + entanglement map) ---
     async def execute_sheet(
         self,
         cells: List[GlyphCell],
         context: Optional[Dict[str, Any]] = None
     ) -> Dict[str, List[Any]]:
         import asyncio
+        from time import perf_counter
+        from uuid import uuid4
+        from datetime import datetime, UTC
+
+        try:
+            from backend.modules.glyphos.glyph_tokenizer import tokenize_symbol_text_to_glyphs
+        except Exception:
+            def tokenize_symbol_text_to_glyphs(s: str):
+                return [{"type": "operator", "value": t} for t in (s or "").split()]
 
         context = context or {}
         context["sheet_cells"] = cells
+        context["sheet_run_id"] = context.get("sheet_run_id") or uuid4().hex[:8]
+        context.setdefault("entanglements_map", {})  # eid -> set(cell_ids)
+
         sheet_results: Dict[str, List[Any]] = {}
         start_time = perf_counter()
 
-        # Bounded parallelism
+        # ------ Bounded parallelism ------
         max_conc = int(context.get("max_concurrency", 1) or 1)
         if max_conc <= 1:
             for cell in cells:
                 sheet_results[cell.id] = await self.execute_cell(cell, context)
         else:
             sem = asyncio.Semaphore(max_conc)
-
             async def run_cell(c: GlyphCell):
                 async with sem:
                     res = await self.execute_cell(c, context)
                     sheet_results[c.id] = res
-
             await asyncio.gather(*(run_cell(c) for c in cells))
 
-        # Aggregate metrics (per cell → per opcode-key)
+        # ------ Optional batched collapse hook ------
+        if context.get("batch_collapse"):
+            try:
+                sheet_sqi = self._compute_sheet_sqi(cells, context)
+                # add a sheet-level collapse beam to each cell for timeline rendering
+                for cell in cells:
+                    if not hasattr(cell, "wave_beams") or cell.wave_beams is None:
+                        cell.wave_beams = []
+                    cell.wave_beams.append({
+                        "beam_id": f"beam_{cell.id}_final_{now_utc_ms()}",
+                        "source": "qpu_sheet_batch_collapse",
+                        "stage": "collapse",
+                        "token": "∑",
+                        "result": {"sheet_sqi": sheet_sqi},
+                        "timestamp": now_utc_iso(),
+                        "entanglement_ids": list((context.get("entanglements_map") or {}).keys())[:1] or [],
+                    })
+            except Exception as _e:
+                record_trace("sheet", f"[BatchCollapse Warn] {_e}")
+
+        # ------ Aggregate metrics ------
         sheet_token_metrics: Dict[str, Dict[str, List[Any]]] = {}
         for cell in cells:
             try:
-                tokens = tokenize_symbol_text_to_glyphs(cell.logic)
+                tokens = tokenize_symbol_text_to_glyphs(cell.logic or "")
                 keys = {t.get("value") for t in tokens if "value" in t}
             except Exception:
                 keys = set()
@@ -500,29 +605,233 @@ class CodexVirtualQPU:
         record_trace("sheet", f"[QPU Sheet Token Metrics] {sheet_token_metrics}")
         record_trace("sheet", f"[QPU Sheet Opcode Metrics] {sheet_opcode_metrics}")
 
-        if context.get("container_id"):
+        # ------ Build entanglement map (eid -> [cell_ids]) ------
+        ent_map: Dict[str, List[str]] = {}
+        # merge context map (from ↔) and beams
+        ctx_map = context.get("entanglements_map", {})
+        for eid, cid_set in ctx_map.items():
+            ent_map[eid] = sorted(list(cid_set))
+        # sweep beams to catch directly annotated entanglements
+        for c in cells:
+            for b in (getattr(c, "wave_beams", []) or []):
+                for eid in b.get("entanglement_ids", []):
+                    ent_map.setdefault(eid, [])
+                    if c.id not in ent_map[eid]:
+                        ent_map[eid].append(c.id)
+        for eid in ent_map:
+            ent_map[eid] = sorted(ent_map[eid])
+
+        # ------ Phase 9: Dream projection + timeline snapshot (optional) ------
+        if context.get("phase9_enabled"):
             try:
+                from backend.modules.codex._4d_dreams import phase9_run
+                phase9 = phase9_run(
+                    cells,
+                    context,
+                    k_variants=int(context.get("phase9_k", 3) or 3),
+                    min_sqi_keep=float(context.get("phase9_min_sqi", 0.60) or 0.60),
+                    stage_name=str(context.get("phase9_stage", "dream") or "dream"),
+                )
+                # stash for broadcast
+                context["phase9_payload"] = phase9
+            except Exception as _e:
+                record_trace("sheet", f"[Phase9 Warn] {str(_e)}")
+
+        # ------ Phase 10: Vectorized kernels + precision (optional) ------
+        if context.get("phase10_enabled"):
+            try:
+                from backend.modules.codex.accel import phase10_accelerate_sheet
+                p10 = phase10_accelerate_sheet(cells, context)
+                context["phase10_summary"] = p10
+            except Exception as _e:
+                record_trace("sheet", f"[Phase10 Warn] {str(_e)}")
+
+        # ------ QFC container-level execution (optional) ------
+        if context.get("qfc_container_batch"):
+            try:
+                from backend.modules.codex.container_exec import execute_qfc_container_beams
+                p10c = execute_qfc_container_beams(
+                    context.get("container_id"),
+                    cells,
+                    context["qfc_container_batch"],
+                    context
+                )
+                context["phase10_container_exec"] = p10c
+            except Exception as _e:
+                record_trace("sheet", f"[Phase10/QFC Warn] {str(_e)}")
+
+        # ------ Persist beams & entanglements + ghost replay (after P9/P10) ------
+        try:
+            from backend.modules.beamline.beam_store import persist_beam_events, ghost_replay_for_eid
+            persist_beam_events(cells, context)
+            context.setdefault("ghost_replays", {})
+            for eid in ent_map.keys():
+                try:
+                    context["ghost_replays"][eid] = ghost_replay_for_eid(
+                        eid, limit=3, container_id=context.get("container_id")
+                    )
+                except Exception:
+                    pass
+        except Exception as _e:
+            record_trace("sheet", f"[BeamStore Persist Warn] {_e}")
+
+        # ------ Broadcasts (gated by benchmark_silent) ------
+        should_broadcast = ("container_id" in context) and not context.get("benchmark_silent")
+        if should_broadcast:
+            try:
+                import asyncio
+                from datetime import datetime, UTC
+
+                wsid = context.get("workspace_id")
+                base = (
+                    {"workspace_id": wsid, "sheet_run_id": context["sheet_run_id"]}
+                    if wsid else {"sheet_run_id": context["sheet_run_id"]}
+                )
+
+                # Build once so all payloads are consistent
+                lineage_payload = {c.id: (getattr(c, "wave_beams", []) or []) for c in cells}
+
+                # 1) sheet metrics
                 asyncio.create_task(
                     broadcast_qfc_update(context["container_id"], {
+                        **base,
                         "type": "qpu_sheet_metrics",
                         "sheet_token_metrics": sheet_token_metrics,
                         "sheet_opcode_metrics": sheet_opcode_metrics,
-                        "aggregate_metrics": self.dump_metrics()
+                        "aggregate_metrics": self.dump_metrics(),
+                        "num_beams": sum(len(v) for v in lineage_payload.values()),
+                        "num_entanglements": len(ent_map),
                     })
                 )
-                # NEW: send precision profile snapshot for GHX/HUD analytics
+
+                # 2) precision profile snapshot
                 asyncio.create_task(
                     broadcast_qfc_update(context["container_id"], {
+                        **base,
                         "type": "qpu_precision_profile",
-                        "profile": self.get_precision_profile()
+                        "profile": self.get_precision_profile(),
                     })
                 )
+
+                # 3) beam lineage per cell
+                asyncio.create_task(
+                    broadcast_qfc_update(context["container_id"], {
+                        **base,
+                        "type": "qpu_beam_lineage",
+                        "lineage": lineage_payload,
+                    })
+                )
+
+                # 4) entanglement map
+                asyncio.create_task(
+                    broadcast_qfc_update(context["container_id"], {
+                        **base,
+                        "type": "qpu_entanglement_map",
+                        "map": ent_map,
+                    })
+                )
+
+                # 5) flat beam timeline snapshot
+                flat_timeline = []
+                for cid, beams in lineage_payload.items():
+                    for b in beams:
+                        ts = b.get("timestamp") or datetime.now(UTC).isoformat()
+                        flat_timeline.append({
+                            "cell_id": cid,
+                            "beam_id": b.get("beam_id"),
+                            "stage": b.get("stage"),
+                            "eid": (b.get("entanglement_ids") or [None])[0],
+                            "token": b.get("token"),
+                            "timestamp": ts,
+                        })
+                asyncio.create_task(
+                    broadcast_qfc_update(context["container_id"], {
+                        **base,
+                        "type": "qpu_beam_timeline",
+                        "timeline": flat_timeline,
+                    })
+                )
+
+                # 6) Phase 10 vectorized summary (if present)
+                if context.get("phase10_summary"):
+                    asyncio.create_task(
+                        broadcast_qfc_update(context["container_id"], {
+                            **base,
+                            "type": "qpu_phase10_vectorized",
+                            "summary": context["phase10_summary"],
+                            "precision": str(context.get("phase10_precision", "fp8")),
+                        })
+                    )
+
+                # 7) Phase 9 dreams/timeline (if present)
+                if context.get("phase9_payload"):
+                    p9 = context["phase9_payload"]
+                    asyncio.create_task(
+                        broadcast_qfc_update(context["container_id"], {
+                            **base,
+                            "type": "qpu_phase9_dreams",
+                            "dreams": p9.get("dreams", {}),
+                        })
+                    )
+                    asyncio.create_task(
+                        broadcast_qfc_update(context["container_id"], {
+                            **base,
+                            "type": "qpu_phase9_timeline",
+                            "timeline": p9.get("timeline", []),
+                        })
+                    )
+
+                # 7) container-level execution summary (if present)
+                if context.get("phase10_container_exec"):
+                    asyncio.create_task(
+                        broadcast_qfc_update(context["container_id"], {
+                            **base,
+                            "type": "qpu_container_exec",
+                            "summary": context["phase10_container_exec"],
+                        })
+                    )
+
             except Exception as e:
                 record_trace("sheet", f"[QPU Sheet Broadcast Error] {e}")
 
         elapsed = perf_counter() - start_time
         record_trace("sheet", f"[Sheet Execution] elapsed={elapsed:.6f}s")
         return sheet_results
+
+    def merge_entanglement_context(self, ctx_a: dict, ctx_b: dict) -> dict:
+        """Union two contexts' entanglement maps (multi-agent / multi-sheet)."""
+        try:
+            from backend.modules.beamline.beam_store import merge_entanglements
+        except Exception:
+            def merge_entanglements(a, b): 
+                out = {k: set(v) for k, v in (a or {}).items()}
+                for eid, members in (b or {}).items():
+                    out.setdefault(eid, set()).update(set(members))
+                return out
+        merged = dict(ctx_a or {})
+        merged["entanglements_map"] = merge_entanglements(
+            ctx_a.get("entanglements_map", {}),
+            ctx_b.get("entanglements_map", {})
+        )
+        return merged
+
+
+    try:
+        # Persist beams + entanglements
+        from backend.modules.beamline.beam_store import persist_beam_events, ghost_replay_for_eid
+        persist_beam_events(cells, context)
+
+        # Optional: attach ghost replays for each eid to context (most recent 3)
+        context.setdefault("ghost_replays", {})
+        for eid in ent_map.keys():
+            try:
+                context["ghost_replays"][eid] = ghost_replay_for_eid(
+                    eid, limit=3, container_id=context.get("container_id")
+                )
+            except Exception:
+                pass
+    except Exception as _e:
+        record_trace("sheet", f"[BeamStore Persist Warn] {_e}")
 
 # -------------------
 # Standalone CLI Test

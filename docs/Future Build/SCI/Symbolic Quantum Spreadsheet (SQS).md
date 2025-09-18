@@ -2,28 +2,30 @@
 flowchart TD
 
 %% Root Node
+flowchart TD
+
 A[🧮 SQS System: Symbolic Quantum Spreadsheet Engine]
 
 %% Architecture Core
-A1[📦 SQS Core Runtime Engine]:::core
-A2[🧬 AtomSheet File Format (.sqs.json)]:::core
+A1✅[📦 SQS Core Runtime Engine]:::core
+A2✅[🧬 AtomSheet File Format (.sqs.json)]:::core
 A3[🔗 QFC ↔ AtomSheet Interoperability Layer]:::core
-A4[🧠 GlyphCell Logic Runtime]:::core
+A4✅[🧠 GlyphCell Logic Runtime]:::core
 A5[⚛️ Atom Expansion Protocol (Nested Logic)]:::core
 A6[🧩 SCI IDE Panel: AtomSheet UI]:::core
 
 %% Features
 B[✨ Core Features]:::feat
-B1[📊 Multi-Dimensional Cell Grid (4D Traversal)]:::feat
+B1✅[📊 Multi-Dimensional Cell Grid (4D Traversal)]:::feat
 B2[🔁 Expandable Cells (zoom into logic)]:::feat
-B3[🔮 Predictive Cell Mutation / Forking]:::feat
+B3✅[🔮 Predictive Cell Mutation / Forking]:::feat
 B4[📜 Scrolls, Emotions, Memory in Cells]:::feat
-B5[⚙️ Symbolic Execution Inside Sheet]:::feat
+B5✅[⚙️ Symbolic Execution Inside Sheet]:::feat
 B6[🧠 Link to CodexLang for live formulas]:::feat
 
 %% Tools & Plugins
 C[🔧 SQS Toolchain + Plugins]:::plugin
-C1[📁 Sheet Loader + Registry Integration]:::plugin
+C1✅[📁 Sheet Loader + Registry Integration]:::plugin
 C2[📈 Entropy, Novelty, Harmony Visualizers]:::plugin
 C3[🎯 Goal Tracker Plugin]:::plugin
 C4[🧬 SQI Plugin for reasoning in sheets]:::plugin
@@ -40,14 +42,20 @@ D6[🧩 Cross-Agent Collaboration Boards]:::use
 
 %% Implementation Sequence
 E[🚧 Build Sequence]:::build
-E1[Init atomsheet_engine.py]:::build
-E2[Define .sqs.json base format]:::build
-E3[Create GlyphCell model]:::build
+E1✅[Init atomsheet_engine.py]:::build
+E2✅[Define .sqs.json base format]:::build
+E3✅[Create GlyphCell model]:::build
 E4[Build SCI panel: sci_atomsheet_panel.tsx]:::build
 E5[Enable drag/drop from SCI Graph → Sheet]:::build
-E6[Support symbolic execution inside cells]:::build
+E6✅[Support symbolic execution inside cells]:::build
 E7[Visualize entropy/confidence per cell]:::build
-E8[Enable export to `.dc.json` if expanded]:::build
+E8✅[Enable export to `.dc.json` if expanded]:::build
+
+classDef core fill:#202080,color:#fff,stroke:#88f;
+classDef feat fill:#333366,color:#fff,stroke:#66f;
+classDef plugin fill:#003322,color:#cfc,stroke:#0f0;
+classDef use fill:#221100,color:#ffc,stroke:#cc0;
+classDef build fill:#222,color:#fff,stroke:#aaa;
 
 %% Flow
 A --> A1 --> A2 --> A3 --> A4 --> A5 --> A6
@@ -55,13 +63,6 @@ A6 --> B --> B1 --> B2 --> B3 --> B4 --> B5 --> B6
 A6 --> C --> C1 --> C2 --> C3 --> C4 --> C5
 A6 --> D --> D1 --> D2 --> D3 --> D4 --> D5 --> D6
 A --> E --> E1 --> E2 --> E3 --> E4 --> E5 --> E6 --> E7 --> E8
-
-classDef core fill:#202080,color:#fff,stroke:#88f;
-classDef feat fill:#333366,color:#fff,stroke:#66f;
-classDef plugin fill:#003322,color:#cfc,stroke:#0f0;
-classDef use fill:#221100,color:#ffc,stroke:#cc0;
-classDef build fill:#222222,color:#fff,stroke:#aaa;
-
 
 
 %% QVC-BUILD-TREE :: Symbolic Quantum Spreadsheet System (SQS)
@@ -147,26 +148,26 @@ subgraph Phase_7["⚛️ Phase 7: QPU ISA + Symbolic Hardware"]
 
 %% ───── Phase 8 ─────
 subgraph Phase_8["🕸 Phase 8: Beam-Native & Multi-Agent Entanglement"]
-    H1[🌲 Beam lineage model & SQI trees]
-    H2[🔗 Cross-sheet/agent entanglement registry]
-    H3[👻 Ghost memory replay (entangled branches)]
-    H4[🛰 GHXVisualizer + QuantumFieldCanvas: entanglement overlay]
-    H5[🟰 Batch predict/collapse + SQI scoring]
+    H1✅[🌲 Beam lineage model & SQI trees]
+    H2✅[🔗 Cross-sheet/agent entanglement registry]
+    H3✅[👻 Ghost memory replay (entangled branches)]
+    H4✅[🛰 GHXVisualizer + QuantumFieldCanvas: entanglement overlay]
+    H5✅[🟰 Batch predict/collapse + SQI scoring]
 end
 
 %% ───── Phase 9 ─────
 subgraph Phase_9["🌙 Phase 9: Dream Projection & Timeline Replay"]
-    I1[🪄 Speculative beam generation (dreams)]
-    I2[🕰 Timeline scrub/replay in GHX/QFC]
-    I3[✂️ SQI-guided pruning of speculative paths]
+    I1✅[🪄 Speculative beam generation (dreams)]
+    I2✅[🕰 Timeline scrub/replay in GHX/QFC]
+    I3✅[✂️ SQI-guided pruning of speculative paths]
 end
 
 %% ───── Phase 10 ─────
 subgraph Phase_10["⚡ Phase 10: Symbolic Acceleration & QFC Integration"]
-    J1[🧮 Vectorized kernels for ⊕ ↔ ⟲ → ⧖ ∇ ⊗ ✦]
-    J2[🎚 Execute with FP4/FP8/INT8 per profiler]
-    J3[🧱 QFC container-level beam execution]
-    J4[📡 Real-time GHX/HUD debug & telemetry]
+    J1✅[🧮 Vectorized kernels for ⊕ ↔ ⟲ → ⧖ ∇ ⊗ ✦]
+    J2✅[🎚 Execute with FP4/FP8/INT8 per profiler]
+    J3✅[🧱 QFC container-level beam execution]
+    J4✅[📡 Real-time GHX/HUD debug & telemetry]
 end
 
 %% ───── Support Tasks ─────
