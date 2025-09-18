@@ -1,0 +1,510 @@
+[
+  {
+    "timestamp": "2025-09-17T22:40:28.813772Z",
+    "message": "[QPU Executed] \u2295: [\"{'type': 'operator', 'value': '\u2295'}\"]"
+  },
+  {
+    "timestamp": "2025-09-17T22:40:28.814009Z",
+    "message": "[QPU Hook] SQI updated: 0.85"
+  },
+  {
+    "timestamp": "2025-09-17T22:40:28.814275Z",
+    "message": "[QPU Metrics] exec_time=0.002946s"
+  },
+  {
+    "timestamp": "2025-09-17T22:45:35.505353Z",
+    "message": "[QPU Executed] \u2295: <coroutine object CodexVirtualQPU.execute_cell_token at 0x7d9d052b5e00>"
+  },
+  {
+    "timestamp": "2025-09-17T22:45:35.505661Z",
+    "message": "[QPU Hook] SQI updated: 0.85"
+  },
+  {
+    "timestamp": "2025-09-17T22:45:35.506059Z",
+    "message": "[QPU Metrics] exec_time=0.000733s"
+  },
+  {
+    "timestamp": "2025-09-17T22:50:32.769084Z",
+    "message": "[QPU Executed] \u2295: [\"{'type': 'operator', 'value': '\u2295'}\"]"
+  },
+  {
+    "timestamp": "2025-09-17T22:50:32.769434Z",
+    "message": "[QPU Hook] SQI updated: 0.85"
+  },
+  {
+    "timestamp": "2025-09-17T22:50:32.769820Z",
+    "message": "[QPU Metrics] exec_time=0.004195s"
+  },
+  {
+    "timestamp": "2025-09-18T08:02:21.442824Z",
+    "message": "\ud83d\udd17 Entanglement applied"
+  },
+  {
+    "timestamp": "2025-09-18T08:02:21.443148Z",
+    "message": "\ud83d\udca5 Collapse triggered"
+  },
+  {
+    "timestamp": "2025-09-18T08:02:21.443471Z",
+    "message": "\ud83d\udd2e Superposition enabled"
+  },
+  {
+    "timestamp": "2025-09-18T08:02:21.443820Z",
+    "message": "\ud83d\udd2e Prediction forks updated: ['Pred_2 + exploratory']"
+  },
+  {
+    "timestamp": "2025-09-18T08:02:21.444197Z",
+    "message": "[QPU EXEC] \u2295([{'type': 'operator', 'value': '\u2295'}]) \u2192 [\"{'type': 'operator', 'value': '\u2295'}\"]"
+  },
+  {
+    "timestamp": "2025-09-18T08:02:21.444920Z",
+    "message": "[QPU Executed] \u2295: [\"{'type': 'operator', 'value': '\u2295'}\"]"
+  },
+  {
+    "timestamp": "2025-09-18T08:02:21.445310Z",
+    "message": "[QPU Hook] SQI updated: 1.0"
+  },
+  {
+    "timestamp": "2025-09-18T08:02:21.445705Z",
+    "message": "[QPU Metrics] exec_time=0.003233s"
+  },
+  {
+    "timestamp": "2025-09-18T08:04:51.513552Z",
+    "message": "\ud83d\udd17 Entanglement applied"
+  },
+  {
+    "timestamp": "2025-09-18T08:04:51.513925Z",
+    "message": "\ud83d\udca5 Collapse triggered"
+  },
+  {
+    "timestamp": "2025-09-18T08:04:51.514275Z",
+    "message": "\ud83d\udd2e Superposition enabled"
+  },
+  {
+    "timestamp": "2025-09-18T08:04:51.514666Z",
+    "message": "\ud83d\udd2e Prediction forks updated: ['Pred_2 + exploratory']"
+  },
+  {
+    "timestamp": "2025-09-18T08:04:51.515087Z",
+    "message": "[QPU EXEC] \u2295([{'type': 'operator', 'value': '\u2295'}]) \u2192 [\"{'type': 'operator', 'value': '\u2295'}\"]"
+  },
+  {
+    "timestamp": "2025-09-18T08:04:51.515941Z",
+    "message": "[QPU Executed] \u2295: [\"{'type': 'operator', 'value': '\u2295'}\"]"
+  },
+  {
+    "timestamp": "2025-09-18T08:04:51.516438Z",
+    "message": "[QPU Hook] SQI updated: 1.0"
+  },
+  {
+    "timestamp": "2025-09-18T08:04:51.516913Z",
+    "message": "[QPU Metrics] exec_time=0.003385s"
+  },
+  {
+    "timestamp": "2025-09-18T08:09:44.583632Z",
+    "message": "\ud83d\udd17 Entanglement applied"
+  },
+  {
+    "timestamp": "2025-09-18T08:09:44.584000Z",
+    "message": "\ud83d\udca5 Collapse triggered"
+  },
+  {
+    "timestamp": "2025-09-18T08:09:44.584418Z",
+    "message": "\ud83d\udd2e Superposition enabled"
+  },
+  {
+    "timestamp": "2025-09-18T08:09:44.584825Z",
+    "message": "\ud83d\udd2e Prediction forks updated: ['Pred_2 + exploratory']"
+  },
+  {
+    "timestamp": "2025-09-18T08:09:44.585236Z",
+    "message": "[QPU EXEC] \u2295([{'type': 'operator', 'value': '\u2295'}]) \u2192 [\"{'type': 'operator', 'value': '\u2295'}\"]"
+  },
+  {
+    "timestamp": "2025-09-18T08:09:44.586161Z",
+    "message": "[QPU Executed] \u2295: [\"{'type': 'operator', 'value': '\u2295'}\"]"
+  },
+  {
+    "timestamp": "2025-09-18T08:09:44.586642Z",
+    "message": "[QPU Hook] SQI updated: 1.0"
+  },
+  {
+    "timestamp": "2025-09-18T08:09:44.587085Z",
+    "message": "[QPU Metrics] exec_time=0.003467s"
+  },
+  {
+    "timestamp": "2025-09-18T08:14:57.353435Z",
+    "message": "\ud83d\udd17 Entanglement applied"
+  },
+  {
+    "timestamp": "2025-09-18T08:14:57.353837Z",
+    "message": "\ud83d\udca5 Collapse triggered"
+  },
+  {
+    "timestamp": "2025-09-18T08:14:57.354252Z",
+    "message": "\ud83d\udd2e Superposition enabled"
+  },
+  {
+    "timestamp": "2025-09-18T08:14:57.354786Z",
+    "message": "\ud83d\udd2e Prediction forks updated: ['Pred_2 + exploratory']"
+  },
+  {
+    "timestamp": "2025-09-18T08:14:57.355238Z",
+    "message": "[QPU EXEC] \u2295([{'type': 'operator', 'value': '\u2295'}]) \u2192 [\"{'type': 'operator', 'value': '\u2295'}\"]"
+  },
+  {
+    "timestamp": "2025-09-18T08:14:57.356209Z",
+    "message": "[QPU Executed] \u2295: [\"{'type': 'operator', 'value': '\u2295'}\"]"
+  },
+  {
+    "timestamp": "2025-09-18T08:14:57.356677Z",
+    "message": "[QPU Hook] SQI updated: 1.0"
+  },
+  {
+    "timestamp": "2025-09-18T08:14:57.357160Z",
+    "message": "[QPU Metrics] exec_time=0.003722s"
+  },
+  {
+    "timestamp": "2025-09-18T08:28:12.905923Z",
+    "message": "\ud83d\udd17 Entanglement applied"
+  },
+  {
+    "timestamp": "2025-09-18T08:28:12.906448Z",
+    "message": "\ud83d\udca5 Collapse triggered"
+  },
+  {
+    "timestamp": "2025-09-18T08:28:12.907018Z",
+    "message": "\ud83d\udd2e Superposition enabled"
+  },
+  {
+    "timestamp": "2025-09-18T08:28:12.907576Z",
+    "message": "\ud83d\udd2e Prediction forks updated: ['Pred_2 + exploratory']"
+  },
+  {
+    "timestamp": "2025-09-18T08:28:12.908160Z",
+    "message": "[QPU EXEC] \u2295([{'type': 'operator', 'value': '\u2295'}]) \u2192 [\"{'type': 'operator', 'value': '\u2295'}\"]"
+  },
+  {
+    "timestamp": "2025-09-18T08:28:12.909264Z",
+    "message": "[QPU Executed] \u2295: [\"{'type': 'operator', 'value': '\u2295'}\"]"
+  },
+  {
+    "timestamp": "2025-09-18T08:28:12.909898Z",
+    "message": "[QPU Hook] SQI updated: 1.0"
+  },
+  {
+    "timestamp": "2025-09-18T08:28:12.910433Z",
+    "message": "[QPU Metrics] exec_time=0.004594s"
+  },
+  {
+    "timestamp": "2025-09-18T08:33:28.493002Z",
+    "message": "\ud83d\udd17 Entanglement applied"
+  },
+  {
+    "timestamp": "2025-09-18T08:33:28.493548Z",
+    "message": "\ud83d\udca5 Collapse triggered"
+  },
+  {
+    "timestamp": "2025-09-18T08:33:28.494105Z",
+    "message": "\ud83d\udd2e Superposition enabled"
+  },
+  {
+    "timestamp": "2025-09-18T08:33:28.494642Z",
+    "message": "\ud83d\udd2e Prediction forks updated: ['Pred_2 + exploratory']"
+  },
+  {
+    "timestamp": "2025-09-18T08:33:28.495159Z",
+    "message": "[QPU EXEC] \u2295([{'type': 'operator', 'value': '\u2295'}]) \u2192 [\"{'type': 'operator', 'value': '\u2295'}\"]"
+  },
+  {
+    "timestamp": "2025-09-18T08:33:28.496118Z",
+    "message": "[QPU Executed] \u2295: [\"{'type': 'operator', 'value': '\u2295'}\"]"
+  },
+  {
+    "timestamp": "2025-09-18T08:33:28.496624Z",
+    "message": "[QPU Hook] SQI updated: 1.0"
+  },
+  {
+    "timestamp": "2025-09-18T08:33:28.497149Z",
+    "message": "[QPU Metrics] exec_time=0.004163s"
+  },
+  {
+    "timestamp": "2025-09-18T08:37:08.105421Z",
+    "message": "\ud83d\udd17 Entanglement applied"
+  },
+  {
+    "timestamp": "2025-09-18T08:37:08.106001Z",
+    "message": "\ud83d\udca5 Collapse triggered"
+  },
+  {
+    "timestamp": "2025-09-18T08:37:08.106585Z",
+    "message": "\ud83d\udd2e Superposition enabled"
+  },
+  {
+    "timestamp": "2025-09-18T08:37:08.107186Z",
+    "message": "\ud83d\udd2e Prediction forks updated: ['Pred_2 + exploratory']"
+  },
+  {
+    "timestamp": "2025-09-18T08:37:08.107720Z",
+    "message": "[QPU EXEC] \u2295([{'type': 'operator', 'value': '\u2295'}]) \u2192 [\"{'type': 'operator', 'value': '\u2295'}\"]"
+  },
+  {
+    "timestamp": "2025-09-18T08:37:08.108798Z",
+    "message": "[QPU Executed] \u2295: [\"{'type': 'operator', 'value': '\u2295'}\"]"
+  },
+  {
+    "timestamp": "2025-09-18T08:37:08.109326Z",
+    "message": "[QPU Hook] SQI updated: 1.0"
+  },
+  {
+    "timestamp": "2025-09-18T08:37:08.109865Z",
+    "message": "[QPU Metrics] exec_time=0.004443s"
+  },
+  {
+    "timestamp": "2025-09-18T08:50:42.906383Z",
+    "message": "\ud83d\udd17 Entanglement applied"
+  },
+  {
+    "timestamp": "2025-09-18T08:50:42.907187Z",
+    "message": "\ud83d\udca5 Collapse triggered"
+  },
+  {
+    "timestamp": "2025-09-18T08:50:42.907988Z",
+    "message": "\ud83d\udd2e Superposition enabled"
+  },
+  {
+    "timestamp": "2025-09-18T08:50:42.908573Z",
+    "message": "\ud83d\udd2e Prediction forks updated: ['Pred_2 + exploratory']"
+  },
+  {
+    "timestamp": "2025-09-18T08:50:42.909204Z",
+    "message": "[QPU EXEC] \u2295([{'type': 'operator', 'value': '\u2295'}]) \u2192 [\"{'type': 'operator', 'value': '\u2295'}\"]"
+  },
+  {
+    "timestamp": "2025-09-18T08:50:42.910298Z",
+    "message": "[QPU Executed] \u2295: [\"{'type': 'operator', 'value': '\u2295'}\"]"
+  },
+  {
+    "timestamp": "2025-09-18T08:50:42.910903Z",
+    "message": "[QPU Hook] SQI updated: 1.0"
+  },
+  {
+    "timestamp": "2025-09-18T08:50:42.911511Z",
+    "message": "[QPU Metrics] exec_time=0.005161s"
+  },
+  {
+    "timestamp": "2025-09-18T08:56:55.480708Z",
+    "message": "\ud83d\udd17 Entanglement applied"
+  },
+  {
+    "timestamp": "2025-09-18T08:56:55.481461Z",
+    "message": "\ud83d\udca5 Collapse triggered"
+  },
+  {
+    "timestamp": "2025-09-18T08:56:55.482332Z",
+    "message": "\ud83d\udd2e Superposition enabled"
+  },
+  {
+    "timestamp": "2025-09-18T08:56:55.483176Z",
+    "message": "\ud83d\udd2e Prediction forks updated: ['Pred_2 + exploratory']"
+  },
+  {
+    "timestamp": "2025-09-18T08:56:55.484017Z",
+    "message": "[QPU EXEC] \u2295([{'type': 'operator', 'value': '\u2295'}]) \u2192 [\"{'type': 'operator', 'value': '\u2295'}\"]"
+  },
+  {
+    "timestamp": "2025-09-18T08:56:55.485650Z",
+    "message": "[QPU Executed] \u2295: [\"{'type': 'operator', 'value': '\u2295'}\"]"
+  },
+  {
+    "timestamp": "2025-09-18T08:56:55.486401Z",
+    "message": "[QPU Hook] SQI updated: 1.0"
+  },
+  {
+    "timestamp": "2025-09-18T08:56:55.487238Z",
+    "message": "[QPU Metrics] exec_time=0.006474s"
+  },
+  {
+    "timestamp": "2025-09-18T09:08:38.986011Z",
+    "message": "\ud83d\udd17 Entanglement applied"
+  },
+  {
+    "timestamp": "2025-09-18T09:08:38.986628Z",
+    "message": "\ud83d\udca5 Collapse triggered"
+  },
+  {
+    "timestamp": "2025-09-18T09:08:38.987321Z",
+    "message": "\ud83d\udd2e Superposition enabled"
+  },
+  {
+    "timestamp": "2025-09-18T09:08:38.988000Z",
+    "message": "\ud83d\udd2e Prediction forks updated: ['Pred_2 + exploratory']"
+  },
+  {
+    "timestamp": "2025-09-18T09:08:38.988699Z",
+    "message": "[QPU EXEC] \u2295([{'type': 'operator', 'value': '\u2295'}]) \u2192 [\"{'type': 'operator', 'value': '\u2295'}\"]"
+  },
+  {
+    "timestamp": "2025-09-18T09:08:38.990443Z",
+    "message": "[QPU Executed] \u2295: [\"{'type': 'operator', 'value': '\u2295'}\"]"
+  },
+  {
+    "timestamp": "2025-09-18T09:08:38.991163Z",
+    "message": "[QPU Hook] SQI updated: 1.0"
+  },
+  {
+    "timestamp": "2025-09-18T09:08:38.991871Z",
+    "message": "[QPU Metrics] exec_time=0.005836s"
+  },
+  {
+    "timestamp": "2025-09-18T09:14:36.838799Z",
+    "message": "\ud83d\udd17 Entanglement applied"
+  },
+  {
+    "timestamp": "2025-09-18T09:14:36.839531Z",
+    "message": "\ud83d\udca5 Collapse triggered"
+  },
+  {
+    "timestamp": "2025-09-18T09:14:36.840217Z",
+    "message": "\ud83d\udd2e Superposition enabled"
+  },
+  {
+    "timestamp": "2025-09-18T09:14:36.840902Z",
+    "message": "\ud83d\udd2e Prediction forks updated: ['Pred_2 + exploratory']"
+  },
+  {
+    "timestamp": "2025-09-18T09:14:36.841558Z",
+    "message": "[QPU EXEC] \u2295([{'type': 'operator', 'value': '\u2295'}]) \u2192 [\"{'type': 'operator', 'value': '\u2295'}\"]"
+  },
+  {
+    "timestamp": "2025-09-18T09:14:36.842873Z",
+    "message": "[QPU Executed] \u2295: [\"{'type': 'operator', 'value': '\u2295'}\"]"
+  },
+  {
+    "timestamp": "2025-09-18T09:14:36.843572Z",
+    "message": "\ud83d\udd17 Entanglement applied"
+  },
+  {
+    "timestamp": "2025-09-18T09:14:36.844267Z",
+    "message": "\ud83d\udca5 Collapse triggered"
+  },
+  {
+    "timestamp": "2025-09-18T09:14:36.844935Z",
+    "message": "\ud83d\udd2e Superposition enabled"
+  },
+  {
+    "timestamp": "2025-09-18T09:14:36.845589Z",
+    "message": "\ud83d\udd2e Prediction forks updated: ['Pred_2 + exploratory']"
+  },
+  {
+    "timestamp": "2025-09-18T09:14:36.846322Z",
+    "message": "[QPU EXEC] \u2207([{'type': 'operator', 'value': '\u2207'}]) \u2192 0.6762420043402811"
+  },
+  {
+    "timestamp": "2025-09-18T09:14:36.847385Z",
+    "message": "[QPU Executed] \u2207: 0.6762420043402811"
+  },
+  {
+    "timestamp": "2025-09-18T09:14:36.848303Z",
+    "message": "\ud83d\udd17 Entanglement applied"
+  },
+  {
+    "timestamp": "2025-09-18T09:14:36.849367Z",
+    "message": "\ud83d\udca5 Collapse triggered"
+  },
+  {
+    "timestamp": "2025-09-18T09:14:36.850440Z",
+    "message": "\ud83d\udd2e Superposition enabled"
+  },
+  {
+    "timestamp": "2025-09-18T09:14:36.851453Z",
+    "message": "\ud83d\udd2e Prediction forks updated: ['Pred_2 + exploratory']"
+  },
+  {
+    "timestamp": "2025-09-18T09:14:36.852222Z",
+    "message": "[QPU EXEC] \u2194([{'type': 'operator', 'value': '\u2194'}]) \u2192 ['[EQ ERROR: Need 2 args]']"
+  },
+  {
+    "timestamp": "2025-09-18T09:14:36.853413Z",
+    "message": "[QPU Executed] \u2194: ['[EQ ERROR: Need 2 args]']"
+  },
+  {
+    "timestamp": "2025-09-18T09:14:36.854434Z",
+    "message": "\ud83d\udd17 Entanglement applied"
+  },
+  {
+    "timestamp": "2025-09-18T09:14:36.855275Z",
+    "message": "\ud83d\udca5 Collapse triggered"
+  },
+  {
+    "timestamp": "2025-09-18T09:14:36.856182Z",
+    "message": "\ud83d\udd2e Superposition enabled"
+  },
+  {
+    "timestamp": "2025-09-18T09:14:36.857127Z",
+    "message": "\ud83d\udd2e Prediction forks updated: ['Pred_2 + exploratory']"
+  },
+  {
+    "timestamp": "2025-09-18T09:14:36.857923Z",
+    "message": "[QPU EXEC] \u27f2([{'type': 'operator', 'value': '\u27f2'}]) \u2192 [\"{'type': 'operator', 'value': '\u27f2'}_mut\"]"
+  },
+  {
+    "timestamp": "2025-09-18T09:14:36.859107Z",
+    "message": "[QPU Executed] \u27f2: [\"{'type': 'operator', 'value': '\u27f2'}_mut\"]"
+  },
+  {
+    "timestamp": "2025-09-18T09:14:36.860079Z",
+    "message": "\ud83d\udd17 Entanglement applied"
+  },
+  {
+    "timestamp": "2025-09-18T09:14:36.860854Z",
+    "message": "\ud83d\udca5 Collapse triggered"
+  },
+  {
+    "timestamp": "2025-09-18T09:14:36.861608Z",
+    "message": "\ud83d\udd2e Superposition enabled"
+  },
+  {
+    "timestamp": "2025-09-18T09:14:36.862363Z",
+    "message": "\ud83d\udd2e Prediction forks updated: ['Pred_2 + exploratory']"
+  },
+  {
+    "timestamp": "2025-09-18T09:14:36.863116Z",
+    "message": "[QPU EXEC] \u2192([{'type': 'operator', 'value': '\u2192'}]) \u2192 [\"[Triggered {'type': 'operator', 'value': '\u2192'}]\"]"
+  },
+  {
+    "timestamp": "2025-09-18T09:14:36.864210Z",
+    "message": "[QPU Executed] \u2192: [\"[Triggered {'type': 'operator', 'value': '\u2192'}]\"]"
+  },
+  {
+    "timestamp": "2025-09-18T09:14:36.865316Z",
+    "message": "\ud83d\udd17 Entanglement applied"
+  },
+  {
+    "timestamp": "2025-09-18T09:14:36.866125Z",
+    "message": "\ud83d\udca5 Collapse triggered"
+  },
+  {
+    "timestamp": "2025-09-18T09:14:36.866884Z",
+    "message": "\ud83d\udd2e Superposition enabled"
+  },
+  {
+    "timestamp": "2025-09-18T09:14:36.867636Z",
+    "message": "\ud83d\udd2e Prediction forks updated: ['Pred_2 + exploratory']"
+  },
+  {
+    "timestamp": "2025-09-18T09:14:36.868393Z",
+    "message": "[QPU EXEC] \u2726([{'type': 'operator', 'value': '\u2726'}]) \u2192 [\"[Milestone [{'type': 'operator', 'value': '\u2726'}]]\"]"
+  },
+  {
+    "timestamp": "2025-09-18T09:14:36.869459Z",
+    "message": "[QPU Executed] \u2726: [\"[Milestone [{'type': 'operator', 'value': '\u2726'}]]\"]"
+  },
+  {
+    "timestamp": "2025-09-18T09:14:36.870256Z",
+    "message": "[QPU Hook] SQI updated: 1.0"
+  },
+  {
+    "timestamp": "2025-09-18T09:14:36.871260Z",
+    "message": "[QPU Metrics] exec_time=0.032497s"
+  }
+]

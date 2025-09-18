@@ -1,0 +1,22 @@
+[
+  {
+    "timestamp": "2025-09-18T09:14:36.797887Z",
+    "message": "[Token Metrics] exec_time=0.005920s"
+  },
+  {
+    "timestamp": "2025-09-18T09:14:36.835133Z",
+    "message": "[Token Metrics] exec_time=0.003452s"
+  },
+  {
+    "timestamp": "2025-09-18T09:14:36.869101Z",
+    "message": "[Token Metrics] exec_time=0.003940s"
+  },
+  {
+    "timestamp": "2025-09-18T09:14:36.901414Z",
+    "message": "[Token Metrics] exec_time=0.004021s"
+  },
+  {
+    "timestamp": "2025-09-18T09:14:36.932971Z",
+    "message": "[Token Metrics] exec_time=0.003959s"
+  }
+]

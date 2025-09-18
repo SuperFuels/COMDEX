@@ -5,7 +5,7 @@
 ⚛️ GlyphCell — Core symbolic data model for 4D AtomSheet in the SQS system.
 
 Each GlyphCell contains symbolic logic, emotion, prediction, trace history,
-SQI scoring, execution result, and references to linked or nested logic.
+SQI scoring, execution result, wave_beams history, and references to linked or nested logic.
 
 📌 Example:
     cell = GlyphCell(
@@ -19,7 +19,6 @@ SQI scoring, execution result, and references to linked or nested logic.
 
 from typing import List, Dict, Optional, Any, Union
 from datetime import datetime
-
 from backend.modules.patterns.pattern_trace_engine import record_trace
 
 # 🔁 Dynamic pattern engine (safe import wrapper)
@@ -54,7 +53,9 @@ class GlyphCell:
         mutation_type: Optional[str] = None,
         mutation_parent_id: Optional[str] = None,
         mutation_score: Optional[float] = None,
-        mutation_timestamp: Optional[Union[str, datetime]] = None
+        mutation_timestamp: Optional[Union[str, datetime]] = None,
+        prediction_forks: Optional[List[str]] = None,  # tracks prediction fork updates
+        wave_beams: Optional[List[Dict[str, Any]]] = None,  # per-cell QWave beam history
     ):
         self.id = id
         self.logic = logic
@@ -75,19 +76,23 @@ class GlyphCell:
         else:
             self.mutation_timestamp = mutation_timestamp
 
+        # Initialize prediction forks and wave_beams
+        self.prediction_forks = prediction_forks or []
+        self.wave_beams: List[Dict[str, Any]] = list(wave_beams) if wave_beams is not None else []
+
         # Cache for pattern detection per cell
         self._pattern_cache: Optional[List[str]] = None
+
+    def append_trace(self, message: str):
+        """Add a message to the execution trace log."""
+        self.trace.append(message)
+        record_trace(self.id, message)
 
     def __repr__(self):
         return (
             f"GlyphCell(id={self.id}, pos={self.position}, logic='{self.logic}', "
             f"sqi={self.sqi_score:.2f}, emotion={self.emotion}, validated={self.validated})"
         )
-
-    def append_trace(self, message: str) -> None:
-        """➕ Add a message to the execution trace log."""
-        self.trace.append(message)
-        record_trace(self.id, message)
 
     def expand_nested(self, depth: int = 1) -> Optional[str]:
         """
@@ -104,7 +109,7 @@ class GlyphCell:
 
     def detect_patterns(self) -> List[str]:
         """
-        🧠 Detect symbolic patterns using the pattern engine (Phase 2/3).
+        🧠 Detect symbolic patterns using the pattern engine.
         Returns:
             List of matched pattern names.
         """
@@ -182,6 +187,8 @@ class GlyphCell:
             "mutation_parent_id": self.mutation_parent_id,
             "mutation_score": self.mutation_score,
             "mutation_timestamp": self.mutation_timestamp,
+            "prediction_forks": self.prediction_forks if self.prediction_forks else None,
+            "wave_beams": self.wave_beams if self.wave_beams else None,
         }
 
         return {
@@ -198,7 +205,7 @@ class GlyphCell:
         Returns:
             GlyphCell instance.
         """
-        return GlyphCell(
+        cell = GlyphCell(
             id=data.get("id", ""),
             logic=data.get("logic", ""),
             position=data.get("position", [0, 0, 0, 0]),
@@ -213,5 +220,8 @@ class GlyphCell:
             mutation_type=data.get("mutation_type"),
             mutation_parent_id=data.get("mutation_parent_id"),
             mutation_score=data.get("mutation_score"),
-            mutation_timestamp=data.get("mutation_timestamp")
+            mutation_timestamp=data.get("mutation_timestamp"),
+            prediction_forks=data.get("prediction_forks", []),
+            wave_beams=data.get("wave_beams", []),
         )
+        return cell

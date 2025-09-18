@@ -17,18 +17,23 @@ def tokenize_symbol_text_to_glyphs(text: str) -> List[Dict[str, str]]:
             {'type': 'number', 'value': '2'}
         ]
     """
-    tokens = []
+    tokens: List[Dict[str, str]] = []
 
-    # Extended regex: includes symbolic ops, **, and punctuation
-    pattern = r"([A-Za-z_]\w*|\d+\.?\d*|==|!=|<=|>=|\*\*|[\+\-\*/\^=<>!()]|[≡⊕⊗≤≥∧∨¬:,])"
+    # IMPORTANT: put multi-character tokens first (longest-match wins), then single-char classes.
+    # Added Phase-7 symbolic opcodes: ∇ (numeric), ∇c (compress alias), ↔, ⟲, ⧖, →, ✦
+    pattern = (
+        r"(∇c|↔|⟲|⧖|→|✦|∇|"                # symbolic multi/single glyph ops (new)
+        r"[A-Za-z_]\w*|"                     # identifiers
+        r"\d+\.?\d*|"                        # numbers
+        r"==|!=|<=|>=|\*\*|"                 # multi-char ASCII ops
+        r"[\+\-\*/\^=<>!()]|"                # single-char ASCII ops/parens
+        r"[≡⊕⊗≤≥∧∨¬:,])"                    # other symbolic singles we already supported
+    )
 
     for match in re.finditer(pattern, text):
         token = match.group(0)
         token_type = classify_token(token)
-        tokens.append({
-            "type": token_type,
-            "value": token
-        })
+        tokens.append({"type": token_type, "value": token})
 
     return tokens
 
@@ -39,38 +44,43 @@ def classify_token(token: str) -> str:
     """
     Classifies a token as one of: variable, number, operator, paren, function, keyword, string, or unknown.
     """
+    # number
     if re.fullmatch(r"\d+\.?\d*", token):
         return "number"
 
-    # Known math/logic functions
-    known_functions = {"sin", "cos", "tan", "log", "exp", "sqrt", "abs"}
-    if token in known_functions:
-        return "function"
-
-    # Special keywords
-    if token in {"if", "return"}:
-        return "keyword"
-
-    # Quoted string
+    # string literal
     if re.fullmatch(r"'[^']*'|\"[^\"]*\"", token):
         return "string"
 
-    # Regular variables
+    # keywords
+    if token in {"if", "return"}:
+        return "keyword"
+
+    # known math functions
+    if token in {"sin", "cos", "tan", "log", "exp", "sqrt", "abs"}:
+        return "function"
+
+    # identifier / variable
     if re.fullmatch(r"[A-Za-z_]\w*", token):
         return "variable"
 
-    # Supported operators (classic + symbolic)
+    # operators (ASCII + symbolic)
+    # Added Phase-7 ops here: ∇, ∇c, ↔, ⟲, ⧖, →, ✦
     if token in {
+        # ASCII
         "+", "-", "*", "/", "^", "=", "==", "!=", "<", ">", "<=", ">=", "**",
-        "⊕", "⊗", "≡", "≤", "≥", "∧", "∨", "¬"
+        # symbolic (existing)
+        "⊕", "⊗", "≡", "≤", "≥", "∧", "∨", "¬",
+        # symbolic (new)
+        "∇", "∇c", "↔", "⟲", "⧖", "→", "✦",
     }:
         return "operator"
 
-    # Normalize parens
+    # parens
     if token in {"(", ")"}:
         return "paren"
 
-    # Misc symbols (e.g., colons for Python-style syntax)
+    # punctuation
     if token in {":", ","}:
         return "symbol"
 
@@ -90,7 +100,10 @@ if __name__ == "__main__":
         "sin(theta) + cos(phi)",
         "if x > 0: return x**2",
         "overwrite('memory')",
-        "x**2 + y**2 == z**2"
+        "x**2 + y**2 == z**2",
+        # Phase-7 glyph opcodes
+        "⊕ ∇ ↔ ⟲ ⧖ → ✦",
+        "∇c(a, b) ↔ c",
     ]
 
     for case in test_cases:

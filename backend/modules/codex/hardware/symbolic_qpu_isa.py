@@ -91,6 +91,23 @@ def op_NEGATE(args: List[Any], context: Dict[str, Any], registers: Optional[Dict
 def op_MILESTONE(args: List[Any], context: Dict[str, Any], registers: Optional[Dict[str, Any]] = None) -> List[str]:
     log_qpu_op("MILESTONE ✦")
     return [f"[Milestone {args}]"]
+    
+# -------------------------------
+# G3: numeric ∇ (nabla) opcode for precision profiling
+# -------------------------------
+def _op_nabla(args: List[Any], context: Dict[str, Any], registers: Optional[Dict[str, Any]] = None) -> float:
+    """
+    Returns a stable-ish float so FP4/FP8/INT8 quantization creates measurable error.
+    Design: golden-ratio base perturbed by a tiny cell-id fingerprint and mutation_score.
+    """
+    log_qpu_op("NABLA ∇")
+    base = 0.6180339887498949  # φ - 1
+    cell: Optional[GlyphCell] = context.get("cell")
+    cid = getattr(cell, "id", "") if cell else ""
+    # stable per-process but deterministic fingerprint
+    cid_factor = (abs(hash(cid)) % 997) / 997.0 if cid else 0.0
+    mutation = float(getattr(cell, "mutation_score", 0.0) or 0.0) if cell else 0.0
+    return float(base * (1.0 + cid_factor * 0.1) + mutation * 0.001)
 
 # -------------------------------
 # Quantum Primitives (Stubs)
@@ -143,7 +160,7 @@ def execute_qpu_opcode(
     args: List[Any],
     cell: Optional[GlyphCell] = None,
     context: Optional[Dict[str, Any]] = None
-) -> List[str]:
+) -> Any:  # changed to Any: ∇ returns float
     context = context or {}
     if not cell:
         cell = GlyphCell(id="unknown", logic="", position=[0,0,0,0])
@@ -181,7 +198,7 @@ def load_opcode_registry_from_yaml(filepath: str) -> None:
         print(f"[QPU Error] Failed to load YAML opcodes: {e}")
 
 # -------------------------------
-# Populate the default opcode registry
+# Populate / update the opcode registry
 # -------------------------------
 SYMBOLIC_QPU_OPS: Dict[str, Any] = {
     "⊕": op_AND,
@@ -189,10 +206,16 @@ SYMBOLIC_QPU_OPS: Dict[str, Any] = {
     "⟲": op_MUTATE,
     "⧖": op_DELAY,
     "→": op_TRIGGER,
-    "∇": op_COMPRESS,
+    # G3: numeric profiling opcode
+    "∇": _op_nabla,
+    # keep COMPRESS available under an alias to avoid functionality loss
+    "∇c": op_COMPRESS,
     "⊗": op_NEGATE,
-    "✦": op_MILESTONE
+    "✦": op_MILESTONE,
 }
+
+# Override / add numeric ∇ mapping for profiling (G3)
+SYMBOLIC_QPU_OPS["∇"] = _op_nabla
 
 # -------------------------------
 # Reset / Metrics Utilities
@@ -208,8 +231,10 @@ def get_qpu_metrics() -> Dict[str, float]:
 # Standalone Test
 # -------------------------------
 if __name__ == "__main__":
-    test_cell = GlyphCell(id="cell_001", logic="⊕ ↔ ⟲ → ✦", position=[0,0])
+    test_cell = GlyphCell(id="cell_001", logic="⊕ ↔ ⟲ → ✦ ∇ ∇c", position=[0,0])
     context: Dict[str, Any] = {}
     print(execute_qpu_opcode("⊕", ["a", "b"], test_cell, context))
     print(execute_qpu_opcode("↔", ["x", "y"], test_cell, context))
+    print(execute_qpu_opcode("∇", [], test_cell, context))   # numeric float
+    print(execute_qpu_opcode("∇c", ["data"], test_cell, context))  # preserved compress behavior
     print(get_qpu_metrics())

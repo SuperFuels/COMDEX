@@ -133,18 +133,40 @@ subgraph Phase_7["⚛️ Phase 7: QPU ISA + Symbolic Hardware"]
         - QPU metrics, SQI integration, prediction forks
         - run_glyphcell / execute_sheet / execute_codexlang wired to QPU
 
-    G2[🧪 Begin CPU emulation layer] ⚠️ In Progress / Partially Completed
+    G2✅[🧪 Begin CPU emulation layer] ⚠️ In Progress / Partially Completed
         - CodexVirtualCPU fully implemented
         - CodexExecutor patched to optionally use QPU
         - run_glyphcell, execute_sheet, execute_codexlang patched for QPU
         - Remaining: Full G2 “symbolic CPU emulation layer” for timing, op type mapping, and possibly low-level memory/register simulation.
 
-    G3[📉 Profile symbolic op types → FP4/INT8 mapping] ⬜ Not Started
+    G3✅[📉 Profile symbolic op types → FP4/INT8 mapping] ⬜ Not Started
         - No profiling implemented yet
         - No FP4/FP8/INT8 mapping of symbolic ops
         - Future step: Analyze op execution, precision requirements, and potential hardware mapping
 
+
+%% ───── Phase 8 ─────
+subgraph Phase_8["🕸 Phase 8: Beam-Native & Multi-Agent Entanglement"]
+    H1[🌲 Beam lineage model & SQI trees]
+    H2[🔗 Cross-sheet/agent entanglement registry]
+    H3[👻 Ghost memory replay (entangled branches)]
+    H4[🛰 GHXVisualizer + QuantumFieldCanvas: entanglement overlay]
+    H5[🟰 Batch predict/collapse + SQI scoring]
 end
+
+%% ───── Phase 9 ─────
+subgraph Phase_9["🌙 Phase 9: Dream Projection & Timeline Replay"]
+    I1[🪄 Speculative beam generation (dreams)]
+    I2[🕰 Timeline scrub/replay in GHX/QFC]
+    I3[✂️ SQI-guided pruning of speculative paths]
+end
+
+%% ───── Phase 10 ─────
+subgraph Phase_10["⚡ Phase 10: Symbolic Acceleration & QFC Integration"]
+    J1[🧮 Vectorized kernels for ⊕ ↔ ⟲ → ⧖ ∇ ⊗ ✦]
+    J2[🎚 Execute with FP4/FP8/INT8 per profiler]
+    J3[🧱 QFC container-level beam execution]
+    J4[📡 Real-time GHX/HUD debug & telemetry]
 end
 
 %% ───── Support Tasks ─────
