@@ -1,40 +1,38 @@
+'use client';
+
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import useWebSocket from "@/hooks/useWebSocket";
 
-interface ContainerInfo {
+type ContainerInfo = {
   id: string;
   name: string;
   in_memory: boolean;
   connected: string[];
   glyph?: string;
-  region?: string; // for clustering/labels
-}
+  region?: string;
+};
 
-interface PositionMap {
-  [key: string]: { x: number; y: number };
-}
+type PositionMap = Record<string, { x: number; y: number }>;
 
-export interface ContainerMapProps {
+export interface ContainerMap2DProps {
   mapData?: ContainerInfo[];
   activeId?: string;
   onContainerClick?: (id: string) => void;
 }
 
-export default function ContainerMap({
+export default function ContainerMap2D({
   mapData,
   activeId,
   onContainerClick,
-}: ContainerMapProps) {
+}: ContainerMap2DProps) {
   const [containers, setContainers] = useState<ContainerInfo[]>([]);
   const [positions, setPositions] = useState<PositionMap>({});
   const [message, setMessage] = useState<string | null>(null);
   const [regions, setRegions] = useState<string[]>([]);
-
   const containerRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   const { connected } = useWebSocket("/ws", (data: any) => {
     if (data.type === "glyph_update" || data.type === "container_update") {
-      console.log("🔁 Real-time event:", data.type);
       fetchContainers();
     }
   });
@@ -43,51 +41,42 @@ export default function ContainerMap({
     fetch("/api/aion/containers")
       .then((res) => res.json())
       .then((data) => {
-        const containerList: ContainerInfo[] = data.containers || [];
-        setContainers(containerList);
-        const uniqueRegions = [...new Set(containerList.map((c) => c.region || "Unassigned"))];
+        const list: ContainerInfo[] = data.containers || [];
+        setContainers(list);
+        const uniqueRegions = Array.from(new Set(list.map((c) => c.region ?? "Unassigned")));
         setRegions(uniqueRegions);
-        setTimeout(updatePositions, 100); // Delay to recalc glyph lines
-      });
+        setTimeout(updatePositions, 100);
+      })
+      .catch(() => {});
   };
 
-  // On mount or props update
   useEffect(() => {
     if (!mapData) fetchContainers();
     else setContainers(mapData);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mapData]);
 
-  // Real-time glyph/region refresh
   useEffect(() => {
-    const refresh = () => {
-      console.log("🔄 Glyph update triggered map refresh");
-      fetchContainers();
-    };
+    const refresh = () => fetchContainers();
     window.addEventListener("glyph_update", refresh);
     return () => window.removeEventListener("glyph_update", refresh);
   }, []);
 
-  // Periodic fallback sync in case WebSocket misses
   useEffect(() => {
-    const interval = setInterval(() => {
-      fetchContainers();
-    }, 5000);
+    const interval = setInterval(fetchContainers, 5000);
     return () => clearInterval(interval);
   }, []);
 
   const updatePositions = () => {
-    const newPositions: PositionMap = {};
+    const next: PositionMap = {};
     for (const id in containerRefs.current) {
       const el = containerRefs.current[id];
       if (el) {
         const rect = el.getBoundingClientRect();
-        newPositions[id] = {
-          x: rect.left + rect.width / 2,
-          y: rect.top + rect.height / 2,
-        };
+        next[id] = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
       }
     }
-    setPositions(newPositions);
+    setPositions(next);
   };
 
   useEffect(() => {
@@ -101,30 +90,25 @@ export default function ContainerMap({
   }, []);
 
   const handleTeleport = async (targetId: string) => {
-    if (onContainerClick) {
-      onContainerClick(targetId);
-    } else {
-      try {
-        const res = await fetch("/api/aion/teleport", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ target: targetId }),
-        });
-        const result = await res.json();
-        if (res.ok) {
-          setMessage(`🌀 Teleported to ${targetId}`);
-          containerRefs.current[targetId]?.scrollIntoView({
-            behavior: "smooth",
-            block: "center",
-          });
-        } else {
-          setMessage(`❌ Failed: ${result.detail || "Unknown error"}`);
-        }
-      } catch (err) {
-        setMessage(`⚠️ Error: ${err}`);
+    if (onContainerClick) return onContainerClick(targetId);
+
+    try {
+      const res = await fetch("/api/aion/teleport", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ target: targetId }),
+      });
+      const result = await res.json();
+      if (res.ok) {
+        setMessage(`🌀 Teleported to ${targetId}`);
+        containerRefs.current[targetId]?.scrollIntoView({ behavior: "smooth", block: "center" });
+      } else {
+        setMessage(`❌ Failed: ${result.detail || "Unknown error"}`);
       }
-      setTimeout(() => setMessage(null), 3000);
+    } catch (err) {
+      setMessage(`⚠️ Error: ${err}`);
     }
+    setTimeout(() => setMessage(null), 3000);
   };
 
   return (
@@ -132,8 +116,8 @@ export default function ContainerMap({
       <h2 className="text-lg font-bold mb-2">🗺️ Container Map</h2>
 
       <svg className="absolute inset-0 w-full h-full z-0 pointer-events-none">
-        {containers.map((source: ContainerInfo) =>
-          source.connected.map((targetId: string) => {
+        {containers.map((source) =>
+          source.connected.map((targetId) => {
             const from = positions[source.id];
             const to = positions[targetId];
             if (!from || !to) return null;
@@ -152,21 +136,13 @@ export default function ContainerMap({
           })
         )}
         <defs>
-          <marker
-            id="arrow"
-            markerWidth="6"
-            markerHeight="6"
-            refX="5"
-            refY="3"
-            orient="auto"
-            markerUnits="strokeWidth"
-          >
+          <marker id="arrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto" markerUnits="strokeWidth">
             <path d="M0,0 L0,6 L6,3 z" fill="gray" />
           </marker>
         </defs>
       </svg>
 
-      {regions.map((region: string) => (
+      {regions.map((region) => (
         <div key={region} className="mb-4">
           <h3 className="text-sm font-semibold mb-1">📦 {region}</h3>
           <div className="grid grid-cols-4 gap-4">
@@ -183,9 +159,7 @@ export default function ContainerMap({
                       c.in_memory ? "bg-green-100" : "bg-gray-100"}`}
                 >
                   <div>{c.name}</div>
-                  {c.glyph && (
-                    <div className="text-xs text-gray-500 mt-1">{c.glyph}</div>
-                  )}
+                  {c.glyph && <div className="text-xs text-gray-500 mt-1">{c.glyph}</div>}
                 </div>
               ))}
           </div>
@@ -205,9 +179,7 @@ export default function ContainerMap({
         </div>
       </div>
 
-      <p className="text-xs text-gray-500 mt-2">
-        WebSocket: {connected ? "🟢 Connected" : "🔴 Disconnected"}
-      </p>
+      <p className="text-xs text-gray-500 mt-2">WebSocket: {connected ? "🟢 Connected" : "🔴 Disconnected"}</p>
       {message && <p className="text-sm mt-2 font-medium">{message}</p>}
     </div>
   );
