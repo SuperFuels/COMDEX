@@ -7,7 +7,7 @@
 /* eslint-disable */
 
 /* 1) Import Inter BEFORE Tailwind */
-@import '@/styles/globals.css';
+@import url('https://rsms.me/inter/inter.css');
 
 /* 2) Tailwind’s layers */
 @tailwind base;
@@ -142,7 +142,6 @@ a.logo-link {
 /* ───────────────────────────────────────────────────────
    Split Pane Layout (AION dashboard specific)
 ─────────────────────────────────────────────────────────── */
-
 .split-container {
   display: flex;
   height: 100%;
@@ -182,6 +181,7 @@ body {
 /* stylelint-enable */
 /* eslint-enable */
 
+/* Extended Tailwind-style Variables */
 @layer base {
   :root {
     --background:                0 0% 100%;
@@ -243,16 +243,15 @@ body {
   0% { opacity: 0; transform: scale(0.85); }
   100% { opacity: 1; transform: scale(1); }
 }
-.animate-fadeInScale { animation: fadeInScale 0.4s ease-out forwards; }
+.animate-fadeInScale {
+  animation: fadeInScale 0.4s ease-out forwards;
+}
 
-/* ——— Replace Tailwind-only @apply calls with safe CSS ——— */
+/* Safe replacements for Tailwind utilities */
 @layer base {
-  /* Tailwind `border-border` replacement */
   * {
-    /* fallback values included so it works even if variables aren't set */
     border-color: hsl(var(--border, 0 0% 89.8%));
   }
-  /* Tailwind `bg-background text-foreground` replacement */
   body {
     background-color: hsl(var(--background, 0 0% 100%));
     color: hsl(var(--foreground, 0 0% 3.9%));
