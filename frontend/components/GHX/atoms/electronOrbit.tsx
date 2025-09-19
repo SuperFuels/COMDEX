@@ -1,7 +1,9 @@
 // frontend/components/GHX/atoms/electronOrbit.tsx
+"use client";
+
 import React, { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
-import { Sphere, Html } from "@react-three/drei";
+import { Html } from "@react-three/drei";
 import * as THREE from "three";
 
 type Electron = {
@@ -44,7 +46,7 @@ type ElectronShellsProps = {
 };
 
 export const ElectronShells: React.FC<ElectronShellsProps> = ({ center, shells, onTeleport }) => {
-  const groupRef = useRef<THREE.Group>(null);
+  const groupRef = useRef<THREE.Group | null>(null);
 
   // 🌀 Continuous orbital rotation
   useFrame(() => {
@@ -55,8 +57,8 @@ export const ElectronShells: React.FC<ElectronShellsProps> = ({ center, shells, 
 
   return (
     <group ref={groupRef}>
-      {shells.map((shell, shellIdx) => {
-        return shell.electrons.map((electron, i) => {
+      {shells.map((shell, shellIdx) =>
+        shell.electrons.map((electron, i) => {
           const angle = (i / shell.electrons.length) * Math.PI * 2;
           const offsetY = Math.sin(angle + shellIdx) * 0.2; // 3D offset
           const x = center[0] + shell.radius * Math.cos(angle);
@@ -68,17 +70,21 @@ export const ElectronShells: React.FC<ElectronShellsProps> = ({ center, shells, 
 
           return (
             <group key={`electron-${shellIdx}-${i}`} position={[x, y, z]}>
-              <Sphere
-                args={[0.08, 16, 16]}
-                onClick={() => cid && onTeleport?.(cid)}
+              {/* Use core three.js mesh instead of drei <Sphere> to avoid typings issues */}
+              <mesh
+                onClick={() => {
+                  if (cid) onTeleport?.(cid); // ensure void return
+                }}
               >
+                <sphereGeometry args={[0.08, 16, 16]} />
                 <meshStandardMaterial
-                  color={"skyblue"}
-                  emissive={"deepskyblue"}
+                  color="skyblue"
+                  emissive="deepskyblue"
                   emissiveIntensity={1.5}
                   toneMapped={false}
                 />
-              </Sphere>
+              </mesh>
+
               {/* Tooltip with label */}
               <Html center distanceFactor={6}>
                 <div
@@ -96,8 +102,8 @@ export const ElectronShells: React.FC<ElectronShellsProps> = ({ center, shells, 
               </Html>
             </group>
           );
-        });
-      })}
+        })
+      )}
     </group>
   );
 };

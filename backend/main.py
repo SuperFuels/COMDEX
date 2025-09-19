@@ -205,36 +205,37 @@ from backend.api import symbol_tree
 from backend.api import qfc_api
 from backend.api import symbolic_tree_api
 from backend.routes.api_collapse_trace import router as collapse_trace_router
-# ── Dev/test helpers & extras
-from backend.routes.dev import glyphwave_test_router        # dev-only routes (mounted elsewhere in your file)
-from backend.api.workspace import workspace_router          # workspace API (mounted elsewhere in your file)
+
+# ===== Atomsheet / LightCone / QFC wiring =====
+from backend.routes.dev import glyphwave_test_router        # dev-only routes (mounted elsewhere in your file)  # noqa: F401
+from backend.api.workspace import workspace_router          # workspace API (mounted elsewhere in your file)    # noqa: F401
 from backend.modules.patterns.seed_patterns import seed_builtin_patterns
 from backend.api import api_sheets                          # exposes /api/sheets/list
 
 # ── Optional routers (guarded so boot never breaks)
 try:
-    # ✅ New canonical AtomSheets router → /api/atomsheet, /api/atomsheet/execute, /api/atomsheet/export
+    # ✅ Canonical AtomSheets router → /api/atomsheet, /api/atomsheet/execute, /api/atomsheet/export
     from backend.routers.atomsheets import router as atomsheets_router
 except Exception as e:
     atomsheets_router = None
     logger.warning("[atomsheets] not mounted: %s", e)
 
 try:
-    # LightCone extras → /api/lightcone*
+    # 🔭 LightCone router → /api/lightcone*
     from backend.api.api_lightcone import router as lightcone_router
 except Exception as e:
     lightcone_router = None
     logger.warning("[lightcone] not mounted: %s", e)
 
 try:
-    # Legacy AtomSheet API (no /api prefix). We will mount it under /legacy to avoid collisions.
+    # 🧪 Legacy AtomSheet API (no /api prefix). Mount under /legacy to avoid collisions.
     import backend.api.api_atomsheet as legacy_atomsheet_mod
 except Exception as e:
     legacy_atomsheet_mod = None
     logger.warning("[legacy atomsheet] not mounted: %s", e)
 
 try:
-    # QFC extras → /api/qfc_extras*
+    # 🌐 QFC extras (stub HUD endpoints) → /api/qfc_entanglement, /api/qfc_entangled
     from backend.api.api_qfc_extras import router as qfc_extras_router
 except Exception as e:
     qfc_extras_router = None
@@ -242,13 +243,13 @@ except Exception as e:
 
 # ── Mount routers (order: canonical → optional → legacy)
 if atomsheets_router:
-    app.include_router(atomsheets_router)          # /api/atomsheet*
+    app.include_router(atomsheets_router)                  # /api/atomsheet*
 
 if lightcone_router:
-    app.include_router(lightcone_router)           # /api/lightcone*
+    app.include_router(lightcone_router)                   # /api/lightcone*
 
 if qfc_extras_router:
-    app.include_router(qfc_extras_router)          # /api/qfc_extras*
+    app.include_router(qfc_extras_router)                  # /api/qfc_* (stubbed safe responses)
 
 # Keep legacy API but clearly namespaced to avoid confusion/collisions
 if legacy_atomsheet_mod:
@@ -364,7 +365,6 @@ app.include_router(symbolic_tree_api.router)
 app.include_router(collapse_trace_router)
 app.include_router(glyphwave_test_router.router)
 app.include_router(workspace_router)
-app.include_router(api_atomsheet.router)
 app.include_router(api_sheets.router)
 app.include_router(qfc_extras_router)
 seed_builtin_patterns()

@@ -4,22 +4,21 @@
 import { useEffect, useRef, useState } from "react";
 import { OrbitControls, Html } from "@react-three/drei";
 import * as THREE from "three";
+import { forwardRef } from "react";              // <-- fixes 'forwardRef' not found
+import { Canvas, useFrame, useThree } from "@react-three/fiber"; // <-- ensures types are present
 
-// ✅ our hook is a default export, not a named one
+// ✅ hooks (default / named as you actually export them)
 import useWebSocket from "@/hooks/useWebSocket";
 import { useAvatarGlyphs } from "@/hooks/useAvatarGlyphs";
 import { useCodexCoreProjection } from "@/hooks/useCodexCoreProjection";
+
 import HologramHUD from "./HologramHUD";
-// import { exportGHX } from "@/utils/ghx_exporter";             // missing → shim below
-// import { playGlyphNarration, preloadVoices } from "@/utils/hologram_audio"; // missing → shims below
 import GHXReplaySlider from "./GHXReplaySlider";
-// import LayeredContainerSphere from "./LayeredContainerSphere"; // missing → shim below
 import AvatarThoughtProjection from "@/components/Hologram/AvatarThoughtProjection";
 import MemoryHaloRing from "@/components/Hologram/MemoryHaloRing";
 import MemoryBridgeBeams from "@/components/Hologram/MemoryBridgeBeams";
 import SoulLawHUD from "@/components/Soul/SoulLawHUD";
 import { useCanvasRecorder } from "@/hooks/useCanvasRecorder";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
 
 /* ------------------------------------------------------------------ */
 /* Shims for missing utilities/components so this file compiles safely */
@@ -28,9 +27,7 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 // very small JSON exporter
 function exportGHXLocal(data: unknown, name = "projection") {
   try {
-    const blob = new Blob([JSON.stringify(data, null, 2)], {
-      type: "application/json",
-    });
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -41,9 +38,10 @@ function exportGHXLocal(data: unknown, name = "projection") {
     /* no-op */
   }
 }
+
 // text-to-speech (best-effort; safe no-ops SSR)
 function preloadVoices() {
-  /* optional: warm up speechSynthesis */
+  /* optional warmup */
 }
 function playGlyphNarration(text: string, opts?: { voice?: string; language?: string }) {
   if (typeof window === "undefined") return;
@@ -105,6 +103,7 @@ function LayeredContainerSphere({
 }
 
 // minimal line helper (avoids drei <Line> typings)
+// ⚠️ R3F v8+ expects BufferAttribute via `args: [array, itemSize]`
 function SimpleLine({
   from,
   to,
@@ -122,12 +121,7 @@ function SimpleLine({
   return (
     <line>
       <bufferGeometry>
-        <bufferAttribute
-          attach="attributes-position"
-          count={2}
-          array={positions}
-          itemSize={3}
-        />
+        <bufferAttribute attach="attributes-position" args={[positions, 3]} />
       </bufferGeometry>
       <lineBasicMaterial color={color} transparent opacity={opacity} linewidth={linewidth} />
     </line>
@@ -189,47 +183,55 @@ export default function HolographicViewer({ containerId }: { containerId: string
     preloadVoices();
   }, []);
 
-  // ---- socket events ---------------------------------------------------
+  /** ------------------------------------------------------------------
+   *  Socket event handling (single effect – no nesting)
+   *  ------------------------------------------------------------------ */
   useEffect(() => {
+    if (!lastJsonMessage) return;
+
+    const evt = (lastJsonMessage as any).event || (lastJsonMessage as any).type;
+
     // GHX projection pushed
-    if (lastJsonMessage?.event === "ghx_projection") {
-      setProjection(lastJsonMessage.payload as GHXPacket);
+    if (evt === "ghx_projection") {
+      setProjection((lastJsonMessage as any).payload as GHXPacket);
       setTrailHistory([]);
       setEntangledLinks([]);
       setCurrentCaption("");
+      return;
     }
 
     // node triggered → momentary highlight
-    if (lastJsonMessage?.event === "glyph_triggered") {
-      const updated = lastJsonMessage.activation as { glyph_id: string };
+    if (evt === "glyph_triggered") {
+      const updated = (lastJsonMessage as any).activation as { glyph_id: string };
       const mesh = glyphRefs.current[updated.glyph_id];
       if (mesh) {
         const mat = mesh.material as THREE.MeshStandardMaterial;
         if (mat?.color) mat.color.set("#ff00ff");
       }
+      return;
     }
 
     // replay frames include glyph list, entangled links, and an optional caption
-  useEffect(() => {
-    // replay frames include glyph list, entangled links, and an optional caption
-    if (lastJsonMessage?.type === "glyph_replay_frame") {
-      const {
-        glyphs = [] as Array<{ symbol?: string; glyph?: string }>,
-        entangled_links = [] as Array<{ source: string; target: string }>,
-        caption = "",
-      } = lastJsonMessage as {
-        glyphs?: Array<{ symbol?: string; glyph?: string }>;
-        entangled_links?: Array<{ source: string; target: string }>;
+    if (evt === "glyph_replay_frame") {
+      type GlyphBrief = { symbol?: string; glyph?: string };
+      type LinkBrief  = { source: string; target: string };
+      type ReplayFrame = {
+        glyphs?: GlyphBrief[];
+        entangled_links?: LinkBrief[];
         caption?: string;
       };
 
-      if (entangled_links.length > 0 && combinedProjection) {
+      const { glyphs = [], entangled_links = [], caption = "" }: ReplayFrame =
+        (lastJsonMessage as ReplayFrame);
+
+      // map entangled links to points in current projection
+      if ((entangled_links?.length ?? 0) > 0 && combinedProjection?.light_field) {
         const mapped: EntangledLink[] = entangled_links
-          .map((link: { source: string; target: string }) => {
-            const source = combinedProjection.light_field.find(
+          .map((link: LinkBrief) => {
+            const source = combinedProjection.light_field!.find(
               (g: GlyphPoint) => g.glyph_id === link.source
             );
-            const target = combinedProjection.light_field.find(
+            const target = combinedProjection.light_field!.find(
               (g: GlyphPoint) => g.glyph_id === link.target
             );
             return source && target ? ({ source, target } as EntangledLink) : null;
@@ -240,18 +242,22 @@ export default function HolographicViewer({ containerId }: { containerId: string
         setEntangledLinks([]);
       }
 
+      // caption fallbacks
       if (caption) {
         setCurrentCaption(caption);
       } else if (glyphs.length > 0) {
-        const symbols = glyphs.map((g) => g.symbol || g.glyph || "?").join(", ");
+        const symbols = glyphs
+          .map((g: GlyphBrief) => g.symbol ?? g.glyph ?? "?")
+          .join(", ");
         setCurrentCaption(`Glyphs: ${symbols}`);
       } else {
         setCurrentCaption("");
       }
+      return;
     }
 
     // predictive forks → show dashed ghost links + caption
-    if (lastJsonMessage?.type === "predictive_forks_response") {
+    if (evt === "predictive_forks_response") {
       type PredictionFork = {
         id: string;
         input_glyph: string;
@@ -260,12 +266,12 @@ export default function HolographicViewer({ containerId }: { containerId: string
         agent_id?: string;
       };
 
-      const forks: PredictionFork[] = (lastJsonMessage.predictions || []) as PredictionFork[];
+      const forks: PredictionFork[] = ((lastJsonMessage as any).predictions || []) as PredictionFork[];
 
-      if (combinedProjection) {
+      if (combinedProjection?.light_field) {
         const ghostLinks: EntangledLink[] = forks
           .map((p: PredictionFork): EntangledLink | null => {
-            const source = combinedProjection.light_field.find(
+            const source = combinedProjection.light_field!.find(
               (g: GlyphPoint) => g.symbol === p.input_glyph
             );
             if (!source) return null;
@@ -299,7 +305,7 @@ export default function HolographicViewer({ containerId }: { containerId: string
     }
   }, [lastJsonMessage, combinedProjection]);
 
-  // ----------------------------------------------------------------------
+  /* ------------------------------------------------------------------ */
 
   useEffect(() => {
     if (!focusedGlyph) return;
@@ -314,18 +320,18 @@ export default function HolographicViewer({ containerId }: { containerId: string
   const handleGlyphClick = (glyphId: string, symbol: string) => {
     sendJsonMessage?.({ event: "trigger_glyph", glyph_id: glyphId });
 
-    const glyph = combinedProjection?.light_field.find(
-      (g: GlyphPoint) => g.glyph_id === glyphId
+    const g = combinedProjection?.light_field?.find(
+      (gp: GlyphPoint) => gp.glyph_id === glyphId
     );
-    if (glyph?.narration?.text_to_speak) {
-      playGlyphNarration(glyph.narration.text_to_speak, {
-        voice: glyph.narration.voice,
-        language: glyph.narration.language,
+    if (g?.narration?.text_to_speak) {
+      playGlyphNarration(g.narration.text_to_speak, {
+        voice: g.narration.voice,
+        language: g.narration.language,
       });
     } else {
       playGlyphNarration(`Symbol ${symbol}`);
     }
-    if (glyph) setFocusedGlyph(glyph);
+    if (g) setFocusedGlyph(g);
   };
 
   const handleExport = () => {
@@ -334,8 +340,7 @@ export default function HolographicViewer({ containerId }: { containerId: string
   };
 
   const handleFrameSelect = (i: number) => {
-    if (!combinedProjection) return;
-    const g = combinedProjection.light_field[i] as GlyphPoint | undefined;
+    const g = combinedProjection?.light_field?.[i] as GlyphPoint | undefined;
     if (!g) return;
 
     if (g.narration?.text_to_speak) {
@@ -349,29 +354,32 @@ export default function HolographicViewer({ containerId }: { containerId: string
     setTrailHistory((prev) => [...prev, g]);
     setFocusedGlyph(g);
 
-    // caption/links for this frame
     const entLinks = entangledLinks.filter(
       (link) => link.source.glyph_id === g.glyph_id || link.target.glyph_id === g.glyph_id
     );
     setCurrentCaption(
       entLinks.length
-        ? `↔ Entangled: ${entLinks
-            .map((l) => `${l.source.symbol} ↔ ${l.target.symbol}`)
-            .join(", ")}`
+        ? `↔ Entangled: ${entLinks.map((l) => `${l.source.symbol} ↔ ${l.target.symbol}`).join(", ")}`
         : `Glyph: ${g.symbol}`
     );
   };
 
   const layeredGlyphs =
-    combinedProjection?.light_field.map((g: GlyphPoint, idx: number) => ({
+    (combinedProjection?.light_field ?? []).map((g: GlyphPoint, idx: number) => ({
       symbol: g.symbol,
       layer: idx % 3,
-    })) ?? [];
+    }));
 
   const glyphPositionMap: { [symbol: string]: THREE.Vector3 } = {};
-  combinedProjection?.light_field.forEach((g: GlyphPoint) => {
+  (combinedProjection?.light_field ?? []).forEach((g: GlyphPoint) => {
     glyphPositionMap[g.symbol] = new THREE.Vector3(g.position.x, g.position.y, g.position.z);
   });
+
+  // AvatarThoughtProjection expects ThoughtGlyph[] with an `id` field; adapt quickly.
+  const thoughtGlyphs = (activeGlyphs ?? []).map((g: any) => ({
+    id: g.id ?? g.glyph_id ?? g.symbol ?? String(Math.random()),
+    symbol: g.symbol ?? g.glyph ?? "?",
+  }));
 
   // If you still want a local avatarRef for other effects
   const avatarRef = useRef<THREE.Object3D | null>(null);
@@ -397,7 +405,7 @@ export default function HolographicViewer({ containerId }: { containerId: string
               </mesh>
             ))}
 
-            {combinedProjection?.light_field.map((glyph: GlyphPoint) => (
+            {(combinedProjection?.light_field ?? []).map((glyph: GlyphPoint) => (
               <AnimatedGlyphNode
                 key={glyph.glyph_id}
                 glyph={glyph}
@@ -424,177 +432,203 @@ export default function HolographicViewer({ containerId }: { containerId: string
           </>
         )}
 
-        {/* Avatar + memory overlays (both expect avatarRef) */}
-        <AvatarThoughtProjection
-          thoughts={activeGlyphs}
-          orbitRadius={2.8}
-          avatarPosition={[0, 0, 0]}
-          avatarRef={avatarRef}
-        />
+      {/* Avatar + memory overlays (both can use avatarRef; cast if component types are stricter) */}
+      {(AvatarThoughtProjection as any)({
+        thoughts: thoughtGlyphs,
+        orbitRadius: 2.8,
+        avatarPosition: [0, 0, 0],
+        avatarRef: avatarRef,
+      })}
 
-        <MemoryHaloRing
-          glyphs={[
-            { symbol: "🧠", weight: 1.0 },
-            { symbol: "↔", weight: 0.7 },
-            { symbol: "⬁", weight: 1.2 },
-          ]}
-          avatarRef={avatarRef}
-        />
-
-        <MemoryBridgeBeams glyphPositions={glyphPositionMap} />
-      </Canvas>
-
-      <HologramHUD
-        projectionId={combinedProjection?.projection_id}
-        renderedAt={combinedProjection?.rendered_at}
-        totalGlyphs={combinedProjection?.light_field.length ?? 0}
-        triggeredGlyphs={
-          (combinedProjection?.light_field ?? []).filter(
-            (g: GlyphPoint) => g.trigger_state !== "idle"
-          ).length
-        }
-        onReplayToggle={(v) => setReplayMode(v)}
-        onTraceOverlayToggle={(v) => setShowTrace(v)}
-        onExport={handleExport}
-        onLayoutToggle={() =>
-          setLayoutMode((m) => (m === "symbolic" ? "raw" : "symbolic"))
-        }
-        renderedGlyphs={combinedProjection?.light_field ?? []}
-        setCurrentGlyph={setFocusedGlyph}
-        currentCaption={currentCaption}
+      <MemoryHaloRing
+        glyphs={[
+          { symbol: "🧠", weight: 1.0 },
+          { symbol: "↔", weight: 0.7 },
+          { symbol: "⬁", weight: 1.2 },
+        ]}
+        avatarRef={avatarRef}
       />
 
-      {/* 🎥 Recording Controls */}
-      <div className="absolute top-4 left-4 flex gap-2 z-50">
+      <MemoryBridgeBeams glyphPositions={glyphPositionMap} containerId={containerId} />
+    </Canvas>
+
+    {/* HUD + overlays live in the same root container */}
+    <HologramHUD
+      projectionId={combinedProjection?.projection_id}
+      renderedAt={combinedProjection?.rendered_at}
+      totalGlyphs={combinedProjection?.light_field?.length ?? 0}
+      triggeredGlyphs={
+        (combinedProjection?.light_field ?? []).filter(
+          (g: GlyphPoint) => g.trigger_state !== "idle"
+        ).length
+      }
+      onReplayToggle={(v) => setReplayMode(v)}
+      onTraceOverlayToggle={(v) => setShowTrace(v)}
+      onExport={handleExport}
+      onLayoutToggle={() => setLayoutMode((m) => (m === "symbolic" ? "raw" : "symbolic"))}
+      renderedGlyphs={combinedProjection?.light_field ?? []}
+      setCurrentGlyph={setFocusedGlyph}
+      currentCaption={currentCaption}
+    />
+
+    {/* 🎥 Recording Controls */}
+    <div className="absolute top-4 left-4 flex gap-2 z-50">
+      <button
+        onClick={() =>
+          isRecording
+            ? stopRecording()
+            : canvasRef.current && startRecording(canvasRef.current)
+        }
+        className={`px-3 py-1 text-xs rounded shadow ${
+          isRecording ? "bg-red-500 hover:bg-red-600" : "bg-green-500 hover:bg-green-600"
+        }`}
+      >
+        {isRecording ? "⏹ Stop Recording" : "🎥 Start Recording"}
+      </button>
+      {downloadUrl && (
         <button
-          onClick={() =>
-            isRecording
-              ? stopRecording()
-              : canvasRef.current && startRecording(canvasRef.current)
-          }
-          className={`px-3 py-1 text-xs rounded shadow ${
-            isRecording ? "bg-red-500 hover:bg-red-600" : "bg-green-500 hover:bg-green-600"
-          }`}
+          onClick={() => downloadRecording()}
+          className="px-3 py-1 text-xs bg-blue-500 hover:bg-blue-600 rounded shadow"
         >
-          {isRecording ? "⏹ Stop Recording" : "🎥 Start Recording"}
+          💾 Save Video
         </button>
-        {downloadUrl && (
-          <button
-            onClick={() => downloadRecording()}
-            className="px-3 py-1 text-xs bg-blue-500 hover:bg-blue-600 rounded shadow"
-          >
-            💾 Save Video
-          </button>
-        )}
-      </div>
-
-      {/* 🔮 Prediction Fork Controls */}
-      {predictionForks.length > 0 && (
-        <div className="absolute bottom-36 left-1/2 -translate-x-1/2 flex gap-4 bg-black/70 px-4 py-2 rounded-lg shadow-lg z-50">
-          <button
-            onClick={() => {
-              predictionForks.forEach((f: { id: string }) =>
-                sendJsonMessage?.({ event: "prediction_accept", glyph_id: f.id })
-              );
-              setPredictionForks([]);
-            }}
-            className="px-3 py-1 bg-green-600 hover:bg-green-700 rounded text-white text-sm shadow"
-          >
-            ✅ Accept Forks
-          </button>
-          <button
-            onClick={() => setPredictionForks([])}
-            className="px-3 py-1 bg-red-600 hover:bg-red-700 rounded text-white text-sm shadow"
-          >
-            ❌ Reject Forks
-          </button>
-        </div>
       )}
-
-      {/* Caption bubble */}
-      {currentCaption && (
-        <div className="absolute bottom-24 left-1/2 -translate-x-1/2 bg-black/70 text-white px-4 py-2 rounded-lg shadow-lg text-sm">
-          {currentCaption}
-        </div>
-      )}
-
-      <GHXReplaySlider
-        projection={combinedProjection ?? null}
-        onFrameSelect={handleFrameSelect}
-        onPlayToggle={(v) => setReplayMode(v)}
-      />
-
-      <SoulLawHUD />
     </div>
-  );
-}
 
-/* ---------- AnimatedGlyphNode (unchanged API) ---------- */
-const AnimatedGlyphNode = forwardRef<THREE.Mesh, {
+    {/* 🔮 Prediction Fork Controls */}
+    {predictionForks.length > 0 && (
+      <div className="absolute bottom-36 left-1/2 -translate-x-1/2 flex gap-4 bg-black/70 px-4 py-2 rounded-lg shadow-lg z-50">
+        <button
+          onClick={() => {
+            predictionForks.forEach((f: { id: string }) =>
+              sendJsonMessage?.({ event: "prediction_accept", glyph_id: f.id })
+            );
+            setPredictionForks([]);
+          }}
+          className="px-3 py-1 bg-green-600 hover:bg-green-700 rounded text-white text-sm shadow"
+        >
+          ✅ Accept Forks
+        </button>
+        <button
+          onClick={() => setPredictionForks([])}
+          className="px-3 py-1 bg-red-600 hover:bg-red-700 rounded text-white text-sm shadow"
+        >
+          ❌ Reject Forks
+        </button>
+      </div>
+    )}
+
+  {/* Caption bubble */}
+  {currentCaption && (
+    <div className="absolute bottom-24 left-1/2 -translate-x-1/2 bg-black/70 text-white px-4 py-2 rounded-lg shadow-lg text-sm">
+      {currentCaption}
+    </div>
+  )}
+
+  {/* Replay slider: cast to satisfy its stricter prop type */}
+  <GHXReplaySlider
+    projection={(combinedProjection as unknown as GHXProjection) ?? null}
+    onFrameSelect={handleFrameSelect}
+    onPlayToggle={(v) => setReplayMode(v)}
+  />
+
+  <SoulLawHUD />
+</div>
+);
+}
+/* ------------------------------------------------------------------ */
+/* AnimatedGlyphNode                                                   */
+/* ------------------------------------------------------------------ */
+
+type AnimatedGlyphNodeProps = {
   glyph: GlyphPoint;
   layoutMode: "symbolic" | "raw";
   onClick: (glyphId: string, symbol: string) => void;
   onHover?: () => void;
-}>(({ glyph, layoutMode, onClick, onHover }, ref) => {
-  const meshRef = useRef<THREE.Mesh>(null);
-  const { camera } = useThree();
-  const baseColor = getSymbolColor(glyph.symbol);
-  const frequency = getPulseFrequency(glyph.symbol);
-  const isMutated = isMutatedGlyph(glyph.symbol);
+};
 
-  const getLayoutPosition = (): [number, number, number] => {
-    if (layoutMode === "symbolic") return [glyph.position.x, glyph.position.y, glyph.position.z];
-    const base = glyph.symbol.codePointAt(0) || 0;
-    return [
-      (base % 10) * 4 - 20,
-      (Math.floor(base / 10) % 10) * 3 - 10,
-      (Math.floor(base / 100) % 10) * 3 - 5,
-    ];
-  };
 
-  useFrame(({ clock }) => {
-    if (!meshRef.current) return;
-    const pulse = 0.5 + 0.5 * Math.sin(clock.elapsedTime * frequency);
-    const dirToGlyph = new THREE.Vector3()
-      .subVectors(meshRef.current.position, camera.position)
-      .normalize();
-    const gazeBoost = dirToGlyph.dot(camera.getWorldDirection(new THREE.Vector3()));
-    const focusFactor = Math.max(0, gazeBoost);
-    const mat = meshRef.current.material as THREE.MeshStandardMaterial;
-    const intensity = glyph.light_intensity * (1 + pulse + 0.8 * focusFactor);
-    mat.emissiveIntensity = isMutated ? intensity * 2.2 : intensity;
-  });
+type GHXProjection = {
+  projection_id?: string;
+  rendered_at?: string | number;
+  light_field: GlyphPoint[];
+};
 
-  return (
-    <mesh
-      position={getLayoutPosition()}
-      ref={(node) => {
-        meshRef.current = node ?? null;
-        if (typeof ref === "function") ref(node);
-        else if (ref) (ref as React.MutableRefObject<THREE.Mesh | null>).current = node ?? null;
-      }}
-      onClick={() => onClick(glyph.glyph_id, glyph.symbol)}
-      onPointerOver={() => onHover?.()}
-    >
-      <sphereGeometry args={[0.7, 32, 32]} />
-      <meshStandardMaterial
-        color={isMutated ? "#ff4444" : baseColor}
-        emissive={isMutated ? "#ff4444" : baseColor}
-        emissiveIntensity={glyph.light_intensity}
-      />
-      <Html distanceFactor={8}>
-        <div className="text-xs text-white bg-black/50 px-1 py-0.5 rounded">
-          {glyph.symbol}
-        </div>
-      </Html>
-    </mesh>
-  );
-});
+const AnimatedGlyphNode = forwardRef<THREE.Mesh, AnimatedGlyphNodeProps>(
+  (props, fwdRef) => {
+    const { glyph, layoutMode, onClick, onHover } = props;
+    const meshRef = useRef<THREE.Mesh | null>(null);
+    const { camera } = useThree();
+    const baseColor = getSymbolColor(glyph.symbol);
+    const frequency = getPulseFrequency(glyph.symbol);
+    const mutated = isMutatedGlyph(glyph.symbol);
+
+    const getLayoutPosition = (): [number, number, number] => {
+      if (layoutMode === "symbolic") {
+        return [glyph.position.x, glyph.position.y, glyph.position.z];
+      }
+      // simple deterministic scatter for "raw"
+      const base = glyph.symbol.codePointAt(0) ?? 0;
+      return [
+        (base % 10) * 4 - 20,
+        (Math.floor(base / 10) % 10) * 3 - 10,
+        (Math.floor(base / 100) % 10) * 3 - 5,
+      ];
+    };
+
+    // bridge local ref -> forwarded ref
+    const assignRef = (node: THREE.Mesh | null) => {
+      meshRef.current = node;
+      if (typeof fwdRef === "function") fwdRef(node);
+      else if (fwdRef) (fwdRef as React.MutableRefObject<THREE.Mesh | null>).current = node;
+    };
+
+    useFrame(({ clock }) => {
+      if (!meshRef.current) return;
+      const pulse = 0.5 + 0.5 * Math.sin(clock.elapsedTime * frequency);
+      const dirToGlyph = new THREE.Vector3()
+        .subVectors(meshRef.current.position, camera.position)
+        .normalize();
+      const gazeBoost = dirToGlyph.dot(camera.getWorldDirection(new THREE.Vector3()));
+      const focusFactor = Math.max(0, gazeBoost);
+
+      const mat = meshRef.current.material as THREE.MeshStandardMaterial;
+      const intensity = glyph.light_intensity * (1 + pulse + 0.8 * focusFactor);
+      mat.emissiveIntensity = mutated ? intensity * 2.2 : intensity;
+    });
+
+    return (
+      <mesh
+        position={getLayoutPosition()}
+        ref={assignRef}
+        onClick={() => onClick(glyph.glyph_id, glyph.symbol)}
+        onPointerOver={() => onHover?.()}
+      >
+        <sphereGeometry args={[0.7, 32, 32]} />
+        <meshStandardMaterial
+          color={mutated ? "#ff4444" : baseColor}
+          emissive={mutated ? "#ff4444" : baseColor}
+          emissiveIntensity={glyph.light_intensity}
+        />
+        <Html distanceFactor={8}>
+          <div className="text-xs text-white bg-black/50 px-1 py-0.5 rounded">
+            {glyph.symbol}
+          </div>
+        </Html>
+      </mesh>
+    );
+  }
+);
 AnimatedGlyphNode.displayName = "AnimatedGlyphNode";
+
+/* ------------------------------------------------------------------ */
+/* helpers                                                             */
+/* ------------------------------------------------------------------ */
 
 function isMutatedGlyph(symbol: string) {
   return symbol === "⬁";
 }
+
 function getSymbolColor(symbol: string) {
   switch (symbol) {
     case "⊕": return "#ffcc00";
@@ -606,7 +640,8 @@ function getSymbolColor(symbol: string) {
     default: return "#ffffff";
   }
 }
+
 function getPulseFrequency(symbol: string) {
-  const base = symbol.codePointAt(0) || 42;
+  const base = symbol.codePointAt(0) ?? 42;
   return 0.5 + (base % 5) * 0.2;
 }

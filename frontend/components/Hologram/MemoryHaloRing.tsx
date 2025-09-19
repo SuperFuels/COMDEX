@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
-import { Text } from "@react-three/drei";
+import { Html } from "@react-three/drei";
 
 interface MemoryHaloProps {
   glyphs: { symbol: string; weight?: number }[]; // glyph + memory density
@@ -49,19 +49,21 @@ export default function MemoryHaloRing({
         const opacity = 0.7 + 0.3 * Math.sin(pulseRef.current + i);
 
         return (
-          <Text
-            key={i}
-            position={pos}
-            fontSize={0.07 * intensity}
-            color={color}
-            anchorX="center"
-            anchorY="middle"
-            fillOpacity={opacity}
-            outlineWidth={0.003}
-            outlineColor="#000"
-          >
-            {g.symbol}
-          </Text>
+          <Html key={i} position={pos} center distanceFactor={16}>
+            <div
+              style={{
+                color,
+                fontSize: `${7 * intensity}px`,
+                lineHeight: 1,
+                fontWeight: 600,
+                textShadow: "0 0 6px rgba(0,0,0,0.6)",
+                opacity,
+                userSelect: "none",
+              }}
+            >
+              {g.symbol}
+            </div>
+          </Html>
         );
       })}
     </group>
@@ -70,10 +72,15 @@ export default function MemoryHaloRing({
 
 function getMemoryColor(symbol: string): string {
   switch (symbol) {
-    case "↔": return "#aa00ff";
-    case "⬁": return "#00ffff";
-    case "⧖": return "#ffaa00";
-    case "🧠": return "#ffffff";
-    default: return "#bbbbbb";
+    case "↔":
+      return "#aa00ff";
+    case "⬁":
+      return "#00ffff";
+    case "⧖":
+      return "#ffaa00";
+    case "🧠":
+      return "#ffffff";
+    default:
+      return "#bbbbbb";
   }
 }

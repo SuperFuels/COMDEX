@@ -4,7 +4,7 @@
 import * as React from "react";
 import { useMemo, useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import { getPanel, listPanels } from "./panels/panel_registry";
+import { getPanel, listPanels } from "@/pages/sci/panel_registry";
 
 // 🔌 ensure all panels self-register on load
 import "./panels/register_atomsheet";

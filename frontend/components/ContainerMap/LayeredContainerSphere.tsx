@@ -3,7 +3,7 @@
 import * as THREE from "three";
 import React, { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
-import { Text } from "@react-three/drei";
+import { Html } from "@react-three/drei";
 
 type GlyphLayer = {
   symbol: string;
@@ -37,9 +37,7 @@ export default function LayeredContainerSphere({
 
   useFrame((_, delta) => {
     timeRef.current += delta;
-    if (groupRef.current) {
-      groupRef.current.rotation.y += rotationSpeed;
-    }
+    if (groupRef.current) groupRef.current.rotation.y += rotationSpeed;
   });
 
   return (
@@ -55,20 +53,28 @@ export default function LayeredContainerSphere({
           const x = Math.cos(angle) * offset;
           const y = 0.15 * layer * Math.sin(angle * 2);
           const z = Math.sin(angle) * offset;
+          const color = getSymbolColor(glyph.symbol) || layerColors[layer];
 
           return (
-            <Text
-              key={`${layer}-${i}-${glyph.symbol}`}
-              position={[x, y, z]}
-              fontSize={0.08 + 0.02 * pulse}
-              color={getSymbolColor(glyph.symbol) || layerColors[layer]}
-              anchorX="center"
-              anchorY="middle"
-              outlineWidth={0.002}
-              outlineColor="black"
-            >
-              {glyph.symbol}
-            </Text>
+            <mesh key={`${layer}-${i}-${glyph.symbol}`} position={[x, y, z]}>
+              {/* little glowing node */}
+              <sphereGeometry args={[0.06 + 0.02 * pulse, 12, 12]} />
+              <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.8} />
+              {/* crisp label via Html (avoids drei <Text/> typings) */}
+              <Html distanceFactor={12}>
+                <div
+                  style={{
+                    fontSize: "10px",
+                    color,
+                    textShadow: "0 0 6px rgba(0,0,0,0.6)",
+                    userSelect: "none",
+                    lineHeight: 1,
+                  }}
+                >
+                  {glyph.symbol}
+                </div>
+              </Html>
+            </mesh>
           );
         });
       })}
@@ -78,12 +84,19 @@ export default function LayeredContainerSphere({
 
 function getSymbolColor(symbol: string): string | undefined {
   switch (symbol) {
-    case "⊕": return "#ffcc00";
-    case "↔": return "#aa00ff";
-    case "⧖": return "#00ffff";
-    case "🧠": return "#00ff66";
-    case "⬁": return "#ff6666";
-    case "→": return "#66ccff";
-    default: return undefined;
+    case "⊕":
+      return "#ffcc00";
+    case "↔":
+      return "#aa00ff";
+    case "⧖":
+      return "#00ffff";
+    case "🧠":
+      return "#00ff66";
+    case "⬁":
+      return "#ff6666";
+    case "→":
+      return "#66ccff";
+    default:
+      return undefined;
   }
 }

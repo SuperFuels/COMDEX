@@ -1,12 +1,10 @@
 // File: frontend/components/AION/WormholeRenderer.tsx
-
 import React, { useRef } from "react";
 import { Vector3, Quaternion } from "three";
 import { useFrame } from "@react-three/fiber";
-import { Cone, Cylinder, Sphere } from "@react-three/drei";
-import { Line2 } from 'three/examples/jsm/lines/Line2';
-import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial';
-import { LineGeometry } from 'three/examples/jsm/lines/LineGeometry';
+import { Line2 } from "three/examples/jsm/lines/Line2";
+import { LineMaterial } from "three/examples/jsm/lines/LineMaterial";
+import { LineGeometry } from "three/examples/jsm/lines/LineGeometry";
 import { createGlowMaterial } from "./WormholeEffectMaterial";
 import GlyphSprite from "./GlyphSprite";
 
@@ -33,9 +31,9 @@ export default function WormholeRenderer({
   glyph,
   pulseFlow = false,
 }: WormholeProps) {
-  const cylinderRef = useRef<any>();
-  const coneRef = useRef<any>();
-  const particleRef = useRef<any>();
+  const cylinderRef = useRef<any>(null);
+  const coneRef = useRef<any>(null);
+  const particleRef = useRef<any>(null);
 
   const start = new Vector3(...from);
   const end = new Vector3(...to);
@@ -44,7 +42,10 @@ export default function WormholeRenderer({
   const length = direction.length();
 
   const up = new Vector3(0, 1, 0);
-  const quaternion = new Quaternion().setFromUnitVectors(up, direction.clone().normalize());
+  const quaternion = new Quaternion().setFromUnitVectors(
+    up,
+    direction.clone().normalize()
+  );
 
   useFrame(({ clock }) => {
     const t = clock.getElapsedTime();
@@ -115,21 +116,26 @@ export default function WormholeRenderer({
 
       {/* Optional animated flow particle */}
       {pulseFlow && (
-        <Sphere args={[thickness * 1.2, 8, 8]} ref={particleRef}>
-          <meshStandardMaterial color={color} emissive={color} emissiveIntensity={2.2} />
-        </Sphere>
+        <mesh ref={particleRef}>
+          <sphereGeometry args={[thickness * 1.2, 8, 8]} />
+          <meshStandardMaterial
+            color={color}
+            emissive={color}
+            emissiveIntensity={2.2}
+          />
+        </mesh>
       )}
 
       {/* Optional arrowhead */}
       {arrow && (
-        <Cone
-          args={[thickness * 2, thickness * 4, 8]}
-          position={end}
-          quaternion={quaternion}
-          ref={coneRef}
-        >
-          <meshStandardMaterial color={color} emissive={color} emissiveIntensity={1.2} />
-        </Cone>
+        <mesh position={end} quaternion={quaternion} ref={coneRef}>
+          <coneGeometry args={[thickness * 2, thickness * 4, 8]} />
+          <meshStandardMaterial
+            color={color}
+            emissive={color}
+            emissiveIntensity={1.2}
+          />
+        </mesh>
       )}
 
       {/* Optional floating glyph */}

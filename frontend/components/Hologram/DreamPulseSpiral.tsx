@@ -1,6 +1,6 @@
-import React, { useEffect, useRef } from "react";
+import React, { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
-import { Text } from "@react-three/drei";
+import { Html } from "@react-three/drei";
 import * as THREE from "three";
 
 interface DreamPulseSpiralProps {
@@ -14,9 +14,9 @@ export default function DreamPulseSpiral({
   glyphs,
   spiralRadius = 2.0,
   spiralHeight = 4.0,
-  pulseSpeed = 1.0
+  pulseSpeed = 1.0,
 }: DreamPulseSpiralProps) {
-  const spiralGroup = useRef<THREE.Group>(null);
+  const spiralGroup = useRef<THREE.Group | null>(null);
   const pulseRef = useRef<number>(0);
 
   useFrame((_, delta) => {
@@ -38,19 +38,21 @@ export default function DreamPulseSpiral({
         const z = spiralRadius * Math.sin(angle);
         const pulse = 0.5 + 0.5 * Math.sin(pulseRef.current - i * 0.3);
         const color = getDreamColor(glyph, pulse);
+
         return (
-          <Text
-            key={i}
-            position={[x, height, z]}
-            fontSize={0.12}
-            color={color}
-            anchorX="center"
-            anchorY="middle"
-            outlineWidth={0.003}
-            outlineColor="#000000"
-          >
-            {glyph}
-          </Text>
+          <Html key={i} position={[x, height, z]} center distanceFactor={12}>
+            <div
+              style={{
+                fontSize: "12px",
+                color,
+                textShadow: "0 0 6px rgba(0,0,0,0.6)",
+                userSelect: "none",
+                lineHeight: 1,
+              }}
+            >
+              {glyph}
+            </div>
+          </Html>
         );
       })}
     </group>

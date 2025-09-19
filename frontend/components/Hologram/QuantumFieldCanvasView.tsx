@@ -26,6 +26,8 @@ import { Node } from "@/components/QuantumField/Node";
 import { LinkLine } from "@/components/QuantumField/LinkLine";
 import { ReplayBranchSelector } from "@/components/QuantumField/ReplayBranchSelector";
 
+type FiberInit = { camera: THREE.Camera };
+
 type ViewProps = {
   // props passed from parent
   qwaveBeams: React.ReactNode;
@@ -312,7 +314,9 @@ const QuantumFieldCanvasView: React.FC<ViewProps> = (p) => {
           <div className="w-1/2 h-full border-r border-slate-700">
             <Canvas
               camera={{ position: [0, 0, 10], fov: 50 }}
-              onCreated={({ camera }) => (p.cameraRef.current = camera as THREE.PerspectiveCamera)}
+              onCreated={(state: FiberInit) => {
+                p.cameraRef.current = state.camera as THREE.PerspectiveCamera;
+              }}
             >
               <ambientLight intensity={0.7} />
               <pointLight position={[10, 10, 10]} />
@@ -323,16 +327,16 @@ const QuantumFieldCanvasView: React.FC<ViewProps> = (p) => {
                 enableRotate
                 target={new THREE.Vector3(...p.observerPosition)}
               />
-              {p.showPredictedLayer && (
-                <PredictedLayerRendererAny nodes={[]} links={[]} />
-              )}
+              {p.showPredictedLayer && <PredictedLayerRendererAny nodes={[]} links={[]} />}
               <SceneCore />
             </Canvas>
           </div>
         ) : (
           <Canvas
             camera={{ position: [0, 0, 10], fov: 50 }}
-            onCreated={({ camera }) => (p.cameraRef.current = camera as THREE.PerspectiveCamera)}
+            onCreated={(state: FiberInit) => {
+              p.cameraRef.current = state.camera as THREE.PerspectiveCamera;
+            }}
           >
             <ambientLight intensity={0.7} />
             <pointLight position={[10, 10, 10]} />
@@ -344,9 +348,7 @@ const QuantumFieldCanvasView: React.FC<ViewProps> = (p) => {
               enableRotate
               target={new THREE.Vector3(...p.observerPosition)}
             />
-            {p.showPredictedLayer && (
-              <PredictedLayerRendererAny nodes={[]} links={[]} visible />
-            )}
+            {p.showPredictedLayer && <PredictedLayerRendererAny nodes={[]} links={[]} visible />}
             <SceneCore />
           </Canvas>
         )}

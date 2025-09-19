@@ -2,7 +2,6 @@
 
 import React, { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
-import type { ThreeElements } from "@react-three/fiber";
 
 interface TrailSegment {
   points: [number, number, number][];
