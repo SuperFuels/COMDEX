@@ -1,26 +1,34 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  darkMode: ['class'], // ✅ one 'class' is enough
+  darkMode: 'class',
+
+  // 👇 Scope Tailwind to your actual source files ONLY.
+  //   ⛔️ Do NOT include "./**/*" — it pulls in node_modules and tanks performance.
   content: [
-    // Frontend app (MOST IMPORTANT so tokens like border-border are generated)
-    "./frontend/**/*.{js,ts,jsx,tsx,mdx}",
+    // Frontend app
+    './frontend/pages/**/*.{js,ts,jsx,tsx,mdx}',
+    './frontend/components/**/*.{js,ts,jsx,tsx,mdx}',
+    './frontend/app/**/*.{js,ts,jsx,tsx,mdx}',
+    './frontend/styles/**/*.{css,js,ts,jsx,tsx,mdx}',
+    './frontend/lib/**/*.{js,ts,jsx,tsx,mdx}',
 
-    // If you also have these folders inside /frontend, keep them too:
-    "./pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./app/**/*.{js,ts,jsx,tsx,mdx}",
-    "./styles/**/*.{css,js,ts,jsx,tsx,mdx}",
+    // Optional: if you keep any shared UI code under frontend/src
+    './frontend/src/**/*.{js,ts,jsx,tsx,mdx}',
 
-    // (Optional) catch-all if you reference components outside /frontend
-    "./**/*.{js,ts,jsx,tsx,mdx}"
+    // ⛔️ Explicit exclusions to avoid accidental matches
+    '!**/node_modules/**',
+    '!**/.next/**',
+    '!**/dist/**',
+    '!**/build/**',
+    '!**/.turbo/**',
   ],
+
   theme: {
     extend: {
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
       },
       colors: {
-        // shadcn-style tokens (require CSS variables defined in globals.css)
         primary: {
           DEFAULT: 'hsl(var(--primary))',
           foreground: 'hsl(var(--primary-foreground))',
@@ -58,11 +66,10 @@ module.exports = {
           DEFAULT: 'hsl(var(--destructive))',
           foreground: 'hsl(var(--destructive-foreground))',
         },
-        // 👇 These three make utilities like `border-border`, `ring-ring`, etc.
+        // tokens used by shadcn/ui utilities like border-border, ring-ring
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
-
         chart: {
           '1': 'hsl(var(--chart-1))',
           '2': 'hsl(var(--chart-2))',
@@ -81,12 +88,9 @@ module.exports = {
       },
     },
   },
-  // Optional: keep a few classes no matter what (helps during refactors)
-  safelist: [
-    'border-border',
-    'bg-background',
-    'text-foreground',
-  ],
+
+  safelist: ['border-border', 'bg-background', 'text-foreground'],
+
   plugins: [
     require('@tailwindcss/forms'),
     require('@tailwindcss/typography'),

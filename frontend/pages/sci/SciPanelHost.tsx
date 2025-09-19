@@ -1,15 +1,15 @@
-// ===============================
-// 📁 frontend/pages/sci/SciPanelHost.tsx
-// ===============================
-import * as React from "react";
-import { useMemo, useState, useEffect } from "react";
-import { useRouter } from "next/router";
-import { getPanel, listPanels } from "@/pages/sci/panel_registry";
+// =====================================================
+//  frontend/pages/sci/SciPanelHost.tsx
+// =====================================================
+"use client";
 
-// 🔌 ensure all panels self-register on load (side-effect imports)
-import "./register_atomsheet";
-import "./register_sqs";
-import "./register_goals";
+import { useMemo, useState, useEffect } from "react";
+import { useRouter } from "next/router"; // pages/ router is correct here
+
+import { getPanel, listPanels } from '@/lib/sci/panel_registry';
+import '@/lib/sci/register_atomsheet';
+import '@/lib/sci/register_sqs';
+import '@/lib/sci/register_goals';
 
 type PanelType = "atomsheet" | "sqs" | "goals";
 

@@ -1,46 +1,23 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
+    "jsx": "preserve",
     "lib": ["dom", "dom.iterable", "esnext"],
     "module": "ESNext",
     "moduleResolution": "node",
-    "jsx": "react-jsx",
-
     "strict": true,
-    "forceConsistentCasingInFileNames": true,
     "noEmit": true,
-    "isolatedModules": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    "allowJs": true,
     "skipLibCheck": true,
-    "incremental": true,
-
     "baseUrl": ".",
     "paths": {
       "@/*": ["./*"],
-      "@/constants/*": ["./constants/*"],
-      "@/types": ["./types/index.ts"],
-      "@/types/*": ["./types/*"],
-      "@/lib/*": ["./lib/*"],
-      "@/lib/colors/*": ["./lib/colors/*"],
       "@/components/*": ["./components/*"],
-      "@/components/ui/*": ["./components/ui/*"],
+      "@/pages/*": ["./pages/*"],
       "@/hooks/*": ["./hooks/*"],
-      "@/utils/*": ["./utils/*"],
-      "@/styles/*": ["./styles/*"],
-      "@/collab/*": ["./collab/*"],
-      "@modules/*": ["../backend/modules/*"],
-      "@types/qfc": ["../types/qfc.ts"],
-      "@types/*": ["../types/*"]
+      "@/lib/*": ["./lib/*"]
     }
   },
-  "include": [
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    "types/**/*.d.ts",
-    "y-websocket-utils.d.ts"
-  ],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules"]
 }

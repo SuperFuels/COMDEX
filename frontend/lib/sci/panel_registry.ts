@@ -2,6 +2,7 @@ import * as React from "react";
 
 export type PanelTypeId = "atomsheet" | "sqs" | "goals";
 
+
 export type PanelRegistration = {
   id: PanelTypeId;
   title: string;

@@ -1,7 +1,7 @@
 // ===============================
 // 📁 frontend/pages/sci/panels/register_goals.ts
 // ===============================
-import { registerPanel } from "pages/sci/panel_registry";
+import { registerPanel } from "@/lib/sci/panel_registry";
 import SciGoalPanel from "@/components/SQS/SciGoalPanel";
 
 registerPanel({
