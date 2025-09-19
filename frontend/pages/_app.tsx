@@ -1,12 +1,16 @@
 // frontend/pages/_app.tsx
 import type { AppProps } from 'next/app'
+import { Inter } from 'next/font/google'
 
-// Side-effect imports first:
-import '@/lib/api'             // axios baseURL, interceptors, etc. (must be SSR-safe)
-import '../styles/globals.css';  // tailwind + CSS variables
+// Side-effect imports (must be before any component code)
+import '@/lib/api'            // axios baseURL & interceptors (SSR-safe)
+import '@/styles/globals.css' // tailwind + CSS variables
 
 import { useEffect } from 'react'
 import Navbar from '@/components/Navbar'
+
+// Load Inter and attach its class to the app root
+const inter = Inter({ subsets: ['latin'], display: 'swap' })
 
 export default function MyApp({ Component, pageProps }: AppProps) {
   useEffect(() => {
@@ -20,12 +24,11 @@ export default function MyApp({ Component, pageProps }: AppProps) {
   }, [])
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      {/* If Navbar is sticky or fixed with a known height (e.g. h-14), 
-         give main a matching top padding so content isn't hidden. */}
+    <div className={`${inter.className} min-h-screen bg-background text-foreground`}>
+      {/* Sticky navbar at the top */}
       <Navbar />
 
-      {/* Make page area scrollable and not collapsed by flex parents */}
+      {/* Page content */}
       <main className="min-h-0 overflow-auto">
         <Component {...pageProps} />
       </main>
