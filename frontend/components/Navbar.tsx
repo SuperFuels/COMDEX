@@ -20,6 +20,7 @@ export default function Navbar() {
   const wrapperRef = useRef<HTMLDivElement>(null)
 
   const handleConnect = useCallback(async () => {
+    if (typeof window === 'undefined') return
     localStorage.removeItem('manualDisconnect')
     try {
       const { address, role: newRole } = await signInWithEthereum()
@@ -27,11 +28,12 @@ export default function Navbar() {
       setRole(newRole as UserRole)
     } catch (err: any) {
       console.error('SIWE login failed', err)
-      if (err.response?.status === 404) router.push('/register')
+      if (err?.response?.status === 404) router.push('/register')
     }
   }, [router])
 
   const handleDisconnect = useCallback(() => {
+    if (typeof window === 'undefined') return
     localStorage.setItem('manualDisconnect', 'true')
     logout()
     setAccount(null)
@@ -40,7 +42,10 @@ export default function Navbar() {
     router.push('/')
   }, [router])
 
+  // bootstrap auth + wallet
   useEffect(() => {
+    if (typeof window === 'undefined') return
+
     const token = localStorage.getItem('token')
     if (token) {
       api.defaults.headers.common.Authorization = `Bearer ${token}`
@@ -58,7 +63,8 @@ export default function Navbar() {
 
     const manuallyDisconnected = localStorage.getItem('manualDisconnect') === 'true'
     if (!manuallyDisconnected) {
-      eth.request({ method: 'eth_accounts' })
+      eth
+        .request({ method: 'eth_accounts' })
         .then((accounts: string[]) => accounts[0] && setAccount(accounts[0]))
         .catch(console.error)
     }
@@ -71,6 +77,7 @@ export default function Navbar() {
     return () => eth.removeListener('accountsChanged', onAccountsChanged)
   }, [handleDisconnect])
 
+  // close wallet menu on outside click
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (dropdownOpen && wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
@@ -98,16 +105,16 @@ export default function Navbar() {
       {/* Sidebar toggle */}
       <button
         onClick={() => setSidebarOpen(true)}
-        className="fixed top-4 left-4 p-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 z-50"
+        className="fixed top-4 left-4 z-50 rounded-lg border border-border bg-background px-2 py-2"
         aria-label="Open menu"
       >
         <Image src="/G.svg" alt="Menu" width={24} height={24} />
       </button>
 
-      <header className="sticky top-0 z-40 bg-background border-b border-border">
-        <div className="flex items-center justify-between h-16 px-4 gap-4">
+      <header className="sticky top-0 z-40 border-b border-border bg-background">
+        <div className="flex h-16 items-center justify-between gap-4 px-4">
           {/* Logo */}
-          <div className="flex items-center ml-12">
+          <div className="ml-12 flex items-center">
             <Link href="/" className="logo-link flex items-center">
               <Image
                 src="/Stickeyai.svg"
@@ -120,55 +127,56 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* Swap strip (center) */}
-          <div className="flex-1 flex justify-center">
+          {/* Swap strip */}
+          <div className="flex flex-1 justify-center">
             <div className="flex items-center gap-2">
               <input
                 type="number"
+                inputMode="decimal"
                 value={amountIn}
                 onChange={e => setAmountIn(e.target.value)}
                 placeholder="0"
-                className="w-24 sm:w-28 py-1 px-2 border border-gray-300 dark:border-gray-600 rounded-lg text-center text-sm bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-24 sm:w-28 rounded-lg border border-border bg-background px-2 py-1 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring/30"
               />
               <button
                 type="button"
-                className="flex items-center border border-gray-300 dark:border-gray-600 rounded-lg py-1 px-2 bg-white dark:bg-gray-800 text-sm hover:bg-gray-50 dark:hover:bg-gray-700"
+                className="flex items-center rounded-lg border border-border bg-background px-2 py-1 text-sm hover:bg-muted/50"
               >
                 <Image src="/tokens/usdt.svg" alt="USDT" width={16} height={16} />
                 <span className="ml-1">USDT</span>
               </button>
-              <span className="text-lg text-gray-400 select-none">→</span>
+              <span className="select-none text-lg text-muted-foreground">→</span>
               <input
                 type="number"
+                inputMode="decimal"
                 value={amountOut}
                 onChange={e => setAmountOut(e.target.value)}
                 placeholder="0"
-                className="w-24 sm:w-28 py-1 px-2 border border-gray-300 dark:border-gray-600 rounded-lg text-center text-sm bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-24 sm:w-28 rounded-lg border border-border bg-background px-2 py-1 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring/30"
               />
               <button
                 type="button"
-                className="flex items-center border border-gray-300 dark:border-gray-600 rounded-lg py-1 px-2 bg-white dark:bg-gray-800 text-sm hover:bg-gray-50 dark:hover:bg-gray-700"
+                className="flex items-center rounded-lg border border-border bg-background px-2 py-1 text-sm hover:bg-muted/50"
               >
                 <Image src="/tokens/glu.svg" alt="GLU" width={16} height={16} />
                 <span className="ml-1">$GLU</span>
               </button>
               <button
                 onClick={() => router.push('/swap')}
-                className="py-1 px-3 border border-black rounded-lg bg-transparent text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
+                className="rounded-lg border border-border bg-transparent px-3 py-1 text-sm text-foreground hover:bg-muted/50"
               >
                 Swap
               </button>
             </div>
           </div>
 
-          {/* Right: Dark toggle + Connect */}
+          {/* Right: dark toggle + wallet */}
           <div className="flex items-center gap-3">
             <DarkModeToggle />
-
             {!account ? (
               <button
                 onClick={handleConnect}
-                className="py-1 px-3 border border-black rounded-lg bg-transparent text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
+                className="rounded-lg border border-border bg-transparent px-3 py-1 text-sm text-foreground hover:bg-muted/50"
               >
                 Connect Wallet
               </button>
@@ -176,15 +184,15 @@ export default function Navbar() {
               <div ref={wrapperRef} className="relative">
                 <button
                   onClick={() => setDropdownOpen(o => !o)}
-                  className="py-1 px-3 border border-black rounded-lg bg-transparent text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
+                  className="rounded-lg border border-border bg-transparent px-3 py-1 text-sm text-foreground hover:bg-muted/50"
                 >
                   {shortAddr}
                 </button>
                 {dropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 border border-border rounded-lg shadow-lg z-50">
+                  <div className="absolute right-0 mt-2 w-40 rounded-lg border border-border bg-background shadow-lg">
                     <button
                       onClick={handleDisconnect}
-                      className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
+                      className="w-full px-4 py-2 text-left text-sm hover:bg-muted/50"
                     >
                       Logout
                     </button>
