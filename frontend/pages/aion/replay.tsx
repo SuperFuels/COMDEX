@@ -8,7 +8,14 @@ import { Card, CardContent } from '@/components/ui/card';
 import useWebSocket from '@/hooks/useWebSocket';
 
 // Dynamically import 3D graph
-const ForceGraph3D = dynamic(() => import('react-force-graph-3d'), { ssr: false });
+type FG3DComponent = React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<any> & React.RefAttributes<any>
+>;
+const fgRef = React.useRef<any>(null);
+const ForceGraph3D = dynamic(
+  () => import('react-force-graph-3d'),
+  { ssr: false, loading: () => <div style={{ padding: 12, color: '#aaa' }}>Loading 3D…</div> }
+) as unknown as FG3DComponent;
 
 // @ts-ignore
 import * as THREE from 'three';
