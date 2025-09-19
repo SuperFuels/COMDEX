@@ -22,12 +22,50 @@ Renders a living 3D knowledge graph with glowing entangled glyph zones, anchor l
 ✅ Ready for Recursive Self-Optimization Loops
 */
 
+'use client';
+
 import React, { useState, useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
 import * as THREE from "three";
 import useWebSocket from "../../hooks/useWebSocket";
 
-const ForceGraph3D = dynamic(() => import("react-force-graph-3d"), { ssr: false });
+// ----- Runtime-safe dynamic load with fallback -----
+// Do NOT import 'react-force-graph-3d' at the top-level; it breaks builds
+// when the package isn't installed. We attempt to require it at runtime on
+// the client; if it's missing we render a lightweight fallback.
+const FallbackGraph: React.FC<any> = ({ graphData }) => {
+  const nodes = graphData?.nodes ?? [];
+  const links = graphData?.links ?? [];
+  return (
+    <div className="p-4 border border-amber-500/30 rounded bg-black/50 text-amber-300 text-sm h-full">
+      <div className="font-semibold mb-1">3D Knowledge Map unavailable</div>
+      <p>
+        The <code>react-force-graph-3d</code> package isn’t present. Showing a
+        minimal placeholder so the app can build and run.
+      </p>
+      <div className="mt-3 opacity-80">
+        Nodes: {nodes.length} · Links: {links.length}
+      </div>
+    </div>
+  );
+};
+
+const ForceGraph3D = dynamic<any>(
+  async () => {
+    if (typeof window === "undefined") return () => null;
+    try {
+      // Avoid static analysis so the module doesn’t need to exist at build time
+      const req = (eval as any)("require");
+      const mod = req("react-force-graph-3d");
+      return mod.default || mod;
+    } catch {
+      return FallbackGraph;
+    }
+  },
+  { ssr: false }
+);
+
+// --------------------------------------------------
 
 interface NodeData {
   id: string;
@@ -42,7 +80,7 @@ interface NodeData {
     type: string;
     coord: { x: number; y: number; z: number };
   };
-  tags?: string[]; // ✅ NEW: tags for filtering
+  tags?: string[]; // ✅ tags for filtering
 }
 
 interface LinkData {
@@ -55,8 +93,8 @@ const KnowledgeBrainMap: React.FC = () => {
     nodes: [],
     links: [],
   });
-  const [availableTags, setAvailableTags] = useState<string[]>([]); // ✅ Available tags
-  const [selectedTags, setSelectedTags] = useState<string[]>([]); // ✅ User-selected tags
+  const [availableTags, setAvailableTags] = useState<string[]>([]);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
   const fgRef = useRef<any>();
 
@@ -182,6 +220,11 @@ const KnowledgeBrainMap: React.FC = () => {
     }));
   };
 
+  const passesTagFilter = (node: NodeData) => {
+    if (selectedTags.length === 0) return true;
+    return node.tags && node.tags.some((tag) => selectedTags.includes(tag));
+  };
+
   const getNodeColor = (node: NodeData) => {
     if (!passesTagFilter(node)) return "gray"; // dim if filtered out
     if (node.ripple) return "cyan";
@@ -189,11 +232,6 @@ const KnowledgeBrainMap: React.FC = () => {
     if (node.status === "success") return "limegreen";
     if (node.status === "collapse") return "deepskyblue";
     return "white";
-  };
-
-  const passesTagFilter = (node: NodeData) => {
-    if (selectedTags.length === 0) return true;
-    return node.tags && node.tags.some((tag) => selectedTags.includes(tag));
   };
 
   const getGlowIntensity = (node: NodeData) => {
@@ -224,7 +262,7 @@ const KnowledgeBrainMap: React.FC = () => {
         ))}
       </div>
 
-      {/* 3D Knowledge Graph */}
+      {/* 3D Knowledge Graph (or fallback if the lib is missing) */}
       <div style={{ flex: 1 }}>
         <ForceGraph3D
           ref={fgRef}
