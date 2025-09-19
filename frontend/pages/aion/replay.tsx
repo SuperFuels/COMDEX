@@ -1,4 +1,4 @@
-// frontend/pages/aion/replay.tsx
+'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
@@ -6,21 +6,19 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import useWebSocket from '@/hooks/useWebSocket';
+import * as THREE from 'three';
 
-// Dynamically import 3D graph
+/** Allow ref on the dynamically imported ForceGraph3D component */
 type FG3DComponent = React.ForwardRefExoticComponent<
   React.PropsWithoutRef<any> & React.RefAttributes<any>
 >;
-const fgRef = React.useRef<any>(null);
+
 const ForceGraph3D = dynamic(
   () => import('react-force-graph-3d'),
   { ssr: false, loading: () => <div style={{ padding: 12, color: '#aaa' }}>Loading 3D…</div> }
 ) as unknown as FG3DComponent;
 
-// @ts-ignore
-import * as THREE from 'three';
-
-interface Node {
+interface GNode {
   id: string;
   label: string;
   glyph: string;
@@ -28,14 +26,14 @@ interface Node {
   entangled?: string[];
 }
 
-interface Link {
+interface GLink {
   source: string;
   target: string;
 }
 
 interface GraphData {
-  nodes: Node[];
-  links: Link[];
+  nodes: GNode[];
+  links: GLink[];
 }
 
 export default function ReplayEntanglementPage() {
@@ -44,7 +42,7 @@ export default function ReplayEntanglementPage() {
   const [mode, setMode] = useState<'replay' | 'live'>('replay');
   const [step, setStep] = useState(0);
   const allGlyphsRef = useRef<any[]>([]);
-  const fgRef = useRef<any>();
+  const fgRef = useRef<any>(null);
 
   // 🛰️ WebSocket Live + Replay Mode Listener
   useWebSocket(
@@ -79,8 +77,10 @@ export default function ReplayEntanglementPage() {
         const { glyphs, links, tick_range } = data.payload;
         allGlyphsRef.current = glyphs;
         setGraphData({ nodes: glyphs, links });
-        console.log(`🎞️ Replay tick range: ${tick_range.start} → ${tick_range.end}`);
-        setStep(glyphs.length); // Jump to final replay state
+        // Jump to final replay state
+        setStep(glyphs.length);
+        // Optional: console.log for visibility
+        console.log(`🎞️ Replay tick range: ${tick_range?.start} → ${tick_range?.end}`);
       }
     },
     ['glyph_execution', 'glyph_replay']
@@ -94,6 +94,9 @@ export default function ReplayEntanglementPage() {
       .then((data) => {
         allGlyphsRef.current = data.glyphs;
         setStep(1);
+      })
+      .catch(() => {
+        // no-op if example file is missing
       });
   }, [mode]);
 
@@ -101,14 +104,16 @@ export default function ReplayEntanglementPage() {
   useEffect(() => {
     if (mode !== 'replay' || step <= 0) return;
     const glyphs = allGlyphsRef.current.slice(0, step);
-    const nodes = glyphs.map((g: any) => ({
+
+    const nodes: GNode[] = glyphs.map((g: any) => ({
       id: g.id,
       label: g.label,
       glyph: g.glyph,
       tick: g.tick,
       entangled: g.entangled || [],
     }));
-    const links: Link[] = [];
+
+    const links: GLink[] = [];
     glyphs.forEach((g: any) => {
       if (g.entangled) {
         g.entangled.forEach((targetId: string) => {
@@ -116,24 +121,28 @@ export default function ReplayEntanglementPage() {
         });
       }
     });
+
     setGraphData({ nodes, links });
   }, [step, mode]);
 
   // 🔍 Glyph filter
-  const filtered = filter
-    ? {
-        nodes: graphData.nodes.filter((n) => n.glyph.toLowerCase().includes(filter.toLowerCase())),
-        links: graphData.links.filter(
-          (l) =>
-            graphData.nodes.find(
-              (n) => n.id === l.source && n.glyph.toLowerCase().includes(filter.toLowerCase())
-            ) ||
-            graphData.nodes.find(
-              (n) => n.id === l.target && n.glyph.toLowerCase().includes(filter.toLowerCase())
-            )
-        ),
-      }
-    : graphData;
+  const filtered: GraphData =
+    filter.trim().length > 0
+      ? {
+          nodes: graphData.nodes.filter((n) =>
+            n.glyph.toLowerCase().includes(filter.toLowerCase())
+          ),
+          links: graphData.links.filter(
+            (l) =>
+              graphData.nodes.find(
+                (n) => n.id === l.source && n.glyph.toLowerCase().includes(filter.toLowerCase())
+              ) ||
+              graphData.nodes.find(
+                (n) => n.id === l.target && n.glyph.toLowerCase().includes(filter.toLowerCase())
+              )
+          ),
+        }
+      : graphData;
 
   return (
     <Card className="w-full h-[90vh] bg-black text-white mt-4">
@@ -148,7 +157,7 @@ export default function ReplayEntanglementPage() {
               className="bg-gray-900 border-gray-700 text-white text-sm"
             />
             <Button
-              onClick={() => fgRef.current?.zoomToFit(400)}
+              onClick={() => fgRef.current?.zoomToFit?.(400)}
               className="bg-purple-700 hover:bg-purple-600 text-xs px-3 py-1"
             >
               🎯 Fit View
@@ -169,23 +178,26 @@ export default function ReplayEntanglementPage() {
             )}
           </div>
         </div>
+
         <ForceGraph3D
           ref={fgRef}
-          graphData={filtered}
+          graphData={filtered as any}
           backgroundColor="#000000"
-          nodeLabel={(node: any) => `${node.label} (${node.glyph}) • Tick: ${node.tick || '-'}`}
+          nodeLabel={(node: any) => `${node.label} (${node.glyph}) • Tick: ${node.tick ?? '-'}`}
           nodeAutoColorBy="glyph"
           linkColor={() => 'rgba(200, 200, 255, 0.6)'}
-          nodeThreeObjectExtend={true}
+          nodeThreeObjectExtend
           nodeThreeObject={(node: any) => {
             const spriteCanvas = document.createElement('canvas');
             spriteCanvas.width = 256;
             spriteCanvas.height = 64;
+
             const ctx = spriteCanvas.getContext('2d')!;
             ctx.font = '28px Orbitron';
             ctx.fillStyle = 'cyan';
             ctx.textAlign = 'center';
             ctx.fillText(node.glyph, 128, 40);
+
             const texture = new THREE.CanvasTexture(spriteCanvas);
             const spriteMaterial = new THREE.SpriteMaterial({ map: texture, transparent: true });
             const sprite = new THREE.Sprite(spriteMaterial);
