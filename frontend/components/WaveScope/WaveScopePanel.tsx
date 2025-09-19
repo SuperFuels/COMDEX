@@ -24,20 +24,32 @@ export function WaveScopePanel({ containerId }: { containerId: string }) {
   const collapseSeriesRef = useRef<ISeriesApi<'Line'> | null>(null);
   const decoSeriesRef = useRef<ISeriesApi<'Line'> | null>(null);
 
+  // Helper that works across lightweight-charts versions (v3/v4/v5)
+  function addLineSeriesCompat(
+    chart: IChartApi,
+    opts: LineSeriesPartialOptions
+  ): ISeriesApi<'Line'> {
+    const c = chart as unknown as Record<string, any>;
+    if (typeof c.addLineSeries === 'function') {
+      return c.addLineSeries(opts) as ISeriesApi<'Line'>;
+    }
+    if (typeof c.addSeries === 'function') {
+      // v5 unified API
+      return c.addSeries({ type: 'Line', ...opts }) as ISeriesApi<'Line'>;
+    }
+    // Last-resort cast to keep TS happy even if types are mismatched
+    return (c as any).addBarSeries
+      ? (c as any).addLineSeries?.(opts) ?? (c as any).addSeries?.({ type: 'Line', ...opts })
+      : ({} as ISeriesApi<'Line'>);
+  }
+
   useEffect(() => {
     if (!containerRef.current) return;
 
     const chart = createChart(containerRef.current, {
-      layout: {
-        background: { color: 'transparent' },
-        textColor: '#ffffff',
-      },
+      layout: { background: { color: 'transparent' }, textColor: '#ffffff' },
       rightPriceScale: { borderVisible: false },
-      timeScale: {
-        borderVisible: false,
-        timeVisible: true,
-        secondsVisible: true,
-      },
+      timeScale: { borderVisible: false, timeVisible: true, secondsVisible: true },
       grid: {
         vertLines: { color: 'rgba(255,255,255,0.06)' },
         horzLines: { color: 'rgba(255,255,255,0.06)' },
@@ -54,7 +66,6 @@ export function WaveScopePanel({ containerId }: { containerId: string }) {
       priceLineVisible: false,
       lastValueVisible: false,
     };
-
     const decoOptions: LineSeriesPartialOptions = {
       color: '#ff6363',
       lineWidth: 2,
@@ -62,14 +73,8 @@ export function WaveScopePanel({ containerId }: { containerId: string }) {
       lastValueVisible: false,
     };
 
-    // ✅ lightweight-charts unified API (no addLineSeries on IChartApi)
-    const collapseSeries = chart.addSeries(
-      { type: 'Line', ...collapseOptions } as any
-    ) as ISeriesApi<'Line'>;
-
-    const decoSeries = chart.addSeries(
-      { type: 'Line', ...decoOptions } as any
-    ) as ISeriesApi<'Line'>;
+    const collapseSeries = addLineSeriesCompat(chart, collapseOptions);
+    const decoSeries = addLineSeriesCompat(chart, decoOptions);
 
     chartRef.current = chart;
     collapseSeriesRef.current = collapseSeries;
@@ -81,7 +86,6 @@ export function WaveScopePanel({ containerId }: { containerId: string }) {
       chart.applyOptions({ width: w, height: h });
       chart.timeScale().fitContent();
     });
-
     ro.observe(containerRef.current);
 
     return () => {
@@ -97,17 +101,15 @@ export function WaveScopePanel({ containerId }: { containerId: string }) {
     if (!chartRef.current || !collapseSeriesRef.current || !decoSeriesRef.current) return;
     if (!traceData || traceData.length === 0) return;
 
-    // Convert number or ISO string to lightweight-charts Time
     const toTime = (t: number | string): Time =>
       typeof t === 'number'
-        ? (t as unknown as Time) // UTCTimestamp
-        : (Math.floor(new Date(t).getTime() / 1000) as unknown as Time); // seconds -> UTCTimestamp
+        ? (t as unknown as Time)
+        : (Math.floor(new Date(t).getTime() / 1000) as unknown as Time);
 
     const collapse: LineData[] = traceData.map((d: TracePoint) => ({
       time: toTime(d.timestamp),
       value: d.collapse,
     }));
-
     const deco: LineData[] = traceData.map((d: TracePoint) => ({
       time: toTime(d.timestamp),
       value: d.decoherence,
@@ -118,13 +120,9 @@ export function WaveScopePanel({ containerId }: { containerId: string }) {
     chartRef.current.timeScale().fitContent();
   }, [traceData]);
 
-  if (isLoading) {
-    return <div className="p-4 text-sm text-blue-300">📡 Loading WaveScope...</div>;
-  }
-
-  if (!traceData || traceData.length === 0) {
+  if (isLoading) return <div className="p-4 text-sm text-blue-300">📡 Loading WaveScope...</div>;
+  if (!traceData || traceData.length === 0)
     return <div className="p-4 text-sm text-yellow-300">⚠️ No trace data found.</div>;
-  }
 
   return (
     <div className="bg-black/70 text-white p-4 rounded-xl shadow-xl border border-blue-400/30">
@@ -142,7 +140,6 @@ export function WaveScopePanel({ containerId }: { containerId: string }) {
         </div>
       </div>
 
-      {/* Chart container */}
       <div ref={containerRef} className="w-full" style={{ height: 280 }} />
     </div>
   );
