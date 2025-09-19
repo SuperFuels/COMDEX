@@ -16,9 +16,6 @@
     "skipLibCheck": true,
     "incremental": true,
 
-    /* ⬇️ Remove explicit types so next-env.d.ts can provide Next/React types */
-    /* "types": ["react", "react-dom", "node"], */
-
     "baseUrl": ".",
     "paths": {
       "@/*": ["./*"],
@@ -42,6 +39,7 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
+    "types/**/*.d.ts",
     "y-websocket-utils.d.ts"
   ],
   "exclude": ["node_modules"]
