@@ -9,10 +9,9 @@ to enable LightCone-style temporal analysis across cells.
 
 from typing import List, Dict, Optional
 from backend.modules.codex.codex_executor import CodexExecutor
-from backend.modules.symbolic.symbolic_trace_utils import trace_forward, trace_backward
 from backend.modules.symbolic.symbolic_context_utils import build_context_from_cell
 from backend.modules.symbolic_spreadsheet.models.glyph_cell import GlyphCell
-from backend.modules.codex.qfc_websocket_bridge import broadcast_qfc_beams
+from backend.modules.visualization.qfc_websocket_bridge import broadcast_qfc_beams
 
 codex_executor = CodexExecutor()
 

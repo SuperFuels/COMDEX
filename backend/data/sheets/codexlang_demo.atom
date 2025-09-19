@@ -1,0 +1,22 @@
+{
+  "id": "codex-demo",
+  "title": "CodexLang Demo",
+  "dims": [2, 1, 1, 1],
+  "meta": {},
+  "cells": [
+    {
+      "id": "C1",
+      "logic": "sin(pi/2) + 1",
+      "logic_type": "codexlang",
+      "position": [0, 0, 0, 0],
+      "emotion": "curious"
+    },
+    {
+      "id": "C2",
+      "logic": "sqrt(16) * 2",
+      "logic_type": "codexlang",
+      "position": [1, 0, 0, 0],
+      "emotion": "inspired"
+    }
+  ]
+}

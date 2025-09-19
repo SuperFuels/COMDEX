@@ -1,20 +1,56 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.local/atom_sheet.schema.json",
   "title": "AtomSheet",
   "type": "object",
+  "description": "Top-level container for an AtomSheet; references GlyphCell schema for each cell.",
   "required": ["cells"],
   "properties": {
+    "id": {
+      "type": "string",
+      "description": "Optional sheet ID; engine will generate one if absent"
+    },
+    "title": {
+      "type": "string",
+      "description": "Human-readable sheet title"
+    },
+    "dims": {
+      "type": "array",
+      "items": { "type": "integer" },
+      "minItems": 2,
+      "maxItems": 4,
+      "description": "Optional grid dimensions [maxX, maxY, (maxZ), (maxT)]"
+    },
+    "meta": {
+      "type": "object",
+      "description": "Preferred top-level metadata used by the engine"
+    },
     "metadata": {
       "type": "object",
-      "description": "Optional metadata for the AtomSheet"
+      "description": "Legacy/alternate metadata (accepted for compatibility)"
     },
     "cells": {
       "type": "array",
-      "items": {
-        "$ref": "glyph_cell_schema.json"
-      },
-      "description": "List of GlyphCells comprising this AtomSheet"
+      "description": "List of GlyphCells comprising this AtomSheet",
+      "items": { "$ref": "./glyph_cell_schema.json#" }
     }
   },
-  "additionalProperties": false
+  "additionalProperties": false,
+  "examples": [
+    {
+      "id": "sheet_001",
+      "title": "Example AtomSheet",
+      "dims": [4, 3, 1, 1],
+      "meta": { "author": "system" },
+      "cells": [
+        {
+          "id": "A1",
+          "logic": "x + 2",
+          "position": [0, 0, 0, 0],
+          "emotion": "inspired",
+          "logic_type": "codexlang"
+        }
+      ]
+    }
+  ]
 }

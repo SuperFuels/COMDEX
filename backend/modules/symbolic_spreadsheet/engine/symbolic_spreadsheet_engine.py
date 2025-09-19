@@ -2,8 +2,8 @@ import json
 import os
 import re
 import difflib
-from typing import List, Dict, Optional
 from jsonschema import validate, ValidationError
+from typing import Any, Dict, List, Optional, Tuple, Iterable, Union
 
 from backend.modules.patterns.pattern_registry_loader import load_pattern_registry
 from backend.modules.symbolic_spreadsheet.models.glyph_cell import GlyphCell
@@ -480,6 +480,78 @@ def glyph_match(pattern: List[Dict[str, str]], target: List[Dict[str, str]]) -> 
         if "value" in p and "value" in t and p["value"] != t["value"]:
             return False
     return True
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Minimal shim class expected by API routes/tests
+# Provides: SymbolicSpreadsheet.from_dict(...), .execute_sheet(...)
+# Returns executed List[GlyphCell] so callers can iterate and cell.to_dict()
+# ─────────────────────────────────────────────────────────────────────────────
+class SymbolicSpreadsheet:
+    def __init__(self, cells: List[GlyphCell], metadata: Optional[Dict] = None):
+        self.cells: List[GlyphCell] = cells
+        # accept both "metadata" and legacy "meta"
+        self.metadata: Dict[str, Any] = metadata or {}
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "SymbolicSpreadsheet":
+        # Be permissive: validate if schema available, but don't hard-fail here
+        try:
+            # Prefer ATOM schema; falls back to SQS if present
+            if "cells" in data:
+                try:
+                    validate(instance=data, schema=ATOM_SHEET_SCHEMA)  # type: ignore[arg-type]
+                except Exception:
+                    # try legacy SQS schema if present
+                    try:
+                        validate(instance=data, schema=SQS_SCHEMA)  # type: ignore[arg-type]
+                    except Exception:
+                        pass
+        except Exception:
+            pass
+
+        meta = data.get("metadata") or data.get("meta") or {}
+        cells_data = data.get("cells") or []
+
+        cells: List[GlyphCell] = []
+        for entry in cells_data:
+            try:
+                cells.append(GlyphCell.from_dict(entry))
+            except Exception:
+                # Very defensive fallback for partial entries
+                cells.append(
+                    GlyphCell(
+                        id=str(entry.get("id", f"cell_{len(cells)}")),
+                        logic=str(entry.get("logic", "")),
+                        position=entry.get("position", [0, 0, 0, 0]),
+                    )
+                )
+
+        return cls(cells=cells, metadata=meta)
+
+    def execute_sheet(self, context: Optional[Dict] = None) -> List[GlyphCell]:
+        """
+        Execute the sheet in-place using the module-level pipeline (already imported above).
+        Returns the (now executed) list of GlyphCell instances.
+        """
+        # Reuse the module's execute_sheet(cells, context) function
+        try:
+            execute_sheet(self.cells, context=context)  # type: ignore[misc]
+        except Exception as e:
+            record_trace("SymbolicSpreadsheet", f"[Execute Error] {e}")
+            raise
+        return self.cells
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "metadata": self.metadata,
+            "cells": [c.to_dict() if hasattr(c, "to_dict") else {
+                "id": c.id,
+                "logic": getattr(c, "logic", ""),
+                "position": getattr(c, "position", [0, 0, 0, 0]),
+                "emotion": getattr(c, "emotion", None),
+                "prediction": getattr(c, "prediction", None),
+            } for c in self.cells],
+        }
 
 # 🤪 CLI runner
 if __name__ == "__main__":

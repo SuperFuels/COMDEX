@@ -1,82 +1,145 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "AtomSheet",
+  "title": "GlyphCell",
   "type": "object",
-  "required": ["cells"],
+  "required": ["id", "logic", "position"],
   "properties": {
-    "metadata": {
-      "type": "object",
-      "description": "Optional metadata for the AtomSheet"
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for the glyph cell"
     },
-    "cells": {
+    "logic": {
+      "type": "string",
+      "description": "The symbolic or CodexLang logic expression"
+    },
+    "logic_type": {
+      "type": "string",
+      "enum": ["codexlang", "sympy", "raw"],
+      "description": "Interpreter hint; 'codexlang' enables live formula evaluation"
+    },
+    "codex_eval": {
+      "type": "string",
+      "description": "Server-rendered CodexLang preview (if logic_type=codexlang)"
+    },
+    "codex_error": {
+      "type": "string",
+      "description": "Evaluator error message, if any (logic_type=codexlang)"
+    },
+    "position": {
+      "type": "array",
+      "items": { "type": "integer" },
+      "minItems": 4,
+      "maxItems": 4,
+      "description": "4D spatial coordinates [x, y, z, t]"
+    },
+    "emotion": {
+      "type": "string",
+      "enum": [
+        "neutral",
+        "inspired",
+        "curious",
+        "protective",
+        "introspective",
+        "surprised",
+        "resistant",
+        "playful",
+        "melancholy",
+        "reflective"
+      ],
+      "description": "Optional emotional context or tag"
+    },
+    "prediction": {
+      "type": "string",
+      "description": "Prediction output or symbolic forecast"
+    },
+    "prediction_forks": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Alternate prediction paths (F4)"
+    },
+    "trace": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Execution trace logs or history"
+    },
+    "linked_cells": {
       "type": "array",
       "items": {
-        "type": "object",
-        "required": ["id", "logic", "position"],
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "Unique identifier for the glyph cell"
-          },
-          "logic": {
-            "type": "string",
-            "description": "The symbolic or CodexLang logic expression"
-          },
-          "position": {
-            "type": "array",
-            "items": { "type": "integer" },
-            "minItems": 4,
-            "maxItems": 4,
-            "description": "4D spatial coordinates [x, y, z, t]"
-          },
-          "emotion": {
-            "type": "string",
-            "enum": [
-              "neutral", "inspired", "curious", "protective", "introspective",
-              "surprised", "resistant", "playful", "melancholy", "reflective"
-            ],
-            "description": "Optional emotional context or tag"
-          },
-          "prediction": {
-            "type": "string",
-            "description": "Prediction output or symbolic forecast"
-          },
-          "trace": {
-            "type": "array",
-            "items": { "type": "string" },
-            "description": "Execution trace logs or history"
-          },
-          "linked_cells": {
-            "type": "array",
-            "items": {
-              "type": "array",
-              "items": { "type": "integer" },
-              "minItems": 4,
-              "maxItems": 4
-            },
-            "description": "Array of 4D positions linked to this cell"
-          },
-          "nested_logic": {
-            "type": "string",
-            "description": "CodexLang logic embedded inside this cell"
-          },
-          "sqi_score": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 1,
-            "description": "Symbolic Quality Index score"
-          },
-          "validated": {
-            "type": "boolean",
-            "description": "If the logic was validated under SoulLaw or tests"
-          },
-          "result": {
-            "type": "string",
-            "description": "Final output or result from execution"
-          }
+        "type": "array",
+        "items": { "type": "integer" },
+        "minItems": 4,
+        "maxItems": 4
+      },
+      "description": "Array of 4D positions linked to this cell (entanglement)"
+    },
+    "nested_logic": {
+      "type": "string",
+      "description": "Legacy: CodexLang logic embedded inside this cell"
+    },
+    "meta": {
+      "type": "object",
+      "description": "Per-cell metadata (including nested expansion hints)",
+      "properties": {
+        "logic_type": {
+          "type": "string",
+          "enum": ["codexlang", "sympy", "raw"],
+          "description": "Optional per-cell override for interpreter"
         },
-        "additionalProperties": false
-      }
+        "nested": {
+          "type": "object",
+          "description": "Atom Expansion Protocol (A5): nested child sheet descriptor",
+          "properties": {
+            "type": { "type": "string", "enum": ["ref", "inline"] },
+            "path": {
+              "type": "string",
+              "description": "Path to child .atom (if type=ref)"
+            },
+            "sheet": {
+              "type": "object",
+              "description": "Inline child sheet (if type=inline)"
+            }
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
+    },
+    "sqi_score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Symbolic Quality Index score"
+    },
+    "entropy": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "E7: entropy (uncertainty / dispersion)"
+    },
+    "novelty": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "E7: novelty (divergence from prior patterns)"
+    },
+    "harmony": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "E7: harmony (structural consistency)"
+    },
+    "validated": {
+      "type": "boolean",
+      "description": "If the logic was validated under SoulLaw or tests"
+    },
+    "result": {
+      "type": "string",
+      "description": "Final output or result from execution"
+    },
+    "wave_beams": {
+      "type": "array",
+      "items": { "type": "object" },
+      "description": "Execution beams for GHX/HUD visualization"
     }
   },
   "additionalProperties": false

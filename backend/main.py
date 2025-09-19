@@ -59,9 +59,6 @@ logger.info(f"🔍 SQLALCHEMY_DATABASE_URL = {SQLALCHEMY_DATABASE_URL}")
 from backend.database import engine, Base, get_db
 import backend.models
 
-# ── Boot imports
-from backend.modules.hexcore.boot_loader import load_boot_goals, preload_all_domain_packs, boot
-
 # ── Auto-create tables
 Base.metadata.create_all(bind=engine)
 logger.info("✅ Database tables checked/created.")
@@ -132,7 +129,6 @@ async def startup_event():
 
 # ── Routers
 from backend.routes.auth import router as auth_router
-from backend.routes.auth               import router as auth_router
 from backend.routes.products           import router as products_router
 from backend.routes.deal               import router as deal_router
 from backend.routes.contracts          import router as contracts_router
@@ -209,15 +205,60 @@ from backend.api import symbol_tree
 from backend.api import qfc_api
 from backend.api import symbolic_tree_api
 from backend.routes.api_collapse_trace import router as collapse_trace_router
-from backend.routes.dev import glyphwave_test_router
-from backend.api.workspace import workspace_router
+# ── Dev/test helpers & extras
+from backend.routes.dev import glyphwave_test_router        # dev-only routes (mounted elsewhere in your file)
+from backend.api.workspace import workspace_router          # workspace API (mounted elsewhere in your file)
 from backend.modules.patterns.seed_patterns import seed_builtin_patterns
-from backend.api import api_atomsheet
-from backend.api import api_sheets
-from backend.api.api_lightcone import router as lightcone_router
+from backend.api import api_sheets                          # exposes /api/sheets/list
 
-# ✅ WebSocket route
-from backend.api import ws
+# ── Optional routers (guarded so boot never breaks)
+try:
+    # ✅ New canonical AtomSheets router → /api/atomsheet, /api/atomsheet/execute, /api/atomsheet/export
+    from backend.routers.atomsheets import router as atomsheets_router
+except Exception as e:
+    atomsheets_router = None
+    logger.warning("[atomsheets] not mounted: %s", e)
+
+try:
+    # LightCone extras → /api/lightcone*
+    from backend.api.api_lightcone import router as lightcone_router
+except Exception as e:
+    lightcone_router = None
+    logger.warning("[lightcone] not mounted: %s", e)
+
+try:
+    # Legacy AtomSheet API (no /api prefix). We will mount it under /legacy to avoid collisions.
+    import backend.api.api_atomsheet as legacy_atomsheet_mod
+except Exception as e:
+    legacy_atomsheet_mod = None
+    logger.warning("[legacy atomsheet] not mounted: %s", e)
+
+try:
+    # QFC extras → /api/qfc_extras*
+    from backend.api.api_qfc_extras import router as qfc_extras_router
+except Exception as e:
+    qfc_extras_router = None
+    logger.warning("[qfc_extras] not mounted: %s", e)
+
+# ── Mount routers (order: canonical → optional → legacy)
+if atomsheets_router:
+    app.include_router(atomsheets_router)          # /api/atomsheet*
+
+if lightcone_router:
+    app.include_router(lightcone_router)           # /api/lightcone*
+
+if qfc_extras_router:
+    app.include_router(qfc_extras_router)          # /api/qfc_extras*
+
+# Keep legacy API but clearly namespaced to avoid confusion/collisions
+if legacy_atomsheet_mod:
+    app.include_router(legacy_atomsheet_mod.router, prefix="/legacy")  # /legacy/atomsheet
+
+# Sheets listing utility already registers absolute /api/sheets/list; do NOT add a prefix here.
+app.include_router(api_sheets.router)
+
+# WebSocket routes module import (handlers mounted elsewhere)
+from backend.api import ws  # noqa: F401
 
 # ✅ Mount QGlyph WebSocket
 from backend.routes.ws.qglyph_ws import start_qglyph_ws
@@ -325,8 +366,13 @@ app.include_router(glyphwave_test_router.router)
 app.include_router(workspace_router)
 app.include_router(api_atomsheet.router)
 app.include_router(api_sheets.router)
-app.include_router(lightcone_router)
+app.include_router(qfc_extras_router)
 seed_builtin_patterns()
+
+if atomsheets_router:
+    app.include_router(atomsheets_router)
+if lightcone_router:
+    app.include_router(lightcone_router)
 
 # ── 16) Serve uploaded images
 app.mount("/uploaded_images", StaticFiles(directory="uploaded_images"), name="uploaded_images")

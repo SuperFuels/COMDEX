@@ -1,7 +1,8 @@
 # ===============================
 # 📁 backend/modules/codex/container_exec.py
 # ===============================
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # Defensive GlyphCell (test-friendly)
 try:
@@ -27,11 +28,65 @@ from backend.modules.codex.hardware.symbolic_qpu_isa import execute_qpu_opcode
 from backend.modules.patterns.pattern_trace_engine import record_trace
 from backend.modules.utils.time_utils import now_utc_iso, now_utc_ms
 
+# Optional jsonschema for batch validation (no hard dependency)
+try:
+    import jsonschema  # type: ignore
+except Exception:
+    jsonschema = None  # type: ignore
 
+# -----------------------------
+# Helpers
+# -----------------------------
 def _as_token(op: str) -> Dict[str, Any]:
     return {"type": "operator", "value": op}
 
+def _sqi_lazy(cell: GlyphCell) -> float:
+    """
+    Try preferred scorer; fall back to existing value or 1.0 without crashing.
+    """
+    try:
+        # preferred scorer used elsewhere in the codebase
+        from backend.modules.symbolic_spreadsheet.scoring.sqi_scorer import score_sqi
+        return float(score_sqi(cell))
+    except Exception:
+        try:
+            return float(getattr(cell, "sqi_score", 1.0) or 1.0)
+        except Exception:
+            return 1.0
 
+# Optional schema for validating incoming batch items
+BATCH_SCHEMA = {
+    "type": "object",
+    "required": ["cell_id", "op"],
+    "properties": {
+        "cell_id": {"type": "string"},
+        "op": {"type": "string"},
+        "args": {"type": "array"},
+        "stage": {"type": "string"},
+    },
+    "additionalProperties": True,
+}
+
+def _validate_batch_safe(batch: List[Dict[str, Any]]) -> Tuple[int, List[str]]:
+    """
+    Validate a batch with jsonschema if available. Never hard-fail:
+    returns (#invalid_items, errors).
+    """
+    if jsonschema is None:
+        return (0, [])
+    invalid = 0
+    errors: List[str] = []
+    for i, item in enumerate(batch or []):
+        try:
+            jsonschema.validate(instance=item, schema=BATCH_SCHEMA)  # type: ignore
+        except Exception as e:
+            invalid += 1
+            errors.append(f"item[{i}]: {e}")
+    return (invalid, errors)
+
+# -----------------------------
+# Main API
+# -----------------------------
 def execute_qfc_container_beams(
     container_id: Optional[str],
     cells: List[GlyphCell],
@@ -48,25 +103,38 @@ def execute_qfc_container_beams(
         "args": ["x","y"] | null,  # optional; if absent, a token for `op` is passed
         "stage": "container"       # optional label
       }
+
+    Extras (world-class enhancements):
+      • Dynamic SQI refresh per cell after op execution.
+      • Optional jsonschema validation of batch items (no hard dependency).
+      • Lightweight metrics in `context["qpu_metrics"]`.
+      • Opt-in parallelization via context["parallel_container_exec"] (default False)
+        and context["container_exec_workers"] (default 4). Sequential remains default.
     """
+    # Ensure metrics dict
+    qpu_metrics = context.setdefault("qpu_metrics", {})
+    # Validate batch (never hard-fail)
+    invalid_count, invalid_errors = _validate_batch_safe(batch or [])
+    if invalid_count:
+        record_trace("qfc", f"[ContainerExec] batch validation issues: {invalid_count} invalid; {invalid_errors[:3]}")
+
     # Index cells
     idx = {c.id: c for c in (cells or [])}
     results: List[Dict[str, Any]] = []
-    ok, err = 0, 0
 
-    for i, item in enumerate(batch or []):
+    # Parallel settings (opt-in)
+    use_parallel = bool(context.get("parallel_container_exec", False))
+    max_workers = int(context.get("container_exec_workers", 4) or 4)
+
+    def _exec_one(i: int, item: Dict[str, Any]) -> Dict[str, Any]:
         cid = item.get("cell_id")
         op = item.get("op")
         stage = item.get("stage") or "container"
         args = item.get("args")
 
         if not cid or not op or cid not in idx:
-            err += 1
-            results.append({
-                "idx": i, "cell_id": cid, "op": op,
-                "ok": False, "error": "invalid cell/op"
-            })
-            continue
+            qpu_metrics[f"{cid}:{op}:{i}"] = {"error": "invalid cell/op"}
+            return {"idx": i, "cell_id": cid, "op": op, "ok": False, "error": "invalid cell/op"}
 
         cell = idx[cid]
         try:
@@ -77,7 +145,15 @@ def execute_qfc_container_beams(
             # If no explicit args, pass a single opcode token (like per-token execution path)
             exec_args = args if isinstance(args, list) else [_as_token(op)]
 
+            t0 = now_utc_ms()
             res = execute_qpu_opcode(op, exec_args, cell, context)
+            t1 = now_utc_ms()
+
+            # Dynamic SQI refresh (non-fatal)
+            try:
+                cell.sqi_score = _sqi_lazy(cell)
+            except Exception:
+                pass
 
             # Emit a container-exec beam for lineage/visualizers
             if not hasattr(cell, "wave_beams") or cell.wave_beams is None:
@@ -93,21 +169,36 @@ def execute_qfc_container_beams(
                     "container_id": container_id,
                     "sheet_run_id": context.get("sheet_run_id")
                 },
+                "sqi_after": float(getattr(cell, "sqi_score", 1.0) or 1.0),
             }
             cell.wave_beams.append(beam)
 
-            results.append({
-                "idx": i, "cell_id": cid, "op": op,
-                "ok": True, "result": res, "beam_id": beam["beam_id"]
-            })
-            ok += 1
+            # Update metrics
+            qpu_metrics[f"{cid}:{op}:{i}"] = {
+                "time_ms": max(0, int(t1) - int(t0)),
+                "beam_id": beam["beam_id"],
+            }
+
+            return {"idx": i, "cell_id": cid, "op": op, "ok": True, "result": res, "beam_id": beam["beam_id"]}
         except Exception as e:
-            err += 1
             record_trace(cid, f"[QFC Container Exec Error] {e}")
-            results.append({
-                "idx": i, "cell_id": cid, "op": op,
-                "ok": False, "error": str(e)
-            })
+            qpu_metrics[f"{cid}:{op}:{i}"] = {"error": str(e)}
+            return {"idx": i, "cell_id": cid, "op": op, "ok": False, "error": str(e)}
+
+    # Execute (sequential by default; optional parallel)
+    if not use_parallel:
+        for i, item in enumerate(batch or []):
+            results.append(_exec_one(i, item))
+    else:
+        # Parallel execution – keep modest defaults; caller controls workers
+        with ThreadPoolExecutor(max_workers=max_workers) as ex:
+            fut_map = {ex.submit(_exec_one, i, item): i for i, item in enumerate(batch or [])}
+            for fut in as_completed(fut_map):
+                results.append(fut.result())
+
+    # Summarize
+    ok = sum(1 for r in results if r.get("ok"))
+    err = sum(1 for r in results if not r.get("ok"))
 
     summary = {
         "container_id": container_id,
@@ -116,6 +207,8 @@ def execute_qfc_container_beams(
         "error": err,
         "total": ok + err,
         "results": results[:50],  # cap for telemetry payload
+        "metrics": qpu_metrics,   # lightweight timing/error markers
+        "validation_warnings": invalid_errors[:10] if invalid_errors else [],
     }
-    record_trace("sheet", f"[Phase10/QFC] container batch: ok={ok} error={err} total={ok+err}")
+    record_trace("sheet", f"[Phase10/QFC] container batch: ok={ok} error={err} total={ok+err} parallel={use_parallel}")
     return summary

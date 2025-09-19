@@ -4,52 +4,53 @@ flowchart TD
 %% Root Node
 flowchart TD
 
-A[🧮 SQS System: Symbolic Quantum Spreadsheet Engine]
+flowchart TD
+  A[🧮 SQS System: Symbolic Quantum Spreadsheet Engine]
 
-%% Architecture Core
-A1✅[📦 SQS Core Runtime Engine]:::core
-A2✅[🧬 AtomSheet File Format (.sqs.json)]:::core
-A3[🔗 QFC ↔ AtomSheet Interoperability Layer]:::core
-A4✅[🧠 GlyphCell Logic Runtime]:::core
-A5[⚛️ Atom Expansion Protocol (Nested Logic)]:::core
-A6[🧩 SCI IDE Panel: AtomSheet UI]:::core
+  %% Architecture Core
+  A1✅[📦 SQS Core Runtime Engine]:::core
+  A2✅[🧬 AtomSheet File Format (.sqs.json → .atom)]:::core
+  A3✅[🔗 QFC ↔ AtomSheet Interoperability Layer]:::core
+  A4✅[🧠 GlyphCell Logic Runtime]:::core
+  A5✅[⚛️ Atom Expansion Protocol (Nested Logic)]:::core
+  A6✅[🧩 SCI IDE Panel: AtomSheet UI]:::core
 
-%% Features
-B[✨ Core Features]:::feat
-B1✅[📊 Multi-Dimensional Cell Grid (4D Traversal)]:::feat
-B2[🔁 Expandable Cells (zoom into logic)]:::feat
-B3✅[🔮 Predictive Cell Mutation / Forking]:::feat
-B4[📜 Scrolls, Emotions, Memory in Cells]:::feat
-B5✅[⚙️ Symbolic Execution Inside Sheet]:::feat
-B6[🧠 Link to CodexLang for live formulas]:::feat
+  %% Features
+  B[✨ Core Features]:::feat
+  B1✅[📊 Multi-Dimensional Cell Grid (4D Traversal)]:::feat
+  B2✅[🔁 Expandable Cells (↘ nested ref/inline + UI)]:::feat
+  B3✅[🔮 Predictive Cell Mutation / Forking]:::feat
+  B4[📜 Scrolls, Emotions, Memory in Cells]:::feat
+  B5✅[⚙️ Symbolic Execution Inside Sheet]:::feat
+  B6✅[🧠 Link to CodexLang for live formulas]:::feat
 
-%% Tools & Plugins
-C[🔧 SQS Toolchain + Plugins]:::plugin
-C1✅[📁 Sheet Loader + Registry Integration]:::plugin
-C2[📈 Entropy, Novelty, Harmony Visualizers]:::plugin
-C3[🎯 Goal Tracker Plugin]:::plugin
-C4[🧬 SQI Plugin for reasoning in sheets]:::plugin
-C5[🔒 SoulLaw Filter Overlay]:::plugin
+  %% Tools & Plugins
+  C[🔧 SQS Toolchain + Plugins]:::plugin
+  C1✅[📁 Sheet Loader + Registry Integration]:::plugin
+  C2✅[📈 Entropy, Novelty, Harmony Visualizers]:::plugin
+  C3[🎯 Goal Tracker Plugin]:::plugin
+  C4✅[🧬 SQI Plugin for reasoning in sheets]:::plugin
+  C5✅[🔒 SoulLaw Filter Overlay]:::plugin
 
-%% Use Cases
-D[📐 Use Case Frameworks]:::use
-D1[🧮 Symbolic Math + Proof Sheets]:::use
-D2[🧪 Experiment Parameter Sheets]:::use
-D3[📅 Cognitive Schedulers (Time/Memory)]:::use
-D4[📊 Data Design + Planning Boards]:::use
-D5[🧠 AI Fine-Tuning Memory Sheets]:::use
-D6[🧩 Cross-Agent Collaboration Boards]:::use
+  %% Use Cases
+  D[📐 Use Case Frameworks]:::use
+  D1[🧮 Symbolic Math + Proof Sheets]:::use
+  D2[🧪 Experiment Parameter Sheets]:::use
+  D3[📅 Cognitive Schedulers (Time/Memory)]:::use
+  D4[📊 Data Design + Planning Boards]:::use
+  D5[🧠 AI Fine-Tuning Memory Sheets]:::use
+  D6[🧩 Cross-Agent Collaboration Boards]:::use
 
-%% Implementation Sequence
-E[🚧 Build Sequence]:::build
-E1✅[Init atomsheet_engine.py]:::build
-E2✅[Define .sqs.json base format]:::build
-E3✅[Create GlyphCell model]:::build
-E4[Build SCI panel: sci_atomsheet_panel.tsx]:::build
-E5[Enable drag/drop from SCI Graph → Sheet]:::build
-E6✅[Support symbolic execution inside cells]:::build
-E7[Visualize entropy/confidence per cell]:::build
-E8✅[Enable export to `.dc.json` if expanded]:::build
+  %% Implementation Sequence
+  E[🚧 Build Sequence]:::build
+  E1✅[Init atomsheet_engine.py]:::build
+  E2✅[Define .sqs.json base format]:::build
+  E3✅[Create GlyphCell model]:::build
+  E4✅[Build SCI panel: sci_atomsheet_panel.tsx]:::build
+  E5✅[Enable drag/drop from SCI Graph → Sheet]:::build
+  E6✅[Support symbolic execution inside cells]:::build
+  E7✅[Visualize entropy/confidence per cell]:::build
+  E8✅[Enable export to `.dc.json` if expanded]:::build
 
 classDef core fill:#202080,color:#fff,stroke:#88f;
 classDef feat fill:#333366,color:#fff,stroke:#66f;

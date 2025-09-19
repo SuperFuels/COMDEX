@@ -34,7 +34,7 @@
   },
   "user.py": {
     "name": "user.py",
-    "path": "/workspaces/COMDEX/backend/models/user.py"
+    "path": "/workspaces/COMDEX/backend/routes/user.py"
   },
   "shipment.py": {
     "name": "shipment.py",
@@ -42,15 +42,15 @@
   },
   "deal.py": {
     "name": "deal.py",
-    "path": "/workspaces/COMDEX/backend/models/deal.py"
+    "path": "/workspaces/COMDEX/backend/routes/deal.py"
   },
   "product.py": {
     "name": "product.py",
-    "path": "/workspaces/COMDEX/backend/models/product.py"
+    "path": "/workspaces/COMDEX/backend/schemas/product.py"
   },
   "contract.py": {
     "name": "contract.py",
-    "path": "/workspaces/COMDEX/backend/models/contract.py"
+    "path": "/workspaces/COMDEX/backend/schemas/contract.py"
   },
   "dream.py": {
     "name": "dream.py",
@@ -203,5 +203,9 @@
   "failure_logger.py": {
     "name": "failure_logger.py",
     "path": "/workspaces/COMDEX/backend/modules/logging/failure_logger.py"
+  },
+  "test_milestone_tracker.py": {
+    "name": "test_milestone_tracker.py",
+    "path": "/workspaces/COMDEX/backend/test_milestone_tracker.py"
   }
 }

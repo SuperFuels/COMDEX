@@ -22,5 +22,41 @@
   {
     "timestamp": "2025-09-18T15:42:39.006794Z",
     "message": "[Export] id=sheet_atoms_test cells=2"
+  },
+  {
+    "timestamp": "2025-09-18T20:22:43.476758Z",
+    "message": "[Load] id=parent_sheet ext=.atom (or legacy) cells=1 dims=[1, 1, 1, 1]"
+  },
+  {
+    "timestamp": "2025-09-18T20:22:43.481562Z",
+    "message": "[Load] id=parent_sheet ext=.atom (or legacy) cells=1 dims=[1, 1, 1, 1]"
+  },
+  {
+    "timestamp": "2025-09-18T20:22:43.687159Z",
+    "message": "[Load] id=child_sheet ext=.atom (or legacy) cells=1 dims=[1, 1, 1, 1]"
+  },
+  {
+    "timestamp": "2025-09-18T20:22:43.860349Z",
+    "message": "[Execute] sheet=child_sheet cells=1"
+  },
+  {
+    "timestamp": "2025-09-18T20:22:43.860652Z",
+    "message": "[Execute] sheet=parent_sheet cells=1"
+  },
+  {
+    "timestamp": "2025-09-18T20:22:43.862881Z",
+    "message": "[Load] id=parent_sheet ext=.atom (or legacy) cells=1 dims=[1, 1, 1, 1]"
+  },
+  {
+    "timestamp": "2025-09-18T20:22:43.891125Z",
+    "message": "[Load] id=child_sheet ext=.atom (or legacy) cells=1 dims=[1, 1, 1, 1]"
+  },
+  {
+    "timestamp": "2025-09-18T20:22:43.940617Z",
+    "message": "[Execute] sheet=child_sheet cells=1"
+  },
+  {
+    "timestamp": "2025-09-18T20:22:43.940927Z",
+    "message": "[Execute] sheet=parent_sheet cells=1"
   }
 ]

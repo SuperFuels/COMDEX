@@ -1,12 +1,12 @@
 import * as React from "react";
 
-export type PanelTypeId = "atomsheet" | "sqs";
+export type PanelTypeId = "atomsheet" | "sqs" | "goals";
 
 export type PanelRegistration = {
   id: PanelTypeId;
   title: string;
   icon?: React.ReactNode;
-  component: React.ComponentType<any>; // your panel’s props shape
+  component: React.ComponentType<any>;
   makeDefaultProps?: () => Record<string, any>;
 };
 

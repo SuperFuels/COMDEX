@@ -1,10 +1,21 @@
+// ===============================
+// 📁 frontend/pages/sci/SciPanelHost.tsx
+// ===============================
 import * as React from "react";
-import { useMemo, useRef, useState } from "react";
-import { getPanel, listPanels, registerPanel } from "./panels/panel_registry";
+import { useMemo, useState, useEffect } from "react";
+import { useRouter } from "next/router";
+import { getPanel, listPanels } from "./panels/panel_registry";
+
+// 🔌 ensure all panels self-register on load
+import "./panels/register_atomsheet";
+import "./panels/register_sqs";
+import "./panels/register_goals";
+
+type PanelType = "atomsheet" | "sqs" | "goals";
 
 type Tab = {
   tabId: string;
-  type: "atomsheet" | "sqs";
+  type: PanelType;
   title: string;
   props: Record<string, any>;
 };
@@ -13,7 +24,7 @@ function shortId() {
   return Math.random().toString(36).slice(2, 8);
 }
 
-function mkContainerId(type: string, sid?: string) {
+function mkContainerId(type: PanelType, sid?: string) {
   return `sci:${type}:${sid || shortId()}`;
 }
 
@@ -21,48 +32,60 @@ export default function SciPanelHost(props: {
   wsUrl?: string;
   initialTabs?: Tab[];
 }) {
-  const [tabs, setTabs] = useState<Tab[]>(
-    props.initialTabs || []
-  );
-  const [activeId, setActiveId] = useState<string>(tabs[0]?.tabId || "");
+  const router = useRouter();
 
-  // persist/restore (optional)
-  React.useEffect(() => {
-    const raw = localStorage.getItem("sci.tabs.v1");
-    if (raw && !props.initialTabs) {
+  const [tabs, setTabs] = useState<Tab[]>(props.initialTabs || []);
+  const [activeId, setActiveId] = useState<string>(tabs[0]?.tabId || "");
+  const [fileToOpen, setFileToOpen] = useState<string>("");
+
+  // restore tabs on first mount if no initialTabs provided
+  useEffect(() => {
+    if (props.initialTabs?.length) return;
+    const raw =
+      typeof window !== "undefined" ? localStorage.getItem("sci.tabs.v1") : null;
+    if (raw) {
       try {
         const parsed = JSON.parse(raw) as Tab[];
         setTabs(parsed);
         if (parsed[0]) setActiveId(parsed[0].tabId);
-      } catch {}
+      } catch {
+        /* ignore */
+      }
     }
-  }, []);
-  React.useEffect(() => {
+  }, [props.initialTabs]);
+
+  // persist tabs whenever they change
+  useEffect(() => {
+    if (typeof window === "undefined") return;
     localStorage.setItem("sci.tabs.v1", JSON.stringify(tabs));
   }, [tabs]);
 
-  const active = useMemo(() => tabs.find(t => t.tabId === activeId) || tabs[0], [tabs, activeId]);
+  const active = useMemo(
+    () => tabs.find((t) => t.tabId === activeId) || tabs[0],
+    [tabs, activeId]
+  );
 
-  function openTab(type: "atomsheet" | "sqs", title?: string, extra?: Record<string, any>) {
+  function openTab(type: PanelType, title?: string, extra?: Record<string, any>) {
     const pr = getPanel(type);
     if (!pr) return;
     const tabId = shortId();
-    const props = {
+    const propsForPanel = {
       ...(pr.makeDefaultProps?.() || {}),
       ...extra,
       wsUrl: props.wsUrl,
+      authToken: process.env.NEXT_PUBLIC_AUTH_TOKEN,
       containerId: mkContainerId(type),
       __tabId: tabId,
     };
-    const tab: Tab = { tabId, type, title: title || pr.title, props };
-    setTabs(t => [...t, tab]);
+    const tab: Tab = { tabId, type, title: title || pr.title, props: propsForPanel };
+    setTabs((t) => [...t, tab]);
     setActiveId(tabId);
   }
 
   function closeTab(tabId: string) {
-    setTabs(t => {
-      const idx = t.findIndex(x => x.tabId === tabId);
-      const next = t.filter(x => x.tabId !== tabId);
+    setTabs((t) => {
+      const idx = t.findIndex((x) => x.tabId === tabId);
+      const next = t.filter((x) => x.tabId !== tabId);
       if (activeId === tabId && next.length) {
         setActiveId(next[Math.max(0, idx - 1)].tabId);
       }
@@ -70,8 +93,26 @@ export default function SciPanelHost(props: {
     });
   }
 
+  // Deep-link support: /sci/SciPanelHost?panel=sqs&file=...&containerId=...&title=...
+  useEffect(() => {
+    // only auto-open from query if there are no tabs yet
+    if (tabs.length) return;
+    const q = router.query;
+    const panel = (q.panel as string as PanelType) || "sqs";
+    const pr = getPanel(panel);
+    if (!pr) return;
+
+    const file = (q.file as string) || "backend/data/sheets/example_sheet.atom";
+    const containerId = (q.containerId as string) || mkContainerId(panel);
+    const title = (q.title as string) || pr.title;
+
+    openTab(panel, title, { file, containerId });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router.query, tabs.length]);
+
   const PanelComponent =
-    (active && getPanel(active.type)?.component) || (() => <div className="p-4 text-sm text-zinc-400">no panel</div>);
+    (active && getPanel(active.type)?.component) ||
+    (() => <div className="p-4 text-sm text-zinc-400">no panel</div>);
 
   return (
     <div className="w-full h-full flex flex-col">
@@ -87,19 +128,51 @@ export default function SciPanelHost(props: {
           </button>
           <button
             className="px-3 py-1 rounded-lg bg-neutral-800 border border-neutral-700 text-sm"
+            onClick={() => openTab("goals")}
+          >
+            + Goals
+          </button>
+          <button
+            className="px-3 py-1 rounded-lg bg-neutral-800 border border-neutral-700 text-sm"
             onClick={() => openTab("sqs")}
           >
             + SQS
           </button>
+          <button
+            className="px-3 py-1 rounded-lg bg-neutral-800 border border-neutral-700 text-sm"
+            onClick={() => openTab("goals")}
+          >
+            + Goals
+          </button>
         </div>
 
-        <div className="ml-4 text-xs text-zinc-500">
-          Panels: {listPanels().map(p => p.id).join(", ")}
+        {/* quick open by file path (opens SQS panel) */}
+        <div className="ml-3 flex items-center gap-2">
+          <input
+            value={fileToOpen}
+            onChange={(e) => setFileToOpen(e.target.value)}
+            placeholder="backend/data/sheets/example_sheet.atom"
+            className="px-2 py-1 rounded bg-neutral-800 border border-neutral-700 text-xs text-zinc-200 w-[360px]"
+          />
+          <button
+            className="px-2 py-1 rounded bg-neutral-800 border border-neutral-700 text-xs"
+            onClick={() => {
+              if (!fileToOpen.trim()) return;
+              openTab("sqs", undefined, { file: fileToOpen.trim() });
+              setFileToOpen("");
+            }}
+          >
+            Open
+          </button>
+        </div>
+
+        <div className="ml-4 text-xs text-zinc-500 truncate max-w-[30%]">
+          Panels: {listPanels().map((p) => p.id).join(", ")}
         </div>
 
         {/* tabs */}
         <div className="ml-auto flex items-center gap-1 overflow-x-auto">
-          {tabs.map(t => (
+          {tabs.map((t) => (
             <div
               key={t.tabId}
               onClick={() => setActiveId(t.tabId)}
@@ -114,7 +187,10 @@ export default function SciPanelHost(props: {
               <span>{t.title}</span>
               <button
                 className="ml-2 text-zinc-400 hover:text-zinc-200"
-                onClick={(e) => { e.stopPropagation(); closeTab(t.tabId); }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  closeTab(t.tabId);
+                }}
                 aria-label="Close tab"
               >
                 ×
@@ -126,7 +202,9 @@ export default function SciPanelHost(props: {
 
       {/* active panel */}
       <div className="flex-1 min-h-0">
-        {active ? <PanelComponent {...active.props} /> : (
+        {active ? (
+          <PanelComponent {...active.props} />
+        ) : (
           <div className="p-6 text-sm text-zinc-500">Open a panel to start.</div>
         )}
       </div>
