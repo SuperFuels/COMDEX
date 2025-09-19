@@ -6,10 +6,10 @@ import { useMemo, useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { getPanel, listPanels } from "@/pages/sci/panel_registry";
 
-// 🔌 ensure all panels self-register on load
-import "./panels/register_atomsheet";
-import "./panels/register_sqs";
-import "./panels/register_goals";
+// 🔌 ensure all panels self-register on load (side-effect imports)
+import "./register_atomsheet";
+import "./register_sqs";
+import "./register_goals";
 
 type PanelType = "atomsheet" | "sqs" | "goals";
 
