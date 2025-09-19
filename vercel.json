@@ -1,4 +1,0 @@
-{
-  "builds": [{ "src": "frontend/next.config.(js|mjs|ts)", "use": "@vercel/next" }],
-  "routes": [{ "src": "/(.*)", "dest": "frontend/$1" }]
-}

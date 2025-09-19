@@ -2,13 +2,13 @@
 module.exports = {
   darkMode: 'class',
   content: [
-    './pages/**/*.{js,ts,jsx,tsx,mdx}',
-    './components/**/*.{js,ts,jsx,tsx,mdx}',
-    './app/**/*.{js,ts,jsx,tsx,mdx}',
-    './styles/**/*.{css,js,ts,jsx,tsx,mdx}',
-    './lib/**/*.{js,ts,jsx,tsx,mdx}',
-    './hooks/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/**/*.{js,ts,jsx,tsx,mdx}',   // only if you have this folder
+    './frontend/pages/**/*.{js,ts,jsx,tsx,mdx}',
+    './frontend/components/**/*.{js,ts,jsx,tsx,mdx}',
+    './frontend/app/**/*.{js,ts,jsx,tsx,mdx}',
+    './frontend/styles/**/*.{css,js,ts,jsx,tsx,mdx}',
+    './frontend/lib/**/*.{js,ts,jsx,tsx,mdx}',
+    './frontend/hooks/**/*.{js,ts,jsx,tsx,mdx}',
+    './frontend/src/**/*.{js,ts,jsx,tsx,mdx}', // only if this folder exists
   ],
   theme: {
     extend: {
@@ -30,11 +30,11 @@ module.exports = {
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
         chart: {
-          '1': 'hsl(var(--chart-1))',
-          '2': 'hsl(var(--chart-2))',
-          '3': 'hsl(var(--chart-3))',
-          '4': 'hsl(var(--chart-4))',
-          '5': 'hsl(var(--chart-5))',
+          1: 'hsl(var(--chart-1))',
+          2: 'hsl(var(--chart-2))',
+          3: 'hsl(var(--chart-3))',
+          4: 'hsl(var(--chart-4))',
+          5: 'hsl(var(--chart-5))',
         },
       },
       boxShadow: { dropdown: '0 4px 6px rgba(0,0,0,0.1)' },
