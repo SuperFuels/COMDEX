@@ -1,3 +1,4 @@
+'use client';
 import React, { useEffect, useState } from 'react';
 import useWebSocket from '@/hooks/useWebSocket';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -14,7 +15,11 @@ import { ReplayHUD } from "@/components/CodexHUD/ReplayHUD";
 import { ReplayListPanel } from "@/components/CodexHUD/ReplayListPanel";
 import { useCollapseMetrics } from "@/hooks/useCollapseMetrics";
 import { useWaveTelemetry } from "@/hooks/useWaveTelemetry";
-import { GHXVisualizerField } from '@/components/Hologram/ghx_visualizer_field';
+import dynamic from "next/dynamic";
+const GHXVisualizerField = dynamic(
+  () => import("@/components/Hologram/ghx_visualizer_field"),
+  { ssr: false }
+);
 
 interface GlyphDetail {
   energy?: number;
