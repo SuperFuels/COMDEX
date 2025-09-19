@@ -62,9 +62,14 @@ export function WaveScopePanel({ containerId }: { containerId: string }) {
       lastValueVisible: false,
     };
 
-    // ✅ Use concrete helpers so the series type is 'Line'
-    const collapseSeries = chart.addLineSeries(collapseOptions);
-    const decoSeries = chart.addLineSeries(decoOptions);
+    // ✅ lightweight-charts unified API (no addLineSeries on IChartApi)
+    const collapseSeries = chart.addSeries(
+      { type: 'Line', ...collapseOptions } as any
+    ) as ISeriesApi<'Line'>;
+
+    const decoSeries = chart.addSeries(
+      { type: 'Line', ...decoOptions } as any
+    ) as ISeriesApi<'Line'>;
 
     chartRef.current = chart;
     collapseSeriesRef.current = collapseSeries;
