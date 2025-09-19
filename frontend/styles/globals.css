@@ -8,6 +8,7 @@
 
 /* 1) Import Inter BEFORE Tailwind */
 @import url('https://rsms.me/inter/inter.css');
+@import '@/styles/globals.css';
 
 /* 2) Tailwind’s layers */
 @tailwind base;

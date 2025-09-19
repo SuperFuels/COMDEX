@@ -1,11 +1,18 @@
 {
-  // Use the workspace TypeScript (the one under frontend/)
+  // Use the workspace TypeScript (under frontend/)
   "typescript.tsdk": "frontend/node_modules/typescript/lib",
-
-  // (optional but nice) show a prompt to switch to workspace tsdk if not active
   "typescript.enablePromptUseWorkspaceTsdk": true,
 
-  // IDX AI helpers (keep only if you actually use IDX)
+  // Silence Tailwind at-rule warnings in the editor
+  "css.lint.unknownAtRules": "ignore",
+  "scss.lint.unknownAtRules": "ignore",
+  "less.lint.unknownAtRules": "ignore",
+
+  // QoL
+  "editor.quickSuggestions": { "strings": true },
+  "tailwindCSS.emmetCompletions": true,
+
+  // IDX AI (keep only if you use IDX)
   "IDX.ai.enableInlineCompletion": true,
   "IDX.ai.enableCodebaseIndexing": true
 }

@@ -1,36 +1,34 @@
 // frontend/pages/_app.tsx
-'use client';
+import type { AppProps } from 'next/app'
 
-import '@/lib/api';             // ← configure your axios instance first
-import '@/styles/globals.css';  // ← Tailwind + your custom globals
-import type { AppProps } from 'next/app';
-import { useEffect } from 'react';
-import Navbar from '@/components/Navbar';
+// Side-effect imports first:
+import '@/lib/api'             // axios baseURL, interceptors, etc. (must be SSR-safe)
+import '@/styles/globals.css'  // tailwind + CSS variables
+
+import { useEffect } from 'react'
+import Navbar from '@/components/Navbar'
 
 export default function MyApp({ Component, pageProps }: AppProps) {
   useEffect(() => {
-    // Debug your API URL
-    console.log('🔍 NEXT_PUBLIC_API_URL =', process.env.NEXT_PUBLIC_API_URL);
+    // Debug API URL in the browser only
+    // eslint-disable-next-line no-console
+    console.log('🔍 NEXT_PUBLIC_API_URL =', process.env.NEXT_PUBLIC_API_URL)
 
-    // If user still has a JWT, clear the manual-disconnect flag
-    // so they’ll auto-reconnect their wallet on page reload
     if (typeof window !== 'undefined' && localStorage.getItem('token')) {
-      localStorage.removeItem('manualDisconnect');
+      localStorage.removeItem('manualDisconnect')
     }
-  }, []);
+  }, [])
 
   return (
-    <div className="flex min-h-screen">
-      {/* Sidebar is controlled by Navbar itself, so we do NOT render <Sidebar /> here */}
-      <div className="flex-1 flex flex-col">
-        {/* ─── Global Navbar (sticky at top) ─────────────────────────── */}
-        <Navbar />
+    <div className="min-h-screen bg-background text-foreground">
+      {/* If Navbar is sticky or fixed with a known height (e.g. h-14), 
+         give main a matching top padding so content isn't hidden. */}
+      <Navbar />
 
-        {/* ─── Page Content ─────────────────────────────────────────── */}
-        <main className="flex-1 bg-background">
-          <Component {...pageProps} />
-        </main>
-      </div>
+      {/* Make page area scrollable and not collapsed by flex parents */}
+      <main className="min-h-0 overflow-auto">
+        <Component {...pageProps} />
+      </main>
     </div>
-  );
+  )
 }

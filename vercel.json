@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://comdex-api-375760843948.us-central1.run.app/api/:path*"
+    },
+    {
+      "source": "/ws/:path*",
+      "destination": "https://comdex-api-375760843948.us-central1.run.app/ws/:path*"
+    }
+  ]
+}

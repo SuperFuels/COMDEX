@@ -1,5 +1,5 @@
 /**
-📄 KnowledgeBrainMap.tsx
+📄 frontend/pages/aion/KnowledgeBrainMap.tsx
 
 🧠 Knowledge Brain Map Visualization for AION & IGI  
 Renders a living 3D knowledge graph with glowing entangled glyph zones, anchor links, and tag filtering.
