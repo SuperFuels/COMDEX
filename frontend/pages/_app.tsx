@@ -3,7 +3,7 @@ import type { AppProps } from 'next/app'
 
 // Side-effect imports first:
 import '@/lib/api'             // axios baseURL, interceptors, etc. (must be SSR-safe)
-import '@/styles/globals.css'  // tailwind + CSS variables
+import '../styles/globals.css';  // tailwind + CSS variables
 
 import { useEffect } from 'react'
 import Navbar from '@/components/Navbar'

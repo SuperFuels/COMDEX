@@ -5,8 +5,10 @@
   "scripts": {
     "build": "next build frontend",
     "start": "next start frontend",
+    "dev": "concurrently \"next dev frontend\" \"npm run collab\"",
     "collab": "ts-node --transpile-only -P tsconfig.collab.json server/collab-server.ts",
-    "dev": "concurrently \"next dev frontend\" \"npm run collab\""
+    "lint": "next lint frontend",
+    "preview": "next build frontend && next start frontend"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",

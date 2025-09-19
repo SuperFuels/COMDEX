@@ -1,12 +1,4 @@
 {
-  "rewrites": [
-    {
-      "source": "/api/:path*",
-      "destination": "https://comdex-api-375760843948.us-central1.run.app/api/:path*"
-    },
-    {
-      "source": "/ws/:path*",
-      "destination": "https://comdex-api-375760843948.us-central1.run.app/ws/:path*"
-    }
-  ]
+  "builds": [{ "src": "frontend/next.config.(js|mjs|ts)", "use": "@vercel/next" }],
+  "routes": [{ "src": "/(.*)", "dest": "frontend/$1" }]
 }
