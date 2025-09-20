@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "symatics"
+version = "0.1.0"
+description = "Symatics: Post-numeric algebra over wave/glyph primitives."
+authors = [{name="Your Team", email="team@example.com"}]
+readme = "README.md"
+license = {text = "Apache-2.0"}
+requires-python = ">=3.10"
+dependencies = []
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+addopts = "-q"

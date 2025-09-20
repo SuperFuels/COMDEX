@@ -5,7 +5,8 @@ from typing import Dict, Any, Optional
 
 from backend.modules.glyphnet.glyph_beacon import emit_beacon
 from backend.modules.glyphnet.glyphwave_encoder import glyphs_to_waveform, save_wavefile
-from backend.modules.glyphnet.glyphnet_packet import create_gip_packet
+from backend.modules.glyphnet.glyphnet_utils import create_gip_packet
+
 from backend.modules.glyphnet.glyphwave_simulator import (
     simulate_waveform_loopback,
     simulate_waveform_transmission,

@@ -17,7 +17,7 @@ Executes CodexLang & glyphs with:
 
 import time
 import json
-from typing import Any, Dict, Optional, List
+from typing import Any, Dict, Optional, List, Union
 import logging
 logger = logging.getLogger(__name__)
 
@@ -694,6 +694,70 @@ class CodexExecutor:
             return {"status": "error", "error": str(e)}
 
     # ──────────────────────────────
+    # 🔆 Photon Capsule Execution
+    # ──────────────────────────────
+    def execute_photon_capsule(
+        self,
+        path_or_dict: Union[str, Dict[str, Any]],
+        context: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
+        """
+        Execute a Photon capsule (.phn file or dict).
+        Pipeline:
+          1. Photon → LogicGlyphs
+          2. Register into symbolic_registry
+          3. Render Codex scroll
+          4. Dispatch into Codex instruction execution
+
+        Returns:
+            dict with fields:
+              - status
+              - glyphs (LogicGlyph.to_dict())
+              - scroll (Codex scroll string)
+              - execution (CodexExecutor result)
+        """
+        # ✅ Lazy imports to avoid circular dependency issues
+        from backend.modules.photon.photon_to_codex import photon_to_codex
+
+        context = context or {}
+        capsule_id = context.get("capsule_id", "photon_capsule")
+
+        # Bridge Photon → Codex
+        try:
+            bridged = photon_to_codex(path_or_dict, capsule_id=capsule_id)
+        except Exception as e:
+            return {
+                "status": "error",
+                "error": f"Photon → Codex bridge failed: {e}",
+            }
+
+        glyphs = bridged.get("glyphs", [])
+        scroll = bridged.get("scroll", "")
+
+        # Compile Codex scroll into instruction tree
+        try:
+            from backend.modules.glyphos.codexlang_translator import run_codexlang_string
+            instruction_tree = run_codexlang_string(scroll)
+            if not instruction_tree or not isinstance(instruction_tree, dict):
+                raise ValueError("Invalid instruction tree from Photon scroll")
+        except Exception as e:
+            return {
+                "status": "error",
+                "error": f"Failed to compile Photon scroll: {e}",
+                "scroll": scroll,
+            }
+
+        # Execute instruction tree (reuse Codex executor pipeline)
+        result = self.execute_instruction_tree(instruction_tree, context=context)
+
+        return {
+            "status": "success",
+            "glyphs": [g.to_dict() for g in glyphs],
+            "scroll": scroll,
+            "execution": result,
+        }
+
+    # ──────────────────────────────
     # 🖋️ Glyph Execution
     # ──────────────────────────────
     def run_glyph(self, glyph: str, context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
@@ -920,6 +984,14 @@ def execute_codexlang(
     record_trace("codexlang_execution", f"[CodexLang] elapsed={elapsed:.6f}s")
     return result
 
+def execute_photon_capsule(
+    path_or_dict: Union[str, Dict[str, Any]],
+    context: Optional[Dict[str, Any]] = None
+) -> Dict[str, Any]:
+    """
+    Legacy shim: execute a Photon capsule via the singleton executor.
+    """
+    return codex_executor.execute_photon_capsule(path_or_dict, context=context)
 
 # ──────────────────────────────
 # CLI / Standalone Execution
@@ -957,4 +1029,5 @@ __all__ = [
     "codex_executor",
     "execute_codex_instruction_tree",
     "execute_codexlang",
+    "execute_photon_capsule",
 ]

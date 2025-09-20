@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/symatics/symatics/operators/project.py
+# hypothesis_version: 6.139.2
+
+[0.9, 1.0, 'Context', 'H', 'LHC', 'RHC', 'V', 'atten', 'projected', 'π']

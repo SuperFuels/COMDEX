@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/symatics/symatics/operators.py
+# hypothesis_version: 6.139.2
+
+[1e-09, 1e-06, 0.9, 0.98, 1.0, 1.25, 2.0, 'Context', 'E:', 'H', 'LHC', 'RHC', 'V', 'atten', 'corr', 'ctx', 'ctx_norm', 'df', 'dphi', 'id', 'left', 'link_id', 'measured', 'meta', 'pol_pair', 'projected', 'resonant', 'right', 'superposed', 'utf-8', 'μ', 'π', '↔', '⊕', '⟲']

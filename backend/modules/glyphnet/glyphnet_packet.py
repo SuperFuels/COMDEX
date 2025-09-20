@@ -23,9 +23,6 @@ from backend.modules.glyphnet.symbolic_key_derivation import symbolic_key_derive
 # ✅ Abuse protection
 from backend.modules.security.rate_limit_manager import rate_limit_manager
 
-# ✅ Transport switch integration
-from backend.modules.glyphnet.glyph_transport_switch import route_gip_packet
-
 # ✅ QKD fingerprint utilities
 from backend.modules.glyphnet.qkd_fingerprint import (
     generate_decoherence_fingerprint,
@@ -34,98 +31,10 @@ from backend.modules.glyphnet.qkd_fingerprint import (
 
 logger = logging.getLogger(__name__)
 
-
 # ───────────────────────────────────────────────
 # Packet creation + encryption + QKD integrity
 # ───────────────────────────────────────────────
-def create_gip_packet(
-    payload: Dict[str, Any],
-    sender: str,
-    target: Optional[str] = None,
-    packet_type: str = "glyph_push",
-    encrypt: bool = False,
-    public_key_pem: Optional[bytes] = None,
-    ephemeral_session_id: Optional[str] = None,
-    metadata: Optional[Dict[str, Any]] = None,
-) -> Dict[str, Any]:
-    """
-    Create a standardized GlyphNet .gip packet with metadata.
-    Supports RSA and ephemeral AES encryption.
-    Auto-injects QKD fingerprint + collapse hash if requested.
-    """
-    packet = {
-        "id": f"gip-{int(time.time() * 1000)}",
-        "type": packet_type,
-        "sender": sender,
-        "payload": None,
-        "timestamp": time.time(),
-        "metadata": metadata.copy() if metadata else {},
-    }
-    if target:
-        packet["target"] = target
-
-    try:
-        # ── Encryption Path ──
-        if encrypt:
-            if public_key_pem:
-                # 🔒 RSA encrypt
-                encrypted_payload = aes_encrypt_packet(payload, public_key_pem)
-                packet["payload"] = encrypted_payload
-                packet["type"] = f"{packet_type}_encrypted_rsa"
-
-            elif ephemeral_session_id:
-                # 🔑 AES ephemeral key path
-                ephemeral_manager = get_ephemeral_key_manager()
-                symbolic_trust = 0.7
-                symbolic_emotion = 0.5
-                seed_phrase = f"GIP:{sender}->{ephemeral_session_id}"
-
-                aes_key = ephemeral_manager.get_key(ephemeral_session_id)
-                if aes_key is None:
-                    aes_key = ephemeral_manager.generate_key(
-                        ephemeral_session_id,
-                        trust_level=symbolic_trust,
-                        emotion_level=symbolic_emotion,
-                        seed_phrase=seed_phrase,
-                    )
-
-                if aes_key:
-                    encrypted_payload = aes_encrypt_packet(payload, aes_key)
-                    packet["payload"] = encrypted_payload
-                    packet["type"] = f"{packet_type}_encrypted_aes_ephemeral"
-                    packet["session_id"] = ephemeral_session_id
-                else:
-                    logger.warning(
-                        f"[GlyphNetPacket] No ephemeral AES key for {ephemeral_session_id}. Sending unencrypted."
-                    )
-                    packet["payload"] = payload
-            else:
-                logger.warning("[GlyphNetPacket] Encryption requested but no key provided. Sending unencrypted.")
-                packet["payload"] = payload
-        else:
-            packet["payload"] = payload
-
-        # ── QKD Integrity Injection ──
-        if packet["metadata"].get("qkd_required", False):
-            try:
-                fingerprint = generate_decoherence_fingerprint(payload)
-                c_hash = collapse_hash(payload)
-                packet["metadata"]["fingerprint"] = fingerprint
-                packet["metadata"]["collapse_hash"] = c_hash
-                logger.debug(
-                    f"[GlyphNetPacket] QKD integrity fields attached (fp+hash) for packet {packet['id']}"
-                )
-            except Exception as e:
-                logger.error(
-                    f"[GlyphNetPacket] Failed to generate QKD metadata for packet {packet['id']}: {e}"
-                )
-
-    except Exception as e:
-        logger.error(f"[GlyphNetPacket] Payload encryption/QKD injection failed: {e}")
-        raise
-
-    return packet
-
+from backend.modules.glyphnet.glyphnet_utils import create_gip_packet
 
 # ───────────────────────────────────────────────
 # Encode / Decode
@@ -182,6 +91,9 @@ def push_symbolic_packet(
         return False
 
     try:
+        # ✅ Lazy import to avoid circular import
+        from backend.modules.glyphnet.glyph_transport_switch import route_gip_packet
+
         logger.info(
             f"[GlyphNetPacket] 📡 Dispatch {packet.get('id')} from {sender_id} → {packet.get('target', 'broadcast')} "
             f"(type={packet['type']}, transport={transport})"

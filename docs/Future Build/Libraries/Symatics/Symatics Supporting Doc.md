@@ -137,8 +137,66 @@ mindmap
 ⚡ So this is a full Newton-style Principia roadmap: start with axioms → build the language → drop into execution → tie into hardware/network → publish RFCs.
 
 
+📦 Repository Layout
+symatics/
+├─ pyproject.toml
+├─ README.md
+├─ LICENSE
+├─ docs/
+│  ├─ SYMATICS_AXIOMS.md
+│  ├─ SYMATICS_GRAMMAR_EBNF.md
+│  └─ SYMATICS_NOTES.md
+├─ symatics/
+│  ├─ __init__.py
+│  ├─ signature.py          # Types, domains, properties, tolerances
+│  ├─ terms.py              # Symbol, Var, App (AST for Symatics)
+│  ├─ axioms.py             # Axioms/Laws as rewrite schemata
+│  ├─ operators.py          # Primitive operators (⊕, ↔, ⟲, μ, π, 𝔽, 𝔼, τ, ⊖)
+│  ├─ wave.py               # Wave primitives + canonical signatures
+│  ├─ semantics.py          # Denotational semantics, normalized forms
+│  ├─ rewrite.py            # Pattern-matching + rewrite engine
+│  ├─ metrics.py            # Invariants, distances, norm, equivalence
+│  ├─ validate.py           # Static checks for well-typed terms
+│  └─ examples/
+│     └─ example_distance_unit.py
+└─ tests/
+   ├─ test_axioms.py
+   ├─ test_rewrite.py
+   └─ test_wave_semantics.py
 
 
+pyproject.toml
+
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "symatics"
+version = "0.1.0"
+description = "Symatics: Post-numeric algebra over wave/glyph primitives."
+authors = [{name="Your Team", email="team@example.com"}]
+readme = "README.md"
+license = {text = "Apache-2.0"}
+requires-python = ">=3.10"
+dependencies = []
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+addopts = "-q"
+
+README.md
+# Symatics (v0.1)
+
+Post-numeric algebra over wave/glyph primitives. Units are **signatures**, not numbers.
+Operators are physical/symbolic: superposition (⊕), entanglement (↔), resonance (⟲), measurement (μ), projection (π),
+fold (𝔽), expand (𝔼), transport (τ), interference (⊖).
+
+This module provides:
+- Formal axioms (machine-checkable rewrite laws)
+- Typed term language + evaluator
+- Wave signatures + invariants
+- Measurement-as-canonicalization for “units”
 
 
 

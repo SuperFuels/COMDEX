@@ -1458,5 +1458,25 @@
   {
     "timestamp": "2025-09-19T23:55:36.703310Z",
     "message": "[Sheet Execution] elapsed=0.626292s"
+  },
+  {
+    "timestamp": "2025-09-20T23:31:20.361940Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-20T23:32:21.758014Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-20T23:36:09.575431Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-20T23:39:20.087032Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-20T23:41:35.594916Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
   }
 ]

@@ -1,24 +1,33 @@
+# File: backend/modules/glyphnet/agent_identity_registry.py
 """
 📇 Agent Identity Registry
-Stores active agent identities, colors, and permissions for multi-agent KG collaboration.
+Stores active agent identities, colors, tokens, and permissions
+for multi-agent KG collaboration.
 """
 
 import uuid
-from typing import Dict, Optional, List
+import logging
+from typing import Dict, Optional
+
+logger = logging.getLogger(__name__)
 
 
 class AgentIdentityRegistry:
     def __init__(self):
         self.agents: Dict[str, Dict] = {}
+        self.token_map: Dict[str, str] = {}  # token → agent_id
 
-    def register_agent(self, name: str, public_key: str, color: str = None) -> str:
+    def register_agent(self, name: str, public_key: str, color: str = None, token: Optional[str] = None) -> str:
         agent_id = str(uuid.uuid4())
+        assigned_token = token or str(uuid.uuid4())
         self.agents[agent_id] = {
             "name": name,
             "public_key": public_key,
             "color": color or self._assign_color(),
             "permissions": ["kg_edit", "predict_fork", "entangle", "replay_view"],  # default perms
+            "token": assigned_token,
         }
+        self.token_map[assigned_token] = agent_id
         return agent_id
 
     def _assign_color(self) -> str:
@@ -86,6 +95,20 @@ class AgentIdentityRegistry:
             "name": agent["name"],
         }
 
+    def validate_token(self, token: str) -> bool:
+        """
+        Validate whether a token maps to a registered agent.
+        """
+        if token in self.token_map:
+            return True
+        logger.warning(f"[AgentRegistry] Unauthorized token {token[:6]}...")
+        return False
+
 
 # Singleton instance
 agent_identity_registry = AgentIdentityRegistry()
+
+
+# ✅ Shim function so external imports keep working
+def validate_agent_token(token: str) -> bool:
+    return agent_identity_registry.validate_token(token)
