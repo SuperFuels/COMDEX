@@ -1,37 +1,36 @@
 // frontend/pages/_app.tsx
-import type { AppProps } from 'next/app'
-import { Inter } from 'next/font/google'
+'use client';
 
-// Side-effect imports (must be before any component code)
-import '@/lib/api'            // axios baseURL & interceptors (SSR-safe)
-import '@/styles/globals.css' // tailwind + CSS variables
+import '@/lib/api';             // axios instance config
+import '@/styles/globals.css';  // Tailwind + globals
+import type { AppProps } from 'next/app';
+import { Inter } from 'next/font/google';
+import { useEffect } from 'react';
+import Navbar from '@/components/Navbar';
 
-import { useEffect } from 'react'
-import Navbar from '@/components/Navbar'
-
-// Load Inter and attach its class to the app root
-const inter = Inter({ subsets: ['latin'], display: 'swap' })
+// Inter font (swap display for better CLS)
+const inter = Inter({ subsets: ['latin'], display: 'swap' });
 
 export default function MyApp({ Component, pageProps }: AppProps) {
   useEffect(() => {
-    // Debug API URL in the browser only
-    // eslint-disable-next-line no-console
-    console.log('🔍 NEXT_PUBLIC_API_URL =', process.env.NEXT_PUBLIC_API_URL)
+    console.log('🔍 NEXT_PUBLIC_API_URL =', process.env.NEXT_PUBLIC_API_URL);
 
     if (typeof window !== 'undefined' && localStorage.getItem('token')) {
-      localStorage.removeItem('manualDisconnect')
+      localStorage.removeItem('manualDisconnect');
     }
-  }, [])
+  }, []);
 
   return (
-    <div className={`${inter.className} min-h-screen bg-background text-foreground`}>
-      {/* Sticky navbar at the top */}
-      <Navbar />
+    <div className={`${inter.className} flex min-h-screen bg-bg-page text-text-primary`}>
+      <div className="flex-1 flex flex-col">
+        {/* Global Navbar */}
+        <Navbar />
 
-      {/* Page content */}
-      <main className="min-h-0 overflow-auto">
-        <Component {...pageProps} />
-      </main>
+        {/* Page Content */}
+        <main className="flex-1 overflow-auto">
+          <Component {...pageProps} />
+        </main>
+      </div>
     </div>
-  )
+  );
 }

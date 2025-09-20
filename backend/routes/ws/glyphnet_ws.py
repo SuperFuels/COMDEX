@@ -20,6 +20,7 @@ Handles real-time streaming of glyph activity, entanglement, SoulLaw verdicts, a
 """
 import time
 import asyncio
+import json
 import logging
 from fastapi import APIRouter, WebSocket
 from typing import Dict, List, Any, Optional
@@ -52,11 +53,13 @@ router = APIRouter()
 
 _loop_started = False  # make sure the background broadcaster is started once
 
+from backend.modules.glyphnet.agent_identity_registry import validate_agent_token
+
 @router.websocket("/ws/glyphnet")
 async def glyphnet_websocket_endpoint(websocket: WebSocket):
     """
     Public WS endpoint:
-      - accepts the connection
+      - validates identity token before accepting
       - ensures the broadcast loop is running
       - receives JSON messages and pipes them to handle_glyphnet_event
       - cleans up on disconnect
@@ -64,6 +67,24 @@ async def glyphnet_websocket_endpoint(websocket: WebSocket):
     global _loop_started
 
     await websocket.accept()
+
+    # 🔐 Token validation
+    try:
+        token = websocket.query_params.get("token")
+        if not token or not validate_agent_token(token):
+            await websocket.send_json({
+                "type": "error",
+                "message": "Unauthorized WebSocket connection"
+            })
+            await websocket.close()
+            logger.warning(f"[GlyphNetWS] ❌ Unauthorized connection attempt: {websocket.client}")
+            return
+    except Exception as e:
+        logger.error(f"[GlyphNetWS] Token validation error: {e}")
+        await websocket.close()
+        return
+
+    # ✅ Authorized client
     active_connections.append(websocket)
 
     # Start background broadcast loop once
@@ -107,11 +128,8 @@ def emit_websocket_event(event_type: str, data: dict):
     """
     Emit a generic event to all WebSocket clients.
     """
-    payload = {
-        "type": event_type,
-        "data": data
-    }
-    for ws in connected_clients:
+    payload = {"type": event_type, "data": data}
+    for ws in active_connections:  # ✅ use active_connections, not connected_clients
         try:
             asyncio.ensure_future(ws.send_json(payload))
         except Exception as e:
@@ -221,6 +239,24 @@ async def broadcast_permission_update(agent_id: str, glyph_id: Optional[str] = N
     broadcast_event_throttled(payload)
     logger.info(f"[GlyphNetWS] Broadcasted glyph_permission_update for {agent_id} (glyph={glyph_id or 'all'})")
 
+# ✅ Glyph Packet Log Broadcast
+async def broadcast_glyph_log(node: str, glyph: str, status: str = "ok", message: Optional[str] = None):
+    """
+    Push a glyph log entry to all connected WebSocket clients.
+    Compatible with GlyphNetDebugger frontend.
+    """
+    event = {
+        "type": "glyph_packet",
+        "log": {
+            "node": node,
+            "glyph": glyph,
+            "status": status,
+            "message": message,
+            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+        },
+    }
+    await broadcast_event(event)
+
 # ✅ Incoming WebSocket Event Handler
 async def handle_glyphnet_event(websocket: WebSocket, msg: Dict[str, Any]):
     event_type = msg.get("event")
@@ -232,6 +268,12 @@ async def handle_glyphnet_event(websocket: WebSocket, msg: Dict[str, Any]):
         container_id = msg.get("payload", {}).get("container", "default")
         executor = GlyphExecutor(state_manager)
         await executor.trigger_glyph_remotely(container_id=container_id, x=x, y=y, z=z, source="ws_trigger")
+        await broadcast_glyph_log(
+            node="GlyphNetWS",
+            glyph=f"{container_id}:{x},{y},{z}",
+            status="ok",
+            message="Glyph triggered remotely",
+        )
 
     # 🔮 Predictive Fork Request (A7a)
     elif event_type == "predictive_forks_request":
@@ -322,6 +364,12 @@ async def handle_glyphnet_event(websocket: WebSocket, msg: Dict[str, Any]):
                 "agent_id": agent_id,
                 "version_vector": updated_glyph.get("version_vector", {})
             })
+            await broadcast_glyph_log(
+                node="GlyphNetWS",
+                glyph=glyph_id or "[unknown]",
+                status="ok",
+                message=f"Glyph updated by {agent_id}",
+            )    
             await broadcast_permission_update(agent_id, glyph_id=glyph_id,
                                               permission=updated_glyph.get("metadata", {}).get("permission", "read-only"))
             logger.info(f"[GlyphNetWS] CRDT merged glyph {glyph_id} from agent {agent_id}")
@@ -335,6 +383,12 @@ async def handle_glyphnet_event(websocket: WebSocket, msg: Dict[str, Any]):
     elif event_type == "entanglement_lock":
         glyph_id = msg.get("glyph_id")
         agent_id = msg.get("agent_id")
+        await broadcast_glyph_log(
+            node="GlyphNetWS",
+            glyph=glyph_id,
+            status="ok",
+            message=f"Entanglement lock acquired by {agent_id}",
+        )
         
         from backend.modules.knowledge_graph.crdt_registry_singleton import get_crdt_registry
         crdt_registry = get_crdt_registry()
@@ -447,6 +501,12 @@ def stream_soullaw_verdict(verdict: str, glyph: str, context: str = "SoulLaw"):
             "tags": ["⚖️", "🔒"] if verdict == "violation" else ["⚖️", "✅"]
         }
         asyncio.create_task(broadcast_event(payload))
+        asyncio.create_task(broadcast_glyph_log(
+            node="SoulLaw",
+            glyph=glyph,
+            status=verdict,
+            message=f"SoulLaw {verdict}",
+        ))    
         logger.info(f"[GlyphNetWS] Streamed SoulLaw {verdict}: {glyph}")
     except Exception as e:
         logger.warning(f"[GlyphNetWS] Failed to stream SoulLaw verdict: {e}")

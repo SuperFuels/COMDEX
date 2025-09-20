@@ -1,3 +1,5 @@
+# File: backend/modules/glyphnet/replay_timeline_renderer.py
+
 """
 🎞️ Replay Timeline Renderer (A6a)
 ────────────────────────────────────────────
@@ -7,49 +9,57 @@ Converts glyph replay logs into frame-by-frame playback with WebSocket streaming
 ✅ Aligns frames with tick progression (tick_start → tick_end).
 ✅ Supports pause/play/seek for scrubbable replay.
 ✅ Streams incremental frames via WebSocket (GHX/UI sync).
+✅ Live WebSocket control (pause/resume/seek/stop/play).
 """
 
 import asyncio
-import time
-from typing import List, Dict, Any, Optional
+import logging
+from typing import List, Dict, Any
+
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
 from backend.modules.glyphnet.glyph_trace_logger import glyph_trace
 from backend.modules.glyphnet.glyphnet_ws import stream_replay_frame
 
+logger = logging.getLogger(__name__)
+
+router = APIRouter(prefix="/glyphnet", tags=["Replay"])
+
 
 class ReplayTimelineRenderer:
     def __init__(self, playback_speed: float = 1.0):
-        """
-        Args:
-            playback_speed: Speed multiplier (1.0 = real-time ticks, 2.0 = double speed).
-        """
         self.playback_speed = playback_speed
-        self.is_playing = False
-        self.current_frame = 0
         self._pause_event = asyncio.Event()
         self._pause_event.set()  # Start unpaused
+        self.is_playing = False
+        self.current_frame = 0
 
     async def play_replay(self, replay_index: int = -1, auto_loop: bool = False):
-        """
-        Play a recorded glyph replay log frame-by-frame.
-        """
-        if replay_index >= len(glyph_trace.replay_log):
+        """Play a recorded glyph replay log frame-by-frame."""
+        if not glyph_trace.replay_log:
+            logger.warning("⚠️ No replays available in glyph_trace.")
+            return
+
+        if replay_index < -1 or replay_index >= len(glyph_trace.replay_log):
             raise IndexError(f"Replay index {replay_index} out of range.")
-        
+
+        # Default to last replay if index = -1
         replay_entry = glyph_trace.replay_log[replay_index]
         glyphs: List[Dict[str, Any]] = replay_entry["glyphs"]
         tick_start: int = replay_entry["tick_start"]
         tick_end: int = replay_entry["tick_end"]
         container_id: str = replay_entry["container_id"]
 
-        # Compute frame timing
         total_ticks = max(1, tick_end - tick_start)
-        frame_interval = (total_ticks / len(glyphs)) / 1000.0 / self.playback_speed
+        frame_interval = (total_ticks / max(1, len(glyphs))) / self.playback_speed
 
         self.is_playing = True
         self.current_frame = 0
 
-        print(f"[🎞️ Replay] Starting playback for container {container_id}, frames={len(glyphs)}")
+        logger.info(
+            f"[Replay] ▶️ Starting playback: container={container_id}, "
+            f"frames={len(glyphs)}, speed={self.playback_speed}x"
+        )
 
         while self.is_playing and self.current_frame < len(glyphs):
             await self._pause_event.wait()  # Pause support
@@ -72,46 +82,80 @@ class ReplayTimelineRenderer:
             await asyncio.sleep(frame_interval)
             self.current_frame += 1
 
-        print(f"[🎞️ Replay] Completed playback for container {container_id}")
+        logger.info(f"[Replay] ⏹️ Completed playback for container {container_id}")
 
         if auto_loop and self.is_playing:
-            print("[🔁 Replay] Looping enabled, restarting playback.")
+            logger.info("[Replay] 🔁 Looping enabled, restarting playback.")
             await self.play_replay(replay_index, auto_loop=True)
 
     def pause(self):
-        """Pause playback."""
         self._pause_event.clear()
-        self.is_playing = False
-        print("[⏸️ Replay] Paused.")
+        logger.info("[Replay] ⏸️ Paused.")
 
     def resume(self):
-        """Resume playback if paused."""
         self._pause_event.set()
+        logger.info("[Replay] ▶️ Resumed.")
+
+    def resume_from(self, frame_index: int):
+        self.current_frame = max(0, frame_index)
         self.is_playing = True
-        print("[▶️ Replay] Resumed.")
+        self._pause_event.set()
+        logger.info(f"[Replay] ▶️ Resumed from frame {self.current_frame}")
 
     def seek(self, frame_index: int):
-        """Seek to a specific frame index."""
-        if not self.is_playing:
-            self.current_frame = max(0, frame_index)
-            print(f"[⏩ Replay] Seeked to frame {self.current_frame}. Resume to continue playback.")
+        self.current_frame = max(0, frame_index)
+        logger.info(f"[Replay] ⏩ Seeked to frame {self.current_frame}. Resume to continue playback.")
 
     def stop(self):
-        """Stop playback entirely."""
         self.is_playing = False
         self._pause_event.set()
-        print("[⏹️ Replay] Stopped.")
+        logger.info("[Replay] ⏹️ Stopped.")
 
 
 # ✅ Singleton instance
 replay_renderer = ReplayTimelineRenderer()
 
-# 🧪 Test playback
-if __name__ == "__main__":
-    async def test_replay():
-        if not glyph_trace.replay_log:
-            print("⚠️ No replays available in glyph_trace. Run a replay log first.")
-            return
-        await replay_renderer.play_replay(replay_index=-1)
 
-    asyncio.run(test_replay())
+# ───────────────────────────────────────────────
+# 🎮 WebSocket Control API
+# ───────────────────────────────────────────────
+@router.websocket("/ws/replay-control")
+async def replay_control_ws(websocket: WebSocket):
+    await websocket.accept()
+    logger.info("[ReplayWS] 🎮 Client connected for replay control.")
+
+    try:
+        while True:
+            msg = await websocket.receive_json()
+            action = msg.get("action")
+
+            if action == "pause":
+                replay_renderer.pause()
+                await websocket.send_json({"status": "ok", "action": "pause"})
+
+            elif action == "resume":
+                replay_renderer.resume()
+                await websocket.send_json({"status": "ok", "action": "resume"})
+
+            elif action == "seek":
+                frame = int(msg.get("frame", 0))
+                replay_renderer.seek(frame)
+                await websocket.send_json({"status": "ok", "action": "seek", "frame": frame})
+
+            elif action == "stop":
+                replay_renderer.stop()
+                await websocket.send_json({"status": "ok", "action": "stop"})
+
+            elif action == "play":
+                index = int(msg.get("index", -1))
+                asyncio.create_task(replay_renderer.play_replay(replay_index=index))
+                await websocket.send_json({"status": "ok", "action": "play", "index": index})
+
+            else:
+                await websocket.send_json({"status": "error", "message": f"Unknown action {action}"})
+
+    except WebSocketDisconnect:
+        logger.info("[ReplayWS] ❌ Client disconnected.")
+    except Exception as e:
+        logger.error(f"[ReplayWS] Error: {e}")
+        await websocket.close()

@@ -20,7 +20,7 @@ flowchart TD
   B1✅[📊 Multi-Dimensional Cell Grid (4D Traversal)]:::feat
   B2✅[🔁 Expandable Cells (↘ nested ref/inline + UI)]:::feat
   B3✅[🔮 Predictive Cell Mutation / Forking]:::feat
-  B4[📜 Scrolls, Emotions, Memory in Cells]:::feat
+  B4✅[📜 Scrolls, Emotions, Memory in Cells]:::feat
   B5✅[⚙️ Symbolic Execution Inside Sheet]:::feat
   B6✅[🧠 Link to CodexLang for live formulas]:::feat
 
@@ -28,7 +28,7 @@ flowchart TD
   C[🔧 SQS Toolchain + Plugins]:::plugin
   C1✅[📁 Sheet Loader + Registry Integration]:::plugin
   C2✅[📈 Entropy, Novelty, Harmony Visualizers]:::plugin
-  C3[🎯 Goal Tracker Plugin]:::plugin
+  C3✅[🎯 Goal Tracker Plugin]:::plugin
   C4✅[🧬 SQI Plugin for reasoning in sheets]:::plugin
   C5✅[🔒 SoulLaw Filter Overlay]:::plugin
 

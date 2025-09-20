@@ -3,12 +3,12 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "next build frontend",
-    "start": "next start frontend",
-    "dev": "concurrently \"next dev frontend\" \"npm run collab\"",
+    "build": "cd frontend && next build",
+    "start": "cd frontend && next start -p 3000",
+    "dev": "concurrently \"cd frontend && next dev\" \"npm run collab\"",
     "collab": "ts-node --transpile-only -P tsconfig.collab.json server/collab-server.ts",
-    "lint": "next lint frontend",
-    "preview": "next build frontend && next start frontend"
+    "lint": "cd frontend && next lint",
+    "preview": "npm run build && npm run start"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",

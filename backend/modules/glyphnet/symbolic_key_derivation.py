@@ -1,13 +1,18 @@
+# File: backend/modules/glyphnet/symbolic_key_derivation.py
+
 import logging
 import hashlib
 import time
 import secrets
-from typing import Optional, Dict
 import threading
+import os
+from datetime import datetime
+from typing import Optional, Dict
 
 from backend.modules.hexcore.memory_engine import get_runtime_entropy_snapshot
 
 logger = logging.getLogger(__name__)
+
 
 class SymbolicKeyDerivation:
     """
@@ -27,9 +32,10 @@ class SymbolicKeyDerivation:
         lockout_time (int): Duration in seconds of lockout period after max attempts.
     """
 
-    MAX_ATTEMPTS = 10
+    MAX_ATTEMPTS: int = 10
+    DEFAULT_ITERATIONS: int = int(os.getenv("SKD_ITERATIONS", "10000"))
 
-    def __init__(self):
+    def __init__(self, hash_algo: str = "sha256"):
         """
         Initializes the SymbolicKeyDerivation instance, setting up internal
         state for attempt tracking, lockouts, and thread safety.
@@ -39,39 +45,31 @@ class SymbolicKeyDerivation:
         self.lockout_time = 300  # seconds
         self.lockouts: Dict[str, float] = {}
         self._lock = threading.Lock()
+        self.hash_algo = hash_algo
 
+    # ───────────────────────────────────────────────
+    # Codex Adapter
+    # ───────────────────────────────────────────────
     def _get_codex_adapter(self):
-        """
-        Lazily initialize and return the codex adapter used to symbolically
-        evaluate key inputs. If no adapter is configured, returns a dummy
-        adapter that hashes the input with SHA-256.
-
-        Returns:
-            An adapter instance with an evaluate(str) -> str method.
-        """
         if self._codex_adapter is None:
             class DummyAdapter:
-                def evaluate(self, input_str):
-                    return hashlib.sha256(input_str.encode('utf-8')).hexdigest()
+                def evaluate(self, input_str: str) -> str:
+                    return hashlib.sha256(input_str.encode("utf-8")).hexdigest()
             self._codex_adapter = DummyAdapter()
         return self._codex_adapter
 
+    # ───────────────────────────────────────────────
+    # Lockout Handling
+    # ───────────────────────────────────────────────
     def _is_locked_out(self, identity: str) -> bool:
-        """
-        Checks if a given identity (e.g., session or user) is currently locked out
-        due to excessive failed attempts. Automatically clears expired lockouts.
-
-        Args:
-            identity (str): The identifier to check for lockout status.
-
-        Returns:
-            bool: True if locked out, False otherwise.
-        """
         with self._lock:
             expiry = self.lockouts.get(identity, 0)
             now = time.time()
             if now < expiry:
-                logger.warning(f"[SymbolicKeyDerivation] Identity {identity} locked out until {expiry} (now={now})")
+                logger.warning(
+                    f"[SymbolicKeyDerivation] Identity {identity} locked out until "
+                    f"{datetime.fromtimestamp(expiry).isoformat()} (now={datetime.fromtimestamp(now).isoformat()})"
+                )
                 return True
             elif identity in self.lockouts:
                 # Clear expired lockout
@@ -80,42 +78,24 @@ class SymbolicKeyDerivation:
             return False
 
     def _record_failed_attempt(self, identity: str):
-        """
-        Records a failed key derivation or verification attempt for the given identity.
-        Triggers a lockout if the maximum allowed attempts is exceeded.
-
-        Args:
-            identity (str): The identifier for which to record the failed attempt.
-        """
         with self._lock:
             attempts = self.brute_force_attempts.get(identity, 0) + 1
             self.brute_force_attempts[identity] = attempts
             if attempts >= self.MAX_ATTEMPTS:
                 self.lockouts[identity] = time.time() + self.lockout_time
-                logger.warning(f"[SymbolicKeyDerivation] Identity {identity} locked out due to {attempts} failed attempts")
+                logger.warning(f"[SymbolicKeyDerivation] 🚫 Lockout for {identity} after {attempts} failed attempts")
 
     def _clear_attempts(self, identity: str):
-        """
-        Clears all failed attempt counters and lockout state for the given identity.
-
-        Args:
-            identity (str): The identifier for which to clear attempts and lockouts.
-        """
         with self._lock:
+            if identity in self.brute_force_attempts:
+                logger.debug(f"[SymbolicKeyDerivation] Cleared failed attempts for {identity}")
             self.brute_force_attempts.pop(identity, None)
             self.lockouts.pop(identity, None)
 
+    # ───────────────────────────────────────────────
+    # Entropy + Salt
+    # ───────────────────────────────────────────────
     def _get_entropy(self, fixed_entropy: Optional[str] = None) -> str:
-        """
-        Retrieves runtime entropy as a string for use in key derivation.
-        If fixed_entropy is provided, it is returned directly (useful for testing).
-
-        Args:
-            fixed_entropy (Optional[str]): Optional fixed entropy to use.
-
-        Returns:
-            str: Entropy string.
-        """
         if fixed_entropy is not None:
             return fixed_entropy
         try:
@@ -125,75 +105,47 @@ class SymbolicKeyDerivation:
             return ""
 
     def _gather_entropy(self, trust_level: float, emotion_level: float, timestamp: float, fixed_entropy: Optional[str]) -> str:
-        """
-        Combines input parameters and runtime entropy into a single entropy seed string.
-
-        Args:
-            trust_level (float): Trust level parameter.
-            emotion_level (float): Emotion level parameter.
-            timestamp (float): Timestamp parameter.
-            fixed_entropy (Optional[str]): Optional fixed entropy override.
-
-        Returns:
-            str: Combined entropy seed.
-        """
         entropy_part = self._get_entropy(fixed_entropy)
-        seed = f"Trust:{trust_level};Emotion:{emotion_level};Time:{timestamp};Entropy:{entropy_part}"
-        return seed
+        return f"Trust:{trust_level};Emotion:{emotion_level};Time:{timestamp};Entropy:{entropy_part}"
 
     def _add_salt_nonce(self, base_material: bytes) -> bytes:
-        """
-        Adds cryptographic salt and nonce bytes to the base material to enhance
-        key uniqueness and randomness.
-
-        Args:
-            base_material (bytes): Base key material.
-
-        Returns:
-            bytes: Key material with added salt and nonce.
-        """
         salt = secrets.token_bytes(16)
         nonce = secrets.token_bytes(12)
         combined = salt + nonce + base_material
         logger.debug("[SymbolicKeyDerivation] Added salt and nonce for key material")
         return combined
 
-    def _key_stretch(self, input_bytes: bytes, iterations: int = 10000) -> bytes:
-        """
-        Performs repeated hashing (key stretching) on the input bytes to increase
-        computational hardness against brute force.
-
-        Args:
-            input_bytes (bytes): Input bytes to stretch.
-            iterations (int): Number of SHA-256 iterations.
-
-        Returns:
-            bytes: Stretched key bytes.
-        """
+    # ───────────────────────────────────────────────
+    # Key Stretching
+    # ───────────────────────────────────────────────
+    def _key_stretch(self, input_bytes: bytes, iterations: Optional[int] = None) -> bytes:
+        iterations = iterations or self.DEFAULT_ITERATIONS
         stretched = input_bytes
+        hash_func = getattr(hashlib, self.hash_algo, hashlib.sha256)
+
         for _ in range(iterations):
-            stretched = hashlib.sha256(stretched).digest()
-        logger.debug(f"[SymbolicKeyDerivation] Performed key stretching with {iterations} iterations")
+            stretched = hash_func(stretched).digest()
+
+        logger.debug(f"[SymbolicKeyDerivation] Performed key stretching ({iterations} iterations, algo={self.hash_algo})")
         return stretched
 
-    def derive_key(self, trust_level: float, emotion_level: float, timestamp: float,
-                   identity: Optional[str] = None, seed_phrase: Optional[str] = None,
-                   use_salt: bool = True, fixed_entropy: Optional[str] = None) -> Optional[bytes]:
+    # ───────────────────────────────────────────────
+    # Public API
+    # ───────────────────────────────────────────────
+    def derive_key(
+        self,
+        trust_level: float,
+        emotion_level: float,
+        timestamp: float,
+        identity: Optional[str] = None,
+        seed_phrase: Optional[str] = None,
+        use_salt: bool = True,
+        fixed_entropy: Optional[str] = None,
+        iterations: Optional[int] = None,
+    ) -> Optional[bytes]:
         """
         Derives a secure cryptographic key based on input parameters combined with
         runtime entropy and optional seed phrase.
-
-        Args:
-            trust_level (float): Trust level, numeric.
-            emotion_level (float): Emotion level, numeric.
-            timestamp (float): Timestamp, numeric (e.g., epoch seconds).
-            identity (Optional[str]): Identity string for rate limiting and lockout.
-            seed_phrase (Optional[str]): Optional seed phrase to influence key derivation.
-            use_salt (bool): Whether to apply salt and nonce (default True).
-            fixed_entropy (Optional[str]): Fixed entropy string for deterministic testing.
-
-        Returns:
-            Optional[bytes]: Derived key bytes if successful, None if locked out or error.
         """
         try:
             trust_level = float(trust_level)
@@ -228,44 +180,42 @@ class SymbolicKeyDerivation:
 
             codex_adapter = self._get_codex_adapter()
             symbolic_output = codex_adapter.evaluate(f"⟦ Key : {base_input} ⟧")
-
-            base_material = symbolic_output.encode('utf-8')
+            base_material = symbolic_output.encode("utf-8")
 
             salted_material = self._add_salt_nonce(base_material) if use_salt else base_material
-            derived_key = self._key_stretch(salted_material)
+            derived_key = self._key_stretch(salted_material, iterations)
 
             if identity:
                 self._clear_attempts(identity)
 
-            logger.info(f"[SymbolicKeyDerivation] Derived secure key for identity {identity}")
+            logger.info(
+                f"[SymbolicKeyDerivation] ✅ Derived secure key for {identity or 'anon'} "
+                f"(time={datetime.fromtimestamp(timestamp).isoformat()})"
+            )
             return derived_key
-
         except Exception as e:
             logger.error(f"[SymbolicKeyDerivation] Key derivation failed: {e}")
             if identity:
                 self._record_failed_attempt(identity)
             return None
 
-    def verify_key(self, key: bytes, trust_level: float, emotion_level: float, timestamp: float,
-                   identity: Optional[str] = None, seed_phrase: Optional[str] = None) -> bool:
+    def verify_key(
+        self,
+        key: bytes,
+        trust_level: float,
+        emotion_level: float,
+        timestamp: float,
+        identity: Optional[str] = None,
+        seed_phrase: Optional[str] = None,
+    ) -> bool:
         """
         Verifies whether the provided key matches the derived key for the given parameters.
-
-        Args:
-            key (bytes): The key to verify.
-            trust_level (float): Trust level used in derivation.
-            emotion_level (float): Emotion level used in derivation.
-            timestamp (float): Timestamp used in derivation.
-            identity (Optional[str]): Identity string used for rate limiting.
-            seed_phrase (Optional[str]): Seed phrase used in derivation.
-
-        Returns:
-            bool: True if the derived key matches the provided key, False otherwise.
         """
         derived = self.derive_key(trust_level, emotion_level, timestamp, identity, seed_phrase)
         if derived is None:
             return False
         return secrets.compare_digest(derived, key)
 
-        # Alias for backward compatibility
+
+# ✅ Alias for backward compatibility
 symbolic_key_deriver = SymbolicKeyDerivation()

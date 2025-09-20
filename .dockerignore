@@ -16,17 +16,12 @@ node_modules/
 __pycache__/
 *.py[cod]
 .DS_Store
-.next/
 
-# Explicitly allow frontend/out
-!frontend/out/
-!frontend/out/**
-
-# Optional: if you're not copying all of frontend
+# Frontend build artifacts we don't want copied directly
 frontend/node_modules/
-frontend/.next/
 frontend/.env.local
 
-# Ignore Google Cloud SDK
-google-cloud-sdk/
-google-cloud-sdk-*.tar.gz
+# DO NOT ignore .next anymore — we build it inside the container
+# DO NOT ignore frontend/out either (not used now)
+#frontend/.next/
+#frontend/out/

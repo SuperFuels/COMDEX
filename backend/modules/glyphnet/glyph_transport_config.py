@@ -3,9 +3,9 @@
 from typing import Callable, Dict, Any
 import logging
 
-from backend.modules.glyphnet.glyph_beacon import emit_beacon
-from backend.modules.glyphnet.glyphwave_encoder import glyphs_to_waveform
-from backend.modules.glyphnet.glyphnet_packet import create_glyph_packet
+from backend.modules.glyphnet.glyph_beacon import emit_symbolic_beacon
+from backend.modules.glyphnet.glyphwave_encoder import glyphs_to_waveform, save_wavefile
+from backend.modules.glyphnet.glyphnet_packet import create_gip_packet
 
 logger = logging.getLogger(__name__)
 
@@ -29,9 +29,13 @@ def get_transport(name: str) -> TransportHandler:
 def radio_transport(packet: Dict[str, Any], options: Dict[str, Any]) -> bool:
     logger.info("[Transport] Sending packet via RADIO")
     try:
-        waveform = glyphs_to_waveform(packet["glyphs"])
+        glyphs = packet.get("payload", {}).get("glyphs", [])
+        waveform = glyphs_to_waveform(glyphs)
         # Stubbed: In real setup, send waveform to radio transmitter
         logger.debug(f"[Radio] Simulated waveform: {waveform[:10]}...")
+        # Optionally save waveform if requested
+        if options.get("save_path"):
+            save_wavefile(waveform, options["save_path"])
         return True
     except Exception as e:
         logger.exception("[Radio] Failed to send via radio")
@@ -41,7 +45,9 @@ def radio_transport(packet: Dict[str, Any], options: Dict[str, Any]) -> bool:
 def beacon_transport(packet: Dict[str, Any], options: Dict[str, Any]) -> bool:
     logger.info("[Transport] Sending packet via BEACON")
     try:
-        emit_beacon(packet)
+        glyphs = packet.get("payload", {}).get("glyphs", [])
+        sender = packet.get("payload", {}).get("sender", "system")
+        emit_symbolic_beacon(glyphs, sender=sender)
         return True
     except Exception as e:
         logger.exception("[Beacon] Failed to emit")
