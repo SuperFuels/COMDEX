@@ -18,6 +18,7 @@ Executes CodexLang & glyphs with:
 import time
 import json
 from typing import Any, Dict, Optional, List, Union
+from pathlib import Path
 import logging
 logger = logging.getLogger(__name__)
 
@@ -57,6 +58,8 @@ from backend.modules.creative.innovation_scorer import get_innovation_score
 from backend.modules.codex.codex_scroll_builder import build_scroll_from_glyph
 from backend.modules.symbolic_spreadsheet.models.glyph_cell import GlyphCell
 from backend.modules.codex.codex_virtual_qpu import CodexVirtualQPU
+from backend.symatics.symatics_dispatcher import evaluate_symatics_expr, is_symatics_operator
+from backend.modules.photon.photon_to_codex import photon_capsule_to_glyphs, render_photon_scroll
 
 # ⬁ Self-Rewrite Imports
 from backend.modules.codex.scroll_mutation_engine import mutate_scroll_tree
@@ -182,6 +185,140 @@ class CodexExecutor:
         except Exception:
             active_cid = "ucs_hub"
         self.memory_bridge = MemoryBridge(container_id=active_cid)
+
+    # ──────────────────────────────
+    # 🔆 Photon Capsule Execution (Unified)
+    # ──────────────────────────────
+    def execute_photon_capsule(
+        self,
+        capsule: Union[str, Path, Dict[str, Any]],
+        *,
+        context: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
+        """
+        Execute a Photon capsule (.phn file, dict, or already-parsed object).
+        Pipeline:
+          1. Load + normalize capsule
+          2. Photon → LogicGlyphs (with multi-glyph split support)
+          3. Register into symbolic_registry
+          4. Render Codex scroll
+          5. Detect & evaluate Symatics operators (if present)
+          6. Otherwise: compile Codex scroll → instruction tree → execute
+
+        Always guarantees an "engine" field in the result.
+        """
+        context = context or {}
+        capsule_id = context.get("capsule_id", "photon_capsule")
+
+        # ✅ Lazy imports (avoid circular deps)
+        from backend.modules.photon.photon_to_codex import (
+            load_photon_capsule,
+            photon_capsule_to_glyphs,
+            render_photon_scroll,
+            register_photon_glyphs,
+        )
+        from backend.symatics.symatics_dispatcher import (
+            evaluate_symatics_expr,
+            is_symatics_operator,
+        )
+        from backend.modules.glyphos.codexlang_translator import run_codexlang_string
+
+        try:
+            # 🔗 Load + normalize capsule
+            capsule_dict = load_photon_capsule(capsule)
+            glyphs = photon_capsule_to_glyphs(capsule_dict)
+
+            # 🚑 Split scroll expressions into multiple glyphs if needed
+            normalized_glyphs = []
+            try:
+                for g in glyphs:
+                    g_str = str(g)
+                    if ";" in g_str:  # crude separator for multi-glyph scrolls
+                        parts = [p.strip() for p in g_str.split(";") if p.strip()]
+                        for p in parts:
+                            from backend.modules.glyphos.glyph_tokenizer import (
+                                tokenize_symbol_text_to_glyphs,
+                            )
+                            for token in tokenize_symbol_text_to_glyphs(p):
+                                if hasattr(token, "operator"):
+                                    normalized_glyphs.append(token)
+                    else:
+                        normalized_glyphs.append(g)
+                glyphs = normalized_glyphs
+            except Exception as split_err:
+                logger.error(f"[Photon] Glyph splitting failed: {split_err}")
+                return {
+                    "status": "error",
+                    "engine": "codex",  # safe default
+                    "error": f"Glyph splitting failed: {split_err}",
+                }
+
+            # 🔐 Register glyphs into the symbolic registry
+            try:
+                register_photon_glyphs(glyphs, capsule_id=capsule_id)
+            except Exception as reg_err:
+                logger.warning(f"[Photon] Glyph registry failed: {reg_err}")
+
+            # 🌀 Render scroll
+            scroll = render_photon_scroll(glyphs)
+
+            # 🔍 Detect Symatics algebra operators
+            if any(is_symatics_operator(getattr(g, "operator", None)) for g in glyphs):
+                try:
+                    execution_result = [
+                        evaluate_symatics_expr(g, context=context) for g in glyphs
+                    ]
+                    return {
+                        "status": "success",
+                        "engine": "symatics",
+                        "glyphs": [g.to_dict() for g in glyphs if hasattr(g, "to_dict")],
+                        "scroll": scroll,
+                        "execution": execution_result,
+                    }
+                except Exception as e:
+                    logger.error(f"[Photon] Symatics evaluation failed: {e}")
+                    return {
+                        "status": "error",
+                        "engine": "symatics",
+                        "glyphs": [g.to_dict() for g in glyphs if hasattr(g, "to_dict")],
+                        "scroll": scroll,
+                        "error": f"Symatics evaluation failed: {e}",
+                    }
+
+            # 🔁 Fallback: run CodexLang pipeline
+            try:
+                instruction_tree = run_codexlang_string(scroll)
+                if not instruction_tree or not isinstance(instruction_tree, dict):
+                    raise ValueError("Invalid instruction tree from Photon scroll")
+
+                execution_result = self.execute_instruction_tree(
+                    instruction_tree, context=context
+                )
+                return {
+                    "status": "success",
+                    "engine": "codex",
+                    "glyphs": [g.to_dict() for g in glyphs if hasattr(g, "to_dict")],
+                    "scroll": scroll,
+                    "execution": execution_result,
+                }
+            except Exception as e:
+                logger.error(f"[Photon] CodexLang execution failed: {e}")
+                return {
+                    "status": "error",
+                    "engine": "codex",
+                    "glyphs": [g.to_dict() for g in glyphs if hasattr(g, "to_dict")],
+                    "scroll": scroll,
+                    "error": f"CodexLang execution failed: {e}",
+                }
+
+        except Exception as outer_e:
+            logger.error(f"[Photon] Capsule load failed: {outer_e}")
+            # 🚑 Guarantee engine field even if early load/parse fails
+            return {
+                "status": "error",
+                "engine": "codex",  # default fallback
+                "error": f"Photon capsule load failed: {outer_e}",
+            }
 
     # ──────────────────────────────
     # 🎯 CodexLang Execution
@@ -418,9 +555,29 @@ class CodexExecutor:
             # 📡 Plugin QFC Broadcast Hook
             try:
                 from backend.core.plugins.plugin_manager import get_all_plugins
+                field_state = {
+                    "nodes": [],
+                    "links": [],
+                    "glyphs": [],
+                    "scrolls": [],
+                    "qwaveBeams": [],
+                    "entanglement": {},
+                    "sqi_metrics": {},
+                    "camera": {},
+                    "reflection_tags": [],
+                }
                 for plugin in get_all_plugins():
                     if hasattr(plugin, "broadcast_qfc_update"):
-                        plugin.broadcast_qfc_update()
+                        # handle async vs sync
+                        import inspect, asyncio
+                        if inspect.iscoroutinefunction(plugin.broadcast_qfc_update):
+                            try:
+                                loop = asyncio.get_running_loop()
+                                loop.create_task(plugin.broadcast_qfc_update(field_state, observer_id="codex_executor"))
+                            except RuntimeError:
+                                asyncio.run(plugin.broadcast_qfc_update(field_state, observer_id="codex_executor"))
+                        else:
+                            plugin.broadcast_qfc_update(field_state, observer_id="codex_executor")
             except Exception as plugin_broadcast_err:
                 logger.warning(f"[Plugin] QFC broadcast hook failed: {plugin_broadcast_err}")
 
@@ -694,70 +851,6 @@ class CodexExecutor:
             return {"status": "error", "error": str(e)}
 
     # ──────────────────────────────
-    # 🔆 Photon Capsule Execution
-    # ──────────────────────────────
-    def execute_photon_capsule(
-        self,
-        path_or_dict: Union[str, Dict[str, Any]],
-        context: Optional[Dict[str, Any]] = None
-    ) -> Dict[str, Any]:
-        """
-        Execute a Photon capsule (.phn file or dict).
-        Pipeline:
-          1. Photon → LogicGlyphs
-          2. Register into symbolic_registry
-          3. Render Codex scroll
-          4. Dispatch into Codex instruction execution
-
-        Returns:
-            dict with fields:
-              - status
-              - glyphs (LogicGlyph.to_dict())
-              - scroll (Codex scroll string)
-              - execution (CodexExecutor result)
-        """
-        # ✅ Lazy imports to avoid circular dependency issues
-        from backend.modules.photon.photon_to_codex import photon_to_codex
-
-        context = context or {}
-        capsule_id = context.get("capsule_id", "photon_capsule")
-
-        # Bridge Photon → Codex
-        try:
-            bridged = photon_to_codex(path_or_dict, capsule_id=capsule_id)
-        except Exception as e:
-            return {
-                "status": "error",
-                "error": f"Photon → Codex bridge failed: {e}",
-            }
-
-        glyphs = bridged.get("glyphs", [])
-        scroll = bridged.get("scroll", "")
-
-        # Compile Codex scroll into instruction tree
-        try:
-            from backend.modules.glyphos.codexlang_translator import run_codexlang_string
-            instruction_tree = run_codexlang_string(scroll)
-            if not instruction_tree or not isinstance(instruction_tree, dict):
-                raise ValueError("Invalid instruction tree from Photon scroll")
-        except Exception as e:
-            return {
-                "status": "error",
-                "error": f"Failed to compile Photon scroll: {e}",
-                "scroll": scroll,
-            }
-
-        # Execute instruction tree (reuse Codex executor pipeline)
-        result = self.execute_instruction_tree(instruction_tree, context=context)
-
-        return {
-            "status": "success",
-            "glyphs": [g.to_dict() for g in glyphs],
-            "scroll": scroll,
-            "execution": result,
-        }
-
-    # ──────────────────────────────
     # 🖋️ Glyph Execution
     # ──────────────────────────────
     def run_glyph(self, glyph: str, context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
@@ -1018,6 +1111,24 @@ if __name__ == "__main__":
 
     mutated = auto_mutate_container(container, autosave=autosave)
     print(f"✅ Container processed. Autosave={autosave}")
+
+# --------------------------------------------------------------------------------------
+# Free function wrapper for tests
+# --------------------------------------------------------------------------------------
+
+def execute_photon_capsule(
+    capsule: Union[str, Path, Dict[str, Any]],
+    *,
+    context: Optional[Dict[str, Any]] = None
+) -> Dict[str, Any]:
+    """
+    Test-facing wrapper for CodexExecutor.execute_photon_capsule.
+    Ensures integration tests can call this directly without instantiating the executor.
+    """
+    from backend.modules.codex.codex_executor import CodexExecutor
+
+    executor = CodexExecutor()
+    return executor.execute_photon_capsule(capsule, context=context)
 
 
 # ──────────────────────────────

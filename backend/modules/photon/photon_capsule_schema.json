@@ -1,42 +1,57 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://aion.dev/photon_capsule_schema.json",
   "title": "Photon Capsule",
   "type": "object",
+  "additionalProperties": false,
   "properties": {
-    "name": { "type": "string" },
+    "name": { "type": "string", "minLength": 1 },
+    "version": { "type": "string" },
+
     "glyphs": {
       "type": "array",
+      "minItems": 1,
       "items": {
         "type": "object",
+        "additionalProperties": false,
         "properties": {
-          "name": { "type": "string" },
-          "logic": { "type": "string" },
-          "operator": { "type": "string" },
+          "name":   { "type": "string" },
+          "logic":  { "type": "string" },
+          "operator": {
+            "type": "string",
+            "minLength": 1
+          },
           "args": {
             "type": "array",
-            "items": { "type": "string" }
-          }
+            "items": { "type": ["string", "number", "boolean"] }
+          },
+          "meta": { "type": "object" }
         },
         "required": ["operator"]
       }
     },
+
     "steps": {
       "type": "array",
+      "minItems": 1,
       "items": {
         "type": "object",
+        "additionalProperties": false,
         "properties": {
-          "symbol": { "type": "string" },
-          "value": { "type": "string" },
-          "args": {
+          "symbol": { "type": "string", "minLength": 1 },
+          "value":  { "type": "string" },
+          "args":   {
             "type": "array",
-            "items": { "type": "string" }
-          }
+            "items": { "type": ["string", "number", "boolean"] }
+          },
+          "meta":   { "type": "object" }
         },
-        "required": ["symbol", "value"]
+        "required": ["symbol"]
       }
     }
   },
-  "anyOf": [
+
+  "oneOf": [
     { "required": ["glyphs"] },
     { "required": ["steps"] }
   ]

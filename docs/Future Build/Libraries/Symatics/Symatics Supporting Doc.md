@@ -10,25 +10,25 @@ Here’s the FULL Symatics → Photon → Symbolic Binary → GlyphNet roadmap i
 mindmap
   root((🚀 Symatics Build Program))
     A[🔹 Phase 1: Symatics Foundations]
-      A1[Define Symatics Axioms]
+      A1[✅ Define Symatics Axioms]
         note right of A1
           • Replace numeric units with wave/glyph primitives
           • Establish: unit = signature, not "1"
           • Define operators (⊕ superposition, ↔ entanglement, ⟲ resonance)
         end note
-      A2[Formalize Symatics Algebra]
+      A2[✅ Formalize Symatics Algebra]
         note right of A2
           • Equivalent of Peano axioms
           • Laws: commutativity, distributivity in wave domain
           • Define rules for folds, expansions, wave-interactions
         end note
-      A3[Simulation Framework]
+      A3[🟡 Simulation Framework]
         note right of A3
           • Python prototype: symatics_engine.py
           • Compare Symatics vs Numeric math on test problems
           • Test case: distance by wave signature vs meter
         end note
-      A4[Whitepaper: Symatics v0.1]
+      A4[🟡 Whitepaper: Symatics v0.1]
         note right of A4
           • Academic-style doc
           • Position as Newton→Einstein→Quantum→Symatics
@@ -36,19 +36,19 @@ mindmap
         end note
 
     B[🔹 Phase 2: Photon Language Integration]
-      B1[Design Photon Grammar (.phn)]
+      B1[✅ Design Photon Grammar (.phn)]
         note right of B1
           • File = capsule of Symatics instructions
           • Syntax = glyph-based (⊕, ↔, ∇, etc.)
           • Supports plugins: % = Knowledge Graph, > = Qwave Beam
         end note
-      B2[Photon Executor]
+      B2[✅ Photon Executor]
         note right of B2
           • photon_executor.py parses & executes .phn
           • Operators map directly to Symatics algebra engine
           • CodexCore integration via run_photon_file()
         end note
-      B3[UI Integration]
+      B3[🟡 UI Integration]
         note right of B3
           • Extend CodexScrollRunner + SCI AtomSheet
           • Launch Photon capsules directly in UI
@@ -56,72 +56,21 @@ mindmap
         end note
 
     C[🔹 Phase 3: Symbolic Binary (New Lowest Layer)]
-      C1[Define Symbolic Binary Units]
-        note right of C1
-          • Symbol = atomic unit (not bit 0/1)
-          • Encoding = wave/glyph signatures
-          • Replace "bitstream" with "glyphstream"
-        end note
-      C2[CodexCore Runtime Integration]
-        note right of C2
-          • CodexCore VM reads Symbolic Binary directly
-          • Replace lexer/parsers with glyph interpreters
-          • Backwards compatibility layer: symbolic→binary→classic
-        end note
-      C3[Validation]
-        note right of C3
-          • Benchmarks: compression, precision
-          • SQI: show symbolic binary is lighter/faster
-        end note
+      C1[⚪ Define Symbolic Binary Units]
+      C2[⚪ CodexCore Runtime Integration]
+      C3[⚪ Validation]
 
     D[🔹 Phase 4: GlyphNet + CodexFiber Hardware]
-      D1[Glyph→Wave Mapping Table]
-        note right of D1
-          • Define sPHY spec (⊕ = sinusoid, ↔ = entangled polarization, ∇ = chirped beam)
-          • Build CodexFiber v0.1 spec
-        end note
-      D2[SDR Prototype (Phase 1 Hardware)]
-        note right of D2
-          • GNURadio config for ⊕ test glyph
-          • Transmit + detect waveforms
-          • Validate mapping to symbolic binary
-        end note
-      D3[Optical Lab Prototype (Phase 2 Hardware)]
-        note right of D3
-          • Fiber optic lasers, SLM, polarization controllers
-          • Transmit ⊕, ↔, ∇ beams through fiber
-          • Detect + decode back into Symatics glyphs
-        end note
-      D4[Multi-Node GlyphNet Mesh]
-        note right of D4
-          • Build symbolic routers (GlyphRouters)
-          • Route glyph packets on meaning, not IP headers
-          • Scale to CodexFiber mesh
-        end note
+      D1[⚪ Glyph→Wave Mapping Table]
+      D2[⚪ SDR Prototype (Phase 1 Hardware)]
+      D3[⚪ Optical Lab Prototype (Phase 2 Hardware)]
+      D4[⚪ Multi-Node GlyphNet Mesh]
 
     E[🔹 Phase 5: Unified Whitepaper + Standardization]
-      E1[Symatics RFC Draft]
-        note right of E1
-          • Define axioms, operators, rules
-          • Provide formal proofs + examples
-        end note
-      E2[Photon RFC Draft]
-        note right of E2
-          • Language grammar, file structure
-          • Execution model with CodexCore
-        end note
-      E3[CodexFiber RFC Draft]
-        note right of E3
-          • Glyph→wave mapping
-          • Protocol layers (sPHY, sMAC, sNET, sAPP)
-          • Error correction, routing rules
-        end note
-      E4[Symatics + Photon Whitepaper]
-        note right of E4
-          • Position as paradigm shift
-          • Compare vs Newton, Einstein, Quantum
-          • Roadmap: Simulation → Hardware → Network
-        end note
+      E1[⚪ Symatics RFC Draft]
+      E2[⚪ Photon RFC Draft]
+      E3[⚪ CodexFiber RFC Draft]
+      E4[⚪ Symatics + Photon Whitepaper]
 
 
 

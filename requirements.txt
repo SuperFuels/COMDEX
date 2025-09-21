@@ -22,3 +22,4 @@ websockets==15.0.1
 redis>=4.0.0
 pytest
 hypothesis
+jsonschema>=4.0.0

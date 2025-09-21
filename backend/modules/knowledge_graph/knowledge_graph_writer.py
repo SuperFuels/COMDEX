@@ -683,6 +683,45 @@ class KnowledgeGraphWriter:
         container.setdefault("sqi", {})["last_prediction"] = trace
         container.setdefault("replay", {})["last_trace_id"] = trace_id
 
+        def write_scroll(
+            self,
+            scroll: Dict[str, Any],
+            *,
+            container_id: Optional[str] = None,
+            plugin: str = "ReflectionBridge",
+            region: Optional[str] = None,
+            agent_id: str = "local",
+        ) -> str:
+            """
+            Inject a reflection or relevance scroll into the KG.
+            Persists it as a glyph of type="scroll".
+            Called by sci_reflection_plugin_bridge.
+            """
+            glyph_id = generate_uuid()
+            timestamp = get_current_timestamp()
+            container_id = container_id or (self.container.get("id") if self.container else "kg_ephemeral")
+
+            entry = {
+                "id": glyph_id,
+                "type": "scroll",
+                "content": scroll,
+                "timestamp": timestamp,
+                "metadata": {
+                    "container_id": container_id,
+                    "source_plugin": plugin,
+                },
+                "tags": ["scroll", "reflection"],
+                "agent_id": agent_id,
+            }
+            if region:
+                entry["region"] = region
+
+            self._write_to_container(entry)
+            add_to_index("knowledge_index.scroll", entry)
+
+            print(f"📜 KG: Scroll injected into {container_id}")
+            return glyph_id
+
     def resolve_replay_chain(container: dict, start_id: Optional[str] = None) -> List[dict]:
         """
         Walks the logic_trace in reverse via parent_id links to reconstruct

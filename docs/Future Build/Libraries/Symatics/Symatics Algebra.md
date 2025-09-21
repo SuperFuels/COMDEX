@@ -7,15 +7,17 @@ graph TD
 
 flowchart TD
 
+flowchart TD
+
 subgraph A["Symatics Algebra Development"]
     A1["✅ A1: Define Core Primitives"]
     A2["✅ A2: Formalize Symatics Axioms & Laws"]
-    A3["✅ A3: Operator Definitions (⊕, ↔, ⟲, μ, π; ctx-aware dispatcher)"]
-    A4["🟡 A4: Algebra Rulebook v0.1 (Draft, TODO markers for v0.2+)"]
-    A5["🟡 A5: Algebra Engine (parser, evaluator, modular laws)"]
-    A6["⚪ A6: Extend → Symatics Calculus (integration / differentiation analogs)"]
+    A3["✅ A3: Operator Definitions (⊕, ↔, ⟲, μ, π) + ctx-aware dispatcher"]
+    A4["🟡 A4: Algebra Rulebook v0.1 (draft complete; add extra laws → v0.2)"]
+    A5["🟡 A5: Algebra Engine (parser+evaluator live; wire SQI/mutation)"]
+    A6["⚪ A6: Extend → Symatics Calculus (Δ / ∫ stubs)"]
     A7["⚪ A7: Mechanized Proofs (Coq / Lean / TLA+)"]
-    A8["⚪ A8: Simulation Framework (CodexCore integration)"]
+    A8["⚪ A8: Simulation Framework (CodexCore replay integration)"]
     A9["⚪ A9: Benchmark vs Classical Algebra"]
     A10["⚪ A10: Publish RFC Whitepaper"]
 
@@ -23,13 +25,12 @@ subgraph A["Symatics Algebra Development"]
 end
 
 subgraph B["Integration Layers"]
-    B1["✅ B1: CodexCore Binding → run_symatics_expr()"]
-    B2["🟡 B2: Photon Language: .phn algebraic capsules (hooks exist, needs v0.2 sync)"]
-    B3["⚪ B3: GlyphNet Encoding: algebra ops as packets"]
-    B4["⚪ B4: SQI Quantum Execution: entanglement-aware operators"]
-    B5["⚪ B5: SCI IDE Panel: live Symatics editor + visual algebra canvas"]
+    B1["✅ B1: CodexCore binding → execute_photon_capsule() routes Symatics vs Codex"]
+    B2["✅ B2: Photon capsules → schema-valid + legacy migration (steps/body→glyphs) with tests"]
+    B3["⚪ B3: GlyphNet encoding: algebra ops as packets"]
+    B4["⚪ B4: SQI quantum execution: entanglement-aware scoring"]
+    B5["⚪ B5: SCI IDE panel: Symatics toggle + algebra graph canvas"]
 end
-
 A5 --> B1
 B1 --> B2 --> B3 --> B4 --> B5
 end

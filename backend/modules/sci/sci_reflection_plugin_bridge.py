@@ -2,8 +2,8 @@
 
 from typing import Dict, Any, Optional
 from backend.core.plugins.plugin_manager import get_all_plugins
-from backend.modules.container_runtime.scroll_injector import inject_scroll
-from backend.modules.knowledge.knowledge_graph_writer_singleton import get_kg_writer
+from backend.modules.codex.codex_scroll_injector import inject_scroll
+from backend.modules.knowledge_graph.kg_writer_singleton import get_kg_writer
 from backend.modules.sci.qfc_ws_broadcaster import broadcast_qfc_state
 
 

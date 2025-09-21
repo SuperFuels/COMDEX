@@ -2,7 +2,7 @@
 import time
 import asyncio
 from typing import Dict, Any, Optional
-from backend.core.websocket.codex_ws_client import send_codex_ws_event
+from backend.modules.codex.codex_websocket_interface import send_codex_ws_event
 
 DEFAULT_QFC_BROADCAST_EVENT = "qfc_field_update"
 

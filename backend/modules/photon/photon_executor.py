@@ -3,6 +3,7 @@ import json
 import logging
 from pathlib import Path
 from typing import Dict, Any, List, Callable, Optional
+from backend.modules.photon.photon_to_codex import photon_to_codex
 
 logger = logging.getLogger(__name__)
 
@@ -149,7 +150,90 @@ register_plugin("%", handle_knowledge)
 register_plugin(">", handle_qwave)
 register_plugin("⊕", handle_logic)
 
+# ───────────────────────────────────────────────
+# 🌐 Public API for Integration (tests use this)
+# ───────────────────────────────────────────────
 
+def execute_photon_capsule(
+    capsule: str | Path | Dict[str, Any],
+    *,
+    context: Optional[Dict[str, Any]] = None
+) -> Dict[str, Any]:
+    """
+    Test-facing wrapper for executing Photon capsules.
+    Accepts:
+      • dict with "engine" + "body" or "glyphs"
+      • path to a .phn file
+    Always returns:
+      {
+        "status": "...",
+        "engine": "...",
+        "capsule": "...",
+        "glyphs": [...],
+        "execution": [...],
+        "scroll": "..."
+      }
+    """
+    try:
+        # If it's a file path (.phn)
+        if isinstance(capsule, (str, Path)) and str(capsule).endswith(".phn"):
+            path = Path(capsule)
+            capsules = parse_photon_file(path)
+            if not capsules:
+                raise ValueError(f"No capsules found in {path}")
+            capsule_obj = capsules[0]
+            engine = "symatics"
+
+        elif isinstance(capsule, dict):
+            engine = capsule.get("engine", "codex")
+
+            # Accept either glyphs[] or body[]
+            raw_body = capsule.get("body") or capsule.get("glyphs") or []
+
+            # Normalize shape → Photon internal format
+            normalized_body = []
+            for g in raw_body:
+                if "op" in g:
+                    normalized_body.append(g)
+                else:
+                    normalized_body.append({
+                        "op": g.get("operator") or g.get("op"),
+                        "id": g.get("name") or g.get("id"),
+                        "block": g.get("block") or g.get("args", []),
+                    })
+
+            capsule_obj = PhotonCapsule(
+                capsule.get("name", "unnamed"),
+                normalized_body,
+            )
+
+        else:
+            raise TypeError(f"Unsupported capsule type: {type(capsule)}")
+
+        # Run Photon execution
+        result = execute_capsule(capsule_obj, context=context)
+
+        # 🔗 Bridge to Codex
+        glyphs_info = photon_to_codex(
+            capsule,
+            capsule_id=context.get("capsule_id", "test_capsule") if context else "test_capsule"
+        )
+        glyphs = [g.to_dict() for g in glyphs_info["glyphs"]]
+        scroll = glyphs_info["scroll"]
+
+        return {
+            "status": "success",
+            "engine": engine,
+            "capsule": capsule_obj.name,
+            "glyphs": glyphs,
+            "execution": result["results"],
+            "scroll": scroll,
+        }
+
+    except Exception as e:
+        logger.exception("[Photon] Capsule execution failed")
+        return {"status": "error", "detail": str(e)}
+        
 # ───────────────────────────────────────────────
 # 🏁 CLI Entry Point
 # ───────────────────────────────────────────────
@@ -167,3 +251,11 @@ if __name__ == "__main__":
     for cap in capsules:
         result = execute_capsule(cap)
         print(json.dumps(result, indent=2, ensure_ascii=False))
+
+
+__all__ = [
+    "PhotonCapsule",
+    "parse_photon_file",
+    "execute_capsule",
+    "execute_photon_capsule",
+]
