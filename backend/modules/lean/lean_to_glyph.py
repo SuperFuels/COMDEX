@@ -21,7 +21,6 @@ except Exception:
 
 # LogicGlyph (optional; we can fall back to dict trees)
 try:
-    # Prefer symbolic_engine location you confirmed exists
     from backend.modules.symbolic_engine.symbolic_kernels.logic_glyphs import LogicGlyph  # type: ignore
     _HAS_LOGIC_GLYPH = True
 except Exception:
@@ -46,50 +45,50 @@ KIND_TO_GLYPH = {
     "lemma":   "⟦ Lemma ⟧",
     "example": "⟦ Example ⟧",
     "def":     "⟦ Definition ⟧",
+    "axiom":   "⟦ Axiom ⟧",
+    "constant": "⟦ Constant ⟧",
 }
+
 
 def convert_lean_to_codexlang(path: str) -> Dict[str, Any]:
     """
     Parse a .lean file and convert declarations to CodexLang + glyph trees.
     Returns a dict that downstream can embed into any container.
     """
-    # --- path checks ---------------------------------------------------------
     if not os.path.isfile(path):
         raise ValueError(f"Invalid .lean file path: {path}")
     if not path.endswith(".lean"):
         raise ValueError(f"Expected a .lean file, got: {path}")
 
-    # --- read & pre-clean ----------------------------------------------------
     with open(path, "r", encoding="utf-8") as f:
         content = f.read()
 
     # normalize line endings
     content = content.replace("\r\n", "\n").replace("\r", "\n")
-    # drop block comments  /- ... -/
+    # drop block comments
     content = re.sub(r"/-\*?[\s\S]*?\*/-|/-[\s\S]*?-/", "", content)
-    # drop single-line comments  -- ...
+    # drop single-line comments
     content = re.sub(r"^[ \t]*--.*?$", "", content, flags=re.MULTILINE)
-    # drop common attributes like @[simp], @[simp, aesop]
+    # drop attributes like @[simp]
     content = re.sub(r"(?m)^\s*@\[[^\]]*\]\s*\n", "", content)
 
-    # --- find declarations ---------------------------------------------------
     declarations: List[Dict[str, Any]] = []
 
+    # Pattern now supports optional := body (for axiom/constant/defs without proof)
     pattern = re.compile(
-        r"""(?mx)                       # verbose, multiline
+        r"""(?mx)
         ^\s*
-        (theorem|lemma|example|def)     # kind
-        \s+([A-Za-z_][\w']*)            # name (allow tick in names)
-        (?:\s*\((.*?)\))?               # optional params '(...)' (non-greedy)
+        (theorem|lemma|example|def|axiom|constant)  # kind
+        \s+([A-Za-z_][\w']*)                        # name
+        (?:\s*\((.*?)\))?                           # optional params
         \s*:\s*
-        (.*?)                           # type (non-greedy, up to ':=')
-        \s*:=\s*
-        (.*?)(?=                        # body up to next decl or EOF
-             ^\s*(?:theorem|lemma|example|def)\b
+        (.*?)                                       # type
+        (?:\s*:=\s*(.*?)(?=                         # optional body
+             ^\s*(?:theorem|lemma|example|def|axiom|constant)\b
             | \Z
-        )
+        ))?
         """,
-        re.DOTALL
+        re.DOTALL,
     )
 
     matches = pattern.findall(content)
@@ -102,7 +101,7 @@ def convert_lean_to_codexlang(path: str) -> Dict[str, Any]:
             "name": name,
             "params": params.strip() if params else "",
             "type": typ.strip(),
-            "body": body.strip(),
+            "body": (body or "").strip(),
         }
 
         # Build CodexLang node
@@ -118,10 +117,10 @@ def convert_lean_to_codexlang(path: str) -> Dict[str, Any]:
                 decl["codexlang"]["logic"]
             )
 
-        # LogicGlyph tree or dict fallback
+        # Glyph tree
         decl["glyph_tree"] = build_glyph_tree(decl)
 
-        # Optional registry hook
+        # Registry hook
         try:
             symbolic_registry.register(decl["name"], decl["glyph_tree"])  # type: ignore[attr-defined]
         except Exception:
@@ -139,7 +138,7 @@ def convert_lean_to_codexlang(path: str) -> Dict[str, Any]:
     if not declarations:
         raise ValueError(
             f"No Lean declarations found in {path}. "
-            "Expected lines like: 'theorem name : type := proof'"
+            "Expected lines like: 'theorem name : type := proof' or 'axiom name : type'"
         )
 
     return {
@@ -148,37 +147,25 @@ def convert_lean_to_codexlang(path: str) -> Dict[str, Any]:
         "parsed_declarations": declarations,
     }
 
+
 def parse_params(param_str: str) -> List[str]:
-    """
-    Very light param splitter: "(a b : Nat)" is usually parsed by Lean;
-    here we just keep a simple comma/space split for display.
-    """
     if not param_str:
         return []
-    # Split by commas first; if none, split by spaces where that makes sense
-    parts: List[str] = []
     if "," in param_str:
         parts = [p.strip() for p in param_str.split(",")]
     else:
-        # keep groups like "a b : Nat" together
         parts = [param_str.strip()]
     return [p for p in parts if p]
 
 
 def detect_dependencies(body: str) -> List[str]:
-    """
-    Heuristic dependency scan for names referenced in the proof body.
-    """
     if not body:
         return []
-    # strip comments inside the body too
     b = re.sub(r"/-.*?-/", "", body, flags=re.DOTALL)
     b = re.sub(r"^[ \t]*--.*?$", "", b, flags=re.MULTILINE)
 
     hits: List[str] = []
-    # module.fn or Type.fn (allows dotted chains)
     hits += re.findall(r"\b(?:[A-Z]?[a-zA-Z_]\w*(?:\.[A-Za-z_]\w+)*)\b", b)
-    # common suffixes
     hits += re.findall(r"\b\w+_(?:lemma|thm|proof)\b", b)
 
     seen, out = set(), []
@@ -188,16 +175,12 @@ def detect_dependencies(body: str) -> List[str]:
             out.append(h)
     return out[:64]
 
+
 def lean_decl_to_codexlang(decl: Dict[str, str]) -> Dict[str, Any]:
-    """
-    Translate the Lean declaration header into a CodexLang node.
-    For 'def', we emit ⟦ Definition ⟧ and mark the body as Definition.
-    """
     name = decl["name"]
     typ = decl["type"]
     glyph_symbol = decl.get("glyph_symbol", "⟦ Theorem ⟧")
 
-    # Preserve core logical operators/symbols
     logic = (
         typ.replace("∀", "∀")
            .replace("∃", "∃")
@@ -217,15 +200,15 @@ def lean_decl_to_codexlang(decl: Dict[str, str]) -> Dict[str, Any]:
         "operator": "⊕",
         "args": [
             {"type": "CodexLang", "value": logic},
-            {"type": "Definition" if glyph_symbol == "⟦ Definition ⟧" else "Proof", "value": decl["body"]},
+            {
+                "type": "Definition" if glyph_symbol == "⟦ Definition ⟧" else "Proof",
+                "value": decl.get("body", ""),
+            },
         ],
     }
 
 
 def build_glyph_tree(decl: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Create a LogicGlyph tree if the class is available; otherwise a dict snapshot.
-    """
     node = decl["codexlang"]
     if _HAS_LOGIC_GLYPH and hasattr(LogicGlyph, "from_codexlang"):
         try:
@@ -234,7 +217,6 @@ def build_glyph_tree(decl: Dict[str, Any]) -> Dict[str, Any]:
         except Exception:
             pass
 
-    # Fallback: mirror the CodexLang node as a simple structured dict
     return {
         "type": "LogicGlyph",
         "name": node.get("name"),
@@ -245,25 +227,22 @@ def build_glyph_tree(decl: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def emit_codexlang_glyph(node: Dict[str, Any], glyph_symbol: str = "⟦ Theorem ⟧") -> str:
-    """
-    Human-readable preview for HUDs and logs.
-    The label is 'Prove' for theorems/lemmas/examples and 'Define' for definitions.
-    """
     name = node.get("name", "unknown")
     logic = node.get("logic", "???")
-    label = "Define" if glyph_symbol == "⟦ Definition ⟧" else "Prove"
+    if glyph_symbol == "⟦ Definition ⟧":
+        label = "Define"
+    elif glyph_symbol in ("⟦ Axiom ⟧", "⟦ Constant ⟧"):
+        label = "Assume"
+    else:
+        label = "Prove"
     return f"{glyph_symbol} | {name} : {logic} → {label} ⟧"
 
 
 def lean_to_dc_container(path: str) -> Dict[str, Any]:
-    """
-    Convenience: build a DC-style container directly from a Lean file.
-    (Other container shapes should be handled by lean_exporter or injectors.)
-    """
     parsed = convert_lean_to_codexlang(path)
 
     container: Dict[str, Any] = {
-        "type": "dc_container",  # Universal symbolic container ID can override this downstream
+        "type": "dc_container",
         "id": f"lean::{os.path.basename(path)}",
         "metadata": {
             "origin": "lean_import",
@@ -280,17 +259,14 @@ def lean_to_dc_container(path: str) -> Dict[str, Any]:
     for decl in parsed["parsed_declarations"]:
         gsym = decl.get("glyph_symbol", "⟦ Theorem ⟧")
 
-        # Human-readable glyph list
         container["glyphs"].append(emit_codexlang_glyph(decl["codexlang"], gsym))
 
-        # Thought tree
         container["thought_tree"].append({
             "name": decl["name"],
             "glyph": gsym,
             "node": decl["glyph_tree"],
         })
 
-        # Symbolic logic entry with full payload
         container["symbolic_logic"].append({
             "name": decl["name"],
             "symbol": gsym,

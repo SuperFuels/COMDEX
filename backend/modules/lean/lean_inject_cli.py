@@ -417,64 +417,7 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: Optional[List[str]] = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
-
-    # --- inject Lean logic into the target container ---
-    after, logic, container_id, source_path = inject_logic_to_container(
-        container_path=args.container,
-        lean_path=args.lean,
-        overwrite=args.overwrite,
-        dedupe=args.dedupe,
-        auto_clean=args.auto_clean
-    )
-
-    # --- preview / summary output ---
-    previews = []
-    if args.summary:
-        previews = _print_summary(after)
-
-    # --- audit logging ---
-    if args.log_audit:
-        audit_event(build_inject_event(
-            container_path=args.container,
-            container_id=container_id,
-            lean_path=args.lean,
-            num_items=len(logic),
-            previews=previews,
-            extra={
-                "overwrite": bool(args.overwrite),
-                "dedupe": bool(args.dedupe),
-                "auto_clean": bool(args.auto_clean)
-            }
-        ))
-
-    # --- GHX export ---
-    if args.ghx_out:
-        dump_packets(logic, args.ghx_out, container_id=container_id, source_path=source_path)
-    if args.ghx_bundle:
-        bundle_packets(logic, args.ghx_bundle, container_id=container_id, source_path=source_path)
-
-    # --- reports ---
-    if args.report and args.report_out:
-        pass  # implement when report generation is ready
-
-    # --- visualization ---
-    if args.ascii:
-        field, entries = _collect_logic_entries(after)
-        for e in entries:
-            print("\n" + ascii_tree_for_theorem(e))
-
-    if args.mermaid_out:
-        Path(args.mermaid_out).write_text(
-            mermaid_for_dependencies(after),
-            encoding="utf-8"
-        )
-        print(f"[🧭] wrote mermaid → {args.mermaid_out}")
-
-    if args.png_out:
-        ok, msg = png_for_dependencies(after, args.png_out)
-        print(("[✅] " + msg) if ok else ("[⚠️] " + msg))
-
-    return 0
+    return args.func(args)
 
 
 if __name__ == "__main__":

@@ -13,9 +13,20 @@ subgraph A["Symatics Algebra Development"]
     A1["✅ A1: Define Core Primitives"]
     A2["✅ A2: Formalize Symatics Axioms & Laws"]
     A3["✅ A3: Operator Definitions (⊕, ↔, ⟲, μ, π) + ctx-aware dispatcher"]
-    A4["🟡 A4: Algebra Rulebook v0.1 (draft complete; add extra laws → v0.2)"]
-    A5["🟡 A5: Algebra Engine (parser+evaluator live; wire SQI/mutation)"]
-    A6["⚪ A6: Extend → Symatics Calculus (Δ / ∫ stubs)"]
+    A4["🟢 A4: Algebra Rulebook v0.2 
+        ├─ Add chain rule law
+        ├─ Add substitution law
+        └─ Promote to LAW_REGISTRY"]
+    A5["🟢 A5: Algebra Engine 
+        ├─ Parser + evaluator live
+        ├─ Wire SQI scoring
+        ├─ Wire mutation engine
+        └─ Add more simplification laws"]
+    A6["✅ A6: Extend → Symatics Calculus 
+        ├─ Δ implemented
+        ├─ ∫ implemented
+        ├─ Chain rule working
+        └─ Substitution working"]
     A7["⚪ A7: Mechanized Proofs (Coq / Lean / TLA+)"]
     A8["⚪ A8: Simulation Framework (CodexCore replay integration)"]
     A9["⚪ A9: Benchmark vs Classical Algebra"]
@@ -26,13 +37,42 @@ end
 
 subgraph B["Integration Layers"]
     B1["✅ B1: CodexCore binding → execute_photon_capsule() routes Symatics vs Codex"]
-    B2["✅ B2: Photon capsules → schema-valid + legacy migration (steps/body→glyphs) with tests"]
-    B3["⚪ B3: GlyphNet encoding: algebra ops as packets"]
-    B4["⚪ B4: SQI quantum execution: entanglement-aware scoring"]
-    B5["⚪ B5: SCI IDE panel: Symatics toggle + algebra graph canvas"]
+    B2["✅ B2: Photon capsules 
+        ├─ schema-valid
+        ├─ legacy migration (steps→glyphs)
+        └─ tests passing"]
+    B3["⚪ B3: GlyphNet encoding 
+        ├─ Map algebra ops → packet format
+        ├─ Add serializer/deserializer
+        └─ Roundtrip tests"]
+    B4["⚪ B4: SQI quantum execution 
+        ├─ Entanglement-aware scoring
+        ├─ Cross-agent SQI beams
+        └─ SCI overlay hooks"]
+    B5["⚪ B5: SCI IDE panel 
+        ├─ Symatics toggle
+        ├─ Algebra graph canvas
+        └─ Debug law overlay"]
 end
-A5 --> B1
-B1 --> B2 --> B3 --> B4 --> B5
+
+subgraph C["LightCone & QFC Integration"]
+    C1["✅ C1: Pipe CodexLang into GlyphCell.logic (done)"]
+    C2["✅ C2: LightCone forward/reverse tracer (done)"]
+    C3["🟢 C3: Reflexive symbol trace → QFC
+        ├─ Project traces into QFC beams
+        ├─ Add replay HUD in SCI
+        └─ Multi-agent alignment"]
+    C4["⚪ C4: Collapse trace hooks from GHX 
+        ├─ Bind LightCone collapse events
+        └─ Export to .dc.json"]
+    C5["⚪ C5: Step-through replay + lineage viewer 
+        ├─ Walk mutations
+        ├─ Visualize SQI overlays
+        └─ Timeline scrubber in SCI"]
+    C6["⚪ C6: QFC quantum laws 
+        ├─ Add duality & projection laws
+        └─ Sync LAW_REGISTRY with QFC ops"]
+end
 end
 
     A5-->B1

@@ -20,14 +20,37 @@ try:
 except Exception:
     _HAS_PNG = False
 
+from backend.modules.lean.lean_proofviz import mermaid_for_dependencies, png_for_dependencies
+
+def attach_visualizations(container: dict, *, png_path: str | None = None) -> dict:
+    """
+    Generate and embed visualization artifacts into container['viz'].
+    """
+    viz = {}
+
+    # Mermaid text
+    viz["mermaid"] = mermaid_for_dependencies(container)
+
+    # Optional PNG file
+    if png_path:
+        ok, msg = png_for_dependencies(container, png_path)
+        if ok:
+            viz["png_path"] = png_path
+        else:
+            viz["png_fallback"] = msg
+
+    container["viz"] = viz
+    return container
 
 # ----------------------------
 # Core container parsing utils
 # ----------------------------
 def _logic_nodes(container: Dict[str, Any]) -> List[Dict[str, Any]]:
     """
-    Return the list of theorem/logic entries from any known field.
+    Collect theorem/logic entries from all known fields.
+    Returns a flattened list.
     """
+    nodes: List[Dict[str, Any]] = []
     for fld in (
         "symbolic_logic",
         "expanded_logic",
@@ -36,23 +59,26 @@ def _logic_nodes(container: Dict[str, Any]) -> List[Dict[str, Any]]:
         "symmetric_logic",
         "axioms",
     ):
-        if fld in container:
-            return container[fld] or []
-    return []
-
+        if fld in container and container[fld]:
+            nodes.extend(container[fld])
+    return nodes
 
 # ----------------------------
 # Renderers
 # ----------------------------
+
 def ascii_tree_for_theorem(entry: Dict[str, Any]) -> str:
     """
     Render a single entry's glyph_tree as a lightweight ASCII block.
+    Recursively walks nested args.
     """
     name = entry.get("name", "?")
-    gt = entry.get("glyph_tree") or {}
     lines = [f"{name} [{entry.get('symbol','⟦ ? ⟧')}] : {entry.get('logic','?')}"]
 
     def walk(node: Dict[str, Any], prefix: str = ""):
+        if not isinstance(node, dict):
+            lines.append(f"{prefix}└─ {node}")
+            return
         t = node.get("type", "?")
         n = node.get("name", "?")
         logic = node.get("logic", "?")
@@ -62,15 +88,14 @@ def ascii_tree_for_theorem(entry: Dict[str, Any]) -> str:
         args = node.get("args", [])
         for i, a in enumerate(args):
             is_last = i == len(args) - 1
-            # keep the "tree" look even if we currently don't recurse
-            _ = prefix + ("│  " if not is_last else "   ")
+            branch = "└─" if is_last else "├─"
+            subprefix = prefix + ("   " if is_last else "│  ")
             if isinstance(a, dict):
-                k = a.get("type", "node")
-                v = a.get("value", a.get("logic", ""))
-                lines.append(f"{prefix}│  ├─ arg[{k}]: {v}")
+                walk(a, subprefix)
             else:
-                lines.append(f"{prefix}│  ├─ arg: {a}")
+                lines.append(f"{subprefix}{branch} arg: {a}")
 
+    gt = entry.get("glyph_tree") or {}
     walk(gt, "")
     return "\n".join(lines)
 

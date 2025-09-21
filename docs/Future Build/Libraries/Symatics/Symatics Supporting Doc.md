@@ -10,55 +10,61 @@ Here’s the FULL Symatics → Photon → Symbolic Binary → GlyphNet roadmap i
 mindmap
   root((🚀 Symatics Build Program))
     A[🔹 Phase 1: Symatics Foundations]
-      A1[✅ Define Symatics Axioms]
+      A1[✅ A1: Define Symatics Axioms]
         note right of A1
           • Replace numeric units with wave/glyph primitives
           • Establish: unit = signature, not "1"
           • Define operators (⊕ superposition, ↔ entanglement, ⟲ resonance)
         end note
-      A2[✅ Formalize Symatics Algebra]
+      A2[✅ A2: Formalize Symatics Algebra v0.2]
         note right of A2
-          • Equivalent of Peano axioms
-          • Laws: commutativity, distributivity in wave domain
-          • Define rules for folds, expansions, wave-interactions
+          • LAW_REGISTRY: commutativity, idempotence, distributivity, identity, duality
+          • Verified via regression tests (51/51 green)
+          • Canonicalization stable
         end note
-      A3[🟡 Simulation Framework]
+      A3[✅ A3: Extend → Symatics Calculus v0.1]
         note right of A3
-          • Python prototype: symatics_engine.py
-          • Compare Symatics vs Numeric math on test problems
-          • Test case: distance by wave signature vs meter
+          • Δ (derivative): sum, product, chain rule
+          • ∫ (integral): power rule, trig/exp, substitution
+          • Tests: chain rule + substitution validated
         end note
-      A4[🟡 Whitepaper: Symatics v0.1]
+      A4[🟡 A4: Algebra Engine Integration]
         note right of A4
-          • Academic-style doc
+          • Parser+Evaluator live
+          • Wire SQI + mutation scoring into algebra ops
+          • Expand LAW_REGISTRY → include chain rule + substitution laws
+        end note
+      A5[🟡 A5: Whitepaper: Symatics Foundations v0.2]
+        note right of A5
           • Position as Newton→Einstein→Quantum→Symatics
-          • Include examples + diagrams
+          • Document laws, calculus rules, test framework
+          • Include worked symbolic examples
         end note
 
     B[🔹 Phase 2: Photon Language Integration]
-      B1[✅ Design Photon Grammar (.phn)]
+      B1[✅ B1: Design Photon Grammar (.phn)]
         note right of B1
           • File = capsule of Symatics instructions
           • Syntax = glyph-based (⊕, ↔, ∇, etc.)
-          • Supports plugins: % = Knowledge Graph, > = Qwave Beam
+          • Plugins: % = Knowledge Graph, > = Qwave Beam
         end note
-      B2[✅ Photon Executor]
+      B2[✅ B2: Photon Executor]
         note right of B2
           • photon_executor.py parses & executes .phn
           • Operators map directly to Symatics algebra engine
           • CodexCore integration via run_photon_file()
         end note
-      B3[🟡 UI Integration]
+      B3[🟡 B3: UI Integration]
         note right of B3
           • Extend CodexScrollRunner + SCI AtomSheet
-          • Launch Photon capsules directly in UI
+          • Launch Photon capsules in SCI IDE
           • Inline visualizations (waves, beams, glyph folds)
         end note
 
     C[🔹 Phase 3: Symbolic Binary (New Lowest Layer)]
       C1[⚪ Define Symbolic Binary Units]
       C2[⚪ CodexCore Runtime Integration]
-      C3[⚪ Validation]
+      C3[⚪ Validation + Benchmarks]
 
     D[🔹 Phase 4: GlyphNet + CodexFiber Hardware]
       D1[⚪ Glyph→Wave Mapping Table]
@@ -71,7 +77,6 @@ mindmap
       E2[⚪ Photon RFC Draft]
       E3[⚪ CodexFiber RFC Draft]
       E4[⚪ Symatics + Photon Whitepaper]
-
 
 
 🔑 Key Notes on Architecture

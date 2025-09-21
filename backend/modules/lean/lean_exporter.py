@@ -71,17 +71,16 @@ CONTAINER_MAP = {
 
 
 # --- Helpers -----------------------------------------------------------------
-def _emit_preview(node: Dict[str, Any], glyph_label: str) -> str:
+def _emit_preview(decl: Dict[str, Any], glyph_label: str) -> str:
     """
-    Call project emit_codexlang_glyph if it supports (node, label); else fall back.
+    Call project emit_codexlang_glyph if it supports (decl, label); else fall back.
     """
     try:
-        # Preferred: new signature (node, glyph_label)
-        return emit_codexlang_glyph(node, glyph_label)  # type: ignore[arg-type]
+        # Preferred: new signature (decl, glyph_label)
+        return emit_codexlang_glyph(decl, glyph_label)  # type: ignore[arg-type]
     except TypeError:
-        # Legacy: emit(node) without label
-        # If legacy returns "⟦ Theorem | name : logic → Prove ⟧", we rewrite the label if needed.
-        s = emit_codexlang_glyph(node)  # type: ignore[call-arg]
+        # Legacy: emit(decl) without label
+        s = emit_codexlang_glyph(decl)  # type: ignore[call-arg]
         if glyph_label != "⟦ Theorem ⟧":
             # replace leading label only
             parts = s.split("|", 1)
@@ -99,8 +98,8 @@ def build_container_from_lean(lean_path: str, container_type: str) -> Dict[str, 
         "id": f"lean::{container_type}::{lean_path.split('/')[-1]}",
         "metadata": {
             "origin": "lean_import",
-            "source_path": parsed["source"],
-            "logic_type": parsed["logic_type"],
+            "source_path": parsed.get("source", lean_path),
+            "logic_type": parsed.get("logic_type", "unknown"),
         },
         spec["glyph_field"]: [],
         spec["logic_field"]: [],
@@ -109,39 +108,40 @@ def build_container_from_lean(lean_path: str, container_type: str) -> Dict[str, 
         "dependencies": [],
     }
 
-    for decl in parsed["parsed_declarations"]:
+    for decl in parsed.get("parsed_declarations", []):
         glyph_symbol = decl.get("glyph_symbol", "⟦ Theorem ⟧")
 
         # glyph list (human-readable)
-        container[spec["glyph_field"]].append(_emit_preview(decl["codexlang"], glyph_symbol))
+        container[spec["glyph_field"]].append(_emit_preview(decl, glyph_symbol))
 
         # logic entries (keep both raw & normalized for UI choice)
-        logic_raw = decl["codexlang"]["logic"]
+        codexlang = decl.get("codexlang", {})
+        logic_raw = codexlang.get("logic", decl.get("logic", ""))
         logic_soft = CodexLangRewriter.simplify(logic_raw, mode="soft")
 
         container[spec["logic_field"]].append({
-            "name": decl["name"],
+            "name": decl.get("name", ""),
             "symbol": glyph_symbol,
             "logic": logic_soft,           # normalized/soft view
             "logic_raw": logic_raw,        # raw original, no info loss
-            "codexlang": decl["codexlang"],
-            "glyph_tree": decl["glyph_tree"],
+            "codexlang": codexlang,
+            "glyph_tree": decl.get("glyph_tree", {}),
             "source": lean_path,
             "body": decl.get("body", ""),
         })
 
         # tree
         container[spec["tree_field"]].append({
-            "name": decl["name"],
+            "name": decl.get("name", ""),
             "glyph": glyph_symbol,
-            "node": decl["glyph_tree"],
+            "node": decl.get("glyph_tree", {}),
         })
 
         # extras
-        container["previews"].append(_emit_preview(decl["codexlang"], glyph_symbol))
+        container["previews"].append(_emit_preview(decl, glyph_symbol))
         container["dependencies"].append({
-            "theorem": decl["name"],
-            "depends_on": decl["depends_on"],
+            "theorem": decl.get("name", ""),
+            "depends_on": decl.get("depends_on", []),
         })
 
     return container

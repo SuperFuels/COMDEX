@@ -36,27 +36,20 @@ except Exception:
         symbolic_registry = _LocalSymbolicRegistry()
 
 
+# ----------------------------------------------------
+# Lean container + metadata helpers
+# ----------------------------------------------------
 def is_lean_container(container: Dict[str, Any]) -> bool:
-    """
-    Returns True if the container was imported from a Lean .lean file.
-    """
     return container.get("metadata", {}).get("origin") == "lean_import"
 
 
 def is_lean_universal_container_system(obj: Any) -> bool:
     """
     Detects if the provided object is a Lean-compatible UCS (Universal Container System).
-    Supports:
-      • UCS runtime/state objects
-      • dict containers (with Lean origin metadata)
-      • Types marked with Lean-related attributes
     """
     try:
-        # Attribute-based detection
         if hasattr(obj, "is_lean") and getattr(obj, "is_lean"):
             return True
-
-        # Check dict metadata (for loaded containers)
         if isinstance(obj, dict):
             meta = obj.get("metadata", {})
             if meta.get("origin") == "lean_import" or meta.get("type", "").lower() in {
@@ -64,26 +57,17 @@ def is_lean_universal_container_system(obj: Any) -> bool:
                 "hoberman_container", "exotic_container", "symmetry_container", "atom_container"
             }:
                 return True
-
-        # Type name heuristic
         obj_type = type(obj).__name__.lower()
         return "lean" in obj_type or "ucs" in obj_type
-
     except Exception:
         return False
 
 
 def extract_theorems(container: Dict[str, Any]) -> List[Dict[str, Any]]:
-    """
-    Returns a list of all symbolic theorems from the container.
-    """
     return container.get("symbolic_logic", [])
 
 
 def extract_lean_metadata(container: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Returns Lean-specific metadata fields from the container, if present.
-    """
     meta = container.get("metadata", {})
     return {
         "origin": meta.get("origin"),
@@ -92,10 +76,10 @@ def extract_lean_metadata(container: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
+# ----------------------------------------------------
+# Name + summary helpers
+# ----------------------------------------------------
 def get_theorem_names(container: Dict[str, Any]) -> List[str]:
-    """
-    Returns a list of theorem names in the container.
-    """
     logic = extract_theorems(container)
     return [entry.get("name") for entry in logic if entry.get("symbol") == "⟦ Theorem ⟧"]
 
@@ -103,33 +87,52 @@ def get_theorem_names(container: Dict[str, Any]) -> List[str]:
 def summarize_lean_container(container: Dict[str, Any]) -> Dict[str, Any]:
     """
     Returns a compact summary of a Lean container's logic structure.
+    Includes per-kind counts (theorem/lemma/def/axiom/constant).
     """
+    logic = extract_theorems(container)
+    counts = {"theorems": 0, "lemmas": 0, "defs": 0, "axioms": 0, "constants": 0}
+    names = {"theorems": [], "lemmas": [], "defs": [], "axioms": [], "constants": []}
+
+    for e in logic:
+        sym = e.get("symbol", "")
+        nm = e.get("name", "?")
+        if sym == "⟦ Theorem ⟧":
+            counts["theorems"] += 1
+            names["theorems"].append(nm)
+        elif sym == "⟦ Lemma ⟧":
+            counts["lemmas"] += 1
+            names["lemmas"].append(nm)
+        elif sym == "⟦ Definition ⟧":
+            counts["defs"] += 1
+            names["defs"].append(nm)
+        elif sym == "⟦ Axiom ⟧":
+            counts["axioms"] += 1
+            names["axioms"].append(nm)
+        elif sym == "⟦ Constant ⟧":
+            counts["constants"] += 1
+            names["constants"].append(nm)
+
     return {
         "is_lean": is_lean_container(container),
         "source_path": container.get("metadata", {}).get("source_path"),
-        "num_theorems": len(get_theorem_names(container)),
-        "theorems": get_theorem_names(container)
+        "counts": counts,
+        "names": names,
     }
 
 
 def pretty_print_lean_summary(container: Dict[str, Any]) -> None:
-    """
-    Prints a human-readable summary of Lean container contents.
-    """
     summary = summarize_lean_container(container)
     print("\n📦 Lean Container Summary:")
     print(json.dumps(summary, indent=2))
 
 
+# ----------------------------------------------------
+# Validation + normalization
+# ----------------------------------------------------
 def validate_logic_trees(container: Dict[str, Any]) -> List[str]:
-    """
-    Validates symbolic_logic entries. If glyph_tree is a fallback (type=='LogicGlyph'),
-    don't try to reconstruct; just check basic structure.
-    """
     errors = []
     logic_entries = container.get("symbolic_logic", [])
 
-    # Allowed concrete glyph class names your from_dict understands:
     allowed_types = {
         "ImplicationGlyph", "AndGlyph", "OrGlyph", "NotGlyph",
         "TrueGlyph", "FalseGlyph", "ProvableGlyph", "EntailmentGlyph",
@@ -138,15 +141,11 @@ def validate_logic_trees(container: Dict[str, Any]) -> List[str]:
 
     for entry in logic_entries:
         name = entry.get("name", "???")
-        node = entry.get("glyph_tree") or entry  # prefer glyph_tree if present
-
+        node = entry.get("glyph_tree") or entry
         try:
-            # If it's a real glyph dict and has a known type, reconstruct.
             if isinstance(node, dict) and node.get("type") in allowed_types:
-                # Safe to try reconstruct
                 _ = LogicGlyph.from_dict(node)  # smoke test
             else:
-                # Fallback path: just ensure 'logic' exists and is a string
                 logic = entry.get("logic") or entry.get("codexlang", {}).get("logic")
                 if not isinstance(logic, str) or not logic.strip():
                     raise ValueError("missing or non-string 'logic'")
@@ -157,86 +156,70 @@ def validate_logic_trees(container: Dict[str, Any]) -> List[str]:
 
 
 def normalize_codexlang(container: Dict[str, Any]) -> None:
-    """
-    Normalize all logic entries using CodexLangRewriter.
-    In-place updates `logic` and `codexlang.logic` fields of each theorem.
-    """
     for entry in container.get("symbolic_logic", []):
         logic = entry.get("logic", "") or ""
         codex = entry.get("codexlang", {}) or {}
-
         try:
             simplify = getattr(CodexLangRewriter, "simplify", None)
-            if callable(simplify):
-                simplified = simplify(logic)
-            else:
-                simplified = CodexLangRewriter().simplify(logic)  # type: ignore
-
-            # Update both `logic` and `codexlang.logic`
+            simplified = simplify(logic) if callable(simplify) else CodexLangRewriter().simplify(logic)  # type: ignore
             entry["logic"] = simplified
             if isinstance(codex, dict):
                 codex["logic"] = simplified
                 entry["codexlang"] = codex
         except Exception:
-            # Best-effort; leave original logic if normalization fails
             pass
 
 
 def inject_preview_and_links(container: Dict[str, Any]) -> None:
-    """
-    Adds CodexLang preview strings, glyph_string fallback, cross-linking, and
-    harmonizes symbol vs codexlang.symbol across entries.
-    """
     logic_list = container.get("symbolic_logic", [])
     name_map = {entry.get("name"): entry for entry in logic_list}
 
     for entry in logic_list:
         try:
             codex = entry.get("codexlang", {}) or {}
-            # prefer codexlang.symbol; fall back to entry.symbol; default Theorem
             glyph_symbol = codex.get("symbol") or entry.get("symbol") or "⟦ Theorem ⟧"
-            entry["symbol"] = glyph_symbol  # sync outer symbol
+            entry["symbol"] = glyph_symbol
 
             logic = codex.get("logic") or entry.get("logic", "")
             name = entry.get("name", "")
 
-            # label: Define for definitions, Prove otherwise
-            label = "Define" if glyph_symbol == "⟦ Definition ⟧" else "Prove"
+            # label mapping
+            if glyph_symbol == "⟦ Definition ⟧":
+                label = "Define"
+            elif glyph_symbol in ("⟦ Axiom ⟧", "⟦ Constant ⟧"):
+                label = "Assume"
+            else:
+                label = "Prove"
 
-            # preview (short; no arrow tail)
             entry["preview"] = f"{glyph_symbol} | {name} : {logic} ⟧"
-
-            # glyph_string (verbose; with arrow tail)
             if not entry.get("glyph_string"):
                 entry["glyph_string"] = f"{glyph_symbol} | {name} : {logic} → {label} ⟧"
 
-            # depends_on backlinks based on body mentions
+            # depends_on backlinks (body + logic)
             deps: List[str] = []
-            body_text = entry.get("body", "") or ""
-            for other_name in name_map:
-                if other_name and other_name != name and other_name in body_text:
-                    deps.append(other_name)
-            entry["depends_on"] = deps
+            for text in [entry.get("body", ""), logic]:
+                for other_name in name_map:
+                    if other_name and other_name != name and other_name in (text or ""):
+                        deps.append(other_name)
+            entry["depends_on"] = list(sorted(set(deps)))
 
-            # ensure codexlang.args[1].type matches glyph (Proof vs Definition)
+            # adjust args type in codexlang
             args = codex.get("args")
             if isinstance(args, list) and len(args) >= 2 and isinstance(args[1], dict):
-                args[1]["type"] = "Definition" if glyph_symbol == "⟦ Definition ⟧" else "Proof"
+                if glyph_symbol == "⟦ Definition ⟧":
+                    args[1]["type"] = "Definition"
+                elif glyph_symbol in ("⟦ Axiom ⟧", "⟦ Constant ⟧"):
+                    args[1]["type"] = "Assumption"
+                else:
+                    args[1]["type"] = "Proof"
 
-            # keep a plain 'logic' mirror for convenience/legacy
             entry["logic"] = logic
-
         except Exception:
             continue
 
 
 def harmonize_symbols_and_trees(container: Dict[str, Any]) -> None:
-    """
-    Keep symbol, codexlang.symbol, preview/glyph_string, and tree glyphs consistent.
-    Also de-duplicate thought_tree entries by (name, glyph, logic) signature.
-    """
     logic_list = container.get("symbolic_logic", [])
-    # Build lookup by name → (glyph_symbol, logic)
     glyph_by_name: Dict[str, Any] = {}
     for e in logic_list:
         try:
@@ -248,7 +231,6 @@ def harmonize_symbols_and_trees(container: Dict[str, Any]) -> None:
         except Exception:
             continue
 
-    # Fix thought_tree glyphs + arg[1] type; remove duplicates
     tree = container.get("thought_tree", [])
     fixed: List[Dict[str, Any]] = []
     seen = set()
@@ -259,17 +241,21 @@ def harmonize_symbols_and_trees(container: Dict[str, Any]) -> None:
             glyph = node_entry.get("glyph") or "⟦ Theorem ⟧"
 
             gsym, logic = glyph_by_name.get(name, (glyph, None))
-            node_entry["glyph"] = gsym  # sync glyph to symbols from logic_list
+            node_entry["glyph"] = gsym
 
-            # Adjust the node's second arg type for Definition glyphs; Proof otherwise
             if isinstance(node, dict):
                 args = node.get("args")
                 if isinstance(args, list) and len(args) >= 2 and isinstance(args[1], dict):
-                    args[1]["type"] = "Definition" if gsym == "⟦ Definition ⟧" else "Proof"
+                    if gsym == "⟦ Definition ⟧":
+                        args[1]["type"] = "Definition"
+                    elif gsym in ("⟦ Axiom ⟧", "⟦ Constant ⟧"):
+                        args[1]["type"] = "Assumption"
+                    else:
+                        args[1]["type"] = "Proof"
 
             sig = (name, node_entry["glyph"], logic or "")
             if sig in seen:
-                continue  # drop duplicate
+                continue
             seen.add(sig)
             fixed.append(node_entry)
         except Exception:
@@ -279,13 +265,13 @@ def harmonize_symbols_and_trees(container: Dict[str, Any]) -> None:
 
 
 def register_theorems(container: Dict[str, Any]) -> None:
-    """
-    Auto-register theorems with symbolic_registry using their name and glyph.
-    """
     for entry in container.get("symbolic_logic", []):
         try:
             name = entry.get("name")
             if name:
-                symbolic_registry.register(name, entry)
+                symbolic_registry.register(name, {
+                    "entry": entry,
+                    "kind": entry.get("symbol")
+                })
         except Exception:
             continue

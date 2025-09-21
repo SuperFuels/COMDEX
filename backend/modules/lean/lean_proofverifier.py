@@ -115,6 +115,9 @@ def validate_lean_container(container: Union[str, dict], autosave: bool = False)
     # CodexMetrics logging
     CodexMetrics.record_lean_verification(container_id, lean_path, success, err)
 
+    # Lazy import here to avoid circular deps
+    from backend.routes.ws.glyphnet_ws import emit_websocket_event
+
     # Emit WebSocket event
     emit_websocket_event("lean_verification_result", {
         "containerId": container_id,
