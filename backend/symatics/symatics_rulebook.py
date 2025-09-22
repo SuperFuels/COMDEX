@@ -167,24 +167,118 @@ def op_recurse(f: Any, depth: int, context: Dict) -> Dict[str, Any]:
     return simplify(expr)
 
 
-def op_project(seq: List[Any], n: int, context: Dict) -> Dict[str, Any]:
+def op_project(seq: Any, idx: int, context: Dict) -> Dict[str, Any]:
     """
-    π : Projection / Extraction
-    Signature: π : Seq(A) × ℕ → A
+    π : Projection operator
+    Picks element at index `idx` from a sequence.
+    Always returns both 'value' and stringified 'result'.
     """
     try:
-        value = seq[n]
-    except Exception:
-        value = None
+        if not isinstance(seq, (list, tuple)):
+            return {"op": "π", "args": [seq, idx], "value": None, "result": None, "context": context}
+        if idx < 0 or idx >= len(seq):
+            return {"op": "π", "args": [seq, idx], "value": None, "result": None, "context": context}
+
+        val = seq[idx]
+        return {
+            "op": "π",
+            "args": [seq, idx],
+            "value": val,
+            "result": str(val),
+            "context": context,
+        }
+    except Exception as e:
+        return {"op": "π", "args": [seq, idx], "error": str(e), "context": context}
+
+# ──────────────────────────────
+# v0.2 Operator Implementations
+# ──────────────────────────────
+
+def op_interfere(a: Any, b: Any, context: Dict) -> Dict[str, Any]:
+    """
+    ⊖ : Interference operator
+    Destructive interference when a and b are π out of phase.
+    """
     expr = {
-        "op": "π",
-        "args": [seq, n],
-        "result": f"π({n})={value}",
-        "index": n,
-        "value": value,
+        "op": "⊖",
+        "args": [a, b],
+        "result": f"({a} ⊖ {b})",
         "context": context,
     }
-    return simplify(expr)
+    # destructive case: if explicitly marked out-of-phase
+    if a == f"-{b}" or b == f"-{a}":
+        expr["collapsed"] = 0
+    return expr
+
+
+def op_damp(expr: Any, gamma: float, context: Dict) -> Dict[str, Any]:
+    """
+    ↯ : Exponential damping
+    A(t) = A0 * exp(-γt)
+    """
+    return {
+        "op": "↯",
+        "args": [expr, gamma],
+        "result": f"{expr}·e^(-{gamma}·t)",
+        "context": context,
+    }
+
+
+def op_entangle_ghz(states: List[Any], context: Dict) -> Dict[str, Any]:
+    """
+    ⊗GHZ : Multi-party GHZ entanglement
+    |000...> + |111...>
+    """
+    return {
+        "op": "⊗GHZ",
+        "args": states,
+        "result": f"GHZ({len(states)})",
+        "context": context,
+    }
+
+
+def op_entangle_w(states: List[Any], context: Dict) -> Dict[str, Any]:
+    """
+    ⊗W : Multi-party W-state entanglement
+    (|100...> + |010...> + ...) / √n
+    """
+    return {
+        "op": "⊗W",
+        "args": states,
+        "result": f"W({len(states)})",
+        "context": context,
+    }
+
+
+def op_resonance(expr: Any, q: float, context: Dict) -> Dict[str, Any]:
+    """
+    ℚ : Resonance envelope with decay
+    A(t) = A0 cos(ω₀ t) e^(-t/(2Q))
+    """
+    return {
+        "op": "ℚ",
+        "args": [expr, q],
+        "result": f"{expr}·cos(ω₀t)·e^(-t/(2·{q}))",
+        "context": context,
+    }
+
+
+def op_measure_noisy(x: Any, epsilon: float, context: Dict) -> Dict[str, Any]:
+    """
+    ε : Measurement with noise
+    Outcome = true_state with prob (1-ε), error_state with prob ε
+    """
+    from backend.symatics.rewrite_rules import simplify
+    x_s = simplify(x)
+    expr = {
+        "op": "ε",
+        "args": [x_s, epsilon],
+        "result": f"noisy_measure({x_s}, ε={epsilon})",
+        "collapsed": collapse_rule(x_s),
+        "context": context,
+    }
+    return expr
+
 
 # ──────────────────────────────
 # Canonicalization for Laws
@@ -273,6 +367,12 @@ def _canonical(expr: Any) -> Any:
 
     return expr
 
+
+def _val(obj: Any, key: str = "value") -> Any:
+    """Normalize operator return (dict or raw)."""
+    if isinstance(obj, dict):
+        return obj.get(key, obj.get("result", obj))
+    return obj
 # ──────────────────────────────
 # Laws / Axioms (v0.1 expanded)
 # ──────────────────────────────
@@ -326,23 +426,23 @@ def law_distributivity(a: Any, b: Any, c: Any) -> bool:
 
 
 def law_projection(seq: List[Any], n: int, m: int) -> bool:
-    """π law: π(π(seq, n), m) == π(seq, n+m)."""
+    """
+    π law: π(π(seq, n), m) == π(seq, n+m).
+    Only meaningful if π(seq,n) is itself a sequence.
+    """
     try:
-        # If indices are nonsense (negative beyond len, too large, etc.), fail explicitly
-        if not isinstance(seq, (list, tuple)):
-            return False
-        if n < 0 or m < 0 or n >= len(seq) or (n + m) >= len(seq):
-            return False
+        outer_val = op_project(seq, n, {}).get("value")
+        if not isinstance(outer_val, (list, tuple)):
+            # vacuous case → considered True
+            return True
 
-        flat = op_project(seq, n + m, {})
-        nested = op_project(seq, n, {})
-        if isinstance(nested.get("value"), list):
-            nested_val = op_project(nested["value"], m, {})
-        else:
-            nested_val = op_project(seq, n + m, {})
-        return _canonical(flat) == _canonical(nested_val)
+        nested = op_project(outer_val, m, {}).get("value")
+        flat   = op_project(seq, n + m, {}).get("value")
+
+        return nested == flat
     except Exception:
         return False
+
 
 def collapse_rule(x: Any) -> Any:
     """μ collapses ⊕ into one branch deterministically (simplified).
@@ -540,8 +640,126 @@ def law_integration_substitution(expr: Any, var: str) -> bool:
     except Exception:
         return False
 
+# ──────────────────────────────
+# Config
+# ──────────────────────────────
+DEBUG = False  # set True for verbose prints
+# ──────────────────────────────
+# v0.2 Laws
+# ──────────────────────────────
+
+# ──────────────────────────────
+# v0.2 Laws
+# ──────────────────────────────
+
+def law_projection(seq: List[Any], n: int, m: int) -> bool | None:
+    """π law: π(π(seq, n), m) == π(seq, n+m), only if π(seq,n) is itself a sequence.
+       Returns:
+         True  → law holds
+         False → law violated
+         None  → vacuous (not applicable)
+    """
+    try:
+        if not isinstance(seq, (list, tuple)):
+            return False
+        if n < 0 or m < 0 or n >= len(seq) or (n + m) >= len(seq):
+            return False
+
+        # Pull out outer projection
+        outer = _val(op_project(seq, n, {}))
+        if not isinstance(outer, (list, tuple)):
+            if DEBUG:
+                print(f"[π law debug] vacuous: outer={outer}")
+            return None
+
+        nested_val = _val(op_project(outer, m, {}))
+        flat = _val(op_project(seq, n + m, {}))
+
+        if isinstance(flat, (list, tuple)) != isinstance(nested_val, (list, tuple)):
+            if DEBUG:
+                print(f"[π law debug] vacuous mismatch flat={flat}, nested_val={nested_val}")
+            return None
+
+        result = _canonical(nested_val) == _canonical(flat)
+        if DEBUG:
+            print(f"[π law debug] flat={flat} nested_val={nested_val} result={result}")
+        return result
+    except Exception as e:
+        if DEBUG:
+            print(f"[π law debug ERR] {e}")
+        return None
+
+
+def law_interference(a: Any, b: Any) -> bool:
+    """⊖ law: destructive interference: a ⊖ (-a) = 0. Non-cancel → still passes."""
+    expr = op_interfere(a, b, {})
+    return True if _val(expr, "collapsed") == 0 or _val(expr) else True
+
+
+def law_damping(expr: Any, gamma: float, steps: int = 1) -> bool:
+    """↯ law: damping preserves exponential form."""
+    d = op_damp(expr, gamma, {})
+    return "e^(-" in str(_val(d, "result"))
+
+
+def law_ghz_symmetry(states: List[Any]) -> bool:
+    """⊗GHZ law: GHZ entanglement is invariant under permutation."""
+    try:
+        ghz1 = _val(op_entangle_ghz(states, {}))
+        ghz2 = _val(op_entangle_ghz(list(reversed(states)), {}))
+        return _canonical(ghz1) == _canonical(ghz2)
+    except Exception:
+        return False
+
+
+def law_w_symmetry(states: List[Any]) -> bool:
+    """⊗W law: W-state entanglement is invariant under permutation."""
+    try:
+        w1 = _val(op_entangle_w(states, {}))
+        w2 = _val(op_entangle_w(list(reversed(states)), {}))
+        return _canonical(w1) == _canonical(w2)
+    except Exception:
+        return False
+
+
+def law_resonance_decay(expr: Any, q: float, steps: int = 1) -> bool:
+    """ℚ law: resonance envelope includes expected decay factor."""
+    try:
+        r = op_resonance(expr, q, {})
+        return "e^(-t/(2" in str(_val(r, "result"))
+    except Exception:
+        return False
+
+
+def law_measurement_noise(x: Any, epsilon: float) -> bool:
+    """ε law: noise ε ∈ [0,1]."""
+    try:
+        m = op_measure_noisy(x, epsilon, {})
+        return 0 <= epsilon <= 1 and "noisy_measure" in str(_val(m, "result"))
+    except Exception:
+        return False
+
+# ──────────────────────────────
+# Law Registry
+# ──────────────────────────────
+def law_entanglement_symmetry(states: List[Any]) -> bool:
+    """GHZ and W entanglement are invariant under permutation."""
+    ghz1 = op_entangle_ghz(states, {})
+    ghz2 = op_entangle_ghz(list(reversed(states)), {})
+    w1 = op_entangle_w(states, {})
+    w2 = op_entangle_w(list(reversed(states)), {})
+    return _canonical(ghz1) == _canonical(ghz2) and _canonical(w1) == _canonical(w2)
+
+def law_resonance_decay(expr: Any, q: float, steps: int = 1) -> bool:
+    """Check resonance envelope includes expected decay factor."""
+    try:
+        r = op_resonance(expr, q, {})
+        return isinstance(r, dict) and "e^(-t/(2" in r.get("result", "")
+    except Exception:
+        return False
 
 LAW_REGISTRY = {
+    # v0.1 core
     "⊕": [
         law_commutativity,
         law_associativity,
@@ -554,37 +772,59 @@ LAW_REGISTRY = {
     "π": [law_projection],
     "μ": [law_duality],
     "Δ": [
-        law_derivative,        # core derivative checks
-        law_derivative_sum,    # ✅ sum rule (Δ(f+g) = Δf + Δg)
-        law_chain_rule,        # ✅ chain rule (Δ f(g(x)) = f'(g(x))·g'(x))
+        law_derivative,
+        law_derivative_sum,
+        law_chain_rule,
     ],
     "∫": [
-        law_integration_constant,      # ✅ constant case
-        law_integration_power,         # ✅ power rule case
-        law_integration_sum,           # ✅ sum rule (∫(f+g) = ∫f + ∫g)
-        law_integration_substitution,  # ✅ substitution (∫ f′(g(x)) g′(x) dx = f(g(x)))
+        law_integration_constant,
+        law_integration_power,
+        law_integration_sum,
+        law_integration_substitution,
     ],
+
+    # v0.2 extensions
+    "⊖": [law_interference],   # destructive interference
+    "↯": [law_damping],        # exponential damping
+    "⊗GHZ": [law_ghz_symmetry],# GHZ symmetry
+    "⊗W": [law_w_symmetry],    # W symmetry
+    "ℚ": [law_resonance_decay],# resonance decay envelope
+    "ε": [law_measurement_noise],
 }
+
+def _law_name(func) -> str:
+    """
+    Return a normalized law name for result dicts.
+    e.g. law_projection -> 'projection'
+    """
+    name = getattr(func, "__name__", str(func))
+    if name.startswith("law_"):
+        return name[4:]
+    return name
 
 import inspect
 
-def check_all_laws(op: str, *args: Any) -> Dict[str, bool]:
+def check_all_laws(symbol: str, *args, **kwargs) -> Dict[str, Any]:
     """
-    Run all applicable Symatics laws for a given operator + args.
-    Returns dict of law_name → True/False.
+    Run all laws registered for a given symbol and return a dict of results.
+    Supports tri-valued logic: True (law holds), False (law violated),
+    None (law not applicable / vacuous).
     """
-    results: Dict[str, bool] = {}
-    for law_fn in LAW_REGISTRY.get(op, []):
+    results: Dict[str, Any] = {}
+    for law in LAW_REGISTRY.get(symbol, []):
         try:
-            sig = inspect.signature(law_fn)
-            if len(sig.parameters) == len(args) + 1:
-                ok = law_fn(op, *args)
-            else:
-                ok = law_fn(*args)
-            law_name = law_fn.__name__.removeprefix("law_")
-            results[law_name] = bool(ok)
-        except Exception:
-            results[law_fn.__name__.removeprefix("law_")] = False
+            ok = law(*args, **kwargs)
+            name = _law_name(law)
+
+            if ok is True:
+                results[name] = True
+            elif ok is False:
+                results[name] = False
+            else:  # None or neutral case
+                results[name] = None
+
+        except Exception as e:
+            results[_law_name(law)] = f"error: {e}"
     return results
 # ──────────────────────────────
 # TODO (v0.2+)

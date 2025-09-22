@@ -1,17 +1,23 @@
 # backend/routes/lean_inject_api.py
 import os
-from typing import Optional, List, Dict, Any
+from typing import Optional, List
 
 from fastapi import APIRouter, UploadFile, File, Form, HTTPException
 from fastapi.responses import JSONResponse
 
-# Use your existing logic helpers
+# Existing helpers
 from backend.modules.lean.lean_injector import load_container, save_container, inject_theorems_into_container
 from backend.modules.lean.lean_utils import validate_logic_trees
-from backend.modules.lean.lean_audit import audit_event, build_inject_event
+from backend.modules.lean.lean_audit import audit_event, build_inject_event, build_export_event
 from backend.modules.lean.lean_exporter import build_container_from_lean
 
 router = APIRouter(prefix="/api/lean", tags=["Lean"])
+
+
+def _integrated_hooks(container: dict) -> None:
+    """Extra processing in integrated mode (Codex/SQI)."""
+    # TODO: plug in CodexLangRewriter, SQI scoring, registry, mutation hooks
+    print("[ℹ️] Integrated mode: Codex/SQI hooks would run here.")
 
 
 @router.post("/inject")
@@ -23,41 +29,39 @@ async def inject(
     validate: bool = Form(True),
     fail_on_error: bool = Form(False),
     preview: Optional[str] = Form(None),  # "raw" | "normalized"
+    mode: str = Form("integrated"),       # 🟢 new mode field
+    log_audit: bool = Form(False),
+    ghx_out: Optional[str] = Form(None),
+    ghx_bundle: Optional[str] = Form(None),
     lean_file: UploadFile = File(...),
 ):
     """
-    Upload a .lean file + point at an existing container JSON path on the server.
-    Mutates the container in place and returns a summary.
+    Upload a .lean file + mutate an existing container.
+    Supports standalone or integrated mode.
     """
     try:
-        # 1) stash uploaded .lean to a temp path
+        # 1) Save upload to tmp
         tmp_dir = "tmp/lean_uploads"
         os.makedirs(tmp_dir, exist_ok=True)
         tmp_lean_path = os.path.join(tmp_dir, lean_file.filename or "upload.lean")
         with open(tmp_lean_path, "wb") as f:
             f.write(await lean_file.read())
 
-        # 2) run your existing injection logic
+        # 2) Inject
         before = load_container(container_path)
         after = inject_theorems_into_container(before, tmp_lean_path)
 
-        # --- overwrite / dedupe / preview flags (same behavior as CLI) ---
-        if overwrite:
-            logic_field = None
-            for f in ("symbolic_logic", "expanded_logic", "hoberman_logic", "exotic_logic", "symmetric_logic", "axioms"):
-                if f in after:
-                    logic_field = f
-                    break
-            items = after.get(logic_field, [])
-            by_name = {it.get("name"): it for it in items}
+        # --- overwrite / dedupe / preview ---
+        logic_field = next((f for f in (
+            "symbolic_logic", "expanded_logic", "hoberman_logic",
+            "exotic_logic", "symmetric_logic", "axioms"
+        ) if f in after), None)
+
+        if overwrite and logic_field:
+            by_name = {it.get("name"): it for it in after.get(logic_field, [])}
             after[logic_field] = list(by_name.values())
 
-        if dedupe:
-            logic_field = None
-            for f in ("symbolic_logic", "expanded_logic", "hoberman_logic", "exotic_logic", "symmetric_logic", "axioms"):
-                if f in after:
-                    logic_field = f
-                    break
+        if dedupe and logic_field:
             seen, unique = set(), []
             for it in after.get(logic_field, []):
                 sig = (it.get("name"), it.get("symbol"), it.get("logic_raw") or it.get("logic"))
@@ -66,38 +70,27 @@ async def inject(
                     unique.append(it)
             after[logic_field] = unique
 
-        if preview:
-            logic_field = None
-            for f in ("symbolic_logic", "expanded_logic", "hoberman_logic", "exotic_logic", "symmetric_logic", "axioms"):
-                if f in after:
-                    logic_field = f
-                    break
+        if preview and logic_field:
             previews: List[str] = []
             for it in after.get(logic_field, []):
                 name = it.get("name", "unknown")
                 sym = it.get("symbol", "⟦ ? ⟧")
                 if preview == "raw":
-                    logic = it.get("logic_raw") or it.get("codexlang", {}).get("logic") or it.get("logic") or "???"
+                    logic_str = it.get("logic_raw") or it.get("codexlang", {}).get("logic") or it.get("logic") or "???"
                 else:
-                    logic = it.get("logic") or it.get("logic_raw") or it.get("codexlang", {}).get("logic") or "???"
+                    logic_str = it.get("logic") or it.get("logic_raw") or it.get("codexlang", {}).get("logic") or "???"
                 label = "Define" if "Definition" in sym else "Prove"
-                previews.append(f"{sym} | {name} : {logic} → {label} ⟧")
+                previews.append(f"{sym} | {name} : {logic_str} → {label} ⟧")
             after["previews"] = previews
 
-        # auto clean small cruft
         if auto_clean:
             for key in ("glyphs", "previews"):
                 if key in after and isinstance(after[key], list):
-                    deduped, seen = [], set()
-                    for x in after[key]:
-                        if x not in seen:
-                            seen.add(x)
-                            deduped.append(x)
-                    after[key] = deduped
+                    after[key] = list(dict.fromkeys(after[key]))
             if "dependencies" in after and not after["dependencies"]:
                 del after["dependencies"]
 
-        # ✅ Always run validation
+        # 3) Validate
         validation_errors: List[str] = validate_logic_trees(after)
         after["validation_errors"] = validation_errors
         after["validation_errors_version"] = "v1"
@@ -105,52 +98,72 @@ async def inject(
         if fail_on_error and validation_errors:
             raise HTTPException(status_code=422, detail={"validation_errors": validation_errors})
 
-        # 3) persist container
+        # 4) Mode-specific
+        if mode == "integrated":
+            _integrated_hooks(after)
+        else:
+            print("[ℹ️] Standalone mode: skipping Codex/SQI integration.")
+
+        # 5) Save
         save_container(after, container_path)
 
-        # 4) audit (best-effort)
-        try:
-            logic_field = None
-            for f in ("symbolic_logic", "expanded_logic", "hoberman_logic", "exotic_logic", "symmetric_logic", "axioms"):
-                if f in after:
-                    logic_field = f
-                    break
-            previews = after.get("previews", [])
-            audit_event(
-                build_inject_event(
+        # 6) Audit (optional)
+        if log_audit:
+            try:
+                audit_event(build_inject_event(
                     container_path=container_path,
                     container_id=after.get("id"),
                     lean_path=tmp_lean_path,
-                    num_items=len(after.get(logic_field, [])),
-                    previews=previews,
-                    extra={"overwrite": overwrite, "dedupe": dedupe, "auto_clean": auto_clean},
-                )
-            )
-        except Exception:
-            pass
+                    num_items=len(after.get(logic_field, [])) if logic_field else 0,
+                    previews=after.get("previews", []),
+                    extra={"overwrite": overwrite, "dedupe": dedupe, "auto_clean": auto_clean, "mode": mode},
+                ))
+                print("[📝] Audit event logged")
+            except Exception as e:
+                print(f"[⚠️] Audit logging failed: {e}")
 
-        # 5) response
-        return JSONResponse(
-            {
-                "ok": True,
-                "container": {"type": after.get("type"), "id": after.get("id"), "path": container_path},
-                "counts": {"entries": len(after.get(logic_field or "symbolic_logic", []))},
-                "previews": after.get("previews", []),
-                "validation_errors": validation_errors,  # ✅ top-level mirror
-            }
-        )
+        # 7) GHX (optional)
+        if ghx_out:
+            try:
+                from backend.modules.lean.lean_ghx import dump_packets
+                dump_packets(after, ghx_out)
+                print(f"[📦] Wrote GHX packets → {ghx_out}")
+            except Exception as e:
+                print(f"[⚠️] GHX packet dump failed: {e}")
+
+        if ghx_bundle:
+            try:
+                from backend.modules.lean.lean_ghx import bundle_packets
+                bundle_packets(after, ghx_bundle)
+                print(f"[📦] Wrote GHX bundle → {ghx_bundle}")
+            except Exception as e:
+                print(f"[⚠️] GHX bundle failed: {e}")
+
+        # 8) Response
+        return JSONResponse({
+            "ok": True,
+            "container": {"type": after.get("type"), "id": after.get("id"), "path": container_path},
+            "counts": {"entries": len(after.get(logic_field or "symbolic_logic", []))},
+            "previews": after.get("previews", []),
+            "validation_errors": validation_errors,
+            "mode": mode,
+        })
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 
 @router.post("/export")
 async def export_container(
-    container_type: str = Form("dc"),  # "dc" | "hoberman" | ...
+    container_type: str = Form("dc"),
     validate: bool = Form(True),
     fail_on_error: bool = Form(False),
+    mode: str = Form("integrated"),
+    log_audit: bool = Form(False),
+    ghx_out: Optional[str] = Form(None),
+    ghx_bundle: Optional[str] = Form(None),
     lean_file: UploadFile = File(...),
 ):
-    """Build a brand-new container JSON from a .lean file and return it."""
+    """Build a new container from a .lean file."""
     try:
         tmp_dir = "tmp/lean_uploads"
         os.makedirs(tmp_dir, exist_ok=True)
@@ -160,7 +173,7 @@ async def export_container(
 
         container = build_container_from_lean(tmp_lean_path, container_type)
 
-        # ✅ Always run validation
+        # ✅ Validation
         validation_errors: List[str] = validate_logic_trees(container)
         container["validation_errors"] = validation_errors
         container["validation_errors_version"] = "v1"
@@ -168,12 +181,49 @@ async def export_container(
         if fail_on_error and validation_errors:
             raise HTTPException(status_code=422, detail={"validation_errors": validation_errors})
 
-        return JSONResponse(
-            {
-                "ok": True,
-                "container": container,
-                "validation_errors": validation_errors,  # ✅ also exposed at top-level
-            }
-        )
+        # 🟢 Mode
+        if mode == "integrated":
+            _integrated_hooks(container)
+        else:
+            print("[ℹ️] Standalone mode: skipping Codex/SQI integration.")
+
+        # 📝 Audit
+        if log_audit:
+            try:
+                audit_event(build_export_event(
+                    container_type=container_type,
+                    container_id=container.get("id"),
+                    lean_path=tmp_lean_path,
+                    num_items=len(container.get("symbolic_logic", [])),
+                    previews=container.get("previews", []),
+                    extra={"mode": mode},
+                ))
+                print("[📝] Audit event logged")
+            except Exception as e:
+                print(f"[⚠️] Audit logging failed: {e}")
+
+        # 📦 GHX
+        if ghx_out:
+            try:
+                from backend.modules.lean.lean_ghx import dump_packets
+                dump_packets(container, ghx_out)
+                print(f"[📦] Wrote GHX packets → {ghx_out}")
+            except Exception as e:
+                print(f"[⚠️] GHX packet dump failed: {e}")
+
+        if ghx_bundle:
+            try:
+                from backend.modules.lean.lean_ghx import bundle_packets
+                bundle_packets(container, ghx_bundle)
+                print(f"[📦] Wrote GHX bundle → {ghx_bundle}")
+            except Exception as e:
+                print(f"[⚠️] GHX bundle failed: {e}")
+
+        return JSONResponse({
+            "ok": True,
+            "container": container,
+            "validation_errors": validation_errors,
+            "mode": mode,
+        })
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))

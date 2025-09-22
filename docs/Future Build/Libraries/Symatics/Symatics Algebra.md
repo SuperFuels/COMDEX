@@ -1,94 +1,94 @@
-		flowchart TD
+flowchart TD
 
-			subgraph A7["⚪ A7: Mechanized Proofs (Coq / Lean / TLA+)"]
-			direction TB
+	subgraph A7["⚪ A7: Mechanized Proofs (Coq / Lean / TLA+)"]
+	direction TB
 
-				goal["🎯 Goal:
+		goal["🎯 Goal:
 		- Lean (later Coq/TLA+) ingestion pipeline
 		- Works in Standalone (Symatics-only) & Integrated (Codex) modes
 		- Containers, proofs, previews, validation available in both"]
 
-				subgraph orig["📌 Original A7 Subtasks"]
-					A71["1. Lean Parsing & Injection
+		subgraph orig["📌 Original A7 Subtasks"]
+			A71["✅ 1. Lean Parsing & Injection
 		- Parse .lean → container JSON
 		- Overwrite / dedupe / auto-clean
 		- Build previews (raw/normalized)"]
 
-					A72["2. Proof Visualization
+			A72["⚪ 2. Proof Visualization
 		- ASCII proof trees
 		- Mermaid diagrams
 		- Dependency graphs (DOT/PNG)"]
 
-					A73["3. Validation
+			A73["⚪ 3. Validation
 		- Validate logic trees
 		- Collect validation_errors
 		- Expose via API & CLI"]
 
-					A74["4. Audit & Reporting
+			A74["⚪ 4. Audit & Reporting
 		- Audit trail of injections
 		- Export reports (md/json)"]
-				end
+		end
 
-				subgraph new["📌 New Subtasks: Standalone vs Integrated Modes"]
-					subgraph standalone["Standalone Mode (Symatics-only)"]
-						S1["Add --mode standalone (CLI) & mode=standalone (API)"]
-						S2["Parse .lean → container JSON"]
-						S3["Generate previews / Mermaid / PNG"]
-						S4["Validate logic trees"]
-						S5["Save reports (no Codex/SQI/SCI/QFC)"]
-						S6["Use shims in lean_utils (CodexLangRewriter, LocalRegistry)"]
-					end
+		subgraph new["📌 New Subtasks: Standalone vs Integrated Modes"]
+			subgraph standalone["Standalone Mode (Symatics-only)"]
+				S1["✅ Add --mode standalone (CLI) & mode=standalone (API)"]
+				S2["✅ Parse .lean → container JSON"]
+				S3["⚪ Generate previews / Mermaid / PNG"]
+				S4["⚪ Validate logic trees"]
+				S5["⚪ Save reports (no Codex/SQI/SCI/QFC)"]
+				S6["✅ Use shims in lean_utils (CodexLangRewriter, LocalRegistry)"]
+			end
 
-					subgraph integrated["Integrated Mode (Full Codex Stack)"]
-						I1["Default: --mode integrated"]
-						I2["Normalize logic via CodexLangRewriter"]
-						I3["Run SQI scoring per theorem"]
-						I4["Attach mutation hooks"]
-						I5["Register container in symbolic_registry"]
-						I6["Emit WebSocket events for SCI"]
-						I7["Optional: QFC LightCone projection"]
-					end
-				end
+			subgraph integrated["Integrated Mode (Full Codex Stack)"]
+				I1["✅ Default: --mode integrated"]
+				I2["✅ Normalize logic via CodexLangRewriter"]
+				I3["⚪ Run SQI scoring per theorem"]
+				I4["⚪ Attach mutation hooks"]
+				I5["⚪ Register container in symbolic_registry"]
+				I6["⚪ Emit WebSocket events for SCI"]
+				I7["⚪ Optional: QFC LightCone projection"]
+			end
+		end
 
-				subgraph impl["📌 Implementation Plan"]
-					P1["lean_inject_cli.py
+		subgraph impl["📌 Implementation Plan"]
+			P1["✅ lean_inject_cli.py
 		- Add --mode {standalone,integrated} (default integrated)
 		- Respect mode in inject/export logic"]
 
-					P2["lean_inject.py (FastAPI)
+			P2["⚪ lean_inject.py (FastAPI)
 		- Add field mode (default integrated)
 		- Return validation_errors, SQI, CodexLang AST if integrated"]
 
-					P3["lean_utils.py
+			P3["✅ lean_utils.py
 		- Add fallback shims
 		- Force shim path if mode=standalone"]
 
-					P4["lean_watch.py
+			P4["⚪ lean_watch.py
 		- Pass --mode through to CLI"]
-				end
+		end
 
-				subgraph design["⚡ Design Decision (Open Question)"]
-					D1["Standalone mode should:
+		subgraph design["⚡ Design Decision (Open Question)"]
+			D1["Standalone mode should:
 		A: Raw Lean logic only (pure)
 		B: Raw + CodexLang normalization (via shim)"]
 
-					D2["👉 Recommendation:
+			D2["👉 Recommendation:
 		- Default Option A (purity)
 		- Allow --normalize flag for optional CodexLang normalization"]
-				end
+		end
 
-				why["✅ Why this is strong
+		why["✅ Why this is strong
 		- Lean runs in isolation (great for dev/testing)
 		- In production: full Codex/SQI/SCI integration
 		- Dual-mode: not dependent on Codex but not disconnected"]
 
-				next["⚡ Next Step
+		next["⚡ Next Step
 		- Patch lean_inject_cli.py + lean_inject.py with mode flag
 		- Add shim logic in lean_utils.py
 		- Start with CLI implementation"]
 
-				goal --> orig --> new --> impl --> design --> why --> next
-			end
+		goal --> orig --> new --> impl --> design --> why --> next
+	end
 
 
 %% Symatics Algebra Build Roadmap

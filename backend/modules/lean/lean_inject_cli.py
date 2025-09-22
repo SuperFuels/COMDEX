@@ -203,12 +203,14 @@ def _emit_dot(container: Dict[str, Any], dot_path: str) -> None:
 # -----------------------------
 
 def _maybe_validate(container: Dict[str, Any], do_validate: bool) -> List[str]:
-    if not do_validate:
-        return []
+    """
+    Always compute and attach validation errors to the container.
+    If do_validate=True, also print the errors to stdout (CLI feedback).
+    """
     errors = validate_logic_trees(container)
     container["validation_errors"] = errors
     container["validation_errors_version"] = "v1"
-    if errors:
+    if do_validate and errors:
         print("⚠️  Logic validation errors:")
         for e in errors:
             print("  •", e)
@@ -233,16 +235,25 @@ def _auto_clean(container: Dict[str, Any]) -> None:
             del container[key]
 
 
+def _integrated_hooks(container: Dict[str, Any]) -> None:
+    """
+    Extra processing in integrated mode (Codex stack).
+    Placeholder: wire CodexLangRewriter normalization, SQI scoring,
+    mutation hooks, and symbolic_registry registration here.
+    """
+    print("[ℹ️] Integrated mode: Codex/SQI hooks would run here.")
+
+
 def cmd_inject(args: argparse.Namespace) -> int:
     try:
         before = load_container(args.container)
         after = inject_theorems_into_container(before, args.lean)
         logic = after.get("symbolic_logic", []) or \
-        after.get("expanded_logic", []) or \
-        after.get("hoberman_logic", []) or \
-        after.get("exotic_logic", []) or \
-        after.get("symmetric_logic", []) or \
-        after.get("axioms", [])
+                after.get("expanded_logic", []) or \
+                after.get("hoberman_logic", []) or \
+                after.get("exotic_logic", []) or \
+                after.get("symmetric_logic", []) or \
+                after.get("axioms", [])
 
         container_id = after.get("id")
         source_path = None
@@ -252,18 +263,16 @@ def cmd_inject(args: argparse.Namespace) -> int:
         # Overwrite: replace rather than append (by name)
         if args.overwrite:
             field, items = _collect_logic_entries(after)
-            name_to_latest = {}
-            for it in items:
-                name_to_latest[it.get("name")] = it
+            name_to_latest = {it.get("name"): it for it in items}
             after[field] = list(name_to_latest.values())
 
         # Dedupe by (name, symbol, logic_raw)
         if args.dedupe:
             field, items = _collect_logic_entries(after)
-            seen = set()
-            unique = []
+            seen, unique = set(), []
             for it in items:
-                sig = (it.get("name"), it.get("symbol"), it.get("logic_raw") or it.get("logic"))
+                sig = (it.get("name"), it.get("symbol"),
+                       it.get("logic_raw") or it.get("logic"))
                 if sig not in seen:
                     seen.add(sig)
                     unique.append(it)
@@ -277,22 +286,49 @@ def cmd_inject(args: argparse.Namespace) -> int:
                 name = it.get("name", "unknown")
                 sym = it.get("symbol", "⟦ ? ⟧")
                 if args.preview == "raw":
-                    logic = (it.get("logic_raw") or it.get("codexlang", {}).get("logic") or it.get("logic") or "???")
+                    logic_str = (it.get("logic_raw")
+                                 or it.get("codexlang", {}).get("logic")
+                                 or it.get("logic") or "???")
                 else:
-                    logic = (it.get("logic") or it.get("logic_raw") or it.get("codexlang", {}).get("logic") or "???")
+                    logic_str = (it.get("logic")
+                                 or it.get("logic_raw")
+                                 or it.get("codexlang", {}).get("logic")
+                                 or "???")
                 label = "Define" if "Definition" in sym else "Prove"
-                after["previews"].append(f"{sym} | {name} : {logic} → {label} ⟧")
+                after["previews"].append(f"{sym} | {name} : {logic_str} → {label} ⟧")
 
         if args.auto_clean:
             _auto_clean(after)
 
-        errors = _maybe_validate(after, True) if args.validate else _maybe_validate(after, False)
+        # ✅ Always attach validation; print only if --validate
+        errors = _maybe_validate(after, args.validate)
         if args.fail_on_error and errors:
             print(f"[❌] Validation failed with {len(errors)} errors", file=sys.stderr)
             return 3
 
+        # 🟢 Mode-specific handling
+        if getattr(args, "mode", "integrated") == "integrated":
+            _integrated_hooks(after)
+        else:
+            print("[ℹ️] Standalone mode: skipping Codex/SQI integration.")
+
         if args.summary:
             _print_summary(after)
+
+        # Optional proof viz passthroughs
+        if getattr(args, "ascii", False):
+            _, items = _collect_logic_entries(after)
+            for e in items:
+                print("\n" + "=" * 60)
+                print(ascii_tree_for_theorem(e))
+        if getattr(args, "mermaid_out", None):
+            mmd = mermaid_for_dependencies(after)
+            with open(args.mermaid_out, "w", encoding="utf-8") as f:
+                f.write(mmd)
+            print(f"[🧭] wrote mermaid → {args.mermaid_out}")
+        if getattr(args, "png_out", None):
+            ok, msg = png_for_dependencies(after, args.png_out)
+            print(("[✅] " + msg) if ok else ("[⚠️] " + msg))
 
         if args.dry_run or args.diff:
             before_s = json.dumps(before, indent=2, ensure_ascii=False)
@@ -316,6 +352,40 @@ def cmd_inject(args: argparse.Namespace) -> int:
         if args.dot:
             _emit_dot(after, args.dot)
 
+        # 📝 Optional audit logging
+        if getattr(args, "log_audit", False):
+            try:
+                from backend.modules.lean.lean_audit import audit_event, build_inject_event
+                logic_field, items = _collect_logic_entries(after)
+                audit_event(build_inject_event(
+                    container_path=args.container,
+                    container_id=after.get("id"),
+                    lean_path=args.lean,
+                    num_items=len(items),
+                    previews=after.get("previews", []),
+                    extra={"mode": getattr(args, "mode", "integrated")}
+                ))
+                print("[📝] Audit event logged")
+            except Exception as e:
+                print(f"[⚠️] Audit logging failed: {e}")
+
+        # 📦 GHX packet output
+        if getattr(args, "ghx_out", None):
+            try:
+                from backend.modules.lean.lean_ghx import dump_packets
+                dump_packets(after, args.ghx_out)
+                print(f"[📦] Wrote GHX packets → {args.ghx_out}")
+            except Exception as e:
+                print(f"[⚠️] GHX packet dump failed: {e}")
+
+        if getattr(args, "ghx_bundle", None):
+            try:
+                from backend.modules.lean.lean_ghx import bundle_packets
+                bundle_packets(after, args.ghx_bundle)
+                print(f"[📦] Wrote GHX bundle → {args.ghx_bundle}")
+            except Exception as e:
+                print(f"[⚠️] GHX bundle failed: {e}")
+
         print(f"[✅] Injected Lean theorems into {args.container}")
         return 0
     except Exception as e:
@@ -327,10 +397,18 @@ def cmd_export(args: argparse.Namespace) -> int:
     try:
         container = build_container_from_lean(args.lean, args.container_type)
 
-        errors = _maybe_validate(container, True) if args.validate else _maybe_validate(container, False)
+        # ✅ Always attach validation; print only if --validate
+        errors = _maybe_validate(container, args.validate)
         if args.fail_on_error and errors:
             print(f"[❌] Validation failed with {len(errors)} errors", file=sys.stderr)
             return 3
+
+        # 🟢 Mode-specific handling
+        if getattr(args, "mode", "integrated") == "integrated":
+            _integrated_hooks(container)
+        else:
+            print("[ℹ️] Standalone mode: skipping Codex/SQI integration.")
+
         if args.summary:
             logic_hint = {
                 "dc": "symbolic_logic",
@@ -354,6 +432,40 @@ def cmd_export(args: argparse.Namespace) -> int:
         if args.dot:
             _emit_dot(container, args.dot)
 
+        # 📝 Optional audit logging
+        if getattr(args, "log_audit", False):
+            try:
+                from backend.modules.lean.lean_audit import audit_event, build_export_event
+                logic_field, items = _collect_logic_entries(container)
+                audit_event(build_export_event(
+                    container_type=args.container_type,
+                    container_id=container.get("id"),
+                    lean_path=args.lean,
+                    num_items=len(items),
+                    previews=container.get("previews", []),
+                    extra={"mode": getattr(args, "mode", "integrated")}
+                ))
+                print("[📝] Audit event logged")
+            except Exception as e:
+                print(f"[⚠️] Audit logging failed: {e}")
+
+        # 📦 GHX packet output
+        if getattr(args, "ghx_out", None):
+            try:
+                from backend.modules.lean.lean_ghx import dump_packets
+                dump_packets(container, args.ghx_out)
+                print(f"[📦] Wrote GHX packets → {args.ghx_out}")
+            except Exception as e:
+                print(f"[⚠️] GHX packet dump failed: {e}")
+
+        if getattr(args, "ghx_bundle", None):
+            try:
+                from backend.modules.lean.lean_ghx import bundle_packets
+                bundle_packets(container, args.ghx_bundle)
+                print(f"[📦] Wrote GHX bundle → {args.ghx_bundle}")
+            except Exception as e:
+                print(f"[⚠️] GHX bundle failed: {e}")
+
         return 0
     except Exception as e:
         print(f"[❌] export failed: {e}", file=sys.stderr)
@@ -375,15 +487,20 @@ def build_parser() -> argparse.ArgumentParser:
     pi.add_argument("--diff",    action="store_true", help="Show unified diff before/after")
     pi.add_argument("--pretty",  action="store_true", help="Pretty-print JSON on save")
     pi.add_argument("--summary", action="store_true", help="Print a short summary after inject")
-    pi.add_argument("--validate",   action="store_true", help="Run structural validation")
-    pi.add_argument("--fail-on-error", action="store_true", help="Exit with nonzero code if validation errors are found")
 
     # quality-of-life
     pi.add_argument("--overwrite",  action="store_true", help="Replace existing entries with same name")
     pi.add_argument("--auto-clean", action="store_true", help="Trim duplicates/empties in glyphs/previews/deps")
     pi.add_argument("--dedupe",     action="store_true", help="De-duplicate entries by (name,symbol,logic_raw)")
     pi.add_argument("--preview",    choices=["raw", "normalized"], help="Regenerate previews using raw/normalized logic")
-    pi.add_argument("--validate",   action="store_true", help="Run structural validation")
+
+    # validation / exit behavior
+    pi.add_argument("--validate",   action="store_true", help="Print validation errors to stdout (always attached in JSON)")
+    pi.add_argument("--fail-on-error", action="store_true", help="Exit with nonzero code if validation errors are found")
+
+    # 🟢 New: mode flag
+    pi.add_argument("--mode", choices=["standalone", "integrated"], default="integrated",
+                    help="Execution mode (default: integrated)")
 
     # reporting
     pi.add_argument("--report",     choices=["md", "json"], help="Emit a report (printed or saved with --report-out)")
@@ -392,10 +509,11 @@ def build_parser() -> argparse.ArgumentParser:
     # graph
     pi.add_argument("--dot", help="Write Graphviz DOT dependency graph to this path")
 
+    # audit / ghx
     pi.add_argument("--log-audit", action="store_true", help="Append an audit event to data/lean_audit.jsonl")
     pi.add_argument("--ghx-out", help="Directory to write one GHX packet per theorem")
     pi.add_argument("--ghx-bundle", help="Write a single GHX bundle JSON file")
-    
+
     # proof viz passthroughs
     pi.add_argument("--ascii", action="store_true", help="Print ASCII tree per theorem")
     pi.add_argument("--mermaid-out", help="Write Mermaid .md")
@@ -413,8 +531,16 @@ def build_parser() -> argparse.ArgumentParser:
     pe.add_argument("--out", "-o", help="Write to file instead of stdout")
     pe.add_argument("--pretty",  action="store_true", help="Pretty-print output JSON")
     pe.add_argument("--summary", action="store_true", help="Print a short summary")
-    pe.add_argument("--validate", action="store_true", help="Run structural validation")
 
+    # validation / exit behavior
+    pe.add_argument("--validate", action="store_true", help="Print validation errors to stdout (always attached in JSON)")
+    pe.add_argument("--fail-on-error", action="store_true", help="Exit with nonzero code if validation errors are found")
+
+    # 🟢 New: mode flag
+    pe.add_argument("--mode", choices=["standalone", "integrated"], default="integrated",
+                    help="Execution mode (default: integrated)")
+
+    # reporting / graph
     pe.add_argument("--report",     choices=["md", "json"], help="Emit a report (printed or saved with --report-out)")
     pe.add_argument("--report-out", help="Path to save the report")
     pe.add_argument("--dot",        help="Write Graphviz DOT dependency graph to this path")
