@@ -788,3 +788,117 @@ Roadmap (v0.2+ Extensions)
 ⚡ This section stays as a living tracker, and each item can be checked off once implemented and tested.
 
 
+📜 Progress Patch & Notes
+
+⸻
+
+✅ Progress Update (Symatics + Lean Pipeline)
+
+A1–A6 Recap
+	•	A1 Primitives → 🌊 Wave + 💡 Photon defined.
+	•	A2 Axioms → 7 axioms formalized (existence, superposition, entanglement, etc).
+	•	A3 Operators → ⊕, ↔, ⟲, ∇, ⇒ defined with semantics, test vectors.
+	•	A4 Rulebook → Context canonicalization, extended operators μ, π.
+	•	A5 SQI → Emotion-weighted SQI + mutation-aware scoring integrated.
+	•	A6 Collapse/Replay → Mutation lineage + LightCone tracing implemented.
+
+All above now stable and documented.
+
+⸻
+
+A7 Mechanized Proofs (Lean pipeline)
+
+Goal: Two-track ingestion pipeline for Lean → container JSON.
+	•	Standalone mode (Symatics-only)
+	•	Parse .lean → container JSON.
+	•	Generate previews + diagrams.
+	•	Validate logic trees, save errors in container + API.
+	•	No Codex/SQI/SCI/QFC required.
+	•	Integrated mode (Codex stack)
+	•	Default.
+	•	Normalize logic with CodexLangRewriter.
+	•	SQI scoring, mutation hooks.
+	•	Register into symbolic_registry.
+	•	Emit SCI WebSocket events + QFC projection.
+
+Status:
+	•	API patched → /inject and /export return validation_errors always.
+	•	Container JSON persists validation_errors field.
+	•	CLI + routes ready for mode flag patch (standalone|integrated).
+	•	lean_watch.py integrated.
+	•	Next: patch CLI (lean_inject_cli.py) and API routes to respect mode.
+
+⸻
+
+📌 Key Notes
+	•	Dual Mode = Big Win → You can run Lean proofs in isolation (no Codex running) OR flow them into the full symbolic runtime immediately.
+	•	Shims Guarantee Stability → CodexLangRewriter shim + LocalSymbolicRegistry ensure no crashes in standalone.
+	•	Mermaid/PNG Stored in Container → Previews and proof viz can be replayed instantly.
+	•	Validation Always On → Errors are saved + exposed consistently across CLI, API, and SCI.
+
+⸻
+
+⚡ Next Steps
+	1.	Patch CLI + API with mode flag.
+	2.	Extend Rulebook to v0.2 (destructive interference, GHZ entanglement, resonance decay).
+	3.	Begin Symatics Calculus draft (integration/differentiation operators).
+	4.	Prep RFC Whitepaper v0.2 (ready for external sharing).
+
+⸻
+
+📊 Mermaid Roadmaps
+
+Progress Tracker (A1–A7)
+
+timeline
+    title Symatics Build Roadmap (A1–A7)
+    section A1: Primitives
+        🌊 Wave primitive defined & documented: done
+        💡 Photon carrier introduced: done
+    section A2: Axioms
+        Existence, Superposition, Entanglement, Resonance, Collapse, Identity, Conservation: done
+    section A3: Operator Definitions
+        ⊕, ↔, ⟲, ∇, ⇒ formalized with types + laws: done
+    section A4: Algebra Rulebook
+        Context canonicalization, μ (Measurement), π (Projection): done
+        Roadmap v0.2 extensions planned: in-progress
+    section A5: SQI Integration
+        Emotion-weighted SQI, mutation-aware scoring, overlays: done
+    section A6: Collapse/Replay
+        Mutation lineage, step-through replay, LightCone tracing: done
+    section A7: Mechanized Proofs
+        Lean dual-mode pipeline (standalone + integrated): in-progress
+        Validation always-on (API + container): done
+        CLI mode flag patch: next
+        Coq/TLA+ extension: planned
+
+Dependency Flow (Standalone vs Integrated)
+
+flowchart TD
+    subgraph Standalone[Standalone Mode (Symatics-only)]
+        L1[.lean file] --> P1[Parse → Container JSON]
+        P1 --> V1[Validation Errors]
+        P1 --> D1[Previews / Mermaid / PNG]
+        P1 --> R1[Reports (JSON/MD)]
+    end
+
+    subgraph Integrated[Integrated Mode (Full Codex Stack)]
+        L2[.lean file] --> P2[Parse → Container JSON]
+        P2 --> N1[CodexLangRewriter (normalize)]
+        N1 --> S1[SQI Scoring]
+        S1 --> M1[Mutation Hooks]
+        M1 --> R2[Register in symbolic_registry]
+        R2 --> W1[Emit SCI WebSocket Events]
+        R2 --> Q1[Optional QFC LightCone Projection]
+    end
+
+    %% Show shared origin
+    L1 -.same parser.-> L2
+
+📌 Key Insight
+
+Numbers are dead abstractions.
+Waves are living signatures.
+Symatics is not “woo”—it grounds math in physical primitives (waves, photons, entanglement).
+
+⸻

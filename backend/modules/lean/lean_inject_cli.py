@@ -202,14 +202,17 @@ def _emit_dot(container: Dict[str, Any], dot_path: str) -> None:
 # Inject / Export commands
 # -----------------------------
 
-def _maybe_validate(container: Dict[str, Any], do_validate: bool) -> None:
+def _maybe_validate(container: Dict[str, Any], do_validate: bool) -> List[str]:
     if not do_validate:
-        return
+        return []
     errors = validate_logic_trees(container)
+    container["validation_errors"] = errors
+    container["validation_errors_version"] = "v1"
     if errors:
         print("⚠️  Logic validation errors:")
         for e in errors:
             print("  •", e)
+    return errors
 
 
 def _auto_clean(container: Dict[str, Any]) -> None:
@@ -283,8 +286,10 @@ def cmd_inject(args: argparse.Namespace) -> int:
         if args.auto_clean:
             _auto_clean(after)
 
-        if args.validate:
-            _maybe_validate(after, True)
+        errors = _maybe_validate(after, True) if args.validate else _maybe_validate(after, False)
+        if args.fail_on_error and errors:
+            print(f"[❌] Validation failed with {len(errors)} errors", file=sys.stderr)
+            return 3
 
         if args.summary:
             _print_summary(after)
@@ -322,8 +327,10 @@ def cmd_export(args: argparse.Namespace) -> int:
     try:
         container = build_container_from_lean(args.lean, args.container_type)
 
-        if args.validate:
-            _maybe_validate(container, True)
+        errors = _maybe_validate(container, True) if args.validate else _maybe_validate(container, False)
+        if args.fail_on_error and errors:
+            print(f"[❌] Validation failed with {len(errors)} errors", file=sys.stderr)
+            return 3
         if args.summary:
             logic_hint = {
                 "dc": "symbolic_logic",
@@ -368,6 +375,8 @@ def build_parser() -> argparse.ArgumentParser:
     pi.add_argument("--diff",    action="store_true", help="Show unified diff before/after")
     pi.add_argument("--pretty",  action="store_true", help="Pretty-print JSON on save")
     pi.add_argument("--summary", action="store_true", help="Print a short summary after inject")
+    pi.add_argument("--validate",   action="store_true", help="Run structural validation")
+    pi.add_argument("--fail-on-error", action="store_true", help="Exit with nonzero code if validation errors are found")
 
     # quality-of-life
     pi.add_argument("--overwrite",  action="store_true", help="Replace existing entries with same name")

@@ -13,6 +13,7 @@ from backend.modules.lean.lean_exporter import build_container_from_lean
 
 router = APIRouter(prefix="/api/lean", tags=["Lean"])
 
+
 @router.post("/inject")
 async def inject(
     container_path: str = Form(...),
@@ -20,7 +21,8 @@ async def inject(
     dedupe: bool = Form(False),
     auto_clean: bool = Form(True),
     validate: bool = Form(True),
-    preview: Optional[str] = Form(None),            # "raw" | "normalized"
+    fail_on_error: bool = Form(False),
+    preview: Optional[str] = Form(None),  # "raw" | "normalized"
     lean_file: UploadFile = File(...),
 ):
     """
@@ -40,23 +42,19 @@ async def inject(
         after = inject_theorems_into_container(before, tmp_lean_path)
 
         # --- overwrite / dedupe / preview flags (same behavior as CLI) ---
-        # overwrite: last occurrence wins by name
         if overwrite:
-            # choose the best logic field
             logic_field = None
-            for f in ("symbolic_logic","expanded_logic","hoberman_logic","exotic_logic","symmetric_logic","axioms"):
+            for f in ("symbolic_logic", "expanded_logic", "hoberman_logic", "exotic_logic", "symmetric_logic", "axioms"):
                 if f in after:
                     logic_field = f
                     break
             items = after.get(logic_field, [])
-            by_name = {}
-            for it in items:
-                by_name[it.get("name")] = it
+            by_name = {it.get("name"): it for it in items}
             after[logic_field] = list(by_name.values())
 
         if dedupe:
             logic_field = None
-            for f in ("symbolic_logic","expanded_logic","hoberman_logic","exotic_logic","symmetric_logic","axioms"):
+            for f in ("symbolic_logic", "expanded_logic", "hoberman_logic", "exotic_logic", "symmetric_logic", "axioms"):
                 if f in after:
                     logic_field = f
                     break
@@ -70,38 +68,42 @@ async def inject(
 
         if preview:
             logic_field = None
-            for f in ("symbolic_logic","expanded_logic","hoberman_logic","exotic_logic","symmetric_logic","axioms"):
+            for f in ("symbolic_logic", "expanded_logic", "hoberman_logic", "exotic_logic", "symmetric_logic", "axioms"):
                 if f in after:
                     logic_field = f
                     break
             previews: List[str] = []
             for it in after.get(logic_field, []):
-                name = it.get("name","unknown")
-                sym  = it.get("symbol","⟦ ? ⟧")
+                name = it.get("name", "unknown")
+                sym = it.get("symbol", "⟦ ? ⟧")
                 if preview == "raw":
-                    logic = it.get("logic_raw") or it.get("codexlang",{}).get("logic") or it.get("logic") or "???"
+                    logic = it.get("logic_raw") or it.get("codexlang", {}).get("logic") or it.get("logic") or "???"
                 else:
-                    logic = it.get("logic") or it.get("logic_raw") or it.get("codexlang",{}).get("logic") or "???"
+                    logic = it.get("logic") or it.get("logic_raw") or it.get("codexlang", {}).get("logic") or "???"
                 label = "Define" if "Definition" in sym else "Prove"
                 previews.append(f"{sym} | {name} : {logic} → {label} ⟧")
             after["previews"] = previews
 
         # auto clean small cruft
         if auto_clean:
-            for key in ("glyphs","previews"):
+            for key in ("glyphs", "previews"):
                 if key in after and isinstance(after[key], list):
                     deduped, seen = [], set()
                     for x in after[key]:
                         if x not in seen:
-                            seen.add(x); deduped.append(x)
+                            seen.add(x)
+                            deduped.append(x)
                     after[key] = deduped
             if "dependencies" in after and not after["dependencies"]:
                 del after["dependencies"]
 
-        # validate
-        validation_errors: List[str] = []
-        if validate:
-            validation_errors = validate_logic_trees(after)
+        # ✅ Always run validation
+        validation_errors: List[str] = validate_logic_trees(after)
+        after["validation_errors"] = validation_errors
+        after["validation_errors_version"] = "v1"
+
+        if fail_on_error and validation_errors:
+            raise HTTPException(status_code=422, detail={"validation_errors": validation_errors})
 
         # 3) persist container
         save_container(after, container_path)
@@ -109,37 +111,43 @@ async def inject(
         # 4) audit (best-effort)
         try:
             logic_field = None
-            for f in ("symbolic_logic","expanded_logic","hoberman_logic","exotic_logic","symmetric_logic","axioms"):
+            for f in ("symbolic_logic", "expanded_logic", "hoberman_logic", "exotic_logic", "symmetric_logic", "axioms"):
                 if f in after:
                     logic_field = f
                     break
             previews = after.get("previews", [])
-            audit_event(build_inject_event(
-                container_path=container_path,
-                container_id=after.get("id"),
-                lean_path=tmp_lean_path,
-                num_items=len(after.get(logic_field, [])),
-                previews=previews,
-                extra={"overwrite": overwrite, "dedupe": dedupe, "auto_clean": auto_clean}
-            ))
+            audit_event(
+                build_inject_event(
+                    container_path=container_path,
+                    container_id=after.get("id"),
+                    lean_path=tmp_lean_path,
+                    num_items=len(after.get(logic_field, [])),
+                    previews=previews,
+                    extra={"overwrite": overwrite, "dedupe": dedupe, "auto_clean": auto_clean},
+                )
+            )
         except Exception:
             pass
 
         # 5) response
-        return JSONResponse({
-            "ok": True,
-            "container": {"type": after.get("type"), "id": after.get("id"), "path": container_path},
-            "counts": {"entries": len(after.get(logic_field or "symbolic_logic", []))},
-            "previews": after.get("previews", []),
-            "validation_errors": validation_errors,
-        })
+        return JSONResponse(
+            {
+                "ok": True,
+                "container": {"type": after.get("type"), "id": after.get("id"), "path": container_path},
+                "counts": {"entries": len(after.get(logic_field or "symbolic_logic", []))},
+                "previews": after.get("previews", []),
+                "validation_errors": validation_errors,  # ✅ top-level mirror
+            }
+        )
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 
 @router.post("/export")
 async def export_container(
-    container_type: str = Form("dc"),   # "dc" | "hoberman" | ...
+    container_type: str = Form("dc"),  # "dc" | "hoberman" | ...
+    validate: bool = Form(True),
+    fail_on_error: bool = Form(False),
     lean_file: UploadFile = File(...),
 ):
     """Build a brand-new container JSON from a .lean file and return it."""
@@ -151,6 +159,21 @@ async def export_container(
             f.write(await lean_file.read())
 
         container = build_container_from_lean(tmp_lean_path, container_type)
-        return JSONResponse({"ok": True, "container": container})
+
+        # ✅ Always run validation
+        validation_errors: List[str] = validate_logic_trees(container)
+        container["validation_errors"] = validation_errors
+        container["validation_errors_version"] = "v1"
+
+        if fail_on_error and validation_errors:
+            raise HTTPException(status_code=422, detail={"validation_errors": validation_errors})
+
+        return JSONResponse(
+            {
+                "ok": True,
+                "container": container,
+                "validation_errors": validation_errors,  # ✅ also exposed at top-level
+            }
+        )
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
