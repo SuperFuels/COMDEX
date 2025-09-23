@@ -4,7 +4,7 @@ import sys
 import json
 import argparse
 from typing import Dict, Any
-from backend.modules.lean.lean_utils import _normalize_logic_entry
+from backend.modules.lean.lean_inject_utils import normalize_logic_entry
 # --- Imports with safe fallbacks ---------------------------------------------
 try:
     from backend.modules.lean.lean_to_glyph import convert_lean_to_codexlang, emit_codexlang_glyph
@@ -91,7 +91,7 @@ def _emit_preview(decl: Dict[str, Any], glyph_label: str) -> str:
 
 import traceback
 
-from backend.modules.lean.lean_inject_utils import _normalize_logic_entry
+from backend.modules.lean.lean_inject_utils import normalize_logic_entry
 
 
 def build_container_from_lean(lean_path: str, container_type: str) -> Dict[str, Any]:
@@ -128,7 +128,7 @@ def build_container_from_lean(lean_path: str, container_type: str) -> Dict[str, 
             container[spec["glyph_field"]].append(_emit_preview(decl, glyph_symbol))
 
             # normalize into logic entry (shared helper)
-            logic_entry = _normalize_logic_entry(decl, lean_path)
+            logic_entry = normalize_logic_entry(decl, lean_path)
             container[spec["logic_field"]].append(logic_entry)
 
             # tree entry

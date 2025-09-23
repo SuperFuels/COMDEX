@@ -1,6 +1,7 @@
 # backend/modules/lean/lean_inject_utils.py
 from typing import Dict, Any, List
 
+
 def guess_spec(container: Dict[str, Any]) -> Dict[str, str]:
     """Return field spec (glyph, logic, tree) for this container type."""
     t = (container.get("type") or "dc").lower()
@@ -18,6 +19,7 @@ def guess_spec(container: Dict[str, Any]) -> Dict[str, str]:
         return {"glyph_field": "glyphs", "logic_field": "axioms", "tree_field": "tree"}
     raise ValueError(f"Unknown container type: {t}")
 
+
 def auto_clean(container: Dict[str, Any], spec: Dict[str, str]) -> None:
     """Trim duplicates and empties in glyphs/previews/dependencies."""
     for key in ("glyphs", "previews"):
@@ -34,6 +36,7 @@ def auto_clean(container: Dict[str, Any], spec: Dict[str, str]) -> None:
         if key in container and not container[key]:
             del container[key]
 
+
 def dedupe_by_name(container: Dict[str, Any], spec: Dict[str, str]) -> None:
     """Remove duplicate entries in logic field by name."""
     logic_field = spec["logic_field"]
@@ -47,6 +50,7 @@ def dedupe_by_name(container: Dict[str, Any], spec: Dict[str, str]) -> None:
             seen.add(name)
             unique.append(it)
     container[logic_field] = unique
+
 
 def rebuild_previews(container: Dict[str, Any], spec: Dict[str, str], mode: str = "raw") -> None:
     """Rebuild preview strings for logic entries."""
@@ -74,11 +78,12 @@ def rebuild_previews(container: Dict[str, Any], spec: Dict[str, str], mode: str 
         previews.append(f"{sym} | {name} : {logic_str} → {label} ⟧")
     container["previews"] = previews
 
-def _normalize_logic_entry(decl: Dict[str, Any], lean_path: str) -> Dict[str, Any]:
+
+def normalize_logic_entry(decl: Dict[str, Any], lean_path: str) -> Dict[str, Any]:
     """
-    Normalize a single Lean declaration into a canonical logic entry.
-    Ensures codexlang dict is consistent and always has logic + normalized.
-    Provides a safe fallback when logic is missing.
+    Normalize a Lean declaration into a standard logic_entry dict.
+    Public utility: used by both lean_exporter and lean_injector.
+    Guarantees codexlang/logic/normalized are always set.
     """
     glyph_symbol = decl.get("glyph_symbol", "⟦ Theorem ⟧")
     name = decl.get("name") or "unnamed"

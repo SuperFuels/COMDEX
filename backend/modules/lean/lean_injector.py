@@ -3,7 +3,7 @@ import os
 import sys
 import json
 from typing import Any, Dict, List
-
+from backend.modules.lean.lean_inject_utils import normalize_logic_entry
 from backend.modules.lean.lean_to_glyph import convert_lean_to_codexlang, emit_codexlang_glyph
 from backend.modules.lean.lean_utils import (
     validate_logic_trees,
@@ -39,6 +39,7 @@ def inject_theorems_into_container(
     *,
     overwrite: bool = True,
     auto_clean: bool = False,
+    normalize: bool = False,   # 👈 new
 ) -> Dict[str, Any]:
     """
     Inject Lean theorems into a symbolic container (dc, SEC, Hoberman, Atom, Exotic, Symmetry, etc.).
@@ -86,18 +87,30 @@ def inject_theorems_into_container(
     }
 
     for decl in parsed.get("parsed_declarations", []):
-        # --- normalize via shared helper ---
-        logic_entry = _normalize_logic_entry(decl, lean_path)
+        if normalize:
+            # --- full CodexLang normalization ---
+            logic_entry = normalize_logic_entry(decl, lean_path)
+        else:
+            # --- raw/pure mode: keep Lean strings only ---
+            glyph_symbol = decl.get("glyph_symbol", "⟦ Theorem ⟧")
+            name = decl.get("name") or "unnamed"
+            logic_entry = {
+                "name": name,
+                "symbol": glyph_symbol,
+                "logic": decl.get("logic", "True"),
+                "logic_raw": decl.get("logic", "True"),
+                "codexlang": decl.get("codexlang", {}) or {},
+                "glyph_tree": decl.get("glyph_tree", {}),
+                "source": lean_path,
+                "body": decl.get("body", ""),
+            }
 
-        # 🔧 Add proof metadata & replay tags (injector-only extras)
+        # --- injector-only extras ---
         lean_proof_snippet = (decl.get("body") or "").strip()
-        symbolic_proof = logic_entry.get("logic")
-        proof_explanation = logic_entry.get("codexlang", {}).get("explanation")
-
         logic_entry.update({
             "leanProof": lean_proof_snippet,
-            "symbolicProof": symbolic_proof,
-            "proofExplanation": proof_explanation,
+            "symbolicProof": logic_entry.get("logic"),
+            "proofExplanation": logic_entry.get("codexlang", {}).get("explanation"),
             "replay_tags": ["📜 Lean Theorem", f"🧠 {logic_entry['symbol']}"],
         })
 

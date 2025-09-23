@@ -39,6 +39,26 @@ CONTAINER_MAP = {
 }
 
 # -----------------------------
+# Shared GHX emission helper
+# -----------------------------
+def _maybe_emit_ghx(container: Dict[str, Any], args: argparse.Namespace) -> None:
+    """Handle GHX packet/bundle emission with error handling."""
+    if getattr(args, "ghx_out", None):
+        try:
+            from backend.modules.lean.lean_ghx import dump_packets
+            dump_packets(container, args.ghx_out)
+            print(f"[📦] Wrote GHX packets → {args.ghx_out}")
+        except Exception as e:
+            print(f"[⚠️] GHX packet dump failed: {e}")
+
+    if getattr(args, "ghx_bundle", None):
+        try:
+            from backend.modules.lean.lean_ghx import bundle_packets
+            bundle_packets(container, args.ghx_bundle)
+            print(f"[📦] Wrote GHX bundle → {args.ghx_bundle}")
+        except Exception as e:
+            print(f"[⚠️] GHX bundle failed: {e}")
+# -----------------------------
 # Small helpers / pretty output
 # -----------------------------
 
@@ -253,7 +273,14 @@ def _integrated_hooks(container: Dict[str, Any]) -> None:
 def cmd_inject(args: argparse.Namespace) -> int:
     try:
         before = load_container(args.container)
-        after = inject_theorems_into_container(before, args.lean)
+
+        # 🔹 Pass normalize flag into injector
+        after = inject_theorems_into_container(
+            before,
+            args.lean,
+            normalize=args.normalize,
+        )
+
         logic = after.get("symbolic_logic", []) or \
                 after.get("expanded_logic", []) or \
                 after.get("hoberman_logic", []) or \
@@ -313,7 +340,7 @@ def cmd_inject(args: argparse.Namespace) -> int:
             return 3
 
         # 🟢 Mode-specific handling
-        if getattr(args, "mode", "integrated") == "integrated":
+        if args.mode == "integrated":
             _integrated_hooks(after)
         else:
             print("[ℹ️] Standalone mode: skipping Codex/SQI integration.")
@@ -322,17 +349,17 @@ def cmd_inject(args: argparse.Namespace) -> int:
             _print_summary(after)
 
         # Optional proof viz passthroughs
-        if getattr(args, "ascii", False):
+        if args.ascii:
             _, items = _collect_logic_entries(after)
             for e in items:
                 print("\n" + "=" * 60)
                 print(ascii_tree_for_theorem(e))
-        if getattr(args, "mermaid_out", None):
+        if args.mermaid_out:
             mmd = mermaid_for_dependencies(after)
             with open(args.mermaid_out, "w", encoding="utf-8") as f:
                 f.write(mmd)
             print(f"[🧭] wrote mermaid → {args.mermaid_out}")
-        if getattr(args, "png_out", None):
+        if args.png_out:
             ok, msg = png_for_dependencies(after, args.png_out)
             print(("[✅] " + msg) if ok else ("[⚠️] " + msg))
 
@@ -359,7 +386,7 @@ def cmd_inject(args: argparse.Namespace) -> int:
             _emit_dot(after, args.dot)
 
         # 📝 Optional audit logging
-        if getattr(args, "log_audit", False):
+        if args.log_audit:
             try:
                 from backend.modules.lean.lean_audit import audit_event, build_inject_event
                 logic_field, items = _collect_logic_entries(after)
@@ -369,28 +396,17 @@ def cmd_inject(args: argparse.Namespace) -> int:
                     lean_path=args.lean,
                     num_items=len(items),
                     previews=after.get("previews", []),
-                    extra={"mode": getattr(args, "mode", "integrated")}
+                    extra={
+                        "mode": args.mode,
+                        "normalize": args.normalize,
+                    }
                 ))
                 print("[📝] Audit event logged")
             except Exception as e:
                 print(f"[⚠️] Audit logging failed: {e}")
 
         # 📦 GHX packet output
-        if getattr(args, "ghx_out", None):
-            try:
-                from backend.modules.lean.lean_ghx import dump_packets
-                dump_packets(after, args.ghx_out)
-                print(f"[📦] Wrote GHX packets → {args.ghx_out}")
-            except Exception as e:
-                print(f"[⚠️] GHX packet dump failed: {e}")
-
-        if getattr(args, "ghx_bundle", None):
-            try:
-                from backend.modules.lean.lean_ghx import bundle_packets
-                bundle_packets(after, args.ghx_bundle)
-                print(f"[📦] Wrote GHX bundle → {args.ghx_bundle}")
-            except Exception as e:
-                print(f"[⚠️] GHX bundle failed: {e}")
+        _maybe_emit_ghx(after, args)
 
         print(f"[✅] Injected Lean theorems into {args.container}")
         return 0
@@ -401,7 +417,12 @@ def cmd_inject(args: argparse.Namespace) -> int:
 
 def cmd_export(args: argparse.Namespace) -> int:
     try:
-        container = build_container_from_lean(args.lean, args.container_type)
+        # 🔹 Pass normalize flag into container builder
+        container = build_container_from_lean(
+            args.lean,
+            args.container_type,
+            normalize=args.normalize,
+        )
 
         # ✅ Always attach validation; print only if --validate
         errors = _maybe_validate(container, args.validate)
@@ -410,7 +431,7 @@ def cmd_export(args: argparse.Namespace) -> int:
             return 3
 
         # 🟢 Mode-specific handling
-        if getattr(args, "mode", "integrated") == "integrated":
+        if args.mode == "integrated":
             _integrated_hooks(container)
         else:
             print("[ℹ️] Standalone mode: skipping Codex/SQI integration.")
@@ -439,7 +460,7 @@ def cmd_export(args: argparse.Namespace) -> int:
             _emit_dot(container, args.dot)
 
         # 📝 Optional audit logging
-        if getattr(args, "log_audit", False):
+        if args.log_audit:
             try:
                 from backend.modules.lean.lean_audit import audit_event, build_export_event
                 logic_field, items = _collect_logic_entries(container)
@@ -449,28 +470,17 @@ def cmd_export(args: argparse.Namespace) -> int:
                     lean_path=args.lean,
                     num_items=len(items),
                     previews=container.get("previews", []),
-                    extra={"mode": getattr(args, "mode", "integrated")}
+                    extra={
+                        "mode": args.mode,
+                        "normalize": args.normalize,
+                    }
                 ))
                 print("[📝] Audit event logged")
             except Exception as e:
                 print(f"[⚠️] Audit logging failed: {e}")
 
         # 📦 GHX packet output
-        if getattr(args, "ghx_out", None):
-            try:
-                from backend.modules.lean.lean_ghx import dump_packets
-                dump_packets(container, args.ghx_out)
-                print(f"[📦] Wrote GHX packets → {args.ghx_out}")
-            except Exception as e:
-                print(f"[⚠️] GHX packet dump failed: {e}")
-
-        if getattr(args, "ghx_bundle", None):
-            try:
-                from backend.modules.lean.lean_ghx import bundle_packets
-                bundle_packets(container, args.ghx_bundle)
-                print(f"[📦] Wrote GHX bundle → {args.ghx_bundle}")
-            except Exception as e:
-                print(f"[⚠️] GHX bundle failed: {e}")
+        _maybe_emit_ghx(container, args)
 
         return 0
     except Exception as e:
@@ -504,9 +514,11 @@ def build_parser() -> argparse.ArgumentParser:
     pi.add_argument("--validate",   action="store_true", help="Print validation errors to stdout (always attached in JSON)")
     pi.add_argument("--fail-on-error", action="store_true", help="Exit with nonzero code if validation errors are found")
 
-    # 🟢 New: mode flag
+    # 🟢 New: mode + normalize flags
     pi.add_argument("--mode", choices=["standalone", "integrated"], default="integrated",
                     help="Execution mode (default: integrated)")
+    pi.add_argument("--normalize", action="store_true",
+                    help="Normalize via CodexLang (opt-in enrichment, default False)")
 
     # reporting
     pi.add_argument("--report",     choices=["md", "json"], help="Emit a report (printed or saved with --report-out)")
@@ -542,9 +554,11 @@ def build_parser() -> argparse.ArgumentParser:
     pe.add_argument("--validate", action="store_true", help="Print validation errors to stdout (always attached in JSON)")
     pe.add_argument("--fail-on-error", action="store_true", help="Exit with nonzero code if validation errors are found")
 
-    # 🟢 New: mode flag
+    # 🟢 New: mode + normalize flags
     pe.add_argument("--mode", choices=["standalone", "integrated"], default="integrated",
                     help="Execution mode (default: integrated)")
+    pe.add_argument("--normalize", action="store_true",
+                    help="Normalize via CodexLang (opt-in enrichment, default False)")
 
     # reporting / graph
     pe.add_argument("--report",     choices=["md", "json"], help="Emit a report (printed or saved with --report-out)")
@@ -554,6 +568,7 @@ def build_parser() -> argparse.ArgumentParser:
     pe.set_defaults(func=cmd_export)
 
     return p
+
 
 def main(argv: Optional[List[str]] = None) -> int:
     parser = build_parser()

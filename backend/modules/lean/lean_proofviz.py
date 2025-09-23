@@ -3,44 +3,20 @@
 # Lean / container proof visualization utilities + back-compat shims.
 # - CLI helpers for ASCII / Mermaid / PNG
 # - Exports ascii_print, write_mermaid, write_png used by lean_inject_cli
+# - Delegates all Mermaid/PNG graph logic to lean_proofviz_utils
 # ---------------------------------------------------------------------
 
 from __future__ import annotations
 
 import json
 import argparse
-from typing import Any, Dict, List, Tuple, Optional, TextIO
+from typing import Any, Dict, List, Optional, TextIO
 
-# Optional deps for PNG rendering (no graphviz binary required)
-try:
-    import networkx as nx  # type: ignore
-    import matplotlib.pyplot as plt  # type: ignore
-
-    _HAS_PNG = True
-except Exception:
-    _HAS_PNG = False
-
-from backend.modules.lean.lean_proofviz_utils import mermaid_for_dependencies, png_for_dependencies
-
-def attach_visualizations(container: dict, *, png_path: str | None = None) -> dict:
-    """
-    Generate and embed visualization artifacts into container['viz'].
-    """
-    viz = {}
-
-    # Mermaid text
-    viz["mermaid"] = mermaid_for_dependencies(container)
-
-    # Optional PNG file
-    if png_path:
-        ok, msg = png_for_dependencies(container, png_path)
-        if ok:
-            viz["png_path"] = png_path
-        else:
-            viz["png_fallback"] = msg
-
-    container["viz"] = viz
-    return container
+# Canonical visualization helpers (single source of truth)
+from backend.modules.lean.lean_proofviz_utils import (
+    mermaid_for_dependencies,
+    png_for_dependencies,
+)
 
 # ----------------------------
 # Core container parsing utils
@@ -66,7 +42,6 @@ def _logic_nodes(container: Dict[str, Any]) -> List[Dict[str, Any]]:
 # ----------------------------
 # Renderers
 # ----------------------------
-
 def ascii_tree_for_theorem(entry: Dict[str, Any]) -> str:
     """
     Render a single entry's glyph_tree as a lightweight ASCII block.
@@ -99,81 +74,37 @@ def ascii_tree_for_theorem(entry: Dict[str, Any]) -> str:
     walk(gt, "")
     return "\n".join(lines)
 
-
-def mermaid_for_dependencies(container: Dict[str, Any]) -> str:
+# ----------------------------
+# Composite helpers
+# ----------------------------
+def attach_visualizations(container: dict, *, png_path: str | None = None) -> dict:
     """
-    Build a Mermaid graph for the dependency structure:
-      nodes: theorem names
-      edges: depends_on -> name
+    Generate and embed visualization artifacts into container['viz'].
     """
-    entries = _logic_nodes(container)
-    idmap = {e.get("name"): f"n{i}" for i, e in enumerate(entries)}
-    lines = ["```mermaid", "graph TD"]
-    # nodes
-    for e in entries:
-        nm = e.get("name", "?")
-        logic = str(e.get("logic", "")).replace('"', "'")
-        lines.append(f'  {idmap[nm]}["{nm}\\n{logic}"]')
-    # edges
-    for e in entries:
-        nm = e.get("name", "?")
-        for d in e.get("depends_on") or []:
-            if d in idmap:
-                lines.append(f"  {idmap[d]} --> {idmap[nm]}")
-    lines.append("```")
-    return "\n".join(lines)
+    viz = {}
+    viz["mermaid"] = mermaid_for_dependencies(container)
 
+    if png_path:
+        ok, msg = png_for_dependencies(container, png_path)
+        if ok:
+            viz["png_path"] = png_path
+        else:
+            viz["png_fallback"] = msg
 
-def png_for_dependencies(container: Dict[str, Any], out_png: str) -> Tuple[bool, str]:
-    """
-    Try to draw dependency graph to PNG using networkx + matplotlib.
-    Returns (ok, message). If PNG deps missing, returns (False, hint).
-    """
-    if not _HAS_PNG:
-        return (
-            False,
-            "PNG renderer requires networkx + matplotlib. Install them or use mermaid/ascii.",
-        )
-
-    G = nx.DiGraph()
-    entries = _logic_nodes(container)
-    for e in entries:
-        nm = e.get("name", "?")
-        G.add_node(nm)
-    for e in entries:
-        nm = e.get("name", "?")
-        for d in e.get("depends_on") or []:
-            if any(x.get("name") == d for x in entries):
-                G.add_edge(d, nm)
-
-    plt.figure(figsize=(8, 6))
-    pos = nx.spring_layout(G, seed=1)
-    nx.draw(G, pos, with_labels=True)
-    plt.tight_layout()
-    plt.savefig(out_png, dpi=150)
-    plt.close()
-    return True, f"wrote {out_png}"
-
+    container["viz"] = viz
+    return container
 
 # ----------------------------
 # Back-compat API (used elsewhere)
 # ----------------------------
 def ascii_print(proof: Any, file: Optional[TextIO] = None) -> str:
-    """
-    Back-compat wrapper. Accepts:
-      - container dict -> prints all entries' ASCII
-      - list[entry]    -> prints each entry
-      - str            -> returns as-is
-    Returns the rendered string (also writes to file if provided).
-    """
     out_lines: List[str] = []
     if isinstance(proof, str):
         out_lines.append(proof)
     elif isinstance(proof, dict):
         entries = _logic_nodes(proof)
         if not entries and "glyph_tree" in proof:
-            # treat as single entry
-            entries = [proof]  # type: ignore[assignment]
+            entries = [proof]  # treat as single entry
         for e in entries:
             out_lines.append("\n" + "=" * 60)
             out_lines.append(ascii_tree_for_theorem(e))
@@ -191,10 +122,6 @@ def ascii_print(proof: Any, file: Optional[TextIO] = None) -> str:
 
 
 def write_mermaid(proof_or_container: Any, out_path: Optional[str] = None) -> str:
-    """
-    Back-compat wrapper. If given a container dict, produce full dependency Mermaid.
-    If given a string that already looks like Mermaid, pass it through.
-    """
     if isinstance(proof_or_container, str) and proof_or_container.lstrip().startswith(
         ("graph", "flowchart", "```mermaid")
     ):
@@ -202,7 +129,6 @@ def write_mermaid(proof_or_container: Any, out_path: Optional[str] = None) -> st
     elif isinstance(proof_or_container, dict):
         mermaid = mermaid_for_dependencies(proof_or_container)
     else:
-        # Fallback: embed as a Mermaid comment block
         dumped = json.dumps(proof_or_container, default=str)[:8000]
         mermaid = "```mermaid\n%% Unable to infer structure\n%% " + dumped + "\n```"
 
@@ -213,22 +139,16 @@ def write_mermaid(proof_or_container: Any, out_path: Optional[str] = None) -> st
 
 
 def write_png(proof_or_container: Any, out_path: str) -> str:
-    """
-    Back-compat wrapper to write a PNG of dependencies. If PNG deps are missing,
-    writes a Mermaid `.mmd` next to the requested path and returns that path instead.
-    """
     if isinstance(proof_or_container, dict):
         ok, msg = png_for_dependencies(proof_or_container, out_path)
         if ok:
             return out_path if out_path.endswith(".png") else out_path + ".png"
-        # Fallback: write Mermaid text
         alt_path = out_path.rsplit(".", 1)[0] + ".mmd"
         mmd = mermaid_for_dependencies(proof_or_container)
         with open(alt_path, "w", encoding="utf-8") as f:
             f.write(mmd)
         return alt_path
 
-    # Non-container input: store Mermaid fallback
     alt_path = out_path.rsplit(".", 1)[0] + ".mmd"
     with open(alt_path, "w", encoding="utf-8") as f:
         f.write(
@@ -237,7 +157,6 @@ def write_png(proof_or_container: Any, out_path: str) -> str:
             + "\n```"
         )
     return alt_path
-
 
 # ----------------------------
 # Basic file IO helpers
@@ -251,22 +170,16 @@ def save_text(p: str, s: str) -> None:
     with open(p, "w", encoding="utf-8") as f:
         f.write(s)
 
-
 # ----------------------------
 # CLI
 # ----------------------------
 def main():
     ap = argparse.ArgumentParser(description="Lean proof viz tools")
     ap.add_argument("container", help="path to container json")
-    ap.add_argument(
-        "--ascii", action="store_true", help="print ASCII trees for each theorem"
-    )
-    ap.add_argument(
-        "--mermaid-out", help="write Mermaid dependency graph to file.md"
-    )
-    ap.add_argument(
-        "--png-out", help="write dependency graph PNG (no graphviz needed)"
-    )
+    ap.add_argument("--ascii", action="store_true", help="print ASCII trees for each theorem")
+    ap.add_argument("--mermaid-out", help="write Mermaid dependency graph to file.md")
+    ap.add_argument("--png-out", help="write dependency graph PNG (no graphviz needed)")
+    ap.add_argument("--dot-out", help="write dependency graph in DOT format")
     args = ap.parse_args()
 
     c = load_json(args.container)
@@ -281,6 +194,11 @@ def main():
         save_text(args.mermaid_out, mermaid_for_dependencies(c))
         print(f"[🧭] wrote mermaid → {args.mermaid_out}")
 
+        if args.dot_out:
+        from backend.modules.lean.lean_proofviz_utils import dot_for_dependencies
+        ok, msg = dot_for_dependencies(c, args.dot_out)
+        print(("[✅] " + msg) if ok else ("[⚠️] " + msg))
+
     if args.png_out:
         ok, msg = png_for_dependencies(c, args.png_out)
         print(("[✅] " + msg) if ok else ("[⚠️] " + msg))
@@ -289,8 +207,7 @@ def main():
 if __name__ == "__main__":
     main()
 
-
-# Public API for imports
+# Public API
 __all__ = [
     "ascii_tree_for_theorem",
     "mermaid_for_dependencies",
@@ -298,6 +215,7 @@ __all__ = [
     "ascii_print",
     "write_mermaid",
     "write_png",
+    "attach_visualizations",
     "load_json",
     "save_text",
 ]
