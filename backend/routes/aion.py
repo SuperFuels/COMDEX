@@ -1,31 +1,42 @@
-from fastapi import APIRouter, Request, HTTPException
-from pydantic import BaseModel
-from fastapi.responses import JSONResponse
-import openai
+# -*- coding: utf-8 -*-
+# backend/routes/api/aion_api.py
+from __future__ import annotations
+
 import os
-import logging
 import json
-import subprocess  # ✅ For learning-cycle execution
+import logging
+import subprocess
+
+from fastapi import APIRouter, Request, HTTPException
+from fastapi.responses import JSONResponse
+from pydantic import BaseModel
+import openai
 
 # Core modules
 from backend.modules.skills.aion_prompt_engine import build_prompt_context
 from backend.modules.skills.milestone_tracker import MilestoneTracker
 from backend.modules.skills.goal_tracker import GoalTracker
-from backend.modules.command_registry import resolve_command, list_commands
+from backend.modules.command_registry import resolve_command, list_commands as get_command_registry
 from backend.modules.hexcore.memory_engine import MemoryEngine
 from backend.modules.consciousness.state_manager import StateManager  # ✅ For container listing
 
 # ✅ DNA Switch
 from backend.modules.dna_chain.dna_switch import DNA_SWITCH
-DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+DNA_SWITCH.register(__file__)  # Track this file for upgrades
 
-router = APIRouter()
+# -----------------------
+# Setup
+# -----------------------
+router = APIRouter(prefix="/api/aion", tags=["AION"])
 logger = logging.getLogger("comdex")
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
-logger.info(f"OpenAI API Key loaded: {'Yes' if openai.api_key else 'No'}")
+logger.info("OpenAI API Key loaded: %s", "Yes" if openai.api_key else "No")
 
 
+# -----------------------
+# Models
+# -----------------------
 class AIONRequest(BaseModel):
     prompt: str
 
@@ -35,8 +46,12 @@ class GoalCreateRequest(BaseModel):
     description: str
 
 
+# -----------------------
+# Routes
+# -----------------------
 @router.post("/")
 async def ask_aion(request: AIONRequest):
+    """Ask AION a question using GPT and track milestones + goals."""
     try:
         messages = build_prompt_context(request.prompt)
 
@@ -47,15 +62,19 @@ async def ask_aion(request: AIONRequest):
         )
 
         reply = response.choices[0].message["content"]
-
         usage = response.usage
         tokens_used = usage.total_tokens if usage else None
-        cost_per_1k = 0.03
-        estimated_cost = round((tokens_used / 1000) * cost_per_1k, 4) if tokens_used else None
 
+        estimated_cost = None
+        if tokens_used:
+            cost_per_1k = 0.03
+            estimated_cost = round((tokens_used / 1000) * cost_per_1k, 4)
+
+        # Milestones
         tracker = MilestoneTracker()
         tracker.detect_milestones_from_dream(reply)
 
+        # Goals
         goal_tracker = GoalTracker()
         for line in reply.splitlines():
             if line.strip().lower().startswith("goal:"):
@@ -65,31 +84,31 @@ async def ask_aion(request: AIONRequest):
         return {
             "reply": reply,
             "tokens_used": tokens_used,
-            "cost_estimate": f"${estimated_cost}",
+            "cost_estimate": f"${estimated_cost}" if estimated_cost else None,
             "model": response.model,
         }
-
     except Exception as e:
-        return {"reply": f"❌ AION error: {str(e)}"}
+        return {"reply": f"❌ AION error: {e}"}
 
 
 @router.get("/status")
 async def get_aion_status():
+    """Return milestone phase, unlocked/locked modules, and milestones."""
     try:
         tracker = MilestoneTracker()
-        summary = {
+        return JSONResponse(content={
             "phase": tracker.get_phase(),
             "unlocked": tracker.list_unlocked_modules(),
             "locked": tracker.list_locked_modules(),
             "milestones": tracker.list_milestones(),
-        }
-        return JSONResponse(content=summary)
+        })
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": str(e)})
 
 
 @router.get("/strategy-plan")
 async def get_strategy_plan():
+    """Generate a strategy plan using the StrategyPlanner."""
     try:
         from backend.modules.skills.strategy_planner import StrategyPlanner
         planner = StrategyPlanner()
@@ -101,27 +120,28 @@ async def get_strategy_plan():
 
 @router.get("/current-goal")
 async def get_current_goal():
+    """Return the current generated goal from StrategyPlanner."""
     try:
         from backend.modules.skills.strategy_planner import StrategyPlanner
         planner = StrategyPlanner()
-        current_goal = planner.generate_goal()
-        return JSONResponse(content={"current_goal": current_goal})
+        return JSONResponse(content={"current_goal": planner.generate_goal()})
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": str(e)})
 
 
 @router.get("/goals")
 async def get_saved_goals():
+    """List saved goals from MilestoneTracker."""
     try:
         tracker = MilestoneTracker()
-        goals = tracker.list_saved_goals()
-        return JSONResponse(content={"goals": goals})
+        return JSONResponse(content={"goals": tracker.list_saved_goals()})
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": str(e)})
 
 
-@router.post("/goals/")
+@router.post("/goals")
 async def create_goal(goal: GoalCreateRequest):
+    """Create a new goal and its milestone."""
     try:
         goal_tracker = GoalTracker()
         created_goal = goal_tracker.create_goal(title=goal.title, description=goal.description)
@@ -136,37 +156,33 @@ async def create_goal(goal: GoalCreateRequest):
 
 @router.get("/learned-skills")
 async def get_learned_skills():
+    """Return learned skills from disk (learned_skills.json)."""
     try:
         skills_path = os.path.join("backend", "modules", "skills", "learned_skills.json")
         with open(skills_path, "r", encoding="utf-8") as f:
-            skills = json.load(f)
-        return JSONResponse(content=skills)
+            return JSONResponse(content=json.load(f))
     except Exception as e:
-        return JSONResponse(status_code=500, content={"error": f"Failed to load learned skills: {str(e)}"})
+        return JSONResponse(status_code=500, content={"error": f"Failed to load learned skills: {e}"})
 
 
 @router.post("/learning-cycle")
 async def run_learning_cycle():
+    """Trigger the learning cycle script."""
     try:
         result = subprocess.run(
             ["python", "backend/scripts/aion_learning_cycle.py"],
             capture_output=True,
             text=True,
-            check=True
+            check=True,
         )
-        return JSONResponse(content={
-            "status": "success",
-            "output": result.stdout
-        })
+        return JSONResponse(content={"status": "success", "output": result.stdout})
     except subprocess.CalledProcessError as e:
-        return JSONResponse(status_code=500, content={
-            "status": "error",
-            "error": e.stderr or str(e)
-        })
+        return JSONResponse(status_code=500, content={"status": "error", "error": e.stderr or str(e)})
 
 
 @router.get("/commands")
-async def list_commands():
+async def list_commands_api():
+    """Return all available registered commands."""
     return get_command_registry()
 
 
@@ -183,27 +199,22 @@ async def sync_terminal_messages(request: Request):
         raise HTTPException(status_code=400, detail="No valid messages provided")
 
     for msg in messages:
-        role = msg.get("role", "unknown")
         content = msg.get("content")
         if content:
             MemoryEngine.store({
                 "content": content,
-                "role": role,
-                "tags": ["terminal_sync"]
+                "role": msg.get("role", "unknown"),
+                "tags": ["terminal_sync"],
             })
 
     return {"status": "success", "message_count": len(messages)}
 
 
-# ✅ NEW: List .dc containers + memory load status
 @router.get("/containers")
 async def list_available_containers():
-    """
-    Returns all known .dc containers from disk, along with their in-memory status.
-    """
+    """Return all known .dc containers with in-memory status."""
     try:
         state = StateManager()
-        containers = state.list_containers_with_status()
-        return JSONResponse(content={"containers": containers})
+        return JSONResponse(content={"containers": state.list_containers_with_status()})
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": str(e)})

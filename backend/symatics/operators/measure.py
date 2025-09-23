@@ -2,10 +2,10 @@
 from __future__ import annotations
 from typing import Optional
 
-from symatics.signature import Signature
-from symatics.operators import Operator
-from symatics.wave import canonical_signature
-from symatics.operators.superpose import _merge_meta
+from backend.symatics.signature import Signature
+from backend.symatics.operators import Operator
+from backend.symatics.wave import canonical_signature
+from backend.symatics.operators.superpose import _merge_meta
 
 
 def _measure(a: Signature, ctx: Optional["Context"] = None) -> Signature:

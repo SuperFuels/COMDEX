@@ -1,9 +1,8 @@
-# symatics/operators/__init__.py
 from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Callable, Dict, Optional
 
-from symatics.signature import Signature
+from backend.symatics.signature import Signature
 
 
 # ---------------------------------------------------------------------------
@@ -27,13 +26,36 @@ from .resonance import resonance_op
 from .measure import measure_op
 from .project import project_op
 
+
+# ---------------------------------------------------------------------------
+# v0.3 Stub Operators (placeholders until implemented)
+# ---------------------------------------------------------------------------
+
+def _stub_op(*args, **kwargs) -> dict:
+    """Generic placeholder implementation for unimplemented operators."""
+    return {"op": "stub", "args": args, "kwargs": kwargs}
+
+tensor_op    = Operator("⊗", 2, _stub_op)
+equiv_op     = Operator("≡", 2, _stub_op)
+not_op       = Operator("¬", 1, _stub_op)
+interfere_op = Operator("⊖", 2, _stub_op)
+
+
+# ---------------------------------------------------------------------------
+# Registry
+# ---------------------------------------------------------------------------
+
 OPS: Dict[str, Operator] = {
     "⊕": superpose_op,
     "↔": entangle_op,
     "⟲": resonance_op,
     "μ": measure_op,
     "π": project_op,
-    # 𝔽, 𝔼, τ, ⊖ → v0.2+
+    "⊗": tensor_op,
+    "≡": equiv_op,
+    "¬": not_op,
+    "⊖": interfere_op,
+    # 𝔽, 𝔼, τ → v0.2+
 }
 
 
@@ -64,7 +86,8 @@ def apply_operator(symbol: str, *args: Any, ctx: Optional["Context"] = None) -> 
 # ---------------------------------------------------------------------------
 # Roadmap (v0.2+)
 # ---------------------------------------------------------------------------
-# - Add extended operators: 𝔽, 𝔼, τ, ⊖
+# - Add extended operators: 𝔽, 𝔼, τ
+# - Replace stubs with full implementations
 # - Standardize Context-aware operator injection
 # - Add symbolic operator composition (macros)
 # - Formalize operator error handling and recovery

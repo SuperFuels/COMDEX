@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # backend/routes/ucs_api.py
 from fastapi import APIRouter, HTTPException
 from typing import Dict, Any, Optional
@@ -9,6 +10,7 @@ from backend.modules.sqi.sqi_tessaris_bridge import (
     choose_route as sqi_choose_route,
     execute_route as sqi_execute_route,
 )
+from backend.modules.lean.lean_utils import validate_logic_trees, normalize_validation_errors
 
 router = APIRouter(prefix="/ucs", tags=["UCS"])
 
@@ -23,14 +25,18 @@ if not hasattr(ucs_runtime, "resolve_atom"):
         return ucs_runtime.address_index.get(key)
     setattr(ucs_runtime, "resolve_atom", _resolve_atom_shim)
 
+
+# --- Helpers -----------------------------------------------------------------
 def _read_dc(path: str) -> Dict[str, Any]:
     if not os.path.isfile(path):
         raise FileNotFoundError(path)
     with open(path, "r", encoding="utf-8") as f:
         return json.load(f)
 
+
 def _infer_container_id(path: str, data: Dict[str, Any]) -> str:
     return data.get("id") or os.path.splitext(os.path.basename(path))[0]
+
 
 def _maybe_register_atom(container_id: str, data: Dict[str, Any]) -> bool:
     """
@@ -40,30 +46,44 @@ def _maybe_register_atom(container_id: str, data: Dict[str, Any]) -> bool:
     if not hasattr(ucs_runtime, "register_atom"):
         return False
 
-    # Prefer passing the full container dict so meta.address is visible
     meta = data.get("meta") or {}
     addr = meta.get("address")
 
-    # Try new-style signature: (atom_id, atom_obj, container_name=None)
     try:
         sig = inspect.signature(ucs_runtime.register_atom)
         if "atom_obj" in sig.parameters:
-            ucs_runtime.register_atom(atom_id=container_id, atom_obj=data, container_name=container_id)
+            ucs_runtime.register_atom(
+                atom_id=container_id, atom_obj=data, container_name=container_id
+            )
         else:
-            # Old-style: (container_name, atom)
             ucs_runtime.register_atom(container_id, data)
     except TypeError:
-        # Fallback to old-style if the above still collides
         ucs_runtime.register_atom(container_id, data)
     except Exception:
         return False
 
-    # Index the address if present
     if addr:
         ucs_runtime.address_index[addr] = container_id
 
     return True
 
+
+def _attach_validation(container: Dict[str, Any]) -> Dict[str, Any]:
+    """Attach normalized validation errors to a container dict."""
+    try:
+        raw_errors = validate_logic_trees(container)
+        errors = normalize_validation_errors(raw_errors)
+        container["validation_errors"] = errors
+        container["validation_errors_version"] = "v1"
+    except Exception as e:
+        container["validation_errors"] = [
+            {"code": "validation_failed", "message": str(e)}
+        ]
+        container["validation_errors_version"] = "v1"
+    return container
+
+
+# --- Endpoints ---------------------------------------------------------------
 @router.get("/debug")
 def ucs_debug():
     debug_info: Dict[str, Any] = {}
@@ -75,22 +95,25 @@ def ucs_debug():
             debug_info = {"error": f"debug_state() failed: {e}"}
 
     containers = list(getattr(ucs_runtime, "container_index", {}) or {})
-    atoms      = list(getattr(ucs_runtime, "atom_index", {}) or {})
-    addresses  = list(getattr(ucs_runtime, "address_index", {}) or {})
-    atom_dir   = os.path.abspath("backend/data/ucs/atoms")
+    atoms = list(getattr(ucs_runtime, "atom_index", {}) or {})
+    addresses = list(getattr(ucs_runtime, "address_index", {}) or {})
+    atom_dir = os.path.abspath("backend/data/ucs/atoms")
 
-    debug_info.update({
-        "containers": containers,
-        "active_container": getattr(ucs_runtime, "active_container", None)
-                            or getattr(ucs_runtime, "active_container_name", None)
-                            or "Cross-Domain Links",
-        "atom_index_count": len(atoms),
-        "atom_ids": atoms,
-        "addresses": addresses,
-        "atom_dir_exists": os.path.exists(atom_dir),
-        "atom_dir_path": atom_dir,
-    })
+    debug_info.update(
+        {
+            "containers": containers,
+            "active_container": getattr(ucs_runtime, "active_container", None)
+            or getattr(ucs_runtime, "active_container_name", None)
+            or "Cross-Domain Links",
+            "atom_index_count": len(atoms),
+            "atom_ids": atoms,
+            "addresses": addresses,
+            "atom_dir_exists": os.path.exists(atom_dir),
+            "atom_dir_path": atom_dir,
+        }
+    )
     return debug_info
+
 
 @router.post("/route")
 def ucs_route(goal: Dict[str, Any]):
@@ -104,16 +127,18 @@ def ucs_route(goal: Dict[str, Any]):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @router.post("/execute")
 def ucs_execute(payload: Dict[str, Any]):
     plan = payload.get("plan")
-    ctx  = payload.get("ctx", {}) or {}
+    ctx = payload.get("ctx", {}) or {}
     if not plan:
         raise HTTPException(status_code=400, detail="Missing 'plan' in body.")
     try:
         return sqi_execute_route(plan, ctx)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 @router.post("/resolve")
 def ucs_resolve(payload: Dict[str, Any]):
@@ -124,6 +149,7 @@ def ucs_resolve(payload: Dict[str, Any]):
     if not atom_id:
         raise HTTPException(status_code=404, detail="Not Found")
     return {"address": address, "atom_id": atom_id}
+
 
 @router.post("/load")
 def ucs_load(payload: Dict[str, Any]):
@@ -141,25 +167,20 @@ def ucs_load(payload: Dict[str, Any]):
         raise HTTPException(status_code=400, detail="Missing 'path' in body.")
 
     try:
-        # Read first so we can infer id/type/meta/address
         data = _read_dc(path)
         container_id = _infer_container_id(path, data)
 
-        # Load into UCS memory/index
         if hasattr(ucs_runtime, "load_dc_container"):
-            ucs_runtime.load_dc_container(path)   # typical loader
+            ucs_runtime.load_dc_container(path)
         else:
-            # very old fallback
             if not hasattr(ucs_runtime, "containers"):
                 ucs_runtime.containers = {}
             ucs_runtime.containers[container_id] = data
             setattr(ucs_runtime, "active_container", container_id)
 
-        # Decide whether to register as atom
         should_register = register_flag or (data.get("type") == "atom")
         registered = False
         if should_register:
-            # 1) put the whole container into the atom index (tuple style, 2 positional args ONLY)
             atom_spec = {
                 "id": container_id,
                 "type": data.get("type", "atom"),
@@ -167,14 +188,12 @@ def ucs_load(payload: Dict[str, Any]):
                 "seed_glyphs": data.get("seed_glyphs", []),
                 "ref": data,
             }
-            ucs_runtime.register_atom(container_id, atom_spec)   # <-- no keyword args
+            ucs_runtime.register_atom(container_id, atom_spec)
             registered = True
 
-            # 2) also push to the universal registry (so resolve by address works across reloads)
             try:
                 meta = atom_spec.get("meta") or {}
                 address = meta.get("address")
-                # only write if we actually have an address string
                 if isinstance(address, str) and address.strip():
                     register_container_address(
                         container_id=container_id,
@@ -183,14 +202,17 @@ def ucs_load(payload: Dict[str, Any]):
                         kind=atom_spec.get("type", "atom"),
                     )
             except Exception:
-                # soft-fail: address registry is optional
                 pass
+
+        # normalize validation
+        data = _attach_validation(data)
 
         return {
             "status": "ok",
             "container_id": container_id,
             "registered_as_atom": registered,
             "detected_type": data.get("type", "container"),
+            "validation_errors": data.get("validation_errors"),
         }
     except FileNotFoundError:
         raise HTTPException(status_code=404, detail=f"Container file not found: {path}")

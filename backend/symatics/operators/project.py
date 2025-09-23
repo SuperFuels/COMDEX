@@ -2,9 +2,9 @@
 from __future__ import annotations
 from typing import Optional
 
-from symatics.signature import Signature
-from symatics.operators import Operator
-from symatics.operators.superpose import _merge_meta
+from backend.symatics.signature import Signature
+from backend.symatics.operators import Operator
+from backend.symatics.operators.superpose import _merge_meta
 
 
 def _project(a: Signature, subspace: str, ctx: Optional["Context"] = None) -> Signature:

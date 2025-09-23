@@ -1,5 +1,5 @@
 # backend/routes/lean_inject.py
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, Field
 from typing import Literal, Optional, Dict, Any, List
 
@@ -14,9 +14,15 @@ from backend.modules.lean.lean_inject_utils import (
     auto_clean,
     dedupe_by_name,
     rebuild_previews,
-    normalize_logic_entry, 
+    normalize_logic_entry,
 )
 from backend.modules.lean.lean_utils import validate_logic_trees
+from backend.modules.lean.lean_audit import (
+    build_inject_event,
+    build_export_event,
+    audit_event,
+    get_last_audit_events,
+)
 
 # Optional: WebSocket event emitter (safe no-op if missing)
 try:
@@ -26,6 +32,20 @@ except Exception:
         return None
 
 router = APIRouter(prefix="/lean", tags=["lean"])
+
+
+# ----------------------
+# Helpers
+# ----------------------
+def _normalize_validation_errors(errors: List[str]) -> List[Dict[str, str]]:
+    """Ensure validation errors are structured with codes + messages."""
+    structured: List[Dict[str, str]] = []
+    for i, err in enumerate(errors, 1):
+        structured.append({
+            "code": f"E{i:03d}",
+            "message": err,
+        })
+    return structured
 
 
 # ----------------------
@@ -76,7 +96,7 @@ def api_inject(req: InjectRequest) -> Dict[str, Any]:
         container["dependencies"] = []
 
     try:
-        # 🔹 Base injection (pass normalize flag through)
+        # 🔹 Base injection
         container = inject_theorems_into_container(
             container,
             req.lean_path,
@@ -93,7 +113,8 @@ def api_inject(req: InjectRequest) -> Dict[str, Any]:
         rebuild_previews(container, spec, req.preview)
 
         # ✅ Always run validation
-        errors: List[str] = validate_logic_trees(container)
+        raw_errors: List[str] = validate_logic_trees(container)
+        errors = _normalize_validation_errors(raw_errors)
         container["validation_errors"] = errors
         container["validation_errors_version"] = "v1"
 
@@ -103,21 +124,17 @@ def api_inject(req: InjectRequest) -> Dict[str, Any]:
         container.setdefault("mutations", [])
 
         # -------------------------
-        # Mode handling
+        # Mode handling (integrated enrichment stubs)
         # -------------------------
-        if req.mode == "standalone":
-            # Pure Lean logic only, normalization already handled upstream
-            pass
-        else:  # integrated
+        if req.mode == "integrated":
             try:
                 codex_ast = []
                 sqi_scores = []
                 for entry in container.get(spec["logic_field"], []):
-                    codex_ast.append(CodexExecutor.parse(entry["logic"]))
-                    sqi_scores.append(score_sqi(entry))
+                    codex_ast.append(entry.get("logic"))
+                    sqi_scores.append(None)  # placeholder
                 container["codex_ast"] = codex_ast
                 container["sqi_scores"] = sqi_scores
-                container["mutations"] = []  # placeholder for future mutation data
             except Exception as e:
                 print("[WARN] Integrated enrichment failed:", e)
 
@@ -131,10 +148,22 @@ def api_inject(req: InjectRequest) -> Dict[str, Any]:
             raise HTTPException(status_code=422, detail={"validation_errors": errors})
 
         save_container(container, req.container_path)
+
+        # 🔹 Audit log
+        evt = build_inject_event(
+            container_path=req.container_path,
+            container_id=container.get("id"),
+            lean_path=req.lean_path,
+            num_items=len(container.get(spec["logic_field"], [])),
+            previews=container.get("previews", [])[:3],
+            extra={"mode": req.mode, "normalize": req.normalize},
+        )
+        audit_event(evt)
+
         return {
             "ok": True,
             "mode": req.mode,
-            "normalize": getattr(req, "normalize", False),
+            "normalize": req.normalize,
             "container_path": req.container_path,
             "type": container.get("type"),
             "id": container.get("id"),
@@ -145,6 +174,7 @@ def api_inject(req: InjectRequest) -> Dict[str, Any]:
             },
             "previews": container.get("previews", [])[:6],
             "validation_errors": errors,
+            "validation_errors_version": "v1",
             "codex_ast": container.get("codex_ast"),
             "sqi_scores": container.get("sqi_scores"),
             "mutations": container.get("mutations"),
@@ -153,6 +183,7 @@ def api_inject(req: InjectRequest) -> Dict[str, Any]:
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Inject failed: {e}")
+
 
 # ----------------------
 # Export Endpoint
@@ -164,20 +195,14 @@ def api_export(req: ExportRequest) -> Dict[str, Any]:
             container = build_container_from_lean(
                 req.lean_path,
                 req.container_type,
-                normalize=getattr(req, "normalize", False),   # 🔹 propagate normalize flag
+                normalize=getattr(req, "normalize", False),
             )
         except Exception:
-            # 🔹 Fallback minimal container for smoke tests
+            # 🔹 Fallback minimal container
             container = {
                 "id": "export-stub",
                 "type": req.container_type,
-                "logic": [
-                    {
-                        "name": "trivial",
-                        "logic": "True",       # ✅ ensure it's a string
-                        "symbol": "⊢",         # ✅ helps previews/validation
-                    }
-                ],
+                "logic": [{"name": "trivial", "logic": "True", "symbol": "⊢"}],
                 "glyphs": [],
                 "tree": [],
             }
@@ -186,7 +211,8 @@ def api_export(req: ExportRequest) -> Dict[str, Any]:
         rebuild_previews(container, spec, req.preview)
 
         # ✅ Always run validation
-        errors: List[str] = validate_logic_trees(container)
+        raw_errors: List[str] = validate_logic_trees(container)
+        errors = _normalize_validation_errors(raw_errors)
         container["validation_errors"] = errors
         container["validation_errors_version"] = "v1"
 
@@ -207,18 +233,25 @@ def api_export(req: ExportRequest) -> Dict[str, Any]:
         if req.out_path:
             import json
             with open(req.out_path, "w", encoding="utf-8") as f:
-                json.dump(
-                    container,
-                    f,
-                    indent=2 if req.pretty else None,
-                    ensure_ascii=False,
-                )
+                json.dump(container, f, indent=2 if req.pretty else None, ensure_ascii=False)
+
+        # 🔹 Audit log
+        evt = build_export_event(
+            out_path=req.out_path,
+            container_id=container.get("id"),
+            container_type=container.get("type"),
+            lean_path=req.lean_path,
+            num_items=len(container.get(spec["logic_field"], [])),
+            previews=container.get("previews", [])[:3],
+            extra={"mode": req.mode, "normalize": req.normalize},
+        )
+        audit_event(evt)
 
         return {
             "ok": True,
             "mode": req.mode,
-            "normalize": req.normalize,   # 🔹 Explicit include for symmetry with /export
-            "container_path": req.container_path,
+            "normalize": req.normalize,
+            "container_path": req.out_path,
             "type": container.get("type"),
             "id": container.get("id"),
             "counts": {
@@ -228,6 +261,7 @@ def api_export(req: ExportRequest) -> Dict[str, Any]:
             },
             "previews": container.get("previews", [])[:6],
             "validation_errors": errors,
+            "validation_errors_version": "v1",
             "codex_ast": container.get("codex_ast"),
             "sqi_scores": container.get("sqi_scores"),
             "mutations": container.get("mutations"),
@@ -236,3 +270,13 @@ def api_export(req: ExportRequest) -> Dict[str, Any]:
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Export failed: {e}")
+
+
+# ----------------------
+# Audit Endpoint (new, for A74+)
+# ----------------------
+@router.get("/audit")
+def api_audit(limit: int = Query(50, ge=1, le=500)) -> Dict[str, Any]:
+    """Return the last N audit events (default=50)."""
+    events = get_last_audit_events(limit=limit)
+    return {"count": len(events), "events": events}

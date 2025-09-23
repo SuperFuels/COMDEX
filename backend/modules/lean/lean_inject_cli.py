@@ -228,18 +228,24 @@ def _emit_dot(container: Dict[str, Any], dot_path: str) -> None:
 # Inject / Export commands
 # -----------------------------
 
-def _maybe_validate(container: Dict[str, Any], do_validate: bool) -> List[str]:
+def _maybe_validate(container: Dict[str, Any], do_validate: bool) -> List[Dict[str, str]]:
     """
-    Always compute and attach validation errors to the container.
+    Always compute and attach normalized validation errors to the container.
     If do_validate=True, also print the errors to stdout (CLI feedback).
     """
-    errors = validate_logic_trees(container)
+    from backend.modules.lean.lean_utils import validate_logic_trees, normalize_validation_errors
+
+    raw_errors = validate_logic_trees(container)
+    errors = normalize_validation_errors(raw_errors)
+
     container["validation_errors"] = errors
     container["validation_errors_version"] = "v1"
+
     if do_validate and errors:
         print("⚠️  Logic validation errors:")
         for e in errors:
-            print("  •", e)
+            print(f"  • [{e['code']}] {e['message']}")
+
     return errors
 
 
@@ -333,6 +339,18 @@ def cmd_inject(args: argparse.Namespace) -> int:
         if args.auto_clean:
             _auto_clean(after)
 
+        # ✅ Always attach normalized validation; print only if --validate
+        from backend.modules.lean.lean_utils import validate_logic_trees, normalize_validation_errors
+        raw_errors = validate_logic_trees(after)
+        errors = normalize_validation_errors(raw_errors)
+        after["validation_errors"] = errors
+        after["validation_errors_version"] = "v1"
+
+        if args.validate and errors:
+            print("⚠️  Logic validation errors:")
+            for e in errors:
+                print(f"  • [{e['code']}] {e['message']}")
+
         # ✅ Always attach validation; print only if --validate
         errors = _maybe_validate(after, args.validate)
         if args.fail_on_error and errors:
@@ -423,6 +441,18 @@ def cmd_export(args: argparse.Namespace) -> int:
             args.container_type,
             normalize=args.normalize,
         )
+
+        # ✅ Always attach normalized validation; print only if --validate
+        from backend.modules.lean.lean_utils import validate_logic_trees, normalize_validation_errors
+        raw_errors = validate_logic_trees(container)
+        errors = normalize_validation_errors(raw_errors)
+        container["validation_errors"] = errors
+        container["validation_errors_version"] = "v1"
+
+        if args.validate and errors:
+            print("⚠️  Logic validation errors:")
+            for e in errors:
+                print(f"  • [{e['code']}] {e['message']}")
 
         # ✅ Always attach validation; print only if --validate
         errors = _maybe_validate(container, args.validate)

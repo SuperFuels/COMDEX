@@ -1,11 +1,15 @@
+# -*- coding: utf-8 -*-
 # ===============================
 # 📁 backend/routers/atomsheets.py
 # ===============================
 from __future__ import annotations
-from typing import Any, Dict, Optional, List
 
 import os
 import json
+import time
+from pathlib import Path
+from typing import Any, Dict, Optional, List
+
 from fastapi import APIRouter, Query, Body, HTTPException, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel
@@ -22,15 +26,18 @@ from backend.modules.utils.time_utils import now_utc_ms
 # Optional WS broadcast; safe no-op if unavailable
 # -----------------------
 def _broadcast(container_id: Optional[str], payload: Dict[str, Any]) -> None:
+    """Emit a QFC update if the WebSocket layer is available."""
     if not container_id:
         return
     try:
-        from backend.modules.qfc.qfc_socket import broadcast_qfc_update  # existing helper
+        from backend.modules.qfc.qfc_socket import broadcast_qfc_update  # type: ignore
         import asyncio
+
         asyncio.create_task(broadcast_qfc_update(container_id, payload))
     except Exception:
-        # Defensive: don't crash REST if WS layer isn't loaded
+        # Defensive: don’t crash REST if WS layer isn’t loaded
         record_trace("atomsheet", "[WS] Broadcast helper not available")
+
 
 # -----------------------
 # Router + (optional) auth
@@ -72,31 +79,28 @@ class UpsertCellRequest(BaseModel):
 # Helpers
 # -----------------------
 def _serialize_cell(c: Any) -> Dict[str, Any]:
+    """Convert a GlyphCell-like object into a stable JSON-serializable dict."""
     meta = getattr(c, "meta", None)
     if not isinstance(meta, dict):
         meta = {}
 
-    # Prefer explicit attribute; fall back to meta override
     logic_type = getattr(c, "logic_type", None) or meta.get("logic_type")
 
-    d = {
+    d: Dict[str, Any] = {
         "id": getattr(c, "id", ""),
         "logic": getattr(c, "logic", ""),
         "logic_type": logic_type,
         "position": getattr(c, "position", [0, 0, 0, 0]),
         "emotion": getattr(c, "emotion", None),
-
         # Quality & metrics (E7)
         "sqi_score": getattr(c, "sqi_score", None),
         "entropy": getattr(c, "entropy", None),
         "novelty": getattr(c, "novelty", None),
         "harmony": getattr(c, "harmony", None),
-
         # Execution state
         "validated": getattr(c, "validated", None),
         "result": getattr(c, "result", None),
         "prediction": getattr(c, "prediction", None),
-
         # B6: CodexLang server-side preview
         "codex_eval": getattr(c, "codex_eval", None),
         "codex_error": getattr(c, "codex_error", None),
@@ -128,16 +132,9 @@ async def get_atomsheet(
     container_id: Optional[str] = Query(None),
     credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
 ) -> Dict[str, Any]:
-    """
-    Load an AtomSheet and return its JSON (cells included).
-
-    Example:
-        GET /api/atomsheet?file=backend/data/sheets/example_sheet.atom&container_id=cont1
-        Authorization: Bearer valid_token
-    """
+    """Load an AtomSheet and return its JSON (cells included)."""
     _validate_token(credentials)
 
-    # Small pre-check for clearer error messages; load_atom also validates/falls back.
     if not os.path.exists(file):
         raise HTTPException(status_code=404, detail=f"File not found: {file}")
 
@@ -160,23 +157,11 @@ async def execute_atomsheet(
     req: ExecuteRequest = Body(...),
     credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
 ) -> Dict[str, Any]:
-    """
-    Execute an AtomSheet by path or inline dict.
-    Emits WS broadcasts if container_id is supplied and benchmark_silent=False.
-
-    Example:
-        POST /api/atomsheet/execute
-        {
-          "file": "backend/data/sheets/example_sheet.atom",
-          "container_id": "cont1",
-          "options": {"expand_nested": true, "max_nested_depth": 2}
-        }
-        Authorization: Bearer valid_token
-    """
+    """Execute an AtomSheet by path or inline dict. Emits WS broadcasts if needed."""
     _validate_token(credentials)
 
     if not req.file and not req.sheet:
-        raise HTTPException(400, "Provide 'file' or 'sheet'")
+        raise HTTPException(status_code=400, detail="Provide 'file' or 'sheet'")
 
     try:
         sheet = load_atom(req.file) if req.file else load_atom(req.sheet)  # type: ignore
@@ -188,10 +173,9 @@ async def execute_atomsheet(
         results = await engine_execute_sheet(sheet, ctx)
         elapsed_ms = now_utc_ms() - start_ms
 
-        # Basic metrics: exec time + per-cell SQI snapshot
         sqi_stats = {cid: float(getattr(c, "sqi_score", 1.0) or 1.0) for cid, c in sheet.cells.items()}
 
-        payload = {
+        payload: Dict[str, Any] = {
             "ok": True,
             "sheet_id": sheet.id,
             "beam_counts": {cid: len(v) for cid, v in results.items()},
@@ -199,25 +183,26 @@ async def execute_atomsheet(
                 "execution_time_ms": elapsed_ms,
                 "sqi": sqi_stats,
             },
-            # Include serialized cells so UI immediately has entropy/novelty/harmony (E7) and beams
             "cells": [_serialize_cell(c) for c in sheet.cells.values()],
         }
 
-        # Lightweight completion signal (Codex/QPU already emits rich beams elsewhere)
         if req.container_id and not ctx.get("benchmark_silent"):
-            _broadcast(req.container_id, {
-                "type": "atomsheet_executed",
-                "sheet_id": sheet.id,
-                "beam_counts": payload["beam_counts"],
-                "metrics": payload["metrics"],
-            })
+            _broadcast(
+                req.container_id,
+                {
+                    "type": "atomsheet_executed",
+                    "sheet_id": sheet.id,
+                    "beam_counts": payload["beam_counts"],
+                    "metrics": payload["metrics"],
+                },
+            )
 
         return payload
     except HTTPException:
         raise
     except Exception as e:
         record_trace("atomsheet", f"[Execute Error] {e}")
-        raise HTTPException(500, f"Execution failed: {e}") from e
+        raise HTTPException(status_code=500, detail=f"Execution failed: {e}") from e
 
 
 @router.get("/atomsheet/export")
@@ -225,13 +210,7 @@ async def export_atomsheet(
     file: str = Query(..., description="Path to .atom (or legacy .sqs.json)"),
     credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
 ) -> Dict[str, Any]:
-    """
-    Load then export to a `.dc.json`-style snapshot (in-memory); returns snapshot JSON.
-
-    Example:
-        GET /api/atomsheet/export?file=backend/data/sheets/example_sheet.atom
-        Authorization: Bearer valid_token
-    """
+    """Load then export to a `.dc.json`-style snapshot (in-memory)."""
     _validate_token(credentials)
 
     if not os.path.exists(file):
@@ -239,10 +218,9 @@ async def export_atomsheet(
 
     try:
         sheet = load_atom(file)
-        snap = engine_to_dc_json(sheet)
-        return snap
+        return engine_to_dc_json(sheet)
     except Exception as e:
-        raise HTTPException(400, f"Export failed: {e}") from e
+        raise HTTPException(status_code=400, detail=f"Export failed: {e}") from e
 
 
 @router.post("/atomsheet/upsert")
@@ -250,17 +228,14 @@ async def upsert_cell(
     req: UpsertCellRequest = Body(...),
     credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
 ) -> Dict[str, Any]:
-    """
-    Insert or update a cell, then persist the sheet to disk.
-    """
+    """Insert or update a cell, then persist the sheet to disk."""
     _validate_token(credentials)
 
     try:
         sheet = load_atom(req.file)
-        cid = req.id or f"c_{len(sheet.cells)}_{int(__import__('time').time()*1000)}"
+        cid = req.id or f"c_{len(sheet.cells)}_{int(time.time() * 1000)}"
 
         if cid in sheet.cells:
-            # update
             c = sheet.cells[cid]
             c.logic = req.logic
             c.position = req.position
@@ -287,8 +262,6 @@ async def upsert_cell(
                     pass
             sheet.cells[cid] = c
 
-        # persist: write back to same file
-        from pathlib import Path
         p = Path(req.file)
         if not p.suffix:  # allow bare name → .atom
             p = p.with_suffix(".atom")
@@ -317,4 +290,4 @@ async def upsert_cell(
         return {"ok": True, "id": cid}
     except Exception as e:
         record_trace("atomsheet", f"[Upsert Error] {e}")
-        raise HTTPException(400, f"Upsert failed: {e}") from e
+        raise HTTPException(status_code=400, detail=f"Upsert failed: {e}") from e

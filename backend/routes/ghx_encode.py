@@ -10,11 +10,11 @@ from fastapi import APIRouter, HTTPException, Query, Body
 # UCS container access
 from backend.modules.dimensions.universal_container_system import ucs_runtime
 
-# Try the real encoder if you have it; otherwise we’ll fall back safely.
+# Try the real encoder if present; otherwise safely fall back
 try:
     from backend.modules.glyphos.ghx_export import encode_glyphs_to_ghx as _real_ghx_encoder  # type: ignore
 except Exception:
-    _real_ghx_encoder = None  # fallback below
+    _real_ghx_encoder = None
 
 
 router = APIRouter(prefix="/sqi/ghx", tags=["GHX"])
@@ -24,9 +24,7 @@ router = APIRouter(prefix="/sqi/ghx", tags=["GHX"])
 # Utilities
 # -------------------------
 def _get_container(cid: str) -> dict:
-    """
-    Best-effort lookup for a UCS container by id.
-    """
+    """Best-effort lookup for a UCS container by id."""
     try:
         if hasattr(ucs_runtime, "get_container"):
             c = ucs_runtime.get_container(cid)
@@ -38,6 +36,7 @@ def _get_container(cid: str) -> dict:
             c = None
     except Exception:
         c = None
+
     if not c:
         raise HTTPException(status_code=404, detail=f"Unknown container: {cid}")
     return c
@@ -56,7 +55,7 @@ def _clean_glyph(g: Any) -> Dict[str, Any]:
     """
     if not isinstance(g, dict):
         return {"text": str(g), "type": "glyph"}
-    keep = {
+    return {
         "id": g.get("id"),
         "type": g.get("type") or "glyph",
         "content": g.get("content") or g.get("glyph"),
@@ -65,12 +64,12 @@ def _clean_glyph(g: Any) -> Dict[str, Any]:
         "timestamp": g.get("timestamp"),
         "tags": g.get("tags") or [],
     }
-    return keep
 
 
-def _density_to_step(density: str | None) -> int:
+def _density_to_step(density: Optional[str]) -> int:
     """
-    Convert GHX density policy to a sampling step. Lower step = more detail.
+    Convert GHX density policy to a sampling step.
+    Lower step = more detail.
     """
     d = (density or "").lower()
     if d in ("max", "full", "high"):
@@ -94,24 +93,22 @@ def _encode_ghx_fallback(
     """
     Minimal HOV3-aware encoder used when the real encoder is not present.
     - Respects meta.ghx.collapsed, meta.ghx.density, meta.time_dilation.snapshot_rate
-    - Returns a stable GHX packet that your frontend can consume immediately
+    - Returns a stable GHX packet that the frontend can consume immediately
     """
     meta: Dict[str, Any] = container.get("meta", {}) or {}
     ghx_meta: Dict[str, Any] = meta.get("ghx", {}) or {}
     td_meta: Dict[str, Any] = meta.get("time_dilation", {}) or {}
 
     collapsed = ghx_meta.get("collapsed", True) if collapsed_override is None else bool(collapsed_override)
-    density = (density_override or ghx_meta.get("density") or "auto")
-    snapshot_rate = float(td_meta.get("snapshot_rate", 1.0) if snapshot_rate_override is None else snapshot_rate_override)
+    density = density_override or ghx_meta.get("density") or "auto"
+    snapshot_rate = float(
+        td_meta.get("snapshot_rate", 1.0) if snapshot_rate_override is None else snapshot_rate_override
+    )
 
     step = _density_to_step(density)
 
     # Pull content from common shapes
-    glyphs_src = (
-        container.get("glyphs")
-        or container.get("glyph_grid")
-        or []
-    )
+    glyphs_src = container.get("glyphs") or container.get("glyph_grid") or []
     nodes_src = container.get("nodes") or []
 
     glyphs: List[Dict[str, Any]] = []
@@ -119,7 +116,7 @@ def _encode_ghx_fallback(
 
     if not collapsed:
         glyphs = [_clean_glyph(g) for g in _sample(glyphs_src, step)]
-        # nodes are typically lighter; still sample by density for consistency
+        # Nodes are typically lighter; still sample by density for consistency
         nodes = [n if isinstance(n, dict) else {"id": str(n)} for n in _sample(nodes_src, step)]
 
     return {
@@ -135,16 +132,10 @@ def _encode_ghx_fallback(
                 "snapshot_rate": snapshot_rate,
             },
         },
-        "counts": {
-            "glyphs": len(glyphs_src),
-            "nodes": len(nodes_src),
-        },
-        # Only include heavy arrays when not collapsed
+        "counts": {"glyphs": len(glyphs_src), "nodes": len(nodes_src)},
         "glyphs": glyphs if not collapsed else [],
         "nodes": nodes if not collapsed else [],
-        # Optional echo of a qglyph preview (for frontend overlays)
         "qglyph_echo": ({"text": qglyph_string, "len": len(qglyph_string)} if qglyph_string else None),
-        # Handy meta passthrough for UI
         "meta": {
             "address": meta.get("address"),
             "ghx": ghx_meta,
@@ -165,11 +156,9 @@ def _encode_wrapper(
 ) -> Dict[str, Any]:
     """
     Use the real encoder when available; otherwise fallback.
-    Real encoder is expected to be HOV3-aware as well.
     """
     if _real_ghx_encoder:
-        # Many repos standardize kwargs like these; pass only when provided.
-        kwargs = {
+        kwargs: Dict[str, Any] = {
             "qglyph_string": qglyph_string,
             "observer_id": observer_id,
         }
@@ -181,7 +170,6 @@ def _encode_wrapper(
             kwargs["snapshot_rate"] = float(snapshot_rate)
         return _real_ghx_encoder(container, **kwargs)  # type: ignore
 
-    # Fallback path preserves HOV3 behavior
     return _encode_ghx_fallback(
         container,
         qglyph_string=qglyph_string,
@@ -195,7 +183,6 @@ def _encode_wrapper(
 # -------------------------
 # Routes
 # -------------------------
-
 @router.get("/encode/{cid}")
 def ghx_encode_get(
     cid: str,
@@ -204,10 +191,10 @@ def ghx_encode_get(
     collapsed: Optional[bool] = Query(default=None, description="Override meta.ghx.collapsed"),
     density: Optional[str] = Query(default=None, description="Override meta.ghx.density (low|auto|high)"),
     snapshot_rate: Optional[float] = Query(default=None, description="Override time_dilation.snapshot_rate"),
-):
+) -> Dict[str, Any]:
     """
     Returns a full GHX export for a container, respecting HOV3 flags.
-    - collapsed=True  → light header (no heavy glyph/node arrays)
+    - collapsed=True → light header (no heavy glyph/node arrays)
     - density + snapshot_rate honored where applicable
     """
     container = _get_container(cid)
@@ -230,7 +217,7 @@ def ghx_encode_post(
     collapsed: Optional[bool] = Query(default=None),
     density: Optional[str] = Query(default=None),
     snapshot_rate: Optional[float] = Query(default=None),
-):
+) -> Dict[str, Any]:
     """
     POST variant for large qglyph payloads.
     Body may include: {"qglyph_string": "..."}.

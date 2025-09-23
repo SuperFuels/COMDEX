@@ -1,4 +1,3 @@
-# backend/routes/sqi.py
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
 from typing import Dict, Any, Optional, List
@@ -8,6 +7,7 @@ from backend.modules.sqi.knowledge_relinker import relinker
 from backend.modules.sqi.sqi_materializer import materialize_entry
 from backend.modules.sqi.sqi_metadata_embedder import make_kg_payload, bake_hologram_meta
 from backend.modules.dimensions.universal_container_system import ucs_runtime
+from backend.modules.lean.lean_utils import validate_logic_trees, normalize_validation_errors
 
 router = APIRouter()
 
@@ -80,6 +80,13 @@ def sqi_materialize(cid: str):
         raise HTTPException(404, f"Unknown container: {cid}")
     try:
         container = materialize_entry(entry)
+
+        # ✅ Attach normalized validation errors
+        raw_errors = validate_logic_trees(container)
+        errors = normalize_validation_errors(raw_errors)
+        container["validation_errors"] = errors
+        container["validation_errors_version"] = "v1"
+
         return {"status": "ok", "container": container}
     except Exception as e:
         raise HTTPException(500, str(e))
@@ -91,6 +98,13 @@ def sqi_allocate_and_materialize(body: AllocateBody):
             kind=body.kind, domain=body.domain, name=body.name, meta=body.meta
         )
         container = materialize_entry(entry)
+
+        # ✅ Attach normalized validation errors
+        raw_errors = validate_logic_trees(container)
+        errors = normalize_validation_errors(raw_errors)
+        container["validation_errors"] = errors
+        container["validation_errors_version"] = "v1"
+
         return {"status": "ok", "entry": entry, "container": container}
     except Exception as e:
         raise HTTPException(400, str(e))

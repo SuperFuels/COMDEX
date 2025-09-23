@@ -140,7 +140,7 @@ def test_invalid_projection_index():
 import pytest
 from backend.symatics.symatics_rulebook import LAW_REGISTRY
 from backend.symatics.operators import OPS
-from backend.symatics.canonical import _canonical
+from backend.symatics.symatics_rulebook import _canonical
 
 
 @pytest.mark.smoke

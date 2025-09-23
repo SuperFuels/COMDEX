@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Avatar Runtime API
 Control the AION Avatar inside a .dc container.
@@ -5,14 +6,19 @@ Control the AION Avatar inside a .dc container.
 
 from fastapi import APIRouter, Request, HTTPException
 from fastapi.responses import JSONResponse
+from typing import Dict, Any
+
 from backend.modules.avatar.avatar_core import AIONAvatar
 
-router = APIRouter()
-avatar = AIONAvatar(container_id="default")  # Load default container
+router = APIRouter(prefix="/avatar", tags=["AION Avatar"])
+
+# Default avatar instance
+avatar = AIONAvatar(container_id="default")
 
 
-@router.post("/avatar/spawn")
-async def spawn_avatar():
+# ---------- Endpoints ----------
+@router.post("/spawn")
+async def spawn_avatar() -> Dict[str, Any]:
     try:
         result = avatar.spawn()
         return {"status": "spawned", "result": result}
@@ -20,8 +26,8 @@ async def spawn_avatar():
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/avatar/move")
-async def move_avatar(request: Request):
+@router.post("/move")
+async def move_avatar(request: Request) -> Dict[str, Any]:
     body = await request.json()
     dx = body.get("dx", 0)
     dy = body.get("dy", 0)
@@ -31,22 +37,22 @@ async def move_avatar(request: Request):
     return {"status": "moved", "result": result}
 
 
-@router.post("/avatar/mode")
-async def set_mode(request: Request):
+@router.post("/mode")
+async def set_mode(request: Request) -> Dict[str, Any]:
     body = await request.json()
     mode = body.get("mode", "idle")
     result = avatar.set_mode(mode)
     return {"status": "mode_set", "result": result}
 
 
-@router.post("/avatar/tick")
-async def tick_avatar():
+@router.post("/tick")
+async def tick_avatar() -> Dict[str, Any]:
     result = avatar.tick()
     return {"status": "tick_complete", "result": result}
 
 
-@router.post("/avatar/tick_rate")
-async def set_tick_rate(request: Request):
+@router.post("/tick_rate")
+async def set_tick_rate(request: Request) -> Dict[str, Any]:
     body = await request.json()
     try:
         rate = float(body.get("rate", 1.0))
@@ -56,8 +62,8 @@ async def set_tick_rate(request: Request):
         raise HTTPException(status_code=400, detail="Invalid tick rate")
 
 
-@router.post("/avatar/rollback")
-async def rollback_time(request: Request):
+@router.post("/rollback")
+async def rollback_time(request: Request) -> Dict[str, Any]:
     body = await request.json()
     try:
         steps = int(body.get("steps", 1))
@@ -67,8 +73,8 @@ async def rollback_time(request: Request):
         raise HTTPException(status_code=400, detail="Invalid rollback steps")
 
 
-@router.post("/avatar/set_container")
-async def set_container(request: Request):
+@router.post("/set_container")
+async def set_container(request: Request) -> Dict[str, Any]:
     body = await request.json()
     container_id = body.get("container_id", "default")
     avatar.container_id = container_id
@@ -76,21 +82,21 @@ async def set_container(request: Request):
     return {"status": "container_updated", "container": container_id}
 
 
-@router.get("/avatar/state")
-async def get_avatar_state():
+@router.get("/state")
+async def get_avatar_state() -> JSONResponse:
     return JSONResponse(content=avatar.state())
 
 
-@router.get("/avatar/trace_log")
-async def get_trace_log():
+@router.get("/trace_log")
+async def get_trace_log() -> JSONResponse:
     try:
         return JSONResponse(content={"trace": avatar.trace_log[-100:]})
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Trace fetch failed: {str(e)}")
 
 
-@router.get("/avatar/runtime_tick_summary")
-async def get_runtime_tick_summary():
+@router.get("/runtime_tick_summary")
+async def get_runtime_tick_summary() -> Dict[str, Any]:
     try:
         return {
             "tick": avatar.tick_count,

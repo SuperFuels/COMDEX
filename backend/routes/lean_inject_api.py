@@ -7,7 +7,7 @@ from fastapi.responses import JSONResponse
 
 # Existing helpers
 from backend.modules.lean.lean_injector import load_container, save_container, inject_theorems_into_container
-from backend.modules.lean.lean_utils import validate_logic_trees
+from backend.modules.lean.lean_utils import validate_logic_trees, normalize_validation_errors
 from backend.modules.lean.lean_audit import audit_event, build_inject_event, build_export_event
 from backend.modules.lean.lean_exporter import build_container_from_lean
 
@@ -91,12 +91,13 @@ async def inject(
                 del after["dependencies"]
 
         # 3) Validate
-        validation_errors: List[str] = validate_logic_trees(after)
-        after["validation_errors"] = validation_errors
+        raw_errors: List = validate_logic_trees(after)
+        errors = normalize_validation_errors(raw_errors)
+        after["validation_errors"] = errors
         after["validation_errors_version"] = "v1"
 
-        if fail_on_error and validation_errors:
-            raise HTTPException(status_code=422, detail={"validation_errors": validation_errors})
+        if fail_on_error and errors:
+            raise HTTPException(status_code=422, detail={"validation_errors": errors})
 
         # 4) Mode-specific
         if mode == "integrated":
@@ -145,7 +146,7 @@ async def inject(
             "container": {"type": after.get("type"), "id": after.get("id"), "path": container_path},
             "counts": {"entries": len(after.get(logic_field or "symbolic_logic", []))},
             "previews": after.get("previews", []),
-            "validation_errors": validation_errors,
+            "validation_errors": errors,
             "mode": mode,
         })
     except Exception as e:
@@ -174,12 +175,13 @@ async def export_container(
         container = build_container_from_lean(tmp_lean_path, container_type)
 
         # ✅ Validation
-        validation_errors: List[str] = validate_logic_trees(container)
-        container["validation_errors"] = validation_errors
+        raw_errors: List = validate_logic_trees(container)
+        errors = normalize_validation_errors(raw_errors)
+        container["validation_errors"] = errors
         container["validation_errors_version"] = "v1"
 
-        if fail_on_error and validation_errors:
-            raise HTTPException(status_code=422, detail={"validation_errors": validation_errors})
+        if fail_on_error and errors:
+            raise HTTPException(status_code=422, detail={"validation_errors": errors})
 
         # 🟢 Mode
         if mode == "integrated":
@@ -222,7 +224,7 @@ async def export_container(
         return JSONResponse({
             "ok": True,
             "container": container,
-            "validation_errors": validation_errors,
+            "validation_errors": errors,
             "mode": mode,
         })
     except Exception as e:

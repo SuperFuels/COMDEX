@@ -87,10 +87,19 @@ def _validate_capsule(data: Dict[str, Any]) -> None:
     if not _HAS_JSONSCHEMA:
         logger.debug("[PhotonBridge] jsonschema not installed; skipping validation")
         return
+
     try:
         jsonschema.validate(instance=data, schema=_CAPSULE_SCHEMA)  # type: ignore
     except Exception as e:
-        raise ValueError(f"[PhotonBridge] Capsule validation failed: {e}") from e
+        # Standardized validation error format (v1)
+        errors = [{
+            "code": "E001",  # could later map specific codes
+            "message": str(e)
+        }]
+        raise ValueError({
+            "validation_errors": errors,
+            "validation_errors_version": "v1"
+        })
 
 
 # ──────────────────────────────
@@ -115,11 +124,11 @@ def load_photon_capsule(path_or_dict: Union[str, Path, Dict[str, Any]]) -> Dict[
     # Legacy upgrade paths
     # ──────────────────────────────
     if "body" in capsule and "glyphs" not in capsule:
-        logger.warning("[PhotonBridge] Legacy capsule with 'body' → migrated to 'glyphs'.")
+        logger.warning("Legacy capsule format detected: field 'body' → migrated to 'glyphs'.")
         capsule["glyphs"] = capsule.pop("body")
 
     if "steps" in capsule and "glyphs" not in capsule:
-        logger.warning("[PhotonBridge] Legacy capsule with 'steps' → auto-converted to 'glyphs'.")
+        logger.warning("Legacy capsule format detected: field 'steps' → auto-converted to 'glyphs'.")
         converted: List[Dict[str, Any]] = []
         for step in capsule.get("steps", []):
             converted.append({
@@ -233,6 +242,17 @@ def photon_to_codex(
     render_scroll: bool = True,
 ) -> Dict[str, Any]:
     capsule = load_photon_capsule(path_or_dict)
+
+    # Extract validation errors if schema had issues
+    validation_errors = capsule.pop("validation_errors", [])
+    if validation_errors:
+        # Normalize to v1 format if they aren’t already
+        if validation_errors and isinstance(validation_errors[0], str):
+            validation_errors = [
+                {"code": f"E{str(i+1).zfill(3)}", "message": msg}
+                for i, msg in enumerate(validation_errors)
+            ]
+
     glyphs = photon_capsule_to_glyphs(capsule)
 
     if register:
@@ -245,6 +265,8 @@ def photon_to_codex(
         "scroll": scroll,
         "engine": capsule.get("engine", "codex"),
         "name": capsule.get("name", "unnamed"),
+        "validation_errors": validation_errors,
+        "validation_errors_version": "v1",
     }
 
 
@@ -263,3 +285,7 @@ if __name__ == "__main__":
         print(" ", g)
     print("\nScroll:")
     print(result["scroll"])
+    if result["validation_errors"]:
+        print("\nValidation Errors:")
+        for err in result["validation_errors"]:
+            print(f" - {err['code']}: {err['message']}")

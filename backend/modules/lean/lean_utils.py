@@ -129,7 +129,7 @@ def pretty_print_lean_summary(container: Dict[str, Any]) -> None:
 # ----------------------------------------------------
 # Validation + normalization
 # ----------------------------------------------------
-def validate_logic_trees(container: Dict[str, Any]) -> List[str]:
+def validate_logic_trees(container: Dict[str, Any]) -> List[Dict[str, str]]:
     errors = []
     logic_entries = container.get("symbolic_logic", [])
 
@@ -152,8 +152,38 @@ def validate_logic_trees(container: Dict[str, Any]) -> List[str]:
         except Exception as e:
             errors.append(f"❌ Theorem `{name}`: {e}")
 
-    return errors
+    return normalize_validation_errors(errors)
 
+# ----------------------------------------------------
+# Error Normalization
+# ----------------------------------------------------
+def normalize_validation_errors(errors: Any) -> List[Dict[str, str]]:
+    """
+    Ensure validation errors are consistently structured.
+    Always returns list[dict] with {code, message}.
+    """
+    if not errors:
+        return []
+
+    if isinstance(errors, str):
+        return [{"code": "validation_error", "message": errors}]
+
+    if isinstance(errors, dict):
+        if "code" in errors and "message" in errors:
+            return [errors]
+        return [{"code": "validation_error", "message": str(errors)}]
+
+    if isinstance(errors, list):
+        normalized = []
+        for e in errors:
+            if isinstance(e, dict) and "code" in e and "message" in e:
+                normalized.append(e)
+            else:
+                normalized.append({"code": "validation_error", "message": str(e)})
+        return normalized
+
+    # Fallback
+    return [{"code": "validation_error", "message": str(errors)}]
 
 def normalize_codexlang(container: Dict[str, Any]) -> None:
     for entry in container.get("symbolic_logic", []):
@@ -334,3 +364,28 @@ def _normalize_logic_entry(decl: Dict[str, Any], lean_path: str) -> Dict[str, An
         "source": lean_path,
         "body": decl.get("body", ""),
     }
+
+def normalize_validation_errors(errors) -> list[dict]:
+    """
+    Ensure validation errors are consistently structured.
+    Always returns list[dict] with {code, message}.
+    """
+    normalized = []
+    if not errors:
+        return []
+    if isinstance(errors, str):
+        normalized.append({"code": "validation_error", "message": errors})
+    elif isinstance(errors, dict):
+        if "code" in errors and "message" in errors:
+            normalized.append(errors)
+        else:
+            normalized.append({"code": "validation_error", "message": str(errors)})
+    elif isinstance(errors, list):
+        for e in errors:
+            if isinstance(e, dict) and "code" in e and "message" in e:
+                normalized.append(e)
+            else:
+                normalized.append({"code": "validation_error", "message": str(e)})
+    else:
+        normalized.append({"code": "validation_error", "message": str(errors)})
+    return normalized

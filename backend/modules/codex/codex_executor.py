@@ -60,6 +60,7 @@ from backend.modules.symbolic_spreadsheet.models.glyph_cell import GlyphCell
 from backend.modules.codex.codex_virtual_qpu import CodexVirtualQPU
 from backend.symatics.symatics_dispatcher import evaluate_symatics_expr, is_symatics_operator
 from backend.modules.photon.photon_to_codex import photon_capsule_to_glyphs, render_photon_scroll
+from backend.modules.lean.lean_utils import validate_logic_trees, normalize_validation_errors
 
 # ⬁ Self-Rewrite Imports
 from backend.modules.codex.scroll_mutation_engine import mutate_scroll_tree
@@ -186,6 +187,20 @@ class CodexExecutor:
             active_cid = "ucs_hub"
         self.memory_bridge = MemoryBridge(container_id=active_cid)
 
+    def _validate_container_stub(self, symbolic_logic: list) -> list[dict]:
+        """
+        Validate a symbolic_logic list with Lean validators.
+        Always returns normalized validation_errors (list[dict]).
+        """
+        try:
+            from backend.modules.lean.lean_utils import validate_logic_trees, normalize_validation_errors
+            container_stub = {"symbolic_logic": symbolic_logic}
+            raw_errors = validate_logic_trees(container_stub)
+            return normalize_validation_errors(raw_errors)
+        except Exception as e:
+            logger.error(f"[Validation] Container stub validation failed: {e}")
+            return []
+
     # ──────────────────────────────
     # 🔆 Photon Capsule Execution (Unified)
     # ──────────────────────────────
@@ -198,12 +213,12 @@ class CodexExecutor:
         """
         Execute a Photon capsule (.phn file, dict, or already-parsed object).
         Pipeline:
-          1. Load + normalize capsule
-          2. Photon → LogicGlyphs (with multi-glyph split support)
-          3. Register into symbolic_registry
-          4. Render Codex scroll
-          5. Detect & evaluate Symatics operators (if present)
-          6. Otherwise: compile Codex scroll → instruction tree → execute
+        1. Load + normalize capsule
+        2. Photon → LogicGlyphs (with multi-glyph split support)
+        3. Register into symbolic_registry
+        4. Render Codex scroll
+        5. Detect & evaluate Symatics operators (if present)
+        6. Otherwise: compile Codex scroll → instruction tree → execute
 
         Always guarantees an "engine" field in the result.
         """
@@ -222,6 +237,7 @@ class CodexExecutor:
             is_symatics_operator,
         )
         from backend.modules.glyphos.codexlang_translator import run_codexlang_string
+        from backend.modules.lean.lean_utils import validate_logic_trees, normalize_validation_errors
 
         try:
             # 🔗 Load + normalize capsule
@@ -264,9 +280,9 @@ class CodexExecutor:
 
             # 🛡 Validation after glyph parsing
             try:
-                from backend.modules.lean.lean_utils import validate_logic_trees
                 container_stub = {"symbolic_logic": [g.to_dict() for g in glyphs if hasattr(g, "to_dict")]}
-                errors = validate_logic_trees(container_stub)
+                raw_errors = validate_logic_trees(container_stub)
+                errors = normalize_validation_errors(raw_errors)
                 if errors:
                     logger.warning(f"[Validation] Photon capsule validation errors: {errors}")
                     return {
@@ -359,9 +375,10 @@ class CodexExecutor:
 
         # 🛡 Validate glyph before execution
         try:
-            from backend.modules.lean.lean_utils import validate_logic_trees
+            from backend.modules.lean.lean_utils import validate_logic_trees, normalize_validation_errors
             container_stub = {"symbolic_logic": [glyph]}
-            errors = validate_logic_trees(container_stub)
+            raw_errors = validate_logic_trees(container_stub)
+            errors = normalize_validation_errors(raw_errors)
             if errors:
                 return {
                     "status": "error",
@@ -672,9 +689,10 @@ class CodexExecutor:
 
                 # 🛡 Validation on contradiction
                 try:
-                    from backend.modules.lean.lean_utils import validate_logic_trees
+                    from backend.modules.lean.lean_utils import validate_logic_trees, normalize_validation_errors
                     container_stub = {"symbolic_logic": [instruction_tree]}
-                    errors = validate_logic_trees(container_stub)
+                    raw_errors = validate_logic_trees(container_stub)
+                    errors = normalize_validation_errors(raw_errors)
                     if errors:
                         result["validation_errors"] = errors
                         result["validation_errors_version"] = "v1"
@@ -899,14 +917,20 @@ class CodexExecutor:
     # ──────────────────────────────
     # 🖋️ Glyph Execution
     # ──────────────────────────────
+    from backend.modules.lean.lean_utils import (
+        validate_logic_trees,
+        normalize_validation_errors,
+    )
+
     def run_glyph(self, glyph: str, context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         context = context or {}
 
         # 🛡 Validate glyph before execution
         try:
-            from backend.modules.lean.lean_utils import validate_logic_trees
+            from backend.modules.lean.lean_utils import validate_logic_trees, normalize_validation_errors
             container_stub = {"symbolic_logic": [glyph]}
-            errors = validate_logic_trees(container_stub)
+            raw_errors = validate_logic_trees(container_stub)
+            errors = normalize_validation_errors(raw_errors)
             if errors:
                 return {
                     "status": "error",
@@ -925,6 +949,7 @@ class CodexExecutor:
         entangle_glyphs(glyph, context.get("container_id"))
         return result
 
+
     def run_glyphcell(self, cell: GlyphCell, context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """
         Execute a GlyphCell's CodexLang logic field.
@@ -940,6 +965,22 @@ class CodexExecutor:
 
         logic = cell.logic.strip()
 
+        # 🛡 Validate glyphcell logic before execution
+        try:
+            from backend.modules.lean.lean_utils import validate_logic_trees, normalize_validation_errors
+            container_stub = {"symbolic_logic": [logic]}
+            raw_errors = validate_logic_trees(container_stub)
+            errors = normalize_validation_errors(raw_errors)
+            if errors:
+                return {
+                    "status": "error",
+                    "engine": "codex",
+                    "error": f"Invalid logic in cell {cell.id}",
+                    "validation_errors": errors,
+                    "validation_errors_version": "v1",
+                }
+        except Exception as val_err:
+            logger.error(f"[Validation] GlyphCell {cell.id} validation failed: {val_err}")
         # -------------------
         # QPU path
         # -------------------
@@ -981,10 +1022,20 @@ class CodexExecutor:
 
                 broadcast_qfc_update(container_id, payload)
             except Exception as e:
-                # Non-fatal: log internally if desired
-                record_trace(cell.id, f"[QPU Broadcast Error]: {e}")
+                record_trace(cell.id, f"[QPU Broadcast Error]: {e}")  # non-fatal
 
             result = {"result": qpu_results, "status": "success", "qpu": True}
+        else:
+            # -------------------
+            # Legacy path
+            # -------------------
+            result = self.execute_codexlang(logic, context=context)
+
+        # Store results back into cell
+        cell.result = result.get("result")
+        cell.validated = result.get("status") == "success"
+
+        return result
 
         # -------------------
         # Legacy path
@@ -998,16 +1049,35 @@ class CodexExecutor:
 
         return result
 
-    def execute_sheet(self, cells: List[GlyphCell], context: Optional[Dict[str, Any]] = None) -> Dict[str, List[Any]]:
+    def execute_sheet(self, cells: List[GlyphCell], context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """
         Execute a full sheet of GlyphCells, optionally on the QPU backend.
         Aggregates QPU metrics and records execution traces.
         """
         context = context or {}
         context["sheet_cells"] = cells
-        sheet_results: Dict[str, List[Any]] = {}
         from time import perf_counter
         start_time = perf_counter()
+
+        # 🛡 Validate sheet container before execution
+        try:
+            from backend.modules.lean.lean_utils import validate_logic_trees, normalize_validation_errors
+            sheet = [cell.to_dict() if hasattr(cell, "to_dict") else str(cell) for cell in cells]
+            container_stub = {"symbolic_logic": sheet}
+            raw_errors = validate_logic_trees(container_stub)
+            errors = normalize_validation_errors(raw_errors)
+            if errors:
+                return {
+                    "status": "error",
+                    "engine": "codex",
+                    "error": "Invalid sheet",
+                    "validation_errors": errors,
+                    "validation_errors_version": "v1",
+                }
+        except Exception as val_err:
+            logger.error(f"[Validation] Sheet validation failed: {val_err}")
+
+        sheet_results: Dict[str, Any] = {}
 
         if self.use_qpu and self.qpu:
             for cell in cells:

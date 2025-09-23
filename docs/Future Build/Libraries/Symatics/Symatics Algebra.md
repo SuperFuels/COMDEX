@@ -12,7 +12,7 @@ flowchart TB
 - Mermaid dependency diagrams
 - Dependency graphs (DOT/PNG)"]:::done
 
-    A73["🟡 3. Validation
+    A73["✅ 3. Validation
 - Validate logic trees (wired)
 - Collect validation_errors (wired)
 - Expose via API & CLI (mostly)"]:::doing

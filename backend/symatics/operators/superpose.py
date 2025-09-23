@@ -3,8 +3,8 @@ from __future__ import annotations
 import math
 from typing import Optional
 
-from symatics.signature import Signature
-from symatics.operators import Operator
+from backend.symatics.signature import Signature
+from backend.symatics.operators import Operator
 
 
 # ---------------------------------------------------------------------------

@@ -3,9 +3,9 @@ from __future__ import annotations
 import math
 from typing import Optional
 
-from symatics.signature import Signature
-from symatics.operators import Operator
-from symatics.operators.superpose import _merge_meta, _pol_blend
+from backend.symatics.signature import Signature
+from backend.symatics.operators import Operator
+from backend.symatics.operators.superpose import _merge_meta, _pol_blend
 
 
 def _resonance(a: Signature, b: Signature, ctx: Optional["Context"] = None) -> Signature:
