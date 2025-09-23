@@ -20,7 +20,7 @@ try:
 except Exception:
     _HAS_PNG = False
 
-from backend.modules.lean.lean_proofviz import mermaid_for_dependencies, png_for_dependencies
+from backend.modules.lean.lean_proofviz_utils import mermaid_for_dependencies, png_for_dependencies
 
 def attach_visualizations(container: dict, *, png_path: str | None = None) -> dict:
     """

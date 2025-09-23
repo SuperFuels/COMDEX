@@ -4,7 +4,7 @@ import sys
 import json
 import argparse
 from typing import Dict, Any
-
+from backend.modules.lean.lean_utils import _normalize_logic_entry
 # --- Imports with safe fallbacks ---------------------------------------------
 try:
     from backend.modules.lean.lean_to_glyph import convert_lean_to_codexlang, emit_codexlang_glyph
@@ -89,62 +89,74 @@ def _emit_preview(decl: Dict[str, Any], glyph_label: str) -> str:
         return s
 
 
+import traceback
+
+from backend.modules.lean.lean_inject_utils import _normalize_logic_entry
+
+
 def build_container_from_lean(lean_path: str, container_type: str) -> Dict[str, Any]:
+    """
+    Build a container dict from a Lean file.
+    Ensures all logic/name fields are valid non-empty strings.
+    Adds backwards-compatibility for legacy `codexlang_string`.
+    Guarantees codexlang['logic'] and codexlang['normalized'] are always set.
+    Uses shared _normalize_logic_entry for consistency with injector.
+    """
     spec = CONTAINER_MAP.get(container_type.lower(), CONTAINER_MAP["dc"])
     parsed = convert_lean_to_codexlang(lean_path)
 
-    container: Dict[str, Any] = {
-        "type": spec["type"],
-        "id": f"lean::{container_type}::{lean_path.split('/')[-1]}",
-        "metadata": {
-            "origin": "lean_import",
-            "source_path": parsed.get("source", lean_path),
-            "logic_type": parsed.get("logic_type", "unknown"),
-        },
-        spec["glyph_field"]: [],
-        spec["logic_field"]: [],
-        spec["tree_field"]: [],
-        "previews": [],
-        "dependencies": [],
-    }
+    try:
+        container: Dict[str, Any] = {
+            "type": spec["type"],
+            "id": f"lean::{container_type}::{lean_path.split('/')[-1]}",
+            "metadata": {
+                "origin": "lean_import",
+                "source_path": parsed.get("source", lean_path),
+                "logic_type": parsed.get("logic_type", "unknown"),
+            },
+            spec["glyph_field"]: [],
+            spec["logic_field"]: [],
+            spec["tree_field"]: [],
+            "previews": [],
+            "dependencies": [],
+        }
 
-    for decl in parsed.get("parsed_declarations", []):
-        glyph_symbol = decl.get("glyph_symbol", "⟦ Theorem ⟧")
+        for decl in parsed.get("parsed_declarations", []):
+            glyph_symbol = decl.get("glyph_symbol", "⟦ Theorem ⟧")
 
-        # glyph list (human-readable)
-        container[spec["glyph_field"]].append(_emit_preview(decl, glyph_symbol))
+            # glyph list (human-readable)
+            container[spec["glyph_field"]].append(_emit_preview(decl, glyph_symbol))
 
-        # logic entries (keep both raw & normalized for UI choice)
-        codexlang = decl.get("codexlang", {})
-        logic_raw = codexlang.get("logic", decl.get("logic", ""))
-        logic_soft = CodexLangRewriter.simplify(logic_raw, mode="soft")
+            # normalize into logic entry (shared helper)
+            logic_entry = _normalize_logic_entry(decl, lean_path)
+            container[spec["logic_field"]].append(logic_entry)
 
-        container[spec["logic_field"]].append({
-            "name": decl.get("name", ""),
-            "symbol": glyph_symbol,
-            "logic": logic_soft,           # normalized/soft view
-            "logic_raw": logic_raw,        # raw original, no info loss
-            "codexlang": codexlang,
-            "glyph_tree": decl.get("glyph_tree", {}),
-            "source": lean_path,
-            "body": decl.get("body", ""),
-        })
+            # tree entry
+            container[spec["tree_field"]].append({
+                "name": logic_entry["name"],
+                "glyph": logic_entry["symbol"],
+                "node": logic_entry.get("glyph_tree", {}),
+            })
 
-        # tree
-        container[spec["tree_field"]].append({
-            "name": decl.get("name", ""),
-            "glyph": glyph_symbol,
-            "node": decl.get("glyph_tree", {}),
-        })
+            # extras
+            container["previews"].append(_emit_preview(decl, glyph_symbol))
+            container["dependencies"].append({
+                "theorem": logic_entry["name"],
+                "depends_on": decl.get("depends_on", []),
+            })
 
-        # extras
-        container["previews"].append(_emit_preview(decl, glyph_symbol))
-        container["dependencies"].append({
-            "theorem": decl.get("name", ""),
-            "depends_on": decl.get("depends_on", []),
-        })
+        # 🔎 Debug output for smoke test failures
+        print("[DEBUG] Final container keys:", list(container.keys()))
+        first_logic = container.get(spec["logic_field"], [None])
+        if first_logic:
+            print("[DEBUG] First logic entry:", first_logic[0])
 
-    return container
+        return container
+
+    except Exception as e:
+        print("[DEBUG] build_container_from_lean failed:", e)
+        traceback.print_exc()
+        raise
 
 
 # --- CLI ---------------------------------------------------------------------
@@ -158,11 +170,9 @@ def main():
         choices=list(CONTAINER_MAP.keys()),
         help="Target container layout (default: dc)",
     )
-    # NEW: optional output file path
     ap.add_argument(
-        "--out",
-        "-o",
-        help="Write output JSON to this path (default: print to stdout)"
+        "--out", "-o",
+        help="Write output JSON to this path (default: print to stdout)",
     )
     args = ap.parse_args()
 

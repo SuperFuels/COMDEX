@@ -43,6 +43,7 @@ def inject_theorems_into_container(
     """
     Inject Lean theorems into a symbolic container (dc, SEC, Hoberman, Atom, Exotic, Symmetry, etc.).
     Supports overwrite-by-name to avoid duplicates. Optionally auto-cleans previews/links.
+    Ensures logic fields are always valid non-empty strings.
     """
     parsed = convert_lean_to_codexlang(lean_path)
 
@@ -78,38 +79,34 @@ def inject_theorems_into_container(
     container.setdefault(tree_field, [])
 
     # Build name → index map for overwrite semantics
-    name_to_idx = {e.get("name"): i for i, e in enumerate(container.get(logic_field, [])) if e.get("name")}
+    name_to_idx = {
+        e.get("name"): i
+        for i, e in enumerate(container.get(logic_field, []))
+        if e.get("name")
+    }
 
-    for decl in parsed["parsed_declarations"]:
-        codexlang = decl["codexlang"]
-        name = decl["name"]
-        glyph_symbol = decl.get("glyph_symbol", "⟦ Theorem ⟧")
+    for decl in parsed.get("parsed_declarations", []):
+        # --- normalize via shared helper ---
+        logic_entry = _normalize_logic_entry(decl, lean_path)
 
-        # Extract enhanced proof metadata
-        lean_proof_snippet = decl.get("body", "").strip()
-        symbolic_proof = codexlang.get("normalized", codexlang.get("logic"))
-        proof_explanation = codexlang.get("explanation", "No explanation available.")
+        # 🔧 Add proof metadata & replay tags (injector-only extras)
+        lean_proof_snippet = (decl.get("body") or "").strip()
+        symbolic_proof = logic_entry.get("logic")
+        proof_explanation = logic_entry.get("codexlang", {}).get("explanation")
 
-        logic_entry = {
-            "name": name,
-            "symbol": glyph_symbol,
-            "logic": symbolic_proof,
-            "logic_raw": codexlang.get("logic"),
-            "codexlang": codexlang,
-            "glyph_tree": decl.get("glyph_tree"),
-            "source": lean_path,
-            "body": lean_proof_snippet,
+        logic_entry.update({
             "leanProof": lean_proof_snippet,
             "symbolicProof": symbolic_proof,
             "proofExplanation": proof_explanation,
-            "replay_tags": ["📜 Lean Theorem", f"🧠 {glyph_symbol}"],
-        }
+            "replay_tags": ["📜 Lean Theorem", f"🧠 {logic_entry['symbol']}"],
+        })
 
-        if overwrite and name in name_to_idx:
-            container[logic_field][name_to_idx[name]] = logic_entry
+        # --- overwrite vs append ---
+        if overwrite and logic_entry["name"] in name_to_idx:
+            container[logic_field][name_to_idx[logic_entry["name"]]] = logic_entry
         else:
             container[logic_field].append(logic_entry)
-            name_to_idx[name] = len(container[logic_field]) - 1
+            name_to_idx[logic_entry["name"]] = len(container[logic_field]) - 1
 
     # Keep glyphs/tree in sync with logic
     _rebuild_from_logic(container, glyph_field, logic_field, tree_field)

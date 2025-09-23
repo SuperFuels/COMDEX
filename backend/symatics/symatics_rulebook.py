@@ -914,21 +914,21 @@ LAW_REGISTRY = {
     # v0.1 core laws
     # ──────────────────────────────
     "⊕": [
-        _wrap("commutativity",    lambda a, b: law_commutativity("⊕", a, b)),
-        _wrap("associativity",    lambda a, b, c: law_associativity("⊕", a, b, c)),
-        _wrap("idempotence",      lambda a: law_idempotence("⊕", a)),
-        _wrap("identity",         lambda a: law_identity("⊕", a)),
-        _wrap("distributivity",   lambda a, b, c: law_distributivity(a, b, c)),
-        _wrap("duality",          lambda a, b: law_duality("⊕", a, b)),
+        _wrap("commutativity",    lambda a, b,    : law_commutativity("⊕", a, b)),
+        _wrap("associativity",    lambda a, b, c  : law_associativity("⊕", a, b, c)),
+        _wrap("idempotence",      lambda a        : law_idempotence("⊕", a)),
+        _wrap("identity",         lambda a        : law_identity("⊕", a)),
+        _wrap("distributivity",   lambda a, b, c  : law_distributivity(a, b, c)),
+        _wrap("duality",          lambda a, b     : law_duality("⊕", a, b)),
     ],
     "↔": [
-        _wrap("commutativity",    lambda a, b: law_commutativity("↔", a, b)),
+        _wrap("commutativity",    lambda a, b     : law_commutativity("↔", a, b)),
     ],
     "π": [
         _wrap("projection",       law_projection),
     ],
     "μ": [
-        _wrap("duality",          lambda a: law_duality("μ", a)),
+        _wrap("duality",          lambda a        : law_duality("μ", a)),
     ],
     "Δ": [
         _wrap("derivative",       lambda expr, var: law_derivative("Δ", expr, var)),
@@ -976,6 +976,18 @@ LAW_REGISTRY = {
     "ℚ↯": [
         _wrap("resonance_damping_consistency", lambda expr, q, gamma: law_resonance_damping_consistency(expr, q, gamma)),
     ],
+
+    # ──────────────────────────────
+    # v0.3 calculus extensions
+    # ──────────────────────────────
+    "calc_fundamental_theorem": {
+        "description": "Δ(∫(σ)) ≡ σ and ∫(Δ(σ)) ≡ σ + const",
+        "laws": [
+            # TODO: implement check: derivative of integral restores σ
+            # TODO: implement check: integral of derivative adds const
+        ],
+        "status": "stub",
+    },
 }
 
 def _law_name(func) -> str:

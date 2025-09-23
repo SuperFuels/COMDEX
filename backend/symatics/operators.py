@@ -257,6 +257,63 @@ def apply_operator(symbol: str, *args: Any, ctx: Optional["Context"] = None) -> 
     except Exception as e:
         raise RuntimeError(f"Operator {symbol} failed: {e}") from e
 
+# --- v0.3 operators (quantum set) ---
+
+OPS["⊖"] = {
+    "name": "Interference",
+    "arity": 2,
+    "canonical": lambda a, b: ("⊖", (a, b)),
+    "laws": [
+        # TODO: implement cancellation: ψ ⊖ ψ ≈ 𝟘
+        # TODO: interference with ¬ψ gives collapse
+    ],
+    "status": "stub",
+}
+
+OPS["≡"] = {
+    "name": "Equivalence",
+    "arity": 2,
+    "canonical": lambda a, b: ("≡", (a, b)),
+    "laws": [
+        # TODO: reflexivity: a ≡ a
+        # TODO: symmetry: a ≡ b ⇒ b ≡ a
+        # TODO: transitivity: a ≡ b, b ≡ c ⇒ a ≡ c
+    ],
+    "status": "stub",
+}
+
+OPS["¬"] = {
+    "name": "Negation / Orthogonal dual",
+    "arity": 1,
+    "canonical": lambda a: ("¬", a),
+    "laws": [
+        # TODO: double negation: ¬(¬ψ) ≡ ψ
+        # TODO: ψ ⊕ ¬ψ collapses
+    ],
+    "status": "stub",
+}
+
+OPS["⊗"] = {
+    "name": "Entanglement",
+    "arity": 2,
+    "canonical": lambda a, b: ("⊗", (a, b)),
+    "laws": [
+        # TODO: associativity: (ψ1 ⊗ ψ2) ⊗ ψ3 ≡ ψ1 ⊗ (ψ2 ⊗ ψ3)
+        # TODO: distributivity over ⊕
+        # TODO: collapse consistency (e.g. GHZ, W)
+    ],
+    "status": "stub",
+}
+
+# --- placeholders for v0.4 / v0.5 operators (not implemented yet) ---
+# OPS["σ"] = {...}   # Symmetry operator
+# OPS["τ"] = {...}   # Time-fold
+# OPS["ℙ"] = {...}   # Probability weight
+# OPS["⇒"] = {...}   # Trigger
+# OPS["δ"] = {...}   # Decoherence
+# OPS["Tr"] = {...}  # Trace
+# OPS["↯⟲"] = {...} # Coupling operator
+
 
 # Example usage:
 # sig_c = apply_operator("⊕", sig_a, sig_b, ctx=my_context)

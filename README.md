@@ -31,7 +31,7 @@ gcloud run deploy comdex-api \
   --timeout=300s
 
 git add .
-git commit -m "Full update to fix everything in AION"
+git commit -m "Lean fixes"
 git push origin main
 
 

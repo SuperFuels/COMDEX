@@ -14,6 +14,12 @@ from backend.modules.lean.lean_injector import (
     load_container,
     save_container,
 )
+from backend.modules.lean.lean_inject_utils import (
+    guess_spec,
+    auto_clean,
+    dedupe_by_name,
+    rebuild_previews,
+)
 from backend.modules.lean.lean_exporter import build_container_from_lean
 from backend.modules.lean.lean_utils import validate_logic_trees
 from backend.modules.lean.lean_audit import audit_event, build_inject_event

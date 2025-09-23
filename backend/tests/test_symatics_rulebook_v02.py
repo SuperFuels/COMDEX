@@ -136,3 +136,36 @@ def test_invalid_projection_index():
     seq = [1, 2]
     results = check_all_laws("π", seq, 5, 1)  # out of bounds
     assert results["projection"] is False
+
+import pytest
+from backend.symatics.symatics_rulebook import LAW_REGISTRY
+from backend.symatics.operators import OPS
+from backend.symatics.canonical import _canonical
+
+
+@pytest.mark.smoke
+@pytest.mark.parametrize("op", ["⊗", "≡", "¬", "⊖"])
+def test_operator_stub_exists(op):
+    """Ensure v0.3 operator stubs exist in OPS."""
+    assert op in OPS, f"{op} missing from OPS"
+
+
+@pytest.mark.smoke
+def test_calc_fundamental_theorem_stub():
+    """Ensure calc_fundamental_theorem law stub is present in LAW_REGISTRY."""
+    assert "calc_fundamental_theorem" in LAW_REGISTRY
+    law = LAW_REGISTRY["calc_fundamental_theorem"]
+    assert law["status"] == "stub"
+    assert "Δ(∫(σ))" in law["description"]
+
+
+@pytest.mark.smoke
+@pytest.mark.parametrize("expr", [
+    {"op": "⊗", "args": ["ψ1", "ψ2"]},
+    {"op": "≡", "args": ["ψ1", "ψ2"]},
+    {"op": "¬", "args": ["ψ"]},
+    {"op": "⊖", "args": ["ψ1", "ψ2"]},
+])
+def test_canonicalization_does_not_crash(expr):
+    """Canonicalization should handle new operator stubs without errors."""
+    _ = _canonical(expr)  # no exception = pass

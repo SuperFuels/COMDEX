@@ -34,3 +34,31 @@ def build_inject_event(
     if extra:
         evt.update(extra)
     return evt
+
+def build_export_event(
+    *,
+    out_path: str | None,
+    container_id: str | None,
+    container_type: str | None,
+    lean_path: str,
+    num_items: int,
+    previews: List[str] | None = None,
+    extra: Dict[str, Any] | None = None,
+) -> Dict[str, Any]:
+    """
+    Build an audit record for a Lean → container export.
+    """
+    evt: Dict[str, Any] = {
+        "ts": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "kind": "lean.export",
+        "out_path": out_path,
+        "container_id": container_id,
+        "container_type": container_type,
+        "lean_path": lean_path,
+        "count": num_items,
+        "previews": previews or [],
+        "hash": _sha1(f"{out_path}|{lean_path}|{num_items}|{previews}"),
+    }
+    if extra:
+        evt.update(extra)
+    return evt

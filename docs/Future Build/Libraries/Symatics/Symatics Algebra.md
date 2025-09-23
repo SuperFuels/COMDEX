@@ -83,9 +83,9 @@ flowchart TD
 		- Dual-mode: not dependent on Codex but not disconnected"]
 
 		next["⚡ Next Step
-		- Patch lean_inject_cli.py + lean_inject.py with mode flag
-		- Add shim logic in lean_utils.py
-		- Start with CLI implementation"]
+		- Patch lean_inject.py with mode flag
+		- Add FastAPI validation + error reporting
+		- Then wire lean_watch.py to propagate mode"]
 
 		goal --> orig --> new --> impl --> design --> why --> next
 	end
@@ -102,15 +102,17 @@ flowchart TD
 
 flowchart TD
 
+flowchart TD
+
 subgraph A["Symatics Algebra Development"]
     A1["✅ A1: Define Core Primitives"]
     A2["✅ A2: Formalize Symatics Axioms & Laws"]
     A3["✅ A3: Operator Definitions (⊕, ↔, ⟲, μ, π) + ctx-aware dispatcher"]
-    A4["🟢 A4: Algebra Rulebook v0.2 
+    A4["✅ A4: Algebra Rulebook v0.2 
         ├─ Add chain rule law
         ├─ Add substitution law
         └─ Promote to LAW_REGISTRY"]
-    A5["🟢 A5: Algebra Engine 
+    A5["✅ A5: Algebra Engine 
         ├─ Parser + evaluator live
         ├─ Wire SQI scoring
         ├─ Wire mutation engine
@@ -151,7 +153,7 @@ end
 subgraph C["LightCone & QFC Integration"]
     C1["✅ C1: Pipe CodexLang into GlyphCell.logic (done)"]
     C2["✅ C2: LightCone forward/reverse tracer (done)"]
-    C3["🟢 C3: Reflexive symbol trace → QFC
+    C3["✅ C3: Reflexive symbol trace → QFC
         ├─ Project traces into QFC beams
         ├─ Add replay HUD in SCI
         └─ Multi-agent alignment"]
@@ -165,7 +167,6 @@ subgraph C["LightCone & QFC Integration"]
     C6["⚪ C6: QFC quantum laws 
         ├─ Add duality & projection laws
         └─ Sync LAW_REGISTRY with QFC ops"]
-
 end
 
 

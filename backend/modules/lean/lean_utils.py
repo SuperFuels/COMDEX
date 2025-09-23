@@ -275,3 +275,62 @@ def register_theorems(container: Dict[str, Any]) -> None:
                 })
         except Exception:
             continue
+
+from typing import Dict, Any
+try:
+    from backend.modules.codex.codexlang_rewriter import CodexLangRewriter
+except Exception:
+    class CodexLangRewriter:  # soft shim
+        @staticmethod
+        def simplify(expr: str, mode: str = "soft") -> str:
+            return " ".join((expr or "").split())
+
+
+def _normalize_logic_entry(decl: Dict[str, Any], lean_path: str) -> Dict[str, Any]:
+    """
+    Normalize a Lean declaration into a logic entry with safe codexlang dict.
+    Ensures:
+      - codexlang is always a dict
+      - codexlang['logic'] and codexlang['normalized'] are set
+      - logic_raw always falls back to a non-empty string
+    """
+    glyph_symbol = decl.get("glyph_symbol", "⟦ Theorem ⟧")
+    name = decl.get("name") or "unnamed"
+
+    # --- codexlang dict (always safe) ---
+    codexlang = decl.get("codexlang", {}) or {}
+
+    # legacy shim
+    if "codexlang_string" in decl and "legacy" not in codexlang:
+        codexlang["legacy"] = decl["codexlang_string"]
+
+    # logic_raw with full fallback chain
+    logic_raw = (
+        codexlang.get("logic")
+        or decl.get("codexlang_string")
+        or decl.get("logic", "")
+    )
+    if not logic_raw or not isinstance(logic_raw, str):
+        logic_raw = "True"
+
+    # ensure codexlang dict has required keys
+    if not codexlang.get("logic") or not isinstance(codexlang["logic"], str):
+        codexlang["logic"] = logic_raw
+    if not codexlang.get("normalized") or not isinstance(codexlang["normalized"], str):
+        codexlang["normalized"] = logic_raw
+    if "explanation" not in codexlang:
+        codexlang["explanation"] = "Auto-converted from Lean source"
+
+    # soft-normalized version
+    logic_soft = CodexLangRewriter.simplify(logic_raw, mode="soft") or "True"
+
+    return {
+        "name": name,
+        "symbol": glyph_symbol,
+        "logic": logic_soft,
+        "logic_raw": logic_raw,
+        "codexlang": codexlang,
+        "glyph_tree": decl.get("glyph_tree", {}),
+        "source": lean_path,
+        "body": decl.get("body", ""),
+    }
