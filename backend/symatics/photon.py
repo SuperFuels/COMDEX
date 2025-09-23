@@ -1,4 +1,4 @@
-# backend/modules/qfc/photon.py
+# backend/symatics/photon.py
 # ---------------------------------------------------------------------
 # Photon: discrete quanta of the Wave field
 # - Complements wave.py (continuous carrier)

@@ -164,8 +164,215 @@ subgraph C["LightCone & QFC Integration"]
         └─ Sync LAW_REGISTRY with QFC ops"]
 end
 
+flowchart TB
+  subgraph Symatics["Symatics Upgrade Checklist (v0.2 Roadmap)"]
 
+flowchart TD
+    A1["Axioms & Laws"]
+    A2["Operators"]
+    A3["Engine & Context"]
+    A4["Validation & Metrics"]
+    A5["Primitives (Wave/Photon)"]
+    A6["Proofviz & Integration"]
+
+    %% Axioms
+    A1a[ ]:::todo -->|Canonicalization| A1
+    A1a_sub1["• Hook into Context.canonical_signature\n  (symatics/context.py)"]:::sub --> A1a
+    A1a_sub2["• Tolerance-aware rewrites (ε-band)\n  (symatics/normalize.py)"]:::sub --> A1a
+
+    A1b[ ]:::todo -->|Identity laws (⊕ + 𝟘)| A1
+    A1b_sub1["• Define neutral element 𝟘 (amp=0)\n  (symatics/operators.py)"]:::sub --> A1b
+    A1b_sub2["• Add rewrite x⊕𝟘 → x\n  (symatics/laws.py)"]:::sub --> A1b
+
+    A1c[ ]:::todo -->|Inverse laws (⊖, ¬)| A1
+    A1c_sub1["• Implement x⊖x → 𝟘\n  (symatics/operators.py)"]:::sub --> A1c
+    A1c_sub2["• Implement ¬(¬x) → x\n  (symatics/operators.py)"]:::sub --> A1c
+
+    A1d[ ]:::todo -->|Collapse/duality laws (μ ∘ ⊕)| A1
+    A1d_sub1["• Define μ(⊕(...)) simplification\n  (symatics/normalize.py)"]:::sub --> A1d
+    A1d_sub2["• Ensure collapse reduces interference\n  (symatics/operators.py)"]:::sub --> A1d
+
+    A1e[ ]:::todo -->|Distributivity symmetry (⊕ over ↔)| A1
+    A1e_sub1["• Add missing distributivity direction\n  (symatics/operators.py)"]:::sub --> A1e
+    A1e_sub2["• Verify roundtrip consistency\n  (symatics/laws.py)"]:::sub --> A1e
+
+    %% Operators
+    A2a[ ]:::todo -->|Destructive interference in ⊕| A2
+    A2a_sub1["• Phasor-based cancellation\n  (symatics/operators.py)"]:::sub --> A2a
+    A2a_sub2["• Associativity with destructive cases\n  (symatics/operators.py)"]:::sub --> A2a
+
+    A2b[ ]:::todo -->|Jones calculus (π)| A2
+    A2b_sub1["• Implement Jones vectors\n  (symatics/physics/jones.py)"]:::sub --> A2b
+    A2b_sub2["• Extend to arbitrary subspaces\n  (symatics/physics/jones.py)"]:::sub --> A2b
+
+    A2c[ ]:::todo -->|Q-factor decay (⟲)| A2
+    A2c_sub1["• Add bandwidth/tolerance param\n  (symatics/operators.py)"]:::sub --> A2c
+    A2c_sub2["• Simulate temporal decay envelope\n  (symatics/physics/decay.py)"]:::sub --> A2c
+
+    A2d[ ]:::todo -->|Stochastic collapse (μ)| A2
+    A2d_sub1["• Randomized collapse seed\n  (symatics/ops/mu.py)"]:::sub --> A2d
+    A2d_sub2["• Probability distribution over results\n  (symatics/ops/mu.py)"]:::sub --> A2d
+
+    A2e[ ]:::todo -->|Fill stubs (⊖, ≡, ⊗, ¬, τ, 𝔽, 𝔼)| A2
+    A2e_sub1["• Define laws + arities\n  (symatics/operators.py)"]:::sub --> A2e
+    A2e_sub2["• Minimal semantic implementation\n  (symatics/operators.py)"]:::sub --> A2e
+
+    %% Engine & Context
+    A3a[ ]:::todo -->|Tolerance-aware equality| A3
+    A3a_sub1["• Associativity/commutativity with ε\n  (symatics/context.py)"]:::sub --> A3a
+
+    A3b[ ]:::todo -->|AST pretty-printer + debugging| A3
+    A3b_sub1["• Stringify SymNode trees\n  (symatics/ast.py)"]:::sub --> A3b
+    A3b_sub2["• Include metadata for tracing\n  (symatics/core/symnode.py)"]:::sub --> A3b
+
+    A3c[ ]:::todo -->|Probabilistic branching for μ| A3
+    A3c_sub1["• Multiple outcomes per collapse\n  (symatics/ops/mu.py)"]:::sub --> A3c
+    A3c_sub2["• Attach probability weights\n  (symatics/ops/mu.py)"]:::sub --> A3c
+
+    A3d[ ]:::todo -->|Uniform context propagation| A3
+    A3d_sub1["• Ensure ctx passed in all OPS impls\n  (symatics/context.py)"]:::sub --> A3d
+    A3d_sub2["• Canonicalize at each operator\n  (symatics/operators.py)"]:::sub --> A3d
+
+    %% Validation & Metrics
+    A4a[ ]:::todo -->|Tolerance-band equality (laws)| A4
+    A4a_sub1["• Use Equivalence with ε thresholds\n  (symatics/validate.py)"]:::sub --> A4a
+
+    A4b[ ]:::todo -->|Property-based tests| A4
+    A4b_sub1["• Hypothesis tests for ⊕, ⟲, ↔\n  (symatics/tests/test_laws.py)"]:::sub --> A4b
+
+    A4c[ ]:::todo -->|Distance metrics expansion| A4
+    A4c_sub1["• Add polarization mismatch cost\n  (symatics/metrics.py)"]:::sub --> A4c
+    A4c_sub2["• Add mode/OAM distance terms\n  (symatics/metrics.py)"]:::sub --> A4c
+
+    A4d[ ]:::todo -->|Audit + reporting hooks| A4
+    A4d_sub1["• Log law violations with context\n  (symatics/logging.py)"]:::sub --> A4d
+
+    %% Primitives
+    A5a[ ]:::todo -->|Wave ↔ Photon metadata| A5
+    A5a_sub1["• Store lineage + energy in Photon\n  (symatics/primitives/photon.py)"]:::sub --> A5a
+
+    A5b[ ]:::todo -->|Photon entanglement (multipartite)| A5
+    A5b_sub1["• Extend entangle_photons → n-party\n  (symatics/quantum/entangle.py)"]:::sub --> A5b
+
+    A5c[ ]:::todo -->|Time evolution / τ| A5
+    A5c_sub1["• Add propagation delay param\n  (symatics/primitives/photon.py)"]:::sub --> A5c
+    A5c_sub2["• Support chained media τ_h2∘h1\n  (symatics/time.py)"]:::sub --> A5c
+
+    A5d[ ]:::todo -->|Crystallization / lattice ops| A5
+    A5d_sub1["• Formalize lattice_signature rule\n  (symatics/lattice.py)"]:::sub --> A5d
+    A5d_sub2["• Add reversible freeze/unfreeze\n  (symatics/lattice.py)"]:::sub --> A5d
+
+    %% Proofviz & Integration
+    A6a[ ]:::todo -->|DOT export| A6
+    A6a_sub1["• dot_for_dependencies in utils\n  (lean_proofviz_utils.py)"]:::sub --> A6a
+    A6a_sub2["• CLI flag --dot-out\n  (lean_proofviz.py)"]:::sub --> A6a
+
+    A6b[ ]:::todo -->|Deduplicate proofviz utils| A6
+    A6b_sub1["• Keep only lean_proofviz_utils\n  (lean_proofviz_utils.py)"]:::sub --> A6b
+    A6b_sub2["• Import functions in lean_proofviz\n  (lean_proofviz.py)"]:::sub --> A6b
+
+    A6c[ ]:::todo -->|Normalize flag symmetry| A6
+    A6c_sub1["• Inject/export responses match\n  (lean_inject.py + lean_inject_api.py)"]:::sub --> A6c
+
+    A6d[ ]:::todo -->|Watcher wiring| A6
+    A6d_sub1["• Pass mode+normalize into watcher\n  (lean_watch.py)"]:::sub --> A6d
+    A6d_sub2["• Default: integrated, normalize=False\n  (lean_watch.py)"]:::sub --> A6d
+
+    A6e[ ]:::todo -->|Emit glyphnet_ws events| A6
+    A6e_sub1["• WebSocket validation payloads\n  (routes/ws/glyphnet_ws.py)"]:::sub --> A6e
+    A6e_sub2["• Codex enrichment hooks\n  (lean_inject.py)"]:::sub --> A6e
+	
+
+🔑 Categories
+	•	Axioms & Laws → need canonicalization, identity/inverse/duality laws, symmetry fixes.
+	•	Operators → destructive interference, polarization via Jones calculus, resonance with Q-factor, probabilistic measurement, filling stubs.
+	•	Engine & Context → probabilistic branching, context-uniformity, pretty-print AST.
+	•	Validation & Metrics → tolerance-aware equality, property-based testing, richer distance metrics.
+	•	Primitives → wave/photon bridge improvements, multipartite entanglement, transport operator τ, crystallization formalization.
+	•	Proofviz & Integration → DOT export, proofviz deduplication, normalize flag symmetry, watcher wiring, glyphnet_ws events.
+
+  end
+
+  classDef todo fill:#fff,stroke:#555,color:#000
+  classDef sub fill:#eef,stroke:#bbb,color:#000
 end
+
+
+mindmap
+  root((🔎 Lean Integration Weaknesses))
+    A73 Validation Polish
+      ✅ In place but inconsistent
+      ❌ validation_errors format is list[str] not list[dict]
+      ❌ Codes/messages not standardized
+      ❌ CLI doesn’t include validation_errors_version
+      🔑 Fix: unify API + CLI → always {code, message}, with "validation_errors_version"
+    lean_proofviz.py
+      ⚠️ CLI: broken indent on dot_out block
+      ⚠️ Error handling for png/mermaid fallback is brittle
+      ❌ No structured error codes (just messages)
+      🔑 Fix: polish CLI, unify fallback messages into validation_errors format
+    lean_tactic_suggester.py
+      ⚠️ Very basic contradiction detection
+      ⚠️ No Codex/SQI hook integration
+      ❌ Limited tactic coverage (intro, split, cases… only)
+      🔑 Fix: expand detection, integrate CodexTrace consistently
+    lean_to_glyph.py
+      ⚠️ Regex parser brittle for complex Lean syntax
+      ⚠️ Dependencies detection naive (string scan)
+      ❌ Glyph preview string inconsistent with lean_utils
+      🔑 Fix: unify parsing, add robust AST translation, centralize preview generation
+    lean_utils.py
+      ⚠️ validate_logic_trees returns list[str], not structured
+      ⚠️ Normalization scattered (soft vs hard rewrite)
+      ⚠️ inject_preview_and_links duplicates logic with lean_to_glyph
+      ❌ Harmonization fragile (symbol misalignments)
+      🔑 Fix: centralize CodexLangRewriter + glyph handling
+    lean_watch.py
+      ⚠️ Re-runs entire CLI even on small edits (inefficient)
+      ⚠️ No debounce/throttle
+      ❌ Poor error surface (just prints to stdout)
+      🔑 Fix: add debounce, proper logging, structured error return
+    lean_to_dc.py
+      ⚠️ Thin wrapper only — no validation/error surfacing
+      ⚠️ Limited container-type support
+      ❌ Doesn’t pretty-print summary or validation results
+      🔑 Fix: harden CLI → validation, summary, multiple container types
+    lean_inject.py (FastAPI)
+      ⚠️ Integrated mode enrichment fragile (CodexExecutor / SQI hooks may fail silently)
+      ⚠️ validation_errors structured in API but CLI out-of-sync
+      ❌ fail_on_error behavior inconsistent
+      🔑 Fix: unify error struct + add stable enrichment hooks
+    lean_inject_api.py (Upload)
+      ⚠️ Dedupe/overwrite logic manual + duplicated
+      ⚠️ Preview building logic duplicated from lean_utils
+      ⚠️ Integrated mode is a TODO (placeholder only)
+      ❌ GHX bundle export errors are only printed, not surfaced
+      🔑 Fix: reuse lean_utils functions, finalize integrated mode hooks
+    Context + Runtime
+      ⚠️ No MemoryBridge reflection yet (Lean theorems vanish after run)
+      ⚠️ No SEC expansion integration
+      ❌ No CodexLang ↔ Lean translator
+      ❌ No SoulLaw verification tags
+      🔑 Fix: wire reflection + SEC + translator + SoulLaw tagging
+
+
+🔑 Key Notes
+	•	Validation (A73) is the biggest weak spot → everything inconsistent between CLI, API, utils. Needs unification into {code, message} always.
+	•	Duplication across files: inject_preview_and_links, preview string building, dedupe logic → centralize in one utility.
+	•	Parser fragility: regex-only parsing in lean_to_glyph will break on real Lean code → need AST-based fallback.
+	•	Integrated mode hooks: multiple places (lean_inject.py, lean_inject_api.py) stubbed out, silently failing, or TODO.
+	•	Runtime reflection: currently ephemeral — no persistence to AION memory. Blocks self-improvement.
+	•	CLI tools: too thin, no validation, no summaries → dev UX weak.
+
+⸻
+
+⚡ In short:
+	•	A73 = validation polish.
+	•	Bugs = CLI (proofviz, watch).
+	•	Duplication = preview, dedupe, normalization logic.
+	•	Future blockers = no reflection, no translator, no SEC/SoulLaw.
+
+
 
     A5-->B1
     A6-->B2

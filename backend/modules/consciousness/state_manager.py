@@ -26,6 +26,11 @@ from datetime import datetime
 import asyncio  # ✅ Coroutine handling
 import threading  # ✅ Pause/resume lock
 
+from backend.modules.validation.validator import validate_logic_trees
+errors = validate_logic_trees(container)
+container["validation_errors"] = ...
+container["validation_errors_version"] = "v1"
+
 # ✅ Lean container support
 from backend.modules.lean.lean_utils import (
     is_lean_container,
@@ -82,8 +87,11 @@ class StateManager:
         self.loaded_containers = {}
         self.time_controller = TIME  # ⏳ Container time logic
 
-        # Initialize ContainerVaultManager with placeholder key (must be securely set in production)
-        encryption_key = b'\x00' * 32  # TODO: Replace with real secure key management
+        from backend.modules.glyphvault.key_manager import get_encryption_key
+
+        encryption_key = get_encryption_key(
+            default_fallback=b'\x00' * 32
+        )  # ⚠️ fallback only for dev/test
         self.vault_manager = ContainerVaultManager(encryption_key)
 
         # ✅ Runtime pause flag
@@ -117,11 +125,17 @@ class StateManager:
     def pause(self):
         with self.pause_lock:
             self.paused = True
+            self.time_controller.pause_all()
+            if WS:
+                asyncio.ensure_future(WS.broadcast({"event": "state_paused"}))
             print("[⏸️] StateManager paused")
 
     def resume(self):
         with self.pause_lock:
             self.paused = False
+            self.time_controller.resume_all()
+            if WS:
+                asyncio.ensure_future(WS.broadcast({"event": "state_resumed"}))
             print("[▶️] StateManager resumed")
 
     def is_paused(self):
@@ -165,7 +179,6 @@ class StateManager:
 
     # ──────────────────────────────
     # ✅ Secure Container Load + Gates
-    # ──────────────────────────────
     def secure_load_and_set(self, container_id: str):
         try:
             # ✅ Load standard or lean container
@@ -180,6 +193,26 @@ class StateManager:
                     "timestamp": datetime.utcnow().isoformat()
                 })
 
+                # 🔍 NEW: Validate lean containers + push into MemoryBridge
+                try:
+                    from backend.modules.lean.lean_validator import validate_lean_container
+                    errors = validate_lean_container(container)
+                    if errors:
+                        container["validation_errors"] = errors
+                except Exception as ve:
+                    container["validation_errors"] = [
+                        {"code": "lean_validation_failed", "message": str(ve)}
+                    ]
+
+                from backend.modules.consciousness.memory_bridge import MemoryBridge
+                mb = MemoryBridge(container_id=container_id)
+                mb({
+                    "type": "lean_theorem",
+                    "container_id": container_id,
+                    "metadata": container.get("metadata", {}),
+                    "timestamp": datetime.utcnow().isoformat()
+                })
+
             # 🔒 Decrypt vault glyph data if present
             encrypted_glyph_blob = container.get("encrypted_glyph_data")
             if encrypted_glyph_blob:
@@ -189,7 +222,10 @@ class StateManager:
                     avatar_state=avatar_state
                 )
                 if not success:
-                    raise PermissionError("[🔒] Vault decryption failed due to avatar state")
+                    raise PermissionError(json.dumps({
+                        "code": "vault_decryption_failed",
+                        "message": "Vault decryption denied due to avatar state"
+                    }))
 
             # ⚖️ SoulLaw / trait gates
             gates = container.get("gates", {})
@@ -197,13 +233,27 @@ class StateManager:
             for trait, required in required_traits.items():
                 actual = PERSONALITY.get(trait, 0.0)
                 if actual < required:
+                    error_payload = {
+                        "code": "trait_gate_denied",
+                        "message": f"Trait '{trait}' below required: {actual} < {required}",
+                        "trait": trait,
+                        "required": required,
+                        "actual": actual
+                    }
+                    # Log denial into MEMORY
                     MEMORY({
                         "type": "access_denied",
                         "container_id": container_id,
-                        "issue": f"Trait '{trait}' below required: {actual} < {required}",
+                        "issue": error_payload["message"],
                         "timestamp": datetime.utcnow().isoformat()
                     })
-                    raise PermissionError(f"[🔒] Trait gate locked: {trait} = {actual} < {required}")
+                    # NEW: Broadcast denial via WS / CodexHUD
+                    if WS:
+                        asyncio.ensure_future(WS.broadcast({
+                            "event": "trait_gate_denied",
+                            "data": error_payload
+                        }))
+                    raise PermissionError(json.dumps(error_payload))
 
             # ✅ Register + activate
             self.loaded_containers[container_id] = container
@@ -226,6 +276,29 @@ class StateManager:
     def set_current_container(self, container: dict):
         self.current_container = container
         print(f"[STATE] Current container set to: {container.get('id', 'unknown')}")
+
+        # ✅ Normalize container type
+        ctype = "unknown"
+        if container.get("id", "").startswith("dc_"):
+            ctype = "dc"
+        elif container.get("id", "").startswith("lean_"):
+            ctype = "lean"
+        elif container.get("id", "").startswith("sec_"):
+            ctype = "sec"
+        elif container.get("id", "").startswith("ucs_"):
+            ctype = "ucs"
+        container["metadata"] = container.get("metadata", {})
+        container["metadata"]["normalized_type"] = ctype
+
+        # ✅ Run validation and attach results (A73 polish)
+        try:
+            from backend.modules.validation.validator import validate_logic_trees
+            errors = validate_logic_trees(container)
+            container["validation_errors"] = errors if isinstance(errors, list) else []
+            container["validation_errors_version"] = "v1"
+        except Exception as e:
+            container["validation_errors"] = [{"code": "validation_failed", "message": str(e)}]
+            container["validation_errors_version"] = "v1"
 
         MEMORY.store({
             "label": f"container:{container.get('id', 'unknown')}",
@@ -254,47 +327,64 @@ class StateManager:
             "timestamp": str(datetime.utcnow())
         })
 
+        # ✅ Prefetch child containers
         children = container.get("children", [])
         for child_id in children:
             child_path = os.path.join(DIMENSION_DIR, f"{child_id}.dc.json")
             if os.path.exists(child_path):
                 with open(child_path, "r") as f:
                     child = json.load(f)
+
+                    # NEW: validate prefetched container
+                    try:
+                        from backend.modules.lean.lean_validator import validate_lean_container
+                        errors = validate_lean_container(child)
+                        if errors:
+                            child["validation_errors"] = errors
+                    except Exception:
+                        pass
+
                     MEMORY({
                         "role": "system",
                         "type": "container_prefetch",
                         "content": f"📦 Preloaded child container: {child.get('id')}"
                     })
 
+                    # NEW: Push summary to KG
+                    try:
+                        from backend.modules.knowledge_graph.kg_writer_singleton import get_kg_writer
+                        kg_writer = get_kg_writer()
+                        kg_writer.inject_glyph(
+                            content=child.get("id"),
+                            glyph_type="container_prefetch",
+                            metadata={"validation_errors": child.get("validation_errors", [])}
+                        )
+                    except Exception as kg_err:
+                        print(f"[KG] Prefetch KG push failed: {kg_err}")
+
+        # ✅ Consolidated WebSocket broadcast
         if WS:
             try:
                 loop = asyncio.get_event_loop()
-                payload = {
-                    "event": "container_switch",
-                    "data": {
-                        "id": container.get("id"),
-                        "name": container.get("name", ""),
-                        "timestamp": str(datetime.utcnow())
-                    }
-                }
-                asyncio.ensure_future(WS.broadcast(payload)) if loop.is_running() else loop.run_until_complete(WS.broadcast(payload))
-
-                # ✅ Send minimap update too
                 cubes = container.get("cubes", {})
                 glyph_summary = {g: 0 for g in ["⚙", "🧠", "🔒", "🌐"]}
                 for cube in cubes.values():
                     glyph = cube.get("glyph")
                     if glyph in glyph_summary:
                         glyph_summary[glyph] += 1
-                minimap_payload = {
-                    "event": "minimap_update",
+
+                payload = {
+                    "event": "container_switch",
                     "data": {
                         "id": container.get("id"),
+                        "name": container.get("name", ""),
+                        "timestamp": str(datetime.utcnow()),
                         "glyphs": glyph_summary,
-                        "timestamp": str(datetime.utcnow())
+                        "validation_errors": container.get("validation_errors", []),
+                        "sqi_summary": container.get("sqi_summary", {})
                     }
                 }
-                asyncio.ensure_future(WS.broadcast(minimap_payload)) if loop.is_running() else loop.run_until_complete(WS.broadcast(minimap_payload))
+                asyncio.ensure_future(WS.broadcast(payload)) if loop.is_running() else loop.run_until_complete(WS.broadcast(payload))
 
             except Exception as e:
                 print(f"[WS] Broadcast failed: {e}")
@@ -312,9 +402,19 @@ class StateManager:
                 self.context["container_time"] = self.time_controller.get_status(container_id)
         return self.context
 
+    from backend.modules.consciousness.memory_bridge import MemoryBridge
+    MEMORY_BRIDGE = MemoryBridge(container_id="state_manager")
+
     def save_memory_reference(self, snapshot):
         self.memory_snapshot = snapshot
         print("[STATE] Memory reference updated.")
+
+        # ✅ Mirror into MemoryBridge with typed tag
+        MEMORY_BRIDGE({
+            "type": "state_snapshot",
+            "snapshot": snapshot,
+            "timestamp": datetime.utcnow().isoformat()
+        })
 
     def dump_status(self):
         return {
@@ -373,6 +473,14 @@ class StateManager:
             max_x = max([int(c.split(",")[0]) for c in cubes.keys()] + [0])
             base_yzt = "0,0,0"
 
+            # Validate glyph syntax before saving
+            from backend.modules.glyphos.glyph_validator import validate_glyph_syntax
+            for glyph in glyphs:
+                if not validate_glyph_syntax(glyph):
+                    print(f"[ERROR] Invalid glyph syntax: {glyph}")
+                    return False
+
+            injected_coords = []
             for i, glyph in enumerate(glyphs):
                 x = max_x + i + 1
                 coord = f"{x},{base_yzt}"
@@ -382,10 +490,18 @@ class StateManager:
                     "source": source,
                     "timestamp": str(datetime.utcnow())
                 }
+                injected_coords.append(coord)
 
             # Encrypt and store glyph data vault before saving container
-            encrypted_blob = self.vault_manager.save_container_glyph_data(cubes)
-            self.current_container["encrypted_glyph_data"] = encrypted_blob
+            try:
+                encrypted_blob = self.vault_manager.save_container_glyph_data(cubes)
+                self.current_container["encrypted_glyph_data"] = encrypted_blob
+            except Exception as vault_err:
+                print(f"[ERROR] Vault save failed: {vault_err}. Rolling back glyph injection.")
+                # Rollback injected glyphs
+                for coord in injected_coords:
+                    cubes.pop(coord, None)
+                return False
 
             # Optionally remove plaintext cubes for security
             # self.current_container["cubes"] = {}

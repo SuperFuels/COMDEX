@@ -262,6 +262,24 @@ class CodexExecutor:
             # 🌀 Render scroll
             scroll = render_photon_scroll(glyphs)
 
+            # 🛡 Validation after glyph parsing
+            try:
+                from backend.modules.lean.lean_utils import validate_logic_trees
+                container_stub = {"symbolic_logic": [g.to_dict() for g in glyphs if hasattr(g, "to_dict")]}
+                errors = validate_logic_trees(container_stub)
+                if errors:
+                    logger.warning(f"[Validation] Photon capsule validation errors: {errors}")
+                    return {
+                        "status": "error",
+                        "engine": "codex",
+                        "glyphs": [g.to_dict() for g in glyphs if hasattr(g, "to_dict")],
+                        "scroll": scroll,
+                        "validation_errors": errors,
+                        "validation_errors_version": "v1",
+                    }
+            except Exception as val_err:
+                logger.error(f"[Validation] Photon capsule validation failed: {val_err}")
+
             # 🔍 Detect Symatics algebra operators
             if any(is_symatics_operator(getattr(g, "operator", None)) for g in glyphs):
                 try:
@@ -338,6 +356,21 @@ class CodexExecutor:
 
         # Make sure 'source' exists before any optional broadcast uses it
         source = context.get("source", "codex")
+
+        # 🛡 Validate glyph before execution
+        try:
+            from backend.modules.lean.lean_utils import validate_logic_trees
+            container_stub = {"symbolic_logic": [glyph]}
+            errors = validate_logic_trees(container_stub)
+            if errors:
+                return {
+                    "status": "error",
+                    "error": "Invalid glyph",
+                    "validation_errors": errors,
+                    "validation_errors_version": "v1",
+                }
+        except Exception as val_err:
+            logger.error(f"[Validation] Glyph validation failed: {val_err}")
 
         # 🌐 WebSocket Broadcast + Pattern Hooks
         try:
@@ -565,6 +598,7 @@ class CodexExecutor:
                     "sqi_metrics": {},
                     "camera": {},
                     "reflection_tags": [],
+                    "validation_errors": [],
                 }
                 for plugin in get_all_plugins():
                     if hasattr(plugin, "broadcast_qfc_update"):
@@ -635,6 +669,18 @@ class CodexExecutor:
                     confidence=0.2,
                     blindspot_trigger="Logic Contradiction"
                 )
+
+                # 🛡 Validation on contradiction
+                try:
+                    from backend.modules.lean.lean_utils import validate_logic_trees
+                    container_stub = {"symbolic_logic": [instruction_tree]}
+                    errors = validate_logic_trees(container_stub)
+                    if errors:
+                        result["validation_errors"] = errors
+                        result["validation_errors_version"] = "v1"
+                        logger.warning(f"[Validation] Contradiction due to invalid tree: {errors}")
+                except Exception as val_err:
+                    logger.error(f"[Validation] Contradiction validation crash: {val_err}")
 
                 # 🔍 Attempt rewrite suggestion
                 suggestion = None
@@ -855,6 +901,23 @@ class CodexExecutor:
     # ──────────────────────────────
     def run_glyph(self, glyph: str, context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         context = context or {}
+
+        # 🛡 Validate glyph before execution
+        try:
+            from backend.modules.lean.lean_utils import validate_logic_trees
+            container_stub = {"symbolic_logic": [glyph]}
+            errors = validate_logic_trees(container_stub)
+            if errors:
+                return {
+                    "status": "error",
+                    "error": "Invalid glyph",
+                    "validation_errors": errors,
+                    "validation_errors_version": "v1",
+                }
+        except Exception as val_err:
+            logger.error(f"[Validation] Glyph validation failed: {val_err}")
+
+        # ▶️ Proceed with execution if valid
         result = self.glyph_executor.execute_glyph(glyph, context)
         self.trace.log_event("glyph", {"glyph": glyph, "result": result})
 
@@ -1105,6 +1168,13 @@ if __name__ == "__main__":
     try:
         with open(path) as f:
             container = json.load(f)
+
+        # 🛡 Validate container before mutation
+        from backend.modules.lean.lean_utils import validate_logic_trees
+        errors = validate_logic_trees(container)
+        if errors:
+            print(f"⚠️ Validation errors detected: {errors}")
+
     except Exception as e:
         print(f"❌ Failed to load container: {e}")
         sys.exit(1)
