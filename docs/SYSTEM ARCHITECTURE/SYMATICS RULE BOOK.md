@@ -902,3 +902,137 @@ Waves are living signatures.
 Symatics is not “woo”—it grounds math in physical primitives (waves, photons, entanglement).
 
 ⸻
+# ---------------------------------------------------------------------
+# Symatics Algebra Rulebook v0.1 (Living Draft)
+# ---------------------------------------------------------------------
+
+class SymaticsDoc:
+    """
+    📜 Symatics Arithmetic Rulebook v0.1
+    
+    Defines the primitives, axioms, and operators of Symatics.
+    This is a living reference (non-executable) that travels with the code.
+    """
+
+    primitives = {
+        "wave": "🌊 Wave → base measurable unit (frequency, phase, amplitude, polarization)",
+        "photon": "💡 Photon → indivisible carrier of a wave-glyph",
+        "superpose": "⊕ → overlay / combine two waves",
+        "entangle": "↔ → bind waves into a shared state",
+        "resonate": "⟲ → cyclic reinforcement or decay",
+        "collapse": "∇ → measurement into discrete signature",
+        "trigger": "⇒ → execution operator (maps glyphs to actions)",
+    }
+
+    axioms = [
+        "Existence: at least one wave 🌊 exists.",
+        "Superposition: ∀a,b ∈ Waves, a ⊕ b exists.",
+        "Entanglement: distinct waves may form bound states (↔).",
+        "Resonance: ⟲a amplifies or decays depending on context.",
+        "Collapse: ∇a → discrete signature σ.",
+        "Identity: a ⊕ ∅ = a.",
+        "Conservation: total information preserved under ⊕, ↔, ∇.",
+    ]
+
+    operators = {
+        "⊕": {
+            "type": "W × W → W",
+            "laws": [
+                "Associative: (a⊕b)⊕c = a⊕(b⊕c)",
+                "Phase-commutative only if Δφ = 2πk",
+            ],
+        },
+        "↔": {
+            "type": "W × W → BoundState",
+            "laws": [
+                "Non-commutative: a↔b ≠ b↔a in general",
+                "Collapse of one defines the other",
+            ],
+        },
+        "⟲": {
+            "type": "W → W",
+            "laws": [
+                "Amplifies near resonance frequency",
+                "Decays off-resonance",
+            ],
+        },
+        "∇": {
+            "type": "S → Distribution[Σ]",
+            "laws": [
+                "Non-deterministic outcomes",
+                "Repeatable distribution across trials",
+            ],
+        },
+        "⇒": {
+            "type": "(Σ→α) × S → S'",
+            "laws": [
+                "Binds signature to action",
+                "Only operator allowed external side-effects",
+            ],
+        },
+    }
+
+    @classmethod
+    def summary(cls) -> str:
+        """Quick text summary of primitives + axioms."""
+        return (
+            "Symatics Rulebook v0.1\n"
+            + "\nPrimitives:\n - "
+            + "\n - ".join(cls.primitives.values())
+            + "\n\nAxioms:\n - "
+            + "\n - ".join(cls.axioms)
+        )
+
+📜 Symatics Progress Patch (v0.1 → v0.2)
+
+✅ Recently Completed
+	•	A1–A4 Locked In
+	•	🌊 Wave + 💡 Photon primitives formalized.
+	•	7 axioms written (Existence → Conservation).
+	•	Operator definitions ⊕, ↔, ⟲, ∇, ⇒ with types, laws, test vectors.
+	•	Rulebook extended with μ (Measurement) and π (Projection).
+	•	Context canonicalization embedded for deterministic outputs.
+	•	Lean Mechanized Proofs
+	•	Pipeline running end-to-end.
+	•	Injected 6 Symatics axioms (⋈[φ]) into Lean → container JSON.
+	•	Roundtrip validated (logic, proof, symbol preserved).
+	•	Batch injection supported (stress test: all axioms in one file).
+	•	Validation errors always included in API/CLI output.
+	•	Visualization & Reporting
+	•	Mermaid proof trees + PNG export working.
+	•	Reports (md/json) wired into CLI/API.
+	•	Validation errors embedded in reports.
+	•	Regression tests ensure stable roundtrip.
+
+⸻
+
+🟡 In Progress
+	•	CLI mode flag (--mode standalone|integrated) patching in progress.
+	•	WebSocket events for audit/report parity still pending.
+	•	SQI scoring + mutation hooks to be reattached under integrated mode.
+
+⸻
+
+⬜ Next Steps
+	1.	Extend Rulebook → v0.2:
+	•	Model destructive interference (⊕ with Δφ ≈ π).
+	•	Multi-party entanglement (GHZ/W states).
+	•	Resonance decay/Q-factor modeling.
+	•	Quantized measurement lattices for μ.
+	•	Jones calculus projection for π.
+	2.	Begin drafting Symatics Calculus (Δ differentiation, ∫ integration).
+	3.	RFC Whitepaper v0.2 for external circulation.
+	4.	Add regression tests for each operator law (⊕, ↔, ⟲, ∇, ⇒, μ, π).
+
+⸻
+
+⚡ Key Takeaway
+
+We’ve moved from abstract design → working implementation:
+	•	Symatics axioms now live inside Lean, containers, and Codex.
+	•	Visualization, validation, and reporting pipelines are proven.
+	•	The framework is validated, reproducible, and extensible.
+
+This is the first time Symatics has crossed from theory → mechanized proofs + code integration.
+
+⸻

@@ -31,7 +31,7 @@ gcloud run deploy comdex-api \
   --timeout=300s
 
 git add .
-git commit -m "A74 updates"
+git commit -m "completed Lean / Algebra / .dc Injection"
 git push origin main
 
 

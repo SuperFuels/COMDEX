@@ -32,6 +32,21 @@ def _rotate_if_needed(path: str) -> None:
         print(f"[lean_audit] rotation check failed: {e}")
 
 
+def _normalize_validation_errors(errors: Any) -> List[Dict[str, str]]:
+    """
+    Ensure validation_errors are structured dicts with codes/messages.
+    Backward compatible: if list of strings, wrap them.
+    """
+    normalized: List[Dict[str, str]] = []
+    if isinstance(errors, list):
+        for e in errors:
+            if isinstance(e, dict):
+                normalized.append(e)
+            else:
+                normalized.append({"code": "E000", "message": str(e)})
+    return normalized
+
+
 # ──────────────────────────────
 # Audit writing
 # ──────────────────────────────
@@ -56,12 +71,11 @@ def build_inject_event(
     num_items: int,
     previews: Optional[List[str]] = None,
     extra: Optional[Dict[str, Any]] = None,
-    validation_errors: Optional[List[Dict[str, Any]]] = None,
+    validation_errors: Optional[List[Any]] = None,
     origin: str = "CLI",
 ) -> Dict[str, Any]:
-    """
-    Build an audit record for a container → Lean injection.
-    """
+    """Build an audit record for a container → Lean injection."""
+    v_errors = _normalize_validation_errors(validation_errors or [])
     evt: Dict[str, Any] = {
         "ts": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "kind": "lean.inject",
@@ -71,13 +85,40 @@ def build_inject_event(
         "count": num_items,
         "previews": previews or [],
         "origin": origin,
-        "validation_errors": validation_errors or [],
+        "validation_errors": v_errors,
+        "validation_errors_version": "v1",
         "hash": _sha1(f"{container_path}|{lean_path}|{num_items}|{previews}"),
     }
     if extra:
         evt.update(extra)
     return evt
 
+# ──────────────────────────────
+# Audit query helpers
+# ──────────────────────────────
+
+def get_last_audit_events(n: int = 10) -> list[dict]:
+    """
+    Return the last N audit events from the audit log file.
+    If the log file doesn't exist, return [].
+    """
+    path = AUDIT_LOG_PATH
+    events = []
+    try:
+        if path.exists():
+            with open(path, "r", encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    try:
+                        evt = json.loads(line)
+                        events.append(evt)
+                    except Exception:
+                        continue
+        return events[-n:]
+    except Exception:
+        return []
 
 def build_export_event(
     *,
@@ -88,12 +129,11 @@ def build_export_event(
     num_items: int,
     previews: Optional[List[str]] = None,
     extra: Optional[Dict[str, Any]] = None,
-    validation_errors: Optional[List[Dict[str, Any]]] = None,
+    validation_errors: Optional[List[Any]] = None,
     origin: str = "CLI",
 ) -> Dict[str, Any]:
-    """
-    Build an audit record for a Lean → container export.
-    """
+    """Build an audit record for a Lean → container export."""
+    v_errors = _normalize_validation_errors(validation_errors or [])
     evt: Dict[str, Any] = {
         "ts": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "kind": "lean.export",
@@ -104,7 +144,8 @@ def build_export_event(
         "count": num_items,
         "previews": previews or [],
         "origin": origin,
-        "validation_errors": validation_errors or [],
+        "validation_errors": v_errors,
+        "validation_errors_version": "v1",
         "hash": _sha1(f"{out_path}|{lean_path}|{num_items}|{previews}"),
     }
     if extra:
@@ -168,3 +209,10 @@ def list_audit_files(base: str = DEFAULT_PATH) -> List[str]:
     return sorted(
         [os.path.join(root, f) for f in os.listdir(root) if f.startswith(prefix)]
     )
+
+def get_last_audit_events(n: int = 20, path: str = DEFAULT_PATH) -> list[dict]:
+    """
+    Compatibility helper for API routes.
+    Returns the last N audit events (alias for tail_audit_events).
+    """
+    return tail_audit_events(n, path)

@@ -17,154 +17,134 @@ flowchart TB
 - Collect validation_errors (wired)
 - Expose via API & CLI (mostly)"]:::doing
 
-    A74["🟡 4. Audit & Reporting
-- Audit trail of injections (partial)
-- Export reports (md/json) (hooks present)"]:::doing
-  end
-
-  subgraph new["📌 New Subtasks: Standalone vs Integrated Modes"]
-    subgraph standalone["Standalone (Symatics-only)"]
-      S1["✅ Add --mode standalone (CLI) & mode=standalone (API)"]:::done
-      S2["✅ Parse .lean → container JSON"]:::done
-      S3["⬜ Generate previews / Mermaid / PNG"]:::todo
-      S4["🟡 Validate logic trees (attached)"]:::doing
-      S5["🟡 Save reports (no Codex/SQI/SCI/QFC)"]:::doing
-      S6["✅ Use shims in lean_utils (CodexLangRewriter, LocalRegistry)"]:::done
-    end
-
-    subgraph integrated["Integrated (Full Codex)"]
-      I1["✅ Default: --mode integrated"]:::done
-      I2["✅ Normalize logic via CodexLangRewriter (opt-in --normalize)"]:::done
-      I3["⬜ Run SQI scoring per theorem"]:::todo
-      I4["⬜ Attach mutation hooks"]:::todo
-      I5["⬜ Register container in symbolic_registry"]:::todo
-      I6["⬜ Emit WebSocket events for SCI"]:::todo
-      I7["⬜ Optional: QFC LightCone projection"]:::todo
-    end
-  end
-
-  subgraph impl["📌 Implementation Plan"]
-    P1["✅ lean_inject_cli.py
-- --mode/--normalize flags"]:::done
-    P2["✅ lean_inject.py (FastAPI)
-- mode + normalize in request/response
-- validation_errors always returned"]:::done
-    P3["✅ lean_utils.py
-- fallback shims"]:::done
-    P4["✅ lean_watch.py
-- propagate --mode/--normalize"]:::done
-  end
-
-  D1["Design: purity by default; --normalize opt-in"]:::done
-
-  classDef done fill:#16a34a,stroke:#0f5132,color:#fff
-  classDef doing fill:#f59e0b,stroke:#a16207,color:#1f2937
-  classDef todo fill:#e5e7eb,stroke:#6b7280,color:#111827
-  classDef sec fill:#eef2ff,stroke:#4338ca,color:#111827
-
-	subgraph design["⚡ Design Decision (Open Question)"]
-		D1["Standalone mode should:
-		A: Raw Lean logic only (pure)
-		B: Raw + CodexLang normalization (via shim)"]
-
-		D2["👉 Recommendation:
-		- Default Option A (purity)
-		- Allow --normalize flag for optional CodexLang normalization"]
-	end
-
-	why["✅ Why this is strong
-	- Lean runs in isolation (great for dev/testing)
-	- In production: full Codex/SQI/SCI integration
-	- Dual-mode: not dependent on Codex but not disconnected"]
-
-	next["⚡ Next Step
-	- Patch lean_inject.py with mode flag
-	- Add FastAPI validation + error reporting
-	- Then wire lean_watch.py to propagate mode"]
-
-	goal --> orig --> new --> impl --> design --> why --> next
-end
-
-
-%% Symatics Algebra Build Roadmap
-graph TD
-
-%% Symatics Algebra Build Roadmap (status)
-
-graph TD
+flowchart TD
+%% ✅ = done, 🟡 = in progress, ⬜ = todo
 
 flowchart TD
 
-flowchart TD
+  subgraph A7["📌 A7: Mechanized Proofs"]
+    A71["✅ Lean Parsing & Injection"]
+    A72["✅ Proof Visualization"]
+    A73["✅ Validation"]
+  end
 
-flowchart TD
+  subgraph Hardening["🛡️ Stage A – Hardening Checklist"]
+    AH71["✅ A71 Core Laws"]
+    AH72["✅ A72 Operators + OPS stubs"]
+    AH73["✅ A73 Validation + errors"]
+    AH74["✅ A74 Audit & Reporting"]
 
-subgraph A["Symatics Algebra Development"]
-    A1["✅ A1: Define Core Primitives"]
-    A2["✅ A2: Formalize Symatics Axioms & Laws"]
-    A3["✅ A3: Operator Definitions (⊕, ↔, ⟲, μ, π) + ctx-aware dispatcher"]
-    A4["✅ A4: Algebra Rulebook v0.2 
-        ├─ Add chain rule law
-        ├─ Add substitution law
-        └─ Promote to LAW_REGISTRY"]
-    A5["✅ A5: Algebra Engine 
-        ├─ Parser + evaluator live
-        ├─ Wire SQI scoring
-        ├─ Wire mutation engine
-        └─ Add more simplification laws"]
-    A6["✅ A6: Extend → Symatics Calculus 
-        ├─ Δ implemented
-        ├─ ∫ implemented
-        ├─ Chain rule working
-        └─ Substitution working"]
-    A7["⚪ A7: Mechanized Proofs (Coq / Lean / TLA+)"]
-    A8["⚪ A8: Simulation Framework (CodexCore replay integration)"]
-    A9["⚪ A9: Benchmark vs Classical Algebra"]
-    A10["⚪ A10: Publish RFC Whitepaper"]
+    AH1["⬜ AH1 Structured validation errors"]
+    AH2["⬜ AH2 Audit log rotation"]
+    AH3["⬜ AH3 Regression tests (laws/operators)"]
+    AH4["⬜ AH4 WebSocket audit/report events"]
+    AH5["⬜ AH5 Developer README"]
+  end
 
-    A1 --> A2 --> A3 --> A4 --> A5 --> A6 --> A7 --> A8 --> A9 --> A10
+  subgraph Standalone["📌 New Subtasks – Standalone"]
+    S1["✅ S1 --mode standalone (CLI/API)"]
+    S2["✅ S2 Parse .lean → container JSON"]
+  end
+
+  subgraph StageS["Stage S – Previews/Validation/Reports"]
+    S31["✅ S3.1 mermaidify()"]
+    S32["✅ S3.2 CLI/API flag --preview"]
+    S33["✅ S3.3 PNG export"]
+
+    S41["✅ S4.1 Extend validate_logic_trees()"]
+    S42["✅ S4.2 Hook into audit/report"]
+    S43["✅ S4.3 Regression tests for validation"]
+
+    S51["✅ S5.1 render_report()"]
+    S52["🟡 S5.2 CLI/API report flag"]
+    S53["✅ S5.3 Reports embed errors+counts"]
+    S54["✅ S5.4 Report output tests"]
+
+    S6["✅ S6 Shims in lean_utils"]
+  end
+
+  subgraph Integrated["Integrated (Full Codex)"]
+    I1["✅ I1 Default integrated mode"]
+    I2["✅ I2 Normalize via CodexLangRewriter"]
+    I3["⬜ I3 Run SQI scoring"]
+    I4["⬜ I4 Mutation hooks"]
+    I5["⬜ I5 Register container in symbolic_registry"]
+    I6["⬜ I6 WebSocket SCI events"]
+    I7["⬜ I7 QFC LightCone projection"]
+  end
+
+  subgraph Impl["📌 Implementation Plan"]
+    P1["✅ P1 lean_inject_cli.py"]
+    P2["✅ P2 lean_inject.py"]
+    P3["✅ P3 lean_utils.py"]
+    P4["✅ P4 lean_watch.py"]
+  end
+
+  subgraph Design["⚡ Design Decision"]
+    D1["✅ Purity default, normalize opt-in"]
+  end
+
+  subgraph Symatics["🌱 Symatics Algebra Development"]
+    SA1["✅ A1 Define Core Primitives"]
+    SA2["✅ A2 Formalize Axioms & Laws"]
+    SA3["✅ A3 Operator Definitions"]
+    SA4["✅ A4 Rulebook v0.2"]
+    SA5["✅ A5 Algebra Engine"]
+    SA6["✅ A6 Extend → Symatics Calculus"]
+    SA7["⚪ A7 Mechanized Proofs"]
+    SA8["⬜ A8 Simulation Framework"]
+    SA9["⬜ A9 Benchmark vs Classical Algebra"]
+    SA10["⬜ A10 Publish RFC Whitepaper"]
+  end
+
+  subgraph Integration["🔌 Integration Layers"]
+    B1["✅ B1 CodexCore binding"]
+    B2["✅ B2 Photon capsules"]
+    B3["⬜ B3 GlyphNet encoding"]
+    B4["⬜ B4 SQI quantum execution"]
+    B5["⬜ B5 SCI IDE panel"]
+  end
+
+  subgraph LightCone["🌌 LightCone & QFC Integration"]
+    C1["✅ C1 Pipe CodexLang → GlyphCell.logic"]
+    C2["✅ C2 LightCone forward/reverse tracer"]
+    C3["✅ C3 Reflexive symbol trace → QFC"]
+    C4["⬜ C4 Collapse trace hooks from GHX"]
+    C5["⬜ C5 Step-through replay + lineage viewer"]
+    C6["⬜ C6 QFC quantum laws"]
+  end
+
+classDef done fill:#16a34a,stroke:#0f5132,color:#fff
+classDef doing fill:#f59e0b,stroke:#a16207,color:#000
+classDef todo fill:#e5e7eb,stroke:#6b7280,color:#111827
+
+class A71,A72,A73,AH71,AH72,AH73,AH74,S1,S2,S31,S32,S33,S41,S42,S43,S51,S53,S54,S6,I1,I2,P1,P2,P3,P4,D1,SA1,SA2,SA3,SA4,SA5,SA6,B1,B2,C1,C2,C3 done
+class S52 doing
+class AH1,AH2,AH3,AH4,AH5,I3,I4,I5,I6,I7,SA7,SA8,SA9,SA10,B3,B4,B5,C4,C5,C6 todo
 end
 
-subgraph B["Integration Layers"]
-    B1["✅ B1: CodexCore binding → execute_photon_capsule() routes Symatics vs Codex"]
-    B2["✅ B2: Photon capsules 
-        ├─ schema-valid
-        ├─ legacy migration (steps→glyphs)
-        └─ tests passing"]
-    B3["⚪ B3: GlyphNet encoding 
-        ├─ Map algebra ops → packet format
-        ├─ Add serializer/deserializer
-        └─ Roundtrip tests"]
-    B4["⚪ B4: SQI quantum execution 
-        ├─ Entanglement-aware scoring
-        ├─ Cross-agent SQI beams
-        └─ SCI overlay hooks"]
-    B5["⚪ B5: SCI IDE panel 
-        ├─ Symatics toggle
-        ├─ Algebra graph canvas
-        └─ Debug law overlay"]
-end
-
-subgraph C["LightCone & QFC Integration"]
-    C1["✅ C1: Pipe CodexLang into GlyphCell.logic (done)"]
-    C2["✅ C2: LightCone forward/reverse tracer (done)"]
-    C3["✅ C3: Reflexive symbol trace → QFC
-        ├─ Project traces into QFC beams
-        ├─ Add replay HUD in SCI
-        └─ Multi-agent alignment"]
-    C4["⚪ C4: Collapse trace hooks from GHX 
-        ├─ Bind LightCone collapse events
-        └─ Export to .dc.json"]
-    C5["⚪ C5: Step-through replay + lineage viewer 
-        ├─ Walk mutations
-        ├─ Visualize SQI overlays
-        └─ Timeline scrubber in SCI"]
-    C6["⚪ C6: QFC quantum laws 
-        ├─ Add duality & projection laws
-        └─ Sync LAW_REGISTRY with QFC ops"]
-end
-
-flowchart TB
+  %% BUILD TASK NOTES
+  note right of S3
+    📋 Build Tasks for S3 (Generate Previews)
+    1. Extend lean_report.py HTML renderer
+       • Replace current stub with real HTML rendering
+       • Embed Mermaid diagrams for proof trees / glyph trees
+       • Include validation_errors + audit metadata
+       • Inline <script> for Mermaid init
+    2. Add PNG export support
+       • Use mermaid-cli or kroki.io (remote) to render diagrams
+       • Provide both inline base64 + file save
+    3. Update API/CLI integration
+       • API: /lean/inject?report=html → full HTML report
+       • CLI: --report html → saves .html
+       • API: /lean/export?report=png → returns PNG
+    4. Test Coverage
+       • test_lean_report_html_stub (already ✅)
+       • test_lean_report_mermaid_render (later)
+       • round-trip PNG test → ensure file exists & non-empty
+    5. Docs / Examples
+       • README: show --report html + API usage
+  end
   subgraph Symatics["Symatics Upgrade Checklist (v0.2 Roadmap)"]
 
 flowchart TD
@@ -729,3 +709,80 @@ Inline TODOs remain in each module for local dev context — this is the master 
 	•	Add arbitrary complex vector rotation support.
 	•	Support chained subspace projections with cumulative attenuation.
 	•	Context-based enforcement of polarization basis sets.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+📋 Test Checklist for Stage S3–S5
+
+S3 – Previews (Mermaid/PNG)
+	•	CLI
+
+# Generate Mermaid file
+python -m backend.modules.lean.lean_inject_cli inject container.json file.lean \
+    --preview normalized --mermaid-out preview.mmd
+
+# Generate PNG dependency graph
+python -m backend.modules.lean.lean_inject_cli inject container.json file.lean \
+    --preview raw --png-out preview.png
+
+	•	API
+
+# Mermaid in API response
+curl -X POST "http://localhost:8000/lean/inject?preview=mermaid" \
+     -H "Content-Type: application/json" \
+     -d '{"lean_path":"file.lean","container_path":"container.json"}'
+
+# PNG export (file response)
+curl -X POST "http://localhost:8000/lean/inject?preview=png" \
+     -H "Content-Type: application/json" \
+     -d '{"lean_path":"file.lean","container_path":"container.json"}' \
+     --output preview.png
+
+S4 – Validation
+	•	CLI
+
+python -m backend.modules.lean.lean_inject_cli inject container.json file.lean \
+    --validate --fail-on-error
+
+	•	API
+
+curl -X POST "http://localhost:8000/lean/inject" \
+     -H "Content-Type: application/json" \
+     -d '{"lean_path":"file.lean","container_path":"container.json","validate":true,"fail_on_error":true}'
+
+S5 – Reports
+	•	CLI
+
+# Markdown report to stdout
+python -m backend.modules.lean.lean_inject_cli inject container.json file.lean --report md
+
+# JSON report saved to file
+python -m backend.modules.lean.lean_inject_cli inject container.json file.lean \
+    --report json --report-out report.json
+
+	•	API
+
+# Markdown
+curl -X POST "http://localhost:8000/lean/inject?report=md" \
+     -H "Content-Type: application/json" \
+     -d '{"lean_path":"file.lean","container_path":"container.json"}'
+
+# JSON
+curl -X POST "http://localhost:8000/lean/inject?report=json" \
+     -H "Content-Type: application/json" \
+     -d '{"lean_path":"file.lean","container_path":"container.json"}'
+

@@ -1,9 +1,9 @@
 # backend/modules/lean/lean_proofviz.py
 # ---------------------------------------------------------------------
 # Lean / container proof visualization utilities + back-compat shims.
-# - CLI helpers for ASCII / Mermaid / PNG
+# - CLI helpers for ASCII / Mermaid / PNG / DOT
 # - Exports ascii_print, write_mermaid, write_png used by lean_inject_cli
-# - Delegates all Mermaid/PNG graph logic to lean_proofviz_utils
+# - Delegates all graph logic to lean_proofviz_utils
 # ---------------------------------------------------------------------
 
 from __future__ import annotations
@@ -16,16 +16,14 @@ from typing import Any, Dict, List, Optional, TextIO
 from backend.modules.lean.lean_proofviz_utils import (
     mermaid_for_dependencies,
     png_for_dependencies,
+    dot_for_dependencies,
 )
 
 # ----------------------------
 # Core container parsing utils
 # ----------------------------
 def _logic_nodes(container: Dict[str, Any]) -> List[Dict[str, Any]]:
-    """
-    Collect theorem/logic entries from all known fields.
-    Returns a flattened list.
-    """
+    """Collect theorem/logic entries from all known fields."""
     nodes: List[Dict[str, Any]] = []
     for fld in (
         "symbolic_logic",
@@ -43,10 +41,7 @@ def _logic_nodes(container: Dict[str, Any]) -> List[Dict[str, Any]]:
 # Renderers
 # ----------------------------
 def ascii_tree_for_theorem(entry: Dict[str, Any]) -> str:
-    """
-    Render a single entry's glyph_tree as a lightweight ASCII block.
-    Recursively walks nested args.
-    """
+    """Render a single entry's glyph_tree as ASCII."""
     name = entry.get("name", "?")
     lines = [f"{name} [{entry.get('symbol','⟦ ? ⟧')}] : {entry.get('logic','?')}"]
 
@@ -59,10 +54,8 @@ def ascii_tree_for_theorem(entry: Dict[str, Any]) -> str:
         logic = node.get("logic", "?")
         op = node.get("operator", "")
         lines.append(f"{prefix}├─ {t}:{n}  {op}  {logic}")
-
-        args = node.get("args", [])
-        for i, a in enumerate(args):
-            is_last = i == len(args) - 1
+        for i, a in enumerate(node.get("args", [])):
+            is_last = i == len(node["args"]) - 1
             branch = "└─" if is_last else "├─"
             subprefix = prefix + ("   " if is_last else "│  ")
             if isinstance(a, dict):
@@ -70,32 +63,31 @@ def ascii_tree_for_theorem(entry: Dict[str, Any]) -> str:
             else:
                 lines.append(f"{subprefix}{branch} arg: {a}")
 
-    gt = entry.get("glyph_tree") or {}
-    walk(gt, "")
+    walk(entry.get("glyph_tree") or {}, "")
     return "\n".join(lines)
 
 # ----------------------------
 # Composite helpers
 # ----------------------------
-def attach_visualizations(container: dict, *, png_path: str | None = None) -> dict:
+def mermaidify(container: Dict[str, Any]) -> str:
     """
-    Generate and embed visualization artifacts into container['viz'].
+    Return a Mermaid diagram string for the container.
+    Currently wraps mermaid_for_dependencies, but extendable to AST graphs.
     """
-    viz = {}
-    viz["mermaid"] = mermaid_for_dependencies(container)
+    return mermaid_for_dependencies(container)
 
+
+def attach_visualizations(container: dict, *, png_path: str | None = None) -> dict:
+    """Generate and embed visualization artifacts into container['viz']."""
+    viz = {"mermaid": mermaidify(container)}
     if png_path:
         ok, msg = png_for_dependencies(container, png_path)
-        if ok:
-            viz["png_path"] = png_path
-        else:
-            viz["png_fallback"] = msg
-
+        viz["png_path" if ok else "png_fallback"] = png_path if ok else msg
     container["viz"] = viz
     return container
 
 # ----------------------------
-# Back-compat API (used elsewhere)
+# Back-compat API
 # ----------------------------
 def ascii_print(proof: Any, file: Optional[TextIO] = None) -> str:
     out_lines: List[str] = []
@@ -104,7 +96,7 @@ def ascii_print(proof: Any, file: Optional[TextIO] = None) -> str:
     elif isinstance(proof, dict):
         entries = _logic_nodes(proof)
         if not entries and "glyph_tree" in proof:
-            entries = [proof]  # treat as single entry
+            entries = [proof]
         for e in entries:
             out_lines.append("\n" + "=" * 60)
             out_lines.append(ascii_tree_for_theorem(e))
@@ -127,11 +119,10 @@ def write_mermaid(proof_or_container: Any, out_path: Optional[str] = None) -> st
     ):
         mermaid = proof_or_container
     elif isinstance(proof_or_container, dict):
-        mermaid = mermaid_for_dependencies(proof_or_container)
+        mermaid = mermaidify(proof_or_container)
     else:
         dumped = json.dumps(proof_or_container, default=str)[:8000]
         mermaid = "```mermaid\n%% Unable to infer structure\n%% " + dumped + "\n```"
-
     if out_path:
         with open(out_path, "w", encoding="utf-8") as f:
             f.write(mermaid)
@@ -143,19 +134,15 @@ def write_png(proof_or_container: Any, out_path: str) -> str:
         ok, msg = png_for_dependencies(proof_or_container, out_path)
         if ok:
             return out_path if out_path.endswith(".png") else out_path + ".png"
+        # fallback to .mmd
         alt_path = out_path.rsplit(".", 1)[0] + ".mmd"
-        mmd = mermaid_for_dependencies(proof_or_container)
         with open(alt_path, "w", encoding="utf-8") as f:
-            f.write(mmd)
+            f.write(mermaidify(proof_or_container))
         return alt_path
 
     alt_path = out_path.rsplit(".", 1)[0] + ".mmd"
     with open(alt_path, "w", encoding="utf-8") as f:
-        f.write(
-            "```mermaid\n%% Non-container input; PNG not generated. See JSON below.\n%% "
-            + json.dumps(proof_or_container, default=str)[:8000]
-            + "\n```"
-        )
+        f.write("```mermaid\n%% Non-container input\n```")
     return alt_path
 
 # ----------------------------
@@ -164,7 +151,6 @@ def write_png(proof_or_container: Any, out_path: str) -> str:
 def load_json(p: str) -> Dict[str, Any]:
     with open(p, "r", encoding="utf-8") as f:
         return json.load(f)
-
 
 def save_text(p: str, s: str) -> None:
     with open(p, "w", encoding="utf-8") as f:
@@ -176,10 +162,10 @@ def save_text(p: str, s: str) -> None:
 def main():
     ap = argparse.ArgumentParser(description="Lean proof viz tools")
     ap.add_argument("container", help="path to container json")
-    ap.add_argument("--ascii", action="store_true", help="print ASCII trees for each theorem")
+    ap.add_argument("--ascii", action="store_true", help="print ASCII trees")
     ap.add_argument("--mermaid-out", help="write Mermaid dependency graph to file.md")
-    ap.add_argument("--png-out", help="write dependency graph PNG (no graphviz needed)")
-    ap.add_argument("--dot-out", help="write dependency graph in DOT format")
+    ap.add_argument("--png-out", help="write dependency graph PNG")
+    ap.add_argument("--dot-out", help="write dependency graph DOT")
     args = ap.parse_args()
 
     c = load_json(args.container)
@@ -191,11 +177,10 @@ def main():
             print(ascii_tree_for_theorem(e))
 
     if args.mermaid_out:
-        save_text(args.mermaid_out, mermaid_for_dependencies(c))
+        save_text(args.mermaid_out, mermaidify(c))
         print(f"[🧭] wrote mermaid → {args.mermaid_out}")
 
-        if args.dot_out:
-        from backend.modules.lean.lean_proofviz_utils import dot_for_dependencies
+    if args.dot_out:
         ok, msg = dot_for_dependencies(c, args.dot_out)
         print(("[✅] " + msg) if ok else ("[⚠️] " + msg))
 
@@ -203,15 +188,16 @@ def main():
         ok, msg = png_for_dependencies(c, args.png_out)
         print(("[✅] " + msg) if ok else ("[⚠️] " + msg))
 
-
 if __name__ == "__main__":
     main()
 
 # Public API
 __all__ = [
     "ascii_tree_for_theorem",
+    "mermaidify",
     "mermaid_for_dependencies",
     "png_for_dependencies",
+    "dot_for_dependencies",
     "ascii_print",
     "write_mermaid",
     "write_png",

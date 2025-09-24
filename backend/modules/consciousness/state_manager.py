@@ -26,11 +26,6 @@ from datetime import datetime
 import asyncio  # ✅ Coroutine handling
 import threading  # ✅ Pause/resume lock
 
-from backend.modules.validation.validator import validate_logic_trees
-errors = validate_logic_trees(container)
-container["validation_errors"] = ...
-container["validation_errors_version"] = "v1"
-
 # ✅ Lean container support
 from backend.modules.lean.lean_utils import (
     is_lean_container,
@@ -292,7 +287,7 @@ class StateManager:
 
         # ✅ Run validation and attach results (A73 polish)
         try:
-            from backend.modules.validation.validator import validate_logic_trees
+            from backend.modules.lean.lean_utils import validate_logic_trees
             errors = validate_logic_trees(container)
             container["validation_errors"] = errors if isinstance(errors, list) else []
             container["validation_errors_version"] = "v1"

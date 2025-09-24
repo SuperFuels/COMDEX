@@ -91,15 +91,19 @@ def inject_theorems_into_container(
             # --- full CodexLang normalization ---
             logic_entry = normalize_logic_entry(decl, lean_path)
         else:
-            # --- raw/pure mode: keep Lean strings only ---
+            # --- raw/pure mode: prefer CodexLang logic ---
             glyph_symbol = decl.get("glyph_symbol", "⟦ Theorem ⟧")
             name = decl.get("name") or "unnamed"
+
+            codex = decl.get("codexlang", {}) or {}
+            logic_str = decl.get("logic") or codex.get("logic") or "True"
+
             logic_entry = {
                 "name": name,
                 "symbol": glyph_symbol,
-                "logic": decl.get("logic", "True"),
-                "logic_raw": decl.get("logic", "True"),
-                "codexlang": decl.get("codexlang", {}) or {},
+                "logic": logic_str,
+                "logic_raw": logic_str,
+                "codexlang": codex,
                 "glyph_tree": decl.get("glyph_tree", {}),
                 "source": lean_path,
                 "body": decl.get("body", ""),

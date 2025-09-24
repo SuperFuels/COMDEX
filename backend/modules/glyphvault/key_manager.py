@@ -78,6 +78,20 @@ class KeyManager:
         """
         return self._public_id
 
-
 # ✅ Singleton instance
 key_manager = KeyManager()
+
+def get_encryption_key(*args, **kwargs) -> bytes:
+    """
+    Compatibility shim for StateManager and other legacy callers.
+    Ignores optional kwargs like `default_fallback`.
+    Returns the active encryption key from the singleton KeyManager.
+    """
+    return key_manager.key
+
+
+def get_vault_public_id() -> str:
+    """
+    Compatibility shim to expose the Vault public identity.
+    """
+    return key_manager.public_id

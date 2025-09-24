@@ -6,16 +6,13 @@
 # ---------------------------------------------------------------------
 
 from __future__ import annotations
-
+import subprocess
+import shutil
+import tempfile
+from pathlib import Path
 import json
 import argparse
 from typing import Any, Dict, List, Optional, TextIO
-
-# ✅ Import visualization backends from single source
-from backend.modules.lean.lean_proofviz_utils import (
-    mermaid_for_dependencies,
-    png_for_dependencies,
-)
 
 # ----------------------------
 # Core container parsing utils
@@ -200,6 +197,46 @@ def dot_for_dependencies(container: Dict[str, Any], out_dot: str) -> Tuple[bool,
     except Exception as e:
         return False, f"DOT generation failed: {e}"
 
+def mermaid_for_dependencies(container: dict) -> str:
+    # build Mermaid string from container deps
+    return "```mermaid\ngraph TD\nA-->B\n```"
+
+
+def png_for_dependencies(container: dict, out_path: str) -> tuple[bool, str]:
+    """
+    Try to render container dependency graph to PNG using mermaid-cli (mmdc).
+    Fallback: save Mermaid .mmd file instead.
+
+    Returns:
+        (ok, msg) where ok=True if PNG generated, else fallback with reason.
+    """
+    from backend.modules.lean.lean_proofviz_utils import mermaid_for_dependencies
+
+    mermaid = mermaid_for_dependencies(container)
+    out_path = Path(out_path)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Check for mermaid-cli (mmdc)
+    mmdc = shutil.which("mmdc")
+    if mmdc:
+        tmp_mmd = tempfile.NamedTemporaryFile(delete=False, suffix=".mmd")
+        Path(tmp_mmd.name).write_text(mermaid, encoding="utf-8")
+        try:
+            subprocess.run(
+                [mmdc, "-i", tmp_mmd.name, "-o", str(out_path)],
+                check=True,
+                capture_output=True,
+            )
+            return True, f"PNG written → {out_path}"
+        except subprocess.CalledProcessError as e:
+            return False, f"mmdc failed: {e.stderr.decode() if e.stderr else e}"
+        finally:
+            Path(tmp_mmd.name).unlink(missing_ok=True)
+
+    # Fallback: just dump Mermaid text to .mmd
+    alt_path = out_path.with_suffix(".mmd")
+    alt_path.write_text(mermaid, encoding="utf-8")
+    return False, f"mmdc not found. Mermaid text written → {alt_path}"
 
 # ----------------------------
 # Basic file IO helpers

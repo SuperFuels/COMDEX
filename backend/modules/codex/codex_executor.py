@@ -619,14 +619,17 @@ class CodexExecutor:
                 }
                 for plugin in get_all_plugins():
                     if hasattr(plugin, "broadcast_qfc_update"):
-                        # handle async vs sync
                         import inspect, asyncio
                         if inspect.iscoroutinefunction(plugin.broadcast_qfc_update):
                             try:
                                 loop = asyncio.get_running_loop()
-                                loop.create_task(plugin.broadcast_qfc_update(field_state, observer_id="codex_executor"))
+                                loop.create_task(
+                                    plugin.broadcast_qfc_update(field_state, observer_id="codex_executor")
+                                )
                             except RuntimeError:
-                                asyncio.run(plugin.broadcast_qfc_update(field_state, observer_id="codex_executor"))
+                                asyncio.run(
+                                    plugin.broadcast_qfc_update(field_state, observer_id="codex_executor")
+                                )
                         else:
                             plugin.broadcast_qfc_update(field_state, observer_id="codex_executor")
             except Exception as plugin_broadcast_err:
@@ -637,7 +640,7 @@ class CodexExecutor:
         except Exception as exc:
             logger.error(f"[CodexExecutor] ❌ Execution failed: {exc}", exc_info=True)
             raise
-
+            
             # 🔮 Container-level Prediction (SQI Path Selection)
             try:
                 cid = context.get("container_id")
@@ -950,7 +953,9 @@ class CodexExecutor:
         return result
 
 
-    def run_glyphcell(self, cell: GlyphCell, context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    def run_glyphcell(
+        self, cell: GlyphCell, context: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
         """
         Execute a GlyphCell's CodexLang logic field.
         Supports optional QPU execution, SQI scoring, and QFC broadcasting.
@@ -967,7 +972,11 @@ class CodexExecutor:
 
         # 🛡 Validate glyphcell logic before execution
         try:
-            from backend.modules.lean.lean_utils import validate_logic_trees, normalize_validation_errors
+            from backend.modules.lean.lean_utils import (
+                validate_logic_trees,
+                normalize_validation_errors,
+            )
+
             container_stub = {"symbolic_logic": [logic]}
             raw_errors = validate_logic_trees(container_stub)
             errors = normalize_validation_errors(raw_errors)
@@ -981,12 +990,15 @@ class CodexExecutor:
                 }
         except Exception as val_err:
             logger.error(f"[Validation] GlyphCell {cell.id} validation failed: {val_err}")
+
         # -------------------
         # QPU path
         # -------------------
         if self.use_qpu and self.qpu:
             from backend.modules.symbolic_spreadsheet.scoring.sqi_scorer import score_sqi
-            from backend.modules.glyphos.glyph_tokenizer import tokenize_symbol_text_to_glyphs
+            from backend.modules.glyphos.glyph_tokenizer import (
+                tokenize_symbol_text_to_glyphs,
+            )
 
             tokens = tokenize_symbol_text_to_glyphs(logic)
             qpu_results = []
@@ -1007,11 +1019,14 @@ class CodexExecutor:
 
             # Broadcast results and metrics to QFC
             try:
-                from backend.modules.visualization.qfc_websocket_bridge import broadcast_qfc_update
+                from backend.modules.visualization.qfc_websocket_bridge import (
+                    broadcast_qfc_update,
+                )
+
                 container_id = context.get("container_id", "unknown_container")
                 payload = {
                     "nodes": [{"cell_id": cell.id, "sqi": cell.sqi_score}],
-                    "links": []
+                    "links": [],
                 }
 
                 if hasattr(self.qpu, "get_qpu_metrics"):
@@ -1025,22 +1040,11 @@ class CodexExecutor:
                 record_trace(cell.id, f"[QPU Broadcast Error]: {e}")  # non-fatal
 
             result = {"result": qpu_results, "status": "success", "qpu": True}
+
         else:
             # -------------------
             # Legacy path
             # -------------------
-            result = self.execute_codexlang(logic, context=context)
-
-        # Store results back into cell
-        cell.result = result.get("result")
-        cell.validated = result.get("status") == "success"
-
-        return result
-
-        # -------------------
-        # Legacy path
-        # -------------------
-        else:
             result = self.execute_codexlang(logic, context=context)
 
         # Store results back into cell
@@ -1169,13 +1173,11 @@ def execute_codexlang(
 
         # Treat each token as a pseudo-cell for QPU execution
         for token in tokens:
-            # Create a temporary GlyphCell wrapper for hooks (optional)
             pseudo_cell = GlyphCell(
                 id=f"qpu_temp_{token['value']}",
                 logic=token["value"],
                 position=context.get("coord", [0, 0])
             )
-            # Inject context reference to pseudo_cell
             context["cell"] = pseudo_cell
 
             try:
@@ -1191,14 +1193,18 @@ def execute_codexlang(
         metrics = self.qpu.dump_metrics()
         record_trace("codexlang_bulk_qpu", f"[QPU Bulk Metrics] {metrics}")
 
-        result = {"result": qpu_results, "status": "success", "qpu": True, "metrics": metrics}
+        result = {
+            "result": qpu_results,
+            "status": "success",
+            "qpu": True,
+            "metrics": metrics,
+        }
 
     # -------------------
     # Legacy path
     # -------------------
     else:
         try:
-            # Compile CodexLang string into instruction tree
             instruction_tree = run_codexlang_string(codex_string)
             if not instruction_tree or not isinstance(instruction_tree, dict):
                 raise ValueError("Failed to compile CodexLang string into a valid instruction tree.")

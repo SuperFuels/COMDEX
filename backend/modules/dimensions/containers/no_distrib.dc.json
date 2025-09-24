@@ -1,0 +1,88 @@
+{
+  "id": "no_distrib",
+  "type": "dc",
+  "glyphs": [
+    "⟦ Axiom ⟧ | no_distrib : ¬(((A ⋈[φ] B) ∧ C) ↔ ((A ∧ C) ⋈[φ] (B ∧ C))) → Prove ⟧"
+  ],
+  "symbolic_logic": [
+    {
+      "name": "no_distrib",
+      "symbol": "⟦ Axiom ⟧",
+      "logic": "¬(((A ⋈[φ] B) ∧ C) ↔ ((A ∧ C) ⋈[φ] (B ∧ C)))",
+      "logic_raw": "¬(((A ⋈[φ] B) ∧ C) ↔ ((A ∧ C) ⋈[φ] (B ∧ C)))",
+      "codexlang": {
+        "symbol": "⟦ Axiom ⟧",
+        "name": "no_distrib",
+        "logic": "¬(((A ⋈[φ] B) ∧ C) ↔ ((A ∧ C) ⋈[φ] (B ∧ C)))",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "¬(((A ⋈[φ] B) ∧ C) ↔ ((A ∧ C) ⋈[φ] (B ∧ C)))"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ],
+        "normalized": "¬(((A ⋈[φ] B) ∧ C) ↔ ((A ∧ C) ⋈[φ] (B ∧ C)))"
+      },
+      "glyph_tree": {
+        "type": "LogicGlyph",
+        "name": "no_distrib",
+        "logic": "¬(((A ⋈[φ] B) ∧ C) ↔ ((A ∧ C) ⋈[φ] (B ∧ C)))",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "¬(((A ⋈[φ] B) ∧ C) ↔ ((A ∧ C) ⋈[φ] (B ∧ C)))"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ]
+      },
+      "source": "tmp/lean_uploads/no_distrib.lean",
+      "body": "",
+      "leanProof": "",
+      "symbolicProof": "¬(((A ⋈[φ] B) ∧ C) ↔ ((A ∧ C) ⋈[φ] (B ∧ C)))",
+      "proofExplanation": null,
+      "replay_tags": [
+        "📜 Lean Theorem",
+        "🧠 ⟦ Axiom ⟧"
+      ]
+    }
+  ],
+  "thought_tree": [
+    {
+      "name": "no_distrib",
+      "glyph": "⟦ Axiom ⟧",
+      "node": {
+        "type": "LogicGlyph",
+        "name": "no_distrib",
+        "logic": "¬(((A ⋈[φ] B) ∧ C) ↔ ((A ∧ C) ⋈[φ] (B ∧ C)))",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "¬(((A ⋈[φ] B) ∧ C) ↔ ((A ∧ C) ⋈[φ] (B ∧ C)))"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ]
+      }
+    }
+  ],
+  "validation_errors": [],
+  "validation_errors_version": "v1",
+  "codex_ast": [
+    "¬(((A ⋈[φ] B) ∧ C) ↔ ((A ∧ C) ⋈[φ] (B ∧ C)))"
+  ],
+  "sqi_scores": [
+    null
+  ],
+  "mutations": []
+}

@@ -74,7 +74,7 @@ def convert_lean_to_codexlang(path: str) -> Dict[str, Any]:
 
     declarations: List[Dict[str, Any]] = []
 
-    # Pattern now supports optional := body (for axiom/constant/defs without proof)
+    # Pattern now supports multi-line types (the `type` part may span lines).
     pattern = re.compile(
         r"""(?mx)
         ^\s*
@@ -82,9 +82,9 @@ def convert_lean_to_codexlang(path: str) -> Dict[str, Any]:
         \s+([A-Za-z_][\w']*)                        # name
         (?:\s*\((.*?)\))?                           # optional params
         \s*:\s*
-        (.*?)                                       # type
+        ([^:=\n]+(?:\n\s+[^:=\n]+)*)                # type (may span multiple lines)
         (?:\s*:=\s*(.*?)(?=                         # optional body
-             ^\s*(?:theorem|lemma|example|def|axiom|constant)\b
+            ^\s*(?:theorem|lemma|example|def|axiom|constant)\b
             | \Z
         ))?
         """,
@@ -95,16 +95,20 @@ def convert_lean_to_codexlang(path: str) -> Dict[str, Any]:
 
     for kind, name, params, typ, body in matches:
         glyph_symbol = KIND_TO_GLYPH.get(kind, "⟦ Theorem ⟧")
+
+        typ_clean = " ".join(line.strip() for line in typ.splitlines()).strip()
+
         decl: Dict[str, Any] = {
             "kind": kind,
             "glyph_symbol": glyph_symbol,
             "name": name,
             "params": params.strip() if params else "",
-            "type": typ.strip(),
+            "type": typ_clean,
+            "logic": typ_clean,   # 👈 Add this so downstream has a direct field
             "body": (body or "").strip(),
         }
 
-        # Build CodexLang node
+        # Build CodexLang with the actual type string
         decl["codexlang"] = lean_decl_to_codexlang(decl)
 
         # Normalize (soft) for nice display
@@ -178,25 +182,29 @@ def detect_dependencies(body: str) -> List[str]:
 
 def lean_decl_to_codexlang(decl: Dict[str, str]) -> Dict[str, Any]:
     name = decl["name"]
-    typ = decl["type"]
+    typ = decl.get("type", "").strip()
     glyph_symbol = decl.get("glyph_symbol", "⟦ Theorem ⟧")
 
+    # ✅ Only fallback if empty
+    logic = typ if typ else "True"
+
+    # Normalize symbols just in case
     logic = (
-        typ.replace("∀", "∀")
-           .replace("∃", "∃")
-           .replace("→", "→")
-           .replace("↔", "↔")
-           .replace("∧", "∧")
-           .replace("∨", "∨")
-           .replace("¬", "¬")
-           .replace("⊤", "⊤")
-           .replace("⊥", "⊥")
+        logic.replace("∀", "∀")
+             .replace("∃", "∃")
+             .replace("→", "→")
+             .replace("↔", "↔")
+             .replace("∧", "∧")
+             .replace("∨", "∨")
+             .replace("¬", "¬")
+             .replace("⊤", "⊤")
+             .replace("⊥", "⊥")
     )
 
     return {
         "symbol": glyph_symbol,
         "name": name,
-        "logic": logic,
+        "logic": logic,   # ✅ preserve the actual type (axiom signature)
         "operator": "⊕",
         "args": [
             {"type": "CodexLang", "value": logic},

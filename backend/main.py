@@ -182,8 +182,6 @@ from backend.api import glyph_socket_api
 from backend.routes.ws import glyph_socket_ws
 from backend.routes.ws import ghx_ws
 from backend.routes import replay_api
-from backend.routes.lean_inject import router as lean_router
-from backend.routes import lean_inject_api 
 from backend.routes import sqi_drift
 from backend.routes import sqi_kg
 from backend.routes import ucs_api
@@ -205,6 +203,8 @@ from backend.api import symbol_tree
 from backend.api import qfc_api
 from backend.api import symbolic_tree_api
 from backend.routes.api_collapse_trace import router as collapse_trace_router
+from backend.routes import lean_inject_api
+
 
 # ===== Atomsheet / LightCone / QFC wiring =====
 from backend.routes.dev import glyphwave_test_router        # dev-only routes (mounted elsewhere in your file)  # noqa: F401
@@ -338,8 +338,6 @@ app.include_router(glyph_socket_api.router, prefix="/api")
 app.include_router(glyph_socket_ws.router)
 app.include_router(ghx_ws.router)
 app.include_router(replay_api.router)
-app.include_router(lean_router)
-app.include_router(lean_inject_api.router)
 app.include_router(sqi_drift.router)
 app.include_router(sqi_kg.router)
 app.include_router(ucs_api.router)
@@ -367,6 +365,7 @@ app.include_router(glyphwave_test_router.router)
 app.include_router(workspace_router)
 app.include_router(api_sheets.router)
 app.include_router(qfc_extras_router)
+app.include_router(lean_inject_api.router, prefix="/api")
 seed_builtin_patterns()
 
 if atomsheets_router:

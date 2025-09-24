@@ -20,6 +20,7 @@ from backend.modules.lean.lean_inject_utils import (
     dedupe_by_name,
     rebuild_previews,
 )
+from backend.modules.lean.lean_report import render_report
 from backend.modules.lean.lean_exporter import build_container_from_lean
 from backend.modules.lean.lean_utils import validate_logic_trees
 from backend.modules.lean.lean_audit import audit_event, build_inject_event
@@ -168,18 +169,30 @@ def _report_md(container: Dict[str, Any]) -> str:
 
 
 def _write_report(container: Dict[str, Any], kind: str, out: Optional[str]) -> None:
-    if kind not in {"md", "json"}:
-        raise ValueError("--report must be md or json")
-    if kind == "json":
-        content = json.dumps(_report_json(container), indent=2, ensure_ascii=False)
-    else:
-        content = _report_md(container)
+    """
+    Use unified lean_report renderer to emit reports in md/json/html.
+    """
+    try:
+        report = render_report(
+            container,
+            fmt=kind,
+            kind="lean.inject",
+            container_path=container.get("path") or "?",
+            container_id=container.get("id"),
+            lean_path=container.get("lean_path") or "?",
+            validation_errors=container.get("validation_errors", []),
+            origin="CLI",
+        )
+    except Exception as e:
+        print(f"[⚠️] Failed to render report: {e}")
+        return
+
     if out:
         with open(out, "w", encoding="utf-8") as f:
-            f.write(content)
+            f.write(report)
         print(f"[📝] Wrote report → {out}")
     else:
-        print(content)
+        print(report)
 
 
 def _emit_dot(container: Dict[str, Any], dot_path: str) -> None:
@@ -319,22 +332,35 @@ def cmd_inject(args: argparse.Namespace) -> int:
 
         # Preview mode
         if args.preview:
-            field, items = _collect_logic_entries(after)
-            after["previews"] = []
-            for it in items:
-                name = it.get("name", "unknown")
-                sym = it.get("symbol", "⟦ ? ⟧")
-                if args.preview == "raw":
-                    logic_str = (it.get("logic_raw")
-                                 or it.get("codexlang", {}).get("logic")
-                                 or it.get("logic") or "???")
-                else:
-                    logic_str = (it.get("logic")
-                                 or it.get("logic_raw")
-                                 or it.get("codexlang", {}).get("logic")
-                                 or "???")
-                label = "Define" if "Definition" in sym else "Prove"
-                after["previews"].append(f"{sym} | {name} : {logic_str} → {label} ⟧")
+            if args.preview in ("raw", "normalized"):
+                field, items = _collect_logic_entries(after)
+                after["previews"] = []
+                for it in items:
+                    name = it.get("name", "unknown")
+                    sym = it.get("symbol", "⟦ ? ⟧")
+                    if args.preview == "raw":
+                        logic_str = (it.get("logic_raw")
+                                     or it.get("codexlang", {}).get("logic")
+                                     or it.get("logic") or "???")
+                    else:  # normalized
+                        logic_str = (it.get("logic")
+                                     or it.get("logic_raw")
+                                     or it.get("codexlang", {}).get("logic")
+                                     or "???")
+                    label = "Define" if "Definition" in sym else "Prove"
+                    after["previews"].append(f"{sym} | {name} : {logic_str} → {label} ⟧")
+
+            elif args.preview == "mermaid":
+                mmd = mermaid_for_dependencies(after)
+                after["previews"] = [mmd]
+                print("\n[🧭 Mermaid Preview]\n")
+                print(mmd)
+
+            elif args.preview == "png":
+                out_path = args.container + ".preview.png"
+                ok, msg = png_for_dependencies(after, out_path)
+                after["previews"] = [out_path if ok else msg]
+                print(("[✅] PNG preview saved → " + out_path) if ok else ("[⚠️] " + msg))
 
         if args.auto_clean:
             _auto_clean(after)
@@ -538,7 +564,11 @@ def build_parser() -> argparse.ArgumentParser:
     pi.add_argument("--overwrite",  action="store_true", help="Replace existing entries with same name")
     pi.add_argument("--auto-clean", action="store_true", help="Trim duplicates/empties in glyphs/previews/deps")
     pi.add_argument("--dedupe",     action="store_true", help="De-duplicate entries by (name,symbol,logic_raw)")
-    pi.add_argument("--preview",    choices=["raw", "normalized"], help="Regenerate previews using raw/normalized logic")
+    pi.add_argument(
+        "--preview",
+        choices=["raw", "normalized", "mermaid", "png"],
+        help="Generate previews: raw/normalized logic strings, or Mermaid/PNG diagrams"
+    )
 
     # validation / exit behavior
     pi.add_argument("--validate",   action="store_true", help="Print validation errors to stdout (always attached in JSON)")
@@ -551,7 +581,8 @@ def build_parser() -> argparse.ArgumentParser:
                     help="Normalize via CodexLang (opt-in enrichment, default False)")
 
     # reporting
-    pi.add_argument("--report",     choices=["md", "json"], help="Emit a report (printed or saved with --report-out)")
+    pi.add_argument("--report", choices=["md", "json", "html"],
+                help="Emit a report (printed or saved with --report-out)")
     pi.add_argument("--report-out", help="Path to save the report (omit to print to stdout)")
 
     # graph
@@ -591,7 +622,8 @@ def build_parser() -> argparse.ArgumentParser:
                     help="Normalize via CodexLang (opt-in enrichment, default False)")
 
     # reporting / graph
-    pe.add_argument("--report",     choices=["md", "json"], help="Emit a report (printed or saved with --report-out)")
+    pe.add_argument("--report", choices=["md", "json", "html"],
+                help="Emit a report (printed or saved with --report-out)")
     pe.add_argument("--report-out", help="Path to save the report")
     pe.add_argument("--dot",        help="Write Graphviz DOT dependency graph to this path")
 

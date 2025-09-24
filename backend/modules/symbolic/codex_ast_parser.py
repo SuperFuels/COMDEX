@@ -1,34 +1,39 @@
+# File: backend/modules/lean/codexlang_to_ast.py
+
 import re
 from backend.modules.symbolic.codex_ast_types import CodexAST
+from backend.modules.codex.codexlang_parser import tokenize_codexlang, parse_expression
+
 
 def parse_codexlang_to_ast(expression: str) -> CodexAST:
     """
-    Converts a simple CodexLang expression to a real CodexAST structure.
-    Supports: ∀x. P(x) → Q(x)
+    Converts a CodexLang expression string into a CodexAST structure.
+
+    ✅ Supports all logical constructs:
+       - Quantifiers: ∀, ∃
+       - Connectives: ¬, →, ↔, ∧, ∨, ⊕, ↑, ↓
+       - Predicates / functions: P(x), likes(John, y)
+       - Zero-arity symbols like Human, A, B
+
+    Example:
+        ∀x. P(x) → Q(x)
+        (A ⊕ B) → (B ⊕ A)
+        (A ↑ B) → ¬(A ∧ B)
+
+    Returns:
+        CodexAST: structured representation of the logic expression
     """
-    if "∀" in expression and "→" in expression:
-        match = re.match(r"∀(\w+)\.\s*(\w+)\((\w+)\)\s*→\s*(\w+)\((\w+)\)", expression)
-        if match:
-            var, pred1, arg1, pred2, arg2 = match.groups()
+    tokens = tokenize_codexlang(expression)
+    if not tokens:
+        raise ValueError(f"Empty or invalid CodexLang: {expression}")
 
-            left = CodexAST(type="Predicate", value=pred1, children=[
-                CodexAST(type="Variable", value=arg1)
-            ])
+    tree = parse_expression(tokens)
+    return CodexAST(tree)
 
-            right = CodexAST(type="Predicate", value=pred2, children=[
-                CodexAST(type="Variable", value=arg2)
-            ])
 
-            implies = CodexAST(type="Implies", children=[left, right])
-            root = CodexAST(type="ForAll", value=var, children=[implies])
-
-            return root
-
-    raise ValueError(f"Unsupported or invalid CodexLang: {expression}")
-    
 def parse_codex_ast_from_json(ast_json: dict) -> CodexAST:
     """
-    Parses a Codex AST from a JSON object and returns a CodexAST instance.
-    This is used by the Codex mutation API endpoint.
+    Reconstructs a CodexAST from its JSON/dict form.
+    This is used by Codex mutation and transport APIs.
     """
     return CodexAST(**ast_json)

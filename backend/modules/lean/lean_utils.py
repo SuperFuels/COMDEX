@@ -5,6 +5,7 @@ from typing import Dict, Any, List, Union
 
 # --- LogicGlyph: use your real path (symbolic_engine/symbolic_kernels) ---
 from backend.modules.symbolic_engine.symbolic_kernels.logic_glyphs import LogicGlyph
+from backend.modules.codex.logic_tree import LogicGlyph
 
 # --- CodexLangRewriter: point to symbolic_engine version, fall back safely ---
 try:
@@ -129,30 +130,94 @@ def pretty_print_lean_summary(container: Dict[str, Any]) -> None:
 # ----------------------------------------------------
 # Validation + normalization
 # ----------------------------------------------------
-def validate_logic_trees(container: Dict[str, Any]) -> List[Dict[str, str]]:
-    errors = []
-    logic_entries = container.get("symbolic_logic", [])
+def _normalize_error(e: Any, name: str = "???") -> Dict[str, str]:
+    """
+    Normalize validation errors into a standard dict form.
+    Example: {"code": "E001", "message": "missing logic"}
+    """
+    if isinstance(e, dict):
+        return e
+    msg = str(e)
+    code = "E000"
+    if "missing" in msg:
+        code = "E001"
+    elif "syntax" in msg or "parse" in msg:
+        code = "E002"
+    elif "unsupported" in msg:
+        code = "E003"
+    return {"code": code, "message": f"Theorem `{name}`: {msg}"}
 
-    allowed_types = {
-        "ImplicationGlyph", "AndGlyph", "OrGlyph", "NotGlyph",
-        "TrueGlyph", "FalseGlyph", "ProvableGlyph", "EntailmentGlyph",
-        "SequentGlyph", "ProofStepGlyph", "SymbolGlyph"
-    }
+def validate_logic_trees(container: Dict[str, Any]) -> List[str]:
+    """
+    Validate container logic entries against core structural laws.
+    Returns a list of human-readable error messages.
+    """
 
-    for entry in logic_entries:
-        name = entry.get("name", "???")
-        node = entry.get("glyph_tree") or entry
-        try:
-            if isinstance(node, dict) and node.get("type") in allowed_types:
-                _ = LogicGlyph.from_dict(node)  # smoke test
-            else:
-                logic = entry.get("logic") or entry.get("codexlang", {}).get("logic")
-                if not isinstance(logic, str) or not logic.strip():
-                    raise ValueError("missing or non-string 'logic'")
-        except Exception as e:
-            errors.append(f"❌ Theorem `{name}`: {e}")
+    errors: List[str] = []
+    entries: List[Dict[str, Any]] = []
 
-    return normalize_validation_errors(errors)
+    # Collect logic entries from all known fields
+    for fld in (
+        "symbolic_logic",
+        "expanded_logic",
+        "hoberman_logic",
+        "exotic_logic",
+        "symmetric_logic",
+        "axioms",
+    ):
+        if fld in container and isinstance(container[fld], list):
+            entries.extend(container[fld])
+
+    # --- Law 1: Unique names ---
+    seen_names = {}
+    for e in entries:
+        n = e.get("name")
+        if not n:
+            errors.append("Missing theorem/axiom name")
+            continue
+        if n in seen_names:
+            errors.append(f"Duplicate entry name: {n}")
+        seen_names[n] = True
+
+    # --- Law 2: Unique (name, symbol, logic) ---
+    seen_sigs = set()
+    for e in entries:
+        sig = (e.get("name"), e.get("symbol"), e.get("logic_raw") or e.get("logic"))
+        if sig in seen_sigs:
+            errors.append(f"Duplicate signature: {sig}")
+        else:
+            seen_sigs.add(sig)
+
+    # --- Law 3: Dependencies must exist ---
+    names = {e.get("name") for e in entries if e.get("name")}
+    for e in entries:
+        n = e.get("name")
+        for dep in e.get("depends_on", []):
+            if dep not in names:
+                errors.append(f"Unresolved dependency: {n} depends on {dep}")
+
+    # --- Law 4: Logic well-formed ---
+    for e in entries:
+        logic = e.get("logic") or e.get("logic_raw")
+        if not isinstance(logic, str) or not logic.strip():
+            errors.append(f"{e.get('name')} has missing/empty logic")
+            continue
+        if not any(op in logic for op in ["→", "∧", "∨", "¬", "⊢", "↔"]):
+            errors.append(f"{e.get('name')} logic string looks malformed: {logic}")
+
+    # --- Law 5: Symbol validity ---
+    for e in entries:
+        sym = e.get("symbol")
+        if not sym or sym.strip() in {"⟦ ? ⟧", "?"}:
+            errors.append(f"{e.get('name')} has invalid or missing symbol")
+
+    # --- Law 6: Circular dependency (self-ref only for now) ---
+    for e in entries:
+        n = e.get("name")
+        if n and n in e.get("depends_on", []):
+            errors.append(f"Circular dependency: {n} depends on itself")
+
+    return errors
 
 # ----------------------------------------------------
 # Error Normalization
@@ -327,32 +392,32 @@ def _normalize_logic_entry(decl: Dict[str, Any], lean_path: str) -> Dict[str, An
     glyph_symbol = decl.get("glyph_symbol", "⟦ Theorem ⟧")
     name = decl.get("name") or "unnamed"
 
-    # --- codexlang dict (always safe) ---
     codexlang = decl.get("codexlang", {}) or {}
 
-    # legacy shim
     if "codexlang_string" in decl and "legacy" not in codexlang:
         codexlang["legacy"] = decl["codexlang_string"]
 
-    # logic_raw with full fallback chain
+    # --- Prefer CodexLang logic, then fallback to decl.logic ---
     logic_raw = (
         codexlang.get("logic")
         or decl.get("codexlang_string")
-        or decl.get("logic", "")
+        or decl.get("logic")
     )
+
     if not logic_raw or not isinstance(logic_raw, str):
+        # final fallback, but only if *nothing* else was parsed
         logic_raw = "True"
 
     # ensure codexlang dict has required keys
-    if not codexlang.get("logic") or not isinstance(codexlang["logic"], str):
+    if not isinstance(codexlang.get("logic"), str) or not codexlang["logic"].strip():
         codexlang["logic"] = logic_raw
-    if not codexlang.get("normalized") or not isinstance(codexlang["normalized"], str):
+    if not isinstance(codexlang.get("normalized"), str) or not codexlang["normalized"].strip():
         codexlang["normalized"] = logic_raw
     if "explanation" not in codexlang:
         codexlang["explanation"] = "Auto-converted from Lean source"
 
-    # soft-normalized version
-    logic_soft = CodexLangRewriter.simplify(logic_raw, mode="soft") or "True"
+    # soft-normalized version (keep structure, not overwrite with "True")
+    logic_soft = CodexLangRewriter.simplify(logic_raw, mode="soft") or logic_raw
 
     return {
         "name": name,

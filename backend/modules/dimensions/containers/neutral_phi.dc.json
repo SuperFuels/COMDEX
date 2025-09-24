@@ -1,0 +1,88 @@
+{
+  "id": "neutral_phi",
+  "type": "dc",
+  "glyphs": [
+    "⟦ Axiom ⟧ | neutral_phi : (A ⋈[φ] ⊥) ↔ A → Prove ⟧"
+  ],
+  "symbolic_logic": [
+    {
+      "name": "neutral_phi",
+      "symbol": "⟦ Axiom ⟧",
+      "logic": "(A ⋈[φ] ⊥) ↔ A",
+      "logic_raw": "(A ⋈[φ] ⊥) ↔ A",
+      "codexlang": {
+        "symbol": "⟦ Axiom ⟧",
+        "name": "neutral_phi",
+        "logic": "(A ⋈[φ] ⊥) ↔ A",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "(A ⋈[φ] ⊥) ↔ A"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ],
+        "normalized": "(A ⋈[φ] ⊥) ↔ A"
+      },
+      "glyph_tree": {
+        "type": "LogicGlyph",
+        "name": "neutral_phi",
+        "logic": "(A ⋈[φ] ⊥) ↔ A",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "(A ⋈[φ] ⊥) ↔ A"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ]
+      },
+      "source": "tmp/lean_uploads/neutral_phi.lean",
+      "body": "",
+      "leanProof": "",
+      "symbolicProof": "(A ⋈[φ] ⊥) ↔ A",
+      "proofExplanation": null,
+      "replay_tags": [
+        "📜 Lean Theorem",
+        "🧠 ⟦ Axiom ⟧"
+      ]
+    }
+  ],
+  "thought_tree": [
+    {
+      "name": "neutral_phi",
+      "glyph": "⟦ Axiom ⟧",
+      "node": {
+        "type": "LogicGlyph",
+        "name": "neutral_phi",
+        "logic": "(A ⋈[φ] ⊥) ↔ A",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "(A ⋈[φ] ⊥) ↔ A"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ]
+      }
+    }
+  ],
+  "validation_errors": [],
+  "validation_errors_version": "v1",
+  "codex_ast": [
+    "(A ⋈[φ] ⊥) ↔ A"
+  ],
+  "sqi_scores": [
+    null
+  ],
+  "mutations": []
+}

@@ -27,7 +27,12 @@ class MathLogicKernel:
         self.sqi_bridge = SQITessarisBridge()
         self.rewriter = CodexLangRewriter()
 
-    def prove_theorem(self, assumptions: List[str], conclusion: str, raw_input: Optional[str] = None) -> Dict[str, Any]:
+    def prove_theorem(
+        self,
+        assumptions: List[str],
+        conclusion: str,
+        raw_input: Optional[str] = None
+    ) -> Dict[str, Any]:
         """
         Attempts to prove a conclusion from a set of assumptions.
         If successful, injects into the KG with type ⟦theorem⟧.
@@ -52,7 +57,7 @@ class MathLogicKernel:
                 "glyphs": glyphs,
             }
 
-            if simplified == True:
+            if simplified is True:
                 result["status"] = "✅ Proven"
                 self._inject_fact(
                     conclusion,
@@ -78,7 +83,7 @@ class MathLogicKernel:
             combined = And(*expressions)
             simplified = simplify(combined)
 
-            if simplified == False:
+            if simplified is False:
                 self._inject_fact("⊥", statements, kind="⟦contradiction⟧")
                 return {
                     "status": "❌ Contradiction Detected",
@@ -93,17 +98,51 @@ class MathLogicKernel:
         except Exception as e:
             return {"status": "❌ Error", "error": str(e)}
 
-    def assert_axiom(self, expression: str, label: Optional[str] = None, raw_input: Optional[str] = None) -> Dict[str, str]:
+    def assert_axiom(
+        self,
+        expression: str,
+        label: Optional[str] = None,
+        raw_input: Optional[str] = None
+    ) -> Dict[str, str]:
         """
         Stores an axiom (assumed true) into the KG and container.
+        Always preserves the Lean expression in logic/logic_raw.
         """
         try:
-            parsed = parse_logical_operators(expression)
-            codexlang, ast, glyphs = self._codex_pipeline(raw_input or expression)
-            self._inject_fact(expression, [], kind="⟦axiom⟧", label=label, extra_meta={
-                "codexlang": codexlang, "ast": ast, "glyphs": glyphs
-            })
-            return {"status": "✅ Axiom Stored", "expression": str(parsed)}
+            # Preserve original Lean string
+            lean_expr = raw_input or expression
+
+            # Parsed is only for validation/debug
+            parsed = parse_logical_operators(lean_expr)
+
+            codexlang, ast, glyphs = self._codex_pipeline(lean_expr)
+
+            # 🚨 Debug print before injection
+            print("[DEBUG:assert_axiom] Preparing axiom injection")
+            print("   lean_expr:", lean_expr)
+            print("   parsed:", parsed)
+            print("   codexlang:", codexlang)
+
+            self._inject_fact(
+                lean_expr,        # ✅ inject Lean string, never parsed SymPy
+                [],
+                kind="⟦axiom⟧",
+                label=label,
+                extra_meta={
+                    "codexlang": codexlang,
+                    "ast": ast,
+                    "glyphs": glyphs
+                }
+            )
+
+            # 🚨 Debug print after injection
+            print("[DEBUG:assert_axiom] Axiom injected successfully")
+
+            return {
+                "status": "✅ Axiom Stored",
+                "expression": lean_expr,
+                "parsed": str(parsed)  # keep debug string but don’t overwrite logic
+            }
         except Exception as e:
             return {"status": "❌ Failed", "error": str(e)}
 
@@ -141,13 +180,30 @@ class MathLogicKernel:
             "type": kind,
             "sources": sources,
             "container_id": self.container_id,
-            "proof": proof,
             "label": label,
         }
+
         if extra_meta:
             metadata.update(extra_meta)
 
-        self.kg_writer.write_fact(expression, metadata)
+        entry = {
+            "name": label or expression,
+            "symbol": kind,
+            "logic": expression,        # ✅ Always keep the Lean expression here
+            "logic_raw": expression,    # ✅ Preserve raw expression for trace/debug
+            "body": "",
+            "symbolicProof": proof if proof is not None else "",
+        }
+
+        # Merge codexlang/ast/glyphs/etc
+        entry.update(metadata)
+
+        # 🚨 Debug: confirm before writing
+        import json
+        print(f"[DEBUG:_inject_fact] Writing fact into KG:\n{json.dumps(entry, indent=2, ensure_ascii=False)}")
+
+        # Write into KG
+        self.kg_writer.write_fact(expression, entry)
 
     def _log_sqi_event(self, conclusion: str, assumptions: List[str], implication: str, status: str):
         """

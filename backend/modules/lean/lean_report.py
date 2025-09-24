@@ -2,13 +2,13 @@
 """
 Lean Report Generator
 ─────────────────────────────────────────────
-Render container injection/export reports in Markdown or JSON.
+Render container injection/export reports in Markdown, JSON, or (stub) HTML.
 
 Goals:
 • Single-source: both CLI + API call here.
 • Always embed validation_errors + audit metadata.
 • Support Markdown (human-readable) + JSON (machine-readable).
-• Extensible: add HTML / rich later.
+• Extensible: HTML/Mermaid in Stage B.
 
 Usage:
     from backend.modules.lean.lean_report import render_report, save_report
@@ -68,13 +68,16 @@ def render_report(
 
     Args:
         container: dict with core data (glyphs/logic/trees/etc.).
-        fmt: "md" or "json".
+        fmt: "md" | "json" | "html" (html = stub).
         kind: "lean.inject" | "lean.export".
         validation_errors: structured errors, embedded in report.
     """
     glyphs = container.get("glyphs", [])
     num_items = len(glyphs) if isinstance(glyphs, list) else 1
     previews = _short_preview(glyphs)
+
+    # 🔹 Always pick up errors from arg or container
+    v_errors = validation_errors or container.get("validation_errors", [])
 
     # Build a synthetic audit event to include in the report
     if kind == "lean.inject":
@@ -84,7 +87,7 @@ def render_report(
             lean_path=lean_path or "?",
             num_items=num_items,
             previews=previews,
-            validation_errors=validation_errors,
+            validation_errors=v_errors,
             origin=origin,
         )
     else:
@@ -95,7 +98,7 @@ def render_report(
             lean_path=lean_path or "?",
             num_items=num_items,
             previews=previews,
-            validation_errors=validation_errors,
+            validation_errors=v_errors,
             origin=origin,
         )
 
@@ -107,6 +110,8 @@ def render_report(
                 "kind": kind,
                 "audit": audit_evt,
                 "container": container,
+                "validation_errors": v_errors,
+                "validation_errors_version": "v1",
             },
             ensure_ascii=False,
             indent=2,
@@ -127,12 +132,15 @@ def render_report(
             lines.append(f"- **{k}**: {v}")
         lines.append("")
         lines.append("### Previews")
-        for p in previews:
-            lines.append(f"- `{p}`")
+        if previews:
+            for p in previews:
+                lines.append(f"- `{p}`")
+        else:
+            lines.append("- (none)")
         lines.append("")
         lines.append("### Validation Errors")
-        if validation_errors:
-            for e in validation_errors:
+        if v_errors:
+            for e in v_errors:
                 code = e.get("code", "?")
                 msg = e.get("message", "")
                 lines.append(f"- `{code}` {msg}")
@@ -144,6 +152,14 @@ def render_report(
         lines.append(json.dumps(container, ensure_ascii=False, indent=2))
         lines.append("```")
         return "\n".join(lines)
+
+    # ── HTML Report (stub for Stage B) ───────
+    elif fmt == "html":
+        return (
+            "<html><body><h1>Lean Report (HTML)</h1>"
+            "<p>Stub only — full HTML/Mermaid/PNG support comes in Stage B.</p>"
+            "</body></html>"
+        )
 
     else:
         raise ValueError(f"Unsupported report format: {fmt}")

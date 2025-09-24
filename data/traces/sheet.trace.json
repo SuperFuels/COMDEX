@@ -1702,5 +1702,249 @@
   {
     "timestamp": "2025-09-23T10:59:22.618736Z",
     "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-23T22:36:06.358692Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-23T22:39:42.328389Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-23T22:41:21.024937Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-23T22:47:31.622666Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-23T22:50:30.398449Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-23T22:54:23.762002Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-23T22:56:57.604366Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-23T22:58:52.782658Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-23T23:01:58.110376Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-23T23:05:10.405979Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-23T23:06:33.012103Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-23T23:23:36.289074Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-23T23:24:36.495065Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-23T23:25:33.051639Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-23T23:26:44.325207Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-23T23:28:44.651313Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-23T23:29:23.252191Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-23T23:31:36.991025Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-23T23:32:01.029509Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-23T23:33:56.039902Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-23T23:34:45.767339Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-24T12:43:26.685631Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-24T12:48:39.666405Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-24T13:25:26.155247Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-24T13:39:51.686463Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-24T13:40:12.255839Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-24T13:44:04.733189Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-24T15:23:34.671498Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-24T15:27:52.606582Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-24T15:28:48.685149Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-24T15:31:33.537654Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-24T15:38:58.355453Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-24T15:55:49.864313Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-24T16:07:37.566726Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-24T16:10:59.836635Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-24T16:13:37.456981Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-24T16:16:30.379295Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-24T16:21:12.893874Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-24T16:21:53.302118Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-24T16:28:40.588016Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-24T16:32:06.820202Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-24T16:34:13.619239Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-24T16:34:36.188911Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-24T16:36:38.731315Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-24T16:56:22.930320Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-24T17:05:01.341076Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-24T17:06:42.146607Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-24T17:09:32.483221Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-24T17:10:34.855810Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-24T17:12:47.761679Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-24T17:14:22.796792Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-24T17:21:45.972751Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-24T18:27:04.493737Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-24T18:30:34.495375Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-24T18:34:20.691388Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-24T18:40:29.117075Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-24T18:41:54.494212Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-24T18:43:45.421180Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-24T18:46:03.852733Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-24T19:03:09.253129Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-09-24T19:11:03.360291Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
   }
 ]
