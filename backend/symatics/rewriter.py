@@ -167,15 +167,24 @@ def symatics_structural_equiv(e1: Expr, e2: Expr) -> bool:
 def symatics_equiv(e1: Expr, e2: Expr) -> bool:
     """
     Truth-style equivalence:
-      • Normalize both sides
-      • Interf(⋈) forms are equivalent only if φ ≡ 0 or π
-      • Otherwise require strict structural equality
+      • If raw trees equal → True.
+      • Else, normalize both.
+          - If equal and φ is 0 or π → True (commutativity allowed).
+          - If equal but φ ≠ {0,π} → False (don’t allow commutativity).
+      • Else False.
     """
+    if e1 == e2:
+        return True
+
     n1, n2 = normalize(e1), normalize(e2)
     if n1 == n2:
+        # If these are Interf nodes, only accept commutativity under φ=0 or π
         if isinstance(n1, Interf):
-            return is_zero_phase(n1.phase) or is_pi_phase(n1.phase)
+            if is_zero_phase(n1.phase) or is_pi_phase(n1.phase):
+                return True
+            return False
         return True
+
     return False
 
 # -----------------

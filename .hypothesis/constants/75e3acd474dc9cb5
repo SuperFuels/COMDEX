@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/symatics/rewriter.py
+# hypothesis_version: 6.139.2
+
+[1e-06, 200, 'A', 'B', 'C', 'Expr']

@@ -44,6 +44,24 @@ The goal is to establish a reproducible, testable, and publishable foundation fo
 6. **Identity**: a ⊕ ∅ = a.  
 7. **Conservation**: ⊕, ↔, ∇ preserve total information.  
 
+
+---
+
+### Note on Phase-Composition Axioms  
+
+In addition to the seven foundational axioms, Symatics also includes two 
+canonical phase-composition axioms, implemented in Lean as **A7** and **A8**:
+
+- **A7 (fuse_phase_zero)**:  
+  \[(A ⋈[0] B) ↔ (A ⊕ B)\]  
+  Constructive interference: zero relative phase is equivalent to additive alignment.  
+
+- **A8 (fuse_phase_pi)**:  
+  \[(A ⋈[π] B) ↔ (A ⊖ B)\]  
+  Destructive interference: a π phase shift cancels equal amplitudes.  
+
+These axioms are exercised in both the rewriter normalization layer and 
+the injection pipeline.
 ---
 
 ## 4. Operators & Laws  
@@ -176,6 +194,15 @@ flowchart TD
 
     L1 -.same parser.-> L2
 
+---
+
+## 9.1 Related Documents  
+
+- 📐 [semantics.md](./semantics.md) — minimal semantic model sketch.  
+- 🔀 [separation.md](./separation.md) — comparison and separation note vs. Boolean logic. 
+
+
+
 10. References
 	•	Peano Arithmetic (1889)
 	•	Boolean Algebra (George Boole, 1854)
@@ -184,5 +211,4 @@ flowchart TD
 
 ⸻
 
-✅ End of RFC v0.1 Draft
 

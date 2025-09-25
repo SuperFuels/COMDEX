@@ -17,7 +17,8 @@ Usage:
 import json
 import time
 from typing import Any, Dict, List, Optional
-
+from backend.symatics import rewriter as R
+from backend.modules.lean.convert_lean_to_codexlang import lean_to_expr
 from backend.modules.lean.lean_audit import (
     build_inject_event,
     build_export_event,
@@ -31,6 +32,26 @@ from backend.modules.lean.lean_audit import (
 def _now_iso() -> str:
     return time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
 
+def _normalize_logic_entries(entries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Attach normalized logic via rewriter (non-destructive)."""
+    out = []
+    for e in entries:
+        logic_raw = e.get("logic_raw") or e.get("logic")
+        try:
+            expr = R.Atom("?")  # fallback
+            if isinstance(logic_raw, str):
+                # very lightweight parser
+                from backend.modules.lean.convert_lean_to_codexlang import lean_to_expr
+                expr = lean_to_expr(logic_raw)
+                norm = R.normalize(expr)
+                e["logic_normalized"] = str(norm)
+                e["glyph_tree"] = expr
+            else:
+                e["logic_normalized"] = logic_raw
+        except Exception:
+            e["logic_normalized"] = logic_raw
+        out.append(e)
+    return out
 
 def _short_preview(items: List[Any], max_items: int = 5) -> List[str]:
     """
@@ -72,6 +93,12 @@ def render_report(
         kind: "lean.inject" | "lean.export".
         validation_errors: structured errors, embedded in report.
     """
+    # 🔹 Normalize symbolic_logic with rewriter
+    if "symbolic_logic" in container:
+        container["symbolic_logic"] = _normalize_logic_entries(
+            container.get("symbolic_logic", [])
+        )
+
     glyphs = container.get("glyphs", [])
     num_items = len(glyphs) if isinstance(glyphs, list) else 1
     previews = _short_preview(glyphs)

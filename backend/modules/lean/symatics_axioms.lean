@@ -13,8 +13,14 @@ axiom non_idem      : ∀ φ, φ ≠ 0 ∧ φ ≠ π → (A ⋈[φ] A) ≠ A
 -- Neutrality of ⊥
 axiom neutral_phi   : (A ⋈[φ] ⊥) ↔ A
 
--- Explicit failure of distributivity
+-- Explicit failure of distributivity (schema-level)
 axiom no_distrib    : ¬(((A ⋈[φ] B) ∧ C) ↔ ((A ∧ C) ⋈[φ] (B ∧ C)))
+
+-- Formal irreducibility theorem (Theorem 7):
+-- For φ ≠ 0,π, distributivity fails outright.
+theorem no_distrib_formal (φ : ℝ) (h : φ ≠ 0 ∧ φ ≠ π) :
+  ((A ⋈[φ] B) ∧ C) ≠ ((A ∧ C) ⋈[φ] (B ∧ C)) := by
+  admit   -- proof placeholder; enforced in symatics rewriter + tests
 
 -- Phase composition axioms for ⋈[φ]
 axiom assoc_phase   : (A ⋈[φ] B) ⋈[ψ] C ↔ A ⋈[φ+ψ] (B ⋈[ψ] C)

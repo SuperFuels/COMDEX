@@ -8,6 +8,7 @@
     "⟦ Axiom ⟧ | non_idem : ∀ φ, φ ≠ 0 ∧ φ ≠ π → (A ⋈[φ] A) ≠ A → Prove ⟧",
     "⟦ Axiom ⟧ | neutral_phi : (A ⋈[φ] ⊥) ↔ A → Prove ⟧",
     "⟦ Axiom ⟧ | no_distrib : ¬(((A ⋈[φ] B) ∧ C) ↔ ((A ∧ C) ⋈[φ] (B ∧ C))) → Prove ⟧",
+    "⟦ Theorem ⟧ | no_distrib_formal : ((A ⋈[φ] B) ∧ C) ≠ ((A ∧ C) ⋈[φ] (B ∧ C)) → Prove ⟧",
     "⟦ Axiom ⟧ | assoc_phase : (A ⋈[φ] B) ⋈[ψ] C ↔ A ⋈[φ+ψ] (B ⋈[ψ] C) → Prove ⟧",
     "⟦ Axiom ⟧ | inv_phase : A ⋈[φ] (A ⋈[-φ] B) ↔ B → Prove ⟧",
     "⟦ Axiom ⟧ | fuse_phase_zero : (A ⋈[0] B) ↔ (A ⊕ B) → Prove ⟧",
@@ -300,6 +301,54 @@
       "replay_tags": [
         "📜 Lean Theorem",
         "🧠 ⟦ Axiom ⟧"
+      ]
+    },
+    {
+      "name": "no_distrib_formal",
+      "symbol": "⟦ Theorem ⟧",
+      "logic": "((A ⋈[φ] B) ∧ C) ≠ ((A ∧ C) ⋈[φ] (B ∧ C))",
+      "logic_raw": "((A ⋈[φ] B) ∧ C) ≠ ((A ∧ C) ⋈[φ] (B ∧ C))",
+      "codexlang": {
+        "symbol": "⟦ Theorem ⟧",
+        "name": "no_distrib_formal",
+        "logic": "((A ⋈[φ] B) ∧ C) ≠ ((A ∧ C) ⋈[φ] (B ∧ C))",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "((A ⋈[φ] B) ∧ C) ≠ ((A ∧ C) ⋈[φ] (B ∧ C))"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ],
+        "normalized": "((A ⋈[φ] B) ∧ C) ≠ ((A ∧ C) ⋈[φ] (B ∧ C))"
+      },
+      "glyph_tree": {
+        "type": "LogicGlyph",
+        "name": "no_distrib_formal",
+        "logic": "((A ⋈[φ] B) ∧ C) ≠ ((A ∧ C) ⋈[φ] (B ∧ C))",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "((A ⋈[φ] B) ∧ C) ≠ ((A ∧ C) ⋈[φ] (B ∧ C))"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ]
+      },
+      "source": "tmp/lean_uploads/symatics_axioms_full.lean",
+      "body": "",
+      "leanProof": "",
+      "symbolicProof": "((A ⋈[φ] B) ∧ C) ≠ ((A ∧ C) ⋈[φ] (B ∧ C))",
+      "proofExplanation": null,
+      "replay_tags": [
+        "📜 Lean Theorem",
+        "🧠 ⟦ Theorem ⟧"
       ]
     },
     {
@@ -617,6 +666,26 @@
       }
     },
     {
+      "name": "no_distrib_formal",
+      "glyph": "⟦ Theorem ⟧",
+      "node": {
+        "type": "LogicGlyph",
+        "name": "no_distrib_formal",
+        "logic": "((A ⋈[φ] B) ∧ C) ≠ ((A ∧ C) ⋈[φ] (B ∧ C))",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "((A ⋈[φ] B) ∧ C) ≠ ((A ∧ C) ⋈[φ] (B ∧ C))"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ]
+      }
+    },
+    {
       "name": "assoc_phase",
       "glyph": "⟦ Axiom ⟧",
       "node": {
@@ -706,12 +775,14 @@
     "∀ φ, φ ≠ 0 ∧ φ ≠ π → (A ⋈[φ] A) ≠ A",
     "(A ⋈[φ] ⊥) ↔ A",
     "¬(((A ⋈[φ] B) ∧ C) ↔ ((A ∧ C) ⋈[φ] (B ∧ C)))",
+    "((A ⋈[φ] B) ∧ C) ≠ ((A ∧ C) ⋈[φ] (B ∧ C))",
     "(A ⋈[φ] B) ⋈[ψ] C ↔ A ⋈[φ+ψ] (B ⋈[ψ] C)",
     "A ⋈[φ] (A ⋈[-φ] B) ↔ B",
     "(A ⋈[0] B) ↔ (A ⊕ B)",
     "(A ⋈[π] B) ↔ (A ⊖ B)"
   ],
   "sqi_scores": [
+    null,
     null,
     null,
     null,

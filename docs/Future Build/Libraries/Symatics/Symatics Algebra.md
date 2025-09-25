@@ -1,41 +1,78 @@
 %%{init: {'theme':'neutral'}}%%
 checklist
-    title Symatics ⋈[φ] — New Theorems Roadmap (Action Checklist)
+title Symatics ⋈[φ] — New Theorems Roadmap (Action Checklist)
 
 %%{init: {'theme': 'neutral'}}%%
 checklist
     title 🔰 Do now (today)
-    item ⬜ Add phase-composition axioms (A7, A8) → backend/modules/lean/symatics_axioms.lean
-    item ⬜ Parametric injection tests (8 axioms incl. A7/A8) → backend/tests/test_symatics_axioms_injection.py
+    item ✅ Add phase-composition axioms (A7, A8) → backend/modules/lean/symatics_axioms.lean
+    item ✅ Parametric injection tests (8 axioms incl. A7/A8) → backend/tests/test_symatics_axioms_injection.py
     item ✅ Derived theorem tests T1–T6 (⋈ rewriter proof layer) → backend/tests/test_symatics_theorems.py
-    item ⬜ Tiny ⋈ rewriter (normalize + symatics_equiv) → backend/modules/symatics/rewriter.py
+    item ✅ Tiny ⋈ rewriter (normalize + symatics_equiv) → backend/symatics/rewriter.py
 
 checklist
     title 🔁 Nice-to-have (this week)
-    item ⬜ Fuzz property tests (Hypothesis) → backend/tests/test_symatics_theorems_fuzz.py
+    item ✅ Fuzz property tests (Hypothesis) → backend/tests/test_symatics_theorems_fuzz.py
     item ⬜ Batch axiom injection stress test → backend/tests/test_symatics_axioms_batch.py
 
 checklist
     title 📐 Semantics & RFC support (paper-ready)
-    item ⬜ Minimal semantic model sketch → docs/rfc/semantics.md
-    item ⬜ Separation note vs Boolean logic → docs/rfc/separation.md
+    item ✅ Minimal semantic model sketch → docs/rfc/semantics.md
+    item ✅ Separation note vs Boolean logic (T7 irreducibility) → docs/rfc/separation.md
 
 checklist
     title 🧪 A9 Benchmark vs Classical
-    item ⬜ Benchmark harness → benchmarks/bench_symatics_vs_classic.py
+    item ✅ Benchmark harness → backend/modules/benchmark/bench_symatics_vs_classic.py
+    item ⬜ Extended scaling benchmarks (chains of 10–500 nodes)
 
 checklist
     title 🧷 Integration hooks
     item ⬜ Wire rewriter outputs to reports → backend/modules/lean/lean_report.py
+    item ⬜ Export theorem results snapshot → docs/rfc/theorems_results.md
 
 checklist
     title ✅ Definition of Done
     item ⬜ All 8 axioms inject and snapshot-match
-    item ⬜ Rewriter normalizes ⋈ expressions with phase arithmetic mod 2π
+    item ✅ Rewriter normalizes ⋈ expressions with phase arithmetic mod 2π
     item ✅ Theorems T1–T6 pass under symatics_equiv
-    item ⬜ Distributivity falsified for φ≠{0,π}, verified for φ∈{0,π}
-    item ⬜ RFC updated with semantics + separation note
-    item ⬜ Benchmark script lands with first timings
+    item ✅ Theorem T7 (irreducibility) holds for φ≠{0,π}
+    item ✅ RFC updated with semantics + separation note
+    item ⬜ Benchmark script lands with scaling timings
+
+flowchart TD
+    A[Symatics Build Roadmap] --> B[1. Formal Semantics]
+    A --> C[2. Calculus of Results]
+    A --> D[3. Comparison with Quantum Logic]
+    A --> E[4. Applications]
+
+    %% Semantics Subtasks
+    B --> B1["Define truth-values (Boolean, amplitude, Hilbert space)"]
+    B --> B2["Specify ⋈[φ] valuation: Val(A ⋈[φ] B) = Val(A) + e^{iφ} Val(B)"]
+    B --> B3["Normalize semantics (phase equivalence, mod 2π)"]
+
+    %% Calculus Subtasks
+    C --> C1["Test all Boolean laws under ⋈[φ] (comm, assoc, distrib, absorption, duality)"]
+    C --> C2["Classify each law: always / φ=0,π / never"]
+    C --> C3["Prove meta-theorems: e.g. 'No finite Boolean fragment generates ⋈'"]
+    C --> C4["Extend theorem corpus: T8–T12"]
+
+    %% Comparison Subtasks
+    D --> D1["Review quantum logic (Birkhoff–von Neumann lattice)"]
+    D --> D2["Show how distributivity fails differently (phase vs. lattice)"]
+    D --> D3["Prove Symatics laws (A1–A8) absent in quantum logic"]
+    D --> D4["Write comparative analysis section"]
+
+    %% Applications Subtasks
+    E --> E1["Model quantum interference (double-slit, 3-slit) with ⋈[φ]"]
+    E --> E2["Explore AI reasoning use-case with phase-logic inference"]
+    E --> E3["Signal processing: symbolic interference of waves"]
+    E --> E4["Draft worked example paper/demo"]
+
+    %% Significance
+    A --> F[Publish 'Research Note' RFC]
+    F --> F1["Summarize T7 irreducibility"]
+    F --> F2["Position Symatics as beyond-Boolean logic"]
+
 
 %%{init: {'theme': 'neutral'}}%%
 checklist
