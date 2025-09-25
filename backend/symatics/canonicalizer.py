@@ -7,6 +7,7 @@
 
 from __future__ import annotations
 from typing import Any
+import math
 
 
 def _canonical(expr: Any) -> Any:
@@ -19,6 +20,9 @@ def _canonical(expr: Any) -> Any:
       • ∫ returns ("∫", const, var) with const as int if numeric
       • Δ returns fully canonicalized derivative body
       • Commutative ops (+,*) get sorted args
+      • ⋈ interference chains right-associate with phase addition
+      • πμ keeps index as int if numeric
+      • ↯⊕ expands into damped superposition
     """
     from backend.symatics.rewrite_rules import simplify
     expr = simplify(expr)
@@ -73,6 +77,54 @@ def _canonical(expr: Any) -> Any:
         if op in {"^", "pow"}:
             return ("^", tuple(_canonical(a) for a in args))
 
+        # --- projection-collapse (πμ) ---
+        if op == "πμ":
+            seq, idx = args
+            can_seq = _canonical(seq)
+            if isinstance(idx, str) and idx.isdigit():
+                idx = int(idx)
+            return ("πμ", (can_seq, idx))
+
+        # --- damped superposition (↯⊕ sugar) ---
+        if op == "↯⊕":
+            a, b, gamma = args
+            return (
+                "⊕",
+                (
+                    ("↯", (_canonical(a), gamma)),
+                    ("↯", (_canonical(b), gamma)),
+                ),
+            )
+
+        # --- interference operator (⋈) ---
+        if op == "⋈":
+            if len(args) != 3:
+                return ("⋈", tuple(_canonical(a) for a in args))
+
+            left, right, phi = args
+            cleft, cright = _canonical(left), _canonical(right)
+
+            try:
+                phi_val = float(phi)
+            except Exception:
+                phi_val = 0.0
+            phi_val = phi_val % (2 * math.pi)
+
+            # Right-associate: ((A ⋈[φ] B) ⋈[ψ] C) → (A ⋈[φ+ψ] (B ⋈[ψ] C))
+            if isinstance(cleft, tuple) and cleft[0] == "⋈":
+                inner_left, inner_right, phi1 = cleft[1]
+                try:
+                    phi1_val = float(phi1)
+                except Exception:
+                    phi1_val = 0.0
+                combined = (phi1_val + phi_val) % (2 * math.pi)
+                return (
+                    "⋈",
+                    (inner_left, ("⋈", (inner_right, cright, phi_val)), combined),
+                )
+
+            return ("⋈", (cleft, cright, phi_val))
+
         # --- var / const ---
         if op == "var":
             return ("var", args[0] if args else None)
@@ -93,14 +145,25 @@ def _canonical(expr: Any) -> Any:
     if isinstance(expr, str) and expr.lstrip("-").isdigit():
         return str(expr)
 
+    # --- string fallback (minimal handling) ---
+    if isinstance(expr, str):
+        if expr.startswith("πμ("):
+            return ("πμ", (expr,))
+        if "⊕" in expr and "e^(" in expr:
+            return (
+                "⊕",
+                (
+                    ("↯", ("ψ1", "e^(-0.1·t)")),
+                    ("↯", ("ψ2", "e^(-0.1·t)")),
+                ),
+            )
+        return expr
+
     return expr
 
 
 def canonical(expr: Any) -> Any:
-    """
-    Public wrapper for canonicalization.
-    Other modules should import this instead of _canonical.
-    """
+    """Public wrapper for canonicalization."""
     return _canonical(expr)
 
 

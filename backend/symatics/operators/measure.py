@@ -1,24 +1,27 @@
-# symatics/operators/measure.py
+# backend/symatics/operators/measure.py
 from __future__ import annotations
-from typing import Optional
 
+from typing import Optional
 from backend.symatics.signature import Signature
-from backend.symatics.operators import Operator
+from backend.symatics.operators.base import Operator
 from backend.symatics.wave import canonical_signature
 from backend.symatics.operators.superpose import _merge_meta
 
 
 def _measure(a: Signature, ctx: Optional["Context"] = None) -> Signature:
     """
-    μ Measurement:
-    - Collapse to canonical lattice
-    - Preserve metadata with 'measured' tag
+    μ Measurement / canonicalization (context-aware):
+    - Collapse to canonical lattice via ctx if provided
+    - Preserve prior metadata with a 'measured' tag
 
-    TODO v0.2+: Verify quantization of amplitude/frequency
-    TODO v0.2+: Assert amplitude != original amplitude after quantization
+    TODO v0.2+: Verify quantization of amplitude/frequency to lattice
+                instead of passthrough identity.
+    TODO v0.2+: When canonical_signature() introduces quantization lattices,
+                assert amplitude != original amplitude.
     """
     c = canonical_signature(a) if ctx is None else ctx.canonical_signature(a)
     meta = _merge_meta(a.meta, c.meta, {"measured": True})
+
     sig = Signature(
         amplitude=c.amplitude,
         frequency=c.frequency,

@@ -1,3 +1,92 @@
+%%{init: {'theme':'neutral'}}%%
+checklist
+    title Symatics ⋈[φ] — New Theorems Roadmap (Action Checklist)
+
+%%{init: {'theme': 'neutral'}}%%
+checklist
+    title 🔰 Do now (today)
+    item ⬜ Add phase-composition axioms (A7, A8) → backend/modules/lean/symatics_axioms.lean
+    item ⬜ Parametric injection tests (8 axioms incl. A7/A8) → backend/tests/test_symatics_axioms_injection.py
+    item ✅ Derived theorem tests T1–T6 (⋈ rewriter proof layer) → backend/tests/test_symatics_theorems.py
+    item ⬜ Tiny ⋈ rewriter (normalize + symatics_equiv) → backend/modules/symatics/rewriter.py
+
+checklist
+    title 🔁 Nice-to-have (this week)
+    item ⬜ Fuzz property tests (Hypothesis) → backend/tests/test_symatics_theorems_fuzz.py
+    item ⬜ Batch axiom injection stress test → backend/tests/test_symatics_axioms_batch.py
+
+checklist
+    title 📐 Semantics & RFC support (paper-ready)
+    item ⬜ Minimal semantic model sketch → docs/rfc/semantics.md
+    item ⬜ Separation note vs Boolean logic → docs/rfc/separation.md
+
+checklist
+    title 🧪 A9 Benchmark vs Classical
+    item ⬜ Benchmark harness → benchmarks/bench_symatics_vs_classic.py
+
+checklist
+    title 🧷 Integration hooks
+    item ⬜ Wire rewriter outputs to reports → backend/modules/lean/lean_report.py
+
+checklist
+    title ✅ Definition of Done
+    item ⬜ All 8 axioms inject and snapshot-match
+    item ⬜ Rewriter normalizes ⋈ expressions with phase arithmetic mod 2π
+    item ✅ Theorems T1–T6 pass under symatics_equiv
+    item ⬜ Distributivity falsified for φ≠{0,π}, verified for φ∈{0,π}
+    item ⬜ RFC updated with semantics + separation note
+    item ⬜ Benchmark script lands with first timings
+
+%%{init: {'theme': 'neutral'}}%%
+checklist
+    title 🔧 Core Runtime Improvements (Beyond MVP)
+    item ⬜ AST/Glyph Tree Expansion → fills glyph_tree with real CodexLang ASTs (today it’s {})
+    item ⬜ Proof Capture / Replay → store Lean proof bodies (needed for theorems, not axioms)
+    item ⬜ Validation Layer → link parser output into validation_errors pipeline
+
+checklist
+    title 📦 Developer Workflow
+    item ⬜ Roundtrip Export (codexlang_to_lean) → rehydrate Codex containers back into .lean
+    item ⬜ Prebuilt Prelude Test → pytest that ensures symatics_prelude.lean injects clean
+
+checklist
+    title 🧠 Higher-Level Features
+    item ⬜ SQI Scoring → compute real quality scores instead of all null
+    item ⬜ Mutation Toolkit (C3 plugin) → auto-generate variations & test them~
+
+⸻
+
+checklist
+    title 🔬 Build Task — Semantic Depth
+    item ⬜ Add Q-factor resonance modeling (sharpness, bandwidth) → backend/symatics/operators/resonance.py
+    item ⬜ Phase normalization improvements (robust mod 2π arithmetic) → backend/symatics/rewriter.py
+    item ⬜ Write Lean formal model (soundness sketch) → backend/modules/lean/symatics_model.lean
+    item ⬜ Property-based tests (Hypothesis) for phase normalization + invariants → backend/tests/test_symatics_properties.py
+
+checklist
+    title 📚 Build Task — Research/IP Framing
+    item ⬜ Literature scan: quantum logics, phase algebras, interference logics → docs/rfc/literature.md
+    item ⬜ Novelty/IP assessment note (possible patent or prior art summary) → docs/rfc/ip_assessment.md
+    item ⬜ RFC draft of semantics (math model + mapping to code) → docs/rfc/semantics.md
+    item ⬜ RFC draft on separation from Boolean logic → docs/rfc/separation.md
+
+checklist
+    title ⚙️ Build Task — Engineering Polish
+    item ⬜ Continuous Integration setup (pytest + lint + coverage) → .github/workflows/ci.yml
+    item ⬜ Package metadata + setup (pyproject.toml / setup.cfg) for pip install
+    item ⬜ Developer docs (API docs for operators + dispatcher) → docs/api/operators.md
+    item ⬜ Example/demo notebook (symbolic reasoning on sample expressions) → notebooks/demo_symatics.ipynb
+
+checklist
+    title 🛠️ Build Task — Modularize Operators
+    item ✅ Create utils.py for shared helpers (_merge_meta, _pol_blend, _complex_from_amp_phase, _amp_phase_from_complex, _freq_blend)
+    item ✅ Move _fuse into fuse.py → export fuse_op
+    item ✅ Add new damping.py → export damping_op
+    item ✅ Ensure existing ops (superpose, entangle, resonance, measure, project) each live in their own file
+    item ✅ Update __init__.py to import all operator modules and build OPS registry
+    item ✅ Strip operator bodies out of operators.py (leave registry + dispatcher only)
+    item ✅ Run full pytest suite to verify no regressions
+
 flowchart TB
   A7["⚪ A7: Mechanized Proofs (Coq / Lean / TLA+)"]:::sec
 
@@ -786,3 +875,138 @@ curl -X POST "http://localhost:8000/lean/inject?report=json" \
      -H "Content-Type: application/json" \
      -d '{"lean_path":"file.lean","container_path":"container.json"}'
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Symatics ⋈[φ] — New Theorems Roadmap (Action Checklist)
+
+🔰 Do now (today)
+	•	Add phase-composition axioms (A7, A8)
+	•	File: backend/modules/lean/symatics_axioms.lean (or keep in symatics_prelude.lean if you prefer one file)
+	•	Patch:
+
+  -- Phase addition and inverse (axioms for now)
+axiom assoc_phase : (A ⋈[φ] B) ⋈[ψ] C ↔ A ⋈[φ+ψ] (B ⋈[ψ] C)
+axiom inv_phase   : A ⋈[φ] (A ⋈[−φ] B) ↔ B
+
+	•	Acceptance: These two axioms inject cleanly (logic, logic_raw, symbolicProof all equal the exact strings).
+
+	•	Parametric injection tests (each axiom)
+	•	File: backend/tests/test_symatics_axioms_injection.py
+	•	Add a @pytest.mark.parametrize over the 8 axioms (your 6 + A7/A8) asserting exact matches for logic, logic_raw, symbolicProof, and symbol == "⟦ Axiom ⟧".
+	•	Run:
+
+
+PYTHONPATH=. pytest -q backend/tests/test_symatics_axioms_injection.py -vv
+
+	•	Acceptance: All pass, containers show the expected strings (like your XOR/NAND snapshots).
+
+	•	Tiny ⋈ rewriter (normal form)
+	•	File: backend/modules/symatics/rewriter.py
+	•	Scope: AST for Interf(φ, X, Y); rules:
+	•	(X ⋈[0] X) → X
+	•	(X ⋈[π] X) → ⊥
+	•	(X ⋈[φ] ⊥) → X
+	•	(X ⋈[φ] Y) → (Y ⋈[−φ] X) (only if measure reduces; e.g., right-associate)
+	•	((X ⋈[φ] Y) ⋈[ψ] Z) → (X ⋈[φ+ψ] (Y ⋈[ψ] Z))
+	•	(X ⋈[φ] (X ⋈[−φ] Y)) → Y
+	•	API:
+
+  def normalize(expr) -> str: ...
+def symatics_equiv(lhs, rhs) -> bool:
+    return normalize(lhs) == normalize(rhs)
+
+
+  	•	Acceptance: Unit tests show the rules fire and terminate; phases normalized mod 2π (e.g., (-π, π]).
+
+	•	Derived theorems (unit tests via rewriter)
+	•	File: backend/tests/test_symatics_theorems.py
+	•	Theorems to assert with symatics_equiv:
+	•	T1 (uniqueness of identity): (A ⋈[φ] A) ↔ A iff φ = 0.
+	•	T2 (uniqueness of annihilation): (A ⋈[φ] A) ↔ ⊥ iff φ = π.
+	•	T3 (cancellation): A ⋈[φ] (A ⋈[−φ] B) ↔ B.
+	•	T4 (assoc normal form): ((A ⋈[φ] B) ⋈[ψ] C) ↔ (A ⋈[φ+ψ] (B ⋈[ψ] C)).
+	•	T5 (no distributivity nontrivial): show it fails for a random non-trivial φ (e.g., φ = π/3), and holds at φ∈{0,π}.
+	•	T6 (no fixed points): X = A ⋈[φ] X has no solution for φ∉{0,π}.
+	•	Run:
+
+  PYTHONPATH=. pytest -q backend/tests/test_symatics_theorems.py -vv
+
+  	•	Acceptance: All theorems pass (positive proofs) and negative cases fail as intended.
+
+🔁 Nice-to-have (this week)
+	•	Fuzz property tests (Hypothesis)
+	•	File: backend/tests/test_symatics_theorems_fuzz.py
+	•	Ideas:
+	•	Sample phases as rationals of π (p/q·π) and assert:
+	•	symatics_equiv(A ⋈[φ] (A ⋈[−φ] B), B)
+	•	(A ⋈[φ] A) == A iff φ % 2π == 0
+	•	Distributivity only at {0, π}
+	•	Acceptance: >200 random cases per property, zero failures.
+	•	Batch axiom injection (stress)
+	•	File: backend/tests/test_symatics_axioms_batch.py
+	•	Inject all 8 axioms from one .lean into one container and assert all entries roundtrip exactly.
+	•	Acceptance: Test passes + container shows all axioms in symbolic_logic.
+
+📐 Semantics & RFC support (paper-ready)
+	•	Minimal semantic model (soundness sketch)
+	•	File: docs/rfc/semantics.md
+	•	Give a concrete model: interpret propositions as complex amplitudes; (X ⋈[φ] Y) as e^{iφ}·x + y with a collapse rule. Show A1–A8 hold.
+	•	Separation note vs Boolean logic
+	•	File: docs/rfc/separation.md
+	•	Claim: theorems T1–T2 depend on continuous φ; cannot be expressed/derived in Boolean algebra (finite connectives). Include a short argument.
+
+🧪 A9 Benchmark vs Classical (plan + harness)
+	•	Benchmark harness
+	•	File: benchmarks/bench_symatics_vs_classic.py
+	•	Cases:
+	•	Superposition chains (⊕) vs numeric vector ops.
+	•	Entanglement-like correlation reasoning vs classical tensor emulation.
+	•	Collapse sampling vs probabilistic post-process.
+	•	Metrics: runtime, allocations, and expressivity delta (info preserved vs thrown away).
+	•	Acceptance: Script prints side-by-side timings and a “richness score”.
+
+🧷 Integration hooks (opt-in)
+	•	Wire rewriter to reports
+	•	Show normalized forms & equality checks in lean_report.md/json/html (already scaffolded).
+	•	File: backend/modules/lean/lean_report.py
+
+⸻
+
+📎 Code/Path quick refs
+	•	Axioms: backend/modules/lean/symatics_axioms.lean
+	•	Rewriter: backend/modules/symatics/rewriter.py
+	•	Tests:
+	•	backend/tests/test_symatics_axioms_injection.py
+	•	backend/tests/test_symatics_theorems.py
+	•	backend/tests/test_symatics_theorems_fuzz.py (optional)
+	•	backend/tests/test_symatics_axioms_batch.py
+	•	Docs/RFC:
+	•	docs/rfc/symatics-rfc.md (already generated)
+	•	docs/rfc/semantics.md
+	•	docs/rfc/separation.md
+	•	Benchmarks:
+	•	benchmarks/bench_symatics_vs_classic.py
+
+⸻
+
+✅ Definition of Done (for “new theorems” milestone)
+	•	All 8 axioms inject and snapshot-match (logic, logic_raw, symbolicProof).
+	•	Rewriter normalizes ⋈ expressions with phase arithmetic mod 2π.
+	•	Theorems T1–T6 pass under symatics_equiv.
+	•	Distributivity falsified for φ≠{0,π}, verified for φ∈{0,π}.
+	•	RFC updated with semantics and separation note.
+	•	Benchmark script lands with first timings.

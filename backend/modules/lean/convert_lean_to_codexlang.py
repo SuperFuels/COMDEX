@@ -3,27 +3,15 @@ import re
 from typing import List, Dict, Any
 
 
+def _strip_comments(s: str) -> str:
+    """Remove Lean-style comments (starting with `--`) from a line or block."""
+    return re.sub(r"--.*$", "", s).strip()
+
+
 def convert_lean_to_codexlang(lean_path: str) -> Dict[str, List[Dict[str, Any]]]:
     """
     Converts a Lean file into CodexLang symbolic logic declarations.
-
-    Returns:
-        {
-            "parsed_declarations": [
-                {
-                    "name": "my_theorem",
-                    "logic": "(A ⊕ B) → (B ⊕ A)",
-                    "logic_raw": "...",
-                    "codexlang": {...},
-                    "glyph_symbol": "...",
-                    "glyph_string": "...",
-                    "glyph_tree": {},
-                    "body": "...",
-                    "line": 42
-                },
-                ...
-            ]
-        }
+    Returns { "parsed_declarations": [ {name, logic, ...}, ... ] }
     """
     if not os.path.isfile(lean_path):
         raise FileNotFoundError(f"Lean file not found: {lean_path}")
@@ -44,29 +32,26 @@ def convert_lean_to_codexlang(lean_path: str) -> Dict[str, List[Dict[str, Any]]]
             return
 
         raw_body = "".join(current_decl).strip()
-
-        # Fallback if no logic was parsed
-        logic_str = logic or "True"
-
-        codexlang_block = f"{logic_str}"
+        logic_str = _strip_comments(logic or "True")
 
         declarations.append({
             "name": name,
-            "logic": logic_str,
+            "logic": logic_str,        # ✅ comment-free logic
             "logic_raw": logic_str,
             "codexlang": {
                 "logic": logic_str,
                 "normalized": logic_str,
                 "explanation": "Auto-converted from Lean source"
             },
-            "codexlang_string": logic_str,  # legacy shim
+            "codexlang_string": logic_str,
             "glyph_symbol": glyph_symbol,
             "glyph_string": f"{glyph_symbol} {name}",
-            "glyph_tree": {},   # placeholder for AST-like expansion
+            "glyph_tree": {},
             "body": raw_body,
             "line": start_line,
         })
 
+        # reset state
         current_decl = []
         name = None
         start_line = 0
@@ -76,20 +61,21 @@ def convert_lean_to_codexlang(lean_path: str) -> Dict[str, List[Dict[str, Any]]]
     for i, line in enumerate(lines):
         stripped = line.strip()
 
-        # Match theorem/lemma/axiom
-        match = re.match(r"^(theorem|lemma|axiom)\s+([a-zA-Z0-9_']+)\s*:\s*(.*)", stripped)
+        # --- New declaration line ---
+        match = re.match(r"^(theorem|lemma|axiom)\s+([a-zA-Z0-9_']+)\s*:\s*(.+)$", stripped)
         if match:
             flush_declaration()
             kind, nm, logic_part = match.groups()
             name = nm
             start_line = i + 1
-            logic = logic_part.strip()
+            logic = _strip_comments(logic_part)
             glyph_symbol = "⟦ Axiom ⟧" if kind == "axiom" else "⟦ Theorem ⟧"
-            current_decl.append(line)
+            current_decl = [line]
         elif name:
-            # Continue body lines (proof, etc.)
+            # --- Continuation of current declaration ---
             current_decl.append(line)
+            # Append continuation to logic (stripped of comments)
+            logic = (logic or "") + " " + _strip_comments(stripped)
 
     flush_declaration()
-
     return {"parsed_declarations": declarations}

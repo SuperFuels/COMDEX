@@ -19,50 +19,57 @@ DECLARATION_PATTERNS = {
         r"\bexample\s*([^\s:]*)\s*:?([\s\S]*?)\s*:=\s*([\s\S]+?)(?=\n\s*(?:theorem|lemma|def|axiom|constant|example)\b|\Z)",
         re.MULTILINE,
     ),
-    # Axioms and constants: may span multiple lines, stop at next declaration
     "axiom": re.compile(
-        r"^\s*axiom\s+([^\s:]+)\s*:\s*([\s\S]+?)(?=\n\s*(?:theorem|lemma|def|axiom|constant|example)\b|\Z)",
+        r"^\s*axiom\s+([^\s:]+)\s*:\s*([\s\S]*?)(?=\n(?:\s*(?:--|axiom|constant|theorem|lemma|def|example)\b)|\Z)",
         re.MULTILINE,
     ),
     "constant": re.compile(
-        r"^\s*constant\s+([^\s:]+)\s*:\s*([\s\S]+?)(?=\n\s*(?:theorem|lemma|def|axiom|constant|example)\b|\Z)",
+        r"^\s*constant\s+([^\s:]+)\s*:\s*([\s\S]*?)(?=\n(?:\s*(?:--|axiom|constant|theorem|lemma|def|example)\b)|\Z)",
         re.MULTILINE,
     ),
 }
 
 
 def _clean_logic(text: str) -> str:
-    """Normalize whitespace inside Lean logic text."""
-    return " ".join(line.strip() for line in text.splitlines()).strip()
+    """Normalize whitespace but preserve explicit newlines."""
+    if not isinstance(text, str):
+        return ""
+    lines = [line.strip() for line in text.splitlines() if line.strip()]
+    return "\n".join(lines)
 
 
 def parse_lean_file(lean_text: str) -> List[Dict[str, str]]:
     """
     Parses raw Lean source code into a list of symbolic declaration dicts.
-
-    Returns:
-        List[Dict] — each dict includes:
-            • symbol: "⟦ Theorem ⟧" / "⟦ Lemma ⟧" / "⟦ Axiom ⟧" / "⟦ Constant ⟧" / etc.
-            • name: identifier
-            • logic: type / statement
-            • logic_raw: unmodified statement (kept for trace/debug)
-            • body: proof content (may be empty for axioms/constants)
     """
     decls: List[Dict[str, str]] = []
 
     for kind, pattern in DECLARATION_PATTERNS.items():
         for match in pattern.finditer(lean_text):
+            print(f"[DEBUG] matched {kind} {match.group(1).strip()} -> {repr(match.group(2).strip())}")
             if kind in ("axiom", "constant"):
                 name = match.group(1).strip()
                 logic = _clean_logic(match.group(2))
+
+                # 🔍 DEBUG PRINT
+                print(f"[DEBUG] {kind} matched → name={name!r}, logic={logic!r}")
+
                 body = ""
             elif kind == "example":
                 name = match.group(1).strip() or "example"
                 logic = _clean_logic(match.group(2) or "")
+
+                # 🔍 DEBUG PRINT
+                print(f"[DEBUG] example matched → name={name!r}, logic={logic!r}")
+
                 body = match.group(3).strip()
             else:  # theorem / lemma / def
                 name = match.group(1).strip()
                 logic = _clean_logic(match.group(2) or "")
+
+                # 🔍 DEBUG PRINT
+                print(f"[DEBUG] {kind} matched → name={name!r}, logic={logic!r}")
+
                 body = match.group(3).strip()
 
             decls.append(
@@ -70,7 +77,7 @@ def parse_lean_file(lean_text: str) -> List[Dict[str, str]]:
                     "symbol": f"⟦ {kind.capitalize()} ⟧",
                     "name": name,
                     "logic": logic,
-                    "logic_raw": logic,  # ✅ preserve original expression
+                    "logic_raw": logic,
                     "body": body,
                 }
             )

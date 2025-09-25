@@ -61,40 +61,29 @@ def convert_lean_to_codexlang(path: str) -> Dict[str, Any]:
         raise ValueError(f"Expected a .lean file, got: {path}")
 
     with open(path, "r", encoding="utf-8") as f:
-        content = f.read()
+        lines = f.readlines()
 
     # normalize line endings
-    content = content.replace("\r\n", "\n").replace("\r", "\n")
-    # drop block comments
-    content = re.sub(r"/-\*?[\s\S]*?\*/-|/-[\s\S]*?-/", "", content)
-    # drop single-line comments
-    content = re.sub(r"^[ \t]*--.*?$", "", content, flags=re.MULTILINE)
-    # drop attributes like @[simp]
-    content = re.sub(r"(?m)^\s*@\[[^\]]*\]\s*\n", "", content)
+    lines = [line.replace("\r", "").rstrip("\n") for line in lines]
 
     declarations: List[Dict[str, Any]] = []
+    current_decl: List[str] = []
+    name: str | None = None
+    kind: str | None = None
+    params: str = ""
+    typ: str | None = None
+    body: str = ""
+    glyph_symbol: str = "⟦ Theorem ⟧"
 
-    # Pattern now supports multi-line types (the `type` part may span lines).
-    pattern = re.compile(
-        r"""(?mx)
-        ^\s*
-        (theorem|lemma|example|def|axiom|constant)  # kind
-        \s+([A-Za-z_][\w']*)                        # name
-        (?:\s*\((.*?)\))?                           # optional params
-        \s*:\s*
-        ([^:=\n]+(?:\n\s+[^:=\n]+)*)                # type (may span multiple lines)
-        (?:\s*:=\s*(.*?)(?=                         # optional body
-            ^\s*(?:theorem|lemma|example|def|axiom|constant)\b
-            | \Z
-        ))?
-        """,
-        re.DOTALL,
-    )
-
-    matches = pattern.findall(content)
-
-    for kind, name, params, typ, body in matches:
-        glyph_symbol = KIND_TO_GLYPH.get(kind, "⟦ Theorem ⟧")
+    def flush_declaration():
+        nonlocal declarations, current_decl, name, kind, params, typ, body, glyph_symbol
+        if not name or not typ:
+            current_decl = []
+            name = None
+            kind = None
+            typ = None
+            body = ""
+            return
 
         typ_clean = " ".join(line.strip() for line in typ.splitlines()).strip()
 
@@ -104,8 +93,8 @@ def convert_lean_to_codexlang(path: str) -> Dict[str, Any]:
             "name": name,
             "params": params.strip() if params else "",
             "type": typ_clean,
-            "logic": typ_clean,   # 👈 Add this so downstream has a direct field
-            "body": (body or "").strip(),
+            "logic": typ_clean,
+            "body": body.strip(),
         }
 
         # Build CodexLang with the actual type string
@@ -138,6 +127,58 @@ def convert_lean_to_codexlang(path: str) -> Dict[str, Any]:
         decl["depends_on"] = detect_dependencies(decl["body"])
 
         declarations.append(decl)
+
+        # reset state
+        current_decl = []
+        name = None
+        kind = None
+        typ = None
+        body = ""
+        glyph_symbol = "⟦ Theorem ⟧"
+
+    # Parse line by line
+    for i, line in enumerate(lines):
+        stripped = line.strip()
+
+        # --- Flush if we hit a comment line ---
+        if stripped.startswith("--") and name:
+            flush_declaration()
+            continue
+
+        match = re.match(r"^(theorem|lemma|example|def|axiom|constant)\s+([A-Za-z_][\w']*)\s*:\s*(.*)", stripped)
+        if match:
+            # ✅ close previous declaration before starting a new one
+            flush_declaration()
+
+            kind, nm, logic_part = match.groups()
+            name = nm
+            typ = logic_part
+            params = ""
+            body = ""
+            glyph_symbol = KIND_TO_GLYPH.get(kind, "⟦ Theorem ⟧")
+            current_decl = [line]
+        elif name:
+            # Continuation line
+            if re.match(r"^(theorem|lemma|example|def|axiom|constant)\s+", stripped):
+                flush_declaration()
+                # reprocess as new decl
+                match = re.match(r"^(theorem|lemma|example|def|axiom|constant)\s+([A-Za-z_][\w']*)\s*:\s*(.*)", stripped)
+                if match:
+                    kind, nm, logic_part = match.groups()
+                    name = nm
+                    typ = logic_part
+                    params = ""
+                    body = ""
+                    glyph_symbol = KIND_TO_GLYPH.get(kind, "⟦ Theorem ⟧")
+                    current_decl = [line]
+            else:
+                current_decl.append(line)
+                if typ is not None:
+                    typ += " " + stripped
+                else:
+                    body += "\n" + line
+
+    flush_declaration()
 
     if not declarations:
         raise ValueError(

@@ -82,7 +82,6 @@ def rebuild_previews(container: Dict[str, Any], spec: Dict[str, str], mode: str 
 def normalize_logic_entry(decl: Dict[str, Any], lean_path: str) -> Dict[str, Any]:
     """
     Normalize a Lean declaration into a standard logic_entry dict.
-    Public utility: used by both lean_exporter and lean_injector.
     Guarantees codexlang/logic/normalized are always set.
     """
     glyph_symbol = decl.get("glyph_symbol", "⟦ Theorem ⟧")
@@ -95,14 +94,15 @@ def normalize_logic_entry(decl: Dict[str, Any], lean_path: str) -> Dict[str, Any
     if "codexlang_string" in decl and "legacy" not in codexlang:
         codexlang["legacy"] = decl["codexlang_string"]
 
-    # logic_raw with full fallback chain
+    # ✅ prefer decl["logic"], then codexlang_string, then codexlang["logic"]
     logic_raw = (
-        codexlang.get("logic")
+        decl.get("logic")
+        or codexlang.get("logic")
         or decl.get("codexlang_string")
-        or decl.get("logic", "")
+        or ""
     )
-    if not logic_raw or not isinstance(logic_raw, str):
-        logic_raw = "True"
+    if not isinstance(logic_raw, str):
+        logic_raw = str(logic_raw)
 
     # ensure codexlang dict has required keys
     if not codexlang.get("logic") or not isinstance(codexlang["logic"], str):

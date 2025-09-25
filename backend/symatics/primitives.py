@@ -187,14 +187,14 @@ def reversible(w: Wave) -> Wave:
     )
 
 
-def fuse(w1: Wave, w2: Wave) -> Wave:
-    """⋈ Fusion: merge two waves into a single stabilized form."""
+def fuse(w1: Wave, w2: Wave, phi: float = 0.0) -> Wave:
+    """⋈ Fusion/Interference: merge two waves with a phase offset φ."""
     return Wave(
         frequency=(w1.frequency + w2.frequency) / 2,
         amplitude=math.sqrt(w1.amplitude**2 + w2.amplitude**2),
-        phase=(w1.phase + w2.phase) / 2,
+        phase=((w1.phase + w2.phase) / 2 + phi) % (2 * math.pi),
         polarization="mixed",
-        metadata={"op": "⋈", "parents": [w1.id, w2.id]}
+        metadata={"op": "⋈", "phi": phi, "parents": [w1.id, w2.id]}
     )
 
 

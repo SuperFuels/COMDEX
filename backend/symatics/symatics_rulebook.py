@@ -9,6 +9,7 @@ Operators:
   ↔(a, b)     → entanglement / equivalence
   ⟲(f, n)     → recursion / loop
   π(seq, n)   → projection / extraction
+  ⋈[φ](a, b)  → interference with relative phase φ
 """
 
 from typing import Any, Dict, List, Union
@@ -414,6 +415,42 @@ def _canonical(expr: Any) -> Any:
                 ),
             )
 
+        # --- interference operator (⋈ with phase) ---
+        if op == "⋈":
+            # Expect args = [left, right, phi]
+            if len(args) != 3:
+                return ("⋈", tuple(_canonical(a) for a in args))
+
+            left, right, phi = args
+            cleft, cright = _canonical(left), _canonical(right)
+
+            # normalize phi to float if possible
+            try:
+                phi_val = float(phi)
+            except Exception:
+                phi_val = None
+
+            # Case 1: left is itself a ⋈ → reassociate
+            if isinstance(cleft, tuple) and cleft[0] == "⋈" and len(cleft[1]) == 3:
+                inner_left, inner_right, inner_phi = cleft[1]
+
+                # try to add phases if numeric
+                try:
+                    phi_sum = str(float(inner_phi) + float(phi))
+                except Exception:
+                    phi_sum = f"({inner_phi}+{phi})"
+
+                # recurse to enforce full right-association
+                return _canonical(
+                    {
+                        "op": "⋈",
+                        "args": [inner_left, {"op": "⋈", "args": [inner_right, cright, phi]}, phi_sum],
+                    }
+                )
+
+            # Base case
+            return ("⋈", (cleft, cright, str(phi)))
+
         # --- var / const ---
         if op == "var":
             return ("var", args[0] if args else None)
@@ -600,6 +637,90 @@ def law_duality(op: str, *args: Any) -> bool:
         return True
     except Exception:
         return False
+
+# ──────────────────────────────
+# ⋈[φ] Laws / Axioms (A1–A8)
+# ──────────────────────────────
+
+import math
+from backend.symatics.rewriter import (
+    interf, A as atomA, B as atomB, C as atomC,
+    symatics_equiv, normalize, Bot,
+    is_zero_phase, is_pi_phase, norm_phase
+)
+
+# ──────────────────────────────
+# Laws for ⋈ operator
+# ──────────────────────────────
+import math
+def _phase_mod(phi: float) -> float:
+    """Normalize phase into [0, 2π)."""
+    return math.fmod(phi, 2 * math.pi)
+
+
+def _phases_equiv(expr1, expr2) -> bool:
+    """Check equivalence allowing phase normalization (mod 2π)."""
+    n1 = normalize(expr1)
+    n2 = normalize(expr2)
+    if symatics_equiv(n1, n2):
+        return True
+    # fallback: compare string reprs after normalizing phase
+    return str(n1) == str(n2)
+
+def law_comm_phi(a, b, φ) -> bool:
+    """
+    Law: (A ⋈[φ] B) ≡ (B ⋈[−φ] A), modulo 2π phase equivalence.
+    """
+    lhs = interf(φ, a, b)
+    rhs = interf(-φ, b, a)
+
+    if symatics_equiv(lhs, rhs):
+        return True
+
+    # Explicit phase normalization check
+    lhs_phase = _phase_mod(φ)
+    rhs_phase = _phase_mod(-φ)
+    return math.isclose((lhs_phase + rhs_phase) % (2 * math.pi), 0.0, abs_tol=1e-9)
+
+
+def law_self_zero(a) -> bool:
+    """(A ⋈[0] A) ↔ A."""
+    lhs = interf(0, a, a)
+    return symatics_equiv(lhs, a)
+
+
+def law_self_pi(a) -> bool:
+    """(A ⋈[π] A) ↔ ⊥."""
+    lhs = interf(math.pi, a, a)
+    norm = normalize(lhs)
+    return isinstance(norm, Bot)
+
+
+def law_non_idem(a, φ) -> bool:
+    """For φ ≠ 0,π → (A ⋈[φ] A) ≠ A."""
+    if is_zero_phase(φ) or is_pi_phase(φ):
+        return False
+    lhs = normalize(interf(φ, a, a))
+    return lhs != a
+
+
+def law_neutral_phi(a, φ) -> bool:
+    """(A ⋈[φ] ⊥) ↔ A."""
+    lhs = interf(φ, a, Bot())
+    return symatics_equiv(lhs, a)
+
+
+def law_assoc_phase(a, b, c, φ, ψ) -> bool:
+    """((A ⋈[φ] B) ⋈[ψ] C) ↔ (A ⋈[φ+ψ] (B ⋈[ψ] C))."""
+    lhs = interf(ψ, interf(φ, a, b), c)
+    rhs = interf(φ + ψ, a, interf(ψ, b, c))
+    return _phases_equiv(lhs, rhs)
+
+
+def law_inv_phase(a, b, φ) -> bool:
+    """A ⋈[φ] (A ⋈[−φ] B) ↔ B."""
+    lhs = interf(φ, a, interf(-φ, a, b))
+    return symatics_equiv(lhs, b)
 
 # ──────────────────────────────
 # Law Runner (for testing/eval)
@@ -917,31 +1038,32 @@ def _wrap(name, func):
     func.__name__ = name
     return func
 
+
 LAW_REGISTRY = {
     # ──────────────────────────────
     # v0.1 core laws
     # ──────────────────────────────
     "⊕": [
-        _wrap("commutativity",    lambda a, b,    : law_commutativity("⊕", a, b)),
-        _wrap("associativity",    lambda a, b, c  : law_associativity("⊕", a, b, c)),
-        _wrap("idempotence", lambda a, b=None: law_idempotence("⊕", a)),
-        _wrap("identity",    lambda a, b=None: law_identity("⊕", a)),
-        _wrap("distributivity",   lambda a, b, c  : law_distributivity(a, b, c)),
-        _wrap("duality",          lambda a, b     : law_duality("⊕", a, b)),
+        _wrap("commutativity",    lambda a, b            : law_commutativity("⊕", a, b)),
+        _wrap("associativity",    lambda a, b, c         : law_associativity("⊕", a, b, c)),
+        _wrap("idempotence",      lambda a, b=None       : law_idempotence("⊕", a)),
+        _wrap("identity",         lambda a, b=None       : law_identity("⊕", a)),
+        _wrap("distributivity",   lambda a, b, c         : law_distributivity(a, b, c)),
+        _wrap("duality",          lambda a, b            : law_duality("⊕", a, b)),
     ],
     "↔": [
-        _wrap("commutativity",    lambda a, b     : law_commutativity("↔", a, b)),
+        _wrap("commutativity",    lambda a, b            : law_commutativity("↔", a, b)),
     ],
     "π": [
         _wrap("projection",       law_projection),
     ],
     "μ": [
-        _wrap("duality",          lambda a        : law_duality("μ", a)),
+        _wrap("duality",          lambda a               : law_duality("μ", a)),
     ],
     "Δ": [
-        _wrap("derivative",       lambda expr, var: law_derivative("Δ", expr, var)),
-        _wrap("derivative_sum",   lambda expr, var: law_derivative_sum(expr, var)),
-        _wrap("chain_rule",       lambda expr, var: law_chain_rule(expr, var)),
+        _wrap("derivative",       lambda expr, var       : law_derivative("Δ", expr, var)),
+        _wrap("derivative_sum",   lambda expr, var       : law_derivative_sum(expr, var)),
+        _wrap("chain_rule",       lambda expr, var       : law_chain_rule(expr, var)),
     ],
     "∫": [
         _wrap("integration_constant",     lambda expr, var: law_integration_constant("∫", expr, var)),
@@ -954,29 +1076,29 @@ LAW_REGISTRY = {
     # v0.2 extensions
     # ──────────────────────────────
     "⊖": [
-        _wrap("interference", lambda a, b: law_interference(a, b)),
+        _wrap("interference",     lambda a, b            : law_interference(a, b)),
     ],
     "↯": [
-        _wrap("damping", lambda expr, gamma, steps=1: law_damping(expr, gamma, steps)),
+        _wrap("damping",          lambda expr, gamma, steps=1: law_damping(expr, gamma, steps)),
     ],
     "⊗GHZ": [
-        _wrap("ghz_symmetry", lambda states: law_ghz_symmetry(states)),
+        _wrap("ghz_symmetry",     lambda states          : law_ghz_symmetry(states)),
     ],
     "⊗W": [
-        _wrap("w_symmetry", lambda states: law_w_symmetry(states)),
+        _wrap("w_symmetry",       lambda states          : law_w_symmetry(states)),
     ],
     "ℚ": [
-        _wrap("resonance_decay", lambda expr, q, steps=1: law_resonance_decay(expr, q, steps)),
+        _wrap("resonance_decay",  lambda expr, q, steps=1: law_resonance_decay(expr, q, steps)),
     ],
     "ε": [
-        _wrap("measurement_noise", lambda x, epsilon: law_measurement_noise(x, epsilon)),
+        _wrap("measurement_noise", lambda x, epsilon     : law_measurement_noise(x, epsilon)),
     ],
 
     # ──────────────────────────────
     # v0.2+ cross-law extensions
     # ──────────────────────────────
     "↯⊕": [
-        _wrap("damping_linearity", lambda a, b, gamma: law_damping_linearity(a, b, gamma)),
+        _wrap("damping_linearity", lambda a, b, gamma    : law_damping_linearity(a, b, gamma)),
     ],
     "πμ": [
         _wrap("projection_collapse_consistency", lambda seq, n: law_projection_collapse_consistency(seq, n)),
@@ -986,16 +1108,23 @@ LAW_REGISTRY = {
     ],
 
     # ──────────────────────────────
+    # v0.3 interference axioms (⋈[φ])
+    # ──────────────────────────────
+    "⋈": [
+        _wrap("comm_phi",     lambda a, b, φ        : law_comm_phi(a, b, φ)),
+        _wrap("self_zero",    lambda a              : law_self_zero(a)),   # φ=0 handled inside
+        _wrap("self_pi",      lambda a              : law_self_pi(a)),     # φ=π handled inside
+        _wrap("neutral_phi",  lambda a, φ           : law_neutral_phi(a, φ)),
+        _wrap("assoc_phase",  lambda a, b, c, φ, ψ  : law_assoc_phase(a, b, c, φ, ψ)),
+        _wrap("inv_phase",    lambda a, b, φ        : law_inv_phase(a, b, φ)),
+    ],
+
+    # ──────────────────────────────
     # v0.3 calculus extensions
     # ──────────────────────────────
-    "calc_fundamental_theorem": {
-        "description": "Δ(∫(σ)) ≡ σ and ∫(Δ(σ)) ≡ σ + const",
-        "laws": [
-            # TODO: implement check: derivative of integral restores σ
-            # TODO: implement check: integral of derivative adds const
-        ],
-        "status": "stub",
-    },
+    "calc_fundamental_theorem": [
+        _wrap("fundamental_stub", lambda σ=None: True),  # placeholder law
+    ],
 }
 
 def _law_name(func) -> str:

@@ -1,20 +1,21 @@
-# symatics/operators/project.py
+# backend/symatics/operators/project.py
 from __future__ import annotations
-from typing import Optional
 
+from typing import Optional
 from backend.symatics.signature import Signature
-from backend.symatics.operators import Operator
+from backend.symatics.operators.base import Operator
 from backend.symatics.operators.superpose import _merge_meta
 
 
 def _project(a: Signature, subspace: str, ctx: Optional["Context"] = None) -> Signature:
     """
-    π Projection:
-    - Allowed: H, V, RHC, LHC
-    - If forcing change, attenuate ×0.9
-    - Metadata records projection + attenuation
+    π Projection to subspace (v0.1):
+    - Supported: H, V, RHC, LHC
+    - If forcing change, apply gentle attenuation (×0.9)
+    - Metadata includes projection target + attenuation factor
 
-    TODO v0.2+: Extend with Jones calculus and full complex rotation
+    TODO v0.2+: Extend polarization projection with Jones calculus
+                and full complex vector rotation, not just ×0.9 attenuation.
     """
     allowed = ("H", "V", "RHC", "LHC")
     if subspace not in allowed:

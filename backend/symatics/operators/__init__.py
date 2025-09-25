@@ -1,9 +1,20 @@
+"""
+Symatics Operators Package
+--------------------------
+This package defines symbolic operators used in COMDEX Symatics.
+
+- Each operator is implemented in its own module (superpose, fuse, etc.).
+- The registry of all operators and the dispatcher live here in
+  `backend/symatics/operators/__init__.py`.
+- Import from this package to get the registry and dispatcher.
+
+Example:
+    from backend.symatics.operators import apply_operator, OPS
+"""
+
 from __future__ import annotations
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, Optional
-
-from backend.symatics.signature import Signature
-
+from typing import Callable, Dict, Any, Optional
 
 # ---------------------------------------------------------------------------
 # Operator Base
@@ -11,38 +22,32 @@ from backend.symatics.signature import Signature
 
 @dataclass(frozen=True)
 class Operator:
+    """
+    Core operator definition for Symatics algebra.
+    - name: Unicode symbol of the operator (⊕, ⋈, ↯, …)
+    - arity: Number of required arguments
+    - impl: Callable implementing the operator’s semantics
+    """
     name: str
     arity: int
-    impl: Callable[..., Any]  # semantic action
+    impl: Callable[..., Any]
 
 
 # ---------------------------------------------------------------------------
-# Import individual operators
+# Individual operator imports
 # ---------------------------------------------------------------------------
 
-from .superpose import superpose_op
-from .entangle import entangle_op
-from .resonance import resonance_op
-from .measure import measure_op
-from .project import project_op
-
-
-# ---------------------------------------------------------------------------
-# v0.3 Stub Operators (placeholders until implemented)
-# ---------------------------------------------------------------------------
-
-def _stub_op(*args, **kwargs) -> dict:
-    """Generic placeholder implementation for unimplemented operators."""
-    return {"op": "stub", "args": args, "kwargs": kwargs}
-
-tensor_op    = Operator("⊗", 2, _stub_op)
-equiv_op     = Operator("≡", 2, _stub_op)
-not_op       = Operator("¬", 1, _stub_op)
-interfere_op = Operator("⊖", 2, _stub_op)
-
+from backend.symatics.operators.superpose import superpose_op
+from backend.symatics.operators.entangle import entangle_op
+from backend.symatics.operators.resonance import resonance_op
+from backend.symatics.operators.fuse import fuse_op
+from backend.symatics.operators.damping import damping_op
+from backend.symatics.operators.project import project_op
+from backend.symatics.operators.measure import measure_op
+from backend.symatics.operators.cancel import cancel_op  
 
 # ---------------------------------------------------------------------------
-# Registry
+# Operator Registry
 # ---------------------------------------------------------------------------
 
 OPS: Dict[str, Operator] = {
@@ -51,22 +56,29 @@ OPS: Dict[str, Operator] = {
     "⟲": resonance_op,
     "μ": measure_op,
     "π": project_op,
-    "⊗": tensor_op,
-    "≡": equiv_op,
-    "¬": not_op,
-    "⊖": interfere_op,
-    # 𝔽, 𝔼, τ → v0.2+
+    "⋈": fuse_op,       # interference/fusion operator
+    "↯": damping_op,    # damping operator
+    "⊖": cancel_op,     # cancellation / destructive interference
+    # --- v0.2+ / stub operators ---
+    "⊗": Operator("⊗", 2, lambda a, b, ctx=None, **kwargs: ("⊗", (a, b))),
+    "≡": Operator("≡", 2, lambda a, b, ctx=None, **kwargs: ("≡", (a, b))),
+    "¬": Operator("¬", 1, lambda a, ctx=None, **kwargs: ("¬", a)),
 }
 
-
 # ---------------------------------------------------------------------------
-# Dispatcher
+# Operator Dispatcher
 # ---------------------------------------------------------------------------
 
-def apply_operator(symbol: str, *args: Any, ctx: Optional["Context"] = None) -> Any:
+def apply_operator(
+    symbol: str,
+    *args: Any,
+    ctx: Optional["Context"] = None,
+    **kwargs: Any
+) -> Any:
     """
     Apply a Symatics operator by symbol.
     Handles context injection, arity checks, and safe dispatch.
+    Extra keyword args (e.g. phi, steps) are passed through to the operator.
     """
     if symbol not in OPS:
         raise ValueError(f"Unknown operator: {symbol}")
@@ -78,11 +90,23 @@ def apply_operator(symbol: str, *args: Any, ctx: Optional["Context"] = None) -> 
         )
 
     try:
-        return op.impl(*args, ctx=ctx) if "ctx" in op.impl.__code__.co_varnames else op.impl(*args)
+        return op.impl(*args, ctx=ctx, **kwargs)
+    except TypeError:
+        # fallback if impl doesn’t accept ctx/kwargs
+        return op.impl(*args)
     except Exception as e:
         raise RuntimeError(f"Operator {symbol} failed: {e}") from e
 
 
+# ---------------------------------------------------------------------------
+# Exports
+# ---------------------------------------------------------------------------
+
+__all__ = [
+    "Operator",
+    "OPS",
+    "apply_operator",
+]
 # ---------------------------------------------------------------------------
 # Roadmap (v0.2+)
 # ---------------------------------------------------------------------------
