@@ -1,3 +1,82 @@
+%%----------------------------------------
+%% Photon Core Build Task Checklist
+%%----------------------------------------
+flowchart TD
+
+    subgraph Phase1["⚡ Photon Core (Foundational Build — Now)"]
+        P1["✅ Define Photon Spec (collapse 0/π → foundation states)"]
+        P2["✅ Implement Photon Axioms (P1–P8) in Lean backend"]
+        P3["✅ Injection + Snapshot Tests (axioms, equivalence)"]
+        P4["✅ Photon Rewriter (normalize + symatics_equiv)"]
+        P5["✅ Derived Theorems (T1–T7 verified)"]
+        P6["Benchmark Photon vs Classical (compression, ops/sec)"]
+        P7["✅ Docs: RFC (Photon Core Spec + Separation Notes)"]
+    end
+
+    subgraph Phase2["🔬 Photon Extensions (Optional Next)"]
+        E1["Extend Theorems → full Photon calculus"]
+        E2["Add Meta-Photon ops (distribution, falsification cases)"]
+        E3["Fuzz / Stress Tests (random axiom injection)"]
+        E4["Formal semantics doc (truth-value model, Hilbert space link)"]
+    end
+
+    subgraph Phase3["🚀 Photon Integration (Deployment)"]
+        I1["Integrate Photon Rewriter into CodexCore runtime"]
+        I2["Photon ↔ SymPy bridge (drop-in math library support)"]
+        I3["CodexLang++ compiler → Photon instructions"]
+        I4["Export .photon.json spec for external nodes/tools"]
+        I5["Wire into GlyphNet stack (sPHY encoder/decoder)"]
+    end
+
+    %% Connections
+    P7 --> E1
+    E3 --> I1
+    I4 --> I5
+
+    classDef keynote fill=#111,color=#fff,stroke=#444,stroke-width=1px;
+
+    note1["🔑 Phase 1: Establish Photon as a proven replacement layer for classical binary — axioms, theorems, and benchmarks."]
+    note2["🔑 Phase 2: Expand math rigor — more theorems, meta-ops, and a formal semantic model for credibility."]
+    note3["🔑 Phase 3: Integrate Photon into CodexCore, SymPy, CodexLang++, and GlyphNet — making it usable across the stack."]
+
+    P1:::keynote --> note1
+    E1:::keynote --> note2
+    I1:::keynote --> note3
+
+
+
+📋 Expanded Build Notes
+
+Phase 1 (Now)
+	•	Define Photon spec (P1–P8 axioms).
+	•	Implement and test injection → prove consistency.
+	•	Rewriter engine to normalize and check equivalence.
+	•	Benchmarks vs classical binary (compression, ops/sec).
+	•	RFC draft: Photon Core Spec + separation from Boolean.
+
+Phase 2 (Math Extension)
+	•	Extend theorem base → build a small Photon calculus.
+	•	Meta-Photon ops (distribution failure, irreducibility proofs).
+	•	Fuzz + stress testing for robustness.
+	•	Formal semantics model → truth-values (waveforms, amplitudes).
+
+Phase 3 (Integration)
+	•	Photon becomes executable in CodexCore runtime.
+	•	Bridge to SymPy / MathLib for mainstream interop.
+	•	CodexLang++ compiler targets Photon instructions.
+	•	Export .photon.json spec for downstream tools.
+	•	Feed Photon directly into GlyphNet’s symbolic physical layer.
+
+⸻
+
+✅ From this point:
+	•	We never say “binary” again → always Photon.
+	•	Phase 1 proves the foundation.
+	•	Phase 2 grows the math.
+	•	Phase 3 deploys it into runtime + networking.
+
+
+
 🧮 Build Stream 1: Symbolic ISA (Instruction Set Architecture)
 
 journey

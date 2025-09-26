@@ -1,7 +1,44 @@
 Perfect 🔥 — let’s capture exactly what we just discussed as a Mermaid build-task checklist with full keynote-style annotations so it’s both technical and explanatory.
 
 Here’s a first draft you can drop into your docs:
+%%----------------------------------------
+%% GlyphNet Evolution & Build Tasks
+%%----------------------------------------
+flowchart TD
+    subgraph Past["⚡ Classical Internet (Binary Era)"]
+        A1["Physical Waves → Collapsed to Binary (0/1)"]
+        A2["Binary → Bytes → Frames → Packets"]
+        A3["Packets → Protocols (TCP/IP/HTTP) → Meaning Rehydrated"]
+    end
 
+    subgraph Present["🌐 GlyphNet Phase 1 (Software Symbolic Packets)"]
+        B1["Physical Waves → Still Collapsed to Binary (0/1)"]
+        B2["Binary → JSON Packets → Glyph Instructions"]
+        B3["CodexCore / GIP Executor runs glyphs"]
+    end
+
+    subgraph Future["🚀 GlyphNet Phase 2+ (Symbolic Physical Layer)"]
+        C1["Waves are NOT collapsed to binary"]
+        C2["Waveform/shape/polarization = Glyph directly (⊕, ↔, ∇, ⟲)"]
+        C3["Receiver NIC: demodulate wave → glyph-ID (sPHY decoder)"]
+        C4["Glyph-ID → directly executed by CodexCore runtime"]
+        C5["No binary overhead, no JSON parse, no TCP/IP stack"]
+    end
+
+    %% Connections
+    A3 --> B1
+    B3 --> C1
+
+    %% Keynotes
+    classDef keynote fill=#111,color=#fff,stroke=#444,stroke-width=1px;
+
+    note1["🔑 Binary was scaffolding — robust on/off states for early electronics."]
+    note2["🔑 Phase 1: symbolic packets already run, but over binary transports."]
+    note3["🔑 Phase 2+: collapse is unnecessary. Symbolic binary (glyphs) is the new ground floor."]
+
+    A1:::keynote --> note1
+    B2:::keynote --> note2
+    C2:::keynote --> note3
 
 %%----------------------------------------
 %% GlyphNet Evolution & Build Tasks
