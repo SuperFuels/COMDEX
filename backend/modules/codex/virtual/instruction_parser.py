@@ -13,52 +13,51 @@ from typing import Any, Dict, List
 
 class InstructionParser:
     def __init__(self):
-        self.operators = set(["→", "↔", "⟲", "⊕", "⧖"])  # Define recognized ops
+        # Recognized symbolic operators
+        self.operators = set(["→", "↔", "⟲", "⊕", "⧖"])
 
-    def parse_codexlang_string(self, code: str) -> List[Dict[str, Any]]:
+    def parse_codexlang_string(self, code: str) -> Dict[str, Any]:
         """
         Main parser entrypoint. Splits glyph string and builds instruction tree.
+        Always returns a dict AST.
         Example CodexLang: "⚛ → ✦ ⟲ 🧠"
         """
         tokens = code.strip().split()
-        return self.build_tree(tokens)
+        if not tokens:
+            return {"op": None, "args": []}
 
-    def build_tree(self, tokens: List[str]) -> List[Dict[str, Any]]:
-        """
-        Converts flat token list into hierarchical instruction nodes.
-        """
-        tree = []
-        i = 0
-        while i < len(tokens):
-            token = tokens[i]
+        tree = self.build_tree(tokens)
 
-            if token in self.operators:
-                # Symbolic operator node
-                node = {
-                    "op": token,
-                    "args": [],
-                    "children": []
-                }
-                # Peek ahead for children
-                if i + 1 < len(tokens):
-                    next_token = tokens[i + 1]
-                    if next_token not in self.operators:
-                        node["children"].append({
-                            "op": next_token,
-                            "args": [],
-                            "children": []
-                        })
-                        i += 1
-                tree.append(node)
-
-            else:
-                # Basic glyph as atomic instruction
-                tree.append({
-                    "op": token,
-                    "args": [],
-                    "children": []
-                })
-
-            i += 1
-
+        # ✅ Normalize: wrap lists into a root dict
+        if isinstance(tree, list):
+            if len(tree) == 1:
+                return tree[0]
+            return {"op": "program", "children": tree}
         return tree
+
+    def build_tree(self, tokens: List[str]) -> Dict[str, Any]:
+        """
+        Converts a flat token list into a hierarchical instruction tree.
+        The first recognized operator becomes the root "op".
+        """
+        for i, token in enumerate(tokens):
+            if token in self.operators:
+                # Split at operator into left/right subtrees
+                left = self.build_tree(tokens[:i]) if i > 0 else None
+                right = self.build_tree(tokens[i + 1:]) if i + 1 < len(tokens) else None
+                return {
+                    "op": token,
+                    "args": [x for x in [left, right] if x],
+                }
+
+        # No operator → treat as literal glyph(s)
+        if len(tokens) == 1:
+            return {"op": "lit", "value": tokens[0]}
+        return [{"op": "lit", "value": tok} for tok in tokens]
+
+
+# ✅ Public wrapper
+_parser = InstructionParser()
+
+def parse_codexlang(code: str) -> Dict[str, Any]:
+    return _parser.parse_codexlang_string(code)

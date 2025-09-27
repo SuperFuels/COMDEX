@@ -41,7 +41,7 @@ from backend.modules.prediction.suggestion_engine import suggest_simplifications
 from backend.modules.symbolic.symbolic_meaning_tree import SymbolicMeaningTree
 from backend.modules.symbolnet.symbolnet_utils import concept_match, semantic_distance
 from backend.modules.knowledge_graph.kg_writer_singleton import get_kg_writer
-from backend.modules.glyphwave.emit_beam import emit_qwave_beam
+from backend.modules.codex.codex_executor import emit_qwave_beam_ff
 
 def get_prediction_kg_writer():
     try:
@@ -667,20 +667,22 @@ class PredictionEngine:
         except Exception as sqi_err:
             print(f"[PredictionEngine] ⚠️ Failed to inject SQI scores: {sqi_err}")
 
-        # ✅ Emit QWave Beam for prediction output
+        # ✅ Emit QWave Beam for prediction output (normalized via WaveState wrapper)
         try:
             top_prediction = electron_predictions[0] if electron_predictions else None
             if top_prediction:
-                emit_qwave_beam(
-                    glyph_id=top_prediction["selected_prediction"],
-                    result=top_prediction,
+                emit_qwave_beam_ff(
                     source="prediction_engine",
-                    context={"container_id": container.get("id")},
-                    state="predicted",
-                    metadata={
+                    payload={
+                        "wave_id": f"pred_{top_prediction['electron']}_{int(time.time()*1000)}",
+                        "event": "prediction",
+                        "mutation_type": "forecast",
+                        "container_id": container.get("id"),
                         "confidence": top_prediction.get("confidence"),
-                        "electron": top_prediction.get("electron")
-                    }
+                        "electron": top_prediction.get("electron"),
+                        "selected_prediction": top_prediction["selected_prediction"],
+                    },
+                    context={"container_id": container.get("id")}
                 )
         except Exception as e:
             print(f"[PredictionEngine] ⚠️ Failed to emit QWave beam: {e}")

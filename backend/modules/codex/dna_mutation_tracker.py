@@ -51,3 +51,10 @@ def add_dna_mutation(original_glyph: dict, mutated_glyph: dict, metadata: dict =
     emit_sqi_mutation_score_if_applicable(mutation_record)
 
     return mutation_record
+
+from backend.modules.codex.dna_mutation_tracker import add_dna_mutation
+
+def recombine_from_beams(beams):
+    result = ... # do recombination
+    add_dna_mutation("beam_recombine", result, reason="SPE recombination")
+    return result

@@ -1,3 +1,7 @@
+# ===============================
+# 📄 backend/modules/config.py
+# ===============================
+
 import os
 from dotenv import load_dotenv
 
@@ -5,7 +9,10 @@ from dotenv import load_dotenv
 from backend.modules.dna_chain.dna_switch import DNA_SWITCH
 DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
 
-# 1) load .env if present
+# ✅ Autofuse helper
+from backend.modules.spe.spe_bridge import recombine_from_beams  # ensure this exists
+
+# Load .env if present
 load_dotenv()
 
 ENV = os.getenv("ENV", "").lower()
@@ -43,3 +50,15 @@ else:
 
 # ✅ Glyph API base URL (used by glyph_api_client.py and runtime synthesis)
 GLYPH_API_BASE_URL = os.getenv("GLYPH_API_BASE_URL", "http://localhost:8000")
+
+# ✅ SPE Autofuse Flag
+SPE_AUTO_FUSE = os.getenv("SPE_AUTO_FUSE", "false").lower() == "true"
+
+def maybe_autofuse(beams):
+    """
+    Conditionally auto-fuse beams based on SPE_AUTO_FUSE flag.
+    Calls recombine_from_beams() if enabled, otherwise returns beams unchanged.
+    """
+    if SPE_AUTO_FUSE:
+        return recombine_from_beams(beams)
+    return beams

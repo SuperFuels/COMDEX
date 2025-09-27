@@ -1,3 +1,5 @@
+# 📁 backend/modules/codex/codex_ws_runtime.py
+
 import json
 import traceback
 from fastapi import WebSocket, WebSocketDisconnect
@@ -40,7 +42,7 @@ async def broadcast_glyph_execution(glyph, result, context):
         "energy": cost_obj.energy,
         "ethics_risk": cost_obj.ethics_risk,
         "delay": cost_obj.delay,
-        "opportunity_loss": cost_obj.opportunity_loss
+        "opportunity_loss": cost_obj.opportunity_loss,
     }
 
     payload = {
@@ -51,8 +53,8 @@ async def broadcast_glyph_execution(glyph, result, context):
             "source": context.get("source", "unknown"),
             "timestamp": context.get("timestamp"),
             "cost": cost,
-            "detail": detail
-        }
+            "detail": detail,
+        },
     }
 
     message = json.dumps(payload)
@@ -95,34 +97,51 @@ async def codex_ws_handler(websocket: WebSocket):
                         "type": "websocket_glyph",
                         "glyph": glyph,
                         "context": context,
-                        "result": result
+                        "result": result,
                     })
 
-                    # ✅ Lazy Tessaris import
-                    _get_tessaris().extract_intents_from_glyphs([glyph], metadata)
-                    await broadcast_glyph_execution(glyph, result, context)
+                    # ✅ Tessaris alignment (photon-aware)
+                    origin = context.get("source", "codex")
+                    if origin == "photon":
+                        _get_tessaris().extract_intents_from_glyphs([glyph], {**metadata, "origin": "photon"})
+                    else:
+                        _get_tessaris().extract_intents_from_glyphs([glyph], metadata)
+
+                    await broadcast_glyph_execution(glyph, result, {**context, "source": origin})
 
                     await websocket.send_text(json.dumps({
                         "status": "ok",
                         "glyph": glyph,
-                        "result": result
+                        "result": result,
+                        "origin": origin,
                     }))
 
                 # 🌀 Execute CodexLang scroll
                 elif scroll:
+                    # ✅ Force photon tag if declared in metadata
+                    origin = metadata.get("origin", "codex")
+                    if origin == "photon":
+                        metadata["origin"] = "photon"
+
                     result = emulator.run(scroll, context)
 
                     MEMORY.store({
                         "label": "codex_scroll_execution",
                         "type": "scroll",
                         "scroll": scroll,
-                        "result": result
+                        "result": result,
                     })
+
+                    # ✅ Photon Tessaris alignment
+                    if origin == "photon":
+                        _get_tessaris().extract_intents_from_glyphs(result if isinstance(result, list) else [scroll],
+                                                                  {**metadata, "origin": "photon"})
 
                     await websocket.send_text(json.dumps({
                         "status": "ok",
                         "scroll": scroll,
-                        "result": result
+                        "result": result,
+                        "origin": origin,
                     }))
 
                 else:
@@ -147,11 +166,12 @@ async def codex_ws_handler(websocket: WebSocket):
 async def start_codex_ws_server(websocket: WebSocket):
     await codex_ws_handler(websocket)
 
+
 # ✅ Fallback CLI/Test compatible event stub
 async def send_codex_ws_event(event_type: str, payload: dict):
     message = json.dumps({
         "type": event_type,
-        "payload": payload
+        "payload": payload,
     })
 
     for client in connected_clients.copy():
@@ -159,6 +179,7 @@ async def send_codex_ws_event(event_type: str, payload: dict):
             await client.send_text(message)
         except:
             connected_clients.discard(client)
+
 
 import asyncio
 

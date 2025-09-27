@@ -293,6 +293,21 @@ def _h_negation(_ctx, x=None, **_kw):
 _safe_register("¬", _h_negation)
 
 # --------------------------
+# Physics Operator Metadata
+# --------------------------
+# This lightweight dictionary complements the registry by describing
+# operator semantics (useful for schedulers, bridges, KG writers).
+
+INSTRUCTION_METADATA: Dict[str, Dict[str, str]] = {
+    "∇": {"type": "physics_op", "impl": "gradient_operator"},
+    "Δ": {"type": "physics_op", "impl": "laplacian_operator"},
+    "⊗": {"type": "physics_op", "impl": "tensor_product"},
+    "×": {"type": "physics_op", "impl": "cross_product"},
+    "•": {"type": "physics_op", "impl": "dot_product"},
+    "□": {"type": "physics_op", "impl": "dalambertian_operator"},
+}
+
+# --------------------------
 # Notes:
 # - If you want these physics handlers to **always** win, replace `_safe_register`
 #   with `registry.override(symbol, handler)` per symbol.

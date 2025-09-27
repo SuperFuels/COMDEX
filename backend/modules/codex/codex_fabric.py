@@ -20,6 +20,9 @@ from backend.modules.dimensions.dc_handler import (
 from backend.modules.glyphos.glyph_quantum_core import GlyphQuantumCore
 from backend.modules.hexcore.memory_engine import MemoryEngine
 
+# ✅ Beam persistence layer
+from backend.modules.beamline import beam_store
+
 
 class CodexFabric:
     """
@@ -94,6 +97,14 @@ class CodexFabric:
     def start(self):
         if not self.running:
             print("[CodexFabric] Starting multiverse loop...")
+
+            # ✅ Ensure persistence tables/files exist
+            try:
+                beam_store.ensure_tables()
+                print("[CodexFabric] BeamStore tables ensured ✅")
+            except Exception as e:
+                print(f"[CodexFabric] ⚠️ BeamStore init failed: {e}")
+
             self.running = True
             threading.Thread(target=self.codex_loop, daemon=True).start()
 

@@ -4,17 +4,19 @@ import time
 import json
 from typing import List, Dict, Optional
 
+
 class CodexTrace:
     def __init__(self):
         self.entries: List[Dict] = []
 
     def record(self, glyph: str, context: dict, result: str, source: str = "benchmark"):
+        """Record a generic trace entry."""
         self.entries.append({
             "timestamp": time.time(),
             "glyph": glyph,
-            "context": context,
+            "context": context or {},
             "result": result,
-            "source": source
+            "source": source,
         })
 
     def get_trace(self) -> List[Dict]:
@@ -51,7 +53,7 @@ class CodexTrace:
         confidence: float,
         entropy: float,
         logic_score: float,
-        all_candidates: list
+        all_candidates: list,
     ):
         trace_entry = {
             "type": "glyph",
@@ -74,7 +76,9 @@ class CodexTrace:
 
     # ✅ Rewrite trace for executed Codex rewrites
     @staticmethod
-    def inject_rewrite_trace(container_id: str, glyph_id: str, original: str, rewritten: str, reason: str):
+    def inject_rewrite_trace(
+        container_id: str, glyph_id: str, original: str, rewritten: str, reason: str
+    ):
         _global_trace.entries.append({
             "type": "glyph",
             "glyph": rewritten,
@@ -113,9 +117,7 @@ class CodexTrace:
             "timestamp": time.time(),
             "source": "prediction_engine",
             "context": container_id,
-            "detail": {
-                "suggestions": suggestions
-            }
+            "detail": {"suggestions": suggestions},
         })
 
     # ✅ Replay trace for step-wise replays
@@ -128,24 +130,39 @@ class CodexTrace:
             "timestamp": time.time(),
             "source": "codex_executor",
             "context": container_id,
-            "detail": {
-                "step": step,
-                "notes": notes
-            }
+            "detail": {"step": step, "notes": notes},
         })
+
+    # ✅ Unified execution trace (Codex ↔ Photon bridge)
+    def trace_execution(self, codex_str: str, result: str, context: Optional[dict] = None, source: str = "codex_executor"):
+        """
+        Direct hook for Codex executors to log a run.
+        This is the method to call from CodexCoreFPGA or execution_unit.
+        """
+        self.record(
+            glyph=codex_str,
+            context=context or {},
+            result=result,
+            source=source,
+        )
 
 
 # ✅ Global singleton
 _global_trace = CodexTrace()
 
+
+# --- Public API helpers ---
 def log_codex_trace(glyph: str, context: dict, result: str, source: str = "benchmark"):
     _global_trace.record(glyph, context, result, source)
+
 
 def get_codex_trace():
     return _global_trace.get_trace()
 
+
 def get_latest_trace(container_id: Optional[str] = None):
     return _global_trace.get_latest_trace(container_id)
+
 
 # ✅ Execution path wrapper for GHXEncoder
 def trace_glyph_execution_path(glyph_id: str) -> Dict:
@@ -154,5 +171,26 @@ def trace_glyph_execution_path(glyph_id: str) -> Dict:
         "glyph_id": glyph_id,
         "steps": matching,
         "count": len(matching),
-        "latest": matching[-1] if matching else None
+        "latest": matching[-1] if matching else None,
     }
+
+
+# --- CLI harness for dev/test ---
+if __name__ == "__main__":
+    print("⚡ Running CodexTrace self-test...")
+
+    ctx = {"container_id": "test-container", "ghx_id": "ghx-001"}
+    _global_trace.trace_execution("⊗(R1,R2)", result="R3", context=ctx, source="codex_executor")
+
+    _global_trace.inject_prediction_trace(
+        container_id="test-container",
+        glyph_id="⊗",
+        beam_source="photon",
+        predicted_label="⊗",
+        confidence=0.93,
+        entropy=0.12,
+        logic_score=0.88,
+        all_candidates=["⊗", "∇", "□"],
+    )
+
+    print(_global_trace.to_json())

@@ -13,13 +13,17 @@ from backend.modules.codex.codex_memory_triggers import CodexMemoryTrigger
 from backend.modules.codex.codex_autopilot import CodexAutopilot
 from backend.modules.codex.codex_boot import boot_codex_runtime
 from backend.modules.codex.codex_executor import CodexExecutor
-from backend.modules.codex.codex_cost_estimator import CodexCostEstimator  # ✅ NEW
+from backend.modules.codex.codex_cost_estimator import CodexCostEstimator
 from backend.modules.tessaris.tessaris_engine import TessarisEngine
 from backend.modules.hexcore.memory_engine import MEMORY
 from backend.modules.state_manager import STATE
 
-# ✅ Cost threshold (adjust as needed)
+# ✅ New: QWave emitter
+from backend.modules.codex.codex_executor import emit_qwave_beam_ff  
+
+# ✅ Cost threshold + toggle
 COST_THRESHOLD = 100
+QWAVE_EXEC_ON = True
 
 class CodexScheduler:
     def __init__(self):
@@ -63,7 +67,6 @@ class CodexScheduler:
         glyph = task["glyph"]
         metadata = task.get("metadata", {})
 
-        # ✅ Step A11b: Estimate cost and collapse container if overload
         try:
             context = {
                 "memory": MEMORY.query(limit=10),
@@ -71,13 +74,35 @@ class CodexScheduler:
                 "metadata": metadata
             }
             cost = self.estimator.estimate_glyph_cost(glyph, context)
-            if cost.total() > COST_THRESHOLD:
+
+            # ✅ Hybrid Router
+            if QWAVE_EXEC_ON and glyph in {"∇", "⊗", "□"}:
+                print(f"🌊 Routing glyph {glyph} → QWave (cost={cost.total()})")
+                emit_qwave_beam_ff(
+                    source="codex_scheduler",
+                    payload={
+                        "wave_id": f"sched_{int(time.time()*1000)}",
+                        "event": "scheduled_exec",
+                        "mutation_type": "qwave",
+                        "container_id": metadata.get("container_id", "unknown"),
+                        "glow": getattr(cost, "energy", 0.0),
+                        "pulse": getattr(cost, "complexity", 0.0),
+                        "glyph": glyph,
+                        "cost": cost.total(),
+                    },
+                    context={"container_id": metadata.get("container_id", "unknown")}
+                )
+                return
+
+            elif cost.total() > COST_THRESHOLD:
                 print(f"⚠️ Cost {cost.total()} exceeds threshold. Triggering collapse.")
                 self._collapse_container(metadata)
-                return  # Skip execution
+                return
+
         except Exception as e:
             print(f"⚠️ Cost estimation failed: {e}")
 
+        # ✅ Default: symbolic execution
         try:
             result = self.executor.execute(glyph, metadata)
             self.metrics.record_execution()

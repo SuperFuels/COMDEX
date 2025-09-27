@@ -1,25 +1,30 @@
-# backend/modules/beamline/beam_store.py
 """
-BeamLine store: persist QWave beams + entanglements and provide simple queries.
+BeamLine store: persist QWave beams + entanglements + collapse traces and provide simple queries.
 Uses SQLAlchemy if DATABASE_URL is set; falls back to JSONL for dev.
 No top-level imports from other project modules to avoid circulars.
 """
+
 import os, json
 from datetime import datetime, UTC
 from typing import List, Dict, Any, Optional
 
 USE_SQLA = True
 try:
-    from sqlalchemy import Column, String, Float, Integer, JSON, create_engine, select
+    from sqlalchemy import (
+        Column, String, Float, Integer, JSON, DateTime,
+        create_engine, select
+    )
     from sqlalchemy.orm import declarative_base, sessionmaker
 except Exception:
     USE_SQLA = False
 
+# --- Paths / Config ---
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./dev.db")
 RUNTIME_DIR = os.path.abspath("./runtime/beamline")
 os.makedirs(RUNTIME_DIR, exist_ok=True)
 JSONL_PATH = os.path.join(RUNTIME_DIR, "beam_events.jsonl")
 
+# --- SQLAlchemy Models ---
 if USE_SQLA:
     Base = declarative_base()
 
@@ -39,10 +44,24 @@ if USE_SQLA:
     class EntanglementLink(Base):
         __tablename__ = "entanglement_links"
         id = Column(Integer, primary_key=True, autoincrement=True)
-        eid = Column(String, index=True)
-        cell_id = Column(String, index=True)
-        sheet_run_id = Column(String, index=True)
-        container_id = Column(String, index=True)
+        link_id = Column(String, index=True)
+        beam_ids = Column(JSON)  # list of beam_ids
+        strength = Column(Float, nullable=True)
+        origin = Column(String, default="qwave")
+        metadata_json = Column("metadata", JSON, default={})  # renamed to avoid conflict
+
+
+    class CodexCollapseTrace(Base):
+        __tablename__ = "codex_collapse_traces"
+        id = Column(Integer, primary_key=True, autoincrement=True)
+        trace_id = Column(String, index=True)
+        origin = Column(String, default="codex")
+        timestamp = Column(DateTime, default=datetime.utcnow)
+        scroll_id = Column(String, index=True)
+        ast_node = Column(String, index=True)
+        path = Column(JSON)  # AST path as list[str]
+        outcome = Column(String)  # collapsed|forked
+        metadata_json = Column("metadata", JSON, default={})  # renamed
 
     engine = create_engine(DATABASE_URL, future=True)
     SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False, future=True)
@@ -54,8 +73,18 @@ else:
         # JSONL fallback has no schema
         pass
 
+
+# ============================================================
+# Helpers
+# ============================================================
+
 def _dt() -> str:
     return datetime.now(UTC).isoformat()
+
+
+# ============================================================
+# Persistence Functions
+# ============================================================
 
 def persist_beam_events(cells: List[Any], context: Dict[str, Any]) -> None:
     """Persist all cell.wave_beams and the entanglement map in context."""
@@ -86,14 +115,14 @@ def persist_beam_events(cells: List[Any], context: Dict[str, Any]) -> None:
                         s.add(evt)
             # store entanglement links
             for eid, members in ent_map.items():
-                for cid in (members if isinstance(members, (set, list, tuple)) else [members]):
-                    link = EntanglementLink(
-                        eid=eid,
-                        cell_id=cid,
-                        sheet_run_id=sheet_run_id,
-                        container_id=container_id,
-                    )
-                    s.add(link)
+                link = EntanglementLink(
+                    link_id=eid,
+                    beam_ids=list(members),
+                    strength=1.0,
+                    origin="qwave",
+                    metadata={"source": "beam_store"},
+                )
+                s.add(link)
             s.commit()
     else:
         # JSONL fallback
@@ -113,6 +142,38 @@ def persist_beam_events(cells: List[Any], context: Dict[str, Any]) -> None:
                 payload["events"].append(item)
         with open(JSONL_PATH, "a", encoding="utf-8") as f:
             f.write(json.dumps(payload) + "\n")
+
+
+def persist_collapse_trace(trace: Dict[str, Any]) -> None:
+    """Persist a CodexCollapseTrace event."""
+    ensure_tables()
+    if USE_SQLA:
+        with SessionLocal() as s:
+            row = CodexCollapseTrace(
+                trace_id=trace.get("trace_id"),
+                origin=trace.get("origin", "codex"),
+                timestamp=trace.get("timestamp") or datetime.utcnow(),
+                scroll_id=trace.get("scroll_id"),
+                ast_node=trace.get("ast_node"),
+                path=trace.get("path", []),
+                outcome=trace.get("outcome"),
+                metadata=trace.get("metadata", {}),
+            )
+            s.add(row)
+            s.commit()
+    else:
+        payload = {
+            "type": "collapse_trace",
+            **trace,
+            "timestamp": _dt(),
+        }
+        with open(JSONL_PATH, "a", encoding="utf-8") as f:
+            f.write(json.dumps(payload) + "\n")
+
+
+# ============================================================
+# Query Functions
+# ============================================================
 
 def get_beams_for_eid(eid: str, limit: int = 100, container_id: Optional[str] = None) -> List[Dict[str, Any]]:
     if USE_SQLA:
@@ -146,6 +207,7 @@ def get_beams_for_eid(eid: str, limit: int = 100, container_id: Optional[str] = 
             pass
         return out
 
+
 def get_lineage_for_cell(cell_id: str, limit: int = 500) -> List[Dict[str, Any]]:
     if USE_SQLA:
         with SessionLocal() as s:
@@ -170,6 +232,7 @@ def get_lineage_for_cell(cell_id: str, limit: int = 500) -> List[Dict[str, Any]]
         except FileNotFoundError:
             pass
         return out
+
 
 def get_sheet_lineage(sheet_run_id: str) -> Dict[str, List[Dict[str, Any]]]:
     """Return events grouped by cell for a given sheet_run_id."""
@@ -199,6 +262,7 @@ def get_sheet_lineage(sheet_run_id: str) -> Dict[str, List[Dict[str, Any]]]:
             pass
         return grouped
 
+
 def merge_entanglements(target_map: Dict[str, set], source_map: Dict[str, set]) -> Dict[str, set]:
     """Union merge two {eid -> set(cell_ids)} maps."""
     out = {k: set(v) for k, v in (target_map or {}).items()}
@@ -206,6 +270,34 @@ def merge_entanglements(target_map: Dict[str, set], source_map: Dict[str, set]) 
         out.setdefault(eid, set()).update(set(members))
     return out
 
+
 def ghost_replay_for_eid(eid: str, limit: int = 10, container_id: Optional[str] = None) -> List[Dict[str, Any]]:
     """Return the last N events tied to an entanglement id (most recent first)."""
     return get_beams_for_eid(eid=eid, limit=limit, container_id=container_id)
+
+if __name__ == "__main__":
+    ensure_tables()
+    print("✅ Tables ensured.")
+
+    # Quick insert test (BeamEvent)
+    from datetime import datetime
+    from sqlalchemy import select
+
+    with SessionLocal() as s:
+        evt = BeamEvent(
+            beam_id="beam-test-1",
+            cell_id="cell-42",
+            sheet_run_id="sheet-xyz",
+            container_id="cont-99",
+            eid="eid-123",
+            stage="emit",
+            token="⊗",
+            result={"value": 42},
+            timestamp=datetime.utcnow().isoformat(),
+        )
+        s.add(evt)
+        s.commit()
+
+        # query back
+        rows = s.execute(select(BeamEvent)).scalars().all()
+        print(f"💡 Found {len(rows)} beam_events in DB")
