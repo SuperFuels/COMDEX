@@ -8,12 +8,12 @@ Generates symbolic futures, goal-driven forecasts, and timeline branches.
 import uuid
 import random
 import math
-import logging
 import json
 import time
 from datetime import datetime, timezone
 from typing import Dict, Any, List, Optional
 
+import logging
 logger = logging.getLogger(__name__)
 
 from backend.modules.dna_chain.switchboard import DNA_SWITCH
@@ -41,7 +41,10 @@ from backend.modules.prediction.suggestion_engine import suggest_simplifications
 from backend.modules.symbolic.symbolic_meaning_tree import SymbolicMeaningTree
 from backend.modules.symbolnet.symbolnet_utils import concept_match, semantic_distance
 from backend.modules.knowledge_graph.kg_writer_singleton import get_kg_writer
-from backend.modules.codex.codex_executor import emit_qwave_beam_ff
+def get_emit_qwave_beam_ff():
+    from backend.modules.glyphwave.emit_beam import emit_qwave_beam as emit_qwave_beam_ff
+    return emit_qwave_beam_ff
+from backend.modules.spe.spe_bridge import recombine_from_beams, repair_from_drift, maybe_autofuse
 
 def get_prediction_kg_writer():
     try:
@@ -70,6 +73,7 @@ class PredictionEngine:
         self.tessaris_engine = tessaris_engine or (TessarisEngine() if TessarisEngine else None)
         self.dream_core = dream_core or (DreamCore() if DreamCore else None)
         self.soul_laws = get_soul_laws()
+        self.logger = logging.getLogger(__name__)
 
         self.gradient_engine = SymbolicGradientEngine()
         self.feedback_tracer = GlyphFeedbackTracer(container_id=self.container_id)
@@ -78,6 +82,15 @@ class PredictionEngine:
         self.brain_streamer = BrainMapStreamer()
         self.quantum_core = GlyphQuantumCore(container_id=self.container_id)
         self.history = []
+
+    @property
+    def logger(self):
+        # fallback if __init__ was skipped
+        return getattr(self, "_logger", logging.getLogger(__name__))
+
+    @logger.setter
+    def logger(self, value):
+        self._logger = value
 
     def detects_conflicting_predicts(current_text, glyphs):
         for glyph in glyphs:
@@ -442,7 +455,23 @@ class PredictionEngine:
                     }
         return None
 
-    from backend.modules.symbolic.hst.hst_injection_utils import inject_hst_to_container
+from backend.modules.symbolic.hst.hst_injection_utils import inject_hst_to_container
+
+from backend.modules.codex.codex_metrics import record_sqi_score_event  # ✅ add this at the top with other imports
+
+class PredictionEngine:
+    logger = logging.getLogger(__name__) 
+    ...
+
+    def _compute_sqi_fields(self, prediction: dict) -> dict:
+        """
+        Compute symbolic SQI drift and quality score (qscore).
+        Currently stubbed: drift = inverse confidence, qscore = scaled confidence.
+        """
+        confidence = prediction.get("confidence", 0.5)
+        drift = round(1.0 - confidence, 3)         # drift = inverse confidence
+        qscore = round(confidence * 0.9 + 0.1, 3)  # bias high confidence into qscore
+        return {"drift": drift, "qscore": qscore}
 
     def run_prediction_on_container(self, container: Dict[str, Any], context: Optional[str] = None) -> Optional[Dict[str, Any]]:
         """
@@ -488,7 +517,23 @@ class PredictionEngine:
             except Exception as e:
                 print(f"[PredictionEngine] ⚠️ Semantic scoring failed for glyph '{label}': {e}")
 
-                # ⚛️ Electron-based predictive glyph selection with SymbolNet scoring
+            try:
+                # 🔄 Lazy getter to avoid circular import
+                from backend.modules.codex.codex_executor import _get_tessaris  
+                tessaris = _get_tessaris()
+                if tessaris:
+                    glyphs = [g.get("text", "") for g in container.get("glyph_grid", []) if g.get("text")]
+                    if glyphs:
+                        intents = tessaris.extract_intents_from_glyphs(
+                            glyphs,
+                            metadata={"origin": "photon", "container_id": container.get("id")}
+                        )
+                        container.setdefault("traceMetadata", {})["tessarisIntents"] = intents
+                        logger.info(f"[PredictionEngine] Tessaris intents extracted: {intents}")
+            except Exception as e:
+                logger.warning(f"[PredictionEngine] Tessaris alignment failed: {e}")
+
+        # ⚛️ Electron-based predictive glyph selection with SymbolNet scoring
         for e in container.get("electrons", []):
             label = e.get("meta", {}).get("label", "unknown")
             best = max(e.get("glyphs", []), key=lambda g: g.get("confidence", 0), default=None)
@@ -511,6 +556,7 @@ class PredictionEngine:
 
         if electron_predictions:
             container.setdefault("trace", {}).setdefault("predictions", {})["electrons"] = electron_predictions
+
         # 🧠 Print Top 3 electrons by SQI score if available
         try:
             top3 = sorted(electron_predictions, key=lambda x: x.get("confidence", 0), reverse=True)[:3]
@@ -519,6 +565,37 @@ class PredictionEngine:
                 print(f" • {ep['electron']} → {ep['selected_prediction']} ({ep['confidence']:.3f})")
         except Exception as e:
             print(f"[PredictionEngine] ⚠️ Failed to print top electrons: {e}")
+
+        # 🌐 Beam emission + SQI logging
+        try:
+            from backend.modules.consciousness.prediction_engine import emit_qwave_beam_ff
+            from backend.modules.codex.codex_metrics import record_sqi_score_event
+
+            container_id = container.get("id", "unknown")
+            first_electron = container.get("electrons", [{}])[0]
+            glyphs = first_electron.get("glyphs", [])
+            best_glyph = max(glyphs, key=lambda g: g.get("confidence", 0), default={})
+
+            glyph_id = best_glyph.get("id", best_glyph.get("value", "unknown"))
+            qscore = best_glyph.get("confidence", 0.0)
+            drift = 1.0 - qscore  # simple drift placeholder
+
+            payload = {
+                "container_id": container_id,
+                "glyph_id": glyph_id,
+                "drift": drift,
+                "qscore": qscore,
+                "source": context or "prediction_engine",
+            }
+
+            # 🚀 Emit beam + log metrics
+            emit_qwave_beam_ff("prediction_engine", payload, context=context)
+            record_sqi_score_event(
+                container_id, glyph_id, drift, qscore, context or "prediction_engine"
+            )
+
+        except Exception as beam_err:
+            self.logger.warning(f"[PredictionEngine] ⚠️ Beam emission block failed: {beam_err}")
 
         # 📘 Logic-level contradiction detection + rewrite scoring
         expr = container.get("logic", {}).get("expression")
@@ -586,7 +663,7 @@ class PredictionEngine:
         })
 
         try:
-            from backend.modules.symbolic.hst.symbolic_tree_generator import build_symbolic_tree_from_container
+            from backend.modules.symbolic.symbol_tree_generator import build_symbolic_tree_from_container
             tree = build_symbolic_tree_from_container(container)
             predicted_paths = self.generate_probable_paths(tree)
 
@@ -604,15 +681,17 @@ class PredictionEngine:
             container["predicted_paths"] = predicted_paths
             self.logger.info(f"[PredictionEngine] Injected {len(predicted_paths)} probable paths")
 
+            # 🌐 Stream HST via WebSocket to GHX/QFC
+            from backend.modules.symbolic.hst.hst_websocket_streamer import stream_hst_to_websocket
+            stream_hst_to_websocket(
+                container_id=container.get("id", "unknown"),
+                tree=tree,
+                context="prediction_engine"
+            )
+
         except Exception as path_err:
             self.logger.warning(f"[PredictionEngine] ⚠️ Failed to generate probable paths: {path_err}")
-
-        # 🌐 Stream HST via WebSocket to GHX/QFC
-        from backend.modules.symbolic.hst.hst_websocket_streamer import stream_hst_to_websocket
-        stream_hst_to_websocket(
-            container_id=container.get("id", "unknown"),
-            context="prediction_engine"
-        )
+            tree = None  # ensure tree is defined, even if failed
 
         # 🛰️ Broadcast and enrich replay trails if available
         try:
@@ -625,7 +704,7 @@ class PredictionEngine:
                 label = path.get("label")
                 scores = self.enrich_with_symbolnet_scores(label, goal_label)
                 path.update(scores)
-            
+
                 # 🔁 🔥 Optional SQI Flags
                 if scores.get("concept_match_score", 0) > 0.9:
                     path["sqi_lock"] = True
@@ -667,25 +746,46 @@ class PredictionEngine:
         except Exception as sqi_err:
             print(f"[PredictionEngine] ⚠️ Failed to inject SQI scores: {sqi_err}")
 
-        # ✅ Emit QWave Beam for prediction output (normalized via WaveState wrapper)
+        # 🧠 Inject SQI scores into container-level structure (including electrons)
+        try:
+            from backend.modules.sqi.sqi_scorer import inject_sqi_scores_into_container
+            inject_sqi_scores_into_container(container)
+        except Exception as sqi_err:
+            print(f"[PredictionEngine] ⚠️ Failed to inject SQI scores: {sqi_err}")
+
+        # ✅ Emit QWave Beam for prediction output (normalized via WaveState wrapper + SQI scoring)
         try:
             top_prediction = electron_predictions[0] if electron_predictions else None
             if top_prediction:
-                emit_qwave_beam_ff(
-                    source="prediction_engine",
-                    payload={
-                        "wave_id": f"pred_{top_prediction['electron']}_{int(time.time()*1000)}",
-                        "event": "prediction",
-                        "mutation_type": "forecast",
-                        "container_id": container.get("id"),
-                        "confidence": top_prediction.get("confidence"),
-                        "electron": top_prediction.get("electron"),
-                        "selected_prediction": top_prediction["selected_prediction"],
-                    },
-                    context={"container_id": container.get("id")}
-                )
-        except Exception as e:
-            print(f"[PredictionEngine] ⚠️ Failed to emit QWave beam: {e}")
+                # 🔹 Compute SQI fields
+                sqi_fields = self._compute_sqi_fields(top_prediction)
+
+                # 🔹 Log into metrics
+                record_sqi_score_event(container_id, glyph_id, drift, qscore, source)
+
+                # 🔹 Emit beam with SQI metadata (lazy import to avoid circular dependency)
+                try:
+                    from backend.modules.glyphwave.emit_beam import emit_qwave_beam as emit_qwave_beam_ff
+                    emit_fn = get_emit_qwave_beam_ff()
+                    emit_fn(
+                        source="prediction_engine",
+                        payload={
+                            "wave_id": f"pred_{top_prediction['electron']}_{int(time.time()*1000)}",
+                            "event": "prediction",
+                            "mutation_type": "forecast",
+                            "container_id": container.get("id"),
+                            "confidence": top_prediction.get("confidence"),
+                            "electron": top_prediction.get("electron"),
+                            "selected_prediction": top_prediction["selected_prediction"],
+                            "drift": sqi_fields["drift"],
+                            "qscore": sqi_fields["qscore"],
+                        },
+                        context={"container_id": container.get("id")}
+                    )
+                except Exception as emit_err:
+                    print(f"[PredictionEngine] ⚠️ Failed to emit QWave beam: {emit_err}")
+        except Exception as beam_err:
+            print(f"[PredictionEngine] ⚠️ Beam emission block failed: {beam_err}")
 
         return {
             "status": "contradiction" if contradiction_found else "ok",
@@ -1124,3 +1224,7 @@ __all__ = [
     "run_prediction_on_ast",
     "select_best_prediction"
 ]
+from backend.modules.glyphwave.emit_beam import emit_qwave_beam as emit_qwave_beam_ff
+
+# alias for compatibility with tests
+emit_qwave_beam_ff = get_emit_qwave_beam_ff()

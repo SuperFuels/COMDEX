@@ -22,6 +22,7 @@ LogicalAnd = sp.Function("And")
 LogicalOr = sp.Function("Or")
 LogicalNot = sp.Function("Not")
 
+
 class GradPower(sp.Function):
     """Symbolic shorthand for higher-order gradients ∇ⁿ(expr)."""
     nargs = 2  # (expr, n)
@@ -95,6 +96,7 @@ def _glyph_to_sympy(expr: str) -> str:
         name = m.group(1)
         args = m.group(2)
         return f"Grad({name}({args}))"
+
     expr = re.sub(r"∇\s*([A-Za-z_]\w*)\s*\(([^()]*)\)", _grad_fun_repl, expr)
 
     # 5) Bare ∇x → Grad(x)
@@ -120,7 +122,7 @@ def _product_rule(terms):
     return total
 
 
-def _expand_gradient(expr):
+def _expand_gradient(expr, lazy=False, max_terms=3):
     """Gradient expansion rules (linearity, product rule, composition, nested functions, constants)."""
     if isinstance(expr, AppliedUndef) and expr.func == Grad:
         arg = expr.args[0]
@@ -141,8 +143,10 @@ def _expand_gradient(expr):
         if isinstance(arg, sp.Add):
             return sp.Add(*[Grad(term) for term in arg.args])
 
-        # Product rule
+        # Product rule — lazy mode avoids full expansion for large products
         if isinstance(arg, sp.Mul):
+            if lazy and len(arg.args) > max_terms:
+                return Grad(arg)
             return _product_rule(list(arg.args))
 
         # Explicit composition
@@ -168,7 +172,7 @@ def _expand_gradient(expr):
 
 
 class PhotonRewriter:
-    def __init__(self):
+    def __init__(self, max_steps=200, max_size=5000, lazy_grad=False):
         self.axioms = AXIOMS
         self.local_dict = {
             "Eq": sp.Eq,
@@ -180,6 +184,23 @@ class PhotonRewriter:
             "Or": LogicalOr,
             "Not": LogicalNot,
         }
+        self.max_steps = max_steps
+        self.max_size = max_size
+        self.lazy_grad = lazy_grad
+
+        # Pre-parse axioms once (cache)
+        self._axioms_parsed = []
+        for lhs, rhs, _ in self.axioms.values():
+            try:
+                lhs_sym = parse_expr(
+                    _glyph_to_sympy(lhs), evaluate=False, local_dict=self.local_dict
+                )
+                rhs_sym = parse_expr(
+                    _glyph_to_sympy(rhs), evaluate=False, local_dict=self.local_dict
+                )
+                self._axioms_parsed.append((lhs, rhs, lhs_sym, rhs_sym))
+            except Exception:
+                continue
 
     def normalize(self, expr: str):
         expr_std = _glyph_to_sympy(expr)
@@ -188,7 +209,12 @@ class PhotonRewriter:
         _dprint("Initial parse:", expr, "=>", expr_std, "=>", expr_sym)
 
         seen = set()
-        for step in range(50):
+        for step in range(self.max_steps):
+            # safety: stop if expr grows too large
+            if len(list(sp.preorder_traversal(expr_sym))) > self.max_size:
+                _dprint(f"Aborting: expr too large at step {step}")
+                break
+
             key = sp.srepr(expr_sym)
             if key in seen:
                 _dprint("Cycle detected at step", step, "expr:", expr_sym)
@@ -200,21 +226,15 @@ class PhotonRewriter:
             # Expand gradients
             expr_sym = expr_sym.replace(
                 lambda e: isinstance(e, AppliedUndef) and e.func == Grad,
-                _expand_gradient,
+                lambda e: _expand_gradient(e, lazy=self.lazy_grad),
             )
 
             if sp.srepr(expr_sym) != before:
                 _dprint("Gradient expanded →", expr_sym)
 
             # Apply axioms
-            for _, (lhs, rhs, _) in self.axioms.items():
+            for lhs, rhs, lhs_sym, rhs_sym in self._axioms_parsed:
                 try:
-                    lhs_sym = parse_expr(
-                        _glyph_to_sympy(lhs), evaluate=False, local_dict=self.local_dict
-                    )
-                    rhs_sym = parse_expr(
-                        _glyph_to_sympy(rhs), evaluate=False, local_dict=self.local_dict
-                    )
                     new_expr = expr_sym.xreplace({lhs_sym: rhs_sym})
                     if new_expr != expr_sym:
                         _dprint(f"Axiom applied {lhs} → {rhs}: {expr_sym} → {new_expr}")
@@ -243,5 +263,5 @@ class PhotonRewriter:
         return bool(getattr(n1, "equals", lambda *_: False)(n2)) or (str(n1) == str(n2))
 
 
-# Singleton instance
+# Singleton instance with defaults
 rewriter = PhotonRewriter()

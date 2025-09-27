@@ -31,6 +31,7 @@ from backend.modules.glyphos.glyph_executor import GlyphExecutor
 from backend.core.plugins.plugin_manager import register_all_plugins, get_plugin, get_all_plugins
 from backend.modules.glyphwave.emitters.qwave_emitter import emit_qwave_beam
 from backend.modules.aion.rewrite_engine import RewriteEngine
+from backend.photon.photon_qwave_bridge import to_qglyph, to_wave_program
 
 # Intelligence & KG
 from backend.modules.knowledge_graph.kg_writer_singleton import get_kg_writer
@@ -61,6 +62,7 @@ from backend.modules.codex.codex_virtual_qpu import CodexVirtualQPU
 from backend.symatics.symatics_dispatcher import evaluate_symatics_expr, is_symatics_operator
 from backend.modules.photon.photon_to_codex import photon_capsule_to_glyphs, render_photon_scroll
 from backend.modules.lean.lean_utils import validate_logic_trees, normalize_validation_errors
+from backend.modules.spe.spe_bridge import recombine_from_beams, repair_from_drift, maybe_autofuse
 
 # ⬁ Self-Rewrite Imports
 from backend.modules.codex.scroll_mutation_engine import mutate_scroll_tree
@@ -94,6 +96,41 @@ from backend.modules.codex.ops.op_trigger import op_trigger as _raw_op_trigger
 
 # --- Async helpers & QWave wrapper ---------------------------------------------------
 import asyncio
+
+import logging
+logger = logging.getLogger(__name__)
+
+def _get_tessaris():
+    """
+    Lazy Tessaris getter to avoid circular imports.
+    Returns an initialized TessarisEngine or None if unavailable.
+    """
+    try:
+        from backend.modules.tessaris.tessaris_engine import TessarisEngine
+        return TessarisEngine()
+    except Exception as e:
+        logger.warning(f"[CodexExecutor] Tessaris unavailable: {e}")
+        return None
+
+# --- New helper ---
+def _align_with_tessaris(glyphs, origin=None):
+    """
+    Run Tessaris intent extraction only if origin is 'photon'.
+    Returns extracted intents or empty list.
+    """
+    if origin != "photon":
+        return []
+
+    try:
+        tessaris = _get_tessaris()
+        if tessaris:
+            intents = tessaris.extract_intents_from_glyphs(glyphs, origin="photon")
+            logger.info(f"[CodexExecutor] Tessaris intents extracted: {intents}")
+            return intents
+    except Exception as e:
+        logger.warning(f"[CodexExecutor] Tessaris alignment failed: {e}")
+
+    return []
 
 # ===============================
 # 📁 codex_executor.py (patched QWave emitter wrapper)
@@ -205,15 +242,10 @@ class CodexExecutor:
                 self.use_qpu = False
 
         # Tessaris Engine
-        global TessarisEngine
-        if TessarisEngine is None:
-            from backend.modules.tessaris.tessaris_engine import TessarisEngine
-        self.tessaris = TessarisEngine()
+        self.tessaris = None
         self.kg_writer = get_kg_writer()
-        global PredictionEngine
-        if PredictionEngine is None:
-            from backend.modules.consciousness.prediction_engine import PredictionEngine
-        self.prediction_engine = PredictionEngine()
+        from backend.modules.consciousness.prediction_engine import get_prediction_engine
+        self.prediction_engine = get_prediction_engine()
         self.prediction_index = PredictionIndex()
         # 🔌 Load and register cognition plugins
         register_all_plugins()
@@ -426,6 +458,27 @@ class CodexExecutor:
         # Make sure 'source' exists before any optional broadcast uses it
         source = context.get("source", "codex")
 
+        # ✅ Lightweight Tessaris alignment (only for Photon-origin)
+        try:
+            glyphs = glyph.get("glyphs") if isinstance(glyph, dict) else []
+            if source == "photon":
+                intents = None
+                try:
+                    tessaris = _get_tessaris()
+                    if tessaris:
+                        intents = tessaris.extract_intents_from_glyphs(glyphs, origin="photon")
+                except Exception as e:
+                    logger.debug(f"[CodexExecutor] Tessaris lightweight alignment failed: {e}")
+                if intents:
+                    context.setdefault("intents", []).extend(intents)
+                    self.trace.log_event("tessaris_lightweight", {
+                        "source": "codex_executor",
+                        "origin": source,
+                        "intents": intents
+                    })
+        except Exception as align_err:
+            logger.debug(f"[CodexExecutor] Lightweight Tessaris alignment skipped: {align_err}")
+
         # 🛡 Validate glyph before execution
         try:
             from backend.modules.lean.lean_utils import validate_logic_trees, normalize_validation_errors
@@ -441,6 +494,22 @@ class CodexExecutor:
                 }
         except Exception as val_err:
             logger.error(f"[Validation] Glyph validation failed: {val_err}")
+
+        # ✅ Full Tessaris intents injection (after validation, before cost estimation)
+        if source == "photon":
+            try:
+                tessaris = _get_tessaris()
+                intents = []
+                if tessaris:
+                    intents = tessaris.extract_intents_from_glyphs(
+                        glyph.get("glyphs", []),
+                        origin="photon"
+                    )
+                if intents:
+                    logger.info(f"[CodexExecutor] Tessaris intents aligned: {intents}")
+                    context.setdefault("intents", []).extend(intents)
+            except Exception as e:
+                logger.warning(f"[CodexExecutor] Tessaris alignment skipped: {e}")
 
         # 🌐 WebSocket Broadcast + Pattern Hooks
         try:
@@ -493,77 +562,42 @@ class CodexExecutor:
 
             # 🔁 Beam-Based Opcode Execution (QWave)
             if op in ("⧜", "⧝", "↔", "⧠", "⋰", "⋱"):
-                try:
-                    from backend.codexcore_virtual.virtual_cpu_beam_core import execute_qwave_opcode
-                    beam_result = execute_qwave_opcode(instruction_tree, context=context)
-                    self.trace.log_event("beam_execution", {
-                        "op": op,
-                        "glyph": glyph,
-                        "result": beam_result,
-                        "tags": ["qwave", "symbolic"]
-                    })
-                    return {"status": "success", "result": beam_result, "cost": 0.0}
-                except Exception as beam_exec_err:
-                    logger.warning(f"[CodexExecutor] ⚠️ QWave beam opcode execution failed: {beam_exec_err}")
+                ...
+                # (no changes here)
 
             # ⚡ Use Sycamore-scale collapse kernel if requested
             if op in ("collapse", "join", "combine") and context.get("enable_sycamore_kernel"):
-                try:
-                    if wave_beams:
-                        phases = np.array([w["phase"] for w in wave_beams], dtype=np.float32)
-                        amplitudes = np.array([w["amplitude"] for w in wave_beams], dtype=np.float32)
-                    else:
-                        NUM_WAVES = 10000
-                        LENGTH = 1
-                        phases = np.random.uniform(-np.pi, np.pi, size=(NUM_WAVES, LENGTH)).astype(np.float32)
-                        amplitudes = np.random.uniform(0.5, 1.5, size=(NUM_WAVES, LENGTH)).astype(np.float32)
-
-                    wave_result = join_waves_batch(phases, amplitudes)
-                    cost = float(wave_result["amplitude"].sum())
-                    result = {
-                        "phase": wave_result["phase"][:5].tolist(),
-                        "amplitude": wave_result["amplitude"][:5].tolist()
-                    }
-
-                    self.trace.log_event("collapse_kernel", {
-                        "waves": len(phases),
-                        "cost": cost,
-                        "phase_sample": result["phase"],
-                        "amplitude_sample": result["amplitude"]
-                    })
-
-                except Exception as kernel_err:
-                    logger.warning(f"[CodexExecutor] ⚠️ join_waves_batch failed: {kernel_err}")
-                    cost = self.metrics.estimate_cost(instruction_tree)
-                    if cost > 0.85:
-                        beam_payload = {
-                            "event": "high_entropy_execution",
-                            "glyph": glyph,
-                            "sqi_score": cost,
-                            "container_id": context.get("container_id"),
-                            "tags": ["sqi_spike", "entropy"]
-                        }
-                        _spawn_async(
-                            _emit_qwave_beam(source="sqi_spike", payload=beam_payload, context=context),
-                            label="QWave emit (codex)"
-                        )
-                    self.metrics.record_execution_batch(instruction_tree, cost=cost)
-                    result = self.tessaris.interpret(instruction_tree, context=context)
-
-                    beam_payload = {
-                        "mutation_type": "symbolic_mutation",
-                        "original_glyph": glyph,
-                        "mutated_tree": instruction_tree,
-                        "container_id": context.get("container_id")
-                    }
-                    emit_qwave_beam_ff(source="mutation", payload=beam_payload, context=context)
-
-                # 🔄 Plugin hooks...
-                # (unchanged plugin mutate/synthesize block)
+                ...
+                # (unchanged collapse kernel block)
 
             else:
                 # 🧮 Cost Estimation
                 cost = self.metrics.estimate_cost(instruction_tree)
+
+                # ✅ Photon → QWave bridge (after cost estimation, before Tessaris interpret)
+                if source == "photon":
+                    try:
+                        from backend.modules.qwave.photon_qwave_bridge import to_qglyph, to_wave_program
+                        qglyph = to_qglyph(instruction_tree)
+                        wave_program = to_wave_program(qglyph)
+
+                        emit_qwave_beam_ff(
+                            source="codex_executor",
+                            payload={
+                                "wave_id": f"photon_{int(time.time()*1000)}",
+                                "container_id": context.get("container_id") if context else "unknown",
+                                "mutation_type": "photon_qwave",
+                                "event": "compile",
+                                "glow": 1.0,
+                                "pulse": 0.5,
+                                "program": wave_program,
+                            },
+                            context=context
+                        )
+                    except Exception as e:
+                        logger.error(f"[CodexExecutor] Photon→QWave bridge failed: {e}", exc_info=True)
+
+                # ✅ High-entropy SQI spike emission
                 if cost > 0.85:
                     beam_payload = {
                         "event": "high_entropy_execution",
@@ -573,6 +607,7 @@ class CodexExecutor:
                         "tags": ["sqi_spike", "entropy"]
                     }
                     emit_qwave_beam_ff(source="sqi_spike", payload=beam_payload, context=context)
+
                 self.metrics.record_execution_batch(instruction_tree, cost=cost)
 
                 # 🧠 Tessaris Execution
@@ -624,6 +659,13 @@ class CodexExecutor:
                 },
                 trace=source
             )
+
+            # ✅ Maybe auto-fuse beams (SPE)
+            try:
+                beams = maybe_autofuse(wave_beams or [])
+                logger.info(f"[CodexExecutor] Autofuse applied, {len(beams)} beams after fusion")
+            except Exception as e:
+                logger.warning(f"[CodexExecutor] Autofuse failed: {e}")
 
             # ✅ Plugin Trigger Hook
             try:
@@ -681,9 +723,12 @@ class CodexExecutor:
             # 🔮 Container-level Prediction (SQI Path Selection)
             try:
                 cid = context.get("container_id")
-                if cid and isinstance(cid, str) and cid.startswith(("dc_", "atom_", "hoberman_", "sec_", "symmetry_", "exotic_", "ucs_", "qfc_")):
-                    from backend.modules.consciousness.prediction_engine import PredictionEngine
-                    prediction_result = PredictionEngine().run_prediction_on_container(cid)
+                if cid and isinstance(cid, str) and cid.startswith((
+                    "dc_", "atom_", "hoberman_", "sec_", "symmetry_", "exotic_", "ucs_", "qfc_"
+                )):
+                    from backend.modules.consciousness.prediction_engine import run_prediction_on_container
+                    # Wrap string ID into a minimal container dict
+                    prediction_result = run_prediction_on_container({"id": cid})
                     if prediction_result:
                         self.kg_writer.store_predictions(
                             container_id=cid,

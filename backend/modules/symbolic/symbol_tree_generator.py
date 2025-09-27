@@ -323,7 +323,8 @@ def build_symbolic_tree_from_container(
         tree.node_index[e_node.id] = e_node
 
         if emit_wave:
-            emit_from_glyph(glyph, source="symbol_tree_builder")
+            injector = WaveInjector(CarrierMemory())
+            injector.emit_from_glyph(glyph, source="symbol_tree_builder")
 
         preds = electron.get("predictions", [])
         for pred in preds:
@@ -373,7 +374,8 @@ def build_symbolic_tree_from_container(
                 parent=atom_node
             )
             if emit_wave:
-                emit_from_glyph(glyph, source="symbol_tree_builder")
+                injector = WaveInjector(CarrierMemory())
+                injector.emit_from_glyph(glyph, source="symbol_tree_builder")
 
         sub_electrons = atom.get("electrons", [])
         for electron in sub_electrons:

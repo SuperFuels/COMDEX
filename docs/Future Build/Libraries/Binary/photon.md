@@ -24,18 +24,18 @@ graph TD
 
     A2[✅ Execution traces] --> A2a[✅ codex_trace.py exists + executor now invokes trace_execution]
 
-    A3[🔴 WebSocket in/out] --> A3a[🔴 Add {source:'photon'} in codex_websocket_interface.py]
+    A3[✅ WebSocket in/out] --> A3a[✅ Added {source:'photon'} in codex_websocket_interface.py]
 
-    A4[🔴 Tessaris alignment] --> A4a[🔴 Run _get_tessaris().extract_intents_from_glyphs() w/ {origin:'photon'}]
+    A4[✅ Tessaris alignment] --> A4a[✅ _get_tessaris().extract_intents_from_glyphs() w/ {origin:'photon'}]
 
     A5[✅ Success criteria] --> A5a[CodexLang string → Codex exec → trace → Photon AST consistent]
   end
 
   subgraph Phase2["## Phase 2 — Photon ↔ QWave (symbolic→wave compilation & hybrid execution)"]
-    B1[🔴 Symbolic→Wave Adapter] --> B1a[🔴 Add photon_qwave_bridge.py w/ to_qglyph() & to_wave_program()]
+    B1[✅ Symbolic→Wave Adapter] --> B1a[✅ photon_qwave_bridge.py w/ to_qglyph() & to_wave_program()]
 
-    B2[🟡 Hybrid scheduler] --> B2a[🟡 codex_scheduler.py: add routing symbolic vs QWave ops (∇ ⊗ □)]
-    B2 --> B2b[🟡 Gate via COST_THRESHOLD + QWAVE_EXEC_ON]
+    B2[✅ Hybrid scheduler] --> B2a[✅ codex_scheduler.py: add routing symbolic vs QWave ops (∇ ⊗ □)]
+    B2 --> B2b[✅ Gate via COST_THRESHOLD + QWAVE_EXEC_ON]
 
     B3[🟡 Map core ops] --> B3a[🟡 wave_glyph.py / wave_field.py / entangled_wave.py exist]
     B3 --> B3b[🔴 Extend instruction_registry.py with physics ops (∇ Δ ⊗ × • □)]
@@ -45,14 +45,14 @@ graph TD
     B4 --> B4b[✅ carrier_memory.py manages state]
     B4 --> B4c[✅ emit_beam.py / qwave_emitter.py wrappers patched (WaveState wrapper in codex_executor)]
 
-    B5[🔴 Success criteria] --> B5a[Expr ∇/⊗ → QWave beams persisted + precision profile]
+    B5[🟡 Success criteria] --> B5a[Expr ∇/⊗ → QWave beams persisted + precision profile]
   end
 
   subgraph Phase3["## Phase 3 — QWave ↔ SQI (collapse → drift → scoring → policy)"]
-    C1[🔴 Beam→SQI pipeline] --> C1a[🔴 Add sqi_beam_kernel.process_beams() after persist_beam_events]
+    C1[✅ Beam→SQI pipeline] --> C1a[✅ sqi_beam_kernel.process_beams() after persist_beam_events]
 
-    C2[🔴 Attach drift & qscore] --> C2a[🔴 Add {drift,qscore} to beams via SQI]
-    C2 --> C2b[🔴 Log w/ codex_metrics.record_sqi_score_event(...)]
+    C2[✅ Attach drift & qscore] --> C2a[✅ Added {drift,qscore} to beams via SQI]
+    C2 --> C2b[✅ Logged w/ codex_metrics.record_sqi_score_event(...)]
 
     C3[🔴 SoulLaw policy hook] --> C3a[🔴 log_soullaw_event(...) before reinjection]
     C3 --> C3b[🔴 Veto path in codex_scheduler or QWave emitter]
@@ -60,20 +60,19 @@ graph TD
     C4[🟡 KG export] --> C4a[✅ beam_store supports persistence + lineage]
     C4 --> C4b[🔴 Wire kg_writer_singleton.write_* for scored beams]
 
-    C5[🔴 Success criteria] --> C5a[Collapsed beams → scored + vetted + exported to KG]
+    C5[🟡 Success criteria] --> C5a[Collapsed beams → scored + vetted + exported to KG]
   end
 
   subgraph Phase4["## Phase 4 — SQI ↔ Pattern Engine (fusion, repair, predictive paths)"]
-    D1[🔴 SPE entrypoints] --> D1a[🔴 Add spe_bridge.py w/ recombine_from_beams() + repair_from_drift()]
+    D1[✅ SPE entrypoints] --> D1a[✅ spe_bridge.py w/ recombine_from_beams() + repair_from_drift()]
 
-    D2[🟡 DNA mutation logging] --> D2a[✅ dna_mutation_tracker.add_dna_mutation(...) exists]
-    D2 --> D2b[🟡 Must be wired to SPE entrypoints]
+    D2[✅ DNA mutation logging] --> D2a[✅ dna_mutation_tracker.add_dna_mutation(...) exists]
+    D2 --> D2b[✅ Wired to SPE entrypoints]
 
-    D3[🟡 Autofuse] --> D3a[✅ SPE_AUTO_FUSE flag exists]
-    D3 --> D3b[🟡 Needs integration to auto-inject fusion glyphs]
+    D3[✅ Autofuse] --> D3a[✅ SPE_AUTO_FUSE flag exists]
+    D3 --> D3b[✅ Integrated to auto-inject fusion glyphs]
 
-    D4[🔴 Success criteria] --> D4a[Drift → SPE triggers, fused glyphs injected, metrics logged]
-  
+    D4[🟡 Success criteria] --> D4a[Drift → SPE triggers, fused glyphs injected, metrics logged]
   end
 
 ## Phase 5 — Unified KG Export & Replay (QFC/GHX/Dream)
