@@ -38,7 +38,7 @@ graph TD
     B2 --> B2b[✅ Gate via COST_THRESHOLD + QWAVE_EXEC_ON]
 
     B3[🟡 Map core ops] --> B3a[🟡 wave_glyph.py / wave_field.py / entangled_wave.py exist]
-    B3 --> B3b[🔴 Extend instruction_registry.py with physics ops (∇ Δ ⊗ × • □)]
+    B3 --> B3b[✅ Extended instruction_registry.py with physics ops (∇ Δ ⊗ × • □)]
     B3 --> B3c[🟡 Ensure _need_pk() gives friendly errors]
 
     B4[✅ Emit beams] --> B4a[✅ beam_store.persist_beam_events(...) working]

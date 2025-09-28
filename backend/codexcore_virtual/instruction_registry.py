@@ -253,12 +253,12 @@ _safe_register("•", _h_dot)         # dot product
 _safe_register("×", _h_cross)       # cross product
 _safe_register("⊗", _h_tensor)      # tensor product (will be skipped if ⊗ already used elsewhere)
 
-# Quantum / wave / GR (only work if physics_kernel provides the functions)
-_safe_register("ℏ", _h_hbar)
-_safe_register("iħ∂/∂t", _h_schrod)
-_safe_register("□", _h_box)
-_safe_register("∂_μ", _h_partial_mu)
-_safe_register("∇_μ", _h_nabla_mu)
+# Quantum / wave / GR
+_safe_register("ℏ", _h_hbar)        # Planck constant
+_safe_register("iħ∂/∂t", _h_schrod) # Schrödinger equation term
+_safe_register("□", _h_box)         # d'Alembert operator
+_safe_register("∂_μ", _h_partial_mu) # partial derivative (relativity)
+_safe_register("∇_μ", _h_nabla_mu)   # covariant derivative
 
 # --------------------------
 # ASCII aliases & negation
@@ -299,12 +299,14 @@ _safe_register("¬", _h_negation)
 # operator semantics (useful for schedulers, bridges, KG writers).
 
 INSTRUCTION_METADATA: Dict[str, Dict[str, str]] = {
-    "∇": {"type": "physics_op", "impl": "gradient_operator"},
-    "Δ": {"type": "physics_op", "impl": "laplacian_operator"},
-    "⊗": {"type": "physics_op", "impl": "tensor_product"},
-    "×": {"type": "physics_op", "impl": "cross_product"},
-    "•": {"type": "physics_op", "impl": "dot_product"},
-    "□": {"type": "physics_op", "impl": "dalambertian_operator"},
+    "∇":  {"type": "physics_op", "impl": "gradient_operator"},
+    "∇·": {"type": "physics_op", "impl": "divergence_operator"},
+    "∇×": {"type": "physics_op", "impl": "curl_operator"},
+    "Δ":  {"type": "physics_op", "impl": "laplacian_operator"},
+    "⊗":  {"type": "physics_op", "impl": "tensor_product"},
+    "×":  {"type": "physics_op", "impl": "cross_product"},
+    "•":  {"type": "physics_op", "impl": "dot_product"},
+    "□":  {"type": "physics_op", "impl": "dalambertian_operator"},
 }
 
 # --------------------------

@@ -6,63 +6,77 @@ Photon ↔ Codex Adapter
 
 Bridges Codex scrolls (CodexLang ASTs) with Photon ASTs
 so both systems can share a consistent symbolic execution tree.
-
-Contracts:
-  - Input: Codex scroll (from codex_scroll_builder / codexlang_parser)
-  - Output: Photon-compatible AST (dict-based JSON)
-  - Reverse: Photon AST → Codex AST
-
-Downstream:
-  - BeamEvents and CollapseTraces must remain aligned
-  - Tessaris intent alignment (metadata={"origin":"photon"})
 """
 
 from typing import Dict, Any
+
+try:
+    from backend.modules.symbolic.codex_ast_types import CodexAST
+except ImportError:
+    CodexAST = None  # Safe fallback if class not available
 
 
 # -------------------------------
 # Core conversion
 # -------------------------------
 
-def codex_to_photon_ast(codex_scroll: Dict[str, Any]) -> Dict[str, Any]:
+def codex_to_photon_ast(codex_scroll: Any) -> Dict[str, Any]:
     """
     Convert a Codex scroll (AST from CodexLang parser) into a Photon AST.
-
-    Args:
-        codex_scroll (dict): Parsed Codex AST
-
-    Returns:
-        dict: Photon AST, JSON-compatible
     """
+    # ✅ Unwrap CodexAST → dict
+    if CodexAST and isinstance(codex_scroll, CodexAST):
+        codex_scroll = codex_scroll.data
+
+    if not isinstance(codex_scroll, dict):
+        raise TypeError(
+            f"codex_to_photon_ast expected dict or CodexAST, got {type(codex_scroll)}"
+        )
+
+    root = codex_scroll.get("root")
+    nodes = codex_scroll.get("nodes", [])
+    args = codex_scroll.get("args", [])
+
+    # ✅ Handle CodexLang function AST (root + args)
+    if root and not nodes and args:
+        nodes = [{"op": root, "args": args}]
+
+    # ✅ Always propagate root explicitly
     return {
         "ast_type": "photon_ast",
         "origin": "codex",
-        "root": codex_scroll.get("root"),
-        "nodes": codex_scroll.get("nodes", []),
+        "root": root or (nodes[0]["op"] if nodes else None),
+        "nodes": nodes,
         "metadata": {
             "source": "codex",
             "glyphs": codex_scroll.get("glyphs", []),
             "intents": codex_scroll.get("intents", []),
-        }
+        },
     }
 
 
 def photon_to_codex_ast(photon_ast: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Convert a Photon AST back into Codex scroll format.
+    """Convert a Photon AST back into Codex scroll format."""
+    root = photon_ast.get("root")
+    nodes = photon_ast.get("nodes", [])
+    glyphs = photon_ast.get("metadata", {}).get("glyphs", [])
+    intents = photon_ast.get("metadata", {}).get("intents", [])
 
-    Args:
-        photon_ast (dict): Photon AST
-
-    Returns:
-        dict: Codex scroll-compatible structure
-    """
-    return {
-        "root": photon_ast.get("root"),
-        "nodes": photon_ast.get("nodes", []),
-        "glyphs": photon_ast.get("metadata", {}).get("glyphs", []),
-        "intents": photon_ast.get("metadata", {}).get("intents", []),
+    codex_ast = {
+        "root": root,
+        "nodes": nodes,
+        "glyphs": glyphs,
+        "intents": intents,
     }
+
+    # ✅ Rebuild args from simple single-node ops
+    if not codex_ast.get("args") and nodes and len(nodes) == 1:
+        op_node = nodes[0]
+        if isinstance(op_node, dict) and "op" in op_node and "args" in op_node:
+            codex_ast["root"] = op_node["op"]
+            codex_ast["args"] = op_node["args"]
+
+    return codex_ast
 
 
 # -------------------------------
@@ -70,20 +84,11 @@ def photon_to_codex_ast(photon_ast: Dict[str, Any]) -> Dict[str, Any]:
 # -------------------------------
 
 def align_with_tessaris(photon_ast: Dict[str, Any], tessaris) -> Dict[str, Any]:
-    """
-    Run Tessaris alignment on a Photon AST to enrich with symbolic intents.
-
-    Args:
-        photon_ast (dict): Photon AST
-        tessaris: Tessaris engine instance (must expose extract_intents_from_glyphs)
-
-    Returns:
-        dict: Updated Photon AST with Tessaris intents
-    """
+    """Run Tessaris alignment on a Photon AST to enrich with symbolic intents."""
     glyphs = photon_ast.get("metadata", {}).get("glyphs", [])
     intents = tessaris.extract_intents_from_glyphs(
         glyphs,
-        metadata={"origin": "photon"}
+        metadata={"origin": "photon"},
     )
     photon_ast["metadata"]["intents"] = intents
     return photon_ast
@@ -94,16 +99,17 @@ def align_with_tessaris(photon_ast: Dict[str, Any], tessaris) -> Dict[str, Any]:
 # -------------------------------
 if __name__ == "__main__":
     # Fake Codex scroll for testing
-    codex_scroll = {
-        "root": "⊗",
-        "nodes": [
-            {"id": "n1", "op": "⊗", "args": ["R1", "R2"]}
-        ],
-        "glyphs": ["⊗", "R1", "R2"],
-        "intents": []
-    }
+    class DummyCodexAST:
+        def __init__(self):
+            self.data = {
+                "root": "greater_than",
+                "args": ["x", "y"],
+                "glyphs": ["greater_than", "x", "y"],
+                "intents": [],
+            }
 
-    photon_ast = codex_to_photon_ast(codex_scroll)
+    codex_ast = DummyCodexAST()
+    photon_ast = codex_to_photon_ast(codex_ast)
     print("Photon AST:", photon_ast)
 
     roundtrip = photon_to_codex_ast(photon_ast)

@@ -1,4 +1,4 @@
-# 📁 backend/modules/codex/codex_ws_runtime.py
+# 📁 backend/modules/codex/codex_websocket_interface.py
 
 import json
 import traceback
@@ -103,7 +103,10 @@ async def codex_ws_handler(websocket: WebSocket):
                     # ✅ Tessaris alignment (photon-aware)
                     origin = context.get("source", "codex")
                     if origin == "photon":
-                        _get_tessaris().extract_intents_from_glyphs([glyph], {**metadata, "origin": "photon"})
+                        _get_tessaris().extract_intents_from_glyphs(
+                            [glyph],
+                            {**metadata, "origin": "photon"}
+                        )
                     else:
                         _get_tessaris().extract_intents_from_glyphs([glyph], metadata)
 
@@ -134,8 +137,10 @@ async def codex_ws_handler(websocket: WebSocket):
 
                     # ✅ Photon Tessaris alignment
                     if origin == "photon":
-                        _get_tessaris().extract_intents_from_glyphs(result if isinstance(result, list) else [scroll],
-                                                                  {**metadata, "origin": "photon"})
+                        _get_tessaris().extract_intents_from_glyphs(
+                            result if isinstance(result, list) else [scroll],
+                            {**metadata, "origin": "photon"}
+                        )
 
                     await websocket.send_text(json.dumps({
                         "status": "ok",

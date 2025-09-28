@@ -14,16 +14,19 @@ from backend.modules.codex.codex_autopilot import CodexAutopilot
 from backend.modules.codex.codex_boot import boot_codex_runtime
 from backend.modules.codex.codex_executor import CodexExecutor
 from backend.modules.codex.codex_cost_estimator import CodexCostEstimator
-from backend.modules.tessaris.tessaris_engine import TessarisEngine
 from backend.modules.hexcore.memory_engine import MEMORY
 from backend.modules.state_manager import STATE
 
 # ✅ New: QWave emitter
 from backend.modules.codex.codex_executor import emit_qwave_beam_ff  
 
+# ✅ Tessaris utils
+from backend.modules.tessaris.tessaris_utils import _get_tessaris  
+
 # ✅ Cost threshold + toggle
 COST_THRESHOLD = 100
 QWAVE_EXEC_ON = True
+
 
 class CodexScheduler:
     def __init__(self):
@@ -34,7 +37,6 @@ class CodexScheduler:
         self.mind_model = CodexMindModel()
         self.trigger = CodexMemoryTrigger()
         self.autopilot = CodexAutopilot()
-        self.tessaris = TessarisEngine()
         self.executor = CodexExecutor()
 
         self.estimator = CodexCostEstimator()  # ✅ Cost estimator instance
@@ -116,7 +118,16 @@ class CodexScheduler:
                 "result": result
             })
 
-            self.tessaris.extract_intents_from_glyphs([glyph], metadata)
+            # 🔮 Tessaris alignment (photon-aware)
+            try:
+                _get_tessaris().extract_intents_from_glyphs(
+                    [glyph],
+                    origin="photon",
+                    context=metadata
+                )
+            except Exception as e:
+                print(f"⚠️ Tessaris alignment failed for glyph {glyph}: {e}")
+
         except Exception as e:
             self.metrics.record_error()
             print(f"🚨 CodexScheduler execution error: {e}")

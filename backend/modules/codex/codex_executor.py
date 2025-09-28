@@ -181,6 +181,37 @@ def emit_qwave_beam_ff(*, source: str, payload: dict, context: dict = None):
         container_id = payload.get("container_id", context.get("container_id") if context else "unknown")
         metadata = {k: v for k, v in payload.items() if k not in ["wave_id", "container_id"]}
 
+        # 🔒 SoulLaw veto check — BEFORE reinjection
+        try:
+            from backend.modules.soullaw.soul_law_hooks import log_soullaw_event, validate_against_soullaws
+            from backend.modules.symbolic.symbolic_broadcast import broadcast_glyph_event
+
+            log_soullaw_event(
+                beam_id=wave.wave_id,
+                container_id=container_id,
+                source=source,
+                metadata=metadata
+            )
+
+            if not validate_against_soullaws(wave, metadata):
+                reason = f"SoulLaw veto for beam {wave.wave_id}"
+                broadcast_glyph_event(
+                    event_type="denied_beam_event",
+                    glyph=wave.wave_id,
+                    container_id=container_id,
+                    coord="0:0",
+                    extra={
+                        "law_id": "matched",
+                        "reason": reason,
+                        "origin": "soullaw_veto"
+                    }
+                )
+                return  # 🚫 stop here if vetoed
+
+        except Exception as e:
+            logger.error(f"[SoulLaw] Hook failed: {e}", exc_info=True)
+
+        # ✅ If not vetoed → emit as normal
         event_coro = _emit_qwave_beam(
             wave=wave,
             container_id=container_id,
@@ -188,6 +219,7 @@ def emit_qwave_beam_ff(*, source: str, payload: dict, context: dict = None):
             metadata=metadata
         )
         _spawn_async(event_coro, "QWave emit (codex)")
+
     except Exception as e:
         logger.error(f"[CodexExecutor] Beam emit failed: {e}", exc_info=True)
 
