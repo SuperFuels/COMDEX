@@ -1,4 +1,4 @@
-# backend/modules/symbolic_kernels/math_kernel.py
+# backend/modules/symbolic_kernels/math_glyphs.py
 
 from abc import ABC, abstractmethod
 from typing import Any, List, Dict, Optional, Union
