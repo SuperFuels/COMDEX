@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/codexcore_virtual/cpu_program_loader.py
+# hypothesis_version: 6.139.2
+
+['#', ',', 'ADD R1, 5', 'MOV R1, 10', 'NOP', 'OUT R1', 'SOUT R1', 'SYMB R1, ↔', '__main__']

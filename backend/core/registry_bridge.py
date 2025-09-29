@@ -17,12 +17,13 @@ Ensures:
   - Symatics ops are bound to rulebook handlers.
   - Executors call through a single resolve_and_execute() API.
 """
-
+import json
+import time
 import warnings
 from typing import Any, Dict
 from pathlib import Path
 import yaml
-
+from backend.core.log_utils import make_log_event, log_event
 from backend.core import symbol_registry
 from backend.codexcore_virtual import instruction_registry
 from backend.modules.codex.symbolic_registry import symbolic_registry
@@ -77,16 +78,49 @@ class RegistryBridge:
     # Execution
     # ------------------------------------------------------------------
     def resolve_and_execute(self, op: str, *args, **kwargs) -> Any:
-        """
-        Resolve symbol → canonical key → execute handler.
-        Falls back to stub if not implemented.
-        """
         canonical = self._canonicalize(op)
+
         if canonical not in self.instruction_registry.registry:
-            warnings.warn(f"[RegistryBridge] No handler for '{op}'. Using stub.", RuntimeWarning)
+            event = make_log_event(
+                event="registry_execute",
+                op=op,
+                canonical=canonical,
+                args=args,
+                kwargs={k: v for k, v in kwargs.items() if k != "ctx"},
+                status="stub",
+                result=None,
+                error=f"No handler for {op}",
+            )
+            log_event(event)
             return {"unhandled_op": op, "args": args, "kwargs": kwargs}
 
-        return self.instruction_registry.execute_v2(canonical, *args, **kwargs)
+        try:
+            result = self.instruction_registry.execute_v2(canonical, *args, **kwargs)
+            event = make_log_event(
+                event="registry_execute",
+                op=op,
+                canonical=canonical,
+                args=args,
+                kwargs={k: v for k, v in kwargs.items() if k != "ctx"},
+                status="ok",
+                result=result,
+                error=None,
+            )
+            log_event(event)
+            return result
+        except Exception as e:
+            event = make_log_event(
+                event="registry_execute",
+                op=op,
+                canonical=canonical,
+                args=args,
+                kwargs={k: v for k, v in kwargs.items() if k != "ctx"},
+                status="error",
+                result=None,
+                error=str(e),
+            )
+            log_event(event)
+            raise
 
     # ------------------------------------------------------------------
     # Synchronization
@@ -194,6 +228,44 @@ class RegistryBridge:
     def fetch_symbolic(self, name: str) -> Any:
         """Fetch from global symbolic registry."""
         return self.symbolic_registry.get(name)
+
+    # ------------------------------------------------------------------
+    # Execution
+    # ------------------------------------------------------------------
+    def resolve_and_execute(self, op: str, *args, **kwargs) -> Any:
+        """
+        Resolve symbol → canonical key → execute handler.
+        Falls back to stub if not implemented.
+        Adds C13 structured logging.
+        """
+        canonical = self._canonicalize(op)
+
+        log_event = {
+            "event": "registry_execute",
+            "timestamp": time.time(),
+            "op": op,
+            "canonical": canonical,
+            "args": args,
+            "kwargs": {k: v for k, v in kwargs.items() if k != "ctx"},  # omit ctx for clarity
+        }
+
+        if canonical not in self.instruction_registry.registry:
+            warnings.warn(f"[RegistryBridge] No handler for '{op}'. Using stub.", RuntimeWarning)
+            log_event["status"] = "stub"
+            print("[LOG]", json.dumps(log_event, ensure_ascii=False))
+            return {"unhandled_op": op, "args": args, "kwargs": kwargs}
+
+        try:
+            result = self.instruction_registry.execute_v2(canonical, *args, **kwargs)
+            log_event["status"] = "ok"
+            log_event["result"] = result
+            print("[LOG]", json.dumps(log_event, ensure_ascii=False))
+            return result
+        except Exception as e:
+            log_event["status"] = "error"
+            log_event["error"] = str(e)
+            print("[LOG]", json.dumps(log_event, ensure_ascii=False))
+            raise
 
 
 # ✅ Singleton bridge

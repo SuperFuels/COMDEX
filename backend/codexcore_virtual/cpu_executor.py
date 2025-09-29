@@ -9,9 +9,10 @@ Phase 8 (C9/I1):
 - Uses CPUProgramLoader to parse program lines.
 - Minimal registers + memory implemented inline (no external stubs).
 """
-
+import json
 from backend.codexcore_virtual.instruction_registry import registry
 from backend.codexcore_virtual.cpu_program_loader import CPUProgramLoader
+from backend.core.log_utils import make_log_event, log_event
 
 
 class VirtualCPU:
@@ -56,14 +57,15 @@ class VirtualCPU:
     # Execution
     # ──────────────────────────────
     def execute(self, op, args):
-        """Route execution through instruction_registry."""
+        """Route execution through instruction_registry with normalized keys."""
         try:
-            return registry.execute_v2(op, *args, ctx=self)
+            normalized_op = op.lower()  # normalize ops like LOG → log
+            return registry.execute_v2(normalized_op, *args, ctx=self)
         except KeyError:
             raise ValueError(f"Unknown instruction: {op}")
 
     def tick(self):
-        """Execute a single instruction and advance pointer."""
+        """Execute a single instruction and advance pointer with structured logging."""
         instr = self.fetch()
         if instr is None:
             self.running = False
@@ -71,9 +73,34 @@ class VirtualCPU:
             return
 
         op, args = self.decode(instr)
-        print(f"🔹 Executing: {op} {args}")
-        self.execute(op, args)
+        try:
+            result = self.execute(op, args)
+            payload = make_log_event(
+                event="registry_execute",
+                op=op,
+                canonical=op,  # VirtualCPU doesn’t remap aliases
+                args=args,
+                kwargs={},
+                status="ok",
+                result=result,
+            )
+            log_event(payload)
+        except Exception as e:
+            payload = make_log_event(
+                event="registry_execute",
+                op=op,
+                canonical=op,
+                args=args,
+                kwargs={},
+                status="error",
+                result=None,
+                error=str(e),
+            )
+            log_event(payload)
+            raise
+
         self.instruction_pointer += 1
+
 
     def run(self):
         """Run until program halts or end of program."""

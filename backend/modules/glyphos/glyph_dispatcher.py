@@ -19,7 +19,7 @@ from backend.modules.dna_chain.crispr_ai import generate_mutation_proposal
 from backend.modules.dna_chain.dc_handler import carve_glyph_cube
 from backend.modules.glyphos.glyph_mutator import run_self_rewrite
 from backend.core.registry_bridge import registry_bridge
-
+from backend.core.log_utils import make_log_event, log_event
 
 class GlyphDispatcher:
     def __init__(self, state_manager: StateManager):
@@ -36,27 +36,62 @@ class GlyphDispatcher:
                 result = registry_bridge.resolve_and_execute(
                     namespaced, **parsed_glyph, ctx=self.state_manager
                 )
-                print(f"✅ [RegistryHandled] {namespaced} → {result}")
+                payload = make_log_event(
+                    event="registry_execute",
+                    op=action,
+                    canonical=namespaced,
+                    args=[],
+                    kwargs=parsed_glyph,
+                    status="ok",
+                    result=result,
+                )
+                log_event(payload)
                 return result
             except Exception as e:
+                payload = make_log_event(
+                    event="registry_execute",
+                    op=action,
+                    canonical=namespaced,
+                    args=[],
+                    kwargs=parsed_glyph,
+                    status="error",
+                    result=None,
+                    error=str(e),
+                )
+                log_event(payload)
                 print(f"⚠️ Registry execution failed for {namespaced}: {e}")
+                return {"status": "error", "error": str(e)}
 
         # ❌ Step 2: Fallback to legacy handlers
         match action:
             case "teleport":
-                return self._handle_teleport(parsed_glyph)
+                result = self._handle_teleport(parsed_glyph)
             case "write_cube":
-                return self._handle_write_cube(parsed_glyph)
+                result = self._handle_write_cube(parsed_glyph)
             case "run_mutation":
-                return self._handle_mutation(parsed_glyph)
+                result = self._handle_mutation(parsed_glyph)
             case "rewrite":
-                return self._handle_rewrite(parsed_glyph)
+                result = self._handle_rewrite(parsed_glyph)
             case "log":
-                return self._handle_log(parsed_glyph)
+                result = self._handle_log(parsed_glyph)
             case _:
-                print(f"❓ Unknown glyph action: {action}")
-                return {"status": "unknown", "action": action}
+                result = {"status": "unknown", "action": action}
 
+        # ✅ Always emit structured log for fallback
+        status = result.get("status", "ok")
+        payload = make_log_event(
+            event="registry_execute",
+            op=action,
+            canonical=namespaced,
+            args=[],
+            kwargs=parsed_glyph,
+            status=status if status in ("ok", "error") else "stub",
+            result=result if status == "ok" else None,
+            error=result.get("error") if status not in ("ok",) else None,
+        )
+        log_event(payload)
+
+        return result
     # ------------------------
     # Legacy Handlers
     # ------------------------

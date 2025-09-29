@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/core/log_utils.py
+# hypothesis_version: 6.139.2
+
+['[LOG]', 'args', 'canonical', 'error', 'event', 'kwargs', 'op', 'result', 'status', 'timestamp']
