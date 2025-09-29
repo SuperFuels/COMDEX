@@ -5,19 +5,22 @@ flowchart TD
 
     subgraph Phase1["⚡ Photon Core (Foundational Build — Now)"]
         P1["✅ Define Photon Spec (collapse 0/π → foundation states)"]
-        P2["✅ Implement Photon Axioms (P1–P8) in Lean backend"]
+        P2["✅ Implement Photon Axioms (P1–P8) in Python backend"]
         P3["✅ Injection + Snapshot Tests (axioms, equivalence)"]
         P4["✅ Photon Rewriter (normalize + symatics_equiv)"]
         P5["✅ Derived Theorems (T1–T7 verified)"]
-        P6["Benchmark Photon vs Classical (compression, ops/sec)"]
-        P7["✅ Docs: RFC (Photon Core Spec + Separation Notes)"]
+        P6["✅ Fuzz / Stress Tests (Hypothesis, random axiom injection)"]
+        P7["✅ Canonical EMPTY constant (shared across core/rewriter/tests)"]
+        P8["✅ Docs: RFC (Photon Core Spec + Separation Notes)"]
+        P9["✅ Doc Sync Script (instruction_reference.md + SYMATICS_AXIOMS.md)"]
+        P10["✅ YAML Sync (yamlsync.py, merges Photon ops into registry)"]
+        P11["Benchmark Photon vs Classical (compression, ops/sec)"]
     end
 
-    subgraph Phase2["🔬 Photon Extensions (Optional Next)"]
+    subgraph Phase2["🔬 Photon Extensions (Next)"]
         E1["Extend Theorems → full Photon calculus"]
         E2["Add Meta-Photon ops (distribution, falsification cases)"]
-        E3["Fuzz / Stress Tests (random axiom injection)"]
-        E4["Formal semantics doc (truth-value model, Hilbert space link)"]
+        E3["Formal semantics doc (truth-value model, Hilbert space link)"]
     end
 
     subgraph Phase3["🚀 Photon Integration (Deployment)"]
@@ -26,6 +29,7 @@ flowchart TD
         I3["CodexLang++ compiler → Photon instructions"]
         I4["Export .photon.json spec for external nodes/tools"]
         I5["Wire into GlyphNet stack (sPHY encoder/decoder)"]
+    end
     end
 
     %% Connections

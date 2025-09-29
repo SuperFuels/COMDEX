@@ -3,22 +3,27 @@
 """
 Instruction Reference Builder
 
-Generates instruction_reference.md from canonical operator metadata.
+Generates instruction_reference.md from instruction_registry.yaml.
 - Groups by domain
 - Lists symbols per canonical key
-- Annotates operator collisions using collision_resolver.COLLISIONS
+- Annotates operator collisions using COLLISIONS
 - Appends a global collision cheat sheet + resolver rules + aliases + priority order
 """
 
 import os
+import yaml
 from collections import defaultdict
 
-from backend.modules.codex.canonical_ops import CANONICAL_OPS, OP_METADATA
-from backend.modules.codex.collision_resolver import (
-    COLLISIONS,
-    ALIASES,
-    PRIORITY_ORDER,
-)
+# Load registry
+REGISTRY_PATH = os.path.join("docs", "CodexLang_Instruction", "instruction_registry.yaml")
+with open(REGISTRY_PATH, "r", encoding="utf-8") as f:
+    registry = yaml.safe_load(f)
+
+OP_METADATA = registry.get("OP_METADATA", {})
+CANONICAL_OPS = registry.get("CANONICAL_OPS", {})
+COLLISIONS = registry.get("COLLISIONS", {})
+ALIASES = registry.get("ALIASES", {})
+PRIORITY_ORDER = registry.get("PRIORITY_ORDER", [])
 
 
 def build_reference() -> str:
@@ -27,8 +32,8 @@ def build_reference() -> str:
     """
     lines = []
     lines.append("# 📖 CodexLang Instruction Reference\n")
-    lines.append("This document is auto-generated from canonical operator metadata.\n")
-    lines.append("> Do not edit manually — run `python backend/modules/codex/instruction_reference_builder.py`.\n")
+    lines.append("This document is auto-generated from instruction_registry.yaml.\n")
+    lines.append("> Do not edit manually — run `python docs/CodexLang_Instruction/instruction_reference_builder.py`.\n")
     lines.append("\n---\n")
 
     # ─────────────────────────────────────────────────────────────
@@ -62,7 +67,7 @@ def build_reference() -> str:
             symbols = list(meta.get("symbols", [])) if meta.get("symbols") else []
 
             # If empty, reverse-lookup all raw symbols that map to this canonical key
-            if not symbols:
+            if not symbols and CANONICAL_OPS:
                 symbols = [s for s, k in CANONICAL_OPS.items() if k == key]
 
             # Deduplicate while preserving order
@@ -99,12 +104,9 @@ def build_reference() -> str:
     lines.append("Only a handful of symbols are ambiguous across domains. These require the collision resolver:\n")
     lines.append("\n| Symbol | Possible Domains | Notes |")
     lines.append("|--------|------------------|-------|")
-    lines.append("| ⊗      | logic, physics, symatics | Tensor / product ambiguity |")
-    lines.append("| ⊕      | logic, quantum           | XOR-like vs quantum addition |")
-    lines.append("| ↔      | logic, quantum           | Equivalence vs quantum bidirection |")
-    lines.append("| ∇      | math (reserved)          | May overlap in future domains |")
-    lines.append("| ≈ / ~  | photon                   | Aliased forms of wave equivalence |")
-    lines.append("\nEverything else (¬, ∧, ∨, H, ⟨ψ|, ψ⟩, cancel, resonance, etc.) is **unambiguous** → no resolver needed.\n")
+    for sym, domains in COLLISIONS.items():
+        lines.append(f"| {sym} | {', '.join(domains)} | — |")
+    lines.append("\nEverything else is **unambiguous** → no resolver needed.\n")
 
     # ─────────────────────────────────────────────────────────────
     # Alias Table
