@@ -65,6 +65,29 @@ class CodexLangRewriter:
         renderer = cls()
         return renderer.render_ast(symbolic_ast)
 
+    from backend.modules.codex.collision_resolver import resolve_op
+
+    def canonicalize_ops(self, tree: dict) -> dict:
+        """
+        Normalize all ops in the instruction tree into their canonical form.
+        Uses `resolve_op`, which handles both simple mappings and collisions.
+        """
+        if not isinstance(tree, dict):
+            return tree
+
+        op = tree.get("op")
+        if op:
+            tree["op"] = resolve_op(op)
+
+        # Recurse into args if present
+        if "args" in tree and isinstance(tree["args"], list):
+            tree["args"] = [
+                self.canonicalize_ops(arg) if isinstance(arg, dict) else arg
+                for arg in tree["args"]
+            ]
+
+        return tree
+
     def render_ast(self, ast: Any) -> str:
         """
         Recursively render structured AST into CodexLang.

@@ -81,4 +81,26 @@ INSTRUCTION_SET: Dict[str, GlyphInstruction] = {
 }
 
 def get_instruction(symbol: str) -> GlyphInstruction:
-    return INSTRUCTION_SET.get(symbol)
+    # Direct match first (raw or canonical)
+    if symbol in INSTRUCTION_SET:
+        return INSTRUCTION_SET[symbol]
+
+    # If canonical form (e.g., "logic:⊕"), strip the domain and retry
+    if ":" in symbol:
+        _, raw = symbol.split(":", 1)
+        if raw in INSTRUCTION_SET:
+            return INSTRUCTION_SET[raw]
+
+    return None
+
+def clear_instruction(symbol: str):
+    """Remove a registered instruction (cleanup)."""
+    if symbol in INSTRUCTION_SET:
+        del INSTRUCTION_SET[symbol]
+
+def register_instruction(symbol: str, instr: GlyphInstruction):
+    """
+    Register or override an instruction dynamically.
+    Useful for tests or extensions.
+    """
+    INSTRUCTION_SET[symbol] = instr

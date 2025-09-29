@@ -1,59 +1,66 @@
-# File: codex_core_virtual/symbolic_instruction_set.py
-
 """
-Symbolic Instruction Set for CodexCore
+Symbolic Instruction Set (Shim)
 
-Defines the complete symbolic instruction set used by the virtual Codex CPU.
-Includes: logic ops, memory ops, runtime triggers, quantum/symbolic extensions.
+⚠️ Deprecated: This file is now a thin wrapper over
+`backend/modules/codexcore_virtual/instruction_registry`.
+
+Use `instruction_registry.registry` directly for canonical ops.
+
+We keep this file to preserve backwards compatibility with older
+Codex/GlyphOS code that imports `symbolic_instruction_set`.
+
+- Provides `is_valid_opcode()` and `get_opcode()` wrappers.
+- Auto-aliases legacy raw symbols (⊕, ⟲, etc.) to domain-tagged keys.
 """
 
-from enum import Enum
+import warnings
+from typing import Dict
+from backend.codexcore_virtual import instruction_registry as ir
 
-class SymbolicOpCode(Enum):
-    ADD = "⊕"                # Add/Combine symbols
-    SEQUENCE = "→"           # Sequential step
-    BIDIRECTIONAL = "↔"      # Two-way link (entanglement)
-    LOOP = "⟲"               # Recursion/loop
-    DELAY = "⧖"              # Delay/wait
-    STORE = "≡"              # Memory store
-    RECALL = "⧉"             # Memory fetch
-    MUTATE = "⬁"             # Request mutation
-    BOOT = "⚛"               # Boot trigger
-    DREAM = "✦"              # Dream generation
-    REFLECT = "🧽"            # Self-reflection
-    TELEPORT = "🧭"           # Container jump
-    Q_SUPERPOSE = "⧜"        # Quantum superposition (symbolic)
-    Q_COLLAPSE = "⧝"         # Collapse superposition
-    Q_ENTANGLE = "⧠"         # Entangle logic state
-    COMPRESS = "⋰"           # Compress instruction tree
-    EXPAND = "⋱"             # Expand latent tree
-
-# Each instruction maps to logic handlers in the emulator or executor
-OPCODE_HANDLER_MAP = {
-    SymbolicOpCode.ADD: "handle_add",
-    SymbolicOpCode.SEQUENCE: "handle_sequence",
-    SymbolicOpCode.BIDIRECTIONAL: "handle_bidir",
-    SymbolicOpCode.LOOP: "handle_loop",
-    SymbolicOpCode.DELAY: "handle_delay",
-    SymbolicOpCode.STORE: "handle_store",
-    SymbolicOpCode.RECALL: "handle_recall",
-    SymbolicOpCode.MUTATE: "handle_mutate",
-    SymbolicOpCode.BOOT: "handle_boot",
-    SymbolicOpCode.DREAM: "handle_dream",
-    SymbolicOpCode.REFLECT: "handle_reflect",
-    SymbolicOpCode.TELEPORT: "handle_teleport",
-    SymbolicOpCode.Q_SUPERPOSE: "handle_q_superpose",
-    SymbolicOpCode.Q_COLLAPSE: "handle_q_collapse",
-    SymbolicOpCode.Q_ENTANGLE: "handle_q_entangle",
-    SymbolicOpCode.COMPRESS: "handle_compress",
-    SymbolicOpCode.EXPAND: "handle_expand",
-}
+# -----------------------------------------------------------------------------
+# Backwards compatibility shim
+# -----------------------------------------------------------------------------
 
 def is_valid_opcode(symbol: str) -> bool:
-    return any(op.value == symbol for op in SymbolicOpCode)
+    """Check if a symbol (raw or domain-tagged) is registered."""
+    if symbol in ir.registry.registry:
+        return True
+    if symbol in ir.registry.aliases:
+        return True
+    return False
 
-def get_opcode(symbol: str) -> SymbolicOpCode:
-    for op in SymbolicOpCode:
-        if op.value == symbol:
-            return op
+
+def get_opcode(symbol: str) -> str:
+    """
+    Return the canonical domain-tagged key for a symbol.
+    If raw, resolves through alias table.
+    """
+    if symbol in ir.registry.registry:
+        return symbol
+    if symbol in ir.registry.aliases:
+        canonical = ir.registry.aliases[symbol]
+        warnings.warn(
+            f"[compat] Symbol '{symbol}' resolved to '{canonical}' via alias shim.",
+            DeprecationWarning,
+        )
+        return canonical
     raise ValueError(f"Unknown symbolic opcode: {symbol}")
+
+
+# -----------------------------------------------------------------------------
+# Legacy handler map compatibility
+# -----------------------------------------------------------------------------
+
+def list_symbolic_opcodes() -> Dict[str, str]:
+    """
+    Return all registered ops from the canonical registry.
+    Mirrors old OPCODE_HANDLER_MAP but with domain-tagged keys.
+    """
+    return ir.registry.list_instructions()
+
+
+# -----------------------------------------------------------------------------
+# Notes:
+# - Prefer `instruction_registry.registry` in new code.
+# - This file will be fully removed after CodexCore vNext.
+# -----------------------------------------------------------------------------

@@ -5,11 +5,107 @@ Translates symbolic glyph strings into structured instruction trees for executio
 Supports nested parsing, symbolic ops, and runtime dispatch.
 """
 
+from backend.modules.codex.canonical_ops import CANONICAL_OPS
 from backend.modules.glyphos.glyph_instruction_set import get_instruction
 from backend.modules.symbolic_engine.symbolic_kernels.logic_glyphs import (
     AndGlyph, OrGlyph, NotGlyph, ImplicationGlyph
 )
 
+
+# ────────────────────────────────────────────────
+# CodexLangTranslator class (wrapper)
+# ────────────────────────────────────────────────
+
+class CodexLangTranslator:
+    """
+    Object-oriented wrapper around CodexLang parsing/translation utilities.
+    Provides a stable API for tests and executor pipeline.
+    """
+
+    def __init__(self, memory=None):
+        self.memory = memory
+
+    def parse(self, glyph_string: str):
+        """Parse CodexLang string into a canonical AST dict."""
+        return parse_codexlang_string(glyph_string)
+
+    def to_instruction(self, parsed_glyph: dict):
+        """Translate parsed glyph AST into an executable instruction tree."""
+        return translate_to_instruction(parsed_glyph, memory=self.memory)
+
+    def run(self, glyph_string: str, context: dict = None, trace: bool = False):
+        """
+        Full parse → translate → execute pipeline.
+        If trace=True, returns detailed step log.
+        """
+        trace_log = []
+
+        # Stage 1: Input
+        if trace:
+            trace_log.append({"stage": "input", "data": glyph_string})
+
+        # Stage 2: Parse
+        parsed = self.parse(glyph_string)
+        if not parsed:
+            return {"status": "error", "error": "Failed to parse glyph string"}
+
+        if trace:
+            trace_log.append({"stage": "parsed", "data": parsed})
+
+        # Stage 3: Canonicalization
+        canonicalized = translate_node(parsed.get("action"))
+        if trace:
+            trace_log.append({"stage": "canonicalized", "data": canonicalized})
+
+        # Stage 4: Instruction translation
+        instruction = self.to_instruction(parsed)
+        if trace:
+            trace_log.append({"stage": "instruction", "data": instruction})
+
+        # Stage 5: Execution (through CodexCore)
+        from backend.modules.codex.codex_core import CodexCore
+        codex = CodexCore()
+        result = codex.execute(glyph_string, context=context or {})
+
+        if trace:
+            trace_log.append({"stage": "executed", "data": result})
+            return {"status": "ok", "result": result, "trace": trace_log}
+
+        return result
+
+# ────────────────────────────────────────────────
+# Canonicalization
+# ────────────────────────────────────────────────
+
+from backend.modules.codex.collision_resolver import resolve_op
+from backend.modules.codex.canonical_ops import CANONICAL_OPS
+
+def translate_node(node):
+    """
+    Walk a parsed node and normalize all ops into canonical domain-tagged keys.
+    Uses collision_resolver (resolve_op) for aliases & priority.
+    """
+    if isinstance(node, dict) and "op" in node:
+        sym = node["op"]
+
+        # 🔑 Always use resolver first (handles aliases + collisions + priority)
+        resolved = resolve_op(sym)
+
+        # If resolver returns the same raw symbol, fall back to flat map
+        if resolved == sym and sym in CANONICAL_OPS:
+            node["op"] = CANONICAL_OPS[sym]
+        else:
+            node["op"] = resolved
+
+        # Recurse into children
+        node["args"] = [translate_node(arg) for arg in node.get("args", [])]
+
+    return node
+
+
+# ────────────────────────────────────────────────
+# Logic Parsing
+# ────────────────────────────────────────────────
 
 def parse_logic_expression(expr: str):
     """
@@ -55,40 +151,57 @@ def logic_to_tree(expr: str):
         return expr
 
 
+# ────────────────────────────────────────────────
+# CodexLang Parsing
+# ────────────────────────────────────────────────
+
+from backend.modules.codex.canonical_ops import CANONICAL_OPS
+
 def parse_codexlang_string(code_str):
     """
     Converts a symbolic CodexLang string like:
     ⟦ Logic | If: x > 5 → ⊕(Grow, Reflect) ⟧
-    Into a structured AST-like dictionary.
+    Into a structured AST-like dictionary with canonicalized ops.
     """
     try:
         body = code_str.strip("⟦⟧ ").strip()
+
+        # Handle shorthand form (no → present)
+        if "→" not in body:
+            type_tag, action = body.split(":", 1)
+            g_type, tag = type_tag.split("|", 1)
+            parsed_action = parse_action_expr(action.strip())
+            parsed_action = translate_node(parsed_action)
+            return {
+                "type": g_type.strip().lower(),
+                "tag": tag.strip(),
+                "value": None,
+                "action": parsed_action,
+            }
+
+        # Handle full → form
         left, action = body.split("→", 1)
         type_tag, value = left.split(":", 1)
         g_type, tag = type_tag.split("|", 1)
 
-        type_str = g_type.strip().lower()
-        if type_str == "logic":
-            parsed = {
-                "type": type_str,
-                "tag": tag.strip(),
-                "value": value.strip(),
-                "action": parse_logic_expression(action.strip()),
-                "tree": logic_to_tree(action.strip())  # ✅ structured version
-            }
-        else:
-            parsed = {
-                "type": type_str,
-                "tag": tag.strip(),
-                "value": value.strip(),
-                "action": parse_action_expr(action.strip())
-            }
+        parsed_action = parse_action_expr(action.strip())
+        parsed_action = translate_node(parsed_action)
+
+        parsed = {
+            "type": g_type.strip().lower(),
+            "tag": tag.strip(),
+            "value": value.strip(),
+            "action": parsed_action,
+        }
+
+        if parsed["type"] == "logic":
+            parsed["tree"] = translate_node(logic_to_tree(action.strip()))
 
         return parsed
-    except Exception as e:
+
+    except Exception as e:   # ✅ put this back
         print(f"[⚠️] Failed to parse CodexLang string: {e}")
         return None
-
 
 def parse_action_expr(expr):
     """
@@ -131,15 +244,23 @@ def parse_action_expr(expr):
     return {"op": op, "args": args}
 
 
-def translate_to_instruction(parsed_glyph, memory=None):
-    """
-    Convert parsed structure into an executable tree using dispatch system.
-    Uses symbolic operator functions from the glyph_instruction_set.
-    """
+# ────────────────────────────────────────────────
+# Translation / Execution
+# ────────────────────────────────────────────────
+
+def translate_to_instruction(parsed_glyph, memory=None, trace_log=None):
     def eval_action(action):
         if isinstance(action, str):
             instr = get_instruction(action)
-            return instr.execute() if instr else action
+            result = instr.execute() if instr else action
+            if trace_log is not None:
+                trace_log.append({
+                    "stage": "execute",
+                    "op": action,
+                    "args": [],
+                    "result": result,
+                })
+            return result
 
         elif isinstance(action, dict):
             op = action.get("op")
@@ -147,15 +268,38 @@ def translate_to_instruction(parsed_glyph, memory=None):
             instr = get_instruction(op)
             if instr:
                 try:
-                    return instr.execute(*args, memory=memory)
+                    result = instr.execute(*args, memory=memory)
                 except TypeError:
-                    return instr.execute(*args)
+                    result = instr.execute(*args)
             else:
-                return {"error": f"Unknown operator: {op}", "args": args}
+                result = {"error": f"Unknown operator: {op}", "args": args}
+
+            if trace_log is not None:
+                trace_log.append({
+                    "stage": "execute",
+                    "op": op,
+                    "args": args,
+                    "result": result,
+                })
+            return result
 
         elif hasattr(action, "evaluate"):
-            return action.evaluate()
+            result = action.evaluate()
+            if trace_log is not None:
+                trace_log.append({
+                    "stage": "evaluate",
+                    "op": type(action).__name__,
+                    "result": result,
+                })
+            return result
 
+        # ⚠️ Always log fallthrough
+        if trace_log is not None:
+            trace_log.append({
+                "stage": "fallback",
+                "op": str(action),
+                "result": action,
+            })
         return action
 
     return eval_action(parsed_glyph.get("action"))

@@ -255,7 +255,15 @@ logger = logging.getLogger(__name__)
 
 
 class CodexExecutor:
-    def __init__(self, use_qpu: bool = False):
+    def __init__(self, use_qpu: bool = False, test_mode: bool = False):
+        """
+        CodexExecutor orchestrates execution of CodexLang instruction trees.
+
+        Args:
+            use_qpu (bool): whether to initialize CodexVirtualQPU backend.
+            test_mode (bool): if True, bypasses strict validation & execution
+                              so unit tests can focus on rewrite behavior.
+        """
         self.metrics = CodexMetrics()
         self.trace = CodexTrace()
         self.glyph_executor = GlyphExecutor(state_manager=STATE)
@@ -279,15 +287,20 @@ class CodexExecutor:
         from backend.modules.consciousness.prediction_engine import get_prediction_engine
         self.prediction_engine = get_prediction_engine()
         self.prediction_index = PredictionIndex()
+
         # 🔌 Load and register cognition plugins
         register_all_plugins()
         self.sqi_trace = SQITraceLogger()
+
         # Resolve the active container id for memory scoping
         try:
             active_cid = STATE.get_current_container_id() or "ucs_hub"
         except Exception:
             active_cid = "ucs_hub"
         self.memory_bridge = MemoryBridge(container_id=active_cid)
+
+        # ✅ Testing mode flag (bypasses validation/execution when True)
+        self.test_mode: bool = test_mode
 
     def _validate_container_stub(self, symbolic_logic: list) -> list[dict]:
         """
@@ -487,10 +500,60 @@ class CodexExecutor:
         start_time = time.perf_counter()
         glyph = context.get("glyph", "∅")
 
-        # Make sure 'source' exists before any optional broadcast uses it
+        # Ensure 'source' always exists
         source = context.get("source", "codex")
 
-        # ✅ Lightweight Tessaris alignment (only for Photon-origin)
+        # ✅ Canonicalize & Rewrite before anything else
+        try:
+            from backend.symatics.symatics_to_codex_rewriter import rewrite_symatics_to_codex
+            from backend.modules.codex.codexlang_rewriter import CodexLangRewriter
+
+            # Step 1: Symatics → Codex
+            instruction_tree = rewrite_symatics_to_codex(instruction_tree) or instruction_tree
+
+            # Step 2: canonicalize ops
+            rewriter = CodexLangRewriter()
+            instruction_tree = rewriter.canonicalize_ops(instruction_tree) or instruction_tree
+
+            # refresh op after rewrite
+            op = instruction_tree.get("op") if isinstance(instruction_tree, dict) else None
+        except Exception as rewrite_err:
+            logger.warning(f"[CodexExecutor] Rewrite stage skipped: {rewrite_err}")
+            op = instruction_tree.get("op") if isinstance(instruction_tree, dict) else None
+
+        # 🧪 Test mode: short-circuit after rewrite
+        if getattr(self, "test_mode", False):
+            return {
+                "status": "ok",
+                "engine": "codex",
+                "result": instruction_tree,
+            }
+
+        # 🚧 Guard after rewrite
+        if not isinstance(instruction_tree, dict) or not op:
+            return {
+                "status": "error",
+                "engine": "codex",
+                "error": f"Invalid instruction_tree: {instruction_tree!r}"
+            }
+
+        # 🛡 Validate glyph before execution
+        try:
+            from backend.modules.lean.lean_utils import validate_logic_trees, normalize_validation_errors
+            container_stub = {"symbolic_logic": [glyph]}
+            raw_errors = validate_logic_trees(container_stub)
+            errors = normalize_validation_errors(raw_errors)
+            if errors:
+                return {
+                    "status": "error",
+                    "error": "Invalid glyph",
+                    "validation_errors": errors,
+                    "validation_errors_version": "v1",
+                }
+        except Exception as val_err:
+            logger.error(f"[Validation] Glyph validation failed: {val_err}")
+
+        # ✅ Lightweight Tessaris alignment (photon origin only)
         try:
             glyphs = glyph.get("glyphs") if isinstance(glyph, dict) else []
             if source == "photon":
@@ -511,23 +574,7 @@ class CodexExecutor:
         except Exception as align_err:
             logger.debug(f"[CodexExecutor] Lightweight Tessaris alignment skipped: {align_err}")
 
-        # 🛡 Validate glyph before execution
-        try:
-            from backend.modules.lean.lean_utils import validate_logic_trees, normalize_validation_errors
-            container_stub = {"symbolic_logic": [glyph]}
-            raw_errors = validate_logic_trees(container_stub)
-            errors = normalize_validation_errors(raw_errors)
-            if errors:
-                return {
-                    "status": "error",
-                    "error": "Invalid glyph",
-                    "validation_errors": errors,
-                    "validation_errors_version": "v1",
-                }
-        except Exception as val_err:
-            logger.error(f"[Validation] Glyph validation failed: {val_err}")
-
-        # ✅ Full Tessaris intents injection (after validation, before cost estimation)
+        # ✅ Full Tessaris intents injection
         if source == "photon":
             try:
                 tessaris = _get_tessaris()
@@ -548,7 +595,7 @@ class CodexExecutor:
             from backend.routes.ws.glyphnet_ws import broadcast_glyph_event
         except Exception:
             def broadcast_glyph_event(*args, **kwargs):
-                return None  # no-op fallback
+                return None
 
         try:
             from backend.modules.codex.codex_scroll_builder import build_scroll_from_glyph
@@ -591,6 +638,25 @@ class CodexExecutor:
         try:
             # 🔍 Detect special op
             op = instruction_tree.get("op")
+
+            # ✅ Symatics Interception
+            from backend.symatics.symatics_dispatcher import evaluate_symatics_expr, is_symatics_operator
+            if op in ("logic:⊕", "logic:⊖", "interf:⋈") or is_symatics_operator(op):
+                try:
+                    result = evaluate_symatics_expr(instruction_tree, context=context)
+                    return {
+                        "status": "success",
+                        "engine": "symatics",
+                        "result": result,
+                        "cost": 0.1,  # low cost baseline
+                        "elapsed": 0.0,
+                    }
+                except Exception as e:
+                    return {
+                        "status": "error",
+                        "engine": "symatics",
+                        "error": str(e),
+                    }
 
             # 🔁 Beam-Based Opcode Execution (QWave)
             if op in ("⧜", "⧝", "↔", "⧠", "⋰", "⋱"):
