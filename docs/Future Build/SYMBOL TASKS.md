@@ -38,9 +38,10 @@ flowchart TD
     subgraph 🚧 Next Tasks
         ✅T10["Trace log for rewrite pipeline (dev/test mode)"]
         ✅T11["Configurable resolver (YAML) + hot-reload"]
-        T12["CLI linter: validate/canonicalize glyph files"]
-        T13["CI checks: regenerate docs + fail on drift"]
-        T14["Fuzz tests: random glyphs across domains"]
+        ✅T12["CLI linter: validate/canonicalize glyph files"]
+        ✅T13["CI checks: regenerate docs + fail on drift"]
+        ✅T14["Fuzz tests: random glyphs across domains"]
+
     end
 
     classDef crit fill=#ffcccc,stroke=#900,stroke-width=2px;

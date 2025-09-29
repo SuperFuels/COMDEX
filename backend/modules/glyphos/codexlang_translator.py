@@ -76,29 +76,44 @@ class CodexLangTranslator:
 # ────────────────────────────────────────────────
 # Canonicalization
 # ────────────────────────────────────────────────
-
-from backend.modules.codex.collision_resolver import resolve_op
+from backend.modules.codex.collision_resolver import resolve_op, ALIASES
 from backend.modules.codex.canonical_ops import CANONICAL_OPS
 
-def translate_node(node):
+from backend.modules.codex.collision_resolver import resolve_op, ALIASES
+from backend.modules.codex.canonical_ops import CANONICAL_OPS
+
+from backend.modules.codex.collision_resolver import resolve_op, ALIASES
+from backend.modules.codex.canonical_ops import CANONICAL_OPS
+
+from backend.modules.codex.collision_resolver import resolve_op, ALIASES
+from backend.modules.codex.canonical_ops import CANONICAL_OPS
+
+def translate_node(node, context: str = None):
     """
     Walk a parsed node and normalize all ops into canonical domain-tagged keys.
-    Uses collision_resolver (resolve_op) for aliases & priority.
+
+    Resolution order:
+      1) Explicit ALIASES (⊕_q → quantum:⊕, ⊗_p → physics:⊗, etc.)
+      2) CANONICAL_OPS (flat, non-colliding map — respects monkeypatching in tests)
+      3) resolve_op (handles collisions + priority fallback, optionally using context)
     """
     if isinstance(node, dict) and "op" in node:
         sym = node["op"]
 
-        # 🔑 Always use resolver first (handles aliases + collisions + priority)
-        resolved = resolve_op(sym)
+        # 1️⃣ Alias detection must come first
+        if sym in ALIASES:
+            node["op"] = ALIASES[sym]
 
-        # If resolver returns the same raw symbol, fall back to flat map
-        if resolved == sym and sym in CANONICAL_OPS:
+        # 2️⃣ Canonical direct mapping (supports monkeypatches in tests)
+        elif sym in CANONICAL_OPS:
             node["op"] = CANONICAL_OPS[sym]
-        else:
-            node["op"] = resolved
 
-        # Recurse into children
-        node["args"] = [translate_node(arg) for arg in node.get("args", [])]
+        # 3️⃣ Collision resolver (use context if available)
+        else:
+            node["op"] = resolve_op(sym, context=context)
+
+        # Recurse into children, passing the same context
+        node["args"] = [translate_node(arg, context=context) for arg in node.get("args", [])]
 
     return node
 
@@ -171,7 +186,7 @@ def parse_codexlang_string(code_str):
             type_tag, action = body.split(":", 1)
             g_type, tag = type_tag.split("|", 1)
             parsed_action = parse_action_expr(action.strip())
-            parsed_action = translate_node(parsed_action)
+            parsed_action = translate_node(parsed_action, context=g_type.strip().lower())
             return {
                 "type": g_type.strip().lower(),
                 "tag": tag.strip(),
@@ -185,7 +200,7 @@ def parse_codexlang_string(code_str):
         g_type, tag = type_tag.split("|", 1)
 
         parsed_action = parse_action_expr(action.strip())
-        parsed_action = translate_node(parsed_action)
+        parsed_action = translate_node(parsed_action, context=g_type.strip().lower())
 
         parsed = {
             "type": g_type.strip().lower(),
@@ -195,11 +210,12 @@ def parse_codexlang_string(code_str):
         }
 
         if parsed["type"] == "logic":
-            parsed["tree"] = translate_node(logic_to_tree(action.strip()))
+            # ✅ ensure disambiguation inside logic trees
+            parsed["tree"] = translate_node(logic_to_tree(action.strip()), context="logic")
 
         return parsed
 
-    except Exception as e:   # ✅ put this back
+    except Exception as e:   # ✅ keep error logging
         print(f"[⚠️] Failed to parse CodexLang string: {e}")
         return None
 
@@ -207,24 +223,22 @@ def parse_action_expr(expr):
     """
     Recursively parses nested operator expressions like:
     ⊕(Grow, ↔(Dream, Reflect))
-    Into:
+    or ⊕_q(A, B)
+
+    Returns a dict:
     {
-        "op": "⊕",
-        "args": [
-            "Grow",
-            {
-                "op": "↔",
-                "args": ["Dream", "Reflect"]
-            }
-        ]
+        "op": "⊕_q",
+        "args": ["A", {"op": "↔", "args": ["Dream", "Reflect"]}]
     }
     """
     expr = expr.strip()
     if "(" not in expr:
         return expr
 
-    op = expr[0]
-    inner = expr[expr.find("(")+1 : -1]
+    # Extract operator before the first "("
+    op = expr[:expr.find("(")].strip()
+    inner = expr[expr.find("(") + 1 : -1]
+
     args = []
     depth = 0
     buffer = ""

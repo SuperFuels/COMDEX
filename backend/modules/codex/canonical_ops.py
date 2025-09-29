@@ -14,7 +14,7 @@ CANONICAL_OPS = {
     "→": "logic:→",
 
     # Quantum
-    "↔": "quantum:↔",
+    # ⚠️ removed "↔" here → ambiguous, handled by COLLISIONS
     "⊕_q": "quantum:⊕",
     "ψ⟩": "quantum:ket",
     "⟨ψ|": "quantum:bra",
@@ -43,47 +43,108 @@ CANONICAL_OPS = {
     "~": "photon:≈",
 }
 
+# ────────────────────────────────────────────────
+# Collisions table (ambiguous ops only)
+# ────────────────────────────────────────────────
+
+COLLISIONS = {
+    "⊗": ["logic:⊗", "physics:⊗", "symatics:⊗"],
+    "⊕": ["logic:⊕", "quantum:⊕"],
+    "↔": ["logic:↔", "quantum:↔"],
+}
 
 # ────────────────────────────────────────────────
-# Operator metadata (for docs & auto-reference)
+# Operator metadata (with explicit symbols for stability)
 # ────────────────────────────────────────────────
 
 OP_METADATA = {
     # Logic
-    "logic:⊕": {"description": "Combines two symbolic values"},
-    "logic:⊗": {"description": "Multiplies symbolic structures"},
-    "logic:¬": {"description": "Logical negation"},
-    "logic:∨": {"description": "Logical OR"},
-    "logic:∧": {"description": "Logical AND"},
-    "logic:→": {"description": "Logical implication"},
+    "logic:⊕": {
+        "description": "Logical XOR",
+        "symbols": ["⊕"],
+    },
+    "logic:⊗": {
+        "description": "Multiplies symbolic structures",
+        "symbols": ["⊗"],
+    },
+    "logic:¬": {"description": "Logical negation", "symbols": ["¬"]},
+    "logic:∨": {"description": "Logical OR", "symbols": ["∨"]},
+    "logic:∧": {"description": "Logical AND", "symbols": ["∧"]},
+    "logic:→": {"description": "Logical implication", "symbols": ["→"]},
+    "logic:↔": {
+        "description": "Logical equivalence (biconditional)",
+        "symbols": ["↔"],
+    },
 
     # Quantum
-    "quantum:↔": {"description": "Checks bidirectional equivalence"},
-    "quantum:⊕": {"description": "Quantum XOR-like operation"},
-    "quantum:A": {"description": "Quantum operator Â"},
-    "quantum:H": {"description": "Hadamard gate"},
-    "quantum:ket": {"description": "Quantum ket state"},
-    "quantum:bra": {"description": "Quantum bra state"},
-    "quantum:commutator_open": {"description": "Quantum commutator start"},
-    "quantum:commutator_close": {"description": "Quantum commutator end"},
+    "quantum:↔": {
+        "description": "Quantum bidirectional equivalence",
+        "symbols": ["↔"],
+    },
+    "quantum:⊕": {
+        "description": "Quantum XOR-like operation",
+        "symbols": ["⊕_q"],
+    },
+    "quantum:A": {"description": "Quantum operator Â", "symbols": ["Â"]},
+    "quantum:H": {"description": "Hadamard gate", "symbols": ["H"]},
+    "quantum:ket": {"description": "Quantum ket state", "symbols": ["ψ⟩"]},
+    "quantum:bra": {"description": "Quantum bra state", "symbols": ["⟨ψ|"]},
+    "quantum:commutator_open": {
+        "description": "Quantum commutator start",
+        "symbols": ["["],
+    },
+    "quantum:commutator_close": {
+        "description": "Quantum commutator end",
+        "symbols": ["]"],
+    },
 
     # Symatics
-    "symatics:⊗": {"description": "Symatics tensor product"},
-    "symatics:cancel": {"description": "Cancels a vibration or resonance"},
-    "symatics:damping": {"description": "Applies damping factor"},
-    "symatics:resonance": {"description": "Triggers resonance effect"},
+    "symatics:⊗": {
+        "description": "Symatics tensor product",
+        "symbols": ["⊗_s"],
+    },
+    "symatics:cancel": {
+        "description": "Cancels a vibration or resonance",
+        "symbols": ["cancel"],
+    },
+    "symatics:damping": {
+        "description": "Applies damping factor",
+        "symbols": ["damping"],
+    },
+    "symatics:resonance": {
+        "description": "Triggers resonance effect",
+        "symbols": ["resonance"],
+    },
 
     # Control
-    "control:⟲": {"description": "Performs self-mutation or update"},
-    "control:⧖": {"description": "Delays execution of a symbol"},
+    "control:⟲": {
+        "description": "Performs self-mutation or update",
+        "symbols": ["⟲"],
+    },
+    "control:⧖": {
+        "description": "Delays execution of a symbol",
+        "symbols": ["⧖"],
+    },
 
     # Math
-    "math:∇": {"description": "Gradient / divergence operator"},
+    "math:∇": {
+        "description": "Gradient / divergence operator",
+        "symbols": ["∇"],
+    },
 
     # Photon
-    "photon:≈": {"description": "Photon wave equivalence"},
-    "photon:⊙": {"description": "Photon absorption/emission operator"},
+    "photon:≈": {
+        "description": "Photon wave equivalence",
+        "symbols": ["≈", "~"],
+    },
+    "photon:⊙": {
+        "description": "Photon absorption/emission operator",
+        "symbols": ["⊙"],
+    },
 
     # Physics
-    "physics:⊗": {"description": "Physical tensor product"},
+    "physics:⊗": {
+        "description": "Physical tensor product",
+        "symbols": ["⊗_p"],
+    },
 }

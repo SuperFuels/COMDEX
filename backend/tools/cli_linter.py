@@ -18,23 +18,25 @@ from backend.modules.codex.collision_resolver import is_collision, ALIASES
 
 def lint_code(code: str) -> int:
     """Lint a glyph string. Returns exit code (0=ok, 1=issues)."""
+    issues = []
+
+    # --- Raw alias detection before parsing ---
+    for alias in ALIASES.keys():
+        if alias in code:
+            issues.append(f"Alias used: {alias} → {ALIASES[alias]}")
+
     parsed = parse_codexlang_string(code)
     if not parsed:
         print("❌ Parse error")
         return 1
 
     action = parsed.get("action", {})
-    issues = []
 
     def walk(node):
         if isinstance(node, dict) and "op" in node:
             op = node["op"]
 
-            # Alias detection
-            if op in ALIASES.values() or op in ALIASES:
-                issues.append(f"Alias used: {op}")
-
-            # Collision detection
+            # --- Collision detection ---
             raw_symbol = op.split(":")[-1] if ":" in op else op
             if is_collision(raw_symbol):
                 issues.append(f"⚠️ Collision: {raw_symbol}")

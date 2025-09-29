@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/glyphos/codexlang_translator.py
+# hypothesis_version: 6.139.2
+
+['\n[🔍] Parsing:', '(', ')', ',', ':', 'CodexCore Output:', 'Parsed AST:', '__main__', 'action', 'args', 'canonicalized', 'data', 'error', 'evaluate', 'execute', 'executed', 'fallback', 'input', 'instruction', 'logic', 'ok', 'op', 'parsed', 'result', 'source', 'stage', 'status', 'tag', 'test', 'trace', 'tree', 'type', 'value', '|', '¬', '→', '∧', '∨', '⟦⟧ ']

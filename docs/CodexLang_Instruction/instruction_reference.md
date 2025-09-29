@@ -2,7 +2,7 @@
 
 This document is auto-generated from canonical operator metadata.
 
-> Do not edit manually — run `python docs/CodexLang_Instruction/instruction_reference_builder.py`.
+> Do not edit manually — run `python backend/modules/codex/instruction_reference_builder.py`.
 
 
 ---
@@ -15,6 +15,7 @@ This document is auto-generated from canonical operator metadata.
 - [Logic](#logic)
   - [logic:¬](#logic¬)
   - [logic:→](#logic→)
+  - [logic:↔](#logic↔)
   - [logic:∧](#logic∧)
   - [logic:∨](#logic∨)
   - [logic:⊕](#logic⊕)
@@ -94,6 +95,20 @@ This document is auto-generated from canonical operator metadata.
 
 ---
 
+### `logic:↔`
+
+**Symbols:** ↔
+
+**Canonical Key:** `logic:↔`
+
+**Description:** Logical equivalence (biconditional)
+
+
+**⚠ Collides With:**
+- `quantum:↔`
+
+---
+
 ### `logic:∧`
 
 **Symbols:** ∧
@@ -122,7 +137,7 @@ This document is auto-generated from canonical operator metadata.
 
 **Canonical Key:** `logic:⊕`
 
-**Description:** Combines two symbolic values
+**Description:** Logical XOR
 
 
 **⚠ Collides With:**
@@ -273,7 +288,7 @@ This document is auto-generated from canonical operator metadata.
 
 **Canonical Key:** `quantum:↔`
 
-**Description:** Checks bidirectional equivalence
+**Description:** Quantum bidirectional equivalence
 
 
 **⚠ Collides With:**

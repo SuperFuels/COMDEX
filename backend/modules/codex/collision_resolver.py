@@ -84,20 +84,21 @@ def reload_config():
 
 def resolve_collision(symbol: str, context: Optional[str] = None) -> Optional[str]:
     """
-    Resolve a raw symbol into a canonical key using optional context and
-    global PRIORITY_ORDER when ambiguous.
+    Resolve a raw symbol into a canonical key using:
+      - Explicit context (if provided and valid)
+      - Global PRIORITY_ORDER (default fallback)
     """
     options = COLLISIONS.get(symbol)
     if not options:
         return None
 
-    # Prefer explicit context if provided and valid
+    # 1️⃣ Prefer explicit context
     if context:
         for opt in options:
             if opt.startswith(context + ":"):
                 return opt
 
-    # Otherwise choose by global priority
+    # 2️⃣ Otherwise, choose by global priority order
     for domain in PRIORITY_ORDER:
         for opt in options:
             if opt.startswith(domain + ":"):
@@ -114,23 +115,23 @@ def resolve_op(op: str, context: Optional[str] = None) -> str:
       1) ALIASES (explicit disambiguation like ⊕_q → quantum:⊕)
       2) COLLISIONS (ambiguous raw symbols resolved by context/priority)
       3) CANONICAL_OPS (simple, non-colliding mappings)
-      4) Fallback: return the input unchanged
+      4) Fallback (raw input)
     """
-    # 1) Alias wins outright
+    # 1️⃣ Alias wins outright
     if op in ALIASES:
         return ALIASES[op]
 
-    # 2) Handle ambiguous raw symbols via resolver
+    # 2️⃣ Collision resolution (context-aware, then priority fallback)
     if op in COLLISIONS:
         resolved = resolve_collision(op, context=context)
         if resolved:
             return resolved
 
-    # 3) Non-colliding flat map
+    # 3️⃣ Direct canonical mapping (non-colliding)
     if op in CANONICAL_OPS:
         return CANONICAL_OPS[op]
 
-    # 4) Fallback
+    # 4️⃣ Fallback — return as-is
     return op
 
 
