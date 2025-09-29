@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/visualization/qfc_websocket_bridge.py
+# hypothesis_version: 6.139.2
+
+['container_sync', 'cpu_metrics', 'metrics', 'payload', 'qfc_stream', 'qfc_update', 'qpu_metrics', 'source', 'type', 'unknown', 'updates']

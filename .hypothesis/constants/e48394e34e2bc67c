@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/glyphos/glyph_mutator.py
+# hypothesis_version: 6.139.2
+
+[0.0, 1.0, 1000, '.json', 'Destroy', 'Dominate', 'Exploit', 'Harm', 'Kill', 'Lie', 'Z', '_OLD.json', 'action', 'approved', 'coord', 'created_at', 'decay_limit_ms', 'diff', 'file', 'impact_score', 'microgrid', 'mutation_proposal', 'new_code', 'proposal_id', 'proposed', 'reason', 'rebirth', 'reborn', 'reflect', 'replaced_code', 'safety_score', 'self_rewritten', 'soul_law_pass', 'soul_law_violations', 'status', 'symbolic_hash', 'tag', 'timestamp', 'undefined', 'unknown', 'unlabeled', 'updated_at', 'utf-8', 'value', 'w', '→ Reflect', '→ ⬁', '⬁']

@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/knowledge_graph/indexes/prediction_index.py
+# hypothesis_version: 6.139.2
+
+[0.0, ',', ':', 'active_container', 'average_confidence', 'confidence', 'container_id', 'coord', 'entries', 'entropy', 'glyph', 'goal', 'hash', 'id', 'index', 'indexes', 'last_index_update', 'prediction_index', 'source', 'tag_counts', 'tags', 'tick', 'timestamp', 'total_predictions', 'trace_id']

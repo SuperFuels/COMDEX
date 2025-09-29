@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/models/contract.py
+# hypothesis_version: 6.139.2
+
+['CASCADE', 'Deal', 'contract', 'contracts', 'deals.id']

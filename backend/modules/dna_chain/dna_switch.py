@@ -1,7 +1,7 @@
 import os
 import json
 import shutil
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, Optional
 
 from backend.modules.dna_chain.proposal_manager import load_proposals, save_proposals
@@ -34,7 +34,8 @@ DEFAULT_FLAGS: Dict[str, Any] = {
 # 🧭 Utilities
 # ──────────────────────────────────────────────────────────────────────────────
 def _utc_now() -> str:
-    return datetime.utcnow().isoformat() + "Z"
+    # Use timezone-aware UTC datetime and format with trailing "Z"
+    return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
 def _read_json(path: str, default: Any) -> Any:
     try:

@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/security/rate_limit_manager.py
+# hypothesis_version: 6.139.2
+
+[0.0, 1.0, 100, 'RATE_LIMIT_BACKEND', 'RATE_LIMIT_PREFIX', 'REDIS_URL', 'burst', 'guest', 'last', 'memory', 'rate', 'ratelimit:', 'system', 'tokens', 'trusted', 'utf-8']

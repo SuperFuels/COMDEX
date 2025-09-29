@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/beamline/beam_store.py
+# hypothesis_version: 6.139.2
+
+[1.0, 100, 500, './runtime/beamline', 'DATABASE_URL', '__main__', 'a', 'ast_node', 'beam-test-1', 'beam_events', 'beam_events.jsonl', 'beam_id', 'beam_store', 'cell-42', 'cell_id', 'codex', 'collapse_trace', 'cont-99', 'container_id', 'eid-123', 'emit', 'entanglement_ids', 'entanglement_links', 'entanglements', 'entanglements_map', 'events', 'id', 'metadata', 'origin', 'outcome', 'path', 'qwave', 'r', 'result', 'scroll_id', 'sheet-xyz', 'sheet_run_id', 'source', 'sqlite:///./dev.db', 'stage', 'timestamp', 'token', 'trace_id', 'type', 'utf-8', 'value', 'wave_beams', '⊗', '✅ Tables ensured.']

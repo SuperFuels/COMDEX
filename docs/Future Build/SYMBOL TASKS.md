@@ -1,26 +1,95 @@
 flowchart TD
 
+    subgraph 🟢 Symbol Canonicalization [Core Operator Layer]
+        C1["✅ Master Symbol Registry (Codex + Symatics + GlyphOS + Quantum)"]
+        C2["✅ Critical Collision Resolver (⊗, ∇, ↔, ⊕, ⧖, ≐)"]
+        C3["✅ Scoped Non-Collision Ops (⟲, ⧜, ⧝, ⧠, cancel, damping, resonance, etc.)"]
+        C4["✅ Canonical Metadata Bridge (registry ↔ symbolic_instruction_set ↔ docs)"]
+    end
+
+    subgraph 🟡 Parsing & Rewrite
+        C5["✅ Parser: AST normalized with domain tags"]
+        C6["🔄 Canonicalizer merge (Symatics + CodexLang) — deferred until Phase 2 cleanup"]
+        C7["✅ Rewrite system unified (Codex {op,args} schema)"]
+        C8["✅ Parser coverage expanded (⊗, ∇, ↔, ⊕, ≐)"]
+    end
+
+    subgraph 🔧 Execution & Runtime
+        C9["🔄 Registry delegation (most ops now via registry, CPU hardcoding left for stubs)"]
+        C10["🔄 Entanglement/Quantum ops unified (↔, ⧜, ⧝, ⧠ across Codex/GlyphOS/Symatics)"]
+        C11["✅ Symatics ops integrated (resonance, fuse, damping, cancel)"]
+        C12["✅ Async scheduler for ⧖ (delay) + quantum collapse"]
+        C13["✅ Executor trace logging (CodexTrace ↔ GlyphTrace)"]
+    end
+
+    subgraph 📊 Validation & Tooling
+        C14["✅ CLI linter: validate/canonicalize glyph files"]
+        C15["✅ Doc auto-generator (instruction_reference.md, collision table)"]
+        C16["✅ CI: fail on drift (docs/tests/registry)"]
+        C17["✅ Fuzz tests: random glyphs across domains"]
+        C18["🔄 Axioms/laws consistency check (Codex YAML ↔ Symatics ↔ GlyphOS) — partial, expand post-Photon"]
+    end
+
+    subgraph 🚨 Red Flags Cleared
+        C19["✅ Duplication resolved (entangle/superpose/⊗ across 3+ places)"]
+        C20["✅ Schema drift fixed (AST vs runtime vs rewrite trees)"]
+        C21["✅ Operator collisions fully namespaced (logic:, physics:, quantum:, symatics:, photon:)"]
+    end
+
+    subgraph 🚀 Photon Algebra Readiness
+        P1["🔄 Photon operators exposed (⊙, ≈, wave ops) — stubs only, need full algebra impl"]
+        P2["🔄 Photon ↔ Codex bridge wired (registry + dispatcher) — architecture done, handlers TODO"]
+        P3["🔄 Photon metrics integrated (cycles, resonance, entanglement size) — placeholders only"]
+    end
+
+    subgraph 🧩 Broader Integration & Cleanup
+        I1["🔄 Dispatcher alignment → unify symatics_dispatcher, instruction_registry, glyph_dispatcher"]
+        I2["🔄 Opcode semantic unification → ⊕, ↔, ⟲, ⧖ consistent everywhere (post-Photon)"]
+        I3["🔄 CPU delegation cleanup → remove remaining hardcoded ops, call registry handlers only"]
+        I4["🔄 Schema normalization → ensure AST (CodexLang ↔ Symatics ↔ GlyphOS) matches final Photon model"]
+        I5["✅ Duplication cleanup → entangle/superpose/measure not defined in 3 places"]
+        I6["🔄 Photon metrics routing → hook into CodexMetrics (cycles, resonance, depth)"]
+        I7["🔄 Axiom/law contradictions logging → catch undefined or mismatched ops"]
+        I8["🔄 Documentation sync → SYMATICS_AXIOMS.md ↔ Codex YAML ↔ instruction_reference.md"]
+        I9["🔄 Trace/log unification → codex_trace_bridge, glyph_trace_logger, cpu_state"]
+        I10["🔄 Context handling → align Codex registers + Photon Algebra state (time dilation, resonance)"]
+        I11["✅ Testing coverage → pytest harness for parse → exec → trace → metrics across layers"]
+    end
+    %% Dependencies
+    C1 --> C2 --> C3 --> C4
+    C4 --> C5 --> C6 --> C7 --> C8
+    C8 --> C9 --> C10 --> C11 --> C12 --> C13
+    C13 --> C14 --> C15 --> C16 --> C17 --> C18
+    C18 --> C19 --> C20 --> C21 --> P1 --> P2 --> P3
+
+
+
+
+
+
+flowchart TD
+
     subgraph 🔴 Critical Collisions
-        A1["⊗ → physics:⊗ vs symatics:⊗ vs logic:⊗"]:::crit
-        A2["∇ → math:∇ vs compressor:∇"]:::crit
-        A3["↔ → quantum:↔ vs logic:↔"]:::crit
-        A4["⊕ → logic:⊕ vs quantum:⊕"]:::crit
-        A5["⧖ → control:⧖ vs quantum:⧖"]:::crit
-        A6["≈/~ → photon:≈ (alias)"]:::crit
+        ✅A1["⊗ → physics:⊗ vs symatics:⊗ vs logic:⊗"]:::crit
+        ✅A2["∇ → math:∇ vs compressor:∇"]:::crit
+        ✅A3["↔ → quantum:↔ vs logic:↔"]:::crit
+        ✅A4["⊕ → logic:⊕ vs quantum:⊕"]:::crit
+        ✅A5["⧖ → control:⧖ vs quantum:⧖"]:::crit
+        ✅A6["≈/~ → photon:≈ (alias)"]:::crit
     end
 
     subgraph 🟡 Scoped / Non-Collision
-        B1["⟲ → control:⟲"]
-        B2["⧜ → quantum:⧜"]
-        B3["⧝ → quantum:⧝"]
-        B4["⧠ → quantum:⧠"]
-        B5["⊙ → photon:⊙"]
-        B6["cancel → symatics:cancel"]
-        B7["damping → symatics:damping"]
-        B8["resonance → symatics:resonance"]
-        B9["∧,∨,¬,→ → logic"]
-        B10["ψ⟩,⟨ψ| → quantum states"]
-        B11["Â,H,[,] → quantum operators"]
+        ✅B1["⟲ → control:⟲"]
+        ✅B2["⧜ → quantum:⧜"]
+        ✅B3["⧝ → quantum:⧝"]
+        ✅B4["⧠ → quantum:⧠"]
+        ✅B5["⊙ → photon:⊙"]
+        ✅B6["cancel → symatics:cancel"]
+        ✅B7["damping → symatics:damping"]
+        ✅B8["resonance → symatics:resonance"]
+        ✅B9["∧,∨,¬,→ → logic"]
+        ✅B10["ψ⟩,⟨ψ| → quantum states"]
+        ✅B11["Â,H,[,] → quantum operators"]
     end
 
     subgraph ✅ Completed Tasks

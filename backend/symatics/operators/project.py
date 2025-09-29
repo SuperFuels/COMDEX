@@ -3,11 +3,11 @@ from __future__ import annotations
 
 from typing import Optional
 from backend.symatics.signature import Signature
-from backend.symatics.operators.base import Operator
-from backend.symatics.operators.superpose import _merge_meta
+from backend.symatics.operators import Operator
+from backend.symatics.operators.helpers import _merge_meta
 
 
-def _project(a: Signature, subspace: str, ctx: Optional["Context"] = None) -> Signature:
+def _project(a: Signature, ctx: Optional["Context"] = None, *, subspace: str = "H") -> Signature:
     """
     π Projection to subspace (v0.1):
     - Supported: H, V, RHC, LHC
@@ -37,8 +37,8 @@ def _project(a: Signature, subspace: str, ctx: Optional["Context"] = None) -> Si
     return ctx.canonical_signature(sig) if ctx else sig
 
 
-project_op = Operator("π", 2, _project)
-
+# Fix: unary operator
+project_op = Operator("π", 1, _project)
 
 # ---------------------------------------------------------------------------
 # Roadmap (π Projection v0.2+)

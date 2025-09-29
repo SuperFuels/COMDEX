@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/tools/cli_linter.py
+# hypothesis_version: 6.139.2
+
+['-', ':', '__main__', 'action', 'args', 'file', 'op', 'utf-8', '✅ OK', '❌ Parse error']

@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/knowledge_graph/indexes/knowledge_index.py
+# hypothesis_version: 6.139.2
+
+[0.0, 1.0, 100000, '+00:00', '.', 'KG_EMIT_ON_ADD', 'KnowledgeIndex', 'Z', '_hash', 'anchor', 'confidence', 'container_id', 'coord', 'dst', 'edges', 'entries', 'entry', 'env_obj_id', 'glyph', 'hash', 'id', 'meaning', 'plugin', 'r', 'relates_to', 'relation', 'source', 'src', 'tags', 'timestamp', 'total_entries', 'true', 'type', 'utf-8', 'w']

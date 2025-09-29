@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/dimensions/ucs/zones/experiments/hyperdrive/hyperdrive_control_panel/modules/harmonic_coherence_module.py
+# hypothesis_version: 6.139.2
+
+[0.0, 1e-06, 0.0001, 0.01, 0.1, 1.0, 1.01, 1.02, 3.14159, 360, 'fields', 'gain', 'resonance_phase', 'wave_frequency']

@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/qfield/qfc_utils.py
+# hypothesis_version: 6.139.2
+
+['QFC_SHEET_DIR', '^[a-zA-Z0-9_\\-]+$', 'beam_tick', 'children', 'containerId', 'container_id', 'cubes', 'entangled', 'entangled_ids', 'fallback', 'glyph', 'id', 'label', 'links', 'live', 'logic', 'logic_links', 'metadata', 'mode', 'nodes', 'orbit', 'position', 'predicted', 'predicted_glyphs', 'predictions', 'qfc', 'qfc_position', 'r', 'root', 'source', 'source_node', 'symbolTree', 'target', 'teleport', 'teleport_links', 'tree-link', 'type', 'unknown', 'utf-8', 'w', '∅']

@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/glyphwave/emitters/qwave_emitter.py
+# hypothesis_version: 6.139.2
+
+[0.0, 1.0, 'beam', 'carrier', 'carrier_type', 'coherence', 'collapse_state', 'container_id', 'default', 'ghx', 'glow', 'glow_intensity', 'glyph', 'glyphwave.beam', 'metadata', 'metrics', 'modulation', 'modulation_strategy', 'mutation_cause', 'mutation_type', 'none', 'op', 'origin', 'pulse', 'pulse_frequency', 'qfc', 'qwave', 'source', 'source_node', 'source_wave_id', 'timestamp', 'unknown', 'wave_id', 'websocket', '✦']

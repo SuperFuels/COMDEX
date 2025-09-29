@@ -4,7 +4,7 @@ import cmath
 from typing import Optional
 
 from backend.symatics.signature import Signature
-from backend.symatics.operators.base import Operator
+from backend.symatics.operators import Operator
 from backend.symatics.operators.helpers import (
     _complex_from_amp_phase,
     _amp_phase_from_complex,

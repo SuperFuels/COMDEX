@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/config.py
+# hypothesis_version: 6.139.2
+
+['DB_NAME', 'DB_PASS', 'DB_USER', 'ENABLE_GLYPH_LOGGING', 'ENV', 'GLYPH_API_BASE_URL', 'GW_ENABLED', 'SPE_AUTO_FUSE', 'false', 'production', 'sqlite:///./dev.db', 'true']

@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/codex/codex_scroll_builder.py
+# hypothesis_version: 6.139.2
+
+['--- Codex Scroll ---', '--- Photon AST ---', '???', '__dict__', '__main__', 'action', 'children', 'coord', 'detail', 'error', 'greater_than(x, y)', 'op', 'symbol', 'to_dict', 'tree', 'undefined', 'value']

@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/dna_chain/writable_guard.py
+# hypothesis_version: 6.139.2
+
+['/', '\\', 'allowed_dirs', 'blocked_files', 'r']

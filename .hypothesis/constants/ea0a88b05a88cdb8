@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/dimensions/containers/container_loader.py
+# hypothesis_version: 6.139.2
+
+[1.0, '.dc.json', 'anon', 'container_id', 'container_type', 'expanded', 'geometry_type', 'glyphs', 'hoberman', 'hoberman_seed', 'id', 'load_container_by_id', 'name', 'properties', 'r', 'register_container', 'runtime_mode', 'symbolic_expansion', 'tesseract', 'time_factor', 'ucs://knowledge', 'ucs_base', 'utf-8']

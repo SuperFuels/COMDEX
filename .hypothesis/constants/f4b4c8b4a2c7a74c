@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/codex/codexlang_parser.py
+# hypothesis_version: 6.139.2
+
+['(', ')', ',', '.', '=', '\\w+', 'and', 'args', 'assign', 'attr', 'body', 'call', 'empty', 'equals', 'error', 'exists', 'expr', 'forall', 'function', 'iff', 'implies', 'left', 'module', 'name', 'nand', 'nor', 'not', 'or', 'right', 'root', 'symbol', 'targets', 'term', 'terms', 'type', 'unknown', 'value', 'var', 'xor', '¬', '↑', '→', '↓', '↔', '∀', '∃', '∈', '∧', '∨', '⊕']

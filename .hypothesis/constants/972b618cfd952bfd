@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/symbolic/codex_ast_types.py
+# hypothesis_version: 6.139.2
+
+['CodexAST', 'Predicate', 'and', 'args', 'ast', 'body', 'call', 'exists', 'false', 'forall', 'iff', 'implies', 'left', 'metadata', 'name', 'not', 'or', 'right', 'root', 'symbol', 'true', 'type', 'unknown', 'value', 'var', 'variable']

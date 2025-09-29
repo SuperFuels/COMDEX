@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/symbolic/mutation_suggestions.py
+# hypothesis_version: 6.139.2
+
+['invert_polarity', 'mutation', 'reason', 'split_into_subglyphs']

@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/glyphos/symbolic_hash_engine.py
+# hypothesis_version: 6.139.2
+
+[',', ':', '__hash_metadata__', 'collapse_state', 'glyph', 'metadata', 'prediction', 'sha256', 'sqi_score', 'to_dict', 'utf-8']

@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/symatics/canonicalizer.py
+# hypothesis_version: 6.139.2
+
+[0.0, '*', '+', '-', '/', '0', '^', 'args', 'canonical', 'const', 'div', 'e^(', 'e^(-0.1·t)', 'mul', 'op', 'pow', 'simplified', 'var', 'Δ', 'πμ', 'πμ(', 'ψ1', 'ψ2', '↯', '↯⊕', '∫', '⊕', '⋈']

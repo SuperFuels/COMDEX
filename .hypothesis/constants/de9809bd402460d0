@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/glyphnet/glyphnet_packet.py
+# hypothesis_version: 6.139.2
+
+['sender', 'tcp', 'utf-8']

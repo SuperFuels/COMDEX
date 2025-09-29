@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/glyphwave/qwave/qwave_transfer_sender.py
+# hypothesis_version: 6.139.2
+
+['beam', 'payload', 'qwave_transfer', 'source', 'type']

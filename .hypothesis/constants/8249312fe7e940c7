@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/glyphos/entanglement_utils.py
+# hypothesis_version: 6.139.2
+
+['entangled', 'entanglement', 'from', 'glyph', 'glyph_push', 'id', 'payload', 'r', 'sender', 'system', 'timestamp', 'to', 'type', 'w']

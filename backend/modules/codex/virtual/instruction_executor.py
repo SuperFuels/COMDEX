@@ -12,12 +12,17 @@ Phase 7 Enhancements:
 - FP4 / FP8 / INT8 simulation for numeric results
 - Metrics aggregation for benchmarking and SCI/QFC visualization
 - Structured results for child nodes
+
+Phase 8 (C9/I1):
+- Registry delegation: all ops routed through registry_bridge.resolve_and_execute
+- Structured error payloads instead of bare strings.
 """
 
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 from time import perf_counter
 import numpy as np
-from backend.modules.codex.virtual.symbolic_instruction_set import SYMBOLIC_OPS
+
+from backend.core.registry_bridge import registry_bridge
 from backend.modules.codex.virtual.virtual_registers import VirtualRegisters
 from backend.modules.patterns.pattern_trace_engine import record_trace
 
@@ -50,25 +55,25 @@ class InstructionExecutor:
 
         op: str = node.get("op", "")
         args: List[Any] = node.get("args", [])
+        kwargs: Dict[str, Any] = node.get("kwargs", {})
         children: List[Dict[str, Any]] = node.get("children", [])
-
-        if op not in SYMBOLIC_OPS:
-            return {"result": f"[UnknownOp: {op}]", "children": []}
 
         self.metrics["max_node_depth"] = max(self.metrics["max_node_depth"], depth)
 
         try:
-            func = SYMBOLIC_OPS[op]
-            result = func(args, self.registers, context)
+            # ✅ Always go through RegistryBridge
+            result = registry_bridge.resolve_and_execute(
+                op, *args, ctx=self.registers, context=context, **kwargs
+            )
         except Exception as e:
-            result = f"[ExecutionError @ {op}: {str(e)}]"
+            result = {"status": "error", "error": f"ExecutionError @ {op}: {str(e)}"}
 
+        # Recursively evaluate children
         child_results = []
         for child in children:
             child_result = self.execute_node(child, context, depth=depth+1)
             child_results.append(child_result)
 
-        # Return structured result
         return {"result": result, "children": child_results} if child_results else {"result": result}
 
     # -------------------
@@ -86,13 +91,12 @@ class InstructionExecutor:
             context = {}
 
         start_time = perf_counter()
-        result: Dict[str, Any] = {}
+        result: Dict[str, Any]
 
         try:
-            # Execute node
             result = self.execute_node(instr, context)
 
-            # Apply FP4 / FP8 / INT8 symbolic simulation if numeric
+            # ✅ Precision simulation if numeric
             numeric_result = result.get("result")
             if isinstance(numeric_result, (int, float)):
                 context["precision"] = {
@@ -101,12 +105,14 @@ class InstructionExecutor:
                     "int8": self.to_int8(numeric_result)
                 }
 
-            # Increment metrics
             self.metrics["mutation_count"] += 1
             self.metrics["ops_executed"] += 1
 
         except Exception as e:
-            result = {"result": f"[InstructionError @ {instr.get('op', '?')}: {str(e)}]", "children": []}
+            result = {
+                "result": {"status": "error", "error": f"InstructionError @ {instr.get('op', '?')}: {str(e)}"},
+                "children": []
+            }
 
         finally:
             elapsed = perf_counter() - start_time
@@ -133,11 +139,12 @@ class InstructionExecutor:
         results: List[Dict[str, Any]] = []
         for node in tree:
             try:
-                result = self.execute_instruction_with_metrics(node, context)
-                results.append(result)
+                results.append(self.execute_instruction_with_metrics(node, context))
             except Exception as e:
-                results.append({"result": f"[TreeExecutionError: {str(e)}]", "children": []})
-
+                results.append({
+                    "result": {"status": "error", "error": f"TreeExecutionError: {str(e)}"},
+                    "children": []
+                })
         return results
 
     # -------------------

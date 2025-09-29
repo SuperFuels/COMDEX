@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/codex/codex_scroll_library.py
+# hypothesis_version: 6.139.2
+
+['*.codex', 'data/codex_scrolls', 'r', 'w']

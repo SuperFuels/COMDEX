@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/codex/virtual/symbolic_instruction_set.py
+# hypothesis_version: 6.139.2
+
+[' + ', '[ChainEmpty]', '[None]', 'delayed_intent', 'entangled', 'last_chain', 'last_result', '→', '↔', '⊕', '⟲', '⧖', '🚨']

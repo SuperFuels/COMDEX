@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/utils/logger.py
+# hypothesis_version: 6.139.2
+
+['\x1b[0m', '\x1b[90m', '\x1b[91m', '\x1b[93m', '\x1b[94m', 'DEBUG', 'ERROR', 'INFO', 'RESET', 'WARN', 'debug', 'error', 'info', 'level', 'log', 'message', 'timestamp', 'trace', 'type', 'w', 'warn']

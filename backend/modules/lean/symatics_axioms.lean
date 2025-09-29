@@ -1,41 +1,38 @@
 import ./symatics_prelude
 
--- New interference connective axioms (schema instances)
+/-
+Symatics Axioms (v1.0)
+----------------------
+Schema-level laws for the interference connective ⋈[φ].
+These mirror the Python rewriter + Codex LAW_REGISTRY.
+-/
+
+variables {A B C : SProp} {φ ψ : Phase}
 
 -- Commutativity with phase inversion
-axiom comm_phi      : (A ⋈[φ] B) ↔ (B ⋈[−φ] A)
+axiom comm_phi : (A ⋈[φ] B) ↔ (B ⋈[−φ] A)
 
 -- Special self-interference cases
-axiom self_pi_bot   : (A ⋈[π] A) ↔ ⊥
-axiom self_zero_id  : (A ⋈[0] A) ↔ A
-axiom non_idem      : ∀ φ, φ ≠ 0 ∧ φ ≠ π → (A ⋈[φ] A) ≠ A
+axiom self_pi   : (A ⋈[pi_phase] A) ↔ ⊥
+axiom self_zero : (A ⋈[zero_phase] A) ↔ A
+axiom non_idem  : ∀ φ, φ ≠ zero_phase ∧ φ ≠ pi_phase → (A ⋈[φ] A) ≠ A
 
 -- Neutrality of ⊥
-axiom neutral_phi   : (A ⋈[φ] ⊥) ↔ A
+axiom neutral_phi : (A ⋈[φ] ⊥) ↔ A
 
--- Explicit failure of distributivity (schema-level)
-axiom no_distrib    : ¬(((A ⋈[φ] B) ∧ C) ↔ ((A ∧ C) ⋈[φ] (B ∧ C)))
+-- Explicit failure of distributivity
+axiom no_distrib :
+  ¬(((A ⋈[φ] B) ∧ C) ↔ ((A ∧ C) ⋈[φ] (B ∧ C)))
 
--- Formal irreducibility theorem (Theorem 7):
--- For φ ≠ 0,π, distributivity fails outright.
-theorem no_distrib_formal (φ : ℝ) (h : φ ≠ 0 ∧ φ ≠ π) :
-  ((A ⋈[φ] B) ∧ C) ≠ ((A ∧ C) ⋈[φ] (B ∧ C)) := by
-  admit   -- proof placeholder; enforced in symatics rewriter + tests
+-- Formal irreducibility (Theorem 7)
+axiom no_distrib_formal :
+  ∀ (φ : Phase), φ ≠ zero_phase ∧ φ ≠ pi_phase →
+    ((A ⋈[φ] B) ∧ C) ≠ ((A ∧ C) ⋈[φ] (B ∧ C))
 
--- Phase composition axioms for ⋈[φ]
-axiom assoc_phase   : (A ⋈[φ] B) ⋈[ψ] C ↔ A ⋈[φ+ψ] (B ⋈[ψ] C)
-axiom inv_phase     : A ⋈[φ] (A ⋈[−φ] B) ↔ B
+-- Phase composition axioms
+axiom assoc_phase : (A ⋈[φ] B) ⋈[ψ] C ↔ A ⋈[φ+ψ] (B ⋈[ψ] C)
+axiom inv_phase   : A ⋈[φ] (A ⋈[−φ] B) ↔ B
 
--- ---------------------------------------------------------------------------
--- A7 & A8: canonical phase interference laws
--- ---------------------------------------------------------------------------
-
--- A7 (Constructive interference, φ = 0):
--- Interference with zero relative phase is just additive alignment.
-axiom fuse_phase_zero :
-  (A ⋈[0] B) ↔ (A ⊕ B)
-
--- A8 (Destructive interference, φ = π):
--- Interference with π phase shift annihilates equal amplitudes.
-axiom fuse_phase_pi :
-  (A ⋈[π] B) ↔ (A ⊖ B)   -- symbolic "difference" / cancellation operator
+-- Canonical phase interference laws
+axiom fuse_phase_zero : (A ⋈[zero_phase] B) ↔ (A ⊕ B)
+axiom fuse_phase_pi   : (A ⋈[pi_phase] B) ↔ (A ⊖ B)

@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/symatics/symatics_to_codex_rewriter.py
+# hypothesis_version: 6.139.2
+
+['args', 'barrier:⟁', 'interf:⋈', 'logic:⊕', 'mod:⌬', 'op', '⊕', '⋈', '⌬', '⟁']

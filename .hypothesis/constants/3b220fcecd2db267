@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/codex/codexlang_rewriter.py
+# hypothesis_version: 6.139.2
+
+[0.0, 0.1, 0.2, ' ∧ ', ' ∨ ', ', ', '?', 'Double negation', 'True', '\\1', '\\1 + 0', '\\s+', 'aggressive', 'and', 'arg', 'args', 'body', 'collapse_state', 'collapsed', 'constant', 'entangled', 'equals', 'exists', 'forall', 'function', 'implies', 'left', 'metadata', 'name', 'not', 'op', 'or', 'predicate', 'prediction', 'reason', 'rewrite', 'right', 'soft', 'sqi_score', 'term', 'terms', 'type', 'unknown', 'value', 'var', '¬\\s*¬\\s*']

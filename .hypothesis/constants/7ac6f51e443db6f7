@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/symbolic_engine/math_kernel.py
+# hypothesis_version: 6.139.2
+
+['+', '0', 'depth', 'det', 'error', 'evaluated', 'input', 'inv', 'latex', 'metadata', 'parsed', 'simplified', 'trace', 'transpose', 'type', 'vars', 'x', '❌ Cannot simplify', '❌ Invalid expression', '❌ Matrix error', '❌ Unable to solve', '❌ Unknown operation']

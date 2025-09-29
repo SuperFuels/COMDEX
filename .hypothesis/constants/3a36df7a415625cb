@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/tessaris/tessaris_intent_executor.py
+# hypothesis_version: 6.139.2
+
+[':', 'Reflect', '__main__', 'action', 'avatar_action', 'container_id', 'data', 'default', 'denied', 'duration', 'error', 'event', 'executed', 'glyph', 'glyphs', 'goal', 'intent_executed', 'intent_type', 'metadata', 'ok', 'payload', 'plan', 'r', 'retry', 'source', 'tag', 'timestamp', 'type', 'unknown', 'value', 'w', '|', '→', '⟦', '⟦⟧']

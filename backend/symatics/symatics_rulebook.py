@@ -14,6 +14,7 @@ Operators:
 
 from typing import Any, Dict, List, Union
 from backend.symatics.canonicalizer import canonical as canonicalize
+from backend.symatics import rewriter as R
 from backend.symatics.rewrite_rules import (
     simplify,           # 🔑 auto-normalization hook
     rewrite_derivative, # calculus rules
@@ -692,8 +693,7 @@ def law_self_zero(a) -> bool:
 def law_self_pi(a) -> bool:
     """(A ⋈[π] A) ↔ ⊥."""
     lhs = interf(math.pi, a, a)
-    norm = normalize(lhs)
-    return isinstance(norm, Bot)
+    return symatics_equiv(lhs, Bot())
 
 
 def law_non_idem(a, φ) -> bool:
@@ -1030,6 +1030,21 @@ def law_entanglement_symmetry(states: List[Any]) -> bool:
     w2 = op_entangle_w(list(reversed(states)), {})
     return _canonical(ghz1) == _canonical(ghz2) and _canonical(w1) == _canonical(w2)
 
+# -----------------
+# NEW: Non-idempotence
+# -----------------
+def non_idem(A, φ):
+    """
+    Law: (A ⋈[φ] A) ≠ A for φ ≠ 0, π.
+    Matches Lean axiom `non_idem`.
+    """
+    if R.is_zero_phase(φ) or R.is_pi_phase(φ):
+        return False  # excluded cases
+    lhs = R.normalize(R.interf(φ, A, A))
+    rhs = R.normalize(A)
+    return lhs != rhs
+
+
 # ──────────────────────────────
 # Law Registry Helpers
 # ──────────────────────────────
@@ -1111,12 +1126,17 @@ LAW_REGISTRY = {
     # v0.3 interference axioms (⋈[φ])
     # ──────────────────────────────
     "⋈": [
-        _wrap("comm_phi",     lambda a, b, φ        : law_comm_phi(a, b, φ)),
-        _wrap("self_zero",    lambda a              : law_self_zero(a)),   # φ=0 handled inside
-        _wrap("self_pi",      lambda a              : law_self_pi(a)),     # φ=π handled inside
-        _wrap("neutral_phi",  lambda a, φ           : law_neutral_phi(a, φ)),
-        _wrap("assoc_phase",  lambda a, b, c, φ, ψ  : law_assoc_phase(a, b, c, φ, ψ)),
-        _wrap("inv_phase",    lambda a, b, φ        : law_inv_phase(a, b, φ)),
+        _wrap("comm_phi",        lambda a, b, φ        : law_comm_phi(a, b, φ)),
+        _wrap("self_zero",       lambda a              : law_self_zero(a)),   # φ=0 handled inside
+        _wrap("self_pi",         lambda a              : law_self_pi(a)),     # φ=π handled inside
+        _wrap("non_idem",        lambda a, φ           : law_non_idem(a, φ)), # ✅ added for consistency
+        _wrap("neutral_phi",     lambda a, φ           : law_neutral_phi(a, φ)),
+        _wrap("assoc_phase",     lambda a, b, c, φ, ψ  : law_assoc_phase(a, b, c, φ, ψ)),
+        _wrap("inv_phase",       lambda a, b, φ        : law_inv_phase(a, b, φ)),
+
+        # 🔹 Fusion axioms
+        _wrap("fuse_phase_zero", lambda a, b           : symatics_equiv(interf(0.0, a, b), R.SymAdd(a, b))),
+        _wrap("fuse_phase_pi",   lambda a, b           : symatics_equiv(interf(math.pi, a, b), R.SymSub(a, b))),
     ],
 
     # ──────────────────────────────

@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/database.py
+# hypothesis_version: 6.139.2
+
+['*****', 'DATABASE_URL', 'Wn8smx123', 'check_same_thread', 'sqlite', 'sqlite:///./dev.db']

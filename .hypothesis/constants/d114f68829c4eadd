@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/glyphwave/adapters/glyphnet_adapter.py
+# hypothesis_version: 6.139.2
+
+[1.0, 'amplitude', 'coherence', 'id', 'metadata', 'origin_trace', 'phase', 'timestamp']

@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/glyphnet/glyphnet_key_locks.py
+# hypothesis_version: 6.139.2
+
+['1', 'created', 'expr', 'lock_expr', 'locked', 'success', 'true', 'ttl', 'ttl_remaining', 'yes']

@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/symbolnet/symbolnet_utils.py
+# hypothesis_version: 6.139.2
+
+[0.0, 1.0, 2.0, 'SYMBOLNET_MODEL_PATH', '[^a-zA-Z0-9\\s]', '\\(.*?\\)', 'alignment_score', 'label']

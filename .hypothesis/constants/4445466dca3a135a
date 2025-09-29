@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/sqi/sqi_event_bus.py
+# hypothesis_version: 6.139.2
+
+[0.1, 1.0, 5.0, 1000.0, 1000, 4096, '%Y-%m-%dT%H:%M:%S', '0', '1', '1.0', '150', '4096', '5', 'AION_LOG_DEBOUNCE_MS', 'AION_LOG_JSON', 'AION_LOG_LEVEL', 'AION_LOG_SAMPLE_RATE', 'AION_LOG_SOURCE', 'AION_LOG_TS', 'AION_SQI_DEBOUNCE_MS', 'SQI_HEARTBEAT', 'SQI_MUTATION_EVAL', '_hash', 'anchor', 'bus', 'confidence', 'container_growth', 'container_id', 'data', 'debug', 'entropy_delta', 'entropy_pulse', 'entry', 'error', 'event_type', 'external_hash', 'glyph', 'glyph_injection', 'goal_match_score', 'hash', 'heartbeat', 'info', 'level', 'meaning', 'meta', 'metadata', 'msg', 'mutated', 'mutation_id', 'payload', 'plugin', 'relates_to', 'relation', 'rewrite_success_prob', 'source', 'sqiMutationScore', 'sqi_score_event', 'src', 'tags', 'timestamp', 'true', 'ts', 'type', 'unknown', 'warn', 'warning']

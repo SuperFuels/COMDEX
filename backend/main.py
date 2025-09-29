@@ -204,7 +204,7 @@ from backend.api import qfc_api
 from backend.api import symbolic_tree_api
 from backend.routes.api_collapse_trace import router as collapse_trace_router
 from backend.routes import lean_inject_api
-
+from backend.utils.deprecation_logger import install_deprecation_hook
 
 # ===== Atomsheet / LightCone / QFC wiring =====
 from backend.routes.dev import glyphwave_test_router        # dev-only routes (mounted elsewhere in your file)  # noqa: F401
@@ -367,6 +367,7 @@ app.include_router(api_sheets.router)
 app.include_router(qfc_extras_router)
 app.include_router(lean_inject_api.router, prefix="/api")
 seed_builtin_patterns()
+install_deprecation_hook()
 
 if atomsheets_router:
     app.include_router(atomsheets_router)

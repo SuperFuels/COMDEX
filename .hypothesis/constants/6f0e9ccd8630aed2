@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/dna_chain/mutation_scorer.py
+# hypothesis_version: 6.139.2
+
+[0.0, 0.1, 1.0, 1.5, 2.0, 'action', 'breakdown', 'code', 'coord', 'delete', 'dna', 'eval(', 'exec(', 'glyph', 'mutation', 'mutation_score', 'open(', 'os.system', 'proposal_id', 'role', 'rollback', 'safety', 'score', 'score_breakdown', 'scoring', 'subprocess', 'system', 'tag', 'tags', 'timestamp', 'total', 'type', 'value']

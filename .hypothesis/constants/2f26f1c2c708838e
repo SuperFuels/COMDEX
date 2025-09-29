@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/spe/spe_bridge.py
+# hypothesis_version: 6.139.2
+
+['SPE drift repair', 'SPE recombination', 'drift_info', 'fusion', 'id', 'inputs', 'maybe_autofuse', 'merged', 'metadata', 'payload', 'recombine_from_beams', 'repair_from_drift', 'repaired_from_drift', 'sources', 'spe_fusion', 'type']

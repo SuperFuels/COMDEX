@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/glyphos/symbolic_entangler.py
+# hypothesis_version: 6.139.2
+
+[0.0, 1.0, 'disentangle', 'entangle_containers', 'entangle_glyphs', 'entangled_memory', 'get_entangled_for', 'get_entangled_links', 'get_entanglements', 'r', 'system', 'w']

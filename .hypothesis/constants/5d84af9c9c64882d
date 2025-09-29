@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/codex/logic_tree.py
+# hypothesis_version: 6.139.2
+
+['LogicGlyph', 'args', 'logic', 'name', 'operator', 'type', 'unknown', '⊕']

@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/sqi/qglyph_utils.py
+# hypothesis_version: 6.139.2
+
+['LogicGlyph', 'QGlyphGen', 'entangled', 'entangled_with', 'id', 'predictive', 'qglyph', 'source', 'suggested_mutations', 'superposition', 'trace_origin', '↔']

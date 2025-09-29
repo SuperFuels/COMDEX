@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/codexcore_virtual/instruction_registry.py
+# hypothesis_version: 6.139.2
+
+['CROSS', 'CURL', 'DDT', 'DIV', 'DOT', 'GRAD', 'LAPL', 'TENSOR', 'args', 'control:⟲', 'cross_product', 'curl_operator', 'd/dt', 'dalembertian', 'divergence_operator', 'dot_product', 'gradient_operator', 'hbar', 'impl', 'iħ∂/∂t', 'kwargs', 'laplacian_operator', 'logic', 'logic:→', 'logic:⊕', 'memory:↺', 'nabla_mu', 'neg', 'partial_mu', 'physics', 'physics:×', 'physics:Δ', 'physics:•', 'physics:∇', 'physics:∇·', 'physics:∇×', 'physics:⊗', 'physics:□', 'physics_op', 'schrodinger', 'sequence', 't', 'tensor_product', 'to_dict', 'type', '¬', '·', '×', 'Δ', '•', 'ℏ', '→', '↺', '∂_μ', '∂t', '∇', '∇_μ', '∇·', '∇×', '⊕', '⊗', '□', '⟲']

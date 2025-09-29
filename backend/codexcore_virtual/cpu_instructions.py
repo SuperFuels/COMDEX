@@ -1,6 +1,6 @@
 # File: backend/codexcore/virtual_cpu/cpu_instructions.py
 
-from backend.codexcore.virtual_cpu.cpu_state import CPUState
+from backend.codexcore_virtual.cpu_state import CPUState
 
 class CPUInstructions:
     def __init__(self, state: CPUState):

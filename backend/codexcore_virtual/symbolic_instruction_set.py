@@ -1,16 +1,13 @@
 """
 Symbolic Instruction Set (Shim)
 
-⚠️ Deprecated: This file is now a thin wrapper over
+⚠️ Deprecated: Thin wrapper over
 `backend/modules/codexcore_virtual/instruction_registry`.
 
 Use `instruction_registry.registry` directly for canonical ops.
 
-We keep this file to preserve backwards compatibility with older
-Codex/GlyphOS code that imports `symbolic_instruction_set`.
-
 - Provides `is_valid_opcode()` and `get_opcode()` wrappers.
-- Auto-aliases legacy raw symbols (⊕, ⟲, etc.) to domain-tagged keys.
+- Auto-aliases legacy raw symbols (⊕, ⟲, →) to domain-tagged keys.
 """
 
 import warnings
@@ -18,12 +15,22 @@ from typing import Dict
 from backend.codexcore_virtual import instruction_registry as ir
 
 # -----------------------------------------------------------------------------
+# Legacy alias overrides (ensure canonical domain mapping)
+# -----------------------------------------------------------------------------
+LEGACY_ALIASES = {
+    "⊕": "logic:⊕",       # addition / combine
+    "⟲": "control:⟲",     # loop / iteration
+    "→": "logic:→",       # sequence / trigger
+}
+
+# -----------------------------------------------------------------------------
 # Backwards compatibility shim
 # -----------------------------------------------------------------------------
-
 def is_valid_opcode(symbol: str) -> bool:
-    """Check if a symbol (raw or domain-tagged) is registered."""
+    """Check if a symbol (raw or domain-tagged) is registered or aliased."""
     if symbol in ir.registry.registry:
+        return True
+    if symbol in LEGACY_ALIASES:
         return True
     if symbol in ir.registry.aliases:
         return True
@@ -33,34 +40,29 @@ def is_valid_opcode(symbol: str) -> bool:
 def get_opcode(symbol: str) -> str:
     """
     Return the canonical domain-tagged key for a symbol.
-    If raw, resolves through alias table.
+    - Raw glyphs first checked against LEGACY_ALIASES
+    - Then against registry aliases
+    - Otherwise returns canonical if already registered
     """
     if symbol in ir.registry.registry:
         return symbol
+    if symbol in LEGACY_ALIASES:
+        canonical = LEGACY_ALIASES[symbol]
+        warnings.warn(
+            f"[compat] Symbol '{symbol}' resolved to '{canonical}' via hardcoded legacy shim.",
+            DeprecationWarning,
+        )
+        return canonical
     if symbol in ir.registry.aliases:
         canonical = ir.registry.aliases[symbol]
         warnings.warn(
-            f"[compat] Symbol '{symbol}' resolved to '{canonical}' via alias shim.",
+            f"[compat] Symbol '{symbol}' resolved to '{canonical}' via registry alias shim.",
             DeprecationWarning,
         )
         return canonical
     raise ValueError(f"Unknown symbolic opcode: {symbol}")
 
 
-# -----------------------------------------------------------------------------
-# Legacy handler map compatibility
-# -----------------------------------------------------------------------------
-
 def list_symbolic_opcodes() -> Dict[str, str]:
-    """
-    Return all registered ops from the canonical registry.
-    Mirrors old OPCODE_HANDLER_MAP but with domain-tagged keys.
-    """
+    """Return all registered ops from the canonical registry."""
     return ir.registry.list_instructions()
-
-
-# -----------------------------------------------------------------------------
-# Notes:
-# - Prefer `instruction_registry.registry` in new code.
-# - This file will be fully removed after CodexCore vNext.
-# -----------------------------------------------------------------------------

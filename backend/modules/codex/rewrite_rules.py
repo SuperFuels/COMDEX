@@ -1,5 +1,4 @@
-# backend/modules/codex/rewrite_rules.py
-
+# File: backend/modules/codex/rewrite_rules.py
 """
 Rewrite system for Codex + Symatics.
 
@@ -9,29 +8,12 @@ Rewrite system for Codex + Symatics.
 """
 
 from backend.modules.codex.canonical_ops import CANONICAL_OPS
+from backend.symatics import rewrite_rules as sym_rewrite
+from backend.symatics.adapter import codex_ast_to_sym, sym_to_codex_ast
 
 
-def rewrite_tree(node):
-    """
-    Normalize + simplify AST node in place.
-
-    Args:
-        node (dict | str | other): AST node or literal.
-    Returns:
-        dict | str: Rewritten node.
-    """
-    if not isinstance(node, dict) or "op" not in node:
-        return node
-
-    # Canonicalize operator
-    op = node["op"]
-    node["op"] = CANONICAL_OPS.get(op, op)
-
-    # Recurse on args
-    args = node.get("args", [])
-    node["args"] = [rewrite_tree(arg) for arg in args]
-
-    # Simplification rules
+def _local_simplify(node):
+    """Codex local simplifications (fast-path, cheap checks)."""
     # ¬¬A → A
     if node["op"] == "logic:¬" and len(node["args"]) == 1:
         inner = node["args"][0]
@@ -55,5 +37,42 @@ def rewrite_tree(node):
         a, b = node["args"]
         if a == b:
             return a
+
+    return node
+
+
+def rewrite_tree(node, use_symatics: bool = True):
+    """
+    Normalize + simplify AST node.
+
+    Args:
+        node: Codex AST ({op, args}) or literal.
+        use_symatics: if True, roundtrip through Symatics rewriter.
+    Returns:
+        Rewritten AST node.
+    """
+    if not isinstance(node, dict) or "op" not in node:
+        return node
+
+    # Canonicalize operator
+    op = node["op"]
+    node["op"] = CANONICAL_OPS.get(op, op)
+
+    # Recurse on args
+    args = node.get("args", [])
+    node["args"] = [rewrite_tree(arg, use_symatics=use_symatics) for arg in args]
+
+    # Local Codex simplifications
+    node = _local_simplify(node)
+
+    if use_symatics:
+        try:
+            # Roundtrip into Symatics rewriter
+            sym_term = codex_ast_to_sym(node)
+            sym_norm = sym_rewrite.simplify(sym_term)
+            return sym_to_codex_ast(sym_norm)
+        except Exception:
+            # Fail safe → keep Codex node
+            return node
 
     return node

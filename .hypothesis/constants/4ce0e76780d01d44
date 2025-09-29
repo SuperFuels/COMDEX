@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/codex/ops/execute_metric.py
+# hypothesis_version: 6.139.2
+
+['metric', 'op', 'symbol']

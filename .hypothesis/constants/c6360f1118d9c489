@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/glyphwave/adapters/wave_adapter.py
+# hypothesis_version: 6.139.2
+
+[1.0, 2.0, 360, 'amplitude', 'axiom', 'coherence', 'core', 'glyph', 'label', 'metadata', 'source', 'truth', 'unknown']

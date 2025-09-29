@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/visualization/glyph_to_qfc.py
+# hypothesis_version: 6.139.2
+
+['#81d4fa', '#90caf9', '#a5d6a7', '#aed581', '#b3e5fc', '#ce93d8', '#ef5350', '#ef9a9a', '#ffcc80', '#fff59d', 'anger', 'beam_id', 'circle', 'color', 'confidence', 'confusion', 'container', 'container_id', 'context', 'curiosity', 'emotion', 'emotion_tag', 'entropy', 'execution', 'fear', 'focus', 'glyph', 'glyph_id', 'highlight', 'id', 'joy', 'label', 'link_type', 'links', 'metadata', 'nodes', 'op', 'origin', 'sadness', 'shape', 'size', 'solid', 'source', 'source_glyph', 'source_node', 'style', 'target', 'timestamp', 'trust', 'type', 'unknown', 'width', 'wonder', '→', '∅']

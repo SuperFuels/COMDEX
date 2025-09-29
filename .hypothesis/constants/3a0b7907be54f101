@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/aion/rewrite_engine.py
+# hypothesis_version: 6.139.2
+
+['applied_rules', 'codex_string', 'expr', 'mode', 'ok', 'original', 'reason', 'rewritten', 'soft', 'soft:add_zero', 'soft:double_negation', 'soft:mul_one', 'status']

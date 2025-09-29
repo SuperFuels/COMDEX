@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/lean/convert_lean_to_codexlang.py
+# hypothesis_version: 6.139.2
+
+[0.0, '--.*$', '0', 'True', '[A-Z]', '__main__', 'args', 'axiom', 'body', 'codexlang', 'codexlang_string', 'explanation', 'glyph_string', 'glyph_symbol', 'glyph_tree', 'interf:⋈', 'line', 'lit', 'logic', 'logic:⊥', 'logic_raw', 'name', 'normalized', 'op', 'parsed_declarations', 'phase', 'pi_phase', 'r', 'utf-8', 'value', 'zero_phase', 'π', '⊥', '⟦ Axiom ⟧', '⟦ Theorem ⟧']

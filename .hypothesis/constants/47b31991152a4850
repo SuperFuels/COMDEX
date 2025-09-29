@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/glyphnet/ephemeral_key_manager.py
+# hypothesis_version: 6.139.2
+
+[0.5, 300, 'expiry', 'key']

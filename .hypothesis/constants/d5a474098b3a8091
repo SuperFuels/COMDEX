@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/codex/codex_core.py
+# hypothesis_version: 6.139.2
+
+['action', 'breakdown', 'codex_core', 'cost', 'duplicate', 'error', 'executed', 'execution_error', 'glyph', 'memory', 'parse_error', 'result', 'rewrite', 'source', 'status', 'tag', 'total']

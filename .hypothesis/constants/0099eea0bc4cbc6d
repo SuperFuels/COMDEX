@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/gip/gip_adapter_net.py
+# hypothesis_version: 6.139.2
+
+['broadcast', 'error', 'glyphnet', 'payload', 'recipient_id', 'sender_id', 'unknown']

@@ -1,39 +1,69 @@
-# File: backend/codexcore/virtual_cpu/cpu_executor.py
+# -*- coding: utf-8 -*-
+# File: backend/codexcore_virtual/cpu_executor.py
+"""
+Virtual CPU Executor
 
-from backend.codexcore.virtual_cpu.cpu_instruction_set import INSTRUCTION_SET
-from backend.codexcore.virtual_cpu.cpu_registers import CPURegisters
-from backend.codexcore.virtual_cpu.cpu_memory import CPUMemory
-from backend.codexcore.virtual_cpu.cpu_program_loader import load_program
+Phase 8 (C9/I1):
+- Registry delegation: all instructions routed through
+  the global instruction_registry.
+- Uses CPUProgramLoader to parse program lines.
+- Minimal registers + memory implemented inline (no external stubs).
+"""
+
+from backend.codexcore_virtual.instruction_registry import registry
+from backend.codexcore_virtual.cpu_program_loader import CPUProgramLoader
 
 
 class VirtualCPU:
     def __init__(self):
-        self.registers = CPURegisters()
-        self.memory = CPUMemory()
+        # Simple memory/register models
+        self.registers = {}
+        self.memory = {}
         self.instruction_pointer = 0
         self.program = []
         self.running = False
+        self.loader = CPUProgramLoader()
 
+    # ──────────────────────────────
+    # Program Management
+    # ──────────────────────────────
     def load_program(self, program_lines):
-        self.program = load_program(program_lines)
+        """Load program from raw lines into parsed structure."""
+        self.program = self.loader.load_program_from_lines(program_lines)
         self.instruction_pointer = 0
 
     def fetch(self):
+        """Fetch the current instruction or None if past end."""
         if self.instruction_pointer >= len(self.program):
             return None
         return self.program[self.instruction_pointer]
 
     def decode(self, instr):
-        op = instr['operation']
-        args = instr['args']
-        return op, args
+        """
+        Normalize instruction into (op, args).
+        Supports:
+          • dict: {"operation": "MOV", "args": ["R1", "42"]}
+          • tuple: ("MOV", ["R1", "42"])
+        """
+        if isinstance(instr, dict):
+            return instr["operation"], instr.get("args", [])
+        elif isinstance(instr, (tuple, list)) and len(instr) == 2:
+            return instr[0], instr[1]
+        else:
+            raise ValueError(f"Invalid instruction format: {instr}")
 
+    # ──────────────────────────────
+    # Execution
+    # ──────────────────────────────
     def execute(self, op, args):
-        if op not in INSTRUCTION_SET:
+        """Route execution through instruction_registry."""
+        try:
+            return registry.execute_v2(op, *args, ctx=self)
+        except KeyError:
             raise ValueError(f"Unknown instruction: {op}")
-        INSTRUCTION_SET[op](self, *args)
 
     def tick(self):
+        """Execute a single instruction and advance pointer."""
         instr = self.fetch()
         if instr is None:
             self.running = False
@@ -46,16 +76,28 @@ class VirtualCPU:
         self.instruction_pointer += 1
 
     def run(self):
+        """Run until program halts or end of program."""
         self.running = True
         while self.running:
             self.tick()
 
 
-# Optional inline test
+# ──────────────────────────────
+# Legacy Shim for Compatibility
+# ──────────────────────────────
+INSTRUCTION_SET = {
+    op: (lambda cpu, *args, _op=op: registry.execute_v2(_op, *args, ctx=cpu))
+    for op in registry.list_instructions().keys()
+}
+
+
+# ──────────────────────────────
+# Inline Demo
+# ──────────────────────────────
 if __name__ == "__main__":
     program = [
-        "LOAD R1, 10",
-        "LOAD R2, 20",
+        "MOV R1, 10",
+        "MOV R2, 20",
         "ADD R3, R1, R2",
         "STORE R3, 100",
         "PRINT R3",

@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/glyphos/glyph_tokenizer.py
+# hypothesis_version: 6.139.2
+
+['!=', '\'[^\']*\'|\\"[^\\"]*\\"', '(', '(a + b) / c', ')', '*', '**', '+', ',', '-', '/', '3.14 * r^2', ':', '<', '<=', '=', '==', '>', '>=', '[A-Za-z_]\\w*', '\\d+\\.?\\d*', '^', '__main__', 'abs', 'cos', 'delta != gamma', 'exp', 'function', 'if', 'keyword', 'log', 'number', 'operator', "overwrite('memory')", 'paren', 'return', 'sin', 'sqrt', 'string', 'symbol', 'tan', 'type', 'unknown', 'value', 'variable', 'x + 2', 'x**2 + y**2 == z**2', 'y = mx + b', '¬', '→', '↔', '∇', '∇c', '∇c(a, b) ↔ c', '∧', '∨', '≡', '≤', '≥', '⊕', '⊕ ∇ ↔ ⟲ ⧖ → ✦', '⊕(x, y) ≡ z', '⊗', '✦', '⟲', '⧖']

@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/glyphwave/qkd_handshake.py
+# hypothesis_version: 6.139.2
+
+[0.9, 1.0, 'collapse_hash', 'status', 'verified']

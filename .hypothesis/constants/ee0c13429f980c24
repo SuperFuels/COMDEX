@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/photon/photon_to_codex.py
+# hypothesis_version: 6.139.2
+
+['\nScroll:', '\nValidation Errors:', ' ; ', 'E001', 'Glyphs:', '__main__', 'anyOf', 'args', 'array', 'body', 'cli_test', 'code', 'codex', 'engine', 'glyphs', 'items', 'logic', 'message', 'meta', 'name', 'object', 'operator', 'photon_capsule', 'properties', 'r', 'required', 'scroll', 'steps', 'string', 'symbol', 'type', 'unknown', 'unnamed', 'utf-8', 'v1', 'validation_errors', 'value', '⊕']

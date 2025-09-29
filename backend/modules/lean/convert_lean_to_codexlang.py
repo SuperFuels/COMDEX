@@ -1,9 +1,19 @@
+# File: backend/modules/lean/convert_lean_to_codexlang.py
+"""
+Lean → CodexLang Bridge
+────────────────────────
+Parses Lean theorems/axioms into CodexLang AST ({op, args}) form,
+normalized through Symatics rewriter.
+
+Uses symatics.adapter to avoid direct reliance on old Atom/Interf classes.
+"""
+
 import os
 import re
 import math
 from typing import List, Dict, Any
 
-from backend.symatics import rewriter as R
+from backend.symatics import adapter, rewriter as R
 
 
 def _strip_comments(s: str) -> str:
@@ -12,41 +22,50 @@ def _strip_comments(s: str) -> str:
 
 
 # -----------------------
-# Minimal Lean → Expr stub
+# Minimal Lean → Codex AST
 # -----------------------
 
-def lean_to_expr(logic: str) -> R.Expr:
+def lean_to_ast(logic: str) -> Dict[str, Any]:
     """
     Very minimal parser: supports patterns like
       (A ⋈[φ] B), ⊥, atoms A/B/C.
+    Produces CodexLang AST nodes.
     """
     logic = logic.strip()
 
     # Bottom
     if logic == "⊥":
-        return R.Bot()
+        return {"op": "logic:⊥", "args": []}
 
     # Atom
     if re.fullmatch(r"[A-Z]", logic):
-        return R.Atom(logic)
+        return {"op": "lit", "value": logic}
 
     # Interference connective
     m = re.match(r"^\((\w+)\s*⋈\[(.*?)\]\s*(\w+)\)$", logic)
     if m:
         left, phi_str, right = m.groups()
         try:
-            if phi_str == "π":
+            # Normalize Lean's phase symbols into numeric values
+            if phi_str in ("π", "pi_phase"):
                 φ = math.pi
-            elif phi_str == "0":
+            elif phi_str in ("0", "zero_phase"):
                 φ = 0.0
             else:
                 φ = float(phi_str)
         except Exception:
             φ = 0.0
-        return R.Interf(φ, R.Atom(left), R.Atom(right))
+        return {
+            "op": "interf:⋈",
+            "phase": φ,
+            "args": [
+                {"op": "lit", "value": left},
+                {"op": "lit", "value": right},
+            ],
+        }
 
-    # Fallback: just return atom-like wrapper
-    return R.Atom(logic)
+    # Fallback: atom-like literal
+    return {"op": "lit", "value": logic}
 
 
 # -----------------------
@@ -79,19 +98,20 @@ def convert_lean_to_codexlang(lean_path: str) -> Dict[str, List[Dict[str, Any]]]
         raw_body = "".join(current_decl).strip()
         logic_str = _strip_comments(logic or "True")
 
-        # Try building rewriter glyph_tree + normalized form
+        # Build Codex AST + normalize through Symatics
         try:
-            expr = lean_to_expr(logic_str)
-            normalized_expr = R.normalize(expr)
-            glyph_tree = normalized_expr
-            normalized_logic = str(normalized_expr)
+            codex_ast = lean_to_ast(logic_str)
+            sym_expr = adapter.codex_ast_to_sym(codex_ast)
+            normalized_expr = R.normalize(sym_expr)
+            glyph_tree = adapter.sym_to_codex_ast(normalized_expr)
+            normalized_logic = str(glyph_tree)
         except Exception:
             glyph_tree = {}
             normalized_logic = logic_str
 
         declarations.append({
             "name": name,
-            "logic": normalized_logic,        # ✅ normalized logic
+            "logic": normalized_logic,        # ✅ normalized logic (stringified AST)
             "logic_raw": logic_str,           # keep raw for traceability
             "codexlang": {
                 "logic": logic_str,
@@ -133,3 +153,11 @@ def convert_lean_to_codexlang(lean_path: str) -> Dict[str, List[Dict[str, Any]]]
 
     flush_declaration()
     return {"parsed_declarations": declarations}
+
+if __name__ == "__main__":
+    import json
+    # pick one of your Lean sources:
+    lean_file = "backend/modules/lean/symatics_axioms.lean"
+
+    result = convert_lean_to_codexlang(lean_file)
+    print(json.dumps(result, indent=2, ensure_ascii=False))

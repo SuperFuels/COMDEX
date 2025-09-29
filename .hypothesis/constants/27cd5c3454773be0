@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/models/user.py
+# hypothesis_version: 6.139.2
+
+['Deal', 'Product', '[Deal.buyer_id]', '[Deal.supplier_id]', 'all, delete-orphan', 'buyer', 'owner', 'supplier', 'users']

@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/dna_chain/dc_handler.py
+# hypothesis_version: 6.139.2
+
+[',', '.dc.json', '?', 'access_denied', 'area', 'attempted_target', 'auto_teleport', 'container_id', 'container_loaded', 'containers', 'content', 'coord', 'created_on', 'cubes', 'description', 'destination', 'dimension_loaded', 'dims', 'dna_switch', 'entangled', 'entangled_links', 'entangled_with', 'error', 'gate', 'glyph', 'glyph_carved', 'id', 'in_memory', 'label', 'layers', 'loaded', 'manual', 'material', 'metadata', 'microgrid', 'name', 'navigation', 'navigation_route', 'next', 'objects', 'r', 'rb', 'required_traits', 'role', 'routes', 'source', 'symbol', 'system', 'tamper_alert', 'teleport_event', 'teleport_failed', 'teleport_to', 'teleporter', 'timestamp', 'trigger', 'type', 'utf-8', 'w', 'wormholes', '⬛']

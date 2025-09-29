@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/codexcore_virtual/instruction_parser.py
+# hypothesis_version: 6.139.2
+
+['(', '(A ⊕ B) → C', '(\\S+)\\((.*)\\)', ')', 'A ⊕ B', 'A ⊕ B → C', 'A ⊕ B → C => ⟲(Loop)', 'NoteThisLiteral', 'X → Y', '\\s*=>\\s*', '__main__', 'args', 'domain', 'logic:print', 'opcode', 'unknown', '→', '↔', '⊕', '⟲', '⟲((A ⊕ B) → C)', '⟲(A ⊕ B)', '⟲(Reflect)']

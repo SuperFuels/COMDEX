@@ -5,6 +5,7 @@
 
 from typing import Any, Callable, Dict
 
+
 class GlyphInstruction:
     def __init__(self, symbol: str, name: str, func: Callable, description: str = ""):
         self.symbol = symbol
@@ -14,6 +15,7 @@ class GlyphInstruction:
 
     def execute(self, *args, **kwargs) -> Any:
         return self.func(*args, **kwargs)
+
 
 # --- Operation Implementations ---
 
@@ -26,8 +28,10 @@ def op_trigger(source, target, memory=None):
         })
     return f"{source} → {target}"
 
+
 def op_equivalence(left, right):
     return left == right
+
 
 def op_mutate(symbol, memory=None):
     if memory:
@@ -38,31 +42,76 @@ def op_mutate(symbol, memory=None):
         })
     return f"Mutated: {symbol}"
 
+
 def op_loop(symbol, count=3):
     return [f"Loop[{i}] → {symbol}" for i in range(count)]
+
 
 def op_union(set1, set2):
     return list(set(set1) | set(set2))
 
-def op_combine(a, b):
-    return f"⊕({a}, {b})"
+
+def op_combine(*args, **kwargs):
+    """
+    Legacy ⊕ operator.
+    Behaviors:
+      • ⊕(value) → "[STORE] value"
+      • ⊕(context, value) → "[STORE] value"
+      • ⊕(a, b) → "⊕(a, b)"
+      • ⊕(context, a, b) → "⊕(a, b)"
+    """
+    if len(args) == 1:
+        (a,) = args
+        return f"[STORE] {a}"
+
+    elif len(args) == 2:
+        first, second = args
+        # If first is not a string → treat as context
+        if not isinstance(first, str) or first == "context":
+            return f"[STORE] {second}"
+        return f"⊕({first}, {second})"
+
+    elif len(args) == 3:
+        _, a, b = args
+        return f"⊕({a}, {b})"
+
+    else:
+        raise TypeError(f"op_combine expected 1–3 args, got {args}")
+
 
 def op_multiply(a, b):
     return f"⊗({a}, {b})"
 
+
 def op_condition(condition, then_action, else_action=None):
     return then_action if condition else (else_action or "No Action")
+
 
 def op_delay(symbol, seconds=1):
     import time
     time.sleep(seconds)
     return f"Delayed: {symbol} by {seconds}s"
 
+
 def op_compress(*symbols):
     return f"∇({', '.join(map(str, symbols))})"
 
+
 def op_milestone(*args):
     return f"✦ Milestone Reached: {' '.join(map(str, args))}"
+
+
+def op_teleport(*, target: str, context=None, **kwargs):
+    kwargs = dict(kwargs)  # copy
+    kwargs.setdefault("target", target)
+    return {
+        "glyph_action": "teleport",
+        "target": target,
+        "ok": True,
+        "kwargs": kwargs,
+        "context": context,
+    }
+
 
 # --- Instruction Set Registry ---
 
@@ -72,13 +121,15 @@ INSTRUCTION_SET: Dict[str, GlyphInstruction] = {
     "⟲": GlyphInstruction("⟲", "mutate", op_mutate, "Performs self-mutation or update"),
     "⤾": GlyphInstruction("⤾", "loop", op_loop, "Loops over a symbol"),
     "∪": GlyphInstruction("∪", "union", op_union, "Set union of two sets"),
-    "⊕": GlyphInstruction("⊕", "combine", op_combine, "Combines two symbolic values"),
+    "⊕": GlyphInstruction("⊕", "combine", op_combine, "Combines or stores symbolic values"),
     "⊗": GlyphInstruction("⊗", "multiply", op_multiply, "Multiplies symbolic structures"),
     "?": GlyphInstruction("?", "condition", op_condition, "Conditional execution"),
     "⧖": GlyphInstruction("⧖", "delay", op_delay, "Delays execution of a symbol"),
     "∇": GlyphInstruction("∇", "compress", op_compress, "Compresses symbolic values"),
     "✦": GlyphInstruction("✦", "milestone", op_milestone, "Marks a milestone or boot phase"),
+    "teleport": GlyphInstruction("teleport", "teleport", op_teleport, "Teleport a target to destination"),
 }
+
 
 def get_instruction(symbol: str) -> GlyphInstruction:
     # Direct match first (raw or canonical)
@@ -93,10 +144,12 @@ def get_instruction(symbol: str) -> GlyphInstruction:
 
     return None
 
+
 def clear_instruction(symbol: str):
     """Remove a registered instruction (cleanup)."""
     if symbol in INSTRUCTION_SET:
         del INSTRUCTION_SET[symbol]
+
 
 def register_instruction(symbol: str, instr: GlyphInstruction):
     """

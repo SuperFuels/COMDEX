@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/symbolic/symbolic_meaning_tree.py
+# hypothesis_version: 6.139.2
+
+['SymbolicMeaningTree', 'beam_glyph', 'glyph_data', 'glyph_id', 'glyphs', 'id', 'is_root', 'label', 'links', 'metadata', 'source', 'target', 'type', 'wave']

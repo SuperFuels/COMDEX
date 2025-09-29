@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/symatics/operators/damping.py
+# hypothesis_version: 6.139.2
+
+[0.1, 'Context', 'damped', 'gamma', 'steps', '↯']

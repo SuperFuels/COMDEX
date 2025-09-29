@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/glyphwave/constants.py
+# hypothesis_version: 6.139.2
+
+[0.0, 0.005, 0.01, 1.0, 1000.0, 'GW_ENABLED', 'beam_state', 'bronze', 'capture', 'carrier_type', 'coherence', 'collapse', 'collapsed', 'contradicted', 'drift', 'emit', 'gold', 'jitter', 'live', 'modulate', 'none', 'optical', 'predicted', 'qkd', 'qos', 'quantum', 'radio', 'replay', 'silver', 'sim_phase', 'simulated', 'time_lock', 'wdm']

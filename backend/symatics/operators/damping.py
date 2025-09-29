@@ -4,13 +4,13 @@ import math
 from typing import Optional
 
 from backend.symatics.signature import Signature
-from backend.symatics.operators.base import Operator
+from backend.symatics.operators import Operator
 
 
 def _damp(
     a: Signature,
-    gamma: float,
     *,
+    gamma: float = 0.1,
     steps: int = 1,
     ctx: Optional["Context"] = None,
 ) -> Signature:
@@ -38,5 +38,5 @@ def _damp(
     return ctx.canonical_signature(sig) if ctx else sig
 
 
-# Export operator
-damping_op = Operator("↯", 2, _damp)
+# Export operator as unary
+damping_op = Operator("↯", 1, _damp)

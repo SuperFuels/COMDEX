@@ -3,7 +3,8 @@ from __future__ import annotations
 from typing import Optional
 
 from backend.symatics.signature import Signature
-from backend.symatics.operators.base import Operator
+# ✅ import Operator from __init__, not base
+from backend.symatics.operators import Operator
 from backend.symatics.operators.helpers import _merge_meta, _pol_blend
 
 def _resonance(a: Signature, b: Signature, ctx: Optional["Context"] = None) -> Signature:

@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/codex/codex_ast_encoder.py
+# hypothesis_version: 6.139.2
+
+['Addition', 'And', 'Division', 'Equality', 'Equiv', 'Exists', 'ForAll', 'Implies', 'Multiplication', 'Not', 'Or', 'Subtraction', 'VectorOp', 'args', 'body', 'expr', 'id', 'left', 'logic', 'math', 'metadata', 'name', 'operands', 'operator', 'predicate', 'right', 'symbolic', 'type', 'unknown', 'value', 'var', 'vector', '¬', '→', '↔', '∀', '∃', '∧', '∨']

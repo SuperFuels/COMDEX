@@ -1,3 +1,4 @@
+# File: backend/tests/test_law_registry_symatics.py
 """
 Law Registry Validation for ⋈[φ]
 --------------------------------
@@ -16,8 +17,20 @@ B = R.B()
 C = R.C()
 
 
+def _get_law(name: str):
+    """Helper: find a law by its registry name."""
+    for law in LAW_REGISTRY["⋈"]:
+        if law.__name__ == name:
+            return law
+    raise KeyError(f"Law {name} not found in registry")
+
+
+# -----------------
+# Core axioms
+# -----------------
+
 def test_comm_phi_registry():
-    law = LAW_REGISTRY["⋈"][0]  # comm_phi
+    law = _get_law("comm_phi")
     φ = 0.7
     lhs = R.interf(φ, A, B)
     rhs = R.interf(-φ, B, A)
@@ -26,23 +39,26 @@ def test_comm_phi_registry():
 
 
 def test_self_zero_registry():
-    law = LAW_REGISTRY["⋈"][1]  # self_zero
-    lhs = R.interf(0, A, A)
+    law = _get_law("self_zero")
+    lhs = R.interf(0.0, A, A)
     rhs = A
     assert law(A)
     assert R.symatics_equiv(lhs, rhs)
 
 
 def test_self_pi_registry():
-    law = LAW_REGISTRY["⋈"][2]  # self_pi
+    law = _get_law("self_pi")
     lhs = R.interf(math.pi, A, A)
     rhs = R.Bot()
     assert law(A)
+    # ⊥ should normalize to Bot
+    norm = R.normalize(lhs)
+    assert isinstance(norm, R.Sym) and norm.name == "⊥"
     assert R.symatics_equiv(lhs, rhs)
 
 
 def test_neutral_phi_registry():
-    law = LAW_REGISTRY["⋈"][3]  # neutral_phi
+    law = _get_law("neutral_phi")
     φ = 1.2
     lhs = R.interf(φ, A, R.Bot())
     rhs = A
@@ -51,7 +67,7 @@ def test_neutral_phi_registry():
 
 
 def test_assoc_phase_registry():
-    law = LAW_REGISTRY["⋈"][4]  # assoc_phase
+    law = _get_law("assoc_phase")
     φ, ψ = 0.7, 1.1
     lhs = R.interf(ψ, R.interf(φ, A, B), C)
     rhs = R.interf(φ + ψ, A, R.interf(ψ, B, C))
@@ -60,9 +76,33 @@ def test_assoc_phase_registry():
 
 
 def test_inv_phase_registry():
-    law = LAW_REGISTRY["⋈"][5]  # inv_phase
+    law = _get_law("inv_phase")
     φ = 0.9
     lhs = R.interf(φ, A, R.interf(-φ, A, B))
     rhs = B
     assert law(A, B, φ)
+    assert R.symatics_equiv(lhs, rhs)
+
+
+# -----------------
+# Fusion laws (⊕, ⊖)
+# -----------------
+
+def test_fuse_phase_zero_registry():
+    law = _get_law("fuse_phase_zero")
+    lhs = R.interf(0.0, A, B)
+    rhs = R.SymAdd(A, B)
+    assert law(A, B)
+    norm = R.normalize(lhs)
+    assert isinstance(norm, R.App) and norm.head.name == "⊕"
+    assert R.symatics_equiv(lhs, rhs)
+
+
+def test_fuse_phase_pi_registry():
+    law = _get_law("fuse_phase_pi")
+    lhs = R.interf(math.pi, A, B)
+    rhs = R.SymSub(A, B)
+    assert law(A, B)
+    norm = R.normalize(lhs)
+    assert isinstance(norm, R.App) and norm.head.name == "⊖"
     assert R.symatics_equiv(lhs, rhs)

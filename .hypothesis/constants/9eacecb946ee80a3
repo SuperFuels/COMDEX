@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/codex/ops/execute_cross.py
+# hypothesis_version: 6.139.2
+
+['A', 'B', 'cross', 'op', 'result']

@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/glyphos/glyph_summary.py
+# hypothesis_version: 6.139.2
+
+[0.5, 0.6, 0.7, 0.8, 1.2, 1.5, 2.0, 'active_symbols', 'average', 'by_category', 'changed', 'decay', 'decayed', 'density', 'dominant_category', 'emotion', 'emotion_score', 'expired', 'get_tick', 'glyph', 'goal', 'insight', 'lifespan', 'lifespanStats', 'link', 'logic', 'loop', 'memory', 'mutation', 'oldest', 'recent_changes', 'scroll', 'tick', 'total', 'types', 'unknown', 'youngest', '→', '↔', '⊕', '⚛', '⛓', '✦', '⟲', '⧖', '🎯', '💡', '📜', '🔁', '🧠', '🧬', '🧽']

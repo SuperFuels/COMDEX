@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/dimensions/ucs/zones/experiments/hyperdrive/hyperdrive_control_panel/modules/sqi_controller_module.py
+# hypothesis_version: 6.139.2
+
+[-0.005, -0.002, -0.001, 1e-06, 1e-05, 0.0001, 0.001, 0.002, 0.005, 0.01, 0.02, 0.05, 0.25, 0.3, 0.8, 0.999, 1.0, 100000.0, 100, '_resync_harmonics', 'drift', 'field_pressure', 'fields', 'gravity', 'harmonic_coherence', 'harmonic_drift', 'harmonic_gain', 'magnetism', 'noise', 'noise_level', 'particles', 'pulse', 'pulse_width', 'r', 'resonance', 'tick', 'timestamp', 'w', 'wave_frequency']

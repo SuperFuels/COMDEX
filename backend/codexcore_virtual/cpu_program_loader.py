@@ -1,7 +1,7 @@
 # backend/codexcore/virtual_cpu/cpu_program_loader.py
 
 from typing import List, Tuple, Dict
-from backend.codexcore.virtual_cpu.cpu_instructions import INSTRUCTION_SET
+from backend.modules.glyphos.glyph_instruction_set import INSTRUCTION_SET
 
 class CPUProgramLoader:
     def __init__(self):

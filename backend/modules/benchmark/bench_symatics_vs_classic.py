@@ -1,4 +1,4 @@
-# benchmarks/bench_symatics_vs_classic.py
+# File: backend/modules/benchmark/bench_symatics_vs_classic.py
 """
 Benchmark: Symatics ⋈ rewriter vs Classical Boolean ∧/∨
 ──────────────────────────────────────────────────────────────
@@ -61,10 +61,10 @@ def normalize_bool(e: BoolExpr) -> BoolExpr:
 
 def chain_sym_expr(n: int) -> R.Expr:
     """Build a chain of n interference nodes."""
-    e = R.Atom("A")
+    e = R.Sym("A")
     for i in range(n):
         φ = random.choice([0.0, math.pi, random.uniform(-3.14, 3.14)])
-        e = R.Interf(φ, e, R.Atom(chr(66 + (i % 3))))  # B, C, D cycling
+        e = R.interf(φ, e, R.Sym(chr(66 + (i % 3))))  # B, C, D cycling
     return e
 
 
@@ -83,9 +83,10 @@ def chain_bool_expr(n: int) -> BoolExpr:
 # ------------------
 
 def size_expr(e):
-    if isinstance(e, R.Interf):
-        return 1 + size_expr(e.left) + size_expr(e.right)
-    elif isinstance(e, (R.Atom, R.Bot)):
+    """Compute approximate size (node count) of an expression."""
+    if isinstance(e, R.App) and isinstance(e.head, R.Sym):
+        return 1 + sum(size_expr(arg) for arg in e.args)
+    elif isinstance(e, R.Sym):
         return 1
     elif isinstance(e, BoolExpr):
         return 1 + (size_expr(e.left) if e.left else 0) + (size_expr(e.right) if e.right else 0)
@@ -115,7 +116,6 @@ def stability_profile(n: int, trials: int = 100, max_steps: int = 1000):
             sizes_after.append(after)
             converged += 1
         except RuntimeError:
-            # did not converge
             sizes_before.append(before)
             sizes_after.append(before)
     conv_rate = 100.0 * converged / trials

@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/symatics/rewrite_rules.py
+# hypothesis_version: 6.139.2
+
+['*', '+', '-', '/', '0', '1', '2', 'A', '^', 'add', 'args', 'const', 'context', 'cos', 'exp', 'log', 'neg', 'op', 'pow', 'result', 'simplified', 'sin', 'state', 'var', 'x', 'Δ', '↔', '∅', '∫', '⊕']

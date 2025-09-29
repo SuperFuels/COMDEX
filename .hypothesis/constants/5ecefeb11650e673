@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/glyphwave/emit_beam.py
+# hypothesis_version: 6.139.2
+
+[1000, 'codex_executor', 'container_id', 'predicted', 'target', 'tick', 'unknown', 'unspecified']

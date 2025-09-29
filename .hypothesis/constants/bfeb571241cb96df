@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/sci/qfc_ws_broadcaster.py
+# hypothesis_version: 6.139.2
+
+['anonymous', 'camera', 'data', 'entanglement', 'event', 'glyphs', 'links', 'metadata', 'nodes', 'observer_id', 'qfc_field_update', 'qfc_sync_tick', 'qwaveBeams', 'reflection_tags', 'replay', 'scrolls', 'source', 'sqi_metrics', 'tags', 'tick', 'timestamp', 'total_ticks']

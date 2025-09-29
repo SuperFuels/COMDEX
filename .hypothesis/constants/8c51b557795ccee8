@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/codex/ops/execute_covariant_derivative.py
+# hypothesis_version: 6.139.2
+
+['covariant_derivative', 'expr', 'index', 'op']

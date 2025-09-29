@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/models/deal.py
+# hypothesis_version: 6.139.2
+
+[0.0, 'CASCADE', 'Contract', 'Product', 'Shipment', 'User', 'all, delete-orphan', 'buyer_deals', 'deal', 'deals', 'extend_existing', 'pending', 'products.id', 'supplier_deals', 'users.id']

@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/codex/rewrite_executor.py
+# hypothesis_version: 6.139.2
+
+['auto_mutation', 'candidate', 'details', 'electrons', 'event', 'glyph_grid', 'glyphs', 'id', 'logic', 'no_candidates', 'original', 'reason', 'rewrite', 'rewritten', 'section', 'status', 'success', 'type', 'unknown', 'unspecified', 'w']

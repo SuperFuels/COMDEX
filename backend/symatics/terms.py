@@ -1,6 +1,6 @@
 from __future__ import annotations
 from dataclasses import dataclass
-from typing import List, Union, Any
+from typing import List, Union, Any, Optional, Dict
 
 @dataclass(frozen=True)
 class Var:
@@ -12,7 +12,8 @@ class Sym:
 
 @dataclass(frozen=True)
 class App:
-    head: Union[Sym,"App"]
+    head: Union[Sym, "App"]
     args: List["Term"]
+    attrs: Optional[Dict[str, Any]] = None  # optional metadata (phase, amplitude, etc.)
 
 Term = Union[Var, Sym, App]

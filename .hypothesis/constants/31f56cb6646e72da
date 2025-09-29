@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/knowledge_graph/indexes/stats_index.py
+# hypothesis_version: 6.139.2
+
+['avg_cost', 'avg_logic_cost', 'cost', 'cost_samples', 'created_at', 'entangled', 'entangled_glyphs', 'frequencies', 'glyph', 'glyph_frequencies', 'operator', 'operator_usage', 'operators', 'stats_index', 'summary', 'timestamp', 'timestamps', 'total_glyphs', 'trigger', 'trigger_type', 'trigger_types', 'triggers', '↔']

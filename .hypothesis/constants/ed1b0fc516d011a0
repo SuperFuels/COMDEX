@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/glyphwave/feature_flag.py
+# hypothesis_version: 6.139.2
+
+['0', '1', 'GW_ENABLED', 'PHASE10_ENABLED', 'PHASE9_ENABLED', 'QKD_ON', 'QWAVE_EXEC_ON', 'SPE_AUTO_FUSE', 'on', 'true', 'yes']

@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/glyphos/glyph_synthesis_engine.py
+# hypothesis_version: 6.139.2
+
+[0.0, 0.7, 100, 500, '0,0,0,0', '2,0,0,0', 'Adaptive Packet:', 'Execution result:', 'Glyph Packet:', 'Mutated Packet:', '__main__', 'adaptive', 'adaptive_synthesis', 'child_generation', 'data', 'duplicate', 'entropy', 'event', 'glyph_compression', 'glyph_injected', 'glyph_packet', 'glyphs', 'gpt', 'grammar', 'grammar_summary', 'hash', 'id', 'inferred_grammar', 'manual', 'mutation', 'new', 'r', 'raw_input', 'recent_hashes', 'source', 'stats_index', 'status', 'summary', 'tag', 'timestamp', 'total_cached', 'total_glyphs', 'type', 'unknown', 'w']

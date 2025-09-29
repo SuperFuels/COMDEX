@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/glyphnet/glyphnet_transceiver.py
+# hypothesis_version: 6.139.2
+
+['send', 'set_on_receive']

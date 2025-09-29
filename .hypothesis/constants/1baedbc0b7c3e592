@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/sqi/sqi_trace_logger.py
+# hypothesis_version: 6.139.2
+
+['collapse', 'cost', 'entangled', 'glyph', 'kind', 'payload', 'ts']

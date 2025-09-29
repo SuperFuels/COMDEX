@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/glyphos/glyph_dispatcher.py
+# hypothesis_version: 6.139.2
+
+['Missing module name', 'No container path', 'No destination', 'No message.', 'No reason provided.', 'action', 'auto_write', 'coord', 'coords', 'error', 'glyph_dispatcher', 'label', 'log', 'message', 'meta', 'module', 'mutation_module', 'ok', 'path', 'reason', 'rewrite', 'rewritten', 'run_mutation', 'skipped', 'source', 'status', 'target', 'teleport', 'teleported_to', 'timestamp', 'unknown', 'value', 'write_cube', '⛓️']

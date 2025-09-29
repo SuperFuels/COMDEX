@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/glyphnet/glyphnet_trace.py
+# hypothesis_version: 6.139.2
+
+[100, 200, 'awareness', 'awareness_blindspot', 'awareness_confidence', 'blindspot', 'confidence', 'data', 'dream', 'event', 'execution', 'glyph', 'glyph_execution', 'glyph_id', 'glyph_prediction', 'glyph_reasoning', 'kg', 'kg_snapshot', 'links', 'metadata', 'nodes', 'predicted_path', 'prediction', 'reasoning', 'snapshot', 'snapshot_id', 'tags', 'timestamp']

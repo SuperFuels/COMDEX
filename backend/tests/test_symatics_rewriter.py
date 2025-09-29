@@ -1,29 +1,31 @@
+# File: backend/tests/test_symatics_rewriter.py
 import math
 import pytest
 
 from backend.symatics import rewriter as R
-
-# --------------
-# Test Fixtures
-# --------------
-
-def A(): return R.Atom("A")
-def B(): return R.Atom("B")
-def C(): return R.Atom("C")
-def bot(): return R.Bot()   # ✅ renamed from ⊥
-def interf(phi, l, r): return R.Interf(R.norm_phase(phi), l, r)
+from backend.symatics.terms import Sym, App
 
 # ----------------
-# Axiom Tests
+# Helpers
+# ----------------
+def A(): return Sym("A")
+def B(): return Sym("B")
+def C(): return Sym("C")
+def bot(): return Sym("⊥")
+def interf(phi, l, r): return App(Sym("⋈"), [Sym(str(R.norm_phase(phi))), l, r])
+
+# ----------------
+# Axiom Tests (Canonical)
 # ----------------
 
 def test_A1_comm_phi():
     """A ⋈[φ] B ↔ B ⋈[-φ] A (canonical ordering)."""
     expr = interf(1.0, B(), A())   # names swapped
     norm = R.normalize(expr)
-    assert isinstance(norm, R.Interf)
-    assert norm.left == A() and norm.right == B()
-    assert math.isclose(norm.phase, R.norm_phase(-1.0))
+    assert isinstance(norm, App)
+    assert norm.head.name == "⋈"
+    assert norm.args[1] == A() and norm.args[2] == B()
+    assert norm.args[0].name == str(R.norm_phase(-1.0))
 
 def test_A2_self_zero_id():
     """(A ⋈[0] A) ↔ A"""
@@ -35,7 +37,7 @@ def test_A3_self_pi_bot():
     """(A ⋈[π] A) ↔ ⊥"""
     expr = interf(math.pi, A(), A())
     norm = R.normalize(expr)
-    assert isinstance(norm, R.Bot)
+    assert norm == bot()
 
 def test_A4_neutral_phi():
     """(A ⋈[φ] ⊥) ↔ A"""
@@ -48,10 +50,11 @@ def test_A5_assoc_phase():
     φ, ψ = 0.4, 0.8
     expr = interf(ψ, interf(φ, A(), B()), C())
     norm = R.normalize(expr)
-    assert isinstance(norm, R.Interf)
-    assert norm.left == A()
-    assert isinstance(norm.right, R.Interf)
-    assert math.isclose(norm.phase, R.norm_phase(φ + ψ))
+    assert isinstance(norm, App)
+    assert norm.head.name == "⋈"
+    assert norm.args[1] == A()
+    assert isinstance(norm.args[2], App)
+    assert math.isclose(float(norm.args[0].name), R.norm_phase(φ + ψ))
 
 def test_A6_inv_phase():
     """A ⋈[φ] (A ⋈[-φ] B) ↔ B"""
@@ -64,15 +67,17 @@ def test_A7_fuse_phase_zero():
     """(A ⋈[0] B) ↔ (A ⊕ B)"""
     expr = interf(0.0, A(), B())
     norm = R.normalize(expr)
-    assert isinstance(norm, R.SymAdd)
-    assert norm.left == A() and norm.right == B()
+    assert isinstance(norm, App)
+    assert norm.head.name == "⊕"
+    assert norm.args == [A(), B()]
 
 def test_A8_fuse_phase_pi():
     """(A ⋈[π] B) ↔ (A ⊖ B)"""
     expr = interf(math.pi, A(), B())
     norm = R.normalize(expr)
-    assert isinstance(norm, R.SymSub)
-    assert norm.left == A() and norm.right == B()
+    assert isinstance(norm, App)
+    assert norm.head.name == "⊖"
+    assert norm.args == [A(), B()]
 
 # ----------------
 # Equivalence Tests
@@ -82,13 +87,11 @@ def test_structural_equiv_simple():
     assert R.symatics_structural_equiv(interf(0.0, A(), A()), A())
 
 def test_truth_equiv_zero_phase():
-    """A ⋈[0] B structurally → SymAdd, but truth-style eqv holds only for φ=0/π"""
     e1 = interf(0.0, A(), B())
     e2 = interf(0.0, A(), B())
     assert R.symatics_equiv(e1, e2)
 
 def test_truth_equiv_nontrivial_phase():
-    """φ= arbitrary (not 0/π) requires exact structural equality."""
     e1 = interf(0.2, A(), B())
     e2 = interf(0.2, A(), B())
     assert R.symatics_equiv(e1, e2)
@@ -96,40 +99,55 @@ def test_truth_equiv_nontrivial_phase():
     assert not R.symatics_equiv(e1, e3)
 
 # ----------------
-# Extra Regression Tests
+# Regression Cases
 # ----------------
 
 def test_idempotence_cases():
-    A = R.A()
-    # φ = 0 → A
-    e0 = R.interf(0, A, A)
-    assert R.normalize(e0) == A
+    A_ = A()
+    e0 = interf(0, A_, A_)
+    assert R.normalize(e0) == A_
 
-    # φ = π → ⊥
-    epi = R.interf(math.pi, A, A)
-    assert isinstance(R.normalize(epi), R.Bot)
+    epi = interf(math.pi, A_, A_)
+    assert R.normalize(epi) == bot()
 
-    # φ = arbitrary ≠ 0,π → stays unequal to A
-    ephi = R.interf(0.7, A, A)
+    ephi = interf(0.7, A_, A_)
     norm = R.normalize(ephi)
-    assert norm != A
-    assert not isinstance(norm, R.Bot)
+    assert norm != A_
+    assert norm != bot()
 
 def test_neutrality_and_comm():
-    A, B = R.A(), R.B()
-    # Neutrality: A ⋈[φ] ⊥ = A
-    e = R.interf(1.23, A, R.Bot())
-    assert R.normalize(e) == A
+    e = interf(1.23, A(), bot())
+    assert R.normalize(e) == A()
 
-    # Commutativity φ ↔ -φ (canonical ordering)
-    e1 = R.interf(0.5, A, B)
-    e2 = R.interf(-0.5, B, A)
+    e1 = interf(0.5, A(), B())
+    e2 = interf(-0.5, B(), A())
     assert R.symatics_structural_equiv(e1, e2)
 
 def test_phase_addition_assoc():
-    A, B, C = R.A(), R.B(), R.C()
-    e = R.interf(0.3, R.interf(0.4, A, B), C)
+    e = interf(0.3, interf(0.4, A(), B()), C())
     norm = R.normalize(e)
-    # Should match assoc rule: (A ⋈[0.4+0.3] (B ⋈[0.3] C))
-    expected = R.interf(0.7, A, R.interf(0.3, B, C))
+    expected = interf(0.7, A(), interf(0.3, B(), C()))
     assert norm == expected
+
+# ----------------
+# Canonical Bridge
+# ----------------
+
+def test_canonical_bridge_roundtrip():
+    expr = App(Sym("⋈"), [Sym("0.0"), Sym("A"), Sym("B")])
+    legacy = R.from_canonical(expr)
+    back = R.to_canonical(legacy)
+    assert isinstance(legacy, App)
+    assert legacy.head.name == "⋈"
+    assert isinstance(back, App)
+    assert back.head.name == "⋈"
+
+def test_canonical_equivalence_zero_phase():
+    e = App(Sym("⋈"), [Sym("0.0"), Sym("A"), Sym("B")])
+    legacy = R.from_canonical(e)
+    norm = R.normalize(legacy)
+    assert isinstance(norm, App)
+    assert norm.head.name == "⊕"
+    back = R.to_canonical(norm)
+    assert isinstance(back, App)
+    assert back.head.name == "⊕"

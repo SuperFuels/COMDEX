@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/dna_chain/llm_mutator.py
+# hypothesis_version: 6.139.2
+
+[0.3, 4096, 'N/A', 'OPENAI_API_KEY', 'Unknown error', '__main__', 'choices', 'content', 'error', 'file', 'generated.py', 'gpt-4', 'message', 'new_code', 'original_code', 'r', 'role', 'success', 'system', 'timestamp', 'tokens_used', 'total_tokens', 'usage', 'user', '✅ Mutation Proposal:', '❌ Error:']

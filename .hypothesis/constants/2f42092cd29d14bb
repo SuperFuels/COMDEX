@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/consciousness/symbolic_gradient_engine.py
+# hypothesis_version: 6.139.2
+
+[-0.1, 0.0, 0.05, 0.1, 0.5, 0.6, 'Goal drift', 'collapse_feedback', 'collapse_trace', 'collapsed', 'collapsed_value', 'container', 'container_id', 'decision', 'default-gradient', 'drift_delta', 'entropy', 'entropy_delta', 'failure', 'failure_gradient', 'glyph_id', 'id', 'local', 'observer_bias', 'qbit_id', 'ranked', 'ranked_paths', 'reason', 'reinforced', 'selected', 'success', 'success_gradient', 'unknown', 'vector', '🧭']

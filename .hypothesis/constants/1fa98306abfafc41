@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/core/symbol_registry.py
+# hypothesis_version: 6.139.2
+
+['=', '__main__', 'action', 'and', 'assigned value', 'broadcast resonance', 'codex', 'coord', 'equals', 'glyph node symbol', 'glyph_os', 'iff (if and only if)', 'implies', 'nand', 'nor', 'or', 'photon', 'symatics', 'symbol', 'value', 'xor', '¬', 'Ψ', 'λ', '↑', '→', '↓', '↔', '∀', '∃', '∇', '∞', '∧', '∨', '⊕', '⊖', '⊗', '☄', '★']

@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/codex/codex_feedback_loop.py
+# hypothesis_version: 6.139.2
+
+[1.5, 'codex_feedback', 'content', 'cost', 'error', 'executed', 'feedback_trace', 'glyph', 'label', 'linked_tags', 'metadata', 'result', 'runtime error', 'score', 'success', 'timestamp', 'type']

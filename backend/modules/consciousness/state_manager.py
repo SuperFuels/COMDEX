@@ -22,9 +22,9 @@ Design Rubric:
 import os
 import json
 import hashlib
-from datetime import datetime
 import asyncio  # ✅ Coroutine handling
 import threading  # ✅ Pause/resume lock
+from datetime import datetime, timezone 
 
 # ✅ Lean container support
 from backend.modules.lean.lean_utils import (
@@ -67,7 +67,8 @@ class StateManager:
             "name": "AION",
             "version": "1.0",
             "created_by": "Kevin Robinson",
-            "created_on": str(datetime.utcnow()),
+            # ✅ timezone-aware UTC timestamp with "Z"
+            "created_on": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         }
         self.context = {
             "location": "cloud",
