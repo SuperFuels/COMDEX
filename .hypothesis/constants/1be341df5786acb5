@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/photon_algebra/benchmarks.py
+# hypothesis_version: 6.139.2
+
+[0.3, 1000, 5000, '\n---', '__main__', 'a', 'avg_compression', 'avg_norm_size', 'avg_raw_size', 'b', 'c', 'count', 'd', 'op', 'ops_sec', 'state', 'states', '¬', '⊕', '⊖', '⊗']

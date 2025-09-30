@@ -32,12 +32,28 @@ flowchart TD
             • ⊗ commutative (stable order), dual absorption
             • Distribution only from ⊗ over ⊕ (guarded)"]
 
+flowchart TD
+
+    subgraph Phase1["⚡ Photon Core (Foundational Build — Done ✅)"]
+        P1["✅ Define Photon Spec (collapse 0/π → foundation states)"]
+        P2["✅ Implement Photon Axioms (P1–P8) in Python backend"]
+        P3["✅ Injection + Snapshot Tests (axioms, equivalence)"]
+        P4["✅ Photon Rewriter (normalize + symatics_equiv)"]
+        P5["✅ Derived Theorems (T1–T12 verified)"]
+        P6["✅ Fuzz / Stress Tests (Hypothesis, random axiom injection)"]
+        P7["✅ Canonical EMPTY constant (shared across core/rewriter/tests)"]
+        P8["✅ Docs: RFC (Photon Core Spec + Separation Notes)"]
+        P9["✅ Doc Sync Script (instruction_reference.md + SYMATICS_AXIOMS.md)"]
+        P10["✅ YAML Sync (yamlsync.py, merges Photon ops into registry)"]
+        P11["✅ Benchmarks (Photon vs Classical: compression, ops/sec)"]
+    end
+
     subgraph Phase2["🔬 Photon Extensions (Next — Active 🚧)"]
         E1["✅ Extend Theorems → full Photon Calculus (T13+ absorption, distribution, falsification)\n— guarded T14, ⊗-idempotence, regressions in place"]
         E2["▶ Add Meta-Photon Ops (≈ similarity, ⊂ containment, ⊤/⊥ boundary cases)"]
         E3["▶ Formal Semantics Doc (truth-value model, SQI/Hilbert link, rewrite soundness)"]
-        E4["✅ Deterministic ordering tests across mixed ops (★, ↔, ¬)\n(note: ⊕/⊗ covered; mixed still pending)"]
-        E5["⬜ Performance: memoization & reduced deepcopy in substitute()"]
+        E4["✅ Deterministic ordering tests incl. mixed ops (★, ↔, ¬)\n— T10 optional; xfail removed once enabled"]
+        E5["⬜ Performance: memoization + cut deepcopy in substitute()"]
         E6["⬜ CI polish: mypy, Hypothesis health checks, seed corpus"]
         E7["⬜ Pretty-printer & round-trip JSON (debuggability)"]
     end
@@ -48,6 +64,7 @@ flowchart TD
         I3["CodexLang++ compiler → Photon instructions"]
         I4["Export .photon.json spec for external nodes/tools"]
         I5["Wire into GlyphNet stack (sPHY encoder/decoder)"]
+    end
     end
     end
     end

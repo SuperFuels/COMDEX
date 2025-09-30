@@ -1,7 +1,8 @@
 # backend/photon_algebra/tests/test_normalize_regressions.py
 import pytest
 from backend.photon_algebra.rewriter import normalize
-
+from backend.photon_algebra.rewriter import reset_normalize_memo as _reset_normalize_memo
+_reset_normalize_memo()
 
 def plus(a, b):
     return {"op": "⊕", "states": [a, b]}

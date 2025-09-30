@@ -4,6 +4,8 @@ import json
 import pytest
 
 from backend.photon_algebra.rewriter import normalize
+from backend.photon_algebra.rewriter import reset_normalize_memo as _reset_normalize_memo
+_reset_normalize_memo()
 
 EMPTY = {"op": "∅"}
 
@@ -104,12 +106,29 @@ def test_T12_projection_fidelity_star_over_entangle():
     right = plus(star(a), star(b))
     assert normalize(left) == normalize(right)
 
-def test_T10_entanglement_distributivity_commuted():
+def test_T10_entanglement_distributivity_sample():
+    # (a↔b) ⊕ (a↔c) → a ↔ (b ⊕ c)
     a, b, c = "a", "b", "c"
-    left  = {"op":"⊕","states":[{"op":"↔","states":[a,c]}, {"op":"↔","states":[a,b]}]}
-    right = {"op":"↔","states":[a, {"op":"⊕","states":[b,c]}]}
+    left  = plus(entangle(a, b), entangle(a, c))
+    right = entangle(a, plus(b, c))
     assert normalize(left) == normalize(right)
 
+def test_T10_entanglement_distributivity_commuted():
+    # (a↔c) ⊕ (a↔b) → a ↔ (b ⊕ c)
+    a, b, c = "a", "b", "c"
+    left  = plus(entangle(a, c), entangle(a, b))
+    right = entangle(a, plus(b, c))
+    assert normalize(left) == normalize(right)
+
+def test_T10_stability_under_permutations():
+    import itertools
+    a, b, c = "a", "b", "c"
+    terms = [entangle(a, b), entangle(a, c)]
+    targets = normalize(entangle(a, plus(b, c)))
+
+    for perm in itertools.permutations(terms, 2):
+        left = plus(*perm)
+        assert normalize(left) == targets
 
 # ------------------------------------------------------------------------------
 # Mixed invariant: no ⊕ directly under ⊗, even when other ops are present
@@ -174,4 +193,64 @@ def test_property_idempotence_and_invariant_mixed():
 
         assert not is_plus_under_times(n3)
 
+    _prop()
+
+import itertools
+import pytest
+from backend.photon_algebra.rewriter import normalize
+
+def _entangle(a, b): return {"op":"↔","states":[a,b]}
+def _plus(a, b):     return {"op":"⊕","states":[a,b]}
+
+def _is_plus_under_times(e):
+    if not isinstance(e, dict): return False
+    if e.get("op") == "⊗":
+        return any(isinstance(s, dict) and s.get("op") == "⊕" for s in e.get("states", []))
+    if "states" in e: return any(_is_plus_under_times(s) for s in e["states"])
+    if "state"  in e: return _is_plus_under_times(e["state"])
+    return False
+
+# --- Property 1: T10 stable under permutations of the two entangle terms -----
+def test_property_T10_permutation_invariance():
+    hyp = pytest.importorskip("hypothesis")
+    st  = pytest.importorskip("hypothesis.strategies")
+
+    atoms = st.sampled_from(list("abcxyz"))
+
+    @hyp.given(a=atoms, b=atoms, c=atoms)
+    @hyp.settings(max_examples=120)
+    def _prop(a, b, c):
+        t1 = _entangle(a, b)
+        t2 = _entangle(a, c)
+        xs = [t1, t2]
+        # normalizing any permutation should yield the same NF
+        nfs = { str(normalize({"op":"⊕","states": list(p)})) for p in itertools.permutations(xs, 2) }
+        assert len(nfs) == 1
+    _prop()
+
+# --- Property 2: no ⊕ under ⊗ still holds with deep ★/¬/↔ nesting -----------
+def test_property_no_plus_under_times_deep_mixed():
+    hyp = pytest.importorskip("hypothesis")
+    st  = pytest.importorskip("hypothesis.strategies")
+
+    atoms = st.sampled_from(list("abcdxyz"))
+
+    def trees(d):
+        if d == 0:
+            return atoms
+        return st.one_of(
+            atoms,
+            st.builds(lambda x,y: {"op":"⊕","states":[x,y]}, trees(d-1), trees(d-1)),
+            st.builds(lambda x,y: {"op":"⊗","states":[x,y]}, trees(d-1), trees(d-1)),
+            st.builds(lambda x,y: {"op":"↔","states":[x,y]}, trees(d-1), trees(d-1)),
+            st.builds(lambda x  : {"op":"¬","state":x},      trees(d-1)),
+            st.builds(lambda x  : {"op":"★","state":x},      trees(d-1)),
+        )
+
+    @hyp.given(trees(4))
+    @hyp.settings(max_examples=150)
+    def _prop(e):
+        n = normalize(e)
+        assert not _is_plus_under_times(n)
+        assert normalize(n) == n
     _prop()
