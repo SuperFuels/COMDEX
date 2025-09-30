@@ -64,10 +64,12 @@ def theorem_T13(a, b):
 
 
 def theorem_T14(a, b, c):
-    """T14: Dual Distributivity — a ⊕ (b ⊗ c) == (a ⊕ b) ⊗ (a ⊕ c)."""
-    lhs = core.superpose(a, core.fuse(b, c))
-    rhs = core.fuse(core.superpose(a, b), core.superpose(a, c))
-    return rewriter.normalize(lhs) == rewriter.normalize(rhs)
+    """
+    T14: Dual distributivity — a ⊕ (b ⊗ c) == (a ⊕ b) ⊗ (a ⊕ c).
+    """
+    lhs = rewriter.normalize(core.superpose(a, core.fuse(b, c)))
+    rhs = rewriter.normalize(core.fuse(core.superpose(a, b), core.superpose(a, c)))
+    return lhs == rhs
 
 
 def theorem_T15(a):

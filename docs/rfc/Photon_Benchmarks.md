@@ -42,3 +42,23 @@ avg_compression: 1.071
 avg_compression: 1.068
 
 ---
+### Run: 2025-09-30 12:21:54 UTC
+
+⚡ Photon Algebra Benchmark
+          count: 5000
+        ops_sec: 437.0
+   avg_raw_size: 10.49
+  avg_norm_size: 12.84
+avg_compression: 1.226
+
+---
+### Run: 2025-09-30 12:22:15 UTC
+
+⚡ Photon Algebra Benchmark
+          count: 5000
+        ops_sec: 429.65
+   avg_raw_size: 10.51
+  avg_norm_size: 13.03
+avg_compression: 1.223
+
+---
