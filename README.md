@@ -31,15 +31,7 @@ gcloud run deploy comdex-api \
   --timeout=300s
 
 git add .
-git commit -m "Photon rewriter: guard ping-pong, add ⊗ idempotence, and stabilize NF
-
-- Remove T14 factoring from REWRITE_RULES (handled structurally).
-- Document why ⊕ branch does NOT factor (avoids ⊗↔⊕ ping-pong).
-- Add ⊗ idempotence (a ⊗ a → a) after commutativity canonicalization.
-- Add regression/property tests for:
-  • no ⊕ directly under ⊗ in NF,
-  • normalization idempotence,
-  • ordering/edge cases."
+git commit -m "symbol update v8"
 git push origin main
 
 

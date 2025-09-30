@@ -1,20 +1,21 @@
+# backend/photon_algebra/tests/test_normalize_regressions.py
 import pytest
 from backend.photon_algebra.rewriter import normalize
 
-EMPTY = {"op": "∅"}
 
 def plus(a, b):
     return {"op": "⊕", "states": [a, b]}
 
+
 def times(a, b):
     return {"op": "⊗", "states": [a, b]}
 
+
 def is_plus_under_times(expr):
-    """Return True if any ⊗ node has an ⊕ child (which should not happen post-normalize)."""
+    """True if any ⊗ node has an ⊕ child (should not happen post-normalize)."""
     if not isinstance(expr, dict):
         return False
-    op = expr.get("op")
-    if op == "⊗":
+    if expr.get("op") == "⊗":
         for s in expr.get("states", []):
             if isinstance(s, dict) and s.get("op") == "⊕":
                 return True
@@ -25,6 +26,9 @@ def is_plus_under_times(expr):
         return is_plus_under_times(expr["state"])
     return False
 
+
+# --- Deterministic regressions for T14-shaped inputs -------------------------
+
 def test_dual_distributivity_terminates_and_idempotent():
     # α ⊕ (β ⊗ γ)
     a, b, c = "α", "β", "γ"
@@ -34,6 +38,7 @@ def test_dual_distributivity_terminates_and_idempotent():
     assert n1 == n2
     assert not is_plus_under_times(n1)
 
+
 def test_commuted_dual_distributivity_terminates_and_idempotent():
     # (β ⊗ γ) ⊕ α
     a, b, c = "α", "β", "γ"
@@ -42,6 +47,9 @@ def test_commuted_dual_distributivity_terminates_and_idempotent():
     n2 = normalize(n1)
     assert n1 == n2
     assert not is_plus_under_times(n1)
+
+
+# --- Property: no ⊕ directly under ⊗ after normalize, and idempotence -------
 
 def test_property_no_plus_under_times_random():
     hyp = pytest.importorskip("hypothesis")
@@ -65,6 +73,6 @@ def test_property_no_plus_under_times_random():
     def _prop(e):
         n = normalize(e)
         assert not is_plus_under_times(n)
-        assert normalize(n) == n
+        assert normalize(n) == n  # idempotence
 
     _prop()
