@@ -1,20 +1,7 @@
 import pytest
 from backend.photon_algebra.rewriter import normalize
 
-def is_plus_under_times(expr):
-    """True if any ⊗ node has an ⊕ child (should not happen post-normalize)."""
-    if not isinstance(expr, dict):
-        return False
-    if expr.get("op") == "⊗":
-        for s in expr.get("states", []):
-            if isinstance(s, dict) and s.get("op") == "⊕":
-                return True
-    # recurse through tree
-    if "states" in expr:
-        return any(is_plus_under_times(s) for s in expr["states"])
-    if "state" in expr:
-        return is_plus_under_times(expr["state"])
-    return False
+EMPTY = {"op": "∅"}
 
 def plus(a, b):
     return {"op": "⊕", "states": [a, b]}
@@ -22,7 +9,24 @@ def plus(a, b):
 def times(a, b):
     return {"op": "⊗", "states": [a, b]}
 
+def is_plus_under_times(expr):
+    """Return True if any ⊗ node has an ⊕ child (which should not happen post-normalize)."""
+    if not isinstance(expr, dict):
+        return False
+    op = expr.get("op")
+    if op == "⊗":
+        for s in expr.get("states", []):
+            if isinstance(s, dict) and s.get("op") == "⊕":
+                return True
+    # recurse
+    if "states" in expr:
+        return any(is_plus_under_times(s) for s in expr["states"])
+    if "state" in expr:
+        return is_plus_under_times(expr["state"])
+    return False
+
 def test_dual_distributivity_terminates_and_idempotent():
+    # α ⊕ (β ⊗ γ)
     a, b, c = "α", "β", "γ"
     expr = plus(a, times(b, c))
     n1 = normalize(expr)
@@ -31,6 +35,7 @@ def test_dual_distributivity_terminates_and_idempotent():
     assert not is_plus_under_times(n1)
 
 def test_commuted_dual_distributivity_terminates_and_idempotent():
+    # (β ⊗ γ) ⊕ α
     a, b, c = "α", "β", "γ"
     expr = plus(times(b, c), a)
     n1 = normalize(expr)
@@ -60,6 +65,6 @@ def test_property_no_plus_under_times_random():
     def _prop(e):
         n = normalize(e)
         assert not is_plus_under_times(n)
-        assert normalize(n) == n  # idempotence
+        assert normalize(n) == n
 
     _prop()

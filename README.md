@@ -31,14 +31,15 @@ gcloud run deploy comdex-api \
   --timeout=300s
 
 git add .
-git commit -m "rewriter: guard T14 to ⊗-branch, fix ⊕ flattener; add regressions & Hypothesis property
+git commit -m "Photon rewriter: guard ping-pong, add ⊗ idempotence, and stabilize NF
 
-- Add multi-pass _flatten_plus() that never keeps nested ⊕ nodes alongside children.
-- Document why we *don’t* factor T14 in ⊕ (prevents ping-pong with ⊗ distribution).
-- Keep T14 handled structurally/guarded in the ⊗ branch.
-- Add tests:
-  - α ⊕ (β ⊗ γ) and (β ⊗ γ) ⊕ α normalize, are idempotent, and produce no ⊕ under ⊗.
-  - Property test (Hypothesis): random small trees normalize to no ⊕ under ⊗ and normalization is idempotent."
+- Remove T14 factoring from REWRITE_RULES (handled structurally).
+- Document why ⊕ branch does NOT factor (avoids ⊗↔⊕ ping-pong).
+- Add ⊗ idempotence (a ⊗ a → a) after commutativity canonicalization.
+- Add regression/property tests for:
+  • no ⊕ directly under ⊗ in NF,
+  • normalization idempotence,
+  • ordering/edge cases."
 git push origin main
 
 

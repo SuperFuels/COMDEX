@@ -50,3 +50,14 @@
 | T4_grad_mul | ∇(a ⊗ b) ≡ (∇a ⊗ b) ⊕ (a ⊗ ∇b) | ✅ Proven |
 | T5_sym_eq | (a ↔ b) ≡ (b ↔ a) | ✅ Proven |
 | T6_grad_nested | ∇((a ⊕ b) ⊗ c) ≡ ((∇a ⊕ ∇b) ⊗ c) ⊕ ((a ⊕ b) ⊗ ∇c) | ✅ Proven |
+
+
+
+### Normal Form Invariant
+
+All Photon expressions normalize to **sum-of-products**:
+- No `⊕` directly under a `⊗`.
+- `⊕` is flattened, order-canonical, idempotent, and `∅`-free (identity removed).
+- `⊗` applies annihilator `∅` and respects dual-absorption with sums.
+
+We **do not factor** `a ⊕ (b ⊗ c)` inside the `⊕` branch to avoid ping-pong with `⊗`-side distribution. Instead, a guarded T14-style step is applied only when safe; general distribution is handled structurally in the `⊗` branch.

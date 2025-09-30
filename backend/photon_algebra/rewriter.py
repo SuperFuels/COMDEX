@@ -167,7 +167,12 @@ REWRITE_RULES: List[Tuple[Expr, Expr]] = [
         "a",
     ),
 
-    # (REMOVED) T14 — Dual Distributivity
+    # (STRUCTURAL) ⊗ Idempotence: a ⊗ a → a
+    # (REMOVED) T14 — Dual Distributivity:
+    # We do NOT keep a factoring rule here (a ⊕ (b ⊗ c) → (a ⊕ b) ⊗ (a ⊕ c)),
+    # because normalize()’s ⊗ branch handles distribution structurally.
+    # Keeping it here causes ping-pong with ⊗→⊕ distribution.
+    # Implemented directly in normalize()’s ⊗ branch (post-commutativity).
     # Implemented as a **guarded fast-path in normalize()** to avoid rewrite loops.
     # Old rules were:
     # a ⊕ (b ⊗ c) → (a ⊕ b) ⊗ (a ⊕ c)
@@ -390,7 +395,7 @@ def normalize(expr: Any) -> Any:
     Normalize Photon expressions under axioms + calculus rules:
       - Apply rewrite rules to a fixed point (T8–T15, etc.)
       - Canonicalize ⊕: flatten, drop ∅, absorption, idempotence, commutativity
-      - Distribute ⊗ over ⊕ (both sides)
+      - Distribute ⊗ over ⊕ (both sides)  [⊗ handles distribution; ⊕ does NOT factor]
       - Cancellation: a ⊖ a = ∅ ; a ⊖ ∅ = a ; ∅ ⊖ a = a
       - Double negation: ¬(¬a) = a
     """
@@ -415,26 +420,14 @@ def normalize(expr: Any) -> Any:
     states = expr.get("states", [])
 
     if op == "⊕":
-        # NOTE: We intentionally do NOT naively "factor" T14 here (i.e., do
-        #   a ⊕ (b ⊗ c) → (a ⊕ b) ⊗ (a ⊕ c)
-        # because the ⊗ branch already distributes over ⊕. If we factored here
-        # and then ⊗ distributed back, we'd create a rewrite ping-pong loop.
-        #
-        # Instead, we:
-        #   1) normalize children,
-        #   2) run targeted rewrites (rewrite_fixed),
-        #   3) perform absorption and cleanup,
-        #   4) apply a *guarded* T14 fast-path ONLY when it cannot cause
-        #      ping-pong (pure product on one side; the other side not a product;
-        #      no ∅; and after absorption).
-        #
-        # This guarantees termination and keeps normal forms stable.
+        # IMPORTANT: We do NOT "factor" T14 here.
+        # Doing  a ⊕ (b ⊗ c) → (a ⊕ b) ⊗ (a ⊕ c)  in the ⊕ branch
+        # can ping-pong with ⊗ distributing over ⊕. Distribution is handled
+        # structurally in the ⊗ case below; here we only clean up the sum.
+
         # flatten nested ⊕
-        # flatten nested ⊕ (multi-pass)
         flat = _flatten_plus(states)
 
-        # NOTE: We do not factor T14 in ⊕. Factoring here ping-pongs with ⊗-distribution
-        # and can loop; T14-style expansion is handled (guarded) in the ⊗ branch.
         # drop ∅ (identity)
         flat = [s for s in flat if not (isinstance(s, dict) and s.get("op") == "∅")]
 
@@ -455,7 +448,40 @@ def normalize(expr: Any) -> Any:
         flat = pruned
         # --------------------------------------------------------------------
 
-        # idempotence + commutativity
+        # --- Special collapse so that a ⊗ (a ⊕ b) and (a ⊗ a) ⊕ (a ⊗ b) agree ---
+        # (a⊗a) ⊕ (a⊗b)  →  a     (and all commuted orders)
+        if len(flat) == 2:
+            u, v = flat
+
+            def _is_times(e):
+                return (
+                    isinstance(e, dict)
+                    and e.get("op") == "⊗"
+                    and isinstance(e.get("states"), list)
+                    and len(e["states"]) == 2
+                )
+
+            if _is_times(u) and _is_times(v):
+                ua, ub = u["states"]
+                va, vb = v["states"]
+
+                def eq(x, y) -> bool:
+                    return _string_key(x) == _string_key(y)
+
+                # Try all pairings to detect one square term and one sharing its factor.
+                candidates = [
+                    (ua, ub, va, vb),
+                    (ua, ub, vb, va),
+                    (va, vb, ua, ub),
+                    (vb, va, ua, ub),
+                ]
+                for A1, A2, B1, B2 in candidates:
+                    if eq(A1, A2) and (eq(B1, A1) or eq(B2, A1)):
+                        # (A1⊗A1) ⊕ (A1⊗B)  →  A1
+                        return normalize(A1)
+        # --------------------------------------------------------------------
+
+        # idempotence + commutativity on the cleaned list
         uniq: List[Expr] = []
         seen = set()
         for s in flat:
@@ -487,10 +513,19 @@ def normalize(expr: Any) -> Any:
             if _string_key(a) > _string_key(b):
                 a, b = b, a
 
+            # idempotence for ⊗: a ⊗ a → a
+            # Ensures a ⊗ (a ⊕ a) → a matches the distributed/right-hand form.
+            if _string_key(a) == _string_key(b):
+                return normalize(a)
+
             # --- dual absorption for product -------------------------
             # a ⊗ (a ⊕ b) = a   and   (a ⊕ b) ⊗ a = a
             def _is_plus(x):
-                return isinstance(x, dict) and x.get("op") == "⊕" and isinstance(x.get("states"), list)
+                return (
+                    isinstance(x, dict)
+                    and x.get("op") == "⊕"
+                    and isinstance(x.get("states"), list)
+                )
 
             if _is_plus(b):
                 b_states = b["states"]
@@ -507,12 +542,12 @@ def normalize(expr: Any) -> Any:
             if isinstance(b, dict) and b.get("op") == "⊕":
                 return normalize({
                     "op": "⊕",
-                    "states": [{"op": "⊗", "states": [a, bi]} for bi in b["states"]]
+                    "states": [{"op": "⊗", "states": [a, bi]} for bi in b["states"]],
                 })
             if isinstance(a, dict) and a.get("op") == "⊕":
                 return normalize({
                     "op": "⊕",
-                    "states": [{"op": "⊗", "states": [ai, b]} for ai in a["states"]]
+                    "states": [{"op": "⊗", "states": [ai, b]} for ai in a["states"]],
                 })
 
             return {"op": "⊗", "states": [a, b]}
