@@ -1,27 +1,25 @@
 # 📁 docs/CodexLang_Instruction/yamlsync.py
 # -*- coding: utf-8 -*-
 """
-YAML Sync Script — Photon Algebra
----------------------------------
-Merges Photon ops into `instruction_registry.yaml` from:
-- backend/photon_algebra/core.py (axioms, operators)
-- backend/photon_algebra/rewriter.py (rewrite rules)
+YAML Sync Script — Photon Algebra (flat OP_METADATA)
+----------------------------------------------------
+Merges Photon ops into docs/CodexLang_Instruction/instruction_registry.yaml
+from backend/photon_algebra/core.py. Writes flat OP_METADATA keys:
 
-Preserves other domains (logic, quantum, symatics, etc.).
-Orders Photon ops canonically: P1–P8, then ∅.
+OP_METADATA:
+  photon:identity: {description: ..., symbols: [...]}
+  photon:superpose: ...
+
+Cleans legacy nested OP_METADATA["photon"] or duplicate flat keys.
 """
 
 import inspect
 import pathlib
 import yaml
 from backend.photon_algebra import core
-from backend.photon_algebra.rewriter import REWRITE_RULES
 
 YAML_PATH = pathlib.Path("docs/CodexLang_Instruction/instruction_registry.yaml")
 
-# ----------------------------
-# Canonical Photon ordering (P1–P8 + ∅)
-# ----------------------------
 PHOTON_ORDER = [
     "photon:identity",   # P1
     "photon:superpose",  # P2
@@ -31,35 +29,11 @@ PHOTON_ORDER = [
     "photon:negate",     # P6
     "photon:collapse",   # P7
     "photon:project",    # P8
-    "photon:∅",          # Canonical EMPTY
+    "photon:∅",          # EMPTY
 ]
 
-# ----------------------------
-# Helpers
-# ----------------------------
-def extract_photon_ops():
-    """Generate Photon operator metadata from core.py."""
-    ops = {}
-    for name, fn in inspect.getmembers(core, inspect.isfunction):
-        if fn.__module__ == "backend.photon_algebra.core":
-            doc = (fn.__doc__ or "").strip()
-            key = f"photon:{name}"
-            ops[key] = {
-                "description": doc or f"(auto) {name}",
-                "symbols": guess_symbols(name),
-            }
-
-    # Canonical EMPTY (∅)
-    ops["photon:∅"] = {
-        "description": "Canonical empty state (EMPTY)",
-        "symbols": ["∅"],
-    }
-    return ops
-
-
 def guess_symbols(name: str):
-    """Map function name → expected operator symbols."""
-    mapping = {
+    return {
         "superpose": ["⊕"],
         "entangle": ["↔"],
         "fuse": ["⊗"],
@@ -67,55 +41,57 @@ def guess_symbols(name: str):
         "negate": ["¬"],
         "collapse": ["∇"],
         "project": ["★"],
-        "identity": [],  # identity doesn’t get its own op symbol
-    }
-    return mapping.get(name, [])
+        "identity": [],
+    }.get(name, [])
 
+def extract_photon_ops():
+    ops = {}
+    for name, fn in inspect.getmembers(core, inspect.isfunction):
+        if fn.__module__ == "backend.photon_algebra.core":
+            doc = (fn.__doc__ or "").strip()
+            key = f"photon:{name}"
+            ops[key] = {"description": doc or f"(auto) {name}", "symbols": guess_symbols(name)}
+    ops["photon:∅"] = {"description": "Canonical empty state (EMPTY)", "symbols": ["∅"]}
+    return ops
 
-def order_photon_section(photon_ops: dict) -> dict:
-    """Sort Photon ops according to PHOTON_ORDER, keep extras at end."""
-    ordered = {}
-    for key in PHOTON_ORDER:
-        if key in photon_ops:
-            ordered[key] = photon_ops[key]
-    # append any unlisted extras
-    for key in sorted(photon_ops.keys()):
-        if key not in ordered:
-            ordered[key] = photon_ops[key]
-    return ordered
-
-
-# ----------------------------
-# YAML Sync
-# ----------------------------
 def sync_yaml():
     ops = extract_photon_ops()
-
+    data = {}
     if YAML_PATH.exists():
-        with open(YAML_PATH, "r", encoding="utf-8") as f:
-            data = yaml.safe_load(f) or {}
-    else:
-        data = {}
+        data = yaml.safe_load(YAML_PATH.read_text(encoding="utf-8")) or {}
 
-    # ensure OP_METADATA root
-    data.setdefault("OP_METADATA", {})
-    photon_section = data["OP_METADATA"].setdefault("photon", {})
+    opm = data.setdefault("OP_METADATA", {})
 
-    # patch/merge photon ops
-    for key, meta in ops.items():
-        photon_section[key] = meta
+    # 🧹 Remove legacy nested subtree OP_METADATA["photon"] if present
+    if isinstance(opm.get("photon"), dict):
+        for k, v in list(opm["photon"].items()):
+            if k.startswith("photon:"):
+                opm[k] = v  # lift up to flat
+        del opm["photon"]
 
-    # reorder canonically
-    data["OP_METADATA"]["photon"] = order_photon_section(photon_section)
+    # Patch/merge flat photon ops
+    opm.update(ops)
 
-    with open(YAML_PATH, "w", encoding="utf-8") as f:
-        yaml.safe_dump(data, f, sort_keys=False, allow_unicode=True)
+    # Reorder: keep photon ops in PHOTON_ORDER, others untouched
+    # Build new OP_METADATA with ordered photon keys
+    new_opm = {}
+    # first, copy non-photon keys as-is
+    for k, v in opm.items():
+        if not k.startswith("photon:"):
+            new_opm[k] = v
+    # then, ordered photon keys
+    for k in PHOTON_ORDER:
+        if k in opm:
+            new_opm[k] = opm[k]
+    # finally, any extra photon keys not in order list
+    for k in sorted(opm.keys()):
+        if k.startswith("photon:") and k not in new_opm:
+            new_opm[k] = opm[k]
 
+    data["OP_METADATA"] = new_opm
+
+    YAML_PATH.write_text(yaml.safe_dump(data, sort_keys=False, allow_unicode=True), encoding="utf-8")
     print(f"✅ Photon ops merged + ordered into {YAML_PATH}")
 
-
-# ----------------------------
-# Entrypoint
-# ----------------------------
 if __name__ == "__main__":
     sync_yaml()

@@ -66,7 +66,7 @@ def substitute(pattern: Expr, env: Dict[str, Expr]) -> Expr:
 
 
 # -------------------------------------------
-# Rewrite Rules
+# Rewrite Rules (axioms + theorems)
 # -------------------------------------------
 
 REWRITE_RULES: List[Tuple[Expr, Expr]] = [
@@ -103,6 +103,53 @@ REWRITE_RULES: List[Tuple[Expr, Expr]] = [
         {"op": "¬", "state": {"op": "¬", "state": "a"}},
         "a",
     ),
+    # T10 — Entanglement distributivity:
+    # (a↔b) ⊕ (a↔c) → a↔(b⊕c)
+    (
+        {"op": "⊕", "states": [
+            {"op": "↔", "states": ["a", "b"]},
+            {"op": "↔", "states": ["a", "c"]},
+        ]},
+        {"op": "↔", "states": ["a", {"op": "⊕", "states": ["b", "c"]}]},
+    ),
+    # T12 — Projection fidelity:
+    # ★(a↔b) → (★a) ⊕ (★b)
+    (
+        {"op": "★", "state": {"op": "↔", "states": ["a", "b"]}},
+        {"op": "⊕", "states": [
+            {"op": "★", "state": "a"},
+            {"op": "★", "state": "b"},
+        ]},
+    ),
+    # T13 — Absorption:
+    # a ⊕ (a ⊗ b) → a
+    (
+        {"op": "⊕", "states": ["a", {"op": "⊗", "states": ["a", "b"]}]},
+        "a",
+    ),
+    (
+        {"op": "⊕", "states": [{"op": "⊗", "states": ["a", "b"]}, "a"]},
+        "a",
+    ),
+    # T14 — Dual Distributivity:
+    # a ⊕ (b ⊗ c) → (a ⊕ b) ⊗ (a ⊕ c)
+    (
+        {"op": "⊕", "states": ["a", {"op": "⊗", "states": ["b", "c"]}]},
+        {"op": "⊗", "states": [
+            {"op": "⊕", "states": ["a", "b"]},
+            {"op": "⊕", "states": ["a", "c"]},
+        ]},
+    ),
+    # T15 — Falsification:
+    # a ⊖ ∅ → a
+    (
+        {"op": "⊖", "states": ["a", {"op": "∅"}]},
+        "a",
+    ),
+    (
+        {"op": "⊖", "states": [{"op": "∅"}, "a"]},
+        "a",
+    ),
 ]
 
 
@@ -127,13 +174,13 @@ def apply_rules(expr: Expr) -> Expr:
 
 def normalize(expr: Any) -> Any:
     """
-    Normalize Photon Algebra expressions under axioms:
-    - Associativity: flatten nested ops
-    - Commutativity: sort operands
-    - Idempotence: remove duplicates
-    - Distributivity: expand ⊗ over ⊕
+    Normalize Photon Algebra expressions under axioms + theorems:
+    - Associativity, Commutativity, Idempotence
+    - Distributivity (⊗ over ⊕, ↔ over ⊕)
     - Cancellation: a ⊖ a = ∅
     - Double Negation: ¬(¬a) = a
+    - Projection Fidelity: ★(a↔b) → ★a ⊕ ★b
+    - Collapse Consistency: remove ∅ from superpositions
     """
     if not isinstance(expr, dict):
         return expr
@@ -153,6 +200,9 @@ def normalize(expr: Any) -> Any:
             else:
                 flat.append(s)
 
+        # Remove ∅ (T11 support)
+        flat = [s for s in flat if s != EMPTY]
+
         # Deduplicate
         flat_unique = []
         for s in flat:
@@ -162,16 +212,16 @@ def normalize(expr: Any) -> Any:
         # Commutativity: sort (stringify for stability)
         flat_sorted = sorted(flat_unique, key=lambda x: str(x))
 
-        # Idempotence: if one element left, return it directly
+        if not flat_sorted:
+            return EMPTY
         if len(flat_sorted) == 1:
             return flat_sorted[0]
-
         return {"op": "⊕", "states": flat_sorted}
 
     elif op == "⊗":
         if len(norm_states) == 2:
             a, b = norm_states
-            # Distributivity
+            # Distributivity: ⊗ over ⊕
             if isinstance(b, dict) and b.get("op") == "⊕":
                 return normalize({
                     "op": "⊕",
@@ -184,6 +234,17 @@ def normalize(expr: Any) -> Any:
                 })
         return {"op": "⊗", "states": norm_states}
 
+    elif op == "↔":
+        if len(norm_states) == 2:
+            a, b = norm_states
+            # Entanglement distributivity: (a↔b) ⊕ (a↔c)
+            if isinstance(b, dict) and b.get("op") == "⊕":
+                return normalize({
+                    "op": "⊕",
+                    "states": [{"op": "↔", "states": [a, bi]} for bi in b["states"]]
+                })
+        return {"op": "↔", "states": norm_states}
+
     elif op == "⊖":  # Cancellation
         if len(norm_states) == 2 and norm_states[0] == norm_states[1]:
             return EMPTY
@@ -193,12 +254,22 @@ def normalize(expr: Any) -> Any:
         inner = expr.get("state") or (expr.get("states") or [None])[0]
         inner_norm = normalize(inner)
         if isinstance(inner_norm, dict) and inner_norm.get("op") == "¬":
-            # Double negation → collapse
             return normalize(inner_norm.get("state") or (inner_norm.get("states") or [None])[0])
         return {"op": "¬", "state": inner_norm}
 
+    elif op == "★":  # Projection
+        inner = expr.get("state")
+        inner_norm = normalize(inner)
+        if isinstance(inner_norm, dict) and inner_norm.get("op") == "↔":
+            a, b = inner_norm.get("states", [None, None])
+            return normalize({"op": "⊕", "states": [
+                {"op": "★", "state": a},
+                {"op": "★", "state": b},
+            ]})
+        return {"op": "★", "state": inner_norm}
+
     elif op == "∅":
-        return EMPTY  # always canonical
+        return EMPTY
 
     else:
         return {"op": op, "states": norm_states}

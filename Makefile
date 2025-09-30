@@ -26,3 +26,7 @@ photon-tests:
 
 codex-tests:
 	@$(PY) pytest -q backend/modules/tests
+
+benchmark:
+	@echo "⚡ Running Photon benchmark..."
+	@PYTHONPATH=. python backend/photon_algebra/benchmarks.py | tee -a docs/rfc/Photon_Benchmarks.md

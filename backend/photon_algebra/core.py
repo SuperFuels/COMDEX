@@ -9,7 +9,7 @@ Boolean {0,1} ⊂ PhotonStates
 Symatics ↔ Codex ↔ Photon are unified here.
 """
 
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Union, Optional
 import random
 import logging
 
@@ -80,25 +80,36 @@ def negate(a: PhotonState) -> Dict[str, Any]:
         return a.get("state", EMPTY)
     return {"op": "¬", "state": a}
 
-def collapse(state: Dict[str, Any], sqi: SQIMap) -> PhotonState:
+def collapse(state: PhotonState, sqi: Optional[SQIMap] = None) -> PhotonState:
     """
     P7: Collapse — ∇ selects a state based on SQI weights.
+    If `sqi` is None, return symbolic collapse operator instead of sampling.
     """
-    if not state or "states" not in state:
+    if not isinstance(state, dict) or state.get("op") != "⊕":
+        # Nothing to collapse, return as-is
         return state
 
-    states = state["states"]
+    states = state.get("states", [])
     if not states:
         return EMPTY
 
+    if sqi is None:
+        # symbolic collapse
+        return {"op": "∇", "state": state}
+
+    # probabilistic collapse by SQI
     weights = [sqi.get(str(s), 1.0) for s in states]
     chosen = random.choices(states, weights=weights, k=1)[0]
-
     logger.info(f"[PhotonAlgebra] ∇ collapse {states} → {chosen} (weights={weights})")
     return chosen
 
-def project(state: PhotonState, sqi: SQIMap) -> Dict[str, Any]:
-    """P8: Projection — ★ returns SQI drift score."""
+def project(state: PhotonState, sqi: Optional[SQIMap] = None) -> Dict[str, Any]:
+    """
+    P8: Projection — ★ returns SQI drift score.
+    If `sqi` is None, return symbolic ★(state).
+    """
+    if sqi is None:
+        return {"op": "★", "state": state}
     return {"op": "★", "state": state, "score": sqi.get(str(state), 0.0)}
 
 # -------------------------------
@@ -152,9 +163,10 @@ if __name__ == "__main__":
     expr = superpose("a", "b")
     ent = entangle(expr, "c")
     collapsed = collapse(expr, sqi)
+    projected = project("a", sqi)
 
     print("Expr:", expr)
     print("Entangled:", ent)
     print("Collapsed:", collapsed)
     print("Boolean(a):", to_boolean("a", sqi))
-    print("Projection(a):", project("a", sqi))
+    print("Projection(a):", projected)
