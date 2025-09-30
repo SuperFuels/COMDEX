@@ -1,3 +1,27 @@
+priority_order:
+- logic
+- math
+- physics
+- quantum
+- symatics
+- photon
+- control
+aliases:
+  ⊕_q: quantum:⊕
+  ⊗_p: physics:⊗
+  ⊗_s: symatics:⊗
+  '~': photon:≈
+collisions:
+  ⊗:
+  - logic:⊗
+  - physics:⊗
+  - symatics:⊗
+  ⊕:
+  - logic:⊕
+  - quantum:⊕
+  ↔:
+  - logic:↔
+  - quantum:↔
 logic:
   ⊕:
     canonical: logic:⊕
@@ -48,76 +72,44 @@ symatics:
     canonical: symatics:cancel
     description: Cancels a vibration or resonance
 OP_METADATA:
-  photon:
-    photon:identity:
-      description: 'P1: Identity — a ⊕ ∅ = a'
-      symbols: []
-    photon:superpose:
-      description: 'P2: Superposition — combine states into ⊕'
-      symbols:
-      - ⊕
-    photon:entangle:
-      description: 'P3: Entanglement — symmetric ↔'
-      symbols:
-      - ↔
-    photon:fuse:
-      description: 'P4: Resonance / Amplification — ⊗'
-      symbols:
-      - ⊗
-    photon:cancel:
-      description: 'P5: Cancellation — ⊖'
-      symbols:
-      - ⊖
-    photon:negate:
-      description: 'P6: Negation — ¬'
-      symbols:
-      - ¬
-    photon:collapse:
-      description: 'P7: Collapse — ∇ selects a state based on SQI weights.'
-      symbols:
-      - ∇
-    photon:project:
-      description: 'P8: Projection — ★ returns SQI drift score.'
-      symbols:
-      - ★
-    photon:∅:
-      description: Canonical empty state (EMPTY)
-      symbols:
-      - ∅
-    photon:rewrite:
-      description: "Normalize expressions (flatten ⊕, eliminate neutral ops).\n  \
-        \  Phase 1: very simple rules; expand later."
-      symbols: []
-    photon:to_boolean:
-      description: Boolean ⊂ Photon — map state → {0,1} by SQI threshold.
-      symbols: []
-  photon:cancel:
-    description: 'P5: Cancellation — ⊖'
-    symbols: []
-  photon:collapse:
-    description: 'P7: Collapse — ∇ selects a state based on SQI weights.'
-    symbols: []
-  photon:entangle:
-    description: 'P3: Entanglement — symmetric ↔'
-    symbols: []
-  photon:fuse:
-    description: 'P4: Resonance / Amplification — ⊗'
-    symbols: []
   photon:identity:
     description: 'P1: Identity — a ⊕ ∅ = a'
     symbols: []
+  photon:superpose:
+    description: 'P2: Superposition — combine states into ⊕'
+    symbols:
+    - ⊕
+  photon:entangle:
+    description: 'P3: Entanglement — symmetric ↔'
+    symbols:
+    - ↔
+  photon:fuse:
+    description: 'P4: Resonance / Amplification — ⊗'
+    symbols:
+    - ⊗
+  photon:cancel:
+    description: 'P5: Cancellation — ⊖'
+    symbols:
+    - ⊖
   photon:negate:
     description: 'P6: Negation — ¬'
-    symbols: []
+    symbols:
+    - ¬
+  photon:collapse:
+    description: 'P7: Collapse — ∇ selects a state based on SQI weights.'
+    symbols:
+    - ∇
   photon:project:
     description: 'P8: Projection — ★ returns SQI drift score.'
-    symbols: []
+    symbols:
+    - ★
+  photon:∅:
+    description: Canonical empty state (EMPTY)
+    symbols:
+    - ∅
   photon:rewrite:
     description: "Normalize expressions (flatten ⊕, eliminate neutral ops).\n    Phase\
       \ 1: very simple rules; expand later."
-    symbols: []
-  photon:superpose:
-    description: 'P2: Superposition — combine states into ⊕'
     symbols: []
   photon:to_boolean:
     description: Boolean ⊂ Photon — map state → {0,1} by SQI threshold.
