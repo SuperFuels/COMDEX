@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Photon AST",
+  "description": "Canonical JSON schema for Photon Algebra expressions",
+  "type": "object",
+  "required": ["op"],
+  "properties": {
+    "op": {
+      "type": "string",
+      "description": "Operator symbol (⊕, ⊗, ⊖, ¬, ★, ↔, etc.)"
+    },
+    "states": {
+      "type": "array",
+      "items": { "$ref": "#" },
+      "description": "Operands for binary/multiary operators"
+    },
+    "state": {
+      "$ref": "#",
+      "description": "Operand for unary operators"
+    },
+    "value": {
+      "type": ["string", "number", "null"],
+      "description": "Literal atom value (for base cases)"
+    }
+  },
+  "additionalProperties": true
+}

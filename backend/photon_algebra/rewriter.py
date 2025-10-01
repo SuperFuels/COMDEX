@@ -9,6 +9,7 @@ from typing import Any, Dict, List, Tuple, Union
 
 # 🔑 shared canonical empty state (import once)
 from backend.photon_algebra.core import EMPTY
+from dataclasses import dataclass
 
 Expr = Union[str, Dict[str, Any]]
 # --- global normalize cache --------------------------------------------------
@@ -30,6 +31,40 @@ Expr = Union[str, Dict[str, Any]]
 #        - key_cache: id(node) → _string_key(node) to avoid recomputation
 # _string_key(node) itself is defined elsewhere in this module.
 # =============================================================================
+# --- Diagnostics counters ------------------------------------------------------
+class _DiagCounters:
+    """Track normalization and rewrite events for diagnostics."""
+    __slots__ = ("rewrites", "absorptions", "idempotence", "distributions")
+
+    def __init__(self) -> None:
+        self.reset()
+
+    def reset(self) -> None:
+        self.rewrites = 0        # how many times rewrite_fixed changed an expr
+        self.absorptions = 0     # times a ⊕ (a ⊗ b) collapsed to a
+        self.idempotence = 0     # a ⊗ a → a, a ⊕ a → a, ¬(¬a) → a
+        self.distributions = 0   # times ⊗ distributed over ⊕
+
+    def to_dict(self) -> dict:
+        """Return a snapshot of current counters as a dict."""
+        return {
+            "rewrites": self.rewrites,
+            "absorptions": self.absorptions,
+            "idempotence": self.idempotence,
+            "distributions": self.distributions,
+        }
+
+    def __repr__(self) -> str:
+        return (
+            f"<DIAG rewrites={self.rewrites} "
+            f"absorptions={self.absorptions} "
+            f"idempotence={self.idempotence} "
+            f"distributions={self.distributions}>"
+        )
+
+
+# Global shared singleton
+DIAG = _DiagCounters()
 
 # --- memo + key helpers -----------------------------------------------------
 from typing import Any, Dict, Optional
@@ -95,19 +130,38 @@ def structural_key(expr: Any) -> tuple:
     import json
     return _structural_key(json.dumps(expr, sort_keys=True))
 
+from functools import lru_cache
+
+@lru_cache(maxsize=50_000)
+def _string_key(expr: Any) -> str:
+    """
+    Canonical string key for expressions.
+    Process-wide LRU cached (by structure).
+    """
+    if not isinstance(expr, dict):
+        return str(expr)
+
+    op = expr.get("op")
+    if "state" in expr:
+        return f"({op} { _string_key(expr['state']) })"
+    if "states" in expr:
+        inner = ",".join(_string_key(s) for s in expr["states"])
+        return f"{op}({inner})"
+    return f"{op}()"
+
+
 def _string_key_ctx(node: Any, cache: Dict[int, str]) -> str:
     """
     Like _string_key(node) but caches by id(node) within a single normalize call.
-    Safe because we only use it on the normalized-shape nodes of this traversal.
+    This avoids recomputation during a single traversal.
     """
     if not isinstance(node, dict):
-        # atoms (strings) — just return themselves
         return str(node)
     i = id(node)
     k = cache.get(i)
     if k is not None:
         return k
-    k = _string_key(node)  # uses your existing canonical key function
+    k = _string_key(node)  # calls the global LRU version
     cache[i] = k
     return k
 
@@ -119,31 +173,6 @@ def _key_cached(node: Any, cache: Dict[int, str]) -> str:
 def reset_normalize_memo() -> None:
     """Clear the normalize() memo cache (currently a no-op stub)."""
     return None
-
-# --- Public entrypoint with global memo -------------------------------------
-
-def normalize(expr: Any) -> Any:
-    """
-    Normalize Photon expressions under axioms + calculus rules:
-      - Apply rewrite rules to a fixed point (T8–T15, etc.)
-      - Canonicalize ⊕: flatten, drop ∅, absorption, idempotence, commutativity
-      - Distribute ⊗ over ⊕ (both sides)  [⊗ handles distribution; ⊕ does NOT factor]
-      - Cancellation: a ⊖ a = ∅ ; a ⊖ ∅ = a ; ∅ ⊖ a = a
-      - Double negation: ¬(¬a) = a
-    """
-    # atoms (strings) fast-path
-    if not isinstance(expr, dict):
-        return expr
-
-    # global memo by *input* structural key
-    k0 = _string_key(expr)
-    cached = _NORM_MEMO.get(k0)
-    if cached is not None:
-        return cached
-
-    out = _normalize_inner(expr, _NormCtx())
-    _NORM_MEMO[k0] = out
-    return out
 
 # -----------------------------------------------------------------------------
 # Pattern variable predicate
@@ -221,21 +250,22 @@ def match_pattern(pattern: Expr, expr: Expr, env: Dict[str, Expr] | None = None)
 
 
 def substitute(node: Expr, env: Dict[str, Expr]) -> Expr:
-    """Substitute variables in `node` using env. Deep-copies dicts."""
+    """Substitute variables in `node` using env. Uses shallow dict copies."""
     if is_var(node):
         return env.get(node, node)
     if isinstance(node, str):
         return node
     if isinstance(node, dict):
+        # shallow rebuild
         out = {"op": node.get("op")}
         if "state" in node:
             out["state"] = substitute(node["state"], env)
         if "states" in node:
             out["states"] = [substitute(s, env) for s in node["states"]]
         return out
+    # fallback for unusual types (lists, numbers, etc.)
     return copy.deepcopy(node)
-
-
+    
 # =============================================================================
 # Rewrite Rules (axioms + derived theorems)
 #
@@ -350,6 +380,7 @@ def rewrite_once(expr: Expr) -> Expr:
     for pattern, replacement in REWRITE_RULES:
         env = match(expr, pattern)
         if env is not None:
+            DIAG.rewrites += 1  # 🔍 record rewrite event
             return substitute(replacement, env)
 
     # if op is commutative, also try swapped operands for matching
@@ -360,7 +391,8 @@ def rewrite_once(expr: Expr) -> Expr:
             for pattern, replacement in REWRITE_RULES:
                 env = match(flipped, pattern)
                 if env is not None:
-                    # apply replacement to flipped env, then keep result (no need to unflip)
+                    DIAG.rewrites += 1  # 🔍 record rewrite event (commuted form)
+                    # apply replacement to flipped env, then keep result
                     return substitute(replacement, env)
 
     return expr
@@ -457,15 +489,24 @@ def _normalize_shallow(expr: Expr) -> Expr:
 
             # Distribute over ⊕ on either side (then recurse through normalize)
             if isinstance(b, dict) and b.get("op") == "⊕":
+                DIAG.distributions += 1  # 🔍 distribution fired
                 return normalize({
                     "op": "⊕",
-                    "states": [{"op": "⊗", "states": [a, bi]} for bi in b["states"]]
+                    "states": [
+                        {"op": "⊗", "states": [a, bi]} for bi in b["states"]
+                    ]
                 })
+
             if isinstance(a, dict) and a.get("op") == "⊕":
+                DIAG.distributions += 1  # 🔍 distribution fired
                 return normalize({
                     "op": "⊕",
-                    "states": [{"op": "⊗", "states": [ai, b]} for ai in a["states"]]
+                    "states": [
+                        {"op": "⊗", "states": [ai, b]} for ai in a["states"]
+                    ]
                 })
+
+            # Otherwise, just keep ⊗ in canonical order
             return {"op": "⊗", "states": [a, b]}
 
         # Fallback for non-binary or already-normalized cases
@@ -536,10 +577,9 @@ def rewrite_fixed(expr: Expr, max_iter: int = 64, debug: bool = False) -> Expr:
         if nxt == cur:
             break
         if debug:
-            print(f"[rewrite_fixed] Iter {i}: {cur}  →  {nxt}")
+            print(f"[rewrite_fixed] Iter {i}: {cur} → {nxt}")
         cur = nxt
     return cur
-
 
 # --- global normalize cache --------------------------------------------------
 from typing import Dict, Any
@@ -558,7 +598,6 @@ def clear_normalize_memo() -> None:
     _cache_hits = 0
     _cache_misses = 0
 
-
 # --- normalized form -------------------------------------------------------
 # --- Public entrypoint ------------------------------------------------------
 
@@ -570,12 +609,17 @@ def normalize(expr: Any) -> Any:
         - Distribute ⊗ over ⊕ (both sides) [⊗ handles distribution; ⊕ does NOT factor]
         - Cancellation: a ⊖ a = ∅ ; a ⊖ ∅ = a ; ∅ ⊖ a = a
         - Double negation: ¬(¬a) = a
+
+    NOTE: Cache hit/miss counters are handled in the wrapper
+    (_RewriterWrapper.normalize). This base function only checks
+    the memo table.
     """
     # Atoms (strings) fast-path
     if not isinstance(expr, dict):
         return expr
 
     k0 = structural_key(expr)
+
     cached = _NORMALIZE_MEMO.get(k0)
     if cached is not None:
         return cached
@@ -610,7 +654,10 @@ def _normalize_inner(expr: Any, ctx: _NormCtx) -> Any:
         expr = {**expr, "state": _normalize_inner(expr.get("state"), ctx)}
 
     # 2) Single-step rewrite until stable
-    expr = rewrite_fixed(expr)
+    expr2 = rewrite_fixed(expr)
+    if expr2 != expr:
+        DIAG.rewrites += 1   # 🔍 count rewrites
+    expr = expr2
 
     # Might have simplified to an atom
     if not isinstance(expr, dict):
@@ -623,20 +670,21 @@ def _normalize_inner(expr: Any, ctx: _NormCtx) -> Any:
     if op == "⊕":
         # 🚫 No T14 factoring here (⊗ distributes; prevents ping-pong).
         # Order for ⊕:
-        #   flatten → drop ∅ → absorption → idempotence + commutativity
+        #   flatten → drop ∅ → absorption → T10 distributivity → dedup/sort → normalize children
         flat = _flatten_plus(states)
 
         # Drop ∅ (identity)
         flat = [s for s in flat if not (isinstance(s, dict) and s.get("op") == "∅")]
 
-        # Absorption: remove products that contain an already-present atomic term
+        # Absorption: remove ⊗ terms that contain an already-present atomic term
         present = {structural_key(s) for s in flat if not (isinstance(s, dict) and s.get("op") == "⊗")}
         pruned = []
         for s in flat:
             if isinstance(s, dict) and s.get("op") == "⊗":
                 a_, b_ = s.get("states", [None, None])
                 if structural_key(a_) in present or structural_key(b_) in present:
-                    continue  # absorbed
+                    DIAG.absorptions += 1  # 🔍 absorption fired
+                    continue
             pruned.append(s)
         flat = pruned
 
@@ -649,11 +697,13 @@ def _normalize_inner(expr: Any, ctx: _NormCtx) -> Any:
             ):
                 a1, b1 = s1["states"]
                 a2, b2 = s2["states"]
+
                 if a1 == a2:
                     out = {"op": "↔", "states": [a1, {"op": "⊕", "states": [b1, b2]}]}
                     out = _normalize_inner(out, ctx)
                     ctx.memo[skey] = out
                     return out
+
                 if b1 == b2:
                     out = {"op": "↔", "states": [b1, {"op": "⊕", "states": [a1, a2]}]}
                     out = _normalize_inner(out, ctx)
@@ -684,8 +734,20 @@ def _normalize_inner(expr: Any, ctx: _NormCtx) -> Any:
     elif op == "⊗":
         if len(states) == 2:
             a, b = states
+            # --- Flatten nested ⊗ (associativity) ---
+            new_states = []
+            for side in (a, b):
+                if isinstance(side, dict) and side.get("op") == "⊗":
+                    new_states.extend(side.get("states", []))
+                else:
+                    new_states.append(side)
+            if len(new_states) != 2:
+                out = {"op": "⊗", "states": new_states}
+                out = _normalize_inner(out, ctx)
+                ctx.memo[skey] = out
+                return out
 
-            # Annihilator
+            # --- Annihilator rules ---
             if isinstance(a, dict) and a.get("op") == "∅":
                 out = EMPTY
                 ctx.memo[skey] = out
@@ -695,81 +757,106 @@ def _normalize_inner(expr: Any, ctx: _NormCtx) -> Any:
                 ctx.memo[skey] = out
                 return out
 
-            # Canonicalize commutativity
+            # --- Canonicalize commutativity (sort operands) ---
             if structural_key(a) > structural_key(b):
                 a, b = b, a
 
-            # Local ⊗ idempotence: a ⊗ a → a
+            # --- Local ⊗ idempotence: a ⊗ a → a ---
             if structural_key(a) == structural_key(b):
+                DIAG.idempotence += 1  # 🔍 idempotence fired
                 out = _normalize_inner(a, ctx)
                 ctx.memo[skey] = out
                 return out
 
+            # --- Distribution: expand if either side is a ⊕ ---
             def _is_plus(x):
-                return isinstance(x, dict) and x.get("op") == "⊕" and isinstance(x.get("states"), list)
-
-            # Dual absorption
-            if _is_plus(b) and any(structural_key(s) == structural_key(a) for s in b["states"]):
-                out = _normalize_inner(a, ctx)
-                ctx.memo[skey] = out
-                return out
-            if _is_plus(a) and any(structural_key(s) == structural_key(b) for s in a["states"]):
-                out = _normalize_inner(b, ctx)
-                ctx.memo[skey] = out
-                return out
-
-            # Distribute over ⊕
-            if _is_plus(b):
-                out = _normalize_inner(
-                    {"op": "⊕", "states": [{"op": "⊗", "states": [a, bi]} for bi in b["states"]]},
-                    ctx,
+                return (
+                    isinstance(x, dict)
+                    and x.get("op") == "⊕"
+                    and isinstance(x.get("states"), list)
                 )
-                ctx.memo[skey] = out
-                return out
+
             if _is_plus(a):
-                out = _normalize_inner(
-                    {"op": "⊕", "states": [{"op": "⊗", "states": [ai, b]} for ai in a["states"]]},
-                    ctx,
-                )
+                DIAG.distributions += 1  # 🔍 distribution fired
+                expanded = {
+                    "op": "⊕",
+                    "states": [{"op": "⊗", "states": [sa, b]} for sa in a["states"]],
+                }
+                out = _normalize_inner(expanded, ctx)
                 ctx.memo[skey] = out
                 return out
 
+            if _is_plus(b):
+                DIAG.distributions += 1  # 🔍 distribution fired
+                expanded = {
+                    "op": "⊕",
+                    "states": [{"op": "⊗", "states": [a, sb]} for sb in b["states"]],
+                }
+                out = _normalize_inner(expanded, ctx)
+                ctx.memo[skey] = out
+                return out
+
+            # --- Otherwise: keep as ⊗ ---
             out = {"op": "⊗", "states": [a, b]}
-        else:
-            # Fallback for non-binary arity
-            out = {"op": "⊗", "states": states}
-
-        # ✅ Final rewrite pass
-        out = rewrite_fixed(out)
-
-        ctx.memo[skey] = out
-        return out
+            ctx.memo[skey] = out
+            return out
 
     elif op == "⊖":
         if len(states) == 2:
             x, y = states
+
+            # a ⊖ a → ∅
             if structural_key(x) == structural_key(y):
                 out = EMPTY
+
+            # a ⊖ ∅ → a
             elif isinstance(y, dict) and y.get("op") == "∅":
                 out = x
+
+            # ∅ ⊖ a → a   (by design in your system)
             elif isinstance(x, dict) and x.get("op") == "∅":
                 out = y
-            else:
-                out = {"op": "⊖", "states": states}
-        else:
-            out = {"op": "⊖", "states": states}
 
-        out = rewrite_fixed(out)
+            # --- NEW: flatten nested ⊖ ---
+            elif isinstance(y, dict) and y.get("op") == "⊖":
+                # a ⊖ (a ⊖ b) → b
+                y1, y2 = y["states"]
+                if structural_key(x) == structural_key(y1):
+                    out = y2
+                # a ⊖ (b ⊖ a) → a ⊖ b  (optional, keeps things simpler)
+                elif structural_key(x) == structural_key(y2):
+                    out = {"op": "⊖", "states": [x, y1]}
+                else:
+                    out = {"op": "⊖", "states": [x, y]}
+
+            else:
+                out = {"op": "⊖", "states": [x, y]}
+        else:
+            # multi-ary ⊖: fold left
+            cur = states[0]
+            for nxt in states[1:]:
+                cur = {"op": "⊖", "states": [cur, nxt]}
+            out = cur
+
+        # Run one more fixed-point rewrite pass
+        out2 = rewrite_fixed(out)
+        if out2 != out:
+            DIAG.rewrites += 1
+        out = out2
         ctx.memo[skey] = out
         return out
 
     elif op == "¬":
         inner = _normalize_inner(expr.get("state"), ctx)
         if isinstance(inner, dict) and inner.get("op") == "¬":
+            DIAG.idempotence += 1  # 🔍 double negation collapse
             out = _normalize_inner(inner.get("state"), ctx)
         else:
             out = {"op": "¬", "state": inner}
-        out = rewrite_fixed(out)
+        out2 = rewrite_fixed(out)
+        if out2 != out:
+            DIAG.rewrites += 1
+        out = out2
         ctx.memo[skey] = out
         return out
 
@@ -786,7 +873,10 @@ def _normalize_inner(expr: Any, ctx: _NormCtx) -> Any:
             ]}
             # ✅ Fully normalize right now
             out = _normalize_inner(expanded, ctx)
-            out = rewrite_fixed(out)
+            out2 = rewrite_fixed(out)
+            if out2 != out:
+                DIAG.rewrites += 1
+            out = out2
         else:
             out = {"op": "★", "state": inner}
 
@@ -800,7 +890,10 @@ def _normalize_inner(expr: Any, ctx: _NormCtx) -> Any:
     else:
         # Passthrough (↔, etc.)
         out = {k: v for k, v in expr.items()}
-        out = rewrite_fixed(out)
+        out2 = rewrite_fixed(out)
+        if out2 != out:
+            DIAG.rewrites += 1
+        out = out2
         ctx.memo[skey] = out
         return out
 
@@ -848,3 +941,36 @@ class _RewriterWrapper:
         return out
 
 rewriter = _RewriterWrapper()
+
+if __name__ == "__main__":
+    import sys, json
+
+    # Allow input as either JSON or shorthand string
+    if len(sys.argv) < 2:
+        print("Usage: python -m backend.photon_algebra.rewriter '<expr>'")
+        print("Example: python -m backend.photon_algebra.rewriter '{\"op\":\"⊕\",\"states\":[{\"op\":\"↔\",\"states\":[\"a\",\"b\"]},{\"op\":\"↔\",\"states\":[\"a\",\"c\"]}]}'")
+        sys.exit(1)
+
+    raw = sys.argv[1]
+
+    try:
+        # Try parsing JSON first
+        expr = json.loads(raw)
+    except json.JSONDecodeError:
+        # Fallback: treat as raw string atom
+        expr = raw
+
+    print("Input expression:", expr)
+    print("=" * 60)
+
+    # Reset diagnostics before running
+    DIAG.reset()
+
+    # Normalize with debug tracing
+    result = rewrite_fixed(expr, debug=True)
+    result = normalize(result)
+
+    print("=" * 60)
+    print("Normalized result:", json.dumps(result, ensure_ascii=False, indent=2))
+    print("Diagnostics:", DIAG.to_dict())
+    print("Cache stats:", get_cache_stats())

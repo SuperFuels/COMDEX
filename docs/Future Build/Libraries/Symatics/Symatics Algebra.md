@@ -14,16 +14,19 @@ checklist
     title 🔁 Nice-to-have (this week)
     item ✅ Fuzz property tests (Hypothesis) → backend/tests/test_symatics_theorems_fuzz.py
     item ⬜ Batch axiom injection stress test → backend/tests/test_symatics_axioms_batch.py
+    item ⬜ Symatics ↔ Photon embedding test harness (consistency layer)
 
 checklist
     title 📐 Semantics & RFC support (paper-ready)
     item ✅ Minimal semantic model sketch → docs/rfc/semantics.md
     item ✅ Separation note vs Boolean logic (T7 irreducibility) → docs/rfc/separation.md
+    item ⬜ Symatics Normalization Spec (RFC with example reductions)
 
 checklist
     title 🧪 A9 Benchmark vs Classical
     item ✅ Benchmark harness → backend/modules/benchmark/bench_symatics_vs_classic.py
     item ⬜ Extended scaling benchmarks (chains of 10–500 nodes)
+    item ⬜ Phase-noise robustness benchmarks (error tolerance under drift)
 
 checklist
     title 🧷 Integration hooks

@@ -48,25 +48,27 @@ flowchart TD
         P11["✅ Benchmarks (Photon vs Classical: compression, ops/sec)"]
     end
 
-    subgraph Phase2["🔬 Photon Extensions (Next — Active 🚧)"]
-        E1["✅ Extend Theorems → full Photon Calculus (T13+ absorption, distribution, falsification)\n— guarded T14, ⊗-idempotence, regressions in place"]
-        E2["▶ Add Meta-Photon Ops (≈ similarity, ⊂ containment, ⊤/⊥ boundary cases)"]
-        E3["▶ Formal Semantics Doc (truth-value model, SQI/Hilbert link, rewrite soundness)"]
-        E4["✅ Deterministic ordering tests incl. mixed ops (★, ↔, ¬)\n— T10 optional; xfail removed once enabled"]
-        E5["⬜ Performance: memoization + cut deepcopy in substitute()"]
-        E6["⬜ CI polish: mypy, Hypothesis health checks, seed corpus"]
-        E7["⬜ Pretty-printer & round-trip JSON (debuggability)"]
-    end
+subgraph Phase2["🔬 Photon Extensions (Next — Active 🚧)"]
+    E1["✅ Extend Theorems → full Photon Calculus (T13+ absorption, distribution, falsification)\n— guarded T14, ⊗-idempotence, regressions in place"]
+    E2["▶ Add Meta-Photon Ops (≈ similarity, ⊂ containment, ⊤/⊥ boundary cases)"]
+    E3["▶ Formal Semantics Doc (truth-value model, SQI/Hilbert link, rewrite soundness)"]
+    E4["✅ Deterministic ordering tests incl. mixed ops (★, ↔, ¬)\n— T10 optional; xfail removed once enabled"]
+    E5["⬜ Performance: memoization + cut deepcopy in substitute()"]
+    E6["⬜ CI polish: mypy, Hypothesis health checks, seed corpus"]
+    E7["⬜ Pretty-printer & round-trip JSON (debuggability)"]
+    E8["⬜ Invariant checks wired to RFC (photon_normalization.md self-test)"]
+    E9["⬜ --update-doc flag: auto-refresh RFC examples with normalize()"]
+    E10["⬜ Graphviz/mermaid AST dump tool (for teaching + debugging)"]
+    E11["⬜ Deep fuzz regressions (termination + idempotence stress suite)"]
+end
 
-    subgraph Phase3["🚀 Photon Integration (Deployment — Upcoming)"]
-        I1["Integrate Photon Rewriter into CodexCore runtime"]
-        I2["Photon ↔ SymPy bridge (drop-in math library support)"]
-        I3["CodexLang++ compiler → Photon instructions"]
-        I4["Export .photon.json spec for external nodes/tools"]
-        I5["Wire into GlyphNet stack (sPHY encoder/decoder)"]
-    end
-    end
-    end
+subgraph Phase3["🚀 Photon Integration (Deployment — Upcoming)"]
+    I1["Integrate Photon Rewriter into CodexCore runtime"]
+    I2["Photon ↔ SymPy bridge (drop-in math library support)"]
+    I3["CodexLang++ compiler → Photon instructions"]
+    I4["Export .photon.json spec for external nodes/tools"]
+    I5["Wire into GlyphNet stack (sPHY encoder/decoder)"]
+
     end
 
     %% Connections

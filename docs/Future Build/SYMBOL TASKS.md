@@ -1,25 +1,23 @@
-TASKS TO DO AFTER PHOTON ALGEBRA + 📑 Playbook: Updating the 31 Stub Executors to fix
+subgraph 🟡 Pending / Photon-Phase Tasks
+    C6["☐ Canonicalizer merge (Symatics + CodexLang) — defer until Phase 2 / Photon\n→ verify Symatics normalization invariants before merge"]
+    C10["☐ Entanglement/Quantum ops unified (↔, ⧜, ⧝, ⧠) — full unify post-Photon\n→ add RFC doc section to list unified quantum ops"]
+    C18["☐ Axioms/laws consistency check — expand only after Photon algebra defined\n→ hook into invariant self-tests (photon_normalization.md)"]
+end
 
-    subgraph 🟡 Pending / Photon-Phase Tasks
-        C6["☐ Canonicalizer merge (Symatics + CodexLang) — defer until Phase 2 / Photon"]
-        C10["☐ Entanglement/Quantum ops unified (↔, ⧜, ⧝, ⧠) — full unify post-Photon"]
-        C18["☐ Axioms/laws consistency check — expand only after Photon algebra defined"]
-    end
+subgraph 🚀 Photon Algebra Readiness
+    P1["☐ Photon operators exposed (⊙, ≈, wave ops) — stubs only now\n→ ensure Codex YAML stubs export correctly for doc sync"]
+    P2["☐ Photon ↔ Codex bridge wired (registry + dispatcher) — impl after algebra spec\n→ bridge must round-trip JSON AST ↔ dispatcher"]
+    P3["☐ Photon metrics integrated (cycles, resonance, entanglement size) — placeholders only\n→ validate via photon_algebra/benchmarks.py harness"]
+end
 
-    subgraph 🚀 Photon Algebra Readiness
-        P1["☐ Photon operators exposed (⊙, ≈, wave ops) — stubs only now"]
-        P2["☐ Photon ↔ Codex bridge wired (registry + dispatcher) — impl after algebra spec"]
-        P3["☐ Photon metrics integrated (cycles, resonance, entanglement size) — placeholders only"]
-    end
-
-    subgraph 🧩 Integration & Cleanup
-        I2["☐ Opcode semantic unification → ⊕, ↔, ⟲, ⧖ consistent everywhere (post-Photon)"]
-        I4["☐ Schema normalization → AST (CodexLang ↔ Symatics ↔ GlyphOS) match final Photon model"]
-        I6["☐ Photon metrics routing → CodexMetrics (cycles, resonance, depth)"]
-        I7["☐ Axiom/law contradictions logging → extend after Photon axioms spec"]
-        I8["☐ Documentation sync → SYMATICS_AXIOMS.md ↔ Codex YAML ↔ instruction_reference.md"]
-        I10["☐ Context handling → align Codex registers + Photon Algebra state (time dilation, resonance)"]
-    end
+subgraph 🧩 Integration & Cleanup
+    I2["☐ Opcode semantic unification → ⊕, ↔, ⟲, ⧖ consistent everywhere (post-Photon)\n→ add tests to ensure no shadow-op aliases remain"]
+    I4["☐ Schema normalization → AST (CodexLang ↔ Symatics ↔ GlyphOS) match final Photon model\n→ export .schema.json snapshot for external tools"]
+    I6["☐ Photon metrics routing → CodexMetrics (cycles, resonance, depth)\n→ add CI guard: metrics keys must exist in CodexMetrics enum"]
+    I7["☐ Axiom/law contradictions logging → extend after Photon axioms spec\n→ add Hypothesis fuzzing pass for contradiction stress tests"]
+    I8["☐ Documentation sync → SYMATICS_AXIOMS.md ↔ Codex YAML ↔ instruction_reference.md\n→ ensure RFC example reductions remain executable"]
+    I10["☐ Context handling → align Codex registers + Photon Algebra state (time dilation, resonance)\n→ add time-dependent normalization invariant tests"]
+end
 
 C6. Canonicalizer merge (Symatics + CodexLang) — defer until Phase 2 / Photon
 	•	What: Right now we have two canonicalizers:

@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/photon_algebra/photon_adapter.py
+# hypothesis_version: 6.139.2
+
+['#', '$ref', 'Input:', 'Metadata:', 'Normalized:', '__main__', 'a', 'additionalProperties', 'array', 'b', 'c', 'invariants', 'items', 'no_plus_under_times', 'normalized_key', 'object', 'oneOf', 'op', 'photon_schema.json', 'properties', 'required', 'state', 'states', 'string', 'type', '⊕', '⊗']
