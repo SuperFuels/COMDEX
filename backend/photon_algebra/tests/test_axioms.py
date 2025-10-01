@@ -1,4 +1,3 @@
-import pytest
 from backend.photon_algebra import core as pa
 from backend.photon_algebra.core import EMPTY  # 🔑 shared canonical empty
 

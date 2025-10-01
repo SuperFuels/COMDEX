@@ -15,7 +15,7 @@ import statistics
 from typing import Any, Dict
 from datetime import datetime
 
-from backend.photon_algebra import core, rewriter
+from backend.photon_algebra import rewriter
 
 
 def random_expr(depth=3, symbols=("a", "b", "c", "d")) -> Dict[str, Any]:

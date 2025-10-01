@@ -10,17 +10,21 @@ Supports:
     ⊗   fusion (binary, commutative)
     ⊖   cancellation (binary, non-commutative)
     ↔   entanglement (binary, lowest precedence)
+    ≈   similarity (binary, lowest precedence; inert for now)
+    ⊂   containment (binary, lowest precedence; inert for now)
     ¬   negation (unary, prefix)
     ★   projection (unary, prefix)
     ∅   empty state
+    ⊤   top (constant)
+    ⊥   bottom (constant)
 
 Grammar (EBNF):
     expr      := ent
-    ent       := sum ( "↔" sum )*
+    ent       := sum ( ("↔" | "≈" | "⊂") sum )*
     sum       := prod (("⊕" | "⊖") prod)*
     prod      := factor ( "⊗" factor )*
     factor    := "¬" factor | "★" factor | atom
-    atom      := SYMBOL | "∅" | "(" expr ")"
+    atom      := SYMBOL | "∅" | "⊤" | "⊥" | "(" expr ")"
 
 SYMBOL := string of letters/numbers (atom identifiers)
 """
@@ -32,8 +36,8 @@ from typing import Any, List
 # Tokenizer
 # -------------------------------
 def tokenize(s: str) -> List[str]:
-    # Add spacing around operators/parens
-    for sym in ["⊕", "⊗", "⊖", "↔", "¬", "★", "(", ")", "∅"]:
+    # Add spacing around operators/parens (include new ops/constants)
+    for sym in ["⊕", "⊗", "⊖", "↔", "≈", "⊂", "¬", "★", "(", ")", "∅", "⊤", "⊥"]:
         s = s.replace(sym, f" {sym} ")
     return s.split()
 
@@ -61,13 +65,13 @@ class Parser:
     def parse_expr(self) -> Any:
         return self.parse_ent()
 
-    # ent := sum ( "↔" sum )*
+    # ent := sum ( ("↔" | "≈" | "⊂") sum )*
     def parse_ent(self):
         node = self.parse_sum()
-        if self.peek() == "↔":
-            self.eat("↔")
-            rhs = self.parse_ent()  # recursive, not parse_sum
-            node = {"op": "↔", "states": [node, rhs]}
+        while self.peek() in ("↔", "≈", "⊂"):
+            op = self.eat()
+            rhs = self.parse_sum()
+            node = {"op": op, "states": [node, rhs]}
         return node
 
     # sum := prod (("⊕" | "⊖") prod)*
@@ -76,6 +80,7 @@ class Parser:
         while self.peek() in ("⊕", "⊖"):
             op = self.eat()
             rhs = self.parse_prod()
+            # build a binary chain; normalization can flatten ⊕ later
             node = {"op": op, "states": [node, rhs]}
         return node
 
@@ -99,7 +104,7 @@ class Parser:
             return {"op": "★", "state": self.parse_factor()}
         return self.parse_atom()
 
-    # atom := SYMBOL | "∅" | "(" expr ")"
+    # atom := SYMBOL | "∅" | "⊤" | "⊥" | "(" expr ")"
     def parse_atom(self) -> Any:
         tok = self.peek()
         if tok is None:
@@ -109,9 +114,9 @@ class Parser:
             node = self.parse_expr()
             self.eat(")")
             return node
-        if tok == "∅":
-            self.eat("∅")
-            return {"op": "∅"}
+        if tok in ("∅", "⊤", "⊥"):
+            self.eat(tok)
+            return {"op": tok}
         # SYMBOL
         self.eat()
         return tok
@@ -132,7 +137,8 @@ def parse(s: str) -> Any:
 # CLI harness
 # -------------------------------
 if __name__ == "__main__":
-    import sys, json
+    import sys
+    import json
     from backend.photon_algebra.photon_pp import pp
     from backend.photon_algebra.rewriter import normalize
 

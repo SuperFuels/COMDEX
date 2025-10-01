@@ -29,10 +29,16 @@ SQIMap = Dict[str, float]  # glyph_id → Semantic Quality Index
 # Canonical representation of the empty photon state
 EMPTY: Dict[str, Any] = {"op": "∅"}
 
+# E2: Meta-ops bounds (inert for now)
+TOP: Dict[str, Any] = {"op": "⊤"}
+BOTTOM: Dict[str, Any] = {"op": "⊥"}
+
 __all__ = [
     "PhotonState",
     "SQIMap",
     "EMPTY",
+    "TOP",
+    "BOTTOM",
     "identity",
     "superpose",
     "entangle",
@@ -43,6 +49,9 @@ __all__ = [
     "project",
     "to_boolean",
     "rewrite",
+    # E2 constructors
+    "similar",
+    "contains",
 ]
 
 # -------------------------------
@@ -113,6 +122,18 @@ def project(state: PhotonState, sqi: Optional[SQIMap] = None) -> Dict[str, Any]:
     return {"op": "★", "state": state, "score": sqi.get(str(state), 0.0)}
 
 # -------------------------------
+# E2: Meta-ops (inert constructors)
+# -------------------------------
+
+def similar(a: PhotonState, b: PhotonState) -> Dict[str, Any]:
+    """E2: Similarity operator — a ≈ b (inert in Phase 1)"""
+    return {"op": "≈", "states": [a, b]}
+
+def contains(a: PhotonState, b: PhotonState) -> Dict[str, Any]:
+    """E2: Containment operator — a ⊂ b (inert in Phase 1)"""
+    return {"op": "⊂", "states": [a, b]}
+
+# -------------------------------
 # Boolean Subset
 # -------------------------------
 
@@ -124,7 +145,7 @@ def to_boolean(state: PhotonState, sqi: SQIMap, threshold: float = 0.5) -> int:
 # Rewriter
 # -------------------------------
 
-def rewrite(expr: Dict[str, Any]) -> Dict[str, Any]:
+def rewrite(expr: Dict[str, Any]) -> PhotonState:
     """
     Normalize expressions (flatten ⊕, eliminate neutral ops).
     Phase 1: very simple rules; expand later.
@@ -136,7 +157,7 @@ def rewrite(expr: Dict[str, Any]) -> Dict[str, Any]:
 
     if op == "⊕":
         # flatten nested superpositions
-        flat_states = []
+        flat_states: List[PhotonState] = []
         for s in expr.get("states", []):
             if isinstance(s, dict) and s.get("op") == "⊕":
                 flat_states.extend(s.get("states", []))
@@ -152,7 +173,9 @@ def rewrite(expr: Dict[str, Any]) -> Dict[str, Any]:
             return flat_states[0]
         return {"op": "⊕", "states": flat_states}
 
-    return expr  # passthrough
+    # E2: inert pass-through for ≈, ⊂, ⊤, ⊥ (no rewrites yet)
+    # Any other op just passes through untouched in Phase 1.
+    return expr
 
 # -------------------------------
 # Debug Harness
@@ -164,9 +187,14 @@ if __name__ == "__main__":
     ent = entangle(expr, "c")
     collapsed = collapse(expr, sqi)
     projected = project("a", sqi)
+    sim = similar("a", "b")
+    cont = contains("a", "b")
 
     print("Expr:", expr)
     print("Entangled:", ent)
     print("Collapsed:", collapsed)
     print("Boolean(a):", to_boolean("a", sqi))
     print("Projection(a):", projected)
+    print("Similar(a,b):", sim)
+    print("Contains(a,b):", cont)
+    print("TOP:", TOP, "BOTTOM:", BOTTOM)

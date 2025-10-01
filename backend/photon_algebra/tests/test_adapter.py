@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import json
 import pytest
 from backend.photon_algebra.photon_adapter import normalize_expr
 

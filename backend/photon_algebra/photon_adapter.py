@@ -1,4 +1,11 @@
 # backend/photon_algebra/photon_adapter.py
+import json
+from typing import Any, Dict, Tuple
+from pathlib import Path
+import fastjsonschema
+from backend.photon_algebra import rewriter
+from backend.photon_algebra.rewriter import _string_key  # ⚡️ no DIAG import here
+from backend.photon_algebra.core import PhotonState
 """
 Photon Adapter
 --------------
@@ -7,15 +14,6 @@ Thin wrapper around `rewriter.normalize` with:
 - Diagnostics counters (rewrite, absorption, distribution events)
 - Stable normalize API for external callers
 """
-
-import json
-from typing import Any, Dict, Tuple
-from pathlib import Path
-
-import fastjsonschema
-from backend.photon_algebra import rewriter
-from backend.photon_algebra.rewriter import _string_key  # ⚡️ no DIAG import here
-
 # ---------------------------
 # JSON Schema
 # ---------------------------
@@ -78,6 +76,14 @@ def _has_plus_under_times(expr: Any) -> bool:
         return any(_has_plus_under_times(s) for s in expr.get("states", []) if isinstance(s, dict))
     return False
 
+
+def to_json(expr: PhotonState, indent: int = 2) -> str:
+    """Serialize a Photon expression to JSON string."""
+    return json.dumps(expr, indent=indent, ensure_ascii=False)
+
+def from_json(data: str) -> PhotonState:
+    """Deserialize a Photon expression from JSON string."""
+    return json.loads(data)
 
 # ---------------------------
 # CLI harness

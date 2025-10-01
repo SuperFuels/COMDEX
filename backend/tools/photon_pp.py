@@ -4,12 +4,16 @@ from typing import Any
 # Operator precedences (lower number = weaker binding)
 _PRECEDENCE = {
     "↔": 1,   # weakest
+    "≈": 1,   # treat like entanglement (weak)
+    "⊂": 1,   # treat like entanglement (weak)
     "⊕": 2,
     "⊖": 2,   # same as ⊕, but non-commutative
     "⊗": 3,
     "¬": 4,
     "★": 4,
     "∅": 5,
+    "⊤": 5,   # constants
+    "⊥": 5,
     None: 99,  # atoms
 }
 
@@ -21,13 +25,14 @@ def _needs_parens(parent_op: str, child: Any, side: str | None = None) -> bool:
 
     cop = child.get("op")
 
-    # Entanglement (↔): parenthesize *every* child that is also ↔ to enforce explicit grouping
-    if parent_op == "↔" and cop == "↔":
-        return True
-
-    # Entanglement must parenthesize stronger children
-    if parent_op == "↔" and cop in ("⊕", "⊖", "⊗"):
-        return True
+    # For entanglement-like weak ops (↔, ≈, ⊂):
+    if parent_op in ("↔", "≈", "⊂"):
+        # If child is also one of these, parenthesize to preserve grouping
+        if cop in ("↔", "≈", "⊂"):
+            return True
+        # If child is a stronger op, parenthesize
+        if cop in ("⊕", "⊖", "⊗"):
+            return True
 
     # Cancellation (⊖): force parentheses if child is also ⊕/⊖ to disambiguate
     if parent_op == "⊖" and cop in ("⊕", "⊖"):
@@ -57,12 +62,12 @@ def _pp(expr: Any, parent_op: str | None = None, side: str | None = None) -> str
     if op == "★":
         inner = _pp(expr["state"], "★")
         return f"★{inner}"
-    if op == "∅":
-        return "∅"
+    if op in ("∅", "⊤", "⊥"):
+        return op
 
     states = expr.get("states", [])
 
-    if op in ("⊕", "⊗", "↔"):
+    if op in ("⊕", "⊗", "↔", "≈", "⊂"):
         parts = []
         for i, s in enumerate(states):
             side_tag = "left" if i == 0 else "right"

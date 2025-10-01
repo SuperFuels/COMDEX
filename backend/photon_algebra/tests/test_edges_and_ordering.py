@@ -1,5 +1,4 @@
 # backend/photon_algebra/tests/test_edges_and_ordering.py
-import pytest
 from backend.photon_algebra.rewriter import normalize
 
 EMPTY = {"op": "∅"}

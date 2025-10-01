@@ -20,22 +20,30 @@ from backend.codexcore_virtual.instruction_metadata_bridge import get_instructio
 class InstructionParser:
     def __init__(self):
         # Recognized symbolic operators
-        self.operators = ["→", "↔", "⟲", "⊕", "⧖"]
+        self.operators = ["→", "↔", "⟲", "⊕", "⧖", "⊖"]
 
-        # Operator precedence (low → high), following Symatics gospel
         self.precedence = {
-            "→": 1,   # forward / project
-            "⧖": 1,   # delay
-            "↔": 2,   # entangle
-            "⟲": 2,   # reflect/mutate
-            "⊕": 3,   # combine / superpose
+            "→": 1,
+            "⧖": 1,
+            "↔": 2,
+            "⟲": 2,
+            "⊕": 3,
+            "⊖": 3,   # same level as ⊕ (binary algebraic ops)
         }
 
-    def resolve_opcode(self, symbol: str) -> str:
-        """Resolve a raw symbol into a domain-tagged opcode."""
-        meta = get_instruction_metadata(symbol)
-        domain = meta.get("domain", "unknown")
-        return f"{domain}:{symbol}"
+    def resolve_opcode(symbol: str, mode: str = None) -> str:
+        """
+        Resolve a raw symbol into a domain-tagged opcode
+        using the canonical metadata bridge.
+        Optionally prefix with execution mode (photon:/symatics:).
+        """
+        meta = get_instruction_metadata(symbol) or {}
+        domain = meta.get("domain", "logic")  # fallback domain
+        
+        base = f"{domain}:{symbol}"
+        if mode in {"photon", "symatics"}:
+            return f"{mode}:{symbol}"   # keep mode prefix clean
+        return base
 
     # ─── Public Entrypoint ───────────────────────────────────────────
 

@@ -48,18 +48,18 @@ flowchart TD
         P11["✅ Benchmarks (Photon vs Classical: compression, ops/sec)"]
     end
 
-subgraph Phase2["🔬 Photon Extensions (Next — Active 🚧)"]
-    E1["✅ Extend Theorems → full Photon Calculus (T13+ absorption, distribution, falsification)\n— guarded T14, ⊗-idempotence, regressions in place"]
-    E2["▶ Add Meta-Photon Ops (≈ similarity, ⊂ containment, ⊤/⊥ boundary cases)"]
-    E3["▶ Formal Semantics Doc (truth-value model, SQI/Hilbert link, rewrite soundness)"]
-    E4["✅ Deterministic ordering tests incl. mixed ops (★, ↔, ¬)\n— T10 optional; xfail removed once enabled"]
-    E5["⬜ Performance: memoization + cut deepcopy in substitute()"]
-    E6["⬜ CI polish: mypy, Hypothesis health checks, seed corpus"]
-    E7["⬜ Pretty-printer & round-trip JSON (debuggability)"]
-    E8["⬜ Invariant checks wired to RFC (photon_normalization.md self-test)"]
-    E9["⬜ --update-doc flag: auto-refresh RFC examples with normalize()"]
-    E10["⬜ Graphviz/mermaid AST dump tool (for teaching + debugging)"]
-    E11["⬜ Deep fuzz regressions (termination + idempotence stress suite)"]
+subgraph Phase2["🔬 Photon Extensions (Active 🚧)"]
+    E1["✅ Extend Theorems → full Photon Calculus (T13+ absorption, distribution, falsification)"]
+    E2["✅ Add Meta-Photon Ops (≈ similarity, ⊂ containment, ⊤/⊥ boundary cases)"]
+    E3["✅ Formal Semantics Doc (truth-value model, SQI/Hilbert link, rewrite soundness)"]
+    E4["✅ Deterministic ordering tests incl. mixed ops (★, ↔, ¬)"]
+    E5["✅ Performance: fast-path constants in normalize() + tests"]
+    E6["✅ CI polish: mypy clean, Hypothesis health checks, seed corpus"]
+    E7["✅ Pretty-printer & round-trip JSON (pp/parse done; JSON round-trip pending)"]
+    E8["✅ Invariant checks wired to RFC (photon_normalization.md self-test)"]
+    E9["✅ --update-doc flag: auto-refresh RFC examples with normalize()"]
+    E10["✅ Graphviz/Mermaid AST dump tool (teaching + debugging)"]
+    E11["✅ Deep fuzz regressions (expand termination/idempotence stress)"]
 end
 
 subgraph Phase3["🚀 Photon Integration (Deployment — Upcoming)"]
@@ -68,8 +68,26 @@ subgraph Phase3["🚀 Photon Integration (Deployment — Upcoming)"]
     I3["CodexLang++ compiler → Photon instructions"]
     I4["Export .photon.json spec for external nodes/tools"]
     I5["Wire into GlyphNet stack (sPHY encoder/decoder)"]
+end
 
     end
+
+📌 Build Task: Flattened Entanglement Printing
+
+Description:
+⬜ Currently pp prints entanglements in explicit-parentheses style to preserve AST grouping (e.g. (a ↔ a) ↔ b). For readability, it may be preferable to flatten these into canonical form (e.g. a ↔ a ↔ b), while still ensuring roundtrip safety with parse and normalize.
+
+Acceptance Criteria:
+	•	pp outputs flattened entanglements (all ↔ children printed in a single chain).
+	•	parse(pp(expr)) still produces an AST that normalizes to the same as normalize(expr).
+	•	Regression + property-based tests still pass.
+	•	Add explicit regression tests for pp flattening behavior.
+
+Priority: Low (backlog)
+Rationale: Current style passes tests and is functionally correct. Flattening improves readability but is not required to unblock other tasks.
+
+⸻
+
 
     %% Connections
     P7 --> E1

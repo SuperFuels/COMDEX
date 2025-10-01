@@ -1,40 +1,29 @@
-# ===============================
 # 📁 backend/codexcore_virtual/instruction_parser.py
-# ===============================
-"""
-CodexCore Virtual Instruction Parser
-
-Parses CodexLang glyph strings into a flat list of instructions.
-Each instruction is a dict: {"opcode": str, "args": list}.
-Op symbols are resolved into domain-tagged form via metadata bridge.
-Now patched to handle chained/multi-op expressions and nested parentheses.
-"""
 
 import re
 from typing import List, Dict, Any
 from backend.codexcore_virtual.instruction_metadata_bridge import get_instruction_metadata
+from backend.modules.codex.virtual.instruction_parser import parse_codexlang
 
 
-# ─── Opcode Resolver ────────────────────────────────────────────────────────────
-
-def resolve_opcode(symbol: str) -> str:
+def resolve_opcode(symbol: str, mode: str = None) -> str:
     """
-    Resolve a raw symbol into a domain-tagged opcode
-    using the canonical metadata bridge.
-    Example: "⊗" → "physics:⊗"
+    Resolve a raw symbol into a domain-tagged opcode.
+    Photon/Symatics mode bypasses metadata to avoid 'logic:' stubs.
     """
+
+    # Direct bypass for symbolic algebras
+    if mode in {"photon", "symatics"}:
+        return f"{mode}:{symbol}"
+
+    # Default metadata path
     meta = get_instruction_metadata(symbol)
-    domain = meta.get("domain", "unknown")
-    return f"{domain}:{symbol}"
+    if not meta:
+        return f"logic:{symbol}"
+    return f"{meta.get('domain', 'logic')}:{symbol}"
 
-
-# ─── Tokenizer ─────────────────────────────────────────────────────────────────
 
 def tokenize_with_parens(segment: str) -> List[str]:
-    """
-    Split a string into tokens but keep parentheses groups intact.
-    Example: "⟲((A ⊕ B) → C)" → ["⟲", "((A ⊕ B) → C)"]
-    """
     tokens, buf, depth = [], "", 0
     for ch in segment:
         if ch == "(":
@@ -54,13 +43,10 @@ def tokenize_with_parens(segment: str) -> List[str]:
     return tokens
 
 
-# ─── Parser ────────────────────────────────────────────────────────────────────
-
-def parse_codex_instructions(codex_str: str) -> List[Dict[str, Any]]:
+def parse_codex_instructions(codex_str: str, mode: str = None) -> List[Dict[str, Any]]:
     """
     Parses a CodexLang glyph string into a list of symbolic CPU instructions.
-    Emits domain-tagged opcodes (e.g., physics:⊗ instead of just ⊗).
-    Handles chained operations (A ⊕ B → C), sequences (=>), and nested parentheses.
+    Handles chained ops, sequences (=>), and nested parentheses properly.
     """
     instructions: List[Dict[str, Any]] = []
 
@@ -72,50 +58,62 @@ def parse_codex_instructions(codex_str: str) -> List[Dict[str, Any]]:
         if not segment:
             continue
 
-        # Handle ⟲(Action) style or ⟲((expr))
+        # ── Parenthesized expression at top level ─────────────────
+        if segment.startswith("(") and segment.endswith(")"):
+            inner_instrs = parse_codex_instructions(segment[1:-1], mode=mode)
+            if len(inner_instrs) == 1:
+                instructions.append(inner_instrs[0])
+            else:
+                instructions.extend(inner_instrs)
+            continue
+
+        # ── Function-style ops (⟲(expr)) ─────────────────────────
         match = re.match(r"(\S+)\((.*)\)", segment)
         if match:
             op = match.group(1)
             inner = match.group(2).strip()
-            resolved = resolve_opcode(op)
+            resolved = resolve_opcode(op, mode)
 
-            # If the inside looks like an expression, recurse
-            if any(sym in inner for sym in ["→", "⊕", "↔", "⟲"]):
-                inner_instrs = parse_codex_instructions(inner)
+            # recurse if inner contains operators
+            if any(sym in inner for sym in ["→", "⊕", "⊗", "↔", "⟲"]):
+                inner_instrs = parse_codex_instructions(inner, mode=mode)
                 instructions.append({"opcode": resolved, "args": inner_instrs})
             else:
                 instructions.append({"opcode": resolved, "args": [inner]})
             continue
 
-        # Handle binary ops
+        # ── Binary ops (⊕, →, ⊗, ↔) ──────────────────────────────
         tokens = tokenize_with_parens(segment)
         i = 0
+        handled = False
         while i < len(tokens):
             tok = tokens[i]
-
-            if tok in {"→", "⊕"}:
+            if tok in {"→", "⊕", "⊗", "↔", "⊖"}:
                 if i > 0 and i + 1 < len(tokens):
                     left, right = tokens[i - 1], tokens[i + 1]
 
-                    # Recurse if left/right are parenthesized groups
-                    if left.startswith("(") and left.endswith(")"):
-                        left = parse_codex_instructions(left[1:-1])
-                    if right.startswith("(") and right.endswith(")"):
-                        right = parse_codex_instructions(right[1:-1])
+                    if isinstance(left, str) and left.startswith("(") and left.endswith(")"):
+                        left = parse_codex_instructions(left[1:-1], mode=mode)
+                        if len(left) == 1:
+                            left = left[0]
+                    if isinstance(right, str) and right.startswith("(") and right.endswith(")"):
+                        right = parse_codex_instructions(right[1:-1], mode=mode)
+                        if len(right) == 1:
+                            right = right[0]
 
-                    resolved = resolve_opcode(tok)
+                    resolved = resolve_opcode(tok, mode)
                     instructions.append({"opcode": resolved, "args": [left, right]})
+                    handled = True
             i += 1
 
-        # Fallback if no known operators found
-        if not any(op["opcode"].endswith(("→", "⊕", "⟲", "↔")) for op in instructions):
+        # ── Literal fallback ─────────────────────────────────────
+        if not handled:
             instructions.append({"opcode": "logic:print", "args": [segment]})
 
     return instructions
 
 
-# ─── 🧪 CLI Debug Harness ──────────────────────────────────────────────────────
-
+# 🧪 CLI Debug Harness
 if __name__ == "__main__":
     samples = [
         "A ⊕ B",
@@ -130,4 +128,6 @@ if __name__ == "__main__":
     ]
     for s in samples:
         print(f"\nInput: {s}")
-        print(parse_codex_instructions(s))
+        print("Photon:", parse_codex_instructions(s, mode="photon"))
+        print("Symatics:", parse_codex_instructions(s, mode="symatics"))
+        print("Raw:", parse_codex_instructions(s))

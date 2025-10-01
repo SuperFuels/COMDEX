@@ -195,19 +195,22 @@ def test_property_idempotence_and_invariant_mixed():
 
     _prop()
 
-import itertools
-import pytest
-from backend.photon_algebra.rewriter import normalize
 
 def _entangle(a, b): return {"op":"↔","states":[a,b]}
 def _plus(a, b):     return {"op":"⊕","states":[a,b]}
 
 def _is_plus_under_times(e):
-    if not isinstance(e, dict): return False
+    if not isinstance(e, dict):
+        return False
     if e.get("op") == "⊗":
-        return any(isinstance(s, dict) and s.get("op") == "⊕" for s in e.get("states", []))
-    if "states" in e: return any(_is_plus_under_times(s) for s in e["states"])
-    if "state"  in e: return _is_plus_under_times(e["state"])
+        return any(
+            isinstance(s, dict) and s.get("op") == "⊕"
+            for s in e.get("states", [])
+        )
+    if "states" in e:
+        return any(_is_plus_under_times(s) for s in e["states"])
+    if "state" in e:
+        return _is_plus_under_times(e["state"])
     return False
 
 # --- Property 1: T10 stable under permutations of the two entangle terms -----

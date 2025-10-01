@@ -1,4 +1,3 @@
-from backend.photon_algebra import rewriter
 from backend.photon_algebra.photon_adapter import normalize_expr
 
 def test_distribution_count():

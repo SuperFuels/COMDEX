@@ -1,5 +1,4 @@
 # backend/photon_algebra/tests/test_theorems.py
-import pytest
 from backend.photon_algebra.rewriter import normalize
 from backend.photon_algebra.core import EMPTY  # 🔑 shared constant
 

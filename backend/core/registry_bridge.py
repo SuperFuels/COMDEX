@@ -29,7 +29,7 @@ from backend.codexcore_virtual import instruction_registry
 from backend.modules.codex.symbolic_registry import symbolic_registry
 from backend.symatics import symatics_rulebook as SR
 from backend.modules.glyphos import glyph_instruction_set as GIS
-
+from backend.photon_algebra import rewriter as photon_rewriter
 
 # ------------------------------------------------------------------
 # Loader for YAML codex instruction set
@@ -47,6 +47,23 @@ def _load_codex_instruction_set():
         print(f"[DEBUG] Loaded {len(ops)} codex ops from YAML")
         return ops
 
+def execute_photon_normalize(expr, **ctx):
+    """Normalize expression via Photon algebra rules."""
+    return {
+        "op": "normalize",
+        "args": [expr],
+        "result": photon_rewriter.normalize(expr),
+        "diag": photon_rewriter.DIAG.to_dict(),
+    }
+
+def execute_photon_operator(op, *states, **ctx):
+    """Wrap Photon ops (⊕, ⊗, etc.) into dict form and normalize."""
+    expr = {"op": op, "states": list(states)}
+    return {
+        "op": op,
+        "args": states,
+        "result": photon_rewriter.normalize(expr),
+    }
 
 class RegistryBridge:
     def __init__(self):
@@ -218,6 +235,28 @@ class RegistryBridge:
         _reg("⟲", SR.op_recurse)
         _reg("π", SR.op_project)
 
+    def sync_mode_aliases(self) -> None:
+        """
+        Alias symbolic-prefixed ops to their base handlers for both symatics and photon modes.
+        Example:
+            symatics:symbolic:⊕ → symatics:⊕
+            photon:symbolic:⊕   → photon:⊕
+        """
+        def _alias_mode(symbol: str):
+            for mode in ("symatics", "photon"):
+                src = f"{mode}:symbolic:{symbol}"
+                dst = f"{mode}:{symbol}"
+                if dst in self.instruction_registry.registry:
+                    try:
+                        self.instruction_registry.alias(src, dst)
+                        print(f"[DEBUG] Aliased {src} → {dst}")
+                    except ValueError:
+                        # Already aliased, skip
+                        pass
+
+        for sym in ["⊕", "→", "⟲", "↔", "⧖"]:
+            _alias_mode(sym)
+
     # ------------------------------------------------------------------
     # Symbolic Registry Integration
     # ------------------------------------------------------------------
@@ -267,8 +306,49 @@ class RegistryBridge:
             print("[LOG]", json.dumps(log_event, ensure_ascii=False))
             raise
 
+    # ------------------------------------------------------------------
+    # Extra Sync — Photon Ops
+    # ------------------------------------------------------------------
+    def sync_photon_ops(self) -> None:
+        """Ensure Photon algebra ops are bound into the registry."""
+        from backend.photon_algebra import rewriter as PR
+
+        def _reg(symbol: str, domain="photon", aliases=()):
+            def handler(ctx, *args, **kw):
+                # Handle by operator type
+                if symbol == "¬":  # unary
+                    expr = {"op": "¬", "state": args[0] if args else None}
+                elif symbol == "★":  # projection, unary
+                    expr = {"op": "★", "state": args[0] if args else None}
+                elif symbol == "∅":  # null element
+                    expr = {"op": "∅"}
+                else:  # default: n-ary operators (⊕, ⊗, ⊖, ↔, etc.)
+                    expr = {"op": symbol, "states": list(args)}
+
+                return PR.rewriter.normalize(expr)
+
+            key = f"{domain}:{symbol}"
+            try:
+                self.instruction_registry.register(key, handler)
+                self.instruction_registry.alias(symbol, key)
+                for alias in aliases:
+                    self.instruction_registry.alias(f"{domain}:{alias}", key)
+            except ValueError:
+                pass
+
+        # Core Photon operators
+        _reg("⊕")
+        _reg("⊗")
+        _reg("↔")
+        _reg("⊖")
+        _reg("¬", aliases=["logic:¬"])  # ✅ alias for logic:¬
+        _reg("★")
+        _reg("∅")
+
 
 # ✅ Singleton bridge
 registry_bridge = RegistryBridge()
 registry_bridge.sync_from_symbol_registry()
 registry_bridge.sync_symatics_ops()
+registry_bridge.sync_photon_ops()
+registry_bridge.sync_mode_aliases()

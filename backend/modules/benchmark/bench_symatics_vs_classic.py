@@ -6,7 +6,7 @@ Measures:
   • normalize() speed on ⋈ expressions
   • equivalence checks (symatics_equiv vs structural eqv on ∧/∨)
   • expression size reduction (nodes before vs after normalize)
-  • scaling behavior for larger expressions (10, 50, 100, 200 nodes)
+  • scaling behavior for larger expressions (10, 50, 100, 200, …)
   • stability profile: % converged, avg time, avg size reduction
 """
 
@@ -83,22 +83,39 @@ def chain_bool_expr(n: int) -> BoolExpr:
 # ------------------
 
 def size_expr(e):
-    """Compute approximate size (node count) of an expression."""
-    if isinstance(e, R.App) and isinstance(e.head, R.Sym):
-        return 1 + sum(size_expr(arg) for arg in e.args)
-    elif isinstance(e, R.Sym):
-        return 1
-    elif isinstance(e, BoolExpr):
-        return 1 + (size_expr(e.left) if e.left else 0) + (size_expr(e.right) if e.right else 0)
-    else:
-        return 1
+    """Compute approximate size (node count) of an expression without recursion."""
+    seen = set()
+    stack = [e]
+    size = 0
+
+    while stack:
+        node = stack.pop()
+        if id(node) in seen:
+            continue
+        seen.add(id(node))
+
+        if isinstance(node, R.App) and isinstance(node.head, R.Sym):
+            size += 1
+            stack.extend(node.args)
+        elif isinstance(node, R.Sym):
+            size += 1
+        elif isinstance(node, BoolExpr):
+            size += 1
+            if node.left:
+                stack.append(node.left)
+            if node.right:
+                stack.append(node.right)
+        else:
+            size += 1
+
+    return size
 
 
 # ------------------
 # Stability Benchmark
 # ------------------
 
-def stability_profile(n: int, trials: int = 100, max_steps: int = 1000):
+def stability_profile(n: int, trials: int = 100, step_factor: int = 20):
     times = []
     sizes_before = []
     sizes_after = []
@@ -107,8 +124,10 @@ def stability_profile(n: int, trials: int = 100, max_steps: int = 1000):
         expr = chain_sym_expr(n)
         before = size_expr(expr)
         try:
+            # Adaptive budget: proportional to size
+            budget = max(1000, step_factor * before)
             t0 = time.perf_counter()
-            norm = R.normalize(expr, max_steps=max_steps)
+            norm = R.normalize(expr, max_steps=budget)
             t1 = time.perf_counter()
             after = size_expr(norm)
             times.append((t1 - t0) * 1e6)
@@ -149,12 +168,12 @@ def main():
     t0 = time.perf_counter(); normalize_bool(e_bool); t1 = time.perf_counter()
     print(f"bool.normalize     {1/(t1-t0):.1f} ops/sec (avg {(t1-t0)*1e6:.1f} µs)")
 
-    # Scaling stability runs
+    # Scaling stability runs (extended stress)
     print("\n--- Scaling stability benchmarks ---")
-    for n in [10, 50, 100, 200]:
-        profile = stability_profile(n, trials=100, max_steps=1000)
+    for n in [10, 50, 100, 200, 500, 1000, 2000]:
+        profile = stability_profile(n, trials=20, step_factor=20)
         print(
-            f"n={n:3d} | conv={profile['conv_rate']:.1f}% "
+            f"n={n:4d} | conv={profile['conv_rate']:.1f}% "
             f"| avg={profile['avg_time']:.1f} µs "
             f"| med={profile['med_time']:.1f} µs "
             f"| avg Δsize={profile['avg_reduction']:.1f}"

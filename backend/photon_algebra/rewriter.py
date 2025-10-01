@@ -1,17 +1,11 @@
-# backend/photon_algebra/rewriter.py
-# -*- coding: utf-8 -*-
-
 from __future__ import annotations
-
+import json
 import copy
-from dataclasses import dataclass, field
+from functools import lru_cache
 from typing import Any, Dict, List, Tuple, Union
-
-# 🔑 shared canonical empty state (import once)
 from backend.photon_algebra.core import EMPTY
-from dataclasses import dataclass
-
 Expr = Union[str, Dict[str, Any]]
+# backend/photon_algebra/rewriter.py
 # --- global normalize cache --------------------------------------------------
 # =============================================================================
 # Variable-based Pattern Matching (notes)
@@ -67,7 +61,6 @@ class _DiagCounters:
 DIAG = _DiagCounters()
 
 # --- memo + key helpers -----------------------------------------------------
-from typing import Any, Dict, Optional
 
 # Global memo: structural key -> normalized tree (public cache)
 _NORMALIZE_MEMO: Dict[str, Any] = {}
@@ -90,9 +83,6 @@ class _NormCtx:
         self.memo: Dict[str, Any] = {}
         # cache of id(node) -> structural key, to avoid recomputing _string_key
         self.key_cache: Dict[int, str] = {}
-
-from functools import lru_cache
-import json
 
 @lru_cache(maxsize=10_000)
 def _structural_key(expr_json: str) -> tuple:
@@ -129,8 +119,6 @@ def structural_key(expr: Any) -> tuple:
     """Public wrapper that stringifies expr before passing to _structural_key."""
     import json
     return _structural_key(json.dumps(expr, sort_keys=True))
-
-from functools import lru_cache
 
 @lru_cache(maxsize=50_000)
 def _string_key(expr: Any) -> str:
@@ -447,14 +435,18 @@ def _normalize_shallow(expr: Expr) -> Expr:
         flat = [s for s in flat if not (isinstance(s, dict) and s.get("op") == "∅")]
 
         # Absorption: drop (a ⊗ b) if 'a' (or 'b') present as a standalone in the sum
-        present_atoms = {_string_key(s) for s in flat
-                         if not (isinstance(s, dict) and s.get("op") == "⊗")}
+        # Collect all standalone atoms in the sum (not products)
+        present_atoms = {
+            structural_key(s) for s in flat
+            if not (isinstance(s, dict) and s.get("op") == "⊗")
+        }
+
         pruned = []
         for s in flat:
             if isinstance(s, dict) and s.get("op") == "⊗":
                 factors = s.get("states", [])
                 # If ANY factor is already present as a standalone summand, absorb the product.
-                if any(structural_key(f) in present for f in factors):
+                if any(structural_key(f) in present_atoms for f in factors):
                     DIAG.absorptions += 1  # 🔍 absorption fired
                     continue
             pruned.append(s)
@@ -597,23 +589,6 @@ def rewrite_fixed(expr: Expr, max_iter: int = 64, debug: bool = False) -> Expr:
         cur = nxt
     return cur
 
-# --- global normalize cache --------------------------------------------------
-from typing import Dict, Any
-
-# cache: structural-key -> normalized tree
-_NORMALIZE_MEMO: Dict[Any, Any] = {}
-_cache_hits = 0
-_cache_misses = 0
-
-
-def clear_normalize_memo() -> None:
-    """Clear global normalize() memoization cache and reset hit/miss stats."""
-    global _cache_hits, _cache_misses
-    _NORMALIZE_MEMO.clear()
-    _structural_key.cache_clear()
-    _cache_hits = 0
-    _cache_misses = 0
-
 # --- normalized form -------------------------------------------------------
 # --- Public entrypoint ------------------------------------------------------
 
@@ -630,6 +605,10 @@ def normalize(expr: Any) -> Any:
     (_RewriterWrapper.normalize). This base function only checks
     the memo table.
     """
+    # --- Perf fast-paths for canonical constants ---
+    if isinstance(expr, dict) and expr.get("op") in {"∅", "⊤", "⊥"}:
+        return expr
+
     # Atoms (strings) fast-path
     if not isinstance(expr, dict):
         return expr
@@ -984,7 +963,8 @@ class _RewriterWrapper:
 rewriter = _RewriterWrapper()
 
 if __name__ == "__main__":
-    import sys, json
+    import sys
+    import json
 
     # Allow input as either JSON or shorthand string
     if len(sys.argv) < 2:

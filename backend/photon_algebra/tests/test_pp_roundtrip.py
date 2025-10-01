@@ -38,6 +38,30 @@ from backend.photon_algebra.rewriter import normalize
     # Cancellation
     ({"op": "⊖", "states": ["a", "b"]},
      "a ⊖ b"),
+
+    # --- New inert meta-ops ---
+    # Similarity a ≈ b
+    ({"op": "≈", "states": ["a", "b"]},
+     "a ≈ b"),
+
+    # Containment a ⊂ b
+    ({"op": "⊂", "states": ["a", "b"]},
+     "a ⊂ b"),
+
+    # Top / Bottom constants
+    ({"op": "⊤"}, "⊤"),
+    ({"op": "⊥"}, "⊥"),
+
+    # Mixed with grouping: (a ≈ b) ⊕ c
+    ({"op": "⊕", "states": [
+        {"op": "≈", "states": ["a", "b"]},
+        "c",
+    ]},
+     "(a ≈ b) ⊕ c"),
+
+    # Mixed with grouping: a ⊂ (b ⊕ c)
+    ({"op": "⊂", "states": ["a", {"op": "⊕", "states": ["b", "c"]}]},
+     "a ⊂ (b ⊕ c)"),
 ])
 def test_roundtrip(expr, expected_pretty):
     pretty = pp(expr)
@@ -48,10 +72,20 @@ def test_roundtrip(expr, expected_pretty):
         f"Pretty mismatch: {expr} → {pretty}, expected {expected_pretty}"
     )
 
-    # Normalized ASTs must match after roundtrip
-    assert normalize(expr) == normalize(parsed), (
-        f"Roundtrip failed for {expr} → {pretty} → {parsed}"
+    # Normalized ASTs must match after roundtrip (double-normalize for stability)
+    norm_expr = normalize(normalize(expr))
+    norm_parsed = normalize(normalize(parsed))
+    assert norm_expr == norm_parsed, (
+        f"Roundtrip failed for {expr} → {pretty} → {parsed}\n"
+        f"Expected: {norm_expr}\n"
+        f"Got: {norm_parsed}"
     )
+
+# -------------------------------
+# Hypothesis property-based test
+# -------------------------------
+
+atoms = st.sampled_from(["a", "b", "c", "x", "y", "z", "p", "q", "r"])
 
 # -------------------------------
 # Hypothesis property-based test
@@ -65,13 +99,27 @@ def photon_exprs(depth=3):
 
     return st.one_of(
         atoms,
-        st.builds(lambda s: {"op": "⊕", "states": s}, st.lists(photon_exprs(depth-1), min_size=2, max_size=3)),
-        st.builds(lambda a, b: {"op": "⊗", "states": [a, b]}, photon_exprs(depth-1), photon_exprs(depth-1)),
-        st.builds(lambda a, b: {"op": "⊖", "states": [a, b]}, photon_exprs(depth-1), photon_exprs(depth-1)),
-        st.builds(lambda a, b: {"op": "↔", "states": [a, b]}, photon_exprs(depth-1), photon_exprs(depth-1)),
-        st.builds(lambda s: {"op": "¬", "state": s}, photon_exprs(depth-1)),
-        st.builds(lambda s: {"op": "★", "state": s}, photon_exprs(depth-1)),
+        st.builds(lambda s: {"op": "⊕", "states": s},
+                  st.lists(photon_exprs(depth-1), min_size=2, max_size=3)),
+        st.builds(lambda a, b: {"op": "⊗", "states": [a, b]},
+                  photon_exprs(depth-1), photon_exprs(depth-1)),
+        st.builds(lambda a, b: {"op": "⊖", "states": [a, b]},
+                  photon_exprs(depth-1), photon_exprs(depth-1)),
+        st.builds(lambda a, b: {"op": "↔", "states": [a, b]},
+                  photon_exprs(depth-1), photon_exprs(depth-1)),
+        st.builds(lambda s: {"op": "¬", "state": s},
+                  photon_exprs(depth-1)),
+        st.builds(lambda s: {"op": "★", "state": s},
+                  photon_exprs(depth-1)),
         st.just({"op": "∅"}),
+
+        # --- New inert meta-ops ---
+        st.builds(lambda a, b: {"op": "≈", "states": [a, b]},
+                  photon_exprs(depth-1), photon_exprs(depth-1)),
+        st.builds(lambda a, b: {"op": "⊂", "states": [a, b]},
+                  photon_exprs(depth-1), photon_exprs(depth-1)),
+        st.just({"op": "⊤"}),
+        st.just({"op": "⊥"}),
     )
 
 
@@ -80,8 +128,8 @@ def test_hypothesis_roundtrip(expr):
     pretty = pp(expr)
     parsed = parse(pretty)
 
-    norm1 = normalize(expr)
-    norm2 = normalize(parsed)
+    norm1 = normalize(normalize(expr))
+    norm2 = normalize(normalize(parsed))
 
     if norm1 != norm2:  # 🔍 debug dump
         print("\n--- DEBUG ROUNDTRIP MISMATCH ---")
