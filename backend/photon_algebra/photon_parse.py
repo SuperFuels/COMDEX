@@ -62,11 +62,11 @@ class Parser:
         return self.parse_ent()
 
     # ent := sum ( "↔" sum )*
-    def parse_ent(self) -> Any:
+    def parse_ent(self):
         node = self.parse_sum()
-        while self.peek() == "↔":
+        if self.peek() == "↔":
             self.eat("↔")
-            rhs = self.parse_sum()
+            rhs = self.parse_ent()  # recursive, not parse_sum
             node = {"op": "↔", "states": [node, rhs]}
         return node
 

@@ -83,6 +83,15 @@ def test_hypothesis_roundtrip(expr):
     norm1 = normalize(expr)
     norm2 = normalize(parsed)
 
+    if norm1 != norm2:  # 🔍 debug dump
+        print("\n--- DEBUG ROUNDTRIP MISMATCH ---")
+        print("Original expr: ", expr)
+        print("Pretty:        ", pretty)
+        print("Parsed:        ", parsed)
+        print("Norm1:         ", norm1)
+        print("Norm2:         ", norm2)
+        print("-------------------------------")
+
     assert norm1 == norm2, (
         f"Hypothesis roundtrip failed for {expr} → {pretty} → {parsed}\n"
         f"Expected: {norm1}\n"

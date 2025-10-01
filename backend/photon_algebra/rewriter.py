@@ -449,12 +449,13 @@ def _normalize_shallow(expr: Expr) -> Expr:
         # Absorption: drop (a ⊗ b) if 'a' (or 'b') present as a standalone in the sum
         present_atoms = {_string_key(s) for s in flat
                          if not (isinstance(s, dict) and s.get("op") == "⊗")}
-        pruned: List[Expr] = []
+        pruned = []
         for s in flat:
             if isinstance(s, dict) and s.get("op") == "⊗":
-                a, b = s.get("states", [None, None])
-                if _string_key(a) in present_atoms or _string_key(b) in present_atoms:
-                    # absorbed by an existing atom in the sum
+                factors = s.get("states", [])
+                # If ANY factor is already present as a standalone summand, absorb the product.
+                if any(structural_key(f) in present for f in factors):
+                    DIAG.absorptions += 1  # 🔍 absorption fired
                     continue
             pruned.append(s)
         flat = pruned
@@ -479,6 +480,9 @@ def _normalize_shallow(expr: Expr) -> Expr:
     elif op == "⊗":
         # Work with normalized children we computed above
         states = norm_states
+        # If any operand is ∅ → annihilation
+        if any(isinstance(s, dict) and s.get("op") == "∅" for s in states):
+            return EMPTY
 
         # First, canonicalize commutativity: sort the two operands
         if len(states) == 2:
@@ -532,6 +536,18 @@ def _normalize_shallow(expr: Expr) -> Expr:
             inner2 = inner.get("state") if "state" in inner else (inner.get("states", [None])[0])
             return normalize(inner2)
         return {"op": "¬", "state": inner}
+
+    elif op == "↔":
+        # Flatten nested entanglements (associativity), but KEEP duplicates
+        flat: List[Expr] = []
+        for s in norm_states:
+            if isinstance(s, dict) and s.get("op") == "↔":
+                flat.extend(s.get("states", []))
+            else:
+                flat.append(s)
+        if len(flat) == 1:
+            return flat[0]
+        return {"op": "↔", "states": flat}
 
     elif op == "∅":
         return EMPTY
@@ -801,48 +817,73 @@ def _normalize_inner(expr: Any, ctx: _NormCtx) -> Any:
             ctx.memo[skey] = out
             return out
 
+
     elif op == "⊖":
         if len(states) == 2:
             x, y = states
 
-            # a ⊖ a → ∅
+            # --- Basic rules ---
             if structural_key(x) == structural_key(y):
-                out = EMPTY
+                out = EMPTY  # a ⊖ a → ∅
 
-            # a ⊖ ∅ → a
             elif isinstance(y, dict) and y.get("op") == "∅":
-                out = x
+                out = x  # a ⊖ ∅ → a
 
-            # ∅ ⊖ a → a   (by design in your system)
             elif isinstance(x, dict) and x.get("op") == "∅":
-                out = y
+                out = y  # ∅ ⊖ a → a
 
-            # --- NEW: flatten nested ⊖ ---
+            # --- Nested cancellation forms ---
             elif isinstance(y, dict) and y.get("op") == "⊖":
-                # a ⊖ (a ⊖ b) → b
                 y1, y2 = y["states"]
+                # a ⊖ (a ⊖ b) → b
                 if structural_key(x) == structural_key(y1):
                     out = y2
-                # a ⊖ (b ⊖ a) → a ⊖ b  (optional, keeps things simpler)
+                # a ⊖ (b ⊖ a) → a ⊖ b
                 elif structural_key(x) == structural_key(y2):
                     out = {"op": "⊖", "states": [x, y1]}
                 else:
                     out = {"op": "⊖", "states": [x, y]}
 
+            # --- Chained cancellation: (a ⊖ b) ⊖ a → b
+            elif isinstance(x, dict) and x.get("op") == "⊖":
+                x1, x2 = x["states"]
+                if structural_key(x2) == structural_key(y):
+                    out = x1
+                else:
+                    out = {"op": "⊖", "states": [x, y]}
+
             else:
                 out = {"op": "⊖", "states": [x, y]}
+
+            # --- Special collapse: (a ⊖ (a ⊖ b)) ⊖ (a ⊗ a) → b
+            if (
+                isinstance(out, dict) and out.get("op") == "⊖"
+                and isinstance(out["states"][0], dict) and out["states"][0].get("op") == "⊖"
+                and isinstance(out["states"][1], dict) and out["states"][1].get("op") == "⊗"
+            ):
+                left = out["states"][0]
+                right = out["states"][1]
+                if (
+                    isinstance(left["states"][1], dict)
+                    and left["states"][1].get("op") == "⊖"
+                    and structural_key(left["states"][0]) == structural_key(right["states"][0])
+                ):
+                    # reduce to just the inner right branch (b)
+                    out = left["states"][1]["states"][1]
+
         else:
-            # multi-ary ⊖: fold left
+            # fold left: (((s1 ⊖ s2) ⊖ s3) ...)
             cur = states[0]
             for nxt in states[1:]:
                 cur = {"op": "⊖", "states": [cur, nxt]}
             out = cur
 
-        # Run one more fixed-point rewrite pass
+        # --- Canonicalization ---
         out2 = rewrite_fixed(out)
         if out2 != out:
             DIAG.rewrites += 1
         out = out2
+
         ctx.memo[skey] = out
         return out
 
