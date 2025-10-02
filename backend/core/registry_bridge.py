@@ -30,6 +30,7 @@ from backend.modules.codex.symbolic_registry import symbolic_registry
 from backend.symatics import symatics_rulebook as SR
 from backend.modules.glyphos import glyph_instruction_set as GIS
 from backend.photon_algebra import rewriter as photon_rewriter
+from backend.photon_algebra.renderer import render_photon
 
 # ------------------------------------------------------------------
 # Loader for YAML codex instruction set
@@ -137,8 +138,18 @@ class RegistryBridge:
                 result=result,
                 error=None,
             )
+
+            # 👉 Render Photon expressions for human-readable logs
+            if canonical.startswith("photon:") and result is not None:
+                try:
+                    from backend.photon_algebra.renderer import render_photon
+                    event["rendered"] = render_photon(result)
+                except Exception:
+                    pass  # don't block if renderer fails
+
             log_event(event)
             return result
+
         except Exception as e:
             event = make_log_event(
                 event="registry_execute",
