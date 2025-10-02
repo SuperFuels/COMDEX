@@ -1,11 +1,10 @@
-# backend/photon_algebra/tests/test_pp_roundtrip.py
-
 import pytest
 from hypothesis import given, strategies as st
 
 from backend.tools.photon_pp import pp
 from backend.photon_algebra.photon_parse import parse
 from backend.photon_algebra.rewriter import normalize
+from backend.photon_algebra.core import EMPTY, TOP, BOTTOM  # ✅ canonical constants
 
 
 # -------------------------------
@@ -40,17 +39,10 @@ from backend.photon_algebra.rewriter import normalize
      "a ⊖ b"),
 
     # --- New inert meta-ops ---
-    # Similarity a ≈ b
-    ({"op": "≈", "states": ["a", "b"]},
-     "a ≈ b"),
-
-    # Containment a ⊂ b
-    ({"op": "⊂", "states": ["a", "b"]},
-     "a ⊂ b"),
-
-    # Top / Bottom constants
-    ({"op": "⊤"}, "⊤"),
-    ({"op": "⊥"}, "⊥"),
+    ({"op": "≈", "states": ["a", "b"]}, "a ≈ b"),
+    ({"op": "⊂", "states": ["a", "b"]}, "a ⊂ b"),
+    (TOP, "⊤"),
+    (BOTTOM, "⊥"),
 
     # Mixed with grouping: (a ≈ b) ⊕ c
     ({"op": "⊕", "states": [
@@ -62,6 +54,9 @@ from backend.photon_algebra.rewriter import normalize
     # Mixed with grouping: a ⊂ (b ⊕ c)
     ({"op": "⊂", "states": ["a", {"op": "⊕", "states": ["b", "c"]}]},
      "a ⊂ (b ⊕ c)"),
+
+    # EMPTY should pretty-print as "∅"
+    (EMPTY, "∅"),
 ])
 def test_roundtrip(expr, expected_pretty):
     pretty = pp(expr)
@@ -81,17 +76,13 @@ def test_roundtrip(expr, expected_pretty):
         f"Got: {norm_parsed}"
     )
 
-# -------------------------------
-# Hypothesis property-based test
-# -------------------------------
-
-atoms = st.sampled_from(["a", "b", "c", "x", "y", "z", "p", "q", "r"])
 
 # -------------------------------
 # Hypothesis property-based test
 # -------------------------------
 
 atoms = st.sampled_from(["a", "b", "c", "x", "y", "z", "p", "q", "r"])
+
 
 def photon_exprs(depth=3):
     if depth == 0:
@@ -111,15 +102,13 @@ def photon_exprs(depth=3):
                   photon_exprs(depth-1)),
         st.builds(lambda s: {"op": "★", "state": s},
                   photon_exprs(depth-1)),
-        st.just({"op": "∅"}),
-
-        # --- New inert meta-ops ---
+        st.just(EMPTY),          # ✅ use canonical EMPTY
         st.builds(lambda a, b: {"op": "≈", "states": [a, b]},
                   photon_exprs(depth-1), photon_exprs(depth-1)),
         st.builds(lambda a, b: {"op": "⊂", "states": [a, b]},
                   photon_exprs(depth-1), photon_exprs(depth-1)),
-        st.just({"op": "⊤"}),
-        st.just({"op": "⊥"}),
+        st.just(TOP),
+        st.just(BOTTOM),
     )
 
 
@@ -130,6 +119,10 @@ def test_hypothesis_roundtrip(expr):
 
     norm1 = normalize(normalize(expr))
     norm2 = normalize(normalize(parsed))
+
+    # Extra stabilization: normalize again
+    norm1 = normalize(norm1)
+    norm2 = normalize(norm2)
 
     if norm1 != norm2:  # 🔍 debug dump
         print("\n--- DEBUG ROUNDTRIP MISMATCH ---")

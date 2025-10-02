@@ -48,18 +48,24 @@ class VirtualCPU:
                     if "result" in result:
                         val = result["result"]
                         if self.mode == "photon":
+                            # 🔑 Normalize before rendering
+                            from backend.photon_algebra.rewriter import normalize
                             from backend.photon_algebra.renderer import render_photon
-                            self.output.append(render_photon(val))
+                            norm_val = normalize(val)
+                            self.output.append(render_photon(norm_val))
                         else:
                             self.output.append(str(val))
                     else:
                         # fallback for dict without explicit 'result'
                         if self.mode == "photon":
+                            from backend.photon_algebra.rewriter import normalize
                             from backend.photon_algebra.renderer import render_photon
-                            self.output.append(render_photon(result))
+                            norm_val = normalize(result)
+                            self.output.append(render_photon(norm_val))
                         else:
                             self.output.append(str(result))
                 else:
+                    # Scalar / raw outputs
                     self.output.append(str(result))
 
             self.metrics.record_execution()
@@ -73,6 +79,7 @@ class VirtualCPU:
         for instr in instructions:
             self.execute_instruction(instr)
         return self.output
+
 
 # ─── Expression Renderer ──────────────────────────────────────────────
 
@@ -91,6 +98,9 @@ def render_expr(expr: Any) -> str:
         glyph = op.split(":")[-1] if ":" in op else op
 
         if not args:
+            # Special-case nullary atoms (render without "()")
+            if glyph in {"⊤", "⊥", "∅"}:
+                return glyph
             return glyph
 
         rendered_args = [render_expr(a) for a in args]
@@ -133,7 +143,13 @@ if __name__ == "__main__":
 
     def run(mode: str, code: str):
         cpu = VirtualCPU(mode=mode)
-        instrs = parse_codex_instructions(code)
+        instrs = parse_codex_instructions(code, mode=mode)
+
+        # 🔍 Debug pre-execution
+        print(f"[DEBUG][cpu_runtime] Parsed Instructions (mode={mode}):")
+        for instr in instrs:
+            print("   ", instr)
+
         out = cpu.execute_instruction_list(instrs)
         print(f"--- {mode} ---")
         print("\n".join(out))

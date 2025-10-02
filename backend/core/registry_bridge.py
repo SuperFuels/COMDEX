@@ -47,23 +47,37 @@ def _load_codex_instruction_set():
         print(f"[DEBUG] Loaded {len(ops)} codex ops from YAML")
         return ops
 
-def execute_photon_normalize(expr, **ctx):
-    """Normalize expression via Photon algebra rules."""
-    return {
-        "op": "normalize",
-        "args": [expr],
-        "result": photon_rewriter.normalize(expr),
-        "diag": photon_rewriter.DIAG.to_dict(),
-    }
+# ------------------------------------------------------------------
+# Utility: Convert instruction dicts → Photon AST
+# ------------------------------------------------------------------
+def _to_photon_ast(obj):
+    """
+    Convert raw instruction dicts (with 'opcode'/'args') into Photon AST.
+    Strings and already-normalized dicts pass through.
+    """
+    # If it's already a Photon algebra dict
+    if isinstance(obj, dict) and "op" in obj:
+        return obj
 
-def execute_photon_operator(op, *states, **ctx):
-    """Wrap Photon ops (⊕, ⊗, etc.) into dict form and normalize."""
-    expr = {"op": op, "states": list(states)}
-    return {
-        "op": op,
-        "args": states,
-        "result": photon_rewriter.normalize(expr),
-    }
+    # If it's an instruction dict with opcode/args
+    if isinstance(obj, dict) and "opcode" in obj:
+        opcode = obj["opcode"].split(":")[-1]  # drop "photon:" prefix
+        args = obj.get("args", [])
+        if opcode == "¬":
+            return {"op": "¬", "state": _to_photon_ast(args[0]) if args else None}
+        elif opcode == "★":
+            return {"op": "★", "state": _to_photon_ast(args[0]) if args else None}
+        elif opcode == "∅":
+            return {"op": "∅"}
+        else:
+            return {"op": opcode, "states": [_to_photon_ast(a) for a in args]}
+
+    # Lists → recursively convert
+    if isinstance(obj, list):
+        return [_to_photon_ast(x) for x in obj]
+
+    # Atomic values (string symbols)
+    return obj
 
 class RegistryBridge:
     def __init__(self):
@@ -188,7 +202,6 @@ class RegistryBridge:
             return _wrap
 
         codex_ops = _load_codex_instruction_set()
-        codex_ops = _load_codex_instruction_set()
         print(f"[DEBUG] Loaded {len(codex_ops)} codex ops from YAML")      
         for sym, meta in codex_ops.items():
             canonical = f"{meta.get('category', 'core')}:{sym}"
@@ -254,7 +267,7 @@ class RegistryBridge:
                         # Already aliased, skip
                         pass
 
-        for sym in ["⊕", "→", "⟲", "↔", "⧖"]:
+        for sym in ["⊕", "→", "⟲", "↔", "⧖", "⊖"]:
             _alias_mode(sym)
 
     # ------------------------------------------------------------------
@@ -313,19 +326,24 @@ class RegistryBridge:
         """Ensure Photon algebra ops are bound into the registry."""
         from backend.photon_algebra import rewriter as PR
 
-        def _reg(symbol: str, domain="photon", aliases=()):
+        def _reg(symbol: str, domain: str = "photon", aliases=()):
             def handler(ctx, *args, **kw):
-                # Handle by operator type
-                if symbol == "¬":  # unary
-                    expr = {"op": "¬", "state": args[0] if args else None}
-                elif symbol == "★":  # projection, unary
-                    expr = {"op": "★", "state": args[0] if args else None}
-                elif symbol == "∅":  # null element
-                    expr = {"op": "∅"}
-                else:  # default: n-ary operators (⊕, ⊗, ⊖, ↔, etc.)
-                    expr = {"op": symbol, "states": list(args)}
+                # 1) Convert any nested {"opcode": "...", "args": [...]} into Photon AST
+                ast_args = [_to_photon_ast(a) for a in args]
 
-                return PR.rewriter.normalize(expr)
+                # 2) Build expression AST by operator shape
+                if symbol in ("¬", "★"):
+                    expr = {"op": symbol, "state": ast_args[0] if ast_args else None}
+                elif symbol == "∅":
+                    expr = {"op": "∅"}
+                else:
+                    expr = {"op": symbol, "states": ast_args}
+
+                # 3) Normalize; guarantee a non-None result for the CPU
+                res = PR.normalize(expr)
+                if res is None:
+                    res = expr
+                return res
 
             key = f"{domain}:{symbol}"
             try:
@@ -334,16 +352,20 @@ class RegistryBridge:
                 for alias in aliases:
                     self.instruction_registry.alias(f"{domain}:{alias}", key)
             except ValueError:
+                # Already registered — safe to ignore
                 pass
 
-        # Core Photon operators
+        # Core Photon operators (include meta-ops)
         _reg("⊕")
         _reg("⊗")
         _reg("↔")
         _reg("⊖")
-        _reg("¬", aliases=["logic:¬"])  # ✅ alias for logic:¬
+        _reg("¬", aliases=("logic:¬",))
         _reg("★")
         _reg("∅")
+        _reg("≈")   # similarity
+        _reg("⊂")   # containment
+
 
 
 # ✅ Singleton bridge

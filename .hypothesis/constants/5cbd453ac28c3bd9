@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/photon_algebra/renderer.py
+# hypothesis_version: 6.139.2
+
+['(', ')', ', ', 'args', 'op', 'opcode', 'photon:¬', 'photon:↔', 'photon:∅', 'photon:⊕', 'photon:⊖', 'photon:⊗', 'photon:★', 'quantum:⊗', 'state', 'states', 'symatics:⊕', '¬', '↔', '∅', '⊕', '⊖', '⊗', '★']

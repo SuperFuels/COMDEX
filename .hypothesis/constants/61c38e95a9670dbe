@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/core/registry_bridge.py
+# hypothesis_version: 6.139.2
+
+[':', '[LOG]', 'args', 'canonical', 'ctx', 'diag', 'domain', 'error', 'event', 'function', 'glyphos', 'kwargs', 'logic:¬', 'modules', 'normalize', 'ok', 'op', 'opcode', 'photon', 'r', 'registry_execute', 'result', 'state', 'states', 'status', 'stub', 'symatics', 'timestamp', 'unhandled_op', 'utf-8', '¬', 'μ', 'π', '→', '↔', '∅', '≈', '⊂', '⊕', '⊖', '⊗', '★', '⟲', '⧖']

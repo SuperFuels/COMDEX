@@ -62,12 +62,52 @@ subgraph Phase2["🔬 Photon Extensions (Active 🚧)"]
     E11["✅ Deep fuzz regressions (expand termination/idempotence stress)"]
 end
 
-subgraph Phase3["🚀 Photon Integration (Deployment — Upcoming)"]
-    I1["Integrate Photon Rewriter into CodexCore runtime"]
-    I2["Photon ↔ SymPy bridge (drop-in math library support)"]
-    I3["CodexLang++ compiler → Photon instructions"]
-    I4["Export .photon.json spec for external nodes/tools"]
-    I5["Wire into GlyphNet stack (sPHY encoder/decoder)"]
+%% Phase 3 — Photon Integration (Deployment — Upcoming)
+%% Mermaid checklist
+
+flowchart TD
+    subgraph Phase3["🚀 Phase 3 — Photon Integration (Deployment — Upcoming)"]
+
+        subgraph I1["I1. Integrate Photon Rewriter into CodexCore runtime"]
+            I1.1["☐ Audit CodexCore runtime for normalization hooks"]
+            I1.2["☐ Replace legacy boolean rewriting with photon_algebra.normalize"]
+            I1.3["☐ Add regression tests for CodexCore → normalize"]
+            I1.4["☐ Benchmark normalize performance in runtime loops"]
+            I1.5["☐ Add diagnostic logging via DIAG counters"]
+        end
+
+        subgraph I2["I2. Photon ↔ SymPy bridge (math interop)"]
+            I2.1["☐ Define translation rules: Photon ↔ SymPy"]
+            I2.2["☐ Implement to_sympy(expr) + from_sympy(sym)"]
+            I2.3["☐ Round-trip invariants: Photon → SymPy → Photon"]
+            I2.4["☐ Extend property tests with SymPy equivalence"]
+            I2.5["☐ Benchmark symbolic simplification with SymPy"]
+        end
+
+        subgraph I3["I3. CodexLang++ compiler → Photon instructions"]
+            I3.1["☐ Extend CodexLang++ parser/AST with Photon ops"]
+            I3.2["☐ Implement IR lowering: AST → Photon JSON IR"]
+            I3.3["☐ Compile sample CodexLang++ programs → Photon"]
+            I3.4["☐ Optimize compiler passes (folding, DCE, etc.)"]
+            I3.5["☐ Document CodexLang++ → Photon mapping"]
+        end
+
+        subgraph I4["I4. Export .photon.json spec"]
+            I4.1["☐ Define schema for .photon.json"]
+            I4.2["☐ Implement export_photon(expr, path)"]
+            I4.3["☐ Implement import_photon(path)"]
+            I4.4["☐ Validate with golden + fuzzed tests"]
+            I4.5["☐ Publish schema doc for external devs"]
+        end
+
+        subgraph I5["I5. Wire into GlyphNet stack (sPHY encoder/decoder)"]
+            I5.1["☐ Map Photon ops to GlyphNet encoding"]
+            I5.2["☐ Implement encoder: Photon → GlyphNet"]
+            I5.3["☐ Implement decoder: GlyphNet → Photon"]
+            I5.4["☐ Integration tests: round-trip via GlyphNet"]
+            I5.5["☐ Benchmark encoding/decoding throughput"]
+        end
+    end
 end
 
     end

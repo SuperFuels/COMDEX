@@ -11,19 +11,24 @@ def resolve_opcode(symbol: str, mode: str = None) -> str:
     Resolve a raw symbol into a domain-tagged opcode.
     Photon/Symatics mode bypasses metadata to avoid 'logic:' stubs.
     """
-
-    # Direct bypass for symbolic algebras
+    # Explicit override for photon/symatics
     if mode in {"photon", "symatics"}:
-        return f"{mode}:{symbol}"
+        resolved = f"{mode}:{symbol}"
+        print(f"[DEBUG][resolve_opcode] mode={mode}, symbol={symbol} -> {resolved}")
+        return resolved
 
-    # Default metadata path
-    meta = get_instruction_metadata(symbol)
-    if not meta:
-        return f"logic:{symbol}"
-    return f"{meta.get('domain', 'logic')}:{symbol}"
+    # Metadata-driven resolution
+    meta = get_instruction_metadata(symbol) or {}
+    domain = meta.get("domain", "logic")
+    resolved = f"{domain}:{symbol}"
+    print(f"[DEBUG][resolve_opcode] mode={mode}, symbol={symbol}, meta={meta} -> {resolved}")
+    return resolved
 
 
 def tokenize_with_parens(segment: str) -> List[str]:
+    """
+    Tokenize a segment into top-level tokens while respecting parentheses depth.
+    """
     tokens, buf, depth = [], "", 0
     for ch in segment:
         if ch == "(":
@@ -58,6 +63,8 @@ def parse_codex_instructions(codex_str: str, mode: str = None) -> List[Dict[str,
         if not segment:
             continue
 
+        print(f"[DEBUG][parser] Processing segment='{segment}' mode={mode}")
+
         # ── Parenthesized expression at top level ─────────────────
         if segment.startswith("(") and segment.endswith(")"):
             inner_instrs = parse_codex_instructions(segment[1:-1], mode=mode)
@@ -74,15 +81,16 @@ def parse_codex_instructions(codex_str: str, mode: str = None) -> List[Dict[str,
             inner = match.group(2).strip()
             resolved = resolve_opcode(op, mode)
 
-            # recurse if inner contains operators
-            if any(sym in inner for sym in ["→", "⊕", "⊗", "↔", "⟲"]):
+            print(f"[DEBUG][parser] Function-style op={op} resolved={resolved}")
+
+            if any(sym in inner for sym in ["→", "⊕", "⊗", "↔", "⊖", "⟲"]):
                 inner_instrs = parse_codex_instructions(inner, mode=mode)
                 instructions.append({"opcode": resolved, "args": inner_instrs})
             else:
                 instructions.append({"opcode": resolved, "args": [inner]})
             continue
 
-        # ── Binary ops (⊕, →, ⊗, ↔) ──────────────────────────────
+        # ── Binary ops (⊕, →, ⊗, ↔, ⊖) ──────────────────────────
         tokens = tokenize_with_parens(segment)
         i = 0
         handled = False
@@ -102,13 +110,16 @@ def parse_codex_instructions(codex_str: str, mode: str = None) -> List[Dict[str,
                             right = right[0]
 
                     resolved = resolve_opcode(tok, mode)
+                    print(f"[DEBUG][parser] Binary op={tok} resolved={resolved}")
                     instructions.append({"opcode": resolved, "args": [left, right]})
                     handled = True
             i += 1
 
         # ── Literal fallback ─────────────────────────────────────
         if not handled:
-            instructions.append({"opcode": "logic:print", "args": [segment]})
+            resolved = resolve_opcode(segment, mode)
+            print(f"[DEBUG][parser] Literal fallback segment={segment} resolved={resolved}")
+            instructions.append({"opcode": resolved, "args": []})
 
     return instructions
 
@@ -124,6 +135,7 @@ if __name__ == "__main__":
         "⟲(A ⊕ B)",
         "(A ⊕ B) → C",
         "⟲((A ⊕ B) → C)",
+        "A ⊖ ∅",           # ✅ test subtraction
         "NoteThisLiteral",
     ]
     for s in samples:

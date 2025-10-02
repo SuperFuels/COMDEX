@@ -3,7 +3,7 @@ import json
 import copy
 from functools import lru_cache
 from typing import Any, Dict, List, Tuple, Union
-from backend.photon_algebra.core import EMPTY
+from backend.photon_algebra.core import EMPTY, TOP, BOTTOM
 Expr = Union[str, Dict[str, Any]]
 # backend/photon_algebra/rewriter.py
 # --- global normalize cache --------------------------------------------------
@@ -25,6 +25,19 @@ Expr = Union[str, Dict[str, Any]]
 #        - key_cache: id(node) → _string_key(node) to avoid recomputation
 # _string_key(node) itself is defined elsewhere in this module.
 # =============================================================================
+
+class PhotonRewriter:
+    def __init__(self):
+        self.DIAG = []
+
+    def log(self, rule: str, before, after):
+        self.DIAG.append({"rule": rule, "before": before, "after": after})
+
+    def normalize(self, expr):
+        # Just delegate to the canonical pipeline
+        result = normalize(expr)  # <-- use the big one
+        return result
+
 # --- Diagnostics counters ------------------------------------------------------
 class _DiagCounters:
     """Track normalization and rewrite events for diagnostics."""
@@ -284,10 +297,8 @@ REWRITE_RULES: List[Tuple[Expr, Expr]] = [
         "a",
     ),
 
-    # (REMOVED) T14 — Dual Distributivity:
-    # We intentionally do NOT keep a factoring rule here:
-    #     a ⊕ (b ⊗ c) → (a ⊕ b) ⊗ (a ⊕ c)
-    # normalize()’s ⊗ branch handles distribution; a table rule would ping-pong.
+    # (REMOVED) T14 — Dual Distributivity
+    # Handled structurally in normalize().
 
     # P — Cancellation: a ⊖ a → ∅
     (
@@ -346,12 +357,12 @@ REWRITE_RULES: List[Tuple[Expr, Expr]] = [
 
     # T15 — Falsification: a ⊖ ∅ → a
     (
-        {"op": "⊖", "states": ["a", {"op": "∅"}]},
+        {"op": "⊖", "states": ["a", EMPTY]},
         "a",
     ),
     # T15 (swapped): ∅ ⊖ a → a
     (
-        {"op": "⊖", "states": [{"op": "∅"}, "a"]},
+        {"op": "⊖", "states": [EMPTY, "a"]},
         "a",
     ),
 ]
@@ -529,9 +540,43 @@ def _normalize_shallow(expr: Expr) -> Expr:
             return normalize(inner2)
         return {"op": "¬", "state": inner}
 
+    elif op == "¬":
+        inner = norm_state if norm_state is not None else (norm_states[0] if norm_states else None)
+        if isinstance(inner, dict) and inner.get("op") == "¬":
+            inner2 = inner.get("state") if "state" in inner else (inner.get("states", [None])[0])
+            return normalize(inner2)
+        return {"op": "¬", "state": inner}
+
+    elif op in {"≈", "⊂"}:
+        a, b = states
+
+        # trivial reflexivity: a ≈ a → ⊤
+        if structural_key(a) == structural_key(b):
+            ctx.memo[skey] = TOP
+            return TOP
+
+        if op == "⊂":
+            # ⊥ ⊂ X → ⊤
+            if a == BOTTOM or (isinstance(a, dict) and a.get("op") == "⊥"):
+                ctx.memo[skey] = TOP
+                return TOP
+            # X ⊂ ⊤ → ⊤
+            if b == TOP or (isinstance(b, dict) and b.get("op") == "⊤"):
+                ctx.memo[skey] = TOP
+                return TOP
+
+        # default inert
+        out = {"op": op, "states": [a, b]}
+        ctx.memo[skey] = out
+        return out
+
+    elif op in {"⊤", "⊥"}:
+        out = {"op": op}
+        ctx.memo[skey] = out
+        return out
+
     elif op == "↔":
-        # Flatten nested entanglements (associativity), but KEEP duplicates
-        flat: List[Expr] = []
+        flat = []
         for s in norm_states:
             if isinstance(s, dict) and s.get("op") == "↔":
                 flat.extend(s.get("states", []))
@@ -544,12 +589,13 @@ def _normalize_shallow(expr: Expr) -> Expr:
     elif op == "∅":
         return EMPTY
 
-    # Generic pass-through op
+    # fallback
     out = {"op": op}
     if norm_states:
         out["states"] = norm_states
     if norm_state is not None:
         out["state"] = norm_state
+    ctx.memo[skey] = out
     return out
 
 
@@ -633,25 +679,48 @@ def normalize(expr: Any) -> Any:
 
 
 def _normalize_inner(expr: Any, ctx: _NormCtx) -> Any:
-    # Atoms pass through
     if not isinstance(expr, dict):
         return expr
 
-    # Local memo by structural key of the *current* node
     skey = structural_key(expr)
     if skey in ctx.memo:
         return ctx.memo[skey]
 
-    # 1) Normalize children first
+    op = expr.get("op")
+    states = expr.get("states", [])
+
+    # ✅ handle meta-ops first
+    if op in {"≈", "⊂"} and len(states) == 2:
+        a, b = states
+
+        a = _normalize_inner(a, ctx)
+        b = _normalize_inner(b, ctx)
+
+        if structural_key(a) == structural_key(b):
+            ctx.memo[skey] = TOP
+            return TOP
+
+        if op == "⊂":
+            if a == BOTTOM or (isinstance(a, dict) and a.get("op") == "⊥"):
+                ctx.memo[skey] = TOP
+                return TOP
+            if b == TOP or (isinstance(b, dict) and b.get("op") == "⊤"):
+                ctx.memo[skey] = TOP
+                return TOP
+
+        out = {"op": op, "states": [a, b]}
+        ctx.memo[skey] = out
+        return out
+
+    # 👇 only if not a meta-op, continue with child-normalization & rewrite
     if "states" in expr:
-        expr = {**expr, "states": [_normalize_inner(s, ctx) for s in expr.get("states", [])]}
+        expr = {**expr, "states": [_normalize_inner(s, ctx) for s in states]}
     if "state" in expr:
         expr = {**expr, "state": _normalize_inner(expr.get("state"), ctx)}
 
-    # 2) Single-step rewrite until stable
     expr2 = rewrite_fixed(expr)
     if expr2 != expr:
-        DIAG.rewrites += 1   # 🔍 count rewrites
+        DIAG.rewrites += 1
     expr = expr2
 
     # Might have simplified to an atom
@@ -668,8 +737,11 @@ def _normalize_inner(expr: Any, ctx: _NormCtx) -> Any:
         #   flatten → drop ∅ → absorption → T10 distributivity → dedup/sort → normalize children
         flat = _flatten_plus(states)
 
-        # Drop ∅ (identity)
-        flat = [s for s in flat if not (isinstance(s, dict) and s.get("op") == "∅")]
+        # Drop ∅ (identity) — handle BOTH dict-∅ and string "∅"
+        flat = [
+            s for s in flat
+            if not ((isinstance(s, dict) and s.get("op") == "∅") or s == "∅")
+        ]
 
         # Absorption: remove ⊗ terms that contain an already-present atomic term
         present = {structural_key(s) for s in flat if not (isinstance(s, dict) and s.get("op") == "⊗")}
@@ -743,12 +815,12 @@ def _normalize_inner(expr: Any, ctx: _NormCtx) -> Any:
                 return out
 
             # --- Annihilator rules ---
-            if isinstance(a, dict) and a.get("op") == "∅":
-                out = EMPTY
+            if (isinstance(a, dict) and a.get("op") == "∅") or a == "∅":
+                out = EMPTY      # ✅ change from out = "∅"
                 ctx.memo[skey] = out
                 return out
-            if isinstance(b, dict) and b.get("op") == "∅":
-                out = EMPTY
+            if (isinstance(b, dict) and b.get("op") == "∅") or b == "∅":
+                out = EMPTY      # ✅ change from out = "∅"
                 ctx.memo[skey] = out
                 return out
 
@@ -805,10 +877,10 @@ def _normalize_inner(expr: Any, ctx: _NormCtx) -> Any:
             if structural_key(x) == structural_key(y):
                 out = EMPTY  # a ⊖ a → ∅
 
-            elif isinstance(y, dict) and y.get("op") == "∅":
+            elif (isinstance(y, dict) and y.get("op") == "∅") or y == "∅":
                 out = x  # a ⊖ ∅ → a
 
-            elif isinstance(x, dict) and x.get("op") == "∅":
+            elif (isinstance(x, dict) and x.get("op") == "∅") or x == "∅":
                 out = y  # ∅ ⊖ a → a
 
             # --- Nested cancellation forms ---
@@ -868,11 +940,20 @@ def _normalize_inner(expr: Any, ctx: _NormCtx) -> Any:
 
     elif op == "¬":
         inner = _normalize_inner(expr.get("state"), ctx)
+
+        # ¬∅ → ∅
+        if inner == "∅" or (isinstance(inner, dict) and inner.get("op") == "∅"):
+            out = EMPTY  
+            ctx.memo[skey] = EMPTY
+            return out
+
+        # ¬(¬a) → a
         if isinstance(inner, dict) and inner.get("op") == "¬":
-            DIAG.idempotence += 1  # 🔍 double negation collapse
+            DIAG.idempotence += 1
             out = _normalize_inner(inner.get("state"), ctx)
         else:
             out = {"op": "¬", "state": inner}
+
         out2 = rewrite_fixed(out)
         if out2 != out:
             DIAG.rewrites += 1
