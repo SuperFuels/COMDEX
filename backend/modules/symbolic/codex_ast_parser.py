@@ -1,4 +1,4 @@
-# File: backend/modules/lean/codexlang_to_ast.py
+# File: backend/modules/symbolic/codex_ast_parser.py
 
 import re
 from backend.modules.symbolic.codex_ast_types import CodexAST

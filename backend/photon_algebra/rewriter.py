@@ -122,7 +122,7 @@ class _NormCtx:
 
 
 # -----------------------------------------------------------------------------
-# Structural key (optimized, unified, cached)
+# Structural key (optimized: hybrid tuple+hash)
 # -----------------------------------------------------------------------------
 from functools import lru_cache
 
@@ -134,6 +134,7 @@ def structural_key(expr: Any, cache: dict[int, tuple] | None = None) -> tuple:
     if i in cache:
         return cache[i]
 
+    # Atoms
     if isinstance(expr, str):
         if expr in ("∅", "⊤", "⊥"):
             key = (expr,)
@@ -143,19 +144,26 @@ def structural_key(expr: Any, cache: dict[int, tuple] | None = None) -> tuple:
     elif isinstance(expr, dict):
         op = expr.get("op")
         if "state" in expr:
-            key = ("op1", op, structural_key(expr["state"], cache))
+            child_key = structural_key(expr["state"], cache)
+            key = ("op1", op, child_key)
         elif "states" in expr:
             states = expr["states"]
+            # recurse to child keys
             if op == "⊕":
-                child_keys = tuple(sorted(structural_key(s, cache) for s in states))
+                child_keys = [structural_key(s, cache) for s in states]
+                child_keys.sort()
             else:
-                child_keys = tuple(structural_key(s, cache) for s in states)
-            key = ("opN", op, *child_keys)
+                child_keys = [structural_key(s, cache) for s in states]
+
+            # 🔥 instead of returning giant tuple, return hash
+            key = ("opN", op, hash(tuple(child_keys)))
         else:
             key = ("op0", op)
 
     elif isinstance(expr, list):
-        key = tuple(structural_key(x, cache) for x in expr)
+        child_keys = [structural_key(x, cache) for x in expr]
+        key = ("list", hash(tuple(child_keys)))
+
     else:
         key = ("atom", expr)
 
@@ -165,18 +173,14 @@ def structural_key(expr: Any, cache: dict[int, tuple] | None = None) -> tuple:
 
 @lru_cache(maxsize=100_000)
 def structural_key_cached(expr_frozen: tuple) -> tuple:
-    """
-    Cached version of structural_key.
-    Accepts already-frozen tuple (so wrap structural_key(...) before calling).
-    """
+    """Cached version of structural_key."""
     return expr_frozen
 
 
 def get_structural_key(expr: Any) -> tuple:
-    """
-    Public entry point: computes a structural key and memoizes common results.
-    """
+    """Public entry point: computes a structural key and memoizes results."""
     return structural_key_cached(structural_key(expr))
+
 
 def _get_key(s, ctx):
     """Fast structural_key lookup with per-run cache."""
@@ -561,42 +565,70 @@ def _normalize_shallow(expr: Expr) -> Expr:
         return {"op": "⊕", "states": dedup_sorted}
 
     elif op == "⊗":
-        # Work with normalized children we computed above
+        # Work with normalized children computed above
         states = norm_states
-        # If any operand is ∅ → annihilation
+
+        # --- Flatten nested ⊗ (associativity) ---
+        flat: List[Expr] = []
+        for s in states:
+            if isinstance(s, dict) and s.get("op") == "⊗":
+                flat.extend(s.get("states", []))
+            else:
+                flat.append(s)
+        states = flat
+
+        # --- Annihilators ---
+        # If any ⊥ present → whole product is ⊥
+        if any(isinstance(s, dict) and s.get("op") == "⊥" for s in states):
+            return {"op": "⊥"}
+        # If any ∅ present → whole product is ∅
         if any(isinstance(s, dict) and s.get("op") == "∅" for s in states):
             return EMPTY
 
-        # First, canonicalize commutativity: sort the two operands
+        # --- Binary fast-path ---
         if len(states) == 2:
             a, b = states
-            # ensure a ⊗ b == b ⊗ a by stable key
+
+            # Canonicalize commutativity by a cheap stable key
             if _string_key(a) > _string_key(b):
                 a, b = b, a
 
-            # Distribute over ⊕ on either side (then recurse through normalize)
-            if isinstance(b, dict) and b.get("op") == "⊕":
-                DIAG.distributions += 1  # 🔍 distribution fired
-                return normalize({
-                    "op": "⊕",
-                    "states": [
-                        {"op": "⊗", "states": [a, bi]} for bi in b["states"]
-                    ]
-                })
-
+            # Distribute over ⊕ on either side
             if isinstance(a, dict) and a.get("op") == "⊕":
-                DIAG.distributions += 1  # 🔍 distribution fired
+                DIAG.distributions += 1
                 return normalize({
                     "op": "⊕",
-                    "states": [
-                        {"op": "⊗", "states": [ai, b]} for ai in a["states"]
-                    ]
+                    "states": [{"op": "⊗", "states": [ai, b]} for ai in a["states"]],
+                })
+            if isinstance(b, dict) and b.get("op") == "⊕":
+                DIAG.distributions += 1
+                return normalize({
+                    "op": "⊕",
+                    "states": [{"op": "⊗", "states": [a, bi]} for bi in b["states"]],
                 })
 
-            # Otherwise, just keep ⊗ in canonical order
+            # Otherwise keep ⊗ in canonical order
             return {"op": "⊗", "states": [a, b]}
 
-        # Fallback for non-binary or already-normalized cases
+        # --- N-ary or other cases ---
+        if len(states) > 2:
+            # Canonicalize commutativity for stability
+            states = sorted(states, key=_string_key)
+
+            # Try one distribution if any factor is a sum
+            for i, s in enumerate(states):
+                if isinstance(s, dict) and s.get("op") == "⊕":
+                    others = [x for j, x in enumerate(states) if j != i]
+                    DIAG.distributions += 1
+                    return normalize({
+                        "op": "⊕",
+                        "states": [{"op": "⊗", "states": others + [t]} for t in s["states"]],
+                    })
+
+            # No distribution opportunity; keep as ⊗
+            return {"op": "⊗", "states": states}
+
+        # Fallback (0/1-ary)
         return {"op": "⊗", "states": states}
 
     elif op == "⊖":
@@ -715,6 +747,28 @@ def rewrite_fixed(expr: Expr, max_iter: int = 64, debug: bool = False) -> Expr:
         cur = nxt
     return cur
 
+# --- Fast-guarded rewrite ----------------------------------------------------
+def _maybe_rewrite(expr: Expr) -> Expr:
+    """
+    Call rewrite_fixed(expr) only if there are candidate rules for this op
+    (or generic None-op rules). This avoids the rewrite loop when it can't fire.
+    Also bumps DIAG.rewrites only when a change happens.
+    """
+    if not isinstance(expr, dict):
+        return expr
+
+    op = expr.get("op")
+    has_op_rules = bool(RULES_BY_OP.get(op))
+    has_generic_rules = bool(RULES_BY_OP.get(None))
+
+    if not (has_op_rules or has_generic_rules):
+        return expr  # fast reject: no rules can apply
+
+    nxt = rewrite_fixed(expr)
+    if nxt != expr:
+        DIAG.rewrites += 1
+    return nxt
+
 # --- normalized form -------------------------------------------------------
 # --- Public entrypoint ------------------------------------------------------
 
@@ -819,11 +873,7 @@ def _normalize_inner(expr: Any, ctx: _NormCtx) -> Any:
     if "state" in expr:
         expr = {**expr, "state": _normalize_inner(expr.get("state"), ctx)}
 
-    expr2 = rewrite_fixed(expr)
-    if expr2 != expr:
-        DIAG.rewrites += 1
-    expr = expr2
-
+    expr = _maybe_rewrite(expr)
     # Might have simplified to an atom
     if not isinstance(expr, dict):
         ctx.memo[skey] = expr
@@ -934,24 +984,21 @@ def _normalize_inner(expr: Any, ctx: _NormCtx) -> Any:
                     return out
 
         # --- Idempotence + commutativity (⊕) ---
+        # normalize children up front
+        normalized = [_normalize_inner(s, ctx) for s in flat]
+
+        # dedup with structural keys
         uniq = {}
-        for s in flat:
-            k = _get_key(s, ctx)  # ⚡ cached structural key
+        for s in normalized:
+            k = _get_key(s, ctx)
             if k not in uniq:
-                uniq[k] = (s, k)  # keep both expr + key
+                uniq[k] = (s, k)
             else:
                 DIAG.idempotence += 1
 
-        items = list(uniq.values())
-
-        # If more than 2 items, sort by cached key tuple
-        if len(items) > 2:
-            items.sort(key=lambda x: x[1])
-
+        # sort once by cached keys
+        items = sorted(uniq.values(), key=lambda x: x[1])
         uniq_sorted = [s for s, _ in items]
-
-        # Normalize children only after dedupe/sort
-        uniq_sorted = [_normalize_inner(s, ctx) for s in uniq_sorted]
 
         if not uniq_sorted:
             out = EMPTY
@@ -1129,10 +1176,7 @@ def _normalize_inner(expr: Any, ctx: _NormCtx) -> Any:
             out = cur
 
         # --- Canonicalization ---
-        out2 = rewrite_fixed(out)
-        if out2 != out:
-            DIAG.rewrites += 1
-        out = out2
+        out = _maybe_rewrite(out)
 
         ctx.memo[skey] = out
         _NORMALIZE_MEMO[skey] = out
@@ -1154,10 +1198,7 @@ def _normalize_inner(expr: Any, ctx: _NormCtx) -> Any:
         else:
             out = {"op": "¬", "state": inner}
 
-        out2 = rewrite_fixed(out)
-        if out2 != out:
-            DIAG.rewrites += 1
-        out = out2
+        out = _maybe_rewrite(out)
         ctx.memo[skey] = out
         _NORMALIZE_MEMO[skey] = out
         return out
@@ -1169,16 +1210,16 @@ def _normalize_inner(expr: Any, ctx: _NormCtx) -> Any:
             out = inner
         elif isinstance(inner, dict) and inner.get("op") == "↔":
             a, b = inner["states"]
-            expanded = {"op": "⊕", "states": [
-                {"op": "★", "state": a},
-                {"op": "★", "state": b},
-            ]}
+            expanded = {
+                "op": "⊕",
+                "states": [
+                    {"op": "★", "state": a},
+                    {"op": "★", "state": b},
+                ],
+            }
             # ✅ Fully normalize right now
             out = _normalize_inner(expanded, ctx)
-            out2 = rewrite_fixed(out)
-            if out2 != out:
-                DIAG.rewrites += 1
-            out = out2
+            out = _maybe_rewrite(out)
         else:
             out = {"op": "★", "state": inner}
 
@@ -1193,7 +1234,7 @@ def _normalize_inner(expr: Any, ctx: _NormCtx) -> Any:
     else:
         # Passthrough (↔, etc.)
         out = {k: v for k, v in expr.items()}
-        out2 = rewrite_fixed(out)
+        out2 = rewrite_fixed(out)   # <-- define out2 properly
         if out2 != out:
             DIAG.rewrites += 1
         out = out2
@@ -1279,3 +1320,5 @@ if __name__ == "__main__":
     print("Normalized result:", json.dumps(result, ensure_ascii=False, indent=2))
     print("Diagnostics:", DIAG.to_dict())
     print("Cache stats:", get_cache_stats())
+
+    reset_normalize_memo = clear_normalize_memo

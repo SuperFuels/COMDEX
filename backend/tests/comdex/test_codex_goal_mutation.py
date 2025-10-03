@@ -1,7 +1,7 @@
 import json
 import time
 from backend.modules.codex.codex_executor import CodexExecutor
-from backend.modules.codexlang.codex_ast import parse_codex_ast_from_json
+from backend.modules.symbolic.codex_ast_parser import parse_codex_ast_from_json
 from backend.modules.codex.codex_ast_encoder import encode_codex_ast_to_glyphs
 from backend.modules.codex.codex_metrics import CodexMetrics
 

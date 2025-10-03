@@ -31,7 +31,7 @@ gcloud run deploy comdex-api \
   --timeout=300s
 
 git add .
-git commit -m "symbol update v14"
+git commit -m "symbol update v15"
 git push origin main
 
 

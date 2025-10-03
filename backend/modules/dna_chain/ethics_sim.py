@@ -2,7 +2,7 @@ import os
 import yaml
 import json
 from backend.modules.dna_chain.dna_registry import load_registry, save_registry
-from backend.modules.llm.llm_mutator import query_gpt4
+from backend.modules.dna_chain.llm_mutator import query_gpt4
 
 SOUL_LAWS_PATH = "backend/modules/dna_chain/soul_laws.yaml"
 
