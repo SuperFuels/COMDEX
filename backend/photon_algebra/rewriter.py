@@ -959,25 +959,66 @@ def _normalize_inner(expr: Any, ctx: _NormCtx) -> Any:
             _NORMALIZE_MEMO[skey] = out
             return out
 
-        # Try T10 distributivity
+        # --- T10 Distributivity (↔ over ⊕) ---
         if len(flat) == 2:
             s1, s2 = flat
             if (
                 isinstance(s1, dict) and s1.get("op") == "↔"
                 and isinstance(s2, dict) and s2.get("op") == "↔"
             ):
-                a1, b1 = s1["states"]
-                a2, b2 = s2["states"]
+                states1 = s1.get("states", [])
+                states2 = s2.get("states", [])
 
+                # Only process if both ↔ have exactly two states
+                if len(states1) == 2 and len(states2) == 2:
+                    a1, b1 = states1
+                    a2, b2 = states2
+                else:
+                    # Skip malformed ↔ expressions
+                    out = {"op": "⊕", "states": flat}
+                    ctx.memo[skey] = out
+                    _NORMALIZE_MEMO[skey] = out
+                    return out
+
+                # Case 1: shared left side → (a ↔ b1) ⊕ (a ↔ b2) = a ↔ (b1 ⊕ b2)
                 if a1 == a2:
-                    out = {"op": "↔", "states": [a1, {"op": "⊕", "states": [b1, b2]}]}
+                    combined = {"op": "⊕", "states": [b1, b2]}
+                    out = {"op": "↔", "states": [a1, combined]}
                     out = _normalize_inner(out, ctx)
                     ctx.memo[skey] = out
                     _NORMALIZE_MEMO[skey] = out
                     return out
 
+                # Case 2: shared right side → (a1 ↔ b) ⊕ (a2 ↔ b) = b ↔ (a1 ⊕ a2)
                 if b1 == b2:
-                    out = {"op": "↔", "states": [b1, {"op": "⊕", "states": [a1, a2]}]}
+                    combined = {"op": "⊕", "states": [a1, a2]}
+                    out = {"op": "↔", "states": [b1, combined]}
+                    out = _normalize_inner(out, ctx)
+                    ctx.memo[skey] = out
+                    _NORMALIZE_MEMO[skey] = out
+                    return out
+
+                # Case 2: shared right side → (a1 ↔ b) ⊕ (a2 ↔ b) = b ↔ (a1 ⊕ a2)
+                if b1 == b2:
+                    combined = {"op": "⊕", "states": [a1, a2]}
+                    out = {"op": "↔", "states": [b1, combined]}
+                    out = _normalize_inner(out, ctx)
+                    ctx.memo[skey] = out
+                    _NORMALIZE_MEMO[skey] = out
+                    return out
+
+                # Case 3: symmetric match (↔ is commutative)
+                if a1 == b2:
+                    combined = {"op": "⊕", "states": [b1, a2]}
+                    out = {"op": "↔", "states": [a1, combined]}
+                    out = _normalize_inner(out, ctx)
+                    ctx.memo[skey] = out
+                    _NORMALIZE_MEMO[skey] = out
+                    return out
+
+                if b1 == a2:
+                    combined = {"op": "⊕", "states": [a1, b2]}
+                    out = {"op": "↔", "states": [b1, combined]}
                     out = _normalize_inner(out, ctx)
                     ctx.memo[skey] = out
                     _NORMALIZE_MEMO[skey] = out
@@ -1240,11 +1281,12 @@ def _normalize_inner(expr: Any, ctx: _NormCtx) -> Any:
         for s in flat_raw:
             if isinstance(s, dict) and s.get("op") == "★":
                 t = s.get("state")
-                if not isinstance(t, dict):
+                if not isinstance(t, dict):  # ★ on atomic state
                     star_for_key[_get_key(t, ctx)] = t
             elif not isinstance(s, dict):
                 atom_keys.add(_get_key(s, ctx))
 
+        # If both a and ★a appear → collapse to ★a
         common = atom_keys & set(star_for_key.keys())
         if common:
             k = sorted(common)[0]
@@ -1269,13 +1311,71 @@ def _normalize_inner(expr: Any, ctx: _NormCtx) -> Any:
             inner_norm = {"op": "⊕", "states": uniq_sorted}
 
         # --- Simplify recursively ---
-        if inner_norm == EMPTY or (isinstance(inner_norm, dict) and inner_norm.get("op") == "∅"):
+        # If inner is a sum, first deep-flatten ⊕ and try the collapse ★(a ⊕ ★a ⊕ …) → ★a
+        if isinstance(inner_norm, dict) and inner_norm.get("op") == "⊕":
+            def _deep_flatten_plus(node):
+                if isinstance(node, dict) and node.get("op") == "⊕":
+                    acc = []
+                    for s in node.get("states", []):
+                        acc.extend(_deep_flatten_plus(s))
+                    return acc
+                return [node]
+
+            flat = _deep_flatten_plus(inner_norm)
+
+            # Collapse rule: if both atom a and ★a are present → ★a
+            atom_keys = set()
+            star_for = {}
+            for s in flat:
+                if isinstance(s, dict) and s.get("op") == "★":
+                    t = s.get("state")
+                    if not isinstance(t, dict):  # only atomic ★t collapses
+                        star_for[_get_key(t, ctx)] = t
+                elif not isinstance(s, dict):
+                    atom_keys.add(_get_key(s, ctx))
+
+            common = atom_keys & set(star_for.keys())
+            if common:
+                k = sorted(common)[0]  # deterministic pick
+                out = {"op": "★", "state": star_for[k]}
+                ctx.memo[skey] = out
+                _NORMALIZE_MEMO[skey] = out
+                return out
+
+            # Otherwise rebuild inner ⊕ canonically (drop ∅, dedup, sort)
+            flat = [
+                s for s in flat
+                if not (isinstance(s, dict) and s.get("op") == "∅")
+                   and s != "∅"
+            ]
+            uniq = {}
+            for s in flat:
+                k = _get_key(s, ctx)
+                if k not in uniq:
+                    uniq[k] = s
+            items = sorted(uniq.values(), key=lambda x: _get_key(x, ctx))
+            inner_norm = items[0] if len(items) == 1 else {"op": "⊕", "states": items}
+
+        # Final shape cases after any ⊕ handling above
+        if inner_norm == EMPTY or (
+            isinstance(inner_norm, dict) and inner_norm.get("op") == "∅"
+        ):
             out = EMPTY
         elif isinstance(inner_norm, dict) and inner_norm.get("op") == "★":
             out = inner_norm  # ★★a → ★a
         elif isinstance(inner_norm, dict) and inner_norm.get("op") == "↔":
-            a, b = inner_norm.get("states", [])
-            out = {"op": "⊕", "states": [{"op": "★", "state": a}, {"op": "★", "state": b}]}
+            states = inner_norm.get("states", [])
+            if len(states) == 2:  # T12: ★(a↔b) → (★a) ⊕ (★b)
+                a, b = states
+                out = {
+                    "op": "⊕",
+                    "states": [
+                        {"op": "★", "state": a},
+                        {"op": "★", "state": b},
+                    ],
+                }
+            else:
+                out = {"op": "★", "state": inner_norm}
         else:
             out = {"op": "★", "state": inner_norm}
 
