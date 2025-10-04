@@ -77,11 +77,16 @@ class Parser:
     # sum := prod (("⊕" | "⊖") prod)*
     def parse_sum(self) -> Any:
         node = self.parse_prod()
+        acc = [node]
         while self.peek() in ("⊕", "⊖"):
             op = self.eat()
             rhs = self.parse_prod()
-            # build a binary chain; normalization can flatten ⊕ later
-            node = {"op": op, "states": [node, rhs]}
+            acc.append(rhs)
+            # Only build once at the end — n-ary ⊕ instead of binary chaining
+            if op != "⊕":  # ⊖ stays binary
+                node = {"op": op, "states": [node, rhs]}
+            else:
+                node = {"op": "⊕", "states": acc}
         return node
 
     # prod := factor ( "⊗" factor )*

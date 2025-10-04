@@ -683,23 +683,14 @@ def _normalize_shallow(expr: Expr, ctx: _NormCtx, skey=None) -> Expr:
 
 # --- helpers ---------------------------------------------------------------
 
-def _flatten_plus(seq):
-    """
-    Flatten ⊕ nodes out of a list of states until no ⊕ remains directly inside.
-    Ensures we never keep a nested ⊕ node itself alongside its children.
-    """
-    out = list(seq)
-    changed = True
-    while changed:
-        changed = False
-        new = []
-        for s in out:
-            if isinstance(s, dict) and s.get("op") == "⊕" and isinstance(s.get("states"), list):
-                new.extend(s["states"])   # keep only the children, never the ⊕ node itself
-                changed = True
-            else:
-                new.append(s)
-        out = new
+def _flatten_plus(states):
+    """Recursively flatten nested ⊕ expressions."""
+    out = []
+    for s in states:
+        if isinstance(s, dict) and s.get("op") == "⊕":
+            out.extend(_flatten_plus(s.get("states", [])))
+        else:
+            out.append(s)
     return out
 
 def rewrite_fixed(expr: Expr, max_iter: int = 64, debug: bool = False) -> Expr:
@@ -1229,6 +1220,10 @@ def _normalize_inner(expr: Any, ctx: _NormCtx) -> Any:
     elif op == "★":
         raw_inner = expr.get("state")
 
+        # --- Normalize inner first ---
+        inner = _normalize_inner(raw_inner, ctx)
+
+        # --- Deeply flatten all nested ⊕ (associative collapse) ---
         def deep_flatten_plus(node):
             if isinstance(node, dict) and node.get("op") == "⊕":
                 out = []
@@ -1237,59 +1232,53 @@ def _normalize_inner(expr: Any, ctx: _NormCtx) -> Any:
                 return out
             return [node]
 
-        # Normalize inner first
-        inner = _normalize_inner(raw_inner, ctx)
+        flat_raw = deep_flatten_plus(inner)
 
-        # Always deep-flatten ⊕ before collapse checks
-        flat_states = deep_flatten_plus(inner) if isinstance(inner, dict) else [inner]
-
+        # --- Collapse rule: ★(a ⊕ ★a ⊕ b) → ★a ---
         atom_keys = set()
         star_for_key = {}
-        for s in flat_states:
+        for s in flat_raw:
             if isinstance(s, dict) and s.get("op") == "★":
                 t = s.get("state")
-                if not isinstance(t, dict):  # only atomic ★t collapses
+                if not isinstance(t, dict):
                     star_for_key[_get_key(t, ctx)] = t
             elif not isinstance(s, dict):
                 atom_keys.add(_get_key(s, ctx))
 
         common = atom_keys & set(star_for_key.keys())
         if common:
-            k = sorted(common)[0]  # deterministic pick
+            k = sorted(common)[0]
             out = {"op": "★", "state": star_for_key[k]}
             ctx.memo[skey] = out
             _NORMALIZE_MEMO[skey] = out
             return out
 
-        # --- Standard rules on normalized inner ---
-        if inner == EMPTY or (isinstance(inner, dict) and inner.get("op") == "∅"):
-            out = EMPTY
-        elif isinstance(inner, dict) and inner.get("op") == "★":
-            out = inner  # ★★a → ★a
-        elif isinstance(inner, dict) and inner.get("op") == "↔":
-            states = inner.get("states", [])
-            if len(states) == 2:
-                out = {"op": "⊕", "states": [
-                    {"op": "★", "state": states[0]},
-                    {"op": "★", "state": states[1]},
-                ]}
-            else:
-                out = {"op": "★", "state": inner}
+        # --- Canonicalize flattened ⊕ back into AST form ---
+        uniq = {}
+        for s in flat_raw:
+            k = _get_key(s, ctx)
+            if k not in uniq:
+                uniq[k] = s
+        uniq_sorted = [v for _, v in sorted(uniq.items(), key=lambda kv: kv[0])]
+
+        if not uniq_sorted:
+            inner_norm = EMPTY
+        elif len(uniq_sorted) == 1:
+            inner_norm = uniq_sorted[0]
         else:
-            out = {"op": "★", "state": inner}
+            inner_norm = {"op": "⊕", "states": uniq_sorted}
 
-        ctx.memo[skey] = out
-        _NORMALIZE_MEMO[skey] = out
-        return out
+        # --- Simplify recursively ---
+        if inner_norm == EMPTY or (isinstance(inner_norm, dict) and inner_norm.get("op") == "∅"):
+            out = EMPTY
+        elif isinstance(inner_norm, dict) and inner_norm.get("op") == "★":
+            out = inner_norm  # ★★a → ★a
+        elif isinstance(inner_norm, dict) and inner_norm.get("op") == "↔":
+            a, b = inner_norm.get("states", [])
+            out = {"op": "⊕", "states": [{"op": "★", "state": a}, {"op": "★", "state": b}]}
+        else:
+            out = {"op": "★", "state": inner_norm}
 
-        # --- Default: keep ★ around normalized inner ---
-        out = {"op": "★", "state": inner}
-        ctx.memo[skey] = out
-        _NORMALIZE_MEMO[skey] = out
-        return out
-
-        # --- Default: keep ★ around normalized inner ---
-        out = {"op": "★", "state": inner}
         ctx.memo[skey] = out
         _NORMALIZE_MEMO[skey] = out
         return out

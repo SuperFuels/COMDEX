@@ -63,17 +63,14 @@ subgraph Phase2["🔬 Photon Extensions (Active 🚧)"]
 end
 
 %% Phase 3 — Photon Integration (Deployment — Upcoming)
-%% Mermaid checklist
-
 flowchart TD
     subgraph Phase3["🚀 Phase 3 — Photon Integration (Deployment — Upcoming)"]
-
         subgraph I1["I1. Integrate Photon Rewriter into CodexCore runtime"]
-            I1.1["☑ Audit CodexCore runtime for normalization hooks"]
-            I1.2["☑ Replace legacy boolean rewriting with photon_algebra.normalize"]
-            I1.3["☑ Add regression tests for CodexCore → normalize"]
+            I1.1["✅ Audit CodexCore runtime for normalization hooks"]
+            I1.2["✅ Replace legacy boolean rewriting with photon_algebra.normalize"]
+            I1.3["✅ Add regression tests for CodexCore → normalize"]
             I1.4["☐ Benchmark normalize performance in runtime loops"]
-            I1.5["☑ Add diagnostic logging via DIAG counters"]
+            I1.5["✅ Add diagnostic logging via DIAG counters"]
         end
 
         subgraph I2["I2. Photon ↔ SymPy bridge (math interop)"]
@@ -107,9 +104,7 @@ flowchart TD
             I5.4["☐ Integration tests: round-trip via GlyphNet"]
             I5.5["☐ Benchmark encoding/decoding throughput"]
         end
-        end
     end
-end
 
     end
 
