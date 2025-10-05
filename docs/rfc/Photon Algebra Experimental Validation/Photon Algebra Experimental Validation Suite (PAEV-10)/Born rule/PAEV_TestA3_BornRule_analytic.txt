@@ -1,0 +1,21 @@
+Test A3 — Analytical Born Rule (Rewrite → Projector)
+N=5, K=100000
+
+Quantum probabilities p_qm(i):
+  p_qm(0) = 0.03375047
+  p_qm(1) = 0.26264178
+  p_qm(2) = 0.18162992
+  p_qm(3) = 0.09887595
+  p_qm(4) = 0.42310188
+
+PA ensemble frequencies f_pa(i):
+  f_pa(0) = 0.03375000
+  f_pa(1) = 0.26264000
+  f_pa(2) = 0.18163000
+  f_pa(3) = 0.09888000
+  f_pa(4) = 0.42310000
+
+L1 error  = 8.26119187e-06
+Linf error= 4.05391726e-06
+
+Conclusion: P(i) = ||P_i ψ||^2 / ||ψ||^2 emerges from algebraic idempotence.
