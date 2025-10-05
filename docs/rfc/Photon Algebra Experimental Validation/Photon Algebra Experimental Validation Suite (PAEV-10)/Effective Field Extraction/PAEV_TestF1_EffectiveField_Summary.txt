@@ -1,0 +1,30 @@
+
+=== Test F1 — Effective Field Extraction ===
+
+Fitted PDE (least-squares, ±1σ):
+  θ̈ ≈ c1 ∇²θ + c2 κ θ + c3 ∇·(κ∇θ)
+      c1 = 0.81037 ± 0.00001
+      c2 = 0.00047 ± 0.00065
+      c3 = 0.13982 ± 0.00313
+  Residual variance (θ̈): σ² ≈ 1.722e-06
+
+  κ̇ ≈ d1 ∇²κ + d2 (∇θ)² + d3 κ
+      d1 = 0.03920 ± 0.00002
+      d2 = 0.12792 ± 0.00051
+      d3 = -0.08513 ± 0.00004
+  Residual variance (κ̇): σ² ≈ 2.724e-07
+
+Heuristic effective Lagrangian density (quadratic, units choice):
+  ℒ(θ, κ) ≈ a (∂tθ)² − b (∇θ)² − e κ(∇θ)² − f κ² − g (∇κ)²
+    a = 0.500
+    b ≈ -0.5 * c1  → -0.40519
+    e ≈ -0.5 * c3  → -0.06991
+    f ≈ -0.5 * d3  → 0.04257
+    g ≈ -0.5 * d1  → -0.01960
+
+Files:
+  - PAEV_TestF1_EffectiveField_Fields.gif
+  - PAEV_TestF1_EffectiveField_Residuals_theta.png
+  - PAEV_TestF1_EffectiveField_Residuals_kappa.png
+  - PAEV_TestF1_EffectiveField_PredVsActual_theta.png
+  - PAEV_TestF1_EffectiveField_PredVsActual_kappa.png

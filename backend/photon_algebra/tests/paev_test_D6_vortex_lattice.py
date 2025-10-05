@@ -77,43 +77,59 @@ for t in range(steps):
 # --- Save outputs ---
 print("\n=== Test D6 — Vortex Lattice Formation ===")
 
-# Animation
-imageio.mimsave("PAEV_TestD6_VortexLattice.gif", frames, fps=10)
-print("✅ Saved animation to: PAEV_TestD6_VortexLattice.gif")
+import os
 
-# Final phase plot
-plt.figure(figsize=(6,6))
-plt.imshow(np.angle(psi), cmap="twilight", extent=[-1,1,-1,1])
+# --- Safe save helper ---
+def safe_savefig(filename, *args, **kwargs):
+    """Ensure consistent path and report absolute location."""
+    outpath = os.path.abspath(filename)
+    plt.savefig(outpath, *args, **kwargs)
+    plt.close()
+    if os.path.exists(outpath):
+        print(f"✅ Saved file: {outpath}")
+    else:
+        print(f"⚠️ Warning: File not found after save attempt: {outpath}")
+
+# --- Animation save ---
+gif_path = os.path.abspath("PAEV_TestD6_VortexLattice.gif")
+imageio.mimsave(gif_path, frames, fps=10)
+print(f"✅ Saved animation to: {gif_path}")
+
+# --- Final phase plot ---
+plt.figure(figsize=(6, 6))
+plt.imshow(np.angle(psi), cmap="twilight", extent=[-1, 1, -1, 1])
 plt.title("Test D6 — Final Phase Field θ(x,y)")
 plt.colorbar(label="phase (rad)")
 plt.tight_layout()
-plt.savefig("PAEV_TestD6_VortexLattice_Phase.png")
-plt.close()
-print("✅ Saved phase field image.")
+safe_savefig("PAEV_TestD6_VortexLattice_Phase.png")
 
-# Energy evolution
+# --- Energy evolution ---
 plt.figure()
 plt.plot(energy_trace, color="blue")
 plt.title("Test D6 — Energy Evolution (Vortex Lattice Formation)")
 plt.xlabel("Time step")
 plt.ylabel("Mean curvature energy ⟨|∇θ|²⟩")
 plt.tight_layout()
-plt.savefig("PAEV_TestD6_VortexLattice_Energy.png")
-plt.close()
-print("✅ Saved energy evolution plot.")
+safe_savefig("PAEV_TestD6_VortexLattice_Energy.png")
 
-# Coherence evolution
+# --- Coherence evolution ---
 plt.figure()
 plt.plot(coherence_trace, color="purple")
 plt.title("Test D6 — Order Parameter Evolution (ψ coherence)")
 plt.xlabel("Time step")
 plt.ylabel("⟨|ψ|⟩ coherence")
 plt.tight_layout()
-plt.savefig("PAEV_TestD6_VortexLattice_OrderParameter.png")
-plt.close()
-print("✅ Saved coherence plot.")
+safe_savefig("PAEV_TestD6_VortexLattice_OrderParameter.png")
 
+# --- Summary ---
+mean_E = np.mean(energy_trace)
+mean_coh = np.mean(coherence_trace)
 print("\nFinal metrics:")
-print(f"  ⟨E⟩ = {np.mean(energy_trace):.4f}")
-print(f"  ⟨|ψ|⟩ = {np.mean(coherence_trace):.4f}")
+print(f"  ⟨E⟩ = {mean_E:.4f}")
+print(f"  ⟨|ψ|⟩ = {mean_coh:.4f}")
 print("=== Test D6 complete ===")
+
+# Explicit reminder
+print("\n📁 All outputs saved in:")
+print(f"   {os.getcwd()}")
+print("   (Absolute paths printed above confirm accessibility.)")
