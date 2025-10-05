@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/photon_algebra/serialize_interop.py
+# hypothesis_version: 6.139.2
+
+['Original:', 'Roundtrip:', '__main__', 'a', 'b', 'op', 'state', 'states', '¬', '⊕']

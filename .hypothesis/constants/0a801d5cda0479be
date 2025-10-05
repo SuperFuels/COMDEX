@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/photon_algebra/io_sympy.py
+# hypothesis_version: 6.139.2
+
+['INPUT JSON', 'OUTPUT JSON', 'PH_BOTTOM', 'PH_EMPTY', 'PH_TOP', 'PhotonNot', 'args', 'op', 'state', 'states', '¬', '← FROM SYMPY', '→ SYMPY STRUCTURE', '↔', '∅', '≈', '⊂', '⊕', '⊖', '⊗', '⊤', '⊥', '★']

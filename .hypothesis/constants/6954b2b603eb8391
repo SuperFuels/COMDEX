@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/photon_algebra/sympy_bridge.py
+# hypothesis_version: 6.139.2
+
+['PH_', 'PH_BOTTOM', 'PH_EMPTY', 'PH_TOP', 'from_sympy', 'lower_to_bool', 'op', 'state', 'states', 'to_sympy', '¬', '↔', '∅', '≈', '⊂', '⊕', '⊖', '⊗', '⊤', '⊥', '★']

@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 """
-Photon Algebra ↔ SymPy Bridge Tests (resilient final version)
-=============================================================
+Photon Algebra ↔ SymPy Bridge Tests (resilient final version with debug)
+=======================================================================
 Fully tolerant to SymPy simplifications, tautology collapses, and operand order.
+Includes detailed debug output for roundtrip mismatches.
 """
 
+import os
+import pprint
 import sympy as sp
 from hypothesis import given, strategies as st, settings
 from hypothesis.strategies import data
@@ -20,6 +23,11 @@ from backend.photon_algebra.sympy_bridge import (
 from backend.photon_algebra.rewriter import normalize
 from backend.photon_algebra.core import EMPTY, TOP, BOTTOM
 from backend.photon_algebra.tests.test_pp_roundtrip import photon_exprs
+
+# -------------------------------------------------------------------------
+# Debug toggle (set PHOTON_DEBUG=1 in env to enable)
+# -------------------------------------------------------------------------
+DEBUG = bool(os.environ.get("PHOTON_DEBUG", "0") == "1")
 
 
 def _sorted(expr):
@@ -77,6 +85,19 @@ def test_lossless_roundtrip(expr):
         # tolerate collapse to atomic symbol
         assert True
     else:
+        if DEBUG:
+            print("\n================ DEBUG ROUNDTRIP FAILURE ================")
+            print("Original Photon expr:")
+            pprint.pprint(expr, sort_dicts=True)
+            print("\n→ SymPy form:")
+            pprint.pprint(s_expr, sort_dicts=True)
+            print("\n← Roundtripped Photon expr:")
+            pprint.pprint(back, sort_dicts=True)
+            print("\nNormalized (n1 ← back):")
+            pprint.pprint(n1, sort_dicts=True)
+            print("\nNormalized (n2 ← orig):")
+            pprint.pprint(n2, sort_dicts=True)
+            print("=========================================================\n")
         assert n1 == n2
 
 
@@ -143,6 +164,9 @@ def test_equivalent_after_sympy_simplify(expr):
         elif isinstance(n2, dict) and n2.get("op") in {"⊗", "¬"}:
             assert True
         else:
+            if DEBUG:
+                print("\n[DEBUG simplify mismatch]")
+                pprint.pprint({"expr": expr, "simplified": simplified, "n1": n1, "n2": n2}, sort_dicts=True)
             assert n1 == n2
     except Exception:
         # Tolerate any SymPy internal simplification crash

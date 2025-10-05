@@ -86,7 +86,10 @@ _STRUCT_CACHE: Dict[int, tuple] = {}
 _cache_hits: int = 0
 _cache_misses: int = 0
 
+COMMUTATIVE = {"⊕", "⊗", "↔", "≈"}  # ⊖ and ⊂ are directional
 
+def _is_commutative(op: str) -> bool:
+    return op in COMMUTATIVE
 # -----------------------------------------------------------------------------
 # Cache maintenance
 # -----------------------------------------------------------------------------
@@ -142,9 +145,14 @@ except ImportError:
 def structural_key(expr: Any, cache: dict[int, tuple] | None = None) -> tuple:
     """
     Compute a structural key for an expression.
-    - Dicts include op + child keys
-    - ⊕ is sorted for commutativity
-    - Results are memoized in the given cache
+
+    Behavior:
+    - Atoms → ("atom", value)
+    - Dicts → ("opN", op, tuple(child_keys))
+    - Lists → ("list", tuple(child_keys))
+    - For commutative ops (⊕, ⊗, ↔, ≈), child keys are sorted.
+      For directional ops (⊖, ⊂), insertion order is preserved.
+    - Results are memoized in the given cache.
     """
     if HAVE_CYTHON:
         return structural_key_cy(expr, cache)
@@ -156,31 +164,40 @@ def structural_key(expr: Any, cache: dict[int, tuple] | None = None) -> tuple:
     if obj_id in cache:
         return cache[obj_id]
 
-    # atoms
+    # --- atoms ---------------------------------------------------------------
     if isinstance(expr, str):
         if expr in ("∅", "⊤", "⊥"):
             key = (expr,)
         else:
             key = ("atom", expr)
 
+    # --- dict expressions ----------------------------------------------------
     elif isinstance(expr, dict):
         op = expr.get("op")
+
         if "state" in expr:
             child_key = structural_key(expr["state"], cache)
             key = ("op1", op, child_key)
+
         elif "states" in expr:
             states = expr.get("states", [])
             child_keys = [structural_key(s, cache) for s in states]
-            if op == "⊕":  # commutative
+
+            # ✅ Only sort for commutative ops
+            if _is_commutative(op):
                 child_keys.sort()
+
             key = ("opN", op, tuple(child_keys))
+
         else:
             key = ("op0", op)
 
+    # --- list containers -----------------------------------------------------
     elif isinstance(expr, list):
         child_keys = [structural_key(x, cache) for x in expr]
         key = ("list", tuple(child_keys))
 
+    # --- fallback ------------------------------------------------------------
     else:
         key = ("atom", expr)
 
@@ -447,15 +464,6 @@ REWRITE_RULES: List[Tuple[Expr, Expr]] = [
     ),
 ]
 
-# =============================================================================
-# Rewrite Rules (axioms + derived theorems)
-# =============================================================================
-
-REWRITE_RULES: List[Tuple[Expr, Expr]] = [
-    # TODO: fill in with actual patterns/replacements
-    # Example: ({"op": "⊕", "states": ["x", "x"]}, "x"),   # idempotence
-]
-
 # -----------------------------------------------------------------------------
 # Index rewrite rules by operator for faster matching
 # -----------------------------------------------------------------------------
@@ -473,8 +481,6 @@ for pat, repl in REWRITE_RULES:
 # Rewrite Engine
 # =============================================================================
 
-# Set of operators considered commutative (extend if needed)
-COMMUTATIVE = {"⊕"}
 
 def rewrite_once(expr: Expr) -> Expr:
     """
@@ -733,51 +739,48 @@ def _maybe_rewrite(expr: Expr) -> Expr:
 # --- normalized form -------------------------------------------------------
 # --- Public entrypoint ------------------------------------------------------
 
-def normalize(expr: Any) -> Any:
+def normalize(expr: Any, strict: bool = False) -> Any:
     """
     Normalize Photon expressions under axioms + calculus rules:
         - Apply rewrite rules to a fixed point (T8–T15, etc.)
         - Canonicalize ⊕: flatten, drop ∅, absorption, idempotence, commutativity
-        - Distribute ⊗ over ⊕ (both sides) [⊗ handles distribution; ⊕ does NOT factor]
+        - Distribute ⊗ over ⊕ (both sides)
         - Cancellation: a ⊖ a = ∅ ; a ⊖ ∅ = a ; ∅ ⊖ a = a
         - Double negation: ¬(¬a) = a
 
-    NOTE: Cache hit/miss counters are handled *only here* at the entrypoint.
-    The global cache `_NORMALIZE_MEMO` stores normalized trees keyed
-    by their structural form.
+    If strict=True, perform *structural normalization only* (no simplifications).
+    This preserves full tree shape for JSON↔SymPy roundtrips.
     """
 
-    # --- Fast-paths for canonical constants ---
+    # Constants fast-path
     if isinstance(expr, dict) and expr.get("op") in {"∅", "⊤", "⊥"}:
         return expr
 
-    # Atoms (strings) fast-path
     if not isinstance(expr, dict):
         return expr
 
     k0 = structural_key(expr)
+    if not strict:
+        cached = _NORMALIZE_MEMO.get(k0)
+        if cached is not None:
+            return cached
 
-    # --- Global cache check (only bump stats here) ---
-    cached = _NORMALIZE_MEMO.get(k0)
-    if cached is not None:
-        return cached
-
-
-    # --- Run normalization until stable ---
     ctx = _NormCtx()
-    out = _normalize_inner(expr, ctx)
-    while True:
-        nxt = _normalize_inner(out, ctx)
-        if nxt == out:
-            break
-        out = nxt
+    out = _normalize_inner(expr, ctx, strict=strict)
 
-    # --- Store in global cache ---
-    _NORMALIZE_MEMO[k0] = out
+    # For strict mode, do *not* iterate or simplify further.
+    if not strict:
+        while True:
+            nxt = _normalize_inner(out, ctx, strict=strict)
+            if nxt == out:
+                break
+            out = nxt
+        _NORMALIZE_MEMO[k0] = out
+
     return out
 
 
-def _normalize_inner(expr: Any, ctx: _NormCtx) -> Any:
+def _normalize_inner(expr: Any, ctx: _NormCtx, strict: bool = False) -> Any:
     if not isinstance(expr, dict):
         return expr
 
@@ -796,13 +799,12 @@ def _normalize_inner(expr: Any, ctx: _NormCtx) -> Any:
     states = expr.get("states", [])
 
     # ✅ handle meta-ops first
-    if op in {"≈", "⊂"} and len(states) == 2:
+    if op in {"≈", "⊂", "↔"} and len(states) == 2:
         a, b = states
+        a = _normalize_inner(a, ctx, strict=strict)
+        b = _normalize_inner(b, ctx, strict=strict)
 
-        a = _normalize_inner(a, ctx)
-        b = _normalize_inner(b, ctx)
-
-        if structural_key(a) == structural_key(b):
+        if not strict and structural_key(a) == structural_key(b):
             ctx.memo[skey] = TOP
             _NORMALIZE_MEMO[skey] = TOP
             return TOP
@@ -892,6 +894,16 @@ def _normalize_inner(expr: Any, ctx: _NormCtx) -> Any:
                 return EMPTY
 
     if op == "⊕":
+        if strict:
+            # Structural-only: flatten and sort, but skip absorption/idempotence
+            dedup = []
+            seen = set()
+            for s in flat:
+                k = _get_key(s, ctx)
+                if k not in seen:
+                    seen.add(k)
+                    dedup.append(s)
+            return {"op": "⊕", "states": dedup}
         flat = _flatten_plus(states)
 
         # Drop ∅ (identity)
@@ -901,20 +913,47 @@ def _normalize_inner(expr: Any, ctx: _NormCtx) -> Any:
         ]
 
         # Absorption: drop (a ⊗ b) if any factor already present
+        # --- Absorption: drop (a ⊗ b) if any factor already present ---
+        normalized_flat = [_normalize_inner(s, ctx) for s in flat]
+
         present = {
             _get_key(s, ctx)
-            for s in flat
+            for s in normalized_flat
             if not (isinstance(s, dict) and s.get("op") == "⊗")
         }
+
         pruned = []
-        for s in flat:
+        for s in normalized_flat:
             if isinstance(s, dict) and s.get("op") == "⊗":
-                factors = s.get("states", [])
+                factors = [_normalize_inner(f, ctx) for f in s.get("states", [])]
                 if any(_get_key(f, ctx) in present for f in factors):
                     DIAG.absorptions += 1
                     continue
             pruned.append(s)
+
         flat = pruned
+                # --- Explicit absorption collapse: a ⊕ (a ⊗ b) → a ---
+        for s in flat:
+            if isinstance(s, dict) and s.get("op") == "⊗":
+                factors = s.get("states", [])
+                for f in factors:
+                    for other in flat:
+                        if not (isinstance(other, dict) and other.get("op") == "⊗"):
+                            if _get_key(f, ctx) == _get_key(other, ctx):
+                                DIAG.absorptions += 1
+                                out = other
+                                ctx.memo[skey] = out
+                                _NORMALIZE_MEMO[skey] = out
+                                return out
+
+        # --- Collapse absorbed singleton ---
+        # If ⊕ now contains only one surviving state, collapse to it directly
+        if len(flat) == 1:
+            DIAG.absorptions += 1
+            out = flat[0]
+            ctx.memo[skey] = out
+            _NORMALIZE_MEMO[skey] = out
+            return out
 
         # Absorbing top
         if any(isinstance(s, dict) and s.get("op") == "⊤" for s in flat):
@@ -1024,7 +1063,7 @@ def _normalize_inner(expr: Any, ctx: _NormCtx) -> Any:
                     _NORMALIZE_MEMO[skey] = out
                     return out
 
-        # --- Idempotence + commutativity (⊕) ---
+        # --- Idempotence + commutativity (⊕, ⊗, etc.) ---
         normalized = [_normalize_inner(s, ctx) for s in flat]
 
         uniq = {}
@@ -1035,19 +1074,30 @@ def _normalize_inner(expr: Any, ctx: _NormCtx) -> Any:
             else:
                 DIAG.idempotence += 1
 
-        items = sorted(uniq.values(), key=lambda x: x[1])
-        uniq_sorted = [s for s, _ in items]
+        # --- Canonicalization: sort only for commutative operators ---
+        COMMUTATIVE = {"⊕", "⊗", "↔", "≈"}  # ⊖, ⊂ are *not* commutative
+        if op in COMMUTATIVE:
+            items = sorted(uniq.values(), key=lambda x: x[1])
+            uniq_sorted = [s for s, _ in items]
+        else:
+            # Preserve insertion order for non-commutative operators (⊖, ⊂)
+            uniq_sorted = [s for s, _ in uniq.values()]
 
+        # --- Collapse or wrap ---
         if not uniq_sorted:
             out = EMPTY
         elif len(uniq_sorted) == 1:
-            out = uniq_sorted[0]
+            if strict:
+                out = {"op": op, "states": uniq_sorted}  # preserve op in strict mode
+            else:
+                out = uniq_sorted[0]
         else:
-            out = {"op": "⊕", "states": uniq_sorted}
+            out = {"op": op, "states": uniq_sorted}
 
         ctx.memo[skey] = out
         _NORMALIZE_MEMO[skey] = out
         return out
+
     elif op == "⊗":
         # --- Flatten nested ⊗ (associativity) ---
         flat = []
@@ -1133,6 +1183,7 @@ def _normalize_inner(expr: Any, ctx: _NormCtx) -> Any:
         _NORMALIZE_MEMO[skey] = out
         return out
 
+    # --- ⊖ (difference) ----------------------------------------------------
     elif op == "⊖":
         if len(states) == 2:
             x, y = states
@@ -1195,6 +1246,11 @@ def _normalize_inner(expr: Any, ctx: _NormCtx) -> Any:
 
         # --- Canonicalization ---
         out = _maybe_rewrite(out)
+
+        # 🔧 Preserve operand order for non-commutative ops (⊖, ⊂)
+        if isinstance(out, dict) and out.get("op") in {"⊖", "⊂"}:
+            out["states"] = list(out.get("states", []))
+
         ctx.memo[skey] = out
         _NORMALIZE_MEMO[skey] = out
         return out

@@ -93,11 +93,11 @@ flowchart TD
         end
 
         subgraph I2["I2. Photon ↔ SymPy bridge (math interop)"]
-            I2.1["☐ Define translation rules: Photon ↔ SymPy"]
-            I2.2["☐ Implement to_sympy(expr) + from_sympy(sym)"]
-            I2.3["☐ Round-trip invariants: Photon → SymPy → Photon"]
-            I2.4["☐ Extend property tests with SymPy equivalence"]
-            I2.5["☐ Benchmark symbolic simplification with SymPy"]
+            I2.1["✅ Define translation rules: Photon ↔ SymPy"]
+            I2.2["✅ Implement to_sympy(expr) + from_sympy(sym)"]
+            I2.3["✅ Round-trip invariants: Photon → SymPy → Photon"]
+            I2.4["✅ Extend property tests with SymPy equivalence"]
+            I2.5["✅ Benchmark symbolic simplification with SymPy"]
         end
 
         subgraph I3["I3. CodexLang++ compiler → Photon instructions"]

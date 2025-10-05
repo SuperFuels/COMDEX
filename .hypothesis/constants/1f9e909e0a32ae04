@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/photon_algebra/io_sympy.py
+# hypothesis_version: 6.139.2
+
+['PH_BOTTOM', 'PH_EMPTY', 'PH_TOP', 'PhotonApprox', 'PhotonMinus', 'PhotonSubset', 'op', 'state', 'states', '¬', '↔', '∅', '≈', '⊂', '⊕', '⊖', '⊗', '⊤', '⊥', '★']

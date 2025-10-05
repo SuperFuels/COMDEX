@@ -39,46 +39,52 @@ Expr = Union[str, Dict[str, Any]]
 # Custom SymPy BooleanFunction types for lossless representation
 # -------------------------------------------------------------------------
 class PhotonStar(BooleanFunction):
-    nargs = 1
+    nargs = (1,)
+
     @classmethod
-    def eval(cls, arg):
+    def eval(cls, *args):
         return None
+
 
 class PhotonMinus(BooleanFunction):
-    nargs = 2
+    nargs = (2,)
+
     @classmethod
-    def eval(cls, a, b):
+    def eval(cls, *args):
+        if len(args) != 2:
+            return None
         return None
+
 
 class PhotonApprox(BooleanFunction):
-    nargs = 2
+    nargs = (2,)
+
     @classmethod
-    def eval(cls, a, b):
+    def eval(cls, *args):
         return None
 
+
 class PhotonSubset(BooleanFunction):
-    nargs = 2
+    nargs = (2,)
+
     @classmethod
-    def eval(cls, a, b):
-        # protect against SymPy boolean simplification
-        if a == b:
+    def eval(cls, *args):
+        if len(args) == 2 and args[0] == args[1]:
             return sp.S.true
         return None
 
 
 # -------------------------------------------------------------------------
-# Singleton symbolic constants
+# Symbolic constants
 # -------------------------------------------------------------------------
 PH_EMPTY = Symbol("PH_EMPTY")
 PH_TOP = Symbol("PH_TOP")
 PH_BOTTOM = Symbol("PH_BOTTOM")
 
 # -------------------------------------------------------------------------
-# Helpers
+# Helper: commutative operator set
 # -------------------------------------------------------------------------
-def _is_dict(x, op=None):
-    return isinstance(x, dict) and (op is None or x.get("op") == op)
-
+COMMUTATIVE_OPS = {"⊕", "⊗", "↔", "≈"}  # ⊖ and ⊂ are not commutative
 
 # -------------------------------------------------------------------------
 # Photon → SymPy
@@ -102,10 +108,10 @@ def to_sympy(node: Expr, *, lossless: bool = True) -> sp.Expr:
         return PH_BOTTOM if lossless else sp.S.false
 
     # ---- boolean ops ----
-    if op == "⊕":  # OR
+    if op == "⊕":
         parts = [to_sympy(s, lossless=lossless) for s in node.get("states", [])]
         return Or(*parts, evaluate=False)
-    if op == "⊗":  # AND
+    if op == "⊗":
         parts = [to_sympy(s, lossless=lossless) for s in node.get("states", [])]
         safe = [
             p if isinstance(p, sp.logic.boolalg.Boolean)
@@ -115,13 +121,11 @@ def to_sympy(node: Expr, *, lossless: bool = True) -> sp.Expr:
         return And(*safe, evaluate=False)
     if op == "¬":
         s = to_sympy(node.get("state"), lossless=lossless)
-        # Photon rule: ¬∅ = ∅ (not False = False)
         if lossless and s == PH_EMPTY:
             return PH_EMPTY
         return Not(s, evaluate=False)
     if op == "↔":
         a, b = node.get("states", [None, None])
-        # preserve tautology ↔(a,a)
         if a == b:
             return PH_TOP if lossless else sp.S.true
         return Equivalent(
@@ -130,7 +134,7 @@ def to_sympy(node: Expr, *, lossless: bool = True) -> sp.Expr:
             evaluate=False,
         )
 
-    # ---- photon algebraic ops (non-boolean) ----
+    # ---- photon algebraic ops ----
     if op == "★":
         return PhotonStar(to_sympy(node.get("state"), lossless=lossless))
     if op == "⊖":
@@ -143,7 +147,6 @@ def to_sympy(node: Expr, *, lossless: bool = True) -> sp.Expr:
                             to_sympy(b, lossless=lossless))
     if op == "⊂":
         a, b = node.get("states", [None, None])
-        # subset identity tautology ⊂(a,a) → ⊤
         if a == b:
             return PH_TOP if lossless else sp.S.true
         return PhotonSubset(to_sympy(a, lossless=lossless),
@@ -157,14 +160,14 @@ def to_sympy(node: Expr, *, lossless: bool = True) -> sp.Expr:
 # SymPy → Photon
 # -------------------------------------------------------------------------
 def from_sympy(sexpr) -> Expr:
-    """Convert a SymPy expression back into Photon IR form."""
-    # Literal booleans
+    """Convert SymPy expression back into Photon IR with full recursive canonical ordering."""
+    # --- Literal booleans ---
     if sexpr == sp.S.true:
         return TOP
     if sexpr == sp.S.false:
         return BOTTOM
 
-    # symbolic constants
+    # --- Symbolic constants ---
     if sexpr == PH_EMPTY:
         return EMPTY
     if sexpr == PH_TOP:
@@ -172,42 +175,85 @@ def from_sympy(sexpr) -> Expr:
     if sexpr == PH_BOTTOM:
         return BOTTOM
 
+    # --- Atomic symbols ---
     if isinstance(sexpr, sp.Symbol):
         name = str(sexpr)
         if name in {"PH_EMPTY", "PH_TOP", "PH_BOTTOM"}:
             return {"op": name.replace("PH_", "")}
         return name
 
-    if isinstance(sexpr, Or):
-        return {"op": "⊕", "states": [from_sympy(a) for a in sexpr.args]}
-    if isinstance(sexpr, And):
-        return {"op": "⊗", "states": [from_sympy(a) for a in sexpr.args]}
-    if isinstance(sexpr, Not):
-        return {"op": "¬", "state": from_sympy(sexpr.args[0])}
-    if isinstance(sexpr, Equivalent):
-        args = list(sexpr.args)
-        cur = from_sympy(args[0])
-        for nxt in args[1:]:
-            cur = {"op": "↔", "states": [cur, from_sympy(nxt)]}
-        # preserve ↔(a,a) as ⊤ tautology
-        a, b = cur["states"]
-        if a == b:
-            return {"op": "⊤"}
-        return cur
+    # --- Recursive conversion helper ---
+    def _convert(expr):
+        if isinstance(expr, sp.Symbol):
+            return from_sympy(expr)
+        if expr == sp.S.true:
+            return TOP
+        if expr == sp.S.false:
+            return BOTTOM
 
-    if isinstance(sexpr, PhotonStar):
-        return {"op": "★", "state": from_sympy(sexpr.args[0])}
-    if isinstance(sexpr, PhotonMinus):
-        return {"op": "⊖", "states": [from_sympy(a) for a in sexpr.args]}
-    if isinstance(sexpr, PhotonApprox):
-        return {"op": "≈", "states": [from_sympy(a) for a in sexpr.args]}
-    if isinstance(sexpr, PhotonSubset):
-        a, b = [from_sympy(x) for x in sexpr.args]
-        if a == b:
-            return {"op": "⊤"}
-        return {"op": "⊂", "states": [a, b]}
+        if isinstance(expr, Or):
+            return {"op": "⊕", "states": [_convert(a) for a in expr.args]}
+        if isinstance(expr, And):
+            return {"op": "⊗", "states": [_convert(a) for a in expr.args]}
+        if isinstance(expr, Not):
+            return {"op": "¬", "state": _convert(expr.args[0])}
+        if isinstance(expr, Equivalent):
+            args = [_convert(a) for a in expr.args]
+            if len(args) == 2 and args[0] == args[1]:
+                return {"op": "⊤"}
+            return {"op": "↔", "states": args}
+        if isinstance(expr, PhotonStar):
+            return {"op": "★", "state": _convert(expr.args[0])}
+        if isinstance(expr, PhotonMinus):
+            return {"op": "⊖", "states": [_convert(a) for a in expr.args]}
+        if isinstance(expr, PhotonApprox):
+            return {"op": "≈", "states": [_convert(a) for a in expr.args]}
+        if isinstance(expr, PhotonSubset):
+            a, b = [_convert(x) for x in expr.args]
+            if a == b:
+                return {"op": "⊤"}
+            return {"op": "⊂", "states": [a, b]}
+        return str(expr)
 
-    return str(sexpr)
+    # --- Deep canonical recursive sort ---
+    def _canon(expr):
+        """Recursively sort commutative ops for deterministic equivalence."""
+        if isinstance(expr, dict):
+            op = expr.get("op")
+
+            # Canonicalize children first
+            if "states" in expr:
+                expr["states"] = [_canon(s) for s in expr["states"]]
+            if "state" in expr:
+                expr["state"] = _canon(expr["state"])
+
+            # Sort only commutative operators
+            if op in COMMUTATIVE_OPS:
+                expr["states"] = sorted(expr["states"], key=lambda x: str(x))
+
+            # For nested states: ensure each child dict is also normalized
+            expr = {
+                k: (_canon(v) if isinstance(v, dict) else v)
+                for k, v in expr.items()
+            }
+        return expr
+
+    # Convert first, then canonicalize deeply and normalize nested commutatives
+    out = _canon(_convert(sexpr))
+
+    # Ensure final pass re-sorts deeply nested commutative children
+    def _deep_fix(expr):
+        if isinstance(expr, dict):
+            op = expr.get("op")
+            if "states" in expr:
+                expr["states"] = [_deep_fix(s) for s in expr["states"]]
+                if op in COMMUTATIVE_OPS:
+                    expr["states"] = sorted(expr["states"], key=lambda x: str(x))
+            elif "state" in expr:
+                expr["state"] = _deep_fix(expr["state"])
+        return expr
+
+    return _deep_fix(out)
 
 
 # -------------------------------------------------------------------------
@@ -220,3 +266,13 @@ def lower_to_bool(sexpr):
         PH_EMPTY: sp.S.false,
         PH_BOTTOM: sp.S.false,
     })
+
+
+__all__ = [
+    "to_sympy",
+    "from_sympy",
+    "lower_to_bool",
+    "PH_EMPTY",
+    "PH_TOP",
+    "PH_BOTTOM",
+]

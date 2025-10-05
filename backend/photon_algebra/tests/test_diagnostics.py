@@ -5,7 +5,7 @@ def test_distribution_count():
     norm, meta = normalize_expr(expr)
     assert meta["distributions"] >= 1
     assert meta["invariants"]["no_plus_under_times"]
-
+    
 def test_absorption_count():
     expr = {"op": "⊕", "states": ["a", {"op": "⊗", "states": ["a", "b"]}]}
     norm, meta = normalize_expr(expr)

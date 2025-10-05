@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/photon_algebra/simplify_canonical.py
+# hypothesis_version: 6.139.2
+
+['\nAfter:\n', 'Before:\n', '__main__', 'a', 'b', 'op', 'state', 'states', '¬', '↔', '∅', '≈', '⊂', '⊕', '⊖', '⊗', '⊤', '⊥', '★']
