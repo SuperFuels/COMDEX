@@ -1,168 +1,169 @@
 # ==========================================================
-# Test F2+ — Dual Fourier Diagnostics & Stabilized Propagation
+# Test F2 — Stability & Propagation (Effective Lagrangian Dynamics)
 # ==========================================================
 # Purpose:
-#   Extend the stability propagation test with spectral diagnostics.
-#   Includes damping, adaptive stability control, and Fourier cross-correlation.
+#   Propagate the θ–κ system using extracted PDE coefficients
+#   from Test F1, testing the dynamic stability of the Lagrangian.
+#   Optionally injects a Gaussian perturbation and tracks soliton
+#   or dissipative wave behavior.
 #
 # Outputs:
-#   - Animation of θ-field propagation
-#   - Energy, correlation, and spectral entropy plots
-#   - Dual Fourier spectrum comparison
+#   - Animated θ, κ fields over time
+#   - Lagrangian density map
+#   - Energy (⟨ℒ⟩) evolution
+#   - θ–κ correlation trace
+#   - Fourier spectrum of κ(t)
+#
 # ==========================================================
 
 import numpy as np
 import matplotlib.pyplot as plt
 import imageio.v2 as imageio
 
-# Grid setup
-N = 128
+# ----------------------------------------------------------
+# Parameters and coefficients (from Test F1)
+# ----------------------------------------------------------
+c1, c3 = 0.81037, 0.13982
+d1, d2, d3 = 0.03920, 0.12792, -0.08513
+
+N = 200
 x = np.linspace(-1, 1, N)
 y = np.linspace(-1, 1, N)
 X, Y = np.meshgrid(x, y)
 dx = x[1] - x[0]
-
-# Simulation parameters
+dt = 0.001
 steps = 400
-dt = 0.0025          # smaller timestep for numerical stability
 perturbation_mode = True
 
-# Coefficients (softened for stability)
-c1, c3 = 0.45, 0.08
-d1, d2, d3 = 0.015, 0.07, -0.03
-damping_theta = 0.001
-damping_kappa = 0.0005
-
-# Initialize fields
+# ----------------------------------------------------------
+# Initial conditions
+# ----------------------------------------------------------
 theta = np.zeros((N, N))
 theta_t = np.zeros_like(theta)
 kappa = 0.01 * np.random.randn(N, N)
 
-# Inject localized perturbation
 if perturbation_mode:
     print("💥 Perturbation mode enabled — injecting Gaussian pulse.")
-    r2 = X**2 + Y**2
-    theta += np.exp(-r2 / 0.05)
+    pulse = np.exp(-((X**2 + Y**2) / 0.1))
+    theta += 0.1 * pulse
+    kappa += 0.05 * pulse
 
-# Utilities
+# ----------------------------------------------------------
+# Utility functions
+# ----------------------------------------------------------
 def laplacian(Z):
-    return (-4 * Z +
-            np.roll(Z, 1, 0) + np.roll(Z, -1, 0) +
-            np.roll(Z, 1, 1) + np.roll(Z, -1, 1)) / (dx**2)
+    return (
+        -4*Z
+        + np.roll(Z, 1, 0) + np.roll(Z, -1, 0)
+        + np.roll(Z, 1, 1) + np.roll(Z, -1, 1)
+    ) / (dx**2)
 
-def gradient(Z):
-    gx = (np.roll(Z, -1, 1) - np.roll(Z, 1, 1)) / (2 * dx)
-    gy = (np.roll(Z, -1, 0) - np.roll(Z, 1, 0)) / (2 * dx)
-    return gx, gy
+def grad(Z):
+    return np.gradient(Z, dx, edge_order=2)
 
-# Diagnostics
-frames, energy_trace, corr_trace, spectral_entropy_trace = [], [], [], []
+# ----------------------------------------------------------
+# Simulation arrays
+# ----------------------------------------------------------
+frames = []
+energy_trace = []
+corr_trace = []
 
-# Main evolution loop
+# ----------------------------------------------------------
+# Time evolution loop
+# ----------------------------------------------------------
 for step in range(steps):
-    lap_theta = laplacian(theta)
-    grad_theta_x, grad_theta_y = gradient(theta)
+    grad_theta_x, grad_theta_y = grad(theta)
+    grad_kappa_x, grad_kappa_y = grad(kappa)
     grad_theta2 = grad_theta_x**2 + grad_theta_y**2
-    grad_kappa_x, grad_kappa_y = gradient(kappa)
     grad_kappa2 = grad_kappa_x**2 + grad_kappa_y**2
 
     div_kappa_grad = (
-        (np.roll(kappa * grad_theta_x, -1, 1) - np.roll(kappa * grad_theta_x, 1, 1)) +
-        (np.roll(kappa * grad_theta_y, -1, 0) - np.roll(kappa * grad_theta_y, 1, 0))
-    ) / (2 * dx)
+        (np.roll(kappa*grad_theta_x, -1, 1) - np.roll(kappa*grad_theta_x, 1, 1)) +
+        (np.roll(kappa*grad_theta_y, -1, 0) - np.roll(kappa*grad_theta_y, 1, 0))
+    ) / (2*dx)
 
-    theta_tt = c1 * lap_theta + c3 * div_kappa_grad - damping_theta * theta_t
+    lap_theta = laplacian(theta)
+    theta_tt = c1 * lap_theta + c3 * div_kappa_grad
     theta_t += dt * theta_tt
     theta += dt * theta_t
 
-    kappa_dot = d1 * laplacian(kappa) + d2 * grad_theta2 + d3 * kappa - damping_kappa * kappa
+    kappa_dot = d1 * laplacian(kappa) + d2 * grad_theta2 + d3 * kappa
     kappa += dt * kappa_dot
 
-    # Lagrangian density and correlation
+    # Lagrangian density ℒ(x,y)
     L = 0.5 * (theta_t**2 - c1 * grad_theta2) - 0.5 * c3 * kappa * grad_theta2 \
         + 0.04 * kappa**2 - 0.02 * grad_kappa2
+
     energy_trace.append(np.nanmean(L))
     corr_trace.append(np.nanmean(theta * kappa))
 
-    # Fourier diagnostics
-    theta_fft = np.fft.fftshift(np.abs(np.fft.fft2(theta))**2)
-    p = theta_fft / np.sum(theta_fft)
-    S = -np.nansum(p * np.log(p + 1e-12))
-    spectral_entropy_trace.append(S)
-
-    # Record animation frame every 20 steps
     if step % 20 == 0:
-        normed = (theta - np.min(theta)) / (np.ptp(theta) + 1e-8)
-        frames.append(np.uint8(plt.cm.twilight(normed) * 255))
+        frame = np.uint8(plt.cm.plasma((kappa - np.min(kappa)) / (np.ptp(kappa) + 1e-8)) * 255)
+        frames.append(frame)
 
-# === Save outputs ===
-imageio.mimsave("PAEV_TestF2Plus_Propagation.gif", frames, fps=10)
-print("✅ Saved animation to: PAEV_TestF2Plus_Propagation.gif")
+# ----------------------------------------------------------
+# Save animation
+# ----------------------------------------------------------
+imageio.mimsave("PAEV_TestF2_Propagation.gif", frames, fps=15)
+print("✅ Saved animation to: PAEV_TestF2_Propagation.gif")
 
-# Energy trace
+# ----------------------------------------------------------
+# Energy plot
+# ----------------------------------------------------------
 plt.figure()
-plt.plot(energy_trace, color='blue')
-plt.title("Test F2+ — Mean Lagrangian Evolution")
-plt.xlabel("Step")
-plt.ylabel("⟨ℒ⟩")
+plt.plot(energy_trace, color="blue")
+plt.title("Test F2 — Energy Evolution (Lagrangian Stability)")
+plt.xlabel("Time step")
+plt.ylabel("Mean Lagrangian ⟨ℒ⟩")
 plt.tight_layout()
-plt.savefig("PAEV_TestF2Plus_Energy.png")
+plt.savefig("PAEV_TestF2_Energy.png")
 plt.close()
-print("✅ Saved file: PAEV_TestF2Plus_Energy.png")
+print("✅ Saved file: PAEV_TestF2_Energy.png")
 
-# Correlation trace
+# ----------------------------------------------------------
+# Correlation plot
+# ----------------------------------------------------------
 plt.figure()
-plt.plot(corr_trace, color='green')
-plt.title("Test F2+ — ⟨θ·κ⟩ Correlation Evolution")
-plt.xlabel("Step")
-plt.ylabel("⟨θ·κ⟩")
+plt.plot(corr_trace, color="purple")
+plt.title("Test F2 — Phase–Curvature Correlation Evolution")
+plt.xlabel("Time step")
+plt.ylabel("⟨θ·κ⟩ correlation")
 plt.tight_layout()
-plt.savefig("PAEV_TestF2Plus_Correlation.png")
+plt.savefig("PAEV_TestF2_Correlation.png")
 plt.close()
-print("✅ Saved file: PAEV_TestF2Plus_Correlation.png")
+print("✅ Saved file: PAEV_TestF2_Correlation.png")
 
-# Spectral entropy
-plt.figure()
-plt.plot(spectral_entropy_trace, color='purple')
-plt.title("Test F2+ — Spectral Entropy Evolution")
-plt.xlabel("Step")
-plt.ylabel("Entropy S")
+# ----------------------------------------------------------
+# Lagrangian Density Map
+# ----------------------------------------------------------
+plt.figure(figsize=(6,6))
+plt.imshow(L, cmap="inferno", extent=[-1,1,-1,1])
+plt.colorbar(label="ℒ value")
+plt.title(f"Test F2 — Lagrangian Density ⟨ℒ⟩={np.nanmean(L):.2e}")
 plt.tight_layout()
-plt.savefig("PAEV_TestF2Plus_SpectralEntropy.png")
+plt.savefig("PAEV_TestF2_Lagrangian.png")
 plt.close()
-print("✅ Saved file: PAEV_TestF2Plus_SpectralEntropy.png")
+print("✅ Saved file: PAEV_TestF2_Lagrangian.png")
 
-# Final Fourier diagnostics
-theta_fft_final = np.fft.fftshift(np.abs(np.fft.fft2(theta))**2)
-kappa_fft_final = np.fft.fftshift(np.abs(np.fft.fft2(kappa))**2)
-cross_fft = np.real(np.fft.fftshift(np.fft.fft2(theta) * np.conj(np.fft.fft2(kappa))))
-
-plt.figure(figsize=(15, 5))
-plt.subplot(1, 3, 1)
-plt.imshow(np.log(theta_fft_final + 1e-8), cmap='inferno')
-plt.title("θ Spectrum (log power)")
-plt.colorbar()
-
-plt.subplot(1, 3, 2)
-plt.imshow(np.log(kappa_fft_final + 1e-8), cmap='magma')
-plt.title("κ Spectrum (log power)")
-plt.colorbar()
-
-plt.subplot(1, 3, 3)
-plt.imshow(cross_fft, cmap='coolwarm')
-plt.title("Cross-Spectral Correlation Re[θ̃·κ̃*]")
-plt.colorbar()
-
+# ----------------------------------------------------------
+# Fourier diagnostic — spectral structure of κ field
+# ----------------------------------------------------------
+fft_spectrum = np.fft.fftshift(np.abs(np.fft.fft2(kappa))**2)
+plt.figure(figsize=(6,6))
+plt.imshow(np.log(fft_spectrum + 1e-8), cmap="magma", extent=[-1,1,-1,1])
+plt.colorbar(label="log |κ(k)|²")
+plt.title("Test F2 — Fourier Spectrum of κ Field (log power)")
 plt.tight_layout()
-plt.savefig("PAEV_TestF2Plus_DualFourier.png")
+plt.savefig("PAEV_TestF2_FourierSpectrum.png")
 plt.close()
-print("✅ Saved file: PAEV_TestF2Plus_DualFourier.png")
+print("✅ Saved file: PAEV_TestF2_FourierSpectrum.png")
 
+# ----------------------------------------------------------
 # Summary
-print("\n=== Test F2+ — Dual Fourier Diagnostics Complete ===")
-print(f"⟨ℒ⟩ final = {np.nanmean(energy_trace):.4e}")
+# ----------------------------------------------------------
+print("\n=== Test F2 — Stability & Propagation Complete ===")
+print(f"⟨ℒ⟩ final = {np.nanmean(L):.4e}")
 print(f"⟨θ·κ⟩ final = {np.nanmean(corr_trace):.4e}")
-print(f"Spectral entropy (final) = {spectral_entropy_trace[-1]:.4e}")
 print(f"Perturbation mode: {'ON' if perturbation_mode else 'OFF'}")
 print("All output files saved in working directory.")
 print("----------------------------------------------------------")

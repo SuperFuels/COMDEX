@@ -1,0 +1,12 @@
+
+=== Test F6 — Meta-Adaptive Resonance Calibration ===
+⟨ℒ⟩ final = 5.9441e-04
+⟨θ·κ⟩ final = 2.9474e-02
+Spectral entropy final = 1.5952e+00
+χ final = 1.6692e-01
+α final = 5.5757e-02
+Transition detected at step 0
+Perturbation mode: ON
+
+All output files saved in working directory.
+----------------------------------------------------------

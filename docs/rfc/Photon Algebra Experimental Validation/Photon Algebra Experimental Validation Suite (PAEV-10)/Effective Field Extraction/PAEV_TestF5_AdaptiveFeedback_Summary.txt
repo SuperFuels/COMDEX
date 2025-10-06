@@ -1,0 +1,11 @@
+
+=== Test F5 — Adaptive Feedback Response (Hierarchical Control) ===
+⟨ℒ⟩ final = 4.9118e-03
+⟨θ·κ⟩ final = 1.3868e-01
+Spectral entropy final = 1.2608e-01
+Adaptive coupling χ final = 5.0000e-01
+Transition detected at step 0
+Perturbation mode: ON
+
+All output files saved in working directory.
+----------------------------------------------------------

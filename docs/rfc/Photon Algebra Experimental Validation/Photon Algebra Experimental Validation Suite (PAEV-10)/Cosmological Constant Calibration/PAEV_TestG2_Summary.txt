@@ -1,0 +1,7 @@
+=== Test G2 — Fine-Structure Constant Calibration ===
+α (known)       = 7.297353e-03
+ᾱ (emergent)   = 7.232134e-03
+68% CI          = [4.606490e-03, 4.799507e-03]
+Final ⟨θ·κ⟩     = -1.155848e-01
+Final entropy   = 4.323037e-01
+Perturbation mode: ON

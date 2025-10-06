@@ -31,7 +31,7 @@ gcloud run deploy comdex-api \
   --timeout=300s
 
 git add .
-git commit -m "QUANTUM MECHANICS V4"
+git commit -m "QUANTUM MECHANICS V5"
 git push origin main
 
 

@@ -1,0 +1,13 @@
+
+=== Test F8 — Predictive Cosmogenesis Complete ===
+⟨ℒ⟩ final = 6.3681e-04
+⟨θ·κ⟩ final = 3.1346e-02
+Spectral entropy final = 3.1968e-01
+a(t) final = 1.0002e+00
+Λ final = 1.2844e-04
+χ final = 1.3287e-01
+α final = 2.9186e-02
+Perturbation mode: ON
+
+All output files saved in working directory.
+----------------------------------------------------------
