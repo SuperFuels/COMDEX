@@ -405,3 +405,47 @@ Coherence (E↔S): -0.999681
 ----------------------------------------------------------
 @SuperFuels ➜ /workspaces/COMDEX (main) $ 
 
+backend/modules/theory_of_everything/toe_whitepaper_export_full.py
+
+🧩 L4–L5 Implementation Plan
+
+L4 — Fullpaper Populator (paev_test_L4_fullpaper_populator.py)
+
+Goal:
+Aggregate everything from your H→J→K→L pipeline, and dynamically generate a narrative body (with metrics, figures, constants, and model summaries).
+
+Outputs:
+	•	/docs/rfc/TOE_Whitepaper_v1.2_full.tex (auto-filled LaTeX)
+	•	/backend/modules/knowledge/whitepaper_data.json (compiled results index)
+
+It will automatically pull:
+	•	State/constant JSONs
+	•	Key simulation drifts (ΔE, ΔS, ΔH)
+	•	Table data
+	•	Image paths (e.g. PAEV_K2_MultiDomainEnergy.png)
+	•	Paragraphs constructed from stability metrics and coherence tests
+
+⸻
+
+L5 — Final PDF Compose (paev_test_L5_final_pdf_compose.py)
+
+Goal:
+Render the populated .tex into a fully compiled, content-rich PDF, using either:
+	•	pdflatex if available, or
+	•	reportlab fallback with inserted text + images.
+
+Outputs:
+	•	/docs/rfc/TOE_Whitepaper_v1.2_full.pdf
+	•	Optional /docs/rfc/TOE_Whitepaper_v1.2_summary.pdf (short form for sharing)
+
+⸻
+
+Would you like me to:
+	•	✅ Generate both L4 + L5 scripts in full now (ready to run),
+	•	📄 Include automatic image embedding (plots & drift charts), and
+	•	🧮 Add text-driven sections for “Results”, “Analysis”, “Discussion”, and “Future Work (Wormhole Transition)”?
+
+That version will give you a professional, publication-ready document that summarizes all TOE results before we launch into W-series: Wormhole Topology & Causal Continuity.
+
+Shall I proceed with full generation (L4 + L5 complete)?
+

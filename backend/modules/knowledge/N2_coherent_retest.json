@@ -1,0 +1,13 @@
+{
+  "\u0127": 0.001,
+  "G": 1e-05,
+  "\u039b0": 1e-06,
+  "\u03b10": 0.5,
+  "\u03b2": 0.2,
+  "mean_alpha_ratio": 1.0,
+  "mean_lambda_ratio": 0.8,
+  "fidelity": 0.9999999999999993,
+  "delay_ratio": 0.08871372662027319,
+  "classification": "\u2705 Active Bridge (Coherent Transfer)",
+  "timestamp": "2025-10-06T16:04Z"
+}

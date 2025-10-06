@@ -1,0 +1,16 @@
+{
+  "\u0127": 0.001,
+  "G": 1e-05,
+  "\u039b": 1e-06,
+  "\u03b1": 0.5,
+  "\u03b2": 0.2,
+  "coupling": 0.28,
+  "noise_scale": 0.015,
+  "mean_dSdt_tail": -0.00015180150524014225,
+  "mean_dIdt_tail": -3.318099900792626e-05,
+  "classification": "\ud83c\udf00 Overcoupled / oscillatory",
+  "files": {
+    "plot": "PAEV_O3_EntropySymmetry.png"
+  },
+  "timestamp": "2025-10-06T17:41Z"
+}

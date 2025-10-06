@@ -1,0 +1,20 @@
+{
+  "\u0127": 0.001,
+  "G": 1e-05,
+  "\u039b0": 1e-06,
+  "\u03b10": 0.5,
+  "\u03b2": 0.2,
+  "feedback_gain": 0.28,
+  "T_eff": 3.6e+18,
+  "noise_scale_proxy": 3.1022399743721996e-07,
+  "S_tail_mean": 0.7030076441081695,
+  "dSdt_tail_mean": -0.0007325941017469037,
+  "final_coherence": 0.9943115746952761,
+  "classification": "\u2705 Unified equilibrium reached",
+  "files": {
+    "entropy": "PAEV_N20_Entropy.png",
+    "flow": "PAEV_N20_EntropyFlow.png",
+    "coherence": "PAEV_N20_Coherence.png"
+  },
+  "timestamp": "2025-10-06T17:18Z"
+}

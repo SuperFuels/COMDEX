@@ -1,0 +1,15 @@
+{
+  "timestamp": "2025-10-06T14:16Z",
+  "params": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1_base": 0.5
+  },
+  "activation_time": 5.012531328320802,
+  "light_cone": 4.0,
+  "activated": true,
+  "constants_version": "v1.2",
+  "constants_hash": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9",
+  "updated": "2025-10-06T16:45Z"
+}

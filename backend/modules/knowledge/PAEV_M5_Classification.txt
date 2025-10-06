@@ -1,0 +1,2 @@
+M5 Wormhole Stability: Stable
+Δκ_final = 3.536e-02

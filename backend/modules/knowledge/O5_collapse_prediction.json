@@ -1,0 +1,19 @@
+{
+  "\u0127": 0.001,
+  "G": 1e-05,
+  "\u039b": 1e-06,
+  "\u03b1": 0.5,
+  "\u03b2": 0.2,
+  "coupling": 0.22,
+  "noise_scale": 0.012,
+  "decay_rate": 0.001,
+  "final_fidelity": 0.9306634742861587,
+  "mean_S_drift": -2.220446049250313e-18,
+  "mean_P_pred": 0.9999999999999973,
+  "collapse_time": 600,
+  "classification": "\u2705 Predictive stable coupling",
+  "files": {
+    "plot": "PAEV_O5_CollapsePrediction.png"
+  },
+  "timestamp": "2025-10-06T17:51Z"
+}

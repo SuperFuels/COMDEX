@@ -1,0 +1,12 @@
+{
+  "\u0127": 0.001,
+  "G": 1e-05,
+  "\u039b": 1e-06,
+  "\u03b1": 0.5,
+  "\u03b2": 0.2,
+  "fidelity": 1.0000000000000007,
+  "phase_drift": -1.1375874182685235,
+  "loop_consistency": 0.4197854390907235,
+  "classification": "\u26a0\ufe0f Quasi-closed",
+  "timestamp": "2025-10-06T17:06Z"
+}

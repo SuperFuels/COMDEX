@@ -1,0 +1,194 @@
+{
+  "registry_version": "v1.0",
+  "constants_ref": {
+    "constants_version": "v1.2",
+    "sha256": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9",
+    "md5": "3e0820ed6ad211f90e7cbb520914e754",
+    "timestamp": "2025-10-06T16:45Z",
+    "source": "backend/modules/knowledge/constants_v1.2.json",
+    "verified": true
+  },
+  "entries": [
+    {
+      "file": "N10_renormalization_summary.json",
+      "timestamp": "2025-10-06T15:57Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "N11_message_summary.json",
+      "timestamp": "2025-10-06T16:06Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "N12_phase_summary.json",
+      "timestamp": "2025-10-06T16:10Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "N13_feedback_summary.json",
+      "timestamp": "2025-10-06T16:13Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "N14_persistence_summary.json",
+      "timestamp": "2025-10-06T16:17Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "N15_thermal_rephase_summary.json",
+      "timestamp": "2025-10-06T16:20Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "N16_entropy_feedback.json",
+      "timestamp": "2025-10-06T16:59Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "N17_causal_closure.json",
+      "timestamp": "2025-10-06T17:06Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "N18_memory_retention.json",
+      "timestamp": "2025-10-06T17:08Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "N19_holographic_reconstruction.json",
+      "timestamp": "2025-10-06T17:15Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "N19b_phase_conjugate_reconstruction.json",
+      "timestamp": "2025-10-06T17:22Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "N20_unified_equilibrium.json",
+      "timestamp": "2025-10-06T17:18Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "N2_coherent_retest.json",
+      "timestamp": "2025-10-06T16:04Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "N4_feedback_summary.json",
+      "timestamp": "unknown",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "N5_echo_summary.json",
+      "timestamp": "2025-10-06T14:27Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "N6_noise_summary.json",
+      "timestamp": "unknown",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "N7_capacity_summary.json",
+      "timestamp": "2025-10-06T15:44Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "N8_energy_summary.json",
+      "timestamp": "2025-10-06T15:48Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "N9_backreaction_summary.json",
+      "timestamp": "2025-10-06T15:52Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "O1_observer_channel.json",
+      "timestamp": "2025-10-06T17:33Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "O2_info_equilibrium.json",
+      "timestamp": "2025-10-06T17:38Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "O3_entropic_symmetry.json",
+      "timestamp": "2025-10-06T17:41Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "O4_entanglement_lock.json",
+      "timestamp": "2025-10-06T17:44Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "O4a_entanglement_lock_adaptive.json",
+      "timestamp": "2025-10-06T17:47Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "bridge_activation_log.json",
+      "timestamp": "2025-10-06T14:16Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "constants_v1.0.json",
+      "timestamp": "unknown",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "constants_v1.1.json",
+      "timestamp": "2025-10-06T13:35Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "reproducibility_check_summary.json",
+      "timestamp": "2025-10-06T16:51Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "reproducibility_v1.json",
+      "timestamp": "2025-10-06T13:09Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "state.json",
+      "timestamp": "2025-10-06T13:33Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    }
+  ],
+  "timestamp": "2025-10-06T17:48Z"
+}

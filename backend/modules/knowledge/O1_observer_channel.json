@@ -1,0 +1,18 @@
+{
+  "\u0127": 0.001,
+  "G": 1e-05,
+  "\u039b": 1e-06,
+  "\u03b1": 0.5,
+  "\u03b2": 0.2,
+  "observer_gain": 0.15,
+  "noise_scale": 0.01,
+  "final_fidelity": 0.9108648692300438,
+  "mean_mutual_info": 0.6709659968160495,
+  "S_system_tail": 0.7257913526371954,
+  "S_observer_tail": 0.5722768924805771,
+  "classification": "\u2705 Stable observer coupling",
+  "files": {
+    "plot": "PAEV_O1_ObserverChannel.png"
+  },
+  "timestamp": "2025-10-06T17:33Z"
+}
