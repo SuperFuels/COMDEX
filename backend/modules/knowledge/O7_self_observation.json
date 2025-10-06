@@ -1,0 +1,17 @@
+{
+  "\u0127": 0.001,
+  "G": 1e-05,
+  "\u039b": 1e-06,
+  "\u03b1": 0.5,
+  "\u03b2": 0.2,
+  "feedback_gain": 0.22,
+  "meta_gain": 0.12,
+  "noise_scale": 0.008,
+  "meta_drift": 5.023567510015389e-06,
+  "corr_meta": 0.8746538654901487,
+  "classification": "\u26a0\ufe0f Marginal stability",
+  "files": {
+    "plot": "PAEV_O7_SelfObservation.png"
+  },
+  "timestamp": "2025-10-06T18:08Z"
+}

@@ -124,6 +124,18 @@
       "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
     },
     {
+      "file": "O10_reinforcement.json",
+      "timestamp": "2025-10-06T18:33Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "O11_causal_convergence.json",
+      "timestamp": "2025-10-06T18:36Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
       "file": "O1_observer_channel.json",
       "timestamp": "2025-10-06T17:33Z",
       "constants_version": "v1.2",
@@ -154,6 +166,36 @@
       "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
     },
     {
+      "file": "O5_collapse_prediction.json",
+      "timestamp": "2025-10-06T17:51Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "O6_feedback_entropy.json",
+      "timestamp": "2025-10-06T17:58Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "O7_self_observation.json",
+      "timestamp": "2025-10-06T18:08Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "O8_causal_prediction.json",
+      "timestamp": "2025-10-06T18:25Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "O9_temporal_feedback.json",
+      "timestamp": "2025-10-06T18:30Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
       "file": "bridge_activation_log.json",
       "timestamp": "2025-10-06T14:16Z",
       "constants_version": "v1.2",
@@ -173,7 +215,7 @@
     },
     {
       "file": "reproducibility_check_summary.json",
-      "timestamp": "2025-10-06T16:51Z",
+      "timestamp": "2025-10-06T17:54Z",
       "constants_version": "v1.2",
       "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
     },
@@ -190,5 +232,5 @@
       "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
     }
   ],
-  "timestamp": "2025-10-06T17:48Z"
+  "timestamp": "2025-10-06T18:38Z"
 }

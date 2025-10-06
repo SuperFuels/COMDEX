@@ -31,7 +31,7 @@ gcloud run deploy comdex-api \
   --timeout=300s
 
 git add .
-git commit -m "Theory of Everything Completion v2"
+git commit -m "Theory of Everything Completion v3"
 git push origin main
 
 

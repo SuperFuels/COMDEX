@@ -1,0 +1,20 @@
+{
+  "\u0127": 0.001,
+  "G": 1e-05,
+  "\u039b": 1e-06,
+  "\u03b1": 0.5,
+  "\u03b2": 0.2,
+  "feedback_gain": 0.2,
+  "learning_rate": 0.05,
+  "noise_scale": 0.009,
+  "phase_shift": 0.06,
+  "mean_error": 0.011834473956919788,
+  "corr_prediction": 0.9799034548438107,
+  "entropy_drift": -0.00026566715464327125,
+  "classification": "\u274c Divergent learning loop",
+  "files": {
+    "entropy_plot": "PAEV_O10_Reinforcement.png",
+    "error_plot": "PAEV_O10_ReinforcementError.png"
+  },
+  "timestamp": "2025-10-06T18:33Z"
+}

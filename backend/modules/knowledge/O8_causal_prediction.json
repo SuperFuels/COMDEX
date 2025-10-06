@@ -1,0 +1,19 @@
+{
+  "\u0127": 0.001,
+  "G": 1e-05,
+  "\u039b": 1e-06,
+  "\u03b1": 0.5,
+  "\u03b2": 0.2,
+  "feedback_gain": 0.2,
+  "predictive_gain": 0.15,
+  "noise_scale": 0.008,
+  "phase_lag": 0.05,
+  "mean_error": 0.0010650019146495502,
+  "corr_prediction": 0.999186666081447,
+  "classification": "\u26a0\ufe0f Partially predictive",
+  "files": {
+    "entropy_plot": "PAEV_O8_CausalPrediction.png",
+    "error_plot": "PAEV_O8_PredictionError.png"
+  },
+  "timestamp": "2025-10-06T18:25Z"
+}

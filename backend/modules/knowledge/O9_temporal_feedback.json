@@ -1,0 +1,18 @@
+{
+  "\u0127": 0.001,
+  "G": 1e-05,
+  "\u039b": 1e-06,
+  "\u03b1": 0.5,
+  "\u03b2": 0.2,
+  "feedback_gain": 0.18,
+  "delay_steps": 8,
+  "noise_scale": 0.01,
+  "phase_shift": 0.07,
+  "mean_drift": -7.717865222952037e-06,
+  "corr": -0.9956890256746088,
+  "classification": "\u26a0\ufe0f Phase drift",
+  "files": {
+    "plot": "PAEV_O9_TemporalFeedback.png"
+  },
+  "timestamp": "2025-10-06T18:30Z"
+}

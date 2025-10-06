@@ -1,0 +1,17 @@
+{
+  "\u0127": 0.001,
+  "G": 1e-05,
+  "\u039b": 1e-06,
+  "\u03b1": 0.5,
+  "\u03b2": 0.2,
+  "feedback_gain": 0.18,
+  "noise_scale": 0.01,
+  "mean_drift": -6.894599277715852e-06,
+  "feedback_correlation": -1.0,
+  "mean_feedback": 0.0006158246322269041,
+  "classification": "\u26a0\ufe0f Under-coupled feedback",
+  "files": {
+    "plot": "PAEV_O6_FeedbackEntropy.png"
+  },
+  "timestamp": "2025-10-06T17:58Z"
+}

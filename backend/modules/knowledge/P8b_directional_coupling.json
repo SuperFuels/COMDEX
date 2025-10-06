@@ -1,0 +1,27 @@
+{
+  "\u0127": 0.001,
+  "G": 1e-05,
+  "\u039b": 1e-06,
+  "\u03b1": 0.5,
+  "\u03b2": 0.2,
+  "feedback_gain": 0.18,
+  "meta_gain": 0.12,
+  "resonance_gain": 0.07,
+  "damping": 0.042,
+  "leak": 0.0085,
+  "servo_p": 0.1,
+  "servo_i": 0.0008,
+  "servo_d": 0.02,
+  "noise_scale": 0.0035,
+  "coupling_gain": 0.025,
+  "predictive_lead": 1,
+  "lag_window": 20,
+  "lead_lag": -1,
+  "max_corr": 0.9999999999997156,
+  "direction": "B\u2192A",
+  "classification": "\u2705 Symmetric coherence (no lead)",
+  "files": {
+    "lag_plot": "PAEV_P8b_LagCorrelation.png"
+  },
+  "timestamp": "2025-10-06T20:04Z"
+}

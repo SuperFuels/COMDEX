@@ -1,0 +1,19 @@
+{
+  "\u0127": 0.001,
+  "G": 1e-05,
+  "\u039b": 1e-06,
+  "\u03b1": 0.5,
+  "\u03b2": 0.2,
+  "learning_rate": 0.05,
+  "feedback_gain": 0.2,
+  "noise_scale": 0.008,
+  "mean_error": 0.017101321778353704,
+  "corr_prediction": 0.9085592009475094,
+  "stability": 0.014610504360945912,
+  "classification": "\u274c Non-predictive regime",
+  "files": {
+    "entropy_plot": "PAEV_P1_PredictiveCalibration.png",
+    "error_plot": "PAEV_P1_PredictionError.png"
+  },
+  "timestamp": "2025-10-06T18:53Z"
+}

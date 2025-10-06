@@ -1,0 +1,15 @@
+{
+  "\u0127": 0.001,
+  "G": 1e-05,
+  "\u039b": 1e-06,
+  "\u03b1": 0.5,
+  "\u03b2": 0.2,
+  "\u0394C_total": -0.00019429759415721295,
+  "C_corr": 0.1716109921481595,
+  "Convergence_Index": 0.029444611053161214,
+  "classification": "\u26a0\ufe0f Marginal causal drift",
+  "files": {
+    "plot": "PAEV_O11_CausalConvergence.png"
+  },
+  "timestamp": "2025-10-06T18:36Z"
+}
