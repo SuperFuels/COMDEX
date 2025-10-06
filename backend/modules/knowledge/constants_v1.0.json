@@ -1,0 +1,38 @@
+{
+  "input_state": {
+    "E_mean": 0.02426,
+    "E_var": 1e-05,
+    "S_mean": 3.3534,
+    "S_drift": 0.0167,
+    "psi_kappa_mean": -0.00136,
+    "psi_T_mean": 0.00024,
+    "a_drift": 0.0016,
+    "C_H_mean": -4.55e-07,
+    "timestamp": "2025-10-06T13:33Z",
+    "validated_tests": [
+      "H1",
+      "H2",
+      "H3",
+      "H4",
+      "H5",
+      "H6",
+      "H7",
+      "H8",
+      "H9",
+      "H10"
+    ]
+  },
+  "diagnostics": {
+    "\u0127_eff": 0.007234448617154395,
+    "G_eff": 1.3600000000000002e-05,
+    "\u039b_eff": 1.6000000000000001e-06,
+    "\u03b1_eff": 0.5059997120165879,
+    "L_total": 0.5132503606337423,
+    "quantum_gravity_ratio": 531.9447121477708,
+    "stability_metric": 0.00013822753505921136
+  },
+  "meta": {
+    "version": "v1.0",
+    "source": "/workspaces/COMDEX/backend/modules/knowledge/state.json"
+  }
+}

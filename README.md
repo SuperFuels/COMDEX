@@ -31,7 +31,7 @@ gcloud run deploy comdex-api \
   --timeout=300s
 
 git add .
-git commit -m "QUANTUM MECHANICS V7"
+git commit -m "Theory of Everything Completion"
 git push origin main
 
 

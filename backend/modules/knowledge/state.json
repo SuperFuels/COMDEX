@@ -1,0 +1,30 @@
+{
+  "E_mean": 0.02426,
+  "E_var": 0.00003,
+  "S_mean": 3.3534,
+  "S_var": 0.015,
+  "psi_kappa_mean": -0.00136,
+  "psi_kappa_var": 0.00004,
+  "psi_T_mean": 0.00024,
+  "psi_T_var": 0.00001,
+  "a_drift": 0.0016,
+  "entropy_drift": 0.011,
+  "reversibility_error": 0.0059,
+  "cosmological_scale_factor": 1.0016,
+  "C_H_mean": -4.55e-07,
+  "stability": 1.0e-4,
+  "notes": "Averaged across stabilized H5–H10 regimes at post-equilibrium. Generated immediately prior to I1 integration.",
+  "timestamp": "2025-10-06T13:33Z",
+  "validated_tests": [
+    "H1",
+    "H2",
+    "H3",
+    "H4",
+    "H5",
+    "H6",
+    "H7",
+    "H8",
+    "H9",
+    "H10"
+  ]
+}

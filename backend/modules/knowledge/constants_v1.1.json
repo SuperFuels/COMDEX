@@ -1,0 +1,14 @@
+{
+  "\u0127_eff": 0.001,
+  "G_eff": 1e-05,
+  "\u039b_eff": 1e-06,
+  "\u03b1_eff": 0.5,
+  "L_total": 1.0,
+  "validation": "J2 Grand Synchronization closed successfully",
+  "timestamp": "2025-10-06T13:35Z",
+  "drifts": {
+    "\u0394E": 2.203e-05,
+    "\u0394S": 9.506e-06,
+    "\u0394H": 1.342e-06
+  }
+}
