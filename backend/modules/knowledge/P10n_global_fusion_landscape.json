@@ -1,0 +1,28 @@
+{
+  "alignment": {
+    "kappa_align_base": 0.06,
+    "kappa_boost": 0.18,
+    "curvature_gain": 0.2,
+    "phase_damp": 0.022,
+    "merge_bias_gain": 0.009,
+    "bias_gain": 0.004
+  },
+  "parameters": {
+    "noise": 0.0025,
+    "K_field": 0.1,
+    "K_global": 0.12
+  },
+  "grid_size": 120,
+  "equilibrium": {
+    "min_energy_location": {
+      "\u0394\u03c61": -0.0263999382654605,
+      "\u0394\u03c62": -0.0263999382654605
+    },
+    "R_at_min": 0.9999225618614116,
+    "gradient_norm_at_min": 0.023435748507352964
+  },
+  "files": {
+    "landscape": "PAEV_P10n_GlobalFusionLandscape.png"
+  },
+  "timestamp": "2025-10-06T21:24Z"
+}

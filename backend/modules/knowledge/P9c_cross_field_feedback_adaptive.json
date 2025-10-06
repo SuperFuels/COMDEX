@@ -1,0 +1,32 @@
+{
+  "eta": 0.001,
+  "damping": 0.042,
+  "leak": 0.0085,
+  "noise_base": 0.0028,
+  "K_field": 0.08,
+  "K_meta_base": 0.02,
+  "controller": {
+    "servo_p_base": 0.12,
+    "adaptive_gamma": 0.6,
+    "servo_i": 0.0012,
+    "servo_i_max": 0.03,
+    "servo_d": 0.02,
+    "d_lpf_alpha": 0.15
+  },
+  "perturb_time": 800,
+  "perturb_mag": 0.002,
+  "lock_threshold": 0.009,
+  "metrics": {
+    "tail_mean_cross": 0.037619208796175994,
+    "tail_lock_ratio": 0.08,
+    "tail_slope": -0.0001580344503866665,
+    "relock_time": null
+  },
+  "classification": "\u26a0\ufe0f Partial meta-field alignment (marginal)",
+  "files": {
+    "phase_plot": "PAEV_P9c_MetaField_PhaseEvolution.png",
+    "gain_plot": "PAEV_P9c_MetaField_Gain.png",
+    "tail_plot": "PAEV_P9c_MetaField_TailDistribution.png"
+  },
+  "timestamp": "2025-10-06T20:34Z"
+}

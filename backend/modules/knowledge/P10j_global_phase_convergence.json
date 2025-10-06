@@ -1,0 +1,28 @@
+{
+  "eta": 0.001,
+  "noise": 0.0023,
+  "damping_base": 0.04,
+  "leak": 0.0085,
+  "K_field": 0.08,
+  "alignment": {
+    "kappa_align_base": 0.06,
+    "kappa_boost": 0.18,
+    "curvature_gain": 0.2,
+    "phase_damp": 0.022,
+    "merge_bias_gain": 0.008
+  },
+  "metrics": {
+    "R_tail_mean": 0.9972525532323318,
+    "R_tail_slope": 4.5657607385733296e-06,
+    "lock_ratio_R": 1.0,
+    "lock_ratio_phi": 0.0,
+    "tail_mean_phase_error": 0.06471214431754915,
+    "relock_time": 36
+  },
+  "classification": "\u26a0\ufe0f Partial Global Coherence",
+  "files": {
+    "phase_plot": "PAEV_P10j_GlobalField_PhaseEvolution.png",
+    "order_plot": "PAEV_P10j_GlobalField_OrderParameter.png"
+  },
+  "timestamp": "2025-10-06T21:11Z"
+}

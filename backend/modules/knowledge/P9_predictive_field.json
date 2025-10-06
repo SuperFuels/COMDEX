@@ -1,0 +1,34 @@
+{
+  "\u03b7": 0.001,
+  "G": 1e-05,
+  "\u039b": 1e-06,
+  "\u03b1": 0.5,
+  "\u03b2": 0.2,
+  "feedback_gain": 0.18,
+  "meta_gain": 0.12,
+  "resonance_gain": 0.07,
+  "damping": 0.042,
+  "leak": 0.0085,
+  "noise_scale": 0.0035,
+  "K_field": 0.08,
+  "tail_mean_field_error": 0.005512696044157779,
+  "lock_ratio": 0.6,
+  "corr_AB": 0.44330874887073163,
+  "corr_BC": 0.5821928972386714,
+  "corr_AC": 0.5444430629148432,
+  "mean_corr": 0.5233149030080821,
+  "lag_AB": 2,
+  "lag_BC": 3,
+  "lag_AC": -1,
+  "direction_summary": {
+    "A\u2194B": "\u2190 reverse",
+    "B\u2194C": "\u2190 reverse",
+    "A\u2194C": "\u2192 forward"
+  },
+  "classification": "\u26a0\ufe0f Partial field coherence (marginal stability)",
+  "files": {
+    "phase_plot": "PAEV_P9_Field_PhaseEvolution.png",
+    "corr_plot": "PAEV_P9_Field_PairwiseCorrelations.png"
+  },
+  "timestamp": "2025-10-06T20:17Z"
+}
