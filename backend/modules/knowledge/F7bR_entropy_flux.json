@@ -1,0 +1,29 @@
+{
+  "constants": {
+    "alpha": 0.7,
+    "beta": 0.08,
+    "Lambda_base": 0.0035,
+    "kappa": 0.065,
+    "omega0": 0.18,
+    "xi": 0.015,
+    "delta": 0.05,
+    "noise": 0.0006,
+    "rho_c": 1.0,
+    "g_couple": 0.015
+  },
+  "metrics": {
+    "a_min": 0.4847656148434404,
+    "a_max": 1.0,
+    "mean_coherence": 0.777988825231963,
+    "coherence_stability": 0.2995278588719445,
+    "anti_corr_Lambda_vs_E": 0.947270882349161,
+    "mean_entropy_flux": 0.00023867293527573936,
+    "entropy_growth": 0.00022192582893336361
+  },
+  "classification": "\u26a0\ufe0f Soft Bounce / Weak Entropy Retention",
+  "files": {
+    "entropy_plot": "FAEV_F7bR_EntropyFlux.png",
+    "phase_plot": "FAEV_F7bR_PhaseCoherence.png"
+  },
+  "timestamp": "2025-10-06T22:48Z"
+}

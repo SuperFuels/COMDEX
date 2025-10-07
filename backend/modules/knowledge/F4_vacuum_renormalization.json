@@ -1,0 +1,35 @@
+{
+  "eta": 0.001,
+  "dt": 0.002,
+  "T": 3000,
+  "constants": {
+    "alpha": 0.7,
+    "beta": 0.08,
+    "Lambda_base": 0.0035,
+    "kappa": 0.065,
+    "omega0": 0.18,
+    "xi": 0.015,
+    "delta": 0.05,
+    "noise": 0.001,
+    "gamma": 0.85,
+    "phi_crit": 1.8,
+    "damp_gain": 0.005
+  },
+  "metrics": {
+    "a_min": 1e-06,
+    "a_max": 1.0,
+    "bounce_index": 1625,
+    "energy_min": NaN,
+    "energy_max": NaN,
+    "mean_coherence": NaN,
+    "coherence_stability": NaN,
+    "anti_corr_Lambda_vs_E": NaN
+  },
+  "classification": "\u274c Collapse (energy runaway)",
+  "files": {
+    "scale_plot": "FAEV_F4_ScaleFactorEvolution.png",
+    "energy_plot": "FAEV_F4_EnergyDecomposition.png",
+    "phase_plot": "FAEV_F4_PhaseCoherence.png"
+  },
+  "timestamp": "2025-10-06T22:19Z"
+}

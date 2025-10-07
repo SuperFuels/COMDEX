@@ -1,0 +1,30 @@
+{
+  "constants": {
+    "alpha": 0.7,
+    "beta": 0.08,
+    "Lambda_base": -0.0035,
+    "kappa": 0.065,
+    "omega0": 0.18,
+    "xi": 0.015,
+    "delta": 0.05,
+    "noise": 0.0006,
+    "rho_c": 1.0,
+    "g_couple": 0.015,
+    "kp": 0.2,
+    "ki": 0.005,
+    "kd": 0.04
+  },
+  "metrics": {
+    "a_min": 0.8846616768535076,
+    "a_max": 0.999999996,
+    "curvature_max": 0.007999998789618165,
+    "nec_violation_ratio": 0.968,
+    "Lambda_sign_flips": 0,
+    "classification": "\u2705 Quantum Bridge Formed \u2014 Singularity Resolved"
+  },
+  "files": {
+    "scale_plot": "FAEV_F13G9_ScaleFactor.png",
+    "curvature_plot": "FAEV_F13G9_Curvature.png"
+  },
+  "timestamp": "2025-10-06T23:20Z"
+}

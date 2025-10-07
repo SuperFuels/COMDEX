@@ -10,6 +10,90 @@
   },
   "entries": [
     {
+      "file": "F13G9_singularity_resolution.json",
+      "timestamp": "2025-10-06T23:20Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "F1_singularity_bounce.json",
+      "timestamp": "2025-10-06T22:08Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "F2_vacuum_reversal_stability.json",
+      "timestamp": "2025-10-06T22:10Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "F3_vacuum_cancellation.json",
+      "timestamp": "2025-10-06T22:15Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "F4_vacuum_renormalization.json",
+      "timestamp": "2025-10-06T22:19Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "F5_dynamic_field_regulation.json",
+      "timestamp": "2025-10-06T22:24Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "F6_quantum_backreaction.json",
+      "timestamp": "2025-10-06T22:28Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "F7_entangled_geometry_confinement.json",
+      "timestamp": "2025-10-06T22:33Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "F7bRC2_cyclic_multibounce.json",
+      "timestamp": "unknown",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "F7bR_cyclic_test.json",
+      "timestamp": "2025-10-06T22:51Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "F7bR_entropy_flux.json",
+      "timestamp": "2025-10-06T22:48Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "F7bR_refined_dualfield.json",
+      "timestamp": "2025-10-06T22:44Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "F7b_stabilized_bounce.json",
+      "timestamp": "2025-10-06T22:39Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "H2_arrow_of_time_emergence.json",
+      "timestamp": "2025-10-06T23:13Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
       "file": "N10_renormalization_summary.json",
       "timestamp": "2025-10-06T15:57Z",
       "constants_version": "v1.2",
@@ -196,6 +280,222 @@
       "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
     },
     {
+      "file": "P10j_global_phase_convergence.json",
+      "timestamp": "2025-10-06T21:11Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "P10k_global_phase_fusion_nonlinear.json",
+      "timestamp": "2025-10-06T21:14Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "P10l_global_phase_collapse.json",
+      "timestamp": "2025-10-06T21:16Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "P10m_lock_certification.json",
+      "timestamp": "2025-10-06T21:20Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "P10n_global_fusion_landscape.json",
+      "timestamp": "2025-10-06T21:24Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "P10o_global_fusion_surface.json",
+      "timestamp": "2025-10-06T21:27Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "P10p_dynamic_trajectory_embedding.json",
+      "timestamp": "2025-10-06T21:30Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "P10q_phase_space_projection.json",
+      "timestamp": "2025-10-06T21:33Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "P10r_resonance_memory_kernel.json",
+      "timestamp": "2025-10-06T21:35Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "P10s_kernel_spectrum.json",
+      "timestamp": "2025-10-06T21:38Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "P10t_closed_loop_stability.json",
+      "timestamp": "2025-10-06T21:41Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "P1_predictive_calibration.json",
+      "timestamp": "2025-10-06T18:53Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "P2_recursive_awareness.json",
+      "timestamp": "2025-10-06T18:56Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "P3_self_recognition.json",
+      "timestamp": "2025-10-06T18:59Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "P4_awareness_feedback.json",
+      "timestamp": "2025-10-06T19:03Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "P5_conscious_resonance.json",
+      "timestamp": "2025-10-06T19:06Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "P6_resonant_lock.json",
+      "timestamp": "2025-10-06T19:09Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "P7_lock_history.json",
+      "timestamp": "unknown",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "P7_sustained_attractor.json",
+      "timestamp": "2025-10-06T19:12Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "P7b_sustained_attractor.json",
+      "timestamp": "2025-10-06T19:15Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "P7c_sustained_attractor.json",
+      "timestamp": "2025-10-06T19:17Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "P7d_sustained_attractor.json",
+      "timestamp": "2025-10-06T19:19Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "P7e_sustained_attractor.json",
+      "timestamp": "2025-10-06T19:22Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "P7f_sustained_attractor.json",
+      "timestamp": "2025-10-06T19:24Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "P7g_sustained_attractor.json",
+      "timestamp": "2025-10-06T19:26Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "P7h_lock_tuning.json",
+      "timestamp": "2025-10-06T19:46Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "P7h_sustained_attractor.json",
+      "timestamp": "2025-10-06T19:37Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "P7i_robustness.json",
+      "timestamp": "2025-10-06T19:53Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "P8_cross_attractor.json",
+      "timestamp": "2025-10-06T20:00Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "P8b_directional_coupling.json",
+      "timestamp": "2025-10-06T20:04Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "P8c_causal_validation.json",
+      "timestamp": "2025-10-06T20:07Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "P9_predictive_field.json",
+      "timestamp": "2025-10-06T20:17Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "P9b_field_resilience.json",
+      "timestamp": "2025-10-06T20:20Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "P9c_cross_field_feedback.json",
+      "timestamp": "2025-10-06T20:24Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "P9c_cross_field_feedback_adaptive.json",
+      "timestamp": "2025-10-06T20:34Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "P9d_meta_learning.json",
+      "timestamp": "2025-10-06T20:38Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
       "file": "bridge_activation_log.json",
       "timestamp": "2025-10-06T14:16Z",
       "constants_version": "v1.2",
@@ -215,7 +515,7 @@
     },
     {
       "file": "reproducibility_check_summary.json",
-      "timestamp": "2025-10-06T17:54Z",
+      "timestamp": "2025-10-06T23:01Z",
       "constants_version": "v1.2",
       "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
     },
@@ -232,5 +532,5 @@
       "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
     }
   ],
-  "timestamp": "2025-10-06T18:38Z"
+  "timestamp": "2025-10-06T23:23Z"
 }

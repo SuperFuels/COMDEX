@@ -1,0 +1,35 @@
+{
+  "eta": 0.001,
+  "dt": 0.002,
+  "T": 6000,
+  "constants": {
+    "alpha": 0.7,
+    "beta": 0.08,
+    "Lambda_base": 0.0035,
+    "kappa": 0.065,
+    "omega0": 0.18,
+    "xi": 0.015,
+    "delta": 0.05,
+    "noise": 0.0006,
+    "rho_c": 1.0,
+    "g_couple": 0.015,
+    "kp": 0.2,
+    "ki": 0.005,
+    "kd": 0.04
+  },
+  "metrics": {
+    "a_min": 0.5839732487419314,
+    "a_max": 1.0,
+    "bounce_index": 5999,
+    "mean_coherence": 0.8879054112489081,
+    "coherence_stability": 0.02577280671664407,
+    "anti_corr_Lambda_vs_E": 0.3780509184886328
+  },
+  "classification": "\u2705 Stable Dual-Field Bounce (High Coherence)",
+  "files": {
+    "scale_plot": "FAEV_F7bR_ScaleFactorEvolution.png",
+    "energy_plot": "FAEV_F7bR_EnergyDecomposition.png",
+    "phase_plot": "FAEV_F7bR_PhaseCoherence.png"
+  },
+  "timestamp": "2025-10-06T22:44Z"
+}

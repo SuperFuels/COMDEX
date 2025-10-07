@@ -1,0 +1,44 @@
+{
+  "eta": 0.001,
+  "dt": 0.002,
+  "T": 2800,
+  "constants": {
+    "alpha": 0.7,
+    "beta": 0.15,
+    "Lambda_base": 0.0035,
+    "kappa": 0.065,
+    "omega0": 0.2,
+    "xi": 0.015,
+    "delta": 0.05,
+    "noise": 0.0012,
+    "w_m": 0.1
+  },
+  "controller": {
+    "kp": 0.45,
+    "ki": 0.008,
+    "kd": 0.1,
+    "i_min": -0.02,
+    "i_max": 0.02,
+    "d_alpha": 0.15,
+    "boost_near_bounce": 0.7,
+    "soft_floor": -0.03,
+    "soft_ceil": 0.03
+  },
+  "metrics": {
+    "a_min": 1e-06,
+    "a_max": 1.0,
+    "bounce_index": 1238,
+    "energy_min": NaN,
+    "energy_max": NaN,
+    "mean_coherence": NaN,
+    "coherence_stability": NaN,
+    "anti_correlation_Lambda_vs_E": NaN
+  },
+  "classification": "\u274c Unstable or weak cancellation",
+  "files": {
+    "scale_plot": "FAEV_F3_ScaleFactorEvolution.png",
+    "energy_plot": "FAEV_F3_EnergyDecomposition.png",
+    "phase_plot": "FAEV_F3_PhaseCoherence.png"
+  },
+  "timestamp": "2025-10-06T22:15Z"
+}
