@@ -1,0 +1,32 @@
+{
+  "dt": 0.002,
+  "T": 4000,
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "alpha_psi": 0.025,
+    "omega0": 0.18,
+    "gamma": 0.003,
+    "mu": 0.015,
+    "delta_E": 0.002,
+    "psi_gain": 1.1,
+    "phi_damp": 0.0025,
+    "noise": 0.0006
+  },
+  "metrics": {
+    "cross_correlation_R_Rpsi": 0.4734109770683529,
+    "energy_stability": 0.5222678613437366,
+    "energy_min": 0.0,
+    "energy_max": 3.185535923659188e+37
+  },
+  "classification": "\u274c Unstable Interaction (Decoupled Fields)",
+  "files": {
+    "curvature_plot": "FAEV_G1RC3_CurvatureEvolution.png",
+    "energy_plot": "FAEV_G1RC3_EnergyEvolution.png",
+    "phase_plot": "FAEV_G1RC3_PhaseCoherence.png"
+  },
+  "timestamp": "2025-10-07T09:22Z"
+}

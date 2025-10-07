@@ -1,0 +1,40 @@
+{
+  "dt": 0.002,
+  "T": 4000,
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "\u03c90": 0.18,
+    "noise": 0.0006,
+    "k_eq": 0.035,
+    "k_sync": 0.05,
+    "k_neg0": 0.02,
+    "\u03ba\u039b": 0.03,
+    "\u039b_clip": 5e-06,
+    "k_infoR": 0.015,
+    "k_infoM": 0.012,
+    "\u03b3d": 0.004,
+    "\u03c1c": 1.0,
+    "E_cap": 30000.0
+  },
+  "metrics": {
+    "a_min": 0.24424240302803044,
+    "a_max": 1.1311969062935088,
+    "bounce_index": 781,
+    "cross_correlation_R_R\u03c8": 0.9970035375190046,
+    "energy_stability": 0.0,
+    "energy_min": 0.0,
+    "energy_max": 30000.0
+  },
+  "classification": "\u274c Unstable or Decoupled",
+  "files": {
+    "scale_plot": "FAEV_G3RC2_ScaleFactor.png",
+    "curvature_plot": "FAEV_G3RC2_CurvatureTracks.png",
+    "mass_plot": "FAEV_G3RC2_HiddenMass.png",
+    "energy_plot": "FAEV_G3RC2_Energy.png"
+  },
+  "timestamp": "2025-10-07T09:44Z"
+}

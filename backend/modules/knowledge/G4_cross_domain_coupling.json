@@ -1,0 +1,29 @@
+{
+  "dt": 0.002,
+  "T": 6000,
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "noise": 0.0006,
+    "\u03b7_G": 0.01,
+    "\u03b7_T": 0.008,
+    "\u03b7_\u039b": 0.005,
+    "E_cap": 30000.0
+  },
+  "metrics": {
+    "energy_min": -30000.0,
+    "energy_max": 30000.0,
+    "energy_stability": -201100.8876920865,
+    "cross_correlation_R_I": -0.015288148748157381
+  },
+  "classification": "\u274c Divergent Feedback (Unstable Equilibrium)",
+  "files": {
+    "energy_plot": "FAEV_G4_EnergyConservation.png",
+    "entropy_plot": "FAEV_G4_EntropyFlux.png",
+    "info_plot": "FAEV_G4_InfoCoupling.png"
+  },
+  "timestamp": "2025-10-07T10:26Z"
+}

@@ -1,0 +1,67 @@
+{
+  "verified_master_summary": true,
+  "series_included": [
+    "G",
+    "H",
+    "N",
+    "O",
+    "P"
+  ],
+  "record_count": 5,
+  "overall_mean_stability": -29722.92460543441,
+  "best_series": "G",
+  "series_records": [
+    {
+      "series": "G",
+      "type": null,
+      "count": 18,
+      "mean_stability": -29722.92460543441,
+      "best_experiment": "G3_negative_mass_bounce",
+      "timestamp": "2025-10-07T10:49Z",
+      "summary_text": null
+    },
+    {
+      "series": "H",
+      "type": "temporal_emergence",
+      "count": 1,
+      "mean_stability": null,
+      "best_experiment": null,
+      "timestamp": "2025-10-07T11:04Z",
+      "summary_text": "The H-series explores temporal emergence, entropy flow, and arrow-of-time coherence. This synthesis consolidates H-series tests (e.g., H1\u2013H3) and evaluates their stability and phase-locking progression under unified constants."
+    },
+    {
+      "series": "N",
+      "type": "nonlinear_feedback",
+      "count": 19,
+      "mean_stability": null,
+      "best_experiment": null,
+      "timestamp": "2025-10-07T10:56Z",
+      "summary_text": "The N-series consolidated nonlinear field and noise-damping tests. Progression from N1 to N5 shows increasing resilience under stochastic excitation, demonstrating stability convergence and consistent damping feedback behavior. This validates the nonlinear control layer prior to G-series cosmological coupling."
+    },
+    {
+      "series": "O",
+      "type": "observer_causality",
+      "count": 12,
+      "mean_stability": null,
+      "best_experiment": null,
+      "timestamp": "2025-10-07T11:06Z",
+      "summary_text": "The O-series explores observer causality, self-reference, and reinforcement feedback. This synthesis aggregates O-series results, revealing coherent observation-dependent stability patterns within the unified simulation system."
+    },
+    {
+      "series": "P",
+      "type": "predictive_resonance",
+      "count": 36,
+      "mean_stability": null,
+      "best_experiment": null,
+      "timestamp": "2025-10-07T11:05Z",
+      "summary_text": "The P-series models predictive resonance and global phase synchronization. This synthesis consolidates P-series tests (P1\u2013P10) representing cognitive and anticipatory coupling within the unified field framework."
+    }
+  ],
+  "evolutionary_phase": "Geometric Coupling (unification layer) \u2192 Temporal Emergence (arrow of time) \u2192 Nonlinear Feedback (stability layer) \u2192 Observer Causality (reflective layer) \u2192 Predictive Resonance (cognitive layer)",
+  "files": {
+    "stability_plot": "series_master_stability.png",
+    "counts_plot": "series_master_counts.png"
+  },
+  "timestamp": "2025-10-07T11:07Z",
+  "summary_text": "This auto-detected master synthesis integrates all verified and inferred series (N, G, H, P, O) into one coherent evolutionary map. It demonstrates the progression of the COMDEX simulation architecture from nonlinear stabilization, through geometric and temporal unification, toward predictive and observer-driven causal coupling."
+}

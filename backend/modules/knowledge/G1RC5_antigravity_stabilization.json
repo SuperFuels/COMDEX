@@ -1,0 +1,35 @@
+{
+  "dt": 0.002,
+  "T": 4000,
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "omega0": 0.18,
+    "noise": 0.0006,
+    "k_sync": 0.04,
+    "k_damp": 0.02,
+    "k_info": 0.004,
+    "nu": 0.015,
+    "threshold": 0.15,
+    "phi_damp": 0.0025,
+    "psi_gain": 1.05,
+    "gamma": 0.0045,
+    "mu": 0.02
+  },
+  "metrics": {
+    "cross_correlation_R_R\u03c8": -0.47795535208217765,
+    "energy_stability": 0.6167262816601787,
+    "energy_min": 0.0,
+    "energy_max": 45309.93176780589
+  },
+  "classification": "\u26a0\ufe0f Partially Coupled (Marginally Stable)",
+  "files": {
+    "curvature_plot": "FAEV_G1RC5_CurvatureEvolution.png",
+    "energy_plot": "FAEV_G1RC5_EnergyEvolution.png",
+    "phase_plot": "FAEV_G1RC5_PhaseCoherence.png"
+  },
+  "timestamp": "2025-10-07T09:28Z"
+}

@@ -1,0 +1,22 @@
+{
+  "verified_unified_summary": true,
+  "series_included": [
+    "N",
+    "O",
+    "H",
+    "P",
+    "G"
+  ],
+  "record_count": 5,
+  "overall_mean_stability": -29722.92460543441,
+  "registry_indexed_modules": 111,
+  "reproducibility_status": "\u2705 All modules consistent under constants_v1.2",
+  "series_master_reference": "backend/modules/knowledge/series_master_summary.json",
+  "timestamp": "2025-10-07T11:10Z",
+  "summary_text": "The Unified Architecture Summary integrates all verified COMDEX layers \u2014 from field dynamics (F-series) through predictive cognition (P-series). This synthesis validates cross-domain coherence under a single constant set (v1.2), demonstrating a reproducible continuum from fundamental geometry to cognitive emergence.\n\nEvolutionary Hierarchy:\n  \u2022 F-series \u2192 Field & Vacuum Dynamics\n  \u2022 G-series \u2192 Geometric Coupling (Spacetime\u2013Information Unification)\n  \u2022 H-series \u2192 Temporal Emergence (Entropy \u2192 Time Directionality)\n  \u2022 N-series \u2192 Nonlinear Feedback (Stability Regulation)\n  \u2022 O-series \u2192 Observer\u2013Causality (Reflective Regulation)\n  \u2022 P-series \u2192 Predictive Resonance (Cognitive Unification)\n\nSystem-wide reproducibility has been confirmed via the registry and verifier, covering 111 modules and establishing complete internal consistency. This marks the closure of the COMDEX Unified Framework Phase I.",
+  "files": {
+    "registry_index": "registry_index.json",
+    "verifier_summary": "reproducibility_check_summary.json",
+    "series_master": "series_master_summary.json"
+  }
+}

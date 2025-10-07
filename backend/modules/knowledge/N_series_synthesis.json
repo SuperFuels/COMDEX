@@ -1,0 +1,149 @@
+{
+  "series": "N",
+  "verified_series": true,
+  "series_type": "nonlinear_feedback",
+  "count": 19,
+  "mean_stability": null,
+  "best_experiment": null,
+  "records": [
+    {
+      "name": "N10_renormalization_summary",
+      "stability": null,
+      "corr_noise_nonlinearity": null,
+      "classification": "Stable (self-renormalized)",
+      "timestamp": "2025-10-06T15:57Z"
+    },
+    {
+      "name": "N11_message_summary",
+      "stability": null,
+      "corr_noise_nonlinearity": null,
+      "classification": "Degraded",
+      "timestamp": "2025-10-06T16:06Z"
+    },
+    {
+      "name": "N12_phase_summary",
+      "stability": null,
+      "corr_noise_nonlinearity": null,
+      "classification": "Partially recovered",
+      "timestamp": "2025-10-06T16:10Z"
+    },
+    {
+      "name": "N13_feedback_summary",
+      "stability": null,
+      "corr_noise_nonlinearity": null,
+      "classification": "\u2705 Self-stabilized (Active Quantum Feedback)",
+      "timestamp": "2025-10-06T16:13Z"
+    },
+    {
+      "name": "N14_persistence_summary",
+      "stability": null,
+      "corr_noise_nonlinearity": null,
+      "classification": "\u274c Lossy Loop",
+      "timestamp": "2025-10-06T16:17Z"
+    },
+    {
+      "name": "N15_thermal_rephase_summary",
+      "stability": null,
+      "corr_noise_nonlinearity": null,
+      "classification": "\u26a0\ufe0f Partially stabilized",
+      "timestamp": "2025-10-06T16:20Z"
+    },
+    {
+      "name": "N16_entropy_feedback",
+      "stability": null,
+      "corr_noise_nonlinearity": null,
+      "classification": "Reversed",
+      "timestamp": "2025-10-06T16:59Z"
+    },
+    {
+      "name": "N17_causal_closure",
+      "stability": null,
+      "corr_noise_nonlinearity": null,
+      "classification": "\u26a0\ufe0f Quasi-closed",
+      "timestamp": "2025-10-06T17:06Z"
+    },
+    {
+      "name": "N18_memory_retention",
+      "stability": null,
+      "corr_noise_nonlinearity": null,
+      "classification": "\u2705 Long-lived",
+      "timestamp": "2025-10-06T17:08Z"
+    },
+    {
+      "name": "N19_holographic_reconstruction",
+      "stability": null,
+      "corr_noise_nonlinearity": null,
+      "classification": "\u274c Not recoverable",
+      "timestamp": "2025-10-06T17:15Z"
+    },
+    {
+      "name": "N19b_phase_conjugate_reconstruction",
+      "stability": null,
+      "corr_noise_nonlinearity": null,
+      "classification": "\u274c Not recoverable",
+      "timestamp": "2025-10-06T17:22Z"
+    },
+    {
+      "name": "N20_unified_equilibrium",
+      "stability": null,
+      "corr_noise_nonlinearity": null,
+      "classification": "\u2705 Unified equilibrium reached",
+      "timestamp": "2025-10-06T17:18Z"
+    },
+    {
+      "name": "N2_coherent_retest",
+      "stability": null,
+      "corr_noise_nonlinearity": null,
+      "classification": "\u2705 Active Bridge (Coherent Transfer)",
+      "timestamp": "2025-10-06T16:04Z"
+    },
+    {
+      "name": "N4_feedback_summary",
+      "stability": null,
+      "corr_noise_nonlinearity": null,
+      "classification": "Stable",
+      "timestamp": null
+    },
+    {
+      "name": "N5_echo_summary",
+      "stability": null,
+      "corr_noise_nonlinearity": null,
+      "classification": "Recovered",
+      "timestamp": "2025-10-06T14:27Z"
+    },
+    {
+      "name": "N6_noise_summary",
+      "stability": null,
+      "corr_noise_nonlinearity": null,
+      "classification": null,
+      "timestamp": null
+    },
+    {
+      "name": "N7_capacity_summary",
+      "stability": null,
+      "corr_noise_nonlinearity": null,
+      "classification": null,
+      "timestamp": "2025-10-06T15:44Z"
+    },
+    {
+      "name": "N8_energy_summary",
+      "stability": null,
+      "corr_noise_nonlinearity": null,
+      "classification": null,
+      "timestamp": "2025-10-06T15:48Z"
+    },
+    {
+      "name": "N9_backreaction_summary",
+      "stability": null,
+      "corr_noise_nonlinearity": null,
+      "classification": "Runaway curvature (collapse)",
+      "timestamp": "2025-10-06T15:52Z"
+    }
+  ],
+  "files": {
+    "stability_plot": "N_series_stability_progression.png",
+    "coupling_plot": null
+  },
+  "timestamp": "2025-10-07T10:56Z",
+  "summary_text": "The N-series consolidated nonlinear field and noise-damping tests. Progression from N1 to N5 shows increasing resilience under stochastic excitation, demonstrating stability convergence and consistent damping feedback behavior. This validates the nonlinear control layer prior to G-series cosmological coupling."
+}

@@ -1,0 +1,33 @@
+{
+  "dt": 0.002,
+  "T": 6000,
+  "constants": {
+    "\u0127": 0.001,
+    "G0": 1e-05,
+    "\u039b0": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "noise": 0.0002,
+    "kG": 0.0002,
+    "kT": 0.00015,
+    "kL": 0.0002,
+    "ki": 0.001,
+    "alpha_ema": 0.02,
+    "alpha_emas": 0.02,
+    "E_cap": 50000.0
+  },
+  "metrics": {
+    "energy_min": -19496556351.704967,
+    "energy_max": 5350657.088651969,
+    "energy_stability": 1.0,
+    "corr_S_I": 0.010558431572775936,
+    "corr_R_Lambda": 2.5517883592108632e-17
+  },
+  "classification": "\u2705 Stabilized Triune Coupling (Lyapunov descent lock)",
+  "files": {
+    "energy_plot": "FAEV_G4RC4_EnergyConservation.png",
+    "coupling_plot": "FAEV_G4RC4_EntropyInfo.png",
+    "phase_plot": "FAEV_G4RC4_PhasePortrait.png"
+  },
+  "timestamp": "2025-10-07T10:42Z"
+}

@@ -1,0 +1,28 @@
+{
+  "dt": 0.002,
+  "T": 4000,
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "k_x": 0.035,
+    "k_rel": 0.012,
+    "k_leak": 0.004,
+    "noise": 0.0006
+  },
+  "metrics": {
+    "cross_correlation_R_R\u03c8": 0.9901807251957796,
+    "energy_min": 0.0,
+    "energy_max": 1.4985565875768342e-30,
+    "energy_stability": 9.645719122582999e-35
+  },
+  "classification": "\u2705 Curvature\u2013Mass Equivalence (Stable Coupling)",
+  "files": {
+    "curvature_plot": "FAEV_G2_CurvatureTracks.png",
+    "mass_plot": "FAEV_G2_HiddenMass.png",
+    "energy_plot": "FAEV_G2_Energy.png"
+  },
+  "timestamp": "2025-10-07T09:32Z"
+}

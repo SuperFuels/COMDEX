@@ -1,0 +1,139 @@
+{
+  "series": "G",
+  "count": 18,
+  "mean_stability": -29722.92460543441,
+  "best_experiment": "G3_negative_mass_bounce",
+  "records": [
+    {
+      "name": "G1RC2_coupling_refined",
+      "stability": 0.5205183884548902,
+      "corr_S_I": null,
+      "classification": "\u274c Unstable Interaction (Decoupled Fields)",
+      "timestamp": "2025-10-07T09:17Z"
+    },
+    {
+      "name": "G1RC3_coupling_stabilized",
+      "stability": 0.5222678613437366,
+      "corr_S_I": null,
+      "classification": "\u274c Unstable Interaction (Decoupled Fields)",
+      "timestamp": "2025-10-07T09:22Z"
+    },
+    {
+      "name": "G1RC4_coupling_adaptive",
+      "stability": 0.5709999314504058,
+      "corr_S_I": null,
+      "classification": "\u274c Unstable Interaction (Decoupled Fields)",
+      "timestamp": "2025-10-07T09:26Z"
+    },
+    {
+      "name": "G1RC5_antigravity_stabilization",
+      "stability": 0.6167262816601787,
+      "corr_S_I": null,
+      "classification": "\u26a0\ufe0f Partially Coupled (Marginally Stable)",
+      "timestamp": "2025-10-07T09:28Z"
+    },
+    {
+      "name": "G1_hidden_field_coupling",
+      "stability": 0.5190894476418018,
+      "corr_S_I": null,
+      "classification": "\u274c Unstable Interaction (Decoupled Fields)",
+      "timestamp": "2025-10-07T09:13Z"
+    },
+    {
+      "name": "G2RC1_info_feedback_stabilized",
+      "stability": 1.0,
+      "corr_S_I": null,
+      "classification": "\u2705 Information-Stabilized Curvature\u2013Mass Coupling (Coherent)",
+      "timestamp": "2025-10-07T09:34Z"
+    },
+    {
+      "name": "G2_curvature_mass_equivalence",
+      "stability": 9.645719122582999e-35,
+      "corr_S_I": null,
+      "classification": "\u2705 Curvature\u2013Mass Equivalence (Stable Coupling)",
+      "timestamp": "2025-10-07T09:32Z"
+    },
+    {
+      "name": "G3RC1_info_regulated_bounce",
+      "stability": 8652.739218107321,
+      "corr_S_I": null,
+      "classification": "\u274c Unstable or Decoupled",
+      "timestamp": "2025-10-07T09:40Z"
+    },
+    {
+      "name": "G3RC2_adaptive_negmass_bounce",
+      "stability": 0.0,
+      "corr_S_I": null,
+      "classification": "\u274c Unstable or Decoupled",
+      "timestamp": "2025-10-07T09:44Z"
+    },
+    {
+      "name": "G3RC3_open_energy_feedback",
+      "stability": 281.1600654562954,
+      "corr_S_I": null,
+      "classification": "\u274c Unstable or Decoupled",
+      "timestamp": "2025-10-07T09:48Z"
+    },
+    {
+      "name": "G3RC4_entropy_damped_bounce",
+      "stability": 281.12062581001453,
+      "corr_S_I": null,
+      "classification": "\u26a0\ufe0f Partial Coupling (Moderate Stability)",
+      "timestamp": "2025-10-07T09:52Z"
+    },
+    {
+      "name": "G3RC5_phase_locked_bounce",
+      "stability": 0.3383689122251625,
+      "corr_S_I": null,
+      "classification": "\u2705 Phase-Locked Bounce (Coherent & Stable)",
+      "timestamp": "2025-10-07T09:56Z"
+    },
+    {
+      "name": "G3_negative_mass_bounce",
+      "stability": 10239.372260740214,
+      "corr_S_I": null,
+      "classification": "\u274c No Bounce / Decoupled",
+      "timestamp": "2025-10-07T09:38Z"
+    },
+    {
+      "name": "G4RC1_stabilized_feedback",
+      "stability": -66738.06621743,
+      "corr_S_I": 0.00968956382402348,
+      "classification": "\u274c Divergent Feedback (Unstable Equilibrium)",
+      "timestamp": "2025-10-07T10:30Z"
+    },
+    {
+      "name": "G4RC2_entropy_info_lock",
+      "stability": -142324.5406340724,
+      "corr_S_I": 0.019275879445156793,
+      "classification": "\u274c Divergent or Weak Coupling",
+      "timestamp": "2025-10-07T10:33Z"
+    },
+    {
+      "name": "G4RC3_lambda_memory_feedback",
+      "stability": -144308.62849516716,
+      "corr_S_I": 0.019276201661763845,
+      "classification": "\u274c Weak Feedback or Divergent Energy",
+      "timestamp": "2025-10-07T10:37Z"
+    },
+    {
+      "name": "G4RC4_lyapunov_controller",
+      "stability": 1.0,
+      "corr_S_I": 0.010558431572775936,
+      "classification": "\u2705 Stabilized Triune Coupling (Lyapunov descent lock)",
+      "timestamp": "2025-10-07T10:42Z"
+    },
+    {
+      "name": "G4_cross_domain_coupling",
+      "stability": -201100.8876920865,
+      "corr_S_I": -0.015288148748157381,
+      "classification": "\u274c Divergent Feedback (Unstable Equilibrium)",
+      "timestamp": "2025-10-07T10:26Z"
+    }
+  ],
+  "files": {
+    "stability_plot": "G_series_stability_progression.png",
+    "coupling_plot": "G_series_coupling_histogram.png"
+  },
+  "timestamp": "2025-10-07T10:49Z"
+}
