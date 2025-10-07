@@ -10,8 +10,74 @@
   },
   "entries": [
     {
+      "file": "A1_antigravity_bubble.json",
+      "timestamp": "2025-10-07T14:13Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "A1b_antigravity_bubble.json",
+      "timestamp": "2025-10-07T14:17Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "A1c_antigravity_bubble.json",
+      "timestamp": "2025-10-07T14:22Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "A1d_antigravity_bubble.json",
+      "timestamp": "2025-10-07T14:31Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "A1e_feedback_stability.json",
+      "timestamp": "2025-10-07T14:36Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "A1f_feedback_oscillator.json",
+      "timestamp": "2025-10-07T14:46Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "D1_dark_matter_geometry.json",
+      "timestamp": "2025-10-07T16:05Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
       "file": "F13G9_singularity_resolution.json",
       "timestamp": "2025-10-06T23:20Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "F13b_dynamic_vacuum_feedback.json",
+      "timestamp": "2025-10-07T17:43Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "F13b_dynamic_vacuum_feedback_calibration.json",
+      "timestamp": "2025-10-07T17:43Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "F14a_cosmic_expansion_feedback.json",
+      "timestamp": "2025-10-07T16:44Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "F15_matter_asymmetry.json",
+      "timestamp": "2025-10-07T15:56Z",
       "constants_version": "v1.2",
       "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
     },
@@ -210,6 +276,12 @@
     {
       "file": "H_series_synthesis.json",
       "timestamp": "2025-10-07T11:04Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "M1_wormhole_geometry.json",
+      "timestamp": "2025-10-07T15:50Z",
       "constants_version": "v1.2",
       "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
     },
@@ -653,7 +725,7 @@
     },
     {
       "file": "reproducibility_check_summary.json",
-      "timestamp": "2025-10-07T10:56Z",
+      "timestamp": "2025-10-07T16:46Z",
       "constants_version": "v1.2",
       "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
     },
@@ -674,7 +746,13 @@
       "timestamp": "2025-10-06T13:33Z",
       "constants_version": "v1.2",
       "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "unified_architecture_summary.json",
+      "timestamp": "2025-10-07T11:10Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
     }
   ],
-  "timestamp": "2025-10-07T11:08Z"
+  "timestamp": "2025-10-07T17:49Z"
 }

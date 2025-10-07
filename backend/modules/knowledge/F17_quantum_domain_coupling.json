@@ -1,0 +1,24 @@
+{
+  "\u0127": 0.001,
+  "G": 1e-05,
+  "\u03b1": 0.5,
+  "\u039b0": 1e-06,
+  "\u03b3": 0.004,
+  "\u03b6": 0.9,
+  "\u03b7": 0.015,
+  "N": 5,
+  "timing": {
+    "steps": 3000,
+    "dt": 0.006
+  },
+  "metrics": {
+    "sync_final": 0.9999999907123404,
+    "\u039b_drift": -1.2758520589606072e-06
+  },
+  "classification": "\u2705 Domains synchronized (quantum curvature coherence)",
+  "files": {
+    "lambda_domains": "PAEV_F17_LambdaDomains.png",
+    "sync_plot": "PAEV_F17_SynchronizationIndex.png"
+  },
+  "timestamp": "2025-10-07T19:22Z"
+}

@@ -1,0 +1,28 @@
+{
+  "\u0127": 0.001,
+  "\u039b": 1e-06,
+  "\u03b1": 0.5,
+  "grid": {
+    "N": 192,
+    "L": 6.0,
+    "dx": 0.06282722513089034
+  },
+  "timing": {
+    "steps": 1600,
+    "dt": 0.006
+  },
+  "metrics": {
+    "E_vis": 8.963761318981744e-06,
+    "E_hid": 0.023310416170301527,
+    "\u0394E": 0.023301452408982546,
+    "f_dark": 0.999615608933631,
+    "NEC_mean": 0.006610502270318774
+  },
+  "classification": "\u2705 Hidden curvature energy detected (dark mass analogue)",
+  "files": {
+    "energy_plot": "PAEV_D1_EnergyTraces.png",
+    "nec_plot": "PAEV_D1_NECProxy.png",
+    "maps": "PAEV_D1_VisibleHiddenMaps.png"
+  },
+  "timestamp": "2025-10-07T16:05Z"
+}

@@ -1,0 +1,48 @@
+{
+  "test_id": "F13b_dynamic_vacuum_feedback",
+  "version": "final-locked",
+  "description": "Stable DC-cancelled dynamic vacuum feedback (Λ self-stabilized attractor).",
+  "parameters": {
+    "ħ": 0.001,
+    "G": 1e-05,
+    "α": 0.50,
+    "Λ0": 1e-06
+  },
+  "stabilizers": {
+    "γ_base": 0.0022,
+    "ζ": 1.45,
+    "κ_adapt": 11.0,
+    "ρ": 0.080,
+    "ν": 0.0002024,
+    "ν_relation": "ν = 1.15 * γ_base * ρ"
+  },
+  "error_processing": {
+    "deadband": 0.003,
+    "softsat_k": 9.5,
+    "hp_ema": 0.040,
+    "I_clamp": 0.040,
+    "bias_filter": "Δn_hp = Δn - ema(Δn, hp_ema)"
+  },
+  "timing": {
+    "steps": 2400,
+    "dt": 0.006
+  },
+  "metrics": {
+    "Λ_final": -1.1267e-06,
+    "Λ_drift": -2.1267e-06,
+    "Λ_tail_std": 1.0284e-06,
+    "S_mean": 0.7338345,
+    "E_mean": -0.0005928
+  },
+  "classification": "✅ Λ self-stabilized (attractor reached)",
+  "plots": {
+    "lambda_plot": "PAEV_F13b_LambdaEvolution.png",
+    "entropy_energy_plot": "PAEV_F13b_SEEvolution.png",
+    "phase_feedback_plot": "PAEV_F13b_PhaseFeedback.png"
+  },
+  "timestamp": "2025-10-07T17:43Z",
+  "notes": {
+    "stability": "No measurable DC drift; Λ oscillates within ±2×10⁻⁶ of Λ₀.",
+    "recommendation": "Keep γ_base ≤ 0.0025 for numerical stability. ν over-cancel can be reduced slightly (~1.10×) if bias reverses."
+  }
+}

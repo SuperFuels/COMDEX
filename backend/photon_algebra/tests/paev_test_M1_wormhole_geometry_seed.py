@@ -105,3 +105,25 @@ print("   - PAEV_M1_MutualInformation.png")
 print("   - PAEV_M1_CurvatureMap.png")
 print("   - PAEV_M1_ThroatFormation.png")
 print("----------------------------------------------------------")
+# === Save results summary ===
+result = {
+    "ħ": ħ,
+    "G": G,
+    "Λ": Λ,
+    "α": α,
+    "steps": steps,
+    "initial_mutual_info": float(mutual_info[0]),
+    "final_mutual_info": float(mutual_info[-1]),
+    "delta_I": float(ΔI),
+    "classification": "Stable Bridge" if ΔI > 1e-3 else "Unstable",
+    "files": {
+        "mutual_info_plot": "PAEV_M1_MutualInformation.png",
+        "curvature_map": "PAEV_M1_CurvatureMap.png",
+        "throat_map": "PAEV_M1_ThroatFormation.png"
+    },
+    "timestamp": "2025-10-07T15:50Z"
+}
+
+out_path = Path("backend/modules/knowledge/M1_wormhole_geometry.json")
+out_path.write_text(json.dumps(result, indent=2))
+print(f"📄 Summary saved → {out_path}")

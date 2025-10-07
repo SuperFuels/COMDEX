@@ -1,0 +1,31 @@
+{
+  "\u0127": 0.001,
+  "G": 1e-05,
+  "\u039b0": 1e-06,
+  "\u03b10": 0.5,
+  "\u03c7": 0.6,
+  "grid": {
+    "N": 512,
+    "L": 50.0,
+    "dx": 0.09765625,
+    "sigma_b": 2.5
+  },
+  "timing": {
+    "T_steps": 6000,
+    "dt": 0.001
+  },
+  "metrics": {
+    "NEC_time_mean": 0.07869526178984834,
+    "NEC_time_min": -0.00011919824196725028,
+    "frac_exotic": 0.024,
+    "dSdt_tail_mean": -0.010536634697939595
+  },
+  "classification": "\u274c No Exotic Phase",
+  "files": {
+    "nec_plot": "PAEV_A1c_NEC_TimeSeries.png",
+    "entropy_plot": "PAEV_A1c_EntropySlope.png",
+    "bubble_profile_plot": "PAEV_A1c_BubbleProfile.png",
+    "nec_hist": "PAEV_A1c_NEC_Histogram.png"
+  },
+  "timestamp": "2025-10-07T14:22Z"
+}

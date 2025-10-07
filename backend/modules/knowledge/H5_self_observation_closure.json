@@ -1,0 +1,11 @@
+{
+  "\u0127": 0.001,
+  "G": 1e-05,
+  "\u03b1": 0.5,
+  "metrics": {
+    "O_mean": 9.370906297824785,
+    "O_std": 0.32486749636505535
+  },
+  "classification": "\u26a0\ufe0f Recursive divergence detected",
+  "timestamp": "2025-10-07T18:38Z"
+}
