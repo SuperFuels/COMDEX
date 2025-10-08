@@ -1,0 +1,14 @@
+{
+  "\u0127": 0.001,
+  "G": 1e-05,
+  "\u039b0": 1e-06,
+  "\u03b1": 0.5,
+  "\u03b2": 0.2,
+  "metrics": {
+    "energy_drift": 0.0007822575129001891,
+    "entropy_drift": 0.009940009247202397,
+    "reversibility_error": 0.00593385797153591
+  },
+  "classification": "\u26a0\ufe0f Partial reversibility or minor drift detected",
+  "timestamp": "2025-10-08T09:34Z"
+}

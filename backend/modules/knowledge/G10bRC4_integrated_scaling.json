@@ -1,0 +1,52 @@
+{
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "c": 299792458.0,
+    "kB": 1.380649e-23
+  },
+  "parameters": {
+    "scales": [
+      96,
+      128,
+      192
+    ],
+    "steps": 600,
+    "L": 6.0,
+    "D_psi": 0.3,
+    "D_kappa": 0.02,
+    "gamma_psi": 0.02,
+    "gamma_kappa": 0.01,
+    "coupling": 0.05,
+    "source": 0.01,
+    "damping": 0.994,
+    "amp_limit": 2.5
+  },
+  "metrics": {
+    "p_values": {
+      "96": {
+        "p": 0.48101850236324223,
+        "k": 1.1465130715363958
+      },
+      "128": {
+        "p": 0.48654723761171853,
+        "k": 1.168763689123158
+      },
+      "192": {
+        "p": 0.4861344856363402,
+        "k": 1.2004001770373072
+      }
+    },
+    "p_mean": 0.48456674187043364,
+    "p_std": 0.0025146363220938097
+  },
+  "classification": "\u274c Non-universal Scaling Detected",
+  "files": {
+    "integrated_plot": "FAEV_G10bRC4_IntegratedScaling.png",
+    "input_source": "backend/modules/knowledge/G10RC3_multiscale.json"
+  },
+  "timestamp": "2025-10-08T10:52Z"
+}

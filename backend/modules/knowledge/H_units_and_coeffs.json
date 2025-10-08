@@ -1,0 +1,23 @@
+{
+  "constants": {
+    "G": 6.674e-11,
+    "\u0127": 1.054e-34,
+    "c": 299800000.0,
+    "kB": 1.380649e-23
+  },
+  "derived_coefficients": {
+    "eta_log_term": 0.6836885767228553,
+    "flux_exponent_n": 0.5602922672207392,
+    "entropy_slope_ratio": 0.01987374460937832
+  },
+  "physical_consistency": {
+    "H_ratio_TA": 1.0,
+    "flux_normalization_std": 0.0057582512101979665
+  },
+  "classification": "\u26a0\ufe0f Minor deviation from ideal scaling",
+  "files": {
+    "flux_plot": "PAEV_TestH_FluxScaling.png",
+    "temperature_plot": "PAEV_TestH_TemperatureScaling.png"
+  },
+  "timestamp": "2025-10-08T11:09:23Z"
+}

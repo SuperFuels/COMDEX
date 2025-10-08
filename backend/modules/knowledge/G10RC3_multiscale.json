@@ -1,0 +1,61 @@
+{
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "c": 299792458.0,
+    "kB": 1.380649e-23
+  },
+  "parameters": {
+    "scales": [
+      96,
+      128,
+      192
+    ],
+    "steps": 600,
+    "L": 6.0,
+    "D_psi": 0.3,
+    "D_kappa": 0.02,
+    "gamma_psi": 0.02,
+    "gamma_kappa": 0.01,
+    "coupling_ref": 0.05,
+    "source_ref": 0.01,
+    "damping": 0.994,
+    "amp_limit": 2.5,
+    "dt_ref": 0.0013183593749999999
+  },
+  "renormalization": {
+    "method": "CFL-stable dt ~ dx^2; \u03c8\u2013\u03ba couplings ~ (dx/dx_ref)",
+    "dx_ref": 0.046875,
+    "notes": "Keeps diffusion physics invariant across N; rescales local interactions by physical cell size."
+  },
+  "per_scale": {
+    "96": {
+      "dt": 0.002393351800554031,
+      "Smax": 1.0445252496008943,
+      "t_star": 1.4360110803324186
+    },
+    "128": {
+      "dt": 0.001339202678405352,
+      "Smax": 0.7874034128485989,
+      "t_star": 0.8035216070432112
+    },
+    "192": {
+      "dt": 0.0005920890326471367,
+      "Smax": 0.4649860530924875,
+      "t_star": 0.355253419588282
+    }
+  },
+  "metrics": {
+    "collapse_deviation": 0.07315882600655167
+  },
+  "classification": "\u26a0\ufe0f Near-universal (minor scale drift)",
+  "files": {
+    "entropy_plot": "FAEV_G10RC3_EntropyEvolution.png",
+    "collapse_plot": "FAEV_G10RC3_PageCollapse.png",
+    "energy_entropy_plot": "FAEV_G10RC3_EnergyEntropy.png"
+  },
+  "timestamp": "2025-10-08T10:42Z"
+}

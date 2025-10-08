@@ -1,0 +1,46 @@
+{
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "c": 299792458.0,
+    "kB": 1.380649e-23
+  },
+  "parameters": {
+    "scales": [
+      96,
+      128,
+      192
+    ],
+    "steps": 500,
+    "dt0": 0.006,
+    "L": 6.0,
+    "damping": 0.993,
+    "amp_limit": 2.8
+  },
+  "renormalization": {
+    "coefficients": {
+      "96": 1.7777777777777777,
+      "128": 1.0,
+      "192": 0.4444444444444444
+    },
+    "method": "dx^2 curvature rescaling",
+    "notes": "\u03c8\u2013\u03ba coupling and source terms scaled with (128/N)^2 for invariance"
+  },
+  "metrics": {
+    "collapse_deviation": 637.39204753158,
+    "entropy_equilibrium_values": {
+      "96": 4.551914400963141e-16,
+      "128": -2.5934809855243656e-15,
+      "192": 4.968341403310555e-15
+    }
+  },
+  "classification": "\u274c Scale Dependence Detected (Needs finer renorm tuning)",
+  "files": {
+    "collapse_plot": "FAEV_G10RC2_PageCollapse.png",
+    "energy_entropy_plot": "FAEV_G10RC2_EnergyEntropyScaling.png"
+  },
+  "timestamp": "2025-10-08T10:38Z"
+}

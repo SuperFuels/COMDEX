@@ -1,0 +1,33 @@
+{
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "c": 299792458.0,
+    "kB": 1.380649e-23
+  },
+  "parameters": {
+    "N": 128,
+    "L": 6.0,
+    "steps": 600,
+    "dt": 0.002,
+    "chi": 0.08,
+    "eta": 0.015,
+    "alpha_psi": 0.01,
+    "damping": 0.995
+  },
+  "metrics": {
+    "mean_accel": -2.3022964291585494e-14,
+    "mean_corr": 0.001387434744477327,
+    "stability": 0.8317119505791655
+  },
+  "classification": "\u26a0\ufe0f Partial Correlation (Marginal Coupling)",
+  "files": {
+    "force_plot": "FAEV_G9_ForceCorrelation.png",
+    "centroid_plot": "FAEV_G9_CentroidTrajectory.png",
+    "coupling_plot": "FAEV_G9_CouplingEvolution.png"
+  },
+  "timestamp": "2025-10-08T10:30Z"
+}

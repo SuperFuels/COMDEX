@@ -1,0 +1,52 @@
+{
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "c": 299792458.0,
+    "kB": 1.380649e-23
+  },
+  "parameters": {
+    "scales": [
+      96,
+      128,
+      192
+    ],
+    "steps": 600,
+    "L": 6.0,
+    "D_psi": 0.3,
+    "D_kappa": 0.02,
+    "gamma_psi": 0.02,
+    "gamma_kappa": 0.01,
+    "coupling": 0.05,
+    "source": 0.01,
+    "damping": 0.994,
+    "amp_limit": 2.5
+  },
+  "metrics": {
+    "p_values": {
+      "96": {
+        "p": -4.039732298527957,
+        "k": 0.0002626181731975231
+      },
+      "128": {
+        "p": -3.5066598803289724,
+        "k": 0.0004608373467369166
+      },
+      "192": {
+        "p": -2.9232102662992037,
+        "k": 0.0009101479607366649
+      }
+    },
+    "p_mean": -3.489867481718711,
+    "p_std": 0.45597284319819653
+  },
+  "classification": "\u274c Non-universal Scaling Detected",
+  "files": {
+    "scaling_plot": "FAEV_G10b_EnergyEntropyScaling.png",
+    "input_source": "backend/modules/knowledge/G10RC3_multiscale.json"
+  },
+  "timestamp": "2025-10-08T10:49Z"
+}

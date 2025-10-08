@@ -1,0 +1,32 @@
+{
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "c": 299792458.0,
+    "kB": 1.380649e-23
+  },
+  "parameters": {
+    "scales": [
+      96,
+      128,
+      192
+    ],
+    "steps": 400,
+    "dt0": 0.006,
+    "L": 6.0,
+    "damping": 0.992,
+    "amp_limit": 3.0
+  },
+  "metrics": {
+    "collapse_deviation": 9.549682806872715
+  },
+  "classification": "\u274c Scale Dependence Detected (Non-universal behavior)",
+  "files": {
+    "collapse_plot": "FAEV_G10_PageCollapse.png",
+    "entropy_plot": "FAEV_G10_EntropyEvolution.png"
+  },
+  "timestamp": "2025-10-08T10:34Z"
+}

@@ -52,8 +52,20 @@
       "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
     },
     {
+      "file": "E1_ensemble_repro.json",
+      "timestamp": "2025-10-08T13:03Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
       "file": "E2_cv_entanglement.json",
       "timestamp": "2025-10-08T00:06Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "E2_discretization.json",
+      "timestamp": "2025-10-08T13:07Z",
       "constants_version": "v1.2",
       "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
     },
@@ -77,7 +89,25 @@
     },
     {
       "file": "E6_bell_violation_feedback.json",
-      "timestamp": "2025-10-08T00:38Z",
+      "timestamp": "2025-10-08T08:26Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "E6_bell_violation_feedback_v2.json",
+      "timestamp": "2025-10-08T08:44Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "E6_bell_violation_feedback_v3.json",
+      "timestamp": "2025-10-08T08:51Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "E6_bell_violation_feedback_v3_extreme.json",
+      "timestamp": "2025-10-08T08:57Z",
       "constants_version": "v1.2",
       "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
     },
@@ -172,6 +202,12 @@
       "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
     },
     {
+      "file": "F6f_page_curve_summary.json",
+      "timestamp": "2025-10-08T10:02:38Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
       "file": "F7_entangled_geometry_confinement.json",
       "timestamp": "2025-10-06T22:33Z",
       "constants_version": "v1.2",
@@ -204,6 +240,42 @@
     {
       "file": "F7b_stabilized_bounce.json",
       "timestamp": "2025-10-06T22:39Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "G10RC2_multiscale_renormalized.json",
+      "timestamp": "2025-10-08T10:38Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "G10RC3_multiscale.json",
+      "timestamp": "2025-10-08T10:42Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "G10_multiscale.json",
+      "timestamp": "2025-10-08T10:34Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "G10bRC4_integrated_scaling.json",
+      "timestamp": "2025-10-08T10:52Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "G10bRC5_energy_entropy_universality.json",
+      "timestamp": "2025-10-08T11:01Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "G10b_energy_entropy_scaling.json",
+      "timestamp": "2025-10-08T10:49Z",
       "constants_version": "v1.2",
       "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
     },
@@ -316,6 +388,12 @@
       "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
     },
     {
+      "file": "G9_emergent_gravity.json",
+      "timestamp": "2025-10-08T10:30Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
       "file": "G_series_synthesis.json",
       "timestamp": "2025-10-07T10:49Z",
       "constants_version": "v1.2",
@@ -329,19 +407,31 @@
     },
     {
       "file": "H3_information_topology.json",
-      "timestamp": "2025-10-08T00:51Z",
+      "timestamp": "2025-10-08T09:30Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "H4_cosmological_stability.json",
+      "timestamp": "2025-10-08T09:33Z",
       "constants_version": "v1.2",
       "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
     },
     {
       "file": "H4_phase_stability.json",
-      "timestamp": "2025-10-07T22:12Z",
+      "timestamp": "2025-10-08T09:34Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "H5_boundary_reversibility.json",
+      "timestamp": "2025-10-08T09:34Z",
       "constants_version": "v1.2",
       "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
     },
     {
       "file": "H5_self_observation.json",
-      "timestamp": "2025-10-07T22:15Z",
+      "timestamp": "2025-10-08T09:35Z",
       "constants_version": "v1.2",
       "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
     },
@@ -352,8 +442,26 @@
       "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
     },
     {
+      "file": "H_energy_balance.json",
+      "timestamp": "2025-10-08T11:14:19Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
       "file": "H_series_synthesis.json",
       "timestamp": "2025-10-07T11:04Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "H_units_and_coeffs.json",
+      "timestamp": "2025-10-08T11:09:23Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "I_universality.json",
+      "timestamp": "2025-10-08T12:42:32+00:00",
       "constants_version": "v1.2",
       "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
     },
@@ -803,7 +911,7 @@
     },
     {
       "file": "reproducibility_check_summary.json",
-      "timestamp": "2025-10-07T22:23Z",
+      "timestamp": "2025-10-08T13:04Z",
       "constants_version": "v1.2",
       "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
     },
@@ -832,5 +940,5 @@
       "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
     }
   ],
-  "timestamp": "2025-10-08T00:51Z"
+  "timestamp": "2025-10-08T13:09Z"
 }

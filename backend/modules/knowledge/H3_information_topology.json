@@ -1,21 +1,13 @@
 {
   "\u0127": 0.001,
   "G": 1e-05,
-  "\u03b1": 0.5,
   "\u039b0": 1e-06,
-  "modes": {
-    "classical": {
-      "R_I_mean": 9.195425069697821e-05,
-      "R_I_eq": 0.0002369216623926541,
-      "classification": "\u2705 Flat information manifold (classical)",
-      "plot": "H3_InformationTopology_classical.png"
-    },
-    "entangled": {
-      "R_I_mean": 0.00010361025875751194,
-      "R_I_eq": 0.0002668805586447614,
-      "classification": "\u2705 Flat information manifold (entangled)",
-      "plot": "H3_InformationTopology_entangled.png"
-    }
+  "\u03b1": 0.5,
+  "\u03b2": 0.2,
+  "metrics": {
+    "R_I_mean": 1.175017949903661,
+    "R_I_std": 54.69759535962542
   },
-  "timestamp": "2025-10-08T00:51Z"
+  "classification": "\u26a0\ufe0f Information curvature residuals detected",
+  "timestamp": "2025-10-08T09:30Z"
 }

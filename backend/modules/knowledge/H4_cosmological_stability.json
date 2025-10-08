@@ -1,0 +1,14 @@
+{
+  "\u0127": 0.001,
+  "G": 1e-05,
+  "\u039b0": 1e-06,
+  "\u03b1": 0.5,
+  "\u03b2": 0.2,
+  "metrics": {
+    "energy_drift": 3.448048014942362e-05,
+    "entropy_drift": 0.03463394413960086,
+    "a_final": 1.0080320451833102
+  },
+  "classification": "\u26a0\ufe0f Minor cosmological drift detected",
+  "timestamp": "2025-10-08T09:33Z"
+}

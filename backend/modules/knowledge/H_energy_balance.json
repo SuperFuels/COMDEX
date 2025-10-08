@@ -1,0 +1,19 @@
+{
+  "constants": {
+    "\u0127": 1.054e-34,
+    "G": 6.674e-11,
+    "c": 299800000.0,
+    "kB": 1.380649e-23
+  },
+  "derived_relations": {
+    "normalized_energy_entropy_slope": 0.20098267402426764,
+    "mean_flux_norm": 0.5439178098407541,
+    "balance_error_fraction": 0.2162324356678583
+  },
+  "classification": "\u26a0\ufe0f Minor deviation from ideal energy conservation",
+  "files": {
+    "energy_entropy_plot": "PAEV_TestH_EnergyEntropy_RC2.png",
+    "energy_balance_plot": "PAEV_TestH_EnergyBalance_RC2.png"
+  },
+  "timestamp": "2025-10-08T11:14:19Z"
+}
