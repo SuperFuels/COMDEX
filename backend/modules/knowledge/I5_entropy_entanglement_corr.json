@@ -1,0 +1,18 @@
+{
+  "source_trace": "backend/modules/knowledge/E6Omega_vS_trace.json",
+  "params": {
+    "max_lag_steps": 10,
+    "dt": 0.009999999999999787
+  },
+  "stats": {
+    "pearson_zero_lag": -0.016449801091125097,
+    "best_lag_steps": 7,
+    "best_corr": 0.002896997199863587
+  },
+  "classification": "\u26a0 Inconclusive coupling (model)",
+  "discovery_notes": [
+    "Correlation \u2264 0.5 for all tested lags.",
+    "All claims pertain to the Tessaris algebra; no spacetime signaling is implied."
+  ],
+  "timestamp": "2025-10-08T19:46Z"
+}

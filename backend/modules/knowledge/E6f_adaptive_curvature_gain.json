@@ -1,0 +1,57 @@
+{
+  "IC_types": [
+    "hot_shell",
+    "cold_spike",
+    "multi_blob"
+  ],
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2
+  },
+  "params": {
+    "N": 512,
+    "T": 3000,
+    "dt": 0.01,
+    "base_noise": 0.008,
+    "gamma_S": 2.5,
+    "gamma_kappa0": 1.0,
+    "beta_adapt": 4.0
+  },
+  "metrics": {
+    "Phi_mean": [
+      -1.7788109746968273,
+      -3.287779701870064,
+      -0.14450808391850717
+    ],
+    "curv_exp": [
+      0.15035011497960293,
+      0.1544044319395377,
+      0.35921545041016484
+    ],
+    "entropy_rate": [
+      0.0004471911542629077,
+      0.0008051371134838803,
+      -6.121919026770839e-05
+    ],
+    "mean_curv": [
+      0.15035011497960293,
+      0.1544044319395377,
+      0.35921545041016484
+    ]
+  },
+  "collapse_dev": {
+    "Phi_mean": 1.283575259560965,
+    "curv_exp": 0.09751849916668708,
+    "entropy_rate": 0.00035546208317851363,
+    "mean_curv": 0.09751849916668708
+  },
+  "classification": "\u26a0\ufe0f Nearly invariant",
+  "timestamp": "2025-10-08T14:11Z",
+  "files": {
+    "universality_plot": "PAEV_E6f_AdaptiveCurvature.png",
+    "gamma_trace_plot": "PAEV_E6f_GammaTrace.png"
+  }
+}
