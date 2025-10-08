@@ -1,0 +1,25 @@
+{
+  "\u0127": 0.001,
+  "\u039b": 1e-06,
+  "\u03b1": 0.5,
+  "grid": {
+    "N": 192,
+    "L": 6.0,
+    "dx": 0.06282722513089034
+  },
+  "timing": {
+    "steps": 1600,
+    "dt": 0.006
+  },
+  "metrics": {
+    "reid_tail": 1.988751855587197e-15,
+    "threshold": 2.5e-07,
+    "steering": true
+  },
+  "classification": "\u2705 EPR steering (Reid) detected",
+  "files": {
+    "reid_plot": "PAEV_E3_Reid_Product.png",
+    "condvar_plot": "PAEV_E3_Conditional_Variances.png"
+  },
+  "timestamp": "2025-10-08T00:07Z"
+}

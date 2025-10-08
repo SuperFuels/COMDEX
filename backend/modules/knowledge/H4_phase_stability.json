@@ -1,11 +1,11 @@
 {
   "\u0127": 0.001,
-  "G": 1e-05,
   "\u03b1": 0.5,
+  "\u039b0": 1e-06,
   "metrics": {
-    "C_mean": 0.9971962974852439,
-    "C_std": 0.0002792961971366455
+    "C_mean": 0.9913210458050208,
+    "C_std": 0.0019689303072325933
   },
-  "classification": "\u2705 Persistent coherence (informational memory preserved)",
-  "timestamp": "2025-10-07T18:37Z"
+  "classification": "\u2705 Persistent phase coherence (memory retained)",
+  "timestamp": "2025-10-07T22:12Z"
 }

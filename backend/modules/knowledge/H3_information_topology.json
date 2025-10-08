@@ -3,10 +3,19 @@
   "G": 1e-05,
   "\u03b1": 0.5,
   "\u039b0": 1e-06,
-  "metrics": {
-    "R_I_mean": -2.270151635750245,
-    "R_I_std": 55.14510957212247
+  "modes": {
+    "classical": {
+      "R_I_mean": 9.195425069697821e-05,
+      "R_I_eq": 0.0002369216623926541,
+      "classification": "\u2705 Flat information manifold (classical)",
+      "plot": "H3_InformationTopology_classical.png"
+    },
+    "entangled": {
+      "R_I_mean": 0.00010361025875751194,
+      "R_I_eq": 0.0002668805586447614,
+      "classification": "\u2705 Flat information manifold (entangled)",
+      "plot": "H3_InformationTopology_entangled.png"
+    }
   },
-  "classification": "\u26a0\ufe0f Information curvature residuals detected",
-  "timestamp": "2025-10-07T18:29Z"
+  "timestamp": "2025-10-08T00:51Z"
 }

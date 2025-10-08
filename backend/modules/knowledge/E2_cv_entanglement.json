@@ -1,0 +1,25 @@
+{
+  "\u0127": 0.001,
+  "\u039b": 1e-06,
+  "\u03b1": 0.5,
+  "grid": {
+    "N": 192,
+    "L": 6.0,
+    "dx": 0.06282722513089034
+  },
+  "timing": {
+    "steps": 1600,
+    "dt": 0.006
+  },
+  "metrics": {
+    "sigma_vac": 0.00015752711662818635,
+    "V_tail": 8.987477144914496e-08,
+    "DS_inseparable": true
+  },
+  "classification": "\u2705 CV entanglement (Duan\u2013Simon) detected",
+  "files": {
+    "ds_plot": "PAEV_E2_DuanSimon_Timeseries.png",
+    "maps": "PAEV_E2_FieldMaps.png"
+  },
+  "timestamp": "2025-10-08T00:06Z"
+}

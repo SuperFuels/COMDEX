@@ -52,6 +52,36 @@
       "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
     },
     {
+      "file": "E2_cv_entanglement.json",
+      "timestamp": "2025-10-08T00:06Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "E3_epr_steering.json",
+      "timestamp": "2025-10-08T00:07Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "E4_chsh_surrogate.json",
+      "timestamp": "2025-10-08T00:08Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "E5_information_shuffle_entanglement.json",
+      "timestamp": "2025-10-08T00:25Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "E6_bell_violation_feedback.json",
+      "timestamp": "2025-10-08T00:38Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
       "file": "F13G9_singularity_resolution.json",
       "timestamp": "2025-10-06T23:20Z",
       "constants_version": "v1.2",
@@ -76,8 +106,32 @@
       "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
     },
     {
+      "file": "F15_entanglement_correlation.json",
+      "timestamp": "2025-10-07T23:50Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
       "file": "F15_matter_asymmetry.json",
       "timestamp": "2025-10-07T15:56Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "F16_quantum_gravity_multiverse.json",
+      "timestamp": "2025-10-07T19:13Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "F17_quantum_domain_coupling.json",
+      "timestamp": "2025-10-07T19:22Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "F18_landscape_equilibrium.json",
+      "timestamp": "2025-10-07T19:23Z",
       "constants_version": "v1.2",
       "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
     },
@@ -270,6 +324,30 @@
     {
       "file": "H2_arrow_of_time_emergence.json",
       "timestamp": "2025-10-06T23:13Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "H3_information_topology.json",
+      "timestamp": "2025-10-08T00:51Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "H4_phase_stability.json",
+      "timestamp": "2025-10-07T22:12Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "H5_self_observation.json",
+      "timestamp": "2025-10-07T22:15Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "H5_self_observation_closure.json",
+      "timestamp": "2025-10-07T18:38Z",
       "constants_version": "v1.2",
       "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
     },
@@ -725,7 +803,7 @@
     },
     {
       "file": "reproducibility_check_summary.json",
-      "timestamp": "2025-10-07T16:46Z",
+      "timestamp": "2025-10-07T22:23Z",
       "constants_version": "v1.2",
       "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
     },
@@ -754,5 +832,5 @@
       "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
     }
   ],
-  "timestamp": "2025-10-07T17:49Z"
+  "timestamp": "2025-10-08T00:51Z"
 }

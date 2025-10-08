@@ -1,0 +1,30 @@
+{
+  "\u0127": 0.001,
+  "G": 1e-05,
+  "\u039b0": 1e-06,
+  "\u03b1": 0.5,
+  "sigmas": [
+    0.0,
+    0.5,
+    1.0,
+    2.0
+  ],
+  "chsh_quantum": [
+    1.0070000000000001,
+    1.0310000000000001,
+    1.0,
+    0.9769999999999999
+  ],
+  "chsh_photon_algebra": [
+    2.0,
+    2.0,
+    2.0,
+    2.0
+  ],
+  "n_trials": 2000,
+  "classification": "\u26a0\ufe0f No Bell violation (classical correlation)",
+  "timestamp": "2025-10-07T23:50Z",
+  "files": {
+    "entanglement_plot": "PAEV_F15_EntanglementCorrelation.png"
+  }
+}

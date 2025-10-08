@@ -1,0 +1,13 @@
+{
+  "\u0127": 0.001,
+  "\u039b": 1e-06,
+  "\u03b1": 0.5,
+  "metrics": {
+    "S": 2.0
+  },
+  "classification": "\u274c No Bell violation (classical correlation)",
+  "files": {
+    "chsh_plot": "PAEV_E4_CHSH.png"
+  },
+  "timestamp": "2025-10-08T00:08Z"
+}

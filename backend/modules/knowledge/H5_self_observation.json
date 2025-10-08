@@ -1,0 +1,12 @@
+{
+  "\u0127": 0.001,
+  "\u03b1": 0.5,
+  "\u039b0": 1e-06,
+  "\u03c4": 20,
+  "metrics": {
+    "O_mean": 0.48221969183062696,
+    "O_std": 0.017131735830839077
+  },
+  "classification": "\u2705 Recursive self-observation stable",
+  "timestamp": "2025-10-07T22:15Z"
+}
