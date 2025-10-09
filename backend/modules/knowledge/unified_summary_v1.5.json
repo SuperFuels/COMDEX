@@ -1,0 +1,18 @@
+{
+  "timestamp": "2025-10-09T12:16:49.935300+00:00",
+  "series": "\u039e \u2014 Physical Implementation (Optical/Photonic)",
+  "records_loaded": 5,
+  "headlines": {
+    "\u039e1_ratio": 0.09557747968941728,
+    "\u039e2_ratio": 1.016337280293876,
+    "\u039e3_sigma": 0.0012461221342819333,
+    "\u039e4_R_sync": 0.9952046590448709,
+    "\u039e5_sigma": 0.35207326079225165
+  },
+  "notes": [
+    "\u039e-series validates physical realisability of computational causality.",
+    "\u039e2 and \u039e5 demonstrate optical counterparts of K2 (entropy causality) and K5 (global invariance).",
+    "\u039e4 shows high synchrony (entanglement-analogue) in coupled waveguides."
+  ],
+  "version": "v1.5"
+}

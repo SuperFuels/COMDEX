@@ -1,0 +1,26 @@
+{
+  "timestamp": "2025-10-09T11:51:48.080203+00:00",
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "\u03c7": 1.0
+  },
+  "metrics": {
+    "J_info_mean": 0.11009795645502451,
+    "S_mean": 0.10832816779765492,
+    "ratio": 1.016337280293876,
+    "stable": true
+  },
+  "notes": [
+    "Mean information flux \u27e8|J_info|\u27e9 = 1.101e-01.",
+    "Mean optical entropy \u27e8|S|\u27e9 = 1.083e-01.",
+    "Flux-to-entropy ratio = 1.016.",
+    "Phase gradients simulate causal directionality of optical field.",
+    "Subcausal regime corresponds to entropy-dominated light transport.",
+    "Validated under Tessaris Unified Constants & Verification Protocol v1.2."
+  ],
+  "protocol": "Tessaris Unified Constants & Verification Protocol v1.2"
+}

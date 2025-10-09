@@ -1,0 +1,29 @@
+{
+  "timestamp": "2025-10-09T13:23:28.439466+00:00",
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "\u03c7": 1.0
+  },
+  "metrics": {
+    "balance_residual": 67.01235843835467,
+    "phase_diff": 1.7631415046031758,
+    "curvature_coupling": 4.387426765706896e-08,
+    "exec_variance": 1.2903993166756748e-06,
+    "recovery_flux": 0.009010137008586449,
+    "link_flux": 3.0848899870753366e-05,
+    "stability_index": 17.196127842591434,
+    "stable": false
+  },
+  "notes": [
+    "Applied CIS operators BALANCE\u2192SYNCH\u2192CURV\u2192EXECUTE\u2192RECOVER\u2192LINK.",
+    "Residual ratio = 6.701e+01, mean phase difference = 1.763e+00.",
+    "Stable regime indicates coupling between computation and field behavior.",
+    "Represents real-time unification of CIS logic with photonic dynamics.",
+    "Validated under Tessaris Unified Constants & Verification Protocol v1.2."
+  ],
+  "protocol": "Tessaris Unified Constants & Verification Protocol v1.2"
+}

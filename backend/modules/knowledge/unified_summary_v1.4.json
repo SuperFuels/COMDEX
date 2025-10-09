@@ -1,0 +1,25 @@
+{
+  "timestamp": "2025-10-09T11:34:49.185850+00:00",
+  "phase": "\u03a9-series (Collapse \u2192 Recovery)",
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "\u03c7": 1.0
+  },
+  "integrated_metrics": {
+    "collapse_to_recovery_ratio": NaN,
+    "collapse_div_J_mean": 0.001963985431666744,
+    "cutoff_R_eff": NaN,
+    "recovery_ratio": 0.4825614816262872
+  },
+  "files_included": [
+    "\u03a91_collapse_threshold_summary.json",
+    "\u03a92_gravitational_cutoff_summary.json",
+    "\u03a93_quantum_bounce_summary.json"
+  ],
+  "phase_state": "Partial recovery \u2014 subcritical re-expansion",
+  "protocol": "Tessaris Unified Constants & Verification Protocol v1.2"
+}

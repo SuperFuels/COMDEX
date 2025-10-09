@@ -1,0 +1,28 @@
+{
+  "timestamp": "2025-10-09T11:27:40.488032+00:00",
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "\u03c7": 1.0
+  },
+  "metrics": {
+    "energy_rebound": 0.24722405295683592,
+    "flux_rebound": 0.048256148645190206,
+    "curvature_variation": 6.616015117128269e-05,
+    "recovery_ratio": 0.4825614816262872,
+    "recovered": false
+  },
+  "notes": [
+    "Mean energy rebound \u27e8u\u00b2\u27e9 = 2.472e-01.",
+    "Flux recovery \u27e8|J_recovery|\u27e9 = 4.826e-02.",
+    "Curvature variation \u0394R = 6.616e-05.",
+    "Recovery ratio = 0.483.",
+    "Quantum bounce corresponds to re-expansion of causal geometry post-collapse.",
+    "Represents Hawking-like re-emergence of information under Tessaris dynamics.",
+    "Validated under Tessaris Unified Constants & Verification Protocol v1.2."
+  ],
+  "protocol": "Tessaris Unified Constants & Verification Protocol v1.2"
+}

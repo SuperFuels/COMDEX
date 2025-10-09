@@ -1,0 +1,25 @@
+{
+  "timestamp": "2025-10-09T11:23:33.206012+00:00",
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "\u03c7": 1.0
+  },
+  "metrics": {
+    "div_J_mean": 0.001963985431666744,
+    "R_eff": 0.12275683356317682,
+    "J_flux": 0.10897460314565116,
+    "threshold": 0.001,
+    "collapsed": true
+  },
+  "notes": [
+    "Mean divergence of information flux |\u2207\u00b7J| = 1.964e-03.",
+    "Effective curvature variance R_eff = 1.228e-01.",
+    "Collapse condition: |\u2207\u00b7J| > 1e\u22123 \u2192 onset of causal closure.",
+    "Represents quantum\u2013gravitational cutoff in Tessaris lattice dynamics."
+  ],
+  "protocol": "Tessaris Unified Constants & Verification Protocol v1.2"
+}

@@ -31,7 +31,7 @@ gcloud run deploy comdex-api \
   --timeout=300s
 
 git add .
-git commit -m "Theory of Everything FINAL 7"
+git commit -m "Theory of Everything FINAL 8"
 git push origin main
 
 gcloud builds submit --config cloudbuild.yaml .

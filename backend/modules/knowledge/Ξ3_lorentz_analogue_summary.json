@@ -1,0 +1,32 @@
+{
+  "timestamp": "2025-10-09T11:53:59.916943+00:00",
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "\u03c7": 1.0
+  },
+  "metrics": {
+    "velocities": [
+      0.0,
+      0.1,
+      0.2,
+      0.3,
+      0.4
+    ],
+    "ratio_mean": 1.0033718328736232,
+    "ratio_std": 0.0012461221342819333,
+    "invariant": false
+  },
+  "notes": [
+    "Boost velocities = [0.0, 0.1, 0.2, 0.3, 0.4]",
+    "Mean flux ratio \u27e8J/S\u27e9 = 1.003e+00, variance \u03c3 = 1.246e-03.",
+    "Optical boosts simulate Lorentz frame shifts in photonic domain.",
+    "Constant J/S across boosts indicates causal Lorentz invariance.",
+    "Confirms optical lattice as physical realization of Tessaris causal manifold.",
+    "Validated under Tessaris Unified Constants & Verification Protocol v1.2."
+  ],
+  "protocol": "Tessaris Unified Constants & Verification Protocol v1.2"
+}

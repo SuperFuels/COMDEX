@@ -1,0 +1,29 @@
+{
+  "timestamp": "2025-10-09T13:24:15.905175+00:00",
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "\u03c7": 1.0
+  },
+  "metrics": {
+    "spectral_density": 1.0000730153386952,
+    "symmetry": -0.6863137709075775,
+    "coherence": 3.923047041078843e-17,
+    "modes": 1,
+    "invariant_signature": 2.6032834159788085e-05,
+    "pattern_strength": 0.8971715498685265,
+    "invariance": 0.9731040284067536,
+    "executable": false
+  },
+  "notes": [
+    "Compiled symatic geometry with 1 dominant modes.",
+    "Symmetry=-0.686, coherence=0.000, invariance=0.973.",
+    "If pattern_strength > 0.9, field geometry is causally executable.",
+    "Represents translation from field configuration to symbolic causal code.",
+    "Validated under Tessaris Unified Constants & Verification Protocol v1.2."
+  ],
+  "protocol": "Tessaris Unified Constants & Verification Protocol v1.2"
+}

@@ -1,0 +1,24 @@
+{
+  "timestamp": "2025-10-09T11:50:08.125760+00:00",
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "\u03c7": 1.0
+  },
+  "metrics": {
+    "J_info_mean": 0.00459384351763956,
+    "S_mean": 0.04806407782450377,
+    "ratio": 0.09557747968941728,
+    "stable": false
+  },
+  "notes": [
+    "Optical lattice refractive profile n(x)=1.45+0.01\u00b7exp(\u2212x\u00b2/8).",
+    "Mean |J_info|=4.594e-03, |S|=4.806e-02, ratio=0.096.",
+    "Represents photonic analogue of K-series causal mesh.",
+    "Validated under Tessaris Unified Constants & Verification Protocol v1.2."
+  ],
+  "protocol": "Tessaris Unified Constants & Verification Protocol v1.2"
+}

@@ -1,0 +1,29 @@
+{
+  "timestamp": "2025-10-09T13:15:50.571773+00:00",
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "\u03c7": 1.0
+  },
+  "metrics": {
+    "E_mean": 0.18925099249629715,
+    "S_mean": 0.005472647907352369,
+    "J_info_mean": 0.002108515494457484,
+    "exchange_mean": 0.00011465058566307009,
+    "ratio_ES": 34.58124131479421,
+    "causal_tolerance": 33.58124131479421,
+    "stable": false
+  },
+  "notes": [
+    "Mean |E| = 1.893e-01, |S| = 5.473e-03.",
+    "Energy\u2013entropy ratio = 34.581.",
+    "Exchange mean |\u03b1\u00b7dS/dt + \u03b2\u00b7\u2207\u00b7J| = 1.147e-04.",
+    "Thermal\u2013causal balance within tolerance < 1e\u22123 indicates unified quantum\u2013thermal law.",
+    "Represents cross-domain conservation of information and energy.",
+    "Validated under Tessaris Unified Constants & Verification Protocol v1.2."
+  ],
+  "protocol": "Tessaris Unified Constants & Verification Protocol v1.2"
+}

@@ -1,0 +1,25 @@
+{
+  "timestamp": "2025-10-09T13:29:00.413348+00:00",
+  "series": [
+    "X1",
+    "X2",
+    "X3"
+  ],
+  "metrics": {
+    "mean_E": 0.18925099249629715,
+    "mean_S": 0.005472647907352369,
+    "global_balance": 67.01235843835467,
+    "global_coherence": 3.923047041078843e-17,
+    "global_pattern_strength": 0.8971715498685265,
+    "global_invariance": 0.9731040284067536,
+    "collapse_recovery_ratio": 0.02891741177284457
+  },
+  "state": "Partially executable \u2014 subcritical coherence",
+  "notes": [
+    "Unified X-Series analysis under Tessaris Unified Constants Protocol v1.2.",
+    "Combines quantum\u2013thermal integration, field\u2013computational coupling, and symatic compilation.",
+    "Collapse\u2192Recovery ratio reflects degree of energy\u2013entropy balance.",
+    "Pattern strength and invariance define causal executability of the lattice."
+  ],
+  "protocol": "Tessaris Unified Constants & Verification Protocol v1.2"
+}
