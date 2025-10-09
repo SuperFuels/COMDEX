@@ -1,0 +1,34 @@
+{
+  "timestamp": "2025-10-09T18:49:18.392881",
+  "series": "\u03a34",
+  "test_name": "quantum_biocomputation",
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "\u03c7": 1.0
+  },
+  "metrics": {
+    "R_sync_final": 0.9812200456888003,
+    "Q_coherence_final": 0.9968613526610806,
+    "joint_coherence": 0.9890406991749404,
+    "stable": true
+  },
+  "state": "Stable quantum-biological coherence",
+  "notes": [
+    "Biological synchrony R_sync = 0.981",
+    "Quantum coherence Q_coherence = 0.997",
+    "Joint causal coherence = 0.989",
+    "\u039b-buffer maintained \u03c8\u2013phase entanglement with normalized evolution."
+  ],
+  "discovery": [
+    "Stabilized hybrid causal field achieved consistent coherence across \u03c8 and biological layers.",
+    "\u039b-damping regulates phase\u2013amplitude feedback, preventing runaway entanglement.",
+    "Demonstrates that living-like systems can sustain quantum computation under causal equilibrium.",
+    "Links biological order and quantum coherence via information geometry.",
+    "Confirms stable universality of Tessaris constants at the quantum-biological interface."
+  ],
+  "protocol": "Tessaris Unified Constants & Verification Protocol v1.2"
+}

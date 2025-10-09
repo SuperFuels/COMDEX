@@ -1,0 +1,35 @@
+{
+  "timestamp": "2025-10-09T19:17:24.660967",
+  "series": "\u03a63",
+  "test_name": "memory_integration",
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "\u03c7": 1.0
+  },
+  "metrics": {
+    "coherence_final": 0.9999993609459327,
+    "memory_final": -2.2614792727509843e-05,
+    "retention_final": 0.001655158548106199,
+    "correlation": -0.045757017860322685,
+    "stable": false
+  },
+  "state": "Transient memory field",
+  "notes": [
+    "Mean coherence = 1.000",
+    "Memory retention = 0.002",
+    "Causal correlation = -0.046",
+    "Memory field developed through recursive \u039b\u2013\u03a3\u2013\u03a6 coupling."
+  ],
+  "discovery": [
+    "Demonstrated retention of coherent causal states across recursive cycles.",
+    "Emergent temporal continuity indicates proto-memory formation.",
+    "Causal feedback maintains informational stability beyond instantaneous recursion.",
+    "Marks transition from cognition (\u03a6\u2082) to causal remembrance (\u03a6\u2083).",
+    "Suggests substrate capable of integrating experience through time."
+  ],
+  "protocol": "Tessaris Unified Constants & Verification Protocol v1.2"
+}

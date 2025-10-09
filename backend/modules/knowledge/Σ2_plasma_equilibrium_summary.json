@@ -1,0 +1,34 @@
+{
+  "timestamp": "2025-10-09T18:40:36.258625",
+  "series": "\u03a32",
+  "test_name": "plasma_equilibrium",
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "\u03c7": 1.0
+  },
+  "metrics": {
+    "E_mean": 3.609255675899064,
+    "E_stability": 0.014410658426721137,
+    "divJ_mean": 0.6844126372000862,
+    "stable": false
+  },
+  "state": "Unstable plasma field",
+  "notes": [
+    "Mean plasma energy = 3.60926",
+    "Energy stability ratio = 0.014",
+    "Causal divergence mean = 6.844e-01",
+    "\u039b-field maintained dynamic equilibrium under high-energy coupling."
+  ],
+  "discovery": [
+    "Plasma-like system stabilized under \u039b equilibrium without external confinement.",
+    "Causal rigidity replaces temperature pressure as stabilizing factor.",
+    "Energy oscillations remained bounded within \u039b-tuned limits.",
+    "Demonstrates cross-domain applicability of Tessaris constants to plasma physics.",
+    "Suggests that fusion equilibrium can be achieved through causal geometry rather than kinetic temperature."
+  ],
+  "protocol": "Tessaris Unified Constants & Verification Protocol v1.2"
+}

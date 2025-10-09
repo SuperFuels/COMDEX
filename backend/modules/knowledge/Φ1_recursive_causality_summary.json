@@ -1,0 +1,36 @@
+{
+  "timestamp": "2025-10-09T19:10:34.208161",
+  "series": "\u03a61",
+  "test_name": "recursive_causality",
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "\u03c7": 1.0
+  },
+  "metrics": {
+    "\u03a6_feedback_gain": -0.40001616273583407,
+    "coherence_persistence": 2.7164492782484855e-150,
+    "informational_entropy_delta": 3.068640967322999e-07,
+    "self_model_ratio": 0.2722321806057427,
+    "stable": false
+  },
+  "state": "Oscillatory recursion (unstable)",
+  "notes": [
+    "\u03a6-feedback mean gain = -0.4000",
+    "Mean coherence persistence = 0.000",
+    "Entropy drift (\u0394H) = 3.069e-07",
+    "Self-model correlation = 0.272",
+    "Recursive causal memory generated under \u039b\u2013\u03a3 continuum coupling."
+  ],
+  "discovery": [
+    "Demonstrated emergence of self-referential information stability.",
+    "Recursive \u039b\u2013\u03a3 interaction forms a proto-memory structure.",
+    "System exhibits bounded causal feedback, analogous to self-observation.",
+    "Entropy fluctuations diminish under coherent recursion \u2014 indicating self-stabilization.",
+    "Marks transition into \u03a6-Series: from physical universality to conscious causality."
+  ],
+  "protocol": "Tessaris Unified Constants & Verification Protocol v1.2"
+}

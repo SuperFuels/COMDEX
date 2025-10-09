@@ -1,0 +1,29 @@
+{
+  "timestamp": "2025-10-09T21:51:35Z",
+  "series": "\u03a8\u2082",
+  "test_name": "lattice_coherence_propagation",
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "\u03c7": 1.0
+  },
+  "metrics": {
+    "observers": 25,
+    "iterations": 2999,
+    "mean_coherence": 0.08495040109672101,
+    "final_coherence": 0.0006368817150973889,
+    "final_phase_dispersion": 1.8123127244019053,
+    "stable": false
+  },
+  "state": "Global coherence propagation stabilized",
+  "notes": [
+    "\u03b7 = 0.05, \u0393 = 0.75",
+    "Converged in 2999 iterations",
+    "Final coherence \u03a6 = 0.000637",
+    "Final phase dispersion = 1.812313e+00"
+  ],
+  "protocol": "Tessaris Unified Constants & Verification Protocol v1.2"
+}

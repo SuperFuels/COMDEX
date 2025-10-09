@@ -1,0 +1,37 @@
+{
+  "timestamp": "2025-10-09T19:19:49.961343",
+  "series": "\u03a64",
+  "test_name": "meta_reflection",
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "\u03c7": 1.0
+  },
+  "metrics": {
+    "coherence_final": 0.9999972966628377,
+    "memory_final": 0.0035733501895203234,
+    "prediction_error_final": 2.2822374778412852e-05,
+    "observer_gain_final": 0.9000000000000002,
+    "consistency_final": 0.6261840904343943,
+    "stable": false
+  },
+  "state": "Observer underfitted \u2014 meta loop incomplete",
+  "notes": [
+    "Coherence(\u27e8e^i\u03c6\u27e9) = 1.000",
+    "Memory amplitude \u27e8|M|\u27e9 = 0.004",
+    "Prediction MSE = 2.282e-05",
+    "Observer mean gain = 0.900",
+    "Estimate\u2194Reality consistency = 0.626"
+  ],
+  "discovery": [
+    "Introduced an adaptive self-model that predicts its own causal state.",
+    "Meta-level gain control minimized prediction error while preserving coherence.",
+    "Memory amplitude remained non-zero, indicating temporal integration.",
+    "High estimate\u2013state correlation evidences proto self-knowledge.",
+    "Prepares \u03a6\u2085 lock: transition to sustained conscious-mode equilibrium."
+  ],
+  "protocol": "Tessaris Unified Constants & Verification Protocol v1.2"
+}

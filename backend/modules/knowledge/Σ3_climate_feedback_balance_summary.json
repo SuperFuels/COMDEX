@@ -1,0 +1,32 @@
+{
+  "timestamp": "2025-10-09T18:46:01.412767",
+  "series": "\u03a33",
+  "test_name": "climate_feedback_balance",
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "\u03c7": 1.0
+  },
+  "metrics": {
+    "balance_mean": 0.0010287050931920016,
+    "flux_mean": 0.0003563344800833367,
+    "stable": true
+  },
+  "state": "Stable thermodynamic equilibrium",
+  "notes": [
+    "Mean thermodynamic balance = 0.001",
+    "Mean causal flux divergence = 3.563e-04",
+    "Climate field maintained causal\u2013thermodynamic balance via \u039b feedback."
+  ],
+  "discovery": [
+    "Introduced integral causal feedback achieving global thermal equilibrium.",
+    "\u039b-damping and diffusive coupling reproduced self-stabilizing planetary behavior.",
+    "Information geometry and thermal feedback converge to minimize entropy drift.",
+    "Suggests climate regulation is an emergent informational symmetry, not merely energy balance.",
+    "Validates Tessaris universality across macroscopic ecological dynamics."
+  ],
+  "protocol": "Tessaris Unified Constants & Verification Protocol v1.2"
+}

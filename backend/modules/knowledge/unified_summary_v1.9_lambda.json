@@ -1,0 +1,19 @@
+{
+  "timestamp": "2025-10-09T17:25:55.883671+00:00",
+  "series": {
+    "\u039b": 5
+  },
+  "metrics": {
+    "divJ_mean": 0.0010184877762281783,
+    "Q_lambda": 0.000220092307141609,
+    "attenuation": 9.999778782798785e-13,
+    "recovery_ratio_lambda": 1.4143903722018591,
+    "balance_residual": 0.05323840584325348
+  },
+  "state": "dissipationless transport / strong buffer",
+  "notes": [
+    "Phase VI integrates \u039b1\u2013\u039b5 to certify the neutral causal substrate.",
+    "\u039b enables persistent, lossless, and noise-immune causal computation."
+  ],
+  "protocol": "Tessaris Unified Constants & Verification Protocol v1.2"
+}

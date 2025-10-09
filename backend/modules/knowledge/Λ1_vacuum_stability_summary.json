@@ -1,0 +1,24 @@
+{
+  "timestamp": "2025-10-09T17:00:32.913960+00:00",
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "\u03c7": 1.0
+  },
+  "metrics": {
+    "divJ_mean": 0.0010184877762281783,
+    "energy_drift": 1.816096820854625e-11,
+    "threshold_divJ": 0.002,
+    "threshold_drift": 1e-06,
+    "stable": true
+  },
+  "notes": [
+    "Vacuum \u2207\u00b7J mean = 1.018e-03 (< 2e-03 \u21d2 stable).",
+    "Energy drift = 1.816e-11 (< 1e-06).",
+    "\u039b-field acts as neutral causal buffer: zero-divergence background."
+  ],
+  "protocol": "Tessaris Unified Constants & Verification Protocol v1.2"
+}

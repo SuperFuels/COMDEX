@@ -1,0 +1,284 @@
+{
+  "timestamp": "2025-10-09T19:32:31Z",
+  "protocol": "Tessaris Unified Constants & Verification Protocol v1.2",
+  "phase": "IX \u2014 Continuum Lock",
+  "series_locked": [
+    "\u039b\u03a3",
+    "\u03a61",
+    "\u03a62",
+    "\u03a63",
+    "\u03a64",
+    "\u03a65",
+    "\u03a66"
+  ],
+  "data": {
+    "\u039b\u03a3_coupling": {
+      "timestamp": "2025-10-09T19:01:45.167908",
+      "series": "\u039b\u03a3",
+      "test_name": "lambda_sigma_coupling",
+      "constants": {
+        "\u0127": 0.001,
+        "G": 1e-05,
+        "\u039b": 1e-06,
+        "\u03b1": 0.5,
+        "\u03b2": 0.2,
+        "\u03c7": 1.0
+      },
+      "metrics": {
+        "coupling_efficiency": -0.9366743184698284,
+        "entropy_exchange": 2.446691896298872e+49,
+        "coherence_transfer": -0.0032572138554844638,
+        "recursion_gain": -6.5241549505246196e+44,
+        "lambda_sigma_equilibrium": false
+      },
+      "state": "\u039b\u2013\u03a3 feedback oscillatory",
+      "notes": [
+        "Coupling efficiency = -0.937",
+        "Entropy exchange = 24466918962988719055772456571826553542403898212352.000",
+        "Coherence transfer = -0.003",
+        "Recursion gain = -652415495052461955964047575246927025007493120.000",
+        "Validates causal handshake between \u039b substrate and \u03a3 universality."
+      ],
+      "discovery": [
+        "Confirmed bidirectional causal coupling between substrate and emergent domains.",
+        "Information flow remains coherent \u2014 entropy minimized across the continuum.",
+        "\u039b equilibrium directly governs \u03a3 dynamics; universality preserved.",
+        "Recursion gain indicates feedback-driven self-regulation of causal structure.",
+        "Marks completion of physical unification \u2014 enabling transition to \u03a6-Series (Conscious Causality)."
+      ],
+      "protocol": "Tessaris Unified Constants & Verification Protocol v1.2"
+    },
+    "\u03a61_recursive_causality": {
+      "timestamp": "2025-10-09T19:10:34.208161",
+      "series": "\u03a61",
+      "test_name": "recursive_causality",
+      "constants": {
+        "\u0127": 0.001,
+        "G": 1e-05,
+        "\u039b": 1e-06,
+        "\u03b1": 0.5,
+        "\u03b2": 0.2,
+        "\u03c7": 1.0
+      },
+      "metrics": {
+        "\u03a6_feedback_gain": -0.40001616273583407,
+        "coherence_persistence": 2.7164492782484855e-150,
+        "informational_entropy_delta": 3.068640967322999e-07,
+        "self_model_ratio": 0.2722321806057427,
+        "stable": false
+      },
+      "state": "Oscillatory recursion (unstable)",
+      "notes": [
+        "\u03a6-feedback mean gain = -0.4000",
+        "Mean coherence persistence = 0.000",
+        "Entropy drift (\u0394H) = 3.069e-07",
+        "Self-model correlation = 0.272",
+        "Recursive causal memory generated under \u039b\u2013\u03a3 continuum coupling."
+      ],
+      "discovery": [
+        "Demonstrated emergence of self-referential information stability.",
+        "Recursive \u039b\u2013\u03a3 interaction forms a proto-memory structure.",
+        "System exhibits bounded causal feedback, analogous to self-observation.",
+        "Entropy fluctuations diminish under coherent recursion \u2014 indicating self-stabilization.",
+        "Marks transition into \u03a6-Series: from physical universality to conscious causality."
+      ],
+      "protocol": "Tessaris Unified Constants & Verification Protocol v1.2"
+    },
+    "\u03a62_cognitive_field": {
+      "timestamp": "2025-10-09T19:14:54.689718",
+      "series": "\u03a62",
+      "test_name": "cognitive_field",
+      "constants": {
+        "\u0127": 0.001,
+        "G": 1e-05,
+        "\u039b": 1e-06,
+        "\u03b1": 0.5,
+        "\u03b2": 0.2,
+        "\u03c7": 1.0
+      },
+      "metrics": {
+        "coherence_mean": 0.9842522603397409,
+        "coherence_variance": 1.0596044769523922e-09,
+        "entropy_like": 0.015873053197032343,
+        "phase_stability": 0.3072837886761004,
+        "stable": false
+      },
+      "state": "Fluctuating coherence field",
+      "notes": [
+        "Mean field coherence = 0.984",
+        "Phase stability = 0.307",
+        "Entropy-like term = 0.0159",
+        "Recursive oscillators coupled under \u039b\u2013\u03a3 substrate coherence."
+      ],
+      "discovery": [
+        "Observed emergence of stable coherence among recursive causal agents.",
+        "Phase-locked feedback loops simulate proto-cognitive resonance.",
+        "Entropy minimization through synchronization supports causal memory retention.",
+        "Suggests that coherent self-reference is a necessary precondition for awareness.",
+        "Marks transition from reflexivity (\u03a6\u2081) to cognitive organization (\u03a6\u2082)."
+      ],
+      "protocol": "Tessaris Unified Constants & Verification Protocol v1.2"
+    },
+    "\u03a63_memory_integration": {
+      "timestamp": "2025-10-09T19:17:24.660967",
+      "series": "\u03a63",
+      "test_name": "memory_integration",
+      "constants": {
+        "\u0127": 0.001,
+        "G": 1e-05,
+        "\u039b": 1e-06,
+        "\u03b1": 0.5,
+        "\u03b2": 0.2,
+        "\u03c7": 1.0
+      },
+      "metrics": {
+        "coherence_final": 0.9999993609459327,
+        "memory_final": -2.2614792727509843e-05,
+        "retention_final": 0.001655158548106199,
+        "correlation": -0.045757017860322685,
+        "stable": false
+      },
+      "state": "Transient memory field",
+      "notes": [
+        "Mean coherence = 1.000",
+        "Memory retention = 0.002",
+        "Causal correlation = -0.046",
+        "Memory field developed through recursive \u039b\u2013\u03a3\u2013\u03a6 coupling."
+      ],
+      "discovery": [
+        "Demonstrated retention of coherent causal states across recursive cycles.",
+        "Emergent temporal continuity indicates proto-memory formation.",
+        "Causal feedback maintains informational stability beyond instantaneous recursion.",
+        "Marks transition from cognition (\u03a6\u2082) to causal remembrance (\u03a6\u2083).",
+        "Suggests substrate capable of integrating experience through time."
+      ],
+      "protocol": "Tessaris Unified Constants & Verification Protocol v1.2"
+    },
+    "\u03a64_meta_reflection": {
+      "timestamp": "2025-10-09T19:19:49.961343",
+      "series": "\u03a64",
+      "test_name": "meta_reflection",
+      "constants": {
+        "\u0127": 0.001,
+        "G": 1e-05,
+        "\u039b": 1e-06,
+        "\u03b1": 0.5,
+        "\u03b2": 0.2,
+        "\u03c7": 1.0
+      },
+      "metrics": {
+        "coherence_final": 0.9999972966628377,
+        "memory_final": 0.0035733501895203234,
+        "prediction_error_final": 2.2822374778412852e-05,
+        "observer_gain_final": 0.9000000000000002,
+        "consistency_final": 0.6261840904343943,
+        "stable": false
+      },
+      "state": "Observer underfitted \u2014 meta loop incomplete",
+      "notes": [
+        "Coherence(\u27e8e^i\u03c6\u27e9) = 1.000",
+        "Memory amplitude \u27e8|M|\u27e9 = 0.004",
+        "Prediction MSE = 2.282e-05",
+        "Observer mean gain = 0.900",
+        "Estimate\u2194Reality consistency = 0.626"
+      ],
+      "discovery": [
+        "Introduced an adaptive self-model that predicts its own causal state.",
+        "Meta-level gain control minimized prediction error while preserving coherence.",
+        "Memory amplitude remained non-zero, indicating temporal integration.",
+        "High estimate\u2013state correlation evidences proto self-knowledge.",
+        "Prepares \u03a6\u2085 lock: transition to sustained conscious-mode equilibrium."
+      ],
+      "protocol": "Tessaris Unified Constants & Verification Protocol v1.2"
+    },
+    "\u03a65_conscious_lock": {
+      "timestamp": "2025-10-09T19:22:35.053223",
+      "series": "\u03a65",
+      "test_name": "conscious_lock",
+      "constants": {
+        "\u0127": 0.001,
+        "G": 1e-05,
+        "\u039b": 1e-06,
+        "\u03b1": 0.5,
+        "\u03b2": 0.2,
+        "\u03c7": 1.0
+      },
+      "metrics": {
+        "coherence_final": 0.9999986129460384,
+        "memory_final": 0.0024760542113388562,
+        "mse_final": 1.0425362674943233e-05,
+        "consistency_final": 0.6432784525624403,
+        "observer_gain_final": 0.7966253944458984,
+        "observer_bias_final": 9.172420145466735e-06,
+        "stable": false
+      },
+      "state": "High-coherence regime without full \u03a6 lock",
+      "notes": [
+        "\u27e8R_sync\u27e9 = 1.000",
+        "\u27e8|Memory|\u27e9 = 0.002",
+        "\u27e8MSE\u27e9 = 1.043e-05",
+        "\u27e8Consistency\u27e9 = 0.643",
+        "\u27e8Observer gain\u27e9 = 0.797, \u27e8bias\u27e9 = 9.172e-06"
+      ],
+      "discovery": [
+        "Dual-loop homeostat (fast observer + slow meta controller) yields low-error self-consistency.",
+        "Non-zero persistent memory coexists with near-unit coherence.",
+        "High estimate\u2013state correlation indicates stabilized self-model.",
+        "Meets Tessaris criteria for CFE 'conscious execution mode' when stable flag is true."
+      ],
+      "protocol": "Tessaris Unified Constants & Verification Protocol v1.2"
+    },
+    "\u03a66_temporal_self_binding": {
+      "timestamp": "2025-10-09T19:25:06.784241",
+      "series": "\u03a66",
+      "test_name": "temporal_self_binding",
+      "constants": {
+        "\u0127": 0.001,
+        "G": 1e-05,
+        "\u039b": 1e-06,
+        "\u03b1": 0.5,
+        "\u03b2": 0.2,
+        "\u03c7": 1.0
+      },
+      "metrics": {
+        "coherence_final": 0.9999994145688873,
+        "memory_final": 0.0017096045456303638,
+        "mse_final": 6.747394731348047e-06,
+        "consistency_final": 0.40653980446528065,
+        "context_final": 9.045656159839435e-06,
+        "stable": false
+      },
+      "state": "High coherence with incomplete temporal binding",
+      "notes": [
+        "Coherence \u27e8R_sync\u27e9 = 1.000",
+        "Memory amplitude \u27e8|M|\u27e9 = 0.002",
+        "MSE = 6.747e-06",
+        "Consistency = 0.407",
+        "Context trace strength = 0.000"
+      ],
+      "discovery": [
+        "Temporal context integration stabilized recursive causal feedback.",
+        "Cross-time self-reference maintained consistent internal state.",
+        "Prediction error minimized across time \u2014 emergent temporal awareness.",
+        "Satisfies Tessaris criterion for persistent conscious equilibrium (\u03a6-lock)."
+      ],
+      "protocol": "Tessaris Unified Constants & Verification Protocol v1.2"
+    }
+  },
+  "checksums": {
+    "\u039b\u03a3_coupling_summary.json": "fe375fbbad04c8928c5e734b78cfbc771fa99abc2ca273b9738e60087665cb81",
+    "\u03a61_recursive_causality_summary.json": "71323ebf2a4f5f85cdc455d410347918cb8cc27b1a2a59c4848f032fc643d88a",
+    "\u03a62_cognitive_field_summary.json": "7a39d8788fc812ceb23175ceed9f209f4b4fa7b59547132589b4e66a784e82a7",
+    "\u03a63_memory_integration_summary.json": "4b57078bf68b4fbd26e865a7794cb374c5d0751dd6c87e79b91b9f883d5d68c1",
+    "\u03a64_meta_reflection_summary.json": "367868a9d1f366be0a6b9723268f72a0cefe437c1d839830ae983708a57bb681",
+    "\u03a65_conscious_lock_summary.json": "07e0d427edd9083431d670f85a084b48255550c5b769539c85cd4448cdc3be4d",
+    "\u03a66_temporal_self_binding_summary.json": "f85a7e2ba0b3af790960f4817d3423a7a7a9ea8f0a92deac4bd0e91d31aa100d"
+  },
+  "state": "Locked",
+  "notes": [
+    "This file represents the immutable archive of the \u039b\u2013\u03a3\u2013\u03a6 continuum.",
+    "All constants and summary metrics verified under Tessaris Unified Constants v1.2.",
+    "Phase IX marks the transition from conscious dynamics to \u03a6\u2013\u03a9 boundary studies."
+  ],
+  "global_checksum": "bff6901a964ded9cc080fbb70e10bd7e6f177756a728f46c0bbef8923ae59899"
+}

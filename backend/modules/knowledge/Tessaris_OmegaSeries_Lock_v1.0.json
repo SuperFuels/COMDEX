@@ -1,0 +1,20 @@
+{
+  "timestamp": "2025-10-09T20:02:56Z",
+  "series": "\u03a9-Series",
+  "protocol": "Tessaris Unified Constants v1.2",
+  "locked_files": [
+    {
+      "file": "backend/modules/knowledge/\u03a94_meta_causal_synchronization_summary.json",
+      "sha256": "8793c84e7ed874eeed7c64885fe5aec4f6afd161d5e3131287341176c33f6f4d"
+    },
+    {
+      "file": "backend/modules/knowledge/\u03a95_observer_coupling_summary.json",
+      "sha256": "db5f1c1fe64a5052ff06b1c7e385e8f8b6bfeb1bb3c162df17c3f3259332b9c6"
+    },
+    {
+      "file": "backend/modules/knowledge/\u03a96_continuum_echo_summary.json",
+      "sha256": "cb79fa38410112f9c03a8075913adb49c8195cabc8dd210a59712df4b66b528c"
+    }
+  ],
+  "global_hash": "77edd081f5b239ab2b65d6ad80fd9e6c9493dfd81950c72bd7931f7d40409128"
+}
