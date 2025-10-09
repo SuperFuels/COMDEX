@@ -1,0 +1,42 @@
+{
+  "timestamp": "2025-10-08T22:12Z",
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2
+  },
+  "params": {
+    "N": 128,
+    "normalized": true
+  },
+  "results": {
+    "raw": {
+      "quantum_error": 0.08794425073702991,
+      "einstein_balance": -1.92511111399426e-07,
+      "maxwell_error": 6.0165711422604995e-12,
+      "conservation_error": 0.5063733066802083
+    },
+    "normalized": {
+      "quantum_error": 0.022043249861960636,
+      "einstein_balance": -7.680522037337867e-07,
+      "maxwell_error": 1.508066889409447e-12,
+      "conservation_error": 2.2257427006217987
+    }
+  },
+  "verdict": {
+    "quantum_gauge_consistent": false,
+    "einstein_within_tolerance": false,
+    "energy_entropy_balanced": false
+  },
+  "files": {
+    "figure": "PAEV_J1_field_diagnostics.png"
+  },
+  "notes": [
+    "\u0127-scaled entropy used for improved energy\u2013entropy consistency.",
+    "Includes \u03c8 amplitude, \u03ba(x), and F(x) diagnostic visualization.",
+    "Tessaris unified constants applied across all subsystems.",
+    "Model-level test only; no physical field interpretation implied."
+  ]
+}

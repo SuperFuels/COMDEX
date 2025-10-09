@@ -1,0 +1,45 @@
+{
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2
+  },
+  "params": {
+    "N": 256,
+    "T": 4000,
+    "dt": 0.01,
+    "base_noise": 0.012,
+    "controller": {
+      "theta": 1.4,
+      "eta_up": 0.18,
+      "eta_dn": 0.06
+    },
+    "EMA_ALPHA": 0.25
+  },
+  "results": {
+    "v_c": 707.1067811865476,
+    "S_CHSH_stats": {
+      "mean": 0.4091953125,
+      "max": 2.140625,
+      "min": -1.078125,
+      "p95": 1.84375
+    },
+    "bursts_detected": [
+      {
+        "t_end": 1735,
+        "len": 6
+      }
+    ]
+  },
+  "files": {
+    "trace": "backend/modules/knowledge/E6Omega_vS_trace.json",
+    "scatter": "PAEV_E6Omega_vS_vs_CHSH.png"
+  },
+  "timestamp": "2025-10-08T20:09Z",
+  "discovery_notes": [
+    "Model-level correlation test between v_S bursts and CHSH-like S.",
+    "All claims pertain to Tessaris algebra; no spacetime signaling is implied."
+  ]
+}

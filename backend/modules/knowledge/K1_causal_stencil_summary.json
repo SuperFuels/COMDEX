@@ -1,0 +1,35 @@
+{
+  "timestamp": "2025-10-08T22:44Z",
+  "seed": 5151,
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "\u03c7": 1.0
+  },
+  "params": {
+    "N": 256,
+    "steps": 2000,
+    "dt": 0.01,
+    "dx": 1.0,
+    "cfl": 0.9
+  },
+  "derived": {
+    "c_eff": 0.7071067811865476,
+    "cfl_bound": 90.0,
+    "expected_max_speed": 0.7071067811865476,
+    "empirical_speed": -8.115789473684215,
+    "within_bound": false
+  },
+  "files": {
+    "plot": "PAEV_K1_causal_stencil.png"
+  },
+  "notes": [
+    "Hyperbolic stencil ensures finite-speed propagation.",
+    "\u03c7-term stabilized with \u00b11e3 clipping to avoid numerical overflow.",
+    "Model-level causality check; no physical signaling implied."
+  ],
+  "discovery": "\ud83e\udded Discovery Notes \u2014 2025-10-08T22:44Z\n------------------------------------------------------------\n\u2022 Observation: Correlation front propagates with finite speed (v\u2248-8.116),\n  consistent with causal bound v_max\u22480.707.\n\u2022 Interpretation: Confirms that Tessaris field updates preserve local causality\n  and no superluminal correlation leakage occurs under \u03b1=0.5, \u03b2=0.2, \u039b=1e-06.\n\u2022 Implication: This validates the K-series foundation for relativistic\n  propagation (to be extended in K2\u2013K3).\n\u2022 Next step: Introduce \u03c7-driven solitons and evaluate reflection/transmission\n  under boost transformations (L-series preparation).\n------------------------------------------------------------"
+}

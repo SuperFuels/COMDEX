@@ -1,0 +1,40 @@
+{
+  "timestamp": "2025-10-08T23:15Z",
+  "seed": 8282,
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "\u03c7": 1.0
+  },
+  "params": {
+    "N": 512,
+    "steps": 2000,
+    "dt": 0.002,
+    "dx": 1.0,
+    "damping": 0.05,
+    "snap_every": 10,
+    "boost_v": 0.21213192829002664,
+    "gamma": 1.0482848367219182
+  },
+  "derived": {
+    "c_eff": 0.7071064276334221,
+    "transport_exponent_lab": 10.715792909467824,
+    "transport_exponent_boost": 10.759804845978335,
+    "delta_p": 0.04401193651051116,
+    "xi_lab": -5.214177780998917e+18,
+    "xi_boost": -6.601147143929048e+17,
+    "delta_xi": 4.5540630666060124e+18
+  },
+  "files": {
+    "plot": "PAEV_L1_boost_invariance.png"
+  },
+  "notes": [
+    "Boost defined by c_eff (from \u03b1,\u039b) to emulate Lorentz transform.",
+    "Damping (K3b) ensures causal stability under \u03c7 nonlinearity.",
+    "Invariance target: p_boost\u2248p_lab and \u03be_boost\u2248\u03be_lab within small deltas.",
+    "Model-level check; no physical signaling implied."
+  ]
+}

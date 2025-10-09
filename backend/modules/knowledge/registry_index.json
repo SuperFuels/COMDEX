@@ -130,6 +130,36 @@
       "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
     },
     {
+      "file": "E6Omega_v5_summary.json",
+      "timestamp": "2025-10-08T19:44Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "E6Omega_v5b_summary.json",
+      "timestamp": "2025-10-08T20:09Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "E6Omega_v5c_summary.json",
+      "timestamp": "2025-10-08T21:57Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "E6Omega_vS_trace.json",
+      "timestamp": "2025-10-08T20:09Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "E6Omega_vS_trace_v5c.json",
+      "timestamp": "2025-10-08T21:57Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
       "file": "E6_bell_violation_feedback.json",
       "timestamp": "2025-10-08T08:26Z",
       "constants_version": "v1.2",
@@ -150,6 +180,12 @@
     {
       "file": "E6_bell_violation_feedback_v3_extreme.json",
       "timestamp": "2025-10-08T08:57Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "E6_boosted_CHSH_summary.json",
+      "timestamp": "2025-10-08T23:49Z",
       "constants_version": "v1.2",
       "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
     },
@@ -551,37 +587,235 @@
     },
     {
       "file": "I1_universality.json",
-      "timestamp": "2025-10-08T18:20Z",
+      "timestamp": "2025-10-08T21:47Z",
       "constants_version": "v1.2",
       "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
     },
     {
       "file": "I2_entropy_information.json",
-      "timestamp": "2025-10-08T18:35Z",
+      "timestamp": "2025-10-08T21:48Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "I3_boosted_entropy_summary.json",
+      "timestamp": "2025-10-08T23:50Z",
       "constants_version": "v1.2",
       "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
     },
     {
       "file": "I3_entropic_velocity.json",
-      "timestamp": "2025-10-08T18:41Z",
+      "timestamp": "2025-10-08T21:49Z",
       "constants_version": "v1.2",
       "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
     },
     {
       "file": "I4_entropy_flux_sync.json",
-      "timestamp": "2025-10-08T19:08Z",
+      "timestamp": "2025-10-08T21:50Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "I5_entropy_entanglement_corr.json",
+      "timestamp": "2025-10-08T19:46Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "I5b_burst_corr.json",
+      "timestamp": "2025-10-08T20:09Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "I5c_burst_corr.json",
+      "timestamp": "2025-10-08T21:55Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "I6_meta_analysis.json",
+      "timestamp": "2025-10-08T22:01Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "I6_reproducibility_summary.json",
+      "timestamp": "2025-10-08T20:09Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "I7_adaptive_meta.json",
+      "timestamp": "2025-10-08T22:03Z",
       "constants_version": "v1.2",
       "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
     },
     {
       "file": "I_universality.json",
-      "timestamp": "2025-10-08T12:42:32+00:00",
+      "timestamp": "2025-10-08T21:45Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "J1_ablation_chi_summary.json",
+      "timestamp": "2025-10-08T22:05Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "J1_unified_field_summary.json",
+      "timestamp": "2025-10-08T22:12Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "J2_ablation_kappa_summary.json",
+      "timestamp": "2025-10-08T22:13Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "J2_toe_grand_synchronization.json",
+      "timestamp": "2025-10-08T22:16Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "J3_ablation_beta_summary.json",
+      "timestamp": "2025-10-08T22:20Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "J4_ablation_alpha_summary.json",
+      "timestamp": "2025-10-08T22:22Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "K1_causal_stencil_summary.json",
+      "timestamp": "2025-10-08T22:44Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "K1_stable_causal_stencil_summary.json",
+      "timestamp": "2025-10-08T22:54Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "K2_correlation_decay_summary.json",
+      "timestamp": "2025-10-08T22:58Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "K3_soliton_propagation_summary.json",
+      "timestamp": "2025-10-08T23:01Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "K3b_damped_soliton_summary.json",
+      "timestamp": "2025-10-08T23:08Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "L1_boost_invariance_summary.json",
+      "timestamp": "2025-10-08T23:15Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "L1b_boost_invariance_corrected_summary.json",
+      "timestamp": "2025-10-08T23:18Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "L1c_boost_invariance_timelike_summary.json",
+      "timestamp": "2025-10-08T23:21Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "L2_multi_boost_collapse_summary.json",
+      "timestamp": "2025-10-08T23:24Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "L3_boosted_soliton_scattering_summary.json",
+      "timestamp": "2025-10-08T23:26Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "M1_metric_emergence_summary.json",
+      "timestamp": "2025-10-09T00:06Z",
       "constants_version": "v1.2",
       "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
     },
     {
       "file": "M1_wormhole_geometry.json",
       "timestamp": "2025-10-07T15:50Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "M2_curvature_energy_summary.json",
+      "timestamp": "2025-10-09T00:08Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "M3_dynamic_curvature_feedback_summary.json",
+      "timestamp": "2025-10-09T00:11Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "M3b_stable_curvature_feedback_summary.json",
+      "timestamp": "2025-10-09T00:13Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "M3c_geodesic_oscillation_summary.json",
+      "timestamp": "2025-10-09T00:16Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "M3d_geodesic_oscillation_summary.json",
+      "timestamp": "2025-10-09T00:18Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "M4_coupled_curvature_wells_summary.json",
+      "timestamp": "2025-10-09T00:20Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "M4b_coupled_curvature_wells_summary.json",
+      "timestamp": "2025-10-09T00:25Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "M5_bound_state_redshift_summary.json",
+      "timestamp": "2025-10-09T00:29Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "M6_invariance_redshift_summary.json",
+      "timestamp": "2025-10-09T00:31Z",
       "constants_version": "v1.2",
       "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
     },
@@ -1025,7 +1259,7 @@
     },
     {
       "file": "reproducibility_check_summary.json",
-      "timestamp": "2025-10-08T14:20Z",
+      "timestamp": "2025-10-09T00:02Z",
       "constants_version": "v1.2",
       "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
     },
@@ -1052,7 +1286,13 @@
       "timestamp": "2025-10-07T11:10Z",
       "constants_version": "v1.2",
       "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "unified_summary_v1.1.json",
+      "timestamp": "2025-10-08T22:34Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
     }
   ],
-  "timestamp": "2025-10-08T19:11Z"
+  "timestamp": "2025-10-09T00:33Z"
 }

@@ -1,0 +1,124 @@
+{
+  "meta_analysis": "I6 \u2014 v_S \u21a6 S_CHSH Multi-Trial Correlation",
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2
+  },
+  "params": {
+    "n_trials": 5,
+    "seeds": [
+      42,
+      123,
+      456,
+      789,
+      1011
+    ],
+    "T_per_trial": 8000
+  },
+  "trials": [
+    {
+      "seed": 42,
+      "num_bursts": 258,
+      "S_CHSH_mean": 0.571605,
+      "S_CHSH_std": 0.8933674210396303,
+      "spearman_rho": -0.013292962956388077,
+      "spearman_p": 0.23450834762647343,
+      "kendall_tau": -0.008792322441113243,
+      "kendall_p": 0.23868939074550188,
+      "delta_S_post_pre": -0.00867253377629531,
+      "num_valid_windows": 257
+    },
+    {
+      "seed": 123,
+      "num_bursts": 247,
+      "S_CHSH_mean": 1.3537462500000002,
+      "S_CHSH_std": 0.6030076725141543,
+      "spearman_rho": 0.002053088766307926,
+      "spearman_p": 0.8543230732796512,
+      "kendall_tau": 0.0012316918704924783,
+      "kendall_p": 0.8689840408092618,
+      "delta_S_post_pre": -0.009921431895388364,
+      "num_valid_windows": 247
+    },
+    {
+      "seed": 456,
+      "num_bursts": 267,
+      "S_CHSH_mean": 0.52271125,
+      "S_CHSH_std": 0.837954928157498,
+      "spearman_rho": -0.0194422332785594,
+      "spearman_p": 0.08205959940829606,
+      "kendall_tau": -0.012927508317825938,
+      "kendall_p": 0.08317190927980919,
+      "delta_S_post_pre": -0.02463840979046765,
+      "num_valid_windows": 266
+    },
+    {
+      "seed": 789,
+      "num_bursts": 227,
+      "S_CHSH_mean": 0.50163875,
+      "S_CHSH_std": 0.8892856132865512,
+      "spearman_rho": -0.02974078701975241,
+      "spearman_p": 0.007807812393396063,
+      "kendall_tau": -0.019947361531360498,
+      "kendall_p": 0.007516974408828385,
+      "delta_S_post_pre": -0.022051229246447163,
+      "num_valid_windows": 227
+    },
+    {
+      "seed": 1011,
+      "num_bursts": 234,
+      "S_CHSH_mean": 0.5170287499999999,
+      "S_CHSH_std": 0.8851251799454343,
+      "spearman_rho": -0.007850822489473852,
+      "spearman_p": 0.48261680045741406,
+      "kendall_tau": -0.005139424442462966,
+      "kendall_p": 0.49100763260774327,
+      "delta_S_post_pre": 0.00927346967529371,
+      "num_valid_windows": 233
+    }
+  ],
+  "aggregate_statistics": {
+    "spearman_rho": {
+      "mean": -0.013654743395573163,
+      "std": 0.010703347259814804,
+      "median": -0.013292962956388077,
+      "min": -0.02974078701975241,
+      "max": 0.002053088766307926
+    },
+    "kendall_tau": {
+      "mean": -0.009114984972454034,
+      "std": 0.007139168446003662,
+      "median": -0.008792322441113243
+    },
+    "delta_S": {
+      "mean": -0.011202027006660955,
+      "std": 0.012045960283572051,
+      "median": -0.009921431895388364
+    },
+    "burst_count": {
+      "mean": 246.6,
+      "std": 14.759403781996074,
+      "total": 1233
+    },
+    "significance_test": {
+      "null_hypothesis": "mean(rho)=0",
+      "t_statistic": -2.5514903074927284,
+      "p_value": 0.0632054493411059,
+      "interpretation": "Not significant"
+    }
+  },
+  "files": {
+    "plot": "PAEV_I6_meta_analysis.png"
+  },
+  "timestamp": "2025-10-08T22:01Z",
+  "discovery_notes": [
+    "Mean Spearman \u03c1 = -0.0137 \u00b1 0.0107",
+    "Mean \u0394S = -0.0112 \u00b1 0.0120",
+    "Significance: Not significant (p=0.0632)",
+    "Total bursts: 1233",
+    "All interpretations remain within Tessaris algebraic modeling domain."
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "timestamp": "2025-10-09T00:20Z",
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "\u03c7": 1.0
+  },
+  "params": {
+    "N": 512,
+    "steps": 3000,
+    "dt": 0.001,
+    "dx": 1.0,
+    "damping": 0.1,
+    "gamma_v": 0.06,
+    "clip_value": 7.0,
+    "R_gain": 3e-06,
+    "ema_alpha": 0.06,
+    "rho_sigma": 1.8,
+    "metric_clip": 0.5,
+    "well_sep": 30.0,
+    "well_sigma": 6.0,
+    "well_amp": 0.8
+  },
+  "derived": {
+    "c_eff": 0.7071064276334221,
+    "transfer_amp": 1.3966315366302653e-06
+  },
+  "files": {
+    "plot": "PAEV_M4_coupled_curvature_wells.png"
+  },
+  "notes": [
+    "Two emergent curvature wells steer energy; monitor exchange E_left\u2194E_right.",
+    "Nonzero transfer_amp indicates coupling (normal-mode\u2013like beating).",
+    "Verified under Tessaris Unified Constants & Verification Protocol."
+  ]
+}

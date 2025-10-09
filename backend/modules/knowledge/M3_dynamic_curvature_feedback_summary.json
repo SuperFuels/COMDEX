@@ -1,0 +1,36 @@
+{
+  "timestamp": "2025-10-09T00:11Z",
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "\u03c7": 1.0
+  },
+  "params": {
+    "N": 512,
+    "steps": 2000,
+    "dt": 0.002,
+    "dx": 1.0,
+    "damping": 0.05,
+    "clip_value": 10.0,
+    "R_feedback_strength": 1e-05
+  },
+  "derived": {
+    "c_eff": 0.7071064276334221,
+    "R_eff_final": -1.4819574761011942e-13,
+    "oscillation_amplitude": 1.8168259075818354,
+    "oscillation_frequency": 1.0149351184392232,
+    "velocity_std": 5.459286348074423
+  },
+  "files": {
+    "plot": "PAEV_M3_dynamic_curvature_feedback.png"
+  },
+  "notes": [
+    "Curvature feedback added dynamically from mean energy curvature.",
+    "Centroid of |u| tracked to assess geodesic-like motion.",
+    "Stable oscillations indicate gravitational confinement.",
+    "Model verified under Tessaris Unified Constants & Verification Protocol."
+  ]
+}

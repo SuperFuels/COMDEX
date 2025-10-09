@@ -1,0 +1,54 @@
+{
+  "timestamp": "2025-10-09T00:08Z",
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "\u03c7": 1.0
+  },
+  "params": {
+    "N": 512,
+    "steps": 1800,
+    "dt": 0.002,
+    "dx": 1.0,
+    "damping": 0.05,
+    "clip_value": 10.0,
+    "\u03c7_values": [
+      0.5,
+      1.0,
+      1.5,
+      2.0
+    ]
+  },
+  "derived": {
+    "c_eff": 0.7071064276334221,
+    "fit_coeff": [
+      -5.951059445550422e-11,
+      5.894009860175838e-11
+    ],
+    "fit_error": 7.148191297698395e-12,
+    "R_eff_values": [
+      1.717625148429189e-11,
+      2.030162293676716e-11,
+      -8.61072307213313e-12,
+      -1.6750107531392782e-12
+    ],
+    "rho_means": [
+      0.6193697327263707,
+      0.8372667677078866,
+      1.0115959368139842,
+      1.0364923217556758
+    ]
+  },
+  "files": {
+    "plot": "PAEV_M2_curvature_energy.png"
+  },
+  "notes": [
+    "Curvature\u2013energy proportionality tested under variable \u03c7.",
+    "R_eff derived from mean energy density curvature.",
+    "Linear correspondence implies Einstein-like emergent relation.",
+    "Model verified under Tessaris Unified Constants & Verification Protocol."
+  ]
+}

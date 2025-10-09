@@ -1,47 +1,32 @@
 #!/usr/bin/env python3
 """
 PAEV Test I3 — Entropic Velocity & Causal Information Front
-Tessaris Photon Algebra Framework
+Tessaris Photon Algebra Framework (Registry-aligned)
 """
 
 import numpy as np
 import json
 import matplotlib.pyplot as plt
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 print("=== I3 — Entropic Velocity & Causal Information Front ===")
 
 # =====================================================
-# Load constants (v1.2 registry compatible)
+# 🔹 Load Tessaris constants (auto-synced via registry)
 # =====================================================
-CANDIDATES = [
-    Path("backend/modules/knowledge/constants_v1.2.json"),
-    Path("backend/modules/knowledge/constants_v1.1.json"),
-    Path("backend/modules/knowledge/constants_v1.0.json"),
-]
+from backend.photon_algebra.utils.load_constants import load_constants
+const = load_constants()
 
-for p in CANDIDATES:
-    if p.exists():
-        C = json.loads(p.read_text())
-        break
-else:
-    C = {}
-
-def get_const(d, *names, default=None):
-    for n in names:
-        if n in d:
-            return d[n]
-    return default
-
-ħ = get_const(C, "ħ", "hbar", "h", default=1e-3)
-G = get_const(C, "G", "grav", default=1e-5)
-Λ = get_const(C, "Λ", "Lambda", "lambda", default=1e-6)
-α = get_const(C, "α", "alpha", default=0.5)
-β = get_const(C, "β", "beta", default=0.2)
+ħ = const.get("ħ", 1e-3)
+G = const.get("G", 1e-5)
+Λ = const.get("Λ", 1e-6)
+α = const.get("α", 0.5)
+β = const.get("β", 0.2)
+χ = const.get("χ", 1.0)  # new unified coupling
 
 # =====================================================
-# Simulation parameters
+# ⚙️ Simulation parameters
 # =====================================================
 params = dict(
     N=256,
@@ -52,18 +37,20 @@ params = dict(
 )
 
 # =====================================================
-# Helpers
+# 🌱 Helpers
 # =====================================================
 def initialize_field(N, var_k):
-    return np.random.normal(0, np.sqrt(var_k), (N,))
+    return np.random.normal(0, np.sqrt(var_k), N)
 
-def evolve_state(N, T, dt, var_k, α, Λ, noise_amp):
+def evolve_state(N, T, dt, var_k, α, Λ, χ, noise_amp):
+    """Evolve state under diffusive + nonlinear χ-coupled transport."""
     phi = initialize_field(N, var_k)
     phi_series = np.zeros((T, N))
     phi_series[0] = phi
     for t in range(1, T):
         lap = np.roll(phi, -1) - 2 * phi + np.roll(phi, 1)
-        phi += dt * (α * lap - Λ * phi) + noise_amp * np.random.normal(0, 1, N)
+        phi += dt * (α * lap - Λ * phi + χ * 0.01 * lap**2)
+        phi += noise_amp * np.random.normal(0, 1, N)
         phi_series[t] = phi
     return phi_series
 
@@ -72,10 +59,7 @@ def compute_entropy(phi_series):
     for frame in phi_series:
         hist, _ = np.histogram(np.abs(frame), bins=64, density=True)
         hist = hist[hist > 0]
-        if len(hist) == 0:
-            ent.append(0.0)
-            continue
-        S = -np.sum(hist * np.log(hist + 1e-12))
+        S = -np.sum(hist * np.log(hist + 1e-12)) if len(hist) else 0.0
         ent.append(S)
     return np.array(ent)
 
@@ -93,7 +77,7 @@ def compute_front_velocity(entropy, msd, dt):
     return np.nanmean(vS), vS
 
 # =====================================================
-# Discovery note system
+# 🧠 Anomaly detection system
 # =====================================================
 def detect_anomalies(v_means, v_critical):
     notes = []
@@ -107,7 +91,7 @@ def detect_anomalies(v_means, v_critical):
     return notes
 
 # =====================================================
-# Main sweep
+# 🚀 Main sweep
 # =====================================================
 results = {"Var_kappa": [], "mean_velocity": [], "discovery_notes": []}
 v_means = []
@@ -116,7 +100,8 @@ v_curves = []
 v_critical = np.sqrt(α / (Λ + 1e-12))  # effective causal speed scale
 
 for var_k in params["var_kappa"]:
-    phi_series = evolve_state(params["N"], params["T"], params["dt"], var_k, α=α, Λ=Λ, noise_amp=params["base_noise"])
+    phi_series = evolve_state(params["N"], params["T"], params["dt"],
+                              var_k, α=α, Λ=Λ, χ=χ, noise_amp=params["base_noise"])
     msd = compute_msd(phi_series)
     entropy = compute_entropy(phi_series)
     v_mean, v_curve = compute_front_velocity(entropy, msd, params["dt"])
@@ -125,36 +110,36 @@ for var_k in params["var_kappa"]:
     results["Var_kappa"].append(var_k)
     results["mean_velocity"].append(v_mean)
 
-notes = detect_anomalies(v_means, v_critical)
-results["discovery_notes"] = notes
+results["discovery_notes"] = detect_anomalies(v_means, v_critical)
 
 # =====================================================
-# Plot: Mean velocity vs Var(kappa)
+# 📉 Plot Mean velocity vs Var(κ)
 # =====================================================
-plt.figure(figsize=(7,5))
-plt.plot(params["var_kappa"], v_means, 'o-', label="Mean entropic velocity v_S")
-plt.axhline(v_critical, color='r', linestyle='--', label="Causal limit v_c")
+plt.figure(figsize=(7, 5))
+plt.plot(params["var_kappa"], v_means, "o-", label="Mean entropic velocity v_S")
+plt.axhline(v_critical, color="r", linestyle="--", label="Causal limit v_c")
 plt.xlabel("Curvature variance Var(κ)")
 plt.ylabel("Mean entropic velocity v_S")
 plt.legend()
 plt.title("I3 — Entropic Velocity & Causal Information Front")
+plt.grid(True, which="both", ls="--", alpha=0.4)
 plt.tight_layout()
 plt.savefig("PAEV_I3_EntropyVelocity.png", dpi=200)
+print("✅ Figure saved → PAEV_I3_EntropyVelocity.png")
 
 # =====================================================
-# Save results
+# 💾 Save results
 # =====================================================
 results_json = {
-    "constants": C,
+    "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ"),
+    "constants": const,
     "params": params,
     "results": results,
     "classification": "✅ Entropic velocity and causal information front characterized",
-    "timestamp": datetime.now().strftime("%Y-%m-%dT%H:%MZ"),
     "files": {"velocity_plot": "PAEV_I3_EntropyVelocity.png"},
 }
 
-output_path = Path("backend/modules/knowledge/I3_entropic_velocity.json")
-output_path.write_text(json.dumps(results_json, indent=2))
-
+out_path = Path("backend/modules/knowledge/I3_entropic_velocity.json")
+out_path.write_text(json.dumps(results_json, indent=2))
+print(f"✅ Results saved → {out_path}")
 print(json.dumps(results_json, indent=2))
-print("✅ Results saved → backend/modules/knowledge/I3_entropic_velocity.json")

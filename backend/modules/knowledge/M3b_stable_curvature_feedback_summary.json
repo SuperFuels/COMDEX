@@ -1,0 +1,37 @@
+{
+  "timestamp": "2025-10-09T00:13Z",
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "\u03c7": 1.0
+  },
+  "params": {
+    "N": 512,
+    "steps": 2200,
+    "dt": 0.0015,
+    "dx": 1.0,
+    "damping": 0.08,
+    "clip_value": 8.0,
+    "R_gain": 2e-06,
+    "ema_alpha": 0.05,
+    "rho_sigma": 1.5,
+    "metric_clip": 1.0
+  },
+  "derived": {
+    "c_eff": 0.7071064276334221,
+    "oscillation_amplitude": 1.3226132813150067,
+    "velocity_std": 6.251986754652604,
+    "R_eff_final": -6.824541831168244e-16
+  },
+  "files": {
+    "plot": "PAEV_M3b_stable_curvature_feedback.png"
+  },
+  "notes": [
+    "Temporal EMA and spatial Gaussian smoothing stabilize curvature feedback.",
+    "Gentler gain prevents runaway; metric term clipped for robustness.",
+    "Tessaris Unified Constants & Verification Protocol satisfied."
+  ]
+}

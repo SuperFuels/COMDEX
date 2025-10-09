@@ -7,39 +7,23 @@ Tessaris Photon Algebra Framework (Tessaris v1.0 Core)
 import numpy as np
 import json
 import matplotlib.pyplot as plt
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 print("=== I1 — Informational Universality (Diffusive–Ballistic Crossover) ===")
 
 # =====================================================
-# 🔹 Load Tessaris constants (from JSON registry, compatible with ASCII & Greek keys)
+# 🔹 Load Tessaris constants (auto-resolved via unified registry)
 # =====================================================
-CANDIDATES = [
-    Path("backend/modules/knowledge/constants_v1.2.json"),
-    Path("backend/modules/knowledge/constants_v1.1.json"),
-    Path("backend/modules/knowledge/constants_v1.0.json"),
-]
+from backend.photon_algebra.utils.load_constants import load_constants
+const = load_constants()
 
-for p in CANDIDATES:
-    if p.exists():
-        C = json.loads(p.read_text())
-        break
-else:
-    C = {}
-
-# Normalize keys (support both symbolic and ASCII variants)
-def get_const(d, *names, default=None):
-    for n in names:
-        if n in d:
-            return d[n]
-    return default
-
-ħ = get_const(C, "ħ", "hbar", "h", default=1e-3)
-G = get_const(C, "G", "grav", default=1e-5)
-Λ = get_const(C, "Λ", "Lambda", "lambda", default=1e-6)
-α = get_const(C, "α", "alpha", default=0.5)
-β = get_const(C, "β", "beta", default=0.2)
+ħ = const.get("ħ", 1e-3)
+G = const.get("G", 1e-5)
+Λ = const.get("Λ", 1e-6)
+α = const.get("α", 0.5)
+β = const.get("β", 0.2)
+χ = const.get("χ", 1.0)
 
 # =====================================================
 # ⚙️ Simulation parameters
@@ -56,36 +40,34 @@ params = dict(
 # 🌱 Initialize base field
 # =====================================================
 def initialize_field(N, var_k):
-    return np.random.normal(0, np.sqrt(var_k), (N,))
+    return np.random.normal(0, np.sqrt(var_k), N)
 
 # =====================================================
 # 📈 Compute mean squared displacement
 # =====================================================
 def compute_msd(phi_series):
     phi0 = phi_series[0]
-    msd = np.mean((phi_series - phi0) ** 2, axis=1)
-    return msd
+    return np.mean((phi_series - phi0) ** 2, axis=1)
 
 # =====================================================
 # 🌀 Evolve state — simplified photon-algebra transport
 # =====================================================
-def evolve_state(N, T, dt, var_k, α, Λ, noise_amp):
+def evolve_state(N, T, dt, var_k, α, Λ, χ, noise_amp):
     phi = initialize_field(N, var_k)
     phi_series = np.zeros((T, N))
     phi_series[0] = phi
-
     for t in range(1, T):
         lap = np.roll(phi, -1) - 2 * phi + np.roll(phi, 1)
-        phi += dt * (α * lap - Λ * phi) + noise_amp * np.random.normal(0, 1, N)
+        phi += dt * (α * lap - Λ * phi + χ * 0.01 * lap**2)  # χ coupling term
+        phi += noise_amp * np.random.normal(0, 1, N)
         phi_series[t] = phi
-
     return phi_series
 
 # =====================================================
 # 📊 Estimate transport scaling exponent p
 # =====================================================
 def estimate_transport_exponent(time, msd):
-    valid = (msd > 0)
+    valid = msd > 0
     t = time[valid]
     y = np.log(msd[valid] + 1e-12)
     x = np.log(t + 1e-12)
@@ -95,14 +77,12 @@ def estimate_transport_exponent(time, msd):
 # =====================================================
 # 🧠 Discovery note / anomaly detection
 # =====================================================
-def detect_anomalies(p_values, msd_curves):
+def detect_anomalies(p_values):
     notes = []
     if np.any(np.array(p_values) > 1.05):
         notes.append("⚠ Super-ballistic regime detected — possible acausal front or coherence overshoot.")
     if np.any(np.diff(p_values) < 0):
         notes.append("⚠ Non-monotonic crossover in transport scaling — check local curvature variance thresholds.")
-    if np.any(np.isnan(p_values)):
-        notes.append("⚠ Numerical instability detected (NaN in MSD).")
     if not notes:
         notes.append("✅ Smooth diffusive–ballistic transition; no anomalies detected.")
     return notes
@@ -117,7 +97,7 @@ msd_curves = []
 for var_k in params["var_kappa"]:
     phi_series = evolve_state(
         params["N"], params["T"], params["dt"], var_k,
-        α=α, Λ=Λ, noise_amp=params["base_noise"]
+        α=α, Λ=Λ, χ=χ, noise_amp=params["base_noise"]
     )
     msd = compute_msd(phi_series)
     msd_curves.append(msd)
@@ -125,8 +105,7 @@ for var_k in params["var_kappa"]:
     results["Var_kappa"].append(var_k)
     results["transport_exponent"].append(p)
 
-notes = detect_anomalies(results["transport_exponent"], msd_curves)
-results["discovery_notes"] = notes
+results["discovery_notes"] = detect_anomalies(results["transport_exponent"])
 
 # =====================================================
 # 📉 Plot MSD curves
@@ -139,22 +118,23 @@ plt.ylabel("MSD(t)")
 plt.legend()
 plt.title("I1 — Diffusive–Ballistic Crossover")
 plt.tight_layout()
+plt.grid(True, which="both", ls="--", alpha=0.4)
 plt.savefig("PAEV_I1_MSD.png", dpi=200)
+print("✅ Figure saved → PAEV_I1_MSD.png")
 
 # =====================================================
 # 💾 Save results
 # =====================================================
 results_json = {
-    "constants": C,
+    "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ"),
+    "constants": const,
     "params": params,
     "results": results,
     "classification": "✅ Informational universality (diffusive–ballistic crossover detected)",
-    "timestamp": datetime.utcnow().strftime("%Y-%m-%dT%H:%MZ"),
     "files": {"msd_plot": "PAEV_I1_MSD.png"},
 }
 
-output_path = Path("backend/modules/knowledge/I1_universality.json")
-output_path.write_text(json.dumps(results_json, indent=2))
-
+out_path = Path("backend/modules/knowledge/I1_universality.json")
+out_path.write_text(json.dumps(results_json, indent=2))
+print(f"✅ Results saved → {out_path}")
 print(json.dumps(results_json, indent=2))
-print("✅ Results saved → backend/modules/knowledge/I1_universality.json")

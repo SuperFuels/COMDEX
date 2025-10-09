@@ -1,0 +1,50 @@
+{
+  "verified_unified_summary": true,
+  "series_included": [
+    "N",
+    "O",
+    "H",
+    "P",
+    "G"
+  ],
+  "record_count": 5,
+  "overall_mean_stability": -29722.92460543441,
+  "registry_indexed_modules": 111,
+  "reproducibility_status": "\u2705 All modules consistent under constants_v1.2",
+  "series_master_reference": "backend/modules/knowledge/series_master_summary.json",
+  "timestamp": "2025-10-09T00:33Z",
+  "summary_text": "The Unified Architecture Summary integrates all verified COMDEX layers \u2014 from field dynamics (F-series) through predictive cognition (P-series). This synthesis validates cross-domain coherence under a single constant set (v1.2), demonstrating a reproducible continuum from fundamental geometry to cognitive emergence.\n\nEvolutionary Hierarchy:\n  \u2022 F-series \u2192 Field & Vacuum Dynamics\n  \u2022 G-series \u2192 Geometric Coupling (Spacetime\u2013Information Unification)\n  \u2022 H-series \u2192 Temporal Emergence (Entropy \u2192 Time Directionality)\n  \u2022 N-series \u2192 Nonlinear Feedback (Stability Regulation)\n  \u2022 O-series \u2192 Observer\u2013Causality (Reflective Regulation)\n  \u2022 P-series \u2192 Predictive Resonance (Cognitive Unification)\n\nSystem-wide reproducibility has been confirmed via the registry and verifier, covering 111 modules and establishing complete internal consistency. This marks the closure of the COMDEX Unified Framework Phase I.\n\nPhase II adds J1\u2013J4 stability-refinement results beneath the N-series, completing the unified feedback\u2013diffusion\u2013stability hierarchy.",
+  "files": {
+    "registry_index": "registry_index.json",
+    "verifier_summary": "reproducibility_check_summary.json",
+    "series_master": "series_master_summary.json"
+  },
+  "phase": "II",
+  "refinement_layer": {
+    "layer": "J-series (stability refinement)",
+    "tests_included": [
+      "J1_unified_field_summary",
+      "J2_ablation_kappa_summary",
+      "J3_ablation_beta_summary",
+      "J4_ablation_alpha_summary"
+    ],
+    "mean_stability_refinement": 4.1419674641007543e-07,
+    "timestamp": "2025-10-09T00:33Z",
+    "source_files": [
+      "/workspaces/COMDEX/backend/modules/knowledge/J1_unified_field_summary.json",
+      "/workspaces/COMDEX/backend/modules/knowledge/J2_ablation_kappa_summary.json",
+      "/workspaces/COMDEX/backend/modules/knowledge/J3_ablation_beta_summary.json",
+      "/workspaces/COMDEX/backend/modules/knowledge/J4_ablation_alpha_summary.json"
+    ]
+  },
+  "version": "v1.1",
+  "hashes": {
+    "constants": "896e521b154bde7962144f8c5c04c0453584d643",
+    "series_master": "72f646a623c136bd4ae953f607d8f6a0db31d738",
+    "unified_phase1": "8d8fbf158ee11ba5191d03a489b0e772af6dd87c",
+    "J1": "970bd1b90a62adff0cc67249114cb7d4b92d94f2",
+    "J2": "96186b9cdeed61811e02185653ff3fbd05e465e2",
+    "J3": "3fed883f62b3b9290cfcbf714c1ab2d861753796",
+    "J4": "47381dd98f131fb699518c1bc9fb7bfb35b6d2ea"
+  }
+}

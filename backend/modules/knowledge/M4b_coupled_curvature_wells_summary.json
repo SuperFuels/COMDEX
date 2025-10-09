@@ -1,0 +1,41 @@
+{
+  "timestamp": "2025-10-09T00:25Z",
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "\u03c7": 1.0
+  },
+  "params": {
+    "N": 512,
+    "steps": 4800,
+    "dt": 0.001,
+    "dx": 1.0,
+    "damping": 0.045,
+    "gamma_v": 0.04,
+    "clip_value": 7.0,
+    "R_gain": 8e-06,
+    "ema_alpha": 0.08,
+    "rho_sigma": 2.2,
+    "metric_clip": 0.7,
+    "well_sep": 18.0,
+    "well_sigma": 10.0,
+    "well_amp": 1.6
+  },
+  "derived": {
+    "c_eff": 0.7071064276334221,
+    "transfer_amp": 0.002391600046155603,
+    "R_eff_final_ema": 1.5298868364694681e-19,
+    "beat_freq": 0.020833333333333332
+  },
+  "files": {
+    "plot": "PAEV_M4b_coupled_curvature_wells.png"
+  },
+  "notes": [
+    "Coupled curvature wells with reduced damping and higher feedback gain.",
+    "FFT used to estimate beating frequency between wells.",
+    "Model verified under Tessaris Unified Constants & Verification Protocol."
+  ]
+}

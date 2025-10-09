@@ -1,0 +1,47 @@
+{
+  "timestamp": "2025-10-08T23:24Z",
+  "seed": 8484,
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "\u03c7": 1.0
+  },
+  "params": {
+    "N": 512,
+    "steps": 2200,
+    "dt": 0.002,
+    "dx": 1.0,
+    "snap_every": 10,
+    "damping": 0.05,
+    "boost_fracs": [
+      0.0,
+      0.1,
+      0.2,
+      0.3,
+      0.4
+    ]
+  },
+  "derived": {
+    "c_eff": 0.7071064276334221,
+    "collapse_std_logMSD": 0.017402143097073396,
+    "boost_exponents": {
+      "0.0": 0.5444626902641577,
+      "0.1": 0.5368222671074065,
+      "0.2": 0.5349425620053941,
+      "0.3": 0.5414614772550874,
+      "0.4": 0.5367182501525826
+    }
+  },
+  "files": {
+    "plot": "PAEV_L2_multi_boost_collapse.png"
+  },
+  "notes": [
+    "MSD(t) computed in lab and boosted frames at multiple velocities.",
+    "Lorentz-like scaling applied: t' = \u03b3\u00b7t, MSD' = MSD / \u03b3\u00b2.",
+    "Collapse metric = mean std(log(MSD')) across boosts.",
+    "Model-level verification under Tessaris Unified Constants."
+  ]
+}

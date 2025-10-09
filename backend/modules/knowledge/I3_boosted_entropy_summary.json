@@ -1,0 +1,39 @@
+{
+  "timestamp": "2025-10-08T23:50Z",
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "\u03c7": 1.0
+  },
+  "derived": {
+    "c_eff": 0.7071064276334221,
+    "boost_fracs": [
+      0.0,
+      0.1,
+      0.2,
+      0.3,
+      0.4
+    ],
+    "vS_vc": [
+      18.017674812689354,
+      18.036767437626768,
+      17.996355607553635,
+      18.087533238245786,
+      17.951122985620753
+    ],
+    "mean_ratio": 18.017890816347258,
+    "std_ratio": 0.04500699690961631,
+    "within_tolerance": true
+  },
+  "files": {
+    "plot": "PAEV_I3_boosted_entropy.png"
+  },
+  "notes": [
+    "Entropy transport velocity derived from boosted Shannon entropy gradient.",
+    "Lorentz-like transform: x' = \u03b3(x - vt), t' = \u03b3(t - v\u00b7x/c_eff\u00b2).",
+    "Target: invariance of v_S/v_c across boosts within \u00b10.5 tolerance."
+  ]
+}

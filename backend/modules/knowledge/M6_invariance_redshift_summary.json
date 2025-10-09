@@ -1,0 +1,59 @@
+{
+  "timestamp": "2025-10-09T00:31Z",
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "\u03c7": 1.0
+  },
+  "params": {
+    "N": 512,
+    "steps": 4000,
+    "dt": 0.001,
+    "dx": 1.0,
+    "damping": 0.035,
+    "clip_value": 6.0,
+    "R_gain": 8e-06,
+    "ema_alpha": 0.06,
+    "rho_sigma": 1.8,
+    "metric_clip": 0.6,
+    "well_amp": 2.0,
+    "well_sigma": 12.0,
+    "diffusion_strength": 0.005,
+    "boost_fracs": [
+      0.0,
+      0.1,
+      0.2,
+      0.3,
+      0.4
+    ]
+  },
+  "derived": {
+    "c_eff": 0.7071064276334221,
+    "freq_shifts": [
+      4.028194992758216e-05,
+      -3.467680088729014e-05,
+      3.843177361095868e-05,
+      -3.822461182665694e-05,
+      1.0769069101513253e-05
+    ],
+    "R_vals": [
+      -3.3558195959756556e-12,
+      -2.2492821069598545e-11,
+      -9.795852967271938e-12,
+      -9.900919205228757e-12,
+      -2.5961777249441795e-11
+    ]
+  },
+  "files": {
+    "plot": "PAEV_M6_invariance_redshift.png"
+  },
+  "notes": [
+    "Lorentz invariance test across boosts with diffusion noise.",
+    "\u0394\u03c9/\u03c9 (redshift analogue) measured per boost fraction.",
+    "Metric curvature R_eff(EMA) compared for stability.",
+    "Verified under Tessaris Unified Constants & Verification Protocol."
+  ]
+}

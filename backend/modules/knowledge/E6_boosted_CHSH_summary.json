@@ -1,0 +1,39 @@
+{
+  "timestamp": "2025-10-08T23:49Z",
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "\u03c7": 1.0
+  },
+  "derived": {
+    "c_eff": 0.7071064276334221,
+    "boost_fracs": [
+      0.0,
+      0.1,
+      0.2,
+      0.3,
+      0.4
+    ],
+    "S_values": [
+      2.701688532735106,
+      2.7024286975387133,
+      2.7032722497602077,
+      2.7163348028538885,
+      2.705694895904392
+    ],
+    "S_mean": 2.705883835758461,
+    "S_std": 0.005396616356565818,
+    "within_tolerance": true
+  },
+  "files": {
+    "plot": "PAEV_E6_boosted_CHSH.png"
+  },
+  "notes": [
+    "CHSH measured via synthetic correlation estimator across boosted frames.",
+    "Lorentz-like transform: x' = \u03b3(x - vt), t' = \u03b3(t - v\u00b7x/c_eff\u00b2).",
+    "Target: invariance of S_CHSH within \u00b10.05 tolerance (frame independence)."
+  ]
+}

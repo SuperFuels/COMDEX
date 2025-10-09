@@ -1,37 +1,11 @@
 {
+  "timestamp": "2025-10-08T21:47Z",
   "constants": {
-    "constants": {
-      "\u0127": 0.001,
-      "G": 1e-05,
-      "\u039b": 1e-06,
-      "\u03b1": 0.5,
-      "\u03b2": 0.2
-    },
-    "source_files": [
-      "N5_echo_summary.json",
-      "N4_feedback_summary.json",
-      "N9_backreaction_summary.json",
-      "constants_v1.0.json",
-      "N15_thermal_rephase_summary.json",
-      "state.json",
-      "N14_persistence_summary.json",
-      "N11_message_summary.json",
-      "bridge_activation_log.json",
-      "N6_noise_summary.json",
-      "N12_phase_summary.json",
-      "constants_v1.1.json",
-      "N8_energy_summary.json",
-      "N10_renormalization_summary.json",
-      "N7_capacity_summary.json",
-      "N2_coherent_retest.json",
-      "reproducibility_v1.json",
-      "N13_feedback_summary.json"
-    ],
-    "timestamp": "2025-10-06T16:30Z",
-    "meta": {
-      "description": "Aggregated constants registry across N-series knowledge modules",
-      "version": "v1.2"
-    }
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2
   },
   "params": {
     "N": 256,
@@ -55,18 +29,17 @@
       0.2
     ],
     "transport_exponent": [
-      0.413307599652293,
-      0.4099608928362045,
-      0.4449621946075419,
-      0.36696849888779964,
-      0.3452759641387927
+      0.42616685739061305,
+      0.3958069768844258,
+      0.3814263843830408,
+      0.40956005777614135,
+      0.3587077075445695
     ],
     "discovery_notes": [
       "\u26a0 Non-monotonic crossover in transport scaling \u2014 check local curvature variance thresholds."
     ]
   },
   "classification": "\u2705 Informational universality (diffusive\u2013ballistic crossover detected)",
-  "timestamp": "2025-10-08T18:20Z",
   "files": {
     "msd_plot": "PAEV_I1_MSD.png"
   }

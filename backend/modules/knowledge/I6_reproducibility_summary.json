@@ -1,0 +1,72 @@
+{
+  "params": {
+    "num_runs": 5,
+    "seeds": [
+      42,
+      123,
+      321,
+      999,
+      2025
+    ]
+  },
+  "aggregate": {
+    "rho_mean": 0.021124960458567342,
+    "rho_std": 0.0,
+    "tau_mean": 0.014245282146736812,
+    "tau_std": 1.734723475976807e-18,
+    "delta_mean": -0.08125,
+    "delta_std": 0.0,
+    "num_runs": 5
+  },
+  "runs": [
+    {
+      "seed": 42,
+      "spearman_rho": 0.021124960458567342,
+      "kendall_tau": 0.014245282146736813,
+      "delta_post_pre": -0.08125,
+      "bursts": 1,
+      "timestamp": "2025-10-08T20:08Z"
+    },
+    {
+      "seed": 123,
+      "spearman_rho": 0.021124960458567342,
+      "kendall_tau": 0.014245282146736813,
+      "delta_post_pre": -0.08125,
+      "bursts": 1,
+      "timestamp": "2025-10-08T20:09Z"
+    },
+    {
+      "seed": 321,
+      "spearman_rho": 0.021124960458567342,
+      "kendall_tau": 0.014245282146736813,
+      "delta_post_pre": -0.08125,
+      "bursts": 1,
+      "timestamp": "2025-10-08T20:09Z"
+    },
+    {
+      "seed": 999,
+      "spearman_rho": 0.021124960458567342,
+      "kendall_tau": 0.014245282146736813,
+      "delta_post_pre": -0.08125,
+      "bursts": 1,
+      "timestamp": "2025-10-08T20:09Z"
+    },
+    {
+      "seed": 2025,
+      "spearman_rho": 0.021124960458567342,
+      "kendall_tau": 0.014245282146736813,
+      "delta_post_pre": -0.08125,
+      "bursts": 1,
+      "timestamp": "2025-10-08T20:09Z"
+    }
+  ],
+  "files": {
+    "boxplot": "PAEV_I6_reproducibility_boxplot.png"
+  },
+  "timestamp": "2025-10-08T20:09Z",
+  "discovery_notes": [
+    "Evaluates run-to-run stability of v_S \u21a6 S_CHSH correlation.",
+    "Small or unstable \u03c1/\u03c4 indicates weak or noise-limited coupling.",
+    "All values are Tessaris algebraic; not physical entanglement."
+  ]
+}

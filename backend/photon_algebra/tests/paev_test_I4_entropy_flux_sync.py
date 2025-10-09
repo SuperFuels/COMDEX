@@ -1,48 +1,33 @@
 #!/usr/bin/env python3
 """
 PAEV Test I4 — Entropy–Flux Synchronization (Information Lead / Tunnelling Detection)
-Tessaris Photon Algebra Framework
+Tessaris Photon Algebra Framework (Registry-aligned)
 """
 
 import numpy as np
 import json
 import matplotlib.pyplot as plt
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from scipy.signal import correlate
 
 print("=== I4 — Entropy–Flux Synchronization (Information Lead / Tunnelling Detection) ===")
 
 # =====================================================
-# Load constants (compatible with v1.2 registry)
+# 🔹 Load Tessaris constants from unified registry
 # =====================================================
-CANDIDATES = [
-    Path("backend/modules/knowledge/constants_v1.2.json"),
-    Path("backend/modules/knowledge/constants_v1.1.json"),
-    Path("backend/modules/knowledge/constants_v1.0.json"),
-]
+from backend.photon_algebra.utils.load_constants import load_constants
+const = load_constants()
 
-for p in CANDIDATES:
-    if p.exists():
-        C = json.loads(p.read_text())
-        break
-else:
-    C = {}
-
-def get_const(d, *names, default=None):
-    for n in names:
-        if n in d:
-            return d[n]
-    return default
-
-ħ = get_const(C, "ħ", "hbar", "h", default=1e-3)
-G = get_const(C, "G", "grav", default=1e-5)
-Λ = get_const(C, "Λ", "Lambda", "lambda", default=1e-6)
-α = get_const(C, "α", "alpha", default=0.5)
-β = get_const(C, "β", "beta", default=0.2)
+ħ = const.get("ħ", 1e-3)
+G = const.get("G", 1e-5)
+Λ = const.get("Λ", 1e-6)
+α = const.get("α", 0.5)
+β = const.get("β", 0.2)
+χ = const.get("χ", 1.0)  # new nonlinear coupling
 
 # =====================================================
-# Parameters
+# ⚙️ Simulation parameters
 # =====================================================
 params = dict(
     N=256,
@@ -53,30 +38,33 @@ params = dict(
 )
 
 # =====================================================
-# Core field evolution
+# 🌱 Core field evolution
 # =====================================================
 def initialize_field(N, var_k):
-    return np.random.normal(0, np.sqrt(var_k), (N,))
+    return np.random.normal(0, np.sqrt(var_k), N)
 
-def evolve_state(N, T, dt, var_k, α, Λ, noise_amp):
+def evolve_state(N, T, dt, var_k, α, Λ, χ, noise_amp):
+    """Evolve field under α–Λ–χ coupling (diffusive–entropic dynamics)."""
     phi = initialize_field(N, var_k)
     phi_series = np.zeros((T, N))
     phi_series[0] = phi
     for t in range(1, T):
         lap = np.roll(phi, -1) - 2 * phi + np.roll(phi, 1)
-        phi += dt * (α * lap - Λ * phi) + noise_amp * np.random.normal(0, 1, N)
+        # χ adds nonlinear phase coupling between entropy and curvature
+        phi += dt * (α * lap - Λ * phi + χ * 0.01 * lap**2)
+        phi += noise_amp * np.random.normal(0, 1, N)
         phi_series[t] = phi
     return phi_series
 
 # =====================================================
-# Compute entropy and energy flux
+# 📈 Compute entropy and flux
 # =====================================================
 def compute_entropy(phi_series):
     ent = []
     for frame in phi_series:
         hist, _ = np.histogram(np.abs(frame), bins=64, density=True)
         hist = hist[hist > 0]
-        S = -np.sum(hist * np.log(hist))
+        S = -np.sum(hist * np.log(hist + 1e-12)) if len(hist) else 0.0
         ent.append(S)
     return np.array(ent)
 
@@ -90,7 +78,7 @@ def compute_flux(phi_series, α):
     return np.array(flux)
 
 # =====================================================
-# Cross-correlation phase analysis
+# ⏱ Cross-correlation phase analysis
 # =====================================================
 def compute_phase_lead(entropy, flux, dt):
     """Return lead/lag time Δt between entropy rate and flux."""
@@ -103,7 +91,7 @@ def compute_phase_lead(entropy, flux, dt):
     return lag_time
 
 # =====================================================
-# Discovery detection
+# 🧠 Discovery detection
 # =====================================================
 def detect_anomalies(phase_leads):
     notes = []
@@ -117,13 +105,16 @@ def detect_anomalies(phase_leads):
     return notes
 
 # =====================================================
-# Main experiment loop
+# 🚀 Main experiment loop
 # =====================================================
 results = {"Var_kappa": [], "phase_lead_dt": [], "discovery_notes": []}
 phase_leads = []
 
 for var_k in params["var_kappa"]:
-    phi_series = evolve_state(params["N"], params["T"], params["dt"], var_k, α=α, Λ=Λ, noise_amp=params["base_noise"])
+    phi_series = evolve_state(
+        params["N"], params["T"], params["dt"],
+        var_k, α=α, Λ=Λ, χ=χ, noise_amp=params["base_noise"]
+    )
     entropy = compute_entropy(phi_series)
     flux = compute_flux(phi_series, α)
     Δt = compute_phase_lead(entropy, flux, params["dt"])
@@ -135,31 +126,33 @@ notes = detect_anomalies(phase_leads)
 results["discovery_notes"] = notes
 
 # =====================================================
-# Plotting
+# 📊 Plot results
 # =====================================================
-plt.figure(figsize=(7,5))
-plt.plot(params["var_kappa"], phase_leads, "o-", lw=1.5)
-plt.axhline(0, color="gray", linestyle="--")
+plt.figure(figsize=(7, 5))
+plt.plot(params["var_kappa"], phase_leads, "o-", lw=1.5, label="Phase lead Δt")
+plt.axhline(0, color="gray", linestyle="--", label="Synchronized boundary")
 plt.xlabel("Curvature variance Var(κ)")
 plt.ylabel("Phase lead Δt (entropy vs flux)")
+plt.legend()
 plt.title("I4 — Entropy–Flux Synchronization (Phase Analysis)")
+plt.grid(True, which="both", ls="--", alpha=0.4)
 plt.tight_layout()
 plt.savefig("PAEV_I4_EntropyFluxSync.png", dpi=200)
+print("✅ Figure saved → PAEV_I4_EntropyFluxSync.png")
 
 # =====================================================
-# Save results
+# 💾 Save results
 # =====================================================
 results_json = {
-    "constants": C,
+    "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ"),
+    "constants": const,
     "params": params,
     "results": results,
     "classification": "✅ Entropy–flux synchronization characterized",
-    "timestamp": datetime.now().strftime("%Y-%m-%dT%H:%MZ"),
     "files": {"sync_plot": "PAEV_I4_EntropyFluxSync.png"},
 }
 
 out_path = Path("backend/modules/knowledge/I4_entropy_flux_sync.json")
 out_path.write_text(json.dumps(results_json, indent=2))
-
+print(f"✅ Results saved → {out_path}")
 print(json.dumps(results_json, indent=2))
-print("✅ Results saved → backend/modules/knowledge/I4_entropy_flux_sync.json")

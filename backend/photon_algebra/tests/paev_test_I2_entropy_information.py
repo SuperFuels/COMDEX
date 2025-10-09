@@ -1,47 +1,32 @@
 #!/usr/bin/env python3
 """
 PAEV Test I2 — Entropy–Information Correlation (Dynamic Universality)
-Tessaris Photon Algebra Framework
+Tessaris Photon Algebra Framework (Registry-aligned)
 """
 
 import numpy as np
 import json
 import matplotlib.pyplot as plt
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 print("=== I2 — Entropy–Information Correlation (Dynamic Universality) ===")
 
 # =====================================================
-# Load constants (compatible with v1.2 registry)
+# 🔹 Load Tessaris constants from unified registry
 # =====================================================
-CANDIDATES = [
-    Path("backend/modules/knowledge/constants_v1.2.json"),
-    Path("backend/modules/knowledge/constants_v1.1.json"),
-    Path("backend/modules/knowledge/constants_v1.0.json"),
-]
+from backend.photon_algebra.utils.load_constants import load_constants
+const = load_constants()
 
-for p in CANDIDATES:
-    if p.exists():
-        C = json.loads(p.read_text())
-        break
-else:
-    C = {}
-
-def get_const(d, *names, default=None):
-    for n in names:
-        if n in d:
-            return d[n]
-    return default
-
-ħ = get_const(C, "ħ", "hbar", "h", default=1e-3)
-G = get_const(C, "G", "grav", default=1e-5)
-Λ = get_const(C, "Λ", "Lambda", "lambda", default=1e-6)
-α = get_const(C, "α", "alpha", default=0.5)
-β = get_const(C, "β", "beta", default=0.2)
+ħ = const.get("ħ", 1e-3)
+G = const.get("G", 1e-5)
+Λ = const.get("Λ", 1e-6)
+α = const.get("α", 0.5)
+β = const.get("β", 0.2)
+χ = const.get("χ", 1.0)  # Added for χ completeness
 
 # =====================================================
-# Simulation parameters
+# ⚙️ Simulation parameters
 # =====================================================
 params = dict(
     N=256,
@@ -52,31 +37,37 @@ params = dict(
 )
 
 # =====================================================
-# Helpers
+# 🌱 Field initialization
 # =====================================================
 def initialize_field(N, var_k):
-    return np.random.normal(0, np.sqrt(var_k), (N,))
+    return np.random.normal(0, np.sqrt(var_k), N)
 
-def evolve_state(N, T, dt, var_k, α, Λ, noise_amp):
+# =====================================================
+# 🌀 Evolution step
+# =====================================================
+def evolve_state(N, T, dt, var_k, α, Λ, χ, noise_amp):
+    """Evolve photon-algebra field under diffusive + entropic coupling."""
     phi = initialize_field(N, var_k)
     phi_series = np.zeros((T, N))
     phi_series[0] = phi
+
     for t in range(1, T):
         lap = np.roll(phi, -1) - 2 * phi + np.roll(phi, 1)
-        phi += dt * (α * lap - Λ * phi) + noise_amp * np.random.normal(0, 1, N)
+        # χ coupling acts as additional nonlinear coherence correction
+        phi += dt * (α * lap - Λ * phi + χ * 0.01 * lap**2)
+        phi += noise_amp * np.random.normal(0, 1, N)
         phi_series[t] = phi
     return phi_series
 
+# =====================================================
+# 📈 Shannon-like entropy and MSD
+# =====================================================
 def compute_entropy(phi_series):
-    """Shannon-like entropy of field magnitude distribution."""
     ent = []
     for frame in phi_series:
         hist, _ = np.histogram(np.abs(frame), bins=64, density=True)
         hist = hist[hist > 0]
-        if len(hist) == 0:
-            ent.append(0.0)
-            continue
-        S = -np.sum(hist * np.log(hist + 1e-12))  # safe log
+        S = -np.sum(hist * np.log(hist + 1e-12)) if len(hist) else 0.0
         ent.append(S)
     return np.array(ent)
 
@@ -84,18 +75,19 @@ def compute_msd(phi_series):
     phi0 = phi_series[0]
     return np.mean((phi_series - phi0) ** 2, axis=1)
 
+# =====================================================
+# 🔍 Estimate ν (entropy–information coupling exponent)
+# =====================================================
 def estimate_correlation_exponent(entropy, msd):
-    """Estimate ν from log–log slope of entropy vs MSD, ignoring zeros."""
     valid = (entropy > 1e-12) & (msd > 1e-12)
-    if np.sum(valid) < 20:  # too few valid points
+    if np.sum(valid) < 20:
         return float("nan")
-    x = np.log(msd[valid])
-    y = np.log(entropy[valid])
+    x, y = np.log(msd[valid]), np.log(entropy[valid])
     ν, _ = np.polyfit(x, y, 1)
     return float(ν)
 
 # =====================================================
-# Discovery note system
+# 🧠 Discovery note system
 # =====================================================
 def detect_anomalies(nu_values):
     notes = []
@@ -108,14 +100,14 @@ def detect_anomalies(nu_values):
     return notes
 
 # =====================================================
-# Main sweep
+# 🚀 Main sweep
 # =====================================================
 results = {"Var_kappa": [], "nu_exponent": [], "discovery_notes": []}
-nu_values = []
-msd_curves, entropy_curves = [], []
+nu_values, msd_curves, entropy_curves = [], [], []
 
 for var_k in params["var_kappa"]:
-    phi_series = evolve_state(params["N"], params["T"], params["dt"], var_k, α=α, Λ=Λ, noise_amp=params["base_noise"])
+    phi_series = evolve_state(params["N"], params["T"], params["dt"],
+                              var_k, α=α, Λ=Λ, χ=χ, noise_amp=params["base_noise"])
     msd = compute_msd(phi_series)
     entropy = compute_entropy(phi_series)
     ν = estimate_correlation_exponent(entropy, msd)
@@ -130,36 +122,36 @@ for var_k in params["var_kappa"]:
     results["nu_exponent"].append(ν)
     nu_values.append(ν)
 
-notes = detect_anomalies(nu_values)
-results["discovery_notes"] = notes
+results["discovery_notes"] = detect_anomalies(nu_values)
 
 # =====================================================
-# Plot: Entropy vs MSD
+# 📉 Plot Entropy vs MSD
 # =====================================================
-plt.figure(figsize=(7,5))
+plt.figure(figsize=(7, 5))
 for i, var_k in enumerate(params["var_kappa"]):
     plt.loglog(msd_curves[i] + 1e-8, entropy_curves[i] + 1e-8, label=f"Var(κ)={var_k}")
 plt.xlabel("MSD(t)")
 plt.ylabel("Entropy S(t)")
 plt.legend()
 plt.title("I2 — Entropy–Information Correlation (Dynamic Universality)")
+plt.grid(True, which="both", ls="--", alpha=0.4)
 plt.tight_layout()
 plt.savefig("PAEV_I2_EntropyCorrelation.png", dpi=200)
+print("✅ Figure saved → PAEV_I2_EntropyCorrelation.png")
 
 # =====================================================
-# Save results
+# 💾 Save results
 # =====================================================
 results_json = {
-    "constants": C,
+    "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ"),
+    "constants": const,
     "params": params,
     "results": results,
     "classification": "✅ Dynamic informational universality (entropy–information coupling detected)",
-    "timestamp": datetime.now().strftime("%Y-%m-%dT%H:%MZ"),
     "files": {"entropy_plot": "PAEV_I2_EntropyCorrelation.png"},
 }
 
-output_path = Path("backend/modules/knowledge/I2_entropy_information.json")
-output_path.write_text(json.dumps(results_json, indent=2))
-
+out_path = Path("backend/modules/knowledge/I2_entropy_information.json")
+out_path.write_text(json.dumps(results_json, indent=2))
+print(f"✅ Results saved → {out_path}")
 print(json.dumps(results_json, indent=2))
-print("✅ Results saved → backend/modules/knowledge/I2_entropy_information.json")
