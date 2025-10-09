@@ -1,0 +1,33 @@
+{
+  "timestamp": "2025-10-09T10:45:31.583513+00:00",
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "\u03c7": 1.0
+  },
+  "params": {
+    "N": 512,
+    "steps": 4000,
+    "dt": 0.001,
+    "dx": 1.0,
+    "damping": 0.04
+  },
+  "derived": {
+    "c_eff": 0.7071067811865476,
+    "mean_Cuv": 0.17568904328934615,
+    "var_Cuv": 0.020406031367220336,
+    "within_tolerance": false
+  },
+  "files": {
+    "plot": "PAEV_K3_crossfield_coupling.png"
+  },
+  "notes": [
+    "Mean coupling coefficient \u27e8C_uv\u27e9 = 1.757e-01.",
+    "Variance Var(C_uv) = 2.041e-02.",
+    "Symmetric coupling ensures causal balance between field domains (u\u2194v).",
+    "Deviation <1e\u22122 considered fully causal under Tessaris Unified Constants & Verification Protocol."
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "timestamp": "2025-10-09T10:43:59.848662+00:00",
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "\u03c7": 1.0
+  },
+  "params": {
+    "N": 512,
+    "steps": 4000,
+    "dt": 0.001,
+    "dx": 1.0,
+    "damping": 0.04
+  },
+  "derived": {
+    "c_eff": 0.7071067811865476,
+    "mean_dSdt": 0.00022005588737523257,
+    "R_causal": 0.10713437514806098,
+    "within_tolerance": true
+  },
+  "files": {
+    "plot": "PAEV_K2_entropy_causality.png"
+  },
+  "notes": [
+    "Mean entropy derivative tracks causal equilibration of field lattice.",
+    "Observed mean |dS/dt| = 2.201e-04.",
+    "R_causal = 0.1071, indicating bounded entropy propagation velocity.",
+    "Deviation below 1e-3 considered fully causal under Tessaris Unified Constants & Verification Protocol."
+  ]
+}

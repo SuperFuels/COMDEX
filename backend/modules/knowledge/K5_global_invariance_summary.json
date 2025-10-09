@@ -1,0 +1,41 @@
+{
+  "timestamp": "2025-10-09T10:53:59.414407+00:00",
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "\u03c7": 1.0
+  },
+  "params": {
+    "N": 128,
+    "steps": 1000,
+    "dt": 0.001,
+    "dx": 1.0,
+    "damping": 0.035,
+    "boost_fracs": [
+      0.0,
+      0.1,
+      0.2,
+      0.3,
+      0.4
+    ],
+    "noise_strength": 0.002
+  },
+  "derived": {
+    "c_eff": 0.7071067811865476,
+    "R_sync_mean": 2.0842378882432456e-07,
+    "R_sync_var": 1.7523709660907987e-07,
+    "entropy_var": 1.3391553948713713e-05
+  },
+  "files": {
+    "plot": "PAEV_K5_global_invariance.png"
+  },
+  "notes": [
+    "Global synchrony mean R_sync = 0.0000, variance \u03c3_R = 1.752e-07.",
+    "Entropy variance \u03c3_S = 1.339e-05 across boosts [0.0, 0.1, 0.2, 0.3, 0.4].",
+    "Constant R_sync across boosts confirms causal\u2013relativistic invariance.",
+    "Deviation \u03c3_R < 1e\u22123 satisfies Tessaris Unified Constants & Verification Protocol."
+  ]
+}

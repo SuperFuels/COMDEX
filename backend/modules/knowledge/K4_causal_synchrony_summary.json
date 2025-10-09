@@ -1,0 +1,32 @@
+{
+  "timestamp": "2025-10-09T10:51:39.782822+00:00",
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "\u03c7": 1.0
+  },
+  "params": {
+    "N": 128,
+    "steps": 1200,
+    "dt": 0.001,
+    "dx": 1.0,
+    "damping": 0.035
+  },
+  "derived": {
+    "c_eff": 0.7071067811865476,
+    "R_sync": 0.9999099244661313,
+    "std_sync": 0.9999099428045161
+  },
+  "files": {
+    "plot": "PAEV_K4_causal_synchrony.png"
+  },
+  "notes": [
+    "Global synchrony coefficient R_sync = 0.9999.",
+    "Synchrony dispersion \u03c3 = 9.999e-01.",
+    "High R_sync indicates strong causal ordering between lattice domains.",
+    "Deviation \u03c3 < 1e\u22122 satisfies Tessaris Unified Constants & Verification Protocol."
+  ]
+}

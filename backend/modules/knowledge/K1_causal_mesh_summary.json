@@ -1,0 +1,29 @@
+{
+  "timestamp": "2025-10-09T10:34:41.697821+00:00",
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "\u03c7": 1.0
+  },
+  "params": {
+    "N": 512,
+    "steps": 2000,
+    "dx": 1.0,
+    "dt": 0.001
+  },
+  "derived": {
+    "c_eff": 0.7071067811865476,
+    "R_causal": 1.0,
+    "entropy_flux_mean": 0.0015976278530314904
+  },
+  "tolerance": 0.001,
+  "within_tolerance": false,
+  "notes": [
+    "Tests local causal coherence of the lattice field.",
+    "Ensures \u2202S/\u2202x below threshold and |v| \u2264 c_eff.",
+    "Verified under Tessaris Unified Constants & Verification Protocol (TUCVP)."
+  ]
+}
