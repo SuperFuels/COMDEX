@@ -1,0 +1,28 @@
+[
+  {
+    "timestamp": "2025-10-10 10:36:43",
+    "series": "G9/G10",
+    "discoveries": [
+      {
+        "event": "RG-style fixed point (variance contraction)",
+        "metrics": {
+          "file": "backend/photon_algebra/tests/results_G10_regime_cycling_multiscale_stability.csv",
+          "contraction_score": 0.8319923920707009
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": "2025-10-10 10:39:14",
+    "series": "G9/G10",
+    "discoveries": [
+      {
+        "event": "RG-style fixed point (variance contraction)",
+        "metrics": {
+          "file": "backend/photon_algebra/tests/results_G10_regime_cycling_multiscale_stability.csv",
+          "contraction_score": 0.8319923920707009
+        }
+      }
+    ]
+  }
+]

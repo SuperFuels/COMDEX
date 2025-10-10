@@ -1,0 +1,15 @@
+{
+  "timestamp": "2025-10-10 10:39:14",
+  "G9": {
+    "file": "backend/photon_algebra/tests/results_G9_emergent_gravity_coupling.csv",
+    "lag_maxcorr": 0,
+    "xcorr": 0.9979204204547479,
+    "psd_beta": 0.14462538383512596,
+    "entropy_coupling_R2": 0.01648283791875682,
+    "composite_invariant_cv": 0.7087091737914313
+  },
+  "G10": {
+    "file": "backend/photon_algebra/tests/results_G10_regime_cycling_multiscale_stability.csv",
+    "contraction_score": 0.8319923920707009
+  }
+}

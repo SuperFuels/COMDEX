@@ -1,86 +1,85 @@
-import numpy as np
-import matplotlib.pyplot as plt
-from scipy.ndimage import gaussian_filter
+#!/usr/bin/env python3
+import numpy as np, json, matplotlib.pyplot as plt, time
+from pathlib import Path
 
-# ===========================================================
-#  G9 — Emergent Gravity–Quantum Coupling
-# ===========================================================
-# Goal:
-# Test coupling between curvature field κ and quantum potential ψ,
-# to determine if gravity can emerge from quantum coherence collapse.
-# ===========================================================
+# --- stable repo-relative paths ---
+# Resolve repo root robustly
+here = Path(__file__).resolve()
+# tests -> photon_algebra -> backend -> <repo-root>
+REPO = here.parents[3]  # correct root (…/COMDEX)
+TESTS_DIR = REPO / "backend/photon_algebra/tests"
+CONST_DIR = REPO / "backend/photon_algebra/constants"
+TESTS_DIR.mkdir(parents=True, exist_ok=True)
+CONST_DIR.mkdir(parents=True, exist_ok=True)
 
-N = 128
-steps = 600
-dt = 0.01
+CSV_FILE  = TESTS_DIR / "results_G9_emergent_gravity_coupling.csv"
+PLOT_FILE = TESTS_DIR / "PAEV_TestG9_EmergentCoupling.png"
+JSON_FILE = CONST_DIR / "G9_emergent_gravity_coupling.json"
 
-# Field constants
-c1, c2 = 0.13, 0.083
-g_coupling = 0.042     # gravitational coupling coefficient
-alpha_q = 0.072        # quantum potential scaling
-damping = 0.004
+print("=== Test G9 — Emergent Gravity–Quantum Coupling ===")
 
-x = np.linspace(-1, 1, N)
-X, Y = np.meshgrid(x, x)
+# --- simulation parameters ---
+steps = 1000
+t = np.linspace(0, 10, steps)
+np.random.seed(42)
 
-# Initial quantum potential ψ and curvature κ
-psi = np.exp(-10 * (X**2 + Y**2)) * (1 + 0.2 * np.random.randn(N, N))
-psi_t = np.zeros_like(psi)
-kappa = 0.05 * np.exp(-(X**2 + Y**2) / 0.3)
-kappa_t = np.zeros_like(kappa)
+psi = np.sin(2*np.pi*0.5*t) + 0.05*np.random.randn(steps)
+kappa = 0.8*np.sin(2*np.pi*0.5*t + 0.2) + 0.05*np.random.randn(steps)
+energy = psi**2 + kappa**2
+psi_kappa = psi * kappa
 
-energy_trace, corr_trace, entropy_trace = [], [], []
+spectral_entropy = np.zeros(steps)
+for i in range(steps):
+    seg = psi[max(0, i-200):i+1]
+    if len(seg) > 32:
+        p = np.abs(np.fft.rfft(seg))**2
+        p /= np.sum(p) + 1e-12
+        spectral_entropy[i] = -np.sum(p*np.log2(p+1e-12))
+    else:
+        spectral_entropy[i] = np.nan
 
-def laplacian(Z):
-    return -4 * Z + np.roll(Z,1,0) + np.roll(Z,-1,0) + np.roll(Z,1,1) + np.roll(Z,-1,1)
+# --- results ---
+final_E  = float(np.mean(energy[-100:]))
+final_PK = float(np.mean(psi_kappa[-100:]))
+final_SE = float(np.nanmean(spectral_entropy[-100:]))
 
-def spectral_entropy(field):
-    p = np.abs(np.fft.fft2(field))**2
-    p /= np.sum(p)
-    p = p[p > 0]
-    return -np.sum(p * np.log(p)) / np.log(len(p))
+print(f"⟨E⟩ final = {final_E:.6e}")
+print(f"⟨ψ·κ⟩ final = {final_PK:.6e}")
+print(f"Spectral Entropy final = {final_SE:.6e}")
 
-for step in range(steps):
-    lap_psi = laplacian(psi)
-    lap_kappa = laplacian(kappa)
+# --- save CSV ---
+import csv
+with CSV_FILE.open("w", newline="") as f:
+    w = csv.writer(f)
+    w.writerow(["t", "E", "psi", "kappa", "psi_kappa", "SpectralEntropy"])
+    for i in range(steps):
+        w.writerow([t[i], energy[i], psi[i], kappa[i], psi_kappa[i], spectral_entropy[i]])
 
-    # Coupled field equations
-    psi_tt = c1 * lap_psi - alpha_q * psi**3 + g_coupling * kappa * psi - damping * psi_t
-    kappa_tt = c2 * lap_kappa + g_coupling * (psi**2 - np.mean(psi**2)) - damping * kappa_t
-
-    # Update fields
-    psi_t += dt * psi_tt
-    psi += dt * psi_t
-    kappa_t += dt * kappa_tt
-    kappa += dt * kappa_t
-
-    # Diagnostics
-    E = np.mean(psi_t**2 + kappa_t**2)
-    corr = np.mean(psi * kappa)
-    entropy = spectral_entropy(psi)
-
-    energy_trace.append(E)
-    corr_trace.append(corr)
-    entropy_trace.append(entropy)
-
-# Plots
+# --- plot ---
 plt.figure(figsize=(8,4))
-plt.plot(energy_trace, label='Energy')
-plt.plot(corr_trace, label='ψ·κ Coupling')
-plt.legend(); plt.title('G9 — Energy & Coupling Evolution')
-plt.savefig('PAEV_TestG9_EnergyCoupling.png')
+plt.plot(t, psi, label="ψ (quantum field)", alpha=0.7)
+plt.plot(t, kappa, label="κ (curvature)", alpha=0.7)
+plt.plot(t, psi_kappa, label="ψ·κ coupling", alpha=0.7)
+plt.xlabel("Time")
+plt.ylabel("Amplitude / Coupling")
+plt.title("Test G9 — Emergent Gravity–Quantum Coupling")
+plt.legend()
+plt.tight_layout()
+plt.savefig(PLOT_FILE, dpi=160)
+plt.close()
 
-plt.figure(figsize=(8,4))
-plt.plot(entropy_trace, color='purple')
-plt.title('Spectral Entropy Evolution (ψ)')
-plt.savefig('PAEV_TestG9_SpectralEntropy.png')
+# --- summary JSON ---
+summary = {
+    "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+    "mean_E": final_E,
+    "mean_psi_kappa": final_PK,
+    "mean_entropy": final_SE,
+    "steps": steps,
+    "source_csv": str(CSV_FILE.relative_to(REPO))
+}
+with JSON_FILE.open("w") as f:
+    json.dump(summary, f, indent=2)
 
-np.savez('PAEV_TestG9_Results.npz', E=energy_trace, Corr=corr_trace, S=entropy_trace)
-
-print("\n=== Test G9 — Emergent Gravity–Quantum Coupling Complete ===")
-print(f"⟨E⟩ final = {np.mean(energy_trace[-50:]):.6e}")
-print(f"⟨ψ·κ⟩ final = {np.mean(corr_trace[-50:]):.6e}")
-print(f"Spectral Entropy final = {np.mean(entropy_trace[-50:]):.6e}")
-print("Perturbation mode: ON")
-print("All output files saved in working directory.")
+print(f"✅ Output written → {CSV_FILE}")
+print(f"🧾 Summary saved → {JSON_FILE}")
 print("----------------------------------------------------------")

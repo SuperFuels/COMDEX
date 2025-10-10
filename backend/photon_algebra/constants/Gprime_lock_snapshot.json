@@ -1,0 +1,12 @@
+{
+  "alpha": 0.00732,
+  "hbar": 1.06e-34,
+  "m_e": 9.12e-31,
+  "G": 6.7321e-11,
+  "TMC_Index": 0.5302867689558521,
+  "_meta": {
+    "source": "Tessaris G′8 Final Concordance (G′9 verified)",
+    "timestamp": "2025-10-10T11:34:00Z",
+    "hash_ref": "7c90606ae1b1e7311190e279b07f16a90ae82325ae326f92211d2ad15d7c6cb4"
+  }
+}
