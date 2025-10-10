@@ -24,7 +24,8 @@ def execute_goal_logic():
 from backend.modules.codex.codex_cost_estimator import estimate_glyph_cost
 from backend.modules.codex.codex_context_adapter import CodexContextAdapter
 from backend.modules.glyphnet.glyph_push_dispatcher import dispatch_glyph_push
-
+from backend.modules.glyphos.codex_runtime_bridge import execute_codex_for_glyph
+from backend.modules.glyphos.wave_glyph_adapter import emit_wave_for_glyph
 import time
 import uuid
 
@@ -44,7 +45,24 @@ class GlyphExecutor:
         self.container_path = self.active_container.get("path", "") if self.active_container else ""
         self.codex_trace = CodexTrace()
 
+    # --- 🔒 Safety & fallback support ---
+    def ensure_active_container(self):
+        """
+        Ensures an active container exists. If none found, fallback to StateManager’s current container.
+        Prevents NoneType errors during glyph reads or execution.
+        """
+        if self.active_container is None:
+            container = self.state_manager.get_current_container()
+            if not container:
+                print("⚠️ [GlyphExecutor] No active container — using fallback stub.")
+                container = {"id": "default_stub", "cubes": {}}
+            self.active_container = container
+            self.container_id = container.get("id", "unknown")
+            self.container_path = container.get("path", "")
+
     def read_glyph_at(self, x: int, y: int, z: int) -> str:
+        """Safely reads a glyph from the current active container at given coordinates."""
+        self.ensure_active_container()
         cube = self.active_container.get("cubes", {}).get(f"{x},{y},{z}", {})
         return cube.get("glyph", "")
 
@@ -76,16 +94,70 @@ class GlyphExecutor:
             print(f"[⚠️] WebSocket glyph_execution failed: {e}")
 
     async def execute_glyph_at(self, x: int, y: int, z: int):
+        from backend.modules.codex.codex_executor import codex_executor
+        start_time = time.time()
         coord = f"{x},{y},{z}"
         glyph = self.read_glyph_at(x, y, z)
         if not glyph:
             print(f"⚠️ No glyph found at {coord}")
             return
 
+        # === Parse and Dispatch ===
         parsed = parse_glyph(glyph)
         print(f"🔍 Parsed glyph at {coord}: {parsed}")
         self.dispatcher.dispatch(parsed)
 
+        # === CodexLang Runtime Bridge ===
+        try:
+            context = {
+                "glyph": glyph,
+                "container_id": self.container_id,
+                "coord": coord,
+                "tick": self.state_manager.get_tick(),
+            }
+            codex_result = await execute_codex_for_glyph(glyph, context)
+        except Exception as e:
+            print(f"[⚠️ CodexBridge] Execution failed for glyph '{glyph}': {e}")
+            codex_result = {"status": "error", "error": str(e)}
+
+        # === Broadcast Codex Result ===
+        try:
+            if codex_result and isinstance(codex_result, dict):
+                await websocket_manager.broadcast({
+                    "event": "codex_result",
+                    "payload": {
+                        "glyph": glyph,
+                        "status": codex_result.get("status", "unknown"),
+                        "detail": codex_result.get("output", {}),
+                        "coord": coord,
+                        "container_id": self.container_id,
+                        "timestamp": int(time.time())
+                    },
+                    "source": "glyph_executor"
+                })
+        except Exception as e:
+            print(f"[⚠️] Codex result broadcast failed: {e}")
+
+        # === Wave Emission Adapter ===
+        try:
+            await emit_wave_for_glyph(glyph, {
+                "container_id": self.container_id,
+                "coord": coord,
+                "tick": self.state_manager.get_tick(),
+            })
+        except Exception as e:
+            print(f"[⚠️ WaveAdapter] Emission failed for glyph '{glyph}': {e}")
+
+        # === SQI Feedback Integration ===
+        try:
+            from backend.modules.codex.codex_metrics import CodexMetrics
+            metrics = CodexMetrics()
+            sqi_score = metrics.estimate_cost({"glyph": glyph})
+            print(f"[SQI] Feedback score: {sqi_score:.3f}")
+        except Exception:
+            pass
+
+        # === Trace Logging ===
         current_tick = self.state_manager.get_tick()
         trace_data = {
             "glyph": glyph,
@@ -105,6 +177,10 @@ class GlyphExecutor:
             "action": "executed",
             "source": "glyph_executor"
         })
+
+        # === Profiling: Execution Time ===
+        elapsed = time.time() - start_time
+        print(f"[⏱] Glyph {glyph} executed in {elapsed:.4f}s (Codex+Wave cycle)")
 
     async def trigger_glyph_remotely(self, container_id: str, x: int, y: int, z: int, source: str = "remote"):
         if container_id != self.container_id:
@@ -377,6 +453,19 @@ def execute_glyph_logic(payload: Any, context: Optional[Dict[str, Any]] = None) 
 
     return {"type": "noop", "reason": "unrecognized_payload", "payload_type": str(type(payload))}
 
+def _normalize_glyph_to_schema(glyph: str, context: dict) -> dict:
+    return {
+        "label": glyph,
+        "phase": hash(glyph) % 360 / 360.0,
+        "coherence": 0.95,
+        "metadata": {
+            "container_id": context.get("container_id"),
+            "coord": context.get("coord"),
+            "tick": context.get("tick"),
+            "origin": "glyph_executor"
+        },
+        "timestamp": time.time(),
+    }
 
 # ✅ DNA switch registration
 DNA_SWITCH.register(__file__, file_type="backend")

@@ -1,4 +1,7 @@
 # 📁 backend/modules/codex/codex_trace.py
+# Unified Codex Trace + Runtime Integration Layer
+# Adds `.log()` for GlyphExecutor while preserving legacy injection APIs.
+# NOTE: Avoids circular imports by lazy-importing store_memory inside .log().
 
 import time
 import json
@@ -9,8 +12,53 @@ class CodexTrace:
     def __init__(self):
         self.entries: List[Dict] = []
 
+    # === ✅ NEW: Universal log hook for Codex + Runtime ===
+    def log(self, event: dict):
+        """
+        Logs a structured Codex or runtime event to in-memory buffer and,
+        if available, to the MemoryEngine via store_memory().
+
+        Expected shape (flexible):
+            {
+              "action": "executed" | "predict" | ...,
+              "glyph": "...",
+              "container": "...",
+              "coord": "...",
+              "source": "glyph_executor" | "codex_executor" | ...
+              ... (any other fields)
+            }
+        """
+        try:
+            # Normalize & buffer
+            evt = dict(event) if isinstance(event, dict) else {"note": str(event)}
+            evt.setdefault("type", "codex_trace")
+            evt.setdefault("timestamp", time.time())
+            self.entries.append(evt)
+
+            # Try to persist to MemoryEngine (lazy import to avoid circulars)
+            try:
+                from backend.modules.hexcore.memory_engine import store_memory  # lazy import
+                label = f"codex_trace:{evt.get('action', 'event')}"
+                store_memory({
+                    "label": label,
+                    "content": evt,
+                })
+            except Exception:
+                # Silently skip persistence if memory engine or function isn't available
+                pass
+
+            # Dev log
+            try:
+                print(f"[Trace:Codex] {evt.get('action', 'event')} → {json.dumps(evt, ensure_ascii=False)}")
+            except Exception:
+                # Make sure logging never breaks execution
+                print("[Trace:Codex] event logged")
+        except Exception as e:
+            print(f"[⚠️ CodexTrace] Failed to log event: {e}")
+
+    # === Existing core trace management ===
     def record(self, glyph: str, context: dict, result: str, source: str = "benchmark"):
-        """Record a generic trace entry."""
+        """Record a generic trace entry (legacy API)."""
         self.entries.append({
             "timestamp": time.time(),
             "glyph": glyph,
@@ -43,7 +91,7 @@ class CodexTrace:
                 }
         return None
 
-    # ✅ Prediction trace injection for .dc.json containers
+    # === Specialized trace injectors (preserved) ===
     @staticmethod
     def inject_prediction_trace(
         container_id: str,
@@ -74,11 +122,8 @@ class CodexTrace:
         }
         _global_trace.entries.append(trace_entry)
 
-    # ✅ Rewrite trace for executed Codex rewrites
     @staticmethod
-    def inject_rewrite_trace(
-        container_id: str, glyph_id: str, original: str, rewritten: str, reason: str
-    ):
+    def inject_rewrite_trace(container_id: str, glyph_id: str, original: str, rewritten: str, reason: str):
         _global_trace.entries.append({
             "type": "glyph",
             "glyph": rewritten,
@@ -94,7 +139,6 @@ class CodexTrace:
             },
         })
 
-    # ✅ Contradiction trace
     @staticmethod
     def inject_contradiction_trace(container_id: str, glyph_id: str, contradiction_info: dict):
         _global_trace.entries.append({
@@ -107,7 +151,6 @@ class CodexTrace:
             "detail": contradiction_info,
         })
 
-    # ✅ Simplification suggestion trace
     @staticmethod
     def inject_simplification_trace(container_id: str, glyph_id: str, suggestions: List[str]):
         _global_trace.entries.append({
@@ -120,7 +163,6 @@ class CodexTrace:
             "detail": {"suggestions": suggestions},
         })
 
-    # ✅ Replay trace for step-wise replays
     @staticmethod
     def inject_replay_trace(container_id: str, glyph_id: str, step: str, notes: Optional[str] = None):
         _global_trace.entries.append({
@@ -133,12 +175,9 @@ class CodexTrace:
             "detail": {"step": step, "notes": notes},
         })
 
-    # ✅ Unified execution trace (Codex ↔ Photon bridge)
+    # === Unified execution trace hook (legacy) ===
     def trace_execution(self, codex_str: str, result: str, context: Optional[dict] = None, source: str = "codex_executor"):
-        """
-        Direct hook for Codex executors to log a run.
-        This is the method to call from CodexCoreFPGA or execution_unit.
-        """
+        """Direct hook for Codex executors to log a run."""
         self.record(
             glyph=codex_str,
             context=context or {},
@@ -151,7 +190,7 @@ class CodexTrace:
 _global_trace = CodexTrace()
 
 
-# --- Public API helpers ---
+# --- Public API helpers (preserved) ---
 def log_codex_trace(glyph: str, context: dict, result: str, source: str = "benchmark"):
     _global_trace.record(glyph, context, result, source)
 
@@ -192,5 +231,12 @@ if __name__ == "__main__":
         logic_score=0.88,
         all_candidates=["⊗", "∇", "□"],
     )
+
+    _global_trace.log({
+        "action": "executed",
+        "source": "glyph_executor",
+        "glyph": "⊕",
+        "container": "test-container"
+    })
 
     print(_global_trace.to_json())

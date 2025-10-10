@@ -280,5 +280,409 @@
     "cost": null,
     "linked_tags": {},
     "timestamp": "2025-09-26T22:51:14.136917"
+  },
+  {
+    "label": "runtime_tick_summary",
+    "content": "{\"timestamp\": \"2025-10-10T16:47:05\", \"container\": \"default_stub\", \"duration\": 3.361701965332031e-05, \"glyph_count\": 0}",
+    "timestamp": "2025-10-10T16:47:05.905306"
+  },
+  {
+    "label": "glyph_tick",
+    "content": "{\"timestamp\": \"2025-10-10T16:52:03\", \"container\": \"mock_container\", \"coord\": \"0,0,0\", \"glyph\": \"\u2295\", \"tags\": [\"runtime\", \"tick\", \"glyph\"]}",
+    "timestamp": "2025-10-10T16:52:03.567201"
+  },
+  {
+    "label": "glyph_tick",
+    "content": "{\"timestamp\": \"2025-10-10T16:52:03\", \"container\": \"mock_container\", \"coord\": \"1,0,0\", \"glyph\": \"\u2207\", \"tags\": [\"runtime\", \"tick\", \"glyph\"]}",
+    "timestamp": "2025-10-10T16:52:03.611067"
+  },
+  {
+    "label": "glyph_tick",
+    "content": "{\"timestamp\": \"2025-10-10T16:52:03\", \"container\": \"mock_container\", \"coord\": \"0,1,0\", \"glyph\": \"\u2194\", \"tags\": [\"runtime\", \"tick\", \"glyph\"]}",
+    "timestamp": "2025-10-10T16:52:03.645682"
+  },
+  {
+    "label": "runtime_tick_summary",
+    "content": "{\"timestamp\": \"2025-10-10T17:07:03\", \"container\": \"mock_container\", \"duration\": 0.7344386577606201, \"glyph_count\": 3}",
+    "timestamp": "2025-10-10T17:07:03.748658"
+  },
+  {
+    "type": "codex_runtime_result",
+    "timestamp": "2025-10-10T17:20:42.225488",
+    "glyph": "\u2295",
+    "context": {
+      "glyph": "\u2295",
+      "container_id": "mock_container",
+      "coord": "0,0,0",
+      "tick": 1
+    },
+    "output": {
+      "status": "error",
+      "output": {},
+      "duration": 0.00031447410583496094
+    },
+    "label": "codex_runtime_result",
+    "content": "{\"type\": \"codex_runtime_result\", \"timestamp\": 1760116842.1941621, \"glyph\": \"\u2295\", \"context\": {\"glyph\": \"\u2295\", \"container_id\": \"mock_container\", \"coord\": \"0,0,0\", \"tick\": 1}, \"output\": {\"status\": \"error\", \"output\": {}, \"duration\": 0.00031447410583496094}}"
+  },
+  {
+    "label": "codex_trace:executed",
+    "content": "{\"glyph\": \"\u2295\", \"coord\": \"0,0,0\", \"tick\": 3, \"origin\": \"glyph_executor\", \"container\": \"mock_container\", \"action\": \"executed\", \"source\": \"glyph_executor\", \"type\": \"codex_trace\", \"timestamp\": 1760116842.2437742}",
+    "timestamp": "2025-10-10T17:20:42.269469"
+  },
+  {
+    "type": "codex_runtime_result",
+    "timestamp": "2025-10-10T17:20:42.317931",
+    "glyph": "\u2207",
+    "context": {
+      "glyph": "\u2207",
+      "container_id": "mock_container",
+      "coord": "1,0,0",
+      "tick": 4
+    },
+    "output": {
+      "status": "error",
+      "output": {},
+      "duration": 8.96453857421875e-05
+    },
+    "label": "codex_runtime_result",
+    "content": "{\"type\": \"codex_runtime_result\", \"timestamp\": 1760116842.2884612, \"glyph\": \"\u2207\", \"context\": {\"glyph\": \"\u2207\", \"container_id\": \"mock_container\", \"coord\": \"1,0,0\", \"tick\": 4}, \"output\": {\"status\": \"error\", \"output\": {}, \"duration\": 8.96453857421875e-05}}"
+  },
+  {
+    "label": "codex_trace:executed",
+    "content": "{\"glyph\": \"\u2207\", \"coord\": \"1,0,0\", \"tick\": 6, \"origin\": \"glyph_executor\", \"container\": \"mock_container\", \"action\": \"executed\", \"source\": \"glyph_executor\", \"type\": \"codex_trace\", \"timestamp\": 1760116842.3381877}",
+    "timestamp": "2025-10-10T17:20:42.364901"
+  },
+  {
+    "type": "codex_runtime_result",
+    "timestamp": "2025-10-10T17:20:42.412258",
+    "glyph": "\u2194",
+    "context": {
+      "glyph": "\u2194",
+      "container_id": "mock_container",
+      "coord": "0,1,0",
+      "tick": 7
+    },
+    "output": {
+      "status": "error",
+      "output": {},
+      "duration": 7.62939453125e-05
+    },
+    "label": "codex_runtime_result",
+    "content": "{\"type\": \"codex_runtime_result\", \"timestamp\": 1760116842.383436, \"glyph\": \"\u2194\", \"context\": {\"glyph\": \"\u2194\", \"container_id\": \"mock_container\", \"coord\": \"0,1,0\", \"tick\": 7}, \"output\": {\"status\": \"error\", \"output\": {}, \"duration\": 7.62939453125e-05}}"
+  },
+  {
+    "label": "codex_trace:executed",
+    "content": "{\"glyph\": \"\u2194\", \"coord\": \"0,1,0\", \"tick\": 9, \"origin\": \"glyph_executor\", \"container\": \"mock_container\", \"action\": \"executed\", \"source\": \"glyph_executor\", \"type\": \"codex_trace\", \"timestamp\": 1760116842.4309797}",
+    "timestamp": "2025-10-10T17:20:42.456175"
+  },
+  {
+    "label": "glyph_tick",
+    "content": "{\"timestamp\": \"2025-10-10T17:30:14\", \"container\": \"mock_container\", \"coord\": \"0,0,0\", \"glyph\": \"\u2295\", \"tags\": [\"runtime\", \"tick\", \"glyph\"]}",
+    "timestamp": "2025-10-10T17:30:14.951797"
+  },
+  {
+    "label": "glyph_tick",
+    "content": "{\"timestamp\": \"2025-10-10T17:30:14\", \"container\": \"mock_container\", \"coord\": \"1,0,0\", \"glyph\": \"\u2207\", \"tags\": [\"runtime\", \"tick\", \"glyph\"]}",
+    "timestamp": "2025-10-10T17:30:14.992834"
+  },
+  {
+    "label": "glyph_tick",
+    "content": "{\"timestamp\": \"2025-10-10T17:30:15\", \"container\": \"mock_container\", \"coord\": \"0,1,0\", \"glyph\": \"\u2194\", \"tags\": [\"runtime\", \"tick\", \"glyph\"]}",
+    "timestamp": "2025-10-10T17:30:15.044988"
+  },
+  {
+    "label": "runtime_tick_summary",
+    "content": "{\"timestamp\": \"2025-10-10T17:30:15\", \"container\": \"mock_container\", \"duration\": 0.9204483032226562, \"glyph_count\": 3}",
+    "timestamp": "2025-10-10T17:30:15.870062"
+  },
+  {
+    "label": "glyph_tick",
+    "content": "{\"timestamp\": \"2025-10-10T17:30:16\", \"container\": \"mock_container\", \"coord\": \"0,0,0\", \"glyph\": \"\u2295\", \"tags\": [\"runtime\", \"tick\", \"glyph\"]}",
+    "timestamp": "2025-10-10T17:30:16.927990"
+  },
+  {
+    "label": "glyph_tick",
+    "content": "{\"timestamp\": \"2025-10-10T17:30:16\", \"container\": \"mock_container\", \"coord\": \"1,0,0\", \"glyph\": \"\u2207\", \"tags\": [\"runtime\", \"tick\", \"glyph\"]}",
+    "timestamp": "2025-10-10T17:30:16.971124"
+  },
+  {
+    "label": "glyph_tick",
+    "content": "{\"timestamp\": \"2025-10-10T17:30:16\", \"container\": \"mock_container\", \"coord\": \"0,1,0\", \"glyph\": \"\u2194\", \"tags\": [\"runtime\", \"tick\", \"glyph\"]}",
+    "timestamp": "2025-10-10T17:30:17.013540"
+  },
+  {
+    "label": "runtime_tick_summary",
+    "content": "{\"timestamp\": \"2025-10-10T17:30:17\", \"container\": \"mock_container\", \"duration\": 0.4577217102050781, \"glyph_count\": 3}",
+    "timestamp": "2025-10-10T17:30:17.375838"
+  },
+  {
+    "label": "glyph_tick",
+    "content": "{\"timestamp\": \"2025-10-10T17:30:18\", \"container\": \"mock_container\", \"coord\": \"0,0,0\", \"glyph\": \"\u2295\", \"tags\": [\"runtime\", \"tick\", \"glyph\"]}",
+    "timestamp": "2025-10-10T17:30:18.422227"
+  },
+  {
+    "label": "glyph_tick",
+    "content": "{\"timestamp\": \"2025-10-10T17:30:18\", \"container\": \"mock_container\", \"coord\": \"1,0,0\", \"glyph\": \"\u2207\", \"tags\": [\"runtime\", \"tick\", \"glyph\"]}",
+    "timestamp": "2025-10-10T17:30:18.464423"
+  },
+  {
+    "label": "glyph_tick",
+    "content": "{\"timestamp\": \"2025-10-10T17:30:18\", \"container\": \"mock_container\", \"coord\": \"0,1,0\", \"glyph\": \"\u2194\", \"tags\": [\"runtime\", \"tick\", \"glyph\"]}",
+    "timestamp": "2025-10-10T17:30:18.513451"
+  },
+  {
+    "label": "runtime_tick_summary",
+    "content": "{\"timestamp\": \"2025-10-10T17:30:18\", \"container\": \"mock_container\", \"duration\": 0.4798285961151123, \"glyph_count\": 3}",
+    "timestamp": "2025-10-10T17:30:18.899750"
+  },
+  {
+    "label": "glyph_tick",
+    "content": "{\"timestamp\": \"2025-10-10T17:30:19\", \"container\": \"mock_container\", \"coord\": \"0,0,0\", \"glyph\": \"\u2295\", \"tags\": [\"runtime\", \"tick\", \"glyph\"]}",
+    "timestamp": "2025-10-10T17:30:19.957886"
+  },
+  {
+    "label": "glyph_tick",
+    "content": "{\"timestamp\": \"2025-10-10T17:30:19\", \"container\": \"mock_container\", \"coord\": \"1,0,0\", \"glyph\": \"\u2207\", \"tags\": [\"runtime\", \"tick\", \"glyph\"]}",
+    "timestamp": "2025-10-10T17:30:20.012855"
+  },
+  {
+    "label": "glyph_tick",
+    "content": "{\"timestamp\": \"2025-10-10T17:30:20\", \"container\": \"mock_container\", \"coord\": \"0,1,0\", \"glyph\": \"\u2194\", \"tags\": [\"runtime\", \"tick\", \"glyph\"]}",
+    "timestamp": "2025-10-10T17:30:20.068579"
+  },
+  {
+    "label": "runtime_tick_summary",
+    "content": "{\"timestamp\": \"2025-10-10T17:30:20\", \"container\": \"mock_container\", \"duration\": 0.5309560298919678, \"glyph_count\": 3}",
+    "timestamp": "2025-10-10T17:30:20.475088"
+  },
+  {
+    "label": "glyph_tick",
+    "content": "{\"timestamp\": \"2025-10-10T17:30:21\", \"container\": \"mock_container\", \"coord\": \"0,0,0\", \"glyph\": \"\u2295\", \"tags\": [\"runtime\", \"tick\", \"glyph\"]}",
+    "timestamp": "2025-10-10T17:30:21.525597"
+  },
+  {
+    "label": "glyph_tick",
+    "content": "{\"timestamp\": \"2025-10-10T17:30:21\", \"container\": \"mock_container\", \"coord\": \"1,0,0\", \"glyph\": \"\u2207\", \"tags\": [\"runtime\", \"tick\", \"glyph\"]}",
+    "timestamp": "2025-10-10T17:30:21.578122"
+  },
+  {
+    "label": "glyph_tick",
+    "content": "{\"timestamp\": \"2025-10-10T17:30:21\", \"container\": \"mock_container\", \"coord\": \"0,1,0\", \"glyph\": \"\u2194\", \"tags\": [\"runtime\", \"tick\", \"glyph\"]}",
+    "timestamp": "2025-10-10T17:30:21.627165"
+  },
+  {
+    "label": "runtime_tick_summary",
+    "content": "{\"timestamp\": \"2025-10-10T17:30:22\", \"container\": \"mock_container\", \"duration\": 0.6433217525482178, \"glyph_count\": 3}",
+    "timestamp": "2025-10-10T17:30:22.164233"
+  },
+  {
+    "label": "glyph_tick",
+    "content": "{\"timestamp\": \"2025-10-10T17:30:23\", \"container\": \"mock_container\", \"coord\": \"0,0,0\", \"glyph\": \"\u2295\", \"tags\": [\"runtime\", \"tick\", \"glyph\"]}",
+    "timestamp": "2025-10-10T17:30:23.228613"
+  },
+  {
+    "label": "glyph_tick",
+    "content": "{\"timestamp\": \"2025-10-10T17:30:23\", \"container\": \"mock_container\", \"coord\": \"1,0,0\", \"glyph\": \"\u2207\", \"tags\": [\"runtime\", \"tick\", \"glyph\"]}",
+    "timestamp": "2025-10-10T17:30:23.304698"
+  },
+  {
+    "label": "glyph_tick",
+    "content": "{\"timestamp\": \"2025-10-10T17:30:23\", \"container\": \"mock_container\", \"coord\": \"0,1,0\", \"glyph\": \"\u2194\", \"tags\": [\"runtime\", \"tick\", \"glyph\"]}",
+    "timestamp": "2025-10-10T17:30:23.381325"
+  },
+  {
+    "label": "runtime_tick_summary",
+    "content": "{\"timestamp\": \"2025-10-10T17:30:23\", \"container\": \"mock_container\", \"duration\": 0.6115810871124268, \"glyph_count\": 3}",
+    "timestamp": "2025-10-10T17:30:23.827019"
+  },
+  {
+    "label": "glyph_tick",
+    "content": "{\"timestamp\": \"2025-10-10T17:30:24\", \"container\": \"mock_container\", \"coord\": \"0,0,0\", \"glyph\": \"\u2295\", \"tags\": [\"runtime\", \"tick\", \"glyph\"]}",
+    "timestamp": "2025-10-10T17:30:24.881660"
+  },
+  {
+    "label": "glyph_tick",
+    "content": "{\"timestamp\": \"2025-10-10T17:30:24\", \"container\": \"mock_container\", \"coord\": \"1,0,0\", \"glyph\": \"\u2207\", \"tags\": [\"runtime\", \"tick\", \"glyph\"]}",
+    "timestamp": "2025-10-10T17:30:24.932702"
+  },
+  {
+    "label": "glyph_tick",
+    "content": "{\"timestamp\": \"2025-10-10T17:30:24\", \"container\": \"mock_container\", \"coord\": \"0,1,0\", \"glyph\": \"\u2194\", \"tags\": [\"runtime\", \"tick\", \"glyph\"]}",
+    "timestamp": "2025-10-10T17:30:24.998509"
+  },
+  {
+    "label": "runtime_tick_summary",
+    "content": "{\"timestamp\": \"2025-10-10T17:30:25\", \"container\": \"mock_container\", \"duration\": 0.5735559463500977, \"glyph_count\": 3}",
+    "timestamp": "2025-10-10T17:30:25.451830"
+  },
+  {
+    "label": "glyph_tick",
+    "content": "{\"timestamp\": \"2025-10-10T17:35:26\", \"container\": \"mock_container\", \"coord\": \"0,0,0\", \"glyph\": \"\u2295\", \"tags\": [\"runtime\", \"tick\", \"glyph\"]}",
+    "timestamp": "2025-10-10T17:35:26.588630"
+  },
+  {
+    "label": "glyph_tick",
+    "content": "{\"timestamp\": \"2025-10-10T17:35:26\", \"container\": \"mock_container\", \"coord\": \"1,0,0\", \"glyph\": \"\u2207\", \"tags\": [\"runtime\", \"tick\", \"glyph\"]}",
+    "timestamp": "2025-10-10T17:35:26.644981"
+  },
+  {
+    "label": "glyph_tick",
+    "content": "{\"timestamp\": \"2025-10-10T17:35:26\", \"container\": \"mock_container\", \"coord\": \"0,1,0\", \"glyph\": \"\u2194\", \"tags\": [\"runtime\", \"tick\", \"glyph\"]}",
+    "timestamp": "2025-10-10T17:35:26.700971"
+  },
+  {
+    "label": "runtime_tick_summary",
+    "content": "{\"timestamp\": \"2025-10-10T17:35:27\", \"container\": \"mock_container\", \"duration\": 0.9733633995056152, \"glyph_count\": 3}",
+    "timestamp": "2025-10-10T17:35:27.556163"
+  },
+  {
+    "label": "glyph_tick",
+    "content": "{\"timestamp\": \"2025-10-10T17:35:28\", \"container\": \"mock_container\", \"coord\": \"0,0,0\", \"glyph\": \"\u2295\", \"tags\": [\"runtime\", \"tick\", \"glyph\"]}",
+    "timestamp": "2025-10-10T17:35:28.614989"
+  },
+  {
+    "label": "glyph_tick",
+    "content": "{\"timestamp\": \"2025-10-10T17:35:28\", \"container\": \"mock_container\", \"coord\": \"1,0,0\", \"glyph\": \"\u2207\", \"tags\": [\"runtime\", \"tick\", \"glyph\"]}",
+    "timestamp": "2025-10-10T17:35:28.671803"
+  },
+  {
+    "label": "glyph_tick",
+    "content": "{\"timestamp\": \"2025-10-10T17:35:28\", \"container\": \"mock_container\", \"coord\": \"0,1,0\", \"glyph\": \"\u2194\", \"tags\": [\"runtime\", \"tick\", \"glyph\"]}",
+    "timestamp": "2025-10-10T17:35:28.729070"
+  },
+  {
+    "label": "runtime_tick_summary",
+    "content": "{\"timestamp\": \"2025-10-10T17:35:29\", \"container\": \"mock_container\", \"duration\": 0.5808413028717041, \"glyph_count\": 3}",
+    "timestamp": "2025-10-10T17:35:29.192621"
+  },
+  {
+    "label": "glyph_tick",
+    "content": "{\"timestamp\": \"2025-10-10T17:35:30\", \"container\": \"mock_container\", \"coord\": \"0,0,0\", \"glyph\": \"\u2295\", \"tags\": [\"runtime\", \"tick\", \"glyph\"]}",
+    "timestamp": "2025-10-10T17:35:30.256208"
+  },
+  {
+    "label": "glyph_tick",
+    "content": "{\"timestamp\": \"2025-10-10T17:35:30\", \"container\": \"mock_container\", \"coord\": \"1,0,0\", \"glyph\": \"\u2207\", \"tags\": [\"runtime\", \"tick\", \"glyph\"]}",
+    "timestamp": "2025-10-10T17:35:30.317996"
+  },
+  {
+    "label": "glyph_tick",
+    "content": "{\"timestamp\": \"2025-10-10T17:35:30\", \"container\": \"mock_container\", \"coord\": \"0,1,0\", \"glyph\": \"\u2194\", \"tags\": [\"runtime\", \"tick\", \"glyph\"]}",
+    "timestamp": "2025-10-10T17:35:30.380615"
+  },
+  {
+    "label": "runtime_tick_summary",
+    "content": "{\"timestamp\": \"2025-10-10T17:35:30\", \"container\": \"mock_container\", \"duration\": 0.6584599018096924, \"glyph_count\": 3}",
+    "timestamp": "2025-10-10T17:35:30.913351"
+  },
+  {
+    "label": "glyph_tick",
+    "content": "{\"timestamp\": \"2025-10-10T17:35:31\", \"container\": \"mock_container\", \"coord\": \"0,0,0\", \"glyph\": \"\u2295\", \"tags\": [\"runtime\", \"tick\", \"glyph\"]}",
+    "timestamp": "2025-10-10T17:35:31.973881"
+  },
+  {
+    "label": "glyph_tick",
+    "content": "{\"timestamp\": \"2025-10-10T17:35:32\", \"container\": \"mock_container\", \"coord\": \"1,0,0\", \"glyph\": \"\u2207\", \"tags\": [\"runtime\", \"tick\", \"glyph\"]}",
+    "timestamp": "2025-10-10T17:35:32.037575"
+  },
+  {
+    "label": "glyph_tick",
+    "content": "{\"timestamp\": \"2025-10-10T17:35:32\", \"container\": \"mock_container\", \"coord\": \"0,1,0\", \"glyph\": \"\u2194\", \"tags\": [\"runtime\", \"tick\", \"glyph\"]}",
+    "timestamp": "2025-10-10T17:35:32.099185"
+  },
+  {
+    "label": "runtime_tick_summary",
+    "content": "{\"timestamp\": \"2025-10-10T17:35:32\", \"container\": \"mock_container\", \"duration\": 0.6587386131286621, \"glyph_count\": 3}",
+    "timestamp": "2025-10-10T17:35:32.631321"
+  },
+  {
+    "label": "glyph_tick",
+    "content": "{\"timestamp\": \"2025-10-10T17:35:33\", \"container\": \"mock_container\", \"coord\": \"0,0,0\", \"glyph\": \"\u2295\", \"tags\": [\"runtime\", \"tick\", \"glyph\"]}",
+    "timestamp": "2025-10-10T17:35:33.694741"
+  },
+  {
+    "label": "glyph_tick",
+    "content": "{\"timestamp\": \"2025-10-10T17:35:33\", \"container\": \"mock_container\", \"coord\": \"1,0,0\", \"glyph\": \"\u2207\", \"tags\": [\"runtime\", \"tick\", \"glyph\"]}",
+    "timestamp": "2025-10-10T17:35:33.759522"
+  },
+  {
+    "label": "glyph_tick",
+    "content": "{\"timestamp\": \"2025-10-10T17:35:33\", \"container\": \"mock_container\", \"coord\": \"0,1,0\", \"glyph\": \"\u2194\", \"tags\": [\"runtime\", \"tick\", \"glyph\"]}",
+    "timestamp": "2025-10-10T17:35:33.827335"
+  },
+  {
+    "label": "runtime_tick_summary",
+    "content": "{\"timestamp\": \"2025-10-10T17:35:34\", \"container\": \"mock_container\", \"duration\": 0.6640143394470215, \"glyph_count\": 3}",
+    "timestamp": "2025-10-10T17:35:34.355677"
+  },
+  {
+    "label": "glyph_tick",
+    "content": "{\"timestamp\": \"2025-10-10T17:35:35\", \"container\": \"mock_container\", \"coord\": \"0,0,0\", \"glyph\": \"\u2295\", \"tags\": [\"runtime\", \"tick\", \"glyph\"]}",
+    "timestamp": "2025-10-10T17:35:35.419530"
+  },
+  {
+    "label": "glyph_tick",
+    "content": "{\"timestamp\": \"2025-10-10T17:35:35\", \"container\": \"mock_container\", \"coord\": \"1,0,0\", \"glyph\": \"\u2207\", \"tags\": [\"runtime\", \"tick\", \"glyph\"]}",
+    "timestamp": "2025-10-10T17:35:35.484534"
+  },
+  {
+    "label": "glyph_tick",
+    "content": "{\"timestamp\": \"2025-10-10T17:35:35\", \"container\": \"mock_container\", \"coord\": \"0,1,0\", \"glyph\": \"\u2194\", \"tags\": [\"runtime\", \"tick\", \"glyph\"]}",
+    "timestamp": "2025-10-10T17:35:35.558780"
+  },
+  {
+    "label": "runtime_tick_summary",
+    "content": "{\"timestamp\": \"2025-10-10T17:35:36\", \"container\": \"mock_container\", \"duration\": 0.7540977001190186, \"glyph_count\": 3}",
+    "timestamp": "2025-10-10T17:35:36.169371"
+  },
+  {
+    "label": "runtime_tick_summary",
+    "content": "{\"timestamp\": \"2025-10-10T17:37:46\", \"container\": \"mock_container\", \"duration\": 0.9063482284545898, \"glyph_count\": 3}",
+    "timestamp": "2025-10-10T17:37:46.385829"
+  },
+  {
+    "label": "runtime_tick_summary",
+    "content": "{\"timestamp\": \"2025-10-10T17:37:47\", \"container\": \"mock_container\", \"duration\": 0.49637794494628906, \"glyph_count\": 3}",
+    "timestamp": "2025-10-10T17:37:47.953444"
+  },
+  {
+    "label": "runtime_tick_summary",
+    "content": "{\"timestamp\": \"2025-10-10T17:37:49\", \"container\": \"mock_container\", \"duration\": 0.5643951892852783, \"glyph_count\": 3}",
+    "timestamp": "2025-10-10T17:37:49.595572"
+  },
+  {
+    "label": "runtime_tick_summary",
+    "content": "{\"timestamp\": \"2025-10-10T17:37:51\", \"container\": \"mock_container\", \"duration\": 0.500225305557251, \"glyph_count\": 3}",
+    "timestamp": "2025-10-10T17:37:51.161955"
+  },
+  {
+    "label": "runtime_tick_summary",
+    "content": "{\"timestamp\": \"2025-10-10T17:37:52\", \"container\": \"mock_container\", \"duration\": 0.5093810558319092, \"glyph_count\": 3}",
+    "timestamp": "2025-10-10T17:37:52.739859"
+  },
+  {
+    "label": "runtime_tick_summary",
+    "content": "{\"timestamp\": \"2025-10-10T17:37:54\", \"container\": \"mock_container\", \"duration\": 0.7200887203216553, \"glyph_count\": 3}",
+    "timestamp": "2025-10-10T17:37:54.530223"
+  },
+  {
+    "label": "container:mock_container",
+    "content": "[\ud83d\udce6] Container unnamed activated.",
+    "timestamp": "2025-10-10T18:01:30.637370"
+  },
+  {
+    "label": "runtime_tick_summary",
+    "content": "{\"timestamp\": \"2025-10-10T18:03:47\", \"container\": \"mock_container\", \"duration\": 0.0017600059509277344, \"glyph_count\": 3}",
+    "timestamp": "2025-10-10T18:03:47.358237"
+  },
+  {
+    "label": "runtime_tick_summary",
+    "content": "{\"timestamp\": \"2025-10-10T18:03:50\", \"container\": \"mock_container\", \"duration\": 0.0017600059509277344, \"glyph_count\": 3}",
+    "timestamp": "2025-10-10T18:03:50.569816"
+  },
+  {
+    "label": "runtime_tick_summary",
+    "content": "{\"timestamp\": \"2025-10-10T18:03:53\", \"container\": \"mock_container\", \"duration\": 0.09322023391723633, \"glyph_count\": 3}",
+    "timestamp": "2025-10-10T18:03:53.814608"
   }
 ]

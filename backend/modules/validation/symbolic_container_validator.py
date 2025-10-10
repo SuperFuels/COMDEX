@@ -2,7 +2,6 @@
 
 from typing import Dict, Any, List
 from backend.modules.codex.codexlang_rewriter import CodexLangRewriter
-from backend.modules.codex.codexlang_parser import parse_codexlang_to_ast
 from backend.modules.codex.codex_ast_encoder import encode_codex_ast_to_glyphs
 from backend.modules.symbolic_engine.symbolic_kernels.logic_glyphs import LogicGlyph
 

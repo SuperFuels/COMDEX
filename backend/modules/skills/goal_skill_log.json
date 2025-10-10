@@ -1080,5 +1080,89 @@
     "message": "Teleported to container: maxwell_core",
     "success": true,
     "timestamp": "2025-09-07T23:25:42.670500"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: mock_container",
+    "success": true,
+    "timestamp": "2025-10-10T16:52:03.527500"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: mock_container",
+    "success": true,
+    "timestamp": "2025-10-10T16:54:12.767968"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: mock_container",
+    "success": true,
+    "timestamp": "2025-10-10T16:58:27.938473"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: mock_container",
+    "success": true,
+    "timestamp": "2025-10-10T17:00:36.811363"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: mock_container",
+    "success": true,
+    "timestamp": "2025-10-10T17:07:02.994713"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: mock_container",
+    "success": true,
+    "timestamp": "2025-10-10T17:20:41.693944"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: mock_container",
+    "success": true,
+    "timestamp": "2025-10-10T17:21:56.282973"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: mock_container",
+    "success": true,
+    "timestamp": "2025-10-10T17:30:14.921278"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: mock_container",
+    "success": true,
+    "timestamp": "2025-10-10T17:35:26.564205"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: mock_container",
+    "success": true,
+    "timestamp": "2025-10-10T17:37:45.458037"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: mock_container",
+    "success": true,
+    "timestamp": "2025-10-10T18:01:30.689983"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: mock_container",
+    "success": true,
+    "timestamp": "2025-10-10T18:03:44.753632"
   }
 ]

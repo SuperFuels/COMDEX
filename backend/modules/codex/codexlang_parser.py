@@ -1,119 +1,355 @@
-# File: backend/modules/codex/codexlang_parser.py
+# File: backend/modules/memory/memory_engine.py
+import os
+import json
+import hashlib
+import requests
+from pathlib import Path
+from datetime import datetime
+from collections import defaultdict
+from sentence_transformers import SentenceTransformer, util
+import torch
 
+from backend.modules.dna_chain.switchboard import DNA_SWITCH
+from backend.config import GLYPH_API_BASE_URL
+from backend.modules.dna_chain.container_index_writer import add_to_index  # ✅ R1f, ⏱️ H1
+
+DNA_SWITCH.register(__file__)
+
+MEMORY_DIR = "data/memory_logs"
+ENABLE_GLYPH_LOGGING = True
+AION_ENABLE = os.getenv("AION_ENABLE", "0") == "1"
+AION_URL = os.getenv("AION_URL", GLYPH_API_BASE_URL or "http://localhost:8000")
+
+MILESTONE_KEYWORDS = {
+    "first_dream": ["dream_reflection"],
+    "cognitive_reflection": ["self-awareness", "introspection", "echoes of existence"],
+    "voice_activation": ["speak", "vocal", "communication interface"],
+    "wallet_integration": ["wallet", "crypto storage", "store of value"],
+    "nova_connection": ["frontend", "interface", "nova"],
+}
+
+
+class MemoryEngine:
+    def __init__(self, container_id: str = "global"):
+        self.container_id = container_id
+        self.memory = []
+        self.embeddings = []
+        self.model = SentenceTransformer("./models/all-MiniLM-L6-v2", local_files_only=True)
+        self.agents = []
+        self.duplicate_threshold = 0.95
+
+        self.memory_file = Path(__file__).parent / f"memory_{self.container_id}.json"
+        self.embedding_file = Path(__file__).parent / f"embeddings_{self.container_id}.json"
+        self.hashes_file = Path(__file__).parent / f"memhashes_{self.container_id}.json"
+
+        self.dedupe_mode = os.getenv("MEMORY_DEDUPE_MODE", "exact")  # "exact" or "semantic"
+        self._hashes = set()
+        try:
+            if self.hashes_file.exists():
+                self._hashes = set(json.load(open(self.hashes_file)))
+        except Exception:
+            self._hashes = set()
+
+        # 🧠 Memory filtering + sampling controls
+        self.drop_labels = {"glyph_tick"}
+        self.sample_labels = {"glyph_tick": 10}
+        self._label_counts = defaultdict(int)
+        # Optional quieter operation
+        self.drop_labels.update({"codex_runtime_result"})
+        self.sample_labels.update({
+            "codex_trace:executed": 5,
+            "runtime_tick_summary": 3,
+        })
+
+        # ✅ Lazy import pattern to break circular imports
+        self.kg_writer = None
+
+        self.load_memory()
+        self.load_embeddings()
+
+    def _get_kg_writer(self):
+        """Lazy import to avoid circular dependency during boot."""
+        if self.kg_writer is None:
+            try:
+                from backend.modules.knowledge_graph.kg_writer_singleton import kg_writer
+                self.kg_writer = kg_writer
+            except Exception:
+                self.kg_writer = None
+        return self.kg_writer
+
+    def detect_tags(self, content: str):
+        tags = []
+        content_lower = content.lower()
+        if len(content_lower) < 30:
+            return tags
+        for tag, keywords in MILESTONE_KEYWORDS.items():
+            if any(keyword.lower() in content_lower for keyword in keywords):
+                tags.append(tag)
+        return tags
+
+    def is_duplicate(self, new_embedding):
+        """Cosine-similarity deduplication with shape guards."""
+        if not self.embeddings:
+            return False
+
+        try:
+            if isinstance(new_embedding, torch.Tensor):
+                ne = new_embedding.detach().to(torch.float32)
+            else:
+                ne = torch.tensor(new_embedding, dtype=torch.float32)
+            if ne.ndim == 1:
+                ne = ne.unsqueeze(0)
+        except Exception:
+            return False
+
+        try:
+            if isinstance(self.embeddings, list):
+                emb_list = []
+                for e in self.embeddings:
+                    if isinstance(e, torch.Tensor):
+                        emb_list.append(e.detach().to(torch.float32))
+                    else:
+                        emb_list.append(torch.tensor(e, dtype=torch.float32))
+                if not emb_list:
+                    return False
+                E = torch.stack(emb_list, dim=0)
+            else:
+                E = torch.tensor(self.embeddings, dtype=torch.float32)
+            if E.ndim == 1:
+                E = E.unsqueeze(0)
+        except Exception:
+            return False
+
+        if ne.shape[-1] != E.shape[-1]:
+            return False
+
+        try:
+            sims = util.cos_sim(ne, E)[0]
+            max_sim = float(sims.max()) if sims.numel() else 0.0
+            return max_sim >= self.duplicate_threshold
+        except Exception:
+            return False
+
+    @staticmethod
+    def get_runtime_entropy_snapshot():
+        return f"MemoryCount:{len(MEMORY.memory)};Timestamp:{datetime.utcnow().isoformat()}"
+
+    def list_labels(self):
+        return sorted(set(m.get("label") for m in self.memory if "label" in m))
+
+    def get(self, label):
+        return [m for m in self.memory if m.get("label") == label]
+
+    def get_all(self):
+        return self.memory
+
+    def load_memory(self):
+        if self.memory_file.exists():
+            try:
+                with open(self.memory_file, "r") as f:
+                    self.memory = json.load(f)
+            except Exception:
+                self.memory = []
+        else:
+            self.memory = []
+
+    def load_embeddings(self):
+        if self.embedding_file.exists():
+            try:
+                with open(self.embedding_file, "r") as f:
+                    loaded = json.load(f)
+                    self.embeddings = [torch.tensor(e, dtype=torch.float32) for e in loaded]
+            except Exception:
+                self.embeddings = []
+        else:
+            self.embeddings = []
+
+    def save_memory(self):
+        try:
+            with open(self.memory_file, "w") as f:
+                json.dump(self.memory, f, indent=2)
+        except Exception as e:
+            print(f"⚠️ Failed to save memory file: {e}")
+
+    def save_embeddings(self):
+        try:
+            with open(self.embedding_file, "w") as f:
+                json.dump([e.tolist() for e in self.embeddings], f)
+        except Exception as e:
+            print(f"⚠️ Failed to save embeddings file: {e}")
+
+    def register_agent(self, agent):
+        if agent not in self.agents:
+            self.agents.append(agent)
+            print(f"✅ Agent registered: {agent.name}")
+
+    def send_message_to_agents(self, message):
+        for agent in self.agents:
+            agent.receive_message(message)
+
+    def save(self, label: str, content: str):
+        self._store_impl({"label": label, "content": content})
+
+    def _store_impl(self, memory_obj):
+        """Core memory persistence logic with sampling and deduplication."""
+        if not isinstance(memory_obj, dict):
+            raise ValueError("Memory object must be a dict.")
+        if "label" not in memory_obj or "content" not in memory_obj:
+            raise ValueError("Memory must contain 'label' and 'content' keys.")
+
+        content = memory_obj["content"]
+        label = memory_obj["label"]
+
+        # 🔻 Drop label entirely
+        if label in self.drop_labels:
+            return
+
+        # 🎯 Sample noisy labels
+        if label in self.sample_labels:
+            self._label_counts[label] += 1
+            if self._label_counts[label] % self.sample_labels[label] != 0:
+                return
+
+        # 🔒 Ensure string
+        if not isinstance(content, str):
+            try:
+                content = json.dumps(content, ensure_ascii=False)
+            except Exception:
+                content = str(content)
+        memory_obj["content"] = content
+
+        # Embed and dedupe
+        embedding = self.model.encode(content, convert_to_tensor=True)
+        embedding = embedding.to(torch.float32)
+        if self.is_duplicate(embedding):
+            print(f"⚠️ Duplicate memory ignored: {label}")
+            return
+
+        memory_obj["timestamp"] = datetime.now().isoformat()
+        tags = self.detect_tags(content)
+        if tags:
+            memory_obj["milestone_tags"] = tags
+
+        # ✅ Attach scroll if glyph available
+        glyph_payload = memory_obj.get("glyph") or memory_obj.get("glyph_tree")
+        if isinstance(glyph_payload, (dict, list)):
+            try:
+                # 👇 Lazy import moved here to break circular dependency
+                from backend.modules.codex.codex_scroll_builder import build_scroll_from_glyph
+                scroll_data = build_scroll_from_glyph(glyph_payload)
+                memory_obj["scroll_preview"] = scroll_data.get("codexlang")
+                memory_obj["scroll_tree"] = scroll_data.get("tree")
+                print("🌀 Attached scroll to memory entry.")
+            except Exception as e:
+                print(f"⚠️ Failed to build scroll from glyph: {e}")
+
+        self.memory.append(memory_obj)
+        self.embeddings.append(embedding)
+        self.save_memory()
+        self.save_embeddings()
+        print(f"✅ Memory stored: {label}")
+
+        # 🧬 Synthesizing glyphs (AION optional)
+        if AION_ENABLE:
+            try:
+                synth_response = requests.post(
+                    f"{AION_URL}/api/aion/synthesize-glyphs",
+                    json={"text": content, "source": "memory"},
+                    timeout=5,
+                )
+                if synth_response.status_code == 200:
+                    result = synth_response.json()
+                    print(f"✅ Synthesized {len(result.get('glyphs', []))} glyphs from memory.")
+                else:
+                    print(f"⚠️ Glyph synthesis failed: {synth_response.status_code}")
+            except Exception as e:
+                print(f"🕳️ AION not reachable: {e}")
+
+        # ✅ Inject glyph into knowledge graph + index
+        if ENABLE_GLYPH_LOGGING:
+            try:
+                writer = self._get_kg_writer()
+                if writer:
+                    writer.inject_glyph(
+                        content=content,
+                        glyph_type="memory",
+                        metadata={
+                            "label": label,
+                            "timestamp": memory_obj["timestamp"],
+                            "tags": tags,
+                            "container": self.container_id,
+                        },
+                        plugin="MemoryEngine",
+                    )
+                    print(f"🧠 Glyph injected into container for {label}")
+                    add_to_index("memory_index.glyph", {
+                        "text": content,
+                        "timestamp": memory_obj["timestamp"],
+                        "hash": hash(content),
+                    })
+            except Exception as e:
+                print(f"⚠️ Glyph injection failed: {e}")
+
+
+# 🧠 Global memory instance and helpers
+_GLOBAL_MEMORY = MemoryEngine()
+MEMORY = _GLOBAL_MEMORY
+store_memory = MEMORY._store_impl
+
+
+class MemoryBridge:
+    @staticmethod
+    def store_entry(entry: dict):
+        MEMORY._store_impl(entry)
+
+    @staticmethod
+    def log_codex_execution(glyph: str, result: str, context: dict):
+        MEMORY._store_impl({
+            "label": "codex_execution",
+            "type": "execution",
+            "glyph": glyph,
+            "result": result,
+            "context": context,
+        })
+
+
+def get_recent_memory_glyphs(limit: int = 10) -> list[str]:
+    try:
+        if hasattr(MEMORY, "get_recent"):
+            return [e.get("glyph") for e in MEMORY.get_recent(limit=limit) if e.get("glyph")]
+        if hasattr(MEMORY, "log"):
+            recent = list(MEMORY.log)[-limit:]
+            return [e.get("glyph") for e in recent if e.get("glyph")]
+    except Exception as e:
+        print(f"⚠️ Failed to retrieve recent memory glyphs: {e}")
+    return []
+
+# File: backend/modules/codex/codexlang_parser.py
 import re
 import ast
 from typing import List, Dict, Any
 from backend.modules.symbolic.codex_ast_types import CodexAST
 
-
-def parse_python_string_to_codex_ast(source: str) -> CodexAST:
-    """Parse a single Python expression string into CodexAST."""
-    tree = ast.parse(source)
-
-    for node in ast.walk(tree):
-        if isinstance(node, ast.Expr) and isinstance(node.value, ast.Call):
-            fn_name = node.value.func.id if isinstance(node.value.func, ast.Name) else "unknown"
-            args = []
-            for arg in node.value.args:
-                if isinstance(arg, ast.Name):
-                    args.append(arg.id)
-                elif isinstance(arg, ast.Constant):
-                    args.append(str(arg.value))
-                else:
-                    args.append("expr")
-
-            return CodexAST({"root": fn_name, "args": args})
-
-    raise ValueError("No valid function call found in source")
-
-
-def parse_python_file_to_codex_ast(code: str) -> CodexAST:
-    """
-    Parse Python source code into CodexAST.
-    Extracts top-level function calls and assignments.
-    """
-    try:
-        tree = ast.parse(code)
-        root_nodes = []
-
-        for node in ast.walk(tree):
-            if isinstance(node, ast.Expr) and isinstance(node.value, ast.Call):
-                fn = node.value.func
-                fn_name = fn.id if isinstance(fn, ast.Name) else getattr(fn, "attr", "unknown")
-                args = []
-                for arg in node.value.args:
-                    if isinstance(arg, ast.Name):
-                        args.append(arg.id)
-                    elif isinstance(arg, ast.Constant):
-                        args.append(str(arg.value))
-                    elif isinstance(arg, ast.Attribute):
-                        args.append(arg.attr)
-                    else:
-                        args.append("expr")
-                root_nodes.append({"type": "call", "name": fn_name, "args": args})
-
-            elif isinstance(node, ast.Assign):
-                targets = [t.id for t in node.targets if isinstance(t, ast.Name)]
-                value = node.value
-                if isinstance(value, ast.Name):
-                    val = value.id
-                elif isinstance(value, ast.Constant):
-                    val = str(value.value)
-                else:
-                    val = "expr"
-                root_nodes.append({"type": "assign", "targets": targets, "value": val})
-
-        return CodexAST({"root": "module", "args": root_nodes})
-
-    except Exception as e:
-        return CodexAST({"root": "error", "args": [str(e)]})
-
-
+# ✅ TOKENIZER — required by symbolic.codex_ast_parser
 def tokenize_codexlang(expr: str) -> List[str]:
     """
     Tokenize CodexLang logical expressions into symbols/operators.
+    Supports operators like ∀, ∃, ¬, →, ↔, ⊕, ↑, ↓, ∈, =, etc.
     """
-    token_pattern = r"(∀|∃|¬|→|↔|⊕|↑|↓|∈|[A-Za-z_]\w*|\(|\)|\.|,)"
+    token_pattern = r"(∀|∃|¬|→|↔|⊕|↑|↓|∈|=|[A-Za-z_]\w*|\(|\)|\.|,)"
     return re.findall(token_pattern, expr)
 
-
+# ✅ PARSER — required by symbolic.codex_ast_parser
 def parse_expression(tokens: List[str]) -> Any:
     """
-    Parse a list of CodexLang tokens into an AST structure.
+    Parse a list of CodexLang tokens into an AST-like dictionary structure.
     Supports: ∀, ∃, ¬, →, ↔, ∧, ∨, ⊕, ↑, ↓, =, predicates/functions.
     """
-
     def parse_term(index: int):
         token = tokens[index]
-
-        # ∀x or ∀x ∈ S. ...
-        if token == "∀":
-            var = tokens[index + 1]
-
-            if index + 4 < len(tokens) and tokens[index + 2] == "∈" and tokens[index + 4] == ".":
-                domain = tokens[index + 3]
-                body, next_index = parse_term(index + 5)
-                domain_pred = {"type": "function", "name": domain, "args": [var]}
-                implication = {"type": "implies", "left": domain_pred, "right": body}
-                return {"type": "forall", "var": var, "body": implication}, next_index
-            else:
-                assert tokens[index + 2] == ".", f"Expected '.' in ∀x. form | Got: {tokens[index+2]}"
-                body, next_index = parse_term(index + 3)
-                return {"type": "forall", "var": var, "body": body}, next_index
-
-        # ∃x. ...
-        elif token == "∃":
-            var = tokens[index + 1]
-            assert tokens[index + 2] == ".", "Expected '.' in ∃x. form"
-            body, next_index = parse_term(index + 3)
-            return {"type": "exists", "var": var, "body": body}, next_index
-
-        # ¬φ
-        elif token == "¬":
+        if token == "¬":
             inner, next_index = parse_term(index + 1)
             return {"type": "not", "term": inner}, next_index
-
-        # Function, predicate, or constant
         elif re.match(r"\w+", token):
             if index + 1 < len(tokens) and tokens[index + 1] == "(":
                 name = token
@@ -124,89 +360,31 @@ def parse_expression(tokens: List[str]) -> Any:
                     args.append(arg)
                     if i < len(tokens) and tokens[i] == ",":
                         i += 1
-                assert i < len(tokens) and tokens[i] == ")", f"Expected closing ')' in function call: {name}"
+                assert i < len(tokens) and tokens[i] == ")", f"Expected closing ')' for {name}"
                 return {"type": "function", "name": name, "args": args}, i + 1
             else:
-                return {"type": "function", "name": token, "args": []}, index + 1
-
-        # Fallback
+                return {"type": "symbol", "value": token}, index + 1
         return {"type": "symbol", "value": token}, index + 1
 
     def parse_binary_ops(start_index: int):
         left, index = parse_term(start_index)
-
         while index < len(tokens):
             op = tokens[index]
-            if op == "→":
+            if op in ("→", "↔", "∧", "∨", "⊕", "↑", "↓", "="):
                 right, next_index = parse_term(index + 1)
-                left = {"type": "implies", "left": left, "right": right}
-                index = next_index
-            elif op == "↔":
-                right, next_index = parse_term(index + 1)
-                left = {"type": "iff", "left": left, "right": right}
-                index = next_index
-            elif op == "∧":
-                right, next_index = parse_term(index + 1)
-                left = {"type": "and", "terms": [left, right]}
-                index = next_index
-            elif op == "∨":
-                right, next_index = parse_term(index + 1)
-                left = {"type": "or", "terms": [left, right]}
-                index = next_index
-            elif op == "⊕":
-                right, next_index = parse_term(index + 1)
-                left = {"type": "xor", "terms": [left, right]}
-                index = next_index
-            elif op == "↑":
-                right, next_index = parse_term(index + 1)
-                left = {"type": "nand", "terms": [left, right]}
-                index = next_index
-            elif op == "↓":
-                right, next_index = parse_term(index + 1)
-                left = {"type": "nor", "terms": [left, right]}
-                index = next_index
-            elif op == "=":
-                right, next_index = parse_term(index + 1)
-                left = {"type": "equals", "left": left, "right": right}
+                left = {"type": op, "left": left, "right": right}
                 index = next_index
             else:
                 break
-
         return left, index
 
     tree, _ = parse_binary_ops(0)
     return tree
 
-
-def parse_codexlang_to_ast(expr: str) -> Dict[str, Any]:
-    """
-    Parse a CodexLang logic expression into an AST.
-    """
-    tokens = tokenize_codexlang(expr)
-    if not tokens:
-        return {"type": "empty"}
-    return parse_expression(tokens)
+def log_memory(container_id: str, data: dict):
+    mem = MemoryEngine(container_id)
+    mem._store_impl(data)
 
 
-def parse_codexlang(code: str) -> CodexAST:
-    """
-    Parse a CodexLang string like 'greater_than(x, y)' into CodexAST.
-    If input has no parentheses, treat as constant symbol.
-    """
-    try:
-        if "(" not in code:
-            return CodexAST({"root": code.strip(), "args": []})
-        if ")" not in code:
-            raise ValueError("CodexLang must contain matching parentheses")
-
-        fn = code.split("(", 1)[0].strip()
-        args = code.split("(", 1)[1].rsplit(")", 1)[0].split(",")
-        args = [a.strip() for a in args if a.strip()]
-        return CodexAST({"root": fn, "args": args})
-
-    except Exception as e:
-        raise ValueError(f"Invalid input for CodexLang parsing: {code}") from e
-
-
-# Example:
-# parse_codexlang_to_ast("∀x. P(x) → Q(x)")
+def get_runtime_entropy_snapshot():
+    return MemoryEngine.get_runtime_entropy_snapshot()

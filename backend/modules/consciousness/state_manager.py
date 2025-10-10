@@ -115,6 +115,22 @@ class StateManager:
         """Return the current avatar state if available."""
         return self.state.get("avatar", {})
 
+    def get_tick(self) -> int:
+        """
+        Returns the current system tick counter.
+        Used by runtime modules for temporal synchronization.
+        Falls back to internal or simulated time if no counter is tracked.
+        """
+        # If a real tick counter exists, use it
+        if hasattr(self, "_tick") and isinstance(self._tick, int):
+            self._tick += 1
+            return self._tick
+
+        # Initialize a basic tick counter if none exists
+        if not hasattr(self, "_tick"):
+            self._tick = 0
+        self._tick += 1
+        return self._tick
     # ──────────────────────────────
     # ✅ Pause/Resume Control
     # ──────────────────────────────

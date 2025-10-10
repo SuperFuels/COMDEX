@@ -7,7 +7,10 @@ from typing import List, Dict, Any
 
 from backend.modules.codex.codex_metrics import score_glyph_tree  # Optional import for scoring
 from backend.modules.glyphos.glyph_parser import parse_codexlang_string
-from backend.modules.codex.codexlang_parser import parse_codexlang
+from backend.modules.symbolic.codex_ast_types import CodexAST
+def _get_parser():
+    from backend.modules.codex.codexlang_parser import parse_codexlang
+    return parse_codexlang
 from backend.photon.photon_codex_adapter import codex_to_photon_ast
 
 logger = logging.getLogger(__name__)
@@ -58,7 +61,7 @@ def build_scroll_as_photon_ast(code: str) -> Dict[str, Any]:
     Useful for bridging CodexLang ↔ Photon execution.
     """
     try:
-        codex_ast = parse_codexlang(code)
+        codex_ast = _get_parser()(code)
 
         # ✅ unwrap CodexAST to dict if needed
         if hasattr(codex_ast, "to_dict"):
@@ -72,11 +75,29 @@ def build_scroll_as_photon_ast(code: str) -> Dict[str, Any]:
         logger.error(f"[ScrollBuilder] Failed to build Photon AST: {e}", exc_info=True)
         return {"op": "error", "detail": str(e)}
 
+def parse_codexlang(code: str) -> CodexAST:
+    """
+    Parse a CodexLang string like 'greater_than(x, y)' into CodexAST.
+    If input has no parentheses, treat as constant symbol.
+    """
+    try:
+        if "(" not in code:
+            return CodexAST({"root": code.strip(), "args": []})
+        if ")" not in code:
+            raise ValueError("CodexLang must contain matching parentheses")
+
+        fn = code.split("(", 1)[0].strip()
+        args = code.split("(", 1)[1].rsplit(")", 1)[0].split(",")
+        args = [a.strip() for a in args if a.strip()]
+        return CodexAST({"root": fn, "args": args})
+
+    except Exception as e:
+        raise ValueError(f"Invalid input for CodexLang parsing: {code}") from e
 
 # Example test runner
 if __name__ == "__main__":
     test_string = "Memory:Emotion = Joy => Store -> Memory:Emotion = Peace => Remember"
-    parsed = parse_codexlang_string(test_string)
+    parsed = _get_parser_string(test_string)
     tree = parsed.get("tree", [])
 
     scroll = build_scroll_from_glyph(tree)
