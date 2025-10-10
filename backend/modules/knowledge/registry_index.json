@@ -791,7 +791,7 @@
     },
     {
       "file": "M1_metric_emergence_summary.json",
-      "timestamp": "2025-10-09T00:06Z",
+      "timestamp": "2025-10-10T00:00:00Z",
       "constants_version": "v1.2",
       "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
     },
@@ -1276,8 +1276,26 @@
       "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
     },
     {
+      "file": "Tessaris_MSeries_Lock_v1.0.json",
+      "timestamp": "2025-10-10T13:52:32Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "Tessaris_OSeries_Lock_v1.0.json",
+      "timestamp": "2025-10-10T14:39:33Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
       "file": "Tessaris_OmegaSeries_Lock_v1.0.json",
       "timestamp": "2025-10-09T20:02:56Z",
+      "constants_version": "v1.2",
+      "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
+    },
+    {
+      "file": "Tessaris_PSeries_Lock_v1.0.json",
+      "timestamp": "2025-10-10T14:40:05Z",
       "constants_version": "v1.2",
       "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
     },
@@ -1331,7 +1349,7 @@
     },
     {
       "file": "reproducibility_check_summary.json",
-      "timestamp": "2025-10-10T10:49Z",
+      "timestamp": "2025-10-10T13:56Z",
       "constants_version": "v1.2",
       "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
     },
@@ -1618,5 +1636,5 @@
       "hash_ref": "3f729135a0fcd300cb056e4eb85c69e7b89db231b75fa5cff52e23bfe5ea47e9"
     }
   ],
-  "timestamp": "2025-10-10T10:54Z"
+  "timestamp": "2025-10-10T14:40Z"
 }

@@ -1,0 +1,312 @@
+{
+  "timestamp": "2025-10-10T14:40:05Z",
+  "series": "P-series",
+  "tests_locked": 37,
+  "modules": [
+    {
+      "file": "P_series_synthesis.json",
+      "series": "P",
+      "test_name": null,
+      "timestamp": "2025-10-07T11:05Z",
+      "state": "verified",
+      "sha256": "ea217f26b33c6413f778dd659b8ddf05a7fafa2a5e973230a6cbb91911a777fe"
+    },
+    {
+      "file": "P1_predictive_calibration.json",
+      "series": "P",
+      "test_name": null,
+      "timestamp": "2025-10-06T18:53Z",
+      "state": "verified",
+      "sha256": "fb82a1117cdc6e1d9144dfb2893e999f20c01375e933053d4299ecd7cef533ca"
+    },
+    {
+      "file": "P2_recursive_awareness.json",
+      "series": "P",
+      "test_name": null,
+      "timestamp": "2025-10-06T18:56Z",
+      "state": "verified",
+      "sha256": "8b8bfd318a4a72b9dc200f2ec971d7c73e13ea23a64671f155e6b2bed0000483"
+    },
+    {
+      "file": "P3_self_recognition.json",
+      "series": "P",
+      "test_name": null,
+      "timestamp": "2025-10-06T18:59Z",
+      "state": "verified",
+      "sha256": "fb104881e206345155b6b11bbd6bc9f1c79182d3a8a32b0584ade8d3c7e1e99d"
+    },
+    {
+      "file": "P4_awareness_feedback.json",
+      "series": "P",
+      "test_name": null,
+      "timestamp": "2025-10-06T19:03Z",
+      "state": "verified",
+      "sha256": "7202b1da70047b4f79cbf49f17bbc354ccc16ed70a78f7d975d0031b7cb461dc"
+    },
+    {
+      "file": "P5_conscious_resonance.json",
+      "series": "P",
+      "test_name": null,
+      "timestamp": "2025-10-06T19:06Z",
+      "state": "verified",
+      "sha256": "2d8648765928ab6e616ece9bc5a15dc94d5bb970ba416ff228e53dec4f9d91e3"
+    },
+    {
+      "file": "P6_resonant_lock.json",
+      "series": "P",
+      "test_name": null,
+      "timestamp": "2025-10-06T19:09Z",
+      "state": "verified",
+      "sha256": "d5d4374d13c7fbdf0cf0f7cf31ce6ee52b08bd058e8e69b87055d7db8af0e420"
+    },
+    {
+      "file": "P7_lock_history.json",
+      "series": "P",
+      "test_name": null,
+      "timestamp": null,
+      "state": "verified",
+      "sha256": "5229318646ccf95482e052ec8c83bc9462c1e5821f172aaf198554fa8abc2a37"
+    },
+    {
+      "file": "P7_sustained_attractor.json",
+      "series": "P",
+      "test_name": null,
+      "timestamp": "2025-10-06T19:12Z",
+      "state": "verified",
+      "sha256": "622715195db005202ed2efa1fd9dbdf7affa84bf8e3644c8f9da20e7fdc28634"
+    },
+    {
+      "file": "P7b_sustained_attractor.json",
+      "series": "P",
+      "test_name": null,
+      "timestamp": "2025-10-06T19:15Z",
+      "state": "verified",
+      "sha256": "c629e743fc454b1df6ce8bc7f66f24934686e06460d8ec1eeec536557b9919d3"
+    },
+    {
+      "file": "P7c_sustained_attractor.json",
+      "series": "P",
+      "test_name": null,
+      "timestamp": "2025-10-06T19:17Z",
+      "state": "verified",
+      "sha256": "cd80e6082a236cc299dddc25258b1b15bcc08315854ca4b242c93dca0a3bafd3"
+    },
+    {
+      "file": "P7d_sustained_attractor.json",
+      "series": "P",
+      "test_name": null,
+      "timestamp": "2025-10-06T19:19Z",
+      "state": "verified",
+      "sha256": "eef7bb704685291942a1320f9cf9275d489645fc682db923aaf92acc714e3fae"
+    },
+    {
+      "file": "P7e_sustained_attractor.json",
+      "series": "P",
+      "test_name": null,
+      "timestamp": "2025-10-06T19:22Z",
+      "state": "verified",
+      "sha256": "436abc9f7dacab69b6475f4d5b62f68846fda8c2e3aba1f303db3e116419f71b"
+    },
+    {
+      "file": "P7f_sustained_attractor.json",
+      "series": "P",
+      "test_name": null,
+      "timestamp": "2025-10-06T19:24Z",
+      "state": "verified",
+      "sha256": "97fa51a0833d5a630d7d20248789080b84bcc49d8e6bc5d884af59e12e7ccb94"
+    },
+    {
+      "file": "P7g_sustained_attractor.json",
+      "series": "P",
+      "test_name": null,
+      "timestamp": "2025-10-06T19:26Z",
+      "state": "verified",
+      "sha256": "28b9cb984f502506427a9130640b02e2645a96eacd78fa96108ddb1fcd055f17"
+    },
+    {
+      "file": "P7h_lock_tuning.json",
+      "series": "P",
+      "test_name": null,
+      "timestamp": "2025-10-06T19:46Z",
+      "state": "verified",
+      "sha256": "03f2c90335f71730086b8e0c4a7dfc1283387cab3921a4d9d7522a8723b4759d"
+    },
+    {
+      "file": "P7h_sustained_attractor.json",
+      "series": "P",
+      "test_name": null,
+      "timestamp": "2025-10-06T19:37Z",
+      "state": "verified",
+      "sha256": "1d676c889a55c8fd3a8855fd7eb0c922f160f2096f663d1ecbe2354e2a7e4c68"
+    },
+    {
+      "file": "P7i_robustness.json",
+      "series": "P",
+      "test_name": null,
+      "timestamp": "2025-10-06T19:53Z",
+      "state": "verified",
+      "sha256": "6cba5d31b613f132f778c0d2642670208a731c5d253874347e71a4214831e4ab"
+    },
+    {
+      "file": "P8_cross_attractor.json",
+      "series": "P",
+      "test_name": null,
+      "timestamp": "2025-10-06T20:00Z",
+      "state": "verified",
+      "sha256": "1803527f5c6c617d2c3a1e0a6f0c3a3b5095946c4f77c2d71963a50a694075c4"
+    },
+    {
+      "file": "P8b_directional_coupling.json",
+      "series": "P",
+      "test_name": null,
+      "timestamp": "2025-10-06T20:04Z",
+      "state": "verified",
+      "sha256": "da9533a13865439fe54a100a057e13787c49f114595b4c035efa325bc4ea26d1"
+    },
+    {
+      "file": "P8c_causal_validation.json",
+      "series": "P",
+      "test_name": null,
+      "timestamp": "2025-10-06T20:07Z",
+      "state": "verified",
+      "sha256": "98e867f8dfe35fc6f0a3f3034571c0e6c5f21f7abdc9b1deb4ccff0b7c3800c8"
+    },
+    {
+      "file": "P9_predictive_field.json",
+      "series": "P",
+      "test_name": null,
+      "timestamp": "2025-10-06T20:17Z",
+      "state": "verified",
+      "sha256": "455da064bcfb2561de72067dd086588e8142b02edc44fa0dd74f7af7daaf9b2b"
+    },
+    {
+      "file": "P9b_field_resilience.json",
+      "series": "P",
+      "test_name": null,
+      "timestamp": "2025-10-06T20:20Z",
+      "state": "verified",
+      "sha256": "8fdc0cc61d91b2a376f7d9fe829f58250a3a5ee59c670064a87b59b2705a8300"
+    },
+    {
+      "file": "P9c_cross_field_feedback.json",
+      "series": "P",
+      "test_name": null,
+      "timestamp": "2025-10-06T20:24Z",
+      "state": "verified",
+      "sha256": "0498fa85f67a6f37fb19a8852799a45d77342e446d7c97eac9877aec2c89fae4"
+    },
+    {
+      "file": "P9c_cross_field_feedback_adaptive.json",
+      "series": "P",
+      "test_name": null,
+      "timestamp": "2025-10-06T20:34Z",
+      "state": "verified",
+      "sha256": "31510641a391a190639891362940f3007ddaf139369ce540134bd5d8b23ad261"
+    },
+    {
+      "file": "P9d_meta_learning.json",
+      "series": "P",
+      "test_name": null,
+      "timestamp": "2025-10-06T20:38Z",
+      "state": "verified",
+      "sha256": "e1f869613240761f18a708dc07e6ca65e399ca13f4de20654ecfab069eacf942"
+    },
+    {
+      "file": "P10j_global_phase_convergence.json",
+      "series": "P",
+      "test_name": null,
+      "timestamp": "2025-10-06T21:11Z",
+      "state": "verified",
+      "sha256": "0f8ac7c3bbe960c05cf68299117558b57d69eabd8f821e7e6a95e238034bfee8"
+    },
+    {
+      "file": "P10k_global_phase_fusion_nonlinear.json",
+      "series": "P",
+      "test_name": null,
+      "timestamp": "2025-10-06T21:14Z",
+      "state": "verified",
+      "sha256": "d0ef1ef052994e5026719b06fb2386bb566a423e0198de2a6a1e232663f2ae81"
+    },
+    {
+      "file": "P10l_global_phase_collapse.json",
+      "series": "P",
+      "test_name": null,
+      "timestamp": "2025-10-06T21:16Z",
+      "state": "verified",
+      "sha256": "ee03925a3cf8d60547a9764b04836a66a4b5b314fdc5ce9c2aadc7c43b33cc8a"
+    },
+    {
+      "file": "P10m_lock_certification.json",
+      "series": "P",
+      "test_name": null,
+      "timestamp": "2025-10-06T21:20Z",
+      "state": "verified",
+      "sha256": "f58df410cc0188f6ece291d0f6c259a8b2d5c9c501a7cfd2ccee5ccf1a6da13e"
+    },
+    {
+      "file": "P10n_global_fusion_landscape.json",
+      "series": "P",
+      "test_name": null,
+      "timestamp": "2025-10-06T21:24Z",
+      "state": "verified",
+      "sha256": "d23bcbca35a4a504f7c27f73d8ef78e28b3f6e680180584c084e767edc203a5b"
+    },
+    {
+      "file": "P10o_global_fusion_surface.json",
+      "series": "P",
+      "test_name": null,
+      "timestamp": "2025-10-06T21:27Z",
+      "state": "verified",
+      "sha256": "b492cb1f8dc6bdcc0edf35a1e2d2f65b08fa4cc2cf90be40a96dd33319b7b976"
+    },
+    {
+      "file": "P10p_dynamic_trajectory_embedding.json",
+      "series": "P",
+      "test_name": null,
+      "timestamp": "2025-10-06T21:30Z",
+      "state": "verified",
+      "sha256": "32f3b0139e23e06b6b58323e1625a4af14683e9f50ce853a0ecadde26cbb673e"
+    },
+    {
+      "file": "P10q_phase_space_projection.json",
+      "series": "P",
+      "test_name": null,
+      "timestamp": "2025-10-06T21:33Z",
+      "state": "verified",
+      "sha256": "03e06d9835760def454e6c7c141d89f17ab369e6236d3d8ff510528212d64f0f"
+    },
+    {
+      "file": "P10r_resonance_memory_kernel.json",
+      "series": "P",
+      "test_name": null,
+      "timestamp": "2025-10-06T21:35Z",
+      "state": "verified",
+      "sha256": "284b371ddbcc1455df31b355931d01e1a508ed9a501dabff320f330b046b4267"
+    },
+    {
+      "file": "P10s_kernel_spectrum.json",
+      "series": "P",
+      "test_name": null,
+      "timestamp": "2025-10-06T21:38Z",
+      "state": "verified",
+      "sha256": "cc7ee0ef115da5170d70ddeaa4d576259f3eea817bac39d8b1c7bcaeb9c38976"
+    },
+    {
+      "file": "P10t_closed_loop_stability.json",
+      "series": "P",
+      "test_name": null,
+      "timestamp": "2025-10-06T21:41Z",
+      "state": "verified",
+      "sha256": "6798a75691eb3adf77bf7806af3df73afa6b255b0096122a523ea573521dfb48"
+    }
+  ],
+  "global_continuum_hash": "d3ce35dd2ec22deacd532d45f89e321365a712471859e12e9096618e2cca2098",
+  "protocol": "Tessaris Unified Constants & Verification Protocol v1.3",
+  "state": "Photon Algebra Global Resonance Continuum Locked",
+  "discovery": [
+    "P\u2081\u2013P\u2081\u2080t verified full photon-algebra continuum.",
+    "Self-recognition and recursive awareness mechanisms confirmed.",
+    "Global resonance and adaptive stability kernel certified.",
+    "Closed-loop phase control achieved under Tessaris v1.3 constants."
+  ]
+}

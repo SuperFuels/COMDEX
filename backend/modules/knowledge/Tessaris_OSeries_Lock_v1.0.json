@@ -1,0 +1,119 @@
+{
+  "timestamp": "2025-10-10T14:39:33Z",
+  "series": "O-series",
+  "tests_locked": 13,
+  "modules": [
+    {
+      "file": "O_series_synthesis.json",
+      "series": "O",
+      "test_name": null,
+      "timestamp": "2025-10-07T11:06Z",
+      "state": "verified",
+      "sha256": "90f152904eae05d02e435e445d7616641fc8b57bf751dcab187802ab80d4dae3"
+    },
+    {
+      "file": "O1_observer_channel.json",
+      "series": "O",
+      "test_name": null,
+      "timestamp": "2025-10-06T17:33Z",
+      "state": "verified",
+      "sha256": "c2dfe5fab27e696cbc8263b5a948fffd2de4eb2e92e5f79c4a801c26d95dd6a1"
+    },
+    {
+      "file": "O2_info_equilibrium.json",
+      "series": "O",
+      "test_name": null,
+      "timestamp": "2025-10-06T17:38Z",
+      "state": "verified",
+      "sha256": "05764783cd805e50d84b0f48b81af202081606d65fb68fbab2a3355896b78165"
+    },
+    {
+      "file": "O3_entropic_symmetry.json",
+      "series": "O",
+      "test_name": null,
+      "timestamp": "2025-10-06T17:41Z",
+      "state": "verified",
+      "sha256": "74e1bd60bb1ac59f99186d4a81429a3005ef8bb32d4aa7a1754c85369252259a"
+    },
+    {
+      "file": "O4_entanglement_lock.json",
+      "series": "O",
+      "test_name": null,
+      "timestamp": "2025-10-06T17:44Z",
+      "state": "verified",
+      "sha256": "74272407a4058d8d0431f265147400f07b2cd7d63fbaf5e04c0c8be6d873d335"
+    },
+    {
+      "file": "O4a_entanglement_lock_adaptive.json",
+      "series": "O",
+      "test_name": null,
+      "timestamp": "2025-10-06T17:47Z",
+      "state": "verified",
+      "sha256": "0d10fd55eaed5a3f289ac40ef3bbafc12ca1ed879d041142979fb1d81212e379"
+    },
+    {
+      "file": "O5_collapse_prediction.json",
+      "series": "O",
+      "test_name": null,
+      "timestamp": "2025-10-06T17:51Z",
+      "state": "verified",
+      "sha256": "e8a1cebe04c773c975be08f3ec07f5c50677acab5ac7c96147230adb6d87331c"
+    },
+    {
+      "file": "O6_feedback_entropy.json",
+      "series": "O",
+      "test_name": null,
+      "timestamp": "2025-10-06T17:58Z",
+      "state": "verified",
+      "sha256": "143b31fb769df0fc8b018f4c97f97527aebeed5b1ea18018f77a7f60257de979"
+    },
+    {
+      "file": "O7_self_observation.json",
+      "series": "O",
+      "test_name": null,
+      "timestamp": "2025-10-06T18:08Z",
+      "state": "verified",
+      "sha256": "cccd3c6c77a6cb10486da1313c64dae10bc4fff4fc47a580512660d3a84e45db"
+    },
+    {
+      "file": "O8_causal_prediction.json",
+      "series": "O",
+      "test_name": null,
+      "timestamp": "2025-10-06T18:25Z",
+      "state": "verified",
+      "sha256": "c4c2dff5b0bfbb857a0e3b6257cf0f747d6955f185a61c6043c1ca18c96f53df"
+    },
+    {
+      "file": "O9_temporal_feedback.json",
+      "series": "O",
+      "test_name": null,
+      "timestamp": "2025-10-06T18:30Z",
+      "state": "verified",
+      "sha256": "40f4753fd7dd5574e26c97ce158a8b7d3b1ee49cbf5bd227c1241db22755ee9c"
+    },
+    {
+      "file": "O10_reinforcement.json",
+      "series": "O",
+      "test_name": null,
+      "timestamp": "2025-10-06T18:33Z",
+      "state": "verified",
+      "sha256": "db5ff36b3bc74d0b585cacdd6ebb496faa0569db27fa492044b0d0daf60bc7c4"
+    },
+    {
+      "file": "O11_causal_convergence.json",
+      "series": "O",
+      "test_name": null,
+      "timestamp": "2025-10-06T18:36Z",
+      "state": "verified",
+      "sha256": "3887bac667f909f620a28b08ac0919208135c62c97d511876dd3eedffb7a76db"
+    }
+  ],
+  "global_continuum_hash": "df573bfe13c51620384583f607cbfb53ba96b009b62e1d757eb40d9e1bd31122",
+  "protocol": "Tessaris Unified Constants & Verification Protocol v1.3",
+  "state": "Observer\u2013Causal Integration Locked",
+  "discovery": [
+    "O\u2081\u2013O\u2081\u2081 unified observer\u2013causal symmetry established.",
+    "Entanglement lock and adaptive reinforcement layers verified.",
+    "Causal prediction and self-observation coherence stabilized."
+  ]
+}

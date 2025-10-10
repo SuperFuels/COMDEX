@@ -1,0 +1,96 @@
+{
+  "timestamp": "2025-10-10T13:52:32Z",
+  "series": "M-series",
+  "tests_locked": 10,
+  "modules": [
+    {
+      "file": "M1_metric_emergence_summary.json",
+      "series": "M?",
+      "test_name": "M1_metric_emergence_summary.json",
+      "timestamp": "unknown",
+      "state": "verified",
+      "sha256": "c263153931222f250af84a7778a10776e27bbb7876b6e45b642ba2b943d8bde3"
+    },
+    {
+      "file": "M2_curvature_energy_summary.json",
+      "series": "M?",
+      "test_name": "M2_curvature_energy_summary.json",
+      "timestamp": "2025-10-09T00:08Z",
+      "state": "verified",
+      "sha256": "56ae99c657fb5da62acd05c4193e6f6d6da3d27e5e81d237a38fb7289b1e8781"
+    },
+    {
+      "file": "M3_dynamic_curvature_feedback_summary.json",
+      "series": "M?",
+      "test_name": "M3_dynamic_curvature_feedback_summary.json",
+      "timestamp": "2025-10-09T00:11Z",
+      "state": "verified",
+      "sha256": "ac076f230d56ee49eaea3c34de71af1eaa6053d66fe251d807e84faf4ae2dc09"
+    },
+    {
+      "file": "M3b_stable_curvature_feedback_summary.json",
+      "series": "M?",
+      "test_name": "M3b_stable_curvature_feedback_summary.json",
+      "timestamp": "2025-10-09T00:13Z",
+      "state": "verified",
+      "sha256": "63e37d3fcc204a7b46c3ba146cba50680bd23873a56193611abadc7a0e1c9116"
+    },
+    {
+      "file": "M3c_geodesic_oscillation_summary.json",
+      "series": "M?",
+      "test_name": "M3c_geodesic_oscillation_summary.json",
+      "timestamp": "2025-10-09T00:16Z",
+      "state": "verified",
+      "sha256": "db4850812b0308b6877d9f894c1c2f7ab7afe6d56f89dd7f210e7dfb4c8a7d6a"
+    },
+    {
+      "file": "M3d_geodesic_oscillation_summary.json",
+      "series": "M?",
+      "test_name": "M3d_geodesic_oscillation_summary.json",
+      "timestamp": "2025-10-09T00:18Z",
+      "state": "verified",
+      "sha256": "dcd2ac04ede7ea57a3c2d51b3623a7fbdf7a06f41d5520149170f5b99fc3b71b"
+    },
+    {
+      "file": "M4_coupled_curvature_wells_summary.json",
+      "series": "M?",
+      "test_name": "M4_coupled_curvature_wells_summary.json",
+      "timestamp": "2025-10-09T00:20Z",
+      "state": "verified",
+      "sha256": "199168f4d9d0c880e17ed3f0ac5218b285e0ca221a661fbb38033c626716cabb"
+    },
+    {
+      "file": "M4b_coupled_curvature_wells_summary.json",
+      "series": "M?",
+      "test_name": "M4b_coupled_curvature_wells_summary.json",
+      "timestamp": "2025-10-09T00:25Z",
+      "state": "verified",
+      "sha256": "3cd0add1658c7d9c6b224e131fa03e14619bf6f5717262a1c251c7bae2c2feaa"
+    },
+    {
+      "file": "M5_bound_state_redshift_summary.json",
+      "series": "M?",
+      "test_name": "M5_bound_state_redshift_summary.json",
+      "timestamp": "2025-10-09T00:29Z",
+      "state": "verified",
+      "sha256": "115a8a60475e74afd1498f6f4af9e2beb6b4aef745b52455343b54d267535e42"
+    },
+    {
+      "file": "M6_invariance_redshift_summary.json",
+      "series": "M?",
+      "test_name": "M6_invariance_redshift_summary.json",
+      "timestamp": "2025-10-09T00:31Z",
+      "state": "verified",
+      "sha256": "73a43eb32ecabd33cf23cb8aa55890eb70c94961b44b7f75f5dfb9d5ba2cafcc"
+    }
+  ],
+  "global_continuum_hash": "984a1b16a09d882ba1f3c8a437ef0f1b532fc9c745ef815ca88a08066daa3765",
+  "protocol": "Tessaris Unified Constants & Verification Protocol v1.2",
+  "state": "Emergent Geometry Continuum Locked",
+  "discovery": [
+    "M1\u2013M6 verified: curvature\u2013energy proportionality R\u221d\u03c1 established.",
+    "Geodesic feedback loops and redshift analogues validated.",
+    "Lorentz\u2013diffusion invariance confirmed up to 0.4 c_eff.",
+    "Continuum cryptographically sealed under Tessaris geometry framework."
+  ]
+}

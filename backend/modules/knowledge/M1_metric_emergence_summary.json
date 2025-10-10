@@ -1,38 +1,21 @@
 {
-  "timestamp": "2025-10-09T00:06Z",
+  "series": "M-series",
+  "test_name": "M1_metric_emergence",
+  "timestamp": "2025-10-10T00:00:00Z",
+  "state": "verified",
+  "description": "Metric coefficients g_tt and g_xx emerged from lattice field gradients.",
+  "results": {
+    "g_tt": -1.122,
+    "g_xx": 1.027,
+    "R_eff": -1.17e-12
+  },
   "constants": {
-    "\u0127": 0.001,
+    "ħ": 0.001,
     "G": 1e-05,
-    "\u039b": 1e-06,
-    "\u03b1": 0.5,
-    "\u03b2": 0.2,
-    "\u03c7": 1.0
+    "Λ": 1e-06,
+    "α": 0.5,
+    "β": 0.2,
+    "χ": 1.0
   },
-  "params": {
-    "N": 512,
-    "steps": 2000,
-    "dt": 0.002,
-    "dx": 1.0,
-    "damping": 0.05,
-    "clip_value": 10.0
-  },
-  "derived": {
-    "c_eff": 0.7071064276334221,
-    "metric": {
-      "g_tt": -1.1223811291539922,
-      "g_xx": 1.0270952285760777,
-      "g_tx": -0.0002752262360509517,
-      "trace": -0.09528590057791453
-    },
-    "R_eff": -1.1722974182159455e-12
-  },
-  "files": {
-    "plot": "PAEV_M1_metric_emergence.png"
-  },
-  "notes": [
-    "Nonlinear damping and clipping stabilize \u03c7-driven divergence.",
-    "Metric derived from field gradient averages (du/dx, du/dt).",
-    "Curvature computed from mean energy gradient curvature.",
-    "Validated under Tessaris Unified Constants & Verification Protocol."
-  ]
+  "protocol": "Tessaris Unified Constants & Verification Protocol v1.2"
 }
