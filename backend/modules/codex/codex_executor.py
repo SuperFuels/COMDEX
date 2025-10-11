@@ -63,6 +63,7 @@ from backend.symatics.symatics_dispatcher import evaluate_symatics_expr, is_syma
 from backend.modules.photon.photon_to_codex import photon_capsule_to_glyphs, render_photon_scroll
 from backend.modules.lean.lean_utils import validate_logic_trees, normalize_validation_errors
 from backend.modules.spe.spe_bridge import recombine_from_beams, repair_from_drift, maybe_autofuse
+from backend.modules.codex.codex_trace import log_codex_trace as record_trace
 
 # ⬁ Self-Rewrite Imports
 from backend.modules.codex.scroll_mutation_engine import mutate_scroll_tree
@@ -161,6 +162,14 @@ except Exception:  # fallback for test/CI
         print(f"[QWaveEmitter] (stub) emit_qwave_beam: {wave} → {container_id}, src={source}, meta={metadata}")
 
 from backend.modules.glyphwave.core.wave_state import WaveState
+
+def validate_stub(symbolic_logic):
+    try:
+        from backend.modules.lean.lean_utils import validate_logic_trees, normalize_validation_errors
+        raw = validate_logic_trees({"symbolic_logic": symbolic_logic})
+        return normalize_validation_errors(raw)
+    except Exception:
+        return []
 
 def emit_qwave_beam_ff(*, source: str, payload: dict, context: dict = None):
     """
@@ -283,6 +292,7 @@ class CodexExecutor:
 
         # Tessaris Engine
         self.tessaris = None
+        self.tessaris = _get_tessaris()
         self.kg_writer = get_kg_writer()
         from backend.modules.consciousness.prediction_engine import get_prediction_engine
         self.prediction_engine = get_prediction_engine()
@@ -953,7 +963,9 @@ class CodexExecutor:
                         logger.debug(f"[CodexExecutor] Goal resolver hook failed: {ge}")
 
                 # 🔁 Self-Rewrite Execution
-                self.run_self_rewrite(f"Contradiction: {glyph}", context=context)
+                rewrite_result = self.run_self_rewrite(...)
+                if rewrite_result:
+                    logger.info(f"[CodexExecutor] Self-rewrite completed for glyph {glyph}")
 
                 # 🧠 Trace + SQI Flag
                 self.trace.log_event("rewrite", {
@@ -1125,6 +1137,7 @@ class CodexExecutor:
             logger.error(f"[Validation] Glyph validation failed: {val_err}")
 
         # ▶️ Proceed with execution if valid
+        import asyncio
         result = self.glyph_executor.execute_glyph(glyph, context)
         self.trace.log_event("glyph", {"glyph": glyph, "result": result})
 
@@ -1297,7 +1310,7 @@ class CodexExecutor:
     # ──────────────────────────────
     def reset(self):
         self.metrics.reset()
-        self.trace.reset()
+        self.trace.clear()
         self.sqi_trace.reset()
         self.tessaris.reset()
 

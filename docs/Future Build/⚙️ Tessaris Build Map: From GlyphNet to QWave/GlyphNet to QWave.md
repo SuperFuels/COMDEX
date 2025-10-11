@@ -3,100 +3,116 @@
 mindmap
   root((TESSARIS BUILD IMPLEMENTATION TRACKER))
 
-    🟢 GlyphNet (Semantic Intelligence Layer)
-      Core Symbolic Engine
-        - [ ] Implement glyph parsing and CodexLang integration
-        - [ ] Define Glyph schema (label, phase, coherence, metadata)
-        - [ ] Connect glyph execution to CodexCore
-      Wave Generation
-        - [ ] Build glyph→WaveState conversion adapter
-        - [ ] Sync metadata (origin_trace, codex_tag, timestamps)
-      Metrics & Logging
-        - [ ] Integrate codex_metrics + log_beam_prediction
-        - [ ] Implement live SQI feedback from Codex execution
+root((TESSARIS BUILD IMPLEMENTATION TRACKER))
 
-    🔵 Photon / Binary Bridge (Translation & Security Layer)
-      GWIP Encoding / Decoding
-        - [ ] Finalize gwip_codec (WaveState → photon binary)
-        - [ ] Support compression + metadata passthrough
-      Quantum Key Distribution (QKD)
-        - [ ] Complete gkey_model & qkd_crypto_handshake
-        - [ ] Enable secure photon link initialization
-        - [ ] Add policy enforcement layer (qkd_policy_enforcer)
-      Photon Binary Translator
-        - [ ] Map glyph meaning → photonic modulation schemes
-        - [ ] Integrate coherence + modulation tagging
-        - [ ] Implement feature_flag for photon-binary switch
+🟢 GlyphNet (Semantic Intelligence Layer)
+Core Symbolic Engine
+- [✅] Implement glyph parsing and CodexLang integration
+- [✅] Define Glyph schema (label, phase, coherence, metadata)
+- [✅] Connect glyph execution to CodexCore
+- [✅] Implement CodexLang → Photon AST bridge
+- [✅] Add schema validation and deterministic fingerprinting
+- [✅] Add GlyphValidationError subclass for schema exceptions
+Wave Generation
+- [✅] Build glyph→WaveState conversion adapter
+- [✅] Sync metadata (origin_trace, codex_tag, timestamps normalized)
+- [✅] Add coherence normalization and reproducible phase mapping
+- [✅] Add repr for readable logs
+Metrics & Logging
+- [✅] Integrate codex_metrics + log_beam_prediction
+- [✅] Integrate CodexTrace.log() universal tracing
+- [✅] Fix MemoryEngine import path (hexcore)
+- [✅] Live SQI feedback from Codex execution
 
-    🟣 Photonic Computation (Physical Logic Core)
-      Interference & Superposition Kernels
-        - [ ] Verify interference_kernels / superposition_kernels
-        - [ ] Integrate jax_interface_kernel for GPU execution
-      Entanglement Framework
-        - [ ] Connect entangled_wave with wave_state_store
-        - [ ] Enable dynamic entanglement graph generation
-        - [ ] Add collapse_all() GPU optimization metrics
-      Decoherence Tracking
-        - [ ] Implement decoherence_fingerprint validation
-        - [ ] Log SQI drift per collapse event
-      Carrier Memory Integration
-        - [ ] Implement carrier_memory for persistent field caching
-        - [ ] Enable multi-channel photon coherence buffers
+🔵 Photon / Binary Bridge (Translation & Security Layer)
+GWIP Encoding / Decoding
+- [ ] Finalize gwip_codec (WaveState → photon binary)
+- [ ] Support compression + metadata passthrough
+Quantum Key Distribution (QKD)
+- [ ] Implement gkey_model + qkd_crypto_handshake
+- [ ] Enable secure photon link initialization
+- [ ] Add policy enforcement layer (qkd_policy_enforcer)
+Photon Binary Translator
+- [ ] Map glyph meaning → photonic modulation schemes
+- [ ] Integrate coherence + modulation tagging
+- [ ] Implement feature_flag for photon-binary switch
 
-    🔶 QWave Runtime (Execution + Visualization Layer)
-      Beam Lifecycle Management
-        - [ ] Implement beam_controller and qwave_beam structure
-        - [ ] Add emission pathways (emit_beam, qwave_transfer_sender)
-        - [ ] Integrate qwave_writer for persistence (.qwv logs)
-      Real-Time Synchronization
-        - [ ] Connect GHX and QFC visualization channels
-        - [ ] Implement scheduler tick loop and event clock
-        - [ ] Broadcast SQI + collapse telemetry via telemetry_handler
-      Visual Bridge
-        - [ ] Enable holographic_projection + qwave_visual_packet_builder
-        - [ ] Support live QFC overlay updates
-        - [ ] Record photonic activity with gwv_writer
+🟣 Photonic Computation (Core Logic Engine)
+Interference & Superposition Kernels
+- [✅] Implement Symatics Algebra (⊕, μ, ↔, ⟲, π)
+- [✅] Build Symatics Dispatcher with operator aliasing
+- [✅] Integrate registry_bridge routing for symbolic ops
+- [✅] Verify commutativity, associativity, resonance, projection, collapse
+- [✅] check_all_laws() with UTC-safe timestamps + summary
+- [✅] Run unit & property-based tests (pytest + hypothesis, all passed)
+- [ ] Integrate jax_interface_kernel for GPU execution
+Entanglement Framework
+- [ ] Connect entangled_wave with wave_state_store
+- [ ] Enable dynamic entanglement graph generation
+- [ ] Add collapse_all() GPU optimization metrics
+Decoherence Tracking
+- [ ] Implement decoherence_fingerprint validation
+- [ ] Log SQI drift per collapse event
+Carrier Memory Integration
+- [ ] Implement carrier_memory for persistent field caching
+- [ ] Enable multi-channel photon coherence buffers
 
-    🔴 Cognitive Field Engine (CFE)
-      Feedback Loop
-        - [ ] Integrate CodexLang runtime with QWave telemetry
-        - [ ] Feed SQI/collapse metrics back into reasoning model
-      Symbolic Graph Learning
-        - [ ] Link Knowledge Graph adapter for contextual learning
-        - [ ] Enable drift→rule evolution pipeline
-      Field Adaptation
-        - [ ] Implement reinforcement via SQI and coherence scoring
-        - [ ] Adjust photon modulation dynamically based on Codex results
+🔶 QWave Runtime (Execution + Visualization Layer)
+Beam Lifecycle Management
+- [✅] Add emission pathways (emit_beam, qwave_transfer_sender)
+- [ ] Implement beam_controller and qwave_beam structure
+- [ ] Integrate qwave_writer for persistence (.qwv logs)
+Real-Time Synchronization
+- [✅] Implement scheduler tick loop and event clock
+- [✅] Broadcast SQI + collapse telemetry via telemetry_handler
+- [ ] Connect GHX and QFC visualization channels
+Visual Bridge
+- [✅] Support live QFC overlay updates
+- [ ] Enable holographic_projection + qwave_visual_packet_builder
+- [ ] Record photonic activity with gwv_writer
 
-    ⚙️ Infrastructure & Orchestration
-      Runtime & Scheduling
-        - [ ] Validate runtime.py + scheduler.py loops
-        - [ ] Implement multi-threaded tick synchronization
-      Network Layer
-        - [ ] Finalize photon-to-binary streaming
-        - [ ] Integrate glyphwave_transmitter for external communication
-      Security
-        - [ ] Apply encryption policies from gkey_encryptor + qkd_policy_enforcer
-        - [ ] Audit GWIP transmission endpoints
-      Visualization & Debug
-        - [ ] GHX replay integration (emit_gwave_replay)
-        - [ ] QFC render feedback for beam visualization
-        - [ ] Implement diagnostic mode for interference tracing
+🔴 Cognitive Field Engine (CFE)
+Feedback Loop
+- [ ] Integrate CodexLang runtime with QWave telemetry
+- [ ] Feed SQI/collapse metrics back into reasoning model
+Symbolic Graph Learning
+- [ ] Link Knowledge Graph adapter for contextual learning
+- [ ] Enable drift→rule evolution pipeline
+Field Adaptation
+- [ ] Implement reinforcement via SQI and coherence scoring
+- [ ] Adjust photon modulation dynamically based on Codex results
 
-    🧩 Verification & Testing
-      Lock Integrity
-        - [x] O-Series cryptographically sealed
-        - [x] P-Series cryptographically sealed
-        - [ ] Validate checksums post-integration
-      Subsystem Testing
-        - [ ] Photon/Binary Bridge end-to-end test
-        - [ ] Photonic Computation kernel stress test
-        - [ ] QWave runtime load synchronization test
-        - [ ] Cognitive feedback (CFE) closed-loop simulation
-      Telemetry Validation
-        - [ ] Verify SQI drift map generation
-        - [ ] Confirm decoherence_fingerprint logging
-        - [ ] Validate GHX/QFC overlay alignment
+⚙️ Infrastructure & Orchestration
+Runtime & Scheduling
+- [✅] Validate runtime.py + scheduler.py loops
+- [ ] Implement multi-threaded tick synchronization
+Network Layer
+- [ ] Finalize photon-to-binary streaming
+- [ ] Integrate glyphwave_transmitter for external communication
+Security
+- [ ] Apply encryption policies from gkey_encryptor + qkd_policy_enforcer
+- [ ] Audit GWIP transmission endpoints
+Visualization & Debug
+- [✅] QFC render feedback for beam visualization
+- [ ] GHX replay integration (emit_gwave_replay)
+- [ ] Implement diagnostic mode for interference tracing
+
+🧩 Verification & Testing
+Lock Integrity
+- [✅] O-Series cryptographically sealed
+- [✅] P-Series cryptographically sealed
+- [ ] Validate checksums post-integration
+Subsystem Testing
+- [✅] Symatics Dispatcher + Rulebook unified tests (5/5 passed)
+- [✅] check_all_laws() verified (summary + verdict + UTC timestamps)
+- [ ] Photon/Binary Bridge end-to-end test
+- [ ] Photonic kernel stress test
+- [ ] QWave runtime load synchronization test
+- [ ] Cognitive feedback (CFE) closed-loop simulation
+Telemetry Validation
+- [ ] Verify SQI drift map generation
+- [ ] Confirm decoherence_fingerprint logging
+- [ ] Validate GHX/QFC overlay alignment
 
 
 Below is a Mermaid hierarchical checklist — each node represents a module or integration milestone.
@@ -106,85 +122,162 @@ You can visualize this directly in Markdown or in a Mermaid-compatible editor li
 mindmap
   root((TESSARIS: Cognitive Photonic System))
 
-    GlyphNet (Semantic Intelligence Layer)
-      Core Symbolic Engine
-        - [ ] Implement Glyph parsing & CodexLang hooks
-        - [ ] Integrate glyph execution with CodexCore
-        - [ ] Define standardized Glyph schema (label, phase, coherence)
-      Wave Generation
-        - [ ] Build glyph→WaveState conversion adapter
-        - [ ] Sync metadata (origin_trace, codex_tag, timestamps)
-      Metrics & Logging
-        - [ ] Integrate codex_metrics + log_beam_prediction
-        - [ ] Implement live SQI feedback from Codex execution
+mindmap
+  root((TESSARIS: Cognitive Photonic System))
 
-    Photon / Binary Bridge (Translation Layer)
-      GWIP Encoding / Decoding
-        - [ ] Finalize gwip_codec (WaveState → photon binary packet)
-        - [ ] Support compression + metadata passthrough
-      Quantum Key Distribution (QKD)
-        - [ ] Complete gkey_model & qkd_crypto_handshake
-        - [ ] Enable secure photon link initialization
-        - [ ] Add policy enforcement layer (qkd_policy_enforcer)
-      Photon Binary Translator
-        - [ ] Map glyph meaning → photonic modulation schemes
-        - [ ] Integrate coherence + modulation strategy tagging
-        - [ ] Implement feature_flag control for photon-binary switch
+GlyphNet (Semantic Intelligence Layer)
+  Core Symbolic Engine
+    - [✅] Implement Glyph parsing & CodexLang hooks
+    - [✅] Integrate glyph execution with CodexCore
+    - [✅] Define standardized Glyph schema (label, phase, coherence)
+  Wave Generation
+    - [✅] Build glyph→WaveState conversion adapter
+    - [✅] Sync metadata (origin_trace, codex_tag, timestamps)
+  Metrics & Logging
+    - [✅] Integrate codex_metrics + log_beam_prediction
+    - [✅] Implement live SQI feedback from Codex execution
+  Symatics (Algebra & Verification)
+    - [✅] Implement symatics_rulebook (commutativity, associativity, etc.)
+    - [✅] Extend dispatcher with post-law checks + law_check field
+    - [✅] Add tests for dispatcher+laws (pytest passing)
 
-    Photonic Computation (Core Logic Engine)
-      Interference Kernels
-        - [ ] Verify interference_kernels, superposition_kernels, measurement_kernels
-        - [ ] Integrate jax_interface_kernel for GPU execution
-      Entanglement Framework
-        - [ ] Connect entangled_wave with wave_state_store
-        - [ ] Enable dynamic entanglement graph generation
-        - [ ] Add collapse_all() GPU optimization metrics
-      Decoherence Tracking
-        - [ ] Use decoherence_fingerprint for integrity verification
-        - [ ] Log drift / SQI variation per collapse event
-      Carrier Memory Integration
-        - [ ] Implement carrier_memory for persistent field caching
-        - [ ] Enable multi-channel photon coherence buffers
+Photon / Binary Bridge (Translation Layer)
+  GWIP Encoding / Decoding
+    - [ ] Finalize gwip_codec (WaveState → photon binary packet)
+    - [ ] Support compression + metadata passthrough
+  Quantum Key Distribution (QKD)
+    - [ ] Complete gkey_model & qkd_crypto_handshake
+    - [ ] Enable secure photon link initialization
+    - [ ] Add policy enforcement layer (qkd_policy_enforcer)
+  Photon Binary Translator
+    - [ ] Map glyph meaning → photonic modulation schemes
+    - [ ] Integrate coherence + modulation strategy tagging
+    - [ ] Implement feature_flag control for photon-binary switch
 
-    QWave Runtime (Execution + Visualization Layer)
-      Beam Lifecycle
-        - [ ] Implement beam_controller and qwave_beam structure
-        - [ ] Add emission pathways (emit_beam, qwave_transfer_sender)
-        - [ ] Integrate qwave_writer for persistence
-      Real-Time Synchronization
-        - [ ] Connect GHX and QFC visualization channels
-        - [ ] Implement scheduler + runtime event tick loop
-        - [ ] Broadcast SQI + collapse telemetry via telemetry_handler
-      Visual Bridge
-        - [ ] Enable holographic_projection & qwave_visual_packet_builder
-        - [ ] Support live QFC overlay updates with broadcast_qfc_update
-        - [ ] Record photonic activity with gwv_writer
+Photonic Computation (Core Logic Engine)
+  Interference Kernels
+    - [ ] Verify interference_kernels, superposition_kernels, measurement_kernels
+    - [ ] Integrate jax_interface_kernel for GPU execution
+  Entanglement Framework
+    - [ ] Connect entangled_wave with wave_state_store
+    - [ ] Enable dynamic entanglement graph generation
+    - [ ] Add collapse_all() GPU optimization metrics
+  Decoherence Tracking
+    - [ ] Use decoherence_fingerprint for integrity verification
+    - [ ] Log drift / SQI variation per collapse event
+  Carrier Memory Integration
+    - [ ] Implement carrier_memory for persistent field caching
+    - [ ] Enable multi-channel photon coherence buffers
 
-    Cognitive Field Engine (CFE)
-      Feedback Loop
-        - [ ] Integrate CodexLang runtime with QWave telemetry
-        - [ ] Feed SQI/collapse metrics back into reasoning model
-      Symbolic Graph Learning
-        - [ ] Link Knowledge Graph adapter for contextual learning
-        - [ ] Enable drift → rule evolution pipeline
-      Field Adaptation
-        - [ ] Implement reinforcement via SQI and coherence scoring
-        - [ ] Adjust photon modulation dynamically based on Codex results
+QWave Runtime (Execution + Visualization Layer)
+  Beam Lifecycle
+    - [ ] Implement beam_controller and qwave_beam structure
+    - [✅] Add emission pathways (emit_beam, qwave_transfer_sender)
+    - [ ] Integrate qwave_writer for persistence
+  Real-Time Synchronization
+    - [ ] Connect GHX and QFC visualization channels
+    - [✅] Implement scheduler + runtime event tick loop
+    - [✅] Broadcast SQI + collapse telemetry via telemetry_handler
+  Visual Bridge
+    - [ ] Enable holographic_projection & qwave_visual_packet_builder
+    - [✅] Support live QFC overlay updates with broadcast_qfc_update
+    - [ ] Record photonic activity with gwv_writer
 
-    Infrastructure & Orchestration
-      Runtime & Scheduling
-        - [ ] Validate runtime.py / scheduler.py loops
-        - [ ] Implement multi-threaded tick synchronization
-      Network Layer
-        - [ ] Finalize photon-to-binary streaming
-        - [ ] Integrate glyphwave_transmitter for external communication
-      Security
-        - [ ] Apply encryption policies from gkey_encryptor + qkd_policy_enforcer
-        - [ ] Audit GWIP transmission endpoints
-      Visualization + Debug
-        - [ ] GHX replay integration (emit_gwave_replay)
-        - [ ] QFC render feedback
-        - [ ] Implement full diagnostic mode for interference tracing
+Cognitive Field Engine (CFE)
+  Feedback Loop
+    - [ ] Integrate CodexLang runtime with QWave telemetry
+    - [ ] Feed SQI/collapse metrics back into reasoning model
+  Symbolic Graph Learning
+    - [ ] Link Knowledge Graph adapter for contextual learning
+    - [ ] Enable drift → rule evolution pipeline
+  Field Adaptation
+    - [ ] Implement reinforcement via SQI and coherence scoring
+    - [ ] Adjust photon modulation dynamically based on Codex results
+
+Infrastructure & Orchestration
+  Runtime & Scheduling
+    - [✅] Validate runtime.py / scheduler.py loops
+    - [ ] Implement multi-threaded tick synchronization
+  Network Layer
+    - [ ] Finalize photon-to-binary streaming
+    - [ ] Integrate glyphwave_transmitter for external communication
+  Security
+    - [ ] Apply encryption policies from gkey_encryptor + qkd_policy_enforcer
+    - [ ] Audit GWIP transmission endpoints
+  Visualization + Debug
+    - [ ] GHX replay integration (emit_gwave_replay)
+    - [✅] QFC render feedback
+    - [ ] Implement full diagnostic mode for interference tracing
+
+
+%%─────────────────────────────────────────────
+%% Tessaris Build Plan — Symatics Reasoning Kernel (SRK-1)
+%%─────────────────────────────────────────────
+graph TD
+
+A[🧠 Initialize SRK-1 Project] --> B[📁 Create backend/symatics/core/srk_kernel.py]
+B --> C[🔧 Define Core API Functions]
+
+C --> C1[⊕ superpose(a,b)]
+C --> C2[μ measure(a)]
+C --> C3[⟲ resonate(a,b)]
+C --> C4[↔ entangle(a,b)]
+C --> C5[π project(a)]
+
+C --> D[⚙️ Integrate with Registry Bridge]
+D --> D1[Register handlers symatics:⊕, μ, ⟲, ↔, π]
+D --> D2[Ensure CodexTrace + Ledger hooks active]
+
+D --> E[🧩 Connect to Symatics Dispatcher]
+E --> E1[Expose evaluate_srk_expr()]
+E --> E2[Forward results to theorem_ledger + trace]
+
+E --> F[📜 Implement Law Coupling]
+F --> F1[Invoke SR.law_resonance_damping() on ⟲]
+F --> F2[Invoke SR.law_collapse_conservation() on μ]
+F --> F3[Attach phase diagnostics + commutativity checks]
+
+F --> G[🪞 Add Symbolic ↔ Classical Bridge]
+G --> G1[Translate SRK ops → classical equivalents (for export)]
+G --> G2[Support photon AST / CodexLang translation layer]
+
+G --> H[🧪 Testing + Validation]
+H --> H1[Unit tests: backend/tests/test_srk_kernel.py]
+H --> H2[Resonance law verification]
+H --> H3[Double-slit simulation testbench]
+
+H --> I[📊 Diagnostics + Tracing]
+I --> I1[Enable trace context propagation]
+I --> I2[Generate docs/rfc/srk_kernel_results.md]
+
+I --> J[🚀 Integration + Release]
+J --> J1[Sync into dispatcher registry]
+J --> J2[Tag Tessaris Core v0.4 – “SRK Activation”]
+
+🧩 Summary of What SRK-1 Does
+
+Layer                       Function                      Output
+Core API
+Implements symbolic ops (⊕, μ, ⟲, ↔, π)
+JSON result envelopes
+Registry
+Binds ops to runtime
+Enables Codex & Symatics unified logic
+Dispatcher
+Routes expressions through SRK
+Emits theorem + trace events
+Law Engine
+Validates physical consistency
+Resonance, collapse, projection
+Bridge
+Maps symbolic → classical
+For external physics / publications
+Diagnostics
+Trace + Ledger + RFC docs
+Full audit trail of symbolic reasoning
+
+
+
 
 🧩 Key Build Notes & Considerations
 

@@ -6,6 +6,25 @@ from typing import Any, Dict, List, Tuple, Union
 from backend.photon_algebra.core import EMPTY, TOP, BOTTOM
 Expr = Union[str, Dict[str, Any]]
 # backend/photon_algebra/rewriter.py
+# =============================================================================
+# Numerical Amplitude Extension (Symatics ⊕ with weights + phase)
+# =============================================================================
+import numpy as np
+
+def superpose(states, weights=None, phases=None):
+    """
+    Symatics amplitude-level ⊕ operator:
+    Combine wave/field arrays with optional weights and phase offsets.
+    Returns intensity map (|Σ w·e^{iφ}·ψ|²).
+    """
+    n = len(states)
+    weights = weights or [1/n] * n
+    phases = phases or [0] * n
+    complex_field = np.sum(
+        [w * np.exp(1j * p) * s for s, w, p in zip(states, weights, phases)],
+        axis=0
+    )
+    return np.abs(complex_field)**2
 # --- global normalize cache --------------------------------------------------
 # =============================================================================
 # Variable-based Pattern Matching (notes)

@@ -684,5 +684,15 @@
     "label": "runtime_tick_summary",
     "content": "{\"timestamp\": \"2025-10-10T18:03:53\", \"container\": \"mock_container\", \"duration\": 0.09322023391723633, \"glyph_count\": 3}",
     "timestamp": "2025-10-10T18:03:53.814608"
+  },
+  {
+    "label": "symatics:law_check:\u2295",
+    "content": "{\"type\": \"theorem\", \"engine\": \"symatics\", \"action\": \"law_check\", \"operator\": \"\u2295\", \"timestamp\": 1760139212.4170523, \"summary\": \"5/5 passed\", \"violations\": [], \"context\": {\"container_id\": \"test-container\", \"ghx_id\": \"ghx-001\"}}",
+    "timestamp": "2025-10-10T23:33:34.990527"
+  },
+  {
+    "label": "symatics:law_check:\u2295",
+    "content": "{\"type\": \"theorem\", \"engine\": \"symatics\", \"action\": \"law_check\", \"operator\": \"\u2295\", \"timestamp\": 1760139402.0134106, \"summary\": \"5/5 passed\", \"violations\": [], \"context\": {\"container_id\": \"test-container\", \"ghx_id\": \"ghx-001\"}}",
+    "timestamp": "2025-10-10T23:36:42.205465"
   }
 ]

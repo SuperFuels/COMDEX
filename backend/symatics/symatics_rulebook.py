@@ -20,6 +20,14 @@ from backend.symatics.rewrite_rules import (
     rewrite_derivative, # calculus rules
     rewrite_integral,   # calculus rules
 )
+# ──────────────────────────────
+# Logger setup (for internal law diagnostics)
+# ──────────────────────────────
+import logging
+
+logger = logging.getLogger("symatics.rulebook")
+if not logger.handlers:
+    logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s")
 
 # Types
 SymExpr = Union[str, Dict[str, Any], List[Any]]
@@ -1020,6 +1028,165 @@ def law_resonance_damping_consistency(expr: Any, q: float, gamma: float) -> bool
         return False
 
 # ──────────────────────────────
+# Core Symbolic Laws (safe additions)
+# ──────────────────────────────
+
+def law_commutativity(op: str, a: Any, b: Any) -> bool:
+    """
+    Law of Commutativity:
+    ⊕ and ↔ are symmetric in argument order.
+    """
+    try:
+        if op == "⊕":
+            return _canonical(op_superpose(a, b, {})) == _canonical(op_superpose(b, a, {}))
+        if op == "↔":
+            return _canonical(op_entangle(a, b, {})) == _canonical(op_entangle(b, a, {}))
+        return True
+    except Exception:
+        return False
+
+
+def law_associativity(op: str, a: Any, b: Any, c: Any) -> bool:
+    """
+    Law of Associativity:
+    (a ⊕ b) ⊕ c = a ⊕ (b ⊕ c)
+    """
+    try:
+        if op != "⊕":
+            return True
+        left = op_superpose(op_superpose(a, b, {}), c, {})
+        right = op_superpose(a, op_superpose(b, c, {}), {})
+        return _canonical(left) == _canonical(right)
+    except Exception:
+        return False
+
+
+def law_resonance_stability(expr: Any) -> bool:
+    """
+    Law of Resonance Stability:
+    Resonant systems (ℚ) must contain both oscillatory (cos/sin)
+    and decaying (e^(-t/...)) components.
+    """
+    try:
+        res = _val(expr, "result")
+        if not isinstance(res, str):
+            res = str(res)
+        return "cos(" in res or "sin(" in res and "e^(-" in res
+    except Exception:
+        return False
+
+
+def law_collapse_integrity(expr: Any) -> bool:
+    """
+    Law of Collapse Integrity:
+    μ(expr) must yield a deterministic collapsed value,
+    not another symbolic branch.
+    """
+    try:
+        if isinstance(expr, dict) and expr.get("op") == "μ":
+            collapsed = expr.get("collapsed") or expr.get("value")
+            return not isinstance(collapsed, dict)
+        return True
+    except Exception:
+        return False
+
+
+def law_projection_consistency(expr: Any) -> bool:
+    """
+    Law of Projection Consistency:
+    π(expr, n) should return the n-th element when expr is a list/tuple.
+    """
+    try:
+        if isinstance(expr, dict) and expr.get("op") == "π":
+            seq, idx = expr.get("args", [None, None])
+            if not isinstance(seq, (list, tuple)):
+                return False
+            if idx is None or not isinstance(idx, int):
+                return False
+            return idx < len(seq)
+        return True
+    except Exception:
+        return False
+
+# ─────────────────────────────────────────────
+# v0.3 Physical Correspondence Laws
+# Resonance Damping & Collapse Conservation
+# ─────────────────────────────────────────────
+
+import math
+import logging
+logger = logging.getLogger(__name__)
+
+
+def law_resonance_damping(a, b, tolerance: float = 0.05) -> bool:
+    """
+    Resonance Damping Consistency Law (v0.3)
+    Ensures the relative frequency drift (Δf/f) matches the expected Q-factor damping.
+
+    Args:
+        a, b: Signatures or wave-like objects with .frequency and .amplitude
+        tolerance: acceptable fractional deviation in Q ratio
+    Returns:
+        True if damping is within bounds, False otherwise.
+    """
+    try:
+        f1, f2 = getattr(a, "frequency", None), getattr(b, "frequency", None)
+        a1, a2 = getattr(a, "amplitude", None), getattr(b, "amplitude", None)
+        if None in (f1, f2, a1, a2):
+            return None  # vacuous
+        df = abs(f1 - f2)
+        avg_f = (f1 + f2) / 2.0
+        damping_ratio = df / max(avg_f, 1e-9)
+
+        # approximate Q ≈ 1/(2ζ)
+        q_est = 1.0 / max(2 * damping_ratio, 1e-9)
+        expected_q = 1.0 / (2 * tolerance)
+        within = abs(q_est - expected_q) / expected_q <= tolerance
+
+        if not within:
+            logger.warning(
+                f"[Law⟲] Resonance damping out of bounds: Q={q_est:.3f}, expected≈{expected_q:.3f}"
+            )
+        return within
+    except Exception as e:
+        logger.error(f"[Law⟲] Resonance damping check failed: {e}")
+        return False
+
+
+def law_collapse_conservation(a, tolerance: float = 1e-2) -> bool:
+    """
+    Collapse Conservation Law (v0.3)
+    Ensures measurement (μ) conserves total energy/coherence within a tolerance.
+
+    Args:
+        a: Signature or measurement result with amplitude/coherence fields
+        tolerance: allowable relative drift
+    Returns:
+        True if energy & coherence conserved within bounds.
+    """
+    try:
+        pre_energy = getattr(a, "pre_energy", None)
+        post_energy = getattr(a, "energy", None)
+        pre_coh = getattr(a, "pre_coherence", None)
+        post_coh = getattr(a, "coherence", None)
+
+        if None in (pre_energy, post_energy, pre_coh, post_coh):
+            return None  # vacuous
+
+        e_ratio = abs(post_energy - pre_energy) / max(pre_energy, 1e-9)
+        c_ratio = abs(post_coh - pre_coh) / max(pre_coh, 1e-9)
+        within = (e_ratio <= tolerance) and (c_ratio <= tolerance)
+
+        if not within:
+            logger.warning(
+                f"[Lawμ] Collapse conservation failed: ΔE={e_ratio:.3%}, ΔC={c_ratio:.3%}"
+            )
+        return within
+    except Exception as e:
+        logger.error(f"[Lawμ] Collapse conservation error: {e}")
+        return False
+
+# ──────────────────────────────
 # Law Registry
 # ──────────────────────────────
 def law_entanglement_symmetry(states: List[Any]) -> bool:
@@ -1073,7 +1240,8 @@ LAW_REGISTRY = {
         _wrap("projection",       law_projection),
     ],
     "μ": [
-        _wrap("duality",          lambda a               : law_duality("μ", a)),
+        _wrap("duality",                  lambda a       : law_duality("μ", a)),
+        _wrap("collapse_conservation",    lambda a       : law_collapse_conservation(a)),  # ✅ v0.3 addition
     ],
     "Δ": [
         _wrap("derivative",       lambda expr, var       : law_derivative("Δ", expr, var)),
@@ -1123,6 +1291,13 @@ LAW_REGISTRY = {
     ],
 
     # ──────────────────────────────
+    # v0.3 physical correspondence laws
+    # ──────────────────────────────
+    "⟲": [
+        _wrap("resonance_damping", lambda a, b           : law_resonance_damping(a, b)),   # ✅ v0.3 addition
+    ],
+
+    # ──────────────────────────────
     # v0.3 interference axioms (⋈[φ])
     # ──────────────────────────────
     "⋈": [
@@ -1140,10 +1315,10 @@ LAW_REGISTRY = {
     ],
 
     # ──────────────────────────────
-    # v0.3 calculus extensions
+    # v0.3 theorem / meta-consistency
     # ──────────────────────────────
     "calc_fundamental_theorem": [
-        _wrap("fundamental_stub", lambda σ=None: True),  # placeholder law
+        _wrap("fundamental_consistency", lambda x: law_fundamental_consistency(x)),
     ],
 }
 
@@ -1159,28 +1334,80 @@ def _law_name(func) -> str:
 
 import inspect
 
-def check_all_laws(symbol: str, *args, **kwargs) -> Dict[str, Any]:
+def check_all_laws(
+    symbol: str,
+    *args,
+    strict: bool = False,
+    context: Dict[str, Any] | None = None,
+    **kwargs
+) -> Dict[str, Any]:
     """
-    Run all laws registered for a given symbol and return a dict of results.
-    Supports tri-valued logic: True (law holds), False (law violated),
-    None (law not applicable / vacuous).
+    Run all laws registered for a given Symatics symbol and return a dict of results.
+
+    Args:
+        symbol: Algebraic operator symbol ("⊕", "↔", "μ", etc.)
+        *args:  Operator arguments
+        strict: If True → raise Exception when any law fails
+        context: Optional evaluation context passed through for richer logging
+        **kwargs: Extra keyword arguments for laws requiring var/expr
+
+    Returns:
+        {
+          "symbol": "⊕",
+          "laws": { "commutativity": True, "associativity": True, ... },
+          "summary": "3/3 passed",
+          "passed": True,
+          "violations": [],
+          "timestamp": "2025-10-10T23:56:42.812431+00:00",
+          "context": {...}
+        }
     """
+    from datetime import datetime, UTC
+
     results: Dict[str, Any] = {}
-    for law in LAW_REGISTRY.get(symbol, []):
+    violations: list[str] = []
+    laws = LAW_REGISTRY.get(symbol, [])
+    total = len(laws)
+    passed = 0
+
+    for law in laws:
+        name = _law_name(law)
         try:
             ok = law(*args, **kwargs)
-            name = _law_name(law)
-
             if ok is True:
                 results[name] = True
+                passed += 1
             elif ok is False:
                 results[name] = False
-            else:  # None or neutral case
-                results[name] = None
-
+                violations.append(name)
+            else:
+                results[name] = None  # vacuous / neutral
         except Exception as e:
-            results[_law_name(law)] = f"error: {e}"
-    return results
+            err_msg = f"error: {e}"
+            results[name] = err_msg
+            violations.append(f"{name} ({err_msg})")
+
+    # Build readable summary and verdict
+    summary = f"{passed}/{total} passed"
+    verdict = (len(violations) == 0)
+
+    if violations:
+        logger.warning(f"[SymaticsLawCheck] {symbol} → {summary}, violations: {violations}")
+    else:
+        logger.debug(f"[SymaticsLawCheck] {symbol} → all {total} passed")
+
+    if strict and violations:
+        raise AssertionError(f"Law violations for {symbol}: {violations}")
+
+    return {
+        "symbol": symbol,
+        "timestamp": datetime.now(UTC).isoformat(),
+        "laws": results,
+        "summary": summary,
+        "passed": verdict,
+        "violations": violations,
+        "context": context or {},
+    }
 # ──────────────────────────────
 # TODO (v0.2+)
 # ──────────────────────────────

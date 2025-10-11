@@ -1,64 +1,74 @@
 # 📁 backend/modules/codex/codex_trace.py
 # Unified Codex Trace + Runtime Integration Layer
-# Adds `.log()` for GlyphExecutor while preserving legacy injection APIs.
-# NOTE: Avoids circular imports by lazy-importing store_memory inside .log().
+# ------------------------------------------------
+# Provides global CodexTrace singleton with safe `.log()` interface,
+# theorem trace support for Symatics law checks, and MemoryEngine persistence.
+# Maintains backward-compatible injection APIs.
+# ------------------------------------------------
 
 import time
 import json
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Any
 
 
 class CodexTrace:
     def __init__(self):
-        self.entries: List[Dict] = []
+        self.entries: List[Dict[str, Any]] = []
 
-    # === ✅ NEW: Universal log hook for Codex + Runtime ===
+    # === ✅ Universal Log Hook (Codex + Runtime + Symatics) ===
     def log(self, event: dict):
         """
-        Logs a structured Codex or runtime event to in-memory buffer and,
+        Logs a structured Codex or runtime event to the in-memory buffer and,
         if available, to the MemoryEngine via store_memory().
 
-        Expected shape (flexible):
+        Event shape (examples):
             {
-              "action": "executed" | "predict" | ...,
+              "action": "executed" | "predict" | "law_check",
+              "source": "glyph_executor" | "codex_executor" | "symatics_dispatcher",
               "glyph": "...",
-              "container": "...",
-              "coord": "...",
-              "source": "glyph_executor" | "codex_executor" | ...
-              ... (any other fields)
+              "engine": "symatics",
+              "operator": "⊕",
+              "summary": "5/5 passed",
+              "violations": [],
+              "context": {...}
             }
         """
         try:
-            # Normalize & buffer
+            # Normalize input
             evt = dict(event) if isinstance(event, dict) else {"note": str(event)}
             evt.setdefault("type", "codex_trace")
             evt.setdefault("timestamp", time.time())
+
+            # Default engine/source tagging
+            evt.setdefault("engine", "codex")
+            evt.setdefault("source", "runtime")
+
+            # Add to in-memory trace
             self.entries.append(evt)
 
-            # Try to persist to MemoryEngine (lazy import to avoid circulars)
+            # Persist to MemoryEngine (lazy import to avoid circular deps)
             try:
-                from backend.modules.hexcore.memory_engine import store_memory  # lazy import
+                from backend.modules.hexcore.memory_engine import store_memory
                 label = f"codex_trace:{evt.get('action', 'event')}"
                 store_memory({
                     "label": label,
                     "content": evt,
                 })
             except Exception:
-                # Silently skip persistence if memory engine or function isn't available
+                # Skip persistence errors silently
                 pass
 
-            # Dev log
+            # Developer console output
             try:
                 print(f"[Trace:Codex] {evt.get('action', 'event')} → {json.dumps(evt, ensure_ascii=False)}")
             except Exception:
-                # Make sure logging never breaks execution
-                print("[Trace:Codex] event logged")
+                print("[Trace:Codex] event logged (fallback)")
         except Exception as e:
             print(f"[⚠️ CodexTrace] Failed to log event: {e}")
 
-    # === Existing core trace management ===
+    # === Core Trace Management ===
     def record(self, glyph: str, context: dict, result: str, source: str = "benchmark"):
-        """Record a generic trace entry (legacy API)."""
+        """Legacy API for generic Codex trace recording."""
         self.entries.append({
             "timestamp": time.time(),
             "glyph": glyph,
@@ -67,7 +77,7 @@ class CodexTrace:
             "source": source,
         })
 
-    def get_trace(self) -> List[Dict]:
+    def get_trace(self) -> List[Dict[str, Any]]:
         return self.entries
 
     def clear(self):
@@ -76,7 +86,7 @@ class CodexTrace:
     def to_json(self) -> str:
         return json.dumps(self.entries, indent=2)
 
-    def get_latest_trace(self, container_id: Optional[str] = None) -> Optional[Dict]:
+    def get_latest_trace(self, container_id: Optional[str] = None) -> Optional[Dict[str, Any]]:
         for entry in reversed(self.entries):
             ctx = entry.get("context", {})
             if container_id is None or ctx.get("container_id") == container_id:
@@ -91,7 +101,7 @@ class CodexTrace:
                 }
         return None
 
-    # === Specialized trace injectors (preserved) ===
+    # === Specialized Injection APIs (preserved for compatibility) ===
     @staticmethod
     def inject_prediction_trace(
         container_id: str,
@@ -175,7 +185,42 @@ class CodexTrace:
             "detail": {"step": step, "notes": notes},
         })
 
-    # === Unified execution trace hook (legacy) ===
+    # === Theorem / Law Check Injection (Symatics v0.2) ===
+    def inject_theorem_trace(self, operator: str, summary: str, violations: list, context: dict):
+        """
+        Structured hook for Symatics theorem-law verification traces.
+        """
+        theorem_entry = {
+            "type": "theorem",
+            "engine": "symatics",
+            "action": "law_check",
+            "operator": operator,
+            "timestamp": time.time(),
+            "summary": summary,
+            "violations": violations or [],
+            "context": context or {},
+        }
+        self.entries.append(theorem_entry)
+
+        # Try persistence (non-blocking)
+        try:
+            from backend.modules.hexcore.memory_engine import store_memory
+            store_memory({
+                "label": f"symatics:law_check:{operator}",
+                "content": theorem_entry,
+            })
+        except Exception:
+            pass
+        # inside CodexTrace.inject_theorem_trace(...)
+        try:
+            from backend.symatics.theorem_ledger_writer import append_theorem_entry
+            append_theorem_entry(theorem_entry)
+        except Exception:
+            pass
+
+        print(f"[Trace:Theorem] {operator} → {summary}, violations: {violations or 'none'}")
+
+    # === Legacy Execution Trace ===
     def trace_execution(self, codex_str: str, result: str, context: Optional[dict] = None, source: str = "codex_executor"):
         """Direct hook for Codex executors to log a run."""
         self.record(
@@ -186,11 +231,11 @@ class CodexTrace:
         )
 
 
-# ✅ Global singleton
+# ✅ Global singleton instance
 _global_trace = CodexTrace()
 
 
-# --- Public API helpers (preserved) ---
+# --- Public API Helpers ---
 def log_codex_trace(glyph: str, context: dict, result: str, source: str = "benchmark"):
     _global_trace.record(glyph, context, result, source)
 
@@ -203,7 +248,7 @@ def get_latest_trace(container_id: Optional[str] = None):
     return _global_trace.get_latest_trace(container_id)
 
 
-# ✅ Execution path wrapper for GHXEncoder
+# ✅ Execution Path Wrapper for GHXEncoder
 def trace_glyph_execution_path(glyph_id: str) -> Dict:
     matching = [e for e in _global_trace.get_trace() if e.get("glyph") == glyph_id]
     return {
@@ -214,7 +259,7 @@ def trace_glyph_execution_path(glyph_id: str) -> Dict:
     }
 
 
-# --- CLI harness for dev/test ---
+# --- CLI Harness for Dev/Test ---
 if __name__ == "__main__":
     print("⚡ Running CodexTrace self-test...")
 
@@ -238,5 +283,8 @@ if __name__ == "__main__":
         "glyph": "⊕",
         "container": "test-container"
     })
+
+    # Theorem trace test
+    _global_trace.inject_theorem_trace("⊕", "5/5 passed", [], ctx)
 
     print(_global_trace.to_json())

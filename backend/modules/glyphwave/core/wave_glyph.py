@@ -1,4 +1,5 @@
-# backend/modules/glyphwave/core/wave_glyph.py
+# -*- coding: utf-8 -*-
+# File: backend/modules/glyphwave/core/wave_glyph.py
 """
 Tessaris GlyphNet Core — WaveGlyph Definition & CodexLang Parsing
 -----------------------------------------------------------------
@@ -11,6 +12,8 @@ Enhancements include:
  - Schema validation (phase, coherence ranges)
  - Fingerprinting and metadata enrichment
  - Compatibility with existing amplitude/origin_trace fields
+ - Deterministic phase normalization (0–2π)
+ - Granular validation errors and consistent timestamps
 
 Author: Tessaris Research Group
 Updated: 2025-10-10
@@ -24,6 +27,16 @@ import re
 import json
 import hashlib
 import datetime
+import math
+
+
+# ────────────────────────────────────────────────────────────────
+# Custom Exceptions
+# ────────────────────────────────────────────────────────────────
+
+class GlyphValidationError(ValueError):
+    """Raised when a WaveGlyph fails schema validation."""
+    pass
 
 
 # ────────────────────────────────────────────────────────────────
@@ -55,7 +68,8 @@ class WaveGlyph:
     # Serialization
     # ────────────────────────────────────────────────────────────
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> Dict[str, float | str | list | dict]:
+        """Return a dict representation of the glyph for serialization."""
         return {
             "uid": self.uid,
             "label": self.label,
@@ -70,6 +84,10 @@ class WaveGlyph:
     def to_json(self, indent: int = 2) -> str:
         """Return a JSON representation of the glyph."""
         return json.dumps(self.to_dict(), indent=indent)
+
+    def __repr__(self) -> str:
+        """Clean representation for logs and debugging."""
+        return f"<WaveGlyph {self.label} amp={self.amplitude:.2f} phase={self.phase:.2f} coh={self.coherence:.2f}>"
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "WaveGlyph":
@@ -104,7 +122,7 @@ class WaveGlyph:
 
 GLYPH_SCHEMA = {
     "required": ["label", "phase", "amplitude", "coherence"],
-    "phase_range": (0.0, 2 * 3.14159),
+    "phase_range": (0.0, 2 * math.pi),
     "coherence_range": (0.0, 1.0),
     "amplitude_range": (0.0, 1.0),
 }
@@ -114,19 +132,19 @@ def validate_glyph(g: WaveGlyph) -> bool:
     """Validate a WaveGlyph object against Tessaris schema constraints."""
     for key in GLYPH_SCHEMA["required"]:
         if getattr(g, key, None) is None:
-            raise ValueError(f"Missing required field: {key}")
+            raise GlyphValidationError(f"Missing required field: {key}")
 
     pmin, pmax = GLYPH_SCHEMA["phase_range"]
     if not (pmin <= g.phase <= pmax):
-        raise ValueError(f"Phase {g.phase} out of range {pmin}–{pmax}")
+        raise GlyphValidationError(f"Phase {g.phase} out of range {pmin}–{pmax}")
 
     cmin, cmax = GLYPH_SCHEMA["coherence_range"]
     if not (cmin <= g.coherence <= cmax):
-        raise ValueError(f"Coherence {g.coherence} out of range {cmin}–{cmax}")
+        raise GlyphValidationError(f"Coherence {g.coherence} out of range {cmin}–{cmax}")
 
     amin, amax = GLYPH_SCHEMA["amplitude_range"]
     if not (amin <= g.amplitude <= amax):
-        raise ValueError(f"Amplitude {g.amplitude} out of range {amin}–{amax}")
+        raise GlyphValidationError(f"Amplitude {g.amplitude} out of range {amin}–{amax}")
 
     return True
 
@@ -136,7 +154,7 @@ def validate_glyph(g: WaveGlyph) -> bool:
 # ────────────────────────────────────────────────────────────────
 
 _CodexLangPattern = re.compile(
-    r"(?P<action>[a-zA-Z_][a-zA-Z0-9_]*)\((?P<target>[a-zA-Z0-9_:]+)\)"
+    r"(?P<action>[a-zA-Z_][a-zA-Z0-9_]*)\((?P<target>[a-zA-Z0-9_:, ]+)\)"
 )
 
 
@@ -155,14 +173,15 @@ def parse_glyph(
     """
     match = _CodexLangPattern.match(expression.strip())
     if not match:
-        raise ValueError(f"Invalid CodexLang expression: {expression}")
+        raise GlyphValidationError(f"Invalid CodexLang expression: {expression}")
 
-    label = f"{match.group('action')}_{match.group('target').replace('::', '_')}"
-    now = datetime.datetime.utcnow().isoformat()
+    label = f"{match.group('action')}_{match.group('target').replace('::', '_').replace(',', '_')}"
+    now = time.time()  # use float for consistent KG timestamp format
 
-    # Deterministic pseudo-randomized phase from hash
-    phase = (int(hashlib.md5(expression.encode()).hexdigest(), 16) % 6283) / 1000.0
-    coherence = round(0.8 + (phase % 0.2), 3)
+    # Deterministic pseudo-randomized phase from hash, normalized to [0, 2π)
+    phase_raw = (int(hashlib.md5(expression.encode()).hexdigest(), 16) % 6283) / 1000.0
+    phase = phase_raw % (2 * math.pi)
+    coherence = round((phase / (2 * math.pi)), 3)
 
     metadata = {
         "intent": intent,
@@ -188,8 +207,16 @@ def parse_glyph(
 # ────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
-    expr = "observe(entropy::field)"
-    glyph = parse_glyph(expr)
-    print("Parsed Glyph Object:")
-    print(glyph.to_json())
-    print(f"Fingerprint: {glyph.fingerprint()}")
+    exprs = [
+        "observe(entropy::field)",
+        "entangle(qwave::beam_01, photon::core)"
+    ]
+    for expr in exprs:
+        try:
+            glyph = parse_glyph(expr)
+            print("Parsed Glyph Object:")
+            print(glyph)
+            print(glyph.to_json())
+            print(f"Fingerprint: {glyph.fingerprint()}\n")
+        except GlyphValidationError as e:
+            print(f"Validation error: {e}")
