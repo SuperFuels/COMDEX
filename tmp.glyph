@@ -1,0 +1,287 @@
+{
+  "type": "dc_container",
+  "id": "lean::test_theorems.lean",
+  "metadata": {
+    "origin": "lean_import",
+    "source_path": "backend/modules/lean/examples/test_theorems.lean",
+    "logic_type": "lean_math"
+  },
+  "glyphs": [
+    "⟦ Constant ⟧ | X : Type → Assume ⟧",
+    "⟦ Theorem ⟧ | add_comm : a + b = b + a := Nat.add_comm a b → Prove ⟧",
+    "⟦ Theorem ⟧ | zero_add : 0 + n = n := Nat.zero_add n → Prove ⟧",
+    "⟦ Theorem ⟧ | mul_self_nonneg : n * n ≥ 0 := Nat.zero_le _  end Test → Prove ⟧"
+  ],
+  "thought_tree": [
+    {
+      "name": "X",
+      "glyph": "⟦ Constant ⟧",
+      "node": {
+        "type": "LogicGlyph",
+        "name": "X",
+        "logic": "Type",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "Type"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ]
+      }
+    },
+    {
+      "name": "add_comm",
+      "glyph": "⟦ Theorem ⟧",
+      "node": {
+        "type": "LogicGlyph",
+        "name": "add_comm",
+        "logic": "a + b = b + a := Nat.add_comm a b",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "a + b = b + a := Nat.add_comm a b"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ]
+      }
+    },
+    {
+      "name": "zero_add",
+      "glyph": "⟦ Theorem ⟧",
+      "node": {
+        "type": "LogicGlyph",
+        "name": "zero_add",
+        "logic": "0 + n = n := Nat.zero_add n",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "0 + n = n := Nat.zero_add n"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ]
+      }
+    },
+    {
+      "name": "mul_self_nonneg",
+      "glyph": "⟦ Theorem ⟧",
+      "node": {
+        "type": "LogicGlyph",
+        "name": "mul_self_nonneg",
+        "logic": "n * n ≥ 0 := Nat.zero_le _  end Test",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "n * n ≥ 0 := Nat.zero_le _  end Test"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ]
+      }
+    }
+  ],
+  "symbolic_logic": [
+    {
+      "name": "X",
+      "symbol": "⟦ Constant ⟧",
+      "logic": "Type",
+      "params": "",
+      "codexlang": {
+        "symbol": "⟦ Constant ⟧",
+        "name": "X",
+        "logic": "Type",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "Type"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ],
+        "normalized": "Type"
+      },
+      "glyph_tree": {
+        "type": "LogicGlyph",
+        "name": "X",
+        "logic": "Type",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "Type"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ]
+      },
+      "source": "backend/modules/lean/examples/test_theorems.lean",
+      "body": ""
+    },
+    {
+      "name": "add_comm",
+      "symbol": "⟦ Theorem ⟧",
+      "logic": "a + b = b + a := Nat.add_comm a b",
+      "params": "(a b : Nat)",
+      "codexlang": {
+        "symbol": "⟦ Theorem ⟧",
+        "name": "add_comm",
+        "logic": "a + b = b + a := Nat.add_comm a b",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "a + b = b + a := Nat.add_comm a b"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ],
+        "normalized": "a + b = b + a := Nat.add_comm a b"
+      },
+      "glyph_tree": {
+        "type": "LogicGlyph",
+        "name": "add_comm",
+        "logic": "a + b = b + a := Nat.add_comm a b",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "a + b = b + a := Nat.add_comm a b"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ]
+      },
+      "source": "backend/modules/lean/examples/test_theorems.lean",
+      "body": ""
+    },
+    {
+      "name": "zero_add",
+      "symbol": "⟦ Theorem ⟧",
+      "logic": "0 + n = n := Nat.zero_add n",
+      "params": "(n : Nat)",
+      "codexlang": {
+        "symbol": "⟦ Theorem ⟧",
+        "name": "zero_add",
+        "logic": "0 + n = n := Nat.zero_add n",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "0 + n = n := Nat.zero_add n"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ],
+        "normalized": "0 + n = n := Nat.zero_add n"
+      },
+      "glyph_tree": {
+        "type": "LogicGlyph",
+        "name": "zero_add",
+        "logic": "0 + n = n := Nat.zero_add n",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "0 + n = n := Nat.zero_add n"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ]
+      },
+      "source": "backend/modules/lean/examples/test_theorems.lean",
+      "body": ""
+    },
+    {
+      "name": "mul_self_nonneg",
+      "symbol": "⟦ Theorem ⟧",
+      "logic": "n * n ≥ 0 := Nat.zero_le _  end Test",
+      "params": "(n : Nat)",
+      "codexlang": {
+        "symbol": "⟦ Theorem ⟧",
+        "name": "mul_self_nonneg",
+        "logic": "n * n ≥ 0 := Nat.zero_le _  end Test",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "n * n ≥ 0 := Nat.zero_le _  end Test"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ],
+        "normalized": "n * n ≥ 0 := Nat.zero_le _  end Test"
+      },
+      "glyph_tree": {
+        "type": "LogicGlyph",
+        "name": "mul_self_nonneg",
+        "logic": "n * n ≥ 0 := Nat.zero_le _  end Test",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "n * n ≥ 0 := Nat.zero_le _  end Test"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ]
+      },
+      "source": "backend/modules/lean/examples/test_theorems.lean",
+      "body": ""
+    }
+  ],
+  "previews": [
+    "⟦ Constant ⟧ | X : Type → Assume ⟧",
+    "⟦ Theorem ⟧ | add_comm : a + b = b + a := Nat.add_comm a b → Prove ⟧",
+    "⟦ Theorem ⟧ | zero_add : 0 + n = n := Nat.zero_add n → Prove ⟧",
+    "⟦ Theorem ⟧ | mul_self_nonneg : n * n ≥ 0 := Nat.zero_le _  end Test → Prove ⟧"
+  ],
+  "dependencies": [
+    {
+      "theorem": "X",
+      "depends_on": []
+    },
+    {
+      "theorem": "add_comm",
+      "depends_on": []
+    },
+    {
+      "theorem": "zero_add",
+      "depends_on": []
+    },
+    {
+      "theorem": "mul_self_nonneg",
+      "depends_on": []
+    }
+  ]
+}

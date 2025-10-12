@@ -1,15 +1,17 @@
--- Basic mathematical theorems
+import Init
+open Nat
 
-theorem add_zero (n : ℕ) : n + 0 = n :=
-nat.add_zero n
+namespace Test
 
-theorem zero_add (n : ℕ) : 0 + n = n :=
-nat.zero_add n
+constant X : Type
 
-lemma mul_one (n : ℕ) : n * 1 = n :=
-nat.mul_one n
+theorem add_comm (a b : Nat) : a + b = b + a :=
+  Nat.add_comm a b
 
-def square (n : ℕ) : ℕ := n * n
+theorem zero_add (n : Nat) : 0 + n = n :=
+  Nat.zero_add n
 
-example (n : ℕ) : square n ≥ n :=
-nat.le_mul_self n n
+theorem mul_self_nonneg (n : Nat) : n * n ≥ 0 :=
+  Nat.zero_le _
+
+end Test

@@ -56,7 +56,14 @@ def convert_lean_to_codexlang(path: str) -> Dict[str, Any]:
     Returns a dict that downstream can embed into any container.
     """
     if not os.path.isfile(path):
-        raise ValueError(f"Invalid .lean file path: {path}")
+        # Try resolving relative to project root silently
+        alt_path = os.path.abspath(os.path.join(os.getcwd(), path))
+        if os.path.isfile(alt_path):
+            path = alt_path
+        else:
+            print(f"[❌] Lean file not found: {path}")
+            sys.exit(1)
+
     if not path.endswith(".lean"):
         raise ValueError(f"Expected a .lean file, got: {path}")
 
@@ -145,19 +152,26 @@ def convert_lean_to_codexlang(path: str) -> Dict[str, Any]:
             flush_declaration()
             continue
 
-        match = re.match(r"^(theorem|lemma|example|def|axiom|constant)\s+([A-Za-z_][\w']*)\s*:\s*(.*)", stripped)
+        match = re.match(
+            r"^(theorem|lemma|example|def|axiom|constant)\s+([A-Za-z_][\w']*)\s*(\([^)]*\))?\s*:\s*(.*)",
+            stripped,
+        )
         if match:
             # ✅ close previous declaration before starting a new one
             flush_declaration()
 
-            kind, nm, logic_part = match.groups()
+            kind, nm, params_part, logic_part = match.groups()
             name = nm
-            typ = logic_part
-            params = ""
+            params = params_part or ""   # ← capture (a b : Nat) or empty if none
+            typ = logic_part.strip()
             body = ""
             glyph_symbol = KIND_TO_GLYPH.get(kind, "⟦ Theorem ⟧")
             current_decl = [line]
+
+            # 🧩 optional debug
+            print(f"[DEBUG] new decl → kind={kind}, name={name}, params={params}, logic={typ}", file=sys.stderr)
         elif name:
+
             # Continuation line
             if re.match(r"^(theorem|lemma|example|def|axiom|constant)\s+", stripped):
                 flush_declaration()
@@ -308,24 +322,36 @@ def lean_to_dc_container(path: str) -> Dict[str, Any]:
     for decl in parsed["parsed_declarations"]:
         gsym = decl.get("glyph_symbol", "⟦ Theorem ⟧")
 
+        # ✅ include all recognized Lean declaration kinds
+        if gsym not in (
+            "⟦ Theorem ⟧", "⟦ Lemma ⟧", "⟦ Example ⟧",
+            "⟦ Definition ⟧", "⟦ Axiom ⟧", "⟦ Constant ⟧"
+        ):
+            continue
+
+        # 🔹 1. Human-readable glyph
         container["glyphs"].append(emit_codexlang_glyph(decl["codexlang"], gsym))
 
+        # 🔹 2. Thought tree node
         container["thought_tree"].append({
             "name": decl["name"],
             "glyph": gsym,
             "node": decl["glyph_tree"],
         })
 
+        # 🔹 3. Symbolic logic entry (used by glyph_to_lean.py)
         container["symbolic_logic"].append({
             "name": decl["name"],
             "symbol": gsym,
             "logic": decl["codexlang"]["logic"],
+            "params": decl.get("params", ""), 
             "codexlang": decl["codexlang"],
             "glyph_tree": decl["glyph_tree"],
             "source": path,
             "body": decl.get("body", ""),
         })
 
+        # 🔹 4. Previews + dependency tracking
         container["previews"].append(decl["preview"])
         container["dependencies"].append({
             "theorem": decl["name"],
