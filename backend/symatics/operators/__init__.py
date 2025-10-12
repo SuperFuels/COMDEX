@@ -17,7 +17,10 @@ class Operator:
 # ---------------------------------------------------------------------------
 # Individual operator imports (⚠ legacy paths via stubs to emit warnings)
 # ---------------------------------------------------------------------------
+import warnings
 
+with warnings.catch_warnings():
+    warnings.filterwarnings("ignore", category=DeprecationWarning)
 from backend.symatics.operators.superpose import superpose_op   # deprecated → warns
 from backend.symatics.operators.entangle import entangle_op     # deprecated → warns
 from backend.symatics.operators.measure import measure_op       # deprecated → warns

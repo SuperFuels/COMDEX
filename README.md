@@ -31,7 +31,7 @@ gcloud run deploy comdex-api \
   --timeout=300s
 
 git add .
-git commit -m "Theory of Everything FINAL 14"
+git commit -m "UPDATED AXIOMS LOCKED IN"
 git push origin main
 
 gcloud builds submit --config cloudbuild.yaml .

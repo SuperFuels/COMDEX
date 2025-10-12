@@ -1,10 +1,9 @@
-# tests/test_canonicalization.py
 import math
 import pytest
 
-from symatics.signature import Signature
-from symatics.normalize import canonical_signature
-from symatics.context import Context
+from backend.symatics.signature import Signature
+from backend.symatics.normalize import canonical_signature
+from backend.symatics.context import Context
 
 
 def test_identity_passthrough_v01():

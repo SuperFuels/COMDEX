@@ -1,35 +1,50 @@
-# backend/symatics/axioms.py
+# =====================================================
+# File: backend/symatics/axioms.py
+# =====================================================
 from __future__ import annotations
 from dataclasses import dataclass
 from typing import Callable, List, Dict, Any, Optional
+
 from .terms import Var, Sym, App, Term
 from .operators import OPS
 from .signature import Signature
 from .wave import canonical_signature
 
-# -----------------
-# Law schema
-# -----------------
+# === Added imports for v2.0 Meta-Axiom Integration ===
+from backend.symatics.core.meta_axioms_v02 import META_AXIOMS
+from backend.symatics.core.validators.pi_s_closure import validate_pi_s_closure
+
+# =====================================================
+# LAW SCHEMA
+# =====================================================
 
 @dataclass(frozen=True)
 class Law:
+    """
+    Represents a formal rewrite rule or invariant in Symatics Algebra.
+    Optionally includes a guard (side condition) for context-sensitive rules.
+    """
     name: str
     lhs: Term
     rhs: Term
     guard: Optional[Callable[[Dict[str, Any]], bool]] = None  # optional side condition
 
-def S(name: str) -> Sym: 
+
+def S(name: str) -> Sym:
+    """Shortcut for creating a symbolic constant."""
     return Sym(name)
 
-def V(name: str) -> Var: 
+def V(name: str) -> Var:
+    """Shortcut for creating a variable symbol."""
     return Var(name)
 
 def A(head: str | Sym, *args: Term) -> App:
+    """Application node: builds an operator expression."""
     return App(S(head) if isinstance(head, str) else head, list(args))
 
-# -----------------
-# Axioms (⊕, μ, ↔, ⋈)
-# -----------------
+# =====================================================
+# BASE AXIOMS — OPERATOR LAWS (⊕, μ, ↔, ⋈)
+# =====================================================
 
 AXIOMS: List[Law] = [
 
@@ -104,3 +119,99 @@ AXIOMS: List[Law] = [
         rhs=V("y")
     ),
 ]
+
+# =====================================================
+# META-AXIOMS (v2.0+) — GEOMETRY → COMPUTATION
+# =====================================================
+
+def load_axioms(version: str = "v02") -> List[Dict[str, Any]]:
+    """
+    Loads both classical operator laws (⊕, μ, ↔, ⋈)
+    and the v2.0+ meta-axioms (G–L–E–I–C–X) used by
+    the symbolic and photonic runtime.
+
+    Returns
+    -------
+    list[dict]
+        Unified rulebook combining symbolic laws and meta-axioms.
+    """
+    axioms = []
+    # Convert internal Laws → dicts for uniformity
+    for law in AXIOMS:
+        axioms.append({
+            "id": law.name,
+            "domain": "Operator",
+            "lhs": str(law.lhs),
+            "rhs": str(law.rhs),
+            "guard": law.guard.__name__ if law.guard else None,
+        })
+
+    # Extend with high-level foundational laws (meta-axioms)
+    axioms.extend(META_AXIOMS)
+    return axioms
+
+
+def verify_axioms(state: Any) -> List[Dict[str, Any]]:
+    """
+    Runtime verifier for πₛ closure and meta-law coherence.
+
+    Parameters
+    ----------
+    state : object or dict
+        Must include `phase` or `field['phase']` (array-like).
+
+    Returns
+    -------
+    list[dict]
+        Validation results for all applicable meta-axioms.
+    """
+    results = []
+    for ax in META_AXIOMS:
+        if "validated_by" in ax and "validate_pi_s_closure" in ax["validated_by"]:
+            check = validate_pi_s_closure(state)
+            results.append({
+                "axiom_id": ax["id"],
+                "domain": ax["domain"],
+                "passed": check["passed"],
+                "deviation": check["deviation"],
+                "n": check["n"],
+            })
+        else:
+            results.append({
+                "axiom_id": ax["id"],
+                "domain": ax["domain"],
+                "passed": True,
+                "note": "Symbolic-only axiom; no numerical check applied."
+            })
+
+    return results
+
+
+# =====================================================
+# DEBUG/UTILITY ENTRYPOINTS
+# =====================================================
+
+def summarize_axioms() -> None:
+    """
+    Prints a concise summary of all loaded axioms and meta-axioms.
+    Useful for diagnostics and export pipelines.
+    """
+    all_axioms = load_axioms()
+    print(f"\n[Symatics::Axioms] Loaded {len(all_axioms)} total laws:")
+    for ax in all_axioms:
+        tag = "META" if ax.get("domain") != "Operator" else "CORE"
+        print(f"  - [{tag}] {ax['id']} → {ax['domain']}")
+
+
+def test_axioms_runtime(state: Dict[str, Any]) -> None:
+    """
+    Quick runtime check that validates πₛ closure and prints summary.
+    """
+    print("\n[Symatics::Verify] Running πₛ closure verification...")
+    results = verify_axioms(state)
+    passed = sum(1 for r in results if r.get("passed"))
+    failed = len(results) - passed
+    print(f"  → {passed} passed, {failed} failed")
+    for r in results:
+        if not r.get("passed"):
+            print(f"    ❌ {r['axiom_id']} ({r['domain']}) → deviation={r.get('deviation')}")

@@ -1,14 +1,15 @@
-# tests/test_engine.py
 import math
 import pytest
 from hypothesis import given, strategies as st
 
-from symatics.signature import Signature
-from symatics.operators import OPS, apply_operator
-from symatics.engine import eval_expr, parse_expr
-from symatics.laws import law_associativity
-from symatics.context import Context
+from backend.symatics.signature import Signature
+from backend.symatics.operators import OPS, apply_operator
+from backend.symatics.engine import eval_expr, parse_expr
+from backend.symatics.laws import law_associativity
+from backend.symatics.context import Context
+import pytest
 
+pytestmark = pytest.mark.legacy  # mark all old tests
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------

@@ -7,8 +7,8 @@ import pathlib
 
 import pytest
 
-import symatics.operators as operators
-from symatics.operators import Operator, OPS
+import backend.symatics.operators as operators
+from backend.symatics.operators import Operator, OPS
 
 
 def test_all_operator_files_registered():
@@ -24,7 +24,7 @@ def test_all_operator_files_registered():
         if ispkg or module_name == "__init__":
             continue
 
-        mod = importlib.import_module(f"symatics.operators.{module_name}")
+        mod = importlib.import_module(f"backend.symatics.operators.{module_name}")
 
         # Find all Operator instances in this module
         for name, obj in inspect.getmembers(mod):

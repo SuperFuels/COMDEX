@@ -1,0 +1,101 @@
+"""
+Symatics v2.0 Meta-Axioms Layer
+Tessaris / CodexCore 2025
+Defines the foundational Geometry→Computation laws (G–L–E–I–C–X)
+in executable structured form.
+"""
+
+META_AXIOMS = [
+    # --- Geometry ---
+    {
+        "id": "G1",
+        "domain": "Geometry",
+        "title": "Phase Space Primacy",
+        "statement": (
+            "All metric geometry arises from resonance topology; "
+            "space and distance are projections of phase separations between coherent waves."
+        ),
+        "expression": "π(space) := ⟲(phase_coherence)",
+        "validated_by": ["validate_pi_s_closure"],
+    },
+    {
+        "id": "G2",
+        "domain": "Geometry",
+        "title": "Phase Closure (πₛ Constant)",
+        "statement": (
+            "πₛ defines the minimal closure angle of self-referential resonance; "
+            "metric π is a derived projection of πₛ."
+        ),
+        "expression": "∮ Δφ = 2πₛ n",
+        "validated_by": ["validate_pi_s_closure"],
+    },
+
+    # --- Logic ---
+    {
+        "id": "L1",
+        "domain": "Logic",
+        "title": "Deterministic Collapse",
+        "statement": (
+            "Measurement (μ) yields a determinate projection for any stable resonance; "
+            "apparent randomness is unresolved superposition."
+        ),
+        "symbolic": "μ(⟲ψ) → ψ′ where ψ′ = π(μ(⟲ψ))",
+    },
+    {
+        "id": "L2",
+        "domain": "Logic",
+        "title": "Entangled Causality",
+        "statement": (
+            "Entanglement (↔) establishes bidirectional influence; "
+            "causality is symmetric across collapse boundaries."
+        ),
+        "symbolic": "A ↔ B  ⇒  μ(A) ⇔ μ(B)",
+    },
+
+    # --- Energy ---
+    {
+        "id": "E1",
+        "domain": "Energy",
+        "title": "Resonant Inertia",
+        "statement": (
+            "Mass is resistance to phase collapse; "
+            "energy is the rate of phase rotation in resonance space."
+        ),
+        "symbolic": "E = ħ dφ/dt",
+    },
+
+    # --- Information ---
+    {
+        "id": "I1",
+        "domain": "Information",
+        "title": "Coherent Information",
+        "statement": (
+            "Information is preserved phase coherence, not discrete entropy."
+        ),
+        "symbolic": "I ∝ |⟨ψ|ψ⟩|²",
+    },
+
+    # --- Cognition ---
+    {
+        "id": "C1",
+        "domain": "Cognition",
+        "title": "Conscious Measurement Loop",
+        "statement": (
+            "Consciousness is recursive resonance measurement: Ψ ↔ μ(⟲Ψ)."
+        ),
+        "symbolic": "Ψ ↔ μ(⟲Ψ)",
+    },
+
+    # --- Computation ---
+    {
+        "id": "X1",
+        "domain": "Computation",
+        "title": "Phase-Closure Halting Condition",
+        "statement": (
+            "A computation halts when the system achieves πₛ closure; "
+            "symbolic termination equals phase coherence completion."
+        ),
+        "symbolic": "halt ⇔ ∮ Δφ = 2πₛ n",
+        "validated_by": ["validate_pi_s_closure"],
+    },
+]

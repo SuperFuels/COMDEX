@@ -1321,6 +1321,37 @@ LAW_REGISTRY = {
         _wrap("fundamental_consistency", lambda x: law_fundamental_consistency(x)),
     ],
 }
+# ──────────────────────────────
+# QuantumOps Integration (lazy injection)
+# ──────────────────────────────
+try:
+    from backend.symatics.quantum_ops import inject_into_law_registry
+    if inject_into_law_registry():
+        print("[SymaticsRulebook] ✅ QuantumOps successfully injected into LAW_REGISTRY['quantum']")
+    else:
+        print("[SymaticsRulebook] ⚠️ QuantumOps injection skipped or failed silently")
+except Exception as e:
+    print(f"[SymaticsRulebook] ⚠️ QuantumOps injection deferred: {e}")
+
+# =====================================================
+# 🔗 Manual Integration — Symatics Meta-Axioms (v2.0+)
+# =====================================================
+
+from backend.symatics.axioms import load_axioms
+
+if "META_AXIOMS_COMBINED" not in globals():
+    try:
+        META_AXIOMS_COMBINED = load_axioms(version="v02")
+        for ax in META_AXIOMS_COMBINED:
+            domain = ax.get("domain", "General")
+            LAW_REGISTRY.setdefault(domain, [])
+            LAW_REGISTRY[domain].append(ax)
+
+        print(f"[SymaticsRulebook v0.3] ✅ Integrated {len(META_AXIOMS_COMBINED)} axioms "
+              f"(symbolic + meta, v02) into LAW_REGISTRY")
+
+    except Exception as e:
+        print(f"[SymaticsRulebook v0.3] ⚠️ Meta-axiom integration failed: {e}")
 
 def _law_name(func) -> str:
     """

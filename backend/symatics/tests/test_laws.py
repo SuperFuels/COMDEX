@@ -3,9 +3,11 @@ import math
 import pytest
 from hypothesis import given, strategies as st
 
-from symatics.signature import Signature
-from symatics.operators import OPS
+from backend.symatics.signature import Signature
+from backend.symatics.operators import OPS
+import pytest
 
+pytestmark = pytest.mark.legacy  # mark all old tests
 
 # ---------------------------------------------------------------------------
 # Helpers
