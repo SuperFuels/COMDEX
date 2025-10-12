@@ -514,65 +514,88 @@ def check_all_laws(expr: Any, ctx: Optional[Any] = None) -> Dict[str, Dict[str, 
 
 
 # -------------------------------------------------------------------------
-# Runtime Orchestration
+# Runtime Orchestration (v0.4.2 → v0.5 Adaptive Integration)
 # -------------------------------------------------------------------------
+try:
+    from backend.symatics.core.adaptive_laws import AdaptiveLawEngine
+except ImportError:
+    AdaptiveLawEngine = None
+
+
 def run_law_checks(expr: Any, ctx: Optional[Any] = None) -> Dict[str, Dict[str, Any]]:
     """
     Execute all runtime law checks conditionally based on context flags.
-    - ctx.validate_runtime: enables validator execution.
-    - ctx.enable_trace: emits telemetry.
+    Includes:
+      • Standard v0.4.2 law validations
+      • CodexTrace telemetry emission
+      • v0.5 Adaptive λᵢ(t) feedback for drift correction
     """
     if not getattr(ctx, "validate_runtime", False):
         return {}
 
     results = check_all_laws(expr, ctx)
 
-    # Always perform μ↔∇ energy conservation check if relevant
-    if isinstance(expr, dict) and expr.get("op") in {"μ", "∇"}:
-        results["collapse_energy_equivalence"] = law_collapse_energy_equivalence(expr, ctx)
+    # ---------------------------------------------------------------------
+    # Core symbolic and runtime law coverage (v0.4.2 baseline)
+    # ---------------------------------------------------------------------
+    if isinstance(expr, dict):
 
-    # Temporal resonance continuity (⟲)
-    if isinstance(expr, dict) and expr.get("op") == "⟲":
-        results["resonance_continuity"] = law_resonance_continuity(expr, ctx)
-    
-    # Resonance damping consistency (ℚ↯)
-    if isinstance(expr, dict) and expr.get("op") == "ℚ↯":
-        results["resonance_damping_consistency"] = law_resonance_damping_consistency(expr, ctx)
+        # μ↔∇ energy conservation
+        if expr.get("op") in {"μ", "∇"}:
+            results["collapse_energy_equivalence"] = law_collapse_energy_equivalence(expr, ctx)
 
-    # Entanglement symmetry (↔)
-    if isinstance(expr, dict) and expr.get("op") in {"⊗GHZ", "⊗W"}:
-        results["entanglement_symmetry"] = law_entanglement_symmetry(expr, ctx)
+        # Temporal resonance continuity (⟲)
+        if expr.get("op") == "⟲":
+            results["resonance_continuity"] = law_resonance_continuity(expr, ctx)
 
-    # Projection–collapse consistency (πμ)
-    if isinstance(expr, dict) and expr.get("op") == "πμ":
-        results["projection_collapse_consistency"] = law_projection_collapse_consistency(expr, ctx)
+        # Resonance damping consistency (ℚ↯)
+        if expr.get("op") == "ℚ↯":
+            results["resonance_damping_consistency"] = law_resonance_damping_consistency(expr, ctx)
 
-    # Δ/∫ Fundamental Theorem Consistency
-    if isinstance(expr, dict) and expr.get("op") == "calc_fundamental_theorem":
-        results["fundamental_consistency"] = law_fundamental_consistency(expr, ctx)
+        # Entanglement symmetry (↔)
+        if expr.get("op") in {"⊗GHZ", "⊗W"}:
+            results["entanglement_symmetry"] = law_entanglement_symmetry(expr, ctx)
 
-    # Interference non-idempotence (⋈[φ])
-    if isinstance(expr, dict) and expr.get("op") == "⋈":
-        results["interference_non_idem"] = law_interference_non_idem(expr, ctx)
+        # Projection–collapse consistency (πμ)
+        if expr.get("op") == "πμ":
+            results["projection_collapse_consistency"] = law_projection_collapse_consistency(expr, ctx)
 
-    # Collapse conservation (μ)
-    if isinstance(expr, dict) and expr.get("op") == "μ":
-        results["collapse_conservation"] = law_collapse_conservation(expr, ctx)
+        # Δ/∫ Fundamental Theorem Consistency
+        if expr.get("op") == "calc_fundamental_theorem":
+            results["fundamental_consistency"] = law_fundamental_consistency(expr, ctx)
 
-    # Resonance energy–time invariance (⟲t)
-    if isinstance(expr, dict) and expr.get("op") in {"⟲", "⟲t"}:
-        results["resonance_energy_time_invariance"] = law_resonance_energy_time_invariance(expr, ctx)
+        # Interference non-idempotence (⋈[φ])
+        if expr.get("op") == "⋈":
+            results["interference_non_idem"] = law_interference_non_idem(expr, ctx)
 
-    # Optional telemetry output
+        # Collapse conservation (μ)
+        if expr.get("op") == "μ":
+            results["collapse_conservation"] = law_collapse_conservation(expr, ctx)
+
+        # Resonance energy–time invariance (⟲t)
+        if expr.get("op") in {"⟲", "⟲t"}:
+            results["resonance_energy_time_invariance"] = law_resonance_energy_time_invariance(expr, ctx)
+
+    # ---------------------------------------------------------------------
+    # CodexTrace Telemetry Emission
+    # ---------------------------------------------------------------------
     if getattr(ctx, "enable_trace", False):
         for law_id, outcome in results.items():
             record_event(
                 "law_check",
                 law=law_id,
                 passed=outcome.get("passed", False),
-                deviation=outcome.get("deviation", None),
-                details=outcome.get("details", None),
+                deviation=outcome.get("deviation"),
+                details=outcome.get("details"),
             )
+
+    # ---------------------------------------------------------------------
+    # Adaptive Feedback Update (v0.5)
+    # ---------------------------------------------------------------------
+    if hasattr(ctx, "law_weights") and isinstance(ctx.law_weights, AdaptiveLawEngine):
+        for law_id, outcome in results.items():
+            deviation = outcome.get("deviation", 0.0)
+            ctx.law_weights.update(law_id, deviation)
 
     return results
 

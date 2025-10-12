@@ -1,8 +1,5 @@
 🧭 TESSARIS: Full Build Implementation Plan
-
 mindmap
-  root((TESSARIS BUILD IMPLEMENTATION TRACKER))
-
 root((TESSARIS BUILD IMPLEMENTATION TRACKER))
 
 🟢 GlyphNet (Semantic Intelligence Layer)
@@ -113,6 +110,60 @@ Telemetry Validation
 - [ ] Verify SQI drift map generation
 - [ ] Confirm decoherence_fingerprint logging
 - [ ] Validate GHX/QFC overlay alignment
+
+%% Tessaris Symatics Expansion Tasks
+%% Two future modules: Dynamics + Experimental Interface
+
+flowchart TD
+LEAN 
+    subgraph SYMATICS_FUTURE["🚀 Symatics Expansion (v2.2+)"]
+        
+        direction TB
+        
+        A1["🌊 Dynamics Layer — Resonance Simulation"]
+        A2["🧪 Experimental Interface — I/O + Lab Binding"]
+    end
+
+    %% Dynamics Layer breakdown
+    subgraph DYNAMICS["🌊 Dynamics Layer Tasks"]
+        D1["📘 Define evolution equation ψ(t): include ⊕, μ, ⟲ operators"]
+        D2["⚙️ Implement time integrator (Runge–Kutta or Euler)"]
+        D3["📈 Output φ̇(t), μ(t), E(t) traces for SDK consumption"]
+        D4["🧪 Add test_symatics_dynamics.py for regression validation"]
+        D5["📝 Update Symatics_Operator_Mapping.md with dynamic entries"]
+        D6["✅ Validation: resonance → collapse → reformation cycle closes within tol < 0.05"]
+    end
+
+    %% Experimental Interface breakdown
+    subgraph INTERFACE["🧪 Experimental Interface Tasks"]
+        E1["🔌 Create sym_io_photonics.py: map μ ↔ tap ratio / power"]
+        E2["🧊 Create sym_io_qubit.py: map μ ↔ Γₘ, φ̇ ↔ Ω_R"]
+        E3["💾 Support JSON/CSV import-export for simulated lab data"]
+        E4["📡 Add real or simulated instrument API wrappers (mock backend)"]
+        E5["🧠 Integrate with SymPhysics layer for cross-validation"]
+        E6["✅ Validation: E_meas from lab input passes SymTactics.energy_mass_equivalence()"]
+    end
+
+    %% Dependencies
+    A1 --> DYNAMICS
+    A2 --> INTERFACE
+    DYNAMICS --> INTERFACE
+
+    %% Cross-links
+    D4 --> E5
+    D6 --> E6
+
+    %% Milestone groupings
+    subgraph MILESTONES["🧭 Milestones"]
+        M1["M1: Dynamics prototype validated numerically"]
+        M2["M2: Experimental I/O integrated with Physics layer"]
+        M3["M3: Both modules documented + added to operator map"]
+    end
+
+    D6 --> M1
+    E6 --> M2
+    M1 --> M3
+    M2 --> M3
 
 
 Below is a Mermaid hierarchical checklist — each node represents a module or integration milestone.

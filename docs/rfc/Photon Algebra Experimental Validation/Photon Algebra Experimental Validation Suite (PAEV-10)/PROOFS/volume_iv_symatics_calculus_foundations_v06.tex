@@ -1,0 +1,186 @@
+% ──────────────────────────────────────────────────────────────
+% Tessaris Symatics Documentation — Volume IV
+% Symatics Calculus Foundations (v0.6)
+% CodexCore Publication Series — November 2025
+% ──────────────────────────────────────────────────────────────
+
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb,graphicx,booktabs,array,xcolor,hyperref,sectsty,fancyhdr,titlesec}
+
+% ───────────── Visual Theme ─────────────
+\definecolor{tessarisgray}{HTML}{4A4A4A}
+\definecolor{tessarisaccent}{HTML}{C27BA0}
+
+\sectionfont{\color{black}}
+\subsectionfont{\color{tessarisgray}}
+\hypersetup{colorlinks=true,linkcolor=black,urlcolor=tessarisaccent}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot[C]{\textcolor{tessarisgray}{Tessaris Symatics Series • Page \thepage}}
+\renewcommand{\headrulewidth}{0pt}
+
+% ───────────── Cover Layout ─────────────
+\newcommand{\TessarisCover}[5]{%
+\begin{titlepage}
+\centering
+\vspace*{1cm}
+{\Huge \textbf{Tessaris Symatics Project}}\\[1.2cm]
+{\LARGE \textbf{#1}}\\[4pt]
+{\large CodexCore Publication Series}\\[1cm]
+\IfFileExists{tessaris_logo.png}{\includegraphics[width=0.22\textwidth]{tessaris_logo.png}\\[0.6cm]}{}
+{\Large \textbf{#2}}\\[3pt]
+{\color{tessarisgray}#3}\\[0.5cm]
+\rule{0.6\textwidth}{0.5pt}\\[0.5cm]
+{\large #4}\\[0.3cm]
+{\color{tessarisaccent}\small #5}\\[2cm]
+\textbf{Maintainer:} Tessaris Core Systems / Codex Intelligence Group\\[2pt]
+\textbf{Repository:} backend/symatics/\\[4pt]
+\vfill
+{\small \color{tessarisgray}© 2025 Tessaris / CodexCore. All rights reserved.}
+\end{titlepage}
+}
+
+% ───────────── Section Formatting ─────────────
+\titleformat{\section}{\normalfont\Large\bfseries}{\thesection}{1em}{}
+\titleformat{\subsection}{\normalfont\large\bfseries}{\thesubsection}{1em}{}
+
+% ───────────── Document ─────────────
+\begin{document}
+
+\TessarisCover
+  {Volume IV — Symatics Calculus Foundations}
+  {v0.6 Preformal Draft}
+  {November 2025}
+  {Continuous Operators and the Resonant Gradient Field}
+  {Part of the Tessaris Symatics Documentation Set (Volumes 0–IV)}
+
+% ──────────────────────────────────────────────────────────────
+\section*{Abstract}
+This volume inaugurates the \textbf{Symatics Calculus} — the continuous limit of the symbolic wave algebra introduced in Volumes~I–III.
+Here, discrete symbolic operators such as superposition $(\oplus)$, measurement $(\mu)$, and resonance $(\circlearrowleft)$ acquire differential extensions $(\partial_\oplus, \partial_\mu, \partial_\circlearrowleft)$.
+These define the \emph{Resonant Gradient Field}, a continuous manifold where symbolic wave dynamics obey differentiable continuity and conservation laws.
+
+% ──────────────────────────────────────────────────────────────
+\section{From Discrete to Continuous Symatics}
+Previously, symbolic operators acted as algebraic transforms over discrete symbolic entities.
+The calculus formulation introduces continuous evolution:
+\[
+\psi(t + \Delta t) - \psi(t)
+  = \Delta t\,\frac{\partial \psi}{\partial t}
+  + O(\Delta t^2),
+\]
+and generalizes symbolic updates to:
+\[
+\delta_\oplus \psi = \partial_\oplus \psi \,\Delta \xi_\oplus,
+\quad
+\delta_\mu \psi = \partial_\mu \psi \,\Delta \xi_\mu,
+\quad
+\delta_\circlearrowleft \psi = \partial_\circlearrowleft \psi \,\Delta \xi_\circlearrowleft,
+\]
+where $\Delta \xi_i$ represents infinitesimal symbolic displacements in their respective operator domains.
+
+% ──────────────────────────────────────────────────────────────
+\section{Resonant Gradient Field}
+The continuous symbolic manifold is defined by a local potential $\Phi(\psi)$ satisfying:
+\[
+\nabla_{\mathcal{S}} \Phi =
+  \left( \partial_\oplus \Phi,\, \partial_\mu \Phi,\, \partial_\circlearrowleft \Phi \right).
+\]
+This triplet forms the \textbf{Resonant Gradient Field (RGF)}, representing infinitesimal variations across superposition, measurement, and resonance axes.
+
+In its simplest form:
+\[
+d\Phi = \partial_\oplus \Phi\, d\xi_\oplus
+      + \partial_\mu \Phi\, d\xi_\mu
+      + \partial_\circlearrowleft \Phi\, d\xi_\circlearrowleft.
+\]
+When all three gradients commute, the field is said to be \emph{harmonically closed}, implying total energy–phase coherence:
+\[
+\partial_\mu \partial_\circlearrowleft \Phi
+= \partial_\circlearrowleft \partial_\mu \Phi.
+\]
+
+% ──────────────────────────────────────────────────────────────
+\section{Operator Extensions}
+We define the first continuous differential operators in Symatics:
+
+\begin{itemize}
+  \item \textbf{∂⊕ (Superposition Gradient)} – quantifies infinitesimal interference amplitude change.
+  \item \textbf{∂μ (Measurement Gradient)} – tracks continuous collapse tendency and coherence flow.
+  \item \textbf{∂⟲ (Resonance Gradient)} – describes decay-rate variation and temporal drift.
+\end{itemize}
+
+Together they define the calculus basis:
+\[
+\mathcal{D}_{Sym} = \{\,\partial_\oplus, \partial_\mu, \partial_\circlearrowleft\,\}.
+\]
+
+These operators obey mixed commutation rules derived from empirical drift models in Volume~III:
+\[
+[\partial_\oplus, \partial_\mu] = \eta_1\,\partial_\circlearrowleft,
+\qquad
+[\partial_\mu, \partial_\circlearrowleft] = \eta_2\,\partial_\oplus,
+\qquad
+[\partial_\circlearrowleft, \partial_\oplus] = \eta_3\,\partial_\mu,
+\]
+where $\eta_i$ are coupling coefficients representing cross-domain resonance.
+
+% ──────────────────────────────────────────────────────────────
+\section{Differential Symatic Equation (DSE)}
+At the continuum limit, symbolic state evolution follows:
+\[
+\frac{d\psi}{dt}
+  = \alpha\,\partial_\oplus \psi
+  + \beta\,\partial_\mu \psi
+  + \gamma\,\partial_\circlearrowleft \psi,
+\]
+where coefficients $(\alpha,\beta,\gamma)$ encode relative influence of interference, measurement, and resonance dynamics.
+
+This forms the canonical \textbf{Differential Symatic Equation}, the foundational structure of all continuous Symatics computation.
+It naturally generalizes the adaptive framework of Volume~III by substituting discrete weight updates $\lambda_i(t)$ with continuous field propagation.
+
+% ──────────────────────────────────────────────────────────────
+\section{Field Interpretation and Geometry}
+In the continuous limit, the Symatics manifold $\mathcal{S}$ becomes a pseudo-Hilbert field over symbolic coordinates $(\xi_\oplus,\xi_\mu,\xi_\circlearrowleft)$.
+Each operator gradient corresponds to a tangent vector of this manifold.
+Resonance conservation demands that:
+\[
+\nabla_{\mathcal{S}} \cdot \mathbf{J}_\psi = 0,
+\]
+where $\mathbf{J}_\psi$ represents the Symatic flux density vector, coupling amplitude and coherence flow.
+
+% ──────────────────────────────────────────────────────────────
+\section{Roadmap and Deliverables}
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+\textbf{Component} & \textbf{Description} & \textbf{Output}\\
+\midrule
+Differential Operator Kernel & Defines ∂⊕, ∂μ, ∂⟲ mechanics & \texttt{symatics\_calculus.py}\\
+Resonant Gradient Field Module & Continuous symbolic potential Φ(ψ) & \texttt{gradient\_field.py}\\
+Differential Symatic Equation & Unified continuous evolution model & \texttt{dse\_solver.py}\\
+Test Suite & Gradient commutation + stability checks & \texttt{test\_symatics\_calculus.py}\\
+Volume IV Documentation & This mathematical foundation paper & \texttt{volume\_iv\_v06.tex}\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+% ──────────────────────────────────────────────────────────────
+\section{Conclusion}
+Volume~IV establishes the mathematical foundation for continuous symbolic computation in Tessaris Symatics.
+Through the differential operators $(\partial_\oplus,\partial_\mu,\partial_\circlearrowleft)$ and the Resonant Gradient Field, symbolic computation transcends discrete evaluation and enters the realm of continuous resonance calculus.
+This framework lays the groundwork for Volume~V — the \textbf{Symatic Wave Field Dynamics (v0.7)} — where these derivatives will be unified into a Lagrangian formulation.
+
+\bigskip
+\noindent
+\textcolor{tessarisgray}{\textbf{Version:}} v0.6 Symatics Calculus Foundations — Preformal Draft\\
+\textcolor{tessarisgray}{\textbf{Maintainer:}} Tessaris Core Systems — November 2025.
+
+\vfill
+\begin{center}
+{\small \textcolor{tessarisgray}{End of Volume IV – Symatics Calculus Foundations}}
+\end{center}
+
+\end{document}

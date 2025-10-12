@@ -1,0 +1,190 @@
+Excellent — this will be Volume IV of the Tessaris Symatics Documentation Series:
+🧮 Continuous Wave Calculus Layer (v 1.0) — formalizing ∂ψ/∂t, ∇²ψ, and λ feedback coupling.
+Below is the full LaTeX standalone document, ready to paste as
+
+
+% ──────────────────────────────────────────────────────────────
+% Tessaris Symatics Documentation — Volume IV
+% Continuous Wave Calculus Layer (v1.0)
+% CodexCore Publication Series — October 2025
+% ──────────────────────────────────────────────────────────────
+
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb,graphicx,booktabs,array,xcolor,hyperref,sectsty,fancyhdr,titlesec,tikz}
+
+% ───────────── Visual Theme ─────────────
+\definecolor{tessarisgray}{HTML}{4A4A4A}
+\definecolor{tessarisaccent}{HTML}{C27BA0}
+
+\sectionfont{\color{black}}
+\subsectionfont{\color{tessarisgray}}
+\hypersetup{colorlinks=true,linkcolor=black,urlcolor=tessarisaccent}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot[C]{\textcolor{tessarisgray}{Tessaris Symatics Series • Page \thepage}}
+\renewcommand{\headrulewidth}{0pt}
+
+% ───────────── Cover Layout ─────────────
+\newcommand{\TessarisCover}[5]{%
+\begin{titlepage}
+\centering
+\vspace*{1cm}
+{\Huge \textbf{Tessaris Symatics Project}}\\[1.2cm]
+{\LARGE \textbf{#1}}\\[4pt]
+{\large CodexCore Publication Series}\\[1cm]
+\IfFileExists{tessaris_logo.png}{\includegraphics[width=0.22\textwidth]{tessaris_logo.png}\\[0.6cm]}{}
+{\Large \textbf{#2}}\\[3pt]
+{\color{tessarisgray}#3}\\[0.5cm]
+\rule{0.6\textwidth}{0.5pt}\\[0.5cm]
+{\large #4}\\[0.3cm]
+{\color{tessarisaccent}\small #5}\\[2cm]
+\textbf{Maintainer:} Tessaris Core Systems / Codex Intelligence Group\\[2pt]
+\textbf{Repository:} backend/symatics/\\[4pt]
+\vfill
+{\small \color{tessarisgray}© 2025 Tessaris / CodexCore. All rights reserved.}
+\end{titlepage}
+}
+
+% ───────────── Document ─────────────
+\begin{document}
+
+\TessarisCover
+  {Volume IV — Continuous Wave Calculus Layer}
+  {v1.0 Core Engine Release}
+  {October 2025}
+  {Differential and Integral Operators in Symbolic Wave Computation}
+  {Part of the Symatics Documentation Set (Volumes 0–IV)}
+
+% ──────────────────────────────────────────────────────────────
+\section*{Abstract}
+Volume IV introduces the \textbf{Symatics Calculus Engine} — the continuous, differential stage of the Tessaris framework.
+It extends the adaptive λ-weighted runtime (Volume III) into full wave evolution under continuous time $t$, defining temporal and spatial operators over the symbolic field $\psi(x,y,t)$.
+The result is a stable, physically interpretable calculus of symbolic waves, forming the foundation for the analytical and visual layers to come.
+
+% ──────────────────────────────────────────────────────────────
+\section{Foundations}
+Every symbolic expression $\psi$ is treated as a differentiable field subject to time evolution:
+\[
+\frac{\partial\psi}{\partial t} = \lambda\,\nabla^2\psi - \gamma\,\psi
+\]
+where $\lambda(t)$ is the adaptive law coefficient from the ARLF, and $\gamma$ a damping term maintaining bounded energy.
+The operator $\nabla^2$ is realized via a discrete Laplacian on a finite grid.
+
+% ──────────────────────────────────────────────────────────────
+\section{Differential Operators}
+Three primitives define the calculus layer:
+\begin{align}
+d_t[\psi] &= \frac{\psi(t+\Delta t)-\psi(t)}{\Delta t},\\[4pt]
+\nabla^2[\psi] &= \frac{\partial^2\psi}{\partial x^2}+\frac{\partial^2\psi}{\partial y^2},\\[4pt]
+\int\psi\,d\psi &= \sum_{x,y}\psi(x,y)\,\Delta x\,\Delta y.
+\end{align}
+
+Code representation:
+\begin{verbatim}
+# backend/symatics/core/wave_diff_engine.py
+def d_dt(field_t, field_t1, dt=1.0): ...
+def laplacian(field): ...
+def integrate_wave(field, dx=1.0, dy=1.0): ...
+\end{verbatim}
+
+CodexTrace telemetry logs each operator’s application for subsequent coherence analysis.
+
+% ──────────────────────────────────────────────────────────────
+\section{Resonant Dynamics}
+Wave propagation couples time and space derivatives:
+\[
+\psi_{t+\Delta t}=\psi_t+\Delta t(\lambda_t\nabla^2\psi_t-\gamma\psi_t)
+\]
+This stable discrete form incorporates adaptive feedback via $\lambda_t$, linking energetic drift to dynamic evolution.
+
+% ──────────────────────────────────────────────────────────────
+\section{Wave Diff Engine Architecture}
+\begin{verbatim}
+class WaveDiffEngine:
+    def register_field(self, name, field): ...
+    def step(self, ψ_name, λ_name, dt=1.0): ...
+    def measure_energy(self, ψ_name): ...
+    def coherence_index(self, ψ_name): ...
+\end{verbatim}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{llll}
+\toprule
+\textbf{Function} & \textbf{Operation} & \textbf{Symbolic Analogue} & \textbf{Telemetry}\\
+\midrule
+\texttt{d\_dt} & Temporal derivative & $\partial\psi/\partial t$ & d\_dt\\
+\texttt{laplacian} & Spatial curvature & $\nabla^2\psi$ & laplacian\\
+\texttt{integrate\_wave} & Field integral & $\int\psi\,d\psi$ & integrate\_wave\\
+\texttt{evolve\_wavefield} & Dynamic step & $\psi_{t+\Delta t}$ & evolve\_wavefield\\
+\texttt{measure\_energy} & Energy density & $\sum\psi^2$ & wave\_energy\\
+\texttt{coherence\_index} & Gradient smoothness & $e^{-\lVert\nabla\psi\rVert}$ & coherence\_index\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+% ──────────────────────────────────────────────────────────────
+\section{Illustrations and Feedback Flow}
+\subsection*{Figure 1: ψ-Field Evolution Diagram}
+\begin{center}
+\begin{tikzpicture}[>=latex,scale=1.1]
+\node[circle,draw,thick,minimum size=1cm] (psi0) at (0,0) {$\psi_t$};
+\node[circle,draw,thick,minimum size=1cm,right=3cm of psi0] (psi1) {$\psi_{t+\Delta t}$};
+\draw[->,thick] (psi0) -- (psi1) node[midway,above] {$d_t[\psi]$};
+\draw[->,thick,blue!60!black] (0,-1) -- (3,-1) node[midway,below] {$\lambda_t\,\nabla^2\psi_t$};
+\draw[->,thick,red!60!black] (1.5,1) -- (1.5,2) node[midway,right] {$-\gamma\psi_t$};
+\node[below of=psi0,node distance=1.5cm,text=tessarisgray] {Input field};
+\node[below of=psi1,node distance=1.5cm,text=tessarisgray] {Evolved field};
+\end{tikzpicture}
+\end{center}
+
+\subsection*{Figure 2: Adaptive λ(t) Feedback Loop}
+\begin{center}
+\begin{tikzpicture}[>=latex,scale=1.0]
+\node[draw,rounded corners,thick,minimum width=3cm,minimum height=1cm,fill=tessarisaccent!10] (validator) at (0,0) {Runtime Law Validators};
+\node[draw,rounded corners,thick,minimum width=3cm,minimum height=1cm,fill=tessarisaccent!10,right=4cm of validator] (engine) {Adaptive Law Engine};
+\node[draw,rounded corners,thick,minimum width=3cm,minimum height=1cm,fill=tessarisaccent!10,below=1.8cm of engine] (wave) {WaveDiff Engine};
+\draw[->,thick] (validator) -- node[above]{deviation Δ}(engine);
+\draw[->,thick] (engine) -- node[right]{$\lambda_t$}(wave);
+\draw[->,thick] (wave) -| node[pos=0.25,below] {resonance metric $\mathcal{R}$}(validator);
+\node[above of=engine,node distance=1.2cm,text=tessarisgray] {\small Adaptive feedback maintains coherence};
+\end{tikzpicture}
+\end{center}
+
+% ──────────────────────────────────────────────────────────────
+\section{Validation and Testing}
+All calculus components are verified by \texttt{test\_wave\_diff\_engine.py}, ensuring:
+\begin{itemize}
+  \item Correct Laplacian shape and curvature response.
+  \item Monotonic energy decay under damping.
+  \item Coherence index bounded in $[0,1]$.
+\end{itemize}
+
+% ──────────────────────────────────────────────────────────────
+\section{Outlook}
+Volume IV completes the continuous layer of Tessaris.
+Future releases will expand into:
+\begin{itemize}
+  \item \textbf{Δ-Telemetry:} continuous recording of $\lambda(t)$ and $\psi(t)$.
+  \item \textbf{CodexRender Visualization:} animated ψ-field surfaces.
+  \item \textbf{Formal Calculus Proofs:} Lean A5 integration for differential reasoning.
+\end{itemize}
+
+% ──────────────────────────────────────────────────────────────
+\section*{Conclusion}
+The Continuous Wave Calculus Layer unifies all prior Symatics components into a single computational continuum.
+From symbolic laws (L), adaptive weights (λ), and quantum–temporal fusion (μ–⟲–↔), Tessaris now forms a living calculus — a self-evolving symbolic wave system.
+
+\bigskip
+\noindent
+\textcolor{tessarisgray}{\textbf{Version:}} v1.0 Continuous Wave Calculus Core\\
+\textcolor{tessarisgray}{\textbf{Maintainer:}} Tessaris Core Systems — October 2025
+
+\vfill
+\begin{center}
+{\small \textcolor{tessarisgray}{End of Volume IV — Continuous Wave Calculus Layer}}
+\end{center}
+
+\end{document}

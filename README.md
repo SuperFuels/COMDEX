@@ -31,7 +31,7 @@ gcloud run deploy comdex-api \
   --timeout=300s
 
 git add .
-git commit -m "calculus locked in"
+git commit -m "calculus locked in v2"
 git push origin main
 
 gcloud builds submit --config cloudbuild.yaml .
