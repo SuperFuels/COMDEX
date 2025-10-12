@@ -4,7 +4,7 @@ from typing import Optional
 import cmath
 
 from backend.symatics.signature import Signature
-from backend.symatics.operators import Operator
+from backend.symatics.operators.base import Operator  # ✅ fixed import (no circular import)
 from backend.symatics.operators.helpers import (
     _complex_from_amp_phase,
     _amp_phase_from_complex,
@@ -12,6 +12,7 @@ from backend.symatics.operators.helpers import (
     _freq_blend,
     _pol_blend,
 )
+
 
 def _cancel(a: Signature, b: Signature, ctx: Optional["Context"] = None) -> Signature:
     """
@@ -22,12 +23,11 @@ def _cancel(a: Signature, b: Signature, ctx: Optional["Context"] = None) -> Sign
     """
     z1 = _complex_from_amp_phase(a.amplitude, a.phase)
     z2 = _complex_from_amp_phase(b.amplitude, b.phase)
-    zc = z1 - z2
+    zc = z1 - z2  # destructive interference
 
     A, phi_eff = _amp_phase_from_complex(zc)
     f = _freq_blend(a.frequency, b.frequency)
     pol = _pol_blend(a.polarization, b.polarization)
-
     meta = _merge_meta(a.meta, b.meta, {"op": "⊖", "cancel": True})
 
     sig = Signature(
@@ -43,4 +43,5 @@ def _cancel(a: Signature, b: Signature, ctx: Optional["Context"] = None) -> Sign
     return ctx.canonical_signature(sig) if ctx else sig
 
 
+# Export operator
 cancel_op = Operator("⊖", 2, _cancel)

@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/symatics/core/validators/law_check.py
+# hypothesis_version: 6.139.2
+
+[0.01, 1.0, 'Runtime check failed', 'args', 'check_all_laws', 'collapse_equivalence', 'details', 'deviation', 'enable_trace', 'energy', 'error', 'law_check', 'note', 'op', 'passed', 'run_law_checks', 'validate', 'validate_runtime', 'μ', 'ψ1', 'ψ2', '∇', '⊕']

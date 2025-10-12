@@ -1,39 +1,30 @@
 """
-Deprecation Stub for Superpose Operator
----------------------------------------
-Use `backend.symatics.quantum_ops.superpose` instead.
+[Tessaris v0.2] — Legacy COMDEX Operator Stub
+──────────────────────────────────────────────
+This module is **deprecated** and retained only for archival / backward
+compatibility with legacy COMDEX tests or external tools.
+
+It is no longer active in the operator registry — the canonical implementation
+lives in:  backend/symatics/quantum_ops.py  (function: `superpose`).
+
+DO NOT import or modify this file. It will be removed in v0.3.
 """
 
 import warnings
-from backend.symatics.quantum_ops import superpose
-from backend.symatics.operators import Operator
-from backend.utils.deprecation_logger import log_deprecation
+from backend.symatics.operators.base import Operator
 
-# Emit warning immediately on import
-_import_msg = (
+warnings.warn(
     "backend.symatics.operators.superpose is deprecated. "
-    "Use backend.symatics.quantum_ops.superpose instead."
+    "Use backend.symatics.quantum_ops.superpose instead.",
+    DeprecationWarning,
+    stacklevel=2,
 )
-warnings.warn(_import_msg, DeprecationWarning, stacklevel=2)
-log_deprecation(_import_msg)
 
-
-def _superpose(a, b, ctx=None, **kwargs):
-    msg = (
-        "backend.symatics.operators.superpose is deprecated. "
-        "Use backend.symatics.quantum_ops.superpose instead."
-    )
-    warnings.warn(msg, DeprecationWarning, stacklevel=2)
-    log_deprecation(msg)
-
-    try:
-        # Try forwarding ctx if supported
-        return superpose(a, b, ctx=ctx, **kwargs)
-    except TypeError:
-        # Fallback if ctx is not accepted
-        return superpose(a, b, **kwargs)
-
-
-superpose_op = Operator("⊕", 2, _superpose)
+# Inactive placeholder Operator
+superpose_op = Operator(
+    name="superpose_op",
+    arity=2,
+    impl=lambda *a, **kw: {"deprecated": True, "op": "⊕", "args": a},
+)
 
 __all__ = ["superpose_op"]

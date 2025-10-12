@@ -44,26 +44,56 @@ def literal_signature(value: float) -> Signature:
 # Evaluator
 # ---------------------------------------------------------------------------
 
+from backend.symatics.core.validators.law_check import run_law_checks
+
 def eval_expr(node: SymNode, ctx: Optional["Context"] = None) -> Any:
     """
     Evaluate a Symatics AST node into a Signature (or entangled dict).
-    """
-    if node.is_leaf():
-        return canonical_signature(node.value) if ctx is None else ctx.canonical_signature(node.value)
 
+    Now integrates runtime law validation via run_law_checks()
+    when ctx.validate_runtime=True.
+    """
+    # --- Leaf Node ---------------------------------------------------------
+    if node.is_leaf():
+        result = (
+            canonical_signature(node.value)
+            if ctx is None
+            else ctx.canonical_signature(node.value)
+        )
+
+        # Optional per-leaf validation
+        if getattr(ctx, "validate_runtime", False):
+            run_law_checks(result, ctx)
+        return result
+
+    # --- Operator Node -----------------------------------------------------
     if node.op not in OPS:
         raise ValueError(f"Unknown operator: {node.op}")
 
     op: Operator = OPS[node.op]
     args = [eval_expr(arg, ctx) for arg in node.args]
 
-    # Call operator impl, pass ctx only if accepted
+    # --- Execute Operator Implementation ----------------------------------
     impl = op.impl
     try:
-        return impl(*args, ctx=ctx)  # if ctx-aware
+        result = impl(*args, ctx=ctx)  # modern API
     except TypeError:
-        return impl(*args)  # fallback for old API
+        result = impl(*args)  # fallback for older ops
 
+    # --- Runtime Validation + Telemetry -----------------------------------
+    if getattr(ctx, "validate_runtime", False):
+        try:
+            law_results = run_law_checks(result, ctx)
+
+            if getattr(ctx, "debug", False) and law_results:
+                passed = sum(1 for r in law_results.values() if r.get("passed"))
+                total = len(law_results)
+                print(f"[LawCheck] {passed}/{total} passed for op {node.op}")
+        except Exception as e:
+            if getattr(ctx, "debug", False):
+                print(f"[LawCheck] Skipped ({e})")
+
+    return result
 
 # ---------------------------------------------------------------------------
 # Parser (S-Expression v0.1)

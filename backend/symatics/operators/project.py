@@ -1,25 +1,30 @@
 # backend/symatics/operators/project.py
 from __future__ import annotations
+from typing import Optional, Union
 
-from typing import Optional
 from backend.symatics.signature import Signature
-from backend.symatics.operators import Operator
+from backend.symatics.operators.base import Operator   # ✅ fixed import (no circular import)
 from backend.symatics.operators.helpers import _merge_meta
 
 
-def _project(a: Signature, ctx: Optional["Context"] = None, *, subspace: str = "H") -> Signature:
+def _project(a: Signature, subspace: Union[str, "Context"] = "H", ctx: Optional["Context"] = None) -> Signature:
     """
     π Projection to subspace (v0.1):
     - Supported: H, V, RHC, LHC
     - If forcing change, apply gentle attenuation (×0.9)
     - Metadata includes projection target + attenuation factor
 
-    TODO v0.2+: Extend polarization projection with Jones calculus
-                and full complex vector rotation, not just ×0.9 attenuation.
+    Defensive: supports legacy call forms where the second arg is a string ("H"/"V")
+               or a Context passed as second positional parameter.
     """
+    # Handle legacy form where 2nd arg is Context
+    if ctx is None and not isinstance(subspace, str):
+        ctx = subspace
+        subspace = "H"
+
     allowed = ("H", "V", "RHC", "LHC")
     if subspace not in allowed:
-        return a
+        subspace = "H"
 
     atten = 1.0 if a.polarization == subspace else 0.9
     meta = _merge_meta(a.meta, {"projected": subspace, "atten": atten})
@@ -34,10 +39,11 @@ def _project(a: Signature, ctx: Optional["Context"] = None, *, subspace: str = "
         envelope=a.envelope,
         meta=meta,
     )
+
     return ctx.canonical_signature(sig) if ctx else sig
 
 
-# Fix: unary operator
+# Export unary operator
 project_op = Operator("π", 1, _project)
 
 # ---------------------------------------------------------------------------

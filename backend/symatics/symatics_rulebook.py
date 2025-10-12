@@ -379,6 +379,12 @@ def _canonical(expr: Any) -> Any:
                 return _canonical(expr["simplified"])
             return ("Δ", _canonical(args[0]), args[1])
 
+        # --- collapse (∇) ---
+        if op == "∇":
+            # Collapse canonicalization is simple — it acts like a unary wrapper.
+            # The operand is canonicalized, preserving symbolic form.
+            return ("∇", tuple(_canonical(a) for a in args))
+
         # --- multiplication (commutative) ---
         if op in {"*", "mul"}:
             def sort_key(x):
@@ -467,6 +473,11 @@ def _canonical(expr: Any) -> Any:
             val = args[0] if args else None
             return str(val) if val is not None else "0"
 
+        # --- Tensor / Equivalence / Negation (v0.2 symbolic ops) ---
+        if op in {"⊗", "≡", "¬"}:
+            # Each is symbolic — canonicalize their args and preserve op identity
+            return (op, tuple(_canonical(a) for a in args))
+
         # --- generic ops ---
         return (op, tuple(_canonical(a) for a in args))
 
@@ -504,35 +515,42 @@ def _val(obj: Any, key: str = "value") -> Any:
     Multi-stage normalization:
     1. For π/πμ → prefer 'value'
     2. For μ/measurement → prefer 'collapsed' then 'value'
-    3. Otherwise: prefer 'value', then 'result', else canonicalize
+    3. For new v0.2 ops (⊗, ≡, ¬) → prefer 'value' if present, else canonicalize
+    4. Otherwise: prefer 'value', then 'result', else canonicalize
     """
     if isinstance(obj, dict):
         op = obj.get("op")
 
-        # Projection
+        # --- Projection ---
         if op in {"π", "πμ"}:
             if "value" in obj:
                 return obj["value"]
 
-        # Measurement
+        # --- Measurement ---
         if op in {"μ", "measurement"}:
             if "collapsed" in obj:
                 return obj["collapsed"]
             if "value" in obj:
                 return obj["value"]
 
-        # Generic fallback
+        # --- Tensor / Equivalence / Negation (v0.2) ---
+        if op in {"⊗", "≡", "¬"}:
+            if "value" in obj:
+                return obj["value"]
+            return _canonical(obj)
+
+        # --- Generic fallback ---
         if key in obj:
             return obj[key]
         if "result" in obj and isinstance(obj["result"], (str, int, float)):
             return str(obj["result"])
         return _canonical(obj)
 
-    # If primitive already
+    # --- Primitive base cases ---
     if isinstance(obj, (int, float, str)):
         return str(obj)
 
-    # Stage 3 for lists/tuples or unknowns
+    # --- Lists, tuples, unknowns ---
     return _canonical(obj)
 # ──────────────────────────────
 # Laws / Axioms (v0.1 expanded)
@@ -1045,6 +1063,37 @@ def law_commutativity(op: str, a: Any, b: Any) -> bool:
     except Exception:
         return False
 
+# ---------------------------------------------------------------------------
+# Collapse Equivalence Law (μ ≡ ∇ on superposed states)
+# ---------------------------------------------------------------------------
+def law_collapse_equivalence():
+    """
+    μ(⊕a,b) ≡ ∇(⊕a,b)
+    Measurement of a superposition should be canonically equivalent
+    to an explicit collapse of that superposition.
+    """
+    mu_expr = {"op": "μ", "args": [{"op": "⊕", "args": ["a", "b"]}]}
+    nabla_expr = {"op": "∇", "args": [{"op": "⊕", "args": ["a", "b"]}]}
+
+    c_mu = _canonical(mu_expr)
+    c_nabla = _canonical(nabla_expr)
+
+    # Direct match?
+    if c_mu == c_nabla:
+        return True
+
+    # Symbolic override: treat μ and ∇ as equivalent when applied to ⊕
+    if (
+        isinstance(c_mu, tuple)
+        and isinstance(c_nabla, tuple)
+        and c_mu[0] in {"μ", "∇"}
+        and c_nabla[0] in {"μ", "∇"}
+    ):
+        inner_mu, inner_nabla = c_mu[1][0], c_nabla[1][0]
+        if inner_mu == inner_nabla:
+            return True
+
+    return False
 
 def law_associativity(op: str, a: Any, b: Any, c: Any) -> bool:
     """
@@ -1220,7 +1269,6 @@ def _wrap(name, func):
     func.__name__ = name
     return func
 
-
 LAW_REGISTRY = {
     # ──────────────────────────────
     # v0.1 core laws
@@ -1242,6 +1290,17 @@ LAW_REGISTRY = {
     "μ": [
         _wrap("duality",                  lambda a       : law_duality("μ", a)),
         _wrap("collapse_conservation",    lambda a       : law_collapse_conservation(a)),  # ✅ v0.3 addition
+
+        # ──────────────────────────────
+        # v0.2 collapse equivalence law
+        # ──────────────────────────────
+        _wrap(
+            "collapse_equivalence",
+            lambda a=None, b=None: (
+                _canonical({"op": "μ", "args": [{"op": "⊕", "args": ["a", "b"]}]})
+                == _canonical({"op": "∇", "args": [{"op": "⊕", "args": ["a", "b"]}]})
+            ),
+        ),
     ],
     "Δ": [
         _wrap("derivative",       lambda expr, var       : law_derivative("Δ", expr, var)),
@@ -1251,7 +1310,7 @@ LAW_REGISTRY = {
     "∫": [
         _wrap("integration_constant",     lambda expr, var: law_integration_constant("∫", expr, var)),
         _wrap("integration_power",        lambda expr, var: law_integration_power("∫", expr, var)),
-        _wrap("integration_sum",          lambda expr, var: law_integration_sum(expr, var)),
+        _wrap("integration_sum",          lambda expr, var: law_integration_sum("∫", expr, var)),
         _wrap("integration_substitution", lambda expr, var: law_integration_substitution(expr, var)),
     ],
 

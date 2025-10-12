@@ -1,39 +1,23 @@
 """
-Deprecation Stub for Entangle Operator
---------------------------------------
-Use `backend.symatics.quantum_ops.entangle` instead.
+[Tessaris v0.2] — Legacy COMDEX Operator Stub (↔ Entanglement)
+───────────────────────────────────────────────────────────────
+This file is inactive. The active entanglement logic resides in:
+backend/symatics/quantum_ops.py  (`entangle` function)
 """
-
 import warnings
-from backend.symatics.quantum_ops import entangle
-from backend.symatics.operators import Operator
-from backend.utils.deprecation_logger import log_deprecation
+from backend.symatics.operators.base import Operator
 
-# Emit warning immediately on import
-_import_msg = (
+warnings.warn(
     "backend.symatics.operators.entangle is deprecated. "
-    "Use backend.symatics.quantum_ops.entangle instead."
+    "Use backend.symatics.quantum_ops.entangle instead.",
+    DeprecationWarning,
+    stacklevel=2,
 )
-warnings.warn(_import_msg, DeprecationWarning, stacklevel=2)
-log_deprecation(_import_msg)
 
-
-def _entangle(a, b, ctx=None, **kwargs):
-    msg = (
-        "backend.symatics.operators.entangle is deprecated. "
-        "Use backend.symatics.quantum_ops.entangle instead."
-    )
-    warnings.warn(msg, DeprecationWarning, stacklevel=2)
-    log_deprecation(msg)
-
-    try:
-        # Try forwarding ctx in case supported
-        return entangle(a, b, ctx=ctx, **kwargs)
-    except TypeError:
-        # Fallback if entangle() does not accept ctx
-        return entangle(a, b, **kwargs)
-
-
-entangle_op = Operator("↔", 2, _entangle)
+entangle_op = Operator(
+    name="entangle_op",
+    arity=2,
+    impl=lambda *a, **kw: {"deprecated": True, "op": "↔", "args": a},
+)
 
 __all__ = ["entangle_op"]

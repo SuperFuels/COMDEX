@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/codex/codex_trace.py
+# hypothesis_version: 6.139.2
+
+[0.12, 0.88, 0.93, '5/5 passed', 'R3', '__main__', 'action', 'beamSource', 'benchmark', 'candidates', 'codex', 'codex_executor', 'codex_trace', 'collapse_trace', 'confidence', 'container', 'container_id', 'content', 'context', 'contradiction', 'cost', 'count', 'detail', 'engine', 'entropy', 'executed', 'ghx-001', 'ghx_id', 'glyph', 'glyph_executor', 'glyph_id', 'label', 'latest', 'law_check', 'note', 'notes', 'operator', 'original', 'path', 'photon', 'predict', 'predicted', 'prediction_engine', 'reason', 'replay_step', 'result', 'rewrite', 'rewrite_executor', 'rewritten', 'runtime', 'simplify', 'source', 'step', 'steps', 'suggestions', 'summary', 'symatics', 'test-container', 'theorem', 'timestamp', 'type', 'violations', '∇', '⊕', '⊗', '⊗(R1,R2)', '□']

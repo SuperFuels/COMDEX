@@ -4,7 +4,7 @@ import math
 from typing import Optional
 
 from backend.symatics.signature import Signature
-from backend.symatics.operators import Operator
+from backend.symatics.operators.base import Operator  # ✅ fixed import — no circular import
 
 
 def _damp(

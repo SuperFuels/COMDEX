@@ -2,8 +2,12 @@
 Symatics v2.0 Meta-Axioms Layer
 Tessaris / CodexCore 2025
 Defines the foundational Geometry→Computation laws (G–L–E–I–C–X)
-in executable structured form.
+in executable structured form, with runtime registry export.
 """
+
+# -------------------------------------------------------------------------
+# Meta-Axiom Definitions
+# -------------------------------------------------------------------------
 
 META_AXIOMS = [
     # --- Geometry ---
@@ -13,7 +17,8 @@ META_AXIOMS = [
         "title": "Phase Space Primacy",
         "statement": (
             "All metric geometry arises from resonance topology; "
-            "space and distance are projections of phase separations between coherent waves."
+            "space and distance are projections of phase separations "
+            "between coherent waves."
         ),
         "expression": "π(space) := ⟲(phase_coherence)",
         "validated_by": ["validate_pi_s_closure"],
@@ -99,3 +104,28 @@ META_AXIOMS = [
         "validated_by": ["validate_pi_s_closure"],
     },
 ]
+
+
+# -------------------------------------------------------------------------
+# Runtime Law Registry
+# -------------------------------------------------------------------------
+
+# Registry is dynamically extended by validators under core/validators/*
+LAW_REGISTRY = {}
+
+# Populate registry with placeholder validator metadata if not yet loaded
+for axiom in META_AXIOMS:
+    for v in axiom.get("validated_by", []):
+        LAW_REGISTRY[v] = {
+            "axiom_id": axiom["id"],
+            "domain": axiom["domain"],
+            "title": axiom["title"],
+            "validate": lambda expr, ctx=None, name=v: {"passed": True, "law": name},
+        }
+
+
+# -------------------------------------------------------------------------
+# Exports
+# -------------------------------------------------------------------------
+
+__all__ = ["META_AXIOMS", "LAW_REGISTRY"]

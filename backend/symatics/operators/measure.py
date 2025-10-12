@@ -1,39 +1,22 @@
 """
-Deprecation Stub for Measure Operator
--------------------------------------
-Use `backend.symatics.quantum_ops.measure` instead.
+[Tessaris v0.2] — Legacy COMDEX Operator Stub (μ Measurement)
+──────────────────────────────────────────────────────────────
+Inactive archival operator stub. Use quantum_ops.measure instead.
 """
-
 import warnings
-from backend.symatics.quantum_ops import measure
-from backend.symatics.operators import Operator
-from backend.utils.deprecation_logger import log_deprecation
+from backend.symatics.operators.base import Operator
 
-# Emit warning immediately on import
-_import_msg = (
+warnings.warn(
     "backend.symatics.operators.measure is deprecated. "
-    "Use backend.symatics.quantum_ops.measure instead."
+    "Use backend.symatics.quantum_ops.measure instead.",
+    DeprecationWarning,
+    stacklevel=2,
 )
-warnings.warn(_import_msg, DeprecationWarning, stacklevel=2)
-log_deprecation(_import_msg)
 
-
-def _measure(a, ctx=None, **kwargs):
-    msg = (
-        "backend.symatics.operators.measure is deprecated. "
-        "Use backend.symatics.quantum_ops.measure instead."
-    )
-    warnings.warn(msg, DeprecationWarning, stacklevel=2)
-    log_deprecation(msg)
-
-    try:
-        # Try forwarding ctx if supported
-        return measure(a, ctx=ctx, **kwargs)
-    except TypeError:
-        # Fallback if ctx is not accepted
-        return measure(a, **kwargs)
-
-
-measure_op = Operator("μ", 1, _measure)
+measure_op = Operator(
+    name="measure_op",
+    arity=1,
+    impl=lambda *a, **kw: {"deprecated": True, "op": "μ", "args": a},
+)
 
 __all__ = ["measure_op"]

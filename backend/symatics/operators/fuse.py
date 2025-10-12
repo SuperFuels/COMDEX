@@ -1,10 +1,9 @@
-# backend/symatics/operators/fuse.py
 from __future__ import annotations
 import cmath
 from typing import Optional
 
 from backend.symatics.signature import Signature
-from backend.symatics.operators import Operator
+from backend.symatics.operators.base import Operator  # ✅ fixed import (no circular reference)
 from backend.symatics.operators.helpers import (
     _complex_from_amp_phase,
     _amp_phase_from_complex,
@@ -13,12 +12,13 @@ from backend.symatics.operators.helpers import (
     _merge_meta,
 )
 
+
 def _fuse(a: Signature, b: Signature, *, phi: float = 0.0, ctx: Optional["Context"] = None) -> Signature:
     """
     ⋈ Interference/Fusion operator (v0.3):
     - Combines two signatures with explicit phase offset φ
     - Uses amplitude norm + phase averaging consistent with axioms A7–A8
-    - Metadata includes φ for traceability
+    - Metadata includes φ for traceability.
     """
     z1 = _complex_from_amp_phase(a.amplitude, a.phase)
     z2 = _complex_from_amp_phase(b.amplitude, b.phase)
@@ -27,7 +27,6 @@ def _fuse(a: Signature, b: Signature, *, phi: float = 0.0, ctx: Optional["Contex
     A, phi_eff = _amp_phase_from_complex(zc)
     f = _freq_blend(a.frequency, b.frequency)
     pol = _pol_blend(a.polarization, b.polarization)
-
     meta = _merge_meta(a.meta, b.meta, {"op": "⋈", "phi": phi})
 
     sig = Signature(

@@ -10,32 +10,29 @@ from .signature import Signature
 @dataclass
 class Context:
     """
-    Symatics execution context.
-    Holds global parameters for wave/algebra operations to ensure determinism.
-    Supports both built-in normalization and pluggable canonicalizers.
+    Symatics execution context (v0.3)
+    ---------------------------------
+    Holds global parameters for wave/algebra operations to ensure determinism
+    and provides runtime evaluation controls for validation and telemetry.
     """
 
-    # Frequency lattice spacing (Hz)
-    lattice_spacing: float = 1e-6
-
-    # Resonance tolerance (Hz)
-    resonance_tolerance: float = 1e-6
-
-    # Polarization basis set
+    # --- Core Physical Parameters ------------------------------------------
+    lattice_spacing: float = 1e-6          # Frequency lattice spacing (Hz)
+    resonance_tolerance: float = 1e-6      # Resonance matching tolerance (Hz)
     polarization_basis: tuple = ("H", "V", "RHC", "LHC")
-
-    # Noise floor amplitude (minimum measurable value)
-    noise_floor: float = 1e-12
-
-    # Collapse randomness seed (optional, for reproducibility)
-    seed: Optional[int] = None
-
-    # Metadata / experimental parameters
+    noise_floor: float = 1e-12             # Minimum measurable amplitude
+    seed: Optional[int] = None             # Collapse RNG seed
     meta: Dict[str, Any] = field(default_factory=dict)
 
-    # Optional pluggable canonicalizer (overrides built-in normalization)
+    # --- Optional Canonicalization Hooks -----------------------------------
     _canonicalizer: Optional[Callable[[Signature], Signature]] = None
 
+    # --- Runtime Control Flags (NEW) ---------------------------------------
+    validate_runtime: bool = False         # Run LAW_REGISTRY checks
+    enable_trace: bool = False             # Emit CodexTrace telemetry
+    debug: bool = False                    # Print debug info to stdout
+
+    # -----------------------------------------------------------------------
     def __init__(
         self,
         lattice_spacing: float = 1e-6,
@@ -46,15 +43,23 @@ class Context:
         meta: Optional[Dict[str, Any]] = None,
         canonicalizer: Optional[Callable[[Signature], Signature]] = None,
         _canonicalizer: Optional[Callable[[Signature], Signature]] = None,
+        validate_runtime: bool = False,
+        enable_trace: bool = False,
+        debug: bool = False,
     ):
+        # --- Core config ---
         self.lattice_spacing = lattice_spacing
         self.resonance_tolerance = resonance_tolerance
         self.polarization_basis = polarization_basis
         self.noise_floor = noise_floor
         self.seed = seed
         self.meta = meta or {}
-        # accept both canonicalizer and _canonicalizer for convenience
+
+        # --- Canonicalizer / runtime flags ---
         self._canonicalizer = canonicalizer or _canonicalizer
+        self.validate_runtime = validate_runtime
+        self.enable_trace = enable_trace
+        self.debug = debug
 
     # -----------------------------------------------------------------------
     # Built-in normalization rules
@@ -96,3 +101,15 @@ class Context:
             envelope=sig.envelope,
             meta={**sig.meta, "cnf": True},
         )
+
+    # -----------------------------------------------------------------------
+    # Logging Utilities
+    # -----------------------------------------------------------------------
+
+    def log(self, *args: Any) -> None:
+        """Conditional debug logging."""
+        if self.debug:
+            print("[CTX]", *args)
+
+
+__all__ = ["Context"]

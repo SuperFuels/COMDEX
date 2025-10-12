@@ -1,0 +1,1 @@
+{"type": "theorem", "engine": "symatics", "action": "law_check", "operator": "⊕", "timestamp": 1760274756.0222516, "summary": "5/5 passed", "violations": [], "context": {"container_id": "test-container", "ghx_id": "ghx-001"}}

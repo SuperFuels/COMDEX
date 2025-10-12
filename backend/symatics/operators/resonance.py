@@ -1,11 +1,10 @@
-# backend/symatics/operators/resonance.py
 from __future__ import annotations
 from typing import Optional
 
 from backend.symatics.signature import Signature
-# ✅ import Operator from __init__, not base
-from backend.symatics.operators import Operator
+from backend.symatics.operators.base import Operator   # ✅ fix circular import
 from backend.symatics.operators.helpers import _merge_meta, _pol_blend
+
 
 def _resonance(a: Signature, b: Signature, ctx: Optional["Context"] = None) -> Signature:
     """
@@ -52,10 +51,3 @@ def _resonance(a: Signature, b: Signature, ctx: Optional["Context"] = None) -> S
 
 
 resonance_op = Operator("⟲", 2, _resonance)
-# ---------------------------------------------------------------------------
-# Roadmap (⟲ Resonance v0.2+)
-# ---------------------------------------------------------------------------
-# - Introduce Q-factor models (bandwidth, sharpness).
-# - Simulate resonance decay/envelope over time.
-# - Extend to multimode resonance interactions.
-# - Add stochastic detuning noise injection.

@@ -1,12 +1,21 @@
 """
 Quantum Ops (dict-backed for registry + tests)
 ──────────────────────────────────────────────
-Unifies entangle, superpose, and measure operators.
+Unified quantum operator primitives for Tessaris Symatics.
 
 Exports:
   - dict-based quantum ops ({"op": "...", "args": [...]})
   - INSTRUCTION_REGISTRY mapping symbols to callables
   - LAW_REGISTRY["quantum"] hooks (lazy-injected to avoid circular import)
+
+Implements:
+  - ⊕  Superposition
+  - ↔  Entanglement
+  - μ  Measurement
+  - ε  Noisy Measurement
+  - ⊗  Tensor Fusion
+  - ≡  Equivalence / Coherence Check
+  - ¬  Negation / Phase Inversion
 """
 
 import random
@@ -43,6 +52,26 @@ def measurement_noisy(a, eps: float):
 
 
 # -----------------
+# Phase 1 — Extended Quantum Operators
+# -----------------
+
+def tensor(a, b):
+    """Tensor Fusion ⊗ — combines two waves into a single tensor product."""
+    return {"op": "⊗", "args": [a, b], "fused": True}
+
+
+def equivalence(a, b):
+    """Equivalence ≡ — symbolic coherence or equality operator."""
+    equal = a == b
+    return {"op": "≡", "args": [a, b], "coherent": equal}
+
+
+def negation(a):
+    """Negation ¬ — flips phase or symbolic sense of the argument."""
+    return {"op": "¬", "args": [a], "inverted": True}
+
+
+# -----------------
 # Instruction Registry
 # -----------------
 
@@ -51,6 +80,9 @@ INSTRUCTION_REGISTRY = {
     "↔": entangle,
     "μ": measure,
     "ε": measurement_noisy,
+    "⊗": tensor,
+    "≡": equivalence,
+    "¬": negation,
 }
 
 
@@ -66,7 +98,15 @@ def inject_into_law_registry():
     try:
         from backend.symatics.symatics_rulebook import LAW_REGISTRY
         LAW_REGISTRY.setdefault("quantum", [])
-        for fn in (entangle, superpose, measure, measurement_noisy):
+        for fn in (
+            entangle,
+            superpose,
+            measure,
+            measurement_noisy,
+            tensor,
+            equivalence,
+            negation,
+        ):
             if fn not in LAW_REGISTRY["quantum"]:
                 LAW_REGISTRY["quantum"].append(fn)
         return True
@@ -76,5 +116,6 @@ def inject_into_law_registry():
             f"[QuantumOps] Could not inject into LAW_REGISTRY (lazy): {e}"
         )
         return False
+
 
 # NOTE: ⚠️ No automatic injection here — must be called explicitly
