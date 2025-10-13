@@ -699,5 +699,65 @@
     "label": "symatics:law_check:\u2295",
     "content": "{\"type\": \"theorem\", \"engine\": \"symatics\", \"action\": \"law_check\", \"operator\": \"\u2295\", \"timestamp\": 1760274756.0222516, \"summary\": \"5/5 passed\", \"violations\": [], \"context\": {\"container_id\": \"test-container\", \"ghx_id\": \"ghx-001\"}}",
     "timestamp": "2025-10-12T13:12:36.426561"
+  },
+  {
+    "label": "codex_trace:law_check",
+    "content": "{\"type\": \"theorem\", \"engine\": \"symatics\", \"action\": \"law_check\", \"operator\": \"\u2295\", \"timestamp\": \"2025-10-13T10:25:34.295459+00:00\", \"summary\": \"4/6 passed\", \"violations\": [\"associativity (error: <lambda>() missing 1 required positional argument: 'c')\", \"distributivity (error: <lambda>() missing 1 required positional argument: 'c')\"], \"context\": {}, \"source\": \"runtime\"}",
+    "timestamp": "2025-10-13T10:26:09.347217"
+  },
+  {
+    "label": "codex_trace:law_check",
+    "content": "{\"type\": \"theorem\", \"engine\": \"symatics\", \"action\": \"law_check\", \"operator\": \"\u2295\", \"timestamp\": \"2025-10-13T10:27:40.357039+00:00\", \"summary\": \"4/6 passed\", \"violations\": [\"associativity (error: <lambda>() missing 1 required positional argument: 'c')\", \"distributivity (error: <lambda>() missing 1 required positional argument: 'c')\"], \"context\": {}, \"source\": \"runtime\"}",
+    "timestamp": "2025-10-13T10:27:45.995648"
+  },
+  {
+    "label": "codex_trace:law_check",
+    "content": "{\"type\": \"theorem\", \"engine\": \"symatics\", \"action\": \"law_check\", \"operator\": \"\u2295\", \"timestamp\": \"2025-10-13T10:28:38.671042+00:00\", \"summary\": \"4/6 passed\", \"violations\": [\"associativity (error: <lambda>() missing 1 required positional argument: 'c')\", \"distributivity (error: <lambda>() missing 1 required positional argument: 'c')\"], \"context\": {}, \"source\": \"runtime\"}",
+    "timestamp": "2025-10-13T10:28:44.306910"
+  },
+  {
+    "label": "codex_trace:law_check",
+    "content": "{\"type\": \"theorem\", \"engine\": \"symatics\", \"action\": \"law_check\", \"operator\": \"\u2295\", \"timestamp\": \"2025-10-13T10:31:23.488976+00:00\", \"summary\": \"4/6 passed\", \"violations\": [\"associativity (error: <lambda>() missing 1 required positional argument: 'c')\", \"distributivity (error: <lambda>() missing 1 required positional argument: 'c')\"], \"context\": {}, \"source\": \"runtime\"}",
+    "timestamp": "2025-10-13T10:31:29.090537"
+  },
+  {
+    "label": "codex_trace:law_check",
+    "content": "{\"type\": \"theorem\", \"engine\": \"symatics\", \"action\": \"law_check\", \"operator\": \"\u27f2\", \"timestamp\": \"2025-10-13T10:31:35.986279+00:00\", \"summary\": \"0/1 passed\", \"violations\": [], \"context\": {}, \"source\": \"runtime\"}",
+    "timestamp": "2025-10-13T10:31:41.654936"
+  },
+  {
+    "label": "codex_trace:law_check",
+    "content": "{\"type\": \"theorem\", \"engine\": \"symatics\", \"action\": \"law_check\", \"operator\": \"\u2295\", \"timestamp\": \"2025-10-13T10:34:23.967515+00:00\", \"summary\": \"4/6 passed\", \"violations\": [\"associativity (error: <lambda>() missing 1 required positional argument: 'c')\", \"distributivity (error: <lambda>() missing 1 required positional argument: 'c')\"], \"context\": {}, \"source\": \"runtime\"}",
+    "timestamp": "2025-10-13T10:34:29.675230"
+  },
+  {
+    "label": "codex_trace:law_check",
+    "content": "{\"type\": \"theorem\", \"engine\": \"symatics\", \"action\": \"law_check\", \"operator\": \"\u27f2\", \"timestamp\": \"2025-10-13T10:34:34.863902+00:00\", \"summary\": \"0/1 passed\", \"violations\": [], \"context\": {}, \"source\": \"runtime\"}",
+    "timestamp": "2025-10-13T10:34:40.350187"
+  },
+  {
+    "label": "codex_trace:law_check",
+    "content": "{\"type\": \"theorem\", \"engine\": \"symatics\", \"action\": \"law_check\", \"operator\": \"\u2295\", \"timestamp\": \"2025-10-13T10:36:28.829632+00:00\", \"summary\": \"4/6 passed\", \"violations\": [\"associativity (error: <lambda>() missing 1 required positional argument: 'c')\", \"distributivity (error: <lambda>() missing 1 required positional argument: 'c')\"], \"context\": {}, \"source\": \"runtime\"}",
+    "timestamp": "2025-10-13T10:36:34.515670"
+  },
+  {
+    "label": "codex_trace:law_check",
+    "content": "{\"type\": \"theorem\", \"engine\": \"symatics\", \"action\": \"law_check\", \"operator\": \"\u2295\", \"timestamp\": \"2025-10-13T10:41:14.392596+00:00\", \"summary\": \"4/6 passed\", \"violations\": [\"associativity (error: <lambda>() missing 1 required positional argument: 'c')\", \"distributivity (error: <lambda>() missing 1 required positional argument: 'c')\"], \"context\": {}, \"source\": \"runtime\"}",
+    "timestamp": "2025-10-13T10:41:20.132106"
+  },
+  {
+    "label": "codex_trace:law_check",
+    "content": "{\"type\": \"theorem\", \"engine\": \"symatics\", \"action\": \"law_check\", \"operator\": \"\u2295\", \"timestamp\": \"2025-10-13T10:44:49.188850+00:00\", \"summary\": \"4/6 passed\", \"violations\": [\"associativity (error: <lambda>() missing 1 required positional argument: 'c')\", \"distributivity (error: <lambda>() missing 1 required positional argument: 'c')\"], \"context\": {}, \"source\": \"runtime\"}",
+    "timestamp": "2025-10-13T10:44:54.823330"
+  },
+  {
+    "label": "codex_trace:law_check",
+    "content": "{\"type\": \"theorem\", \"engine\": \"symatics\", \"action\": \"law_check\", \"operator\": \"\u2194\", \"timestamp\": \"2025-10-13T10:46:08.196751+00:00\", \"summary\": \"1/1 passed\", \"violations\": [], \"context\": {}, \"source\": \"runtime\"}",
+    "timestamp": "2025-10-13T10:46:13.713471"
+  },
+  {
+    "label": "codex_trace:law_check",
+    "content": "{\"type\": \"theorem\", \"engine\": \"symatics\", \"action\": \"law_check\", \"operator\": \"\u2194\", \"timestamp\": \"2025-10-13T10:46:13.774440+00:00\", \"summary\": \"1/1 passed\", \"violations\": [], \"context\": {}, \"source\": \"runtime\"}",
+    "timestamp": "2025-10-13T10:46:13.800958"
   }
 ]

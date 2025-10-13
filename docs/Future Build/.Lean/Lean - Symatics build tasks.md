@@ -70,10 +70,10 @@ gantt
 
     %% ───────────────────────────────
     section 🧮 Phase 9 — Lean Reintegration (v2.1+)
-    🔬 Reopen Lean Proof Pipeline (A7 Integration)          :j1, after i6, 3d
-    🧠 Encode Tensor-Field Invariants (λ⊗ψ Stability Lemmas) :j2, after j1, 3d
-    📘 Define Energy–Information Theorem Suite (E↔I Duality) :j3, after j2, 2d
-    🧾 Finalize Calculus-Level Rulebook (v2.1 Proof Edition) :j4, after j3, 2d
+    ✅ Reopen Lean Proof Pipeline (A7 Integration)          :j1, after i6, 3d
+    ✅ Encode Tensor-Field Invariants (λ⊗ψ Stability Lemmas) :j2, after j1, 3d
+    ✅ Define Energy–Information Theorem Suite (E↔I Duality) :j3, after j2, 2d
+    ✅ Finalize Calculus-Level Rulebook (v2.1 Proof Edition) :j4, after j3, 2d
     ✅ Outcome — Lean-Verified Dynamic Wave Calculus (A7 Complete) :milestone, j5, after j4, 0d
 
 
