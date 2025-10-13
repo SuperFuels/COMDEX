@@ -520,6 +520,31 @@ D4 --> D4a[Integrate SRK-7 into full Tessaris symbolic core]
 D4 --> D4b[Finalize doc: srk_unified_symatic_field_spec.md]
 D4 --> D4c[Tag Tessaris Core v2.0 – “Unified Symatic Field Kernel”]
 
+%%─────────────────────────────────────────────
+%% SRK-8: Lean Reintegration + Proof Kernel (v2.1+)
+%%─────────────────────────────────────────────
+D --> E[📐 SRK-8: Lean Reintegration + Proof Kernel (v2.1+) ⏳ Planned]
+
+E --> E1[🔭 Reinstate Lean Proof Pipeline (A7 Integration)]
+E1 --> E1a[Link Codex theorem_ledger ↔ Lean proof exports]
+E1 --> E1b[Automate Lean ↔ Python synchronization via convert_lean_to_codexlang.py]
+
+E --> E2[🧮 Formalize Tensor-Field Invariants]
+E2 --> E2a[Encode λ⊗ψ tensor stability lemmas]
+E2 --> E2b[Prove conservation of ΔE ↔ ΔS duality (Energy–Entropy)]
+
+E --> E3[📘 Entropy–Information Theorem Suite]
+E3 --> E3a[Derive and prove E ↔ I duality relations]
+E3 --> E3b[Generate proof ledger: A7_EntropyProofs.lean]
+
+E --> E4[⚙️ Proof Integration with Runtime]
+E4 --> E4a[Integrate proof verification results into diagnostics()]
+E4 --> E4b[Expose validated invariants to SRK telemetry + CodexTrace]
+
+E --> E5[🚀 Integration + Release]
+E5 --> E5a[Merge Lean proof suite into symatics/core pipeline]
+E5 --> E5b[Finalize doc: srk_proof_integration_spec.md]
+E5 --> E5c[Tag Tessaris Core v2.1 – “Lean-Verified Dynamic Wave Calculus”]
 
 
 🧩 Summary of What SRK-1 Does

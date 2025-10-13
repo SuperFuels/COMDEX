@@ -486,6 +486,49 @@ def law_resonance_energy_time_invariance(expr: Any, ctx: Optional[Any] = None) -
     except Exception as e:
         return {"passed": False, "error": str(e), "details": "runtime resonance energy–time check failed"}
 
+# ─────────────────────────────────────────────────────────────
+# v0.4.6 — Field Entropy Regularization Law (SRK-3)
+# ─────────────────────────────────────────────────────────────
+def law_entropy_regularization(expr: Any, ctx: Optional[Any] = None) -> Dict[str, Any]:
+    """
+    Ensures entropy (S) acts as a stabilizing feedback on λ(t)
+    oscillations within SRK-3 field dynamics.
+
+    Expected expr:
+        {
+            "op": "entropy_feedback",
+            "S": <float>,          # current entropy
+            "lambda_t": <float>,   # current λ(t)
+            "lambda_prev": <float> # previous λ(t)
+        }
+    """
+    try:
+        if not isinstance(expr, dict) or expr.get("op") != "entropy_feedback":
+            return {"passed": None, "details": "not an entropy feedback expression"}
+
+        S = float(expr.get("S", 0.0))
+        lam = float(expr.get("lambda_t", 0.0))
+        lam_prev = float(expr.get("lambda_prev", lam))
+        tol = 0.25  # relaxed 25% tolerance for SRK-3 oscillations
+
+        # Entropy should *dampen* λ oscillations: Δλ decreases as S increases
+        delta = abs(lam - lam_prev)
+        expected_max = 1.0 / (1.0 + S)  # upper bound, not equality target
+
+        # Pass if actual oscillation is <= expected upper bound
+        passed = delta <= expected_max * (1 + tol)
+        deviation = abs(delta - expected_max) / max(expected_max, 1e-6)
+
+        details = (
+            f"S={S:.3f}, Δλ={delta:.4f}, limit≤{expected_max:.4f}, "
+            f"Δ={deviation:.3%}, tol={tol:.3%}"
+        )
+
+        return {"passed": passed, "deviation": deviation, "details": details}
+    except Exception as e:
+        return {"passed": False, "error": str(e), "details": "entropy regularization failed"}
+
+
 # -------------------------------------------------------------------------
 # Core Validation Pipeline
 # -------------------------------------------------------------------------
@@ -645,6 +688,12 @@ RUNTIME_LAW_REGISTRY = {
         "description": "Resonance preserves the energy–time product (E·T ≈ constant)",
         "function": law_resonance_energy_time_invariance,
         "version": "v0.4.5",
+    },
+    "entropy_regularization": {
+        "symbol": "Sλ",
+        "description": "Entropy S provides λ(t) damping regularization (SRK-3)",
+        "function": law_entropy_regularization,
+        "version": "v0.4.6",
     },
 
     # ─────────── Entanglement & Projection

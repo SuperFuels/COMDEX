@@ -23,6 +23,7 @@ from backend.symatics import symatics_rulebook as SR
 from backend.core.registry_bridge import registry_bridge
 from backend.modules.codex.codex_trace import CodexTrace
 from backend.symatics.photonic_field import PhotonFieldState  # ← uses your photonic_field.py
+from importlib import import_module
 
 try:
     from backend.symatics.sym_tactics import SymTactics
@@ -58,28 +59,114 @@ class SymaticsReasoningKernel:
         # Quantum state
         self.psi_amplitude = 1 + 0j
         self.psi_history = []
+        self.diagnostics_registry = {}
 
-        # Entanglement register
+        # ──────────────────────────────────────────────
+        # Load SRK extensions (SRK-3 → SRK-5)
+        # ──────────────────────────────────────────────
         self.entangled_pairs = {}
         self.last_rho = 1.0
+        self.extensions = []
+
+        for mod in [
+            "srk_entropy",                # SRK-3
+            "srk4_resonance",             # SRK-4
+            "srk41_resonant_entropy",     # SRK-4.1
+            "srk5_coherent_field",        # SRK-5
+            "srk6_harmonic_coupling"      # SRK-6 ← new harmonic coupling layer
+        ]:
+            try:
+                module = import_module(f"backend.symatics.core.{mod}")
+
+                # --- Class resolution chain ---
+                if hasattr(module, "SRKExtension"):
+                    ext = module.SRKExtension()
+                elif hasattr(module, "SRK41ResonantEntropy"):
+                    ext = module.SRK41ResonantEntropy()
+                elif hasattr(module, "SRK5CoherentField"):
+                    ext = module.SRK5CoherentField()
+                elif hasattr(module, "SRK6HarmonicCoupling"):
+                    ext = module.SRK6HarmonicCoupling()
+                else:
+                    raise AttributeError(f"No compatible extension class found in {mod}")
+
+                # --- Integrate into kernel ---
+                ext.integrate(self)
+                self.extensions.append(ext)
+                print(f"[SRK] Extension {ext.name} ({ext.version}) integrated.")
+
+            except Exception as e:
+                print(f"[SRK] Skipped extension {mod}: {e}")
+
+    # ──────────────────────────────────────────────
+    # Extension management (SRK-3, SRK-4, …)
+    # ──────────────────────────────────────────────
+    def load_extension(self, extension_cls):
+        """
+        Safely loads and integrates an SRK extension (e.g. SRK-3, SRK-4).
+        The extension class must define an `integrate(kernel)` method.
+        """
+        try:
+            ext = extension_cls()
+            ext.integrate(self)
+            if not hasattr(self, "extensions"):
+                self.extensions = []
+            if ext not in self.extensions:
+                self.extensions.append(ext)
+            print(f"[SRK] Extension {ext.name} (v{ext.version}) integrated.")
+        except Exception as e:
+            print(f"[SRK] Failed to load extension {extension_cls.__name__}: {e}")
 
     # ─────────────────────────────────────────────────────────────
-    # Core operators
+    # Core operators with automatic SRK-3 entropy feedback (v0.4.6)
     # ─────────────────────────────────────────────────────────────
     def superpose(self, a, b):
-        return self._evaluate("⊕", a, b)
+        result = self._evaluate("⊕", a, b)
+        self._entropy_feedback_update()
+        return result
 
     def measure(self, a):
-        return self._evaluate("μ", a)
+        result = self._evaluate("μ", a)
+        self._entropy_feedback_update()
+        return result
 
     def resonate(self, a, b):
-        return self._evaluate("⟲", a, b)
+        result = self._evaluate("⟲", a, b)
+        self._entropy_feedback_update()
+        return result
 
     def entangle(self, a, b):
-        return self._evaluate("↔", a, b, entangle=True)
+        result = self._evaluate("↔", a, b, entangle=True)
+        self._entropy_feedback_update()
+        return result
 
     def project(self, a):
-        return self._evaluate("π", a)
+        result = self._evaluate("π", a)
+        self._entropy_feedback_update()
+        return result
+
+    # ─────────────────────────────────────────────────────────────
+    # Internal SRK-3 entropy feedback trigger
+    # ─────────────────────────────────────────────────────────────
+    def _entropy_feedback_update(self):
+        """
+        Universal SRK-3 feedback hook — invoked after each operator evaluation.
+        Updates entropy field state and logs SRK-3 law telemetry if available.
+        """
+        try:
+            srk3_ext = next(
+                (ext for ext in getattr(self, "extensions", []) if getattr(ext, "name", "") == "SRK-3"),
+                None
+            )
+            if srk3_ext and hasattr(srk3_ext, "entropy_field"):
+                srk3_ext.entropy_field.update(self.photonic_field)
+
+        except Exception as e:
+            try:
+                from backend.modules.codex.codex_trace import record_event
+                record_event("entropy_update_error", error=str(e))
+            except Exception:
+                pass
 
     # ─────────────────────────────────────────────────────────────
     # Evaluation pipeline + ψ(t) + Λ-feedback
@@ -136,6 +223,10 @@ class SymaticsReasoningKernel:
             self.photonic_field.step(dnu=dnu, dphi=dphi, damping=self.lambda_t)
         except Exception:
             pass
+
+        for ext in getattr(self, "extensions", []):
+            if hasattr(ext, "feedback"):
+                ext.feedback(self, feedback)
 
         # 7️⃣ Adaptive feedback loop
         if self.auto_stabilize:
@@ -338,10 +429,17 @@ class SymaticsReasoningKernel:
             "π": "π→∇⊗ψ",
         }.get(op, op)
 
-    # ─────────────────────────────────────────────────────────────
-    # Diagnostics
-    # ─────────────────────────────────────────────────────────────
     def diagnostics(self):
+        """
+        Collects current symbolic, photonic, and entropy-level diagnostics
+        from the SymaticsReasoningKernel and all attached SRK extensions.
+
+        Now includes:
+          • SRK-3 Entropy Feedback (v0.4.6+)
+          • SRK-4 Resonant Coupling (Λ↔ψ↔⟲R)
+          • SRK-4.1 Resonant-Entropy Coupling (Λ↔ψ↔⟲R↔S)
+        """
+
         trace_count = 0
         if self.trace and hasattr(self.trace, "count"):
             try:
@@ -353,14 +451,39 @@ class SymaticsReasoningKernel:
         handlers = list(getattr(reg, "registry", {}).keys()) if reg and hasattr(reg, "registry") else []
         laws = list(getattr(SR, "LAW_REGISTRY", {}).keys()) if hasattr(SR, "LAW_REGISTRY") else []
 
-        return {
+        # ──────────────────────────────────────────────
+        # Collect diagnostics from SRK extensions
+        # ──────────────────────────────────────────────
+        ext_diag = {}
+        srk3_ext = srk4_ext = srk41_ext = None
+
+        for ext in getattr(self, "extensions", []):
+            try:
+                ext_diag[ext.name] = ext.diagnostics(self)
+                n = getattr(ext, "name", "")
+                if "SRK-3" in n:
+                    srk3_ext = ext
+                elif "SRK-4 Resonant" in n and "4.1" not in n:
+                    srk4_ext = ext
+                elif "SRK-4.1" in n or "Resonant-Entropy" in n:
+                    srk41_ext = ext
+            except Exception as e:
+                ext_diag[getattr(ext, "name", "unknown")] = {"error": str(e)}
+
+        # ──────────────────────────────────────────────
+        # Base kernel diagnostics
+        # ──────────────────────────────────────────────
+        diag = {
             "operators": handlers,
             "laws": laws,
             "trace_count": trace_count,
             "law_signatures": self.law_signatures[-5:],
             "energy_balance": self.last_energy_balance,
             "field_feedback": self.field_feedback,
-            "psi_amplitude": complex(round(self.psi_amplitude.real, 6), round(self.psi_amplitude.imag, 6)),
+            "psi_amplitude": complex(
+                round(self.psi_amplitude.real, 6),
+                round(self.psi_amplitude.imag, 6)
+            ),
             "lambda_t": round(self.lambda_t, 6),
             "equilibrium_trend": self.equilibrium_trend[-5:],
             "entangled_pairs": len(self.entangled_pairs),
@@ -372,3 +495,57 @@ class SymaticsReasoningKernel:
                 "trend": self.equilibrium_trend[-5:],
             },
         }
+
+        # ──────────────────────────────────────────────
+        # Merge extension diagnostics
+        # ──────────────────────────────────────────────
+        diag.update(ext_diag)
+
+        # ──────────────────────────────────────────────
+        # SRK-3 Entropy Feedback (v0.4.6+)
+        # ──────────────────────────────────────────────
+        if srk3_ext and hasattr(srk3_ext, "last_entropy_feedback"):
+            diag["entropy_feedback"] = srk3_ext.last_entropy_feedback
+            try:
+                ef = getattr(srk3_ext, "entropy_field", None)
+                if ef and getattr(ef, "history", None):
+                    recent = ef.history[-5:]
+                    diag["entropy_trend"] = [
+                        {
+                            "S": h[0] if isinstance(h, tuple) else h.get("S", 0.0),
+                            "gamma_S": h[1] if isinstance(h, tuple) else h.get("gamma_S", 0.0),
+                            "gradS": h[2] if isinstance(h, tuple) else h.get("gradS", 0.0),
+                        }
+                        for h in recent
+                    ]
+            except Exception:
+                pass
+
+        # ──────────────────────────────────────────────
+        # SRK-4 Resonant Feedback
+        # ──────────────────────────────────────────────
+        if srk4_ext:
+            if hasattr(srk4_ext, "last_resonance_feedback"):
+                diag["resonance_feedback"] = srk4_ext.last_resonance_feedback
+            if hasattr(srk4_ext, "resonance_window"):
+                diag["resonance_trend"] = srk4_ext.resonance_window[-5:]
+
+        # ──────────────────────────────────────────────
+        # SRK-4.1 Resonant-Entropy Feedback
+        # ──────────────────────────────────────────────
+        if srk41_ext:
+            try:
+                rdiag = srk41_ext.diagnostics(self)
+                if isinstance(rdiag, dict):
+                    diag["resonant_entropy_feedback"] = rdiag.get("resonant_entropy_feedback", {})
+                    diag["resonant_entropy_trend"] = rdiag.get("stability_trend", [])
+                    diag["resonant_entropy_state"] = {
+                        "R": rdiag.get("R"),
+                        "gamma_S": rdiag.get("gamma_S"),
+                        "lambda_t": rdiag.get("lambda_t"),
+                        "stability": rdiag.get("stability"),
+                    }
+            except Exception as e:
+                diag["resonant_entropy_feedback"] = {"error": str(e)}
+
+        return diag
