@@ -193,8 +193,37 @@ def evaluate_symatics_expr(expr: Any, context: Dict = None) -> Dict[str, Any]:
 
     except Exception as e:
         logger.error(f"[SymaticsDispatcher] evaluation failed: {e}")
-        law_check = SR.check_all_laws(op, *args, context=context)
-        CodexTrace.log("law_check", law_check)
+        # Ensure result envelope exists to avoid UnboundLocalError
+        result = {
+            "status": "error",
+            "engine": "symatics",
+            "operator": op,
+            "args": args,
+            "error": str(e),
+            "context": context,
+        }
+
+        # Run a fallback law check for diagnostics
+        try:
+            law_check = SR.check_all_laws(op, *args, context=context)
+        except Exception as e_law:
+            law_check = {"error": str(e_law), "summary": "law check failed"}
+        result["law_check"] = law_check
+
+        # Attempt CodexTrace fallback logging
+        try:
+            from backend.modules.codex.codex_trace import CodexTrace
+            trace = CodexTrace()
+            trace.log({
+                "type": "law_check",
+                "engine": "symatics",
+                "operator": op,
+                "summary": law_check.get("summary"),
+                "violations": law_check.get("violations"),
+                "context": context or {},
+            })
+        except Exception as e2:
+            logger.warning(f"[SymaticsDispatcher] Failed to emit CodexTrace fallback: {e2}")
 
         # ────────────────────────────────────────────────
         # 🔹 Post-evaluation Symatics Law Validation
@@ -209,12 +238,12 @@ def evaluate_symatics_expr(expr: Any, context: Dict = None) -> Dict[str, Any]:
                 logger.warning(f"[Symatics] Law violations detected for {op}: {violations} ({summary})")
             else:
                 logger.debug(f"[Symatics] {op} → all {summary}")
-        except Exception as e:
-            logger.warning(f"[Symatics] Law validation skipped for {op}: {e}")
+        except Exception as e3:
+            logger.warning(f"[Symatics] Law validation skipped for {op}: {e3}")
             result["law_check"] = {
                 "symbol": op,
                 "summary": "law check skipped",
-                "violations": [str(e)]
+                "violations": [str(e3)],
             }
 
         # 🧩 Ensure consistent envelope
@@ -235,6 +264,7 @@ def evaluate_symatics_expr(expr: Any, context: Dict = None) -> Dict[str, Any]:
 
         return result
 
+    # Final global fail-safe
     except Exception as e:
         logger.error(f"[Symatics] Evaluation failed: {e}", exc_info=True)
         return {

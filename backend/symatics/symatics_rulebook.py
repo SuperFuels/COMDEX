@@ -183,20 +183,36 @@ def op_recurse(f: Any, depth: int, context: Dict) -> Dict[str, Any]:
     """
     ⟲ : Recursion / Loop operator
     Signature: ⟲ : (A, n ∈ ℕ) → {A}
+
+    Safely supports float depths by converting to int(abs(depth)).
+    Ensures at least one iteration for physical resonance feedback loops.
     """
     results = []
     current = f
-    for i in range(depth):
+
+    # 🔸 Normalize depth → safe integer iteration count
+    try:
+        n = int(abs(depth))
+    except Exception:
+        n = 0
+    n = max(1, n)  # always run at least one cycle for resonance stability
+
+    # 🔄 Iterative recursion trace
+    for i in range(n):
         results.append({"iter": i, "value": current})
         current = f"{current}*"
+
+    # 📦 Expression structure for downstream simplification
     expr = {
         "op": "⟲",
         "args": [f, depth],
         "result": f"recurse({f}, depth={depth})",
         "depth": depth,
+        "iterations": n,
         "results": results,
         "context": context,
     }
+
     return simplify(expr)
 
 
