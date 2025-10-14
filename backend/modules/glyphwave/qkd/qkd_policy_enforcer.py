@@ -3,13 +3,14 @@
 Adaptive enforcement of QKD security, coherence, and GKey integrity policies.
 
 This module forms the trust governor between:
- • GlyphWave transmission layer (GWIP/Photon)
+ • GlyphWave transmission layer (GWIP / Photon)
  • Codex GKeyStore (quantum key repository)
  • SoulLaw trace engine (compliance and anomaly logging)
 
 Validated under SRK-11 milestone — part of the Photon/Binary Bridge pipeline.
 """
 
+import math
 from backend.modules.glyphwave.qkd_handshake import GKeyStore
 from backend.modules.codex.collapse_trace_exporter import log_soullaw_event
 from backend.modules.glyphwave.qkd.qkd_errors import QKDPolicyViolationError
@@ -17,83 +18,91 @@ from backend.modules.glyphwave.qkd.qkd_errors import QKDPolicyViolationError
 
 class QKDPolicyEnforcer:
     """
-    🔒 QKDPolicyEnforcer — runtime verification of entanglement key integrity,
-    coherence stability, and tamper detection before photon transmission.
-
-    This ensures that all photon-exchange operations comply with active QKD policy
-    and that only verified, entangled channels (GKeys) are utilized.
+    🔒 Runtime enforcement of QKD integrity, coherence stability,
+    and tamper detection before photon transmission.
     """
 
+    DEFAULT_POLICY = {
+        "require_qkd": True,
+        "min_coherence": 0.75,
+        "max_entropy": 0.25,
+        "verify_pair": True,
+    }
+
     def __init__(self):
-        # ✅ Use GKeyStore class reference directly (singleton pattern internally handled)
+        # Singleton reference (handled internally by GKeyStore)
         self.gkey_store = GKeyStore
 
     # ────────────────────────────────────────────────────────────────
     def is_qkd_required(self, wave_packet: dict) -> bool:
-        """
-        Determine if QKD is explicitly required by this packet or its payload metadata.
-
-        Args:
-            wave_packet (dict): The glyphwave packet (GWIP or Photon capsule).
-
-        Returns:
-            bool: True if QKD policy requires verification.
-        """
-        metadata = wave_packet.get("qkd_policy", {})
-        if not metadata:
-            payload = wave_packet.get("payload", {})
-            metadata = payload.get("qkd_policy", {})
-        return metadata.get("require_qkd", False)
+        """Determine if QKD policy explicitly applies to this packet."""
+        meta = (
+            wave_packet.get("qkd_policy")
+            or wave_packet.get("payload", {}).get("qkd_policy")
+            or {}
+        )
+        return meta.get("require_qkd", self.DEFAULT_POLICY["require_qkd"])
 
     # ────────────────────────────────────────────────────────────────
     def has_valid_gkey(self, sender_id: str, recipient_id: str) -> bool:
-        """
-        Verify that a valid, verified GKey exists between the sender and recipient.
-
-        Returns:
-            bool: True if a verified entanglement key pair exists.
-        """
+        """Check for a verified GKey pair between sender and recipient."""
+        if not sender_id or not recipient_id:
+            return False
         gkey = self.gkey_store.get_key_pair(sender_id, recipient_id)
         return gkey is not None and gkey.get("status") == "verified"
 
     # ────────────────────────────────────────────────────────────────
     def enforce_policy(self, wave_packet: dict) -> bool:
         """
-        Enforce active QKD policy.
-
-        Allows photon propagation if:
-         - QKD not required, OR
-         - Valid verified GKey exists, AND
-         - No tampering is detected.
-
-        Returns:
-            bool: True if policy passes; False otherwise.
+        Enforce QKD policy for a given wave or photon packet.
+        Returns True if allowed, False if any violation detected.
         """
         sender_id = wave_packet.get("sender_id")
         recipient_id = wave_packet.get("recipient_id")
+        qkd_policy = wave_packet.get("qkd_policy", self.DEFAULT_POLICY)
 
         if not self.is_qkd_required(wave_packet):
-            return True  # ✅ No QKD required
+            return True  # ✅ Policy not required
 
-        if not self.has_valid_gkey(sender_id, recipient_id):
+        # Validate GKey
+        if qkd_policy.get("verify_pair", True) and not self.has_valid_gkey(sender_id, recipient_id):
             self._log_violation(wave_packet, "Missing or invalid GKey")
             return False
 
+        # Detect tampering
         if self.gkey_store.detect_tampering(sender_id, recipient_id):
             self._log_violation(wave_packet, "GKey tampering detected")
             return False
 
-        return True  # ✅ All checks passed
+        # Optional coherence & entropy bounds
+        coh = wave_packet.get("coherence")
+        ent = wave_packet.get("entropy")
+
+        if coh is not None and coh < qkd_policy.get("min_coherence", 0.75):
+            self._log_violation(wave_packet, f"Coherence below threshold ({coh:.3f})")
+            return False
+
+        if ent is not None and ent > qkd_policy.get("max_entropy", 0.25):
+            self._log_violation(wave_packet, f"Entropy above threshold ({ent:.3f})")
+            return False
+
+        # ✅ Passed all checks
+        log_soullaw_event(
+            {
+                "type": "qkd_policy_pass",
+                "sender_id": sender_id,
+                "recipient_id": recipient_id,
+                "wave_id": wave_packet.get("wave_id"),
+                "coherence": coh,
+                "entropy": ent,
+            },
+            glyph=None,
+        )
+        return True
 
     # ────────────────────────────────────────────────────────────────
     def _log_violation(self, wave_packet: dict, reason: str):
-        """
-        Log a QKD violation into the SoulLaw event trace for forensic tracking.
-
-        Args:
-            wave_packet (dict): Offending packet.
-            reason (str): Reason for policy rejection.
-        """
+        """Emit structured violation trace to SoulLaw."""
         log_soullaw_event(
             {
                 "type": "qkd_policy_violation",
@@ -102,28 +111,22 @@ class QKDPolicyEnforcer:
                 "wave_id": wave_packet.get("wave_id"),
                 "reason": reason,
             },
-            glyph=None  # valid legacy arg for SoulLaw traces
+            glyph=None,
         )
 
     # ────────────────────────────────────────────────────────────────
     @staticmethod
     def enforce_if_required(context: dict):
         """
-        Lightweight enforcement for Codex runtime contexts.
-        Raises QKDPolicyViolationError if enforcement fails.
-
-        Args:
-            context (dict): Execution context containing sender, recipient, and qkd_policy.
+        Context-level enforcement for Codex runtime modules.
+        Raises QKDPolicyViolationError if any check fails.
         """
-        from backend.modules.glyphwave.qkd_handshake import GKeyStore
-        from backend.modules.glyphwave.qkd.qkd_errors import QKDPolicyViolationError
-
         sender_id = context.get("sender_id")
         recipient_id = context.get("recipient_id")
-        qkd_policy = context.get("qkd_policy", {})
+        qkd_policy = context.get("qkd_policy", QKDPolicyEnforcer.DEFAULT_POLICY)
 
-        if not qkd_policy.get("require_qkd"):
-            return  # ✅ No enforcement needed
+        if not qkd_policy.get("require_qkd", True):
+            return
 
         gkey = GKeyStore.get_key_pair(sender_id, recipient_id)
         if not gkey or gkey.get("status") != "verified":

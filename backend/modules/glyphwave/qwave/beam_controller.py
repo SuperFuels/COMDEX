@@ -138,3 +138,91 @@ class BeamController:
     def stop(self):
         print(f"[BEAM MODE] Stopping beam loop for: {self.container_id}")
         self._running = False
+
+# ────────────────────────────────────────────────────────────────
+# ✅ SRK-16: Integrated QWave Writer + PMG archiving support
+# This section extends the live loop to persist beam telemetry snapshots.
+
+from backend.modules.qwave.qwave_writer import QWaveWriter
+from backend.modules.photon.memory.photon_memory_grid import PhotonMemoryGrid
+
+
+class BeamPersistenceMixin:
+    def __init__(self):
+        self.qwave_writer = QWaveWriter(out_dir="runtime/qwave_logs")
+        self.pmg = PhotonMemoryGrid()
+
+    def persist_snapshot(self, wave_state, tick_index: int):
+        """
+        Writes a beam snapshot to disk and archives coherence state to PMG.
+        Called once per tick if logging is enabled.
+        """
+        snapshot = {
+            "wave_id": wave_state.id,
+            "tick_index": tick_index,
+            "sqi_score": getattr(wave_state, "last_sqi_score", None),
+            "entropy": getattr(wave_state, "entropy", None),
+            "coherence": getattr(wave_state, "coherence", None),
+            "timestamp": time.time(),
+            "container_id": getattr(self, "container_id", "unknown"),
+        }
+
+        try:
+            path = self.qwave_writer.write_snapshot(wave_state.id, snapshot)
+
+            # ✅ Run async store in PMG synchronously
+            import asyncio
+            try:
+                asyncio.get_running_loop()
+                asyncio.create_task(self.pmg.store_capsule_state(wave_state.id, snapshot))
+            except RuntimeError:
+                asyncio.run(self.pmg.store_capsule_state(wave_state.id, snapshot))
+
+            return path
+        except Exception as e:
+            print(f"[⚠️ BeamPersistence] Failed to persist snapshot: {e}")
+            return None
+
+
+# ────────────────────────────────────────────────────────────────
+# ✅ Hybrid class composition (maintains legacy beam loop + new persistence)
+class AdvancedBeamController(BeamController, BeamPersistenceMixin):
+    def __init__(self, config=None):
+        BeamController.__init__(self, config)
+        BeamPersistenceMixin.__init__(self)
+
+    def run_tick_loop(self):
+        # identical to your existing loop, except we persist snapshots
+        self._running = True
+        print(f"[BEAM MODE+] Running enhanced loop @ {self.tick_rate}s for container: {self.container_id}")
+
+        while self._running:
+            tick_start = time.time()
+            self._tick_count += 1
+            try:
+                wave_state = WaveState.from_container_id(self.container_id)
+                wave_state.evolve()
+
+                if self.enable_sqi:
+                    score_all_electrons(wave_state)
+
+                if self.enable_logging:
+                    log_collapse_tick(
+                        wave_state,
+                        profile_data={
+                            "tick_duration_ms": (time.time() - tick_start) * 1000,
+                            "tick_index": self._tick_count
+                        }
+                    )
+                    # ✅ new: persist to QWave + PMG
+                    self.persist_snapshot(wave_state, self._tick_count)
+
+                if self.enable_qfc_stream:
+                    ew = ENTANGLED_WAVE_STORE.get(self.container_id)
+                    if ew:
+                        stream_qfc_from_entangled_wave(self.container_id, ew)
+
+            except Exception as e:
+                print(f"[ERROR] Beam tick failed: {e}")
+
+            time.sleep(self.tick_rate)

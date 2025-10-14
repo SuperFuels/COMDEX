@@ -24,13 +24,65 @@ class PhotonMemoryGrid:
         self.policy = QKDPolicyEnforcer()
 
         # Optional resonance ledger handle (SRK-14 Task 3)
-        self._ledger = None
+        # Optional resonance ledger handle (SRK-14 Task 3)
+        from backend.modules.photon.resonance.resonance_ledger import ResonanceLedger
+        self._ledger = ResonanceLedger()
 
     # ────────────────────────────────────────────────────────────────
     def attach_ledger(self, ledger):
         """Attach a Resonance Ledger instance for synchronization."""
         self._ledger = ledger
 
+    def get_entanglement_record(self, entanglement_id: str):
+        """Retrieve an entanglement record from the resonance ledger."""
+        return getattr(self, "_entanglement_ledger", {}).get(entanglement_id)   
+
+    def store_entanglement_state(self, entanglement_id: str, record: dict):
+        """
+        SRK-14 — Persist entanglement coherence + resonance state into PMG ledger.
+        This is called by the EntanglementEngine whenever a new entanglement is registered.
+        """
+        if not hasattr(self, "_entanglement_ledger"):
+            self._entanglement_ledger = {}
+
+        self._entanglement_ledger[entanglement_id] = {
+            "entanglement_id": entanglement_id,
+            "timestamp": record.get("timestamp"),
+            "field_potential": record.get("field_potential"),
+            "coherence": record.get("coherence"),
+            "entropy_shift": record.get("entropy_shift"),
+            "wave_a_id": record.get("wave_a_id"),
+            "wave_b_id": record.get("wave_b_id"),
+            "status": "active",
+        }
+        return True
+
+        # ───────────────────────────────────────────────
+    def archive_collapse_event(self, entanglement_id: str, coherence_loss: float, sqi_drift: float):
+        """
+        SRK-15 — Archive collapsed entanglement into the Resonant Decay Ledger.
+
+        When an entanglement collapses (either naturally or by forced coherence failure),
+        we record the energy/coherence loss and SQI drift for resonance continuity mapping.
+        """
+        if not hasattr(self, "_resonance_decay_ledger"):
+            self._resonance_decay_ledger = {}
+
+        record = {
+            "entanglement_id": entanglement_id,
+            "timestamp": time.time(),
+            "coherence_loss": round(coherence_loss, 6),
+            "sqi_drift": round(sqi_drift, 6),
+            "status": "collapsed",
+        }
+
+        self._resonance_decay_ledger[entanglement_id] = record
+        return record
+
+    def get_resonance_decay_ledger(self):
+        """Return all collapsed entanglement archives."""
+        return getattr(self, "_resonance_decay_ledger", {})
+ 
     # ────────────────────────────────────────────────────────────────
     async def store_capsule_state(self, capsule_id: str, state: Dict[str, Any]):
         """Persist photon field state with coherence metadata and checksum."""
@@ -174,3 +226,18 @@ class PhotonMemoryGrid:
             "states": self._photon_state_map,
             "links": self._entanglement_links,
         }
+
+    # ────────────────────────────────────────────────────────────────
+    def retrieve_capsule_state(self, capsule_id: str) -> Dict[str, Any]:
+        """
+        SRK-14 Compatibility Alias:
+        Retrieve a capsule’s photon state. Automatically unwraps nested `state`
+        dicts for legacy test and BeamPersistence compatibility.
+        """
+        record = self.restore_capsule_state(capsule_id)
+        if not record:
+            return {}
+        # 🔧 unwrap if stored in { "state": {...}, ... }
+        if "state" in record and isinstance(record["state"], dict):
+            return record["state"]
+        return record

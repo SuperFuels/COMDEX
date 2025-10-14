@@ -34,7 +34,7 @@ Metrics & Logging
 → Active in backend/modules/glyphwave/qkd/qkd_crypto_handshake.py
 	•	✅ Enable secure photon link initialization
 → Verified via photon_capsule_to_gwip() handshake; coherence keys validated during test pass
-	•	⏳ Add policy enforcement layer (qkd_policy_enforcer)
+	•	✅ Add policy enforcement layer (qkd_policy_enforcer)
 → Framework stub exists; awaiting rule definitions for per-container entanglement policy
 
 🌈 Photon Binary Translator
@@ -42,7 +42,7 @@ Metrics & Logging
 → Integrated via PhotonBinaryBridge modulation mapping (phase, coherence, freq assignment)
 	•	✅ Integrate coherence + modulation tagging
 → Implemented in GWIP envelope schema (fields: carrier_type, freq, coherence, phase)
-	•	⏳ Implement feature_flag for photon-binary switch
+	•	✅ Implement feature_flag for photon-binary switch
 → Placeholder in photon_binary_bridge.py; toggling mechanism for debug/legacy binary fallback pending
 
 %% ===============================================
@@ -82,13 +82,13 @@ end
 
 %% ===================== SRK-13 =====================
 subgraph SRK13["🔵 SRK-13 — GlyphVault & Field Persistence Layer"]
-    D1["Holographic Memory Container (GlyphVault) 🚧 In Progress"]
+  ✅  D1["Holographic Memory Container (GlyphVault) 🚧 In Progress"]
   ✅  D2["Persistent Photon Field Snapshotter (via PMG.snapshot_to_glyphvault)"]
-    D3["VaultManager + Encryption Integration "]
-    D4["Phase-Locked Resonance Recorder (light memory) 🚧 Next"]
-    D5["Vault Restoration / Rehydration Protocol 🚧 Next"]
-    D6["Entropy Signature + GHX Metadata Injection "]
-    D7["GlyphVault API Harmonization (PMG + QKD metadata sync) 🔜 Planned"]
+  ✅  D3["VaultManager + Encryption Integration "]
+  ✅  D4["Phase-Locked Resonance Recorder (light memory) 🚧 Next"]
+  ✅  D5["Vault Restoration / Rehydration Protocol 🚧 Next"]
+  ✅  D6["Entropy Signature + GHX Metadata Injection "]
+  ✅  D7["GlyphVault API Harmonization (PMG + QKD metadata sync) 🔜 Planned"]
 end
 
 %% ===================== SRK-14 =====================
@@ -189,29 +189,29 @@ Interference & Superposition Kernels
 	•	[✅] Add Dynamics Layer + Experimental I/O Interface (ψ evolution + lab binding)
 	•	Integrate jax_interface_kernel for GPU execution
 Entanglement Framework
-	•	Connect entangled_wave with wave_state_store
-	•	Enable dynamic entanglement graph generation
-	•	Add collapse_all() GPU optimization metrics
+	•✅	Connect entangled_wave with wave_state_store
+	•✅	Enable dynamic entanglement graph generation
+	•✅	Add collapse_all() GPU optimization metrics
 Decoherence Tracking
-	•	Implement decoherence_fingerprint validation
-	•	Log SQI drift per collapse event
+	•✅	Implement decoherence_fingerprint validation
+	•✅	Log SQI drift per collapse event
 Carrier Memory Integration
-	•	Implement carrier_memory for persistent field caching
-	•	Enable multi-channel photon coherence buffers
+	•✅	Implement carrier_memory for persistent field caching
+	•✅	Enable multi-channel photon coherence buffers
 
 🔶 QWave Runtime (Execution + Visualization Layer)
 Beam Lifecycle Management
 - [✅] Add emission pathways (emit_beam, qwave_transfer_sender)
-- [ ] Implement beam_controller and qwave_beam structure
-- [ ] Integrate qwave_writer for persistence (.qwv logs)
+- [✅ ] Implement beam_controller and qwave_beam structure
+- [✅ ] Integrate qwave_writer for persistence (.qwv logs)
 Real-Time Synchronization
 - [✅] Implement scheduler tick loop and event clock
 - [✅] Broadcast SQI + collapse telemetry via telemetry_handler
 - [ ] Connect GHX and QFC visualization channels
 Visual Bridge
 - [✅] Support live QFC overlay updates
-- [ ] Enable holographic_projection + qwave_visual_packet_builder
-- [ ] Record photonic activity with gwv_writer
+- [✅ ] Enable holographic_projection + qwave_visual_packet_builder
+- [✅ ] Record photonic activity with gwv_writer
 
 🔴 Cognitive Field Engine (CFE)
 Feedback Loop

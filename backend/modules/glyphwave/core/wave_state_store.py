@@ -1,4 +1,5 @@
 from typing import Dict, Optional, List, Any
+import time
 from backend.modules.glyphwave.core.wave_state import WaveState
 from backend.modules.holograms.ghx_replay_broadcast import emit_gwave_replay
 
@@ -75,6 +76,30 @@ class WaveStateStore:
 
     def get_cached_prediction(self, wave_id: str) -> Optional[Dict[str, Any]]:
         return self._cached_scores.get(wave_id)
+    
+        # ───────────────────────────────────────────────
+    def save_entanglement(self, wave_a: dict, wave_b: dict, entanglement_id: str):
+        """
+        Persist a minimal entanglement record between two wave states.
+        Future SRK-14 version will sync this into the PhotonMemoryGrid ledger.
+        """
+        record = {
+            "entanglement_id": entanglement_id,
+            "wave_a_id": wave_a.get("id"),
+            "wave_b_id": wave_b.get("id"),
+            "timestamp": time.time(),
+            "field_potential_delta": abs(
+                wave_a.get("field_potential", 0.0) - wave_b.get("field_potential", 0.0)
+            ),
+            "coherence_mean": round(
+                (wave_a.get("coherence", 1.0) + wave_b.get("coherence", 1.0)) / 2, 6
+            ),
+        }
+        # Store internally for now (in-memory simulation)
+        if not hasattr(self, "_entanglements"):
+            self._entanglements = {}
+        self._entanglements[entanglement_id] = record
+        return record
 
 # ────────────────────────────────────────────────────────────────
 # ✅ Compatibility wrapper for QKD handshake imports

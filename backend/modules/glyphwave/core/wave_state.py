@@ -1,5 +1,7 @@
 import time
 import datetime
+import math
+import random
 from typing import List, Dict, Tuple, Optional, Any
 from backend.modules.codex.collapse_trace_exporter import log_beam_prediction
 from backend.modules.codex.codex_metrics import log_collapse_metric
@@ -195,6 +197,54 @@ class WaveState:
             f"carrier={self.carrier_type}/{self.modulation_strategy} "
             f"delay={self.delay_ms}ms glyphs={len(self.glyph_data)}>"
         )
+
+    def evolve(self):
+        """
+        SRK-11 / SRK-16 compatibility:
+        Perform a minimal state evolution step.
+        Updates phase, coherence, entropy, and SQI metrics.
+        """
+        try:
+            # Time-based phase oscillation
+            self.phase = (self.phase + random.uniform(0.01, 0.1)) % (2 * math.pi)
+
+            # Simulate coherence/entropy drift
+            self.coherence = max(0.0, min(1.0, self.coherence + random.uniform(-0.02, 0.02)))
+            self.entropy = max(0.0, min(1.0, self.entropy + random.uniform(-0.01, 0.01)))
+
+            # Simulate SQI score (wave stability index)
+            self.last_sqi_score = round(self.coherence * (1.0 - self.entropy), 3)
+
+            # Update internal timestamp
+            self.timestamp = time.time()
+
+        except Exception as e:
+            print(f"[WaveState:evolve] evolution failed: {e}")    
+
+    @classmethod
+    def from_container_id(cls, container_id: str) -> "WaveState":
+        """
+        SRK-16 utility: reconstruct a WaveState instance from an active container ID.
+        Falls back to a minimal empty state if none is found in ENTANGLED_WAVE_STORE.
+        """
+        try:
+            from backend.modules.glyphwave.core.wave_state import ENTANGLED_WAVE_STORE
+            ws = ENTANGLED_WAVE_STORE.get(container_id)
+            if ws and isinstance(ws, cls):
+                return ws
+            # fallback: create minimal instance
+            instance = cls(container_id=container_id)
+            instance.id = f"{container_id}_wave"
+            instance.amplitude = 1.0
+            instance.phase = 0.0
+            instance.coherence = 1.0
+            instance.entropy = 0.0
+            instance.last_sqi_score = 0.0
+            return instance
+        except Exception as e:
+            print(f"[WaveState] Fallback reconstruction failed for {container_id}: {e}")
+            instance = cls(container_id=container_id)
+            return instance
 
     def to_dict(self) -> dict:
         return {

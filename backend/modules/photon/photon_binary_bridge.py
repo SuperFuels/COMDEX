@@ -9,7 +9,7 @@ Final SRK-11 → SRK-16 integration:
  • Adds QTS layer — QuantumPolicyEngine + EncryptedPhotonChannel (SRK-16).
  • Supports runtime mode switching (photon / binary / auto).
 """
-
+import os
 import time
 import json
 import uuid
@@ -57,6 +57,7 @@ class PhotonBinaryBridge:
 
         # SRK-16 additions
         self.qpe = QuantumPolicyEngine()
+        self.feature_flag_photon_mode = os.getenv("ENABLE_PHOTON_MODE", "1") == "1"
 
     # ────────────────────────────────────────────────────────────────
     def _resolve_mode(self):
@@ -71,6 +72,24 @@ class PhotonBinaryBridge:
             self._active_mode = self.mode
         print(f"[PhotonBinaryBridge] ✅ Operating in {self._active_mode.upper()} mode")
 
+    # ────────────────────────────────────────────────────────────────
+    # Mode Control Utilities — SRK-11 Feature Flag
+    # ----------------------------------------------------------------
+    def toggle_mode(self, enable_photon: bool):
+        """Manually toggle bridge operation mode."""
+        self.feature_flag_photon_mode = enable_photon
+        mode = "Photon" if enable_photon else "Binary"
+        print(f"[PhotonBinaryBridge] ⚙️  Mode switched to {mode}")
+
+    def is_photon_mode(self) -> bool:
+        """Return True if photon-mode is active via flag or context."""
+        if self.mode == "auto":
+            return self.feature_flag_photon_mode and self._active_mode == "photon"
+        return self.feature_flag_photon_mode and self._active_mode == "photon"
+
+    def _determine_mode_label(self) -> str:
+        """Human-readable label for diagnostics."""
+        return "Photon" if self.is_photon_mode() else "Binary"
     # ────────────────────────────────────────────────────────────────
     async def gwip_to_photon_capsule(
         self,
@@ -92,7 +111,7 @@ class PhotonBinaryBridge:
          6️⃣ Persist capsule to PhotonMemoryGrid (SRK-12)
          7️⃣ Apply QTS security (SRK-16)
         """
-        if self._active_mode == "binary":
+        if not self.is_photon_mode():
             return self._simulate_binary_capsule(gwip_packet)
 
         # Step 1 — Schema validation
@@ -215,7 +234,7 @@ class PhotonBinaryBridge:
         base_envelope: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """Convert a Photon Capsule back into a GWIP packet."""
-        if self._active_mode == "binary":
+        if not self.is_photon_mode():
             return self._simulate_binary_to_gwip(capsule)
 
         validate_photon_capsule(capsule)
