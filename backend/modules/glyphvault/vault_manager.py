@@ -8,8 +8,8 @@ from backend.modules.glyphvault.vault_logger import log_event
 from backend.modules.glyphvault.vault_audit import VAULT_AUDIT
 
 def get_state():
-    from backend.modules.consciousness.state_manager_module import StateManager
-    return StateManager
+    from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.state_manager_module import StateManager
+    return StateManager()  # ✅ instantiate
 
 VAULT_DIR = os.path.join(os.path.dirname(__file__), "../../vault_snapshots")
 os.makedirs(VAULT_DIR, exist_ok=True)

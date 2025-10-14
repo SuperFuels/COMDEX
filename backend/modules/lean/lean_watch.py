@@ -92,6 +92,14 @@ def main(argv: Optional[List[str]] = None) -> int:
             _run_inject(args.container, args.lean, extra_args, args.pythonpath)
         time.sleep(POLL_SEC)
 
+# -*- coding: utf-8 -*-
+"""Lean Watcher (Stub) — monitors Lean workspace for changes."""
+
+def watch_lean_session(path=".", callback=None):
+    print(f"[LeanWatch] Stub: monitoring {path} (no-op)")
+    if callback:
+        callback({"path": path, "event": "noop"})
+    return True
 
 if __name__ == "__main__":
     raise SystemExit(main())

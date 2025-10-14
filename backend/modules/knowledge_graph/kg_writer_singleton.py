@@ -9,6 +9,15 @@ _KG_WRITER_CLASS: Optional[Callable[[], Any]] = None  # Lazy-loaded class refere
 _build_tree_from_container = None  # Lazy-imported symbolic tree builder
 _export_tree_to_kg = None  # Lazy-imported KG writer method
 
+# ✅ Direct reference to the real GlyphVault Manager (not container_runtime)
+try:
+    from backend.modules.glyphvault.vault_manager import VAULT
+    print("🔗 [kg_writer_singleton] VAULT bound to glyphvault.vault_manager.VAULT")
+except Exception as e:
+    VAULT = None
+    logging.warning(f"[kg_writer_singleton] ⚠️ Could not import VAULT from glyphvault.vault_manager: {e}")
+
+# ────────────────────────────────────────────────────────────────
 def get_kg_writer() -> Any:
     """
     Lazily initializes and returns the singleton KnowledgeGraphWriter instance.
@@ -41,15 +50,18 @@ def get_kg_writer() -> Any:
             f"[kg_writer_singleton] 📍 Stack Trace:\n{trace}"
         )
 
+
+# ────────────────────────────────────────────────────────────────
 def get_strategy_planner_kg_writer() -> Any:
-    """
-    🔁 Alias for get_kg_writer(), used in StrategyPlanner and other contexts to clarify purpose.
-    """
+    """🔁 Alias for get_kg_writer(), used in StrategyPlanner and other contexts."""
     return get_kg_writer()
 
+
+# ────────────────────────────────────────────────────────────────
 def write_glyph_event(event_type: str, event: dict, container_id: Optional[str] = None) -> None:
     """
     Proxy passthrough to standalone write_glyph_event() in knowledge_graph_writer module.
+    This function ensures VAULT availability and consistent KG writes.
     """
     try:
         module = importlib.import_module("backend.modules.knowledge_graph.knowledge_graph_writer")
@@ -58,15 +70,23 @@ def write_glyph_event(event_type: str, event: dict, container_id: Optional[str] 
         if real_writer is None:
             raise ImportError("write_glyph_event function not found in knowledge_graph_writer module.")
 
+        # Attach VAULT context if the underlying writer expects it
+        if "vault" in real_writer.__code__.co_varnames:
+            return real_writer(event_type=event_type, event=event, container_id=container_id, vault=VAULT)
+
+        # Otherwise, pass as legacy form
         return real_writer(event_type=event_type, event=event, container_id=container_id)
 
     except Exception as e:
         trace = "".join(traceback.format_stack(limit=10))
-        raise RuntimeError(
+        logging.error(
             f"[kg_writer_singleton] ❌ Failed to call write_glyph_event: {e}\n"
             f"[kg_writer_singleton] 📍 Stack Trace:\n{trace}"
         )
+        raise
 
+
+# ────────────────────────────────────────────────────────────────
 def get_glyph_trace_for_container(container_id: str) -> dict:
     """
     Proxy passthrough to get_glyph_trace_for_container() in knowledge_graph_writer module.
@@ -74,13 +94,10 @@ def get_glyph_trace_for_container(container_id: str) -> dict:
     """
     try:
         module = importlib.import_module("backend.modules.knowledge_graph.knowledge_graph_writer")
-
         real_func = getattr(module, "get_glyph_trace_for_container", None)
         if real_func is None:
             raise ImportError("get_glyph_trace_for_container not found in knowledge_graph_writer module.")
-
         return real_func(container_id)
-
     except Exception as e:
         trace = "".join(traceback.format_stack(limit=10))
         raise RuntimeError(
@@ -88,6 +105,8 @@ def get_glyph_trace_for_container(container_id: str) -> dict:
             f"[kg_writer_singleton] 📍 Stack Trace:\n{trace}"
         )
 
+
+# ────────────────────────────────────────────────────────────────
 def export_symbol_tree_if_enabled(container_id: str) -> None:
     """
     🌳 Lazy-proxy to build and export the symbolic meaning tree.
@@ -111,10 +130,10 @@ def export_symbol_tree_if_enabled(container_id: str) -> None:
     except Exception as e:
         logging.warning(f"[kg_writer_singleton] ⚠️ Failed to export symbolic tree for {container_id}: {e}")
 
+
+# ────────────────────────────────────────────────────────────────
 def get_crdt_registry() -> Optional[Any]:
-    """
-    Returns the CRDT registry from the KnowledgeGraphWriter instance.
-    """
+    """Returns the CRDT registry from the KnowledgeGraphWriter instance."""
     try:
         writer = get_kg_writer()
         return getattr(writer, "crdt_registry", None)
@@ -122,11 +141,13 @@ def get_crdt_registry() -> Optional[Any]:
         logging.warning(f"[kg_writer_singleton] ⚠️ Could not access crdt_registry: {e}")
         return None
 
+
+# ────────────────────────────────────────────────────────────────
 __all__ = [
     "get_kg_writer",
     "get_strategy_planner_kg_writer",
     "write_glyph_event",
     "get_glyph_trace_for_container",
     "get_crdt_registry",
-    "export_symbol_tree_if_enabled"
+    "export_symbol_tree_if_enabled",
 ]

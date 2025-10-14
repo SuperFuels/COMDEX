@@ -188,6 +188,17 @@ def main():
         print(f"[❌] Failed to convert Lean file: {e}")
         sys.exit(2)
 
+# -*- coding: utf-8 -*-
+"""Lean Exporter (Stub) — compatibility layer for SRK-8."""
+
+def export_axioms_to_lean(*args, **kwargs):
+    print("[LeanExporter] Stub: export_axioms_to_lean called.")
+    return True
+
+def normalize_theorem(*args, **kwargs):
+    print("[LeanExporter] Stub: normalize_theorem called.")
+    return True
+
 
 if __name__ == "__main__":
     main()

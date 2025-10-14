@@ -1513,7 +1513,7 @@ def write_glyph_event(
         return
 
     # Inject into live .dc trace if container is active
-    from backend.modules.runtime.container_runtime import VAULT
+    from backend.modules.glyphvault.vault_manager import VAULT
     container = VAULT.get(container_id) if container_id else None
 
     if container is not None:

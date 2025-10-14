@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from typing import Callable, List, Dict, Any, Optional
 
 from .terms import Var, Sym, App, Term
-from .operators import OPS
+from backend.symatics.operators import OPS as SymOps
 from .signature import Signature
 from .wave import canonical_signature
 
@@ -17,6 +17,12 @@ from backend.symatics.core.validators.pi_s_closure import validate_pi_s_closure
 # =====================================================
 # LAW SCHEMA
 # =====================================================
+import warnings
+warnings.filterwarnings(
+    "ignore",
+    message=r"\[Tessaris\] Legacy operator aliases",
+    category=DeprecationWarning,
+)
 
 @dataclass(frozen=True)
 class Law:

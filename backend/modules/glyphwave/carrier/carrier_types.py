@@ -11,8 +11,27 @@ class CarrierType(str, Enum):
     SIMULATED = "simulated"       # e.g., virtualized transmission in sandbox mode
     HYBRID = "hybrid"             # Combination (e.g., optical with simulated fallback)
 
+    @classmethod
+    def _missing_(cls, value):
+        """
+        Allow case-insensitive matching for schema and protocol alignment.
+        Converts 'SIMULATED' → CarrierType.SIMULATED, etc.
+        """
+        if isinstance(value, str):
+            normalized = value.strip().lower()
+            for member in cls:
+                if member.value == normalized:
+                    return member
+        return None
 
-# Optional utility function
+
+# ────────────────────────────────────────────────────────────────
+# Utility helpers
+# ----------------------------------------------------------------
 def is_real_world_carrier(carrier_type: CarrierType) -> bool:
     """Returns True if the carrier type is physical (non-simulated)."""
-    return carrier_type in {CarrierType.OPTICAL, CarrierType.RADIO, CarrierType.QUANTUM}
+    return carrier_type in {
+        CarrierType.OPTICAL,
+        CarrierType.RADIO,
+        CarrierType.QUANTUM,
+    }

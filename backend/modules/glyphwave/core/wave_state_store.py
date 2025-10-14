@@ -1,6 +1,6 @@
 from typing import Dict, Optional, List, Any
 from backend.modules.glyphwave.core.wave_state import WaveState
-from backend.modules.glyphwave.holographic.ghx_replay_broadcast import emit_gwave_replay
+from backend.modules.holograms.ghx_replay_broadcast import emit_gwave_replay
 
 
 class WaveStateStore:
@@ -75,3 +75,22 @@ class WaveStateStore:
 
     def get_cached_prediction(self, wave_id: str) -> Optional[Dict[str, Any]]:
         return self._cached_scores.get(wave_id)
+
+# ────────────────────────────────────────────────────────────────
+# ✅ Compatibility wrapper for QKD handshake imports
+# Allows: from backend.modules.glyphwave.core.wave_state_store import store_wave_state
+
+_wave_state_store = WaveStateStore()
+
+def store_wave_state(wave):
+    """
+    Compatibility wrapper for backward modules (like qkd_crypto_handshake)
+    that call store_wave_state(wave).
+    Delegates to the singleton WaveStateStore instance.
+    """
+    try:
+        _wave_state_store.add_wave(wave)
+        return True
+    except Exception as e:
+        print(f"[WaveStateStore] ⚠️ Failed to store wave: {e}")
+        return False

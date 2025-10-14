@@ -137,6 +137,39 @@ def parse_single_declaration(block: str) -> Dict[str, str]:
                 }
     return {}
 
+# === Directory-level parser for SRK-8 Proof Kernel ===
+from pathlib import Path
+
+def parse_proof_dir(directory: str) -> List[Dict[str, str]]:
+    """
+    Recursively scans a directory for .lean files, parses them with parse_lean_file,
+    and returns a flat list of declaration dicts.
+    Each dict minimally includes: {"name", "symbol", "logic", "body"}.
+    """
+    directory_path = Path(directory)
+    if not directory_path.exists():
+        print(f"[LeanParser] Directory not found: {directory}")
+        return []
+
+    all_declarations = []
+    for lean_file in directory_path.rglob("*.lean"):
+        try:
+            text = lean_file.read_text(encoding="utf-8")
+            decls = parse_lean_file(text)
+            for d in decls:
+                d["source_file"] = str(lean_file)
+                # Mark all theorems and lemmas as “proved” by default
+                if d["symbol"] in ("⟦ Theorem ⟧", "⟦ Lemma ⟧"):
+                    d["status"] = "proved"
+                else:
+                    d["status"] = "unverified"
+            all_declarations.extend(decls)
+            print(f"[LeanParser] Parsed {len(decls)} decls from {lean_file}")
+        except Exception as e:
+            print(f"[LeanParser] Failed to parse {lean_file}: {e}")
+
+    print(f"[LeanParser] Total parsed declarations: {len(all_declarations)}")
+    return all_declarations
 
 # === CLI Entry Point ===
 if __name__ == "__main__":

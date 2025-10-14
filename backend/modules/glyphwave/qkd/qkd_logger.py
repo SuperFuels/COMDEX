@@ -3,18 +3,35 @@
 import datetime
 from typing import Optional, Dict
 
-# ✅ Import hooks for logging and KG writing
-from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.sqi_reasoning_module import log_sqi_event
-from backend.modules.knowledge_graph.kg_writer_singleton import write_glyph_event
+# ────────────────────────────────────────────────────────────────
+# ✅ Safe import hooks with graceful fallbacks for testing
+# ----------------------------------------------------------------
+try:
+    from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.sqi_reasoning_module import log_sqi_event
+except ImportError:
+    def log_sqi_event(event):
+        """Fallback SQI logger for test environments."""
+        print(f"[MOCK:SQI] QKD Event → {event}")
+
+try:
+    from backend.modules.knowledge_graph.kg_writer_singleton import write_glyph_event
+except ImportError:
+    def write_glyph_event(event_type, event, container_id=None):
+        """Fallback KG writer for test environments."""
+        print(f"[MOCK:KG] {event_type} :: {event}")
+        return {"mocked": True, "event": event}
 
 # Optional future import for GHX replay hooks or CodexMetrics
 # from backend.modules.codex.metrics.codex_metrics import record_metric
 
 
-def _now_iso():
+# ────────────────────────────────────────────────────────────────
+def _now_iso() -> str:
+    """Return current UTC timestamp in ISO format."""
     return datetime.datetime.now(datetime.UTC).isoformat()
 
 
+# ────────────────────────────────────────────────────────────────
 def log_qkd_event(
     sender_id: str,
     receiver_id: str,
@@ -26,6 +43,10 @@ def log_qkd_event(
 ) -> Dict:
     """
     Log a QKD event to SQI and the Knowledge Graph.
+
+    • Always writes to SQI reasoning pipeline if available.
+    • Gracefully degrades to stdout during isolated tests.
+    • Produces a structured triple for KG ingestion.
     """
 
     # ✅ Compose log payload
@@ -42,10 +63,12 @@ def log_qkd_event(
     }
 
     # ✅ Log to SQI Reasoning Engine
-    log_sqi_event(event)
+    try:
+        log_sqi_event(event)
+    except Exception as e:
+        print(f"[QKD_LOGGER] ⚠ Failed SQI log: {e}")
 
-    # ✅ Log to Knowledge Graph as symbolic triple
-    # Format: [QKDExchange] --[status]--> [Receiver]
+    # ✅ Build symbolic triple for KG integration
     triple = {
         "subject": f"QKDExchange:{wave_id}",
         "predicate": f"qkd:{status}",
@@ -59,15 +82,15 @@ def log_qkd_event(
         },
     }
 
-    # ✅ Use correct writer function from kg_writer_singleton
-    write_glyph_event(
-        event_type="qkd_event",
-        event=triple,
-        container_id=None  # You can optionally pass a container_id if context is available
-    )
+    # ✅ Attempt to write to Knowledge Graph (safe fail)
+    try:
+        write_glyph_event(
+            event_type="qkd_event",
+            event=triple,
+            container_id=None  # Optional context container
+        )
+    except Exception as e:
+        print(f"[QKD_LOGGER] ⚠ KG write failed: {e}")
 
-    # ✅ Optionally broadcast to HUDs, replay, metrics (future)
-    # if status == "tamper":
-    #     record_metric("qkd_tamper_detected", wave_id=wave_id)
-
-    return event  # For tracing/debugging
+    # ✅ Return structured event for debugging or audit trails
+    return event

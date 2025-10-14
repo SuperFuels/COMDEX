@@ -1,0 +1,119 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "GlyphWave Interchange Packet (GWIP)",
+  "description": "Schema for GWIP packets bridging symbolic photon data and binary transport.",
+  "type": "object",
+  "required": ["type", "schema", "envelope", "payload", "hash"],
+  "properties": {
+    "type": {
+      "type": "string",
+      "enum": ["gwip"],
+      "description": "Packet type identifier"
+    },
+    "schema": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "Schema version identifier"
+    },
+    "envelope": {
+      "type": "object",
+      "required": ["packet_id", "source_container", "target_container"],
+      "properties": {
+        "packet_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_\\-]+$",
+          "description": "Unique packet identifier"
+        },
+        "source_container": {
+          "type": "string",
+          "description": "Source container ID or node name"
+        },
+        "target_container": {
+          "type": "string",
+          "description": "Destination container ID or node name"
+        },
+        "carrier_type": {
+          "type": "string",
+          "enum": ["OPTICAL", "RF", "SIMULATED", "LASER", "QUANTUM"],
+          "description": "Carrier medium type"
+        },
+        "freq": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Carrier frequency in Hz"
+        },
+        "phase": {
+          "type": "number",
+          "description": "Carrier phase in radians"
+        },
+        "coherence": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "description": "Coherence coefficient [0–1]"
+        },
+        "latency_ms": {
+          "type": ["number", "null"],
+          "description": "Transmission latency in milliseconds"
+        },
+        "qkd_required": {
+          "type": ["boolean", "null"],
+          "description": "If true, packet must undergo QKD verification"
+        },
+        "gkey_id": {
+          "type": ["string", "null"],
+          "description": "Associated GKey identifier"
+        },
+        "encrypted": {
+          "type": ["boolean", "null"],
+          "description": "True if payload encrypted via QKD"
+        },
+        "timestamp": {
+          "type": ["number", "null"],
+          "description": "Packet creation timestamp (UNIX epoch)"
+        },
+        "modulation_strategy": {
+          "type": ["string", "null"],
+          "description": "Optional modulation method"
+        },
+        "tamper_detected": {
+          "type": ["boolean", "null"],
+          "description": "True if integrity or QKD verification failed"
+        }
+      },
+      "additionalProperties": false
+    },
+    "payload": {
+      "type": "string",
+      "description": "Hex-encoded payload data"
+    },
+    "hash": {
+      "type": "string",
+      "pattern": "^[A-Fa-f0-9]{128}$",
+      "description": "SHA3-512 hash of payload"
+    },
+    "signature": {
+      "type": ["string", "null"],
+      "description": "Cryptographic signature over payload hash"
+    },
+    "qkd_verified": {
+      "type": ["boolean", "null"],
+      "description": "True if QKD handshake succeeded"
+    },
+    "verified_at": {
+      "type": ["number", "null"],
+      "description": "Timestamp of QKD verification"
+    },
+    "status": {
+      "type": ["string", "null"],
+      "enum": ["qkd_verified", "qkd_failed", "pending"],
+      "description": "QKD verification state"
+    },
+    "tamper_flag": {
+      "type": ["boolean", "null"],
+      "description": "True if tampering detected post-verification"
+    }
+  },
+  "additionalProperties": false
+}

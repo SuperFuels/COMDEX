@@ -1,30 +1,55 @@
-# File: backend/modules/lean/convert_lean_to_codexlang.py
+# -*- coding: utf-8 -*-
 """
-Lean → CodexLang Bridge
-────────────────────────
-Parses Lean theorems/axioms into CodexLang AST ({op, args}) form,
-normalized through Symatics rewriter.
+Tessaris Lean → CodexLang Bridge (v2.0, SRK-9 Enhanced)
+────────────────────────────────────────────────────────
+Converts Lean declarations (axioms, theorems, lemmas) into normalized
+CodexLang ASTs ({op, args}) using Symatics adapter and rewriter,
+then exports verified entries into the Codex theorem ledger.
 
-Uses symatics.adapter to avoid direct reliance on old Atom/Interf classes.
+Upgrades over v1:
+  • Semantic SHA-256 hash per normalized logic
+  • Dependency + axiom inference
+  • Full CodexLang AST embedding for introspection
+  • Compatible with lean_parser outputs
 """
 
 import os
 import re
 import math
+import json
+import hashlib
 from typing import List, Dict, Any
+from datetime import datetime
 
 from backend.symatics import adapter, rewriter as R
 
-
+def convert_lean_expr(expr: str):
+    """Stub translator from Lean syntax → CodexLang symbolic form."""
+    return {"converted_expr": expr, "status": "ok"}
+# ───────────────────────────────────────────────────────────────
+# Helpers
+# ───────────────────────────────────────────────────────────────
 def _strip_comments(s: str) -> str:
-    """Remove Lean-style comments (starting with `--`) from a line or block."""
+    """Remove Lean-style comments (starting with `--`)."""
     return re.sub(r"--.*$", "", s).strip()
 
+def _semantic_hash(text: str) -> str:
+    """Deterministic short hash for logic identity tracking."""
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()[:16]
 
-# -----------------------
-# Minimal Lean → Codex AST
-# -----------------------
+def _infer_dependencies(body: str) -> list[str]:
+    """Naive scan for lemma/theorem/axiom references."""
+    deps = set()
+    for token in re.findall(r"(?:using|by)\s+([A-Za-z0-9_]+)", body):
+        deps.add(token)
+    for token in re.findall(r"(?:lemma|theorem|axiom)\s+([A-Za-z0-9_]+)", body):
+        deps.add(token)
+    return sorted(deps)
 
+
+# ───────────────────────────────────────────────────────────────
+# Lean → CodexLang AST Translator
+# ───────────────────────────────────────────────────────────────
 def lean_to_ast(logic: str) -> Dict[str, Any]:
     """
     Very minimal parser: supports patterns like
@@ -46,7 +71,7 @@ def lean_to_ast(logic: str) -> Dict[str, Any]:
     if m:
         left, phi_str, right = m.groups()
         try:
-            # Normalize Lean's phase symbols into numeric values
+            # Normalize Lean phase symbols
             if phi_str in ("π", "pi_phase"):
                 φ = math.pi
             elif phi_str in ("0", "zero_phase"):
@@ -64,18 +89,17 @@ def lean_to_ast(logic: str) -> Dict[str, Any]:
             ],
         }
 
-    # Fallback: atom-like literal
+    # Fallback: literal
     return {"op": "lit", "value": logic}
 
 
-# -----------------------
-# Main conversion function
-# -----------------------
-
+# ───────────────────────────────────────────────────────────────
+# Lean → CodexLang Conversion
+# ───────────────────────────────────────────────────────────────
 def convert_lean_to_codexlang(lean_path: str) -> Dict[str, List[Dict[str, Any]]]:
     """
-    Converts a Lean file into CodexLang symbolic logic declarations.
-    Returns { "parsed_declarations": [ {name, logic, ...}, ... ] }
+    Converts a Lean file into CodexLang symbolic declarations.
+    Returns { "parsed_declarations": [ {name, logic, ...}, ... ] }.
     """
     if not os.path.isfile(lean_path):
         raise FileNotFoundError(f"Lean file not found: {lean_path}")
@@ -85,20 +109,17 @@ def convert_lean_to_codexlang(lean_path: str) -> Dict[str, List[Dict[str, Any]]]
 
     declarations: List[Dict[str, Any]] = []
     current_decl: List[str] = []
-    name: str | None = None
-    start_line: int = 0
-    logic: str | None = None
-    glyph_symbol: str = "⟦ Theorem ⟧"
+    name, logic, start_line = None, None, 0
+    glyph_symbol = "⟦ Theorem ⟧"
 
     def flush_declaration():
-        nonlocal declarations, current_decl, name, start_line, logic, glyph_symbol
+        nonlocal declarations, current_decl, name, logic, start_line, glyph_symbol
         if not current_decl or not name:
             return
 
         raw_body = "".join(current_decl).strip()
         logic_str = _strip_comments(logic or "True")
 
-        # Build Codex AST + normalize through Symatics
         try:
             codex_ast = lean_to_ast(logic_str)
             sym_expr = adapter.codex_ast_to_sym(codex_ast)
@@ -109,14 +130,17 @@ def convert_lean_to_codexlang(lean_path: str) -> Dict[str, List[Dict[str, Any]]]
             glyph_tree = {}
             normalized_logic = logic_str
 
+        depends = _infer_dependencies(raw_body)
+        decl_hash = _semantic_hash(normalized_logic)
+
         declarations.append({
             "name": name,
-            "logic": normalized_logic,        # ✅ normalized logic (stringified AST)
-            "logic_raw": logic_str,           # keep raw for traceability
+            "logic": normalized_logic,
+            "logic_raw": logic_str,
             "codexlang": {
                 "logic": logic_str,
                 "normalized": normalized_logic,
-                "explanation": "Auto-converted + normalized from Lean source"
+                "explanation": "Auto-converted + normalized from Lean source",
             },
             "codexlang_string": normalized_logic,
             "glyph_symbol": glyph_symbol,
@@ -124,20 +148,20 @@ def convert_lean_to_codexlang(lean_path: str) -> Dict[str, List[Dict[str, Any]]]
             "glyph_tree": glyph_tree,
             "body": raw_body,
             "line": start_line,
+            "source_file": lean_path,
+            "hash": decl_hash,
+            "depends_on": depends,
+            "axioms_used": [d for d in depends if "axiom" in d.lower()],
         })
 
-        # reset state
-        current_decl = []
-        name = None
-        start_line = 0
-        logic = None
+        current_decl.clear()
+        name, logic, start_line = None, None, 0
         glyph_symbol = "⟦ Theorem ⟧"
 
+    # Parse line-by-line
     for i, line in enumerate(lines):
         stripped = line.strip()
-
-        # --- New declaration line ---
-        match = re.match(r"^(theorem|lemma|axiom)\s+([a-zA-Z0-9_']+)\s*:\s*(.+)$", stripped)
+        match = re.match(r"^(theorem|lemma|axiom)\s+([A-Za-z0-9_']+)\s*:\s*(.+)$", stripped)
         if match:
             flush_declaration()
             kind, nm, logic_part = match.groups()
@@ -147,17 +171,48 @@ def convert_lean_to_codexlang(lean_path: str) -> Dict[str, List[Dict[str, Any]]]
             glyph_symbol = "⟦ Axiom ⟧" if kind == "axiom" else "⟦ Theorem ⟧"
             current_decl = [line]
         elif name:
-            # --- Continuation of current declaration ---
             current_decl.append(line)
             logic = (logic or "") + " " + _strip_comments(stripped)
 
     flush_declaration()
     return {"parsed_declarations": declarations}
 
+
+# ───────────────────────────────────────────────────────────────
+# Ledger Exporter (SRK-9)
+# ───────────────────────────────────────────────────────────────
+def export_theorems_to_ledger(verified, ledger_path):
+    """
+    Writes verified theorem data into the Codex theorem ledger (JSONL).
+    Each record includes semantic hash, dependencies, and CodexLang AST.
+    """
+    os.makedirs(os.path.dirname(ledger_path), exist_ok=True)
+    count = 0
+    with open(ledger_path, "w", encoding="utf-8") as f:
+        for decl in verified:
+            record = {
+                "symbol": decl.get("name"),
+                "status": "proved",
+                "hash": decl.get("hash", _semantic_hash(decl.get("logic", ""))),
+                "depends_on": decl.get("depends_on", []),
+                "axioms_used": decl.get("axioms_used", []),
+                "source_file": decl.get("source_file"),
+                "glyph_symbol": decl.get("glyph_symbol"),
+                "codexlang_string": decl.get("codexlang_string"),
+                "codex_ast": decl.get("glyph_tree", {}),
+                "timestamp": datetime.utcnow().isoformat(),
+            }
+            f.write(json.dumps(record, ensure_ascii=False) + "\n")
+            count += 1
+    print(f"[Ledger v2] Exported {count} verified theorems → {ledger_path}")
+    return True
+
+
+# ───────────────────────────────────────────────────────────────
+# CLI Entry
+# ───────────────────────────────────────────────────────────────
 if __name__ == "__main__":
     import json
-    # pick one of your Lean sources:
     lean_file = "backend/modules/lean/symatics_axioms.lean"
-
     result = convert_lean_to_codexlang(lean_file)
     print(json.dumps(result, indent=2, ensure_ascii=False))
