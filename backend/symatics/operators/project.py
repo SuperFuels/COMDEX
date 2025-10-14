@@ -1,9 +1,8 @@
-# backend/symatics/operators/project.py
 from __future__ import annotations
 from typing import Optional, Union
 
 from backend.symatics.signature import Signature
-from backend.symatics.operators.base import Operator   # ✅ fixed import (no circular import)
+from backend.symatics.operators.base import Operator
 from backend.symatics.operators.helpers import _merge_meta
 
 
@@ -14,9 +13,25 @@ def _project(a: Signature, subspace: Union[str, "Context"] = "H", ctx: Optional[
     - If forcing change, apply gentle attenuation (×0.9)
     - Metadata includes projection target + attenuation factor
 
-    Defensive: supports legacy call forms where the second arg is a string ("H"/"V")
-               or a Context passed as second positional parameter.
+    Defensive features:
+    • Automatically wraps primitive (float/int) inputs into a minimal Signature.
+    • Supports legacy form where the second arg is Context instead of subspace string.
+    • Gracefully handles missing attributes with sensible defaults.
     """
+    # ────────────────────────────────────────────────────────────────
+    # Defensive normalization
+    if isinstance(a, (float, int)):
+        a = Signature(
+            amplitude=float(a),
+            frequency=1.0,
+            phase=0.0,
+            polarization="H",
+            mode="default",
+            oam_l=0,
+            envelope=None,
+            meta={},
+        )
+
     # Handle legacy form where 2nd arg is Context
     if ctx is None and not isinstance(subspace, str):
         ctx = subspace
@@ -26,18 +41,22 @@ def _project(a: Signature, subspace: Union[str, "Context"] = "H", ctx: Optional[
     if subspace not in allowed:
         subspace = "H"
 
-    atten = 1.0 if a.polarization == subspace else 0.9
-    meta = _merge_meta(a.meta, {"projected": subspace, "atten": atten})
+    # Safe attribute resolution
+    polarization = getattr(a, "polarization", "H")
+    meta = getattr(a, "meta", {})
+
+    atten = 1.0 if polarization == subspace else 0.9
+    merged_meta = _merge_meta(meta, {"projected": subspace, "atten": atten})
 
     sig = Signature(
-        amplitude=a.amplitude * atten,
-        frequency=a.frequency,
-        phase=a.phase,
+        amplitude=getattr(a, "amplitude", 1.0) * atten,
+        frequency=getattr(a, "frequency", 1.0),
+        phase=getattr(a, "phase", 0.0),
         polarization=subspace,
-        mode=a.mode,
-        oam_l=a.oam_l,
-        envelope=a.envelope,
-        meta=meta,
+        mode=getattr(a, "mode", "default"),
+        oam_l=getattr(a, "oam_l", 0),
+        envelope=getattr(a, "envelope", None),
+        meta=merged_meta,
     )
 
     return ctx.canonical_signature(sig) if ctx else sig

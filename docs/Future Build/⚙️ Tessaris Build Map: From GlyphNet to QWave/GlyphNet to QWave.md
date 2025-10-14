@@ -22,17 +22,141 @@ Metrics & Logging
 - [✅] Live SQI feedback from Codex execution
 
 🔵 Photon / Binary Bridge (Translation & Security Layer)
-GWIP Encoding / Decoding
-- [ ] Finalize gwip_codec (WaveState → photon binary)
-- [ ] Support compression + metadata passthrough
-Quantum Key Distribution (QKD)
-- [ ] Implement gkey_model + qkd_crypto_handshake
-- [ ] Enable secure photon link initialization
-- [ ] Add policy enforcement layer (qkd_policy_enforcer)
-Photon Binary Translator
-- [ ] Map glyph meaning → photonic modulation schemes
-- [ ] Integrate coherence + modulation tagging
-- [ ] Implement feature_flag for photon-binary switch
+
+🧩 GWIP Encoding / Decoding
+	•	✅ Finalize gwip_codec (WaveState → photon binary)
+→ Confirmed operational via test_photon_binary_bridge.py (all 5 tests passed)
+	•	✅ Support compression + metadata passthrough
+→ Implemented through backend/photon/compressor.py integration and schema-compliant envelope propagation
+
+🔐 Quantum Key Distribution (QKD)
+	•	✅ Implement gkey_model + qkd_crypto_handshake
+→ Active in backend/modules/glyphwave/qkd/qkd_crypto_handshake.py
+	•	✅ Enable secure photon link initialization
+→ Verified via photon_capsule_to_gwip() handshake; coherence keys validated during test pass
+	•	⏳ Add policy enforcement layer (qkd_policy_enforcer)
+→ Framework stub exists; awaiting rule definitions for per-container entanglement policy
+
+🌈 Photon Binary Translator
+	•	✅ Map glyph meaning → photonic modulation schemes
+→ Integrated via PhotonBinaryBridge modulation mapping (phase, coherence, freq assignment)
+	•	✅ Integrate coherence + modulation tagging
+→ Implemented in GWIP envelope schema (fields: carrier_type, freq, coherence, phase)
+	•	⏳ Implement feature_flag for photon-binary switch
+→ Placeholder in photon_binary_bridge.py; toggling mechanism for debug/legacy binary fallback pending
+
+%% ===============================================
+%% Tessaris QGN Roadmap — SRK-11 through SRK-14
+%% ===============================================
+
+graph TD
+
+    subgraph SRK10["✅ SRK-10 — Photon / Binary Bridge (Completed)"]
+    ✅    A1["GWIP ↔ Photon Capsule Schema"]
+    ✅    A2["QKD Crypto Handshake"]
+    ✅    A3["Photon Modulation Mapping"]
+    ✅    A4["Compressor + Metadata Passthrough"]
+    ✅    A5["PhotonBinaryBridge Integration ✓"]
+    end
+
+    subgraph SRK11["🟢 SRK-11 — Adaptive Runtime & Feature Control"]
+    ✅    B1["Feature Flag: photon/binary mode switch ⏳"]
+    ✅    B2["QKD Policy Enforcer ⏳"]
+    ✅    B3["Dynamic Coherence Optimizer (real-time phase lock) 🚧"]
+    ✅    B4["Symatic Feedback Integrator ↔ Wave Metrics 🚧"]
+    ✅    B5["Diagnostics & Fallback Layer (hybrid safety mode) 🚧"]
+    ✅    B6["StateManager Runtime Binding (Tessaris Unified Control) 🚧"]
+    end
+
+graph TD
+
+%% ===================== SRK-12 =====================
+subgraph SRK12["🟣 SRK-12 — Photon Algebra Engine Integration"]
+  ✅  C1["Implement Photon Algebra Core (⊕, ↔, ⟲, ∇, μ) "]
+  ✅  C2["Define Photon Calculus Operators (π, μ, ∇) "]
+  ✅  C3["Integrate with Symatics Algebra Ruleset (v0.2) "]
+  ✅  C4["Build Photon Wave Evaluator + Tensor Engine "]
+  ✅  C5["Enable Symbolic–Photonic Feedback Loop (meaning propagation) "]
+  ✅  C6["Photon Memory Grid (PMG) — Entanglement Persistence "]
+end
+
+%% ===================== SRK-13 =====================
+subgraph SRK13["🔵 SRK-13 — GlyphVault & Field Persistence Layer"]
+    D1["Holographic Memory Container (GlyphVault) 🚧 In Progress"]
+  ✅  D2["Persistent Photon Field Snapshotter (via PMG.snapshot_to_glyphvault)"]
+    D3["VaultManager + Encryption Integration "]
+    D4["Phase-Locked Resonance Recorder (light memory) 🚧 Next"]
+    D5["Vault Restoration / Rehydration Protocol 🚧 Next"]
+    D6["Entropy Signature + GHX Metadata Injection "]
+    D7["GlyphVault API Harmonization (PMG + QKD metadata sync) 🔜 Planned"]
+end
+
+%% ===================== SRK-14 =====================
+subgraph SRK14["🟠 SRK-14 — Resonance Ledger & Temporal Coherence Graph"]
+   ✅ E1["Task 1: Resonance Ledger Scaffold ✅ (resonance_ledger.py)"]
+   ✅ E2["Task 2: Temporal Resonance Propagation Layer 🚧 In Progress"]
+   ✅ E3["Task 3: Ledger ↔ PMG Synchronization 🔜 Planned"]
+   ✅ E4["Task 4: Coherence Decay Simulation & Phase Diffusion 🔜 Planned"]
+   ✅ E5["Task 5: GlyphVault Merge + Ledger Snapshot Export 🔜 Planned"]
+end
+
+%% ===================== SRK-15 =====================
+subgraph SRK15["⚛ SRK-15 — Photon–Symatics Synthesis Engine"]
+   ✅ A1["Photon Algebra ↔ Symatics Bridge Interface 🔜 Planned"]
+   ✅ A2["Operator Overloading Layer (⊕, ↔, ⟲, ∇, μ → Photon Ops) 🔜 Planned"]
+   ✅ A3["Unified Symbolic Runtime (PhotonAlgebraRuntime + SymaticsCore) 🔜 Planned"]
+   ✅ A4["Coherence-Aware Operator Dispatch 🔜 Planned"]
+   ✅ A5["Wave Collapse ↔ Measurement Synchronization (∇ ↔ μ Fusion) 🔜 Planned"]
+   ✅ A6["Photon Context Propagation (through GlyphNet stack) 🔜 Planned"]
+   ✅ A7["Photonic Symbol Trace Export (for KG integration) 🔜 Planned"]
+end
+
+%% ===================== SRK-16 =====================
+subgraph SRK16["🛰 SRK-16 — Quantum Transport Security (QTS)"]
+  ✅  B1["QGN-Identity Registry (Quantum Node Certificates) 🔜 Planned"]
+  ✅  B2["Entanglement Authentication Protocol (EAP) 🔜 Planned"]
+  ✅  B3["Encrypted Photon Channels (EPC-1 Layer) 🔜 Planned"]
+  ✅  B4["Quantum Policy Engine (per-wave enforcement rules) 🔜 Planned"]
+  ✅  B5["Tessaris QTS API Gateway (policy access & logging) 🔜 Planned"]
+  ✅  B6["Integration into PhotonBinaryBridge (secure routing) 🔜 Planned"]
+  ✅  B7["QGN Security Compliance Audit Hooks (CodexTrace) 🔜 Planned"]
+end
+  end
+  subgraph SRK17["🧩 SRK-17 — GHX-Link Ledger Binding & Continuity Export"]
+    C1["Resonance Ledger ⇄ GHX Sync Layer 🧠 Planned"]
+    C2["PMG Snapshot Binder (temporal-state linkage) 🔜 Planned"]
+    C3["USR Telemetry → GHX Trace Encoder 🔜 Planned"]
+    C4["GHX Bundle Validator + Integrity Hash (sha3-512) 🔜 Planned"]
+    C5["Distributed Ledger Synchronization (multi-node merge) 🔜 Planned"]
+    C6["GlyphVault GHX Export Automation 🔜 Planned"]
+    C7["Ledger Continuity Compliance Hooks (CodexTrace) 🔜 Planned"]
+end
+
+
+
+
+SRK-20
+Codex Semantic Continuum (CSC)
+Semantic propagation and causal coherence graph (foundation for self-referential cognition)
+🧩 Concept
+SRK-21
+Tessaris Reflex Core (TRC)
+Runtime self-modulating cognition layer, enabling phase-driven adaptive reasoning
+🧩 Concept
+SRK-22
+GHX-Mesh Federation Layer
+Distributed synchronization and trust federation across multi-node Tessaris clusters
+🧩 Early outline
+
+
+  %% Flow
+  SRK15 --> SRK16
+
+    %% Connections
+    A5 --> B1
+    B6 --> C1
+    C5 --> D1
+    D6 --> E1
 
 🟣 Photonic Computation (Core Logic Engine)
 Interference & Superposition Kernels

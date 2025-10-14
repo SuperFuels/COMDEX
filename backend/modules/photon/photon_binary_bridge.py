@@ -1,34 +1,75 @@
 """
-🔶 PhotonBinaryBridge — Symbolic ↔ Binary Bridge Layer (SRK-10)
+🔶 PhotonBinaryBridge — Adaptive Symbolic ↔ Binary Bridge Layer (SRK-10 → SRK-16)
 Bridges GlyphWave Information Packets (GWIP) with Photon Capsules.
 
-This component establishes the final data handoff between:
- • The binary transport domain (GWIP)
- • The symbolic photon computation domain (Photon Capsule)
-
-Integrates:
- - GWIP → Photon translation
- - QKD handshake verification
- - Capsule schema validation
- - Optional coherence and entropy tagging
+Final SRK-11 → SRK-16 integration:
+ • Adds QKDPolicyEnforcer for entanglement-key compliance.
+ • Adds DynamicCoherenceOptimizer for live photon-wave stabilization.
+ • Adds PhotonMemoryGrid persistence (SRK-12).
+ • Adds QTS layer — QuantumPolicyEngine + EncryptedPhotonChannel (SRK-16).
+ • Supports runtime mode switching (photon / binary / auto).
 """
 
 import time
 import json
+import uuid
 import hashlib
+import asyncio
 from typing import Dict, Any, Optional
-
+from base64 import b64encode
+# ────────────────────────────────────────────────────────────────
+# Internal imports
+# ----------------------------------------------------------------
 from backend.modules.glyphwave.protocol.gwip_schema import validate_gwip_schema
 from backend.modules.glyphwave.qkd.qkd_crypto_handshake import initiate_qkd_handshake
+from backend.modules.glyphwave.qkd.qkd_policy_enforcer import QKDPolicyEnforcer
+from backend.modules.glyphwave.core.coherence_optimizer import DynamicCoherenceOptimizer
 from backend.modules.photon.photon_capsule_validator import validate_photon_capsule
+from backend.modules.photon.memory.photon_memory_grid import PhotonMemoryGrid  # 🆕 SRK-12
+from backend.modules.codex.collapse_trace_exporter import log_soullaw_event    # 🆕 telemetry
+
+# 🛰 SRK-16 — Quantum Transport Security (QTS)
+from backend.qts.encrypted_photon_channel import EncryptedPhotonChannel
+from backend.qts.quantum_policy_engine import QuantumPolicyEngine
 
 
 class PhotonBinaryBridge:
     """
-    🌉 Converts between validated GWIP packets and Photon Capsules.
+    🌉 PhotonBinaryBridge — Adaptive translation layer.
+    SRK-11 integrates QKD enforcement + dynamic coherence stabilization.
+    SRK-12 adds persistent photon memory storage for traceability.
+    SRK-16 adds Quantum Transport Security for policy-based encryption.
     """
 
     schema_version = 1
+
+    def __init__(self, mode: str = "auto"):
+        self.mode = mode.lower()
+        self._active_mode = None
+        self._resolve_mode()
+
+        # SRK-11 core modules
+        self.qkd_enforcer = QKDPolicyEnforcer()
+        self.coherence_optimizer = DynamicCoherenceOptimizer()
+
+        # SRK-12 addition
+        self.memory_grid = PhotonMemoryGrid()
+
+        # SRK-16 additions
+        self.qpe = QuantumPolicyEngine()
+
+    # ────────────────────────────────────────────────────────────────
+    def _resolve_mode(self):
+        """Detect operational mode automatically if 'auto'."""
+        if self.mode == "auto":
+            try:
+                from backend.modules.glyphwave.core.coherence_engine import is_photon_context_active
+                self._active_mode = "photon" if is_photon_context_active() else "binary"
+            except Exception:
+                self._active_mode = "binary"
+        else:
+            self._active_mode = self.mode
+        print(f"[PhotonBinaryBridge] ✅ Operating in {self._active_mode.upper()} mode")
 
     # ────────────────────────────────────────────────────────────────
     async def gwip_to_photon_capsule(
@@ -37,44 +78,58 @@ class PhotonBinaryBridge:
         sender_id: str,
         receiver_id: str,
         wave: Any,
-        include_qkd: bool = True
+        include_qkd: bool = True,
     ) -> Dict[str, Any]:
         """
         Convert a GWIP packet into a Photon Capsule.
 
-        Performs:
-         • GWIP validation
-         • Optional QKD handshake
-         • Symbolic capsule generation
-         • Capsule schema validation
-
-        Returns:
-            dict: Validated Photon Capsule
+        Pipeline:
+         1️⃣ Validate GWIP schema
+         2️⃣ Enforce QKD policy
+         3️⃣ Optimize coherence
+         4️⃣ Perform QKD handshake (optional)
+         5️⃣ Build and validate Photon Capsule
+         6️⃣ Persist capsule to PhotonMemoryGrid (SRK-12)
+         7️⃣ Apply QTS security (SRK-16)
         """
-        # Step 1 — Validate GWIP structure
+        if self._active_mode == "binary":
+            return self._simulate_binary_capsule(gwip_packet)
+
+        # Step 1 — Schema validation
         validate_gwip_schema(gwip_packet)
         envelope = gwip_packet.get("envelope", {})
 
-        # Step 2 — Optional QKD handshake
+        # Step 2 — QKD policy enforcement
+        self.qkd_enforcer.enforce_policy({
+            "sender_id": sender_id,
+            "recipient_id": receiver_id,
+            "wave_id": envelope.get("packet_id"),
+            "qkd_policy": {"require_qkd": include_qkd},
+        })
+
+        # Step 3 — Dynamic coherence optimization
+        try:
+            self.coherence_optimizer.optimize_if_needed(wave)
+        except Exception as e:
+            print(f"[PhotonBinaryBridge] ⚠️ Coherence optimization failed: {e}")
+
+        # Step 4 — Optional QKD handshake
         qkd_verified = False
         if include_qkd:
             qkd_verified = await initiate_qkd_handshake(
                 sender_id=sender_id,
                 receiver_id=receiver_id,
-                wave=wave
+                wave=wave,
             )
 
-        # Step 3 — Parse payload safely
+        # Step 5 — Payload parsing
         payload_raw = gwip_packet.get("payload")
-        if isinstance(payload_raw, str):
-            try:
-                payload = json.loads(payload_raw)
-            except Exception:
-                payload = {"raw": payload_raw}
-        else:
-            payload = payload_raw or {}
+        try:
+            payload = json.loads(payload_raw) if isinstance(payload_raw, str) else payload_raw or {}
+        except Exception:
+            payload = {"raw": payload_raw}
 
-        # Step 4 — Build Photon Capsule (schema-compliant)
+        # Step 6 — Photon Capsule assembly
         capsule = {
             "name": envelope.get("packet_id", f"capsule_{int(time.time())}"),
             "version": f"1.0-schema-{self.schema_version}",
@@ -95,37 +150,77 @@ class PhotonBinaryBridge:
             ],
         }
 
-        # Step 5 — Validate Photon Capsule (against JSON schema)
+        # Step 7 — Validate Photon Capsule
         validate_photon_capsule(capsule)
+
+        # Step 8 — Persist capsule to PhotonMemoryGrid (non-blocking)
+        asyncio.create_task(
+            self.memory_grid.store_capsule_state(
+                capsule["name"],
+                {
+                    "final_wave": wave,
+                    "meta": capsule["glyphs"][0]["meta"],
+                    "timestamp": time.time(),
+                }
+            )
+        )
+
+        # Step 9 — Log event to SoulLaw
+        log_soullaw_event({
+            "type": "capsule_generated",
+            "capsule_name": capsule["name"],
+            "sender": sender_id,
+            "receiver": receiver_id,
+            "coherence": envelope.get("coherence"),
+            "qkd_verified": qkd_verified,
+            "timestamp": time.time(),
+        }, glyph=None)
+
+        # Step 🔟 — Apply QTS secure transport encryption
+        try:
+            encrypted = await self.secure_transmit(gwip_packet)
+            capsule["encrypted_payload"] = encrypted.decode() if isinstance(encrypted, bytes) else encrypted
+        except Exception as e:
+            print(f"[PhotonBinaryBridge] ⚠️ QTS encryption failed: {e}")
 
         return capsule
 
     # ────────────────────────────────────────────────────────────────
+    async def secure_transmit(self, gwip_packet: Dict[str, Any]) -> str:
+        """
+        Apply SRK-16 Quantum Transport Security (QTS) to a GWIP packet:
+         • Policy enforcement via QuantumPolicyEngine
+         • AES–QKD hybrid encryption via EncryptedPhotonChannel
+         • Always returns Base64-encoded ciphertext for transport safety
+        """
+        meta = gwip_packet.get("meta", gwip_packet.get("envelope", {}))
+        self.qpe = getattr(self, "qpe", QuantumPolicyEngine())  # ensure QPE exists
+
+        if not self.qpe.enforce(meta):
+            raise PermissionError("[QTS] Policy enforcement failed")
+
+        qkd_key = meta.get("qkd_key") or meta.get("gkey_id") or "default_key"
+        epc = EncryptedPhotonChannel(qkd_key)
+
+        # 🔒 Single encryption pass, deterministic base64 output
+        raw_bytes = str(gwip_packet).encode("utf-8")
+        encrypted_bytes = epc.encrypt(raw_bytes)
+        encrypted_b64 = b64encode(encrypted_bytes).decode("ascii")
+
+        return encrypted_b64
+    # ────────────────────────────────────────────────────────────────
     def photon_capsule_to_gwip(
         self,
         capsule: Dict[str, Any],
-        base_envelope: Optional[Dict[str, Any]] = None
+        base_envelope: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
-        """
-        Convert a Photon Capsule back into a GWIP packet.
+        """Convert a Photon Capsule back into a GWIP packet."""
+        if self._active_mode == "binary":
+            return self._simulate_binary_to_gwip(capsule)
 
-        Args:
-            capsule: Valid Photon Capsule.
-            base_envelope: Optional envelope template.
-
-        Returns:
-            dict: GWIP-formatted dictionary.
-        """
-        # Step 1 — Validate capsule
         validate_photon_capsule(capsule)
-
-        # Step 2 — Construct envelope if not provided
-        import uuid
-
         capsule_name = capsule.get("name", f"capsule_{int(time.time())}")
         envelope = base_envelope or {}
-
-        # Ensure required GWIP schema fields are present
         envelope.update({
             "packet_id": envelope.get("packet_id", f"gwip_{uuid.uuid4().hex[:8]}"),
             "source_container": envelope.get("source_container", capsule_name),
@@ -137,13 +232,8 @@ class PhotonBinaryBridge:
             "timestamp": envelope.get("timestamp", time.time()),
         })
 
-        # Step 3 — Serialize capsule payload
         payload_json = json.dumps(capsule, separators=(",", ":"))
-
-        # Step 4 — Compute secure SHA3-512 hash (128 hex chars)
         payload_hash = hashlib.sha3_512(payload_json.encode()).hexdigest()
-
-        # Step 5 — Assemble GWIP packet
         gwip_packet = {
             "type": "gwip",
             "schema": 3,
@@ -153,7 +243,14 @@ class PhotonBinaryBridge:
             "signature": None,
         }
 
-        # Step 6 — Validate GWIP packet
         validate_gwip_schema(gwip_packet)
-
         return gwip_packet
+
+    # ────────────────────────────────────────────────────────────────
+    # Binary Fallbacks
+    # ----------------------------------------------------------------
+    def _simulate_binary_capsule(self, gwip_packet):
+        return {"emulation": True, "payload": gwip_packet, "timestamp": time.time(), "mode": "binary"}
+
+    def _simulate_binary_to_gwip(self, capsule):
+        return capsule.get("payload", {})

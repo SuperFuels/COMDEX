@@ -31,7 +31,7 @@ gcloud run deploy comdex-api \
   --timeout=300s
 
 git add .
-git commit -m "Photon Bridge Complete"
+git commit -m "SRk 17 complete"
 git push origin main
 
 gcloud builds submit --config cloudbuild.yaml .
