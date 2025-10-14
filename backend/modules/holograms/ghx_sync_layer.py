@@ -12,6 +12,7 @@ Phases:
     • SRK-17 Task 1 — Resonance Ledger ⇄ GHX Sync Layer
     • SRK-17 Task 2 — PMG Snapshot Binder (temporal-state linkage)
     • SRK-17 Task 3 — USR Telemetry → GHX Trace Encoder
+    • SRK-17 Task 4 — GHX Bundle Validator
 """
 
 import time
@@ -27,6 +28,7 @@ from backend.symatics.unified_symbolic_runtime import UnifiedSymbolicRuntime
 from backend.modules.encryption.glyph_vault import GlyphVault
 from backend.modules.codex.codex_trace import CodexTrace
 from backend.modules.holograms.ghx_trace_encoder import GHXTraceEncoder
+from backend.modules.holograms.ghx_bundle_validator import GHXBundleValidator
 
 
 class GHXSyncLayer:
@@ -42,7 +44,7 @@ class GHXSyncLayer:
         self.usr = UnifiedSymbolicRuntime()
         self.trace = CodexTrace()
         self.vault = GlyphVault(container_id)
-        self.encoder = GHXTraceEncoder()  # 🔹 new Task 3 component
+        self.encoder = GHXTraceEncoder()  # 🔹 Task 3 component
 
     # ────────────────────────────────────────────────────────────────
     async def assemble_bundle(self) -> dict:
@@ -162,8 +164,7 @@ class GHXSyncLayer:
             return False
         return self.encoder.verify_trace(ghx_trace)
 
-from backend.modules.holograms.ghx_bundle_validator import GHXBundleValidator
-
+    # ────────────────────────────────────────────────────────────────
     async def validate_bundle(self, bundle: Dict[str, Any]) -> Dict[str, Any]:
         """
         SRK-17 Task 4 — Validate GHX bundle integrity and trace signatures.
@@ -176,3 +177,19 @@ from backend.modules.holograms.ghx_bundle_validator import GHXBundleValidator
             {"module": "GHXSyncLayer", "phase": "validation"},
         )
         return result
+
+    async def propagate_validated_bundle(self, bundle: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        SRK-17 Task 5 — Propagate a validated GHX bundle into the distributed ledger.
+        """
+        dls = GHXDistributedSynchronizer()
+        record = await dls.register_bundle(bundle)
+        await dls.broadcast_bundle(bundle)
+        chain_status = await dls.verify_chain_integrity()
+
+        self.trace.record(
+            "ghx_dls_propagated",
+            {"ghx_id": bundle.get("ghx_id"), "chain_entries": chain_status["entries"]},
+            {"module": "GHXSyncLayer", "phase": "distributed_sync"},
+        )
+        return {"record": record, "chain_status": chain_status}

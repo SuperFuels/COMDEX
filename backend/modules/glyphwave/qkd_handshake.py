@@ -134,3 +134,52 @@ class GKeyStore:
         new_key = GKeyStore.generate_pair(sender_id, recipient_id)
         GKeyStore.store_pair(sender_id, recipient_id, new_key)
         return new_key
+
+
+# -------------------------------------------------------------------------
+# QKDHandshake Adapter Class — for compatibility with QKDManager
+# -------------------------------------------------------------------------
+import secrets
+import hashlib
+import time
+
+class QKDHandshake:
+    """
+    Adapter layer providing a consistent object interface for QKDManager.
+    Wraps the functional handshake calls defined above.
+    """
+
+    def __init__(self):
+        self._last_key = None
+        self._last_timestamp = None
+
+    async def perform_handshake(self, wave_id: str, origin_trace: str, entropy: float):
+        """
+        Perform a QKD handshake using the existing initiate_handshake() logic.
+        Stores the resulting GKey and timestamp.
+        """
+        self._last_timestamp = time.time()
+        gkey = await initiate_handshake(wave_id, origin_trace, entropy)
+        self._last_key = gkey
+        return gkey
+
+    def generate_session_key(self) -> str:
+        """
+        Deterministic fallback session key generator.
+        Used when the manager needs a local key immediately.
+        """
+        token = secrets.token_bytes(32)
+        return hashlib.sha3_256(token).hexdigest()
+
+    def get_last_key(self):
+        """Return the most recently negotiated GKey (if available)."""
+        return self._last_key
+
+    def get_status(self) -> dict:
+        """Return status metadata for monitoring or telemetry."""
+        return {
+            "active": self._last_key is not None,
+            "timestamp": self._last_timestamp,
+            "wave_id": getattr(self._last_key, "wave_id", None),
+            "verified": getattr(self._last_key, "verified", False),
+        }

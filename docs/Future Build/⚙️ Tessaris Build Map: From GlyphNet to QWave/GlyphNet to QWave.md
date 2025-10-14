@@ -123,14 +123,29 @@ subgraph SRK16["🛰 SRK-16 — Quantum Transport Security (QTS)"]
 end
   end
   subgraph SRK17["🧩 SRK-17 — GHX-Link Ledger Binding & Continuity Export"]
-    C1["Resonance Ledger ⇄ GHX Sync Layer 🧠 Planned"]
-    C2["PMG Snapshot Binder (temporal-state linkage) 🔜 Planned"]
-    C3["USR Telemetry → GHX Trace Encoder 🔜 Planned"]
-    C4["GHX Bundle Validator + Integrity Hash (sha3-512) 🔜 Planned"]
-    C5["Distributed Ledger Synchronization (multi-node merge) 🔜 Planned"]
-    C6["GlyphVault GHX Export Automation 🔜 Planned"]
-    C7["Ledger Continuity Compliance Hooks (CodexTrace) 🔜 Planned"]
+  ✅  C1["Resonance Ledger ⇄ GHX Sync Layer 🧠 Planned"]
+  ✅  C2["PMG Snapshot Binder (temporal-state linkage) 🔜 Planned"]
+  ✅  C3["USR Telemetry → GHX Trace Encoder 🔜 Planned"]
+  ✅  C4["GHX Bundle Validator + Integrity Hash (sha3-512) 🔜 Planned"]
+  ✅  C5["Distributed Ledger Synchronization (multi-node merge) 🔜 Planned"]
+  ✅  C6["GlyphVault GHX Export Automation 🔜 Planned"]
+  ✅  C7["Ledger Continuity Compliance Hooks (CodexTrace) 🔜 Planned"]
 end
+
+checklist
+    title SRK-18 — GHX Continuity Ledger (GCL) Build Phases
+    section Core Ledger Development
+        [✅ ] 18.1 — GCL Core Ledger: Design and implement the GHXContinuityLedger core module for persistent trust entries.
+    section Event Integration
+        [✅ ] 18.2 — Event Recorder: Extend GHXContinuityHooks to emit signed GCL events.
+    section Chain Security
+        [✅ ] 18.3 — Ledger Chain Integrity: Establish hash-linked entries (prev_hash, curr_hash, signature).
+    section Distributed Synchronization
+        [✅ ] 18.4 — Distributed Ledger Federation: Enable multi-node ledger synchronization (via DLS hooks).
+    section Persistence & Archival
+        [✅ ] 18.5 — Vault Ledger Export: Persist and archive GCL chain snapshots to GlyphVault.
+    section Verification & Audit
+        [✅ ] 18.6 — Ledger Verifier & Auditor: Implement tools to replay, audit, and verify historical continuity.
 
 
 
@@ -298,97 +313,6 @@ LEAN
 
 Below is a Mermaid hierarchical checklist — each node represents a module or integration milestone.
 You can visualize this directly in Markdown or in a Mermaid-compatible editor like Obsidian, Notion, or VSCode’s Mermaid preview.
-
-⸻
-mindmap
-  root((TESSARIS: Cognitive Photonic System))
-
-mindmap
-  root((TESSARIS: Cognitive Photonic System))
-
-GlyphNet (Semantic Intelligence Layer)
-  Core Symbolic Engine
-    - [✅] Implement Glyph parsing & CodexLang hooks
-    - [✅] Integrate glyph execution with CodexCore
-    - [✅] Define standardized Glyph schema (label, phase, coherence)
-  Wave Generation
-    - [✅] Build glyph→WaveState conversion adapter
-    - [✅] Sync metadata (origin_trace, codex_tag, timestamps)
-  Metrics & Logging
-    - [✅] Integrate codex_metrics + log_beam_prediction
-    - [✅] Implement live SQI feedback from Codex execution
-  Symatics (Algebra & Verification)
-    - [✅] Implement symatics_rulebook (commutativity, associativity, etc.)
-    - [✅] Extend dispatcher with post-law checks + law_check field
-    - [✅] Add tests for dispatcher+laws (pytest passing)
-
-Photon / Binary Bridge (Translation Layer)
-  GWIP Encoding / Decoding
-    - [ ] Finalize gwip_codec (WaveState → photon binary packet)
-    - [ ] Support compression + metadata passthrough
-  Quantum Key Distribution (QKD)
-    - [ ] Complete gkey_model & qkd_crypto_handshake
-    - [ ] Enable secure photon link initialization
-    - [ ] Add policy enforcement layer (qkd_policy_enforcer)
-  Photon Binary Translator
-    - [ ] Map glyph meaning → photonic modulation schemes
-    - [ ] Integrate coherence + modulation strategy tagging
-    - [ ] Implement feature_flag control for photon-binary switch
-
-Photonic Computation (Core Logic Engine)
-  Interference Kernels
-    - [ ] Verify interference_kernels, superposition_kernels, measurement_kernels
-    - [ ] Integrate jax_interface_kernel for GPU execution
-  Entanglement Framework
-    - [ ] Connect entangled_wave with wave_state_store
-    - [ ] Enable dynamic entanglement graph generation
-    - [ ] Add collapse_all() GPU optimization metrics
-  Decoherence Tracking
-    - [ ] Use decoherence_fingerprint for integrity verification
-    - [ ] Log drift / SQI variation per collapse event
-  Carrier Memory Integration
-    - [ ] Implement carrier_memory for persistent field caching
-    - [ ] Enable multi-channel photon coherence buffers
-
-QWave Runtime (Execution + Visualization Layer)
-  Beam Lifecycle
-    - [ ] Implement beam_controller and qwave_beam structure
-    - [✅] Add emission pathways (emit_beam, qwave_transfer_sender)
-    - [ ] Integrate qwave_writer for persistence
-  Real-Time Synchronization
-    - [ ] Connect GHX and QFC visualization channels
-    - [✅] Implement scheduler + runtime event tick loop
-    - [✅] Broadcast SQI + collapse telemetry via telemetry_handler
-  Visual Bridge
-    - [ ] Enable holographic_projection & qwave_visual_packet_builder
-    - [✅] Support live QFC overlay updates with broadcast_qfc_update
-    - [ ] Record photonic activity with gwv_writer
-
-Cognitive Field Engine (CFE)
-  Feedback Loop
-    - [ ] Integrate CodexLang runtime with QWave telemetry
-    - [ ] Feed SQI/collapse metrics back into reasoning model
-  Symbolic Graph Learning
-    - [ ] Link Knowledge Graph adapter for contextual learning
-    - [ ] Enable drift → rule evolution pipeline
-  Field Adaptation
-    - [ ] Implement reinforcement via SQI and coherence scoring
-    - [ ] Adjust photon modulation dynamically based on Codex results
-
-Infrastructure & Orchestration
-  Runtime & Scheduling
-    - [✅] Validate runtime.py / scheduler.py loops
-    - [ ] Implement multi-threaded tick synchronization
-  Network Layer
-    - [ ] Finalize photon-to-binary streaming
-    - [ ] Integrate glyphwave_transmitter for external communication
-  Security
-    - [ ] Apply encryption policies from gkey_encryptor + qkd_policy_enforcer
-    - [ ] Audit GWIP transmission endpoints
-  Visualization + Debug
-    - [ ] GHX replay integration (emit_gwave_replay)
-    - [✅] QFC render feedback
-    - [ ] Implement full diagnostic mode for interference tracing
 
 
 %%─────────────────────────────────────────────
