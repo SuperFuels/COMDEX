@@ -8,7 +8,7 @@ Purpose:
     • Exposes live metrics for SQI / prediction / collapse overlays
     • Provides adaptive telemetry stream for CFE Feedback Loop
 """
-
+import math
 import asyncio
 import random
 import time
@@ -108,10 +108,14 @@ class TelemetryHandler:
     # ---------------------------------------------------------------
     # Metric Collection
     # ---------------------------------------------------------------
+
     async def collect_metrics(self) -> Dict[str, float]:
         """
         Return a snapshot of current telemetry metrics.
         Combines WaveScope throughput with coherence statistics.
+        Automatically archives each snapshot to outputs/sle_telemetry.jsonl
+        and includes SQI composite metrics (Δφ, entropy, visibility)
+        and symbolic pattern SQI (⊕ ↔ μ ⟲ π).
         """
         if not self._connected:
             await self.connect()
@@ -123,8 +127,6 @@ class TelemetryHandler:
             stability = max(0.0, 1.0 - (collapse + decohere))
         else:
             # Placeholder for live QWave event subscription
-            # e.g., event = await qwave_bus.get_event("telemetry")
-            # collapse, decohere, stability = event["collapse"], event["decoherence"], event["stability"]
             collapse, decohere, stability = 0.01, 0.02, 0.97
 
         # Store rolling averages
@@ -139,6 +141,7 @@ class TelemetryHandler:
         # Include WaveScope throughput data
         snr_metrics = _wave_scope.track_throughput()
 
+        # Base telemetry metrics
         metrics = {
             "timestamp": time.time(),
             "collapse_rate": round(collapse_avg, 4),
@@ -148,7 +151,86 @@ class TelemetryHandler:
             "snr": snr_metrics.get("snr", 0.0),
         }
 
+        # ===============================================================
+        # 🧠 SQI Composite (phase_drift, entropy, visibility)
+        # ===============================================================
+        try:
+            import math
+            from backend.modules.symatics_lightwave.coherence_metrics import sqi_composite
+            phases = [random.uniform(0, 2 * math.pi) for _ in range(10)]
+            amplitudes = [random.uniform(0.5, 1.0) for _ in range(10)]
+            sqi_metrics = sqi_composite(phases, amplitudes)
+            metrics.update(sqi_metrics)
+        except Exception as e:
+            print(f"[TelemetryHandler] SQI composite error: {e}")
+
+        # ===============================================================
+        # 🔤 Symbolic Pattern SQI (⊕ ↔ μ ⟲ π)
+        # ===============================================================
+        try:
+            from backend.modules.sqi.sqi_scorer import score_pattern_sqi
+            pattern_score = score_pattern_sqi({"glyphs": ["⊕", "↔", "μ", "⟲", "π"]})
+            metrics["pattern_sqi"] = pattern_score
+        except Exception as e:
+            print(f"[TelemetryHandler] SQI pattern scoring error: {e}")
+
+        # ===============================================================
+        # 💾 Persist telemetry snapshot
+        # ===============================================================
+        try:
+            import json, os
+            path = "outputs/sle_telemetry.jsonl"
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            with open(path, "a") as f:
+                f.write(json.dumps(metrics) + "\n")
+        except Exception as e:
+            print(f"[TelemetryHandler] Warning: Failed to export JSONL → {e}")
+
         return metrics
+
+        # ===============================================================
+        # 🧠 SQI Composite Integration (lazy import, second-chance import protection)
+        # ===============================================================
+        try:
+            # Try lazy import (avoids circulars during early init)
+            import math
+            try:
+                from backend.modules.symatics_lightwave.coherence_metrics import sqi_composite
+            except Exception as e1:
+                sqi_composite = None
+                print(f"[TelemetryHandler] Deferred import of sqi_composite due to init timing: {e1}")
+
+            if sqi_composite:
+                phases = [random.uniform(0, 2 * math.pi) for _ in range(10)]
+                amplitudes = [random.uniform(0.5, 1.0) for _ in range(10)]
+                sqi_metrics = sqi_composite(phases, amplitudes)
+                metrics.update(sqi_metrics)
+            else:
+                print("[TelemetryHandler] SQI composite not available yet (skipped this tick).")
+
+        except Exception as e:
+            print(f"[TelemetryHandler] SQI computation error: {e}")
+
+        # ===============================================================
+        # 📡 Persist telemetry snapshot to JSONL log
+        # ===============================================================
+        try:
+            import json, os
+            path = "outputs/sle_telemetry.jsonl"
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            with open(path, "a") as f:
+                f.write(json.dumps(metrics) + "\n")
+        except Exception as e:
+            print(f"[TelemetryHandler] Warning: Failed to export JSONL → {e}")
+
+        return metrics
+
+    def export_jsonl(self, metrics: Dict[str, Any], path: str = "outputs/sle_telemetry.jsonl"):
+        """Append a telemetry snapshot to JSONL for archival."""
+        import json, os
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "a") as f:
+            f.write(json.dumps(metrics) + "\n")    
 
     # ---------------------------------------------------------------
     # Continuous Stream (for GHX / CFE loops)

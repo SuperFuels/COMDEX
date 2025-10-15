@@ -28,9 +28,11 @@ def compose_superposition(waves: List[WaveState]) -> WaveState:
     coherence = total_coherence / len(waves)
 
     return WaveState(
-        phase=phase,
-        amplitude=amplitude,
-        coherence=coherence,
+        glyph_data={
+            "phase": phase,
+            "amplitude": amplitude,
+            "coherence": coherence,
+        },
         origin_trace=list(origin_trace),
-        timestamp=max(w.timestamp for w in waves)
+        metadata={"superposed": True},
     )

@@ -1,4 +1,11 @@
+# ──────────────────────────────────────────────
+#  Tessaris • Knowledge Pack Generator (GHX + HQCE Ready)
+#  Integrates symbolic hologram generation with ψ–κ–T tensor augmentation.
+# ──────────────────────────────────────────────
+
 import uuid
+import time
+import numpy as np
 from datetime import datetime
 from typing import List, Dict, Any
 
@@ -12,6 +19,10 @@ from backend.modules.codex.codex_metrics import (
 from backend.modules.hologram.ghx_encoder import glyph_intensity_map
 from backend.modules.glyphnet.glyphnet_ws import GlyphWebSocketManager
 
+
+# ──────────────────────────────────────────────
+#  Symbolic Classification + Color Mapping
+# ──────────────────────────────────────────────
 def classify_logic_type(symbol: str) -> str:
     if symbol in ("⧖", "⬁"):
         return "collapse"
@@ -24,6 +35,7 @@ def classify_logic_type(symbol: str) -> str:
     else:
         return "unknown"
 
+
 def gradient_color(entropy: float, cost: float) -> str:
     """
     Map entropy/cost to RGBA gradient: low = green, high = red/purple
@@ -34,9 +46,35 @@ def gradient_color(entropy: float, cost: float) -> str:
     alpha = max(0.4, min(1.0, 1.0 - 0.3 * cost))
     return f"rgba({r},{g},{b},{alpha:.2f})"
 
-def generate_knowledge_pack(glyph_tree: List[Dict[str, Any]], container_id: str) -> Dict:
+
+# ──────────────────────────────────────────────
+#  HQCE Stage 1 — ψ–κ–T Tensor Augmentation
+# ──────────────────────────────────────────────
+def curvature_estimate(links: List[Dict[str, Any]]) -> float:
+    """Simple curvature proxy from link density."""
+    n = len(links)
+    return float(np.tanh(n / 50.0))  # compressive mapping
+
+
+def compute_psikappaT(nodes: List[Dict[str, Any]], links: List[Dict[str, Any]],
+                      tick_time: float = 1.0, coherence_decay: float = 1e-3) -> Dict[str, float]:
+    """Compute the ψ–κ–T tensor signature for this holographic frame."""
+    if nodes:
+        psi = float(np.mean([n.get("entropy_score", 0.0) for n in nodes]))
+    else:
+        psi = 0.0
+    kappa = curvature_estimate(links)
+    T = float(tick_time / max(coherence_decay, 1e-6))
+    return {"psi": psi, "kappa": kappa, "T": T}
+
+
+# ──────────────────────────────────────────────
+#  Core Pack Generation
+# ──────────────────────────────────────────────
+def generate_knowledge_pack(glyph_tree: List[Dict[str, Any]], container_id: str) -> Dict[str, Any]:
     """
     Bundle a recursive logic tree into a portable GHX hologram pack.
+    Includes HQCE ψ–κ–T tensor augmentation for field analysis.
     """
     projection = []
     links = []
@@ -82,6 +120,7 @@ def generate_knowledge_pack(glyph_tree: List[Dict[str, Any]], container_id: str)
                 "animated": True
             })
 
+    # ─── Assemble GHX Pack ─────────────────────
     ghx_pack = {
         "projection_id": str(uuid.uuid4()),
         "rendered_at": datetime.utcnow().isoformat(),
@@ -97,7 +136,11 @@ def generate_knowledge_pack(glyph_tree: List[Dict[str, Any]], container_id: str)
         }
     }
 
-    # 🛰 Auto-broadcast to WebSocket clients (if enabled)
+    # ─── Compute ψ–κ–T Signature (HQCE v0.1) ────
+    psi_kappa_T = compute_psikappaT(projection, links)
+    ghx_pack["psi_kappa_T_signature"] = psi_kappa_T
+
+    # ─── Auto-Broadcast to WebSocket Clients ────
     try:
         GlyphWebSocketManager.broadcast_ghx_pack(ghx_pack)
     except Exception as e:

@@ -183,6 +183,19 @@ def log_soullaw_event(
     except Exception as e:
         logger.warning(f"[CollapseTraceExporter] Failed to log SoulLaw event: {e}")
 
+def log_sqi_soullaw_veto(sqi_score: float, glyph: str, threshold: float = 0.35):
+    """
+    Bridge SQI gating → SoulLaw event logging.
+    """
+    verdict = "violation" if sqi_score < threshold else "approval"
+    reason = f"SQI={sqi_score:.3f} {'<' if verdict=='violation' else '>='} {threshold}"
+    log_soullaw_event(
+        verdict=verdict,
+        glyph=glyph,
+        triggered_by="phase_scheduler",
+        origin="sqi_soullaw_bridge",
+    )
+    logger.info(f"[SoulLawBridge] {glyph} → {verdict.upper()} ({reason})")
 
 # --- Compatibility: provide get_recent_collapse_traces for bundle_builder ----
 def get_recent_collapse_traces(limit: int = 50) -> List[Dict[str, Any]]:
@@ -230,6 +243,35 @@ def get_recent_collapse_traces(limit: int = 50) -> List[Dict[str, Any]]:
         logger.warning(f"[CollapseTraceExporter] Failed to read local collapse traces: {e}")
         return []
 
+# --- SQI → SoulLaw Bridge ---------------------------------------------------
+
+def log_sqi_soullaw_veto(sqi_score: float, glyph: str, threshold: float = 0.35):
+    """
+    Bridge SQI gating decisions to SoulLaw event logging.
+
+    When SQI falls below threshold → soullaw_violation
+    Otherwise → soullaw_approval
+
+    Args:
+        sqi_score: The SQI value from telemetry or scheduler.
+        glyph: The symbolic glyph or beam identifier.
+        threshold: Gating threshold used by PhaseScheduler (default 0.35).
+    """
+    try:
+        verdict = "violation" if sqi_score < threshold else "approval"
+        reason = f"SQI={sqi_score:.3f} {'<' if verdict=='violation' else '>='} {threshold}"
+
+        log_soullaw_event(
+            verdict=verdict,
+            glyph=glyph,
+            triggered_by="phase_scheduler",
+            origin="sqi_soullaw_bridge",
+        )
+
+        logger.info(f"[SoulLawBridge] {glyph} → {verdict.upper()} ({reason})")
+
+    except Exception as e:
+        logger.warning(f"[SoulLawBridge] Failed to log SQI→SoulLaw mapping: {e}")
 
 __all__ = [
     "export_collapse_trace",

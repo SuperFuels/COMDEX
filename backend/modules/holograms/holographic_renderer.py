@@ -1,3 +1,8 @@
+# ──────────────────────────────────────────────
+#  Tessaris • Holographic Renderer (HQCE-Ready)
+#  Integrates live GHX rendering + coherence overlay (Stage 4)
+# ──────────────────────────────────────────────
+
 import os
 import uuid
 import math
@@ -30,6 +35,22 @@ except Exception:
 
 logger = logging.getLogger(__name__)
 
+
+# ──────────────────────────────────────────────
+#  HQCE Stage 4 — Coherence Overlay Extension
+# ──────────────────────────────────────────────
+def map_coherence_to_color(value: float) -> str:
+    """Map coherence ∈[0,1] → color gradient (blue→white→gold)."""
+    if value < 0.5:
+        return f"rgb({int(0)}, {int(128 + value * 255)}, {int(255)})"
+    else:
+        g = int(255 * (1 - abs(value - 1)))
+        return f"rgb({int(255)}, {g}, {int(100 + 155 * value)})"
+
+
+# ──────────────────────────────────────────────
+#  Core Holographic Renderer
+# ──────────────────────────────────────────────
 class HolographicRenderer:
     def __init__(self, ghx_packet: Dict[str, Any], observer_id: str = "anon", lazy_mode: bool = True):
         self.ghx = ghx_packet
@@ -39,10 +60,14 @@ class HolographicRenderer:
         self.rendered_projection: List[Dict] = []
         self.links: List[Dict] = []
 
+    # ────────────────────────────────────────────
+    #  Render GHX Projection
+    # ────────────────────────────────────────────
     def render_glyph_field(self) -> List[Dict]:
         """
         Project each glyph into a symbolic 4D light field.
         Apply observer-gated GHX access control and lazy rendering.
+        Compute dynamic coherence halos (HQCE Stage 4).
         """
         projection = []
         glyphs = self.ghx.get("glyphs") or self.ghx.get("holograms", [])
@@ -51,7 +76,6 @@ class HolographicRenderer:
             if not self._is_visible_to_observer(glyph):
                 logger.debug(f"Glyph {glyph.get('id')} hidden from observer {self.observer_id}")
                 continue
-
             if self.lazy_mode and not self._is_in_view(glyph):
                 logger.debug(f"Glyph {glyph.get('id')} skipped for lazy mode (out of view)")
                 continue
@@ -66,12 +90,18 @@ class HolographicRenderer:
             replay = glyph.get("replay", []) or trace_glyph_execution_path(gid)
             cost = glyph.get("cost", 0.0) or calculate_glyph_cost(symbol)
 
+            # ─── HQCE Stage 4: Coherence Computation ───
+            goal = glyph.get("goal_alignment_score", 0.5)
+            entropy = glyph.get("entropy_score", 0.5)
+            coherence = 1.0 - abs(entropy - goal)
+            color = map_coherence_to_color(coherence)
+
             light_packet = {
                 "glyph_id": gid,
                 "symbol": symbol,
                 "label": label,
                 "light_intensity": self._calc_light_intensity(symbol),
-                "color": glyph_color_map(symbol),
+                "color": color,  # dynamically coherence-based
                 "animation": "pulse",
                 "position": position,
                 "entangled": entangled,
@@ -79,8 +109,11 @@ class HolographicRenderer:
                 "collapse_trace": symbol in ("⧖", "⬁"),
                 "replay": replay,
                 "cost": cost,
+                "entropy_score": entropy,
+                "goal_alignment_score": goal,
+                "coherence": coherence,
                 "timestamp": timestamp,
-                "lazy_triggered": not self.lazy_mode
+                "lazy_triggered": not self.lazy_mode,
             }
             projection.append(light_packet)
 
@@ -90,7 +123,7 @@ class HolographicRenderer:
                     "target": eid,
                     "type": "entanglement",
                     "color": "#aa00ff",
-                    "animated": True
+                    "animated": True,
                 })
 
         self.rendered_projection = projection
@@ -118,6 +151,9 @@ class HolographicRenderer:
 
         return projection
 
+    # ────────────────────────────────────────────
+    #  Observer / Visibility Utilities
+    # ────────────────────────────────────────────
     def _is_visible_to_observer(self, glyph: Dict[str, Any]) -> bool:
         access = glyph.get("access_control", {})
         allowed = access.get("allowed_observers", [])
@@ -134,6 +170,9 @@ class HolographicRenderer:
     def _is_in_view(self, glyph: Dict[str, Any]) -> bool:
         return False  # Set True manually to test eager expansion
 
+    # ────────────────────────────────────────────
+    #  Interactive and Utility Methods
+    # ────────────────────────────────────────────
     def trigger_projection(self, glyph_id: str, method: str = "gaze") -> Optional[Dict]:
         for glyph in self.rendered_projection:
             if glyph["glyph_id"] == glyph_id:
@@ -156,9 +195,12 @@ class HolographicRenderer:
             "x": (seed.int % 50) - 25,
             "y": (seed.int % 70) - 35,
             "z": (seed.int % 90) - 45,
-            "t": glyph.get("timestamp", "2025-07-25T00:00:00Z")
+            "t": glyph.get("timestamp", "2025-07-25T00:00:00Z"),
         }
 
+    # ────────────────────────────────────────────
+    #  Exporters
+    # ────────────────────────────────────────────
     def export_projection(self) -> Dict:
         return {
             "rendered_at": datetime.utcnow().isoformat(),
@@ -171,8 +213,8 @@ class HolographicRenderer:
             "metadata": {
                 "version": self.ghx.get("ghx_version", "1.0"),
                 "replay_enabled": self.ghx.get("replay_enabled", False),
-                "lazy_mode": self.lazy_mode
-            }
+                "lazy_mode": self.lazy_mode,
+            },
         }
 
     def export_to_json(self, path: str):

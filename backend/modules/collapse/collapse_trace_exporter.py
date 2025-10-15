@@ -197,14 +197,43 @@ def _simplify_codexlang(glyphs: List[Dict[str, Any]]) -> None:
                 continue
 
 def _apply_soullaw_gate(glyphs: List[Dict[str, Any]]) -> None:
-    """Apply SoulLaw evaluation to symbolic glyphs."""
+    """
+    Apply SoulLaw evaluation and SQI veto tagging to symbolic glyphs.
+
+    - Evaluates SQI for each glyph (adds soullaw_status: approved/vetoed)
+    - Logs corresponding SoulLaw events via Codex exporter
+    - Merges additional ethics status from soullaw_violations()
+    """
+    if not glyphs:
+        return
+
+    # Import SoulLaw bridge
+    try:
+        from backend.modules.codex.collapse_trace_exporter import log_sqi_soullaw_veto
+    except Exception:
+        log_sqi_soullaw_veto = None
+
+    for g in glyphs:
+        gid = g.get("id", "unknown")
+        sqi = g.get("sqi") or g.get("sqi_score")
+
+        if sqi is not None:
+            if log_sqi_soullaw_veto:
+                log_sqi_soullaw_veto(sqi, gid)
+
+            if sqi < 0.35:
+                g["soullaw_status"] = "vetoed"
+            else:
+                g["soullaw_status"] = "approved"
+
+    # Merge deeper SoulLaw evaluation if available
     if evaluate_soullaw_violations:
         try:
             status_map = evaluate_soullaw_violations(glyphs)
             for g in glyphs:
                 gid = g.get("id")
                 if gid and gid in status_map:
-                    g["soullaw_status"] = status_map[gid]
+                    g["soullaw_status_detail"] = status_map[gid]
         except Exception as e:
             print(f"[⚠️ SoulLaw evaluation skipped]: {e}")
 

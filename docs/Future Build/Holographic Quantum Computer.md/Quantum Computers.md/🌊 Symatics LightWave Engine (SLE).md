@@ -27,29 +27,29 @@ end
 
 %%─────────────────────────────
 subgraph P3["III. Photonic Core (Virtual Wave Engine)"]
-  C1["Symatics hooks in Wave Engine (amp/phase/freq)"]
-  C2["Interference + modulation + coherence-decay primitives"]
-  C3["Operators ⊕ ↔ μ ⟲ implemented via kernels"]
-  C4["Noise/decoherence models + beam lineage tracking"]
-  C5["Collapse/resonance traces → telemetry JSONL export"]
-  C6["interference_kernels / measurement_kernels / superposition_kernels"]
-  C7["runtime.py & scheduler.py manage execution threads"]
-  C8["telemetry_handler feeds metrics → GWV writer + Symatics ledger"]
+✅  C1["Symatics hooks in Wave Engine (amp/phase/freq)"]
+✅  C2["Interference + modulation + coherence-decay primitives"]
+✅  C3["Operators ⊕ ↔ μ ⟲ implemented via kernels"]
+✅  C4["Noise/decoherence models + beam lineage tracking"]
+✅  C5["Collapse/resonance traces → telemetry JSONL export"]
+✅  C6["interference_kernels / measurement_kernels / superposition_kernels"]
+✅  C7["runtime.py & scheduler.py manage execution threads"]
+✅  C8["telemetry_handler feeds metrics → GWV writer + Symatics ledger"]
 end
 
 %%─────────────────────────────
 subgraph P4["IV. SQI Integration"]
-  D1["Beam-level resonance + entropy scoring (map to SQI)"]
-  D2["Scheduler gating by SQI threshold"]
-  D3["SoulLaw veto path in collapse flow"]
-  D4["coherence_metrics.py (Δφ, entropy, visibility)"]
+✅  D1["Beam-level resonance + entropy scoring (map to SQI)"]
+✅  D2["Scheduler gating by SQI threshold"]
+✅  D3["SoulLaw veto path in collapse flow"]
+✅  D4["coherence_metrics.py (Δφ, entropy, visibility)"]
 end
 
 %%─────────────────────────────
 subgraph P5["V. Holographic Core"]
-  E1["HST generator accepts LightWave beams"]
-  E2["Inject collapsed beams → HST nodes (semantic overlay: goal_match, drift, entropy)"]
-  E3["Replay cursor API (hst_websocket_streamer.broadcast_replay_paths)"]
+✅  E1["HST generator accepts LightWave beams"]
+✅  E2["Inject collapsed beams → HST nodes (semantic overlay: goal_match, drift, entropy)"]
+✅  E3["Replay cursor API (hst_websocket_streamer.broadcast_replay_paths)"]
 end
 
 %%─────────────────────────────
