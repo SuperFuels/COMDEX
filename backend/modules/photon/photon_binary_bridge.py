@@ -233,12 +233,38 @@ class PhotonBinaryBridge:
         capsule: Dict[str, Any],
         base_envelope: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
-        """Convert a Photon Capsule back into a GWIP packet."""
+        """Convert a Photon Capsule back into a GWIP packet.
+        Supports both symbolic (photon) and emulated binary modes.
+        """
+        # ──────────────────────────────────────────────
+        # 🧩 Handle non-photon modes (AUTO or BINARY)
+        # ──────────────────────────────────────────────
         if not self.is_photon_mode():
-            return self._simulate_binary_to_gwip(capsule)
+            # Return structured emulation wrapper with minimal envelope
+            envelope = {
+                "packet_id": f"emu_{uuid.uuid4().hex[:8]}",
+                "source_container": capsule.get("name", "unknown_src"),
+                "target_container": "gwip_emulator",
+                "coherence": 1.0,
+                "timestamp": time.time(),
+            }
+            return {
+                "emulation": True,
+                "mode": getattr(self, "mode", "auto"),
+                "envelope": envelope,
+                "payload": {
+                    "type": "gwip",
+                    "schema": 3,
+                    "payload": capsule,
+                },
+            }
 
+        # ──────────────────────────────────────────────
+        # ☀️ Normal symbolic-to-GWIP conversion path
+        # ──────────────────────────────────────────────
         validate_photon_capsule(capsule)
         capsule_name = capsule.get("name", f"capsule_{int(time.time())}")
+
         envelope = base_envelope or {}
         envelope.update({
             "packet_id": envelope.get("packet_id", f"gwip_{uuid.uuid4().hex[:8]}"),
@@ -253,6 +279,7 @@ class PhotonBinaryBridge:
 
         payload_json = json.dumps(capsule, separators=(",", ":"))
         payload_hash = hashlib.sha3_512(payload_json.encode()).hexdigest()
+
         gwip_packet = {
             "type": "gwip",
             "schema": 3,

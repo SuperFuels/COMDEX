@@ -10,6 +10,15 @@ from backend.symatics.operators import OPS as SymOps
 from .signature import Signature
 from .wave import canonical_signature
 
+# =====================================================
+# Clean up legacy operator aliases (Tessaris v0.3+)
+# =====================================================
+# Removes deprecated aliases such as superpose_op, entangle_op, and measure_op
+# to silence warnings and enforce the modern operator namespace.
+for legacy_alias in ("superpose_op", "entangle_op", "measure_op"):
+    if legacy_alias in SymOps:
+        del SymOps[legacy_alias]
+
 # === Added imports for v2.0 Meta-Axiom Integration ===
 from backend.symatics.core.meta_axioms_v02 import META_AXIOMS
 from backend.symatics.core.validators.pi_s_closure import validate_pi_s_closure

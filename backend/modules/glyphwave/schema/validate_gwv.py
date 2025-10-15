@@ -6,7 +6,8 @@ schema definition (v1.1). Ensures data integrity before analysis or replay.
 
 import json
 import os
-from jsonschema import Draft202012Validator, RefResolver, ValidationError
+from jsonschema import Draft202012Validator, ValidationError
+from referencing import Registry, Resource
 
 
 SCHEMA_PATH = os.path.join(
@@ -28,7 +29,13 @@ def validate_gwv_file(path: str) -> bool:
     Returns True if validation passes.
     """
     schema = _load_schema()
-    validator = Draft202012Validator(schema, resolver=RefResolver(base_uri=f"file://{SCHEMA_PATH}", referrer=schema))
+
+    # ✅ Modern referencing-based registry (replaces RefResolver)
+    registry = Registry().with_resource(
+        f"file://{SCHEMA_PATH}",
+        Resource.from_contents(schema)
+    )
+    validator = Draft202012Validator(schema, registry=registry)
 
     with open(path, "r", encoding="utf-8") as f:
         data = json.load(f)
@@ -45,4 +52,7 @@ def safe_validate_gwv(path: str) -> bool:
         return validate_gwv_file(path)
     except ValidationError as e:
         print(f"[GWVValidator] Validation failed for {path}: {e.message}")
+        return False
+    except Exception as e:
+        print(f"[GWVValidator] Unexpected error validating {path}: {e}")
         return False

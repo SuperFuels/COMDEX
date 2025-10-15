@@ -1,0 +1,72 @@
+[
+  {
+    "beam_id": "beam_0",
+    "timestamp": 1760531676.0073533,
+    "coherence": 0.8977641460036909,
+    "intensity": 0.992,
+    "recorded_at": "2025-10-15T12:39:25.718976Z"
+  },
+  {
+    "beam_id": "beam_1",
+    "timestamp": 1760531676.0581262,
+    "coherence": 0.8404536347697069,
+    "intensity": 0.915,
+    "recorded_at": "2025-10-15T12:39:25.718993Z"
+  },
+  {
+    "beam_id": "beam_2",
+    "timestamp": 1760531676.1108754,
+    "coherence": 0.8469591374870045,
+    "intensity": 0.872,
+    "recorded_at": "2025-10-15T12:39:25.719001Z"
+  },
+  {
+    "beam_id": "beam_0",
+    "timestamp": 1760531676.161017,
+    "coherence": 0.8630265338283052,
+    "intensity": 0.808,
+    "recorded_at": "2025-10-15T12:39:25.719007Z"
+  },
+  {
+    "beam_id": "beam_1",
+    "timestamp": 1760531676.2098558,
+    "coherence": 0.8883584311425903,
+    "intensity": 0.816,
+    "recorded_at": "2025-10-15T12:39:25.719011Z"
+  },
+  {
+    "beam_id": "beam_2",
+    "timestamp": 1760531676.2603645,
+    "coherence": 0.9372774834773895,
+    "intensity": 0.791,
+    "recorded_at": "2025-10-15T12:39:25.719013Z"
+  },
+  {
+    "beam_id": "beam_0",
+    "timestamp": 1760531676.30951,
+    "coherence": 0.9591577848757858,
+    "intensity": 0.839,
+    "recorded_at": "2025-10-15T12:39:25.719016Z"
+  },
+  {
+    "beam_id": "beam_1",
+    "timestamp": 1760531676.3603132,
+    "coherence": 0.9797159453610006,
+    "intensity": 0.779,
+    "recorded_at": "2025-10-15T12:39:25.719018Z"
+  },
+  {
+    "beam_id": "beam_2",
+    "timestamp": 1760531676.4084542,
+    "coherence": 0.8169773054813976,
+    "intensity": 0.755,
+    "recorded_at": "2025-10-15T12:39:25.719021Z"
+  },
+  {
+    "beam_id": "beam_0",
+    "timestamp": 1760531676.4593267,
+    "coherence": 0.8408889906850409,
+    "intensity": 0.924,
+    "recorded_at": "2025-10-15T12:39:25.719023Z"
+  }
+]

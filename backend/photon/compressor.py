@@ -1,49 +1,52 @@
-# backend/photon/compressor.py
+# -*- coding: utf-8 -*-
 """
-Photon Compressor
------------------
+Photon Compressor — Tessaris / CFE v0.3.x
+-----------------------------------------
 Two-tier Photon compression engine:
 
 Basic mode:
-  - Dedup identical subtrees (structural sharing).
-  - Flatten nested ⊕ (Add) and ⊗ (Mul).
+  • Dedup identical subtrees (structural sharing)
+  • Flatten nested ⊕ (Add) and ⊗ (Mul)
 
 Advanced mode:
-  - Lazy gradient compaction (keep Grad nodes unexpanded).
-  - Subtree factoring: collapse repeats (x ⊕ y ⊕ x → 2*(x ⊕ y)).
-  - Aggressive ⊕ / ⊗ flattening with hash-sharing.
+  • Lazy gradient compaction (preserves Grad nodes)
+  • Subtree factoring (x ⊕ y ⊕ x → 2*(x ⊕ y))
+  • Aggressive flattening with structural cache reuse
 
 Upgrades:
-  - Hashing now uses sympy's `srepr` + cache for structural identity.
-  - Flattening & factoring use iterative stack (faster than recursive replace).
-  - Gradient nodes (`Grad`) explicitly preserved in advanced mode.
-  - `normalize_compressed()` safe-guards invalid input.
-  - Convenience aliases: `compressor_basic`, `compressor_adv`.
+  • Safe bypass for dict/string/non-symbolic payloads
+  • Hashing uses SymPy’s srepr() for structural identity
+  • Iterative flatten/factor with caching (no recursion)
+  • normalize_compressed() guards invalid input
+  • Convenience aliases: compressor_basic, compressor_adv
 """
 
 import sympy as sp
+import logging
 from backend.photon.rewriter import Grad, _glyph_to_sympy
+
+logger = logging.getLogger(__name__)
 
 
 class PhotonCompressor:
     def __init__(self):
-        # Shared structural cache (cleared per normalize run)
+        # Structural deduplication cache
         self.cache: dict[str, sp.Expr] = {}
 
-    # ------------------------
+    # =====================================================
     # Core helpers
-    # ------------------------
+    # =====================================================
     def _hash_tree(self, expr: sp.Expr) -> str:
-        """Hash a SymPy expression structurally (fast structural equality)."""
+        """Hash a SymPy expression structurally (fast equality)."""
         return sp.srepr(expr)
 
     def _dedup(self, expr: sp.Expr) -> sp.Expr:
-        """Replace repeated subtrees with single instances (structural sharing)."""
+        """Replace repeated subtrees with single shared instances."""
         h = self._hash_tree(expr)
         if h in self.cache:
             return self.cache[h]
 
-        if expr.args:
+        if hasattr(expr, "args") and expr.args:
             new_args = tuple(self._dedup(a) for a in expr.args)
             if new_args != expr.args:
                 expr = expr.func(*new_args)
@@ -52,27 +55,21 @@ class PhotonCompressor:
         return expr
 
     def _flatten_ops(self, expr: sp.Expr) -> sp.Expr:
-        """Flatten nested ⊕ and ⊗ (Add/Mul)."""
+        """Flatten nested ⊕ (Add) or ⊗ (Mul)."""
         if isinstance(expr, sp.Add):
             terms = []
             for a in expr.args:
-                if isinstance(a, sp.Add):
-                    terms.extend(a.args)
-                else:
-                    terms.append(a)
+                terms.extend(a.args if isinstance(a, sp.Add) else [a])
             return sp.Add(*terms)
         elif isinstance(expr, sp.Mul):
             factors = []
             for a in expr.args:
-                if isinstance(a, sp.Mul):
-                    factors.extend(a.args)
-                else:
-                    factors.append(a)
+                factors.extend(a.args if isinstance(a, sp.Mul) else [a])
             return sp.Mul(*factors)
         return expr
 
     def _factor_repeats(self, expr: sp.Expr) -> sp.Expr:
-        """Factor repeated terms in sums/products."""
+        """Factor repeated terms in additive or multiplicative expressions."""
         if isinstance(expr, sp.Add):
             counts = {}
             for t in expr.args:
@@ -89,52 +86,62 @@ class PhotonCompressor:
 
         return expr
 
-    # ------------------------
+    # =====================================================
     # Compression passes
-    # ------------------------
-    def compress_basic(self, expr: str) -> sp.Expr:
-        """Basic compression: dedup + flatten."""
-        expr_std = _glyph_to_sympy(expr)
-        expr_sym = sp.sympify(expr_std, locals={"Grad": Grad})
-
-        expr_sym = self._dedup(expr_sym)
-
-        # Iterative flatten pass
-        expr_sym = expr_sym.replace(
-            lambda e: isinstance(e, (sp.Add, sp.Mul)), self._flatten_ops
-        )
-        return expr_sym
-
-    def compress_advanced(self, expr: str) -> sp.Expr:
-        """Advanced compression: lazy ∇ + factoring + flattening."""
-        expr_std = _glyph_to_sympy(expr)
-        expr_sym = sp.sympify(expr_std, locals={"Grad": Grad})
-
-        # Deduplication (preserve Grad nodes)
-        expr_sym = self._dedup(expr_sym)
-
-        # Flatten ⊕ / ⊗ aggressively
-        expr_sym = expr_sym.replace(
-            lambda e: isinstance(e, (sp.Add, sp.Mul)), self._flatten_ops
-        )
-
-        # Factor repeats (x + x → 2*x, x*x → x**2)
-        expr_sym = expr_sym.replace(
-            lambda e: isinstance(e, (sp.Add, sp.Mul)), self._factor_repeats
-        )
-
-        return expr_sym
-
-    # ------------------------
-    # Entry points
-    # ------------------------
-    def normalize_compressed(self, expr: str, mode="basic") -> sp.Expr:
+    # =====================================================
+    def compress_basic(self, expr_sym) -> sp.Expr:
         """
-        Normalize with compression.
+        Basic compression:
+        • Deduplication
+        • Flatten ⊕ / ⊗
+        Includes safe bypass for non-symbolic payloads.
+        """
+        # --- SAFETY BYPASS FOR RAW DATA PAYLOADS ---
+        if not hasattr(expr_sym, "args"):
+            logger.warning(f"[Compressor] Bypass triggered for non-symbolic payload ({type(expr_sym).__name__})")
+            return expr_sym
+        # -------------------------------------------
+
+        expr_sym = self._dedup(expr_sym)
+        expr_sym = expr_sym.replace(
+            lambda e: isinstance(e, (sp.Add, sp.Mul)),
+            self._flatten_ops,
+        )
+        return expr_sym
+
+    def compress_advanced(self, expr_sym) -> sp.Expr:
+        """
+        Advanced compression:
+        • Dedup + flatten + repeat factoring
+        • Preserves Grad nodes and symbolic form
+        """
+        if not hasattr(expr_sym, "args"):
+            logger.warning(f"[Compressor] Advanced bypass triggered for {type(expr_sym).__name__}")
+            return expr_sym
+
+        expr_sym = self._dedup(expr_sym)
+        expr_sym = expr_sym.replace(
+            lambda e: isinstance(e, (sp.Add, sp.Mul)),
+            self._flatten_ops,
+        )
+        expr_sym = expr_sym.replace(
+            lambda e: isinstance(e, (sp.Add, sp.Mul)),
+            self._factor_repeats,
+        )
+        return expr_sym
+
+    # =====================================================
+    # Entry points
+    # =====================================================
+    def normalize_compressed(self, expr: str | sp.Expr, mode="basic") -> sp.Expr:
+        """
+        Normalize an expression string or SymPy tree using compression.
         mode = "basic" (default) or "advanced"
         """
-        if not isinstance(expr, str):
-            raise TypeError(f"Expression must be a string, got {type(expr)}")
+        # Convert strings to symbolic form safely
+        if isinstance(expr, str):
+            expr = _glyph_to_sympy(expr)
+            expr = sp.sympify(expr, locals={"Grad": Grad})
 
         self.cache.clear()
         if mode == "basic":
@@ -142,12 +149,12 @@ class PhotonCompressor:
         elif mode == "advanced":
             return self.compress_advanced(expr)
         else:
-            raise ValueError(f"Unknown mode: {mode}")
+            raise ValueError(f"Unknown compression mode: {mode}")
 
 
-# ------------------------
+# =====================================================
 # Convenience Singletons
-# ------------------------
+# =====================================================
 compressor = PhotonCompressor()
 compressor_basic = compressor.compress_basic
 compressor_adv = compressor.compress_advanced

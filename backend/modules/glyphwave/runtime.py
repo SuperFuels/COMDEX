@@ -1,9 +1,11 @@
+# -*- coding: utf-8 -*-
 """
 🧠 GlyphWaveRuntime – High-Level Runtime for GWIP Routing + Adaptive CFE Feedback
 
 Now includes:
     • Automatic CFEFeedbackLoop startup on initialization
     • Background async feedback coroutine
+    • RuleManager (Codex) with SQI Drift integration
     • Graceful shutdown and loop stop handling
 """
 
@@ -16,7 +18,10 @@ from .carrier_memory import MemoryCarrier
 from .wavescope import WaveScope
 
 # Import TelemetryHandler directly (safe)
-from backend.modules.qwave.telemetry_handler import TelemetryHandler
+from backend.modules.glyphwave.telemetry_handler import TelemetryHandler
+
+# ✅ Adaptive learning manager (Codex)
+from backend.modules.codex.rule_manager import RuleManager
 
 
 class GlyphWaveRuntime:
@@ -34,17 +39,22 @@ class GlyphWaveRuntime:
         self.scope = scope or WaveScope()
         self.parameters: Dict[str, Any] = {}
 
-        # Feedback loop components
+        # Feedback + adaptive components
         self.telemetry = TelemetryHandler()
+        self.rule_manager = RuleManager()  # 🧩 Codex rule evolution controller
+
+        # Async loop/task handles
         self._feedback_loop = None
         self._feedback_task: Optional[asyncio.Task] = None
+        self._rule_task: Optional[asyncio.Task] = None
         self._loop_running = False
 
         if enable_feedback:
             try:
                 self._init_feedback_loop()
+                self._init_rule_manager()
             except Exception as e:
-                print(f"[GlyphWaveRuntime] ⚠️ Feedback loop initialization failed: {e}")
+                print(f"[GlyphWaveRuntime] ⚠️ Feedback initialization failed: {e}")
 
     # ===============================================================
     # Feedback loop initialization (lazy import to avoid circulars)
@@ -66,14 +76,27 @@ class GlyphWaveRuntime:
         except ImportError as e:
             print(f"[GlyphWaveRuntime] ⚠️ Import error: {e}")
 
+    def _init_rule_manager(self):
+        """Launch adaptive rule learning (SQI drift pull)."""
+        try:
+            loop = asyncio.get_event_loop()
+            self._rule_task = loop.create_task(self.rule_manager.pull_sqi_drift())
+            print("[GlyphWaveRuntime] 🔁 RuleManager SQI drift adaptation started.")
+        except RuntimeError:
+            print("[GlyphWaveRuntime] ⚠️ No active event loop for RuleManager drift polling.")
+
     async def _stop_feedback_loop(self):
-        """Gracefully stop feedback loop if active."""
+        """Gracefully stop feedback loop and adaptive tasks if active."""
         if self._feedback_loop and self._loop_running:
             self._feedback_loop.stop()
             if self._feedback_task:
                 self._feedback_task.cancel()
             self._loop_running = False
             print("[GlyphWaveRuntime] 🧠 CFE feedback loop stopped.")
+
+        if self._rule_task:
+            self._rule_task.cancel()
+            print("[GlyphWaveRuntime] 🔁 RuleManager SQI drift polling stopped.")
 
     # ===============================================================
     # Core Send / Receive
@@ -115,6 +138,7 @@ class GlyphWaveRuntime:
             "carrier": self.carrier.stats(),
             "throughput": self.scope.track_throughput(),
             "adaptive_parameters": self.parameters,
+            "rule_weights": getattr(self.rule_manager, "weights", {}),
         }
 
     def recent_logs(self, limit: int = 100) -> Any:
@@ -135,6 +159,7 @@ class GlyphWaveRuntime:
         await self._stop_feedback_loop()
         self.carrier.close()
         self.scope.reset()
+        print("[GlyphWaveRuntime] 🧩 Runtime closed cleanly.")
 
 
 # Compatibility alias for legacy imports

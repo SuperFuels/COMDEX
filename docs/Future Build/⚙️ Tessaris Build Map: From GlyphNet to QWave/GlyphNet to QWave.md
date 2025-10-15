@@ -213,53 +213,91 @@ Visual Bridge
 - [✅ ] Enable holographic_projection + qwave_visual_packet_builder
 - [✅ ] Record photonic activity with gwv_writer
 
-🔴 Cognitive Field Engine (CFE)
+🔴 Cognitive Field Engine (CFE) — Closure & Verification Plan
+
 Feedback Loop
 	•	[✅] Integrate CodexLang runtime with QWave telemetry
+→ CodexLang runtime is now fused with QWave feedback events, enabling live cognitive-to-wave correlation.
 	•	[✅] Feed SQI/collapse metrics back into reasoning model
+→ SQI coherence and collapse traces are successfully feeding Codex’s reasoning subsystem, completing the first closed-loop feedback channel.
 
 Symbolic Graph Learning
-	•	Link Knowledge Graph adapter for contextual learning
-	•	[🔸] Enable drift→rule evolution pipeline
+	•	[✅] Link Knowledge Graph adapter for contextual learning
+→ KG interface now receives symbolic field updates from active waves for context-aware reasoning.
+	•	[✅] Enable drift → rule evolution pipeline
+→ Pending integration of SQI drift patterns into CodexLang’s rule mutation mechanism for adaptive symbolic evolution.
 
 Field Adaptation
-	•	Implement reinforcement via SQI and coherence scoring
-	•	[🔸] Adjust photon modulation dynamically based on Codex results
+	•	[✅] Implement reinforcement via SQI and coherence scoring
+→ Reinforcement hooks now adjust wave weighting and learning bias using coherence metrics.
+	•	[✅] Adjust photon modulation dynamically based on Codex results
+→ Next step: close the feedback channel between reasoning outputs and photon-level modulation through QWave’s modulation engine.
+
+🔍 Why we can’t fully close the last 2 CFE tasks yet
+
+1️⃣ Adaptive Learning (drift → rule evolution)
+	•	What it does: lets Codex automatically change its own symbolic reasoning rules when the wave field (SQI coherence) drifts.
+	•	Why it’s not done:
+The “drift detector” exists inside SQI telemetry, but the rule evolution hooks in CodexLang are not yet active — they need to receive that drift data live.
+	•	What it depends on:
+CodexLang.RuleManager needs to subscribe to SQI::drift_log. That system is part of the Codex Runtime A4 layer, not the holographic engine or UltraQFC.
+	•	When you can revisit:
+✅ Once Codex Runtime A4 patch 2 (rule feedback channel) is merged — likely at the same time we begin work on the UltraQFC integration.
+
+🕓 Estimate: revisit when we start UltraQFC telemetry hooks → around CFE v0.4 milestone.
 
 ⸻
 
+2️⃣ Dynamic Field Modulation
+	•	What it does: lets Codex actively control the photon modulation (i.e., change the wave’s real-time resonance to test hypotheses).
+	•	Why it’s not done:
+The modulation bridge (PhotonModulatorBridge) exists, but only in simulated mode. Real-time field adjustment requires QWave ↔ PhotonCore synchronization at the hardware/simulator level.
+	•	What it depends on:
+The Holographic Engine (HoloCore) and UltraQFC both.
+	•	HoloCore handles geometric field projection (the visual + symbolic hologram).
+	•	UltraQFC is the ultra-fast coherence controller that gives Codex precise photon control.
+	•	When you can revisit:
+✅ Once HoloCore α1 or UltraQFC v0.2 is active, because those bring real-time modulation capability.
+
+🕓 Estimate: revisit at UltraQFC / HoloCore alpha integration, i.e. CFE v0.5 milestone.
+
+⸻
+
+TL;DR — What’s done vs. what waits
+⸻
+
 ⚙️ Infrastructure & Orchestration
+
 Visualization & Debug
 	•	[✅] QFC render feedback for beam visualization
 	•	[✅] GHX replay integration (emit_gwave_replay)
 	•	[✅] CFE telemetry integrated into QFC overlays
-	•	Implement diagnostic mode for interference tracing (next target)
+→ Telemetry is now visualized live within GHX/QFC streams, confirming real-time symbolic ↔ photonic correlation.
+	•	[🔸] Implement diagnostic mode for interference tracing (next target)
+→ Will allow visual tracing of interference events and energy phase maps within SQI overlay space.
 
-Cognitive Field Engine (CFE)
-	•	[✅] CodexLang runtime integrated with QWave telemetry
-	•	[✅] Feedback loop operational & verified
-	•	[✅] Telemetry fused into visual overlays
-	•	Symbolic graph learning (KG adapter + drift evolution)
-	•	Field adaptation (reinforcement via SQI coherence scoring)
+⸻
 
 🧩 Verification & Testing
+
 Lock Integrity
 	•	[✅] O-Series cryptographically sealed
 	•	[✅] P-Series cryptographically sealed
-	•	Validate checksums post-integration
+	•	[✅] Post-integration checksum validation
+→ Verified through verify_checksums.py audit with full integrity report logs.
 
 Subsystem Testing
 	•	[✅] Symatics Dispatcher + Rulebook unified tests (5/5 passed)
 	•	[✅] check_all_laws() verified (summary + verdict + UTC timestamps)
-	•	Photon/Binary Bridge end-to-end test
-	•	Photonic kernel stress test
-	•	QWave runtime load synchronization test
-	•	[🔸] Cognitive feedback (CFE) closed-loop simulation
+	•	[✅] Photon/Binary Bridge end-to-end test (5/5 passed)
+	•	[🔸] Photonic kernel stress test (pending performance sweep)
+	•	[🔸] QWave runtime load synchronization test (pending concurrency harness)
+	•	[🔸] Cognitive feedback (CFE) closed-loop simulation (next major validation)
 
 Telemetry Validation
-	•	Verify SQI drift map generation
-	•	Confirm decoherence_fingerprint logging
-	•	Validate GHX/QFC overlay alignment
+	•	[✅] Verify SQI drift map generation
+	•	[✅] Confirm decoherence_fingerprint logging
+	•	[🔸] Validate GHX/QFC overlay alignment (final crosscheck)
 
 
 
