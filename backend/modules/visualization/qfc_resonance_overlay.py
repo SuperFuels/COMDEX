@@ -1,7 +1,12 @@
 """
-🔵 QFC Resonance Overlay — SRK-19.2 Update
+🔵 QFC Resonance Overlay — SRK-19.3 Fusion Update
 Bridges GHX resonance frames → QFC holographic overlay payloads
 and records each broadcasted frame into GWV visual logs.
+
+Now integrates:
+ • Live CFE feedback telemetry (collapse_rate, decoherence_rate, stability)
+ • Adaptive hue modulation based on cognitive coherence feedback
+ • GHX + CFE fusion stream for CodexHUD live overlays
 
 Features:
  • Translates GHX nodes/edges into QFC packets
@@ -14,11 +19,13 @@ Features:
 import math
 import asyncio
 import time
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 
+from backend.cfe.cfe_feedback_loop import CFEFeedbackLoop
 from backend.modules.visualization.ghx_visual_bridge import GHXVisualBridge
 from backend.modules.visualization.broadcast_qfc_update import broadcast_qfc_update
-from backend.modules.glyphwave.gwv_writer import SnapshotRingBuffer  # ✅ new
+from backend.modules.glyphwave.gwv_writer import SnapshotRingBuffer
+
 
 def _hsv_to_rgb(h, s, v):
     """Convert HSV (0-1) → RGB tuple (0-255)."""
@@ -42,21 +49,33 @@ def _hsv_to_rgb(h, s, v):
 class QFCResonanceOverlay:
     """Builds, streams, and archives QFC overlay packets from GHX frames."""
 
-    def __init__(self, ghx_bridge: GHXVisualBridge):
+    def __init__(self, ghx_bridge: GHXVisualBridge, feedback: Optional[CFEFeedbackLoop] = None):
         self.bridge = ghx_bridge
+        self.feedback = feedback
         self._brightness_bias = 0.85
-        # ✅ initialize a local visual log ring buffer (SRK-19)
+        # SRK-19 visual log buffer
         self._gwv_buffer = SnapshotRingBuffer(maxlen=90)
 
     async def build_overlay(self) -> Dict[str, Any]:
-        """Translate latest GHX frame into QFC overlay format."""
+        """Translate latest GHX frame into QFC overlay format (with CFE telemetry)."""
         frame = await self.bridge.build_frame()
         brightness = max(0.2, frame["stability"]) * self._brightness_bias
+
+        # collect optional feedback from CFE loop
+        feedback_data = {}
+        if self.feedback and getattr(self.feedback, "last_feedback", None):
+            feedback_data = self.feedback.last_feedback
+
+        # apply feedback modulation (optional hue bias)
+        hue_bias = 0.0
+        if "symbolic_temperature" in feedback_data:
+            hue_bias = feedback_data["symbolic_temperature"] * 0.1
 
         nodes = []
         for node in frame["nodes"]:
             color = node.get("color", "hsl(270,80%,80%)")
             hue = float(color.split("(")[1].split(",")[0]) / 360.0
+            hue = (hue + hue_bias) % 1.0
             r, g, b = _hsv_to_rgb(hue, 0.8, brightness)
             nodes.append({
                 "id": node["id"],
@@ -67,7 +86,7 @@ class QFCResonanceOverlay:
         edges = []
         for edge in frame["edges"]:
             coherence = edge.get("coherence", 1.0)
-            hue = 0.75 - (coherence * 0.25)
+            hue = (0.75 - (coherence * 0.25) + hue_bias) % 1.0
             r, g, b = _hsv_to_rgb(hue, 0.8, brightness)
             edges.append({
                 "source": edge["source"],
@@ -85,12 +104,14 @@ class QFCResonanceOverlay:
             "edge_count": len(edges),
             "nodes": nodes,
             "edges": edges,
+            "feedback": feedback_data,  # 🔵 fused telemetry
         }
 
-        # ✅ add to visual ring buffer for persistence
+        # record snapshot for playback
         self._gwv_buffer.add_snapshot(
             collapse_rate=1.0 - frame["stability"],
             decoherence_rate=(1.0 - brightness),
+            frame_data=overlay,
         )
         return overlay
 
@@ -111,7 +132,6 @@ class QFCResonanceOverlay:
         overlay = await self.build_overlay()
         try:
             await broadcast_qfc_update(container_id, overlay)
-            # ✅ persist the buffer snapshot for analysis every broadcast cycle
             self._gwv_buffer.export_to_gwv(container_id=container_id)
             return {"status": "broadcast", "nodes": overlay["node_count"]}
         except Exception as e:

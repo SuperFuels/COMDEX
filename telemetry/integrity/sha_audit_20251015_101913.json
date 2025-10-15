@@ -1,0 +1,43 @@
+{
+  "schema_version": "1.0",
+  "timestamp": "2025-10-15T10:19:13.561481",
+  "verified_targets": [
+    "backend/modules/optics",
+    "backend/modules/qwave",
+    "backend/core"
+  ],
+  "hashes": {
+    "backend/modules/optics": {},
+    "backend/modules/qwave": {
+      "backend/modules/qwave/qwave_writer.py": "1418cbc2fb1fdf752e0926f567830fe30a5cc89d1d1dfb18e291c26be6459867",
+      "backend/modules/qwave/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "backend/modules/qwave/__pycache__/__init__.cpython-312.pyc": "299530c76378f3b6c0735bc3f5cc6c1acec968f29ae05a4e2a3e713e84b5c135",
+      "backend/modules/qwave/__pycache__/qwave_writer.cpython-312.pyc": "170c14fe1e8365be2b875c78cabc8689936eee7f1ddeba3ddb2820a82195a0e1"
+    },
+    "backend/core": {
+      "backend/core/log_utils.py": "10586e8bd6d3d4759fcbacd9d72361037dc7af7c611dadbdda374973eb2aa601",
+      "backend/core/registry_bridge.py": "1413a32a28575051f5901509a0035461ce1c165ee512c3931f24c74fe1be25d7",
+      "backend/core/symbol_registry.py": "847b8a45bf9a13da9915b6aa14d3284d535218017091bdf0c916874052e045b5",
+      "backend/core/plugins/pattern_reflection_oracle.py": "c562c564cb5803f036f1a29b8af05695b46bd8b502f68ee927964eeb82afa2c1",
+      "backend/core/plugins/plugin_manager.py": "79d79bc1a48fdd917abd3488fbc003e3eb6afc55e34aecc1bbfaf4b3358902c2",
+      "backend/core/plugins/plugin_interface.py": "d5b32e9bce4afd7677e16fdbd67ad20b65c90fbf14183054e4af616845ee9881",
+      "backend/core/plugins/emotion_strategy_synthesizer.py": "d240a3617311f522e0e6ed07c7d4502ed669d16f8aad316045ff8c3cabd2c30a",
+      "backend/core/plugins/tranquility_auto_iteration.py": "fc0035ee847596e15f5f3854b058e9bf9c364c81e3dbc69892bed863c92850eb",
+      "backend/core/plugins/mutation_innovation_toolkit.py": "420aac5d2a6f82b7854b677646f8c1267bca5baf132ba24c7fd9b3176db66027",
+      "backend/core/plugins/codexcore_trigger_hub.py": "e691e2cbbfc69dcd1397bf895d4ea14451f2a566c91d8e49dc3b8de7307e92d0",
+      "backend/core/plugins/__init__.py": "e8e436d3621a82a2f068ba5623bcb95d2e2aced641464a8e94b7ea3ee10c1b55",
+      "backend/core/plugins/aion_engine_dock.py": "0a7bb64e1e7b75dc2081f6ce65f32331ae79322c8e9f9510f223d6fb40a750c2",
+      "backend/core/plugins/__pycache__/plugin_interface.cpython-312.pyc": "d9dc90c8319fbc888004266c5fbae769fb33de0e45776cd0141d2c6c57118907",
+      "backend/core/plugins/__pycache__/tranquility_auto_iteration.cpython-312.pyc": "9f91c25b008672d91c675bec8d96b8edb2e7296e593e0b7b5d07aa011678471a",
+      "backend/core/plugins/__pycache__/mutation_innovation_toolkit.cpython-312.pyc": "caa60052877d287ca79f13cbe7ff32847663477687fe065c27f8b0f8148170f9",
+      "backend/core/plugins/__pycache__/aion_engine_dock.cpython-312.pyc": "80afc213e6e1fde537293a7717b849d64cc030027fbea27750106d6855ad630e",
+      "backend/core/plugins/__pycache__/pattern_reflection_oracle.cpython-312.pyc": "b7080a32c25c30373fe2e09cbd82669754b24f84a73247108894355231d2394c",
+      "backend/core/plugins/__pycache__/__init__.cpython-312.pyc": "a2dae665834d9d1e77bea4317b393590ee061ea4f6feeb21af6c9ecd26cb09bc",
+      "backend/core/plugins/__pycache__/codexcore_trigger_hub.cpython-312.pyc": "53ac708d249c89b39d2f6afe1b80eaedd09ab4d2b0782fffc3444259f92f30ff",
+      "backend/core/plugins/__pycache__/plugin_manager.cpython-312.pyc": "2e9e11b491d614bc223422921a69aa5bd46ab854139bf3717a29dcbe045afe11",
+      "backend/core/__pycache__/log_utils.cpython-312.pyc": "8bd425160752e57a125cb5e4fe86971ada299b26f7cfaafc27f63c95af10448a",
+      "backend/core/__pycache__/registry_bridge.cpython-312.pyc": "b62f51d844edfc719a54cf339baaaf8849af6de144a715f57f3515aad94c978f",
+      "backend/core/__pycache__/symbol_registry.cpython-312.pyc": "e27311786f6900a0d185b60e2b3eb279a52ade7977b1417689ef2da837895288"
+    }
+  }
+}

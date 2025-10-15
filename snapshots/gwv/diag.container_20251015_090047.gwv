@@ -1,0 +1,13 @@
+{
+  "container_id": "diag.container",
+  "snapshot_count": 1,
+  "stability": 1.0,
+  "frames": [
+    {
+      "timestamp": "2025-10-15T09:00:47.496079",
+      "collapse_rate": 0.0,
+      "decoherence_rate": 0.0,
+      "frame": {}
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "schema_version": "GWV-1.1",
+  "container_id": "diag.container",
+  "snapshot_count": 1,
+  "stability": 1.0,
+  "frames": [
+    {
+      "timestamp": "2025-10-15T09:08:06.247337",
+      "collapse_rate": 0.0,
+      "decoherence_rate": 0.0,
+      "frame": {
+        "schema_version": "GWV-1.0"
+      }
+    }
+  ]
+}

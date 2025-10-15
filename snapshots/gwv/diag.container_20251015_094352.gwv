@@ -1,0 +1,134 @@
+{
+  "schema_version": "1.1",
+  "container_id": "diag.container",
+  "snapshot_count": 1,
+  "stability": 0.7733,
+  "frames": [
+    {
+      "timestamp": "2025-10-15T09:43:52.301830",
+      "collapse_rate": 0.12,
+      "decoherence_rate": 0.3333333333333333,
+      "frame": {
+        "schema_version": "1.1",
+        "type": "diagnostic_interference_frame",
+        "timestamp": 1760521432.3018079,
+        "stability": 0.88,
+        "resonance_gain": 0.95,
+        "constructive_count": 1,
+        "destructive_count": 1,
+        "avg_interference_index": 0.0317,
+        "interference_index": 0.0317,
+        "zones": [
+          {
+            "source": "a",
+            "target": "b",
+            "phi": 0.0,
+            "interference_index": 0.95,
+            "zone": "constructive",
+            "coherence": 1.0
+          },
+          {
+            "source": "b",
+            "target": "a",
+            "phi": 0.5,
+            "interference_index": -0.855,
+            "zone": "destructive",
+            "coherence": 0.9
+          },
+          {
+            "source": "a",
+            "target": "a",
+            "phi": 0.25,
+            "interference_index": 0.0,
+            "zone": "neutral",
+            "coherence": 0.6
+          }
+        ],
+        "nodes": [
+          {
+            "id": "a",
+            "color": "hsl(120,80%,70%)",
+            "rgb": [
+              232,
+              193,
+              71
+            ],
+            "alpha": 0.9
+          },
+          {
+            "id": "b",
+            "color": "hsl(240,80%,70%)",
+            "rgb": [
+              193,
+              71,
+              252
+            ],
+            "alpha": 0.9
+          }
+        ],
+        "edges": [
+          {
+            "source": "a",
+            "target": "b",
+            "phi": 0.0,
+            "coherence": 1.0
+          },
+          {
+            "source": "b",
+            "target": "a",
+            "phi": 0.5,
+            "coherence": 0.9
+          },
+          {
+            "source": "a",
+            "target": "a",
+            "phi": 0.25,
+            "coherence": 0.6
+          }
+        ]
+      }
+    }
+  ],
+  "nodes": [
+    {
+      "id": "a",
+      "color": "hsl(120,80%,70%)",
+      "rgb": [
+        232,
+        193,
+        71
+      ],
+      "alpha": 0.9
+    },
+    {
+      "id": "b",
+      "color": "hsl(240,80%,70%)",
+      "rgb": [
+        193,
+        71,
+        252
+      ],
+      "alpha": 0.9
+    }
+  ],
+  "edges": [
+    {
+      "source": "a",
+      "target": "b",
+      "phi": 0.0,
+      "coherence": 1.0
+    },
+    {
+      "source": "b",
+      "target": "a",
+      "phi": 0.5,
+      "coherence": 0.9
+    },
+    {
+      "source": "a",
+      "target": "a",
+      "phi": 0.25,
+      "coherence": 0.6
+    }
+  ]
+}

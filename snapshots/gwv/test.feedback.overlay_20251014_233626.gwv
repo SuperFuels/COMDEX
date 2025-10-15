@@ -1,0 +1,19 @@
+{
+  "container_id": "test.feedback.overlay",
+  "snapshot_count": 2,
+  "stability": 1.0,
+  "frames": [
+    {
+      "timestamp": "2025-10-14T23:36:26.324412",
+      "collapse_rate": 0.0,
+      "decoherence_rate": 0.0,
+      "frame": {}
+    },
+    {
+      "timestamp": "2025-10-14T23:36:26.390643",
+      "collapse_rate": 0.0,
+      "decoherence_rate": 0.0,
+      "frame": {}
+    }
+  ]
+}
