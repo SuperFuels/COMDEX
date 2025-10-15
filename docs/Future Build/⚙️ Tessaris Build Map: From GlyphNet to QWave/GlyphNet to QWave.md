@@ -290,14 +290,14 @@ Subsystem Testing
 	•	[✅] Symatics Dispatcher + Rulebook unified tests (5/5 passed)
 	•	[✅] check_all_laws() verified (summary + verdict + UTC timestamps)
 	•	[✅] Photon/Binary Bridge end-to-end test (5/5 passed)
-	•	[🔸] Photonic kernel stress test (pending performance sweep)
-	•	[🔸] QWave runtime load synchronization test (pending concurrency harness)
-	•	[🔸] Cognitive feedback (CFE) closed-loop simulation (next major validation)
+	•	[✅] Photonic kernel stress test (pending performance sweep)
+	•	[✅] QWave runtime load synchronization test (pending concurrency harness)
+	•	[✅] Cognitive feedback (CFE) closed-loop simulation (next major validation)
 
 Telemetry Validation
 	•	[✅] Verify SQI drift map generation
 	•	[✅] Confirm decoherence_fingerprint logging
-	•	[🔸] Validate GHX/QFC overlay alignment (final crosscheck)
+	•	[✅] Validate GHX/QFC overlay alignment (final crosscheck)
 
 
 

@@ -43,32 +43,46 @@ class InstructionRegistry:
 
     # --- Execution APIs ---
 
-    def execute(self, key: str, operand: Any) -> Any:
+    def execute(self, key: str, operand: Any = None) -> Any:
         """
         Back-compat single-operand entrypoint.
-        Redirects raw glyphs via alias shim.
+        Resolves legacy or canonical instruction keys via alias shim.
+        Executes symbolic → photonic operations with context-safety.
         """
+        # --- Normalize the instruction key ---
         if key not in self.registry:
             if key in self.aliases:
                 canonical = self.aliases[key]
                 warnings.warn(
-                    f"[compat] Raw symbol '{key}' redirected to '{canonical}'",
+                    f"[compat] Raw symbol '{key}' redirected to canonical '{canonical}'",
                     DeprecationWarning
                 )
                 key = canonical
             else:
-                raise KeyError(f"Unknown instruction key: {key}")
+                warnings.warn(
+                    f"[registry] Unknown instruction key: '{key}' (skipped)",
+                    RuntimeWarning
+                )
+                return None
 
-        fn = self.registry[key]
+        fn = self.registry.get(key)
+        if not callable(fn):
+            raise TypeError(f"Invalid handler for instruction '{key}': not callable")
 
+        # --- Handle dict operands (args, kwargs) ---
         if isinstance(operand, dict):
             if "args" in operand or "kwargs" in operand:
                 args = operand.get("args", [])
                 kwargs = operand.get("kwargs", {})
-                return fn(None, *args, **kwargs)  # ctx=None
+                return fn(None, *args, **kwargs)  # ctx=None for CPU core
+            # flat dict → kwargs style
             return fn(None, **operand)
 
-        return fn(None, operand)
+        # --- Handle single operand or None ---
+        if operand is None:
+            return fn(None)
+        else:
+            return fn(None, operand)
 
     def execute_v2(self, key: str, *args, **kwargs) -> Any:
         """
@@ -459,4 +473,35 @@ INSTRUCTION_METADATA: Dict[str, Dict[str, str]] = {
         "impl": "log",
         "desc": "Emit a log message into glyph stream."
     },
+}
+
+# -----------------------------------------------------------------------------
+# Canonical Symbolic Opcode wrapper
+# -----------------------------------------------------------------------------
+class SymbolicOpCode(str):
+    """
+    Wrapper for symbolic operation keys.
+    Normalizes glyphs using the registry or alias shim.
+    """
+    def __new__(cls, symbol: str):
+        try:
+            canonical = registry.get_opcode(symbol)
+        except Exception:
+            canonical = symbol
+        return str.__new__(cls, canonical)
+
+
+# -----------------------------------------------------------------------------
+# Handler Mapping (used by VirtualCPUBeamCore)
+# -----------------------------------------------------------------------------
+OPCODE_HANDLER_MAP = {
+    SymbolicOpCode("⊕"): "handle_add",
+    SymbolicOpCode("→"): "handle_sequence",
+    SymbolicOpCode("↔"): "handle_bidir",
+    SymbolicOpCode("⟲"): "handle_loop",
+    SymbolicOpCode("⧖"): "handle_delay",
+    SymbolicOpCode("≡"): "handle_store",
+    SymbolicOpCode("✦"): "handle_dream",
+    SymbolicOpCode("⧠"): "handle_q_entangle",
+    SymbolicOpCode("⧝"): "handle_q_collapse",
 }

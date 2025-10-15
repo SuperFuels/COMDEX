@@ -1,3 +1,245 @@
+%%──────────────────────────────────────────────
+%%  TESSARIS • ULTRAQC MASTER BUILD CHECKLIST (v0.4-SLE)
+%%──────────────────────────────────────────────
+
+flowchart TD
+
+%%─────────────────────────────
+subgraph P1["I. Core Simulation Scaffold"]
+✅  A1["WaveState object (amp, phase, freq, entanglement_id, drift, qscore, coherence)"]
+✅  A2["BeamEvent schema {drift, qscore, origin}"]
+✅  A3["Merge virtual_cpu_beam_core + codex_virtual_qpu → virtual_wave_engine"]
+✅  A4["CLI demo: scripts/demo_ultraqc.py (goal → wave → collapse → HST snapshot)"]
+✅  A5["Feature flags: LIGHTWAVE_ENGINE_ON, ULTRAQC_ON"]
+end
+
+%%─────────────────────────────
+subgraph P2["II. Symbolic ↔ Photonic Bridge (SLE Core)"]
+✅  B1["Module layout: backend/modules/symatics_lightwave/"]
+✅  B2["Interfaces: SymaticsDispatcher, WaveCapsule, BeamRuntime"]
+✅  B3["Operator mapping ⊕ μ ↔ ⟲ π → QWave beam ops"]
+✅  B4["photon_qwave_bridge.py (Codex AST → WaveProgram)"]
+✅  B5["Codex scheduler routes {kind:'wave'} → LightWave Engine"]
+✅  B6["Codex CPU opcode path for ⊕ μ ↔ ⟲ π"]
+✅  B7["WaveCapsule API (.phn.wave + run_symatics_wavecapsule)"]
+✅  B8["ultraqfc_adapter.py – GHX↔QWave feedback bridge (πₛ closure)"]
+end
+
+%%─────────────────────────────
+subgraph P3["III. Photonic Core (Virtual Wave Engine)"]
+  C1["Symatics hooks in Wave Engine (amp/phase/freq)"]
+  C2["Interference + modulation + coherence-decay primitives"]
+  C3["Operators ⊕ ↔ μ ⟲ implemented via kernels"]
+  C4["Noise/decoherence models + beam lineage tracking"]
+  C5["Collapse/resonance traces → telemetry JSONL export"]
+  C6["interference_kernels / measurement_kernels / superposition_kernels"]
+  C7["runtime.py & scheduler.py manage execution threads"]
+  C8["telemetry_handler feeds metrics → GWV writer + Symatics ledger"]
+end
+
+%%─────────────────────────────
+subgraph P4["IV. SQI Integration"]
+  D1["Beam-level resonance + entropy scoring (map to SQI)"]
+  D2["Scheduler gating by SQI threshold"]
+  D3["SoulLaw veto path in collapse flow"]
+  D4["coherence_metrics.py (Δφ, entropy, visibility)"]
+end
+
+%%─────────────────────────────
+subgraph P5["V. Holographic Core"]
+  E1["HST generator accepts LightWave beams"]
+  E2["Inject collapsed beams → HST nodes (semantic overlay: goal_match, drift, entropy)"]
+  E3["Replay cursor API (hst_websocket_streamer.broadcast_replay_paths)"]
+end
+
+%%─────────────────────────────
+subgraph P6["VI. UltraQC Orchestration"]
+  F1["Two-phase commit (Symbolic→Photonic→Holographic)"]
+  F2["Rollback/repair if SQI<threshold or SoulLaw veto"]
+  F3["Pattern Engine repair_from_drift → fusion glyph injection"]
+  F4["Unified KG export (symbolic + photonic + holographic traces)"]
+end
+
+%%─────────────────────────────
+subgraph P7["VII. Tests & Demonstrations"]
+  G1["Unit tests: wave ops (⊕ ↔ μ ⟲), SQI scoring, SoulLaw veto"]
+  G2["Integration tests: Codex expr → Wave beams → HST snapshot"]
+  G3["E2E demo: scripts/demo_ultraqc.py (visible UltraQC braid)"]
+  G4["HUD telemetry: beam lineage, SQI scores, replay paths"]
+end
+
+%%─────────────────────────────
+subgraph P8["VIII. Cross-Phase Modules & Docs"]
+  H1["SBAL dispatcher (digital | optical | rf | laser substrates)"]
+  H2["UltraQFC adapter (backend/symatics/ultraqfc_adapter.py)"]
+  H3["πₛ Phase-Closure Validator (resonance completion)"]
+  H4["Telemetry report sle_validation.json (+ dashboards)"]
+  H5["Docs (master_build_plan_v0.4 / symatics_algebra_v0.1.md)"]
+end
+
+GHXTelemetryBridge
+Future sub-module for telemetry streaming
+Between P3 (telemetry) and P5 (holographic)
+❌ Not yet on the v0.4 checklist
+
+A1 --> B1 --> C1 --> D1 --> E1 --> F1 --> G1 --> H1
+
+🔍 Additions / Adjustments from Your QWave Dump
+
+ID							Change								Reason
+C6–C8
+Added explicit kernel + runtime + telemetry modules.
+Reflects new files (interference_kernels.py, runtime.py, etc.)
+B8
+Added ultraqfc_adapter.py (GHX ↔ QWave feedback bridge).
+Introduced in Phase 2 plan.
+D4
+Added coherence_metrics.py for Δφ tracking & entropy ledger.
+Needed for SQI feedback.
+H1–H3
+Explicitly include SBAL + πₛ closure validator.
+To ensure backend substrate selection.
+All P3 nodes
+Grouped under “Virtual Wave Engine / Physical Core” to unify QWave & SLE.
+Structural clarity.
+
+🧩 Next Steps (Execution Order)
+Step									Focus						Output
+1
+Verify all QWave core files load & import cleanly (interference_kernels, runtime, scheduler).
+Confirm Phase 1.5 readiness.
+2
+Build backend/symatics_lightwave/ structure + interfaces (B1–B2).
+Establish SLE root.
+3
+Implement ultraqfc_adapter.py + coherence_metrics.py.
+Enable live GHX ↔ QWave feedback.
+4
+Update symatics_dispatcher.py to call engine_api.
+Bridge symbolic → photonic.
+5
+Begin unit tests (G1).
+Verify operators ⊕ ↔ μ ⟲.
+
+
+
+Key notes (what “done” means — evidence to check in repo)
+	•	WaveState / BeamEvent: structs/types exist; fields match names above; used by engine paths.
+	•	SLE module + interfaces: directory present; SymaticsDispatcher, WaveCapsule, BeamRuntime defined and importable.
+	•	Operator mapping: a table or functions mapping ⊕/μ/↔/⟲/π to concrete engine ops; unit tests cover at least one non-trivial interference case.
+	•	Bridge + scheduler: photon_qwave_bridge.py compiles Codex AST fragments to a WaveProgram; scheduler routes {kind:'wave'} segments there.
+	•	WaveCapsule: .phn.wave schema + an entrypoint run_symatics_wavecapsule(capsule) returning WaveState/telemetry.
+	•	Photonic core: engine supports amplitude/phase/freq updates per tick; exports collapse/resonance traces to telemetry JSONL.
+	•	SQI: functions that compute resonance/entropy on beam states and feed the scheduler; thresholds configurable.
+	•	HST: write path that records collapsed beams with overlays; replay cursor method callable.
+	•	UltraQC orchestration: explicit two-phase commit points + rollback path; Pattern Engine hook callable.
+	•	Tests/demos: runnable tests for ops + at least one integration demo showing the braid.
+	•	SBAL: dispatcher or config that selects backend substrate (even if only “digital” exists today).
+	•	UltraQFC adapter: code that reads GHX_QFC_alignment_validation.json and produces modulator correction messages (stubbed if hardware missing).
+	•	πₛ validator: module that detects phase-closure; used as a completion criterion.
+	•	Docs: files present and aligned with code (no stub placeholders).
+
+If you want, I can turn each node into a tabular tracker (ID • path • acceptance test command); say the word and I’ll output it.
+
+
+
+
+1. Integrate UltraQFC Modulator API
+backend/symatics/ultraqfc_adapter.py
+GHX ↔ QWave feedback bridge. Reads GHX_QFC_alignment_validation.json and feeds coherence/phase correction back into the QWave driver. Enables real-time photonic modulation and πₛ closure feedback.
+🟢 Add now (part of Phase 2)
+2. Extend Symatics Engine v0.2
+backend/symatics/core/algebra.py, backend/symatics/core/operators.py
+Introduces the resonance calculus operators (∂⊕, ∇⟲, μπ), symbolic resonance equations, and photonic coupling. Forms the mathematical backbone for parity with QWave runtime.
+🟢 Already in Phase 2 plan — continue implementation
+
+
+🧩 Merged Notes & Additions
+
+Newly Added from SLE Plan:
+	•	T1: Formal module structure (symatics_lightwave/).
+	•	T2: Operator mapping (⊕ μ ↔ ⟲ π) → QWave primitives.
+	•	T3: Wave engine extension for interference, modulation, coherence decay.
+	•	T4: Beam-level resonance and entropy scoring (SQI coupling).
+	•	T5: Codex CPU opcode extension — symbolic↔wave dispatch.
+	•	T6: Standalone WaveCapsule API (.phn.wave format).
+	•	T7: SCI/LightCone visualization overlays.
+
+⸻
+
+🔑 Key Build Notes
+
+Integration Order:
+	1.	Finish merging virtual_cpu_beam_core → virtual_wave_engine.
+	2.	Define the SymaticsDispatcher → central route for all ⊕ μ ↔ ⟲ π ops.
+	3.	Add WaveCapsule API so .phn.wave files can replay SLE runs.
+	4.	Tie beam entropy → SQI kernel, enabling feedback into Codex.
+	5.	Link visual overlays (SCI, LightCone) for real-time resonance view.
+
+Verification Targets (unchanged):
+	•	Δφ (phase error) ≤ 1 × 10⁻³
+	•	Coherence ≥ 0.999
+	•	SQI ≥ 0.8 accepted
+	•	HST replay latency < 0.1 s
+	•	Stable orchestration across ≥ 1000 beams
+
+⸻
+
+Would you like me to produce a table companion (ID → Task → File → Dependencies → Success Metric) to sit below this Mermaid block in the same doc? It would serve as a live progress tracker per commit.
+
+
+🔑 Phase Notes
+
+Phase 1 – Simulation Scaffold
+	•	Confirm WaveState + BeamEvent canonical forms exist.
+	•	Move all virtual beam logic into virtual_wave_engine.py.
+
+Phase 2 – Symbolic↔Photonic Bridge
+	•	Ensure AST tagging + scheduler routing works; bridge translates Codex ops to wave programs.
+
+Phase 3 – Photonic Core
+	•	Implement core operators (⊕ ↔ ∇).
+	•	Add decoherence & lineage tracking for replay fidelity.
+
+Phase 4 – SQI Integration
+	•	Attach drift/qscore to every collapse.
+	•	Enforce SQI/SoulLaw gating on reinjection.
+
+Phase 5 – Holographic Core
+	•	Collapsed beams become persistent holographic frames in HST.
+	•	Enable live replay streaming (HUD overlay).
+
+Phase 6 – UltraQC Orchestration
+	•	Full transaction loop (symbolic→photonic→holographic).
+	•	Rollback + repair routines via Pattern Engine.
+
+Phase 7 – Tests & Demos
+	•	Run from symbolic goal → beam run → holographic replay → SQI validation.
+
+Phase 8 – Add-On Modules
+	•	Finalize SBAL, πₛ validator, UltraQFC bridge, telemetry, and docs.
+
+⸻
+
+✅ Success Metrics (v0.4)
+	•	Phase error ≤ 1×10⁻³ rad
+	•	Coherence ≥ 99.9 %
+	•	SQI ≥ 0.8 accepted
+	•	HST replay latency < 0.1 s
+	•	1000+ beam stability under orchestration
+
+
+
+
+
+
+
+
+______________________________________
+OLD LIST AND ORIGINAL DETAILS
+
+
+
 check these files first; we might have already built most of the functionality
 
 # 📁 backend/modules/codex/virtual/virtual_registers.py

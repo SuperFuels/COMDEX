@@ -1,0 +1,8 @@
+Tessaris SLE Run Log — SLE_RUN_20251015_192914
+============================================================
+
+{"tick": 1, "coherence": 0.88, "entropy": 0.01, "phase_drift": 0.02, "collapse_time_ms": 0.02, "vetoed": false, "timestamp": 1760556554.1868541}
+{"tick": 2, "coherence": 0.86, "entropy": 0.02, "phase_drift": 0.04, "collapse_time_ms": 0.038, "vetoed": false, "timestamp": 1760556554.487123}
+{"tick": 3, "coherence": 0.84, "entropy": 0.03, "phase_drift": 0.06, "collapse_time_ms": 0.029, "vetoed": false, "timestamp": 1760556554.7873597}
+{"tick": 4, "coherence": 0.82, "entropy": 0.04, "phase_drift": 0.08, "collapse_time_ms": 0.028, "vetoed": false, "timestamp": 1760556555.0876186}
+{"tick": 5, "coherence": 0.8, "entropy": 0.05, "phase_drift": 0.1, "collapse_time_ms": 0.034, "vetoed": false, "timestamp": 1760556555.3878927}

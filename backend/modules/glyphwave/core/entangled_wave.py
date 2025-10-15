@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import Dict, List, Any, Optional
 import time
 
 from backend.modules.glyphwave.kernels.interference_kernel_core import join_waves_batch
@@ -21,22 +21,39 @@ class EntangledWave:
         self.reverse_links: Dict[str, List[str]] = {}  # entangled wave_id → source wave_ids
         self.entangled_ids: Dict[int, str] = {}        # index → entangled_id
 
-    def add_wave(self, wave: "WaveState", index: int):
+    def add_wave(self, wave: "WaveState", index: Optional[int] = None):
+        """
+        Adds a WaveState to the entangled set.
+        Backward-compatible: if index is not provided, assigns the next available index.
+        """
+        # 🧩 Assign automatic index if omitted
+        if index is None:
+            index = len(self.waves)
+
         self.waves.append(wave)
         self.entanglement_map[index] = []
 
-        # ✅ B6a: Generate unique entangled_id
+        # ✅ Generate unique entangled ID
         entangled_id = f"entangled_{index}"
         self.entangled_ids[index] = entangled_id
 
+        # ✅ Ensure wave metadata consistency
         wave_id = wave.metadata.get("wave_id", f"wave_{index}")
         wave.metadata["wave_id"] = wave_id
         wave.metadata["entangled_id"] = entangled_id
 
-        # Initialize links
+        # ✅ Initialize linkage structures
         self.forward_links.setdefault(wave_id, [])
         self.reverse_links.setdefault(entangled_id, [])
         self.reverse_links[entangled_id].append(wave_id)
+
+        # ✅ Optional: register wave in ENTANGLED_WAVE_STORE for fast access
+        try:
+            from backend.modules.glyphwave.core.wave_state import ENTANGLED_WAVE_STORE
+            if hasattr(wave, "container_id"):
+                ENTANGLED_WAVE_STORE[wave.container_id] = self
+        except Exception:
+            pass  # safe to ignore if store not yet initialized
 
     def generate_links(self):
         for i in range(len(self.waves)):
@@ -119,6 +136,8 @@ class EntangledWave:
         """
         Collapse all entangled waves using the fast vectorized GPU/MLX-compatible kernel.
         Returns a payload with symbolic results + performance metrics.
+        Ensures the returned object is always a dict, even if the kernel
+        outputs a list, ndarray, or WaveState object.
         """
         start_time = time.time()
         result = join_waves_batch(self.waves)
@@ -126,18 +145,27 @@ class EntangledWave:
 
         metrics = {
             "collapse_time_ms": duration_ms,
-            "device": DEVICE_TYPE,
+            "device": DEVICE_TYPE if "DEVICE_TYPE" in globals() else "CPU",
             "num_waves": len(self.waves),
             "timestamp": time.time()
         }
 
-        # Inject metrics
-        result["collapse_metrics"] = metrics
+        # 🧩 Normalize result: ensure it's always a dict
+        if isinstance(result, dict):
+            result["collapse_metrics"] = metrics
+        else:
+            result = {
+                "collapsed_waves": result,
+                "collapse_metrics": metrics
+            }
+
+        # 🔁 Inject metrics into each wave's metadata
         for wave in self.waves:
-            wave.metadata["collapse_metrics"] = metrics
+            if hasattr(wave, "metadata") and isinstance(wave.metadata, dict):
+                wave.metadata["collapse_metrics"] = metrics
 
         return result
-
+        
     # ✅ NEW: From glyphs → builds an EntangledWave object from glyph list
     @classmethod
     def from_glyphs(cls, glyphs: List[Dict]) -> "EntangledWave":

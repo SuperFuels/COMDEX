@@ -31,7 +31,7 @@ gcloud run deploy comdex-api \
   --timeout=300s
 
 git add .
-git commit -m "Photon Stage Complete"
+git commit -m "SLE v1"
 git push origin main
 
 gcloud builds submit --config cloudbuild.yaml .

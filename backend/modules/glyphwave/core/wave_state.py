@@ -134,38 +134,59 @@ class WaveState:
         container_id: Optional[str] = None,
         source: Optional[str] = None,
         target: Optional[str] = None,
-        timestamp: Optional[str] = None,  
+        timestamp: Optional[str] = None,
         glow_intensity: Optional[float] = None,
         pulse_frequency: Optional[float] = None,
         mutation_type: Optional[str] = None,
         mutation_cause: Optional[str] = None,
+        # 🌊 UltraQC extensions
+        frequency: Optional[float] = None,
+        drift: Optional[float] = 0.0,
+        qscore: Optional[float] = 1.0,
+        entanglement_id: Optional[str] = None,
+        coherence: Optional[float] = 1.0,
     ):
+        # --- Core identification ---
         self.wave_id = wave_id
         self.glyph_data = glyph_data or {}
         self.glyph_id = glyph_id
+        self.container_id = container_id
+        self.source = source or self.glyph_data.get("source", "unknown")
+        self.target = target or self.glyph_data.get("target", "unknown")
+        self.timestamp = timestamp or datetime.datetime.utcnow().isoformat() + "Z"
+
+        # --- Physical parameters ---
         self.carrier_type = carrier_type
         self.modulation_strategy = modulation_strategy
         self.delay_ms = delay_ms
+        self.phase = self.glyph_data.get("phase", random.uniform(0, 2 * math.pi))
+        self.amplitude = self.glyph_data.get("amplitude", 1.0)
+        self.coherence = coherence or self.glyph_data.get("coherence", 1.0)
+        self.entropy = self.glyph_data.get("entropy", 0.0)
+
+        # --- Symbolic & entanglement state ---
         self.origin_trace = origin_trace or []
-        self.metadata = metadata or {}
-        self.prediction = prediction
-        self.sqi_score = sqi_score
-        self.collapse_state = collapse_state
         self.entangled_wave = entangled_wave
-        self.tick = tick or 0
+        self.entanglement_id = entanglement_id or f"ent_{wave_id or random.randint(1000,9999)}"
         self.state = state or "active"
-        self.container_id = container_id
+        self.tick = tick or 0
+        self.collapse_state = collapse_state
+        self.sqi_score = sqi_score
+        self.prediction = prediction
+        self.metadata = metadata or {}
+
+        # --- UltraQC extensions ---
+        self.frequency = frequency or 1.0
+        self.drift = drift
+        self.qscore = qscore
+
+        # --- Aesthetic / mutation fields ---
         self.glow_intensity = glow_intensity or 0.0
         self.pulse_frequency = pulse_frequency or 0.0
         self.mutation_type = mutation_type or "none"
         self.mutation_cause = mutation_cause or "unknown"
 
-        self.source = source or self.glyph_data.get("source", "unknown")
-        self.target = target or self.glyph_data.get("target", "unknown")
-
-        self.timestamp = timestamp or datetime.datetime.utcnow().isoformat() + "Z"
-
-        # ✅ Safe fallback handling
+        # ✅ Fallback: derive ID from entangled context
         if entangled_wave:
             try:
                 primary = entangled_wave.primary_glyph
@@ -176,20 +197,10 @@ class WaveState:
                     else {}
                 )
             self.id = wave_id or primary.get("id", "entangled_anon")
-            self.glyph_data = glyph_data or primary
+            if not self.glyph_data:
+                self.glyph_data = primary
         else:
             self.id = wave_id or "anon"
-            self.glyph_data = glyph_data or {}
-
-        self.carrier_type = carrier_type
-        self.modulation_strategy = modulation_strategy
-        self.delay_ms = delay_ms
-        self.origin_trace = origin_trace or []
-        self.metadata = metadata or {}
-        self.prediction = prediction
-        self.sqi_score = sqi_score
-        self.collapse_state = collapse_state
-        self.glyph_id = glyph_id
 
     def __repr__(self):
         return (
@@ -264,9 +275,10 @@ class WaveState:
     def from_glyph_dict(cls, glyph: dict) -> "WaveState":
         """
         Create a WaveState from a glyph dictionary directly.
+        Supports both legacy 'id' and modern 'qwave_id' keys.
         Avoids EntangledWave to prevent circular import/recursion.
         """
-        wave_id = glyph.get("id", f"wave_{hash(str(glyph)) & 0xFFFFF}")
+        qwave_id = glyph.get("qwave_id", glyph.get("id", f"wave_{hash(str(glyph)) & 0xFFFFF}"))
         return cls(
             wave_id=qwave_id,
             glyph_data=glyph,

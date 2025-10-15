@@ -1,14 +1,24 @@
 # File: backend/modules/glyphwave/kernels/interference_kernels.py
+"""
+🌀 Tessaris QWave | Interference Kernels
+---------------------------------------
+Implements ⊕ interference and superposition logic for photonic WaveState objects.
+Includes optional GHX replay emission for visualization.
+"""
 
 from typing import List
 import numpy as np
+import asyncio
 
 from backend.modules.glyphwave.core.wave_state import WaveState
 from backend.modules.glyphwave.core.entangled_wave import EntangledWave
 from backend.modules.symbolgraph.symbolgraph_adapter import get_bias_vector
-from backend.modules.glyphwave.visual.emit_gwave_replay import emit_gwave_replay
+from backend.modules.glyphwave.emit_gwave_replay import emit_gwave_frames
 
 
+# ---------------------------------------------------------------------
+# Core interference primitives
+# ---------------------------------------------------------------------
 def interfere(w1: WaveState, w2: WaveState) -> WaveState:
     """
     Interfere two WaveState objects using complex vector addition.
@@ -16,21 +26,15 @@ def interfere(w1: WaveState, w2: WaveState) -> WaveState:
     """
     z1 = np.exp(1j * w1.payload["phase"]) * w1.payload["amplitude"]
     z2 = np.exp(1j * w2.payload["phase"]) * w2.payload["amplitude"]
-
     z_total = z1 + z2
 
     amplitude = np.abs(z_total)
     phase = np.angle(z_total)
-
     coherence = (w1.payload["coherence"] + w2.payload["coherence"]) / 2.0
     origin_trace = list(set(w1.origin_trace + w2.origin_trace))
 
     return WaveState(
-        payload={
-            "phase": phase,
-            "amplitude": amplitude,
-            "coherence": coherence
-        },
+        payload={"phase": phase, "amplitude": amplitude, "coherence": coherence},
         origin_trace=origin_trace,
         metadata={},
     )
@@ -38,7 +42,7 @@ def interfere(w1: WaveState, w2: WaveState) -> WaveState:
 
 def join_waves(waves: List[WaveState]) -> WaveState:
     """
-    Join multiple waves using iterative interference logic (vector addition).
+    Join multiple waves sequentially using pairwise interference.
     """
     if not waves:
         raise ValueError("No waves to join.")
@@ -48,10 +52,11 @@ def join_waves(waves: List[WaveState]) -> WaveState:
     return result
 
 
-def join_waves_batch(waves: List[WaveState]) -> WaveState:
+def join_waves_batch(waves: List[WaveState], emit_visual: bool = False) -> WaveState:
     """
     Join multiple waves using batched complex vector addition (NumPy).
     Much faster than sequential joining for large wave lists.
+    Optionally emits a GHX replay snapshot after merge.
     """
     if not waves:
         raise ValueError("No waves to join.")
@@ -61,63 +66,34 @@ def join_waves_batch(waves: List[WaveState]) -> WaveState:
     phases = np.array([w.payload["phase"] for w in waves])
     amplitudes = np.array([w.payload["amplitude"] for w in waves])
     z_all = np.exp(1j * phases) * amplitudes
-
     z_sum = np.sum(z_all, axis=0)
+
     amplitude = np.abs(z_sum)
     phase = np.angle(z_sum)
-
-    coherence = np.mean([w.payload["coherence"] for w in waves])
-    origin_trace = list(set(o for w in waves for o in w.origin_trace))
-    timestamp = max(w.metadata.get("timestamp", 0.0) for w in waves)
-
-    return WaveState(
-        payload={
-            "phase": phase,
-            "amplitude": amplitude,
-            "coherence": coherence
-        },
-        origin_trace=origin_trace,
-        metadata={"timestamp": timestamp}
-    )
-
-def join_waves_batch(waves: List[WaveState]) -> WaveState:
-    """
-    Join multiple waves using batched complex vector addition (NumPy).
-    Much faster than sequential joining for large wave lists.
-    Emits a GHX replay snapshot after merge.
-    """
-    if not waves:
-        raise ValueError("No waves to join.")
-    if len(waves) == 1:
-        return waves[0]
-
-    phases = np.array([w.payload["phase"] for w in waves])
-    amplitudes = np.array([w.payload["amplitude"] for w in waves])
-    z_all = np.exp(1j * phases) * amplitudes
-
-    z_sum = np.sum(z_all, axis=0)
-    amplitude = np.abs(z_sum)
-    phase = np.angle(z_sum)
-
     coherence = np.mean([w.payload["coherence"] for w in waves])
     origin_trace = list(set(o for w in waves for o in w.origin_trace))
     timestamp = max(w.metadata.get("timestamp", 0.0) for w in waves)
 
     result_wave = WaveState(
-        payload={
-            "phase": phase,
-            "amplitude": amplitude,
-            "coherence": coherence
-        },
+        payload={"phase": phase, "amplitude": amplitude, "coherence": coherence},
         origin_trace=origin_trace,
-        metadata={"timestamp": timestamp}
+        metadata={"timestamp": timestamp},
     )
 
-    # 🧠 Emit GHX replay snapshot for visualization
-    emit_gwave_replay(result_wave)
+    # Optional GHX replay emission (fire-and-forget)
+    if emit_visual:
+        try:
+            asyncio.create_task(emit_gwave_frames(None, "snapshots/auto_merge.gwv"))
+        except Exception:
+            # Non-fatal: visual bridge may not exist in headless mode
+            pass
 
     return result_wave
 
+
+# ---------------------------------------------------------------------
+# Entanglement and modulation helpers
+# ---------------------------------------------------------------------
 def entangle(waves: List[WaveState], mode: str = "bidirectional") -> EntangledWave:
     """
     Wrap a list of WaveState objects into an entangled structure.
@@ -136,7 +112,7 @@ def entangle(waves: List[WaveState], mode: str = "bidirectional") -> EntangledWa
 def phase_shift(wave: WaveState, delta_phase: float) -> WaveState:
     """
     Shift the phase of a wave by delta_phase (radians).
-    Also applies SymbolGraph bias if available.
+    Applies SymbolGraph bias if available.
     """
     bias = get_bias_vector(wave.origin_trace[0]) if wave.origin_trace else None
     adjusted_delta = delta_phase + (bias.get("phase_shift", 0.0) if bias else 0.0)
@@ -146,10 +122,10 @@ def phase_shift(wave: WaveState, delta_phase: float) -> WaveState:
         payload={
             "phase": new_phase,
             "amplitude": wave.payload["amplitude"],
-            "coherence": wave.payload["coherence"]
+            "coherence": wave.payload["coherence"],
         },
         origin_trace=wave.origin_trace,
-        metadata=wave.metadata
+        metadata=wave.metadata,
     )
 
 
@@ -166,8 +142,8 @@ def boost_amplitude(wave: WaveState, factor: float) -> WaveState:
         payload={
             "phase": wave.payload["phase"],
             "amplitude": new_amplitude,
-            "coherence": wave.payload["coherence"]
+            "coherence": wave.payload["coherence"],
         },
         origin_trace=wave.origin_trace,
-        metadata=wave.metadata
+        metadata=wave.metadata,
     )

@@ -1,8 +1,9 @@
 # File: backend/codexcore_virtual/virtual_cpu_beam_core.py
 
 from typing import Dict, Any, List
-from backend.modules.codexcore.virtual.symbolic_register import SymbolicRegister
-from backend.codexcore_virtual.symbolic_instruction_set import SymbolicOpCode, OPCODE_HANDLER_MAP
+from backend.codexcore_virtual.symbolic_register import SymbolicRegister
+from backend.codexcore_virtual.instruction_registry import SymbolicOpCode, OPCODE_HANDLER_MAP, registry
+from backend.codexcore_virtual.opcode_wave_handler import OpcodeWaveHandler, OPCODE_HANDLER_MAP
 from backend.modules.sqi.metrics_bus import metrics_bus
 import time
 
@@ -15,6 +16,7 @@ class VirtualCPUBeamCore:
 
     def __init__(self):
         self.registers: Dict[str, SymbolicRegister] = self._init_registers()
+        self.wave_handler = OpcodeWaveHandler()
         self.stack: List[Any] = []
         self.instruction_pointer: int = 0
         self.output: List[str] = []
@@ -46,6 +48,27 @@ class VirtualCPUBeamCore:
         opcode = instr.get("opcode")
         args = instr.get("args", [])
 
+        # ✅ Direct Symatics Wave Opcode Path
+        if opcode in OPCODE_HANDLER_MAP:
+            result = self.wave_handler.handle(opcode, args)
+
+            # Push to metrics bus for consistency
+            metrics_bus.push({
+                "event": "wave_tick",
+                "opcode": opcode,
+                "args": args,
+                "tick": self.ticks,
+                "collapse_metrics": result.get("collapse_metrics", {}),
+                "timestamp": result.get("timestamp", time.time()),
+            })
+
+            self.ticks += 1
+            self.instruction_pointer += 1
+            return result
+
+        # ───────────────────────────────────────────────
+        # Standard symbolic execution fallback
+        # ───────────────────────────────────────────────
         tick_start = time.time()
         self._execute(opcode, args)
         tick_duration = time.time() - tick_start
@@ -84,9 +107,24 @@ class VirtualCPUBeamCore:
 
     def handle_add(self, args):
         a, b, dest = args
-        val = self.registers[a].get() + self.registers[b].get()
+
+        va = self.registers[a].get()
+        vb = self.registers[b].get()
+
+        # 🧠 Defensive fallback — interpret None as 0
+        if va is None:
+            va = 0
+        if vb is None:
+            vb = 0
+
+        # Support numeric or string concatenation gracefully
+        try:
+            val = va + vb
+        except TypeError:
+            val = f"{va}{vb}"
+
         self.registers[dest].set(val)
-        self._log(f"[⊕] {a} + {b} → {dest} = {val}")
+        print(f"[⊕] {a} + {b} → {dest} = {val}")
 
     def handle_sequence(self, args):
         src, dest = args
