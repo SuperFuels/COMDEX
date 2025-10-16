@@ -188,6 +188,20 @@ class PatternRegistry:
         self.signature_index.clear()
         self.save()
 
+# ─────────────────────────────────────────────────────────────
+# 🧩 Pattern Drift Detection — used by QQCRepairManager
+# ─────────────────────────────────────────────────────────────
+class PatternMatcher:
+    @staticmethod
+    def detect_drift(prev_entropy: float, new_entropy: float, tolerance: float = 0.15) -> bool:
+        """
+        Detects significant pattern drift by comparing entropy changes.
+        Returns True if drift exceeds the given tolerance.
+        """
+        if prev_entropy == 0:
+            return False
+        delta = abs(new_entropy - prev_entropy) / prev_entropy
+        return delta > tolerance
 
 # ✅ Singleton instance export (used by test files and CodexLang)
 registry = PatternRegistry()

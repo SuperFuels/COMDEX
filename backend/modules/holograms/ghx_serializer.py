@@ -1,7 +1,10 @@
 import json
 import uuid
+import logging
 from typing import Dict, List
 from backend.modules.hologram.hologram_engine import generate_holographic_packet
+
+logger = logging.getLogger(__name__)
 
 class GHXSerializer:
     def __init__(self, container_id: str):
@@ -11,13 +14,21 @@ class GHXSerializer:
         """
         Converts glyph list into a GHX (Glyph Hologram Exchange) packet.
         """
+        if not glyphs:
+            logger.warning(f"[GHXSerializer:{self.container_id}] No glyphs provided for encoding.")
+            return {}
+
         ghx_packet = generate_holographic_packet(glyphs)
+        logger.info(f"[GHXSerializer:{self.container_id}] Encoded {len(glyphs)} glyphs into GHX packet {ghx_packet.get('ghx_id', 'unknown')}")
         return ghx_packet
 
     def export_to_dc(self, ghx_packet: Dict, path: str = None) -> str:
         """
         Injects GHX packet into a .dc.json container format.
         """
+        if not ghx_packet:
+            raise ValueError("Cannot export empty GHX packet")
+
         dc_data = {
             "container_id": self.container_id,
             "physics": "symbolic-quantum",
@@ -34,6 +45,8 @@ class GHXSerializer:
         file_path = path or f"./containers/{self.container_id}.dc.json"
         with open(file_path, "w", encoding="utf-8") as f:
             json.dump(dc_data, f, indent=2)
+
+        logger.info(f"[GHXSerializer:{self.container_id}] Exported GHX container → {file_path}")
         return file_path
 
     def import_from_dc(self, file_path: str) -> Dict:
@@ -42,11 +55,15 @@ class GHXSerializer:
         """
         with open(file_path, "r", encoding="utf-8") as f:
             data = json.load(f)
-        return data.get("hologram_packet", {})
+        packet = data.get("hologram_packet", {})
+        logger.info(f"[GHXSerializer:{self.container_id}] Imported GHX packet {packet.get('ghx_id', 'unknown')} from {file_path}")
+        return packet
 
     def validate_ghx(self, ghx_packet: Dict) -> bool:
         """
         Validates the integrity and structure of a GHX packet.
         """
         required_fields = {"ghx_id", "glyphs", "projection_space", "color_logic"}
-        return required_fields.issubset(set(ghx_packet.keys()))
+        valid = required_fields.issubset(set(ghx_packet.keys()))
+        logger.info(f"[GHXSerializer:{self.container_id}] Validation {'✅ PASS' if valid else '❌ FAIL'} for GHX {ghx_packet.get('ghx_id', 'unknown')}")
+        return valid

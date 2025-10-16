@@ -101,6 +101,17 @@ import asyncio
 import logging
 logger = logging.getLogger(__name__)
 
+def resolve_op(op_symbol: str):
+    mapping = {
+        "⊕": "superpose",
+        "↔": "entangle",
+        "⟲": "resonate",
+        "∇": "collapse",
+        "⧖": "delay",
+        "→": "trigger",
+    }
+    return mapping.get(op_symbol, op_symbol)
+
 def _get_tessaris():
     """
     Lazy Tessaris getter to avoid circular imports.
@@ -527,6 +538,22 @@ class CodexExecutor:
 
             # refresh op after rewrite
             op = instruction_tree.get("op") if isinstance(instruction_tree, dict) else None
+
+            # 🔄 Canonicalize symbolic operator keys (⊕, ↔, etc.)
+            try:
+                if isinstance(instruction_tree, list):
+                    for node in instruction_tree:
+                        if isinstance(node, dict):
+                            op = next(iter(node))
+                            canonical = resolve_op(op)
+                            node[canonical] = node.pop(op)
+                elif isinstance(instruction_tree, dict):
+                    op = next(iter(instruction_tree))
+                    canonical = resolve_op(op)
+                    instruction_tree[canonical] = instruction_tree.pop(op)
+            except Exception as canon_err:
+                logger.debug(f"[CodexExecutor] Canonical op rewrite skipped: {canon_err}")
+
         except Exception as rewrite_err:
             logger.warning(f"[CodexExecutor] Rewrite stage skipped: {rewrite_err}")
             op = instruction_tree.get("op") if isinstance(instruction_tree, dict) else None
@@ -1108,6 +1135,31 @@ class CodexExecutor:
         except Exception as e:
             logger.error(f"[CodexExecutor] CodexLang execution failed: {e}", exc_info=True)
             return {"status": "error", "error": str(e)}
+
+    # -----------------------------------------------------------------------------
+    # Compatibility Layer for QQC
+    # -----------------------------------------------------------------------------
+    def execute_codex_program(self, code_or_tree, context: dict | None = None):
+        """
+        Universal entrypoint for Codex execution.
+        - Accepts CodexLang strings or pre-parsed instruction trees.
+        - Delegates to execute_instruction_tree internally.
+        """
+        context = context or {}
+
+        # Detect string vs structured input
+        if isinstance(code_or_tree, str):
+            try:
+                from backend.modules.glyphos.codexlang_translator import parse_codexlang_string
+                parsed = parse_codexlang_string(code_or_tree)
+                instruction_tree = parsed.get("action") or parsed
+            except Exception as e:
+                print(f"[CodexExecutor] ⚠️ Failed to parse CodexLang string: {e}")
+                instruction_tree = {"error": str(e), "raw": code_or_tree}
+        else:
+            instruction_tree = code_or_tree
+
+        return self.execute_instruction_tree(instruction_tree=instruction_tree, context=context)
 
     # ──────────────────────────────
     # 🖋️ Glyph Execution

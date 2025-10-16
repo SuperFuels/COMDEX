@@ -1,13 +1,17 @@
 # File: backend/modules/codex/beam_event_bus.py
 """
-Tessaris • UltraQC v0.4-SLE
+Tessaris • QQC–SLE v0.7
 BeamEventBus — unified symbolic/photonic beam event dispatcher.
+Bridges symbolic, photonic, holographic, and field-layer telemetry.
 """
 
 from collections import defaultdict
 from typing import Callable, Dict, List, Any
 import time
 import uuid
+import logging
+
+logger = logging.getLogger(__name__)
 
 # ────────────────────────────────────────────────
 # 🧠 Core: BeamEvent dataclass for all symbolic + photonic layers
@@ -52,24 +56,53 @@ class BeamEvent:
 # ────────────────────────────────────────────────
 # 🔁 Pub/Sub System
 class BeamEventBus:
-    def __init__(self):
+    def __init__(self, enable_logging: bool = False):
         self._subscribers: Dict[str, List[Callable]] = defaultdict(list)
+        self.enable_logging = enable_logging
 
     def subscribe(self, event_type: str, callback: Callable) -> None:
+        """Register callback for a specific event type or '*' for all."""
         self._subscribers[event_type].append(callback)
+        if self.enable_logging:
+            logger.debug(f"[BeamEventBus] Subscribed to {event_type}: {callback}")
 
-    def publish(self, event: BeamEvent | str, beam: Any | None = None) -> None:
+    def unsubscribe(self, event_type: str, callback: Callable) -> None:
+        """Remove a previously registered callback."""
+        if event_type in self._subscribers:
+            try:
+                self._subscribers[event_type].remove(callback)
+                if self.enable_logging:
+                    logger.debug(f"[BeamEventBus] Unsubscribed from {event_type}: {callback}")
+            except ValueError:
+                pass
+
+    def publish(self, event: "BeamEvent" | str, beam: Any | None = None) -> None:
         """Publish either a BeamEvent object or raw event_type."""
         if isinstance(event, str):
             event_obj = BeamEvent(event_type=event, source="system", target="all")
         else:
             event_obj = event
 
-        for cb in self._subscribers[event_obj.event_type]:
-            try:
-                cb(event_obj if beam is None else (event_obj, beam))
-            except Exception as e:
-                print(f"❌ Beam event callback failed: {e}")
+        if self.enable_logging:
+            logger.info(f"[BeamEventBus] Emitting {event_obj}")
+
+        # Deliver to specific event-type subscribers
+        for cb in self._subscribers.get(event_obj.event_type, []):
+            self._safe_invoke(cb, event_obj, beam)
+
+        # Deliver to wildcard ('*') subscribers
+        for cb in self._subscribers.get("*", []):
+            self._safe_invoke(cb, event_obj, beam)
+
+    def _safe_invoke(self, cb: Callable, event_obj: BeamEvent, beam: Any | None):
+        """Invoke callback safely with either one or two args."""
+        try:
+            if beam is not None:
+                cb(event_obj, beam)
+            else:
+                cb(event_obj)
+        except Exception as e:
+            logger.warning(f"[BeamEventBus] ❌ Callback failed: {e}")
 
 
 # ────────────────────────────────────────────────

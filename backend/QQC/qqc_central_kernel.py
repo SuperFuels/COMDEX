@@ -60,11 +60,25 @@ class QuantumQuadCore:
     Manages synchronization between symbolic, photonic, holographic, and quantum field layers.
     """
 
-    def __init__(self):
-        # Core IDs and session management
+    def __init__(self, container_id: str = None, context: dict | None = None):
+        # ───────────────────────────────
+        #  Logging + Core Session Setup
+        # ───────────────────────────────
+        self.logger = logging.getLogger("QuantumQuadCore")
+        self.logger.setLevel(logging.INFO)
+
+        if not self.logger.handlers:
+            handler = logging.StreamHandler()
+            formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
+            handler.setFormatter(formatter)
+            self.logger.addHandler(handler)
+
         self.session_id = str(uuid.uuid4())
+        self.container_id = container_id or self.session_id  # Backward compatibility alias
         self.boot_ts = time.time()
         self.cycle_counter = 0
+
+        self.logger.info(f"[QQC v2] Initialized Tessaris Quantum Quad Core session → {self.session_id}")
 
         # ─── Core Subsystems ──────────────────────────────
         self.codex = CodexCore()
@@ -77,39 +91,45 @@ class QuantumQuadCore:
         self.hst = HSTGenerator()
         self.feedback_controller = MorphicFeedbackController()
 
-        # Observer / Beam System
+        # ─── Observer / Beam System ──────────────────────
         self.observer = ObserverEngine()
         self.beam_kernel = SQIBeamKernel()
         self.sqi_logger = SQITraceLogger()
 
-        # Container / Knowledge Integration
+        # ─── Container / Knowledge Integration ───────────
         self.container_runtime = DimensionContainerExec()
         self.kg_bridge = KnowledgeGraphBridge()
         self.kg_writer = get_kg_writer()
 
-        # Portal & Teleportation Systems
+        # ─── Portal & Teleportation Systems ──────────────
         self.portal = PortalManager()
         self.wormhole = WormholeManager()
 
-        # Quantum Field Computation (QFC)
+        # ─── Quantum Field Computation (QFC) ─────────────
         self.qfc_bridge = QFCBridge()
         self.qfc_trigger = QFCTriggerEngine()
         self.qfc_broadcast = QFCWebSocketBroadcast()
 
-        # Lean & Theorem Integration
+        # πₛ Phase Closure Bridge (QQC ↔ QFC ↔ GHX)
+        from backend.symatics.qqc_qfc_adapter import qqc_qfc_adapter
+        self.qqc_qfc_adapter = qqc_qfc_adapter
+        self.qqc_qfc_adapter.start()
+
+        # ─── Lean & Theorem Integration ──────────────────
         self.lean = LeanAdapter()
         self.patterns = PatternMatcher()
 
-        # Commit / Repair / Regulation Systems
+        # ─── Commit / Repair / Regulation Systems ────────
         self.commit_manager = QQCCommitManager()
         self.repair_manager = QQCRepairManager(self.hst)
         self.sle_bridge = SLELightWaveBridge(self.hst)
 
-        # State Cache
+        # ─── State Cache ─────────────────────────────────
         self.last_summary: Optional[Dict[str, Any]] = None
         self.coherence_level = 0.0
 
-        logger.info(f"[QQC v2] Initialized Tessaris Quantum Quad Core session → {self.session_id}")
+        # ✅ Final confirmation
+        self.logger.info(f"[QQC v2] ✅ Core subsystems initialized for session {self.session_id}")
 
     # ──────────────────────────────────────────────
     #  Boot Sequence
@@ -266,12 +286,207 @@ class QuantumQuadCore:
         self.sqi_logger.end_session(self.session_id)
         logger.info("[QQC v2] Shutdown complete.")
 
+    def bind_hyperdrive_guard(self, enable: bool = False):
+        """
+        Controls QQC Hyperdrive safety mode.
+        When enabled=True, safety circuits are bypassed for max performance.
+        When disabled, all physical interfaces (GPIO, Wave Nozzles) stay in safe simulated mode.
+        """
+        self.hyperdrive_enabled = bool(enable)
+
+        if enable:
+            print("⚡ [QQC] Hyperdrive Mode ENABLED — full physical coupling active.")
+            # Here you can enable direct GPIO / hardware interfaces
+            # e.g., self.hardware_bridge.activate_full_output()
+        else:
+            print("🛑 [QQC] Safety Mode ENABLED — running in simulation (no GPIO).")
+            # Ensure fallback to software-only loop
+            # e.g., self.hardware_bridge.enter_safe_mode()
+
+        # Optional: notify broadcast or logs
+        try:
+            from backend.modules.sqi.sqi_event_bus import log_info
+            log_info(f"[QQC] Hyperdrive guard set → {enable}")
+        except Exception:
+            pass
+
+    def run_codex_program(self, codex_str: str, context: dict | None = None) -> dict:
+        """
+        Runs a CodexLang program string through the full QQC pipeline.
+        """
+        from backend.modules.codex.codex_executor import CodexExecutor
+        from backend.modules.codex.codex_metrics import score_glyph_tree
+        from backend.modules.glyphvault.soul_law_validator import verify_transition
+        import time, json
+
+        context = context or {}
+        context["container_id"] = self.container_id
+        context["source"] = context.get("source", "QQC_Benchmark")
+
+        print(f"[QQC] 🚀 Executing Codex program in container={self.container_id}")
+        start_time = time.perf_counter()
+
+        try:
+            # 🧭 SoulLaw Veto Check (Ethical Preflight)
+            if not verify_transition(context, codex_str):
+                self.logger.warning(f"[❌ SoulLaw] Vetoed Codex program: {codex_str}")
+                return {"error": "SoulLaw vetoed transition", "context": context}
+
+            # ⚙️ Execute main Codex pipeline
+            executor = CodexExecutor()
+            result = executor.execute_codex_program(codex_str, context=context)
+            duration = time.perf_counter() - start_time
+
+            # Compute symbolic metrics
+            symbolic_score = 0
+            if isinstance(result, dict) and "instruction_tree" in result:
+                symbolic_score = score_glyph_tree(result["instruction_tree"])
+            elif isinstance(result, dict):
+                symbolic_score = score_glyph_tree(result)
+
+            # 🧠 SQI Rollback Monitoring
+            if self.monitor_sqi_and_repair(symbolic_score, context):
+                self.logger.info("[🌀] Rollback executed due to SQI degradation")
+
+            # 🔍 Pattern Drift Detection + Fusion Repair
+            try:
+                from backend.modules.patterns.pattern_registry import PatternMatcher
+                from backend.modules.qqc.qqc_repair_manager import RepairManager
+
+                last_entropy = getattr(self, "_last_entropy", 0)
+                new_entropy = len(json.dumps(result)) if result else 0
+                self._last_entropy = new_entropy  # persist for next run comparison
+
+                if PatternMatcher.detect_drift(last_entropy, new_entropy):
+                    self.logger.warning(f"[⚠️ QQC] Pattern drift detected ({last_entropy} → {new_entropy})")
+                    RepairManager.inject_fusion_glyph(context)
+            except Exception as e:
+                self.logger.debug(f"[QQC] Drift detection failed: {e}")
+
+            # Structured telemetry
+            telemetry = {
+                "container_id": self.container_id,
+                "duration_ms": round(duration * 1000, 2),
+                "symbolic_score": symbolic_score,
+                "entropy_estimate": len(json.dumps(result)) if result else 0,
+                "hyperdrive": getattr(self, "hyperdrive_enabled", False),
+            }
+
+            # 🌐 Unified Knowledge Graph Export
+            try:
+                from backend.modules.sqi.kg_bridge import KnowledgeGraphBridge
+                KnowledgeGraphBridge.export_all_traces(
+                    symbolic_trace=context.get("symbolic_trace"),
+                    photonic_trace=context.get("photonic_trace"),
+                    holographic_trace=context.get("holographic_trace"),
+                    container_id=self.container_id
+                )
+                self.logger.info("[📡 QQC] Exported unified KG traces successfully.")
+            except Exception as e:
+                self.logger.warning(f"[QQC] KG trace export failed: {e}")
+
+            print(f"[QQC] ✅ Program executed in {telemetry['duration_ms']} ms")
+            print(f"     Symbolic Score: {symbolic_score}")
+            print(f"     Hyperdrive: {telemetry['hyperdrive']}")
+
+            return {"result": result, "telemetry": telemetry}
+
+        except Exception as e:
+            self.logger.error(f"[QQC] Execution failed: {e}")
+            return {"error": str(e), "context": context}
+
+    # ───────────────────────────────────────────────
+    # 🧩 SQI Threshold Monitoring / Rollback
+    # ───────────────────────────────────────────────
+    MIN_SQI_THRESHOLD = 2000  # adjust empirically
+
+    def monitor_sqi_and_repair(self, sqi_score: float, context: dict):
+        """Monitors SQI and triggers rollback if coherence lost."""
+        if sqi_score < self.MIN_SQI_THRESHOLD:
+            self.logger.warning(
+                f"[⚠️ QQC] SQI below threshold ({sqi_score} < {self.MIN_SQI_THRESHOLD}) → initiating rollback"
+            )
+            from backend.modules.codex.codex_feedback_loop import CodexFeedbackLoop
+            CodexFeedbackLoop.rollback_to_last_stable_state(context)
+            return True
+        return False
+
+    # ────────────────────────────────────────────────
+    # 💤 Graceful shutdown sequence
+    # ────────────────────────────────────────────────
+
+    import os, json, time
+    from datetime import datetime
+
+    def shutdown(self):
+        """
+        Gracefully shut down the QQC runtime:
+        • Stop QFC adapter bridge
+        • Validate πₛ closure
+        • Dump telemetry + closure report to sle_validation.json
+        """
+        # ────────────────────────────────────────────────
+        # 1️⃣ Stop QFC Adapter Bridge
+        # ────────────────────────────────────────────────
+        if hasattr(self, "qqc_qfc_adapter") and self.qqc_qfc_adapter.active:
+            self.qqc_qfc_adapter.stop()
+
+        # ────────────────────────────────────────────────
+        # 2️⃣ Validate πₛ Phase Closure
+        # ────────────────────────────────────────────────
+        try:
+            from backend.symatics.pi_phase_validator import PhaseClosureValidator
+            validator = PhaseClosureValidator()
+            metrics = (
+                self.qqc_qfc_adapter.latest_metrics(20)
+                if hasattr(self, "qqc_qfc_adapter")
+                else []
+            )
+            closure_ok = validator.validate(metrics)
+            closure_report = validator.report()
+        except Exception as e:
+            closure_ok = False
+            closure_report = {"error": str(e)}
+
+        # ────────────────────────────────────────────────
+        # 3️⃣ Export Telemetry → sle_validation.json
+        # ────────────────────────────────────────────────
+        try:
+            export_dir = "./exports/telemetry"
+            os.makedirs(export_dir, exist_ok=True)
+
+            payload = {
+                "session_id": getattr(self, "session_id", None),
+                "timestamp": datetime.utcnow().isoformat(),
+                "closure_ok": closure_ok,
+                "closure_report": closure_report,
+                "metrics": metrics,
+            }
+
+            export_path = os.path.join(
+                export_dir, f"sle_validation_{int(time.time())}.json"
+            )
+            with open(export_path, "w") as f:
+                json.dump(payload, f, indent=2)
+
+            self.logger.info(f"[QQC] 🧭 Telemetry exported → {export_path}")
+        except Exception as e:
+            self.logger.warning(f"[QQC] Telemetry export failed: {e}")
+
+        # ────────────────────────────────────────────────
+        # 4️⃣ Final Log
+        # ────────────────────────────────────────────────
+        self.logger.info("[QQC] Graceful shutdown completed.")
+        self.logger.info(f"[QQC] πₛ closure = {'✅ stable' if closure_ok else '⚠️ incomplete'}")
 
 # ──────────────────────────────────────────────────────────────
 #  CLI Harness / Standalone Mode
 # ──────────────────────────────────────────────────────────────
+import asyncio
+import time
+
 async def main():
-    qqc = QuantumQuadCore()
+    qqc = QQCCentralKernel()
     await qqc.boot(mode="resonant")
 
     for i in range(5):

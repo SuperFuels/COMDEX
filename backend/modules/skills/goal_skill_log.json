@@ -1164,5 +1164,131 @@
     "message": "Teleported to container: mock_container",
     "success": true,
     "timestamp": "2025-10-10T18:03:44.753632"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: maxwell_core",
+    "success": true,
+    "timestamp": "2025-10-16T20:48:10.305093"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: maxwell_core",
+    "success": true,
+    "timestamp": "2025-10-16T20:49:52.736733"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: maxwell_core",
+    "success": true,
+    "timestamp": "2025-10-16T20:51:06.813072"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: maxwell_core",
+    "success": true,
+    "timestamp": "2025-10-16T20:52:12.727304"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: maxwell_core",
+    "success": true,
+    "timestamp": "2025-10-16T20:54:26.967600"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: maxwell_core",
+    "success": true,
+    "timestamp": "2025-10-16T20:54:29.349979"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: maxwell_core",
+    "success": true,
+    "timestamp": "2025-10-16T20:58:11.748244"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: maxwell_core",
+    "success": true,
+    "timestamp": "2025-10-16T20:58:14.163829"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: maxwell_core",
+    "success": true,
+    "timestamp": "2025-10-16T21:05:40.155879"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: maxwell_core",
+    "success": true,
+    "timestamp": "2025-10-16T21:05:43.439404"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: maxwell_core",
+    "success": true,
+    "timestamp": "2025-10-16T21:08:41.175874"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: maxwell_core",
+    "success": true,
+    "timestamp": "2025-10-16T21:08:44.496837"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: maxwell_core",
+    "success": true,
+    "timestamp": "2025-10-16T21:10:29.068500"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: maxwell_core",
+    "success": true,
+    "timestamp": "2025-10-16T21:10:32.367129"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: maxwell_core",
+    "success": true,
+    "timestamp": "2025-10-16T21:12:03.326358"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: maxwell_core",
+    "success": true,
+    "timestamp": "2025-10-16T21:12:06.561774"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: maxwell_core",
+    "success": true,
+    "timestamp": "2025-10-16T21:13:58.075197"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: maxwell_core",
+    "success": true,
+    "timestamp": "2025-10-16T21:14:01.285342"
   }
 ]

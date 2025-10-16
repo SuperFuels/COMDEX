@@ -172,5 +172,40 @@ class QQCRepairManager:
                 logger.error("[QQCRepair] ❌ Rollback failed — no stable state found.")
                 return {"status": "rollback_failed", "restored": False}
         else:
-            logger.debug("[QQCRepair] No repair required — field stable.")
+            # 🔍 Check for entropy drift (optional fusion repair)
+            try:
+                from backend.modules.patterns.pattern_registry import PatternMatcher
+                prev_entropy = txn.get("prev_entropy", 0)
+                new_entropy = txn.get("new_entropy", 0)
+
+                if PatternMatcher.detect_drift(prev_entropy, new_entropy):
+                    logger.warning("[QQCRepair] ⚠️ Pattern drift detected → injecting fusion glyph")
+                    from backend.modules.qqc.qqc_repair_manager import RepairManager
+                    RepairManager.inject_fusion_glyph(txn.get("context", {}))
+            except Exception as e:
+                logger.debug(f"[QQCRepair] Drift check failed: {e}")
+
+            logger.debug("[QQCRepair] No rollback required — field stable.")
             return {"status": "stable", "restored": False}
+
+# ──────────────────────────────────────────────
+#  Drift Fusion Repair Subsystem (Pattern Injection)
+# ──────────────────────────────────────────────
+class RepairManager:
+    """
+    Handles pattern drift correction by injecting fusion glyphs
+    when entropy delta exceeds tolerance.
+    """
+    @staticmethod
+    def inject_fusion_glyph(context: dict):
+        """
+        Injects a stabilizing fusion glyph into the active wave_beams context.
+        """
+        try:
+            fusion = {"⊕": ["Φ₁", "Φ₂", "Φ₃"]}
+            context.setdefault("wave_beams", {}).update({"fusion_glyph": fusion})
+            logger.info("[⚙️ Repair] Fusion glyph injected to correct drift")
+            return True
+        except Exception as e:
+            logger.error(f"[RepairManager] Fusion glyph injection failed: {e}")
+            return False

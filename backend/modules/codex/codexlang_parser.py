@@ -1,6 +1,8 @@
 # File: backend/modules/codex/codexlang_parser.py
+
 import os
 import logging
+logger = logging.getLogger(__name__)
 import json
 import hashlib
 import requests
@@ -450,6 +452,11 @@ def parse_codexlang_string(code_str):
     """
     import inspect
     import traceback
+
+    # 🧩 Pre-check: detect atomic (single-symbol) expressions
+    if not any(sym in code_str for sym in ["→", ":", "⊕", "⊗", "↔", "="]):
+        # treat single symbol as atomic Codex term
+        return {"type": "atom", "value": code_str, "ast": None}
 
     try:
         caller = inspect.stack()[1]

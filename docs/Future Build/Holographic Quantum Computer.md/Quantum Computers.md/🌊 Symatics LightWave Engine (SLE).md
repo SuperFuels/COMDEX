@@ -54,27 +54,27 @@ end
 
 %%─────────────────────────────
 subgraph P6["VI. UltraQC Orchestration"]
-  F1["Two-phase commit (Symbolic→Photonic→Holographic)"]
-  F2["Rollback/repair if SQI<threshold or SoulLaw veto"]
-  F3["Pattern Engine repair_from_drift → fusion glyph injection"]
-  F4["Unified KG export (symbolic + photonic + holographic traces)"]
+✅  F1["Two-phase commit (Symbolic→Photonic→Holographic)"]
+✅  F2["Rollback/repair if SQI<threshold or SoulLaw veto"]
+✅  F3["Pattern Engine repair_from_drift → fusion glyph injection"]
+✅  F4["Unified KG export (symbolic + photonic + holographic traces)"]
 end
 
 %%─────────────────────────────
 subgraph P7["VII. Tests & Demonstrations"]
-  G1["Unit tests: wave ops (⊕ ↔ μ ⟲), SQI scoring, SoulLaw veto"]
-  G2["Integration tests: Codex expr → Wave beams → HST snapshot"]
-  G3["E2E demo: scripts/demo_ultraqc.py (visible UltraQC braid)"]
-  G4["HUD telemetry: beam lineage, SQI scores, replay paths"]
+✅  G1["Unit tests: wave ops (⊕ ↔ μ ⟲), SQI scoring, SoulLaw veto"]
+✅  G2["Integration tests: Codex expr → Wave beams → HST snapshot"]
+✅  G3["E2E demo: scripts/demo_ultraqc.py (visible UltraQC braid)"]
+✅  G4["HUD telemetry: beam lineage, SQI scores, replay paths"]
 end
 
 %%─────────────────────────────
 subgraph P8["VIII. Cross-Phase Modules & Docs"]
-  H1["SBAL dispatcher (digital | optical | rf | laser substrates)"]
-  H2["UltraQFC adapter (backend/symatics/ultraqfc_adapter.py)"]
-  H3["πₛ Phase-Closure Validator (resonance completion)"]
-  H4["Telemetry report sle_validation.json (+ dashboards)"]
-  H5["Docs (master_build_plan_v0.4 / symatics_algebra_v0.1.md)"]
+✅  H1["SBAL dispatcher (digital | optical | rf | laser substrates)"]
+✅  H2["UltraQFC adapter (backend/symatics/ultraqfc_adapter.py)"]
+✅  H3["πₛ Phase-Closure Validator (resonance completion)"]
+✅  H4["Telemetry report sle_validation.json (+ dashboards)"]
+✅  H5["Docs (master_build_plan_v0.4 / symatics_algebra_v0.1.md)"]
 end
 
 GHXTelemetryBridge

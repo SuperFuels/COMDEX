@@ -462,6 +462,26 @@ def estimate_compression_stats(container: dict) -> dict:
         "entropy": float(round(entropy, 3)),
     }
 
+import os, json
+
+def load_last_benchmark_score(path: str = "./benchmarks") -> dict:
+    """
+    Loads the most recent benchmark score JSON file from the benchmarks directory.
+    Returns an empty dict if none found or parse fails.
+    """
+    try:
+        if not os.path.isdir(path):
+            return {}
+        files = [f for f in os.listdir(path) if f.startswith("last_benchmark_") and f.endswith(".json")]
+        if not files:
+            return {}
+        files.sort(key=lambda f: os.path.getmtime(os.path.join(path, f)), reverse=True)
+        latest_file = os.path.join(path, files[0])
+        with open(latest_file, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        return {}
+
 import json
 from typing import Optional
 

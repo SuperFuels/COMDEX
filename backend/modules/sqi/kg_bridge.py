@@ -1,8 +1,7 @@
-# -*- coding: utf-8 -*-
+from __future__ import annotations
 # ============================================================
 # 📁 backend/modules/sqi/kg_bridge.py
 # ============================================================
-
 """
 KnowledgeGraphBridge
 ====================
@@ -10,14 +9,14 @@ KnowledgeGraphBridge
 Bridges SQI drift reports and coherence metrics into the Tessaris Knowledge Graph.
 Provides a safe write layer that no-ops gracefully if the KG writer is unavailable.
 """
-
-from __future__ import annotations
+import os
+import json
 import logging
+from datetime import datetime
 from typing import Dict, Any, List
 
-from backend.modules.sqi.drift_types import DriftReport, DriftGap
-
 logger = logging.getLogger(__name__)
+from backend.modules.sqi.drift_types import DriftReport, DriftGap
 
 # ──────────────────────────────────────────────
 #  Internal helpers
@@ -63,13 +62,12 @@ def write_report_to_kg(report: DriftReport) -> Dict[str, Any]:
             logger.warning(f"[KG Bridge] Node write failed: {e}")
     return {"written": written, "payload_count": len(nodes)}
 
-
-# ──────────────────────────────────────────────
-#  Class Interface (for QQC)
-# ──────────────────────────────────────────────
+# -------------------------------------------------------------------------
+#  Knowledge Graph Bridge
+# -------------------------------------------------------------------------
 class KnowledgeGraphBridge:
     """
-    Safe, stateful bridge from SQI modules to the Knowledge Graph writer.
+    Safe, stateful bridge from SQI / QQC modules to the Knowledge Graph writer.
     Provides consistent logging, error recovery, and optional buffering.
     """
 
@@ -78,19 +76,22 @@ class KnowledgeGraphBridge:
         self.total_written = 0
         logger.info("[KnowledgeGraphBridge] Initialized KG bridge.")
 
+    # ──────────────────────────────────────────────
+    #  Event Injection Interface
+    # ──────────────────────────────────────────────
     def inject_trace_event(self, data: Dict[str, Any]) -> None:
         """
         Accepts a symbolic or beam trace event and writes it to the KG if available.
+        Falls back to internal buffer if the KG writer is unavailable.
         """
         try:
             from backend.modules.knowledge_graph.kg_writer_singleton import kg_writer
             kg_writer.write_node(data)
             self.total_written += 1
             logger.debug(f"[KnowledgeGraphBridge] Wrote event → {data.get('type', 'unknown')}")
-        except Exception:
-            # fall back to buffer
+        except Exception as e:
             self.buffer.append(data)
-            logger.debug("[KnowledgeGraphBridge] Buffered event (KG unavailable).")
+            logger.debug(f"[KnowledgeGraphBridge] Buffered event (KG unavailable): {e}")
 
     def flush_buffer(self) -> int:
         """
@@ -115,14 +116,58 @@ class KnowledgeGraphBridge:
         logger.info(f"[KnowledgeGraphBridge] Flushed {success} buffered nodes.")
         return success
 
-    def write_drift_report(self, report: DriftReport) -> Dict[str, Any]:
+    # ──────────────────────────────────────────────
+    #  Drift Report Writer
+    # ──────────────────────────────────────────────
+    def write_drift_report(self, report: Any) -> Dict[str, Any]:
         """
         High-level entrypoint for writing a full SQI DriftReport.
         """
-        result = write_report_to_kg(report)
+        try:
+            from backend.modules.knowledge_graph.kg_writer_singleton import write_report_to_kg
+            result = write_report_to_kg(report)
+        except Exception as e:
+            logger.warning(f"[KnowledgeGraphBridge] write_report_to_kg failed: {e}")
+            result = {"written": 0}
+
         self.total_written += result.get("written", 0)
         if result.get("written", 0):
-            logger.info(f"[KnowledgeGraphBridge] ↳ {result['written']} nodes written for {report.container_id}")
+            logger.info(f"[KnowledgeGraphBridge] ↳ {result['written']} nodes written for {getattr(report, 'container_id', '?')}")
         else:
             logger.warning("[KnowledgeGraphBridge] No nodes written (fallback or KG offline).")
         return result
+
+    # ──────────────────────────────────────────────
+    #  Unified Trace Export (Symbolic + Photonic + Holographic)
+    # ──────────────────────────────────────────────
+    @staticmethod
+    def export_all_traces(symbolic_trace=None, photonic_trace=None, holographic_trace=None, container_id=None):
+        """
+        Export a unified trace bundle for symbolic, photonic, and holographic layers.
+        Falls back to local JSON export if KG is not available.
+        """
+        unified = {
+            "container_id": container_id,
+            "symbolic": symbolic_trace,
+            "photonic": photonic_trace,
+            "holographic": holographic_trace,
+            "timestamp": datetime.utcnow().isoformat(),
+        }
+
+        try:
+            # Try writing to live KG writer if available
+            from backend.modules.knowledge_graph.kg_writer_singleton import kg_writer
+            kg_writer.write_node({
+                "type": "UnifiedTrace",
+                "data": unified
+            })
+            logger.info(f"[📡 KGBridge] Unified trace injected into KG → {container_id}")
+            return unified
+        except Exception as e:
+            # Fallback to local export
+            path = f"./exports/kg/{container_id}_unified_trace.json"
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            with open(path, "w") as f:
+                json.dump(unified, f, indent=2)
+            logger.warning(f"[📁 KGBridge] KG unavailable, exported locally → {path} ({e})")
+            return unified

@@ -1,14 +1,17 @@
 #!/usr/bin/env python3
 # ================================================================
 #  Tessaris • Quantum Quad Core (QQC)
-#  Symatics Lightwave Engine (SLE) Demonstration Harness v0.5
+#  Symatics Lightwave Engine (SLE) Demonstration Harness v0.7
 # ================================================================
 import os, json, time, uuid
 from datetime import datetime
-from backend.codexcore_virtual.virtual_wave_engine import VirtualWaveEngine
-from backend.modules.codex.beam_event_bus import beam_event_bus, BeamEvent
-from backend.modules.glyphwave.core.wave_state import WaveState
 
+# --- QQC Core Imports ---
+from backend.QQC.qqc_central_kernel import QuantumQuadCore
+from backend.modules.codex.beam_event_bus import beam_event_bus, BeamEvent
+from backend.modules.patterns.pattern_registry import registry as pattern_registry
+from backend.modules.sqi.kg_bridge import KnowledgeGraphBridge
+from backend.modules.codex.codex_metrics import score_glyph_tree
 from backend.config.feature_flags import is_qqc_enabled, is_lightwave_enabled, print_feature_status
 
 print_feature_status()
@@ -18,105 +21,114 @@ if not (is_qqc_enabled() and is_lightwave_enabled()):
     exit(0)
 
 RUN_ID = f"SLE_RUN_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
-
-print(f"\n🌊 Tessaris Quantum Quad Core — Symatics Lightwave Engine (SLE) v0.5")
+print(f"\n🌊 Tessaris Quantum Quad Core — Symatics Lightwave Engine (SLE) v0.7")
 print(f"Run ID: {RUN_ID}")
 print(f"Timestamp: {datetime.now().isoformat()}")
 print("========================================================\n")
 
 # --------------------------------------------------------
-# Initialize virtual execution engine
+# Initialize QQC Core Kernel
 # --------------------------------------------------------
-engine = VirtualWaveEngine()
-print("⚙️  VirtualWaveEngine initialized.\n")
+kernel = QuantumQuadCore(container_id=f"demo_container_{uuid.uuid4().hex[:6]}")
+
+# gracefully support both naming conventions
+container_ref = getattr(kernel, "container_id", None) or getattr(kernel, "session_id", "unknown")
+
+print(f"⚙️ QuantumQuadCore initialized for container/session: {container_ref}\n")
 
 # --------------------------------------------------------
-# Create and configure actual wave objects
+# Load CodexLang demonstration program
 # --------------------------------------------------------
-wA = WaveState()
-wA.phase = 0.0
-wA.amplitude = 1.0
-wA.coherence = 1.0
-wA.metadata["wave_id"] = "wave_A"
+codex_program = "Φ₁ ⊕ Φ₂ ↔ Ψ₃ ⟲ Ω₄"
+print(f"🧠 Loaded CodexLang demo program: {codex_program}\n")
 
-wB = WaveState()
-wB.phase = 1.57
-wB.amplitude = 0.85
-wB.coherence = 0.94
-wB.metadata["wave_id"] = "wave_B"
-
-# Attach to engine
-engine.attach_wave(wA)
-engine.attach_wave(wB)
-print("✅ WaveStates attached to VirtualWaveEngine.\n")
-
-# --------------------------------------------------------
-# Load a simple symbolic program (5 operations for demo)
-# --------------------------------------------------------
-symbolic_program = [
-    {"opcode": "STORE", "args": ["R1", "Dream"]},
-    {"opcode": "ADD", "args": ["R1", "R2", "R3"]},
-    {"opcode": "ENTANGLE", "args": ["R2", "R3"]},
-    {"opcode": "RESONATE", "args": ["R3"]},
-    {"opcode": "COLLAPSE", "args": ["R3"]}
-]
-
-engine.cpu.program = symbolic_program
-engine.cpu.instruction_pointer = 0
-print(f"🧠 Loaded symbolic program with {len(symbolic_program)} ops.\n")
 # --------------------------------------------------------
 # Telemetry setup
 # --------------------------------------------------------
 telemetry_log = []
 VALIDATION_FILE = "sle_validation.json"
 LOG_FILE = "sle_run_log.txt"
-
-COHERENCE_THRESHOLD = 0.75  # SoulLaw veto threshold
+COHERENCE_THRESHOLD = 2000  # matches MIN_SQI_THRESHOLD
 
 def emit_event(event_type, **meta):
     event = BeamEvent(
         event_type,
         source="QQC_SLE",
-        target="BeamController",
+        target="QQC_Core",
         drift=meta.get("phase_drift", 0.0),
         qscore=meta.get("sqi", 1.0),
-        metadata=meta
+        metadata=meta,
     )
     beam_event_bus.publish(event)
 
-print("🔧 Engine initialized. Beginning quantum tick loop...\n")
+print("🔧 Engine initialized. Beginning QQC orchestration cycle...\n")
 
 # --------------------------------------------------------
-# Main demo loop — 5 ticks
+# Main demo loop (5 symbolic–photonic–holographic ticks)
 # --------------------------------------------------------
 for tick in range(1, 6):
+    print(f"\n——— [Tick {tick}] ———")
+
     t0 = time.perf_counter()
-    coherence = round(0.9 - tick * 0.02, 3)  # simulated decay
+    # simulate SQI drift
+    sqi_score = 2400 - tick * 120
     entropy = round(0.01 * tick, 4)
     phase_drift = round(0.02 * tick, 4)
-    vetoed = coherence < COHERENCE_THRESHOLD
 
-    emit_event("tick", tick=tick, coherence=coherence, entropy=entropy,
-               phase_drift=phase_drift, sqi=coherence + 0.05)
+    # emit symbolic tick
+    emit_event("tick", tick=tick, sqi=sqi_score, entropy=entropy, phase_drift=phase_drift)
 
-    if vetoed:
-        print(f"[SoulLaw VETO] Tick {tick} skipped — coherence {coherence:.2f}")
-        collapse_time_ms = None
-    else:
-        t1 = time.perf_counter()
-        engine.cpu.tick()  # Execute symbolic–photonic step
-        collapse_time_ms = round((time.perf_counter() - t1) * 1000, 3)
-        emit_event("collapse", tick=tick, coherence=coherence,
-                   entropy=entropy, collapse_time_ms=collapse_time_ms)
-        print(f"[Tick {tick}] Collapse completed in {collapse_time_ms} ms  |  C={coherence:.2f}")
+    context = {
+        "tick": tick,
+        "phase_drift": phase_drift,
+        "entropy": entropy,
+        "container_id": getattr(kernel, "container_id", getattr(kernel, "session_id", "unknown"))
+    }
+
+    # SoulLaw or SQI rollback
+    if kernel.monitor_sqi_and_repair(sqi_score, context):
+        print(f"[⚠️ Rollback] SQI below threshold ({sqi_score}) — restoring stable state")
+        emit_event("rollback", tick=tick, sqi=sqi_score)
+        continue
+
+    # Execute symbolic–photonic pipeline
+    result = kernel.run_codex_program(codex_program, context=context)
+    telemetry = result.get("telemetry", {})
+
+    # Detect pattern drift and fuse glyph if entropy rises sharply
+    last_entropy = telemetry_log[-1]["entropy"] if telemetry_log else 0
+    from backend.modules.patterns.pattern_registry import registry as pattern_registry
+    try:
+        from backend.modules.repair.qqc_repair_manager import QQCRepairManager, RepairManager
+        from backend.modules.patterns.pattern_registry import Pattern
+        if hasattr(QQCRepairManager, "detect_instability"):
+            if entropy > last_entropy * 1.2:
+                RepairManager.inject_fusion_glyph(context)
+                emit_event("fusion_injection", tick=tick, entropy=entropy)
+    except Exception as e:
+        print(f"[⚙️ Drift fusion skipped: {e}]")
+
+    # Export holographic + symbolic traces
+    try:
+        KnowledgeGraphBridge.export_all_traces(
+            symbolic_trace=context.get("symbolic_trace"),
+            photonic_trace=context.get("photonic_trace"),
+            holographic_trace=context.get("holographic_trace"),
+            container_id=kernel.container_id
+        )
+    except Exception as e:
+        print(f"[⚙️ KG Export] Failed: {e}")
+
+    collapse_time_ms = round((time.perf_counter() - t0) * 1000, 3)
+    emit_event("collapse", tick=tick, sqi=sqi_score, entropy=entropy, collapse_time_ms=collapse_time_ms)
+    print(f"[Tick {tick}] SQI={sqi_score} | Entropy={entropy} | Duration={collapse_time_ms} ms")
 
     telemetry_entry = {
         "tick": tick,
-        "coherence": coherence,
+        "sqi": sqi_score,
         "entropy": entropy,
         "phase_drift": phase_drift,
-        "collapse_time_ms": collapse_time_ms,
-        "vetoed": vetoed,
+        "duration_ms": collapse_time_ms,
         "timestamp": time.time()
     }
     telemetry_log.append(telemetry_entry)
@@ -133,6 +145,7 @@ with open(LOG_FILE, "w") as f:
     for entry in telemetry_log:
         f.write(json.dumps(entry) + "\n")
 
-print("\n✅ Run complete. Telemetry exported to sle_validation.json.")
-print("📄 Full log saved to sle_run_log.txt — include as Appendix A in SLE v0.5 document.")
+print("\n✅ QQC demonstration complete.")
+print("📊 Telemetry exported to sle_validation.json.")
+print("📄 Full run log saved to sle_run_log.txt — include in Appendix A of SLE v0.7 spec.")
 print("========================================================")

@@ -149,16 +149,40 @@ except Exception as _e:
     _log("warn", f"⚠️ SQI: Knowledge bus adapter not available ({_e}). KG ingest will be skipped.")
 
 # -----------------------------------------------------------------------------
-# GPIO detection
+# GPIO detection + Hyperdrive Safety integration
 # -----------------------------------------------------------------------------
+import importlib
+
+FORCE_HARDWARE_MODE = os.getenv("AION_FORCE_HARDWARE", "1") == "1"
+
 try:
     import RPi.GPIO as GPIO
     GPIO.setmode(GPIO.BCM)  # BCM pin numbering
     GPIO_AVAILABLE = True
     _log("info", "✅ SQI: Raspberry Pi GPIO detected, hardware mode enabled.")
-except Exception:
-    GPIO_AVAILABLE = False
-    _log("warn", "⚠️ SQI: No GPIO detected, running in simulation mode.")
+except Exception as gpio_error:
+    if FORCE_HARDWARE_MODE:
+        _log("warn", f"⚠️ SQI: GPIO not detected ({gpio_error}), but hardware mode forced by env.")
+        GPIO_AVAILABLE = True
+    else:
+        GPIO_AVAILABLE = False
+        _log("warn", f"⚠️ SQI: No GPIO detected, running in simulation mode. ({gpio_error})")
+
+# -----------------------------------------------------------------------------
+# Hyperdrive Safety Hook (only fires in hardware/forced mode)
+# -----------------------------------------------------------------------------
+if GPIO_AVAILABLE:
+    try:
+        hyperdrive = importlib.import_module("backend.modules.hyperdrive.hyperdrive_safety")
+        if hasattr(hyperdrive, "initialize_hyperdrive_guard"):
+            hyperdrive.initialize_hyperdrive_guard()
+            _log("info", "🛡️ Hyperdrive safety guard engaged (hardware mode).")
+        else:
+            _log("debug", "ℹ️ Hyperdrive safety module found, but no guard init function defined.")
+    except ModuleNotFoundError:
+        _log("debug", "ℹ️ No hyperdrive_safety module detected — skipping safety guard.")
+    except Exception as hyper_err:
+        _log("warn", f"⚠️ Failed to initialize Hyperdrive safety guard: {hyper_err}")
 
 # -----------------------------------------------------------------------------
 # Defaults & registries

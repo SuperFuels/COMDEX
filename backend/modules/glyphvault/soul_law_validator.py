@@ -287,6 +287,35 @@ class SoulLawValidator:
             logger.error(f"[SoulLaw] Violation glyph injection failed: {e}")
 
     # -----------------------
+    # ⚖️ Transition Veto Check (for Codex/QQC)
+    # -----------------------
+    @staticmethod
+    def verify_transition(context: Optional[dict], codex_program: str) -> bool:
+        """
+        Evaluates whether a CodexLang symbolic transition is ethically permissible.
+        Returns False to veto unsafe or unethical transitions.
+        """
+        try:
+            # Simple placeholder — expand later using enforce_soul_laws()
+            from backend.modules.soul.soul_laws import enforce_soul_laws
+
+            # If context explicitly disables ethics (for tests), allow
+            if context and context.get("override_ethics") is True:
+                return True
+
+            # If program contains delay/entanglement ops, run ethics enforcement
+            if any(op in codex_program for op in ("⧖", "↔", "∇", "⟲")):
+                if not enforce_soul_laws(action=codex_program, context=context or {}):
+                    print(f"❌ [SoulLaw] Vetoed symbolic transition: {codex_program}")
+                    return False
+
+            return True
+
+        except Exception as e:
+            print(f"[SoulLaw] ⚠️ Error during verify_transition: {e}")
+            return False
+
+    # -----------------------
     # 🧹 Feedback filter
     # -----------------------
     def filter_unethical_feedback(self, feedback: dict) -> dict:
@@ -351,6 +380,10 @@ class SoulLawValidator:
 # --------------------------------------------------------------------------------------
 # 🔁 Lazy Singleton Accessor (public)
 # --------------------------------------------------------------------------------------
+def verify_transition(context: Optional[dict], codex_program: str) -> bool:
+    """Convenience alias for global access from QQC/CodexFeedbackLoop."""
+    return get_soul_law_validator().verify_transition(context, codex_program)
+
 _soul_law_instance: Optional['SoulLawValidator'] = None
 
 def get_soul_law_validator() -> 'SoulLawValidator':

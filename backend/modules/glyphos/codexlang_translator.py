@@ -4,7 +4,6 @@ CodexLang Translator
 Translates symbolic glyph strings into structured instruction trees for execution in CodexCore.
 Supports nested parsing, symbolic ops, and runtime dispatch.
 """
-
 from backend.modules.codex.canonical_ops import CANONICAL_OPS
 from backend.modules.glyphos.glyph_instruction_set import get_instruction
 from backend.modules.symbolic_engine.symbolic_kernels.logic_glyphs import (
@@ -176,15 +175,54 @@ def parse_codexlang_string(code_str):
     """
     Converts a symbolic CodexLang string like:
     ⟦ Logic | If: x > 5 → ⊕(Grow, Reflect) ⟧
-    Into a structured AST-like dictionary with canonicalized ops.
-    """
-    try:
-        body = code_str.strip("⟦⟧ ").strip()
+    into a structured AST-like dictionary with canonicalized ops.
 
-        # Handle shorthand form (no → present)
+    ✅ SoulLaw-compliant and unpack-safe.
+    🧩 Includes debug traces for malformed or atomic expressions.
+    """
+    import traceback
+
+    try:
+        if not code_str or not isinstance(code_str, str):
+            print("[⚠️ DEBUG] Invalid or empty code_str in parse_codexlang_string")
+            return {"type": "empty", "soul_state": "violated", "message": "Empty or invalid input"}
+
+        stripped = code_str.strip()
+        print(f"[🧠 DEBUG] parse_codexlang_string CALLED with: {repr(stripped)}")
+
+        # 🩹 Atomic single-symbol guard
+        if not any(sym in stripped for sym in ["→", ":", "⊕", "⊗", "↔", "="]):
+            print(f"[DEBUG] Treating '{stripped}' as atomic Codex term")
+            return {"type": "atom", "value": stripped, "ast": None, "soul_state": "trusted"}
+
+        # ──────────────────────────────────────────────
+        body = stripped.strip("⟦⟧ ").strip()
+        if not body:
+            return {"type": "empty", "soul_state": "violated", "message": "Empty glyph string"}
+
+        # 🧩 Case 1 — shorthand form (no →)
         if "→" not in body:
-            type_tag, action = body.split(":", 1)
-            g_type, tag = type_tag.split("|", 1)
+            print(f"[DEBUG] Shorthand CodexLang detected: {body}")
+            if ":" not in body or "|" not in body:
+                return {
+                    "type": "incomplete",
+                    "expr": body,
+                    "soul_state": "partial",
+                    "message": "Missing ':' or '|' in shorthand CodexLang"
+                }
+
+            try:
+                type_tag, action = body.split(":", 1)
+                g_type, tag = type_tag.split("|", 1)
+            except ValueError as ve:
+                print(f"[⚠️ DEBUG] Shorthand split ValueError: {ve}")
+                return {
+                    "type": "incomplete",
+                    "expr": body,
+                    "soul_state": "partial",
+                    "message": f"Malformed shorthand split: {ve}"
+                }
+
             parsed_action = parse_action_expr(action.strip())
             parsed_action = translate_node(parsed_action, context=g_type.strip().lower())
             return {
@@ -192,12 +230,41 @@ def parse_codexlang_string(code_str):
                 "tag": tag.strip(),
                 "value": None,
                 "action": parsed_action,
+                "soul_state": "trusted"
             }
 
-        # Handle full → form
-        left, action = body.split("→", 1)
-        type_tag, value = left.split(":", 1)
-        g_type, tag = type_tag.split("|", 1)
+        # 🧩 Case 2 — full form (→)
+        parts = body.split("→", 1)
+        print(f"[DEBUG] parts after split('→',1): {len(parts)} -> {parts}")
+        if len(parts) != 2:
+            return {
+                "type": "incomplete",
+                "expr": body,
+                "soul_state": "partial",
+                "message": "Missing right-hand operand after '→'"
+            }
+
+        left, action = parts
+        if ":" not in left or "|" not in left:
+            print("[⚠️ DEBUG] Left-hand side missing ':' or '|'")
+            return {
+                "type": "incomplete",
+                "expr": left,
+                "soul_state": "partial",
+                "message": "Malformed left-hand side"
+            }
+
+        try:
+            type_tag, value = left.split(":", 1)
+            g_type, tag = type_tag.split("|", 1)
+        except ValueError as ve:
+            print(f"[⚠️ DEBUG] Left-hand split ValueError: {ve}")
+            return {
+                "type": "incomplete",
+                "expr": left,
+                "soul_state": "partial",
+                "message": f"Malformed left-hand type/tag/value section: {ve}"
+            }
 
         parsed_action = parse_action_expr(action.strip())
         parsed_action = translate_node(parsed_action, context=g_type.strip().lower())
@@ -207,17 +274,24 @@ def parse_codexlang_string(code_str):
             "tag": tag.strip(),
             "value": value.strip(),
             "action": parsed_action,
+            "soul_state": "trusted"
         }
 
         if parsed["type"] == "logic":
-            # ✅ ensure disambiguation inside logic trees
             parsed["tree"] = translate_node(logic_to_tree(action.strip()), context="logic")
 
+        print(f"[✅ DEBUG] Parsed full CodexLang OK → type={parsed['type']}, tag={parsed['tag']}")
         return parsed
 
-    except Exception as e:   # ✅ keep error logging
-        print(f"[⚠️] Failed to parse CodexLang string: {e}")
-        return None
+    except Exception as e:
+        print(f"[❌ DEBUG] Exception in parse_codexlang_string: {e}")
+        traceback.print_exc()
+        return {
+            "type": "error",
+            "soul_state": "violated",
+            "expr": code_str,
+            "message": str(e)
+        }
 
 def parse_action_expr(expr):
     """
