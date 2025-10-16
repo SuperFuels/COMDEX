@@ -1624,5 +1624,23 @@
     "label": "codex_trace:law_check",
     "content": "{\"type\": \"theorem\", \"engine\": \"symatics\", \"action\": \"law_check\", \"operator\": \"\u2194\", \"timestamp\": \"2025-10-13T20:40:57.888265+00:00\", \"summary\": \"1/1 passed\", \"violations\": [], \"context\": {}, \"source\": \"runtime\"}",
     "timestamp": "2025-10-13T20:40:57.915249"
+  },
+  {
+    "type": "qglyph_collapse",
+    "data": {
+      "glyph_id": "[\u269b:0 \u2194 1]",
+      "choice": "[\u269b:1]",
+      "scores": {
+        "left": 0.9801128262820937,
+        "right": 0.9801128262820937,
+        "bias": 0.5
+      },
+      "context": {
+        "origin": "test_container"
+      }
+    },
+    "label": "qglyph_collapse",
+    "content": "{\"type\": \"qglyph_collapse\", \"data\": {\"glyph_id\": \"[\u269b:0 \u2194 1]\", \"choice\": \"[\u269b:1]\", \"scores\": {\"left\": 0.9801128262820937, \"right\": 0.9801128262820937, \"bias\": 0.5}, \"context\": {\"origin\": \"test_container\"}}}",
+    "timestamp": "2025-10-16T10:24:43.186370"
   }
 ]

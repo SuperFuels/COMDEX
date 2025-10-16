@@ -92,3 +92,38 @@ class EthicsEngine:
     def log_violations(self):
         """Return recent ethics evaluation logs."""
         return self.violation_log[-5:]
+
+# ─────────────────────────────────────────────────────────────
+# 🌟 Functional Wrapper
+# ─────────────────────────────────────────────────────────────
+
+_engine_instance = None
+
+def evaluate_ethics_score(glyph_text: str, context: dict = None) -> float:
+    """
+    Simplified interface for scoring a glyph or action for ethical alignment.
+
+    Returns:
+        float: Normalized score ∈ [0,1], where 1.0 = perfectly ethical.
+    """
+    global _engine_instance
+    if _engine_instance is None:
+        _engine_instance = EthicsEngine()
+
+    context = context or {}
+    report = _engine_instance.evaluate(glyph_text)
+
+    # Determine score heuristic:
+    result = report.get("result", "")
+    violations = report.get("violations", [])
+    matched = report.get("matched_laws", [])
+
+    if "VETOED" in result:
+        return 0.0
+    if "WARNING" in result:
+        return 0.5
+    if "APPROVED" in result or "CLEARED" in result:
+        return 1.0
+
+    # Fallback: slight penalty if matched laws exist
+    return max(0.0, 1.0 - 0.1 * len(matched or violations))

@@ -207,5 +207,12 @@
       "description": "Benchmark symbolic ingestion on knowledge_graph_writer.py",
       "address": "ucs://local/kg_writer_test#sourcecode"
     }
+  },
+  "test_container": {
+    "address": "ucs://local/test_container#container",
+    "kind": "container",
+    "meta": {
+      "address": "ucs://local/test_container#container"
+    }
   }
 }

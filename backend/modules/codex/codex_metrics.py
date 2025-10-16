@@ -49,6 +49,26 @@ def record_execution_metrics(
 
     return entry
 
+def log_metric(name: str, value: float | dict, tags: dict = None):
+    """
+    Generic metric logger for Codex subsystems.
+    Can accept scalar values or dict payloads.
+
+    Example:
+        log_metric("observer_collapse_decision", {"selected_path": "A"}, {"context": "qglyph"})
+    """
+    import json
+    try:
+        if isinstance(value, dict):
+            val_str = json.dumps(value, ensure_ascii=False)
+        else:
+            val_str = str(value)
+
+        tag_str = ", ".join(f"{k}={v}" for k, v in (tags or {}).items())
+        print(f"[CodexMetric] {name} = {val_str} {tag_str}")
+    except Exception as e:
+        print(f"[CodexMetric] Failed to log metric {name}: {e}")  
+
 class CodexMetricsShim:
     @staticmethod
     def record_execution_metrics(**kwargs) -> Dict[str, Any]:
@@ -123,7 +143,7 @@ class CodexMetrics:
             except Exception:
                 size = len(str(instruction_tree))
             depth = _tree_depth(instruction_tree)
-            return min(1.0, 0.0005 * size + 0.02 * depth)
+            return min(1.0, 0.0005 * size + 0.02 * depth)  
 
     def record_theorem_usage(self, glyph: str, operator: str = None, success: bool = True):
         self.metrics["theorems_used"] += 1
@@ -465,7 +485,8 @@ __all__ = [
     "CodexMetrics",
     "score_glyph_tree",
     "calculate_glyph_cost",
-    "log_benchmark_result", 
-    "estimate_compression_stats", 
+    "log_benchmark_result",
+    "estimate_compression_stats",
+    "log_metric",
 ]
 codex_metrics = CodexMetrics()

@@ -1,5 +1,3 @@
-# File: backend/modules/runtime/entangled_runtime_forker.py
-
 import time
 from copy import deepcopy
 from typing import Dict, Any
@@ -10,8 +8,18 @@ class EntangledRuntimeForker:
     Responsible for forking an existing container into two or more superposed execution branches
     based on QGlyph entanglement. Used when ↔ glyphs are detected during runtime.
     """
+
     def __init__(self, state_manager):
         self.state_manager = state_manager
+
+        # ✅ Compatibility shim for container registries
+        # Legacy (pre-F3): .all_containers
+        # Modern UCSRuntime: .containers
+        if not hasattr(self.state_manager, "all_containers"):
+            if hasattr(self.state_manager, "containers"):
+                self.state_manager.all_containers = self.state_manager.containers
+            else:
+                self.state_manager.all_containers = {}
 
     def fork_container(self, container: Dict[str, Any], coord: str, glyph: str) -> list:
         """
@@ -37,15 +45,16 @@ class EntangledRuntimeForker:
                 "trigger_glyph": glyph,
                 "fork_time": timestamp,
                 "qbranch": branch_value,
-                "coord": coord
+                "coord": coord,
             }
 
             # Modify cube glyph state for each branch (collapse assumption)
-            if coord in fork["cubes"]:
-                raw = fork["cubes"][coord]["glyph"]
+            if coord in fork.get("cubes", {}):
+                raw = fork["cubes"][coord].get("glyph", "")
                 collapsed = self._collapse(raw, branch_value)
                 fork["cubes"][coord]["glyph"] = collapsed
 
+            # ✅ Store fork into unified container registry
             self.state_manager.all_containers[fork_id] = fork
             forks.append(fork)
 
@@ -58,6 +67,6 @@ class EntangledRuntimeForker:
             try:
                 prefix = glyph.split(":")[0].strip("[")
                 return f"[{prefix}:{branch}]"
-            except:
+            except Exception:
                 return glyph  # fail-safe fallback
         return glyph
