@@ -226,3 +226,36 @@ class ContainerVaultManager:
             raise FileNotFoundError(
                 f"Container file not found in either path:\n  - {primary_path}\n  - {fallback_path}"
             )
+
+    @classmethod
+    def update_container_state(cls, container_id: str, state: dict):
+        """
+        Compatibility shim for WormholeManager.
+        Allows transient container state updates without encryption.
+
+        In production, this should trigger a proper vault commit or UCS sync.
+        For now, it safely logs and caches state in memory.
+        """
+        import logging
+        logger = logging.getLogger(__name__)
+
+        try:
+            # Simple runtime registry (class-level)
+            if not hasattr(cls, "_state_registry"):
+                cls._state_registry = {}
+
+            cls._state_registry[container_id] = state
+            logger.info(f"[VaultBridge] 🔄 Updated runtime state for container '{container_id}'")
+
+            # Optionally push to UCS runtime
+            try:
+                ucs = get_ucs_runtime()
+                ucs.sync_microgrid(state)
+            except Exception as e:
+                logger.debug(f"[VaultBridge] UCS sync skipped: {e}")
+
+            return {"status": "ok", "container_id": container_id}
+
+        except Exception as e:
+            logger.error(f"[VaultBridge] ❌ Failed to update container state: {e}")
+            return {"status": "error", "error": str(e)}

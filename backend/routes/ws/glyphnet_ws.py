@@ -145,7 +145,7 @@ install(broadcast_event)
 # Fire-and-forget, throttled alias for high-volume callers
 def broadcast_event_throttled(event: Dict[str, Any]) -> None:
     # non-awaiting; lets the throttle coalesce bursts
-    throttled_broadcast(event)
+    throttled_broadcast(event, payload)
 
 # ✅ Background Broadcast Loop
 async def glyphnet_ws_loop():

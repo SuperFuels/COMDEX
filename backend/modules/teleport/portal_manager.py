@@ -1,8 +1,9 @@
 import time
 import uuid
 from typing import Dict, Optional
-
-from backend.modules.glyphvault.vault_manager import VAULT
+import logging
+logger = logging.getLogger(__name__)
+# from backend.modules.glyphvault.vault_manager import VAULT
 
 # Lazy-loaded ContainerRuntime to avoid circular imports
 ContainerRuntimeClass = None
@@ -103,6 +104,33 @@ class PortalManager:
         except Exception as e:
             print(f"[PortalManager] Teleport exception: {e}")
             return False
+
+    def extract_state(self, container_id: str) -> dict:
+        """
+        Compatibility shim for QQC teleportation.
+        Returns a mock or active container state for transfer via WormholeManager.
+        """
+        try:
+            # Use your existing ContainerVaultManager or runtime if available
+            from backend.modules.vault.container_vault_manager import ContainerVaultManager
+            state = ContainerVaultManager.get_decrypted_container(container_id)
+            return state or {"id": container_id, "status": "mock_state"}
+        except Exception as e:
+            print(f"[PortalManager] ⚠️ extract_state() failed: {e}")
+            return {"id": container_id, "status": "error", "error": str(e)}
+
+    def sync_state(self, container_runtime):
+        """
+        Synchronize current portal state with active container runtime.
+        """
+        try:
+            state = container_runtime.extract_state()
+            self.current_state = state
+            logger.info("[PortalManager] Synced state with container runtime.")
+            return state
+        except Exception as e:
+            logger.warning(f"[PortalManager] ⚠️ sync_state() failed: {e}")
+            return None
 
 
 # ✅ Global portal registry instance

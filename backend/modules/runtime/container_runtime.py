@@ -26,6 +26,7 @@ from backend.modules.qfield.qfc_ws_broadcast import send_qfc_payload
 from backend.modules.qfield.qfc_utils import build_qfc_view
 from backend.modules.glyphwave.qwave.beam_controller import BeamController
 
+
 try:
     # ✅ Lazy import to avoid circular dependency
     from backend.modules.glyphos.glyph_executor import GlyphExecutor
@@ -797,6 +798,8 @@ class ContainerRuntime:
 
 
 from backend.modules.dimensions.container_expander import ContainerExpander
+# Global singleton placeholder
+container_runtime_instance = None
 
 def safe_load_container_by_id(container_id_or_path: str) -> Dict[str, Any]:
     """

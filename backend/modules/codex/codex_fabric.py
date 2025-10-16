@@ -4,17 +4,12 @@
 
 import threading
 import time
-import random
 
 from backend.modules.codex.codex_context_adapter import CodexContextAdapter
 from backend.modules.codex.codex_scheduler import CodexScheduler
 from backend.modules.codex.codex_supervisor import CodexSupervisor
 from backend.modules.codex.codex_websocket_interface import broadcast_tick
-from backend.modules.dimensions.dc_handler import (
-    list_loaded_dimensions,
-    load_dimension,
-    run_dimension_tick
-)
+from backend.modules.runtime.container_runtime import get_container_runtime
 
 # 🧠 SQI Runtime: Q-routing
 from backend.modules.glyphos.glyph_quantum_core import GlyphQuantumCore
@@ -38,36 +33,38 @@ class CodexFabric:
         self.supervisor = CodexSupervisor()
         self.adapter = CodexContextAdapter()
         self.qcores = {}  # container_id -> GlyphQuantumCore
+        self.runtime = get_container_runtime()
 
     def discover_dimensions(self):
-        """Find all loaded .dc containers that can run CodexCore"""
-        all_dims = list_loaded_dimensions()
-        for dim in all_dims:
-            if dim.id not in self.dimensions:
-                self.dimensions[dim.id] = {
-                    "obj": dim,
+        """Discover all loaded containers via UCS/state manager."""
+        try:
+            container_ids = list(self.runtime.state_manager.all_containers.keys())
+        except Exception:
+            container_ids = []
+
+        for cid in container_ids:
+            if cid not in self.dimensions:
+                self.dimensions[cid] = {
+                    "obj": {"id": cid, "metadata": {}},
                     "last_tick": 0,
                     "active": True
                 }
                 # ♾️ Initialize QGlyph quantum core for container
-                self.qcores[dim.id] = GlyphQuantumCore(container_id=dim.id)
+                self.qcores[cid] = GlyphQuantumCore(container_id=cid)
 
     def tick_dimension(self, dim_id):
-        """Run Codex tick for a single container"""
-        container = self.dimensions[dim_id]["obj"]
+        """Run Codex tick for a single container using ContainerRuntime"""
         try:
-            self.adapter.set_context(container)
+            # 🧠 Check symbolic runtime flag
+            meta = self.dimensions[dim_id]["obj"].get("metadata", {})
+            if meta.get("physics") == "symbolic-quantum":
+                qcore = self.qcores[dim_id]
+                qb = qcore.generate_qbit(glyph="⊕", coord="center")
+                qcore.collapse_qbit(qb)
 
-            # 🧠 Check for QGlyph execution flag
-            if container.metadata.get("physics") == "symbolic-quantum":
-                # ↯ Forked QGlyph execution path (symbolic quantum runtime)
-                qcore = self.qcores[container.id]
-                result = qcore.generate_qbit(glyph="⊕", coord="center")
-                qcore.collapse_qbit(result)
-                # ➕ Expand this logic in recursive runtime (future)
-
-            # 🌀 Run normal CodexCore logic
-            run_dimension_tick(container)
+            # 🌀 Execute one full runtime tick
+            self.runtime.load_and_activate_container(dim_id)
+            tick_log = self.runtime.run_tick()
 
             # 📈 Supervisor tick
             self.supervisor.tick()
@@ -77,19 +74,20 @@ class CodexFabric:
             self.dimensions[dim_id]["last_tick"] = now
             broadcast_tick({
                 "type": "dimension_tick",
-                "container": container.id,
-                "timestamp": now
+                "container": dim_id,
+                "timestamp": now,
+                "executed": tick_log.get("executed", [])
             })
 
         except Exception as e:
-            print(f"⚠️ Error ticking container {container.id}: {e}")
+            print(f"⚠️ Error ticking container {dim_id}: {e}")
             self.dimensions[dim_id]["active"] = False
 
     def codex_loop(self):
         """Main CodexFabric loop: iterate and process Codex ticks"""
         while self.running:
             self.discover_dimensions()
-            for dim_id, meta in self.dimensions.items():
+            for dim_id, meta in list(self.dimensions.items()):
                 if meta["active"]:
                     self.tick_dimension(dim_id)
             time.sleep(self.tick_interval)
@@ -118,6 +116,18 @@ class CodexFabric:
             "tick_interval": self.tick_interval,
             "running": self.running
         }
+
+    def get_current_container(self):
+        """
+        Returns the currently active symbolic container for Lean sync.
+        """
+        try:
+            if hasattr(self, "current_container"):
+                return self.current_container
+            return {"id": "fabric_stub_container", "symbolic_logic": []}
+        except Exception as e:
+            print(f"[CodexFabric] ⚠️ get_current_container() failed: {e}")
+            return {"error": str(e)}
 
 
 # Singleton instance

@@ -121,6 +121,37 @@ class MorphicFeedbackController:
         return adjustment
 
     # ────────────────────────────────────────────
+    #  Compatibility Wrapper for QQC Runtime
+    # ────────────────────────────────────────────
+    async def adjust_field(self, hst_state, sqi_score: float):
+        """
+        Backward-compatible async entrypoint expected by QQC kernel.
+        Accepts an HSTGenerator instance instead of a dict.
+        """
+        try:
+            # Safely extract ψ–κ–T signature
+            psi_kappa_T = {}
+            if hasattr(hst_state, "psi_kappa_T"):
+                psi_kappa_T = hst_state.psi_kappa_T
+            elif hasattr(hst_state, "export_state"):
+                psi_kappa_T = hst_state.export_state()
+            else:
+                psi_kappa_T = {
+                    "psi": getattr(hst_state, "psi", 0.0),
+                    "kappa": getattr(hst_state, "kappa", 0.0),
+                    "T": getattr(hst_state, "T", 1.0),
+                }
+
+            # Build synthetic field_nodes from SQI score
+            field_nodes = [{"coherence": float(max(0.0, min(1.0, sqi_score)))}]
+            result = self.regulate(psi_kappa_T, field_nodes)
+            return result
+
+        except Exception as e:
+            logger.error(f"[MorphicFeedbackController] adjust_field() failed: {e}")
+            return {"status": "error", "error": str(e)}
+
+    # ────────────────────────────────────────────
     #  Field Diagnostics
     # ────────────────────────────────────────────
     def compute_field_stability(self, field_nodes: List[Dict[str, Any]]) -> float:

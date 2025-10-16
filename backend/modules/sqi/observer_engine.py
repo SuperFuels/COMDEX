@@ -2,7 +2,7 @@
 
 import random
 from typing import Dict, Any
-from .entangler_engine import is_entangled, resolve_entanglement
+from backend.modules.sqi.entangler_engine import is_entangled, resolve_entanglement
 
 class ObserverEngine:
     def __init__(self):
@@ -44,3 +44,20 @@ class ObserverEngine:
 
     def get_collapse_log(self):
         return self.collapse_log
+
+    def observe_beam(self, beam_state: dict) -> None:
+        """
+        Compatibility method for QQC main loop.
+        Observes a propagated SQI beam and logs or records its features.
+        """
+        try:
+            beam_id = beam_state.get("beam_id", "unknown")
+            coherence = beam_state.get("coherence")
+            entropy = beam_state.get("entropy_drift")
+            gain = beam_state.get("gain")
+
+            print(f"[ObserverEngine] 🔭 Observed beam {beam_id} | coherence={coherence}, entropy={entropy}, gain={gain}")
+            if hasattr(self, "record"):
+                self.record(beam_state)
+        except Exception as e:
+            print(f"[ObserverEngine] ⚠️ observe_beam() failed: {e}")

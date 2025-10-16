@@ -15,7 +15,7 @@ from backend.modules.codex.codex_autopilot import CodexAutopilot
 from backend.modules.codex.codex_executor import CodexExecutor  # ✅ ADDED
 from backend.modules.tessaris.tessaris_engine import TessarisEngine
 from backend.modules.hexcore.memory_engine import MEMORY
-from backend.modules.state_manager import STATE  # ✅ ADDED
+from backend.modules.consciousness.state_manager import STATE
 
 
 class CodexSupervisor:

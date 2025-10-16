@@ -1,7 +1,7 @@
 # 📁 codex_memory_triggers.py
 # ============================
 
-from backend.modules.memory.memory_engine import retrieve_recent_memories
+from backend.modules.hexcore.memory_engine import retrieve_recent_memories
 from backend.modules.codex.codex_core import CodexCore
 from backend.modules.codex.codex_context_adapter import adapt_codex_context
 

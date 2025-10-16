@@ -1,15 +1,16 @@
-"""
-sqi_beam_kernel.py
-===================
+# ============================================================
+# 📁 backend/modules/sqi/sqi_beam_kernel.py
+# ============================================================
 
-Advanced Symbolic Quantum Intelligence (SQI) kernel processor for QWave beams.
-Handles symbolic beam collapse, mutation, entanglement, scoring, and SoulLaw validation.
-Optimized for GPU/SIMD parallelism with optional batch processing.
+"""
+SQIBeamKernel — symbolic quantum intelligence beam processing kernel.
+Provides class-based orchestration for wave collapse, mutation, scoring,
+SoulLaw validation, and QFC broadcast synchronization.
 """
 
 import logging
-from typing import List
-
+from typing import List, Dict, Any, Optional
+import uuid
 from backend.modules.glyphwave.core.wave_state import WaveState
 from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.sqi_reasoning_module import SQIReasoningEngine
 from backend.modules.creative.symbolic_mutation_engine import mutate_beam
@@ -27,98 +28,168 @@ from backend.modules.codex.beam_model import Beam
 
 logger = logging.getLogger(__name__)
 
-# Optional: Enable GPU acceleration or SIMD backend
 USE_PARALLELISM = True
 
 
+# ──────────────────────────────────────────────
+#  Functional implementation (for backward compat)
+# ──────────────────────────────────────────────
 def process_beams(beams: List[Beam]) -> List[Beam]:
-    """
-    Main entry point for beam processing:
-    - Collapse wave state
-    - Apply mutations
-    - Score with SQI
-    - Validate against SoulLaw
-    - Broadcast or store results
+    kernel = SQIBeamKernel()
+    return kernel.process_batch(beams)
 
-    Returns processed list of beams with updated state.
-    """
-    processed_beams = []
 
-    for beam in beams:
+# ──────────────────────────────────────────────
+#  Class Wrapper for QQC Integration
+# ──────────────────────────────────────────────
+class SQIBeamKernel:
+    """
+    Manages full SQI beam lifecycle:
+    collapse → mutate → score → validate → broadcast.
+    """
+
+    def __init__(self, parallel: bool = True):
+        self.parallel = parallel
+        self.reasoner = SQIReasoningEngine()
+        logger.info(f"[SQIBeamKernel] Initialized (parallel={self.parallel})")
+
+    def propagate(self, beam_data: Dict[str, Any], sqi_score: Optional[float] = None) -> Dict[str, Any]:
+        """
+        QQC interface method.
+        Accepts a symbolic beam dict, processes it internally,
+        and returns a summarized beam state.
+        """
+
         try:
-            logger.debug(f"[SQI] ⚛️ Processing beam: {beam.id}")
+            # --- 🔧 Auto-wrap legacy telemetry into physics ---
+            if any(k in beam_data for k in ["beam_id", "coherence", "phase_shift", "entropy_drift", "gain", "timestamp"]):
+                physics_block = {
+                    "beam_id": beam_data.pop("beam_id", None),
+                    "coherence": beam_data.pop("coherence", None),
+                    "phase_shift": beam_data.pop("phase_shift", None),
+                    "entropy_drift": beam_data.pop("entropy_drift", None),
+                    "gain": beam_data.pop("gain", None),
+                    "timestamp": beam_data.pop("timestamp", None),
+                }
+                beam_data["physics"] = physics_block
 
-            # --- Collapse Phase ---
-            collapse_result = collapse_wave_superposition(beam, use_gpu=USE_PARALLELISM)
-            beam.collapsed_state = collapse_result
-            beam.status = "collapsed"
+            # --- 🪶 Safe Beam construction ---
+            physics = beam_data.get("physics", {})
+            beam = (
+                Beam.from_dict(beam_data)
+                if hasattr(Beam, "from_dict")
+                else Beam(
+                    id=f"beam-{uuid.uuid4()}",
+                    logic_tree={},
+                    glyphs=[],
+                    phase=0.0,
+                    amplitude=1.0,
+                    coherence=1.0,
+                    origin_trace="kernel:init"
+                )
+            )
 
-            # --- Mutation Phase ---
-            mutated_beam = mutate_beam(beam)
-            mutated_beam.status = "mutated"
+            # --- Continue as usual ---
+            results = self.process_batch([beam])
+            processed = results[0] if results else None
 
-            # --- SQI Scoring Phase ---
-            updated_container = inject_sqi_scores_into_container(mutated_beam.to_dict())
+            if processed:
+                logger.info(
+                    f"[SQIBeamKernel] ↯ Beam {processed.id} propagated "
+                    f"(SQI={getattr(processed, 'sqi_score', 'N/A')})"
+                )
 
-            # Overwrite mutated_beam.glyphs with updated ones (to get `sqi_score` added)
-            mutated_beam.glyphs = updated_container.get("glyphs", [])
+                # --- ⚛️ Preserve internal physics but strip before Codex export ---
+                beam_state = processed.to_dict() if hasattr(processed, "to_dict") else vars(processed)
+                codex_payload = dict(beam_state)
+                codex_payload.pop("physics", None)  # remove full physics block
+                for k in ("amplitude", "coherence", "entropy", "phase", "drift_cost", "drift_signature"):
+                    codex_payload.pop(k, None)
 
-            # Set overall beam-level score (optional: average over all electrons)
-            if mutated_beam.glyphs:
-                scores = [g.get("sqi_score", 0.0) for g in mutated_beam.glyphs if g.get("type") == "electron"]
-                mutated_beam.sqi_score = sum(scores) / len(scores) if scores else 0.0
+                # Optionally preserve snapshot for debug
+                codex_payload["_physics_snapshot"] = beam_state.get("physics", {})
+
+                return codex_payload
+
             else:
-                mutated_beam.sqi_score = 0.0
-
-            # --- Drift Analysis ---
-            drift_report = analyze_drift_patterns(mutated_beam.to_dict())
-            mutated_beam.drift_signature = drift_report.get("signature")
-            mutated_beam.drift_cost = drift_report.get("cost")
-
-            # --- Entropy Calculation ---
-            entropy = compute_entropy_metrics(mutated_beam)
-            mutated_beam.entropy = entropy
-
-            # --- SoulLaw Validation ---
-            soul_validator = SoulLawValidator()
-            avatar_state = getattr(mutated_beam, "avatar_state", {})
-            container_metadata = getattr(mutated_beam, "container_metadata", {})
-
-            avatar_allowed = soul_validator.validate_avatar_with_context(
-                avatar_state, context={"beam_id": mutated_beam.id}
-            )
-            container_allowed = soul_validator.validate_container(container_metadata)
-
-            mutated_beam.soullaw_status = "allowed" if (avatar_allowed and container_allowed) else "blocked"
-            mutated_beam.soullaw_violations = [] if mutated_beam.soullaw_status == "allowed" else ["avatar", "container"]
-
-            # --- Metadata + Hooks ---
-            attach_symbolic_metadata(mutated_beam.to_dict())
-            apply_qscore_hooks(mutated_beam.to_dict())
-
-            # --- Collapse Logging + Registry ---
-            register_beam_collapse(mutated_beam, mutated_beam.collapsed_state)
-            store_collapsed_beam(mutated_beam, mutated_beam.to_dict())
-
-            # --- HUD + Broadcast ---
-            broadcast_beam_event(mutated_beam)
-
-            # Prepare formatted values safely
-            drift_str = f"{mutated_beam.drift_cost:.2f}" if mutated_beam.drift_cost is not None else "N/A"
-            entropy_str = f"{entropy:.2f}" if entropy is not None else "N/A"
-            sqi_score_str = f"{mutated_beam.sqi_score:.4f}" if hasattr(mutated_beam, "sqi_score") else "N/A"
-
-            # Log beam processing summary
-            logger.info(
-                f"[SQI] ✅ Beam processed: {beam.id}, SQI={sqi_score_str}, "
-                f"Drift={drift_str}, Entropy={entropy_str}, SoulLaw={mutated_beam.soullaw_status}"
-            )
-
-            processed_beams.append(mutated_beam)
+                return {"status": "empty"}
 
         except Exception as e:
-            logger.error(f"[SQI] ❌ Beam processing failed: {beam.id} — {e}", exc_info=True)
-            beam.status = "error"
-            processed_beams.append(beam)
+            logger.error(f"[SQIBeamKernel] ❌ Beam propagation failed: {e}", exc_info=True)
+            return {"status": "error", "error": str(e)}
+            
+    def process_batch(self, beams: List[Beam]) -> List[Beam]:
+        """
+        Main batch-processing logic for a list of beams.
+        """
+        processed_beams: List[Beam] = []
+        for beam in beams:
+            try:
+                logger.debug(f"[SQI] ⚛️ Processing beam: {beam.id}")
 
-    return processed_beams
+                # --- Collapse Phase ---
+                collapse_result = collapse_wave_superposition(beam, use_gpu=self.parallel)
+                beam.collapsed_state = collapse_result
+                beam.status = "collapsed"
+
+                # --- Mutation Phase ---
+                mutated = mutate_beam(beam)
+                mutated.status = "mutated"
+
+                # --- SQI Scoring Phase ---
+                updated_container = inject_sqi_scores_into_container(mutated.to_dict())
+                mutated.glyphs = updated_container.get("glyphs", [])
+                mutated.sqi_score = self._average_sqi(mutated.glyphs)
+
+                # --- Drift + Entropy ---
+                drift_report = analyze_drift_patterns(mutated.to_dict())
+                mutated.drift_signature = drift_report.get("signature")
+                mutated.drift_cost = drift_report.get("cost")
+                mutated.entropy = compute_entropy_metrics(mutated)
+
+                # --- SoulLaw Validation ---
+                self._validate_soullaw(mutated)
+
+                # --- Metadata + Hooks ---
+                attach_symbolic_metadata(mutated.to_dict())
+                apply_qscore_hooks(mutated.to_dict())
+
+                # --- Collapse Logging + Registry ---
+                register_beam_collapse(mutated, mutated.collapsed_state)
+                store_collapsed_beam(mutated, mutated.to_dict())
+
+                # --- HUD + Broadcast ---
+                broadcast_beam_event(mutated)
+
+                logger.info(
+                    f"[SQI] ✅ Beam processed: {beam.id} | "
+                    f"SQI={(mutated.sqi_score or 0.0):.4f}, Drift={(mutated.drift_cost or 0.0):.2f}, "
+                    f"Entropy={mutated.entropy:.2f}, SoulLaw={mutated.soullaw_status}"
+                )
+
+                processed_beams.append(mutated)
+
+            except Exception as e:
+                logger.error(f"[SQI] ❌ Beam processing failed: {beam.id} — {e}", exc_info=True)
+                beam.status = "error"
+                processed_beams.append(beam)
+
+        return processed_beams
+
+    # ──────────────────────────────
+    #  Internal Utility Methods
+    # ──────────────────────────────
+    def _average_sqi(self, glyphs: List[Dict[str, Any]]) -> float:
+        """Compute average SQI score for electron-type glyphs."""
+        scores = [g.get("sqi_score", 0.0) for g in glyphs if g.get("type") == "electron"]
+        return sum(scores) / len(scores) if scores else 0.0
+
+    def _validate_soullaw(self, beam: Beam) -> None:
+        """Run SoulLaw validation and annotate beam state."""
+        validator = SoulLawValidator()
+        avatar_state = getattr(beam, "avatar_state", {})
+        container_metadata = getattr(beam, "container_metadata", {})
+        avatar_ok = validator.validate_avatar_with_context(avatar_state, context={"beam_id": beam.id})
+        container_ok = validator.validate_container(container_metadata)
+        beam.soullaw_status = "allowed" if (avatar_ok and container_ok) else "blocked"
+        beam.soullaw_violations = [] if beam.soullaw_status == "allowed" else ["avatar", "container"]

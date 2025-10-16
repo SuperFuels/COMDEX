@@ -189,8 +189,26 @@ async def send_codex_ws_event(event_type: str, payload: dict):
 import asyncio
 
 def send_codex_ws_event_sync(event_type: str, payload: dict):
+    """
+    Schedule a websocket event send, safe in both async and sync contexts.
+    """
     try:
-        asyncio.create_task(send_codex_ws_event(event_type, payload))
-    except RuntimeError:
-        # No running loop — fallback (e.g., during test)
-        print(f"⚠️ WS broadcast skipped: no running event loop")
+        loop = asyncio.get_event_loop()
+        if loop.is_running():
+            asyncio.create_task(send_codex_ws_event(event_type, payload))
+        else:
+            loop.run_until_complete(send_codex_ws_event(event_type, payload))
+    except Exception as e:
+        print(f"⚠️ WS broadcast skipped: {e}")
+
+# ✅ New: safe, non-circular tick broadcaster
+def broadcast_tick(data: dict):
+    """
+    Lightweight tick broadcaster used by CodexFabric and Scheduler loops.
+    Avoids circular imports by dispatching through send_codex_ws_event_sync lazily.
+    """
+    try:
+        from backend.modules.codex.codex_websocket_interface import send_codex_ws_event_sync
+        send_codex_ws_event_sync("tick", data)
+    except Exception as e:
+        print(f"[WS] Tick broadcast failed: {e}")

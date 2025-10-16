@@ -1314,6 +1314,20 @@ class CodexExecutor:
         self.sqi_trace.reset()
         self.tessaris.reset()
 
+    # ──────────────────────────────
+    # 🔄 QQC Compatibility Wrapper
+    # ──────────────────────────────
+    def execute(self, beam_data: dict, context: Optional[dict] = None) -> dict:
+        """
+        QQC expects a .execute() entrypoint.
+        Redirect to execute_photon_capsule for beam/capsule data.
+        """
+        try:
+            return self.execute_photon_capsule(beam_data, context=context)
+        except Exception as e:
+            logger.error(f"[CodexExecutor] execute() shim failed: {e}", exc_info=True)
+            return {"status": "error", "error": str(e)}
+
 # ✅ Singleton instance
 codex_executor = CodexExecutor()
 

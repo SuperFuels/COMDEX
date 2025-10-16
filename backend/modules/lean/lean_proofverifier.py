@@ -7,6 +7,10 @@ from pathlib import Path
 from backend.modules.codex.codex_metrics import CodexMetrics
 from backend.modules.dna_chain.dc_handler import load_dc_container
 
+
+# ─────────────────────────────
+#  Mutation + Auto-Rewrite Logic
+# ─────────────────────────────
 def verify_or_mutate(container) -> bool:
     """
     Attempts Codex rewrite if Lean proof fails.
@@ -37,6 +41,10 @@ def verify_or_mutate(container) -> bool:
     })
     return False
 
+
+# ─────────────────────────────
+#  Lean Proof Verification
+# ─────────────────────────────
 def verify_lean_proof(lean_file_path: str) -> Tuple[bool, Optional[str]]:
     """
     Verifies the given Lean proof file.
@@ -60,6 +68,9 @@ def verify_lean_proof(lean_file_path: str) -> Tuple[bool, Optional[str]]:
         return False, str(e)
 
 
+# ─────────────────────────────
+#  Lean Path Extraction
+# ─────────────────────────────
 def extract_lean_path(container: dict) -> Optional[str]:
     """
     Attempts to extract a Lean proof path from container metadata, glyphs, grid, or electrons.
@@ -78,6 +89,9 @@ def extract_lean_path(container: dict) -> Optional[str]:
     return None
 
 
+# ─────────────────────────────
+#  Container Validation
+# ─────────────────────────────
 def validate_lean_container(container: Union[str, dict], autosave: bool = False) -> bool:
     """
     Validates a symbolic container with Lean content.
@@ -94,58 +108,86 @@ def validate_lean_container(container: Union[str, dict], autosave: bool = False)
     container_id = container.get("id", Path(lean_path).stem if lean_path else "unknown")
 
     if not lean_path:
-        result = {
-            "status": "missing",
-            "reason": "No lean_path found"
-        }
+        result = {"status": "missing", "reason": "No lean_path found"}
         container.setdefault("validation", {})["lean"] = result
         print("⚠️ No Lean path found in container.")
-        CodexMetrics.record_lean_verification(container_id, None, False, "No lean_path found")
+
+        # ✅ Safe CodexMetrics logging fallback
+        if hasattr(CodexMetrics, "record_lean_verification"):
+            CodexMetrics.record_lean_verification(container_id, None, False, "No lean_path found")
+        elif hasattr(CodexMetrics, "record_event"):
+            CodexMetrics.record_event("lean_verification", {
+                "container_id": container_id,
+                "lean_path": None,
+                "success": False,
+                "error": "No lean_path found"
+            })
+        else:
+            print(f"[LeanVerifier] ⚠️ CodexMetrics unavailable — skipping metrics log.")
+
         return False
 
     success, err = verify_lean_proof(lean_path)
 
-    # Inject result
+    # Inject validation results
     container.setdefault("validation", {})["lean"] = {
         "status": "ok" if success else "error",
         "detail": None if success else err,
         "lean_path": lean_path
     }
 
-    # CodexMetrics logging
-    CodexMetrics.record_lean_verification(container_id, lean_path, success, err)
+    # ✅ CodexMetrics safe logging
+    if hasattr(CodexMetrics, "record_lean_verification"):
+        CodexMetrics.record_lean_verification(container_id, lean_path, success, err)
+    elif hasattr(CodexMetrics, "record_event"):
+        CodexMetrics.record_event("lean_verification", {
+            "container_id": container_id,
+            "lean_path": lean_path,
+            "success": success,
+            "error": err,
+        })
+    else:
+        print(f"[LeanVerifier] ⚠️ CodexMetrics missing — skipping lean verification log.")
 
-    # Lazy import here to avoid circular deps
+    # ✅ WebSocket broadcast
     from backend.routes.ws.glyphnet_ws import emit_websocket_event
-
-    # Emit WebSocket event
     emit_websocket_event("lean_verification_result", {
         "containerId": container_id,
-        "status": "ok" if success else "error",
-        "detail": None if success else err,
-        "leanPath": lean_path
+        "leanPath": lean_path,
+        "success": success,
+        "error": err,
+        "status": "✅ Proof verified" if success else "❌ Proof failed"
     })
 
+    # ✅ Auto-save container
     if autosave and "id" in container:
-        out_path = f"containers/{container['id']}.dc.json"
-        with open(out_path, "w") as f:
-            json.dump(container, f, indent=2)
-        print(f"📦 Saved updated container to: {out_path}")
+        out_path = f"backend/modules/dimensions/containers/{container['id']}.dc.json"
+        try:
+            with open(out_path, "w", encoding="utf-8") as f:
+                json.dump(container, f, indent=2)
+            print(f"💾 Saved updated container to: {out_path}")
+        except Exception as e:
+            print(f"⚠️ Failed to save container {container_id}: {e}")
 
-    if success:
-        print(f"✅ Lean verification passed for {lean_path}")
-    else:
-        print(f"❌ Lean verification failed: {err}")
+    # ✅ Automatic mutation fallback
+    if not success:
+        print(f"❌ Lean proof failed for {container_id} — attempting Codex rewrite.")
+        return verify_or_mutate(container)
 
-    return success
+    print(f"✅ Lean verification passed for {lean_path}")
+    return True
 
 
+# ─────────────────────────────
+#  Logical Validation (wrapper)
+# ─────────────────────────────
 def is_logically_valid(container: dict, container_id: str = "unknown") -> bool:
     """
     Full smart validation using Lean, with fallback Codex mutation.
     Emits WebSocket updates and returns final validity.
     """
     valid = validate_lean_container(container)
+    from backend.routes.ws.glyphnet_ws import emit_websocket_event
 
     if valid:
         emit_websocket_event("logic_verification", {
@@ -156,35 +198,16 @@ def is_logically_valid(container: dict, container_id: str = "unknown") -> bool:
     else:
         emit_websocket_event("logic_verification", {
             "containerId": container_id,
-            "status": "❌ Initial proof failed – attempting auto-rewrite..."
-        })
-
-        # ⏳ Lazy import to avoid circular dependency
-        from backend.modules.codex.codex_executor import auto_mutate_container
-
-        # Attempt Codex rewrite
-        mutated = auto_mutate_container(container)
-        if mutated:
-            if validate_lean_container(container):
-                emit_websocket_event("logic_verification", {
-                    "containerId": container_id,
-                    "status": "✅ Proof valid after mutation"
-                })
-                return True
-
-        emit_websocket_event("logic_verification", {
-            "containerId": container_id,
             "status": "❌ Proof failed after mutation"
         })
         return False
 
 
 # ─────────────────────────────
-# Optional CLI Entry Point
+#  CLI Entry Point
 # ─────────────────────────────
 if __name__ == "__main__":
     import sys
-
     if len(sys.argv) < 2:
         print("Usage: python lean_proofverifier.py <path_to_dc.json> [--save]")
         sys.exit(1)
@@ -202,10 +225,13 @@ if __name__ == "__main__":
     success = validate_lean_container(container, autosave=autosave)
     print("✅ VALID" if success else "❌ INVALID")
 
+
+# ─────────────────────────────
+#  Batch Proof Verifier
+# ─────────────────────────────
 def verify_proofs(parsed_decls):
     """Simple batch verifier that marks theorem/lemma declarations as proved."""
-    verified = []
-    failed = []
+    verified, failed = [], []
     for decl in parsed_decls:
         name = decl.get("name", "")
         kind = decl.get("symbol", "")

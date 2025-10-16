@@ -212,3 +212,63 @@ def execute_qfc_container_beams(
     }
     record_trace("sheet", f"[Phase10/QFC] container batch: ok={ok} error={err} total={ok+err} parallel={use_parallel}")
     return summary
+
+# ============================================================
+# 📦 DimensionContainerExec – High-level QFC container runtime adapter
+# ============================================================
+
+class DimensionContainerExec:
+    """
+    Provides class-based access to the container beam execution subsystem.
+    Wraps the procedural API (`execute_qfc_container_beams`) so higher-level
+    orchestrators (like QQC or CodexFabric) can call it via an instance.
+
+    Example:
+        dce = DimensionContainerExec()
+        result = dce.run(container_id, cells, batch, context)
+    """
+
+    def __init__(self):
+        self.last_summary: Optional[Dict[str, Any]] = None
+        self.executor_pool = None
+        print("[DimensionContainerExec] Initialized container runtime executor.")
+
+    def run(
+        self,
+        container_id: Optional[str],
+        cells: List[Any],
+        batch: List[Dict[str, Any]],
+        context: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        """
+        Execute a batch at container level (Codex/QFC integrated path).
+        Wraps execute_qfc_container_beams() with safety and logging.
+        """
+        from backend.modules.codex.container_exec import execute_qfc_container_beams
+
+        ctx = context or {}
+        try:
+            summary = execute_qfc_container_beams(container_id, cells, batch, ctx)
+            self.last_summary = summary
+            if summary.get("error", 0):
+                print(f"[DimensionContainerExec] ⚠️ {summary['error']} errors for container {container_id}")
+            else:
+                print(f"[DimensionContainerExec] ✅ Executed container {container_id} with {summary['ok']} ops.")
+            return summary
+        except Exception as e:
+            print(f"[DimensionContainerExec] ❌ Failed to execute container {container_id}: {e}")
+            return {"status": "error", "error": str(e)}
+
+    def summarize(self) -> Dict[str, Any]:
+        """
+        Return the last execution summary if available.
+        """
+        return self.last_summary or {"status": "no_runs"}
+
+    def clear_summary(self):
+        """Reset internal state."""
+        self.last_summary = None
+
+    def extract_state(self):
+        """Return lightweight container state snapshot for PortalManager."""
+        return {"status": "noop", "message": "extract_state() not implemented yet"}

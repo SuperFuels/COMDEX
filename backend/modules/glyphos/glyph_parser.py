@@ -67,23 +67,49 @@ class StructuredGlyph:
 
     def _parse(self) -> Dict:
         """
-        Parse glyphs in the format:
-        ⟦ Type | Target : Value → Action ⟧
-        Allows symbols and operators in Value/Action.
+        Parse glyphs in the canonical structure:
+            ⟦ Type | Target : Value → Action ⟧
+
+        - Adds SoulLaw compliance metadata
+        - Guards against malformed CodexLang
+        - Always returns a well-formed dict (never raises)
         """
+        import logging
+        from backend.modules.glyphos.codexlang_translator import parse_action_expr, translate_node
+        from backend.modules.glyphos.symbol_resolver import resolve_symbol
+        from backend.modules.logic.logic_parser import parse_logic_expression
+
         pattern = r"⟦\s*(\w+)\s*\|\s*(\w+)\s*:\s*([^\→]+?)\s*→\s*(.+?)\s*⟧"
         match = re.match(pattern, self.raw)
+
+        # ─────────────────────────────────────────────
+        # Invalid glyph structure → return compliant stub
+        # ─────────────────────────────────────────────
         if not match:
-            return {"raw": self.raw, "error": "Invalid structured glyph"}
+            logging.warning(f"[GlyphParser] ⚠️ Invalid structured glyph: {self.raw}")
+            return {
+                "raw": self.raw,
+                "error": "Invalid structured glyph",
+                "soul_law_compliance": "violated",
+                "type": "unknown",
+                "target": None,
+                "value": None,
+                "action_raw": None,
+                "action": {"op": "invalid", "args": []},
+                "value_resolved": [],
+                "action_resolved": [],
+            }
 
         raw_action = match.group(4).strip()
 
-        # Try to parse + canonicalize the action into an AST dict
+        # ─────────────────────────────────────────────
+        # Parse and canonicalize action expression
+        # ─────────────────────────────────────────────
         try:
-            from backend.modules.glyphos.codexlang_translator import parse_action_expr, translate_node
             parsed_action = parse_action_expr(raw_action)
             parsed_action = translate_node(parsed_action)
-        except Exception:
+        except Exception as e:
+            logging.warning(f"[GlyphParser] ⚠️ Action parse failed: {e} | raw={raw_action}")
             parsed_action = {"op": f"unknown:{raw_action}", "args": []}
 
         result = {
@@ -91,30 +117,43 @@ class StructuredGlyph:
             "type": match.group(1).strip(),
             "target": match.group(2).strip(),
             "value": match.group(3).strip(),
-            "action_raw": raw_action,   # keep original string
-            "action": parsed_action     # always dict (canonicalized AST)
+            "action_raw": raw_action,
+            "action": parsed_action,
+            "soul_law_compliance": "pass",  # default unless logic fails
         }
 
-        # ✅ Resolve operators inside Value/Action
+        # ─────────────────────────────────────────────
+        # Resolve internal symbols (value/action)
+        # ─────────────────────────────────────────────
         def _resolve_field(val):
             if isinstance(val, str):
-                return [resolve_symbol(sym) for sym in val if sym.strip()]
+                # Split simple strings into token symbols
+                symbols = [s for s in re.split(r"[\s,]+", val.strip()) if s]
+                return [resolve_symbol(sym) for sym in symbols]
             elif isinstance(val, dict):
                 return [resolve_symbol(val.get("op", ""))]
             return []
 
         for field in ("value", "action"):
-            result[field + "_resolved"] = _resolve_field(result[field])
+            try:
+                result[f"{field}_resolved"] = _resolve_field(result[field])
+            except Exception as e:
+                logging.warning(f"[GlyphParser] Failed to resolve field '{field}': {e}")
+                result[f"{field}_resolved"] = []
 
-        # ✅ Logic tree evaluation hook
+        # ─────────────────────────────────────────────
+        # Logic evaluation hook (optional)
+        # ─────────────────────────────────────────────
         if result["type"].lower() == "logic":
             try:
                 logic_tree = parse_logic_expression(raw_action)
                 result["tree"] = logic_tree.evaluate()
             except Exception as e:
                 result["tree"] = f"Parse error: {e}"
+                result["soul_law_compliance"] = "violated"
 
         return result
+
 
     def to_dict(self) -> Dict:
         return self.parsed
@@ -163,14 +202,12 @@ def parse_glyph_string(glyph_str: str) -> List[Dict]:
 # ─── ✅ Parse CodexLang string for instruction trees ────────────────────────────
 
 def parse_codexlang_string(input_str: str) -> Dict:
-    """
-    Accepts CodexLang string like:
-      ⟦ Compute | Target : A ↔ B → Result ⟧
-    Returns structured instruction tree for symbolic execution.
-    """
-    parser = GlyphParser(input_str)
-    result = parser.parse()
-    return result[0] if result else {"error": "Failed to parse CodexLang string"}
+    try:
+        parser = GlyphParser(input_str)
+        result = parser.parse()
+        return result[0] if result else {"error": "Failed to parse CodexLang string"}
+    except Exception as e:
+        return {"error": f"CodexLang parse failed: {e}"}
 
 # ─── 🧪 CLI Test Harness ────────────────────────────────────────────────────────
 

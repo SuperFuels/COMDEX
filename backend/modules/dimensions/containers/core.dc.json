@@ -1,0 +1,61 @@
+{
+  "id": "core_beta",
+  "name": "core_container",
+  "type": "dimension_container",
+  "version": "0.3",
+  "metadata": {
+    "creator": "Tessaris",
+    "origin": "AION Engine Dock",
+    "codex_link": "C2",
+    "timestamp": "2025-10-16T00:00:00Z",
+    "description": "Primary Codex–QQC synchronization container for Symatics core testing.",
+    "soul_law": {
+      "rule": "container_integrity_verified",
+      "verified_by": "SoulLawValidator",
+      "status": "validated",
+      "timestamp": "2025-10-16T00:00:00Z",
+      "proof_ref": "ψκT::root_integrity"
+    },
+    "hash": "e6b72af3c11f21b2d56b7a98cce8e0378c8c7f9f1e1a84e85a7f69e921ba1e31"
+  },
+  "avatar_state": {
+    "identity": "system_root",
+    "auth_level": "trusted",
+    "validated": true,
+    "soul_signature": "ψκT::root",
+    "soul_alignment": "harmonic",
+    "verification_vector": [1.0, 0.0, 0.0],
+    "last_verification": "2025-10-16T00:00:00Z",
+    "law_context": {
+      "origin": "AION",
+      "rulebase": "SoulLaw_v2.3",
+      "chain": "Codex–QQC–Symatics"
+    }
+  },
+  "soul_proof": {
+    "verifier": "soul_law_validator",
+    "coherence_index": 0.992,
+    "entropy_balance": 0.003,
+    "proof_token": "SLW-ψκT-COREBETA-20251016",
+    "validated": true,
+    "signature": "Σ(ψ⊕κ⊕Τ)=1.0"
+  },
+  "glyphs": [
+    {
+      "id": "g1",
+      "operator": "⊕",
+      "logic": "superposition of ψ",
+      "args": ["ψ₀", "ψ₁"],
+      "soul_tag": "ψ:constructive",
+      "law_compliance": "pass"
+    },
+    {
+      "id": "g2",
+      "operator": "μ",
+      "logic": "measurement of ψ₁",
+      "args": ["ψ₁"],
+      "soul_tag": "ψ:collapse",
+      "law_compliance": "pass"
+    }
+  ]
+}

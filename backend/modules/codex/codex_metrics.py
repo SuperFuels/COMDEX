@@ -108,6 +108,9 @@ class CodexMetrics:
         self.collapse_bias_scores = []
         self.confidence_scores = []
         self.recent_blindspots = []
+    def record_execution_metrics(self, *args, **kwargs):
+        """Legacy alias for record_execution_batch()"""
+        return self.record_execution_batch(*args, **kwargs)
 
     def record_execution(self, glyph=None, source=None, operator=None):
         self.metrics["glyphs_executed"] += 1
@@ -232,34 +235,60 @@ class CodexMetrics:
         self.confidence_scores.clear()
         self.recent_blindspots.clear()
 
-    def record_execution_batch(self, instruction_tree, cost: float = None, source: str = None):
+    def record_execution_batch(self, *args, **kwargs):
         """
         Compatibility method for batch execution logging.
-        - Increments glyph count based on tree length.
-        - Optionally records a cost estimate if provided.
+        Accepts both legacy (instruction_tree, cost, source)
+        and modern flexible keyword usage (adapter, op, payload, result).
         """
+
+        import logging
+        logger = logging.getLogger(__name__)
+
         try:
-            # If it's a list/dict of glyphs, count them
-            if isinstance(instruction_tree, list):
-                for node in instruction_tree:
-                    self.record_execution(glyph=node.get("glyph") if isinstance(node, dict) else None,
-                                          source=source,
-                                          operator=node.get("opcode") if isinstance(node, dict) else None)
-            elif isinstance(instruction_tree, dict):
-                self.record_execution(glyph=instruction_tree.get("glyph"),
-                                      source=source,
-                                      operator=instruction_tree.get("opcode"))
+            # --- Legacy form ---
+            instruction_tree = kwargs.get("instruction_tree") or (args[0] if args else None)
+            cost = kwargs.get("cost")
+            source = kwargs.get("source")
+
+            # --- Modern flexible form ---
+            adapter = kwargs.get("adapter", "unknown")
+            op = kwargs.get("op", "unknown")
+            payload = kwargs.get("payload")
+            result = kwargs.get("result")
+
+            # Handle legacy tree logging
+            if instruction_tree is not None:
+                if isinstance(instruction_tree, list):
+                    for node in instruction_tree:
+                        self.record_execution(
+                            glyph=node.get("glyph") if isinstance(node, dict) else None,
+                            source=source or adapter,
+                            operator=node.get("opcode") if isinstance(node, dict) else None,
+                        )
+                elif isinstance(instruction_tree, dict):
+                    self.record_execution(
+                        glyph=instruction_tree.get("glyph"),
+                        source=source or adapter,
+                        operator=instruction_tree.get("opcode"),
+                    )
+
+            # Handle modern form logging
+            if payload is not None:
+                self.metrics.setdefault("batches", []).append({
+                    "adapter": adapter,
+                    "op": op,
+                    "result": result,
+                    "timestamp": __import__("time").time(),
+                })
+                logger.info(f"[CodexMetrics] Batch recorded: adapter={adapter}, op={op}")
 
             # Optionally log cost
             if cost is not None:
-                if "execution_costs" not in self.metrics:
-                    self.metrics["execution_costs"] = []
-                self.metrics["execution_costs"].append(cost)
+                self.metrics.setdefault("execution_costs", []).append(cost)
 
         except Exception as e:
-            # Never block execution on metrics failure
-            import logging
-            logging.getLogger(__name__).warning("record_execution_batch failed: %s", e)    
+            logger.warning("record_execution_batch failed: %s", e)  
 
     @staticmethod
     def score_alignment(rewrite: dict, active_goals: list) -> float:

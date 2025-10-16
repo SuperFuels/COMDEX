@@ -1,5 +1,6 @@
-# File: backend/modules/memory/memory_engine.py
+# File: backend/modules/codex/codexlang_parser.py
 import os
+import logging
 import json
 import hashlib
 import requests
@@ -71,8 +72,8 @@ class MemoryEngine:
         """Lazy import to avoid circular dependency during boot."""
         if self.kg_writer is None:
             try:
-                from backend.modules.knowledge_graph.kg_writer_singleton import kg_writer
-                self.kg_writer = kg_writer
+                from backend.modules.knowledge_graph.kg_writer_singleton import get_kg_writer
+                self.kg_writer = get_kg_writer()
             except Exception:
                 self.kg_writer = None
         return self.kg_writer
@@ -232,14 +233,19 @@ class MemoryEngine:
 
         # ✅ Attach scroll if glyph available
         glyph_payload = memory_obj.get("glyph") or memory_obj.get("glyph_tree")
-        if isinstance(glyph_payload, (dict, list)):
+        if glyph_payload:
             try:
-                # 👇 Lazy import moved here to break circular dependency
                 from backend.modules.codex.codex_scroll_builder import build_scroll_from_glyph
-                scroll_data = build_scroll_from_glyph(glyph_payload)
-                memory_obj["scroll_preview"] = scroll_data.get("codexlang")
-                memory_obj["scroll_tree"] = scroll_data.get("tree")
-                print("🌀 Attached scroll to memory entry.")
+
+                # Guard: skip malformed glyphs (e.g., strings or empty dicts)
+                if isinstance(glyph_payload, str) or not hasattr(glyph_payload, "__iter__"):
+                    print("⚠️ Skipping scroll build: glyph_payload not structured")
+                else:
+                    scroll_data = build_scroll_from_glyph(glyph_payload)
+                    if isinstance(scroll_data, dict):
+                        memory_obj["scroll_preview"] = scroll_data.get("codexlang")
+                        memory_obj["scroll_tree"] = scroll_data.get("tree")
+                        print("🌀 Attached scroll to memory entry.")
             except Exception as e:
                 print(f"⚠️ Failed to build scroll from glyph: {e}")
 
@@ -255,15 +261,18 @@ class MemoryEngine:
                 synth_response = requests.post(
                     f"{AION_URL}/api/aion/synthesize-glyphs",
                     json={"text": content, "source": "memory"},
-                    timeout=5,
+                    timeout=3,  # shorter
                 )
-                if synth_response.status_code == 200:
+                if synth_response.ok:
                     result = synth_response.json()
-                    print(f"✅ Synthesized {len(result.get('glyphs', []))} glyphs from memory.")
+                    count = len(result.get("glyphs", []))
+                    print(f"✅ Synthesized {count} glyphs from memory via AION.")
                 else:
-                    print(f"⚠️ Glyph synthesis failed: {synth_response.status_code}")
+                    print(f"⚠️ Glyph synthesis HTTP error: {synth_response.status_code}")
+            except requests.exceptions.ConnectionError:
+                print("🕳️ AION offline — skipping synthesis.")
             except Exception as e:
-                print(f"🕳️ AION not reachable: {e}")
+                print(f"⚠️ AION synth exception: {e}")
 
         # ✅ Inject glyph into knowledge graph + index
         if ENABLE_GLYPH_LOGGING:
@@ -344,33 +353,63 @@ def parse_expression(tokens: List[str]) -> Any:
     """
     Parse a list of CodexLang tokens into an AST-like dictionary structure.
     Supports: ∀, ∃, ¬, →, ↔, ∧, ∨, ⊕, ↑, ↓, =, predicates/functions.
+
+    Adds:
+      - Defensive parsing for malformed tokens.
+      - Graceful fallback for incomplete binary ops.
+      - SoulLaw compliance stubs (type="empty" / type="error").
     """
+    import logging
+
+    if not tokens:
+        logging.warning("[CodexLang] Empty token stream; returning empty node.")
+        return {"type": "empty", "tokens": []}
+
     def parse_term(index: int):
+        """Parse individual symbol, function, or negation."""
+        if index >= len(tokens):
+            return {"type": "empty"}, index
+
         token = tokens[index]
+
+        # Handle negation ¬
         if token == "¬":
             inner, next_index = parse_term(index + 1)
             return {"type": "not", "term": inner}, next_index
+
+        # Handle symbol or function call
         elif re.match(r"\w+", token):
+            # Function or predicate with arguments
             if index + 1 < len(tokens) and tokens[index + 1] == "(":
                 name = token
-                i = index + 2
                 args = []
+                i = index + 2
                 while i < len(tokens) and tokens[i] != ")":
                     arg, i = parse_term(i)
                     args.append(arg)
                     if i < len(tokens) and tokens[i] == ",":
                         i += 1
-                assert i < len(tokens) and tokens[i] == ")", f"Expected closing ')' for {name}"
+                if i >= len(tokens) or tokens[i] != ")":
+                    logging.warning(f"[CodexLang] Unclosed '(' for function '{name}'")
+                    return {"type": "function", "name": name, "args": args, "error": "unclosed_parenthesis"}, i
                 return {"type": "function", "name": name, "args": args}, i + 1
-            else:
-                return {"type": "symbol", "value": token}, index + 1
+
+            # Basic symbol
+            return {"type": "symbol", "value": token}, index + 1
+
+        # Fallback catch-all
         return {"type": "symbol", "value": token}, index + 1
 
     def parse_binary_ops(start_index: int):
+        """Parse chained binary operations like A → B ↔ C."""
         left, index = parse_term(start_index)
         while index < len(tokens):
             op = tokens[index]
             if op in ("→", "↔", "∧", "∨", "⊕", "↑", "↓", "="):
+                # Guard for incomplete or malformed RHS
+                if index + 1 >= len(tokens):
+                    logging.warning(f"[CodexLang] Missing right-hand operand after operator '{op}'")
+                    return {"type": "error", "op": op, "left": left, "message": "missing_rhs"}, index + 1
                 right, next_index = parse_term(index + 1)
                 left = {"type": op, "left": left, "right": right}
                 index = next_index
@@ -378,8 +417,19 @@ def parse_expression(tokens: List[str]) -> Any:
                 break
         return left, index
 
-    tree, _ = parse_binary_ops(0)
-    return tree
+    try:
+        tree, _ = parse_binary_ops(0)
+        if not isinstance(tree, dict):
+            raise ValueError("Parse result not a dict")
+        return tree
+    except Exception as e:
+        logging.warning(f"[CodexLang] Parse failure: {e} | Tokens={tokens}")
+        return {
+            "type": "error",
+            "message": str(e),
+            "tokens": tokens,
+            "soul_state": "violated"
+        }
 
 def log_memory(container_id: str, data: dict):
     mem = MemoryEngine(container_id)
@@ -388,3 +438,126 @@ def log_memory(container_id: str, data: dict):
 
 def get_runtime_entropy_snapshot():
     return MemoryEngine.get_runtime_entropy_snapshot()
+    
+def parse_codexlang_string(code_str):
+    """
+    Converts a symbolic CodexLang string like:
+    ⟦ Logic | If: x > 5 → ⊕(Grow, Reflect) ⟧
+    into a structured AST-like dictionary with canonicalized ops.
+
+    ✅ SoulLaw-compliant: gracefully handles partial or malformed glyphs.
+    🧩 Enhanced with DEBUG instrumentation to trace unpack errors and caller context.
+    """
+    import inspect
+    import traceback
+
+    try:
+        caller = inspect.stack()[1]
+        print("\n[🧠 DEBUG] parse_codexlang_string CALLED")
+        print(f"   📍 Caller: {caller.filename}:{caller.lineno} → {caller.function}")
+        print(f"   🧩 Raw code_str: {repr((code_str or '')[:100])}")
+
+        body = (code_str or "").strip("⟦⟧ ").strip()
+        if not body:
+            print("   ⚠️ Empty CodexLang body")
+            return {"type": "empty", "soul_state": "violated", "message": "Empty glyph string"}
+
+        # 🧩 Case 1 — shorthand (no →)
+        if "→" not in body:
+            if ":" not in body or "|" not in body:
+                print("   ⚠️ Missing ':' or '|' in shorthand CodexLang")
+                return {
+                    "type": "incomplete",
+                    "expr": body,
+                    "soul_state": "partial",
+                    "message": "Missing ':' or '|' structure in CodexLang string",
+                }
+
+            try:
+                type_tag, action = body.split(":", 1)
+                g_type, tag = type_tag.split("|", 1)
+            except ValueError as ve:
+                print(f"   ⚠️ ValueError in shorthand split: {ve}")
+                return {
+                    "type": "incomplete",
+                    "expr": body,
+                    "soul_state": "partial",
+                    "message": "Malformed type/tag section"
+                }
+
+            parsed_action = parse_action_expr(action.strip())
+            parsed_action = translate_node(parsed_action, context=g_type.strip().lower())
+            parsed = {
+                "type": g_type.strip().lower(),
+                "tag": tag.strip(),
+                "value": None,
+                "action": parsed_action,
+                "soul_state": "trusted",
+            }
+            print("   ✅ Parsed shorthand CodexLang successfully.")
+            return parsed
+
+        # 🧩 Case 2 — full form with →
+        parts = body.split("→", 1)
+        print(f"   🔍 parts after split('→',1): {len(parts)} parts")
+        if len(parts) != 2:
+            print("   ⚠️ Detected malformed CodexLang (missing RHS after →)")
+            return {
+                "type": "incomplete",
+                "expr": body,
+                "soul_state": "partial",
+                "message": "Missing right-hand operand after '→'",
+            }
+
+        left, action = parts
+        if ":" not in left or "|" not in left:
+            print("   ⚠️ Missing ':' or '|' in left-hand side")
+            return {
+                "type": "incomplete",
+                "expr": body,
+                "soul_state": "partial",
+                "message": "Missing ':' or '|' in left-hand side",
+            }
+
+        try:
+            type_tag, value = left.split(":", 1)
+            g_type, tag = type_tag.split("|", 1)
+        except ValueError as ve:
+            print(f"   ⚠️ ValueError in left-hand split: {ve}")
+            return {
+                "type": "incomplete",
+                "expr": body,
+                "soul_state": "partial",
+                "message": "Malformed left-hand type/tag/value section"
+            }
+
+        parsed_action = parse_action_expr(action.strip())
+        parsed_action = translate_node(parsed_action, context=g_type.strip().lower())
+
+        parsed = {
+            "type": g_type.strip().lower(),
+            "tag": tag.strip(),
+            "value": value.strip(),
+            "action": parsed_action,
+            "soul_state": "trusted",
+        }
+
+        if parsed["type"] == "logic":
+            parsed["tree"] = translate_node(logic_to_tree(action.strip()), context="logic")
+
+        print(f"   ✅ Parsed full CodexLang successfully. Type={parsed['type']}, Tag={parsed['tag']}")
+        return parsed
+
+    except Exception as e:
+        # Helpful debug output when parse fails (shows raw input + stack)
+        print(f"[⚠️ parse_codexlang_string] Exception: {e}")
+        print(f"   🔍 Raw input was: {repr(code_str)}")
+        import traceback
+        traceback.print_exc()
+
+        return {
+            "type": "error",
+            "soul_state": "violated",
+            "expr": code_str,
+            "message": str(e)
+        }

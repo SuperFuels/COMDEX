@@ -1,9 +1,16 @@
+# ===============================
 # 📁 backend/codexcore_virtual/instruction_parser.py
+# ===============================
 
 import re
+import logging
 from typing import List, Dict, Any
+
 from backend.codexcore_virtual.instruction_metadata_bridge import get_instruction_metadata
-from backend.modules.codex.virtual.instruction_parser import parse_codexlang
+from backend.modules.codex.virtual.instruction_parser import parse_codexlang  # ✅ Unified parser import
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 
 def resolve_opcode(symbol: str, mode: str = None) -> str:
@@ -14,14 +21,14 @@ def resolve_opcode(symbol: str, mode: str = None) -> str:
     # Explicit override for photon/symatics
     if mode in {"photon", "symatics"}:
         resolved = f"{mode}:{symbol}"
-        print(f"[DEBUG][resolve_opcode] mode={mode}, symbol={symbol} -> {resolved}")
+        logger.debug(f"[resolve_opcode] mode={mode}, symbol={symbol} -> {resolved}")
         return resolved
 
     # Metadata-driven resolution
     meta = get_instruction_metadata(symbol) or {}
     domain = meta.get("domain", "logic")
     resolved = f"{domain}:{symbol}"
-    print(f"[DEBUG][resolve_opcode] mode={mode}, symbol={symbol}, meta={meta} -> {resolved}")
+    logger.debug(f"[resolve_opcode] mode={mode}, symbol={symbol}, meta={meta} -> {resolved}")
     return resolved
 
 
@@ -52,7 +59,14 @@ def parse_codex_instructions(codex_str: str, mode: str = None) -> List[Dict[str,
     """
     Parses a CodexLang glyph string into a list of symbolic CPU instructions.
     Handles chained ops, sequences (=>), and nested parentheses properly.
+    SoulLaw-aligned, metadata-safe.
     """
+    if not codex_str or not codex_str.strip():
+        return []
+
+    # Normalize operators for compatibility
+    codex_str = codex_str.replace("->", "→").replace("<->", "↔")
+
     instructions: List[Dict[str, Any]] = []
 
     # Split at top-level => sequence operator
@@ -63,7 +77,7 @@ def parse_codex_instructions(codex_str: str, mode: str = None) -> List[Dict[str,
         if not segment:
             continue
 
-        print(f"[DEBUG][parser] Processing segment='{segment}' mode={mode}")
+        logger.debug(f"[parser] Processing segment='{segment}' mode={mode}")
 
         # ── Parenthesized expression at top level ─────────────────
         if segment.startswith("(") and segment.endswith(")"):
@@ -80,14 +94,21 @@ def parse_codex_instructions(codex_str: str, mode: str = None) -> List[Dict[str,
             op = match.group(1)
             inner = match.group(2).strip()
             resolved = resolve_opcode(op, mode)
-
-            print(f"[DEBUG][parser] Function-style op={op} resolved={resolved}")
+            logger.debug(f"[parser] Function-style op={op} resolved={resolved}")
 
             if any(sym in inner for sym in ["→", "⊕", "⊗", "↔", "⊖", "⟲"]):
                 inner_instrs = parse_codex_instructions(inner, mode=mode)
-                instructions.append({"opcode": resolved, "args": inner_instrs})
+                instructions.append({
+                    "opcode": resolved,
+                    "args": inner_instrs,
+                    "meta": {"mode": mode or "logic", "pattern": "function"}
+                })
             else:
-                instructions.append({"opcode": resolved, "args": [inner]})
+                instructions.append({
+                    "opcode": resolved,
+                    "args": [inner],
+                    "meta": {"mode": mode or "logic", "pattern": "function"}
+                })
             continue
 
         # ── Binary ops (⊕, →, ⊗, ↔, ⊖) ──────────────────────────
@@ -110,22 +131,40 @@ def parse_codex_instructions(codex_str: str, mode: str = None) -> List[Dict[str,
                             right = right[0]
 
                     resolved = resolve_opcode(tok, mode)
-                    print(f"[DEBUG][parser] Binary op={tok} resolved={resolved}")
-                    instructions.append({"opcode": resolved, "args": [left, right]})
+                    logger.debug(f"[parser] Binary op={tok} resolved={resolved}")
+                    instructions.append({
+                        "opcode": resolved,
+                        "args": [left, right],
+                        "meta": {"mode": mode or "logic", "pattern": "binary"}
+                    })
                     handled = True
             i += 1
 
         # ── Literal fallback ─────────────────────────────────────
         if not handled:
             resolved = resolve_opcode(segment, mode)
-            print(f"[DEBUG][parser] Literal fallback segment={segment} resolved={resolved}")
-            instructions.append({"opcode": resolved, "args": []})
+            logger.debug(f"[parser] Literal fallback segment={segment} resolved={resolved}")
+            instructions.append({
+                "opcode": resolved,
+                "args": [],
+                "meta": {"mode": mode or "logic", "pattern": "literal"}
+            })
+
+    # 🧠 Optional SoulLaw validation hook
+    try:
+        from backend.modules.glyphvault.soul_law_validator import soul_law_validator
+        if not soul_law_validator.validate_container({"instructions": instructions}):
+            logger.warning("[SoulLaw] Validation failed: instruction sequence may violate SoulLaw")
+    except Exception:
+        pass  # Silent fail for environments without validator
 
     return instructions
 
 
 # 🧪 CLI Debug Harness
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.DEBUG, format="%(message)s")
+
     samples = [
         "A ⊕ B",
         "X → Y",
@@ -138,6 +177,7 @@ if __name__ == "__main__":
         "A ⊖ ∅",           # ✅ test subtraction
         "NoteThisLiteral",
     ]
+
     for s in samples:
         print(f"\nInput: {s}")
         print("Photon:", parse_codex_instructions(s, mode="photon"))

@@ -222,11 +222,26 @@ class MathLogicKernel:
         """
         Converts raw input into CodexLang, AST, and glyphs.
         Used for deeper knowledge graph registration and glyph injection.
+
+        ✅ Modernized:
+        - Uses unified `parse_codexlang_to_ast` (SoulLaw-compliant)
+        - Avoids deprecated `parse_raw_input_to_ast`
+        - Adds fallback and debug trace for visibility
         """
         try:
-            ast = parse_raw_input_to_ast(raw_input)
+            # ✅ Parse using the new symbolic Codex AST parser
+            ast = parse_codexlang_to_ast(raw_input)
+
+            # Convert AST → CodexLang representation
             codexlang = self.rewriter.ast_to_codexlang(ast)
+
+            # Encode CodexAST → glyph structures for KG injection
             glyphs = encode_codex_ast_to_glyphs(ast)
+
             return codexlang, ast, glyphs
+
         except Exception as e:
+            import traceback
+            print(f"[⚠️ _codex_pipeline] Failed to process CodexLang input '{raw_input}': {e}")
+            traceback.print_exc()
             return f"❌ CodexLang Error: {e}", None, None

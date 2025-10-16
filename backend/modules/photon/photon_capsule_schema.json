@@ -5,22 +5,30 @@
   "type": "object",
   "additionalProperties": false,
   "properties": {
+    "_physics_snapshot": { "type": "object" },
+    "id": { "type": "string" },
+    "logic_tree": { "type": "object" },
+    "origin_trace": { "type": "string" },
+    "soullaw_status": { "type": "string" },
+    "soullaw_violations": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "sqi_score": { "type": "number" },
+    "status": { "type": "string" },
     "name": { "type": "string", "minLength": 1 },
     "version": { "type": "string" },
 
     "glyphs": {
       "type": "array",
-      "minItems": 1,
+      "minItems": 0,
       "items": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "name":   { "type": "string" },
-          "logic":  { "type": "string" },
-          "operator": {
-            "type": "string",
-            "minLength": 1
-          },
+          "name": { "type": "string" },
+          "logic": { "type": "string" },
+          "operator": { "type": "string", "minLength": 1 },
           "args": {
             "type": "array",
             "items": { "type": ["string", "number", "boolean"] }
@@ -39,12 +47,12 @@
         "additionalProperties": false,
         "properties": {
           "symbol": { "type": "string", "minLength": 1 },
-          "value":  { "type": "string" },
-          "args":   {
+          "value": { "type": "string" },
+          "args": {
             "type": "array",
             "items": { "type": ["string", "number", "boolean"] }
           },
-          "meta":   { "type": "object" }
+          "meta": { "type": "object" }
         },
         "required": ["symbol"]
       }

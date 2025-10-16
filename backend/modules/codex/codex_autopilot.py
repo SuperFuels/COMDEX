@@ -8,7 +8,7 @@ from datetime import datetime
 from backend.modules.codex.codex_core import CodexCore
 from backend.modules.codex.codex_metrics import CodexMetrics
 from backend.modules.codex.codex_websocket_interface import send_codex_ws_event
-from backend.modules.dna_chain.glyph_mutator import score_and_propose_mutation
+from backend.modules.glyphos.glyph_mutator import propose_mutation as score_and_propose_mutation
 from backend.modules.glyphos.glyph_trace_logger import GlyphTraceLogger
 from backend.modules.dna_chain.switchboard import DNA_SWITCH
 

@@ -55,3 +55,10 @@ class CodexFeedbackLoop:
             })
 
             # Optional: future enhancements like cumulative scores or blocking bad glyphs
+
+    def initialize(self):
+        """
+        Compatibility stub for QQC boot sequence.
+        Prepares feedback loop (no-op for now).
+        """
+        print("[CodexFeedbackLoop] Initialized feedback subsystem.")

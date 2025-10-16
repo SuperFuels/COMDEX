@@ -124,3 +124,53 @@ def compare_beam_entropy(beam_a: Any, beam_b: Any) -> Dict[str, float]:
         "delta": delta,
         "direction": "increased" if delta > 0 else "decreased" if delta < 0 else "same"
     }
+
+# ============================================================
+# 📁 backend/modules/symbolic_engine/symbolic_entropy.py
+# ============================================================
+
+"""
+Bridge wrapper exposing SQIEntropyField
+based on the symbolic entropy utilities in
+`backend.modules.codex.symbolic_entropy`.
+"""
+
+from backend.modules.codex.symbolic_entropy import (
+    compute_entropy_metrics,
+    compute_entropy_report,
+    compare_beam_entropy,
+)
+from typing import Any, Dict
+
+
+class SQIEntropyField:
+    """
+    Symbolic–Quantum Intelligence (SQI) entropy field controller.
+    Provides evaluate_entropy() and measure() used by QQC Central Kernel.
+    """
+
+    def __init__(self):
+        self.last_entropy: float = 0.0
+        self.last_report: Dict[str, Any] = {}
+
+    def evaluate_entropy(self, beam: Any) -> float:
+        """
+        Evaluate symbolic entropy of a beam and store results.
+        """
+        self.last_entropy = compute_entropy_metrics(beam)
+        try:
+            self.last_report = compute_entropy_report(beam)
+        except Exception:
+            self.last_report = {"entropy": self.last_entropy}
+        return self.last_entropy
+
+    def compare(self, beam_a: Any, beam_b: Any) -> Dict[str, float]:
+        """Compare entropy between two beams."""
+        return compare_beam_entropy(beam_a, beam_b)
+
+    def get_last_report(self) -> Dict[str, Any]:
+        """Return the most recent detailed entropy report."""
+        return self.last_report
+
+
+__all__ = ["SQIEntropyField"]

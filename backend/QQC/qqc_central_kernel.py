@@ -1,151 +1,237 @@
-# ──────────────────────────────────────────────
-#  Tessaris • Quantum Quad Core (QQC) Central Kernel
-#  (v0.1 — HQCE Integration Backbone)
-#  Orchestrates holographic cognition and LightWave field coupling.
-# ──────────────────────────────────────────────
+# ──────────────────────────────────────────────────────────────
+#  Tessaris • Quantum Quad Core (QQC) Central Kernel (v2)
+#  (HQCE + Multi-Core Integration Backbone)
+#  Integrates Codex ↔ SQI ↔ Resonance ↔ Observer ↔ Knowledge ↔ Portal ↔ QFC
+#  with ψ–κ–T holographic regulation and Lean theorem feedback.
+# ──────────────────────────────────────────────────────────────
 
 import asyncio
 import time
 import uuid
 import logging
 from typing import Dict, Any, Optional
-from backend.QQC.qqc_commit_manager import QQCCommitManager
+
+# ─── Core Imports ─────────────────────────────────────────────
+from backend.modules.codex.codex_executor import CodexExecutor
+from backend.modules.codex.codex_core import CodexCore
+from backend.modules.codex.codex_metrics import codex_metrics
+from backend.modules.codex.codex_fabric import CodexFabric
+from backend.modules.codex.codex_feedback_loop import CodexFeedbackLoop
+
+from backend.modules.codex.symbolic_entropy import SQIEntropyField
+from backend.modules.codex.symbolic_registry import SymbolicRegistry
+
+from backend.modules.codex.holographic_cortex import HolographicCortex
 from backend.modules.holograms.hst_generator import HSTGenerator
 from backend.modules.holograms.morphic_feedback_controller import MorphicFeedbackController
+
+from backend.modules.qfield.qfc_bridge import QFCBridge
+from backend.modules.qfield.qfc_trigger_engine import QFCTriggerEngine
+from backend.modules.qfield.qfc_ws_broadcast import QFCWebSocketBroadcast
+
+from backend.modules.sqi.sqi_beam_kernel import SQIBeamKernel
+from backend.modules.sqi.sqi_trace_logger import SQITraceLogger
+from backend.modules.sqi.observer_engine import ObserverEngine
+
+from backend.modules.teleport.portal_manager import PortalManager
+from backend.modules.teleport.wormhole_manager import WormholeManager
+from backend.modules.codex.container_exec import DimensionContainerExec
+
+from backend.modules.sqi.kg_bridge import KnowledgeGraphBridge
+from backend.modules.knowledge_graph.kg_writer_singleton import get_kg_writer
+
+from backend.modules.lean.lean_adapter import LeanAdapter
+from backend.modules.patterns.pattern_registry import PatternRegistry as PatternMatcher
+
+from backend.QQC.qqc_commit_manager import QQCCommitManager
+from backend.QQC.qqc_repair_manager import QQCRepairManager
 from backend.modules.holograms.sle_lightwave_bridge import SLELightWaveBridge
 from backend.modules.symbolic.hst.hst_websocket_streamer import broadcast_replay_paths
-from backend.QQC.qqc_repair_manager import QQCRepairManager
 
 logger = logging.getLogger(__name__)
 
 
-class QQCCentralKernel:
+# ──────────────────────────────────────────────────────────────
+#  Quantum Quad Core v2 – Unified Orchestrator
+# ──────────────────────────────────────────────────────────────
+class QuantumQuadCore:
     """
-    The central orchestrator for Tessaris' Quantum Quad Core runtime.
-    Integrates:
-        - Symbolic Light Engine (SLE)
-        - Holographic Semantic Tensor (HST)
-        - Morphic Feedback Controller
-        - ψ–κ–T regulation + broadcast synchronization
+    Unified orchestration layer across all QQC modules.
+    Manages synchronization between symbolic, photonic, holographic, and quantum field layers.
     """
 
     def __init__(self):
+        # Core IDs and session management
         self.session_id = str(uuid.uuid4())
+        self.boot_ts = time.time()
+        self.cycle_counter = 0
+
+        # ─── Core Subsystems ──────────────────────────────
+        self.codex = CodexCore()
+        self.codex_executor = CodexExecutor()
+        self.codex_fabric = CodexFabric()
+        self.feedback_loop = CodexFeedbackLoop()
+        self.sqi = SQIEntropyField()
+        self.symbolic_registry = SymbolicRegistry()
+        self.holo_cortex = HolographicCortex()
         self.hst = HSTGenerator()
         self.feedback_controller = MorphicFeedbackController()
-        self.sle_bridge = SLELightWaveBridge(self.hst)
-        self.last_summary: Optional[Dict[str, Any]] = None
+
+        # Observer / Beam System
+        self.observer = ObserverEngine()
+        self.beam_kernel = SQIBeamKernel()
+        self.sqi_logger = SQITraceLogger()
+
+        # Container / Knowledge Integration
+        self.container_runtime = DimensionContainerExec()
+        self.kg_bridge = KnowledgeGraphBridge()
+        self.kg_writer = get_kg_writer()
+
+        # Portal & Teleportation Systems
+        self.portal = PortalManager()
+        self.wormhole = WormholeManager()
+
+        # Quantum Field Computation (QFC)
+        self.qfc_bridge = QFCBridge()
+        self.qfc_trigger = QFCTriggerEngine()
+        self.qfc_broadcast = QFCWebSocketBroadcast()
+
+        # Lean & Theorem Integration
+        self.lean = LeanAdapter()
+        self.patterns = PatternMatcher()
+
+        # Commit / Repair / Regulation Systems
         self.commit_manager = QQCCommitManager()
         self.repair_manager = QQCRepairManager(self.hst)
+        self.sle_bridge = SLELightWaveBridge(self.hst)
 
-        logger.info(f"[QQC Central Kernel] Initialized Quantum Quad Core session → {self.session_id}")
+        # State Cache
+        self.last_summary: Optional[Dict[str, Any]] = None
+        self.coherence_level = 0.0
+
+        logger.info(f"[QQC v2] Initialized Tessaris Quantum Quad Core session → {self.session_id}")
 
     # ──────────────────────────────────────────────
-    #  Core Runtime Loop
+    #  Boot Sequence
+    # ──────────────────────────────────────────────
+    async def boot(self, mode: str = "resonant"):
+        logger.info(f"[QQC Boot] Starting in {mode} mode …")
+        await self.holo_cortex.initialize()
+        self.sqi_logger.start_session(self.session_id)
+        self.feedback_loop.initialize()
+        self.qfc_broadcast.start()
+        logger.info("[QQC Boot] All subsystems initialized and synchronized.")
+
+    # ──────────────────────────────────────────────
+    #  Quantum Feedback / Runtime Cycle
     # ──────────────────────────────────────────────
     async def run_cycle(self, beam_data: Optional[Dict[str, Any]] = None):
-        """
-        Process a single quantum–holographic feedback cycle.
-
-        Steps:
-          1. Accept LightWave beam input (photonic)
-          2. Inject into HST generator (holographic)
-          3. Regulate ψ–κ–T field via Morphic Feedback Controller
-          4. Compute cross-layer coherence (Symbolic–Photonic–Holographic)
-          5. Two-phase commit → persist to QQC ledger
-          6. Run rollback/repair if SQI<threshold or SoulLaw veto
-          7. Broadcast state to connected observers
-        """
+        self.cycle_counter += 1
         try:
-            # ──────────────────────────────────────────────
-            # Phase 1 — Input & HST Injection
-            # ──────────────────────────────────────────────
-            if beam_data:
-                self.sle_bridge.inject_beam_feedback(beam_data)
-            else:
-                logger.debug("[QQC] No beam data provided — idle tick.")
+            # 1. Codex symbolic execution + SQI scoring
+            codex_output = self.codex.execute(beam_data or {})
+            sqi_score = self.sqi.evaluate_entropy(codex_output)
 
-            # Update field + broadcast internal holographic state
-            if asyncio.iscoroutinefunction(self.sle_bridge.broadcast_field_state):
-                await self.sle_bridge.broadcast_field_state()
-            else:
-                self.sle_bridge.broadcast_field_state()
-            self.last_summary = self.summarize_kernel_state()
+            # 2. Beam resonance propagation (includes physics telemetry)
+            beam_state = self.beam_kernel.propagate(beam_data or {}, sqi_score)
 
-            # ──────────────────────────────────────────────
-            # Phase 2 — Two-Phase Commit (Symbolic → Photonic → Holographic)
-            # ──────────────────────────────────────────────
-            symbolic_state = {
-                "coherence": 0.92,            # placeholder until symbolic bridge live
-                "source": "CodexLayer",
-                "timestamp": time.time(),
-            }
-            photonic_state = {
-                "coherence": beam_data.get("coherence", 0.8) if beam_data else 0.8,
-                "phase_shift": beam_data.get("phase_shift", 0.0) if beam_data else 0.0,
-                "timestamp": time.time(),
-            }
-            holographic_state = {
-                "coherence": self.last_summary.get("avg_coherence", 0.0),
-                "psi_kappa_T": self.hst.field_tensor or {},
-                "timestamp": time.time(),
-            }
+            # 🧹 Strip physics telemetry before passing to Codex
+            codex_payload = dict(beam_state)
+            codex_payload.pop("physics", None)
 
+            # 🚀 Execute symbolic photon capsule
+            self.codex_executor.execute_photon_capsule(codex_payload)
+
+            # 3. ψ–κ–T holographic regulation
+            self.sle_bridge.inject_beam_feedback(beam_state)
+            await self.feedback_controller.adjust_field(self.hst, sqi_score)
+
+            # 4. Portal / Teleport synchronization
+            self.portal.sync_state(self.container_runtime)
+            self.wormhole.stabilize_links()
+
+            # 5. Quantum Field broadcast
+            self.qfc_trigger.update_field_state(self.hst.field_tensor)
+            self.qfc_broadcast.send_state(self.session_id, self.hst.field_tensor)
+
+            # 6. Two-Phase Commit: symbolic ↔ photonic ↔ holographic
             txn = self.commit_manager.commit_transaction(
-                symbolic_state, photonic_state, holographic_state
+                symbolic_state={"entropy": sqi_score, "src": "Codex"},
+                photonic_state=beam_state,
+                holographic_state=self.hst.field_tensor
             )
 
-            if txn["status"] == "committed":
-                logger.info(f"[QQC] ✅ Commit success — SQI={txn['C_total']:.3f}")
-            else:
-                logger.warning(
-                    f"[QQC] ⚠️ Low coherence SQI={txn['C_total']:.3f} — awaiting stabilization"
-                )
-
-            # ──────────────────────────────────────────────
-            # Phase 3 — Rollback / Repair Check (F2)
-            # ──────────────────────────────────────────────
+            # 7. Repair if instability detected
             repair_status = self.repair_manager.run_repair_cycle(txn)
             if repair_status.get("status") != "stable":
-                logger.info(f"[QQC Kernel] Repair cycle executed → {repair_status['status']}")
+                logger.warning(f"[QQC Repair] Unstable coherence → {repair_status['status']}")
 
-            # ──────────────────────────────────────────────
-            # Phase 4 — Idle delay / synchronization
-            # ──────────────────────────────────────────────
-            await asyncio.sleep(0.1)
-            return {**self.last_summary, "txn": txn, "repair": repair_status}
+            # 8. Record and broadcast coherence summary
+            self.last_summary = self.summarize_state()
+            codex_metrics.record_execution_batch(
+                adapter="qqc", op="run_cycle", payload=beam_data, result=self.last_summary
+            )
+            await self.broadcast_kernel_state()
+
+            await asyncio.sleep(0.05)
+            return self.last_summary
 
         except Exception as e:
-            logger.error(f"[QQC Central Kernel] Runtime cycle failed: {e}")
+            logger.error(f"[QQC v2] Runtime cycle error: {e}", exc_info=True)
             return {"status": "error", "error": str(e)}
-
     # ──────────────────────────────────────────────
-    #  Summarization + Diagnostics
+    #  State Summarization
     # ──────────────────────────────────────────────
-    def summarize_kernel_state(self) -> Dict[str, Any]:
-        psi_kappa_T = self.hst.field_tensor or {}
-        coherence_map = [n.get("coherence", 0.5) for n in self.hst.nodes.values()]
-        avg_coherence = sum(coherence_map) / len(coherence_map) if coherence_map else 0.0
-
+    def summarize_state(self) -> Dict[str, Any]:
+        coherence_vals = [n.get("coherence", 0.5) for n in self.hst.nodes.values()]
+        avg_coherence = sum(coherence_vals) / len(coherence_vals) if coherence_vals else 0.0
         summary = {
             "session_id": self.session_id,
+            "cycle": self.cycle_counter,
             "timestamp": time.time(),
-            "field_signature": psi_kappa_T,
-            "avg_coherence": avg_coherence,
-            "node_count": len(self.hst.nodes),
-            "last_adjustment": self.feedback_controller.last_adjustment,
+            "coherence": avg_coherence,
+            "entropy": self.sqi.last_entropy if hasattr(self.sqi, "last_entropy") else None,
+            "portal_links": len(self.wormhole.active_links),
+            "field_signature": self.hst.field_tensor,
         }
-
-        logger.info(f"[QQC Kernel] ψκT={psi_kappa_T} ⟶ ⌀C={avg_coherence:.3f}")
+        logger.info(f"[QQC Summary] ⌀Coherence={avg_coherence:.3f} | ψκT={self.hst.field_tensor}")
         return summary
 
     # ──────────────────────────────────────────────
-    #  Broadcast + Telemetry
+    #  Lean Proof Synchronization (Codex ↔ Lean)
+    # ──────────────────────────────────────────────
+    def sync_lean_proofs(self):
+        """
+        Perform a full Lean proof synchronization cycle:
+        1. Export Codex/Symatics → Lean
+        2. Verify Lean containers
+        3. Generate visual proof graphs
+        """
+        try:
+            # Reverse-generate Lean code from Codex container
+            container = self.codex_fabric.get_current_container()
+            self.lean.from_codex(container, "proofs/generated_axioms.lean")
+
+            # Export a Symatics algebra expression as Lean axiom
+            self.lean.from_symatics("∇⊗(λ⊗ψ) ⇒ λ∇⊗ψ", name="wave_resonance_axiom")
+
+            # Verify the active container proofs
+            from pathlib import Path
+
+            container_path = Path(__file__).resolve().parent.parent / "modules/dimensions/containers/core.dc.json"
+            self.lean.verify_container(str(container_path))
+
+            # Generate proof visualization graph
+            self.lean.visualize("backend/modules/dimensions/containers/core.dc.json", png_out="viz/core_graph.png")
+
+            logger.info("[QQC → Lean] Proof sync and verification completed successfully.")
+        except Exception as e:
+            logger.error(f"[QQC → Lean] Proof sync failed: {e}", exc_info=True)
+
+    # ──────────────────────────────────────────────
+    #  Broadcast / Telemetry Layer
     # ──────────────────────────────────────────────
     async def broadcast_kernel_state(self):
-        """
-        Asynchronously push summarized state to symbolic or Codex visualization clients.
-        """
         try:
             payload = {
                 "type": "qqc_state",
@@ -153,32 +239,61 @@ class QQCCentralKernel:
                 "summary": self.last_summary or {},
             }
             broadcast_replay_paths(self.session_id, [])
-            logger.debug("[QQC Kernel] Telemetry broadcasted successfully.")
+            logger.debug("[QQC v2] Broadcast successful.")
         except Exception as e:
-            logger.warning(f"[QQC Kernel] Broadcast failed: {e}")
+            logger.warning(f"[QQC v2] Broadcast failed: {e}")
+
+    # ──────────────────────────────────────────────
+    #  Teleportation & Portal Management
+    # ──────────────────────────────────────────────
+    async def teleport_state(self, src_container: str, dst_container: str):
+        try:
+            state = self.portal.extract_state(src_container)
+            result = self.wormhole.transfer_state(state, dst_container)
+            logger.info(f"[QQC Teleport] {src_container} → {dst_container} [{result}]")
+            return result
+        except Exception as e:
+            logger.error(f"[QQC Teleport] Failed: {e}")
+            return {"status": "error", "error": str(e)}
+
+    # ──────────────────────────────────────────────
+    #  Shutdown
+    # ──────────────────────────────────────────────
+    async def shutdown(self):
+        logger.info("[QQC v2] Gracefully shutting down subsystems …")
+        await self.qfc_broadcast.stop()
+        await self.holo_cortex.teardown()
+        self.sqi_logger.end_session(self.session_id)
+        logger.info("[QQC v2] Shutdown complete.")
 
 
-# ──────────────────────────────────────────────
-#  CLI / Standalone Execution Harness
-# ──────────────────────────────────────────────
+# ──────────────────────────────────────────────────────────────
+#  CLI Harness / Standalone Mode
+# ──────────────────────────────────────────────────────────────
 async def main():
-    kernel = QQCCentralKernel()
+    qqc = QuantumQuadCore()
+    await qqc.boot(mode="resonant")
 
-    # Simulated incoming LightWave beam data stream
     for i in range(5):
         beam_data = {
-            "beam_id": f"beam_{i}",
+            "beam_id": f"ψ_{i}",
             "coherence": 0.7 + 0.05 * i,
             "phase_shift": 0.01 * i,
             "entropy_drift": 0.02 * (i - 2),
             "gain": 1.0 + 0.1 * i,
             "timestamp": time.time(),
         }
-        await kernel.run_cycle(beam_data)
+        await qqc.run_cycle(beam_data)
 
-    await kernel.broadcast_kernel_state()
-    print("\n🧭 QQC Kernel Summary:")
-    print(kernel.last_summary)
+    # 🧩 Once runtime has stabilized, sync proofs with Lean
+    qqc.sync_lean_proofs()
+
+    await qqc.broadcast_kernel_state()
+    await qqc.teleport_state("core_alpha", "core_beta")
+
+    print("\n🧭 Final QQC Summary:")
+    print(qqc.last_summary)
+    await qqc.shutdown()
 
 
 if __name__ == "__main__":

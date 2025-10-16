@@ -15,7 +15,7 @@ from backend.modules.codex.codex_boot import boot_codex_runtime
 from backend.modules.codex.codex_executor import CodexExecutor
 from backend.modules.codex.codex_cost_estimator import CodexCostEstimator
 from backend.modules.hexcore.memory_engine import MEMORY
-from backend.modules.state_manager import STATE
+from backend.modules.consciousness.state_manager import STATE
 
 # ✅ New: QWave emitter
 from backend.modules.codex.codex_executor import emit_qwave_beam_ff  

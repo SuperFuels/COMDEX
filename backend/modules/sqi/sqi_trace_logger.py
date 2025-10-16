@@ -60,3 +60,16 @@ class SQITraceLogger:
         Clear all stored events.
         """
         self.events.clear()
+
+    def start_session(self, session_id: str) -> None:
+        """Compatibility shim for QQC boot sequence."""
+        self.log_event("session_start", {"session_id": session_id})
+
+
+    def end_session(self, session_id: str) -> None:
+        """
+        Compatibility shim for QQC shutdown.
+        Marks the end of a trace session.
+        """
+        self.log_event("session_end", {"session_id": session_id})
+        print(f"[SQITraceLogger] Session {session_id} ended.")

@@ -663,3 +663,20 @@ def store_container_metadata(container: dict):
     }
     readable = "\n".join([f"{k}: {v}" for k, v in summary.items()])
     MEMORY.store({"label": label, "content": f"[📦] Container metadata\n{readable}"})
+
+# =========================================================
+# 🔁 Compatibility Helper: retrieve_recent_memories
+# =========================================================
+def retrieve_recent_memories(limit: int = 20):
+    """
+    Returns the N most recent memory entries from the global MEMORY instance.
+    Backwards-compatible API for CodexMemoryTrigger.
+    """
+    try:
+        if hasattr(MEMORY, "get_all"):
+            return MEMORY.get_all()[-limit:]
+        else:
+            return []
+    except Exception as e:
+        print(f"⚠️ retrieve_recent_memories() failed: {e}")
+        return []

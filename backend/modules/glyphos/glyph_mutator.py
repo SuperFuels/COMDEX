@@ -183,3 +183,38 @@ def check_soul_law(mutation: dict) -> bool:
 def symbolic_hash(glyph: str) -> str:
     """Generate stable symbolic hash for glyph content."""
     return hashlib.sha256(glyph.strip().encode("utf-8")).hexdigest()
+
+# ─── 🔁 Compatibility Shim for CodexAutopilot ──────────────────────────────────
+
+def score_and_propose_mutation(glyph: str, context: str = "runtime", result: Optional[str] = None) -> dict:
+    """
+    Compatibility wrapper used by CodexAutopilot.
+    Takes a glyph string or dict, analyzes its symbolic score, and submits a mutation proposal.
+    """
+    try:
+        # Heuristic: build a lightweight glyph dict if a raw string is passed
+        if isinstance(glyph, str):
+            glyph_dict = {
+                "coord": hashlib.sha1(glyph.encode()).hexdigest()[:8],
+                "file": f"autopilot_runtime_{datetime.utcnow().strftime('%Y%m%d')}.json",
+                "value": glyph,
+                "tag": context
+            }
+        elif isinstance(glyph, dict):
+            glyph_dict = glyph
+        else:
+            raise TypeError("Glyph must be a string or dict.")
+
+        # Score the mutation impact using the length/entropy of the glyph
+        old = ""
+        new = glyph_dict.get("value", "")
+        impact = score_impact(old, new)
+        safety = score_safety({"value": new})
+
+        print(f"🧮 [Autopilot] Mutation scoring — impact={impact:.2f}, safety={safety:.2f}")
+
+        return propose_mutation(glyph_dict, reason=f"Autopilot ({context}) feedback")
+
+    except Exception as e:
+        print(f"⚠️ [Autopilot] score_and_propose_mutation failed: {e}")
+        return {"status": "error", "error": str(e)}

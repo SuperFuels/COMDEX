@@ -209,3 +209,32 @@ class CodexContextAdapter:
         """
         adapter = self.symbolic_deriver._get_codex_adapter()
         return adapter.evaluate(expression)
+
+# =========================================================
+# 🧠 Context Adapter Bridge
+# =========================================================
+def adapt_codex_context(content: str, source: str = "memory") -> dict:
+    """
+    Provides a backward-compatible context adapter used by CodexMemoryTrigger.
+    Builds a symbolic evaluation context for CodexLang glyphs.
+    """
+    try:
+        adapter = CodexContextAdapter()
+        symbolic_result = adapter.evaluate(f"⟦ adapt : {content} ⟧")
+        return {
+            "source": source,
+            "adapted": symbolic_result,
+            "timestamp": time.time(),
+            "meta": {
+                "entropy": symbolic_key_deriver._get_entropy(),
+                "adapter": adapter.__class__.__name__,
+            }
+        }
+    except Exception as e:
+        logger.error(f"[CodexContextAdapter] adapt_codex_context failed: {e}")
+        return {
+            "source": source,
+            "adapted": content,
+            "error": str(e),
+            "timestamp": time.time(),
+        }

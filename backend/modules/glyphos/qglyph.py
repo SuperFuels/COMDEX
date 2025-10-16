@@ -44,3 +44,39 @@ def normalize_glyph(glyph: str) -> str:
     if not glyph.endswith("]"):
         glyph = glyph + "]"
     return glyph
+
+# ────────────────────────────────────────────────────────────────
+# 🧩 QGlyph Logic Preloader
+# ────────────────────────────────────────────────────────────────
+
+def preload_qglyph_logic(verbose: bool = True) -> dict:
+    """
+    Preloads QGlyph resonance tables, normalization rules, and quantum operator stubs
+    used by Codex and QQC runtime.
+
+    This function is called at Codex boot to ensure QGlyph-related symbolic mappings
+    (⊕, ↔, ⟲, etc.) are registered and ready for quantum-glyph resolution.
+
+    Returns:
+        A dictionary of registered symbolic/quantum operators for reference.
+    """
+
+    qglyph_registry = {
+        "superposition_resolver": resolve_qglyph_superposition,
+        "normalize": normalize_glyph,
+        "operators": {
+            "⊕": "superpose",
+            "↔": "entangle",
+            "⟲": "resonate",
+            "∇": "collapse",
+            "μ": "measure",
+        },
+        "initialized": True,
+    }
+
+    if verbose:
+        print("⚛️  QGlyph logic preloaded — symbolic quantum primitives available:")
+        for sym, name in qglyph_registry["operators"].items():
+            print(f"   • {sym}  → {name}")
+
+    return qglyph_registry
