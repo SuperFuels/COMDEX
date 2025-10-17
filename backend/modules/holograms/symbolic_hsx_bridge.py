@@ -15,6 +15,13 @@ from backend.modules.holograms.ghx_packet_validator import GHXPacketValidator
 from backend.modules.glyphnet.glyphnet_ws import broadcast_ghx_overlay
 from backend.modules.holograms.morphic_ledger import morphic_ledger
 
+# ✅ WebSocket HUD import
+try:
+    from backend.modules.codex.codex_websocket_interface import send_codex_ws_event
+except Exception:
+    def send_codex_ws_event(event_type: str, payload: dict):
+        print(f"[Fallback HUD] {event_type} → {payload}")
+
 logger = logging.getLogger(__name__)
 
 
@@ -44,7 +51,10 @@ class SymbolicHSXBridge:
                 "signature": self.identity.get("signature", str(uuid.uuid4()))
             })
 
-        logger.debug(f"[SymbolicHSXBridge] Injected identity trails for {len(self.ghx_packet.get('nodes', []))} nodes.")
+        logger.debug(
+            f"[SymbolicHSXBridge] Injected identity trails for "
+            f"{len(self.ghx_packet.get('nodes', []))} nodes."
+        )
         return self.ghx_packet
 
     # ──────────────────────────────────────────────
@@ -97,7 +107,10 @@ class SymbolicHSXBridge:
             logger.info(f"[SymbolicHSXBridge] Computed semantic κₛ={κs:.4f}")
         else:
             κs = 0.0
-            logger.warning("[SymbolicHSXBridge] No weights available for semantic curvature computation.")
+            var_w, mean_w, mean_entropy = 0.0, 0.0, 0.0
+            logger.warning(
+                "[SymbolicHSXBridge] No weights available for semantic curvature computation."
+            )
 
         # Write summary into Morphic Ledger
         morphic_ledger.append({
@@ -110,7 +123,60 @@ class SymbolicHSXBridge:
             "metadata": {"origin": "SymbolicHSXBridge"},
         }, observer=self.avatar_id)
 
+        # 🧠 Compute semantic gravity map and broadcast
+        gravity_map = self.compute_semantic_gravity()
+        try:
+            send_codex_ws_event("semantic_gravity_update", gravity_map)
+        except Exception as e:
+            logger.warning(f"[SymbolicHSXBridge] WS gravity broadcast failed: {e}")
+
         return results
+
+    # ──────────────────────────────────────────────
+    #  Semantic Gravity Computation (HQCE Stage 5)
+    # ──────────────────────────────────────────────
+    def compute_semantic_gravity(self) -> Dict[str, any]:
+        """
+        Compute local semantic gravity wells for visualization.
+        Returns dict: { 'clusters': [...], 'field_strength': float }
+        """
+        nodes = self.ghx_packet.get("nodes", [])
+        if not nodes:
+            return {"clusters": [], "field_strength": 0.0}
+
+        clusters = []
+        for node in nodes:
+            κs = node.get("semantic_kappa", 0.0)
+            w = node.get("symbolic_weight", 0.0)
+            entropy = node.get("entropy", 0.0)
+            cluster_strength = (w * (1 - entropy)) * (1 + κs)
+            clusters.append({
+                "glyph_id": node.get("glyph_id"),
+                "symbol": node.get("symbol"),
+                "gravity_strength": round(cluster_strength, 4),
+                "semantic_kappa": κs,
+                "weight": w,
+                "entropy": entropy,
+            })
+
+        # Normalize gravity strengths
+        total_strength = sum(c["gravity_strength"] for c in clusters)
+        for c in clusters:
+            c["gravity_strength"] = c["gravity_strength"] / max(total_strength, 1e-9)
+
+        field_strength = round(sum(c["gravity_strength"] for c in clusters) / len(clusters), 5)
+        gravity_map = {
+            "timestamp": datetime.utcnow().isoformat(),
+            "avatar": self.avatar_id,
+            "clusters": clusters,
+            "field_strength": field_strength,
+        }
+
+        logger.debug(
+            f"[SymbolicHSXBridge] Semantic gravity computed for {len(clusters)} nodes "
+            f"(field_strength={field_strength:.4f})"
+        )
+        return gravity_map
 
     # ──────────────────────────────────────────────
     #  Broadcast to GHX overlay clients

@@ -98,7 +98,7 @@ async def startup_event():
             logger.info("[startup] Tesseract HQ ensured (tesseract_hq).")
         except Exception as e:
             logger.warning(f"[startup] Failed to ensure Tesseract HQ: {e}")
-            # ✅ Seed pattern registry once at startup
+        # ✅ Seed pattern registry once at startup
         try:
             from backend.modules.patterns.seed_patterns import seed_builtin_patterns
             seed_builtin_patterns()
@@ -126,6 +126,60 @@ async def startup_event():
         boot()
     except Exception as e:
         logger.warning(f"boot() failed: {e}")
+
+    # ── Initialize Tessaris Quantum Quad Core + HQCE
+    try:
+        from backend.QQC.qqc_central_kernel import QuantumQuadCore
+        from backend.modules.holograms.morphic_ledger import morphic_ledger
+        global qqc_kernel
+        qqc_kernel = QuantumQuadCore(container_id="hqce_main_runtime")
+        logger.info("[HQCE] QuantumQuadCore initialized for main runtime.")
+        morphic_ledger.append(
+            {"psi": 0.0, "kappa": 0.0, "T": 0.0, "coherence": 0.0},
+            observer="startup"
+        )
+        logger.info("[HQCE] Morphic Ledger initialized and ready.")
+    except Exception as e:
+        logger.warning(f"[HQCE] Initialization failed: {e}")
+        qqc_kernel = None
+
+    # ── Initialize Tessaris runtime
+    try:
+        from backend.modules.tessaris.tessaris_runtime import TessarisRuntime
+        global tessaris_runtime
+        tessaris_runtime = TessarisRuntime()
+        logger.info("[HQCE] TessarisRuntime initialized.")
+    except Exception as e:
+        logger.warning(f"[HQCE] Tessaris runtime failed to initialize: {e}")
+        tessaris_runtime = None
+
+    # ── Start Symbolic–Holographic Convergence Engine (ψ–κ–T Learning Loop)
+    try:
+        from backend.modules.holograms.convergence_engine import ConvergenceEngine
+        if qqc_kernel and tessaris_runtime:
+            convergence_engine = ConvergenceEngine(qqc_kernel, tessaris_runtime)
+            asyncio.create_task(convergence_engine.run())
+            logger.info("[HQCE] ConvergenceEngine started (ψ–κ–T loop).")
+        else:
+            logger.warning("[HQCE] ConvergenceEngine skipped: dependencies missing.")
+    except Exception as e:
+        logger.warning(f"[HQCE] Failed to start ConvergenceEngine: {e}")
+
+    # ── Initialize QuantumMorphicRuntime (ψ–κ–T Field Regulation)
+    try:
+        from backend.modules.holograms.quantum_morphic_runtime import QuantumMorphicRuntime
+
+        # Example GHX packet + avatar placeholder — will be replaced by live feed later
+        ghx_packet = {"container_id": "hqce_main_runtime", "phase": "init"}
+        avatar_state = {"id": "AION_CORE", "state": "boot"}
+
+        qmr = QuantumMorphicRuntime(ghx_packet, avatar_state)
+        qmr_state = qmr.run()
+
+        logger.info("[HQCE] QuantumMorphicRuntime executed successfully.")
+        logger.debug(f"[HQCE] ψ–κ–T snapshot → {qmr_state.get('psi_kappa_T')}")
+    except Exception as e:
+        logger.warning(f"[HQCE] QuantumMorphicRuntime failed to initialize: {e}")
 
 # ── Routers
 from backend.routes.auth import router as auth_router

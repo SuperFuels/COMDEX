@@ -32,6 +32,7 @@ from backend.modules.skills.voice_interface import VoiceInterface
 from backend.modules.hexcore.dispatcher import CognitiveDispatcher as SystemDispatcher
 from backend.modules.hexcore.cognitive_dispatcher import CognitiveDispatcher as CognitiveDispatcher
 from backend.modules.llm.classifier import LLMClassifier
+from backend.modules.cognitive_fabric.cognitive_fabric_adapter import CFA
 
 # ✅ Environment / Config
 load_dotenv()
@@ -166,6 +167,29 @@ class HexCore:
 
         self.memory.append(entry)
         self.save_memory()
+
+        # 🔶 Cognitive Fabric Commit — record conscious cycle to global fabric
+        try:
+            CFA.commit(
+                source="AION",
+                intent="synthesize_field_equilibrium",
+                payload={
+                    "ψ": psi,
+                    "κ": kappa,
+                    "T": T,
+                    "C": coherence,
+                    "Φ": phi,
+                    "ΔΦ": dphi,
+                    "S_self": s_self,
+                    "awareness": self.self_awareness,
+                    "emotion": self.emotion_state,
+                    "decision": decision,
+                },
+                domain="symatics/consciousness_cycle",
+                tags=["reflection", "awareness", "Φ", "AION", "HexCore"],
+            )
+        except Exception as e:
+            logger.warning(f"[HexCore] CFA commit failed: {e}")
 
         # 7️⃣ Action Switch (route through system-level dispatcher)
         await self._handle_action(input_str, decision)

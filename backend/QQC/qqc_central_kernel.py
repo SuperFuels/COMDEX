@@ -48,6 +48,7 @@ from backend.QQC.qqc_commit_manager import QQCCommitManager
 from backend.QQC.qqc_repair_manager import QQCRepairManager
 from backend.modules.holograms.sle_lightwave_bridge import SLELightWaveBridge
 from backend.modules.symbolic.hst.hst_websocket_streamer import broadcast_replay_paths
+from backend.modules.cognitive_fabric.cognitive_fabric_adapter import CFA
 
 logger = logging.getLogger(__name__)
 
@@ -223,6 +224,24 @@ class QuantumQuadCore:
                 )
             except Exception as e:
                 logger.warning(f"[QQC] Φ metrics unavailable or failed: {e}")
+
+            # 🔶 Cognitive Fabric Commit — push state to KG + UCS + Ledger
+            try:
+                CFA.commit(
+                    source="QQC",
+                    intent="quantum_field_collapse",
+                    payload={
+                        "ψ": summary["field_signature"]["ψ"],
+                        "κ": summary["field_signature"]["κ"],
+                        "T": summary["field_signature"]["T"],
+                        "Φ": summary.get("phi"),
+                        "glyph_type": "quantum_cycle"
+                    },
+                    domain="symatics/quantum_field",
+                    tags=["collapse", "resonance", "ψκTΦ"],
+                )
+            except Exception as e:
+                logger.warning(f"[QQC] Cognitive Fabric commit failed: {e}")
 
             # 🔗 Morphic Ledger integration
             try:

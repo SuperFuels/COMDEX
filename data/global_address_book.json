@@ -160,5 +160,14 @@
     "meta": {
       "address": "ucs://local/Container-atom_electrons_test#container"
     }
+  },
+  "5b548bd2-d226-4351-a42f-38b3844b6574": {
+    "id": "5b548bd2-d226-4351-a42f-38b3844b6574",
+    "name": "EXO-5b548bd2-d226-4351-a42f-38b3844b6574",
+    "geometry": "Black Hole Compression Core",
+    "type": "exotic_container",
+    "meta": {
+      "address": "ucs://local/5b548bd2-d226-4351-a42f-38b3844b6574#container"
+    }
   }
 }

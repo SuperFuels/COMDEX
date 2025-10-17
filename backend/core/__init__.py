@@ -1,0 +1,1 @@
+from backend.modules.cognitive_fabric.cognitive_fabric_adapter import CFA

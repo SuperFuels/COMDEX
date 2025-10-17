@@ -13,6 +13,7 @@ import uuid
 import logging
 import statistics
 from typing import Dict, Any, Optional, List
+from backend.modules.cognitive_fabric.cognitive_fabric_adapter import CFA
 
 logger = logging.getLogger(__name__)
 
@@ -31,14 +32,25 @@ class MorphicLedger:
         os.makedirs(self.base_path, exist_ok=True)
         self.ledger_path = os.path.join(self.base_path, f"{self.session_id}.jsonl")
 
-        # SQLite mode placeholder (future Stage 9)
+        # ── SQLite mode (optional Stage 9+ integration)
         self._db_conn = None
         if self.use_sqlite:
             try:
                 import sqlite3
-                self._db_conn = sqlite3.connect(os.path.join(self.base_path, "morphic_ledger.db"))
+                db_path = os.path.join(self.base_path, "morphic_ledger.db")
+                self._db_conn = sqlite3.connect(db_path)
                 self._init_sqlite()
-                logger.info("[MorphicLedger] Initialized SQLite ledger backend.")
+
+                # Ensure new 'link' column exists for graph associations
+                cur = self._db_conn.cursor()
+                cur.execute("""
+                    ALTER TABLE morphic_records ADD COLUMN link TEXT
+                """)
+                self._db_conn.commit()
+                logger.info("[MorphicLedger] Initialized SQLite ledger backend with link column.")
+            except sqlite3.OperationalError:
+                # Column may already exist — safe to continue
+                logger.info("[MorphicLedger] SQLite ledger already has 'link' column.")
             except Exception as e:
                 logger.warning(f"[MorphicLedger] SQLite unavailable: {e}. Falling back to JSONL.")
 
@@ -48,9 +60,6 @@ class MorphicLedger:
     #  JSONL Append Path
     # ──────────────────────────────────────────────
     def append(self, tensor_data: Dict[str, Any], observer: Optional[str] = None) -> None:
-        """
-        Append a tensor record (ψ, κ, T, C, stability) with metadata.
-        """
         record = {
             "id": f"entry_{uuid.uuid4().hex[:10]}",
             "timestamp": time.time(),
@@ -64,6 +73,7 @@ class MorphicLedger:
                 "stability": tensor_data.get("stability", 0.0),
             },
             "meta": tensor_data.get("metadata", {}),
+            "link": tensor_data.get("link"),
         }
 
         try:
@@ -73,6 +83,28 @@ class MorphicLedger:
                 f"[MorphicLedger] + Appended ψ={record['tensor']['psi']:.3f} "
                 f"κ={record['tensor']['kappa']:.3f} C={record['tensor']['coherence']:.3f}"
             )
+
+            # 🔶 Cognitive Fabric Commit → push state to Knowledge Graph / UCS
+            try:
+                CFA.commit(
+                    source="MORPHIC_LEDGER",
+                    intent="record_field_state",
+                    payload={
+                        "ψ": record["tensor"]["psi"],
+                        "κ": record["tensor"]["kappa"],
+                        "T": record["tensor"]["T"],
+                        "C": record["tensor"]["coherence"],
+                        "gradient": record["tensor"]["gradient"],
+                        "stability": record["tensor"]["stability"],
+                        "meta": record.get("meta", {}),
+                        "link": record.get("link"),
+                    },
+                    domain="symatics/morphic_field",
+                    tags=["ledger", "ψκTC", "morphic", "state", "record"],
+                )
+            except Exception as e:
+                logger.warning(f"[MorphicLedger] CFA commit failed: {e}")
+
         except Exception as e:
             logger.error(f"[MorphicLedger] Failed to append record: {e}")
 
@@ -140,6 +172,17 @@ class MorphicLedger:
         entries = self.load_all()
         return entries[-1] if entries else None
 
+    def latest_metrics(self):
+        """Return minimal telemetry dict for UI streaming."""
+        e = self.query_latest()
+        if not e:
+            return {}
+        t = e["tensor"]
+        return {
+            "ψ": t["psi"], "κ": t["kappa"], "T": t["T"], "C": t["coherence"],
+            "timestamp": e["timestamp"], "observer": e["observer"]
+        }
+
     # ──────────────────────────────────────────────
     #  Trend & Summary Analysis
     # ──────────────────────────────────────────────
@@ -186,6 +229,22 @@ class MorphicLedger:
         except Exception as e:
             logger.error(f"[MorphicLedger] Export failed: {e}")
             return ""
+
+    # ──────────────────────────────────────────────
+    #  Knowledge-Graph Integration (Stage 12 → 13)
+    # ──────────────────────────────────────────────
+    def link_to_graph(self, node_id: str, relation: str = "origin") -> None:
+        """Attach last record to a knowledge-graph node."""
+        latest = self.query_latest()
+        if not latest:
+            return
+        latest["link"] = {"node_id": node_id, "relation": relation}
+        try:
+            with open(self.ledger_path, "a", encoding="utf-8") as f:
+                f.write(json.dumps({"update_link": latest["id"], "node_id": node_id}) + "\n")
+            logger.debug(f"[MorphicLedger] Linked {latest['id']} → {node_id}")
+        except Exception as e:
+            logger.warning(f"[MorphicLedger] Link write failed: {e}")
 
 # ──────────────────────────────────────────────
 #  Singleton instance (used by HQCE runtime)

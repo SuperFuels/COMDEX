@@ -48,6 +48,15 @@ def map_coherence_to_color(value: float) -> str:
         return f"rgb({int(255)}, {g}, {int(100 + 155 * value)})"
 
 
+def compute_gradient_map(coherence: float) -> Dict[str, Any]:
+    """Optional minor visualization gradient."""
+    hue_shift = int(240 * coherence)
+    return {
+        "start": f"hsl({hue_shift}, 80%, 40%)",
+        "end": f"hsl({(hue_shift + 40) % 360}, 90%, 70%)"
+    }
+
+
 # ──────────────────────────────────────────────
 #  Core Holographic Renderer
 # ──────────────────────────────────────────────
@@ -59,6 +68,7 @@ class HolographicRenderer:
         self.lazy_mode = lazy_mode
         self.rendered_projection: List[Dict] = []
         self.links: List[Dict] = []
+        self.field_coherence_map: Dict[str, float] = {}  # 🧭 HQCE Stage 4 addition
 
     # ────────────────────────────────────────────
     #  Render GHX Projection
@@ -74,10 +84,8 @@ class HolographicRenderer:
 
         for glyph in glyphs:
             if not self._is_visible_to_observer(glyph):
-                logger.debug(f"Glyph {glyph.get('id')} hidden from observer {self.observer_id}")
                 continue
             if self.lazy_mode and not self._is_in_view(glyph):
-                logger.debug(f"Glyph {glyph.get('id')} skipped for lazy mode (out of view)")
                 continue
 
             gid = glyph.get("id")
@@ -94,16 +102,26 @@ class HolographicRenderer:
             goal = glyph.get("goal_alignment_score", 0.5)
             entropy = glyph.get("entropy_score", 0.5)
             coherence = 1.0 - abs(entropy - goal)
+            self.field_coherence_map[gid] = coherence
             color = map_coherence_to_color(coherence)
+
+            # Halo packet for HUD rendering
+            halo = {
+                "radius": 2.0 + 3.0 * coherence,
+                "intensity": coherence,
+                "color": color,
+                "gradient": compute_gradient_map(coherence)
+            }
 
             light_packet = {
                 "glyph_id": gid,
                 "symbol": symbol,
                 "label": label,
                 "light_intensity": self._calc_light_intensity(symbol),
-                "color": color,  # dynamically coherence-based
+                "color": color,
                 "animation": "pulse",
                 "position": position,
+                "halo": halo,
                 "entangled": entangled,
                 "trigger_state": "idle",
                 "collapse_trace": symbol in ("⧖", "⬁"),
@@ -128,6 +146,17 @@ class HolographicRenderer:
 
         self.rendered_projection = projection
 
+        # ✅ WebSocket broadcast of coherence summary
+        try:
+            coherence_summary = {
+                "mean_coherence": round(sum(self.field_coherence_map.values()) / max(1, len(self.field_coherence_map)), 4),
+                "glyph_count": len(self.field_coherence_map),
+                "timestamp": datetime.utcnow().isoformat()
+            }
+            send_codex_ws_event("coherence_update", coherence_summary)
+        except Exception as e:
+            logger.warning(f"[HUD] Coherence update broadcast failed: {e}")
+
         # ✅ CodexLang HUD stream (after projection render)
         try:
             send_codex_ws_event("hud_ghx_projection", {
@@ -144,7 +173,7 @@ class HolographicRenderer:
 
         # Optional HSX broadcast
         try:
-            from backend.modules.hologram.symbolic_hsx_bridge import SymbolicHSXBridge
+            from backend.modules.holograms.symbolic_hsx_bridge import SymbolicHSXBridge
             SymbolicHSXBridge.broadcast_glyphs(projection, observer=self.observer_id)
         except Exception:
             logger.warning("HSXBridge not available, skipping overlay broadcast.")
@@ -158,17 +187,15 @@ class HolographicRenderer:
         access = glyph.get("access_control", {})
         allowed = access.get("allowed_observers", [])
         gate = access.get("entropy_gate", "")
-
         if allowed and self.observer_id in allowed:
             return True
         if gate and self.observer_hash == gate:
             return True
-        if not allowed and not gate:
-            return True
-        return False
+        return not (allowed or gate)
 
     def _is_in_view(self, glyph: Dict[str, Any]) -> bool:
-        return False  # Set True manually to test eager expansion
+        """Spatial culling for lazy_mode."""
+        return True  # TODO: implement real FoV filter later
 
     # ────────────────────────────────────────────
     #  Interactive and Utility Methods
@@ -210,6 +237,7 @@ class HolographicRenderer:
             "dimensions": self.ghx.get("dimensions", 4),
             "nodes": self.rendered_projection,
             "links": self.links,
+            "field_coherence_map": self.field_coherence_map,
             "metadata": {
                 "version": self.ghx.get("ghx_version", "1.0"),
                 "replay_enabled": self.ghx.get("replay_enabled", False),

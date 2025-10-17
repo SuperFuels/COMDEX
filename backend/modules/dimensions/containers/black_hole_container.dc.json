@@ -1,0 +1,14 @@
+{
+  "name": "Black Hole Compression Core",
+  "symbol": "🪐",
+  "geometry_type": "black_hole",
+  "description": "Simulates high-density compression fields for symbolic energy concentration.",
+  "sqi_hooks": {
+    "compress": ["glyph_density_boost", "entropy_sink"]
+  },
+  "properties": {
+    "compression_level": "stellar-core",
+    "entropy_mode": "sink"
+  },
+  "linked_next": "torus.dc.json"
+}

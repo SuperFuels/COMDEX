@@ -1,14 +1,8 @@
-"""
-🟣 GHX Visual Bridge — SRK-18 + SRK-20 Unified
-Live visualization layer connecting ResonanceLedger → GHX/QFC overlays,
-now extended with GWV replay capability.
-
-Features:
- • Converts active resonance links → GHX node/edge schema
- • Maps coherence to color hue; Lyapunov stability → overall brightness
- • Streams frames to QFC overlay via WebSocket (if available)
- • Supports playback of recorded .gwv sequences via ReplayController
-"""
+# ──────────────────────────────────────────────
+#  Tessaris • GHX WebSocket Bridge (HQCE Stage 13)
+#  Live ψ–κ–T, Φ–coherence, and semantic gravity stream bridge
+#  Unifies ResonanceLedger → GHX/QFC overlays + GWV replay
+# ──────────────────────────────────────────────
 
 import asyncio
 import time
@@ -18,18 +12,24 @@ from typing import Dict, Any, List, Optional
 from backend.modules.photon.resonance.resonance_ledger import ResonanceLedger
 from backend.modules.websocket_manager import broadcast_event
 from backend.modules.glyphwave.emit_gwave_replay import ReplayController
+from backend.modules.holograms.morphic_ledger import morphic_ledger
+
+# ✅ CodexLang HUD event bridge
+try:
+    from backend.modules.codex.codex_websocket_interface import send_codex_ws_event
+except Exception:
+    async def send_codex_ws_event(event_type: str, payload: dict):
+        print(f"[Fallback HUD] {event_type} → {payload}")
 
 
-# ---------------------------------------------------------------------------
-# Internal helpers
-# ---------------------------------------------------------------------------
-
+# ──────────────────────────────────────────────
+#  Color mapping helper
+# ──────────────────────────────────────────────
 def _coherence_to_color(coherence: float) -> Dict[str, Any]:
     """Map coherence [0,1] → HSL color, RGB tuple, and alpha channel."""
     c = max(0.0, min(1.0, coherence))
     hue = 270 * (1 - c)            # violet → white hue gradient
     val = 80 + int(c * 120)        # brightness range
-    # Rough RGB approximation based on coherence intensity
     rgb = [
         round(255 * c),            # R
         round(180 + 75 * c),       # G
@@ -38,36 +38,40 @@ def _coherence_to_color(coherence: float) -> Dict[str, Any]:
     return {
         "hsl": f"hsl({hue:.0f}, 80%, {val}%)",
         "rgb": rgb,
-        "alpha": round(0.5 + 0.5 * c, 2),  # semi-transparent at low coherence
+        "alpha": round(0.5 + 0.5 * c, 2),
     }
 
-# ---------------------------------------------------------------------------
-# GHX ↔ Visualization Bridge
-# ---------------------------------------------------------------------------
 
+# ──────────────────────────────────────────────
+#  GHX ↔ Visualization Bridge
+# ──────────────────────────────────────────────
 class GHXVisualBridge:
-    """Synchronizes a ResonanceLedger’s state into GHX visual frames."""
+    """Synchronizes ResonanceLedger + MorphicTelemetry into GHX visual frames."""
 
     def __init__(self, ledger: ResonanceLedger):
         self.ledger = ledger
         self.frame_index = 0
         self._replay_controller: Optional[ReplayController] = None
         self._last_ingested_frame: Optional[Dict[str, Any]] = None
+        self._last_semantic_gravity: Optional[Dict[str, Any]] = None
 
-    # -----------------------------------------------------------------------
-    # Live frame generation
-    # -----------------------------------------------------------------------
-
+    # ────────────────────────────────────────────
+    #  Frame Construction
+    # ────────────────────────────────────────────
     async def build_frame(self) -> Dict[str, Any]:
-        """Create a single GHX frame from current ledger state."""
+        """Create GHX frame enriched with ψ–κ–T + gravity overlays."""
         links = self.ledger.active_links()
         stability = await self.ledger.compute_lyapunov_stability()
 
-        nodes = {}
-        edges: List[Dict[str, Any]] = []
+        # Fetch latest ψ–κ–T snapshot from Morphic Ledger if available
+        latest_entry = morphic_ledger.latest_metrics() if hasattr(morphic_ledger, "latest_metrics") else {}
+        psi = latest_entry.get("ψ", 0.0)
+        kappa = latest_entry.get("κ", 0.0)
+        coherence = latest_entry.get("C", 0.0)
 
+        nodes, edges = {}, []
         for a, b, data in links:
-            color = _coherence_to_color(data.get("coherence", 1.0))
+            color = _coherence_to_color(data.get("coherence", coherence or 1.0))
             edges.append({
                 "source": a,
                 "target": b,
@@ -79,44 +83,82 @@ class GHXVisualBridge:
             nodes[b] = {"id": b, "color": color}
 
         self.frame_index += 1
-        return {
+        frame = {
             "type": "ghx_frame",
             "timestamp": time.time(),
             "frame_index": self.frame_index,
             "stability": stability,
             "node_count": len(nodes),
             "edge_count": len(edges),
+            "psi_kappa_T": {"ψ": psi, "κ": kappa, "C": coherence},
             "nodes": list(nodes.values()),
             "edges": edges,
         }
 
+        return frame
+
+    # ────────────────────────────────────────────
+    #  Broadcast (GHX + HUD)
+    # ────────────────────────────────────────────
     async def broadcast_frame(self):
-        """Emit GHX frame to QFC overlay websocket channel."""
+        """Emit GHX frame to QFC overlay and CodexLang HUD."""
         frame = await self.build_frame()
+
         try:
+            # Primary WebSocket broadcast (internal overlay)
             await broadcast_event({
                 "type": "ghx_resonance_update",
                 "data": frame,
             })
+
+            # HUD broadcast (CodexLang protocol)
+            await send_codex_ws_event("hqce_frame_update", {
+                "ψκT": frame.get("psi_kappa_T"),
+                "stability": frame.get("stability"),
+                "node_count": frame.get("node_count"),
+                "timestamp": frame.get("timestamp"),
+            })
+
+            # Semantic gravity stream (if available)
+            if self._last_semantic_gravity:
+                await send_codex_ws_event("semantic_gravity_update", self._last_semantic_gravity)
+
             return {"status": "broadcast", "count": frame["edge_count"]}
         except Exception as e:
             return {"status": "failed", "error": str(e)}
 
+    # ────────────────────────────────────────────
+    #  Live Loop (Adaptive)
+    # ────────────────────────────────────────────
     async def live_loop(self, interval: float = 1.0):
-        """Continuously stream GHX frames at fixed intervals."""
-        print(f"[GHX] Live visualization loop started @ {interval}s intervals")
+        """Continuously stream GHX frames; adapt tick rate to stability."""
+        print(f"[GHXVisualBridge] Live visualization loop started @ {interval}s intervals")
         while True:
+            frame = await self.build_frame()
+            stability = frame.get("stability", 1.0)
+            dynamic_interval = max(0.2, interval * (1.0 + 0.5 * abs(1 - stability)))
             await self.broadcast_frame()
-            await asyncio.sleep(interval)
+            await asyncio.sleep(dynamic_interval)
 
-    # -----------------------------------------------------------------------
-    # Replay integration (GWV ↔ GHX bridge)
-    # -----------------------------------------------------------------------
+    # ────────────────────────────────────────────
+    #  Semantic Gravity Ingestion
+    # ────────────────────────────────────────────
+    def ingest_semantic_gravity(self, gravity_map: Dict[str, Any]):
+        """Accept external semantic gravity deltas (from SymbolicHSXBridge)."""
+        self._last_semantic_gravity = gravity_map
 
+    # ────────────────────────────────────────────
+    #  Replay integration (GWV ↔ GHX bridge)
+    # ────────────────────────────────────────────
     async def ingest_frame(self, frame: Dict[str, Any]):
         """Accept frame data during GWV replay for visualization."""
         self._last_ingested_frame = frame
-        # Future: hook into QFC overlay or analysis system here
+        # Future: feed into Codex replay analytics
+        await send_codex_ws_event("ghx_replay_ingest", {
+            "frame_index": frame.get("frame_index"),
+            "timestamp": frame.get("timestamp"),
+            "stability": frame.get("stability"),
+        })
 
     async def start_replay(self, gwv_path: str, delay: float = 0.1, loop: bool = False):
         """Initialize GWave replay controller and start playback."""
