@@ -48,6 +48,9 @@ class CognitiveFabricAdapter:
         self.logger = logging.getLogger("CognitiveFabric")
         self.enabled = True
 
+        # 🧩 Add commit history buffer for test visibility
+        self._commit_history: List[Dict[str, Any]] = []
+
     # ─────────────────────────────────────────────────────────────
     # 🔶 Core commit method
     # ─────────────────────────────────────────────────────────────
@@ -161,12 +164,31 @@ class CognitiveFabricAdapter:
             except Exception as e:
                 self.logger.warning(f"[CFA] SQI publish failed: {e}")
 
+            # ✅ Record commit in local memory (for testing)
+            self._commit_history.append(event_packet)
+            if len(self._commit_history) > 1000:
+                self._commit_history.pop(0)
+
             self.logger.info(f"[CFA] ✅ Commit: {intent} ({domain})")
             return {"ok": True, "container": cid, "intent": intent, "timestamp": timestamp}
 
         except Exception as e:
             self.logger.error(f"[CFA] ❌ Commit failed: {e}", exc_info=True)
             return {"ok": False, "error": str(e)}
+
+    # ─────────────────────────────────────────────────────────────
+    # 🔍 Test / Debug Utility
+    # ─────────────────────────────────────────────────────────────
+    @classmethod
+    def peek_last_commit(cls) -> Optional[Dict[str, Any]]:
+        """
+        Return the most recent CFA commit (for test inspection).
+        Safe for both runtime and pytest environments.
+        """
+        instance = globals().get("CFA")
+        if instance and hasattr(instance, "_commit_history") and instance._commit_history:
+            return instance._commit_history[-1]
+        return None
 
 
 # ────────────────────────────────────────────────────────────────

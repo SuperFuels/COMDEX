@@ -8,7 +8,15 @@ import os
 import requests
 from pathlib import Path
 from dotenv import load_dotenv
-from google.cloud import storage
+
+# Attempt Google Cloud import (optional for local/dev)
+try:
+    from google.cloud import storage
+    GCS_AVAILABLE = True
+except ModuleNotFoundError:
+    storage = None
+    GCS_AVAILABLE = False
+    print("⚠️ [VoiceInterface] Google Cloud Storage not installed — running in local-only mode.")
 
 # ✅ DNA Switch
 from backend.modules.dna_chain.switchboard import DNA_SWITCH

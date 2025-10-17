@@ -1642,5 +1642,15 @@
     "label": "qglyph_collapse",
     "content": "{\"type\": \"qglyph_collapse\", \"data\": {\"glyph_id\": \"[\u269b:0 \u2194 1]\", \"choice\": \"[\u269b:1]\", \"scores\": {\"left\": 0.9801128262820937, \"right\": 0.9801128262820937, \"bias\": 0.5}, \"context\": {\"origin\": \"test_container\"}}}",
     "timestamp": "2025-10-16T10:24:43.186370"
+  },
+  {
+    "label": "container:aion_start",
+    "content": "[\ud83d\udce6] Container metadata\nContainer ID: aion_start\nName: AION Startup Zone\nDescription: Boot sequence container for AION's consciousness cycle.\nOrigin: \nCreated On: 2025-07-09T00:00:00Z\nContainer Type: generic\nTotal Cubes: 0\nMutations: 0\nConnections: None\nDNA Switch: none (undefined)",
+    "timestamp": "2025-10-17T18:01:49.788149"
+  },
+  {
+    "label": "container:aion_start",
+    "content": "[\ud83d\udce6] Container AION Startup Zone activated.",
+    "timestamp": "2025-10-17T18:01:49.956753"
   }
 ]

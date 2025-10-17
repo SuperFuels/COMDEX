@@ -86,6 +86,12 @@ direction TB
   SC3[✅ Hello-Entangle (↔ correlated readouts match symbolic law)]
   SC4[✅ πₛ closure validator reports stable resonance loop]
 end
+FROM HOLOGRAM TASK LIST MOVED TO HERE
+      ("Stage 16 — Semantic–Visual Coupling (Next Phase) 🌈")
+      ("🔜 Integrate SymbolicHSXBridge overlays into HST nodes (goal alignment, entropy drift, semantic curvature)")
+      ("🔜 Extend HolographicRenderer to render replay halos + semantic overlays in GHX HUD")
+      ("🔜 Expand Morphic Ledger for per-tick ψ–κ–T + coherence persistence")
+      ("🎯 Transition to QQC Resonance Computer build (Aion Layer coupling)")
 
 A --> B --> C --> D --> E --> SC
 

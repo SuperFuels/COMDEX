@@ -1290,5 +1290,96 @@
     "message": "Teleported to container: maxwell_core",
     "success": true,
     "timestamp": "2025-10-16T21:14:01.285342"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: aion_start",
+    "success": true,
+    "timestamp": "2025-10-17T18:01:50.109392"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: aion_start",
+    "success": true,
+    "timestamp": "2025-10-17T18:03:29.263718"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: aion_start",
+    "success": true,
+    "timestamp": "2025-10-17T18:04:49.045476"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: aion_start",
+    "success": true,
+    "timestamp": "2025-10-17T18:05:56.142844"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: aion_start",
+    "success": true,
+    "timestamp": "2025-10-17T18:07:30.764733"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: aion_start",
+    "success": true,
+    "timestamp": "2025-10-17T18:19:34.187305"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: aion_start",
+    "success": true,
+    "timestamp": "2025-10-17T18:21:58.617857"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: aion_start",
+    "success": true,
+    "timestamp": "2025-10-17T18:23:54.526761"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: aion_start",
+    "success": true,
+    "timestamp": "2025-10-17T18:26:04.489461"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: aion_start",
+    "success": true,
+    "timestamp": "2025-10-17T18:28:42.624818"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: aion_start",
+    "success": true,
+    "timestamp": "2025-10-17T18:31:49.252774"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: aion_start",
+    "success": true,
+    "timestamp": "2025-10-17T18:34:35.371717"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: aion_start",
+    "success": true,
+    "timestamp": "2025-10-17T18:36:05.805191"
   }
 ]

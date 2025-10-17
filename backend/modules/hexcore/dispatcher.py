@@ -14,7 +14,7 @@ from typing import Any, Dict
 from backend.QQC.qqc_central_kernel import QuantumQuadCore
 from backend.modules.lean.lean_adapter import LeanAdapter
 from backend.modules.knowledge_graph.kg_writer_singleton import get_kg_writer
-from backend.modules.morphic.ledger import MorphicLedger
+from backend.modules.holograms.morphic_ledger import MorphicLedger
 
 # Optional extensions
 try:

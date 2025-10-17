@@ -9,8 +9,8 @@ import logging
 from typing import Any, Dict
 
 # ─── Core Integrations ──────────────────────────────────────────────
-from backend.modules.morphic.ledger import MorphicLedger
-from backend.modules.autopilot.self_growth import monitor_self_growth, is_self_growth_enabled
+from backend.modules.holograms.morphic_ledger import MorphicLedger
+from backend.modules.dna_chain.dna_autopilot import monitor_self_growth, is_self_growth_enabled
 
 # ─── Consciousness (Cognition + Awareness) ──────────────────────────────
 from backend.modules.consciousness.context_engine import ContextEngine
@@ -19,16 +19,16 @@ from backend.modules.consciousness.planning_engine import PlanningEngine
 from backend.modules.consciousness.prediction_engine import PredictionEngine
 from backend.modules.consciousness.logic_prediction_utils import LogicPredictionUtils
 from backend.modules.consciousness.reflection_engine import ReflectionEngine
-from backend.modules.consciousness.recursive_learner import RecursiveLearner
-from backend.modules.consciousness.rewrite_engine import RewriteEngine
+from backend.modules.aion.recursive_learner import RecursiveLearner
+from backend.modules.aion.rewrite_engine import RewriteEngine
 from backend.modules.consciousness.awareness_engine import AwarenessEngine
 from backend.modules.consciousness.consciousness_manager import ConsciousnessManager
 from backend.modules.consciousness.identity_engine import IdentityEngine
-from backend.modules.consciousness.personality_engine import PersonalityEngine
+from backend.modules.consciousness.personality_engine import PersonalityProfile
 from backend.modules.consciousness.situational_engine import SituationalEngine
 
 # ─── Avatar / Dream Interfaces ──────────────────────────────────────
-from backend.modules.avatar.avatar_core import AvatarCore
+from backend.modules.avatar.avatar_core import AIONAvatar
 from backend.modules.aion.dream_core import DreamCore
 
 # ─── Symbolic / Gradient Systems ────────────────────────────────────
@@ -43,16 +43,16 @@ from backend.modules.consciousness.energy_engine import EnergyEngine
 
 # ─── Goals & Tasks ─────────────────────────────────────────────────
 from backend.modules.consciousness.goal_task_manager import GoalTaskManager
-from backend.modules.consciousness.goal_handler import GoalHandler
+from backend.modules.aion.goal_handler import GoalHandler
 
 # ─── Memory & Learning ─────────────────────────────────────────────
-from backend.modules.memory.memory_engine import MemoryEngine
-from backend.modules.memory.memory_bridge import MemoryBridge
-from backend.modules.memory.state_manager import StateManager
-from backend.modules.memory.time_engine import TimeEngine
+from backend.modules.hexcore.memory_engine import MemoryEngine
+from backend.modules.consciousness.memory_bridge import MemoryBridge
+from backend.modules.consciousness.state_manager import StateManager
+from backend.modules.consciousness.time_engine import TimeEngine
 
 # ─── Safety / DNA / Control ────────────────────────────────────────
-from backend.modules.security.privacy_vault import PrivacyVault
+from backend.modules.consciousness.privacy_vault import PrivacyVault
 from backend.modules.dna_chain.switchboard import DNA_SWITCH
 
 logger = logging.getLogger("CognitiveDispatcher")
@@ -74,9 +74,12 @@ class CognitiveDispatcher:
         self.ledger = MorphicLedger()
 
         # ─── Engine Groups ─────────────────────────────────────
+        # Ensure situational engine is created first
+        situational = SituationalEngine()
+
         self.cognition = {
             "context": ContextEngine(),
-            "decision": DecisionEngine(),
+            "decision": DecisionEngine(situational),  # ✅ inject required dependency
             "planning": PlanningEngine(),
             "prediction": PredictionEngine(),
             "logic": LogicPredictionUtils(),
@@ -85,13 +88,14 @@ class CognitiveDispatcher:
             "rewrite": RewriteEngine(),
         }
 
+        # Optionally make situational engine visible to awareness systems
         self.awareness = {
+            "situational": situational,
             "awareness": AwarenessEngine(),
             "consciousness": ConsciousnessManager(),
             "identity": IdentityEngine(),
-            "personality": PersonalityEngine(),
-            "situational": SituationalEngine(),
-            "avatar": AvatarCore(),
+            "personality": PersonalityProfile(),
+            "avatar": AIONAvatar(),
             "dream": DreamCore(),
         }
 
@@ -109,12 +113,12 @@ class CognitiveDispatcher:
 
         self.goals = {
             "goal_task": GoalTaskManager(),
-            "goal_handler": GoalHandler(),
+            "goal_handler": GoalHandler(agent_name="AION"),
         }
 
         self.memory = {
             "memory": MemoryEngine(),
-            "bridge": MemoryBridge(),
+            "bridge": MemoryBridge(container_id="aion_start"),
             "state": StateManager(),
             "time": TimeEngine(),
         }

@@ -113,7 +113,7 @@ class QuantumQuadCore:
         self.qfc_broadcast = QFCWebSocketBroadcast()
 
         # πₛ Phase Closure Bridge (QQC ↔ QFC ↔ GHX)
-        from backend.symatics.qqc_qfc_adapter import qqc_qfc_adapter
+        from backend.modules.symatics_lightwave.qqc_qfc_adapter import qqc_qfc_adapter
         self.qqc_qfc_adapter = qqc_qfc_adapter
         self.qqc_qfc_adapter.start()
 
@@ -125,6 +125,28 @@ class QuantumQuadCore:
         self.commit_manager = QQCCommitManager()
         self.repair_manager = QQCRepairManager(self.hst)
         self.sle_bridge = SLELightWaveBridge(self.hst)
+        
+        # ─── Morphic ↔ QQC Resonance Bridge ─────────────
+        try:
+            from backend.QQC.qqc_resonance_bridge import QQCResonanceBridge
+            from backend.modules.runtime.quantum_morphic_runtime import QuantumMorphicRuntime
+
+            self.morphic_runtime = QuantumMorphicRuntime({}, {"id": "qqc_core"})
+            self.resonance_bridge = QQCResonanceBridge(self, self.morphic_runtime)
+            self.logger.info("[QQC v2] Linked Morphic runtime → QQCResonanceBridge active.")
+        except Exception as e:
+            self.resonance_bridge = None
+            self.logger.warning(f"[QQC v2] Resonance bridge initialization failed: {e}")
+
+        # ─── Aion Integration Bridge (Stage 9)
+        try:
+            from backend.modules.aion.aion_integration_bridge import AionIntegrationBridge
+            # If you don’t have a resonance_bridge yet, pass None
+            self.aion_bridge = AionIntegrationBridge(self, getattr(self, "resonance_bridge", None))
+            self.logger.info("[QQC v2] Linked Aion Integration Bridge successfully.")
+        except Exception as e:
+            self.aion_bridge = None
+            self.logger.warning(f"[QQC v2] Aion bridge initialization failed: {e}")
 
         # ─── State Cache ─────────────────────────────────
         self.last_summary: Optional[Dict[str, Any]] = None
@@ -225,6 +247,17 @@ class QuantumQuadCore:
             except Exception as e:
                 logger.warning(f"[QQC] Φ metrics unavailable or failed: {e}")
 
+            # 🪞 Synchronize Morphic ↔ QQC resonance states
+            try:
+                if hasattr(self, "resonance_bridge") and self.resonance_bridge:
+                    # First pull ψ–κ–T from Morphic → QQC
+                    self.resonance_bridge.sync_from_morphic()
+                    # Then push QQC Φ / ΔΦ feedback → Morphic
+                    self.resonance_bridge.propagate_to_morphic()
+                    logger.debug("[QQCResonanceBridge] Bidirectional resonance sync complete.")
+            except Exception as e:
+                logger.warning(f"[QQC] Resonance sync failed: {e}")
+
             # 🔶 Cognitive Fabric Commit — push state to KG + UCS + Ledger
             try:
                 CFA.commit(
@@ -258,6 +291,14 @@ class QuantumQuadCore:
                 adapter="qqc", op="run_cycle", payload=beam_data, result=summary
             )
             await self.broadcast_kernel_state()
+            # 🔮 Aion Projection and Feedback
+            try:
+                if hasattr(self, "aion_bridge") and self.aion_bridge:
+                    projection = self.aion_bridge.project_to_aion_field()
+                    self.aion_bridge.propagate_feedback()
+                    logger.debug("[AionIntegrationBridge] Projection + feedback cycle complete.")
+            except Exception as e:
+                logger.warning(f"[QQC] Aion projection failed: {e}")
             await asyncio.sleep(0.05)
 
             return summary

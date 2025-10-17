@@ -25,7 +25,7 @@ DNA_SWITCH.register(__file__)
 
 # ✅ Core Systems
 from backend.QQC.qqc_central_kernel import QuantumQuadCore
-from backend.modules.morphic.ledger import MorphicLedger
+from backend.modules.holograms.morphic_ledger import MorphicLedger
 from backend.modules.skills.voice_interface import VoiceInterface
 
 # ✅ Dispatchers
@@ -68,7 +68,7 @@ class HexCore:
 
         # 🧠 Dispatchers — Cognitive + System Layer
         from backend.modules.llm.classifier import LLMClassifier
-        from backend.modules.quantum.quantum_atom_classifier import QuantumAtomClassifier
+        from backend.QQC.quantum_atom_classifier import QuantumAtomClassifier
 
         # Initialize both classifiers (AION uses hybrid mode)
         self.quantum_atom = QuantumAtomClassifier()
@@ -96,7 +96,7 @@ class HexCore:
 
         # 🧬 DNA Autopilot (optional self-growth)
         from backend.modules.dna_chain.dna_autopilot import monitor_self_growth
-        from backend.modules.dna_chain import is_self_growth_enabled
+        from backend.modules.dna_chain.dna_switch import is_self_growth_enabled
 
         if is_self_growth_enabled(self.id):
             asyncio.create_task(monitor_self_growth(self))

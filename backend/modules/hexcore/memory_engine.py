@@ -202,6 +202,24 @@ class MemoryEngine:
     def _content_hash(self, text: str) -> str:
         return self._hashlib.sha256(text.encode("utf-8")).hexdigest()
 
+    # --- compatibility / convenience ------------------------------------------
+    def get_recent(self, limit: int = 50):
+        """
+        Returns most recent memory entries sorted by timestamp descending.
+        """
+        try:
+            if not hasattr(self, "memory"):
+                return []
+            valid = [
+                m for m in self.memory
+                if isinstance(m, dict) and "timestamp" in m
+            ]
+            sorted_mem = sorted(valid, key=lambda x: x["timestamp"], reverse=True)
+            return sorted_mem[:limit]
+        except Exception as e:
+            print(f"⚠️ get_recent() failed: {e}")
+            return []
+
     def _save_hashes(self):
         try:
             with open(self.hashes_file, "w") as f:

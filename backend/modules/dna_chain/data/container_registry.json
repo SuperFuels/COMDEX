@@ -214,5 +214,37 @@
     "meta": {
       "address": "ucs://local/test_container#container"
     }
+  },
+  "symatics_morphic_field": {
+    "address": "ucs://local/symatics_morphic_field#container",
+    "kind": "container",
+    "meta": {
+      "domain": "symatics/morphic_field",
+      "address": "ucs://local/symatics_morphic_field#container"
+    }
+  },
+  "symatics_quantum_field": {
+    "address": "ucs://local/symatics_quantum_field#container",
+    "kind": "container",
+    "meta": {
+      "domain": "symatics/quantum_field",
+      "address": "ucs://local/symatics_quantum_field#container"
+    }
+  },
+  "symatics_consciousness_cycle": {
+    "address": "ucs://local/symatics_consciousness_cycle#container",
+    "kind": "container",
+    "meta": {
+      "domain": "symatics/consciousness_cycle",
+      "address": "ucs://local/symatics_consciousness_cycle#container"
+    }
+  },
+  "symatics_telemetry_stream": {
+    "address": "ucs://local/symatics_telemetry_stream#container",
+    "kind": "container",
+    "meta": {
+      "domain": "symatics/telemetry_stream",
+      "address": "ucs://local/symatics_telemetry_stream#container"
+    }
   }
 }

@@ -98,7 +98,9 @@ class QuantumAtomClassifier:
         """
         Translate resonance ratios into semantic tags.
         """
-        if phi > 0.66 and coherence := (psi + kappa) / 2 > 0.7:
+        coherence = (psi + kappa) / 2  # compute first
+
+        if phi > 0.66 and coherence > 0.7:
             return "reflect"
         if T > 1.2 and kappa > 0.8:
             return "plan"
@@ -113,7 +115,6 @@ class QuantumAtomClassifier:
         if psi < 0.2 and kappa < 0.3:
             return "memory"
         return "reflect"
-
     # ──────────────────────────────────────────────────────────────
     def last_resonance(self) -> Dict[str, Any]:
         """Return the last classified resonance spectrum."""

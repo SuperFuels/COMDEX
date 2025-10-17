@@ -254,3 +254,154 @@ async def emit_gwave_replay(wave):
 
     except Exception as e:
         print(f"[GWIP] ⚠️ Failed to emit carrier trace: {e}")
+
+# ──────────────────────────────────────────────
+#  Tessaris • Symbolic HSX Bridge (HQCE Stage 5)
+#  Adds semantic κ, gravity wells, and GHX overlay broadcast
+# ──────────────────────────────────────────────
+import uuid
+import math
+import logging
+from datetime import datetime
+from typing import Dict, List, Any, Optional
+
+from backend.modules.codex.codex_metrics import CodexMetrics
+from backend.modules.identity.avatar_registry import get_avatar_identity
+from backend.modules.holograms.morphic_ledger import morphic_ledger
+
+# ✅ HUD event import (fallback-safe)
+try:
+    from backend.modules.codex.codex_websocket_interface import send_codex_ws_event
+except Exception:
+    async def send_codex_ws_event(event_type: str, payload: dict):
+        print(f"[Fallback HUD] {event_type} → {payload}")
+
+logger = logging.getLogger(__name__)
+
+
+class SymbolicHSXBridge:
+    """Bridges symbolic cognition metrics into holographic overlays."""
+
+    def __init__(self, avatar_id: str, ghx_packet: Dict[str, Any]):
+        self.avatar_id = avatar_id
+        self.ghx_packet = ghx_packet
+        self.identity = get_avatar_identity(avatar_id)
+
+    # ──────────────────────────────────────────────
+    #  Inject identity trail into GHX nodes
+    # ──────────────────────────────────────────────
+    def inject_identity_trails(self) -> Dict[str, Any]:
+        for node in self.ghx_packet.get("nodes", []):
+            node.setdefault("symbolic_trail", []).append({
+                "by": self.identity.get("name", "anon"),
+                "avatar_id": self.avatar_id,
+                "timestamp": datetime.utcnow().isoformat(),
+                "signature": self.identity.get("signature", str(uuid.uuid4())),
+            })
+        logger.debug(f"[HSXBridge] Identity trails injected into {len(self.ghx_packet.get('nodes', []))} nodes.")
+        return self.ghx_packet
+
+    # ──────────────────────────────────────────────
+    #  Score overlay + compute semantic κ
+    # ──────────────────────────────────────────────
+    def score_overlay_paths(self) -> List[Dict[str, Any]]:
+        nodes = self.ghx_packet.get("nodes", [])
+        if not nodes:
+            return []
+
+        weights, entropies = [], []
+        for node in nodes:
+            symbol = node.get("symbol")
+            scores = CodexMetrics.score_symbol(symbol)
+            w = scores.get("symbolic_weight", 0.0)
+            a = scores.get("goal_match_score", 0.0)
+            entropy = float(node.get("entropy", 0.0))
+
+            node.update({
+                "goal_alignment_score": a,
+                "symbolic_weight": w,
+                "entropy": entropy,
+            })
+            weights.append(w)
+            entropies.append(entropy)
+
+        if weights:
+            mean_w = sum(weights) / len(weights)
+            var_w = sum((w - mean_w) ** 2 for w in weights) / len(weights)
+            mean_entropy = sum(entropies) / len(entropies)
+            κs = math.tanh(mean_w / (1.0 + 10.0 * var_w + mean_entropy))
+            for node in nodes:
+                node["semantic_kappa"] = κs
+            logger.info(f"[HSXBridge] Semantic κₛ={κs:.4f}")
+        else:
+            κs, mean_w, mean_entropy, var_w = 0.0, 0.0, 0.0, 0.0
+            logger.warning("[HSXBridge] No symbolic weights found for κ computation.")
+
+        # Write to Morphic Ledger
+        morphic_ledger.append({
+            "psi": mean_entropy,
+            "kappa": κs,
+            "T": 1.0,
+            "coherence": mean_w,
+            "gradient": var_w ** 0.5,
+            "stability": mean_w / (1.0 + var_w),
+            "metadata": {"origin": "SymbolicHSXBridge"},
+        }, observer=self.avatar_id)
+
+        return nodes
+
+    # ──────────────────────────────────────────────
+    #  Compute semantic gravity map
+    # ──────────────────────────────────────────────
+    def compute_semantic_gravity(self) -> Dict[str, Any]:
+        nodes = self.ghx_packet.get("nodes", [])
+        if not nodes:
+            return {"clusters": [], "field_strength": 0.0}
+
+        clusters = []
+        for node in nodes:
+            κs = node.get("semantic_kappa", 0.0)
+            w = node.get("symbolic_weight", 0.0)
+            entropy = node.get("entropy", 0.0)
+            strength = (w * (1 - entropy)) * (1 + κs)
+            clusters.append({
+                "glyph_id": node.get("glyph_id"),
+                "symbol": node.get("symbol"),
+                "gravity_strength": round(strength, 4),
+                "semantic_kappa": κs,
+                "weight": w,
+                "entropy": entropy,
+            })
+
+        total = sum(c["gravity_strength"] for c in clusters)
+        for c in clusters:
+            c["gravity_strength"] = c["gravity_strength"] / max(total, 1e-9)
+
+        field_strength = sum(c["gravity_strength"] for c in clusters) / len(clusters)
+        gravity_map = {
+            "timestamp": datetime.utcnow().isoformat(),
+            "avatar": self.avatar_id,
+            "clusters": clusters,
+            "field_strength": round(field_strength, 5),
+        }
+
+        logger.debug(f"[HSXBridge] Semantic gravity computed ({len(clusters)} nodes, field={field_strength:.4f})")
+        return gravity_map
+
+    # ──────────────────────────────────────────────
+    #  Broadcast overlay to GHX/HUD
+    # ──────────────────────────────────────────────
+    def broadcast_overlay(self):
+        payload = {
+            "type": "ghx_overlay",
+            "avatar": self.identity,
+            "timestamp": datetime.utcnow().isoformat(),
+            "nodes": self.ghx_packet.get("nodes", []),
+            "projection_id": self.ghx_packet.get("projection_id"),
+        }
+        try:
+            from backend.modules.websocket_manager import broadcast_event
+            broadcast_event("ghx_overlay_update", payload)
+            logger.debug("[HSXBridge] Overlay broadcasted to GHX clients.")
+        except Exception as e:
+            logger.warning(f"[HSXBridge] Broadcast failed: {e}")

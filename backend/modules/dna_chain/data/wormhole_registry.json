@@ -152,5 +152,33 @@
     "meta": {
       "reason": "auto_hub"
     }
+  },
+  "symatics_morphic_field→ucs_hub": {
+    "from": "symatics_morphic_field",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "symatics_quantum_field→ucs_hub": {
+    "from": "symatics_quantum_field",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "symatics_consciousness_cycle→ucs_hub": {
+    "from": "symatics_consciousness_cycle",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "symatics_telemetry_stream→ucs_hub": {
+    "from": "symatics_telemetry_stream",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
   }
 }

@@ -1,3 +1,4 @@
+from __future__ import annotations
 # File: backend/modules/codex/beam_event_bus.py
 """
 Tessaris • QQC–SLE v0.7
@@ -76,8 +77,13 @@ class BeamEventBus:
             except ValueError:
                 pass
 
-    def publish(self, event: "BeamEvent" | str, beam: Any | None = None) -> None:
-        """Publish either a BeamEvent object or raw event_type."""
+    def publish(self, event: Union["BeamEvent", str], beam: Optional[Any] = None) -> None:
+        """
+        Publish either a BeamEvent object or a raw event_type string.
+
+        Safely dispatches to all subscribed listeners, including wildcard ('*') handlers.
+        """
+        # Normalize input into a BeamEvent instance
         if isinstance(event, str):
             event_obj = BeamEvent(event_type=event, source="system", target="all")
         else:

@@ -16,7 +16,7 @@ import asyncio
 import logging
 from collections import deque
 from backend.modules.codex.beam_event_bus import beam_event_bus, BeamEvent
-from backend.modules.ghx.ghx_visual_bridge import GHXVisualBridge
+from backend.modules.visualization.ghx_visual_bridge import GHXVisualBridge
 
 logger = logging.getLogger(__name__)
 

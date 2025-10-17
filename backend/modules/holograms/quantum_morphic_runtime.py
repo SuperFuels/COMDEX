@@ -129,6 +129,26 @@ class QuantumMorphicRuntime:
         field_nodes = self.renderer.rendered_projection or []
         feedback = self.feedback_controller.regulate(psi_kappa_T, field_nodes)
         self.last_feedback = feedback
+        # 🧭 Apply adaptive feedback regulation to runtime parameters
+        try:
+            if feedback:
+                # Dynamically adjust renderer lazy mode
+                if "lazy_mode" in feedback:
+                    self.renderer.lazy_mode = feedback["lazy_mode"]
+
+                # Adjust entanglement update rate if provided
+                if "rate_scale" in feedback:
+                    scale = feedback.get("rate_scale", 1.0)
+                    self.feedback_controller.rate_scale = scale
+                    self.trigger_controller.update_rate = getattr(self.trigger_controller, "update_rate", 1.0) * scale
+
+                # Update MorphicFeedbackController’s target if coherence feedback present
+                if "target_coherence" in feedback:
+                    self.feedback_controller.target_coherence = feedback["target_coherence"]
+
+                logger.debug(f"[QuantumMorphicRuntime] Adaptive feedback applied: {feedback}")
+        except Exception as e:
+            logger.warning(f"[QuantumMorphicRuntime] Feedback application failed: {e}")
 
         # 5️⃣ Assemble runtime state and persist
         runtime_state = self._assemble_runtime_state(triggered, overlay, feedback)
@@ -217,7 +237,7 @@ class QuantumMorphicRuntime:
             return {}
 
     def _update_field_history(self, ψκT: Dict[str, Any]):
-        """Append current ψ–κ–T field snapshot to rolling buffer."""
+        """Append current ψ–κ–T field snapshot to rolling buffer and persist to Morphic Ledger."""
         try:
             snapshot = {
                 "timestamp": datetime.utcnow().isoformat(),
@@ -226,9 +246,17 @@ class QuantumMorphicRuntime:
                 "T": ψκT.get("T", 0.0),
                 "coherence": ψκT.get("coherence", 0.0),
             }
+
+            # Append to rolling field history buffer
             self.field_history_buffer.append(snapshot)
             if len(self.field_history_buffer) > self.max_history:
                 self.field_history_buffer.pop(0)
+
+            # 🧩 Auto-commit ψ–κ–T snapshot to Morphic Ledger for learning continuity
+            if snapshot:
+                morphic_ledger.append(snapshot, observer=self.avatar.get("id", "default_avatar"))
+                logger.debug("[QuantumMorphicRuntime] ψ–κ–T snapshot committed to Morphic Ledger.")
+
         except Exception as e:
             logger.warning(f"[QuantumMorphicRuntime] Field history update failed: {e}")
 

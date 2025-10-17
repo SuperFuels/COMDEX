@@ -69,6 +69,8 @@ class HolographicRenderer:
         self.rendered_projection: List[Dict] = []
         self.links: List[Dict] = []
         self.field_coherence_map: Dict[str, float] = {}  # 🧭 HQCE Stage 4 addition
+        self.field_coherence_map = {}
+        self.coherence_halos = []
 
     # ────────────────────────────────────────────
     #  Render GHX Projection
@@ -146,7 +148,7 @@ class HolographicRenderer:
 
         self.rendered_projection = projection
 
-        # ✅ WebSocket broadcast of coherence summary
+        # ✅ WebSocket broadcast of coherence summary (Codex)
         try:
             coherence_summary = {
                 "mean_coherence": round(sum(self.field_coherence_map.values()) / max(1, len(self.field_coherence_map)), 4),
@@ -171,14 +173,87 @@ class HolographicRenderer:
         except Exception as e:
             logger.warning(f"[HUD] Failed to stream CodexLang HUD: {e}")
 
-        # Optional HSX broadcast
+        # ✅ HSX broadcast
         try:
             from backend.modules.holograms.symbolic_hsx_bridge import SymbolicHSXBridge
             SymbolicHSXBridge.broadcast_glyphs(projection, observer=self.observer_id)
         except Exception:
             logger.warning("HSXBridge not available, skipping overlay broadcast.")
 
+        # ✅ NEW: GHX/QFC halo + coherence broadcast (HQCE Stage 4 extension)
+        try:
+            from backend.modules.websocket.ghx_ws_broadcast import broadcast_ghx_runtime_update
+            payload = {
+                "type": "halo_update",
+                "data": {
+                    "halos": [p["halo"] for p in projection],
+                    "coherence_map": self.field_coherence_map,
+                    "timestamp": datetime.utcnow().isoformat(),
+                },
+            }
+            broadcast_ghx_runtime_update(payload)
+        except Exception as e:
+            logger.warning(f"[HolographicRenderer] GHX halo broadcast failed: {e}")
+
         return projection
+
+    # ────────────────────────────────────────────
+    #  New: Field Coherence Map
+    # ────────────────────────────────────────────
+    def compute_field_coherence_map(self):
+        """
+        Build a coherence map for all rendered nodes.
+        Coherence = 1 - |entropy - goal_alignment|
+        """
+        field_map = {}
+        for node in self.rendered_projection or []:
+            entropy = node.get("entropy", 0.5)
+            goal_alignment = node.get("goal_alignment", 0.5)
+            coherence = max(0.0, min(1.0, 1 - abs(entropy - goal_alignment)))
+            node["coherence"] = coherence
+            field_map[node["id"]] = coherence
+        self.field_coherence_map = field_map
+        return field_map
+
+    # ────────────────────────────────────────────
+    #  New: Visual Intensity + Color Update
+    # ────────────────────────────────────────────
+    def update_visual_intensity(self):
+        """
+        Adjust color and brightness based on coherence.
+        Maps coherence → hue (violet→white) and alpha (transparency).
+        """
+        if not hasattr(self, "field_coherence_map"):
+            self.compute_field_coherence_map()
+
+        for node in self.rendered_projection or []:
+            coherence = node.get("coherence", 0.5)
+            hue = 270 * (1 - coherence) / 360.0
+            r, g, b = colorsys.hsv_to_rgb(hue, 0.7, 0.8 + 0.2 * coherence)
+            node["color"] = {
+                "rgb": [int(r * 255), int(g * 255), int(b * 255)],
+                "alpha": round(0.4 + 0.6 * coherence, 2),
+            }
+
+    # ────────────────────────────────────────────
+    #  New: Coherence Halo Rendering
+    # ────────────────────────────────────────────
+    def render_coherence_halos(self):
+        """
+        Adds halo effects (virtual) for high-coherence nodes.
+        HUD overlay can later interpret this for glow rendering.
+        """
+        halos = []
+        for node in self.rendered_projection or []:
+            c = node.get("coherence", 0.0)
+            if c > 0.85:
+                halos.append({
+                    "node_id": node["id"],
+                    "radius": 0.05 + 0.15 * c,
+                    "intensity": round(c, 2),
+                })
+        self.coherence_halos = halos
+        return halos
 
     # ────────────────────────────────────────────
     #  Observer / Visibility Utilities

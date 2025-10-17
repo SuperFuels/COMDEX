@@ -50,7 +50,6 @@ from backend.modules.codex.rewrite_executor import auto_mutate_container
 from backend.modules.codex.codexlang_rewriter import CodexLangRewriter
 from backend.modules.codex.codex_ast_encoder import encode_codex_ast_to_glyphs
 from backend.modules.symbolic.symbolic_inference_engine import run_symbolic_inference
-from backend.modules.consciousness.logic_prediction_utils import detect_contradictions
 from backend.modules.dna_chain.dna_utils import extract_glyph_diff
 from backend.modules.dna_chain.mutation_scorer import score_mutation
 from backend.modules.glyphwave.core.beam_logger import log_beam_prediction

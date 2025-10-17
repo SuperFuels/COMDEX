@@ -31,7 +31,7 @@ gcloud run deploy comdex-api \
   --timeout=300s
 
 git add .
-git commit -m "AION UPGRADE v2"
+git commit -m "AION COMPLETE"
 git push origin main
 
 gcloud builds submit --config cloudbuild.yaml .

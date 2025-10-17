@@ -70,7 +70,11 @@ class ConsciousnessManager:
         self.glyph_loop_started = False
 
         # Glyph watcher module (B2)
-        self.glyph_watcher = GlyphWatcher()
+        try:
+            self.glyph_watcher = GlyphWatcher(self.state)
+        except Exception as e:
+            print(f"[⚠️] Failed to initialize GlyphWatcher: {e}")
+            self.glyph_watcher = None
 
         # Tessaris Runtime (F2)
         self.tessaris = TessarisEngine()

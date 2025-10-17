@@ -151,6 +151,7 @@ except Exception as _e:
 # -----------------------------------------------------------------------------
 # GPIO detection + Hyperdrive Safety integration
 # -----------------------------------------------------------------------------
+import os
 import importlib
 
 FORCE_HARDWARE_MODE = os.getenv("AION_FORCE_HARDWARE", "1") == "1"
@@ -159,24 +160,39 @@ try:
     import RPi.GPIO as GPIO
     GPIO.setmode(GPIO.BCM)  # BCM pin numbering
     GPIO_AVAILABLE = True
-    _log("info", "✅ SQI: Raspberry Pi GPIO detected, hardware mode enabled.")
+    _log("info", "✅ SQI: Raspberry Pi GPIO detected — hardware mode enabled.")
 except Exception as gpio_error:
+    GPIO = None
+    # Do NOT mark available if GPIO import failed
+    GPIO_AVAILABLE = False
     if FORCE_HARDWARE_MODE:
-        _log("warn", f"⚠️ SQI: GPIO not detected ({gpio_error}), but hardware mode forced by env.")
-        GPIO_AVAILABLE = True
+        _log("warn", f"⚠️ SQI: GPIO not detected ({gpio_error}), but hardware mode forced by env. "
+                     "Running in simulated hardware mode.")
     else:
-        GPIO_AVAILABLE = False
-        _log("warn", f"⚠️ SQI: No GPIO detected, running in simulation mode. ({gpio_error})")
+        _log("warn", f"⚠️ SQI: No GPIO module detected — running in simulation mode. ({gpio_error})")
+
+# ──────────────────────────────────────────────
+#  Safe-guard any GPIO access
+# ──────────────────────────────────────────────
+def safe_gpio_setup(pin: int, mode: int):
+    """Safely set up GPIO pin if available, otherwise skip."""
+    if GPIO_AVAILABLE and GPIO is not None:
+        try:
+            GPIO.setup(pin, mode)
+        except Exception as e:
+            _log("warn", f"⚠️ GPIO setup failed for pin {pin}: {e}")
+    else:
+        _log("debug", f"💡 Skipping GPIO setup for pin {pin} (simulation mode).")
 
 # -----------------------------------------------------------------------------
-# Hyperdrive Safety Hook (only fires in hardware/forced mode)
+# Hyperdrive Safety Hook (only fires if real or simulated hardware mode)
 # -----------------------------------------------------------------------------
-if GPIO_AVAILABLE:
+if FORCE_HARDWARE_MODE or GPIO_AVAILABLE:
     try:
         hyperdrive = importlib.import_module("backend.modules.hyperdrive.hyperdrive_safety")
         if hasattr(hyperdrive, "initialize_hyperdrive_guard"):
             hyperdrive.initialize_hyperdrive_guard()
-            _log("info", "🛡️ Hyperdrive safety guard engaged (hardware mode).")
+            _log("info", "🛡️ Hyperdrive safety guard engaged (hardware or simulated mode).")
         else:
             _log("debug", "ℹ️ Hyperdrive safety module found, but no guard init function defined.")
     except ModuleNotFoundError:
@@ -219,7 +235,6 @@ def _recent_kg(cid: Optional[str], h: Optional[str]) -> bool:
     if len(_DEDUPE) > _MAX_CACHE:
         _DEDUPE.popitem(last=False)
     return False
-
 # -----------------------------------------------------------------------------
 # Listener registration
 # -----------------------------------------------------------------------------

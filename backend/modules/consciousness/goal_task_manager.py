@@ -1,5 +1,5 @@
 import random
-from backend.modules.goals.goal_engine import GoalEngine
+from backend.modules.skills.goal_engine import GoalEngine
 from backend.modules.consciousness.personality_engine import PersonalityProfile
 
 # ✅ DNA Switch

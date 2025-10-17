@@ -1,7 +1,9 @@
+# backend/modules/symbolic/symbolic_inference_engine.py
+
 from typing import Dict, Any, List
 from backend.modules.consciousness.prediction_engine import suggest_simplifications
 from backend.modules.symbolic.symbolic_broadcast import broadcast_glyph_event
-from backend.modules.consciousness.logic_prediction_utils import detect_contradictions
+from backend.modules.consciousness.logic_prediction_utils import LogicPredictionUtils
 from backend.modules.knowledge_graph.kg_writer_singleton import get_kg_writer
 from backend.modules.codex.codex_metrics import score_glyph_tree
 
@@ -23,6 +25,7 @@ class SymbolicInferenceEngine:
 
     def __init__(self):
         self.writer = get_kg_writer()
+        self.logic_utils = LogicPredictionUtils()
 
     def analyze_container(self, container: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -47,7 +50,7 @@ class SymbolicInferenceEngine:
                 continue
 
             # Check for contradiction
-            if self._is_contradiction_heuristic(glyph) or detect_contradictions(glyph):
+            if self._is_contradiction_heuristic(glyph) or self.logic_utils.detect_contradictions(glyph):
                 contradiction_entries.append({
                     "glyph": glyph,
                     "coord": coord

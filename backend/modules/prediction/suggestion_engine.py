@@ -4,7 +4,7 @@ from typing import Dict, Any
 
 from backend.modules.codex.codex_metrics import CodexMetrics
 from backend.modules.skills.goal_engine import GoalEngine
-from backend.modules.consciousness.logic_prediction_utils import detect_contradictions
+from backend.modules.consciousness.logic_prediction_utils import LogicPredictionUtils
 
 
 def suggest_simplifications(ast: dict) -> dict:
@@ -37,7 +37,8 @@ def suggest_simplifications(ast: dict) -> dict:
         result["reasoning"] = "Unhandled AST type"
 
     # 🔎 Detect contradiction
-    contradiction = detect_contradictions(ast)
+    logic_utils = LogicPredictionUtils()
+    contradiction = logic_utils.detect_contradictions(ast)
     if contradiction:
         result["contradiction"] = contradiction
 

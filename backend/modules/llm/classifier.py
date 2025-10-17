@@ -10,7 +10,7 @@ import logging
 from dotenv import load_dotenv
 from openai import AsyncOpenAI
 
-from backend.modules.morphic.ledger import MorphicLedger
+from backend.modules.holograms.morphic_ledger import MorphicLedger
 
 load_dotenv()
 

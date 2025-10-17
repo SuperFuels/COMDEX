@@ -9,10 +9,10 @@ import asyncio
 import traceback
 from datetime import datetime
 
-from backend.modules.morphic.ledger import MorphicLedger
+from backend.modules.holograms.morphic_ledger import MorphicLedger
 from backend.modules.dna_chain.switchboard import DNA_SWITCH, get_module_path, read_module_file
 from backend.modules.dna_chain.crispr_ai import generate_mutation_proposal
-from backend.modules.dna_chain import is_self_growth_enabled, enable_self_growth
+from backend.modules.dna_chain.dna_switch import is_self_growth_enabled, enable_self_growth
 from backend.modules.dna_chain.proposal_manager import load_proposals
 from backend.modules.soul.soul_laws import validate_ethics
 
