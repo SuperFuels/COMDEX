@@ -1,5 +1,5 @@
 # ===============================
-# 📄 backend/modules/config.py
+# 📄 backend/config.py
 # ===============================
 
 import os

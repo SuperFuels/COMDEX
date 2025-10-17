@@ -1,4 +1,3 @@
-// frontend/pages/_app.tsx
 'use client';
 
 import '@/lib/api';             // axios instance config
@@ -7,8 +6,9 @@ import type { AppProps } from 'next/app';
 import { Inter } from 'next/font/google';
 import { useEffect } from 'react';
 import Navbar from '@/components/Navbar';
+import ResonancePulseWidget from '@/components/GHX/ResonancePulseWidget'; // ✅ updated import (note capital GHX)
 
-// Inter font (swap display for better CLS)
+// Inter font setup (swap display for better CLS)
 const inter = Inter({ subsets: ['latin'], display: 'swap' });
 
 export default function MyApp({ Component, pageProps }: AppProps) {
@@ -27,8 +27,13 @@ export default function MyApp({ Component, pageProps }: AppProps) {
         <Navbar />
 
         {/* Page Content */}
-        <main className="flex-1 overflow-auto">
+        <main className="flex-1 overflow-auto relative">
           <Component {...pageProps} />
+
+          {/* Optional — global live resonance overlay (can be removed later) */}
+          <div className="absolute bottom-8 right-8 w-72 h-72 z-50">
+            <ResonancePulseWidget />
+          </div>
         </main>
       </div>
     </div>

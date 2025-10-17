@@ -180,5 +180,19 @@
     "meta": {
       "reason": "auto_hub"
     }
+  },
+  "symatics_resonance_feedback→ucs_hub": {
+    "from": "symatics_resonance_feedback",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "symatics_awareness→ucs_hub": {
+    "from": "symatics_awareness",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
   }
 }

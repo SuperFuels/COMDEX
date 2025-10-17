@@ -9,7 +9,7 @@ from backend.modules.codex.symbolic_registry import symbolic_registry
 from backend.modules.symbolic.symbolic_parser import parse_raw_input_to_ast
 from backend.modules.codex.codex_ast_encoder import encode_codex_ast_to_glyphs
 from backend.modules.sqi.sqi_container_registry import SQIContainerRegistry
-from backend.modules.codex.codexlang_parser import parse_codexlang_to_ast
+from backend.modules.codex.codex_ast_encoder import parse_codexlang_to_ast
 from backend.modules.symbolnet.symbolnet_ingestor import SymbolNetIngestor
 from backend.modules.runtime.container_runtime import safe_load_container_by_id
 from backend.modules.glyphwave.core.beam_logger import emit_qwave_beam  # 🛰️ A8c hook

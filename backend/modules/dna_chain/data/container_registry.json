@@ -246,5 +246,21 @@
       "domain": "symatics/telemetry_stream",
       "address": "ucs://local/symatics_telemetry_stream#container"
     }
+  },
+  "symatics_resonance_feedback": {
+    "address": "ucs://local/symatics_resonance_feedback#container",
+    "kind": "container",
+    "meta": {
+      "domain": "symatics/resonance_feedback",
+      "address": "ucs://local/symatics_resonance_feedback#container"
+    }
+  },
+  "symatics_awareness": {
+    "address": "ucs://local/symatics_awareness#container",
+    "kind": "container",
+    "meta": {
+      "domain": "symatics/awareness",
+      "address": "ucs://local/symatics_awareness#container"
+    }
   }
 }

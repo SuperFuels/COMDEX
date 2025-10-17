@@ -1381,5 +1381,12 @@
     "message": "Teleported to container: aion_start",
     "success": true,
     "timestamp": "2025-10-17T18:36:05.805191"
+  },
+  {
+    "type": "environment",
+    "event": "teleport",
+    "message": "Teleported to container: aion_start",
+    "success": true,
+    "timestamp": "2025-10-17T18:37:48.814131"
   }
 ]

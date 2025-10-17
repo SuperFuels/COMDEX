@@ -259,6 +259,7 @@ from backend.api import symbolic_tree_api
 from backend.routes.api_collapse_trace import router as collapse_trace_router
 from backend.routes import lean_inject_api
 from backend.utils.deprecation_logger import install_deprecation_hook
+from photon_runtime.telemetry import ledger_feed
 
 # ===== Atomsheet / LightCone / QFC wiring =====
 from backend.routes.dev import glyphwave_test_router        # dev-only routes (mounted elsewhere in your file)  # noqa: F401
@@ -336,9 +337,6 @@ async def ws_hqce_endpoint(websocket: WebSocket):
     except WebSocketDisconnect:
         await hqce_ws_bridge.disconnect(websocket)
 
-# ✅ Optional: mount HQCE dashboard REST routes
-from backend.tools.hqce_dashboard_routes import router as dashboard_router
-app.include_router(dashboard_router, prefix="/dashboard")
 
 # ── 12) Import standalone routers from backend.api (if used)
 from backend.api.aion.status           import router as status_router
@@ -438,6 +436,7 @@ app.include_router(workspace_router)
 app.include_router(api_sheets.router)
 app.include_router(qfc_extras_router)
 app.include_router(lean_inject_api.router, prefix="/api")
+app.include_router(ledger_feed.router)
 seed_builtin_patterns()
 install_deprecation_hook()
 

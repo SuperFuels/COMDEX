@@ -18,7 +18,7 @@ import json
 import time
 from typing import Any, Dict, List, Optional
 from backend.symatics import rewriter as R
-from backend.modules.lean.convert_lean_to_codexlang import lean_to_expr
+from backend.modules.lean.convert_lean_to_codexlang import convert_lean_expr as lean_to_expr
 from backend.modules.lean.lean_audit import (
     build_inject_event,
     build_export_event,

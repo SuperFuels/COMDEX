@@ -12,7 +12,7 @@ from backend.modules.codex.beam_event_bus import beam_event_bus, BeamEvent
 from backend.modules.patterns.pattern_registry import registry as pattern_registry
 from backend.modules.sqi.kg_bridge import KnowledgeGraphBridge
 from backend.modules.codex.codex_metrics import score_glyph_tree
-from backend.config.feature_flags import is_qqc_enabled, is_lightwave_enabled, print_feature_status
+from backend.config_flags.feature_flags import is_qqc_enabled, is_lightwave_enabled, print_feature_status
 
 print_feature_status()
 
