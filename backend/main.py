@@ -11,7 +11,7 @@ if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 os.environ["PYTHONPATH"] = ROOT_DIR
 
-from fastapi import FastAPI, APIRouter, Request, HTTPException, WebSocket
+from fastapi import FastAPI, APIRouter, Request, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from starlette.responses import RedirectResponse
@@ -267,6 +267,24 @@ from backend.routes.ws.qglyph_ws import start_qglyph_ws
 @app.websocket("/ws/qglyph")
 async def qglyph_socket(websocket: WebSocket):
     await start_qglyph_ws(websocket)
+
+# ✅ HQCE WebSocket — live ψκT telemetry bridge
+from backend.modules.holograms.hqce_ws_bridge import hqce_ws_bridge
+from fastapi import WebSocketDisconnect  # ensure imported above or here
+import asyncio
+
+@app.websocket("/ws/hqce")
+async def ws_hqce_endpoint(websocket: WebSocket):
+    await hqce_ws_bridge.connect(websocket)
+    try:
+        while True:
+            await asyncio.sleep(1)  # keep connection alive
+    except WebSocketDisconnect:
+        await hqce_ws_bridge.disconnect(websocket)
+
+# ✅ Optional: mount HQCE dashboard REST routes
+from backend.tools.hqce_dashboard_routes import router as dashboard_router
+app.include_router(dashboard_router, prefix="/dashboard")
 
 # ── 12) Import standalone routers from backend.api (if used)
 from backend.api.aion.status           import router as status_router

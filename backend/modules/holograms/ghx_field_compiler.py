@@ -2,20 +2,34 @@
 #  Tessaris • GHX Field Compiler (HQCE Stage 2+)
 #  Computes ψ–κ–T tensor and coherence metrics
 #  from holographic field snapshots (nodes + links)
+#  Compatible with HSTGenerator + QuantumMorphicRuntime
 # ──────────────────────────────────────────────
+
+import uuid
+import time
 import numpy as np
 import logging
 from typing import Dict, List, Any
 
 logger = logging.getLogger(__name__)
 
-def compile_field_tensor(field_data: Dict[str, Any]) -> Dict[str, float]:
+def compile_field_tensor(field_data: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Compute ψ (entropy), κ (curvature), T (temporal flux), and coherence (C)
+    Compute ψ (entropy), κ (curvature), T (temporal flux), and global coherence (C)
     from any GHX or HST field snapshot.
 
-    Compatible with existing HSTGenerator + QuantumMorphicRuntime.
+    Args:
+        field_data: {
+            "nodes": [ { "entropy": ..., "coherence": ..., "node_id": ... }, ... ],
+            "links": [ { "a": ..., "b": ..., "phi": ... }, ... ],
+            "tick_time": float,
+            "field_decay": float
+        }
+
+    Returns:
+        dict with keys: ψ, κ, T, coherence, gradient, stability, metadata
     """
+    snapshot_id = f"tensor_{uuid.uuid4().hex[:10]}"
     try:
         nodes: List[Dict[str, Any]] = field_data.get("nodes", [])
         links: List[Dict[str, Any]] = field_data.get("links", [])
@@ -24,13 +38,17 @@ def compile_field_tensor(field_data: Dict[str, Any]) -> Dict[str, float]:
 
         if not nodes:
             logger.warning("[GHXFieldCompiler] No nodes detected.")
-            return {"psi": 0.0, "kappa": 0.0, "T": 0.0, "coherence": 0.0}
+            return {
+                "psi": 0.0, "kappa": 0.0, "T": 0.0, "coherence": 0.0,
+                "gradient": 0.0, "stability": 0.0,
+                "metadata": {"id": snapshot_id, "timestamp": time.time()}
+            }
 
-        # ψ — average entropy across nodes
+        # ψ — mean field entropy
         entropy_values = np.array([n.get("entropy", 0.5) for n in nodes], dtype=float)
         ψ = float(np.mean(entropy_values))
 
-        # κ — curvature approximation using node connectivity + coherence variance
+        # κ — curvature: node-connectivity × coherence variance attenuation
         node_degree = {n.get("node_id", str(i)): 0 for i, n in enumerate(nodes)}
         for link in links:
             a, b = link.get("a"), link.get("b")
@@ -44,16 +62,43 @@ def compile_field_tensor(field_data: Dict[str, Any]) -> Dict[str, float]:
         coherence_var = np.var(coherence_values)
         κ = float(np.tanh(avg_degree / (1.0 + 10.0 * coherence_var)))
 
-        # T — temporal flux (normalized tick / field decay)
+        # T — normalized temporal flux
         T = float(tick_time / max(field_decay, 1e-6))
 
-        # C — global coherence (mean)
+        # C — global coherence mean
         C = float(np.mean(coherence_values))
 
-        tensor = {"psi": ψ, "kappa": κ, "T": T, "coherence": C}
-        logger.debug(f"[GHXFieldCompiler] ψ={ψ:.4f} κ={κ:.4f} T={T:.4f} C={C:.4f}")
+        # ∇ψ — entropy gradient magnitude (field diversity)
+        gradient = float(np.std(entropy_values))
+
+        # stability index — coherence / (1 + gradient)
+        stability = float(C / (1.0 + gradient))
+
+        tensor = {
+            "psi": ψ,
+            "kappa": κ,
+            "T": T,
+            "coherence": C,
+            "gradient": gradient,
+            "stability": stability,
+            "metadata": {
+                "id": snapshot_id,
+                "timestamp": time.time(),
+                "node_count": len(nodes),
+                "link_count": len(links),
+            },
+        }
+
+        logger.debug(
+            f"[GHXFieldCompiler] ψ={ψ:.4f} κ={κ:.4f} T={T:.4f} "
+            f"C={C:.4f} ∇ψ={gradient:.4f} S={stability:.4f}"
+        )
         return tensor
 
     except Exception as e:
         logger.error(f"[GHXFieldCompiler] Compilation failed: {e}")
-        return {"psi": 0.0, "kappa": 0.0, "T": 0.0, "coherence": 0.0}
+        return {
+            "psi": 0.0, "kappa": 0.0, "T": 0.0, "coherence": 0.0,
+            "gradient": 0.0, "stability": 0.0,
+            "metadata": {"id": snapshot_id, "timestamp": time.time()},
+        }

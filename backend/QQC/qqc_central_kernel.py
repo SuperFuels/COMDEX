@@ -10,6 +10,7 @@ import time
 import uuid
 import logging
 from typing import Dict, Any, Optional
+from backend.QQC.metrics import compute_phi_metrics
 
 # ─── Core Imports ─────────────────────────────────────────────
 from backend.modules.codex.codex_executor import CodexExecutor
@@ -145,56 +146,102 @@ class QuantumQuadCore:
     # ──────────────────────────────────────────────
     #  Quantum Feedback / Runtime Cycle
     # ──────────────────────────────────────────────
-    async def run_cycle(self, beam_data: Optional[Dict[str, Any]] = None):
+    async def run_cycle(self, beam_data: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        """
+        Core execution loop for a single QQC resonance cycle.
+        Returns ψ–κ–T–Φ metrics used by AION awareness and Morphic Ledger.
+        """
         self.cycle_counter += 1
         try:
-            # 1. Codex symbolic execution + SQI scoring
+            # 1️⃣ Symbolic execution + entropy evaluation
             codex_output = self.codex.execute(beam_data or {})
             sqi_score = self.sqi.evaluate_entropy(codex_output)
 
-            # 2. Beam resonance propagation (includes physics telemetry)
+            # 2️⃣ Beam resonance propagation
             beam_state = self.beam_kernel.propagate(beam_data or {}, sqi_score)
 
-            # 🧹 Strip physics telemetry before passing to Codex
+            # 3️⃣ Execute symbolic photon capsule
             codex_payload = dict(beam_state)
             codex_payload.pop("physics", None)
-
-            # 🚀 Execute symbolic photon capsule
             self.codex_executor.execute_photon_capsule(codex_payload)
 
-            # 3. ψ–κ–T holographic regulation
+            # 4️⃣ ψ–κ–T holographic feedback loop
             self.sle_bridge.inject_beam_feedback(beam_state)
             await self.feedback_controller.adjust_field(self.hst, sqi_score)
 
-            # 4. Portal / Teleport synchronization
+            # 5️⃣ Portal and teleportation synchronization
             self.portal.sync_state(self.container_runtime)
             self.wormhole.stabilize_links()
 
-            # 5. Quantum Field broadcast
+            # 6️⃣ Quantum field broadcast
             self.qfc_trigger.update_field_state(self.hst.field_tensor)
             self.qfc_broadcast.send_state(self.session_id, self.hst.field_tensor)
 
-            # 6. Two-Phase Commit: symbolic ↔ photonic ↔ holographic
+            # 7️⃣ Two-phase commit
             txn = self.commit_manager.commit_transaction(
                 symbolic_state={"entropy": sqi_score, "src": "Codex"},
                 photonic_state=beam_state,
-                holographic_state=self.hst.field_tensor
+                holographic_state=self.hst.field_tensor,
             )
 
-            # 7. Repair if instability detected
+            # 8️⃣ Repair cycle check
             repair_status = self.repair_manager.run_repair_cycle(txn)
             if repair_status.get("status") != "stable":
                 logger.warning(f"[QQC Repair] Unstable coherence → {repair_status['status']}")
 
-            # 8. Record and broadcast coherence summary
-            self.last_summary = self.summarize_state()
+            # ✅ Structured ψ–κ–T–Φ snapshot (AION reads this)
+            coherence_vals = [n.get("coherence", 0.5) for n in self.hst.nodes.values()]
+            coherence = sum(coherence_vals) / len(coherence_vals) if coherence_vals else 0.0
+
+            summary = {
+                "session_id": self.session_id,
+                "cycle": self.cycle_counter,
+                "timestamp": time.time(),
+                "entropy": sqi_score,
+                "coherence": coherence,
+                "field_signature": {
+                    "ψ": sqi_score,
+                    "κ": beam_state.get("phase_shift", 0.0),
+                    "T": beam_state.get("gain", 1.0),
+                },
+            }
+
+            # 🧠 Awareness Metrics — Φ, ΔΦ, S_self
+            try:
+                from backend.QQC.metrics import compute_phi_metrics
+                phi, dphi, s_self = compute_phi_metrics(
+                    sqi_score,
+                    summary["field_signature"]["κ"],
+                    summary["field_signature"]["T"],
+                    summary["coherence"],
+                )
+                summary["phi"] = phi
+                summary["delta_phi"] = dphi
+                summary["S_self"] = s_self
+                logger.info(
+                    f"[QQC Awareness] Φ={phi:.4f}, ΔΦ={dphi:.5f}, S_self={s_self:.5f}"
+                )
+            except Exception as e:
+                logger.warning(f"[QQC] Φ metrics unavailable or failed: {e}")
+
+            # 🔗 Morphic Ledger integration
+            try:
+                from backend.modules.morphic.ledger import MorphicLedger
+                MorphicLedger().record(
+                    {"subsystem": "QQC", "cycle": self.cycle_counter, "summary": summary}
+                )
+            except Exception as e:
+                logger.debug(f"[QQC] MorphicLedger record skipped: {e}")
+
+            # 🧩 Finalize + broadcast state
+            self.last_summary = summary
             codex_metrics.record_execution_batch(
-                adapter="qqc", op="run_cycle", payload=beam_data, result=self.last_summary
+                adapter="qqc", op="run_cycle", payload=beam_data, result=summary
             )
             await self.broadcast_kernel_state()
-
             await asyncio.sleep(0.05)
-            return self.last_summary
+
+            return summary
 
         except Exception as e:
             logger.error(f"[QQC v2] Runtime cycle error: {e}", exc_info=True)
@@ -486,7 +533,7 @@ import asyncio
 import time
 
 async def main():
-    qqc = QQCCentralKernel()
+    qqc = QuantumQuadCore()  
     await qqc.boot(mode="resonant")
 
     for i in range(5):
@@ -509,7 +556,6 @@ async def main():
     print("\n🧭 Final QQC Summary:")
     print(qqc.last_summary)
     await qqc.shutdown()
-
 
 if __name__ == "__main__":
     asyncio.run(main())
