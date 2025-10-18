@@ -153,11 +153,22 @@ def _normalize_atoms(obj: dict) -> List[dict]:
             raise ValueError(f"Unsupported atom entry: {type(entry).__name__}")
     return atoms
 
-
 # ─────────────────────────────────────────────────────────────────────────────
 # UCS Runtime (MODULE-LEVEL, not nested in GHXVisualizer)
 # ─────────────────────────────────────────────────────────────────────────────
-from backend.modules.sqi.sqi_container_registry import SQIContainerRegistry
+def get_sqi_registry():
+    """
+    Safe, deferred import of SQIContainerRegistry to avoid circular imports
+    between UCSRuntime and SQI modules.
+    """
+    try:
+        from backend.modules.sqi.sqi_container_registry import SQIContainerRegistry
+        return SQIContainerRegistry()
+    except Exception as e:
+        import logging
+        logging.getLogger("UCSRuntime").warning(f"[UCS] SQI registry unavailable: {e}")
+        return None
+
 
 class UCSRuntime:
     def __init__(self) -> None:
@@ -175,11 +186,12 @@ class UCSRuntime:
 
         self.active_container_name: Optional[str] = None
 
-        # ✅ Add this line
-        self.container_registry = SQIContainerRegistry()
+        # ✅ FIXED: lazy load to prevent circular import
+        self.container_registry = get_sqi_registry()
 
         # Ensure a minimal hub exists and is registered once
         if DEFAULT_HUB_ID not in self.containers:
+            self.register_container(DEFAULT_HUB_ID, {"meta": {"domain": "ucs/default"}})
             hub = {
                 "id": DEFAULT_HUB_ID,
                 "type": "container",
@@ -870,6 +882,30 @@ class UCSRuntime:
             return next(iter(self.containers.values()))
         return {"id": "ucs_ephemeral", "glyph_grid": []}
 
+
+    # ──────────────────────────────────────────────
+    #  Broadcast Shim for GHXTelemetry / Event Streams
+    # ──────────────────────────────────────────────
+    def broadcast(self, tag: str, payload: dict):
+        """
+        Broadcast a telemetry or event payload to all listeners.
+        In dev/test mode, this simply logs the emission.
+        """
+        try:
+            logger.info(f"[📡 UCSRuntime.broadcast] {tag} → {payload}")
+            # If event bus exists (SQI or WebSocket), forward there.
+            try:
+                from backend.modules.sqi.sqi_event_bus import publish
+                publish({
+                    "type": tag,
+                    "timestamp": time.time(),
+                    "payload": payload,
+                })
+            except Exception as e:
+                logger.debug(f"[UCSRuntime.broadcast] No SQI bridge: {e}")
+        except Exception as e:
+            logger.warning(f"[UCSRuntime.broadcast] failed: {e}")
+
     # ---------------------------------------------------------
     # 🧩 Atom registration + path composition (FINAL)
     # ---------------------------------------------------------
@@ -1169,3 +1205,4 @@ __all__ = [
     "collapse_container",
     "embed_glyph_block_into_container",
 ]
+UCSRuntime.broadcast = UCSRuntime().broadcast

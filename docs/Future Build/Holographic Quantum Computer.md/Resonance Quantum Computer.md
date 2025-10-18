@@ -6,73 +6,73 @@ direction TB
 %% ─────────────────────────────────────────────
 subgraph A["A) Symbolic Stack — Symatics Core (v0.3)"]
 direction TB
-  A1[🧩 Unify operators ⊕ μ ⟲ ↔ π πₛ<br/>under Resonance Algebra Lawbook v0.3]
-✅  A2[⚙️ Extend Theorem Ledger + CodexTrace<br/>to include ψ κ T Φ coherence metrics ]
+  A1[🧩 Unify operators ⊕ μ ⟲ ↔ π πₛ <br/>under Resonance Algebra Lawbook v0.3]
+✅ A2[⚙️ Extend Theorem Ledger + CodexTrace <br/>to include ψ κ T Φ coherence metrics]
   A3[🧠 Integrate Vol VII–IX axioms:<br/>πₛ closure • Coherence = Information • Resonant Logic Kernel]
-  A4[🧪 Expand symbolic test suite<br/>law-check parity ⊕ μ ⟲ ↔ under πₛ constraints]
-  A5[📘 Introduce Symatic Differential Calculus (∇⊕, ∇μ)<br/>and resonance tensor forms]
+  A4[🧪 Expand symbolic test suite <br/>law-check parity ⊕ μ ⟲ ↔ under πₛ constraints]
+  A5[📘 Introduce Symatic Differential Calculus (∇⊕, ∇μ) <br/>and resonance tensor forms]
 end
 
 %% ─────────────────────────────────────────────
 subgraph B["B) Photonic Resonance Track — Physical Runtime"]
 direction TB
 
-  subgraph B1["Phase 1 — Bench Simulation Loop (Digital–Photon Hybrid) "]
+  subgraph B1["Phase 1 — Bench Simulation Loop (Digital–Photon Hybrid)"]
   direction TB
-✅    B1a[📦 Symbol→Wave Encoding Schema<br/>`photon_runtime/encodings/glyphnet_phase_map.py` ]
-✅    B1b[📘 Coherence Budget v2 (doc in `docs/photonics`) ]
-✅    B1c[🧮 Propagation Simulator (JAX/NumPy)<br/>`sim/propagation.py` ]
-✅    B1d[🔍 Interferometric Read-out μ()<br/>`readout/interferometer.py` ]
-    B1e[🧩 Symatics→Photon Adapter (feature-flag ready)]
+✅ B1a[📦 Symbol→Wave Encoding Schema <br/>`photon_runtime/encodings/glyphnet_phase_map.py`]
+✅ B1b[📘 Coherence Budget v2 (`docs/photonics`)]
+✅ B1c[🧮 Propagation Simulator (JAX/NumPy) <br/>`sim/propagation.py`]
+✅ B1d[🔍 Interferometric Read-out μ() <br/>`readout/interferometer.py`]
+   B1e[🧩 Symatics→Photon Adapter (feature-flag ready)]
   end
 
   subgraph B2["Phase 2 — Resonance Operations Library (Next)"]
   direction TB
-    B2a[💡 Implement ⊕ superpose (kernel)]
-    B2b[🔁 Implement ⟲ resonate (feedback stabilizer)]
-    B2c[🔗 Implement ↔ entangle (mode coupling + phase lock)]
-    B2d[📊 Telemetry→CodexTrace v2:<br/>visibility • phase_error • πₛ_closure • coherence energy]
-  ✅  B2e[ Symbolic↔Photonic parity validation graph]
+   B2a[💡 Implement ⊕ superpose (kernel)]
+   B2b[🔁 Implement ⟲ resonate (feedback stabilizer)]
+   B2c[🔗 Implement ↔ entangle (mode coupling + phase lock)]
+   B2d[📊 Telemetry→CodexTrace v2 <br/>visibility • phase_error • πₛ_closure • coherence energy]
+✅ B2e[🧠 Symbolic↔Photonic parity validation graph]
   end
 
   subgraph B3["Phase 3 — Hardware Bridge (Parallel Option)"]
   direction TB
-    B3a[🔌 Driver API stubs for MZM/DAC/PD modules]
-    B3b[⏱️ Clocking + Sync Document (`docs/photonics/framing_and_sync.md`)]
-    B3c[🧷 Abstract I/O loopback → hardware drop-in layer]
+   B3a[🔌 Driver API stubs for MZM/DAC/PD modules]
+   B3b[⏱️ Clocking + Sync Doc (`docs/photonics/framing_and_sync.md`)]
+   B3c[🧷 Abstract I/O loopback → hardware drop-in layer]
   end
 end
 
 %% ─────────────────────────────────────────────
 subgraph C["C) AION & QQC Integration Layer"]
 direction TB
-✅  C1[🧠 AION Resonance Engine Coupling <br/>`aion_bridge/aion_readout_bridge.py`]
-  C2[🌀 QQC Synchronization Bus (WIP)]
-  C3[⚡ QAC Embedding → Resonant Cognition Pipeline]
-✅  C4[📡 Telemetry Pipeline:<br/>AION→HexCore→MorphicLedger→CFA→CodexTrace ]
-✅  C5[🪶 AionTelemetryStream ψ κ T Φ Recorder ]
-  C6[🌐 Phase-state Propagation in Cognitive Fabric (WIP)]
+✅ C1[🧠 AION Resonance Engine Coupling <br/>`aion_bridge/aion_readout_bridge.py`]
+   C2[🌀 QQC Synchronization Bus (WIP)]
+   C3[⚡ QAC Embedding → Resonant Cognition Pipeline]
+✅ C4[📡 Telemetry Pipeline <br/>AION→HexCore→MorphicLedger→CFA→CodexTrace]
+✅ C5[🪶 AionTelemetryStream ψ κ T Φ Recorder]
+   C6[🌐 Phase-state Propagation in Cognitive Fabric (WIP)]
 end
 
 %% ─────────────────────────────────────────────
-subgraph D["D) Verification, Law-Check & Conscious Coherence"]
+subgraph D["D) Verification / Law-Check / Conscious Coherence"]
 direction TB
-✅  D1[📗 Golden Tests: ⊕ μ ⟲ ↔ parity across CPU + Photon ]
-  D2[📘 Law-Check Parity Report v0.3 (docs/rfc)]
-  D3[👋 Hello-World Series (Resonance / Interference / Entangle / AION)]
-  D4[🧩 πₛ Phase Closure Validator v2]
-  D5[🔭 Resonant Logic Kernel Tests]
-  D6[⚖️ Coherence = Information Validator]
+✅ D1[📗 Golden Tests ⊕ μ ⟲ ↔ parity across CPU + Photon]
+   D2[📘 Law-Check Parity Report v0.3 (`docs/rfc`)]
+   D3[👋 Hello-World Series (Resonance / Interference / Entangle / AION)]
+   D4[🧩 πₛ Phase Closure Validator v2]
+   D5[🔭 Resonant Logic Kernel Tests]
+   D6[⚖️ Coherence = Information Validator]
 end
 
 %% ─────────────────────────────────────────────
 subgraph E["E) Deployment & Cognitive Feedback Cycle"]
 direction TB
-✅  E1[🧩 mode={cpu|photon|aion|qqc} flag in dispatcher ]
-  E2[🧾 Continuous integration across all paths]
-✅  E3[📡 CodexTrace Dashboards (ψ κ T Φ coherence, entropy) ]
-  E4[🧭 v0.3 → v0.4 release with self-resonant cognition]
-✅  E5[🧬 MorphicLedger expanded ψ κ T Φ semantic links → AION loop ]
+✅ E1[🧩 mode = {cpu | photon | aion | qqc} flag in dispatcher]
+   E2[🧾 Continuous integration across all paths]
+✅ E3[📡 CodexTrace Dashboards (ψ κ T Φ coherence · entropy)]
+   E4[🧭 v0.3 → v0.4 release with self-resonant cognition]
+✅ E5[🧬 MorphicLedger expanded ψ κ T Φ semantic links → AION loop]
 end
 end
 end

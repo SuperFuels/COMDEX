@@ -262,5 +262,21 @@
       "domain": "symatics/awareness",
       "address": "ucs://local/symatics_awareness#container"
     }
+  },
+  "symatics_phi_awareness_history": {
+    "address": "ucs://local/symatics_phi_awareness_history#container",
+    "kind": "container",
+    "meta": {
+      "domain": "symatics/phi_awareness_history",
+      "address": "ucs://local/symatics_phi_awareness_history#container"
+    }
+  },
+  "symatics_resonance_coupling": {
+    "address": "ucs://local/symatics_resonance_coupling#container",
+    "kind": "container",
+    "meta": {
+      "domain": "symatics/resonance_coupling",
+      "address": "ucs://local/symatics_resonance_coupling#container"
+    }
   }
 }

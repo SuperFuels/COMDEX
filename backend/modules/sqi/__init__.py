@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # Keep SQI package import lightweight to avoid circular import chains.
-
+from backend.modules.sqi.sqi_resonance_bridge import wave_scope
 __all__ = ["push_drift_report_to_kg"]
 
 def push_drift_report_to_kg(*args, **kwargs):

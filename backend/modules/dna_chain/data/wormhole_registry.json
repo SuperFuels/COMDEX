@@ -194,5 +194,19 @@
     "meta": {
       "reason": "auto_hub"
     }
+  },
+  "symatics_phi_awareness_history→ucs_hub": {
+    "from": "symatics_phi_awareness_history",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "symatics_resonance_coupling→ucs_hub": {
+    "from": "symatics_resonance_coupling",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
   }
 }

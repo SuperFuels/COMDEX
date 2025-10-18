@@ -84,6 +84,7 @@ class MorphicLedger:
         record["coherence"] = record["tensor"]["coherence"]
 
         try:
+            # Write to JSONL ledger
             with open(self.ledger_path, "a", encoding="utf-8") as f:
                 f.write(json.dumps(record) + "\n")
 
@@ -101,7 +102,7 @@ class MorphicLedger:
                         "ψ": record["tensor"]["psi"],
                         "κ": record["tensor"]["kappa"],
                         "T": record["tensor"]["T"],
-                        "Φ": record["phi"],  # include Φ in payload too
+                        "Φ": record["phi"],
                         "C": record["tensor"]["coherence"],
                         "gradient": record["tensor"]["gradient"],
                         "stability": record["tensor"]["stability"],
@@ -114,8 +115,93 @@ class MorphicLedger:
             except Exception as e:
                 logger.warning(f"[MorphicLedger] CFA commit failed: {e}")
 
+            # 🪶 Mirror Φ-awareness if Φ present
+            if record["phi"] not in (None, 0.0):
+                self.log_phi_awareness({
+                    "timestamp": record["timestamp"],
+                    "Φ": record["phi"],
+                    "ψ": record["tensor"]["psi"],
+                    "κ": record["tensor"]["kappa"],
+                    "T": record["tensor"]["T"],
+                    "coherence": record["tensor"]["coherence"],
+                })
+
         except Exception as e:
             logger.error(f"[MorphicLedger] Failed to append record: {e}")
+
+    # ──────────────────────────────────────────────
+    #  Φ-Awareness History Extension (Stage 10)
+    # ──────────────────────────────────────────────
+    def _init_phi_history_table(self):
+        """Ensure the Φ_awareness_history table exists in SQLite."""
+        if not self._db_conn:
+            return
+        cur = self._db_conn.cursor()
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS phi_awareness_history (
+                id TEXT PRIMARY KEY,
+                timestamp REAL,
+                phi REAL,
+                psi REAL,
+                kappa REAL,
+                T REAL,
+                coherence REAL
+            )
+        """)
+        self._db_conn.commit()
+        logger.info("[MorphicLedger] Φ_awareness_history table ready.")
+
+    def log_phi_awareness(self, entry: Dict[str, Any]) -> None:
+        """
+        Persist Φ-awareness samples to JSONL and (if enabled) SQLite.
+        Expected keys: timestamp, Φ, ψ, κ, T, coherence.
+        """
+        try:
+            # JSONL mirror
+            aw_path = os.path.join(self.base_path, "phi_awareness_history.jsonl")
+            os.makedirs(self.base_path, exist_ok=True)
+            with open(aw_path, "a", encoding="utf-8") as f:
+                f.write(json.dumps(entry) + "\n")
+
+            # SQLite persistence (if available)
+            if self._db_conn:
+                self._init_phi_history_table()
+                cur = self._db_conn.cursor()
+                cur.execute("""
+                    INSERT INTO phi_awareness_history
+                    (id, timestamp, phi, psi, kappa, T, coherence)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                """, (
+                    f"phi_{uuid.uuid4().hex[:10]}",
+                    entry.get("timestamp", time.time()),
+                    entry.get("Φ", 0.0),
+                    entry.get("ψ", 0.0),
+                    entry.get("κ", 0.0),
+                    entry.get("T", 0.0),
+                    entry.get("coherence", 0.0),
+                ))
+                self._db_conn.commit()
+
+            logger.info(
+                f"[ΦHistory] Logged Φ={entry.get('Φ'):.3f}, ψ={entry.get('ψ'):.3f}, "
+                f"κ={entry.get('κ'):.3f}, T={entry.get('T'):.3f}"
+            )
+
+            # Mirror to CFA awareness channel
+            try:
+                CFA.commit(
+                    source="MORPHIC_LEDGER",
+                    intent="record_phi_awareness",
+                    payload=entry,
+                    domain="symatics/phi_awareness_history",
+                    tags=["Φ", "awareness", "history", "morphic"],
+                )
+            except Exception as e:
+                logger.warning(f"[ΦHistory] CFA mirror failed: {e}")
+
+        except Exception as e:
+            logger.warning(f"[ΦHistory] Failed to log Φ-awareness: {e}")
+
     # ──────────────────────────────────────────────
     #  Optional SQLite Backend (Stage 9)
     # ──────────────────────────────────────────────
@@ -140,30 +226,57 @@ class MorphicLedger:
         """)
         self._db_conn.commit()
 
-    def append_sqlite(self, tensor_data: Dict[str, Any], observer: Optional[str] = None) -> None:
-        """Append to SQLite backend (future extension)."""
-        if not self._db_conn:
-            return
-        cur = self._db_conn.cursor()
-        cur.execute("""
-            INSERT INTO morphic_records VALUES (?,?,?,?,?,?,?,?,?,?)
-        """, (
-            f"entry_{uuid.uuid4().hex[:10]}",
-            time.time(),
-            observer or "HQCE_Runtime",
-            tensor_data.get("psi", 0.0),
-            tensor_data.get("kappa", 0.0),
-            tensor_data.get("T", 0.0),
-            tensor_data.get("coherence", 0.0),
-            tensor_data.get("gradient", 0.0),
-            tensor_data.get("stability", 0.0),
-            json.dumps(tensor_data.get("metadata", {}))
-        ))
-        self._db_conn.commit()
-
     # ──────────────────────────────────────────────
     #  Retrieval / Query
     # ──────────────────────────────────────────────
+    def query_phi_history(self, limit: int = 100):
+        """Retrieve last N Φ-awareness records (JSONL or SQLite)."""
+        if self._db_conn:
+            cur = self._db_conn.cursor()
+            cur.execute(
+                "SELECT timestamp, phi, psi, kappa, T, coherence "
+                "FROM phi_awareness_history ORDER BY timestamp DESC LIMIT ?",
+                (limit,),
+            )
+            rows = cur.fetchall()
+            return [
+                {
+                    "timestamp": r[0],
+                    "Φ": r[1],
+                    "ψ": r[2],
+                    "κ": r[3],
+                    "T": r[4],
+                    "coherence": r[5],
+                }
+                for r in rows
+            ]
+
+        # JSONL fallback
+        path = os.path.join(self.base_path, "phi_awareness_history.jsonl")
+        if not os.path.exists(path):
+            return []
+
+        records = []
+        with open(path, "r", encoding="utf-8") as f:
+            for line in f:
+                if not line.strip():
+                    continue
+                try:
+                    rec = json.loads(line)
+                    # Normalize escaped Greek keys → plain symbols
+                    norm = {
+                        "timestamp": rec.get("timestamp"),
+                        "Φ": rec.get("Φ", rec.get("\u03a6")),
+                        "ψ": rec.get("ψ", rec.get("\u03c8")),
+                        "κ": rec.get("κ", rec.get("\u03ba")),
+                        "T": rec.get("T"),
+                        "coherence": rec.get("coherence"),
+                    }
+                    records.append(norm)
+                except Exception as e:
+                    logger.warning(f"[ΦHistory] Bad JSONL entry: {e}")
+        return records[-limit:]
+
     def load_all(self) -> List[Dict[str, Any]]:
         """Load all JSONL entries."""
         if not os.path.exists(self.ledger_path):
@@ -229,6 +342,24 @@ class MorphicLedger:
 
         logger.debug(f"[MorphicLedger] Trend summary → {summary}")
         return summary
+
+    # ──────────────────────────────────────────────
+    #  Φ-Awareness Trend Retrieval & Visualization
+    # ──────────────────────────────────────────────
+    def get_phi_history(self, limit: int = 1000) -> List[Dict[str, Any]]:
+        """
+        Load the most recent Φ-awareness events from phi_awareness_history.jsonl.
+        """
+        path = os.path.join(self.base_path, "phi_awareness_history.jsonl")
+        if not os.path.exists(path):
+            return []
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                lines = [json.loads(line) for line in f if line.strip()]
+            return lines[-limit:]
+        except Exception as e:
+            logger.error(f"[ΦHistory] Failed to load Φ history: {e}")
+            return []
 
     # ──────────────────────────────────────────────
     #  Export for Analysis or Dashboard
@@ -313,6 +444,205 @@ class MorphicLedger:
             print(f"[MorphicLedger] 🧪 Test record appended → {target}")
         return target
 
+    # ──────────────────────────────────────────────
+    #  Φ-Awareness Trend Retrieval & Visualization
+    # ──────────────────────────────────────────────
+    def get_phi_trend(self, limit: int = 100) -> Dict[str, float]:
+        """Compute Φ trend statistics for CodexTrace Narrator."""
+        path = os.path.join(self.base_path, "phi_awareness_history.jsonl")
+        if not os.path.exists(path):
+            logger.warning("[ΦTrend] No history file found.")
+            return {"count": 0}
+
+        records = []
+        with open(path, "r", encoding="utf-8") as f:
+            for line in f:
+                if not line.strip():
+                    continue
+                try:
+                    rec = json.loads(line)
+                    records.append({
+                        "timestamp": rec.get("timestamp"),
+                        "Φ": rec.get("Φ", rec.get("\u03a6")),
+                        "ψ": rec.get("ψ", rec.get("\u03c8")),
+                        "κ": rec.get("κ", rec.get("\u03ba")),
+                        "T": rec.get("T"),
+                        "coherence": rec.get("coherence"),
+                    })
+                except Exception as e:
+                    logger.warning(f"[ΦTrend] Bad entry: {e}")
+
+        if not records:
+            return {"count": 0}
+
+        φ_vals = [r["Φ"] for r in records if r["Φ"] is not None]
+        ψ_vals = [r["ψ"] for r in records if r["ψ"] is not None]
+        κ_vals = [r["κ"] for r in records if r["κ"] is not None]
+        coh_vals = [r["coherence"] for r in records if r["coherence"] is not None]
+
+        φ_mean = sum(φ_vals) / len(φ_vals)
+        φ_std = (sum((x - φ_mean) ** 2 for x in φ_vals) / len(φ_vals)) ** 0.5
+        stability = 1.0 - φ_std
+
+        stats = {
+            "count": len(φ_vals),
+            "Φ_mean": φ_mean,
+            "Φ_std": φ_std,
+            "ψ_mean": sum(ψ_vals) / len(ψ_vals),
+            "κ_mean": sum(κ_vals) / len(κ_vals),
+            "coherence_mean": sum(coh_vals) / len(coh_vals),
+            "stability_index": stability,
+            "last_timestamp": records[-1]["timestamp"],
+        }
+
+        logger.info(f"[ΦTrend] Φ_mean={φ_mean:.4f}, stability_index={stability:.4f}")
+        return stats
+
+    def plot_phi_over_time(self, output_path="data/ledger/phi_trend.png"):
+        """Plot Φ awareness evolution over time."""
+        import matplotlib.pyplot as plt
+
+        records = []
+        path = os.path.join(self.base_path, "phi_awareness_history.jsonl")
+        if not os.path.exists(path):
+            logger.warning("[ΦPlot] No data file found.")
+            return
+
+        with open(path, "r", encoding="utf-8") as f:
+            for line in f:
+                if line.strip():
+                    rec = json.loads(line)
+                    records.append({
+                        "timestamp": rec.get("timestamp"),
+                        "Φ": rec.get("Φ", rec.get("\u03a6")),
+                    })
+
+        if not records:
+            logger.warning("[ΦPlot] No records found.")
+            return
+
+        times = [r["timestamp"] for r in records]
+        phi_vals = [r["Φ"] for r in records]
+
+        plt.figure(figsize=(8, 4))
+        plt.plot(times, phi_vals, marker="o", linestyle="-")
+        plt.title("Φ-Awareness Evolution")
+        plt.xlabel("Timestamp")
+        plt.ylabel("Φ")
+        plt.grid(True)
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        plt.savefig(output_path)
+        logger.info(f"[ΦPlot] Saved Φ-awareness trend → {output_path}")
+
+    # ──────────────────────────────────────────────
+    #  Stage 12 • QFC Bridge Synchronization Layer
+    # ──────────────────────────────────────────────
+    async def broadcast_qfc_update(self, payload: Dict[str, Any]) -> None:
+        """Asynchronously broadcast Φ–ψ resonance data to Quantum Field Controller."""
+        try:
+            import asyncio, json
+            await asyncio.sleep(0.01)
+            msg = json.dumps({
+                "topic": "qfc://resonance/update",
+                "payload": payload,
+                "timestamp": time.time(),
+            })
+            print(f"[QFC↗] Broadcast resonance packet → {msg[:100]}…")
+        except Exception as e:
+            logger.warning(f"[QFCBridge] Broadcast failed: {e}")
+
+    def _safe_async(self, coro_func, *args, **kwargs):
+        """Run an async coroutine safely, even if no event loop is running."""
+        import asyncio
+        try:
+            loop = asyncio.get_running_loop()
+            loop.create_task(coro_func(*args, **kwargs))
+        except RuntimeError:
+            asyncio.run(coro_func(*args, **kwargs))
+
+    def compute_resonance_coupling(self, window: int = 100) -> Dict[str, Any]:
+        """Analyze Φ–ψ coupling and emit live QFC resonance packet."""
+        import math, statistics
+        entries = self.get_phi_history(window)
+        if not entries or len(entries) < 3:
+            logger.warning("[ΦΨResonance] Not enough Φ–ψ data points.")
+            return {"count": 0}
+
+        Φ_vals = [e.get("Φ", 0.0) for e in entries]
+        ψ_vals = [e.get("ψ", 0.0) for e in entries]
+        Φ_mean, ψ_mean = statistics.mean(Φ_vals), statistics.mean(ψ_vals)
+
+        num = sum((a - Φ_mean) * (b - ψ_mean) for a, b in zip(Φ_vals, ψ_vals))
+        den = math.sqrt(sum((a - Φ_mean)**2 for a in Φ_vals) *
+                        sum((b - ψ_mean)**2 for b in ψ_vals))
+        correlation = num / den if den else 0.0
+
+        phase_diff = statistics.mean(abs(a - b) for a, b in zip(Φ_vals, ψ_vals))
+        resonance_index = max(0.0, min(1.0, (1.0 - phase_diff) * abs(correlation)))
+
+        result = {
+            "count": len(Φ_vals),
+            "Φ_mean": Φ_mean,
+            "ψ_mean": ψ_mean,
+            "correlation": correlation,
+            "phase_diff": phase_diff,
+            "resonance_index": resonance_index,
+            "timestamp": entries[-1].get("timestamp"),
+        }
+
+        logger.info(f"[ΦΨResonance] r={correlation:.4f}, Δφ={phase_diff:.4f}, R={resonance_index:.4f}")
+
+        # Cognitive Fabric mirror
+        try:
+            CFA.commit(
+                source="MORPHIC_LEDGER",
+                intent="phi_psi_resonance",
+                payload=result,
+                domain="symatics/resonance_coupling",
+                tags=["Φψ", "resonance", "coupling", "analysis"],
+            )
+        except Exception as e:
+            logger.warning(f"[ΦΨResonance] CFA commit failed: {e}")
+
+        # 🔊 QFC live bridge
+        try:
+            self._safe_async(self.broadcast_qfc_update, result)
+        except Exception as e:
+            logger.warning(f"[ΦΨResonance] Async bridge failed: {e}")
+
+        return result
+
+    def plot_phi_psi_coupling(self, save_path: str = "data/ledger/phi_psi_coupling.png") -> Optional[str]:
+        """
+        Plot Φ and ψ over time to visualize resonance coupling.
+        """
+        try:
+            import matplotlib.pyplot as plt
+            entries = self.get_phi_history(200)
+            if not entries:
+                logger.warning("[ΦΨPlot] No Φ–ψ history to plot.")
+                return None
+
+            t = [e["timestamp"] for e in entries]
+            Φ_vals = [e.get("Φ", 0.0) for e in entries]
+            ψ_vals = [e.get("ψ", 0.0) for e in entries]
+
+            plt.figure(figsize=(8, 4))
+            plt.plot(t, Φ_vals, label="Φ (awareness)", linestyle="-", marker="o")
+            plt.plot(t, ψ_vals, label="ψ (wave field)", linestyle="--", marker="x")
+            plt.title("Φ–ψ Resonance Coupling Over Time")
+            plt.xlabel("Timestamp")
+            plt.ylabel("Field Values")
+            plt.legend()
+            plt.grid(True)
+            os.makedirs(os.path.dirname(save_path), exist_ok=True)
+            plt.savefig(save_path, dpi=150, bbox_inches="tight")
+
+            logger.info(f"[ΦΨPlot] Saved Φ–ψ resonance plot → {save_path}")
+            return save_path
+        except Exception as e:
+            logger.error(f"[ΦΨPlot] Failed to generate Φ–ψ plot: {e}")
+            return None
 
 # ──────────────────────────────────────────────
 #  Singleton instance (used by HQCE runtime)
