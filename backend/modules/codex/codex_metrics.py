@@ -483,8 +483,13 @@ def load_last_benchmark_score(path: str = "./benchmarks") -> dict:
         return {}
 
 import json
+import time
+from pathlib import Path
 from typing import Optional
 
+# ─────────────────────────────────────────────
+# 📊 Benchmark Logger
+# ─────────────────────────────────────────────
 def log_benchmark_result(result: dict, to_file: Optional[str] = None):
     """
     Log benchmark metrics for a CodexLang or glyph compression test.
@@ -492,15 +497,15 @@ def log_benchmark_result(result: dict, to_file: Optional[str] = None):
     """
     print(f"\n[Benchmark] {result.get('glyph', '[unknown glyph]')}")
 
-    classical_time = result.get('classical_time')
-    qglyph_time = result.get('qglyph_time')
-    depth_classical = result.get('depth_classical')
-    depth_qglyph = result.get('depth_qglyph')
-    compression_ratio = result.get('compression_ratio')
-    speedup_ratio = result.get('speedup_ratio')
-    qglyph_id = result.get('qglyph_id')
+    classical_time = result.get("classical_time")
+    qglyph_time = result.get("qglyph_time")
+    depth_classical = result.get("depth_classical")
+    depth_qglyph = result.get("depth_qglyph")
+    compression_ratio = result.get("compression_ratio")
+    speedup_ratio = result.get("speedup_ratio")
+    qglyph_id = result.get("qglyph_id")
 
-    # 🛡️ Safe float casting for formatting
+    # Safe float formatting
     def fmt_float(val, digits=4, suffix="s"):
         try:
             return f"{float(val):.{digits}f}{suffix}"
@@ -520,7 +525,7 @@ def log_benchmark_result(result: dict, to_file: Optional[str] = None):
     print(f"  ⚡ Speedup Ratio:      {fmt_ratio(speedup_ratio)}")
     print(f"  🧿 QGlyph ID: {qglyph_id or '[none]'}")
 
-    # 💾 Save to JSONL file
+    # Save to JSONL
     if to_file:
         try:
             with open(to_file, "a", encoding="utf-8") as f:
@@ -528,14 +533,49 @@ def log_benchmark_result(result: dict, to_file: Optional[str] = None):
         except Exception as e:
             print(f"⚠️ Failed to write benchmark to file: {e}")
 
+
+# ─────────────────────────────────────────────
+# 🧠 GHX Awareness Listener
+# ─────────────────────────────────────────────
+from backend.RQC.src.photon_runtime.telemetry.ghx_awareness_feed import get_latest_awareness_frame
+# Optional if utils.py exists
+# from backend.RQC.src.photon_runtime.telemetry.utils import render_awareness_plot
+
+# If codexmetrics doesn’t yet define record_event, use this inline fallback
+try:
+    from backend.modules.codex.codexmetrics import record_event
+except ImportError:
+    def record_event(event_name: str, payload: dict = None):
+        payload = payload or {}
+        print(f"[CodexMetrics] Event: {event_name} {json.dumps(payload, ensure_ascii=False)}")
+        return {"timestamp": time.time(), "event": event_name, "payload": payload}
+
+LEDGER_PATH = Path("data/ledger/rqc_live_telemetry.jsonl")
+REFRESH_INTERVAL = 2.0  # seconds
+
+def run_listener(duration: float = 60.0):
+    print("🧠 GHX Awareness Listener — Streaming Φ(t), R(t), S …")
+    t0 = time.time()
+    while time.time() - t0 < duration:
+        frame = get_latest_awareness_frame(LEDGER_PATH)
+        if frame:
+            phi = frame.get("Phi", 0.0)
+            res = frame.get("resonance_index", 0.0)
+            stab = frame.get("stability", 0.0)
+            gain = frame.get("gain", 0.0)
+            print(f"[Φ={phi:.6f}] [R={res:.6f}] [S={stab:.3f}] [g={gain:.2f}]")
+            record_event("GHX::awareness_frame", frame)
+        time.sleep(REFRESH_INTERVAL)
+
+if __name__ == "__main__":
+    run_listener()
+
+
+# ─────────────────────────────────────────────
+# 📦 Exports
+# ─────────────────────────────────────────────
 __all__ = [
-    "record_execution_metrics",
-    "CodexMetricsShim",
-    "CodexMetrics",
-    "score_glyph_tree",
-    "calculate_glyph_cost",
     "log_benchmark_result",
-    "estimate_compression_stats",
-    "log_metric",
+    "run_listener",
+    "record_event",
 ]
-codex_metrics = CodexMetrics()

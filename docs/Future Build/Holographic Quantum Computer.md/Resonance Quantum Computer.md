@@ -1,9 +1,3 @@
-
-XXXXXXXXXXXXXX DONT FORGET>>>>>>>>> Hardware loop simulation
-Prepare optical implementation
-Map operators to MZM/DAC symbols
-XXXXXXXXXXXXXXXXXXX
-
 flowchart TD
 
 subgraph TRACKS["Tri-Track Plan — Symatics v0.3 · Photonic Resonance · AION–QQC Coupling"]
@@ -37,15 +31,18 @@ direction TB
    B2a[💡 Implement ⊕ superpose (kernel)]
    B2b[🔁 Implement ⟲ resonate (feedback stabilizer)]
    B2c[🔗 Implement ↔ entangle (mode coupling + phase lock)]
-   B2d[📊 Telemetry→CodexTrace v2: visibility • phase_error • πₛ_closure • coherence energy]
+   B2d[📊 Telemetry→CodexTrace v2:<br/>visibility • phase_error • πₛ closure • coherence energy]
 ✅ B2e[🧠 Symbolic↔Photonic parity validation graph]
   end
 
-  subgraph B3["Phase 3 — Hardware Bridge (parallel build-out)"]
+  subgraph B3["Phase 3 — Hardware Bridge + Optical Loop Simulation"]
   direction TB
    B3a[🔌 Driver API stubs for MZM/DAC/PD modules]
    B3b[⏱️ Clocking + Sync Doc (`docs/photonics/framing_and_sync.md`)]
    B3c[🧷 Abstract I/O loopback → hardware drop-in layer]
+   B3d[🧠 Hardware Loop Simulation <br/>real-time optical feedback bench in NumPy/JAX]
+   B3e[🔬 Prepare Optical Implementation <br/>lab assembly · fiber coupler · PD integration]
+   B3f[📡 Map Operators to MZM/DAC Symbols <br/>(`hardware/map_ops_to_modulators.py`)]
   end
 end
 
@@ -53,19 +50,21 @@ end
 subgraph C["C) AION & QQC Integration Layer"]
 direction TB
 ✅ C1[🧠 AION Resonance Engine Coupling `aion_bridge/aion_readout_bridge.py`]
-✅ C2[🪶 C5 — Pattern Reflection Oracle (telemetry plugin)]
-   C3[🌀 QQC Synchronization Bus (WIP)]
-   C4[⚡ QAC Embedding → Resonant Cognition Pipeline]
+✅ C2[🪶 Pattern Reflection Oracle (telemetry plugin)]
+✅ C3[🌀 QQC Photon Bridge → Resonance Bus (active)]
+✅ C4[🧠 AION Photon Ingestor → Fabric Fusion Tensor (active)]
 ✅ C5[📡 Telemetry Pipeline AION→HexCore→MorphicLedger→CFA→CodexTrace]
 ✅ C6[🪶 AionTelemetryStream ψ κ T Φ Recorder (operational)]
    C7[🌐 Phase-state Propagation in Cognitive Fabric (WIP)]
+✅ C8[🧩 Integrate RQC Core → QQC Resonance Layer <br/>(`qqc_bridge/rqc_sync_adapter.py`)]
+✅ C9[🔄 Integrate RQC ↔ AION Cognitive Loop (Resonant Feedback) <br/>(`aion_bridge/rqc_feedback_link.py`)]
 end
 
 %% ─────────────────────────────────────────────
 subgraph D["D) Verification / Law-Check / Conscious Coherence"]
 direction TB
 ✅ D1[📗 Golden Tests ⊕ μ ⟲ ↔ parity across CPU + Photon]
-   D2[📘 Law-Check Parity Report v0.3 (`docs/rfc`)]
+✅ D2[📘 Law-Check Parity Report v0.3 (`docs/rfc`)]
    D3[👋 Hello-World Series (Resonance / Interference / Entangle / AION)]
    D4[🧩 πₛ Phase Closure Validator v2]
    D5[🔭 Resonant Logic Kernel Tests]
