@@ -14,11 +14,13 @@ import logging
 import requests
 import time
 from typing import Dict
+from flask import Flask, request, jsonify
 
 from backend.RQC.src.photon_runtime.interfaces.photon_ingest_protocol import PhotonIngestProtocol
+from backend.AION.fabric.aion_fabric_resonance import resonance_ingest
 
 # ────────────────────────────────────────────────
-#  Optional Photon decoder (fallback-safe)
+# Optional Photon decoder (fallback-safe)
 # ────────────────────────────────────────────────
 try:
     from backend.RQC.src.photon_runtime.glyph_math.encoder import photon_decode
@@ -26,25 +28,25 @@ except Exception:
     photon_decode = None
 
 # ────────────────────────────────────────────────
-#  Configuration
+# Configuration
 # ────────────────────────────────────────────────
 SSE_URL = "http://127.0.0.1:5005/stream/ghx"
-BASE_RETRY_DELAY = 3      # initial seconds between reconnect attempts
-MAX_RETRY_DELAY = 30      # cap for exponential backoff
-BACKOFF_FACTOR = 1.5      # growth multiplier for retry delay
+BASE_RETRY_DELAY = 3
+MAX_RETRY_DELAY = 30
+BACKOFF_FACTOR = 1.5
 
-# Logger setup
+# ────────────────────────────────────────────────
+# Logging Setup
+# ────────────────────────────────────────────────
 logger = logging.getLogger("AIONPhotonIngest")
 logger.setLevel(logging.INFO)
 handler = logging.StreamHandler()
-formatter = logging.Formatter(
-    "[%(asctime)s] [%(name)s] %(levelname)s: %(message)s", "%H:%M:%S"
-)
+formatter = logging.Formatter("[%(asctime)s] [%(name)s] %(levelname)s: %(message)s", "%H:%M:%S")
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 # ────────────────────────────────────────────────
-#  AION Photon Bridge Implementation
+# AION Photon Bridge Implementation
 # ────────────────────────────────────────────────
 class AIONPhotonIngestor(PhotonIngestProtocol):
     """
@@ -56,11 +58,25 @@ class AIONPhotonIngestor(PhotonIngestProtocol):
 
     def __init__(self, name: str = "AIONPhotonIngestor"):
         super().__init__(name)
+        self.current_gamma_prime = 1.0  # adaptive feedback gain
         logger.info(f"[{name}] Initialized and waiting for stream …")
 
+    # ───────────────────────────────
+    # Feedback Gain Handling
+    # ───────────────────────────────
+    def update_feedback_gain(self, gamma_prime: float):
+        """Receives γ′ (adaptive gain) from AION Fabric Feedback Controller."""
+        if not isinstance(gamma_prime, (int, float)):
+            logger.warning(f"[AIONPhotonIngestor] Invalid γ′ value: {gamma_prime}")
+            return
+        self.current_gamma_prime = max(0.1, min(2.0, gamma_prime))
+        logger.info(f"[AIONPhotonIngestor] Updated feedback gain γ′={self.current_gamma_prime:.3f}")
+
+    # ───────────────────────────────
+    # Packet Ingestion Logic
+    # ───────────────────────────────
     def on_ingest(self, data: Dict):
         """Handle Photon packet decoded from GHX stream."""
-        # Guard: ensure valid dict input
         if not isinstance(data, dict) or not data:
             self.log_event("AION⇌Fabric[Invalid]", {"error": "Malformed or empty packet"})
             return
@@ -70,10 +86,10 @@ class AIONPhotonIngestor(PhotonIngestProtocol):
         state = data.get("S") or data.get("closure_state")
         gain = data.get("γ") or data.get("gain")
 
-        # Log event summary
-        self.log_event("AION⇌Fabric", data)
+        # Apply feedback gain correction (σ→γ′ coupling)
+        if gain is not None:
+            gain = (gain or 1.0) * getattr(self, "current_gamma_prime", 1.0)
 
-        # 🔹 Transcribe into internal AION cognitive fields
         fabric_packet = {
             "ψ": phi,
             "κ": res,
@@ -88,22 +104,28 @@ class AIONPhotonIngestor(PhotonIngestProtocol):
     # ───────────────────────────────
     # Internal forward stub
     # ───────────────────────────────
-    from backend.AION.fabric.aion_fabric_resonance import resonance_ingest
-
     def _forward_to_cognitive_fabric(self, payload: Dict):
         """Forward normalized ψ–κ–T–Φ packet to AION Morphic Fabric."""
         resonance_ingest(payload)
 
 # ────────────────────────────────────────────────
-#  Stream Listener with Auto-Reconnect
+# Flask API for feedback gain update
+# ────────────────────────────────────────────────
+app = Flask("AIONGainReceiver")
+bridge = AIONPhotonIngestor()
+
+@app.route("/aion/update_gain", methods=["POST"])
+def update_gain():
+    data = request.json
+    gamma_prime = data.get("gamma_prime")
+    bridge.update_feedback_gain(gamma_prime)
+    return jsonify({"status": "ok", "gamma_prime": gamma_prime})
+
+# ────────────────────────────────────────────────
+# Stream Listener with Auto-Reconnect
 # ────────────────────────────────────────────────
 def run_aion_photon_listener():
-    """
-    Continuously listen to GHX Photon SSE stream and pass packets
-    into the AION Cognitive Fabric through the PhotonIngestProtocol.
-    Includes auto-reconnect and exponential backoff for robustness.
-    """
-    bridge = AIONPhotonIngestor()
+    """Continuously listen to GHX Photon SSE stream and pass packets to AION."""
     retry_delay = BASE_RETRY_DELAY
 
     while True:
@@ -111,9 +133,7 @@ def run_aion_photon_listener():
             logger.info("🔗 AION Photon Ingestor attempting connection to GHX SSE stream …")
             with requests.get(SSE_URL, stream=True, timeout=None) as resp:
                 if resp.status_code != 200:
-                    logger.warning(
-                        f"[AIONPhotonIngestor] Bad status {resp.status_code}, retrying in {retry_delay}s …"
-                    )
+                    logger.warning(f"[AIONPhotonIngestor] Bad status {resp.status_code}, retrying in {retry_delay}s …")
                     time.sleep(retry_delay)
                     retry_delay = min(retry_delay * BACKOFF_FACTOR, MAX_RETRY_DELAY)
                     continue
@@ -152,7 +172,13 @@ def run_aion_photon_listener():
             continue
 
 # ────────────────────────────────────────────────
-#  Standalone Runner
+# Standalone Runner
 # ────────────────────────────────────────────────
 if __name__ == "__main__":
+    from threading import Thread
+
+    # Run Flask gain listener on a side thread
+    Thread(target=lambda: app.run(port=5070, debug=False, use_reloader=False)).start()
+
+    # Start photon listener
     run_aion_photon_listener()

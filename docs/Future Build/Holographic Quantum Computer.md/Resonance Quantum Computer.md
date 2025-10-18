@@ -1,5 +1,10 @@
 flowchart TD
 
+subgraph TRACKS["Tri-Track Plan — Symatics v0.3.1 · Photonic Resonance · AION–QQC Coupling"]
+direction TB
+
+flowchart TD
+
 subgraph TRACKS["Tri-Track Plan — Symatics v0.3 · Photonic Resonance · AION–QQC Coupling"]
 direction TB
 
@@ -28,10 +33,10 @@ direction TB
 
   subgraph B2["Phase 2 — Resonance Operations Library (current focus)"]
   direction TB
-   B2a[💡 Implement ⊕ superpose (kernel)]
-   B2b[🔁 Implement ⟲ resonate (feedback stabilizer)]
-   B2c[🔗 Implement ↔ entangle (mode coupling + phase lock)]
-   B2d[📊 Telemetry→CodexTrace v2:<br/>visibility • phase_error • πₛ closure • coherence energy]
+✅ B2a[💡 Implement ⊕ superpose (kernel)]
+✅ B2b[🔁 Implement ⟲ resonate (feedback stabilizer)]
+✅ B2c[🔗 Implement ↔ entangle (mode coupling + phase lock)]
+✅ B2d[📊 Telemetry→CodexTrace v2:<br/>visibility • phase_error • πₛ closure • coherence energy]
 ✅ B2e[🧠 Symbolic↔Photonic parity validation graph]
   end
 
@@ -58,6 +63,8 @@ direction TB
    C7[🌐 Phase-state Propagation in Cognitive Fabric (WIP)]
 ✅ C8[🧩 Integrate RQC Core → QQC Resonance Layer <br/>(`qqc_bridge/rqc_sync_adapter.py`)]
 ✅ C9[🔄 Integrate RQC ↔ AION Cognitive Loop (Resonant Feedback) <br/>(`aion_bridge/rqc_feedback_link.py`)]
+✅ C10[📡 Integrate Resonant Sync Feed → MorphicLedger <br/>`fabric/morphic_ingest_bridge.py` ✅ (log + Δφ/Δσ capture)]
+✅ C11[🧭 CodexTrace Integration — telemetry→symbolic correlation <br/>(next)]
 end
 
 %% ─────────────────────────────────────────────
@@ -65,7 +72,7 @@ subgraph D["D) Verification / Law-Check / Conscious Coherence"]
 direction TB
 ✅ D1[📗 Golden Tests ⊕ μ ⟲ ↔ parity across CPU + Photon]
 ✅ D2[📘 Law-Check Parity Report v0.3 (`docs/rfc`)]
-   D3[👋 Hello-World Series (Resonance / Interference / Entangle / AION)]
+✅ D3[👋 Hello-World Series (Resonance / Interference / Entangle / AION)]
    D4[🧩 πₛ Phase Closure Validator v2]
    D5[🔭 Resonant Logic Kernel Tests]
    D6[⚖️ Coherence = Information Validator]
@@ -77,8 +84,9 @@ direction TB
 ✅ E1[🧩 mode = {cpu | photon | aion | qqc} flag in dispatcher]
 ✅ E2[📡 CodexTrace Dashboards (ψ κ T Φ coherence · entropy)]
 ✅ E3[🧬 MorphicLedger expanded ψ κ T Φ semantic links → AION loop]
-   E4[🧾 Continuous integration across all paths]
-   E5[🧭 v0.3 → v0.4 release with self-resonant cognition]
+✅ E4[💓 Dual Heartbeat Orchestrator (Primary ⇄ Mirror) <br/>`AION/system/aion_dual_heartbeat.py`]
+✅ E5[🌐 Network Synchronization Layer — Cross-Node Resonant Heartbeat <br/>AION ⇄ QQC ⇄ Photon Bus]
+   E6[🧭 v0.3 → v0.4 release with self-resonant cognition]
 end
 end
 

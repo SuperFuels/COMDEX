@@ -189,6 +189,36 @@ async def startup_event():
     except Exception as e:
         logger.warning(f"[GHXTelemetry] Adapter not started: {e}")
 
+    # ── Start AION Dual Heartbeat Supervisor (Primary or Mirror)
+    import psutil
+
+    def is_heartbeat_running(role="primary"):
+        """Check if a specific AION Dual Heartbeat instance is already active."""
+        for proc in psutil.process_iter(['cmdline']):
+            cmd = proc.info['cmdline']
+            if cmd and f"aion_dual_heartbeat.py" in " ".join(cmd) and f"--role {role}" in " ".join(cmd):
+                return True
+        return False
+
+    try:
+        # Detect node role (default: primary)
+        role = os.environ.get("AION_ROLE", "primary").lower()
+        logger.info(f"💠 Detected AION node role: {role.upper()}")
+
+        # Launch the corresponding heartbeat if not already active
+        if not is_heartbeat_running(role):
+            logger.info(f"💓 Launching AION Dual Heartbeat Supervisor ({role.upper()})...")
+            subprocess.Popen(
+                ["python", "backend/AION/system/aion_dual_heartbeat.py", "--role", role],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+            logger.info(f"✅ AION {role.capitalize()} Heartbeat running in background.")
+        else:
+            logger.info(f"💤 AION {role.capitalize()} Heartbeat already running — skipping launch.")
+    except Exception as e:
+        logger.warning(f"⚠️ Failed to start AION Dual Heartbeat: {e}")
+
 # ── Routers
 from backend.routes.auth import router as auth_router
 from backend.routes.products           import router as products_router
@@ -268,6 +298,7 @@ from backend.routes.api_collapse_trace import router as collapse_trace_router
 from backend.routes import lean_inject_api
 from backend.utils.deprecation_logger import install_deprecation_hook
 from backend.RQC.src.photon_runtime.telemetry.ledger_feed import router as ledger_router
+
 from backend.api import ghx
 
 # ===== Atomsheet / LightCone / QFC wiring =====
