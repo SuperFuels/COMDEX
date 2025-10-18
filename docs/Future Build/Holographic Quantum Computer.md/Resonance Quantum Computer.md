@@ -1,3 +1,9 @@
+
+XXXXXXXXXXXXXX DONT FORGET>>>>>>>>> Hardware loop simulation
+Prepare optical implementation
+Map operators to MZM/DAC symbols
+XXXXXXXXXXXXXXXXXXX
+
 flowchart TD
 
 subgraph TRACKS["Tri-Track Plan — Symatics v0.3 · Photonic Resonance · AION–QQC Coupling"]
@@ -23,19 +29,19 @@ direction TB
 ✅ B1b[📘 Coherence Budget v2 (`docs/photonics`)]
 ✅ B1c[🧮 Propagation Simulator (JAX/NumPy) <br/>`sim/propagation.py`]
 ✅ B1d[🔍 Interferometric Read-out μ() <br/>`readout/interferometer.py`]
-   B1e[🧩 Symatics→Photon Adapter (feature-flag ready)]
+✅ B1e[🧩 Symatics→Photon Adapter (feature-flag ready)]
   end
 
-  subgraph B2["Phase 2 — Resonance Operations Library (Next)"]
+  subgraph B2["Phase 2 — Resonance Operations Library (current focus)"]
   direction TB
    B2a[💡 Implement ⊕ superpose (kernel)]
    B2b[🔁 Implement ⟲ resonate (feedback stabilizer)]
    B2c[🔗 Implement ↔ entangle (mode coupling + phase lock)]
-   B2d[📊 Telemetry→CodexTrace v2 <br/>visibility • phase_error • πₛ_closure • coherence energy]
+   B2d[📊 Telemetry→CodexTrace v2: visibility • phase_error • πₛ_closure • coherence energy]
 ✅ B2e[🧠 Symbolic↔Photonic parity validation graph]
   end
 
-  subgraph B3["Phase 3 — Hardware Bridge (Parallel Option)"]
+  subgraph B3["Phase 3 — Hardware Bridge (parallel build-out)"]
   direction TB
    B3a[🔌 Driver API stubs for MZM/DAC/PD modules]
    B3b[⏱️ Clocking + Sync Doc (`docs/photonics/framing_and_sync.md`)]
@@ -46,12 +52,13 @@ end
 %% ─────────────────────────────────────────────
 subgraph C["C) AION & QQC Integration Layer"]
 direction TB
-✅ C1[🧠 AION Resonance Engine Coupling <br/>`aion_bridge/aion_readout_bridge.py`]
-   C2[🌀 QQC Synchronization Bus (WIP)]
-   C3[⚡ QAC Embedding → Resonant Cognition Pipeline]
-✅ C4[📡 Telemetry Pipeline <br/>AION→HexCore→MorphicLedger→CFA→CodexTrace]
-✅ C5[🪶 AionTelemetryStream ψ κ T Φ Recorder]
-   C6[🌐 Phase-state Propagation in Cognitive Fabric (WIP)]
+✅ C1[🧠 AION Resonance Engine Coupling `aion_bridge/aion_readout_bridge.py`]
+✅ C2[🪶 C5 — Pattern Reflection Oracle (telemetry plugin)]
+   C3[🌀 QQC Synchronization Bus (WIP)]
+   C4[⚡ QAC Embedding → Resonant Cognition Pipeline]
+✅ C5[📡 Telemetry Pipeline AION→HexCore→MorphicLedger→CFA→CodexTrace]
+✅ C6[🪶 AionTelemetryStream ψ κ T Φ Recorder (operational)]
+   C7[🌐 Phase-state Propagation in Cognitive Fabric (WIP)]
 end
 
 %% ─────────────────────────────────────────────
@@ -69,26 +76,22 @@ end
 subgraph E["E) Deployment & Cognitive Feedback Cycle"]
 direction TB
 ✅ E1[🧩 mode = {cpu | photon | aion | qqc} flag in dispatcher]
-   E2[🧾 Continuous integration across all paths]
-✅ E3[📡 CodexTrace Dashboards (ψ κ T Φ coherence · entropy)]
-   E4[🧭 v0.3 → v0.4 release with self-resonant cognition]
-✅ E5[🧬 MorphicLedger expanded ψ κ T Φ semantic links → AION loop]
-end
+✅ E2[📡 CodexTrace Dashboards (ψ κ T Φ coherence · entropy)]
+✅ E3[🧬 MorphicLedger expanded ψ κ T Φ semantic links → AION loop]
+   E4[🧾 Continuous integration across all paths]
+   E5[🧭 v0.3 → v0.4 release with self-resonant cognition]
 end
 end
 
-%%--------------------------------------
-%%  SUCCESS CRITERIA SUMMARY
 subgraph SC["Resonant Completion Criteria ✓"]
 direction TB
-  SC1[✅ Hello-Resonance (⟲ phase ramp stability ε ≤ 1e−4)]
+  SC1[✅ Hello-Resonance (⟲ phase ramp ε ≤ 1e−4)]
   SC2[✅ Hello-Interference (⊕ visibility ≥ 0.98)]
   SC3[✅ Hello-Entangle (↔ correlation ≥ 0.99)]
-  SC4[✅ Hello-Aion (self-measured resonance feedback within Φ tolerance)]
-  SC5[✅ πₛ closure validator stable over 10⁶ cycles (phase-lock observed)]
-  SC6[✅ Coherence = Information metric converges to zero-entropy state]
+  SC4[✅ Hello-Aion (self-measured feedback within Φ tolerance)]
+  SC5[✅ πₛ closure stable over 10⁶ cycles]
+  SC6[✅ Coherence = Information metric → zero-entropy state]
 end
-
 
 🔮 SYSTEM OVERVIEW
 

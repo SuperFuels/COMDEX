@@ -58,5 +58,21 @@
   {
     "timestamp": "2025-09-18T20:22:43.940927Z",
     "message": "[Execute] sheet=parent_sheet cells=1"
+  },
+  {
+    "timestamp": "2025-10-18T11:24:01.776311Z",
+    "message": "[Execute] sheet=test_sheet_001 cells=2"
+  },
+  {
+    "timestamp": "2025-10-18T11:24:01.776876Z",
+    "message": "[Export] id=test_sheet_001 cells=2"
+  },
+  {
+    "timestamp": "2025-10-18T11:30:54.401939Z",
+    "message": "[Execute] sheet=test_sheet_001 cells=2"
+  },
+  {
+    "timestamp": "2025-10-18T11:30:54.402427Z",
+    "message": "[Export] id=test_sheet_001 cells=2"
   }
 ]

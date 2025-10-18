@@ -1,6 +1,31 @@
 # ===============================
 # 📁 backend/modules/atomsheets/atomsheet_engine.py
 # ===============================
+# ============================================================================
+# 🚧 NOTE: Temporary Fallback Imports — Replace When Symatics Is Active
+# ----------------------------------------------------------------------------
+# The following block provides defensive stubs for:
+#   - compute_resonance_metrics
+#   - PhotonTensor
+#   - CODEX_METRICS
+#   - SymaticQPU
+#   - symatics_extension helpers
+#
+# These are placeholder no-op or logging classes allowing AtomSheet to run
+# without the full Symatics or Cognitive Fabric layers installed.
+#
+# 🧩 When the real modules are available (Symatics and Codex Fabric online):
+#     🔁 Replace this entire section with the canonical imports below:
+#
+#     # --- Symatics Core Imports ---
+#     from backend.modules.symatics.sym_wave_engine import compute_resonance_metrics
+#     from backend.modules.symatics.sym_photon_tensor import PhotonTensor
+#     from backend.modules.cognitive_fabric.codex_metrics_bridge import CODEX_METRICS
+#     from backend.modules.codex.codex_resonance_qpu import SymaticQPU
+#
+# After replacement, remove all fallback definitions and `SYMATICS_ENABLED` guards.
+# ============================================================================
+
 from __future__ import annotations
 from typing import Any, Dict, List, Union, Optional
 import json
@@ -11,9 +36,78 @@ from backend.modules.patterns.pattern_trace_engine import record_trace
 from backend.modules.utils.time_utils import now_utc_iso, now_utc_ms
 from backend.modules.codex.codexlang_evaluator import evaluate_codexlang
 
+# --- Symatics Core Imports ---
+# --- Symatics Core Imports (optional until symatics/ exists) ---
+try:
+    from backend.modules.symatics.sym_wave_engine import compute_resonance_metrics
+    from backend.modules.symatics.sym_photon_tensor import PhotonTensor
+except Exception:
+    def compute_resonance_metrics(*args, **kwargs):
+        # graceful no-op fallback
+        return None
+
+    class PhotonTensor:
+        """Placeholder PhotonTensor (no-op)."""
+        def __init__(self, *args, **kwargs):
+            self.data = None
+
+# --- Cognitive Fabric Metrics Bridge (optional) ---
+try:
+    from backend.modules.cognitive_fabric.codex_metrics_bridge import CODEX_METRICS
+except Exception:
+    class _DummyMetrics:
+        """Fallback metrics bridge (no-op)."""
+        def latest(self):
+            return {"timestamp": 0.0, "event": "none", "payload": {}}
+        def push(self, event, payload=None, **kwargs):
+            print(f"[CODEX_METRICS stub] push: {event} | {payload}")
+    CODEX_METRICS = _DummyMetrics()
+try:
+    from backend.modules.codex.codex_resonance_qpu import SymaticQPU
+except Exception:
+    class SymaticQPU:
+        """Fallback SymaticQPU (no-op)."""
+        async def execute_sheet(self, cells, ctx):
+            # trivial execution mock
+            return {c.id: [f"Executed {c.logic}"] for c in cells}
+
+# --- Symatics Upgrade (optional) ---
+try:
+    from backend.modules.atomsheets.symatics_extension import (
+        SymaticQPU,
+        compute_resonant_metrics_bulk,
+        make_resonance_beam,
+    )
+    SYMATICS_ENABLED = True
+except Exception:
+    SYMATICS_ENABLED = False
+
 # Models / Registry
+# ⚠️ NOTE:
+# We import `register_sheet` lazily to avoid circular dependency issues between:
+#   atomsheet_engine ↔ models ↔ registry
+# Once these modules are refactored into separate namespaces (e.g., atomsheet.core),
+# restore the normal static import:
+#   from backend.modules.atomsheets.registry import register_sheet
 from .models import AtomSheet, GlyphCell
-from .registry import register_sheet
+#from .registry import register_sheet
+
+# --- Lazy import helper to avoid circular import issues ---
+# ⚠️ NOTE:
+# Using get_register_sheet() instead of direct import to prevent circular import issues
+# between atomsheet_engine ↔ registry ↔ models. Once refactored, replace with:
+#   from backend.modules.atomsheets.registry import register_sheet
+def get_register_sheet():
+    """
+    Lazy resolver for backend.modules.atomsheets.registry.register_sheet.
+    Use this instead of a static import to avoid circular dependency crashes.
+    """
+    from importlib import import_module
+    mod = import_module("backend.modules.atomsheets.registry")
+    # Ensure the module has finished initializing before accessing
+    if hasattr(mod, "register_sheet"):
+        return getattr(mod, "register_sheet")
+    raise ImportError("register_sheet not found in backend.modules.atomsheets.registry (possible circular import)")
 
 # --- Atom format defaults (canonical) ---
 ATOM_EXTS = (".atom", ".sqs.json")  # accept both; prefer `.atom`
@@ -422,7 +516,7 @@ def load_atom(src: Union[str, Dict[str, Any]]) -> AtomSheet:
         cells[gc.id] = gc
 
     sheet = AtomSheet(id=sid, title=title, dims=dims, meta=meta, cells=cells)
-    register_sheet(sheet)
+    get_register_sheet()(sheet)
     record_trace(
         "atomsheet",
         f"[Load] id={sheet.id} ext=.atom (or legacy) cells={len(sheet.cells)} dims={sheet.dims}"
@@ -444,7 +538,7 @@ async def execute_sheet(sheet: AtomSheet, context: Dict[str, Any]) -> Dict[str, 
       • (E7) Compute entropy / novelty / harmony per cell post-execution
       • (B6) CodexLang render for cells marked logic_type=codexlang (or meta.logic_type)
     """
-    qpu = CodexVirtualQPU()
+    qpu = SymaticQPU() if SYMATICS_ENABLED else CodexVirtualQPU()
 
     # ---------- Carry/augment context ----------
     ctx = dict(context or {})
@@ -469,6 +563,26 @@ async def execute_sheet(sheet: AtomSheet, context: Dict[str, Any]) -> Dict[str, 
     except Exception as e:
         record_trace("atomsheet", f"[Execute Error] {e}")
         raise
+
+    # ---------- (Φψ) Resonance Metrics ----------
+    if SYMATICS_ENABLED:
+        try:
+            compute_resonant_metrics_bulk(sheet.cells)
+            # add one sheet-level beam summary
+            first_cell = next(iter(sheet.cells.values()))
+            Φψ = {
+                "Φ_mean": getattr(first_cell, "Φ_mean", 1.0),
+                "ψ_mean": getattr(first_cell, "ψ_mean", 1.0),
+                "resonance_index": getattr(first_cell, "resonance_index", 1.0),
+                "coherence_energy": getattr(first_cell, "coherence_energy", 1.0),
+            }
+            beam = make_resonance_beam(sheet.id, Φψ)
+            for c in sheet.cells.values():
+                if not hasattr(c, "wave_beams") or c.wave_beams is None:
+                    c.wave_beams = []
+                c.wave_beams.append(beam)
+        except Exception as e:
+            record_trace("atomsheet", f"[Symatics Φψ Warn] {e}")
 
     # ---------- CodexLang evaluation (server-side preview) ----------
     try:
@@ -605,6 +719,10 @@ def to_dc_json(sheet: AtomSheet, path: Optional[str] = None) -> Dict[str, Any]:
                     "prediction": getattr(c, "prediction", ""),
                     "prediction_forks": list(getattr(c, "prediction_forks", []) or []),
                     "sqi_score": float(getattr(c, "sqi_score", 1.0) or 1.0),
+                    "Φ_mean": float(getattr(c, "Φ_mean", 1.0) or 1.0),
+                    "ψ_mean": float(getattr(c, "ψ_mean", 1.0) or 1.0),
+                    "resonance_index": float(getattr(c, "resonance_index", 1.0) or 1.0),
+                    "coherence_energy": float(getattr(c, "coherence_energy", 1.0) or 1.0),
                     "entropy": float(getattr(c, "entropy", 0.0) or 0.0),
                     "novelty": float(getattr(c, "novelty", 0.0) or 0.0),
                     "harmony": float(getattr(c, "harmony", 1.0) or 1.0),

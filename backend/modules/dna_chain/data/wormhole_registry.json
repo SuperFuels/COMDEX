@@ -208,5 +208,12 @@
     "meta": {
       "reason": "auto_hub"
     }
+  },
+  "photon_runtime→ucs_hub": {
+    "from": "photon_runtime",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
   }
 }

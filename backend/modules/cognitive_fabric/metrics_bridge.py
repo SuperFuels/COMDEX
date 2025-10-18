@@ -42,9 +42,12 @@ class CodexMetrics:
     ) -> None:
         """
         Record a structured telemetry event locally and mirror to CFA bus.
-        Automatically computes Φ–ψ coherence metrics if present.
+        Automatically computes Φ–ψ coherence metrics if present,
+        and ensures all data are JSON-serializable (NumPy / complex safe).
         """
         try:
+            import numpy as np
+
             payload = payload or {}
             tags = tags or []
             ts = time.time()
@@ -76,10 +79,20 @@ class CodexMetrics:
                 "coherence_energy": coherence_energy,
             }
 
-            # Append to local JSONL
-            with open(self.metrics_path, "a", encoding="utf-8") as f:
-                f.write(json.dumps(record) + "\n")
+            # ──────────────────────────────────────────────
+            # Safe serialization (NumPy + complex → JSON-safe)
+            # ──────────────────────────────────────────────
+            def safe_convert(obj):
+                if isinstance(obj, np.ndarray):
+                    return obj.tolist()
+                if isinstance(obj, complex):
+                    return {"real": obj.real, "imag": obj.imag}
+                return obj
 
+            with open(self.metrics_path, "a", encoding="utf-8") as f:
+                f.write(json.dumps(record, default=safe_convert) + "\n")
+
+            # Cache retention
             self._cache.append(record)
             if len(self._cache) > 1000:
                 self._cache.pop(0)
@@ -94,20 +107,27 @@ class CodexMetrics:
                 self._in_commit = True
                 try:
                     from backend.modules.cognitive_fabric.cognitive_fabric_adapter import CFA
-                    CFA.commit(
-                        source="CODEX_METRICS",
-                        intent=event,
-                        payload={
+
+                    # sanitize None values before sending to CFA
+                    cfa_payload = {
+                        k: v for k, v in {
                             **payload,
                             "coherence_energy": coherence_energy,
                             "Φ_mean": phi,
                             "ψ_mean": psi,
                             "phase_diff": phase,
                             "resonance_index": resi,
-                        },
+                        }.items() if v is not None
+                    }
+
+                    CFA.commit(
+                        source="CODEX_METRICS",
+                        intent=event,
+                        payload=cfa_payload,
                         domain=domain,
                         tags=tags or ["metrics", "telemetry"],
                     )
+
                 except Exception as e:
                     logger.warning(f"[CodexMetrics] CFA commit failed: {e}")
                 finally:
@@ -115,6 +135,22 @@ class CodexMetrics:
 
         except Exception as e:
             logger.error(f"[CodexMetrics] Failed to record event: {e}")
+
+    # ──────────────────────────────────────────────
+    #  Backward-compatible Push Interface
+    # ──────────────────────────────────────────────
+    def push(self, operator: str, payload: Dict[str, Any]) -> None:
+        """
+        Compatibility alias used by ResonanceBridge and photonic operators (⊕, ⟲, ↔).
+        Wraps record_event() for unified telemetry publishing.
+        """
+        try:
+            event_name = f"RQC::{operator}"
+            self.record_event(event_name, payload=payload, domain="photon_runtime")
+            if self.enable_logging:
+                logger.debug(f"[CodexMetrics] push({operator}) → OK")
+        except Exception as e:
+            logger.warning(f"[CodexMetrics] push() failed for {operator}: {e}")
 
     # ──────────────────────────────────────────────
     #  Utility Methods

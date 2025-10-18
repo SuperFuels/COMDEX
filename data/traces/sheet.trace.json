@@ -3090,5 +3090,93 @@
   {
     "timestamp": "2025-10-17T21:14:37.520300Z",
     "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-10-18T11:19:28.951505Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-10-18T11:21:02.131398Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-10-18T11:22:13.243895Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-10-18T11:24:01.424435Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-10-18T11:24:01.545288Z",
+    "message": "[QPU Sheet Metrics] {'execution_time': 0.1294822439995187, 'sqi_shift': 2.0, 'mutation_count': 2}"
+  },
+  {
+    "timestamp": "2025-10-18T11:24:01.550365Z",
+    "message": "[QPU Sheet Token Metrics] {'c1': {'=': [], '\u2295': [{'total': 0.014359058000081859, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '1': []}, 'c2': {'=': [], '\u2297': [{'total': 0.0035283879997223266, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}]}}"
+  },
+  {
+    "timestamp": "2025-10-18T11:24:01.555869Z",
+    "message": "[QPU Sheet Opcode Metrics] {'c1': {'\u2295': {'count': 1, 'total_time': 0.014359058000081859, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}, 'c2': {'\u2297': {'count': 1, 'total_time': 0.0035283879997223266, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}}"
+  },
+  {
+    "timestamp": "2025-10-18T11:24:01.744613Z",
+    "message": "[Sheet Execution] elapsed=0.314404s"
+  },
+  {
+    "timestamp": "2025-10-18T11:29:41.237083Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-10-18T11:30:33.090673Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-10-18T11:30:54.274817Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-10-18T11:30:54.349359Z",
+    "message": "[QPU Sheet Metrics] {'execution_time': 0.053146775000641355, 'sqi_shift': 2.0, 'mutation_count': 2}"
+  },
+  {
+    "timestamp": "2025-10-18T11:30:54.356142Z",
+    "message": "[QPU Sheet Token Metrics] {'c1': {'=': [], '\u2295': [{'total': 0.015098548999958439, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}], '1': []}, 'c2': {'=': [], '\u2297': [{'total': 0.003705168000124104, 'fp4': 0.0, 'fp8': 0.0, 'int8': 0.0}]}}"
+  },
+  {
+    "timestamp": "2025-10-18T11:30:54.361248Z",
+    "message": "[QPU Sheet Opcode Metrics] {'c1': {'\u2295': {'count': 1, 'total_time': 0.015098548999958439, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}, 'c2': {'\u2297': {'count': 1, 'total_time': 0.003705168000124104, 'fp4_time': 0.0, 'fp8_time': 0.0, 'int8_time': 0.0}}}"
+  },
+  {
+    "timestamp": "2025-10-18T11:30:54.397579Z",
+    "message": "[Sheet Execution] elapsed=0.087227s"
+  },
+  {
+    "timestamp": "2025-10-18T11:33:49.562680Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-10-18T11:38:07.993235Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-10-18T11:39:36.054993Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-10-18T11:39:53.949480Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-10-18T11:40:11.486013Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-10-18T11:41:10.800894Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
+  },
+  {
+    "timestamp": "2025-10-18T11:49:04.323012Z",
+    "message": "[BeamStore Persist Warn] name 'cells' is not defined"
   }
 ]

@@ -278,5 +278,13 @@
       "domain": "symatics/resonance_coupling",
       "address": "ucs://local/symatics_resonance_coupling#container"
     }
+  },
+  "photon_runtime": {
+    "address": "ucs://local/photon_runtime#container",
+    "kind": "container",
+    "meta": {
+      "domain": "photon_runtime",
+      "address": "ucs://local/photon_runtime#container"
+    }
   }
 }

@@ -181,6 +181,14 @@ async def startup_event():
     except Exception as e:
         logger.warning(f"[HQCE] QuantumMorphicRuntime failed to initialize: {e}")
 
+    # ── Start GHX Telemetry Adapter (CodexMetrics → MorphicLedger → GHXVisualizer)
+    try:
+        from backend.modules.cognitive_fabric.ghx_telemetry_adapter import GHX_TELEMETRY
+        GHX_TELEMETRY.start()
+        logger.info("[GHXTelemetry] Adapter started — streaming Φ–ψ–κ–T metrics to GHXVisualizer.")
+    except Exception as e:
+        logger.warning(f"[GHXTelemetry] Adapter not started: {e}")
+
 # ── Routers
 from backend.routes.auth import router as auth_router
 from backend.routes.products           import router as products_router
@@ -259,7 +267,8 @@ from backend.api import symbolic_tree_api
 from backend.routes.api_collapse_trace import router as collapse_trace_router
 from backend.routes import lean_inject_api
 from backend.utils.deprecation_logger import install_deprecation_hook
-from photon_runtime.telemetry import ledger_feed
+from backend.RQC.src.photon_runtime.telemetry.ledger_feed import router as ledger_router
+from backend.api import ghx
 
 # ===== Atomsheet / LightCone / QFC wiring =====
 from backend.routes.dev import glyphwave_test_router        # dev-only routes (mounted elsewhere in your file)  # noqa: F401
@@ -436,7 +445,8 @@ app.include_router(workspace_router)
 app.include_router(api_sheets.router)
 app.include_router(qfc_extras_router)
 app.include_router(lean_inject_api.router, prefix="/api")
-app.include_router(ledger_feed.router)
+app.include_router(ledger_router)
+app.include_router(ghx.router, prefix="/api", tags=["ghx"])
 seed_builtin_patterns()
 install_deprecation_hook()
 
