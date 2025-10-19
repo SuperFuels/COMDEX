@@ -1,0 +1,4 @@
+{"operator": "\u2295", "mean_voltage": -2.1316282072803006e-17, "std_voltage": 0.7067531393633848, "mzm_phase_offset": 0.7853981633974483, "feedback_gain": 0.0, "coupling_index": 0.0, "timestamp": "2025-10-19T17:22:03.043319+00:00"}
+{"operator": "\u03bc", "mean_voltage": -0.001, "std_voltage": 0.999499374687148, "mzm_phase_offset": 0.0, "feedback_gain": 0.0, "coupling_index": 0.0, "timestamp": "2025-10-19T17:22:03.043861+00:00"}
+{"operator": "\u27f2", "mean_voltage": -1.4210854715202004e-17, "std_voltage": 0.5587374159656754, "mzm_phase_offset": 1.5707963267948966, "feedback_gain": 0.8, "coupling_index": 0.0, "timestamp": "2025-10-19T17:22:03.044434+00:00"}
+{"operator": "\u2194", "mean_voltage": 0.0007071067811864111, "std_voltage": 0.7071064276330685, "mzm_phase_offset": 2.356194490192345, "feedback_gain": 0.2, "coupling_index": 1.0, "timestamp": "2025-10-19T17:22:03.044808+00:00"}

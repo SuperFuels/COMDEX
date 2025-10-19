@@ -1,0 +1,6 @@
+{"action": "dac_output", "gain": 1.0, "timestamp": "2025-10-19T17:16:34.680098+00:00", "device": "DAC-1"}
+{"action": "modulate", "phase_bias": 0.7853981633974483, "timestamp": "2025-10-19T17:16:34.680558+00:00", "device": "MZM-1"}
+{"action": "detect", "intensity": 0.5, "timestamp": "2025-10-19T17:16:34.680786+00:00", "device": "PD-1"}
+{"action": "dac_output", "gain": 1.0, "timestamp": "2025-10-19T17:18:58.910740+00:00", "device": "DAC-1"}
+{"action": "modulate", "phase_bias": 0.5235987755982988, "timestamp": "2025-10-19T17:18:58.910863+00:00", "device": "MZM-1"}
+{"action": "detect", "intensity": 0.5574885331072986, "timestamp": "2025-10-19T17:18:58.911072+00:00", "device": "PD-1"}

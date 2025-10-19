@@ -10,7 +10,7 @@ direction TB
 ✅ A2[⚙️ Extend Theorem Ledger + CodexTrace <br/>to include ψ κ T Φ coherence metrics]
 ✅ A3[🧠 Integrate Vol VII–IX axioms:<br/>πₛ closure • Coherence = Information • Resonant Logic Kernel]
 ✅ A4[🧪 Expand symbolic test suite <br/>law-check parity ⊕ μ ⟲ ↔ under πₛ constraints]
-   A5[📘 Introduce Symatic Differential Calculus (∇⊕, ∇μ) and resonance tensor forms]
+✅ A5[📘 Introduce Symatic Differential Calculus (∇⊕, ∇μ) and resonance tensor forms]
 end
 
 %% ─────────────────────────────────────────────
@@ -37,12 +37,12 @@ direction TB
 
   subgraph B3["Phase 3 — Hardware Bridge + Optical Loop Simulation"]
   direction TB
-   B3a[🔌 Driver API stubs for MZM/DAC/PD modules]
-   B3b[⏱️ Clocking + Sync Doc (`docs/photonics/framing_and_sync.md`)]
-   B3c[🧷 Abstract I/O loopback → hardware drop-in layer]
-   B3d[🧠 Hardware Loop Simulation (real-time optical feedback bench in NumPy/JAX)]
-   B3e[🔬 Prepare Optical Implementation (lab assembly · fiber coupler · PD integration)]
-   B3f[📡 Map Operators to MZM/DAC Symbols (`hardware/map_ops_to_modulators.py`)]
+✅   B3a[🔌 Driver API stubs for MZM/DAC/PD modules]
+✅   B3b[⏱️ Clocking + Sync Doc (`docs/photonics/framing_and_sync.md`)]
+✅   B3c[🧷 Abstract I/O loopback → hardware drop-in layer]
+✅   B3d[🧠 Hardware Loop Simulation (real-time optical feedback bench in NumPy/JAX)]
+✅   B3e[🔬 Prepare Optical Implementation (lab assembly · fiber coupler · PD integration)]
+✅   B3f[📡 Map Operators to MZM/DAC Symbols (`hardware/map_ops_to_modulators.py`)]
   end
 end
 
