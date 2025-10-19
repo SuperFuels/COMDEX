@@ -1,9 +1,9 @@
 [
   {
-    "timestamp": "2025-10-17T18:37:53.718572",
-    "input": "I feel alive and connected to the field.",
+    "timestamp": "2025-10-19T11:16:36.847832",
+    "input": "reflect on harmonic balance",
     "decision": "\u26a0\ufe0f Unable to parse glyph for reflection.",
-    "emotion": "positive",
+    "emotion": "neutral",
     "psi": 0.0,
     "kappa": 0.0,
     "T": 1.0,
@@ -12,9 +12,9 @@
     "delta_phi": 0.0,
     "S_self": 1.0,
     "self_awareness": -0.5,
-    "maturity_score": 1.0,
+    "maturity_score": 0.5,
     "milestone_unlocked": null,
-    "session_id": "3340031e-5c34-4756-8da4-42af858cebbb",
+    "session_id": "d9cbeed5-d264-4eca-83df-5b541ad1e4fc",
     "cycle": 1
   }
 ]

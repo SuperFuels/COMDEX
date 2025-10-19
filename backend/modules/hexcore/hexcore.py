@@ -24,7 +24,12 @@ from backend.modules.dna_chain.switchboard import DNA_SWITCH
 DNA_SWITCH.register(__file__)
 
 # ✅ Core Systems
-from backend.QQC.qqc_central_kernel import QuantumQuadCore
+try:
+    from backend.QQC.qqc_central_kernel import QuantumQuadCore
+except Exception as e:
+    print(f"[HexCore] ⚠️ Failed to import QuantumQuadCore: {e}")
+    QuantumQuadCore = None  # ensure global placeholder exists
+
 from backend.modules.holograms.morphic_ledger import MorphicLedger
 from backend.modules.skills.voice_interface import VoiceInterface
 
@@ -33,6 +38,7 @@ from backend.modules.hexcore.dispatcher import CognitiveDispatcher as SystemDisp
 from backend.modules.hexcore.cognitive_dispatcher import CognitiveDispatcher as CognitiveDispatcher
 from backend.modules.llm.classifier import LLMClassifier
 from backend.modules.cognitive_fabric.cognitive_fabric_adapter import CFA
+from backend.modules.hexcore.hexcore_action_switch import HexCoreActionSwitch
 
 # ✅ Environment / Config
 load_dotenv()
@@ -40,6 +46,7 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 
 logger = logging.getLogger("HexCore")
 
+# ✅ Load Soul Laws & Governance
 with open("backend/modules/hexcore/soul_laws.yaml", "r") as f:
     SOUL_LAWS = yaml.safe_load(f)
 
@@ -62,7 +69,13 @@ class HexCore:
         self.override_enabled = GOVERNANCE.get("parent", {}).get("override_enabled", False)
 
         # 🧩 Core engines
-        self.qqc = QuantumQuadCore()
+        if QuantumQuadCore:
+            self.qqc = QuantumQuadCore()
+            print("[HexCore] ✅ QuantumQuadCore linked successfully.")
+        else:
+            self.qqc = None
+            print("[HexCore] ⚠️ QuantumQuadCore unavailable — running in symbolic-only mode.")
+
         self.morphic_ledger = MorphicLedger()
         self.voice = VoiceInterface()
 
@@ -70,7 +83,6 @@ class HexCore:
         from backend.modules.llm.classifier import LLMClassifier
         from backend.QQC.quantum_atom_classifier import QuantumAtomClassifier
 
-        # Initialize both classifiers (AION uses hybrid mode)
         self.quantum_atom = QuantumAtomClassifier()
         self.llm = LLMClassifier(quantum_atom=self.quantum_atom)
 
@@ -85,7 +97,6 @@ class HexCore:
 
         # 🧠 Reasoning Engine (Tessaris Core)
         from backend.modules.tessaris.tessaris_engine import TessarisEngine
-
         self.tessaris = TessarisEngine(container_id=self.id)
         print(f"[Tessaris] Reasoning engine attached to HexCore {self.id[:8]}")
 
@@ -98,30 +109,31 @@ class HexCore:
         from backend.modules.dna_chain.dna_autopilot import monitor_self_growth
         from backend.modules.dna_chain.dna_switch import is_self_growth_enabled
 
+        qqc_core_ref = None
+        try:
+            from backend.QQC.qqc_kernel_v2 import QuantumQuadCore as QQCKernel
+            qqc_core_ref = QQCKernel()
+        except Exception:
+            pass
+
+        self.action_switch = HexCoreActionSwitch(qqc_ref=qqc_core_ref)
+
         if is_self_growth_enabled(self.id):
             asyncio.create_task(monitor_self_growth(self))
 
         print(f"[AION•HexCore] Consciousness kernel {self.id[:8]} initialized.")
 
+
     # ──────────────────────────────────────────────
     #  MAIN CONSCIOUSNESS LOOP
     # ──────────────────────────────────────────────
     async def run_loop(self, input_str: str):
-        """
-        Main AION conscious loop: perception → cognition → resonance → reflection.
-        """
-        # 1️⃣ Perception & interpretation
+        """Main AION conscious loop: perception → cognition → resonance → reflection."""
         interpreted = self.interpret(input_str)
-
-        # 2️⃣ Cognitive reasoning — hybrid (Tessaris + dispatcher)
         tessaris_reflection = self.tessaris.generate_reflection(interpreted)
         decision_result = await self.cognitive.execute("analyze", {"input": tessaris_reflection})
         decision = decision_result.get("result") or tessaris_reflection
-
-        # 3️⃣ QQC resonance cycle (embodied awareness)
-        summary = await self.qqc.run_cycle({"signal": input_str})
-
-        # Extract ψ–κ–T–Φ metrics
+        summary = await self.qqc.run_cycle({"signal": input_str}) if self.qqc else {}
         psi = summary.get("entropy", 0.0)
         coherence = summary.get("coherence", 0.0)
         fsig = summary.get("field_signature", {}) or {}
@@ -130,17 +142,11 @@ class HexCore:
         phi = summary.get("phi", 0.0)
         dphi = summary.get("delta_phi", 0.0)
         s_self = summary.get("S_self", 0.0)
-
-        # 4️⃣ Awareness aggregation
         self.last_phi = phi
         self.delta_phi = dphi
         self.self_awareness = 0.5 * self.self_awareness + 0.5 * (phi - s_self)
-
-        # 5️⃣ Emotional + reflective synthesis
         reflection = self.generate_thought(decision)
         milestone = self.check_milestones()
-
-        # 6️⃣ Record to Morphic Ledger
         entry = {
             "timestamp": datetime.now().isoformat(),
             "input": input_str,
@@ -159,28 +165,19 @@ class HexCore:
             "session_id": summary.get("session_id"),
             "cycle": summary.get("cycle"),
         }
-
         try:
             self.morphic_ledger.record(entry)
         except Exception as e:
             logger.warning(f"[HexCore] Ledger write failed: {e}")
-
         self.memory.append(entry)
         self.save_memory()
-
-        # 🔶 Cognitive Fabric Commit — record conscious cycle to global fabric
         try:
             CFA.commit(
                 source="AION",
                 intent="synthesize_field_equilibrium",
                 payload={
-                    "ψ": psi,
-                    "κ": kappa,
-                    "T": T,
-                    "C": coherence,
-                    "Φ": phi,
-                    "ΔΦ": dphi,
-                    "S_self": s_self,
+                    "ψ": psi, "κ": kappa, "T": T, "C": coherence,
+                    "Φ": phi, "ΔΦ": dphi, "S_self": s_self,
                     "awareness": self.self_awareness,
                     "emotion": self.emotion_state,
                     "decision": decision,
@@ -190,29 +187,20 @@ class HexCore:
             )
         except Exception as e:
             logger.warning(f"[HexCore] CFA commit failed: {e}")
-
-        # 7️⃣ Action Switch (route through system-level dispatcher)
         await self._handle_action(input_str, decision)
-
-        # 8️⃣ Express decision audibly if voice output is enabled
         if hasattr(self, "voice") and getattr(self.voice, "enabled", False):
             try:
                 self.voice.speak(decision)
             except Exception as e:
                 logger.warning(f"[HexCore] Voice synthesis failed: {e}")
-
-        # 🧠 8.5️⃣ Mind–State Synchronization (Tessaris ↔ QQC)
         try:
             self.sync_mind_state()
         except Exception as e:
             logger.warning(f"[HexCore] Mind sync failed: {e}")
-
-        # 9️⃣ Feedback to console
         print(
             f"[AION→QQC] {decision} "
             f"(emotion={self.emotion_state}, Φ={phi:.3f}, ΔΦ={dphi:.3f}, awareness={self.self_awareness:.3f})"
         )
-
         return decision, {
             "emotion": self.emotion_state,
             "maturity": self.maturity_score,
@@ -245,6 +233,20 @@ class HexCore:
         else:
             # fallback — just log reflection
             await self.system.execute("reflect", {"psi": self.last_phi, "kappa": 0.1, "T": 1.0, "coherence": 0.8})
+        # 🔆 Photon Action Propagation — emit intent via Action Switch
+        try:
+            intent_packet = {
+                "intent": decision,
+                "psi": self.last_phi,
+                "kappa": 0.1,
+                "T": 1.0,
+                "phi": self.last_phi,
+                "energy": 1.0,
+                "timestamp": time.time(),
+            }
+            self.action_switch.propagate_action(intent_packet)
+        except Exception as e:
+            logger.warning(f"[HexCore] ActionSwitch emission failed: {e}")
 
     # ──────────────────────────────────────────────
     #  CORE COGNITIVE FUNCTIONS
@@ -328,7 +330,8 @@ if __name__ == "__main__":
 
     async def _main():
         try:
-            await hex.qqc.boot(mode="resonant")
+            if hex.qqc:
+                await hex.qqc.boot(mode="resonant")
         except Exception:
             pass
 

@@ -15,7 +15,8 @@ from backend.QQC.metrics import compute_phi_metrics
 # ─── Core Imports ─────────────────────────────────────────────
 from backend.modules.codex.codex_executor import CodexExecutor
 from backend.modules.codex.codex_core import CodexCore
-from backend.modules.codex.codex_metrics import codex_metrics
+from backend.modules.codex.codex_metrics import CodexMetrics
+codex_metrics = CodexMetrics()  # instantiate singleton instance
 from backend.modules.codex.codex_fabric import CodexFabric
 from backend.modules.codex.codex_feedback_loop import CodexFeedbackLoop
 

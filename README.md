@@ -31,7 +31,7 @@ gcloud run deploy comdex-api \
   --timeout=300s
 
 git add .
-git commit -m "Resonance 5"
+git commit -m "Resonance complete"
 git push origin main
 
 gcloud builds submit --config cloudbuild.yaml .

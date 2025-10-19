@@ -38,7 +38,8 @@ from backend.modules.knowledge_graph.sqi_fastmap_index import sqi_fastmap
 from backend.modules.dimensions.containers.container_loader import load_decrypted_container
 from backend.modules.dimensions.universal_container_system.ucs_runtime import ucs_runtime
 from backend.modules.knowledge_graph.indexes.trace_index import inject_trace_event
-from backend.modules.codex.codex_metrics import codex_metrics
+from backend.modules.codex.codex_metrics import CodexMetrics
+codex_metrics = CodexMetrics()  # instantiate singleton instance
 from backend.modules.glyphwave.qwave.qwave_writer import collect_qwave_beams, export_qwave_beams
 
 # ✅ Knowledge graph and indexing

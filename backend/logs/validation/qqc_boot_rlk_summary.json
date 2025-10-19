@@ -1,0 +1,60 @@
+{
+  "status": "drift",
+  "pass_rate": 0.0,
+  "final_tolerance": 1.024,
+  "iterations": 10,
+  "target_rate": 0.9,
+  "timestamp": "2025-10-19T17:07:44.784515+00:00",
+  "history": [
+    {
+      "iteration": 1,
+      "tolerance": 0.001,
+      "pass_rate": 0.0
+    },
+    {
+      "iteration": 2,
+      "tolerance": 0.002,
+      "pass_rate": 0.04
+    },
+    {
+      "iteration": 3,
+      "tolerance": 0.004,
+      "pass_rate": 0.02
+    },
+    {
+      "iteration": 4,
+      "tolerance": 0.008,
+      "pass_rate": 0.02
+    },
+    {
+      "iteration": 5,
+      "tolerance": 0.016,
+      "pass_rate": 0.02
+    },
+    {
+      "iteration": 6,
+      "tolerance": 0.032,
+      "pass_rate": 0.0
+    },
+    {
+      "iteration": 7,
+      "tolerance": 0.064,
+      "pass_rate": 0.0
+    },
+    {
+      "iteration": 8,
+      "tolerance": 0.128,
+      "pass_rate": 0.02
+    },
+    {
+      "iteration": 9,
+      "tolerance": 0.256,
+      "pass_rate": 0.02
+    },
+    {
+      "iteration": 10,
+      "tolerance": 0.512,
+      "pass_rate": 0.0
+    }
+  ]
+}

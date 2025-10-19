@@ -66,23 +66,38 @@ def classify_event(dphi, dsigma):
 
 
 def codify_packet(packet):
-    """Transform Morphic packet → CodexTrace symbolic form."""
-    m = packet["metrics"]
+    """Convert Morphic packet into CodexTrace symbolic form."""
+    m = packet.get("metrics", {})
     d = packet.get("deltas", {})
-    event_type = classify_event(d.get("dphi", 0), d.get("dsigma", 0))
-    symbolic = {
-        "timestamp": packet.get("timestamp", datetime.utcnow().isoformat()),
-        "node": packet["node_id"],
-        "role": packet.get("role", "unknown"),
-        "event": event_type,
-        "ψ": round(m["psi"], 5),
-        "κ": round(m["kappa"], 5),
-        "T": round(m["T"], 5),
-        "Φ": round(m["phi"], 5),
-        "Δφ": round(d.get("dphi", 0), 6),
-        "Δσ": round(d.get("dsigma", 0), 6),
+
+    # Safely extract numeric values (fallback to 0.0)
+    def safe_num(x):
+        try:
+            return round(float(x), 5)
+        except Exception:
+            return 0.0
+
+    entry = {
+        "timestamp": packet.get("timestamp"),
+        "node": packet.get("node_id"),
+        "role": packet.get("role"),
+        "ψ": safe_num(m.get("psi")),
+        "κ": safe_num(m.get("kappa")),
+        "T": safe_num(m.get("T")),
+        "Φ": safe_num(m.get("phi")),
+        "Δφ": safe_num(d.get("dphi")),
+        "Δσ": safe_num(d.get("dsigma")),
     }
-    return symbolic
+
+    # Classify event type
+    if abs(entry["Δφ"]) < 0.05 and abs(entry["Δσ"]) < 0.03:
+        entry["event"] = "StableResonance"
+    elif abs(entry["Δφ"]) < 0.1:
+        entry["event"] = "PhaseDrift"
+    else:
+        entry["event"] = "CoherenceFluctuation"
+
+    return entry
 
 
 # ───────────────────────────────────────────────

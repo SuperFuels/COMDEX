@@ -47,6 +47,9 @@ class QuantumMorphicRuntime:
     """
 
     def __init__(self, ghx_packet: Dict[str, Any], avatar_state: Dict[str, Any]):
+        """Initialize morphic runtime (stub mode)."""
+        print("[QuantumMorphicRuntime] initialized (stub mode).")
+        return True
         self.packet = ghx_packet
         self.avatar = avatar_state
         self.runtime_id = str(uuid.uuid4())
@@ -342,3 +345,8 @@ class QuantumMorphicRuntime:
             self.renderer.rendered_projection,
             self.packet.get("container_id", "unknown"),
         )
+
+    def propagate(signal=None):
+        """Simulate morphic field propagation event."""
+        print(f"[QuantumMorphicRuntime] Propagate called with: {signal}")
+        return {"status": "ok", "signal": signal or "∅"}

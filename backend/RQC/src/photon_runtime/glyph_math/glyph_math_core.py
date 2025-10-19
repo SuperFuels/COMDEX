@@ -48,3 +48,18 @@ def encode_time(timestamp) -> str:
         return f"𝜏{int(float(timestamp)) % 100000}"
     except Exception:
         return "∅"
+
+def parse_glyph(expr):
+    """
+    Safe parser for symbolic glyph expressions.
+    Handles malformed or single-token inputs gracefully.
+    """
+    try:
+        parts = expr.split("=")
+        if len(parts) < 2:
+            # Fallback → treat single token as neutral ψ–κ pair
+            return {"ψ": 0.0, "κ": 0.0, "expr": expr}
+        key, val = parts[0].strip(), float(parts[1])
+        return {key: val}
+    except Exception:
+        return {"ψ": 0.0, "κ": 0.0, "expr": expr, "error": True}
