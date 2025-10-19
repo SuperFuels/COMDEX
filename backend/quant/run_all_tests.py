@@ -18,7 +18,10 @@ from importlib import import_module
 import json
 import traceback
 
-# List of Q-Series modules (class or file with run_test())
+
+# ----------------------------------------------------------------------
+# Module registry — each Q-Series subsystem must have a run_test() entry
+# ----------------------------------------------------------------------
 MODULES = [
     ("QPy", "backend.quant.qpy.qpy_module", "QPyModule"),
     ("QData", "backend.quant.qdata.qdata_module", "QDataModule"),
@@ -34,6 +37,10 @@ MODULES = [
     ("QTools", "backend.quant.qtools.qtools_utils", None),
 ]
 
+
+# ----------------------------------------------------------------------
+# Core test runner
+# ----------------------------------------------------------------------
 def run_all_tests():
     results = {}
     for name, mod_path, cls_name in MODULES:
@@ -60,6 +67,27 @@ def run_all_tests():
     return results
 
 
+# ----------------------------------------------------------------------
+# Extended: GHX Feedback / Resonance Telemetry Validation
+# ----------------------------------------------------------------------
 if __name__ == "__main__":
     summary = run_all_tests()
+
+    try:
+        from backend.quant.telemetry.resonance_telemetry import ResonanceTelemetry
+        # 🩹 FIXED PATH BELOW
+        from backend.modules.visualization.ghx_feedback_bridge import GHXFeedbackBridge
+
+        tele = ResonanceTelemetry()
+        bridge = GHXFeedbackBridge()
+        metrics = tele.update()
+        packet = bridge.emit_sync({}, metrics)
+
+        summary["GHXFeedback"] = {
+            "packet_keys": list(packet["metrics"].keys()),
+            "status": "ok"
+        }
+    except Exception as e:
+        summary["GHXFeedback"] = {"status": "error", "error": str(e)}
+
     print(json.dumps(summary, indent=2))

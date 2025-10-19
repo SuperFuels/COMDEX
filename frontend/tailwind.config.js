@@ -2,13 +2,13 @@
 module.exports = {
   darkMode: 'class',
   content: [
-    './frontend/pages/**/*.{js,ts,jsx,tsx,mdx}',
-    './frontend/components/**/*.{js,ts,jsx,tsx,mdx}',
-    './frontend/app/**/*.{js,ts,jsx,tsx,mdx}',
-    './frontend/styles/**/*.{css,js,ts,jsx,tsx,mdx}',
-    './frontend/lib/**/*.{js,ts,jsx,tsx,mdx}',
-    './frontend/hooks/**/*.{js,ts,jsx,tsx,mdx}',
-    './frontend/src/**/*.{js,ts,jsx,tsx,mdx}', // only if this folder exists
+    './pages/**/*.{js,ts,jsx,tsx,mdx}',
+    './components/**/*.{js,ts,jsx,tsx,mdx}',
+    './app/**/*.{js,ts,jsx,tsx,mdx}',
+    './styles/**/*.{css,js,ts,jsx,tsx,mdx}',
+    './lib/**/*.{js,ts,jsx,tsx,mdx}',
+    './hooks/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/**/*.{js,ts,jsx,tsx,mdx}', // keep only if exists
   ],
   theme: {
     extend: {
@@ -46,5 +46,9 @@ module.exports = {
     },
   },
   safelist: ['border-border', 'bg-background', 'text-foreground'],
-  plugins: [require('@tailwindcss/forms'), require('@tailwindcss/typography'), require('tailwindcss-animate')],
+  plugins: [
+    require('@tailwindcss/forms'),
+    require('@tailwindcss/typography'),
+    require('tailwindcss-animate'),
+  ],
 };
