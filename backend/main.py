@@ -553,6 +553,39 @@ def list_available_containers():
     STATE.update_context("container_list", containers)
     return {"containers": containers}
 
+# -------------------------------------------------------------------
+# 🔧 HQCE fallback WebSocket endpoint — echoes if bridge not loaded
+# -------------------------------------------------------------------
+@app.websocket("/ws/hqce")
+async def ws_hqce_fallback(websocket: WebSocket):
+    """
+    Safe fallback so the frontend never gets 404 or handshake fail.
+    If the real HQCE bridge exists, delegate to it.
+    Otherwise accept and echo messages.
+    """
+    try:
+        await websocket.accept()
+        # Try dynamic bridge import
+        try:
+            from backend.modules.holograms import hqce_ws_bridge
+            if hasattr(hqce_ws_bridge, "connect"):
+                await hqce_ws_bridge.connect(websocket)
+                while True:
+                    await asyncio.sleep(1)
+        except Exception:
+            # Fallback echo
+            await websocket.send_json({"event": "hqce_connected", "mode": "fallback"})
+            while True:
+                msg = await websocket.receive_text()
+                await websocket.send_json({"echo": msg})
+    except WebSocketDisconnect:
+        try:
+            if "hqce_ws_bridge" in locals():
+                await hqce_ws_bridge.disconnect(websocket)
+        except Exception:
+            pass
+        print("❌ HQCE WebSocket disconnected.")
+
 # ── 21) Run via Uvicorn when executed directly
 if __name__ == "__main__":
     uvicorn.run(
