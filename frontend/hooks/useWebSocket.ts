@@ -4,7 +4,15 @@ import { playGlyphNarration } from "@/components/ui/hologram_audio";
 
 // Build a ws/wss URL from a path or absolute URL
 export function getWssUrl(pathOrUrl: string): string {
-  if (typeof window === "undefined") return "";
+  // Temporary override for testing GHX connections
+  const isDev = process.env.NODE_ENV === "development";
+
+  // 👇 This is the only line that matters right now
+  const hardcoded = isDev
+    ? "ws://localhost:8080/ws/hqce"
+    : "wss://comdex-api-375760843948.us-central1.run.app/ws/hqce";
+
+  return hardcoded;
 
   // If they pass an absolute ws(s):// or http(s):// URL, normalize it.
   if (/^wss?:\/\//i.test(pathOrUrl)) return pathOrUrl.replace(/^http/, "ws");
