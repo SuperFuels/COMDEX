@@ -67,3 +67,4 @@ backend/data/knowledge_index.jsonl
 # 🚫 Git LFS-Limited Files (Too Large)
 # ------------------------------
 backend/data/conceptnet/numberbatch-en-19.08.txt
+.vercel
