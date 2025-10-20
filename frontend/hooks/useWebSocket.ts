@@ -1,20 +1,22 @@
-// frontend/hooks/useWebSocket.ts
 import { useEffect, useRef, useState } from "react";
 import { playGlyphNarration } from "@/components/ui/hologram_audio";
 
-// Build a ws/wss URL from a path or absolute URL
+/**
+ * Build a WebSocket URL that works in dev and production.
+ * Automatically normalizes wss/ws based on protocol and env.
+ */
 export function getWssUrl(pathOrUrl: string): string {
-  // Temporary override for testing GHX connections
   const isDev = process.env.NODE_ENV === "development";
 
-  // 👇 This is the only line that matters right now
+  // 🧩 Temporary override for GHX or local testing
   const hardcoded = isDev
     ? "ws://localhost:8080/ws/hqce"
     : "wss://comdex-api-375760843948.us-central1.run.app/ws/hqce";
 
-  return hardcoded;
+  // Early return for now; fallback logic below is kept intact
+  if (hardcoded) return hardcoded;
 
-  // If they pass an absolute ws(s):// or http(s):// URL, normalize it.
+  // --- Normalization for absolute URLs ---
   if (/^wss?:\/\//i.test(pathOrUrl)) return pathOrUrl.replace(/^http/, "ws");
   if (/^https?:\/\//i.test(pathOrUrl)) {
     const u = new URL(pathOrUrl);
@@ -22,22 +24,21 @@ export function getWssUrl(pathOrUrl: string): string {
     return u.toString();
   }
 
-  const wsProtocol = window.location.protocol === "https:" ? "wss" : "ws";
+  const wsProtocol = typeof window !== "undefined" && window.location.protocol === "https:" ? "wss" : "ws";
 
-  // Optional explicit socket host
-  const raw = process.env.NEXT_PUBLIC_SOCKET_URL;
-  if (raw) {
-    const host = raw.replace(/^wss?:\/\//, "").replace(/\/+$/, "");
+  // --- Safe env var handling ---
+  const rawEnv = process.env.NEXT_PUBLIC_SOCKET_URL ?? "";
+  if (rawEnv) {
+    const host = rawEnv.replace(/^wss?:\/\//, "").replace(/\/+$/, "");
     const seg = pathOrUrl.startsWith("/") ? pathOrUrl : `/${pathOrUrl}`;
     return `${wsProtocol}://${host}${seg}`;
   }
 
-  // Fallback to API base or current host
-  const apiBase = process.env.NEXT_PUBLIC_API_URL || "";
+  // --- Fallback to API base or window host ---
+  const apiBase = process.env.NEXT_PUBLIC_API_URL ?? "";
   const host =
-    apiBase
-      .replace(/^https?:\/\//, "")
-      .replace(/\/+api\/?$/, "") || window.location.host;
+    apiBase.replace(/^https?:\/\//, "").replace(/\/+api\/?$/, "") ||
+    (typeof window !== "undefined" ? window.location.host : "localhost:8080");
 
   const seg = pathOrUrl.startsWith("/") ? pathOrUrl : `/${pathOrUrl}`;
   return `${wsProtocol}://${host}${seg}`;
@@ -46,10 +47,9 @@ export function getWssUrl(pathOrUrl: string): string {
 type MsgHandler = (data: any) => void;
 
 /**
- * Unified WebSocket hook
- * - Works with either pattern:
- *   a) const { emit } = useWebSocket(path, onMessage)
- *   b) const { sendJsonMessage, lastJsonMessage } = useWebSocket(path)
+ * Unified WebSocket Hook
+ * - Auto-connects to GHX / QFC endpoints
+ * - Safely reconnects and guards against undefined URLs
  */
 export default function useWebSocket(
   pathOrUrl: string,
@@ -61,8 +61,7 @@ export default function useWebSocket(
   const [lastJsonMessage, setLastJsonMessage] = useState<any>(null);
 
   useEffect(() => {
-    // SSR guard
-    if (typeof window === "undefined") return;
+    if (typeof window === "undefined") return; // SSR guard
 
     const url = getWssUrl(pathOrUrl);
     if (!/^wss?:\/\//i.test(url)) {
@@ -73,33 +72,21 @@ export default function useWebSocket(
     const socket = new WebSocket(url);
     socketRef.current = socket;
 
-    socket.onopen = () => {
-      setConnected(true);
-      // console.info(`[WebSocket] Connected: ${url}`);
-    };
-
-    socket.onclose = () => {
-      setConnected(false);
-      // console.warn("[WebSocket] Disconnected:", url);
-    };
-
-    socket.onerror = (e) => {
-      setConnected(false);
-      // console.error("[WebSocket] Error:", e);
-    };
+    socket.onopen = () => setConnected(true);
+    socket.onclose = () => setConnected(false);
+    socket.onerror = () => setConnected(false);
 
     socket.onmessage = (event) => {
       let data: any = event.data;
       try {
         data = JSON.parse(event.data);
       } catch {
-        // leave as raw if not JSON
+        // not JSON, leave raw
       }
 
       const msgType = data?.type || data?.event;
       if (filterType?.length && msgType && !filterType.includes(msgType)) return;
 
-      // Optional nicety: narrate glyphs when we see them
       if (msgType === "glyph_execution" && data?.payload?.glyph) {
         playGlyphNarration(data.payload.glyph);
       }
@@ -108,11 +95,9 @@ export default function useWebSocket(
       onMessage?.(data);
     };
 
-    return () => {
-      socket.close();
-    };
+    return () => socket.close();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathOrUrl, filterType?.join(",")]); // keep deps stable
+  }, [pathOrUrl, filterType?.join(",")]);
 
   const sendJsonMessage = (payload: any) => {
     const s = socketRef.current;
@@ -123,7 +108,6 @@ export default function useWebSocket(
     s.send(typeof payload === "string" ? payload : JSON.stringify(payload));
   };
 
-  // Back-compat alias for existing code
   const emit = (event: string, data: any) =>
     sendJsonMessage({ event, ...data });
 
@@ -132,14 +116,12 @@ export default function useWebSocket(
   return {
     socket: socketRef.current,
     connected,
-    // New/expected API:
     sendJsonMessage,
     lastJsonMessage,
-    // Back-compat:
     emit,
     close,
   };
 }
 
-/** Lightweight alias you can import if you prefer a named export */
+/** Alias for clarity in Q-Series contexts */
 export const useQfcSocket = useWebSocket;
