@@ -1,5 +1,14 @@
 import json
 import os
+import threading
+
+# ──────────────────────────────────────────────
+# 🧠 Global Boot Guard
+# Prevents Knowledge Graph reinitialization across reloads
+# ──────────────────────────────────────────────
+_boot_done = False
+_boot_lock = threading.Lock()
+
 from datetime import datetime
 from pathlib import Path
 from typing import Optional, Dict, Any
@@ -8,14 +17,34 @@ from backend.modules.skills.milestone_tracker import MilestoneTracker
 from backend.modules.dimensions.universal_container_system.ucs_runtime import ucs_runtime
 from backend.modules.dimensions.containers.tesseract_hub import ensure_tesseract_hub
 
+# ──────────────────────────────────────────────
+# 🧠 Knowledge Graph Writer (Singleton Access)
+# ──────────────────────────────────────────────
 try:
-    from backend.modules.knowledge_graph.kg_writer_singleton import get_kg_writer
-    kg_writer = get_kg_writer()
+    from backend.modules.knowledge_graph import get_writer
+    _kg_writer_global = None
+
+    def get_or_create_kg_writer():
+        """
+        Retrieve a shared KnowledgeGraphWriter instance.
+        Creates it lazily on first call, then reuses the same one.
+        """
+        global _kg_writer_global
+        if _kg_writer_global is None:
+            _kg_writer_global = get_writer()
+        return _kg_writer_global
+
+    # Singleton alias for downstream imports
+    kg_writer = get_or_create_kg_writer()
+    print("[boot_loader] ✅ KnowledgeGraphWriter linked to global cache.")
 except Exception as e:
-    print(f"[boot_loader] ⚠️ Failed to import kg_writer: {e}")
+    print(f"[boot_loader] ⚠️ Failed to import or initialize KnowledgeGraphWriter: {e}")
     kg_writer = None
 
-# HQ / Tesseract hub (idempotent creator)
+
+# ──────────────────────────────────────────────
+# 🧩 HQ / Tesseract Hub (idempotent creator)
+# ──────────────────────────────────────────────
 try:
     from backend.modules.dimensions.containers.tesseract_hub import ensure_tesseract_hub
 except Exception:
@@ -56,25 +85,32 @@ def preload_all_domain_packs() -> None:
 
 def boot():
     """Full boot sequence: load seeds, init KG, register DNA state."""
-    print("[boot_loader] Starting boot sequence...")
+    global _boot_done
+    with _boot_lock:
+        if _boot_done:
+            print("[boot_loader] ⏩ Boot sequence already completed — skipping re-run.")
+            return
 
-    # Ensure Tesseract HQ exists before anything links to it
-    if ensure_tesseract_hub:
-        try:
-            ensure_tesseract_hub(hub_id="tesseract_hq", name="Tesseract HQ", size=8)
-            print("[boot_loader] Tesseract HQ ensured (tesseract_hq).")
-        except Exception as e:
-            print(f"[boot_loader] ⚠️ Failed to ensure Tesseract HQ: {e}")
+        print("[boot_loader] 🚀 Starting boot sequence...")
 
-    # Load core seeds into UCS
-    preload_all_domain_packs()
+        # Ensure Tesseract HQ exists before anything links to it
+        if ensure_tesseract_hub:
+            try:
+                ensure_tesseract_hub(hub_id="tesseract_hq", name="Tesseract HQ", size=8)
+                print("[boot_loader] Tesseract HQ ensured (tesseract_hq).")
+            except Exception as e:
+                print(f"[boot_loader] ⚠️ Failed to ensure Tesseract HQ: {e}")
 
-    # Load boot goals into KG (if any)
-    boot_goals = load_boot_goals()
-    if boot_goals and kg_writer:
-        kg_writer.write_knowledge("boot_goals", boot_goals)
+        # Load core seeds into UCS
+        preload_all_domain_packs()
 
-    print("[boot_loader] Boot sequence complete.")
+        # Load boot goals into KG (if any)
+        boot_goals = load_boot_goals()
+        if boot_goals and kg_writer:
+            kg_writer.write_knowledge("boot_goals", boot_goals)
+
+        _boot_done = True
+        print("[boot_loader] ✅ Boot sequence complete (cached for future requests).")
     
 def load_seed_containers():
     """

@@ -13,3 +13,42 @@
 {"operator": "demo_op", "timestamp": 1760790714.9455738, "\u03a6_mean": 1.0, "\u03c8_mean": 0.98, "resonance_index": 0.995, "coherence_energy": 0.97, "entanglement_fidelity": null, "mutual_coherence": null, "phase_correlation": null, "gain": 0.96, "closure_state": "stable", "phi_dot": 0.0002}
 {"operator": "resonate", "timestamp": 1760790962.4065754, "\u03a6_mean": null, "\u03c8_mean": null, "resonance_index": 0.9999999999999942, "coherence_energy": 0.6509305222580288, "entanglement_fidelity": null, "mutual_coherence": null, "phase_correlation": null, "gain": 0.9699999999999999, "closure_state": "stable", "phi_dot": null}
 {"operator": "resonate", "timestamp": 1760791027.8742967, "\u03a6_mean": null, "\u03c8_mean": null, "resonance_index": 0.9999999999999937, "coherence_energy": 0.6016406209300615, "entanglement_fidelity": null, "mutual_coherence": null, "phase_correlation": null, "gain": 0.9699999999999999, "closure_state": "stable", "phi_dot": null}
+{"timestamp": 1760965549.3724473, "\u03a6_mean": null, "\u03c8_mean": null, "resonance_index": null, "coherence_energy": null, "\u03ba": 0.0, "T": 0.0, "event": "record_field_state"}
+{"timestamp": 1760982190.0516996, "\u03a6_mean": null, "\u03c8_mean": null, "resonance_index": null, "coherence_energy": null, "\u03ba": 0.0, "T": 0.0, "event": "record_field_state"}
+{"timestamp": 1760982624.1181912, "\u03a6_mean": null, "\u03c8_mean": null, "resonance_index": null, "coherence_energy": null, "\u03ba": 0.0, "T": 0.0, "event": "record_field_state"}
+{"timestamp": 1760983094.402768, "\u03a6_mean": null, "\u03c8_mean": null, "resonance_index": null, "coherence_energy": null, "\u03ba": 0.0, "T": 0.0, "event": "record_field_state"}
+{"timestamp": 1760983106.7613933, "\u03a6_mean": null, "\u03c8_mean": null, "resonance_index": null, "coherence_energy": null, "\u03ba": 0.0, "T": 1.0, "event": "synthesize_field_equilibrium"}
+{"timestamp": 1760983119.2943177, "\u03a6_mean": null, "\u03c8_mean": null, "resonance_index": null, "coherence_energy": null, "\u03ba": 0.0, "T": 1.0, "event": "synthesize_field_equilibrium"}
+{"timestamp": 1760983121.339659, "\u03a6_mean": null, "\u03c8_mean": null, "resonance_index": null, "coherence_energy": null, "\u03ba": 0.0, "T": 1.0, "event": "synthesize_field_equilibrium"}
+{"timestamp": 1760983517.1877675, "\u03a6_mean": null, "\u03c8_mean": null, "resonance_index": null, "coherence_energy": null, "\u03ba": 0.0, "T": 0.0, "event": "record_field_state"}
+{"timestamp": 1760983725.3437674, "\u03a6_mean": null, "\u03c8_mean": null, "resonance_index": null, "coherence_energy": null, "\u03ba": 0.0, "T": 0.0, "event": "record_field_state"}
+{"timestamp": 1760983735.073006, "\u03a6_mean": null, "\u03c8_mean": null, "resonance_index": null, "coherence_energy": null, "\u03ba": 0.0, "T": 1.0, "event": "synthesize_field_equilibrium"}
+{"timestamp": 1760984105.550077, "\u03a6_mean": null, "\u03c8_mean": null, "resonance_index": null, "coherence_energy": null, "\u03ba": 0.0, "T": 0.0, "event": "record_field_state"}
+{"timestamp": 1760984341.990246, "\u03a6_mean": null, "\u03c8_mean": null, "resonance_index": null, "coherence_energy": null, "\u03ba": 0.0, "T": 0.0, "event": "record_field_state"}
+{"timestamp": 1760984620.018166, "\u03a6_mean": null, "\u03c8_mean": null, "resonance_index": null, "coherence_energy": null, "\u03ba": 0.0, "T": 0.0, "event": "record_field_state"}
+{"timestamp": 1760984629.2583065, "\u03a6_mean": null, "\u03c8_mean": null, "resonance_index": null, "coherence_energy": null, "\u03ba": 0.0, "T": 1.0, "event": "synthesize_field_equilibrium"}
+{"timestamp": 1760984874.0056098, "\u03a6_mean": null, "\u03c8_mean": null, "resonance_index": null, "coherence_energy": null, "\u03ba": 0.0, "T": 0.0, "event": "record_field_state"}
+{"timestamp": 1760985234.520383, "\u03a6_mean": null, "\u03c8_mean": null, "resonance_index": null, "coherence_energy": null, "\u03ba": 0.0, "T": 0.0, "event": "record_field_state"}
+{"timestamp": 1760985244.191127, "\u03a6_mean": null, "\u03c8_mean": null, "resonance_index": null, "coherence_energy": null, "\u03ba": 0.0, "T": 1.0, "event": "synthesize_field_equilibrium"}
+{"timestamp": 1760985872.0961146, "\u03a6_mean": null, "\u03c8_mean": null, "resonance_index": null, "coherence_energy": null, "\u03ba": 0.0, "T": 0.0, "event": "record_field_state"}
+{"timestamp": 1760985881.53681, "\u03a6_mean": null, "\u03c8_mean": null, "resonance_index": null, "coherence_energy": null, "\u03ba": 0.0, "T": 1.0, "event": "synthesize_field_equilibrium"}
+{"timestamp": 1760986640.588829, "\u03a6_mean": null, "\u03c8_mean": null, "resonance_index": null, "coherence_energy": null, "\u03ba": 0.0, "T": 0.0, "event": "record_field_state"}
+{"timestamp": 1760987332.7647717, "\u03a6_mean": null, "\u03c8_mean": null, "resonance_index": null, "coherence_energy": null, "\u03ba": 0.0, "T": 0.0, "event": "record_field_state"}
+{"timestamp": 1760987358.5061433, "\u03a6_mean": null, "\u03c8_mean": null, "resonance_index": null, "coherence_energy": null, "\u03ba": 0.0, "T": 1.0, "event": "synthesize_field_equilibrium"}
+{"timestamp": 1760987409.9950716, "\u03a6_mean": null, "\u03c8_mean": null, "resonance_index": null, "coherence_energy": null, "\u03ba": 0.0, "T": 1.0, "event": "synthesize_field_equilibrium"}
+{"timestamp": 1760987738.061593, "\u03a6_mean": null, "\u03c8_mean": null, "resonance_index": null, "coherence_energy": null, "\u03ba": 0.0, "T": 0.0, "event": "record_field_state"}
+{"timestamp": 1760987962.8940463, "\u03a6_mean": null, "\u03c8_mean": null, "resonance_index": null, "coherence_energy": null, "\u03ba": 0.0, "T": 0.0, "event": "record_field_state"}
+{"timestamp": 1760988167.4881835, "\u03a6_mean": null, "\u03c8_mean": null, "resonance_index": null, "coherence_energy": null, "\u03ba": 0.0, "T": 0.0, "event": "record_field_state"}
+{"timestamp": 1760988177.1417587, "\u03a6_mean": null, "\u03c8_mean": null, "resonance_index": null, "coherence_energy": null, "\u03ba": 0.0, "T": 1.0, "event": "synthesize_field_equilibrium"}
+{"timestamp": 1760988372.7560446, "\u03a6_mean": null, "\u03c8_mean": null, "resonance_index": null, "coherence_energy": null, "\u03ba": 0.0, "T": 0.0, "event": "record_field_state"}
+{"timestamp": 1760988658.2626863, "\u03a6_mean": null, "\u03c8_mean": null, "resonance_index": null, "coherence_energy": null, "\u03ba": 0.0, "T": 0.0, "event": "record_field_state"}
+{"timestamp": 1760989535.6529884, "\u03a6_mean": null, "\u03c8_mean": null, "resonance_index": null, "coherence_energy": null, "\u03ba": 0.0, "T": 0.0, "event": "record_field_state"}
+{"timestamp": 1760989554.926313, "\u03a6_mean": null, "\u03c8_mean": null, "resonance_index": null, "coherence_energy": null, "\u03ba": 0.0, "T": 1.0, "event": "synthesize_field_equilibrium"}
+{"timestamp": 1760989909.5078983, "\u03a6_mean": null, "\u03c8_mean": null, "resonance_index": null, "coherence_energy": null, "\u03ba": 0.0, "T": 0.0, "event": "record_field_state"}
+{"timestamp": 1760990121.8481247, "\u03a6_mean": null, "\u03c8_mean": null, "resonance_index": null, "coherence_energy": null, "\u03ba": 0.0, "T": 0.0, "event": "record_field_state"}
+{"timestamp": 1760990337.818558, "\u03a6_mean": null, "\u03c8_mean": null, "resonance_index": null, "coherence_energy": null, "\u03ba": 0.0, "T": 0.0, "event": "record_field_state"}
+{"timestamp": 1760990570.5493164, "\u03a6_mean": null, "\u03c8_mean": null, "resonance_index": null, "coherence_energy": null, "\u03ba": 0.0, "T": 0.0, "event": "record_field_state"}
+{"timestamp": 1760990882.2194626, "\u03a6_mean": null, "\u03c8_mean": null, "resonance_index": null, "coherence_energy": null, "\u03ba": 0.0, "T": 0.0, "event": "record_field_state"}
+{"timestamp": 1760990893.1708186, "\u03a6_mean": null, "\u03c8_mean": null, "resonance_index": null, "coherence_energy": null, "\u03ba": 0.0, "T": 1.0, "event": "synthesize_field_equilibrium"}
+{"timestamp": 1760991243.6739523, "\u03a6_mean": null, "\u03c8_mean": null, "resonance_index": null, "coherence_energy": null, "\u03ba": 0.0, "T": 0.0, "event": "record_field_state"}
+{"timestamp": 1760991253.5809538, "\u03a6_mean": null, "\u03c8_mean": null, "resonance_index": null, "coherence_energy": null, "\u03ba": 0.0, "T": 1.0, "event": "synthesize_field_equilibrium"}

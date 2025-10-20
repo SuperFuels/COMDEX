@@ -1,0 +1,19 @@
+{
+  "id": "beam-dc79a6d7-a1f6-424f-a7f4-59f4b0cf85b2",
+  "logic_tree": {},
+  "glyphs": [],
+  "phase": 0.0,
+  "amplitude": 1.0,
+  "coherence": 1.0,
+  "origin_trace": "kernel:init",
+  "status": "mutated",
+  "sqi_score": 0.0,
+  "entropy": 0.0,
+  "drift_cost": null,
+  "drift_signature": null,
+  "soullaw_status": "blocked",
+  "soullaw_violations": [
+    "avatar",
+    "container"
+  ]
+}

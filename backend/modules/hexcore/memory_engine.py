@@ -135,12 +135,40 @@ MILESTONE_KEYWORDS = {
     "nova_connection": ["frontend", "interface", "nova"]
 }
 
+from pathlib import Path
+import logging
+
 class MemoryEngine:
     def __init__(self, container_id: str = "global"):
         self.container_id = container_id
         self.memory = []
         self.embeddings = []
-        self.model = SentenceTransformer("./models/all-MiniLM-L6-v2", local_files_only=True)
+
+        from sentence_transformers import SentenceTransformer
+
+        # Canonical model name and search paths
+        model_name = "all-MiniLM-L6-v2"
+        candidate_paths = [
+            "/srv/backend/models/all-MiniLM-L6-v2",                     # absolute path (Docker)
+            "/srv/models/all-MiniLM-L6-v2",                             # absolute alt if backend is root
+            str(Path(__file__).resolve().parent / f"../models/{model_name}"),  # relative to this file
+            "./backend/models/all-MiniLM-L6-v2",                        # dev run from repo root
+            "./models/all-MiniLM-L6-v2",                                # dev run from backend/
+        ]
+
+        self.model = None
+        for p in candidate_paths:
+            resolved = Path(p).resolve()
+            if resolved.exists():
+                try:
+                    self.model = SentenceTransformer(str(resolved), local_files_only=True)
+                    print(f"✅ Using MiniLM model from {resolved}")
+                    break
+                except Exception as e:
+                    logging.warning(f"[MemoryEngine] Failed to load model from {resolved}: {e}")
+
+        if not self.model:
+            logging.warning(f"[MemoryEngine] ❌ No MiniLM model found in any known location.\nChecked: {candidate_paths}")
         self.agents = []
         self.duplicate_threshold = 0.95
 

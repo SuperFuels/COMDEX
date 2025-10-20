@@ -19,9 +19,27 @@ RUN apt-get update && \
 # --- Install Python Dependencies ---
 COPY backend/requirements.txt ./requirements.txt
 RUN pip install --upgrade pip && pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir jsonschema
 
 # --- Copy Backend Codebase ---
 COPY backend/ backend/
+
+# ✅ Ensure SentenceTransformer model exists (auto-preload MiniLM if missing)
+RUN mkdir -p /srv/backend/models && \
+    pip install --no-cache-dir sentence-transformers && \
+    python3 - <<'EOF'
+from sentence_transformers import SentenceTransformer
+import os
+model_path = "/srv/backend/models/all-MiniLM-L6-v2"
+if not os.path.exists(model_path):
+    os.makedirs(model_path, exist_ok=True)
+    print("📥 Downloading all-MiniLM-L6-v2 model ...")
+    model = SentenceTransformer("all-MiniLM-L6-v2")
+    model.save(model_path)
+    print(f"✅ Model saved to {model_path}")
+else:
+    print(f"✅ Model already present at {model_path}")
+EOF
 
 # --- Ensure Static and Upload Folders Exist ---
 RUN mkdir -p /srv/backend/static /srv/uploaded_images
@@ -39,6 +57,9 @@ RUN cp -r frontend/.next backend/static/.next && \
 
 # --- Expose App Port ---
 EXPOSE 8080
+
+# --- Switch to backend as runtime root ---
+WORKDIR /srv/backend
 
 # --- Launch App ---
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]

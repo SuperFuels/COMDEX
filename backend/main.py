@@ -298,7 +298,8 @@ from backend.routes.api_collapse_trace import router as collapse_trace_router
 from backend.routes import lean_inject_api
 from backend.utils.deprecation_logger import install_deprecation_hook
 from backend.RQC.src.photon_runtime.telemetry.ledger_feed import router as ledger_router
-
+from backend.routes import aion_phi_stream
+from backend.routes import aion_brain
 from backend.api import ghx
 
 # ===== Atomsheet / LightCone / QFC wiring =====
@@ -418,6 +419,8 @@ app.include_router(status_router, prefix="/api")
 app.include_router(grid_progress_router, prefix="/api")
 app.include_router(aion_prompt.router, prefix="/api/aion")
 app.include_router(aion_command.router, prefix="/api/aion")
+app.include_router(aion_phi_stream.router, prefix="/api/aion")
+app.include_router(aion_brain.router, prefix="/api/aion")
 app.include_router(aion_suggest.router)
 app.include_router(aion_core.router, prefix="/api/aion")
 app.include_router(dna_chain.router)
@@ -551,6 +554,13 @@ def list_available_containers():
     containers = STATE.list_containers_with_status()
     STATE.update_context("container_list", containers)
     return {"containers": containers}
+
+import asyncio
+from backend.modules.aion_resonance.phi_learning import auto_balance_loop
+
+@app.on_event("startup")
+async def launch_phi_balance():
+    asyncio.create_task(auto_balance_loop())
 
 # ── 21) Run via Uvicorn when executed directly
 if __name__ == "__main__":

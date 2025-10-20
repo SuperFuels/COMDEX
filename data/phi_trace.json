@@ -1,0 +1,34 @@
+[
+  {
+    "\u03a6_load": -0.012220530133414946,
+    "\u03a6_flux": 0.28329607480403485,
+    "\u03a6_entropy": 0.3922844508731379,
+    "\u03a6_coherence": 0.877830794900812,
+    "timestamp": "2025-10-20T19:45:55.679039",
+    "last_command": "@AION REFLECT GRATITUDE"
+  },
+  {
+    "\u03a6_load": -0.016529636145152234,
+    "\u03a6_flux": 0.28149484276221765,
+    "\u03a6_entropy": 0.3753353285791082,
+    "\u03a6_coherence": 0.8793586520921972,
+    "timestamp": "2025-10-20T20:03:01.621943",
+    "last_command": "@AION REFLECT GRATITUDE"
+  },
+  {
+    "\u03a6_load": -0.009864691898027208,
+    "\u03a6_flux": 0.277289366343863,
+    "\u03a6_entropy": 0.3619072715211937,
+    "\u03a6_coherence": 0.8774148244816283,
+    "timestamp": "2025-10-20T20:08:13.924898",
+    "last_command": "@AION RESPOND ERROR"
+  },
+  {
+    "\u03a6_load": 0.022036096097752554,
+    "\u03a6_flux": 0.2634734850672478,
+    "\u03a6_entropy": 0.4092317962297446,
+    "\u03a6_coherence": 0.6078306623669565,
+    "timestamp": "2025-10-20T20:14:14.297134",
+    "last_command": "@AION REFLECT GRATITUDE"
+  }
+]

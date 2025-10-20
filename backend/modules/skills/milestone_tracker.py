@@ -53,11 +53,37 @@ TRIGGER_PATTERNS = {
     "grid_world_complete": ["grid complete", "navigation mastery", "learned environment"]
 }
 
+from sentence_transformers import SentenceTransformer
+from pathlib import Path
+import os, json, logging
+
 class MilestoneTracker:
     def __init__(self, goal_creation_callback=None):
         self.goal_creation_callback = goal_creation_callback
-        self.model = SentenceTransformer("./models/all-MiniLM-L6-v2", local_files_only=True)
-        self.trigger_embeddings = self._embed_triggers()
+
+        # ✅ Known model search paths
+        model_paths = [
+            "/srv/backend/models/all-MiniLM-L6-v2",  # Docker absolute path
+            str(Path(__file__).resolve().parent.parent / "models/all-MiniLM-L6-v2"),  # /backend/modules/... → /backend/models/
+            "./backend/models/all-MiniLM-L6-v2",  # dev relative path
+            "./models/all-MiniLM-L6-v2",          # fallback
+        ]
+
+        self.model = None
+        for path in model_paths:
+            if os.path.exists(path):
+                try:
+                    self.model = SentenceTransformer(path, local_files_only=True)
+                    print(f"✅ MilestoneTracker: using MiniLM model from {path}")
+                    break
+                except Exception as e:
+                    logging.warning(f"⚠️ Failed to load model from {path}: {e}")
+
+        if self.model is None:
+            logging.warning(f"[MilestoneTracker] ❌ Model not found in any known path: {model_paths}")
+
+        # Continue normal initialization
+        self.trigger_embeddings = self._embed_triggers() if self.model else {}
         self.boot_selector = BootSelector()
 
         if MILESTONE_FILE.exists():

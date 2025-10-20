@@ -31,7 +31,7 @@ gcloud run deploy comdex-api \
   --timeout=300s
 
 git add .
-git commit -m "Q Series V3"
+git commit -m "AION Intelligence"
 git push origin main
 
 
