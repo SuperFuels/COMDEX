@@ -2,22 +2,8 @@
 import { useEffect, useRef, useState } from "react";
 import { playGlyphNarration } from "@/components/ui/hologram_audio";
 
-/* ------------------------------------------------------------------ */
-/* Build a ws/wss URL from a path or absolute URL                     */
-/* ------------------------------------------------------------------ */
+// Build a ws/wss URL from a path or absolute URL
 export function getWssUrl(pathOrUrl: string): string {
-  // 🔧 Temporary override for GHX testing
-  const isDev = process.env.NODE_ENV === "development";
-
-  const hardcoded = isDev
-    ? "ws://localhost:8080/ws/hqce"
-    : "wss://comdex-api-375760843948.us-central1.run.app/ws/hqce";
-
-  return hardcoded;
-
-  /* ------------------------------------------------------------------
-     Original logic kept for later restore if needed
-     ------------------------------------------------------------------
   if (typeof window === "undefined") return "";
 
   // If they pass an absolute ws(s):// or http(s):// URL, normalize it.
@@ -30,8 +16,8 @@ export function getWssUrl(pathOrUrl: string): string {
 
   const wsProtocol = window.location.protocol === "https:" ? "wss" : "ws";
 
-  // Optional explicit socket host (with safe default)
-  const raw = process.env.NEXT_PUBLIC_SOCKET_URL || "";
+  // Optional explicit socket host
+  const raw = process.env.NEXT_PUBLIC_SOCKET_URL;
   if (raw) {
     const host = raw.replace(/^wss?:\/\//, "").replace(/\/+$/, "");
     const seg = pathOrUrl.startsWith("/") ? pathOrUrl : `/${pathOrUrl}`;
@@ -47,12 +33,7 @@ export function getWssUrl(pathOrUrl: string): string {
 
   const seg = pathOrUrl.startsWith("/") ? pathOrUrl : `/${pathOrUrl}`;
   return `${wsProtocol}://${host}${seg}`;
-  */
 }
-
-/* ------------------------------------------------------------------ */
-/* Hook types and main definition                                     */
-/* ------------------------------------------------------------------ */
 
 type MsgHandler = (data: any) => void;
 
@@ -86,17 +67,17 @@ export default function useWebSocket(
 
     socket.onopen = () => {
       setConnected(true);
-      console.info(`[WebSocket] Connected: ${url}`);
+      // console.info(`[WebSocket] Connected: ${url}`);
     };
 
     socket.onclose = () => {
       setConnected(false);
-      console.warn("[WebSocket] Disconnected:", url);
+      // console.warn("[WebSocket] Disconnected:", url);
     };
 
     socket.onerror = (e) => {
       setConnected(false);
-      console.error("[WebSocket] Error:", e);
+      // console.error("[WebSocket] Error:", e);
     };
 
     socket.onmessage = (event) => {
@@ -104,13 +85,13 @@ export default function useWebSocket(
       try {
         data = JSON.parse(event.data);
       } catch {
-        /* non-JSON payload, keep raw */
+        // leave as raw if not JSON
       }
 
       const msgType = data?.type || data?.event;
       if (filterType?.length && msgType && !filterType.includes(msgType)) return;
 
-      // 🔊 Narrate glyphs when detected
+      // Optional nicety: narrate glyphs when we see them
       if (msgType === "glyph_execution" && data?.payload?.glyph) {
         playGlyphNarration(data.payload.glyph);
       }
@@ -125,10 +106,6 @@ export default function useWebSocket(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathOrUrl, filterType?.join(",")]); // keep deps stable
 
-  /* ------------------------------------------------------------------ */
-  /* Emit / send helpers                                                */
-  /* ------------------------------------------------------------------ */
-
   const sendJsonMessage = (payload: any) => {
     const s = socketRef.current;
     if (!s || s.readyState !== WebSocket.OPEN) {
@@ -138,7 +115,7 @@ export default function useWebSocket(
     s.send(typeof payload === "string" ? payload : JSON.stringify(payload));
   };
 
-  // Back-compat alias for legacy code
+  // Back-compat alias for existing code
   const emit = (event: string, data: any) =>
     sendJsonMessage({ event, ...data });
 
@@ -147,9 +124,11 @@ export default function useWebSocket(
   return {
     socket: socketRef.current,
     connected,
+    // New/expected API:
     sendJsonMessage,
     lastJsonMessage,
-    emit, // back-compat
+    // Back-compat:
+    emit,
     close,
   };
 }

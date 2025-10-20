@@ -15,6 +15,7 @@ import { ReplayHUD } from "@/components/CodexHUD/ReplayHUD";
 import { ReplayListPanel } from "@/components/CodexHUD/ReplayListPanel";
 import { useCollapseMetrics } from "@/hooks/useCollapseMetrics";
 import { useWaveTelemetry } from "@/hooks/useWaveTelemetry";
+import GHXCoherencePanel from "@/components/GHX/GHXCoherencePanel";
 import dynamic from "next/dynamic";
 const GHXVisualizerField = dynamic(
   () => import("@/components/Hologram/ghx_visualizer_field"),
@@ -217,14 +218,14 @@ export default function CodexHUD({
   const { replays, latestTrace, handleReplayClick } = useGlyphReplay();
   const [showReplayPanel, setShowReplayPanel] = useState(false);
 
-  const [showGHX, setShowGHX] = useState(true);
+  const [showGHX, setShowGHX] = useState(false);
   const [qkdLocked, setQkdLocked] = useState(false);
   const [lastPattern, setLastPattern] = useState<string | null>(null);
   const { collapseHistory, decoherenceHistory, latestCollapse, latestDecoherence } =
     useCollapseMetrics();
 
-  const wsUrl = "/ws/codex";
-  const gipWsUrl = "/ws/glyphnet";
+  const wsUrl = "/ws/hqce";  //"/ws/codex";
+  const gipWsUrl = "/ws/hqce";  //"/ws/glyphnet";
 
   // ✅ WebSocket connection (Codex + QKD + Pattern events)
   const { connected: codexConnected } = useWebSocket(
@@ -775,9 +776,15 @@ export default function CodexHUD({
 
 {/* ✅ GHX Visualizer Field */}
 {showGHX && (
-  <div className="fixed bottom-0 left-0 w-full bg-black/80 z-50">
-    <GHXVisualizerField containerId={containerId ?? ""} />
-  </div>
+  <>
+    {/* 🧠 Coherence Pulse Panel */}
+    <GHXCoherencePanel />
+
+    {/* 🌌 GHX Visualizer Field (less opaque, non-blocking) */}
+    <div className="fixed bottom-0 left-0 w-full bg-black/40 z-40 backdrop-blur-md">
+      <GHXVisualizerField containerId={containerId ?? ""} />
+    </div>
+  </>
 )}
 </div>
 );

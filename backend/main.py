@@ -470,8 +470,7 @@ app.include_router(codex_mutate.router)
 app.include_router(symbol_tree.router)
 app.include_router(qfc_api.router)
 app.include_router(symbolic_tree_api.router)
-#app.include_router(collapse_trace_router)
-app.include_router(collapse_trace_router, prefix="/api")
+app.include_router(collapse_trace_router)
 app.include_router(glyphwave_test_router.router)
 app.include_router(workspace_router)
 app.include_router(api_sheets.router)
@@ -552,39 +551,6 @@ def list_available_containers():
     containers = STATE.list_containers_with_status()
     STATE.update_context("container_list", containers)
     return {"containers": containers}
-
-# -------------------------------------------------------------------
-# 🔧 HQCE fallback WebSocket endpoint — echoes if bridge not loaded
-# -------------------------------------------------------------------
-@app.websocket("/ws/hqce")
-async def ws_hqce_fallback(websocket: WebSocket):
-    """
-    Safe fallback so the frontend never gets 404 or handshake fail.
-    If the real HQCE bridge exists, delegate to it.
-    Otherwise accept and echo messages.
-    """
-    try:
-        await websocket.accept()
-        # Try dynamic bridge import
-        try:
-            from backend.modules.holograms import hqce_ws_bridge
-            if hasattr(hqce_ws_bridge, "connect"):
-                await hqce_ws_bridge.connect(websocket)
-                while True:
-                    await asyncio.sleep(1)
-        except Exception:
-            # Fallback echo
-            await websocket.send_json({"event": "hqce_connected", "mode": "fallback"})
-            while True:
-                msg = await websocket.receive_text()
-                await websocket.send_json({"echo": msg})
-    except WebSocketDisconnect:
-        try:
-            if "hqce_ws_bridge" in locals():
-                await hqce_ws_bridge.disconnect(websocket)
-        except Exception:
-            pass
-        print("❌ HQCE WebSocket disconnected.")
 
 # ── 21) Run via Uvicorn when executed directly
 if __name__ == "__main__":

@@ -1,3 +1,45 @@
+gantt
+    title ⚙️ Tessaris Q-Series — Phase 2 (Resonance Backend Integration)
+    dateFormat  YYYY-MM-DD
+    axisFormat  %d %b
+    excludes    weekends
+
+    section 🧠 Resonance Core (Backend Foundation)
+    Define /ws/ghx + /api/replay mock endpoints           :active, r1, 2025-10-20, 1d
+    Implement GHX simulator (ΔΦ, coherence emitter)       :r2, after r1, 1d
+    Stabilize WebSocket manager (auto-reconnect, logging) :r3, after r2, 1d
+    Add PhotonActionSwitch core handler                   :r4, after r3, 1d
+    Integrate with Aion + QQC routing layer               :r5, after r4, 1d
+
+    section 💡 Photon Language Layer
+    Define Photon → Glyph projection (π operator)         :p1, after r5, 1d
+    Implement Photon resonance channel (↔ entanglement)   :p2, after p1, 1d
+    Add Photon trigger semantics (⇒ action switch)        :p3, after p2, 1d
+    Emit symbolic glyph events to GHX stream              :p4, after p3, 1d
+    Export .photo schema v0.2                             :p5, after p4, 1d
+
+    section 🔬 GHX Telemetry / CodexMetrics
+    Unify coherence + collapse metrics schema             :t1, after p5, 1d
+    Build GHXRecorder buffer (60 s sliding window)        :t2, after t1, 1d
+    Integrate CFA hooks for live metric streaming         :t3, after t2, 1d
+    Add GHX replay + collapse-trace persistence           :t4, after t3, 1d
+    Verify CodexHUD mock data connectivity                :t5, after t4, 1d
+
+    section 🧩 Aion–QQC Integration
+    Connect resonance events to QQC photon cores          :a1, after t5, 2d
+    Implement bidirectional Aion↔Photon data swap         :a2, after a1, 2d
+    Validate ActionSwitch hand-off (PhotonLanguage test)  :a3, after a2, 1d
+    Emit combined GHX coherence packets to Codex          :a4, after a3, 1d
+
+    section 📦 Deployment / Build Pipeline
+    Finalize backend Docker + Cloud Run YAMLs             :d1, after a4, 1d
+    Integrate frontend (CodexHUD) build into pipeline     :d2, after d1, 1d
+    Verify gcloud build + WS connectivity (smoke test)    :d3, after d2, 1d
+    Freeze Phase 2 baseline snapshot                      :d4, after d3, 0.5d
+    
+
+
+
 Perfect — here’s the full post-TUE Symatic Software Build Checklist, rewritten from the ground up to match your Symatics Algebra, Photon Logic, and TUE framework.
 This is the canonical successor to your September 2025 AION symbolic checklist — now fully aligned with resonance computing, entanglement algebra, and Codex-Tessaris integration.
 
