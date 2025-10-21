@@ -87,32 +87,32 @@ const SECTIONS: Section[] = [
   items: [
     {
       label: 'Symatics Dashboard',
-      href: '/symatics', // frontend/symatics_dashboard/App.jsx  → wss://.../ws/symatics
+      href: '/symatics', // frontend/symatics_dashboard/App.jsx  → wss://.../ws/symatics startup script (start_streams.sh) ./start_all_streams.sh / chmod +x stop_all_streams.sh / ./stop_all_streams.sh / ./status_streams.sh / chmod +x status_streams.sh
       emoji: '💡',
     },
     {
       label: 'Harmonic Coherence Orchestrator',
-      href: '/dashboards/hco', // backend/modules/aion_quantum/harmonic_coherence_orchestrator.py
+      href: '/dashboards/hco', // backend/modules/aion_quantum/harmonic_coherence_orchestrator.py startup script (start_streams.sh) ./start_all_streams.sh / chmod +x stop_all_streams.sh /./stop_all_streams.sh
       emoji: '🎛️',
     },
     {
       label: 'Resonant Field Visualizer',
-      href: '/dashboards/resonant-field', // backend/modules/aion_visual/quantum_resonant_field_visualizer.py
+      href: '/dashboards/resonant-field', // backend/modules/aion_visual/quantum_resonant_field_visualizer.py startup script (start_streams.sh) ./start_all_streams.sh
       emoji: '🌀',
     },
     {
       label: 'Symbolic Export Layer',
-      href: '/dashboards/srel', // backend/modules/aion_integrity/symbolic_resonance_export_layer.py
+      href: '/dashboards/srel', // backend/modules/aion_integrity/symbolic_resonance_export_layer.py startup script (start_streams.sh) ./start_all_streams.sh
       emoji: '🪶',
     },
     {
       label: 'Meta-Resonant Telemetry',
-      href: '/dashboards/mrtc', // backend/modules/aion_integrity/meta_resonant_telemetry_consolidator.py
+      href: '/dashboards/mrtc', // backend/modules/aion_integrity/meta_resonant_telemetry_consolidator.py startup script (start_streams.sh) ./start_all_streams.sh
       emoji: '📡',
     },
     {
       label: 'Resonant Analytics Layer',
-      href: '/dashboards/ral', // backend/modules/aion_integrity/resonant_analytics_layer.py (Phase 26)
+      href: '/dashboards/ral', // backend/modules/aion_integrity/resonant_analytics_layer.py (Phase 26) startup script (start_streams.sh) ./start_all_streams.sh
       emoji: '📈',
     },
   ],

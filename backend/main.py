@@ -646,6 +646,70 @@ async def on_startup():
 async def root():
     return {"status": "ok", "message": "AION backend running"}
 
+import asyncio
+import websockets
+from fastapi import WebSocket
+
+@app.websocket("/api/ws/symatics")
+async def proxy_symatics(ws: WebSocket):
+    """Proxy frontend → internal SREL (8001)"""
+    await ws.accept()
+    try:
+        async with websockets.connect("ws://localhost:8001/ws/symatics") as backend:
+            async def frontend_to_backend():
+                async for msg in ws.iter_text():
+                    await backend.send(msg)
+
+            async def backend_to_frontend():
+                async for msg in backend:
+                    await ws.send_text(msg)
+
+            await asyncio.gather(frontend_to_backend(), backend_to_frontend())
+    except Exception as e:
+        print(f"❌ Symatics proxy error: {e}")
+    finally:
+        await ws.close()
+
+
+@app.websocket("/api/ws/analytics")
+async def proxy_analytics(ws: WebSocket):
+    """Proxy frontend → internal RAL (8002)"""
+    await ws.accept()
+    try:
+        async with websockets.connect("ws://localhost:8002/ws/analytics") as backend:
+            async def frontend_to_backend():
+                async for msg in ws.iter_text():
+                    await backend.send(msg)
+
+            async def backend_to_frontend():
+                async for msg in backend:
+                    await ws.send_text(msg)
+
+            await asyncio.gather(frontend_to_backend(), backend_to_frontend())
+    except Exception as e:
+        print(f"❌ Analytics proxy error: {e}")
+    finally:
+        await ws.close()
+
+@app.websocket("/api/ws/fusion")
+async def proxy_fusion(ws: WebSocket):
+    await ws.accept()
+    try:
+        async with websockets.connect("ws://localhost:8005/ws/fusion") as backend:
+            async def frontend_to_backend():
+                async for msg in ws.iter_text():
+                    await backend.send(msg)
+
+            async def backend_to_frontend():
+                async for msg in backend:
+                    await ws.send_text(msg)
+
+            await asyncio.gather(frontend_to_backend(), backend_to_frontend())
+    except Exception as e:
+        print(f"❌ Fusion proxy error: {e}")
+    finally:
+        await ws.close()
+
 # ── 21) Run via Uvicorn when executed directly
 if __name__ == "__main__":
     uvicorn.run(
