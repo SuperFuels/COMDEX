@@ -82,6 +82,31 @@ const SECTIONS: Section[] = [
       { label: 'AtomSheet Panel', href: '/sci/sci_atomsheet_panel', emoji: '📄' },
     ],
   },
+  {
+  title: 'Tessaris Dashboards',
+  items: [
+    {
+      label: 'Symatics Dashboard',
+      href: 'https://glowing-space-train-r467j79vv5xg2wj4p-5173.app.github.dev',
+      emoji: '💡',
+    },
+    {
+      label: 'Harmonic Coherence',
+      href: 'https://glowing-space-train-r467j79vv5xg2wj4p-5174.app.github.dev',
+      emoji: '🎛️',
+    },
+    {
+      label: 'Resonant Field Visualizer',
+      href: 'https://glowing-space-train-r467j79vv5xg2wj4p-5175.app.github.dev',
+      emoji: '🌀',
+    },
+    {
+      label: 'Symbolic Export Layer',
+      href: 'https://glowing-space-train-r467j79vv5xg2wj4p-5176.app.github.dev',
+      emoji: '🪶',
+    },
+  ],
+},
 ]
 
 export default function Sidebar({
