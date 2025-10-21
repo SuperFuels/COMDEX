@@ -118,7 +118,41 @@ def reinforce_from_memory():
 # ----------------------------------------------------------
 # Public Accessors
 # ----------------------------------------------------------
+# ----------------------------------------------------------
+# Dynamic Belief Update (used by cognitive_feedback)
+# ----------------------------------------------------------
 
+# ----------------------------------------------------------
+# Dynamic Belief Update (stabilized with decay + resistance)
+# ----------------------------------------------------------
+
+def update_beliefs(delta: dict):
+    """
+    Incrementally update AION’s belief vector in response to feedback.
+    Includes decay toward neutral (0.5) and resistance to abrupt jumps.
+    """
+    state = _load_json(REINFORCE_PATH, DEFAULT_BASELINE.copy())
+    beliefs = state.get("beliefs", {})
+
+    resistance = 0.3  # higher = slower changes
+    decay_rate = 0.02  # gentle pull toward equilibrium
+
+    for k in beliefs:
+        base = beliefs[k]
+        # Decay toward neutral
+        base += (0.5 - base) * decay_rate
+        # Apply delta with resistance scaling
+        if k in delta:
+            base += delta[k] * (1 - resistance)
+        beliefs[k] = max(0.0, min(1.0, base))
+
+    state["beliefs"] = beliefs
+    state["last_update"] = datetime.datetime.utcnow().isoformat()
+    _save_json(REINFORCE_PATH, state)
+
+    print(f"[🧭 Beliefs adjusted] {beliefs}")
+    return state
+    
 def get_reinforce_state():
     """Return last saved reinforcement baseline."""
     return _load_json(REINFORCE_PATH, DEFAULT_BASELINE)

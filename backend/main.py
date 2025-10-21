@@ -63,9 +63,31 @@ import backend.models
 Base.metadata.create_all(bind=engine)
 logger.info("✅ Database tables checked/created.")
 
-# ── Instantiate FastAPI
-app = FastAPI(title="COMDEX API", version="1.0.0", description="AION")
+# ── Instantiate FastAPI (ensure docs & schema are always visible)
+app = FastAPI(
+    title="COMDEX API",
+    version="1.0.0",
+    description="AION Cognitive Runtime",
+    docs_url="/docs",
+    redoc_url="/redoc",
+    openapi_url="/openapi.json",
+)
 app.router.redirect_slashes = False
+
+# ── Manually re-enable OpenAPI + ReDoc routes
+from fastapi.openapi.docs import get_redoc_html
+from fastapi.openapi.utils import get_openapi
+from fastapi.responses import JSONResponse
+
+@app.get("/openapi.json", include_in_schema=False)
+async def custom_openapi():
+    """Serve raw OpenAPI schema for tools or /redoc."""
+    return JSONResponse(get_openapi(title=app.title, version=app.version, routes=app.routes))
+
+@app.get("/redoc", include_in_schema=False)
+async def custom_redoc():
+    """Serve ReDoc interface manually."""
+    return get_redoc_html(openapi_url="/openapi.json", title=f"{app.title} ReDoc")
 
 # ── CORS
 if ENV != "production":
@@ -307,6 +329,12 @@ from backend.routes import aion_lexicon
 from backend.routes import aion_graph
 from backend.routes import aion_memory
 from backend.routes import aion_reinforce
+from backend.modules.aion_resonance import aion_llm_bridge
+from backend.modules.aion_resonance import symatic_bridge
+from backend.modules.aion_resonance import thought_stream
+from backend.modules.aion_resonance.thought_stream import thought_stream_router
+from backend.routes.aion_synthesize_glyphs import router as synth_router
+
 
 # ===== Atomsheet / LightCone / QFC wiring =====
 from backend.routes.dev import glyphwave_test_router        # dev-only routes (mounted elsewhere in your file)  # noqa: F401
@@ -493,6 +521,10 @@ app.include_router(ledger_router)
 app.include_router(ghx.router, prefix="/api", tags=["ghx"])
 app.include_router(aion_lexicon.router, prefix="/api/aion")
 app.include_router(aion_graph.router, prefix="/api/aion")
+app.include_router(aion_llm_bridge.router, prefix="/api/aion")
+app.include_router(symatic_bridge.router, prefix="/api/aion")
+app.include_router(thought_stream_router)
+app.include_router(synth_router)
 seed_builtin_patterns()
 install_deprecation_hook()
 
@@ -573,6 +605,46 @@ from backend.modules.aion_resonance.phi_learning import auto_balance_loop
 @app.on_event("startup")
 async def launch_phi_balance():
     asyncio.create_task(auto_balance_loop())
+
+# ============================================================
+# 🧠 AION Cognitive & Continuum Background Processes
+# ============================================================
+from threading import Thread
+import time
+from backend.modules.aion_resonance.cognitive_loop import run_cognitive_cycle
+from backend.modules.aion_resonance.cognitive_continuum import run_continuum_cycle
+
+def background_loop():
+    """Continuously run AION's internal self-reflection loop."""
+    while True:
+        try:
+            run_cognitive_cycle()
+        except Exception as e:
+            print(f"[AION Cognitive Loop Error] {e}")
+        time.sleep(60)  # Reflect once per minute
+
+def continuum_thread():
+    """Run AION's full cognitive continuum cycle periodically."""
+    while True:
+        try:
+            print("🧠 Running Cognitive Continuum Cycle...")
+            result = run_continuum_cycle()
+            print(f"Continuum result: {result.get('status')}")
+        except Exception as e:
+            print(f"[AION Continuum Error] {e}")
+        time.sleep(180)  # every 3 minutes (adjust as desired)
+
+@app.on_event("startup")
+async def on_startup():
+    """Launch all autonomous AION background processes."""
+    print("🧠 Starting AION Reflection + Continuum threads...")
+    Thread(target=background_loop, daemon=True).start()
+    Thread(target=continuum_thread, daemon=True).start()
+
+# ── Root route for quick health check / base URL
+@app.get("/", include_in_schema=False)
+async def root():
+    return {"status": "ok", "message": "AION backend running"}
 
 # ── 21) Run via Uvicorn when executed directly
 if __name__ == "__main__":

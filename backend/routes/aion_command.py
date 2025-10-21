@@ -218,6 +218,19 @@ async def run_static_shell(input: CommandInput):
 async def get_command_registry():
     return {"commands": list_commands()}
 
+# -------------------------
+# 🧠 Cognitive Loop Trigger
+# -------------------------
+from backend.modules.aion_resonance.cognitive_loop import run_cognitive_cycle
+
+@router.post("/cognitive-loop")
+async def trigger_cognitive_loop():
+    """
+    Runs AION's internal reflection cycle.
+    Generates a new self-reflective event from memory.
+    """
+    result = run_cognitive_cycle()
+    return result
 
 # -------------------------
 # 4. Φ-State Inspector

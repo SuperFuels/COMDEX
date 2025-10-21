@@ -357,7 +357,18 @@ async def aion_brain_dashboard():
         <canvas id="reinforceChart" width="900" height="280" style="margin-top:10px;"></canvas>
       </div>
 
+      <!-- 🧘 AION Cognitive Reflections -->
+      <div class="panel" id="reflectionPanel" style="width:95%;max-width:1100px;margin-top:20px;">
+        <h2>🧘 AION Cognitive Reflections</h2>
+        <div id="reflectionFeed" style="font-size:0.95em;color:#8b949e;max-height:200px;overflow-y:auto;">
+          Loading reflections...
+        </div>
+      </div>
+
       <script>
+        // -------------------------------
+        // ⚖️ Φ Reinforcement Monitor Logic
+        // -------------------------------
         const rctx = document.getElementById('reinforceChart').getContext('2d');
         const reinforceChart = new Chart(rctx, {
           type: 'bar',
@@ -420,8 +431,186 @@ async def aion_brain_dashboard():
 
         setInterval(refreshReinforce, 6000);
         refreshReinforce();
+
+        // ---------------------------------
+        // 🧘 Cognitive Reflections Feed Logic
+        // ---------------------------------
+        async function refreshReflections() {
+          try {
+            const resp = await fetch('/data/conversation_memory.json');
+            const js = await resp.json();
+            const reflections = js
+              .filter(e => e.type === 'self_reflection')
+              .slice(-10)
+              .reverse();
+
+            const div = document.getElementById('reflectionFeed');
+            if (reflections.length === 0) {
+              div.innerHTML = "<i>No reflections yet...</i>";
+              return;
+            }
+
+            div.innerHTML = reflections.map(r => `
+              <div>
+                <strong>[${r.tone.toUpperCase()}]</strong> ${r.message}<br>
+                <small>${r.timestamp}</small>
+              </div>
+            `).join('<hr style="border:0;border-bottom:1px solid #30363d;">');
+          } catch (err) {
+            console.warn("Reflection refresh failed:", err);
+          }
+        }
+
+        setInterval(refreshReflections, 6000);
+        refreshReflections();
+      </script>
+      <!-- 🧩 Symatic Equation Stream -->
+      <div class="panel" id="symaticPanel" style="width:95%;max-width:1100px;margin-top:20px;">
+        <h2>🔺 Symatic Equation Stream</h2>
+        <div id="symaticFeed" style="font-size:0.95em;color:#8b949e;max-height:220px;overflow-y:auto;">
+          Loading symbolic activity...
+        </div>
+      </div>
+      <!-- 🧠 AION Thought Stream Panel -->
+      <div class="panel" id="thoughtPanel" style="width:95%;max-width:1100px;margin-top:20px;">
+        <h2>🧠 AION Thought Stream</h2>
+        <div id="thoughtFeed" style="font-size:0.95em;color:#8b949e;max-height:300px;overflow-y:auto;">
+          Loading cognitive stream...
+        </div>
+      </div>
+
+      <script>
+      async function refreshThoughtStream() {
+        try {
+          // --- 1️⃣ Load reflections
+          const memResp = await fetch('/data/conversation_memory.json');
+          const mem = await memResp.json();
+
+          // --- 2️⃣ Load symatic equations
+          const symResp = await fetch('/api/aion/symatic/log');
+          const sym = await symResp.json();
+
+          const reflections = (mem || []).filter(e =>
+            e.type === 'self_reflection' || e.type === 'llm_reflection'
+          );
+
+          const equations = (sym.log || []).map(e => ({
+            type: 'symatic',
+            message: `${e.operator} ${e.equation}`,
+            timestamp: e.timestamp
+          }));
+
+          // --- 3️⃣ Combine & sort chronologically
+          const all = [...reflections, ...equations].sort((a,b) =>
+            new Date(b.timestamp) - new Date(a.timestamp)
+          );
+
+          // --- 4️⃣ Render feed
+          const div = document.getElementById('thoughtFeed');
+          if (all.length === 0) {
+            div.innerHTML = "<i>No cognitive activity yet...</i>";
+            return;
+          }
+
+          div.innerHTML = all.slice(0, 20).map(e => {
+            let icon = "💭";
+            if (e.type === 'symatic') icon = "🔺";
+            else if (e.type === 'self_reflection') icon = "🧘";
+            else if (e.type === 'llm_reflection') icon = "💬";
+            const tone = e.tone ? e.tone.toUpperCase() : "–";
+            const msg = e.message || e.llm_output || "";
+            return `
+              <div>
+                <strong>${icon} [${tone}]</strong> ${msg}<br>
+                <small>${e.timestamp}</small>
+                <hr style="border:0;border-bottom:1px solid #30363d;">
+              </div>`;
+          }).join('');
+
+        } catch (err) {
+          console.warn("Thought Stream refresh failed:", err);
+        }
+      }
+
+      setInterval(refreshThoughtStream, 6000);
+      refreshThoughtStream();
+      <script>
+      const ws = new WebSocket(`ws://${window.location.host}/api/aion/thought-stream`);
+      const div = document.getElementById("thoughtFeed");
+
+      ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        const events = data.events || [];
+        div.innerHTML = events.map(e => {
+          let icon = "💭";
+          if (e.type === "symatic") icon = "🔺";
+          else if (e.type === "self_reflection") icon = "🧘";
+          else if (e.type === "llm_reflection") icon = "💬";
+          const tone = e.tone ? e.tone.toUpperCase() : "–";
+          return `
+            <div>
+              <strong>${icon} [${tone}]</strong> ${e.message}<br>
+              <small>${e.timestamp}</small>
+              <hr style="border:0;border-bottom:1px solid #30363d;">
+            </div>`;
+        }).join('');
+      };
+
+      ws.onopen = () => console.log("📡 Connected to AION Thought Stream");
+      ws.onclose = () => console.warn("🔌 Disconnected from AION Thought Stream");
       </script>
     </body>
     </html>
     """
     return HTMLResponse(content=html)
+
+# ==========================================================
+# 🧠 AION Thought Stream WebSocket
+# ==========================================================
+from fastapi import WebSocket
+import asyncio
+from backend.modules.aion_resonance.conversation_memory import MEMORY
+from backend.modules.aion_resonance.symatic_logger import SYMATIC_LOG
+
+@router.websocket("/api/aion/thought-stream")
+async def thought_stream_ws(websocket: WebSocket):
+    """
+    Streams AION cognitive events — reflections, LLM outputs, and Symatic equations —
+    as a unified real-time feed for the dashboard and test clients.
+    """
+    await websocket.accept()
+    print("📡 Client connected to AION Thought Stream")
+
+    try:
+        while True:
+            # --- 1️⃣ Load latest reflections and equations
+            mem_events = MEMORY.load()[-10:]
+            sym_events = SYMATIC_LOG.get("log", [])[-10:]
+
+            # --- 2️⃣ Normalize combined events
+            combined = []
+            for e in mem_events:
+                combined.append({
+                    "type": e.get("type", "reflection"),
+                    "message": e.get("message") or e.get("reflection", ""),
+                    "tone": e.get("tone", "neutral"),
+                    "timestamp": e.get("timestamp", "")
+                })
+            for s in sym_events:
+                combined.append({
+                    "type": "symatic",
+                    "message": f"{s.get('operator')} {s.get('equation')}",
+                    "tone": "–",
+                    "timestamp": s.get("timestamp", "")
+                })
+
+            combined.sort(key=lambda x: x.get("timestamp", ""), reverse=True)
+
+            await websocket.send_json({"events": combined[-20:]})
+            await asyncio.sleep(5)
+
+    except Exception as e:
+        print(f"❌ Thought Stream disconnected: {e}")
+    finally:
+        await websocket.close()
+        print("🔌 AION Thought Stream closed")

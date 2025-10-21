@@ -472,20 +472,35 @@ class MemoryEngine:
         print(f"✅ Memory stored: {label}")
         self.send_message_to_agents({"type": "new_memory", "memory": memory_obj})
 
-        # 🧬 Trigger synthesis → glyph service (best-effort)
+        # 🧬 Trigger synthesis → glyph service (best-effort, safe + non-blocking)
         try:
+            import json as _json
             print("🧬 Synthesizing glyphs from memory...")
+
+            # Build payload
+            payload = {"input": _json.dumps(content), "source": "memory"}
+
+            # Send to glyph service with extended timeout
             synth_response = requests.post(
                 f"{GLYPH_API_BASE_URL}/api/aion/synthesize-glyphs",
-                json={"text": content, "source": "memory"}
+                json=payload,
+                timeout=8,  # ⏳ increased from 2.5s → 8s
             )
+
+            # Handle response
             if synth_response.status_code == 200:
                 result = synth_response.json()
-                print(f"✅ Synthesized {len(result.get('glyphs', []))} glyphs from memory.")
+                glyph_count = len(result.get("glyphs", []))
+                print(f"✅ Synthesized {glyph_count} glyphs from memory.")
             else:
                 print(f"⚠️ Glyph synthesis failed: {synth_response.status_code} {synth_response.text}")
+
+        except requests.exceptions.Timeout:
+            print("⏳ Glyph synthesis timeout — continuing without blocking cognition.")
+        except requests.exceptions.ConnectionError as e:
+            print(f"🔌 Glyph synthesis connection error: {e}")
         except Exception as e:
-            print(f"🚨 Glyph synthesis error (memory): {e}")
+            print(f"⚠️ Glyph synthesis error (memory): {e}")
 
         # ✅ Inject glyph trace + index (best-effort)
         if ENABLE_GLYPH_LOGGING:
