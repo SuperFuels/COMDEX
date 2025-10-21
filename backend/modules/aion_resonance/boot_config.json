@@ -18,15 +18,15 @@
     "\u03a6_coherence": 0.95
   },
   "error": {
-    "\u03a6_load": 0.0454,
-    "\u03a6_flux": 0.3629,
-    "\u03a6_entropy": 0.6694,
-    "\u03a6_coherence": 0.4556
+    "\u03a6_load": 0.0424,
+    "\u03a6_flux": 0.3395,
+    "\u03a6_entropy": 0.5742,
+    "\u03a6_coherence": 0.4907
   },
   "gratitude": {
-    "\u03a6_load": -0.0098,
-    "\u03a6_flux": 0.2692,
-    "\u03a6_entropy": 0.3421,
-    "\u03a6_coherence": 0.8858
+    "\u03a6_load": -0.0082,
+    "\u03a6_flux": 0.2288,
+    "\u03a6_entropy": 0.2074,
+    "\u03a6_coherence": 0.9028
   }
 }

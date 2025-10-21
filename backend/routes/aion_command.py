@@ -63,12 +63,26 @@ async def execute_command(input: CommandInput):
         # 💾 Persist Φ-state after each resonance call
         save_phi_state(phi_vector, last_command=raw_command)
 
+        # 🧠 Record conversational memory
+        from backend.modules.aion_resonance.conversation_memory import MEMORY
+        MEMORY.record(raw_command, phi_vector, phi_vector.get("reasoning", {}))
+
+        # 🧾 Log to Hexcore Memory
         memory.store({
             "label": "resonance:ingress",
             "content": f"🧠 Aion resonance invoked.\nΦ signature: {phi_vector}",
             "tokens": len(str(phi_vector)) // 4
         })
 
+        # 🌱 NEW: Automatic Cognitive Reinforcement
+        try:
+            from backend.modules.aion_resonance.phi_reinforce import reinforce_from_memory
+            baseline = reinforce_from_memory()
+            print(f"[AION Cognitive Reinforcement] Baseline updated → Φ_coherence={baseline['Φ_coherence']:.3f}, beliefs={baseline['beliefs']}")
+        except Exception as e:
+            print(f"[AION Cognitive Reinforcement] ⚠️ Reinforcement failed: {e}")
+
+        # ✅ Return full resonance report
         return {
             "message": "🧠 Aion resonance channel engaged.",
             "phi_signature": phi_vector,

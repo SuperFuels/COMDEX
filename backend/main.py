@@ -301,6 +301,12 @@ from backend.RQC.src.photon_runtime.telemetry.ledger_feed import router as ledge
 from backend.routes import aion_phi_stream
 from backend.routes import aion_brain
 from backend.api import ghx
+from backend.routes import aion_lexicon
+import backend.routes.aion_lexicon as aion_lexicon
+from backend.routes import aion_lexicon
+from backend.routes import aion_graph
+from backend.routes import aion_memory
+from backend.routes import aion_reinforce
 
 # ===== Atomsheet / LightCone / QFC wiring =====
 from backend.routes.dev import glyphwave_test_router        # dev-only routes (mounted elsewhere in your file)  # noqa: F401
@@ -404,11 +410,14 @@ api.include_router(aion_dream_router, prefix="/aion")
 api.include_router(aion_gridworld_router)
 api.include_router(aion_game_dream_router)
 api.include_router(strategy_plan_router)
+app.include_router(aion_reinforce.router, prefix="/api/aion")
+app.include_router(aion_lexicon.router, prefix="/api/aion")
 
 api.include_router(aion_game_router)
 api.include_router(game_event_router)
 api.include_router(game_router, prefix="/aion")
 api.include_router(skill_router)
+app.include_router(aion_memory.router, prefix="/api/aion")
 
 # ── 14) Include API router on main app
 app.include_router(api)
@@ -421,6 +430,7 @@ app.include_router(aion_prompt.router, prefix="/api/aion")
 app.include_router(aion_command.router, prefix="/api/aion")
 app.include_router(aion_phi_stream.router, prefix="/api/aion")
 app.include_router(aion_brain.router, prefix="/api/aion")
+app.include_router(aion_lexicon.router, prefix="/api/aion")
 app.include_router(aion_suggest.router)
 app.include_router(aion_core.router, prefix="/api/aion")
 app.include_router(dna_chain.router)
@@ -481,6 +491,8 @@ app.include_router(qfc_extras_router)
 app.include_router(lean_inject_api.router, prefix="/api")
 app.include_router(ledger_router)
 app.include_router(ghx.router, prefix="/api", tags=["ghx"])
+app.include_router(aion_lexicon.router, prefix="/api/aion")
+app.include_router(aion_graph.router, prefix="/api/aion")
 seed_builtin_patterns()
 install_deprecation_hook()
 

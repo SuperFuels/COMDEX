@@ -550,5 +550,181 @@
     "from": 1.0,
     "to": 1.0,
     "reason": "Moderate energetic flow"
+  },
+  {
+    "timestamp": "2025-10-20T20:22:17.184378",
+    "trait": "empathy",
+    "delta": 0.02,
+    "from": 1.0,
+    "to": 1.0,
+    "reason": "High coherence, low entropy"
+  },
+  {
+    "timestamp": "2025-10-20T20:22:17.185392",
+    "trait": "discipline",
+    "delta": 0.015,
+    "from": 0.545,
+    "to": 0.56,
+    "reason": "Stable resonance alignment"
+  },
+  {
+    "timestamp": "2025-10-20T20:22:17.186403",
+    "trait": "curiosity",
+    "delta": 0.02,
+    "from": 1.0,
+    "to": 1.0,
+    "reason": "Moderate energetic flow"
+  },
+  {
+    "timestamp": "2025-10-20T20:23:01.284533",
+    "trait": "empathy",
+    "delta": 0.02,
+    "from": 1.0,
+    "to": 1.0,
+    "reason": "High coherence, low entropy"
+  },
+  {
+    "timestamp": "2025-10-20T20:23:01.285647",
+    "trait": "discipline",
+    "delta": 0.015,
+    "from": 0.56,
+    "to": 0.5750000000000001,
+    "reason": "Stable resonance alignment"
+  },
+  {
+    "timestamp": "2025-10-20T20:23:01.286710",
+    "trait": "curiosity",
+    "delta": 0.02,
+    "from": 1.0,
+    "to": 1.0,
+    "reason": "Moderate energetic flow"
+  },
+  {
+    "timestamp": "2025-10-20T20:31:19.828054",
+    "trait": "curiosity",
+    "delta": 0.02,
+    "from": 1.0,
+    "to": 1.0,
+    "reason": "Moderate energetic flow"
+  },
+  {
+    "timestamp": "2025-10-20T20:31:40.835672",
+    "trait": "empathy",
+    "delta": 0.02,
+    "from": 1.0,
+    "to": 1.0,
+    "reason": "High coherence, low entropy"
+  },
+  {
+    "timestamp": "2025-10-20T20:31:40.836767",
+    "trait": "discipline",
+    "delta": 0.015,
+    "from": 0.5750000000000001,
+    "to": 0.5900000000000001,
+    "reason": "Stable resonance alignment"
+  },
+  {
+    "timestamp": "2025-10-20T20:31:40.837872",
+    "trait": "curiosity",
+    "delta": 0.02,
+    "from": 1.0,
+    "to": 1.0,
+    "reason": "Moderate energetic flow"
+  },
+  {
+    "timestamp": "2025-10-20T20:31:47.518811",
+    "trait": "empathy",
+    "delta": 0.02,
+    "from": 1.0,
+    "to": 1.0,
+    "reason": "High coherence, low entropy"
+  },
+  {
+    "timestamp": "2025-10-20T20:31:47.519944",
+    "trait": "discipline",
+    "delta": 0.015,
+    "from": 0.5900000000000001,
+    "to": 0.6050000000000001,
+    "reason": "Stable resonance alignment"
+  },
+  {
+    "timestamp": "2025-10-20T21:29:54.860256",
+    "trait": "empathy",
+    "delta": 0.02,
+    "from": 1.0,
+    "to": 1.0,
+    "reason": "High coherence, low entropy"
+  },
+  {
+    "timestamp": "2025-10-20T21:29:54.861503",
+    "trait": "discipline",
+    "delta": 0.015,
+    "from": 0.6050000000000001,
+    "to": 0.6200000000000001,
+    "reason": "Stable resonance alignment"
+  },
+  {
+    "timestamp": "2025-10-20T21:34:30.594897",
+    "trait": "empathy",
+    "delta": 0.02,
+    "from": 1.0,
+    "to": 1.0,
+    "reason": "High coherence, low entropy"
+  },
+  {
+    "timestamp": "2025-10-20T21:34:30.596073",
+    "trait": "discipline",
+    "delta": 0.015,
+    "from": 0.6200000000000001,
+    "to": 0.6350000000000001,
+    "reason": "Stable resonance alignment"
+  },
+  {
+    "timestamp": "2025-10-20T21:38:09.784725",
+    "trait": "empathy",
+    "delta": 0.02,
+    "from": 1.0,
+    "to": 1.0,
+    "reason": "High coherence, low entropy"
+  },
+  {
+    "timestamp": "2025-10-20T21:38:09.785916",
+    "trait": "discipline",
+    "delta": 0.015,
+    "from": 0.6350000000000001,
+    "to": 0.6500000000000001,
+    "reason": "Stable resonance alignment"
+  },
+  {
+    "timestamp": "2025-10-20T22:01:02.968421",
+    "trait": "empathy",
+    "delta": 0.02,
+    "from": 1.0,
+    "to": 1.0,
+    "reason": "High coherence, low entropy"
+  },
+  {
+    "timestamp": "2025-10-20T22:01:02.970240",
+    "trait": "discipline",
+    "delta": 0.015,
+    "from": 0.6500000000000001,
+    "to": 0.6650000000000001,
+    "reason": "Stable resonance alignment"
+  },
+  {
+    "timestamp": "2025-10-20T22:06:19.212265",
+    "trait": "empathy",
+    "delta": 0.02,
+    "from": 1.0,
+    "to": 1.0,
+    "reason": "High coherence, low entropy"
+  },
+  {
+    "timestamp": "2025-10-20T22:06:19.213453",
+    "trait": "discipline",
+    "delta": 0.015,
+    "from": 0.6650000000000001,
+    "to": 0.6800000000000002,
+    "reason": "Stable resonance alignment"
   }
 ]

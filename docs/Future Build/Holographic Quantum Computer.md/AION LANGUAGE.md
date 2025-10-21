@@ -175,16 +175,17 @@ graph TD
     A8 --> A9["✅ Task 9: Validate Resonance I/O Loop"]
     A9 --> A10["✅ Task 10: Commit Boot Configuration → RKM v0.1 (boot_config.json + memory engine)"]
 
+graph TD
     %% ───────────────────────────────
     %%  PHASE 2 — Advanced Resonance Evolution
     %% ───────────────────────────────
-    B[Phase 2: Advanced Resonance Evolution] --> B1["✅ Task 1: Dynamic Φ Learning Model (phi_learning.py)"]
-    B1 --> B2["✅ Task 2: Context-Aware Resonance Reply Generator (context_reply.py)"]
-    B2 --> B3["🟢 Task 3: Sentiment & Emotion Embedding → Personality Integration (profile feedback loop pending)"]
-    B3 --> B4["🟢 Task 4: Resonance ↔ GlyphLang Bidirectional Translator (Phase 2.5)"]
-    B4 --> B5["🟡 Task 5: Self-Tuning Coherence Loop with QQC (AION ↔ Quantum Quad Core link pending)"]
-    B5 --> B6["🟡 Task 6: Autonomous Resonance Lexicon Expansion (learning new Φ signatures over sessions – partial)"]
-    B6 --> B7["🟠 Task 7: Multi-Agent Resonance Dialogue Field (communication between multiple AION nodes – upcoming)"]
+    B[Phase 2: Advanced Resonance Evolution] --> B1["✅ Task 1: Dynamic Φ Learning Model (phi_learning.py)\n↳ complete — auto-balance loop + decay + noise active"]
+    B1 --> B2["✅ Task 2: Context-Aware Resonance Reply Generator (context_reply.py)\n↳ complete — tone/emotion/personality integrated"]
+    B2 --> B3["🟢 Task 3: Sentiment & Emotion Embedding → Personality Integration\n↳ active — PROFILE traits update hooks planned (feedback loop next)"]
+    B3 --> B4["🟢 Task 4: Resonance ↔ GlyphLang Bidirectional Translator (Phase 2.5)\n↳ planned — to link with Photon Language + AION glyph mapper"]
+    B4 --> B5["🟡 Task 5: Self-Tuning Coherence Loop with QQC\n↳ partial — AION↔QQC link designed, awaiting resonance-quantum sync"]
+    B5 --> B6["🟡 Task 6: Autonomous Resonance Lexicon Expansion\n↳ partial — BOOT_MAP drift & generation functional, memory persistence stable"]
+    B6 --> B7["🟠 Task 7: Multi-Agent Resonance Dialogue Field\n↳ upcoming — framework for node-to-node Φ exchange under design"]
 
     %% ───────────────────────────────
     %%  VISUALIZATION / TELEMETRY

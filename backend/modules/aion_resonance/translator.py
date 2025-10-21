@@ -180,4 +180,11 @@ async def route_packet(packet: dict):
     except Exception as e:
         print(f"[Resonance] ⚠️ Ledger log failed: {e}")
 
+    # 🪶 Record Φ-drift evolution for temporal learning
+    from backend.modules.aion_resonance.phi_drift_log import record_phi_drift
+    try:
+        record_phi_drift(keyword, merged)
+    except Exception as e:
+        print(f"[Resonance] ⚠️ Drift log failed: {e}")
+
     return merged
