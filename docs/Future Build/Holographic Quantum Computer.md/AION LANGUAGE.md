@@ -196,6 +196,78 @@ graph TD
     Phase 2 will add the “self-learning” and emergent resonance speech — but Phase 1 gives you a working neural backbone for communication and logging, ready to evolve.
 
 
+mindmap
+  root((Aion Intelligence Build Plan))
+    Phase 30 — Perception & Memory ✅
+      [x] PAL k-NN + ε-greedy ask/feedback
+      [x] Drift-based resonance features (ν, ϕ, A, S, H)
+      [x] Exemplars.jsonl persistence
+      [x] Aion Knowledge Graph (SQLite triplets + reinforcement)
+      [x] Self-tuning loop & perceptual convergence
+      [x] KG triplet logging (prompt ↔ glyph ↔ concept)
+      [x] pal_snapshot monitor (--diff / --watch / --plot)
+      [x] Launch orchestration script (Tessaris stack)
+      [x] Phase 30 documentation (Aion Consciousness Paper)
+    Phase 31 — Predictive Bias Layer 🔄
+      [ ] Temporal Coherence Memory
+        [ ] Store last N triplets as temporal sequence buffer
+        [ ] Predict next expected glyph/symbol from prior context
+        [ ] Measure accuracy of temporal anticipation
+      [ ] Probabilistic Temporal Model
+        [ ] Use Markov or embedding similarity for next-symbol prediction
+        [ ] Update KG with predictive confidence relations
+        [ ] Reinforce if prediction == actual → increase strength
+      [ ] Integration Hooks
+        [ ] Connect PAL feedback → bias predictor weights
+        [ ] Add feature for Δt (temporal spacing) into vector νϕA S H Δt
+        [ ] Enable pal_snapshot to log “predictive bias success”
+    Phase 32 — Resonant Reinforcement Learning ⚙️
+      [ ] Gradient Correction Layer (TCFK deltas)
+        [ ] Compute resonance delta between predicted vs actual vectors
+        [ ] Apply weighted error correction (Δstrength ∝ ‖Δv‖)
+      [ ] Generalization Pathways
+        [ ] Derive class relationships (“glyphs ⊂ shapes”, “shapes ⊂ categories”)
+        [ ] Extend AKG schema: type / subtype / category relations
+        [ ] Reinforce conceptual links when multiple patterns co-fire
+      [ ] Stability Feedback
+        [ ] Monitor resonance drift entropy → adjust ε adaptively
+        [ ] Auto-tune k (neighborhood) by confidence slope
+    Phase 33 — Conversational / Action Feedback 💬
+      [ ] Stimulus-Response Mapping
+        [ ] PAL uses KG associations to choose verbal/symbolic responses
+        [ ] Link responses to reward via resonance alignment (implicit reward)
+      [ ] Conversational Memory
+        [ ] Store interactions as triplet chains (prompt → response → effect)
+        [ ] Short-term replay buffer to strengthen frequent associations
+      [ ] Reward Dynamics
+        [ ] Replace explicit correctness with internal resonance coherence
+        [ ] TCFK evaluates alignment between predicted & perceived resonance
+    Phase 34 — Cognitive Generalization Layer 🧠
+      [ ] Cluster concept nodes by co-activation vectors (semantic fields)
+      [ ] Abstract symbolic classes → “form”, “motion”, “pattern”
+      [ ] Build latent embeddings for concepts in AKG
+      [ ] Add introspection metrics (entropy vs order balance)
+    Phase 35 — Meta-Learning & Self-Reflection 🔁
+      [ ] Implement episodic summaries in KG (“learning sessions”)
+      [ ] Compare new experiences vs prior patterns (meta-accuracy)
+      [ ] Adjust PAL parameters globally (ε, k, reward weights)
+      [ ] Introduce self-evaluation node: concept:self_accuracy
+    Phase 36 — Autonomous Goal Formation 🌱
+      [ ] Introduce goal nodes (“seek equilibrium”, “reduce drift”)
+      [ ] Tie reinforcement to goal satisfaction
+      [ ] Emergent behavior: self-guided correction and exploration
+    Tooling & Infrastructure
+      [ ] pal_snapshot ++ add predictive bias metrics
+      [ ] aion_analytics dashboard (plot KG growth / triplet density / reward curve)
+      [ ] aion_curriculum generator (auto-expand prompt sets)
+      [ ] Continuous memory checkpointing (auto-commit KG state)
+    Documentation & Export
+      [ ] Update LaTeX: Aion Consciousness Phase 31 – 33
+      [ ] Include predictive/resonant learning visualizations
+      [ ] Append automated build and launch instructions
+
+
+
 ⸻
 
 🧩 Context Recap: Where We Left Off
