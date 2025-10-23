@@ -10,13 +10,18 @@ Knowledge Graph (AKG) structure accordingly:
 """
 
 import json
-import time
+import uuid, time
 from pathlib import Path
 from typing import List, Dict, Any
 import numpy as np
 from sklearn.cluster import KMeans
 from backend.modules.aion_knowledge import knowledge_graph_core as akg
+from backend.modules.aion_knowledge import knowledge_graph_core as akg
 
+# --- TEMPORARY TEST LINKING ---
+from backend.modules.aion_knowledge import knowledge_graph_core as akg
+akg.add_triplet("symbol:ψ", "is_a", "concept:concept_field_1")
+akg.add_triplet("symbol:γ", "is_a", "concept:concept_field_3")
 
 class ConceptEvolutionEngine:
     def __init__(self,
@@ -85,12 +90,15 @@ class ConceptEvolutionEngine:
 
     # ─────────────────────────────────────────────
     def split_unstable_concepts(self, concept_stats: Dict[str, Dict[str, Any]]) -> List[Dict[str, Any]]:
-        """Split unstable concepts into new sub-concepts."""
+        """Split unstable concepts into new sub-concepts (auto-AKG node creation)."""
         new_concepts = []
+
         for concept, data in concept_stats.items():
+            # Split only if unstable and has sufficient members
             if data["var_RSI"] > self.split_var_threshold and len(data["members"]) >= 3:
                 print(f"🧩 Splitting unstable concept {concept} (var={data['var_RSI']:.4f})")
-                # Simple RSI-based clustering
+
+                # RSI-based clustering (placeholder heuristic)
                 X = np.array([[hash(m) % 1000 / 1000.0] for m in data["members"]])
                 n_clusters = min(2, len(X))
                 kmeans = KMeans(n_clusters=n_clusters, n_init=5, random_state=42)
@@ -99,20 +107,39 @@ class ConceptEvolutionEngine:
                 for lbl in set(labels):
                     members = [data["members"][i] for i in np.where(labels == lbl)[0]]
                     new_concept = f"{concept}_sub{lbl+1}"
+
+                    # Auto-create the new concept node in AKG
+                    meta = {
+                        "origin": "speciation",
+                        "parent": concept,
+                        "timestamp": time.time(),
+                        "rsi_mean": round(np.mean([data["mean_RSI"]]), 4),
+                        "rsi_var": round(data["var_RSI"], 5),
+                        "cluster_id": int(lbl)
+                    }
+
+                    try:
+                        new_id = akg.create_concept_node(
+                            name=new_concept,
+                            symbols=members,
+                            meta=meta
+                        )
+                        print(f"🌱 Created new sub-concept node: {new_concept} [{new_id}]")
+                    except Exception as e:
+                        print(f"⚠️ Failed to create sub-concept node {new_concept}: {e}")
+                        continue
+
+                    # Maintain graph lineage
+                    akg.add_triplet(f"concept:{new_concept}", "derived_from", f"concept:{concept}")
+
                     new_concepts.append({
                         "type": "split",
                         "parent": concept,
                         "concept": new_concept,
-                        "members": members
+                        "members": members,
+                        "meta": meta
                     })
-                    for m in members:
-                        akg.add_triplet(
-                            f"symbol:{m}",
-                            "is_a",
-                            f"concept:{new_concept}",
-                            strength=0.1
-                        )
-                    akg.add_triplet(f"concept:{new_concept}", "derived_from", f"concept:{concept}")
+
         return new_concepts
 
     # ─────────────────────────────────────────────
@@ -210,6 +237,10 @@ class ConceptEvolutionEngine:
         # Convert stats to list of tuples for comparison
         items = list(concept_stats.items())
 
+        # ── Fusion cycle control ──
+        fusion_count = 0
+        MAX_FUSIONS_PER_CYCLE = 10
+
         # ── Fusion pass ──
         for i in range(len(items)):
             ci, si = items[i]
@@ -220,15 +251,54 @@ class ConceptEvolutionEngine:
                 if sj["n"] < 1:
                     continue
 
-                # Check similarity thresholds
+                # Stop if too many fusions already done this cycle
+                if fusion_count >= MAX_FUSIONS_PER_CYCLE:
+                    print("⚖️ Fusion limit reached this cycle; skipping remaining pairs.")
+                    break
+
+                # Check similarity thresholds for fusion
                 if abs(si["mean_RSI"] - sj["mean_RSI"]) < 0.02:
-                    # Simulate ε/k closeness (placeholder, to be extended)
                     if abs(si.get("mean_eps", 0.28) - sj.get("mean_eps", 0.28)) < 0.01:
                         if abs(si.get("mean_k", 5) - sj.get("mean_k", 5)) <= 1:
                             new_name = f"{ci}_{cj}_fusion"
-                            fused.append((ci, cj, new_name))
+                            fused_symbols = sorted(list(set(si["members"]) | set(sj["members"])))
+
+                            stat = {
+                                "mean": np.mean([si["mean_RSI"], sj["mean_RSI"]]),
+                                "var": np.mean([si["var_RSI"], sj["var_RSI"]]),
+                            }
+
                             print(f"🧬 Fusing {ci} + {cj} → {new_name}")
+
+                            try:
+                                new_id = akg.create_concept_node(
+                                    name=new_name,
+                                    symbols=fused_symbols,
+                                    meta={
+                                        "origin": "fusion",
+                                        "parents": [ci, cj],
+                                        "rsi_mean": round(stat["mean"], 4),
+                                        "rsi_var": round(stat["var"], 4),
+                                        "timestamp": time.time(),
+                                        "status": "active",
+                                    },
+                                )
+                                print(f"🌐 Created fused concept node: {new_name} [{new_id}]")
+                            except Exception as e:
+                                print(f"⚠️ Fusion node creation failed for {new_name}: {e}")
+                                continue
+
+                            # Maintain lineage and reinforcement
+                            for m in fused_symbols:
+                                akg.add_triplet(f"symbol:{m}", "is_a", f"concept:{new_name}", strength=0.15)
+                            akg.add_triplet(f"concept:{new_name}", "derived_from", f"concept:{ci}", strength=1.0)
+                            akg.add_triplet(f"concept:{new_name}", "derived_from", f"concept:{cj}", strength=1.0)
+
+                            fused.append((ci, cj, new_name))
                             self.record_evolution_event("fusion", [ci, cj], new_name)
+
+                            # Increment fusion counter
+                            fusion_count += 1
 
         # ── Speciation pass ──
         for cname, stats in concept_stats.items():
@@ -246,11 +316,29 @@ class ConceptEvolutionEngine:
                 print(f"💪 Reinforcing stable concept {cname}")
                 self.reinforce_concept(cname, gain=0.01)
 
+        # ── Summary ──
         if not (fused or split or reinforced):
             print("… No evolutionary changes detected this cycle.")
         else:
             print(f"✅ Evolutionary cycle complete: "
-                  f"{len(fused)} fusions, {len(split)} speciations, {len(reinforced)} reinforcements.")
+                f"{len(fused)} fusions, {len(split)} speciations, {len(reinforced)} reinforcements.")
+
+    def register_new_concept(concept_name, symbols, rsi_mean, rsi_var, parents, origin):
+        meta = {
+            "timestamp": time.time(),
+            "rsi_mean": rsi_mean,
+            "rsi_var": rsi_var,
+            "parents": parents,
+            "origin": origin,              # "fusion" | "speciation"
+            "status": "active"
+        }
+        node_id = akg.create_concept_node(
+            name=concept_name,
+            symbols=symbols,
+            meta=meta
+        )
+        print(f"[Evolution] Created new concept node → {concept_name} ({origin}) [{node_id}]")
+        return node_id
 
     # ─────────────────────────────────────────────
     # Helpers
