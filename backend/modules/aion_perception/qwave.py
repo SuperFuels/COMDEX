@@ -95,6 +95,62 @@ class SQIField:
             json.dump(self.state, f, indent=2)
         print(f"💾 SQI checkpoint saved → {path}")
 
+# === Meta-Equilibrium Controller (F18) ======================================
+import json, os, time
+from collections import defaultdict
+from typing import Dict
+
+META_STATE_PATH = "data/resonance/meta_equilibrium_state.jsonl"
+
+class MetaEquilibrium:
+    """
+    F18-style global equalizer: gently pulls per-domain epsilon_i toward
+    epsilon_eq = mean(epsilon_i), with damping zeta (0.02 by default).
+    """
+    def __init__(self, zeta: float = 0.02):
+        self.zeta = float(zeta)
+        self.epsilon_by_domain: Dict[str, float] = defaultdict(lambda: 0.43)
+
+    def update(self, domain: str, epsilon_i: float) -> float:
+        # Track domain epsilon
+        self.epsilon_by_domain[domain] = float(epsilon_i)
+
+        # Global mean
+        eps_eq = sum(self.epsilon_by_domain.values()) / max(1, len(self.epsilon_by_domain))
+
+        # F18 rule: d eps_i = -zeta (eps_i - eps_eq)
+        delta = -self.zeta * (epsilon_i - eps_eq)
+
+        # Log a compact telemetry record
+        os.makedirs(os.path.dirname(META_STATE_PATH), exist_ok=True)
+        rec = {
+            "t": time.time(),
+            "domain": domain,
+            "epsilon_i": round(epsilon_i, 6),
+            "epsilon_eq": round(eps_eq, 6),
+            "zeta": self.zeta,
+            "delta": round(delta, 6),
+            "spread": round(self._spread(), 9),
+        }
+        with open(META_STATE_PATH, "a") as f:
+            f.write(json.dumps(rec) + "\n")
+
+        return delta  # add this to epsilon as a tiny bias
+
+    def _spread(self) -> float:
+        vals = list(self.epsilon_by_domain.values())
+        if len(vals) <= 1:
+            return 0.0
+        m = sum(vals) / len(vals)
+        return sum((v - m) ** 2 for v in vals) / len(vals)
+
+# Singleton helper
+_meta_eq = MetaEquilibrium(zeta=0.02)
+
+def meta_eq_bias(domain: str, epsilon_i: float) -> float:
+    """Return a small epsilon bias to nudge domain → global mean (F18)."""
+    return _meta_eq.update(domain, epsilon_i)
+# =========================================================================== 
 
 class ResonancePulse:
     """Encapsulates SQI resonance parameters for feedback injection."""

@@ -31,7 +31,7 @@ gcloud run deploy comdex-api \
   --timeout=300s
 
 git add .
-git commit -m "AION Intelligence knowledge graph locked"
+git commit -m "AION Intelligence intelligence v1"
 git push origin main
 
 

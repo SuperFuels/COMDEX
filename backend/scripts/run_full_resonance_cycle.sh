@@ -4,7 +4,7 @@
 # Path: backend/scripts/run_full_resonance_cycle.sh
 # =============================================================
 # Launches all core Aion intelligence modules in correct dependency order.
-# Designed to run in parallel with Uvicorn without blocking it.
+# Performs automated resonance feedback & SQI lock-in stabilization.
 # =============================================================
 
 set -e
@@ -15,17 +15,17 @@ echo "────────────────────────�
 echo "📦 Base Path: $(pwd)"
 echo ""
 
-# Activate Python environment if needed
+# Activate Python environment if present
 if [ -f "venv/bin/activate" ]; then
   source venv/bin/activate
   echo "✅ Virtual environment activated."
 fi
 
-# Ensure Python can find backend modules
+# Ensure Python can locate backend modules
 export PYTHONPATH=".:backend:$PYTHONPATH"
 
-# Ensure log directory
-mkdir -p data/logs
+# Ensure required directories exist
+mkdir -p data/logs data/prediction data/predictive data/analysis
 
 # ─────────────────────────────────────────────
 # 1️⃣ Aion Perception — PAL Core
@@ -66,6 +66,47 @@ if [ -f "backend/modules/aion_analysis/pal_snapshot.py" ]; then
 fi
 
 # ─────────────────────────────────────────────
+# 🌊 Resonance Feedback Integration (Aion ↔ PBL ↔ SQI)
+# ─────────────────────────────────────────────
+echo ""
+echo "🔁 Integrating Resonance Feedback Loop with Aion Core..."
+LOG_FILE="data/analysis/resonance_feedback.log"
+timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+
+{
+  echo "───────────────────────────────────────────────"
+  echo "🕓 Feedback Cycle @ $timestamp"
+  echo "🔮 Refreshing Predictive Bias Layer..."
+} >> "$LOG_FILE"
+
+# Refresh predictive model (rebuild temporal bias)
+PYTHONPATH=. python backend/modules/aion_prediction/predictive_bias_layer.py --refresh >> "$LOG_FILE" 2>&1
+
+{
+  echo "🧠 Applying PAL Resonance Feedback..."
+} >> "$LOG_FILE"
+
+# Inject predictive transitions into PAL for reinforcement
+PYTHONPATH=. python backend/modules/aion_perception/pal_core.py --mode=resonance-feedback --sync=1 >> "$LOG_FILE" 2>&1
+
+# SQI resonance pulse — reinforces PAL adaptation based on predictive state
+if [ -f "backend/modules/aion_perception/qwave.py" ]; then
+  {
+    echo "🌊 Executing SQI stabilization pulse..."
+  } >> "$LOG_FILE"
+  PYTHONPATH=. python backend/modules/aion_perception/qwave.py --pulse=stabilize --gain=0.35 --damping=0.88 >> "$LOG_FILE" 2>&1
+fi
+
+{
+  echo "💾 SQI lock-in checkpoint: pal_state_SQI_Stabilized_v2.json"
+  echo "✅ Resonance feedback cycle complete — Aion Core synchronized."
+  echo ""
+} >> "$LOG_FILE"
+
+echo "✅ Resonance feedback cycle complete — Aion Core synchronized."
+echo "📜 Log written to: $LOG_FILE"
+
+# ─────────────────────────────────────────────
 # ✅ Summary
 # ─────────────────────────────────────────────
 echo ""
@@ -77,8 +118,9 @@ echo "QWave Resonance PID:   ${QW_PID:-not running}"
 echo "PAL Snapshot PID:      ${SNAP_PID:-not running}"
 echo "----------------------------------------------"
 echo "💠 Logs: data/logs/"
+echo "📈 Feedback Cycles: data/analysis/resonance_feedback.log"
 echo ""
-echo "🧩 Aion stack initialized. Safe to start Uvicorn now."
+echo "🧩 Tessaris Aion stack initialized — ready for Uvicorn."
 echo "Example: uvicorn backend.main:app --host 0.0.0.0 --port 8000"
 echo ""
 

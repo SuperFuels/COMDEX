@@ -207,8 +207,17 @@ mindmap
       [x] KG triplet logging (prompt ↔ glyph ↔ concept)
       [x] pal_snapshot monitor (--diff / --watch / --plot)
       [x] Launch orchestration script (Tessaris stack)
+      [x] Resonance-feedback integration (PAL ↔ PredictiveBias ↔ SQI)
+      [x] Auto checkpoint save (pal_state_SQI_Stabilized_v2.json)
+      [x] Automatic feedback log (data/analysis/resonance_feedback.log)
       [x] Phase 30 documentation (Aion Consciousness Paper)
+
     Phase 31 — Predictive Bias Layer 🔄
+      [x] Temporal event loader (stream last 10k events)
+      [x] Tuple-key encoding/decoding fix for transitions
+      [x] Automatic state corruption recovery + regeneration
+      [x] PredictiveBias → PAL reinforcement bridge
+      [x] PredictiveBias saved & restored state with confidence
       [ ] Temporal Coherence Memory
         [ ] Store last N triplets as temporal sequence buffer
         [ ] Predict next expected glyph/symbol from prior context
@@ -218,10 +227,13 @@ mindmap
         [ ] Update KG with predictive confidence relations
         [ ] Reinforce if prediction == actual → increase strength
       [ ] Integration Hooks
-        [ ] Connect PAL feedback → bias predictor weights
+        [x] Connect PAL feedback → bias predictor weights
         [ ] Add feature for Δt (temporal spacing) into vector νϕA S H Δt
         [ ] Enable pal_snapshot to log “predictive bias success”
+
     Phase 32 — Resonant Reinforcement Learning ⚙️
+      [x] Resonance feedback cycle integration (Aion Core)
+      [x] SQI equilibrium lock and checkpoint persistence
       [ ] Gradient Correction Layer (TCFK deltas)
         [ ] Compute resonance delta between predicted vs actual vectors
         [ ] Apply weighted error correction (Δstrength ∝ ‖Δv‖)
@@ -232,6 +244,7 @@ mindmap
       [ ] Stability Feedback
         [ ] Monitor resonance drift entropy → adjust ε adaptively
         [ ] Auto-tune k (neighborhood) by confidence slope
+
     Phase 33 — Conversational / Action Feedback 💬
       [ ] Stimulus-Response Mapping
         [ ] PAL uses KG associations to choose verbal/symbolic responses
@@ -242,25 +255,33 @@ mindmap
       [ ] Reward Dynamics
         [ ] Replace explicit correctness with internal resonance coherence
         [ ] TCFK evaluates alignment between predicted & perceived resonance
+
     Phase 34 — Cognitive Generalization Layer 🧠
       [ ] Cluster concept nodes by co-activation vectors (semantic fields)
       [ ] Abstract symbolic classes → “form”, “motion”, “pattern”
       [ ] Build latent embeddings for concepts in AKG
       [ ] Add introspection metrics (entropy vs order balance)
+
     Phase 35 — Meta-Learning & Self-Reflection 🔁
       [ ] Implement episodic summaries in KG (“learning sessions”)
       [ ] Compare new experiences vs prior patterns (meta-accuracy)
       [ ] Adjust PAL parameters globally (ε, k, reward weights)
       [ ] Introduce self-evaluation node: concept:self_accuracy
+
     Phase 36 — Autonomous Goal Formation 🌱
       [ ] Introduce goal nodes (“seek equilibrium”, “reduce drift”)
       [ ] Tie reinforcement to goal satisfaction
       [ ] Emergent behavior: self-guided correction and exploration
+
     Tooling & Infrastructure
+      [x] run_full_resonance_cycle.sh (auto orchestration)
+      [x] Integrated PAL–PBL–SQI launch sequence
+      [x] Auto feedback + checkpoint logging
       [ ] pal_snapshot ++ add predictive bias metrics
       [ ] aion_analytics dashboard (plot KG growth / triplet density / reward curve)
       [ ] aion_curriculum generator (auto-expand prompt sets)
       [ ] Continuous memory checkpointing (auto-commit KG state)
+
     Documentation & Export
       [ ] Update LaTeX: Aion Consciousness Phase 31 – 33
       [ ] Include predictive/resonant learning visualizations
