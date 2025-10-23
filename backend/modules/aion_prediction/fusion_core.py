@@ -10,7 +10,8 @@ Handles:
     • probabilistic next-symbol prediction
     • PAL reinforcement feedback
     • gradient-based resonance correction
-    • telemetry emission
+    • RSI-driven adaptive drift repair
+    • telemetry emission + dynamic ε/k feedback
 """
 
 import math
@@ -23,6 +24,7 @@ from backend.modules.aion_feedback.stability_feedback_loop import StabilityFeedb
 from backend.modules.aion_feedback.resonance_stability_index import ResonanceStabilityIndex
 from backend.modules.aion_feedback.adaptive_drift_repair import AdaptiveDriftRepair
 
+
 class FusionCore:
     def __init__(self):
         # Core subsystems
@@ -32,10 +34,11 @@ class FusionCore:
         self.telemetry = ResonanceTelemetry()
         self.feedback = StabilityFeedbackLoop()
         self.rsi_calc = ResonanceStabilityIndex()
-        self.current_rsi = 0.0
         self.repair = AdaptiveDriftRepair()
 
-        # Memory states
+        # Internal state
+        self.current_rsi = 0.0
+        self.last_rsi = 0.0
         self.last_event = None
         self.last_event_vec = None
         self.last_prediction = None
@@ -59,6 +62,7 @@ class FusionCore:
     def update(self, event):
         """
         Main fusion update loop.
+
         event = {
             "symbol": "Φ",
             "vector": [float, …],
@@ -86,13 +90,13 @@ class FusionCore:
                 self.tcm.reinforce(temporal_pred, symbol)
             self.tcm.apply_pal_feedback(reward)
 
-        # Compute Δt vector if previous event exists
+        # Compute Δt vector and perform reinforcement
         if self.last_event:
             vec_dt = self.compute_temporal_vector(self.last_event, event)
             event["temporal_vector"] = vec_dt.tolist()
 
-            # Gradient correction → resonance reinforcement
             if self.last_event_vec is not None and len(vec) > 0:
+                # Gradient correction → resonance reinforcement
                 delta_reward = self.grad.reinforce(self.last_event_vec.tolist(), vec.tolist())
 
                 # Apply reinforcement to Predictive Bias
@@ -102,21 +106,38 @@ class FusionCore:
                 # Emit telemetry packet
                 self.telemetry.emit()
 
-                # Compute RSI
-                self.current_rsi = self.rsi_calc.compute()
+                # ─────────────────────────────────────────────
+                # RSI computation
+                # ─────────────────────────────────────────────
+                try:
+                    metrics = {
+                        "ΔΦ": self.grad.avg_strength,
+                        "Δε": getattr(self.pb, "epsilon", 0.0) or 0.0,
+                        "μ": getattr(self.grad, "decay_rate", 0.0) or 0.0,
+                        "κ": getattr(self.grad, "avg_strength", 0.0) or 0.0,
+                    }
+                    self.current_rsi = self.rsi_calc.compute(metrics)
+                    self.last_rsi = self.current_rsi
+                except Exception:
+                    self.current_rsi = 0.0
+                    self.last_rsi = 0.0
 
+                # ─────────────────────────────────────────────
                 # Stability feedback → dynamic ε & k
+                # ─────────────────────────────────────────────
                 fb_state = self.feedback.step()
                 self.pb.epsilon = fb_state["ε"]
                 self.pb.k = fb_state["k"]
 
-                # Adaptive Drift Repair if RSI unstable
+                # ─────────────────────────────────────────────
+                # Adaptive Drift Repair (RSI monitoring)
+                # ─────────────────────────────────────────────
                 self.repair.check_and_repair(self.current_rsi, self.pb, self.grad)
 
-                # Update rolling memory
-                self.last_event = event
-                self.last_event_vec = vec
-                self.last_prediction = pbl_pred or temporal_pred
+        # Update memory for next iteration
+        self.last_event = event
+        self.last_event_vec = vec
+        self.last_prediction = pbl_pred or temporal_pred
 
         # Return cycle diagnostics
         return {

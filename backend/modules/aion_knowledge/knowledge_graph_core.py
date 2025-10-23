@@ -139,6 +139,87 @@ def related(node: str, depth: int = 1) -> List[dict]:
     conn.close()
     return rows
 
+def dump_concepts(limit: int = 20):
+    """Display all 'is_a' concept relations for verification."""
+    conn = _connect()
+    cur = conn.execute("""
+        SELECT subject, predicate, object, strength
+        FROM knowledge
+        WHERE predicate='is_a'
+        ORDER BY strength DESC
+        LIMIT ?
+    """, (limit,))
+    rows = cur.fetchall()
+    conn.close()
+
+    print("🌐 Concept Field Relations:")
+    for s, p, o, w in rows:
+        print(f"  {s} —[{p}:{w:.3f}]→ {o}")
+
+# ─────────────────────────────────────────────
+def export_concepts() -> dict:
+    """
+    Return a mapping of concept → [symbols] from the current AKG memory.
+    Ensures knowledge is loaded before access.
+    """
+    global triplets
+
+    # Ensure triplet store is loaded
+    try:
+        if not triplets:
+            load_knowledge()
+    except NameError:
+        # triplets not yet defined — initialize via load
+        load_knowledge()
+
+    concept_map = {}
+
+    for (s, p, o), w in triplets.items():
+        if p == "is_a" and s.startswith("symbol:") and o.startswith("concept:"):
+            sym = s.split("symbol:")[1]
+            concept = o.split("concept:")[1]
+            concept_map.setdefault(concept, []).append(sym)
+
+    return concept_map
+
+# ─────────────────────────────────────────────
+# Knowledge Graph Loader + Exporter
+# ─────────────────────────────────────────────
+triplets = {}  # in-memory cache of (s,p,o) → strength
+
+
+def load_knowledge():
+    """Load all triplets from the SQLite knowledge DB into memory."""
+    global triplets
+    conn = _connect()
+    cur = conn.execute("SELECT subject, predicate, object, strength FROM knowledge")
+    rows = cur.fetchall()
+    conn.close()
+
+    triplets = {}
+    for s, p, o, w in rows:
+        triplets[(s, p, o)] = w
+
+
+def export_concepts() -> dict:
+    """
+    Return a mapping of concept → [symbols] from the current AKG memory.
+    Ensures knowledge is loaded before access.
+    """
+    global triplets
+
+    # Ensure triplet store is loaded
+    if not triplets:
+        load_knowledge()
+
+    concept_map = {}
+    for (s, p, o), w in triplets.items():
+        if p == "is_a" and s.startswith("symbol:") and o.startswith("concept:"):
+            sym = s.split("symbol:")[1]
+            concept = o.split("concept:")[1]
+            concept_map.setdefault(concept, []).append(sym)
+
+    return concept_map
 
 def dump_summary(limit: int = 10):
     """Display strongest knowledge links."""

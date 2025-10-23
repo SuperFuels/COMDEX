@@ -212,79 +212,67 @@ mindmap
       [x] Automatic feedback log (data/analysis/resonance_feedback.log)
       [x] Phase 30 documentation (Aion Consciousness Paper)
 
-    Phase 31 — Predictive Bias Layer 🔄
+    Phase 31 — Predictive Bias Layer ⚙️
       [x] Temporal event loader (stream last 10k events)
       [x] Tuple-key encoding/decoding fix for transitions
       [x] Automatic state corruption recovery + regeneration
       [x] PredictiveBias → PAL reinforcement bridge
       [x] PredictiveBias saved & restored state with confidence
-      [ ] Temporal Coherence Memory
-        [ ] Store last N triplets as temporal sequence buffer
-        [ ] Predict next expected glyph/symbol from prior context
-        [ ] Measure accuracy of temporal anticipation
-      [ ] Probabilistic Temporal Model
-        [ ] Use Markov or embedding similarity for next-symbol prediction
-        [ ] Update KG with predictive confidence relations
-        [ ] Reinforce if prediction == actual → increase strength
-      [ ] Integration Hooks
-        [x] Connect PAL feedback → bias predictor weights
-        [ ] Add feature for Δt (temporal spacing) into vector νϕA S H Δt
-        [ ] Enable pal_snapshot to log “predictive bias success”
+      [x] Temporal Coherence Memory (implemented + integrated)
+      [x] Probabilistic Temporal Model (Markov-style inference)
+      [x] Δt temporal vector integration (νϕA S H Δt)
+      [x] PAL snapshot includes predictive bias metrics
+      [x] Predictive bias success logging to feedback
 
-    Phase 32 — Resonant Reinforcement Learning ⚙️
-      [x] Resonance feedback cycle integration (Aion Core)
-      [x] SQI equilibrium lock and checkpoint persistence
-      [ ] Gradient Correction Layer (TCFK deltas)
-        [ ] Compute resonance delta between predicted vs actual vectors
-        [ ] Apply weighted error correction (Δstrength ∝ ‖Δv‖)
-      [ ] Generalization Pathways
-        [ ] Derive class relationships (“glyphs ⊂ shapes”, “shapes ⊂ categories”)
-        [ ] Extend AKG schema: type / subtype / category relations
-        [ ] Reinforce conceptual links when multiple patterns co-fire
-      [ ] Stability Feedback
-        [ ] Monitor resonance drift entropy → adjust ε adaptively
-        [ ] Auto-tune k (neighborhood) by confidence slope
+    Phase 32 — Resonant Reinforcement Learning ✅ (Stabilized)
+      [x] Gradient Correction Layer (TCFK deltas)
+      [x] Weighted error correction (Δstrength ∝ ‖Δv‖)
+      [x] RSI computation (Resonance Stability Index)
+      [x] Adaptive Drift Repair (threshold & persistence)
+      [x] Automatic ε and k re-normalization on drift
+      [x] Resonance Dashboard (live RSI + 🩹 repair pulses)
+      [x] Repair logging (drift_repair.log / resonance_stream.jsonl)
+      [x] Fusion Core integration (PBL ↔ RSI ↔ Gradient layer)
+      [x] Verified test_fusion_core_integrated.py stability run
+      [ ] Generalization Pathways (conceptual class relationships)
+      [ ] Extend AKG schema: type / subtype / category
+      [ ] Reinforce conceptual links via co-firing
+      [ ] Stability feedback → confidence-based ε & k auto-tuning
 
     Phase 33 — Conversational / Action Feedback 💬
       [ ] Stimulus-Response Mapping
-        [ ] PAL uses KG associations to choose verbal/symbolic responses
-        [ ] Link responses to reward via resonance alignment (implicit reward)
-      [ ] Conversational Memory
-        [ ] Store interactions as triplet chains (prompt → response → effect)
-        [ ] Short-term replay buffer to strengthen frequent associations
-      [ ] Reward Dynamics
-        [ ] Replace explicit correctness with internal resonance coherence
-        [ ] TCFK evaluates alignment between predicted & perceived resonance
+      [ ] Conversational Memory (triplet chaining)
+      [ ] Reward Dynamics via resonance coherence
 
     Phase 34 — Cognitive Generalization Layer 🧠
-      [ ] Cluster concept nodes by co-activation vectors (semantic fields)
-      [ ] Abstract symbolic classes → “form”, “motion”, “pattern”
-      [ ] Build latent embeddings for concepts in AKG
+      [ ] Cluster concept nodes by co-activation
+      [ ] Abstract symbolic classes
+      [ ] Build latent embeddings for concepts
       [ ] Add introspection metrics (entropy vs order balance)
 
     Phase 35 — Meta-Learning & Self-Reflection 🔁
-      [ ] Implement episodic summaries in KG (“learning sessions”)
-      [ ] Compare new experiences vs prior patterns (meta-accuracy)
-      [ ] Adjust PAL parameters globally (ε, k, reward weights)
-      [ ] Introduce self-evaluation node: concept:self_accuracy
+      [ ] Episodic summaries in KG
+      [ ] Meta-accuracy comparisons
+      [ ] Global PAL parameter adjustments
+      [ ] concept:self_accuracy node
 
     Phase 36 — Autonomous Goal Formation 🌱
-      [ ] Introduce goal nodes (“seek equilibrium”, “reduce drift”)
-      [ ] Tie reinforcement to goal satisfaction
-      [ ] Emergent behavior: self-guided correction and exploration
+      [ ] Goal nodes ("seek equilibrium", "reduce drift")
+      [ ] Goal satisfaction reinforcement
+      [ ] Emergent self-guided correction & exploration
 
     Tooling & Infrastructure
-      [x] run_full_resonance_cycle.sh (auto orchestration)
-      [x] Integrated PAL–PBL–SQI launch sequence
+      [x] run_full_resonance_cycle.sh orchestration
+      [x] PAL–PBL–SQI launch integration
       [x] Auto feedback + checkpoint logging
-      [ ] pal_snapshot ++ add predictive bias metrics
-      [ ] aion_analytics dashboard (plot KG growth / triplet density / reward curve)
-      [ ] aion_curriculum generator (auto-expand prompt sets)
-      [ ] Continuous memory checkpointing (auto-commit KG state)
+      [x] resonance_dashboard (headless/GUI)
+      [ ] aion_analytics dashboard (KG/reward plots)
+      [ ] aion_curriculum generator
+      [ ] Continuous KG checkpointing
 
     Documentation & Export
-      [ ] Update LaTeX: Aion Consciousness Phase 31 – 33
-      [ ] Include predictive/resonant learning visualizations
+      [ ] Update LaTeX: Aion Consciousness Phases 31–33
+      [ ] Add predictive/resonant learning visualizations
       [ ] Append automated build and launch instructions
 
 
