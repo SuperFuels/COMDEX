@@ -1,0 +1,8 @@
+{
+  "timestamp": 1761248266.1661665,
+  "mean_order": 0.7,
+  "mean_entropy": 0.3,
+  "mean_self_accuracy": 0.0,
+  "epsilon": 0.1,
+  "gain_k": 0.5
+}

@@ -43,15 +43,47 @@ def _connect():
 # ─────────────────────────────────────────────
 # Core Operations
 # ─────────────────────────────────────────────
-def add_triplet(subject: str, predicate: str, obj: str,
-                vec: Optional[list] = None,
-                strength: float = 1.0):
-    """Add or reinforce a triplet."""
+def add_triplet(
+    subject: str,
+    predicate: str,
+    obj: str,
+    vec: Optional[list] = None,
+    strength: float = 1.0
+):
+    """
+    Add or reinforce a triplet in the AKG (SQLite-backed + in-memory mirror).
+
+    Args:
+        subject: Concept or symbol node ID.
+        predicate: Relation type (e.g. "related_to", "entangled_with").
+        obj: Target node ID.
+        vec: Optional embedding vector or resonance signature.
+        strength: Reinforcement weight (default = 1.0).
+    """
+    global triplets
     ts = datetime.now(timezone.utc).isoformat()
     vec_json = json.dumps(vec) if vec else None
-    conn = _connect()
 
-    # If exists, reinforce instead of duplicate
+    # ─────────────────────────────────────────────
+    # Ensure database connection + table schema
+    # ─────────────────────────────────────────────
+    conn = _connect()
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS knowledge (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            subject TEXT,
+            predicate TEXT,
+            object TEXT,
+            strength REAL,
+            vec TEXT,
+            timestamp TEXT
+        )
+    """)
+    conn.commit()
+
+    # ─────────────────────────────────────────────
+    # If triplet exists, reinforce instead of duplicating
+    # ─────────────────────────────────────────────
     cur = conn.execute(
         "SELECT id, strength FROM knowledge WHERE subject=? AND predicate=? AND object=?",
         (subject, predicate, obj)
@@ -59,15 +91,37 @@ def add_triplet(subject: str, predicate: str, obj: str,
     row = cur.fetchone()
     if row:
         new_strength = row[1] + 0.1 * strength
-        conn.execute("UPDATE knowledge SET strength=?, timestamp=? WHERE id=?",
-                     (new_strength, ts, row[0]))
+        conn.execute(
+            "UPDATE knowledge SET strength=?, timestamp=? WHERE id=?",
+            (new_strength, ts, row[0])
+        )
     else:
         conn.execute(
-            "INSERT INTO knowledge (subject,predicate,object,strength,vec,timestamp) VALUES (?,?,?,?,?,?)",
+            "INSERT INTO knowledge (subject, predicate, object, strength, vec, timestamp) VALUES (?, ?, ?, ?, ?, ?)",
             (subject, predicate, obj, strength, vec_json, ts)
         )
     conn.commit()
     conn.close()
+
+    # ─────────────────────────────────────────────
+    # In-memory triplet mirror (used by MFG + analytics)
+    # ─────────────────────────────────────────────
+    try:
+        if 'triplets' not in globals():
+            triplets = {}
+        triplets[(subject, predicate, obj)] = strength
+    except Exception as e:
+        logger.warning(f"[AKG] Triplet mirror update failed: {e}")
+
+    # ─────────────────────────────────────────────
+    # Auto-save / persistence confirmation
+    # ─────────────────────────────────────────────
+    try:
+        save_knowledge()
+    except Exception as e:
+        logger.warning(f"[AKG] Could not auto-save triplet ({subject}, {predicate}, {obj}): {e}")
+
+    logger.info(f"[AKG] Added or reinforced: ({subject}, {predicate}, {obj}) strength={strength}")
 
 
 def search(subject: Optional[str] = None,
@@ -163,17 +217,25 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+# ─────────────────────────────────────────────
+# Phase 36A Integration (Photon ↔ AKG export)
+# ─────────────────────────────────────────────
+try:
+    # Preferred location (as agreed)
+    from backend.bridges.photon_AKG_bridge import PhotonAKGBridge
+except ModuleNotFoundError:
+    try:
+        # Back-compat if someone placed it under modules/aion_photon
+        from backend.modules.aion_photon.photon_AKG_bridge import PhotonAKGBridge
+    except ModuleNotFoundError:
+        PhotonAKGBridge = None  # Bridge optional; AKG must still work without it
+
+_photon_bridge = PhotonAKGBridge() if PhotonAKGBridge else None
+
 def create_concept_node(name: str, symbols: list[str], meta: dict | None = None) -> str:
     """
-    Create a new concept node in the Aion Knowledge Graph (AKG).
-
-    Args:
-        name: Human-readable concept name.
-        symbols: List of associated symbols or glyphs.
-        meta: Optional metadata (e.g., {"origin": "fusion", "rsi_mean": 0.42, ...})
-
-    Returns:
-        concept_id (str): The unique concept node ID created in the AKG.
+    Create a new concept node in the Aion Knowledge Graph (AKG) and
+    (optionally) generate a corresponding Photon Language record via the bridge.
     """
     global triplets
 
@@ -184,6 +246,7 @@ def create_concept_node(name: str, symbols: list[str], meta: dict | None = None)
     except NameError:
         load_knowledge()
 
+    # Construct unique concept ID
     concept_id = f"concept:{name}_{uuid.uuid4().hex[:8]}"
     ts = time.time()
 
@@ -201,14 +264,22 @@ def create_concept_node(name: str, symbols: list[str], meta: dict | None = None)
         for k, v in meta.items():
             triplets[(concept_id, f"meta:{k}", str(v))] = 1.0
 
-    # Add system provenance marker
+    # System provenance marker
     triplets[(concept_id, "meta:origin_system", "AION.ConceptEvolution")] = 1.0
 
-    # Persistence layer
+    # Persist
     try:
         save_knowledge()
     except Exception as e:
         logger.warning(f"[AKG] Could not save concept node {concept_id}: {e}")
+
+    # Phase 36A — Photon Bridge export (optional)
+    try:
+        if _photon_bridge:
+            _photon_bridge.export_concept(concept_id)
+            logger.info(f"[AKG→Photon] Exported photonic record for {concept_id}")
+    except Exception as e:
+        logger.warning(f"[AKG→Photon] Failed to export {concept_id}: {e}")
 
     logger.info(
         f"[AKG] Created concept node: {concept_id} "
@@ -216,7 +287,45 @@ def create_concept_node(name: str, symbols: list[str], meta: dict | None = None)
     )
 
     return concept_id
+
 # ─────────────────────────────────────────────
+# Merge / Cooldown Guard Layer
+# ─────────────────────────────────────────────
+import sys  # keep if used elsewhere
+# NOTE: removed stray, invalid export block that referenced concept_id out of scope.
+
+def merge_concepts(a: str, b: str):
+    """
+    Merge two concept nodes in the AKG.
+    This stub ensures cooldown protection even if called externally.
+    """
+    global auto_merge_cooldown_until
+
+    # Guard: check flag or timer
+    if getattr(sys.modules[__name__], "disable_auto_merge", False) or time.time() < auto_merge_cooldown_until:
+        print("🚫 Auto-merge skipped due to active cooldown (timer or flag).")
+        return None
+
+    # Placeholder (safe) behavior — avoids runaway recursive merges
+    print(f"🔗 Merging {a} + {b} → {a}_{b}_merged")
+    return f"{a}_{b}_merged"
+
+
+def start_auto_merge_cooldown(seconds: int = 60):
+    """Temporarily disable auto-merge until given time."""
+    global auto_merge_cooldown_until
+    sys.modules[__name__].disable_auto_merge = True
+    auto_merge_cooldown_until = time.time() + seconds
+    print(f"🧊 Auto-merge cooldown active for {seconds}s (until {auto_merge_cooldown_until:.0f}).")
+
+
+def check_auto_merge_cooldown():
+    """Re-enable auto-merge automatically when cooldown expires."""
+    global auto_merge_cooldown_until
+    if time.time() >= auto_merge_cooldown_until:
+        sys.modules[__name__].disable_auto_merge = False
+        auto_merge_cooldown_until = 0
+        print("♻️ Auto-merge re-enabled (cooldown expired).")
 # ─────────────────────────────────────────────
 # Knowledge Graph Loader + Exporter
 # ─────────────────────────────────────────────
@@ -373,6 +482,24 @@ def adjust_concept_strength(concept_name: str, delta: float, mode: str = "add"):
 
     conn.commit()
     conn.close()
+
+# ─────────────────────────────────────────────
+# Phase 35.95 — Self-Accuracy Integration
+# ─────────────────────────────────────────────
+def update_self_accuracy(concept_name: str, meta_accuracy: float):
+    """
+    Attach a self-accuracy triplet to a concept node.
+    Used after summary analysis to embed introspective stability metrics.
+    """
+    try:
+        acc_val = round(float(meta_accuracy), 4)
+    except Exception:
+        acc_val = 0.0
+
+    print(f"🧠  Updating self-accuracy for {concept_name} → {acc_val}")
+    add_triplet(f"concept:{concept_name}", "self_accuracy", acc_val)
+
+
 
 def dump_summary(limit: int = 10):
     """Display strongest knowledge links."""

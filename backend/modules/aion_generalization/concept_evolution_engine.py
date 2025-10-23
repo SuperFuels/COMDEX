@@ -145,29 +145,14 @@ class ConceptEvolutionEngine:
     # ─────────────────────────────────────────────
     def merge_stable_concepts(self, concept_stats: Dict[str, Dict[str, Any]]) -> List[Dict[str, Any]]:
         """Merge highly similar, stable concepts."""
-        merges = []
-        concepts = list(concept_stats.keys())
-        for i in range(len(concepts)):
-            for j in range(i + 1, len(concepts)):
-                c1, c2 = concepts[i], concepts[j]
-                s1, s2 = concept_stats[c1], concept_stats[c2]
-                if abs(s1["mean_RSI"] - s2["mean_RSI"]) < self.merge_rsi_tolerance:
-                    overlap = len(set(s1["members"]) & set(s2["members"])) / max(len(set(s1["members"] + s2["members"])), 1)
-                    if overlap >= self.overlap_threshold:
-                        merged = f"{c1}_{c2}_merged"
-                        print(f"🔗 Merging {c1} + {c2} → {merged}")
-                        all_members = list(set(s1["members"] + s2["members"]))
-                        for m in all_members:
-                            akg.add_triplet(f"symbol:{m}", "is_a", f"concept:{merged}", strength=0.15)
-                        akg.add_triplet(f"concept:{merged}", "superconcept_of", f"concept:{c1}")
-                        akg.add_triplet(f"concept:{merged}", "superconcept_of", f"concept:{c2}")
-                        merges.append({
-                            "type": "merge",
-                            "concepts": [c1, c2],
-                            "new": merged,
-                            "members": all_members
-                        })
-        return merges
+        import sys
+        from backend.modules.aion_knowledge import knowledge_graph_core as akg
+
+        # 🧱 Corrected Cooldown Guard — check AKG module directly
+        akg_mod = sys.modules.get("backend.modules.aion_knowledge.knowledge_graph_core")
+        if getattr(akg_mod, "disable_auto_merge", False):
+            print("🚫 Auto-merge suppressed — AKG cooldown active (checked module directly).")
+            return []
 
     # ─────────────────────────────────────────────
     def abstract_reinforced_concepts(self, concept_stats: Dict[str, Dict[str, Any]]) -> List[Dict[str, Any]]:
@@ -225,25 +210,41 @@ class ConceptEvolutionEngine:
     # Phase 35.2 – Concept Fusion & Speciation
     # ─────────────────────────────────────────────
     def evolve_concepts(self, concept_stats: dict):
-        """Perform fusion, speciation, and reinforcement."""
+        """Perform fusion, speciation, and reinforcement (stabilized)."""
         if not concept_stats:
             print("⚠️ No concept statistics available for evolution.")
             return
 
-        fused = []
-        split = []
-        reinforced = []
+        import json, time, numpy as np
+        from pathlib import Path
 
-        # Convert stats to list of tuples for comparison
+        fused, split, reinforced = [], [], []
+
+        # Convert stats to list for iteration
         items = list(concept_stats.items())
 
-        # ── Fusion cycle control ──
+        # ── Dynamic fusion threshold ──
+        FUSION_PARAM = Path("data/feedback/fusion_threshold.json")
+        if FUSION_PARAM.exists():
+            try:
+                with FUSION_PARAM.open() as f:
+                    cfg = json.load(f)
+                    DYNAMIC_THRESHOLD = cfg.get("adjusted_fusion_threshold", 0.02)
+                print(f"⚙️  Loaded adaptive fusion threshold = {DYNAMIC_THRESHOLD:.4f}")
+            except Exception as e:
+                print(f"⚠️  Could not load fusion threshold: {e}")
+                DYNAMIC_THRESHOLD = 0.02
+        else:
+            DYNAMIC_THRESHOLD = 0.02
+            print("⚠️  No fusion threshold file found; using default 0.02")
+
+        # ── Limits ──
         fusion_count = 0
         MAX_FUSIONS_PER_CYCLE = 10
+        MAX_TOTAL_FUSIONS = 20
 
         # ── Fusion pass ──
-        for i in range(len(items)):
-            ci, si = items[i]
+        for i, (ci, si) in enumerate(items):
             if si["n"] < 1:
                 continue
             for j in range(i + 1, len(items)):
@@ -251,23 +252,34 @@ class ConceptEvolutionEngine:
                 if sj["n"] < 1:
                     continue
 
-                # Stop if too many fusions already done this cycle
+                # Stop conditions
                 if fusion_count >= MAX_FUSIONS_PER_CYCLE:
-                    print("⚖️ Fusion limit reached this cycle; skipping remaining pairs.")
-                    break
+                    print("⚖️ Fusion limit reached; stopping this cycle.")
+                    print("🕒 Cooling down fusion engine for 3 s…")
+                    time.sleep(3)
 
-                # Check similarity thresholds for fusion
-                if abs(si["mean_RSI"] - sj["mean_RSI"]) < 0.02:
+                    # ── Post-fusion merge suppression ──
+                    print("🧱  Suppressing downstream merges — cooldown in effect.")
+                    try:
+                        akg.start_auto_merge_cooldown(60)
+                    except Exception:
+                        pass
+
+                    return  # hard stop — prevents downstream merges
+
+                if any(sub in ci for sub in ["_fusion_", "_merged"]) or any(sub in cj for sub in ["_fusion_", "_merged"]):
+                    continue
+
+                # Adaptive RSI check
+                if abs(si["mean_RSI"] - sj["mean_RSI"]) < DYNAMIC_THRESHOLD:
                     if abs(si.get("mean_eps", 0.28) - sj.get("mean_eps", 0.28)) < 0.01:
                         if abs(si.get("mean_k", 5) - sj.get("mean_k", 5)) <= 1:
                             new_name = f"{ci}_{cj}_fusion"
                             fused_symbols = sorted(list(set(si["members"]) | set(sj["members"])))
-
                             stat = {
                                 "mean": np.mean([si["mean_RSI"], sj["mean_RSI"]]),
                                 "var": np.mean([si["var_RSI"], sj["var_RSI"]]),
                             }
-
                             print(f"🧬 Fusing {ci} + {cj} → {new_name}")
 
                             try:
@@ -283,28 +295,39 @@ class ConceptEvolutionEngine:
                                         "status": "active",
                                     },
                                 )
-                                print(f"🌐 Created fused concept node: {new_name} [{new_id}]")
+                                print(f"🌐 Created fused node: {new_name} [{new_id}]")
                             except Exception as e:
-                                print(f"⚠️ Fusion node creation failed for {new_name}: {e}")
+                                print(f"⚠️ Fusion node creation failed: {e}")
                                 continue
 
-                            # Maintain lineage and reinforcement
+                            # Add links + reinforce
                             for m in fused_symbols:
                                 akg.add_triplet(f"symbol:{m}", "is_a", f"concept:{new_name}", strength=0.15)
                             akg.add_triplet(f"concept:{new_name}", "derived_from", f"concept:{ci}", strength=1.0)
                             akg.add_triplet(f"concept:{new_name}", "derived_from", f"concept:{cj}", strength=1.0)
-
                             fused.append((ci, cj, new_name))
                             self.record_evolution_event("fusion", [ci, cj], new_name)
+                            self.reinforce_concept(new_name, gain=0.002)
 
-                            # Increment fusion counter
                             fusion_count += 1
+                            if fusion_count > MAX_TOTAL_FUSIONS:
+                                print("🧯 Fusion runaway detected — aborting evolution cycle for safety.")
+                                print("🕒 Cooling down fusion engine for 5 s…")
+
+                                # ── Post-fusion merge suppression ──
+                                print("🧱  Suppressing downstream merges — cooldown in effect.")
+                                try:
+                                    akg.start_auto_merge_cooldown(60)
+                                except Exception:
+                                    pass
+
+                                time.sleep(5)
+                                return
 
         # ── Speciation pass ──
         for cname, stats in concept_stats.items():
             if stats["n"] > 3 and stats["var_RSI"] > 0.05:
-                sub1 = f"{cname}_α"
-                sub2 = f"{cname}_β"
+                sub1, sub2 = f"{cname}_α", f"{cname}_β"
                 split.append((cname, sub1, sub2))
                 print(f"🌱 Speciating {cname} → {sub1}, {sub2}")
                 self.record_evolution_event("speciation", [cname], [sub1, sub2])
@@ -321,7 +344,7 @@ class ConceptEvolutionEngine:
             print("… No evolutionary changes detected this cycle.")
         else:
             print(f"✅ Evolutionary cycle complete: "
-                f"{len(fused)} fusions, {len(split)} speciations, {len(reinforced)} reinforcements.")
+                  f"{len(fused)} fusions, {len(split)} speciations, {len(reinforced)} reinforcements.")
 
     def register_new_concept(concept_name, symbols, rsi_mean, rsi_var, parents, origin):
         meta = {

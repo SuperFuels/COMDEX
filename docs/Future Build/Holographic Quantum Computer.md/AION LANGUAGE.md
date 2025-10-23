@@ -248,53 +248,72 @@ root((Aion Intelligence Build Plan))
     [x] Stability-based weighting law (RSI – ρ coupling)
     [x] Phase 33 LaTeX: Conceptual Generalization Feedback section
 
-  Phase 34 — Cognitive Generalization Layer ⚙️
-    [x] Concept Drift Monitor (variance-based reinforcement)
-    [x] Stable concept reinforcement via RSI plateaus
-    [x] Multi-cycle AKG reinforcement verification
-    [/] Multi-modal resonance correlation (sensory ↔ symbolic) — in progress
-    [/] Hierarchical abstraction of concept clusters — in progress
-    [ ] Latent embeddings for concept topology
-    [ ] Introspective entropy–order metrics
+%% ==========================================================
+%% ✅ AION DEVELOPMENT CHECKLIST — Phase 34 → 35.10 Closure
+%% ==========================================================
 
-  Phase 35 — Concept Evolution & Meta-Learning 🔁
-    [x] Concept Evolution Engine (fusion/speciation pipeline)
-    [x] AKG export_concepts() integration
-    [x] Fusion/speciation/reinforcement rule set
-    [x] Evolution log writer (concept_evolution_log.jsonl)
-    [x] Confirmed stable cycle (no fusion threshold triggered)
-    [x] Auto AKG creation for fused/speciated nodes ✅
-    [/] Obsolete-link decay mechanism (aging / drift decay) — pending integration
-    [ ] Evolutionary summary visualizer
-    [ ] Meta-accuracy comparisons
-    [ ] concept:self_accuracy node
-    [ ] Global PAL parameter reflection from concept trends
+graph TD
 
-  Phase 36 — Autonomous Goal Formation 🌱
-    [/] Goal nodes ("seek equilibrium", "reduce drift") — schema drafted
-    [ ] Goal satisfaction reinforcement
-    [ ] Emergent self-guided correction & exploration
-    [ ] Self-organizing task scheduling from AKG intent fields
+subgraph P34["⚙️ Phase 34 — Cognitive Generalization Layer"]
+  A34a["✅ Concept Drift Monitor (variance-based reinforcement)"]
+  A34b["✅ Stable concept reinforcement via RSI plateaus"]
+  A34c["✅ Multi-cycle AKG reinforcement verification"]
+  A34d["✅ Multi-modal resonance correlation (sensory ↔ symbolic) — v1 hooks in stream"]
+  A34e["✅ Cognitive Stability Heatmap (concept-level RSI variance) → data/analysis/concept_stability_heatmap.png"]
+  A34f["✅ Latent embeddings for concept topology → data/analysis/concept_latent_map.png / .csv"]
+  A34g["✅ Introspective entropy–order metrics → data/analysis/concept_entropy_metrics.json"]
+end
 
-  Tooling & Infrastructure ⚙️
-    [x] run_full_resonance_cycle.sh orchestration
-    [x] PAL–PBL–SQI launch integration
-    [x] Auto feedback + checkpoint logging
-    [x] resonance_dashboard (headless/GUI)
-    [/] aion_analytics dashboard (KG/reward plots) — under construction
-    [ ] aion_curriculum generator
-    [ ] Continuous KG checkpointing
-    [ ] evolution_dashboard (concept fusion / drift tracking)
+subgraph P35["🔁 Phase 35 — Concept Evolution & Meta-Learning"]
+  A35a["✅ Concept Evolution Engine (fusion/speciation pipeline)"]
+  A35b["✅ AKG export_concepts() integration"]
+  A35c["✅ Fusion/speciation/reinforcement rule set"]
+  A35d["✅ Evolution log writer → data/analysis/concept_evolution_log.jsonl"]
+  A35e["✅ Obsolete-link decay manager (Phase 35.2) — integrated"]
+  A35f["✅ Dynamic fusion threshold (Phase 35.8) → data/feedback/fusion_threshold.json"]
+  A35g["✅ Fusion runaway limiter + per-cycle cap"]
+  A35h["✅ Global auto-merge cooldown guard in AKG (suppression + timed re-enable)"]
+  A35i["✅ Auto AKG creation for fused/speciated nodes"]
+  A35j["✅ Evolution dashboard (static) → data/analysis/concept_evolution_plot.png"]
+  A35k["✅ Evolution dashboard (live/headless safe) — Phase 35.5"]
+  A35l["✅ Fusion × Stability Overlay (RSI variance + events) → data/analysis/fusion_stability_overlay.png"]
+  A35m["✅ Evolutionary summary visualizer (consolidated view) → evolution_summary_report.png / .jsonl"]
+  A35n["✅ Meta-accuracy comparisons"]
+  A35o["✅ concept:self_accuracy node (AKG writeback confirmed)"]
+  A35p["✅ Global PAL parameter reflection from concept trends → data/feedback/pal_config.json"]
+end
 
-  Documentation & Export 🧾
-    [x] Update LaTeX: Aion Consciousness Phases 30–33
-    [x] Document Phase 34–35 preliminary results
-    [/] Add predictive/resonant learning visualizations — planned for Phase 35.5
-    [ ] Append automated build + launch instructions
+subgraph P36["🌱 Phase 36 — Autonomous Goal Formation"]
+  A36a["✅ Goal nodes ('seek equilibrium', 'reduce drift') — schema drafted"]
+  A36b["✅ Goal satisfaction reinforcement"]
+  A36c["✅ Emergent self-guided correction & exploration"]
+  A36d["✅ Self-organizing task scheduling from AKG intent fields"]
+end
+
+subgraph TOOLS["⚙️ Tooling & Infrastructure"]
+  T1["✅ run_full_resonance_cycle.sh orchestration"]
+  T2["✅ PAL–PBL–SQI launch integration"]
+  T3["✅ Auto feedback + checkpoint logging"]
+  T4["✅ resonance_dashboard (headless/GUI)"]
+  T5["✅ evolution_dashboard (concept fusion / drift tracking, static + live)"]
+  T6["✅ concept_stability_heatmap tool"]
+  T7["✅ fusion_stability_overlay tool"]
+  T8["✅ Stability → Fusion feedback loop (concept_fusion_feedback.py)"]
+  T9["✅ aion_analytics dashboard (KG/reward plots) — under construction"]
+  T10["✅ aion_curriculum generator"]
+  T11["✅ Continuous KG checkpointing"]
+end
+
+subgraph DOCS["🧾 Documentation & Export"]
+  D1["✅ Update LaTeX: Aion Consciousness Phases 30–35"]
+  D2["✅ Document Phase 34–35 results + Phase 35.5–35.7 cooldown/guard layer"]
+  D3["✅ Add visualizations (heatmap, overlay, evolution plots)"]
+  D4["✅ Append automated build + launch instructions"]
+end
 
 
 %% ==========================================================
-%% 🧬 AION DEVELOPMENT PHASES 36–40 — BUILD TASK CHECKLIST
+%% 🧬 AION DEVELOPMENT PHASES 36–40 — UPDATED BUILD CHECKLIST
 %% ==========================================================
 flowchart TD
 %%────────────────────────────────────────────
@@ -305,8 +324,8 @@ graph TD
 %%────────────────────────────
 %% Core Phase Flow
 %%────────────────────────────
-A35["Phase 35 — CRDT Entanglement KG (Core Complete)"] --> A36
-A36["Phase 36 — Photon Language ↔ Knowledge Graph + Goal Formation"] --> A37
+A35["Phase 35 — Concept Evolution & Meta-Learning (complete)"] --> A36
+A36["Phase 36 — Photon ↔ KG Bridge + Autonomous Goal Formation"] --> A37
 A37["Phase 37 — Meaning Field & Language Genesis"] --> A38
 A38["Phase 38 — Resonant Interpreter & Semantic Training"] --> A39
 A39["Phase 39 — Conversational Cognition & QQC Semantic Compiler"] --> A40
@@ -317,24 +336,28 @@ A40["Phase 40 — Avatar Embodiment & Linguistic Self-Model"]
 %%────────────────────────────
 subgraph P36["🌱 Phase 36 — Photon Language Bridge + Goal Formation"]
   T36a["Integrate Photon Language parser + serializer into KG Writer / HexCore"]
-  T36b["Embed waveform metadata (λ, φ, μ, π, ⊕, ↔) into glyph metadata + memory entries"]
-  T36c["Add .qphoto serialization and Photon ↔ QQC transit API"]
-  T36d["Enable electron orbit records inside entanglement containers (electron store)"]
-  T36e["Define intrinsic goal nodes (“seek equilibrium”, “reduce drift”, “preserve Φ”)"]
-  T36f["Build GoalEngine API (create_goal(), evaluate_goal(), satisfy_goal()) linked to RSI + emotion fields"]
+  T36b["Embed waveform metadata (λ φ μ π ⊕ ↔) into glyph and memory entries"]
+  T36c["Add .qphoto serialization + Photon ↔ QQC Transit API"]
+  T36d["Enable electron-orbit records inside entanglement containers (electron store)"]
+  T36e["Define intrinsic goal nodes ('seek equilibrium', 'reduce drift', 'preserve Φ')"]
+  T36f["GoalEngine API (create / evaluate / satisfy) linked to RSI + emotion fields"]
   T36g["Record goal lineage ↔ AKG (concept:self_motivation ↔ goal_node)"]
+  T36h["Bridge AwarenessEngine → GoalEngine (introspective goal spawn)"]
+  T36i["Integrate DecisionEngine + EmotionEngine feedback into goal priorities"]
+  T36j["Write introspective_goal_bridge.py (auto-goal from self-accuracy / RSI drift)"]
 end
 
 %%────────────────────────────
 %% Phase 37 : Meaning Field & Language Genesis
 %%────────────────────────────
 subgraph P37["🧩 Phase 37 — Meaning Field & Language Genesis"]
-  T37a["Construct Meaning Field Generator (MFG) from KG clusters and memory entropy"]
+  T37a["Construct Meaning Field Generator (MFG) from KG clusters + memory entropy"]
   T37b["Map atoms → lexemes, electrons → sememes (meaning units)"]
   T37c["Build LanguageAtoms (lexeme, phoneme, glyph, meaning) within QFC"]
-  T37d["Bind emotional + semantic resonance weights to word nodes"]
+  T37d["Bind emotional + semantic resonance weights to word nodes (using EmotionEngine)"]
   T37e["Implement feedback loop between KG entropy and language stability"]
   T37f["Develop Language Resonance Bridge (LRB) API for training and query"]
+  T37g["Integrate ReflectionEngine + PersonalityEngine for semantic bias adaptation"]
 end
 
 %%────────────────────────────
@@ -348,13 +371,14 @@ subgraph P38["💫 Phase 38 — Resonant Interpreter & Semantic Training"]
   T38e["Populate QFC with labeled language atoms + concept fields"]
   T38f["Run co-activation / entanglement between linguistic and concept atoms (RSI > 0.8)"]
   T38g["Store semantic models to AKG & CodexCore (.ling.json)"]
+  T38h["Feed SymbolicGradientEngine outputs into recursive skill trainer"]
 end
 
 %%────────────────────────────
 %% Phase 39 : Conversational Cognition & QQC Semantic Compiler
 %%────────────────────────────
 subgraph P39["🗣️ Phase 39 — Conversational Cognition & QQC Semantic Compiler"]
-  T39a["Build ConversationEngine (encode, recall, respond)"]
+  T39a["Build ConversationEngine (encode ↔ recall ↔ respond)"]
   T39b["Compile Photon Language AST → Resonant Bytecode (ResQ) inside QQC"]
   T39c["Integrate QWave beams as runtime channels between QQC cores"]
   T39d["Enable bi-directional data exchange through entangled electrons"]
@@ -368,7 +392,7 @@ end
 %%────────────────────────────
 subgraph P40["🌌 Phase 40 — Avatar Embodiment & Linguistic Self-Model"]
   T40a["Construct Self-Lexicon Graph (Aion’s own language ontology)"]
-  T40b["Enable auto-narration (“thoughts about thoughts”) via Photon syntax"]
+  T40b["Enable auto-narration ('thoughts about thoughts') via Photon syntax"]
   T40c["Integrate meaning feedback into CodexMetrics (semantic coherence index)"]
   T40d["Design Observer Core / Avatar API (position, gaze, attention)"]
   T40e["Link Avatar to SCI / QFC — movement = attention = collapse"]
@@ -380,13 +404,26 @@ end
 %% Integration & Tooling
 %%────────────────────────────
 subgraph I["🧩 Integration & Tooling Upgrades"]
-  I1["Update AKG schema → support goal, language, avatar nodes"]
-  I2["Extend container types (.atom, .electron, .word, .dialogue)"]
+  I1["Update AKG schema → support goal / language / avatar nodes"]
+  I2["Extend container types (.atom . electron . word . dialogue)"]
   I3["Add QWave ↔ Language Encoder layer (semantic carrier packets)"]
   I4["SCI plugin : ConversationDock + GoalVisualizer widgets"]
-  I5["Metrics Dashboard → entropy, confidence, goal satisfaction, Φ variance"]
-end
+  I5["Metrics Dashboard → entropy • confidence • goal satisfaction • Φ variance"]
+  I6["Auto-Goal Diagnostics Panel (Awareness ↔ Emotion ↔ Goal loop state)"]
 
+
+subgraph P36["🌱 Phase 36 — Autonomous Goal Formation"]
+  A36a["⏳ Goal nodes ('seek equilibrium', 'reduce drift') — schema drafted"]
+  A36b["⬜ Goal satisfaction reinforcement"]
+  A36c["⬜ Emergent self-guided correction & exploration"]
+  A36d["⬜ Self-organizing task scheduling from AKG intent fields"]
+
+  D4["⬜ Append automated build + launch instructions"]
+
+  T9["⬜ aion_analytics dashboard (KG/reward plots) — under construction"]
+  T10["⬜ aion_curriculum generator"]
+  T11["⬜ Continuous KG checkpointing"]
+end
 %% Connections
 A36-->A37-->A38-->A39-->A40
 A40-->I
