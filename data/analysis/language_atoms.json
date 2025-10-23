@@ -1,42 +1,35 @@
 {
-  "timestamp": 1761256077.5146134,
+  "timestamp": 1761259190.6353052,
   "atoms": [
     {
-      "center": "concept:resonant_equilibrium",
-      "lexeme": "resona",
+      "center": "concept:concept:resonant_equilibrium",
+      "lexeme": "concep",
       "glyphs": [],
-      "neighbors": [
-        "concept:stability",
-        "concept:coherence"
-      ],
+      "neighbors": [],
       "resonance": 0.8,
       "emotion_bias": 0.5,
       "goal_alignment": 0.0,
-      "timestamp": 1761256077.5144808
+      "timestamp": 1761259190.6351209
     },
     {
-      "center": "concept:stability",
-      "lexeme": "sitabyia",
+      "center": "concept:concept:stability",
+      "lexeme": "concep",
       "glyphs": [],
-      "neighbors": [
-        "concept:balance"
-      ],
+      "neighbors": [],
       "resonance": 0.8,
       "emotion_bias": 0.5,
       "goal_alignment": 0.0,
-      "timestamp": 1761256077.5145004
+      "timestamp": 1761259190.635129
     },
     {
-      "center": "concept:coherence",
-      "lexeme": "cohearee",
+      "center": "concept:concept:coherence",
+      "lexeme": "concep",
       "glyphs": [],
-      "neighbors": [
-        "concept:resonance"
-      ],
+      "neighbors": [],
       "resonance": 0.8,
       "emotion_bias": 0.5,
       "goal_alignment": 0.0,
-      "timestamp": 1761256077.514507
+      "timestamp": 1761259190.6351302
     }
   ]
 }

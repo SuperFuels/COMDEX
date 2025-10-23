@@ -1,0 +1,11 @@
+{
+  "timestamp": 1761258265.003995,
+  "semantic_overlap": 1.0,
+  "phase_drift": 0.0,
+  "alignment_score": 1.0,
+  "shared_atoms": [
+    "concept:resonant_equilibrium",
+    "concept:stability",
+    "concept:coherence"
+  ]
+}

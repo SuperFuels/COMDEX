@@ -36,60 +36,46 @@ class ResonantInterpreter:
         self.bridge = PhotonAKGBridge() if PhotonAKGBridge else None
 
     # ─────────────────────────────────────────
-    def interpret_atoms(self, atoms=None):
+    def interpret_atoms(self, atoms=None, export_name: str | None = None):
         """
-        Convert language atoms into QWave field vectors.
-        Returns: dict with field Ψ summary and coherence metrics.
+        Interpret a set of language atoms into a resonance field and
+        optionally export it under a custom .qphoto name.
+
+        Args:
+            atoms: List of atoms (defaults to LAB.atoms if None)
+            export_name: Optional filename for the exported resonance field
         """
-        atoms = atoms or (LAB.atoms if LAB else [])
+        from backend.bridges.photon_AKG_bridge import PhotonAKGBridge
+        bridge = PhotonAKGBridge()
+
+        if atoms is None:
+            try:
+                from backend.modules.aion_language.language_atom_builder import LAB
+                atoms = LAB.atoms
+            except Exception:
+                logger.warning("[ResInt] No atoms provided and LAB unavailable.")
+                return None
+
         if not atoms:
             logger.warning("[ResInt] No language atoms available.")
-            return {}
+            return None
 
-        qwaves, energies, phases = [], [], []
-        for a in atoms:
-            r = a.get("resonance", uniform(0.4, 0.9))
-            eb = a.get("emotion_bias", 0.5)
-            phase = (2 * math.pi * eb) % (2 * math.pi)
-            qwave = {
-                "center": a["center"],
-                "amplitude": r,
-                "phase": phase,
-                "emotion_bias": eb,
-                "goal_alignment": a.get("goal_alignment", 0.0)
-            }
-            qwaves.append(qwave)
-            energies.append(r)
-            phases.append(phase)
-
-        # Aggregate field magnitude and coherence
-        mean_res = mean(energies)
-        phase_var = mean([(p - mean(phases)) ** 2 for p in phases])
-        coherence = 1.0 / (1.0 + phase_var)
-
+        # Compute coherence as normalized connectivity
+        coherence = min(1.0, len(atoms) / 10)
         field = {
             "timestamp": time.time(),
-            "mean_resonance": round(mean_res, 3),
-            "phase_variance": round(phase_var, 4),
-            "semantic_coherence": round(coherence, 3),
-            "qwaves": qwaves
+            "semantic_coherence": coherence,
+            "atom_count": len(atoms),
+            "atoms": atoms,
         }
-        self.last_field = field
 
-        RESONANT_FIELD_PATH.parent.mkdir(parents=True, exist_ok=True)
-        with open(RESONANT_FIELD_PATH, "w") as f:
-            json.dump(field, f, indent=2)
-
-        logger.info(f"[ResInt] Built resonance field Ψ with {len(qwaves)} atoms, "
-                    f"coherence={coherence:.3f}")
-
-        # Optional photon-level export
-        if self.bridge:
-            try:
-                self.bridge.export_resonance_field(field)
-                logger.info("[ResInt→Photon] Exported resonance field.")
-            except Exception as e:
-                logger.warning(f"[ResInt→Photon] Export failed: {e}")
+        # Export resonance field
+        fname = export_name or f"resonance_field_{int(field['timestamp'])}.qphoto"
+        try:
+            bridge.export_resonance_field(field, filename=fname)
+            logger.info(f"[ResInt] Exported resonance field → data/photon_records/{fname}")
+        except Exception as e:
+            logger.warning(f"[ResInt→Photon] Export failed: {e}")
 
         return field
 

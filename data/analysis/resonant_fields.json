@@ -1,0 +1,29 @@
+{
+  "timestamp": 1761257760.5353827,
+  "mean_resonance": 0.8,
+  "phase_variance": 0.0,
+  "semantic_coherence": 1.0,
+  "qwaves": [
+    {
+      "center": "concept:resonant_equilibrium",
+      "amplitude": 0.8,
+      "phase": 3.141592653589793,
+      "emotion_bias": 0.5,
+      "goal_alignment": 0.0
+    },
+    {
+      "center": "concept:stability",
+      "amplitude": 0.8,
+      "phase": 3.141592653589793,
+      "emotion_bias": 0.5,
+      "goal_alignment": 0.0
+    },
+    {
+      "center": "concept:coherence",
+      "amplitude": 0.8,
+      "phase": 3.141592653589793,
+      "emotion_bias": 0.5,
+      "goal_alignment": 0.0
+    }
+  ]
+}

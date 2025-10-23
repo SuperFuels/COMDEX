@@ -1,11 +1,16 @@
 """
-LanguageAtomBuilder — Phase 37B : Language Atom Genesis
---------------------------------------------------------
+LanguageAtomBuilder — Phase 37B → 39A : Language Atom Genesis & Reconstruction
+---------------------------------------------------------------------------
 Transforms meaning clusters (from MFG) into Language Atoms:
   • center → concept anchor
   • lexeme → synthetic linguistic handle
   • glyphs → symbolic associations (Φ ⊕ ↔ etc.)
   • resonance → semantic weight from emotion + goal alignment
+
+Phase 39A extension:
+  Adds `rebuild_from_photons()` to reconstruct atoms from imported photon fields
+  for bidirectional photonic–semantic coupling.
+
 Exports atoms to data/analysis/language_atoms.json
 """
 
@@ -51,7 +56,6 @@ def derive_resonance(c):
     s = c.get("mean_strength", 1.0)
     e = c.get("emotion_bias", 0.5)
     g = c.get("goal_alignment", 0.0)
-    # Nonlinear fusion
     resonance = round((s * (0.6 + 0.4 * e)) * (1.0 + 0.5 * g), 3)
     return min(1.0, resonance)
 
@@ -63,6 +67,7 @@ class LanguageAtomBuilder:
     def __init__(self):
         self.atoms = []
 
+    # ─────────────────────────────────────────────
     def build_atoms(self):
         """Generate language atoms from meaning field clusters."""
         field = MFG.build_field()
@@ -104,6 +109,67 @@ class LanguageAtomBuilder:
         self.atoms = atoms
         logger.info(f"[LAB] Built {len(atoms)} language atoms.")
         return atoms
+
+    # ─────────────────────────────────────────────
+    def reinforce_AKG_from_atoms(self, weight: float = 0.1):
+        """
+        Phase 39A — Post-import reinforcement loop.
+        Strengthens AKG semantic connections based on newly reconstructed atoms.
+        Each atom increases the link strength between its center concept and related neighbors.
+
+        Args:
+            weight: Base reinforcement increment for each atom relation.
+        """
+        if not self.atoms:
+            logger.warning("[LAB] No atoms to reinforce from.")
+            return 0
+
+        reinforced = 0
+        for atom in self.atoms:
+            c = atom["center"]
+            resonance = atom.get("resonance", 0.8)
+            emotion = atom.get("emotion_bias", 0.5)
+            goal = atom.get("goal_alignment", 0.0)
+            intensity = round(weight * (0.5 + resonance + emotion + goal) / 2, 3)
+
+            # strengthen self resonance
+            akg.add_triplet(c, "resonance_strength", str(intensity))
+
+            # reinforce neighbor links if available
+            for n in atom.get("neighbors", []):
+                akg.add_triplet(c, "linked_to", n)
+                akg.add_triplet(n, "linked_to", c)
+
+            reinforced += 1
+
+        logger.info(f"[LAB→AKG] Reinforced {reinforced} concepts from photon-derived atoms.")
+        return reinforced
+
+    # ─────────────────────────────────────────────
+    def rebuild_from_photons(self, photons: list):
+        """
+        Phase 39A — Reconstruct language atoms from imported photon field data.
+        Used when re-importing .qphoto resonance fields into symbolic form.
+        """
+        self.atoms = []
+        for p in photons:
+            self.atoms.append({
+                "center": f"concept:{p.get('λ', 'unknown')}",
+                "lexeme": p.get("λ", "lexeme")[:6],
+                "glyphs": [],
+                "neighbors": [],
+                "resonance": 0.8,
+                "emotion_bias": float(p.get("π", 0.5)),
+                "goal_alignment": float(p.get("μ", 0.0)),
+                "timestamp": time.time(),
+            })
+
+        LANGUAGE_ATOM_PATH.parent.mkdir(parents=True, exist_ok=True)
+        with open(LANGUAGE_ATOM_PATH, "w") as f:
+            json.dump({"timestamp": time.time(), "atoms": self.atoms}, f, indent=2)
+
+        logger.info(f"[LAB] Rebuilt {len(self.atoms)} language atoms from photon data.")
+        return self.atoms
 
 
 # ─────────────────────────────────────────────
