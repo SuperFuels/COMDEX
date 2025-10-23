@@ -1,0 +1,23 @@
+{
+  "concept:resonant_equilibrium": {
+    "count": 3,
+    "avg_phase": 0.5,
+    "avg_goal": 0.0,
+    "last_seen": 1761259681.2164197,
+    "coherence": 0.5
+  },
+  "concept:stability": {
+    "count": 3,
+    "avg_phase": 0.5,
+    "avg_goal": 0.0,
+    "last_seen": 1761259681.2164197,
+    "coherence": 0.5
+  },
+  "concept:coherence": {
+    "count": 3,
+    "avg_phase": 0.5,
+    "avg_goal": 0.0,
+    "last_seen": 1761259681.2164197,
+    "coherence": 0.5
+  }
+}

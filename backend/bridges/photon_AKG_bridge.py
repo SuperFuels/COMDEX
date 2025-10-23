@@ -1,6 +1,6 @@
 """
-Photon ↔ AKG Bridge — Phase 36A – 38B
---------------------------------------
+Photon ↔ AKG Bridge — Phase 36A–40C
+------------------------------------
 Maps Aion Knowledge Graph (AKG) concepts to Photon Language waveforms
 and serializes them for QQC resonance transmission.
 
@@ -8,17 +8,20 @@ Each concept is represented as a photonic signature:
 Φ = (λ, φ, μ, π, ⊕, ↔)
    wavelength | phase | measurement | projection | superposition | entanglement
 
-Phase 38 adds resonance-field export for the Aion Language subsystem,
-allowing full semantic fields (Ψ) to be written as .qphoto records.
+Phase 38B added resonance-field export for the Aion Language subsystem.
+Phase 40C extends the bridge with harmonic emission capability,
+allowing the Harmonic Stabilizer Engine (HSE) to send corrective packets
+back through the resonance channel.
 
 Author: Tessaris Research Group
-Date: Phase 36A – 38B (October 2025)
+Date: Phases 36A–40C (October 2025)
 """
 
-import json, time
+import json, time, logging
 from pathlib import Path
 from dataclasses import dataclass, asdict
 
+logger = logging.getLogger(__name__)
 
 # ─────────────────────────────────────────────
 # Data Model
@@ -41,22 +44,21 @@ class PhotonRecord:
 # ─────────────────────────────────────────────
 class PhotonAKGBridge:
     """
-    Converts AKG concept metadata into Photon Language resonance vectors
-    and manages serialization for QQC resonance transport.
+    Converts AKG concept metadata into Photon Language resonance vectors,
+    manages serialization for QQC resonance transport, and now accepts
+    harmonic correction emissions from higher control layers.
     """
 
     def __init__(self, output_dir: str = "data/photon_records"):
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
+        self.emission_log = Path("data/feedback/photon_bridge_log.json")
 
     # ─────────────────────────────────────────
     # Phase 36A — Concept Encoding
     # ─────────────────────────────────────────
     def encode_concept(self, concept_name: str) -> PhotonRecord:
-        """
-        Generate deterministic pseudo-photonic parameters from the concept name.
-        Later phases replace this heuristic with true resonance data.
-        """
+        """Generate deterministic pseudo-photonic parameters from a concept name."""
         h = abs(hash(concept_name)) % 100000
         return PhotonRecord(
             concept_id=concept_name,
@@ -71,34 +73,26 @@ class PhotonAKGBridge:
     # ─────────────────────────────────────────
     def serialize(self, record: PhotonRecord) -> Path:
         """Write a .qphoto JSON file for a single photon record."""
-        file_path = self.output_dir / f"{record.concept_id}.qphoto"
-        with open(file_path, "w") as fp:
+        fpath = self.output_dir / f"{record.concept_id}.qphoto"
+        with open(fpath, "w") as fp:
             json.dump(asdict(record), fp, indent=2)
-        return file_path
+        logger.info(f"[PAB] Serialized photon record → {fpath}")
+        return fpath
 
     # ─────────────────────────────────────────
     def export_concept(self, concept_name: str) -> PhotonRecord:
-        """
-        Public API — Encodes and serializes a concept’s photon record.
-        Called automatically by AKG concept-creation hooks.
-        """
+        """Public API — encodes and serializes a concept’s photon record."""
         rec = self.encode_concept(concept_name)
         fpath = self.serialize(rec)
         print(f"✨ Photon record exported → {fpath}")
         return rec
 
     # ─────────────────────────────────────────
-    # Phase 38 Support — Resonance Field Export
+    # Phase 38B–39A — Resonance Field Export
     # ─────────────────────────────────────────
     def export_resonance_field(self, field: dict, filename: str | None = None):
-        """
-        Phase 38B–39A — Export semantic resonance field into Photon Language form.
-        Converts semantic atoms or clusters into photonic signatures (Φ).
-        """
-        import json, time
-        from pathlib import Path
-
-        base_dir = Path("data/photon_records")
+        """Export semantic resonance field into Photon Language form (.qphoto)."""
+        base_dir = self.output_dir
         base_dir.mkdir(parents=True, exist_ok=True)
         fname = filename or f"resonance_field_{int(time.time())}.qphoto"
         fpath = base_dir / fname
@@ -108,12 +102,12 @@ class PhotonAKGBridge:
         photons = []
         for s in sources:
             photons.append({
-                "λ": s.get("center", "unknown"),             # semantic wavelength
-                "φ": s.get("emotion_bias", 0.5),             # phase alignment
-                "μ": s.get("goal_alignment", 0.0),           # measurement coupling
-                "π": s.get("emotion_bias", 0.5),             # projection/emotion
-                "⊕": s.get("resonance", 0.8),                # superposition
-                "↔": s.get("center", "unknown"),              # entanglement id
+                "λ": s.get("center", "unknown"),
+                "φ": s.get("emotion_bias", 0.5),
+                "μ": s.get("goal_alignment", 0.0),
+                "π": s.get("emotion_bias", 0.5),
+                "⊕": s.get("resonance", 0.8),
+                "↔": s.get("center", "unknown"),
             })
 
         photon_field = {
@@ -125,5 +119,42 @@ class PhotonAKGBridge:
         with open(fpath, "w") as f:
             json.dump(photon_field, f, indent=2)
 
-        print(f"✨ Photon resonance field exported → {fpath}")
+        logger.info(f"[PAB] Photon resonance field exported → {fpath}")
         return fpath
+
+    # ─────────────────────────────────────────
+    # Phase 40C — Harmonic Emission Interface
+    # ─────────────────────────────────────────
+    def emit(self, packet: dict):
+        """
+        Accepts a correction or photon-field packet and logs it for QQC relay.
+        This provides a unified entry point for the HSE to transmit feedback.
+        """
+        packet["timestamp"] = packet.get("timestamp", time.time())
+        msg = f"[PAB] Emitting {packet.get('type')} → {packet.get('target', 'unknown')}"
+        logger.info(msg)
+        print(msg)
+
+        # append to persistent log
+        self.emission_log.parent.mkdir(parents=True, exist_ok=True)
+        if self.emission_log.exists():
+            with open(self.emission_log) as f:
+                data = json.load(f)
+        else:
+            data = {"packets": []}
+        data["packets"].append(packet)
+        with open(self.emission_log, "w") as f:
+            json.dump(data, f, indent=2)
+        return True
+
+
+# ─────────────────────────────────────────────
+try:
+    PAB
+except NameError:
+    try:
+        PAB = PhotonAKGBridge()
+        print("🔗 PhotonAKGBridge global instance initialized as PAB")
+    except Exception as e:
+        print(f"⚠️ Could not initialize PAB: {e}")
+        PAB = None

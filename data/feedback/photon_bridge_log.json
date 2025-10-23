@@ -1,0 +1,39 @@
+{
+  "packets": [
+    {
+      "timestamp": 1761261344.3742745,
+      "type": "harmonic_correction",
+      "amplitude": 0.162,
+      "phase": 5.141592653589793,
+      "target": "concept:equilibrium"
+    },
+    {
+      "timestamp": 1761261512.7813568,
+      "type": "harmonic_correction",
+      "amplitude": 0.15225,
+      "phase": 4.941592653589793,
+      "target": "concept:equilibrium"
+    },
+    {
+      "timestamp": 1761261512.782068,
+      "type": "harmonic_correction",
+      "amplitude": 0.15225,
+      "phase": 4.941592653589793,
+      "target": "concept:equilibrium"
+    },
+    {
+      "timestamp": 1761261512.7827048,
+      "type": "harmonic_correction",
+      "amplitude": 0.15225,
+      "phase": 4.941592653589793,
+      "target": "concept:equilibrium"
+    },
+    {
+      "timestamp": 1761261826.4777603,
+      "type": "attention_focus",
+      "target": "concept:resonant_equilibrium",
+      "amplitude": 0.85,
+      "phase": 0.0
+    }
+  ]
+}
