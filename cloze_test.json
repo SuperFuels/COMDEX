@@ -1,0 +1,2 @@
+{'type': 'cloze', 'prompt': 'The sky is _____', 'options': ['dark', 'blue', 'fast'], 'answer': 'blue', 'resonance': {'ρ': 0.658, 'I': 0.804, 'SQI': 0.731}, 'timestamp': 1761341904.4359684}
+{'type': 'group_sort', 'groups': ['Fruits', 'Animals'], 'items': ['bird', 'apple', 'dog', 'banana', 'cat', 'pear'], 'mapping': {'bird': 'Animals', 'apple': 'Fruits', 'dog': 'Animals', 'banana': 'Fruits', 'cat': 'Animals', 'pear': 'Fruits'}, 'resonance': {'ρ': 0.855, 'I': 0.858, 'SQI': 0.857}, 'timestamp': 1761341904.4360433}

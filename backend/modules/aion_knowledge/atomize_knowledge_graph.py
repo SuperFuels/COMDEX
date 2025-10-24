@@ -1,15 +1,21 @@
+# ================================================================
+# 🧠 Phase 45G — Atomize Knowledge Graph (Lexical + Resonant)
+# ================================================================
 """
-Phase 45F — Atomize Knowledge Graph
-────────────────────────────────────────────────────────────
-Transforms the semantic WikiGraph (entities + links)
-into a living atomic lattice composed of AtomContainers,
-optionally bundled into a Hoberman Knowledge Sphere.
+Transforms the entire lexical–semantic layer into a living,
+resonant atomic lattice within AION.brain.KGC.
 
-Input:
+Inputs:
+    data/lexicons/lexicore.lex.json
+    data/lexicons/language_resonance_matrix.json
+    data/lexicons/etymology_lineage.ety.json
     data/semantic/wikigraph.json
-Output:
+    data/qtensor/langfield_resonance_adapted.qdata.json
+
+Outputs:
     data/knowledge/atoms/wikigraph_atoms.qkg.json
     backend/modules/dimensions/containers/hoberman_knowledge_sphere.dc.json
+    (plus injection into AION.brain.KGC)
 """
 
 import json, time, logging
@@ -18,80 +24,174 @@ from typing import Dict, Any, List
 
 from backend.modules.dimensions.containers.atom_container import AtomContainer
 from backend.modules.dimensions.containers.hoberman_container import HobermanContainer
+from backend.modules.aion_knowledge import knowledge_graph_core as KGC
 from backend.modules.codex.codex_utils import generate_hash
 
 logger = logging.getLogger(__name__)
 
-WIKIGRAPH_PATH = Path("data/semantic/wikigraph.json")
-ATOMIZED_PATH  = Path("data/knowledge/atoms/wikigraph_atoms.qkg.json")
-HOBERMAN_PATH  = Path("backend/modules/dimensions/containers/hoberman_knowledge_sphere.dc.json")
+# Input sources
+LEX_PATH   = Path("data/lexicons/lexicore.lex.json")
+LRM_PATH   = Path("data/lexicons/language_resonance_matrix.json")
+ETY_PATH   = Path("data/lexicons/etymology_lineage.ety.json")
+WIKI_PATH  = Path("data/semantic/wikigraph.json")
+QDATA_PATH = Path("data/qtensor/langfield_resonance_adapted.qdata.json")
+
+# Outputs
+ATOMIZED_PATH = Path("data/knowledge/atoms/wikigraph_atoms.qkg.json")
+HOBERMAN_PATH = Path("backend/modules/dimensions/containers/hoberman_knowledge_sphere.dc.json")
 
 
 class AtomizeKnowledgeGraph:
-    """
-    🧬 AtomizeKnowledgeGraph
-    Converts WikiGraph nodes into AtomContainers and
-    groups them into a Hoberman Knowledge Sphere.
-    """
-
     def __init__(self):
         self.atoms: List[AtomContainer] = []
         self.hoberman: HobermanContainer = None
         self.summary: Dict[str, Any] = {}
+        self.sources = {}
 
-    # ─────────────────────────────────────────
-    def load_graph(self) -> Dict[str, Any]:
-        """Load the semantic WikiGraph file."""
-        if not WIKIGRAPH_PATH.exists():
-            raise FileNotFoundError(f"WikiGraph not found: {WIKIGRAPH_PATH}")
-        with open(WIKIGRAPH_PATH, "r") as f:
-            data = json.load(f)
-        graph = data.get("wikigraph", data)
-        logger.info(f"[Atomize] Loaded WikiGraph ({len(graph.get('nodes', {}))} nodes).")
-        return graph
+    # ------------------------------------------------------------
+    def _safe_load(self, path: Path):
+        if not path.exists():
+            logger.warning(f"[Atomize] Missing source: {path}")
+            return {}
+        with open(path, "r", encoding="utf-8") as f:
+            try:
+                return json.load(f)
+            except Exception as e:
+                logger.error(f"[Atomize] Failed to load {path}: {e}")
+                return {}
 
-    # ─────────────────────────────────────────
-    def build_atoms(self, graph: Dict[str, Any]):
-        """Create AtomContainers for each node in the WikiGraph."""
+    # ------------------------------------------------------------
+    def load_all_sources(self):
+        self.sources = {
+            "lex":  self._safe_load(LEX_PATH),
+            "lrm":  self._safe_load(LRM_PATH),
+            "ety":  self._safe_load(ETY_PATH),
+            "wiki": self._safe_load(WIKI_PATH),
+            "qdat": self._safe_load(QDATA_PATH),
+        }
+        logger.info("[Atomize] Loaded all lexical–semantic sources.")
+
+    # ------------------------------------------------------------
+    def _extract_resonance(self, wid: str) -> Dict[str, Any]:
+        """Gather Φ–ψ–η–Λ resonance data for a word id."""
+        qfield = self.sources.get("qdat", {}).get("tensor_field", {})
+        ety_ln = self.sources.get("ety", {}).get("lineage", [])
+        lrm_mx = self.sources.get("lrm", {}).get("matrix", {})
+
+        Φ = ψ = η = Λ = q_val = phase = 1.0
+
+        # from QTensor
+        if wid in qfield:
+            d = qfield[wid]
+            Φ, ψ, η, Λ = d.get("Φ", 1.0), d.get("ψ", 1.0), d.get("η", 1.0), d.get("Λ", 1.0)
+            q_val, phase = d.get("q_val", 1.0), d.get("phase", 0.0)
+
+        # etym depth override
+        for e in ety_ln:
+            if isinstance(e, dict) and e.get("word", "").lower() == wid:
+                η = e.get("depth", η)
+
+        # lexical correlation fallback
+        if wid in lrm_mx and wid in lrm_mx[wid]:
+            ψ = lrm_mx[wid][wid]
+
+        return {"Φ": Φ, "ψ": ψ, "η": η, "Λ": Λ, "q_val": q_val, "phase": phase}
+
+    # ------------------------------------------------------------
+    def build_atoms(self, graph: Dict[str, Any] = None):
+        """Create AtomContainers for both lexical and semantic entries."""
+        graph = graph or {}
+        # load lexicon entries (list)
+        lex_path = Path("data/lexicons/lexicore.lex.json")
+        lex_entries = []
+        if lex_path.exists():
+            try:
+                lex_entries = json.load(open(lex_path))
+            except Exception as e:
+                logger.warning(f"[Atomize] Failed to load LexiCore: {e}")
+
+        # --- 1️⃣ WikiGraph Nodes ---
         for node_id, node_data in graph.get("nodes", {}).items():
             title = node_data.get("title", node_id)
-            categories = node_data.get("categories", [])
-            resonance = node_data.get("resonance", {})
-            links = node_data.get("links", [])
-
             atom = AtomContainer(
                 id=node_id,
                 kind="knowledge_atom",
                 title=title,
                 caps=["semantic", "knowledge", "resonant"],
-                tags=categories,
-                nodes=links,
+                tags=node_data.get("categories", []),
+                nodes=node_data.get("links", []),
                 meta={
-                    "resonance": resonance,
+                    "resonance": node_data.get("resonance", {}),
                     "origin": "wikigraph",
                     "timestamp": time.time(),
-                }
+                },
             )
             atom._register_address_and_link(hub_id="aion_knowledge_hub")
             self.atoms.append(atom)
 
-        logger.info(f"[Atomize] Created {len(self.atoms)} AtomContainers.")
+        # --- 2️⃣ LexiCore Lemmas ---
+        for entry in lex_entries:
+            wid = (
+                entry.get("id")
+                or entry.get("word")
+                or entry.get("lemma")
+                or entry.get("term")
+                or ""
+            ).lower()
+            if not wid:
+                continue
 
-    # ─────────────────────────────────────────
+            atom = AtomContainer(
+                id=wid,
+                kind="lexical_atom",
+                title=entry.get("lemma", wid),
+                caps=["lexical", "semantic", "resonant"],
+                tags=[entry.get("pos", "term")],
+                nodes=[],
+                meta={
+                    "definition": entry.get("definition", ""),
+                    "phonetic": entry.get("phonetic", ""),
+                    "etymology": entry.get("etymology", ""),
+                    "embedding_dim": len(entry.get("embedding", [])),
+                    "origin": "lexicore",
+                    "timestamp": time.time(),
+                },
+            )
+            atom._register_address_and_link(hub_id="aion_knowledge_hub")
+            self.atoms.append(atom)
+
+        logger.info(f"[Atomize] Created {len(self.atoms)} AtomContainers with resonance data.")
+
+    # ------------------------------------------------------------
+    def inject_into_KGC(self):
+        """Push atoms and edges into the live AION.brain.KGC runtime."""
+        if not hasattr(KGC, "add_triplet"):
+            logger.warning("[Atomize] KGC interface not found — skipping live injection.")
+            return
+
+        for atom in self.atoms:
+            rid = atom.id
+            res = atom.meta.get("resonance", {})
+            KGC.add_triplet(rid, "resonance_amplitude", str(res.get("q_val", 1.0)))
+            KGC.add_triplet(rid, "phase", str(res.get("phase", 0.0)))
+            for link in atom.nodes:
+                KGC.add_triplet(rid, "linked_to", link)
+
+        logger.info(f"[Atomize] Injected {len(self.atoms)} atoms into AION.brain.KGC.")
+
+    # ------------------------------------------------------------
     def build_hoberman_sphere(self):
         """Encapsulate all atoms in a Hoberman Knowledge Sphere."""
         self.hoberman = HobermanContainer(container_id="hoberman_knowledge_sphere")
-        seed_glyphs = [a.id for a in self.atoms]  # symbolic identifiers for expansion
-        self.hoberman.from_glyphs(seed_glyphs)
-        logger.info("[Atomize] Hoberman Knowledge Sphere initialized with atom seeds.")
+        self.hoberman.from_glyphs([a.id for a in self.atoms])
+        logger.info("[Atomize] Hoberman Knowledge Sphere initialized.")
 
-    # ─────────────────────────────────────────
+    # ------------------------------------------------------------
     def export(self):
         """Export atomized graph and Hoberman sphere."""
-        # Atom export
         ATOMIZED_PATH.parent.mkdir(parents=True, exist_ok=True)
         atom_pack = [a.export_pack() for a in self.atoms]
-        with open(ATOMIZED_PATH, "w") as f:
+        with open(ATOMIZED_PATH, "w", encoding="utf-8") as f:
             json.dump({
                 "timestamp": time.time(),
                 "atom_count": len(atom_pack),
@@ -100,9 +200,8 @@ class AtomizeKnowledgeGraph:
             }, f, indent=2)
         logger.info(f"[Atomize] Exported atom data → {ATOMIZED_PATH}")
 
-        # Hoberman export
         HOBERMAN_PATH.parent.mkdir(parents=True, exist_ok=True)
-        with open(HOBERMAN_PATH, "w") as f:
+        with open(HOBERMAN_PATH, "w", encoding="utf-8") as f:
             json.dump({
                 "id": self.hoberman.container_id,
                 "name": "Hoberman Knowledge Sphere",
@@ -116,9 +215,8 @@ class AtomizeKnowledgeGraph:
             }, f, indent=2)
         logger.info(f"[Atomize] Exported Hoberman container → {HOBERMAN_PATH}")
 
-    # ─────────────────────────────────────────
+    # ------------------------------------------------------------
     def summarize(self):
-        """Compute and log a brief resonance summary."""
         avg_links = sum(len(a.nodes) for a in self.atoms) / max(1, len(self.atoms))
         self.summary = {
             "atoms": len(self.atoms),
@@ -128,22 +226,24 @@ class AtomizeKnowledgeGraph:
         logger.info(f"[Atomize] Summary → {self.summary}")
         return self.summary
 
-    # ─────────────────────────────────────────
+    # ------------------------------------------------------------
     def run_full_atomization(self):
-        """Full end-to-end build pipeline."""
-        graph = self.load_graph()
-        self.build_atoms(graph)
+        self.load_all_sources()
+        self.build_atoms()
+        self.inject_into_KGC()
         self.build_hoberman_sphere()
         self.export()
         return self.summarize()
 
 
-# ─────────────────────────────────────────
-# Global / Script Entry
-# ─────────────────────────────────────────
+# ------------------------------------------------------------
+# Script Entry
+# ------------------------------------------------------------
 if __name__ == "__main__":
-    print("🧠 Running AION Knowledge Graph Atomization…")
+    import logging
+    logging.basicConfig(level=logging.INFO)
+    print("🧠 Running AION Full Knowledge Graph Atomization…")
     builder = AtomizeKnowledgeGraph()
     summary = builder.run_full_atomization()
-    print("✅ Atomization Complete.")
+    print("✅ Full Atomization Complete.")
     print(json.dumps(summary, indent=2))

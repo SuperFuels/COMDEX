@@ -1,0 +1,107 @@
+{
+  "session_id": "CEE-DUAL-1761333620",
+  "mode": "dual",
+  "results": [
+    {
+      "type": "lexical",
+      "target": "superposition",
+      "engagement": 0.9193527852038079,
+      "resonance": 0.8996069456962348,
+      "emotion": 0.808,
+      "difficulty": 0.95,
+      "SQI": 0.876,
+      "timestamp": 1761333620.5994434
+    },
+    {
+      "type": "lexical",
+      "target": "collapse",
+      "engagement": 0.8169968268963079,
+      "resonance": 0.9808430559271168,
+      "emotion": 0.808,
+      "difficulty": 0.9,
+      "SQI": 0.869,
+      "timestamp": 1761333620.5995262
+    },
+    {
+      "type": "lexical",
+      "target": "entanglement",
+      "engagement": 0.8094494683826011,
+      "resonance": 1.091554257964864,
+      "emotion": 0.808,
+      "difficulty": 0.85,
+      "SQI": 0.903,
+      "timestamp": 1761333620.5995991
+    },
+    {
+      "type": "lexical",
+      "target": "entanglement",
+      "engagement": 0.842808686638848,
+      "resonance": 0.8034058010341898,
+      "emotion": 0.808,
+      "difficulty": 0.85,
+      "SQI": 0.818,
+      "timestamp": 1761333620.5996647
+    },
+    {
+      "type": "lexical",
+      "target": "entangle",
+      "engagement": 0.9918151851336354,
+      "resonance": 1.1992761047905467,
+      "emotion": 0.808,
+      "difficulty": 0.8,
+      "SQI": 1.0,
+      "timestamp": 1761333620.599757
+    },
+    {
+      "type": "symbolic",
+      "target": "QEquation(expr='\u03c3 \u2207 \u03b3 \u21d2 \u03c7 \u27f2 \u03c7', coherence=0.964, intensity=0.862, phase=3.069, timestamp=1761333620.599146)",
+      "coherence": 0.9311905899684823,
+      "intensity": 0.9394228619905649,
+      "emotion": 0.808,
+      "difficulty": 0.75,
+      "SQI": 0.893,
+      "timestamp": 1761333620.5998287
+    },
+    {
+      "type": "symbolic",
+      "target": "QEquation(expr='\u03c8 \u27f2 \u03c7 \u21d2 \u03a6 \u03c0 \u03c8', coherence=0.667, intensity=0.787, phase=-0.73, timestamp=1761333620.5992036)",
+      "coherence": 0.9846795117120097,
+      "intensity": 1.0417377072658356,
+      "emotion": 0.808,
+      "difficulty": 0.7,
+      "SQI": 0.945,
+      "timestamp": 1761333620.5999107
+    },
+    {
+      "type": "symbolic",
+      "target": "QEquation(expr='\u03b7 \u03c0 \u03a9 \u21d2 \u03c7 \u03c0 \u03b7', coherence=0.848, intensity=0.858, phase=2.832, timestamp=1761333620.599256)",
+      "coherence": 0.9386787677836302,
+      "intensity": 1.0411136740459863,
+      "emotion": 0.808,
+      "difficulty": 0.65,
+      "SQI": 0.929,
+      "timestamp": 1761333620.5999942
+    },
+    {
+      "type": "symbolic",
+      "target": "QEquation(expr='\u03c3 \u2207 \u03a9 \u21d2 \u03c8 \u03bc \u03b3', coherence=0.923, intensity=1.064, phase=-2.986, timestamp=1761333620.599305)",
+      "coherence": 0.871739344512303,
+      "intensity": 0.879809719316627,
+      "emotion": 0.808,
+      "difficulty": 0.6,
+      "SQI": 0.853,
+      "timestamp": 1761333620.600072
+    },
+    {
+      "type": "symbolic",
+      "target": "QEquation(expr='\u03b7 \u2207 \u03b7 \u21d2 \u03b7 \u2295 \u039b', coherence=0.9, intensity=0.732, phase=-2.941, timestamp=1761333620.599352)",
+      "coherence": 0.9608942690568969,
+      "intensity": 0.8706000596632935,
+      "emotion": 0.808,
+      "difficulty": 0.55,
+      "SQI": 0.88,
+      "timestamp": 1761333620.600158
+    }
+  ],
+  "timestamp": 1761333620.5985534
+}

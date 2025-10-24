@@ -1,0 +1,21 @@
+{
+  "timestamp": 1761340268.6763813,
+  "results": [
+    {
+      "op": "PHOTON_SUPERPOSE",
+      "\u03c1": 0.928,
+      "I": 0.715,
+      "rho_grad": 1.0,
+      "phase": -2.753,
+      "timestamp": 1761340268.674308
+    },
+    {
+      "op": "PHOTON_ENTANGLE",
+      "\u03c1": 0.824,
+      "I": 0.75,
+      "rho_grad": 1.0,
+      "phase": -1.715,
+      "timestamp": 1761340268.6751003
+    }
+  ]
+}

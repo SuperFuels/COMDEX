@@ -215,5 +215,50 @@
       "address": "ucs://local/hoberman_knowledge_sphere#container",
       "kind": "hoberman"
     }
+  },
+  "resonance": {
+    "id": "resonance",
+    "name": "resonance",
+    "geometry": "Unknown",
+    "type": "lexical_atom",
+    "meta": {
+      "address": "ucs://local/resonance#atom"
+    }
+  },
+  "entangle": {
+    "id": "entangle",
+    "name": "entangle",
+    "geometry": "Unknown",
+    "type": "lexical_atom",
+    "meta": {
+      "address": "ucs://local/entangle#atom"
+    }
+  },
+  "collapse": {
+    "id": "collapse",
+    "name": "collapse",
+    "geometry": "Unknown",
+    "type": "lexical_atom",
+    "meta": {
+      "address": "ucs://local/collapse#atom"
+    }
+  },
+  "superposition": {
+    "id": "superposition",
+    "name": "superposition",
+    "geometry": "Unknown",
+    "type": "lexical_atom",
+    "meta": {
+      "address": "ucs://local/superposition#atom"
+    }
+  },
+  "entanglement": {
+    "id": "entanglement",
+    "name": "entanglement",
+    "geometry": "Unknown",
+    "type": "lexical_atom",
+    "meta": {
+      "address": "ucs://local/entanglement#atom"
+    }
   }
 }

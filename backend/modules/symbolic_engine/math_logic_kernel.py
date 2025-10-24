@@ -1,7 +1,7 @@
 import re
 from typing import List, Dict, Any, Optional, Tuple
 
-from sympy import Symbol, sympify, Eq, simplify, And, Or, Not, Implies, Equivalent
+from backend.quant.qpy.compat_sympy_logic import qand, qor, qnot, qimplies, qequiv
 from sympy.logic.boolalg import Boolean
 from sympy.core.relational import Relational
 from sympy.core.sympify import SympifyError

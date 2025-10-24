@@ -1,0 +1,52 @@
+{
+  "session_id": "CEE-1761333250",
+  "mode": "lexical",
+  "results": [
+    {
+      "atom": "entangle",
+      "engagement": 0.7560834734774065,
+      "resonance": 1.0197171192521035,
+      "emotion": 0.645,
+      "difficulty": 1.0,
+      "SQI": 0.807,
+      "timestamp": 1761333250.063119
+    },
+    {
+      "atom": "entanglement",
+      "engagement": 0.9056531414874464,
+      "resonance": 0.8177532894321837,
+      "emotion": 0.645,
+      "difficulty": 1.0,
+      "SQI": 0.789,
+      "timestamp": 1761333250.0632703
+    },
+    {
+      "atom": "superposition",
+      "engagement": 0.5823109801000343,
+      "resonance": 0.9409497017408084,
+      "emotion": 0.645,
+      "difficulty": 1.0,
+      "SQI": 0.723,
+      "timestamp": 1761333250.063411
+    },
+    {
+      "atom": "collapse",
+      "engagement": 0.6322672877361547,
+      "resonance": 0.88965475289123,
+      "emotion": 0.645,
+      "difficulty": 1.0,
+      "SQI": 0.722,
+      "timestamp": 1761333250.0635521
+    },
+    {
+      "atom": "resonance",
+      "engagement": 0.9898468866636791,
+      "resonance": 1.185891037987667,
+      "emotion": 0.645,
+      "difficulty": 0.95,
+      "SQI": 0.94,
+      "timestamp": 1761333250.0637126
+    }
+  ],
+  "timestamp": 1761333250.0621712
+}

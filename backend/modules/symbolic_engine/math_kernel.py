@@ -1,7 +1,7 @@
 import math
 from typing import Union, Dict, Any, List, Tuple, Optional
 
-from sympy import (
+from backend.quant.qpy.compat_sympy import (
     sympify, simplify, solve, Symbol, Eq, symbols, diff, integrate,
     Matrix, latex, pretty, limit, nsimplify, Derivative, Integral,
     series, solveset, S, And, Or

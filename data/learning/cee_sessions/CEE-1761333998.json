@@ -1,0 +1,52 @@
+{
+  "session_id": "CEE-1761333998",
+  "mode": "lexical",
+  "results": [
+    {
+      "atom": "superposition",
+      "engagement": 0.5657762809560651,
+      "resonance": 1.1346009998038435,
+      "emotion": 0.595,
+      "difficulty": 1.0,
+      "SQI": 0.765,
+      "timestamp": 1761333998.7420902
+    },
+    {
+      "atom": "collapse",
+      "engagement": 0.7632287268523634,
+      "resonance": 1.179112700046854,
+      "emotion": 0.595,
+      "difficulty": 1.0,
+      "SQI": 0.846,
+      "timestamp": 1761333998.742177
+    },
+    {
+      "atom": "resonance",
+      "engagement": 0.593102830704438,
+      "resonance": 1.056234111971156,
+      "emotion": 0.595,
+      "difficulty": 1.0,
+      "SQI": 0.748,
+      "timestamp": 1761333998.7422497
+    },
+    {
+      "atom": "entangle",
+      "engagement": 0.9149258601462286,
+      "resonance": 0.9676701117733448,
+      "emotion": 0.595,
+      "difficulty": 1.0,
+      "SQI": 0.826,
+      "timestamp": 1761333998.742327
+    },
+    {
+      "atom": "entanglement",
+      "engagement": 0.9743771123929876,
+      "resonance": 0.8200629392445542,
+      "emotion": 0.595,
+      "difficulty": 1.0,
+      "SQI": 0.796,
+      "timestamp": 1761333998.7423944
+    }
+  ],
+  "timestamp": 1761333998.7412524
+}

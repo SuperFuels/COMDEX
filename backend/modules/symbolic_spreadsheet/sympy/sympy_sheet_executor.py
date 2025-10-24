@@ -1,7 +1,7 @@
 # 📄 backend/modules/symbolic_spreadsheet/sympy/sympy_sheet_executor.py
 # 🧠 Task C1-C4: SymPy Sheet Executor - Executes symbolic logic, detects contradictions, prepares mutations, and triggers SQI/emotion hooks
 
-from sympy import symbols, simplify, sympify, Eq, solve, S
+from backend.quant.qpy.compat_sympy import qsymbols, qsimplify, qsolve
 from sympy.core.sympify import SympifyError
 from typing import Dict, Any, List
 from backend.modules.symbolic_spreadsheet.models.glyph_cell import GlyphCell

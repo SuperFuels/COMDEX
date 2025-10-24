@@ -1,80 +1,131 @@
 {
-  "timestamp": 1761319809.1319132,
-  "atom_count": 3,
-  "hash": "8cd2156398e360aa2f69c37af7356caa428929752fb55a653a9fa8b04d1e12f5",
+  "timestamp": 1761332669.7618325,
+  "atom_count": 5,
+  "hash": "5479f05b200de0c375f5d46b21bec12ef73fa7f48a695b4591ca8a562355c6bb",
   "atoms": [
     {
-      "id": "light",
-      "kind": "knowledge_atom",
-      "title": "Light",
+      "id": "resonance",
+      "kind": "lexical_atom",
+      "title": "resonance",
       "caps": [
+        "lexical",
         "semantic",
-        "knowledge",
         "resonant"
       ],
       "requires": [],
       "produces": [],
       "tags": [
-        "Physics",
-        "Optics"
+        "noun"
       ],
-      "nodes": [
-        "photon"
-      ],
+      "nodes": [],
       "address": null,
       "meta": {
-        "resonance": {},
-        "origin": "wikigraph",
-        "timestamp": 1761319809.1283345
+        "definition": "The quality of being resonant or echoing.",
+        "phonetic": "\u02c8r\u025bz\u0259n\u0259ns",
+        "etymology": "From Latin resonantia.",
+        "embedding_dim": 384,
+        "origin": "lexicore",
+        "timestamp": 1761332669.6967034
       }
     },
     {
-      "id": "photon",
-      "kind": "knowledge_atom",
-      "title": "Photon",
+      "id": "entangle",
+      "kind": "lexical_atom",
+      "title": "entangle",
       "caps": [
+        "lexical",
         "semantic",
-        "knowledge",
         "resonant"
       ],
       "requires": [],
       "produces": [],
       "tags": [
-        "Quantum Physics"
+        "verb"
       ],
-      "nodes": [
-        "light",
-        "wave"
-      ],
+      "nodes": [],
       "address": null,
       "meta": {
-        "resonance": {},
-        "origin": "wikigraph",
-        "timestamp": 1761319809.1292398
+        "definition": "To twist or interweave in such a manner as not to be easily separated.",
+        "phonetic": "\u026an\u02c8t\u00e6\u014b\u0261\u0259l",
+        "etymology": "From en- + tangle (Middle English).",
+        "embedding_dim": 384,
+        "origin": "lexicore",
+        "timestamp": 1761332669.697623
       }
     },
     {
-      "id": "wave",
-      "kind": "knowledge_atom",
-      "title": "Wave",
+      "id": "collapse",
+      "kind": "lexical_atom",
+      "title": "collapse",
       "caps": [
+        "lexical",
         "semantic",
-        "knowledge",
         "resonant"
       ],
       "requires": [],
       "produces": [],
       "tags": [
-        "Physics"
+        "verb"
       ],
-      "nodes": [
-        "light"
-      ],
+      "nodes": [],
       "address": null,
       "meta": {
-        "resonance": {},
-        "origin": "wikigraph",
-        "timestamp": 1761319809.1299915
+        "definition": "To fall together suddenly; to fold or cave in.",
+        "phonetic": "k\u0259\u02c8l\u00e6ps",
+        "etymology": "From Latin collabi (to fall together).",
+        "embedding_dim": 384,
+        "origin": "lexicore",
+        "timestamp": 1761332669.6986222
+      }
+    },
+    {
+      "id": "superposition",
+      "kind": "lexical_atom",
+      "title": "superposition",
+      "caps": [
+        "lexical",
+        "semantic",
+        "resonant"
+      ],
+      "requires": [],
+      "produces": [],
+      "tags": [
+        "noun"
+      ],
+      "nodes": [],
+      "address": null,
+      "meta": {
+        "definition": "The combination of two or more physical states into one.",
+        "phonetic": "\u02ccsu\u02d0p\u0259rp\u0259\u02c8z\u026a\u0283\u0259n",
+        "etymology": "From Latin superponere (to place upon).",
+        "embedding_dim": 384,
+        "origin": "lexicore",
+        "timestamp": 1761332669.6994448
+      }
+    },
+    {
+      "id": "entanglement",
+      "kind": "lexical_atom",
+      "title": "entanglement",
+      "caps": [
+        "lexical",
+        "semantic",
+        "resonant"
+      ],
+      "requires": [],
+      "produces": [],
+      "tags": [
+        "noun"
+      ],
+      "nodes": [],
+      "address": null,
+      "meta": {
+        "definition": "A state in which two systems are connected such that the state of one affects the other.",
+        "phonetic": "\u026an\u02c8t\u00e6\u014b\u0261\u0259lm\u0259nt",
+        "etymology": "Derived from entangle + -ment.",
+        "embedding_dim": 384,
+        "origin": "lexicore",
+        "timestamp": 1761332669.7002878
       }
     }
   ]

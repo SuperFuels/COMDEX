@@ -7,7 +7,7 @@ Uses axioms defined in photon/axioms.py.
 """
 
 from backend.photon.axioms import AXIOMS
-from sympy.core.function import AppliedUndef
+from backend.quant.qpy.compat_sympy import qundef
 import sympy as sp
 from sympy.parsing.sympy_parser import parse_expr
 import re

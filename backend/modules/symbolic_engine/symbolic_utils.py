@@ -143,7 +143,7 @@ def debug_print_glyph_chain(chain: List[Dict[str, Any]]):
 # ──────────────────────────────────────────────
 import re
 from sympy import sympify, Symbol
-from sympy.logic.boolalg import And, Or, Not, Implies, Equivalent
+from backend.quant.qpy.compat_sympy_logic import qand, qor, qnot, qimplies, qequiv
 
 def parse_logical_operators(expr: str):
     """

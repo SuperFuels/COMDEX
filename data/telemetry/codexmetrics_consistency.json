@@ -1,0 +1,11 @@
+{
+  "timestamp": 1761341151.8123176,
+  "ghx_avg_\u03c1": 0.7,
+  "ghx_avg_I": 0.952,
+  "codex_avg_\u03c1": 0.619,
+  "codex_avg_I": 0.923,
+  "rho_diff": 0.081,
+  "I_diff": 0.029,
+  "consistent": false,
+  "schema": "CodexMetricsConsistency.v1"
+}

@@ -4,11 +4,13 @@
   "type": "HobermanContainer",
   "meta": {
     "seed_atoms": [
-      "light",
-      "photon",
-      "wave"
+      "resonance",
+      "entangle",
+      "collapse",
+      "superposition",
+      "entanglement"
     ],
-    "count": 3,
+    "count": 5,
     "geometry": "Knowledge Sphere",
     "address": "ucs://aion/knowledge/hoberman_knowledge_sphere#container"
   }
