@@ -1,105 +1,191 @@
 # ================================================================
-# 🧠 CEE Lexical Templates — Phase 45G:g4
+# 🧠 CEE Language Templates — Phase 45G.9 Step 2
 # ================================================================
 """
-Provides lexical exercise templates for the Cognitive Exercise Engine (CEE).
+Provides template generators for lexical and symbolic cognitive exercises.
+Expanded in this phase to include advanced semantic and creative modes.
 
-Templates:
-    • MatchUpExercise — match word to synonym or antonym
-    • AnagramExercise — reconstruct a scrambled word
-    • UnjumbleExercise — reorder phrase fragments
+Existing types:
+  - Match Up     (word ↔ definition)
+  - Anagram      (unscramble)
+  - Unjumble     (reorder)
+  - Cloze        (sentence completion)
+  - Group Sort   (semantic clustering)
 
-Each generator emits a dict with resonance metadata for GHX↔Habit feedback.
+New additions:
+  - Flash Card   (quick recall)
+  - Find Match   (synonym/antonym resonance)
+  - Spin Wheel   (random context challenge)
+
+Each generator outputs a dict compatible with the CEE runtime schema:
+{
+  "type": "...",
+  "prompt": "...",
+  "options": [...],
+  "answer": "...",
+  "resonance": {"ρ": ..., "I": ..., "SQI": ...},
+  "timestamp": ...
+}
 """
 
-import random, time, logging
-from typing import List, Dict
-
+import time, random, logging
 logger = logging.getLogger(__name__)
 
-# Utility --------------------------------------------------------
-def _resonance_field(difficulty: float = 0.5) -> Dict[str, float]:
-    """Generate synthetic resonance metrics scaled by difficulty [0–1]."""
+# ----------------------------------------------------------------
+def _resonance():
+    ρ = round(random.uniform(0.6, 0.9), 3)
+    I = round(random.uniform(0.8, 1.0), 3)
+    SQI = round((ρ + I) / 2, 3)
+    return {"ρ": ρ, "I": I, "SQI": SQI}
+
+
+# ================================================================
+# 🧩 Core Exercise Types (existing)
+# ================================================================
+
+def generate_matchup():
+    """Match a word to its correct definition."""
+    word = random.choice(["happy", "bright", "wave", "resonance"])
+    definitions = {
+        "happy": "feeling or showing pleasure",
+        "bright": "giving out or reflecting much light",
+        "wave": "oscillation transferring energy through space",
+        "resonance": "amplification of oscillation at natural frequency",
+    }
+    distractors = random.sample(
+        [d for w, d in definitions.items() if w != word], 3
+    )
+    options = [definitions[word]] + distractors
+    random.shuffle(options)
     return {
-        "ρ": round(0.6 + difficulty * 0.4 * random.random(), 3),
-        "I": round(0.8 + difficulty * 0.2 * random.random(), 3),
-        "SQI": round(0.7 + difficulty * 0.3 * random.random(), 3),
+        "type": "matchup",
+        "prompt": word,
+        "options": options,
+        "answer": definitions[word],
+        "resonance": _resonance(),
+        "timestamp": time.time(),
     }
 
-# ----------------------------------------------------------------
-class MatchUpExercise:
-    """Pair a word with its synonym or antonym."""
 
-    @staticmethod
-    def generate(word: str, candidates: List[str], synonym: bool = True) -> Dict:
-        """Generate a matchup question."""
-        correct = candidates[0]
-        distractors = random.sample(candidates[1:], min(3, len(candidates) - 1))
-        options = [correct] + distractors
-        random.shuffle(options)
+def generate_anagram():
+    """Unscramble a shuffled word."""
+    word = random.choice(["planet", "quantum", "light", "field", "resonance"])
+    shuffled = "".join(random.sample(word, len(word)))
+    return {
+        "type": "anagram",
+        "prompt": shuffled,
+        "options": [],
+        "answer": word,
+        "resonance": _resonance(),
+        "timestamp": time.time(),
+    }
 
-        data = {
-            "type": "matchup",
-            "mode": "synonym" if synonym else "antonym",
-            "prompt": word,
-            "options": options,
-            "answer": correct,
-            "resonance": _resonance_field(0.6),
-            "timestamp": time.time(),
-        }
-        logger.info(f"[MatchUpExercise] Generated {data['mode']} for '{word}'")
-        return data
 
-# ----------------------------------------------------------------
-class AnagramExercise:
-    """Scramble and reconstruct a word."""
+def generate_unjumble():
+    """Reorder words into a correct phrase."""
+    phrase = random.choice([
+        "quantum field resonance",
+        "light wave interaction",
+        "semantic energy exchange"
+    ])
+    words = phrase.split()
+    random.shuffle(words)
+    return {
+        "type": "unjumble",
+        "prompt": " ".join(words),
+        "options": words,
+        "answer": phrase,
+        "resonance": _resonance(),
+        "timestamp": time.time(),
+    }
 
-    @staticmethod
-    def generate(word: str) -> Dict:
-        chars = list(word)
-        random.shuffle(chars)
-        scrambled = "".join(chars)
 
-        data = {
-            "type": "anagram",
-            "prompt": scrambled,
-            "answer": word,
-            "resonance": _resonance_field(0.5),
-            "timestamp": time.time(),
-        }
-        logger.info(f"[AnagramExercise] Generated anagram for '{word}' → '{scrambled}'")
-        return data
+# ================================================================
+# 🧠 New Phase 45G.9 Exercise Types
+# ================================================================
 
-# ----------------------------------------------------------------
-class UnjumbleExercise:
-    """Reorder a phrase or sequence."""
+def generate_flashcard():
+    """Quick recall of concept ↔ definition (reinforcement)."""
+    cards = {
+        "Photon": "quantum of electromagnetic energy",
+        "Entropy": "measure of disorder or randomness",
+        "Amplitude": "maximum displacement in oscillation",
+        "Frequency": "number of oscillations per second",
+    }
+    term = random.choice(list(cards.keys()))
+    correct = cards[term]
+    distractors = random.sample(
+        [v for k, v in cards.items() if k != term], 3
+    )
+    options = [correct] + distractors
+    random.shuffle(options)
+    return {
+        "type": "flashcard",
+        "prompt": f"What is the definition of '{term}'?",
+        "options": options,
+        "answer": correct,
+        "resonance": _resonance(),
+        "timestamp": time.time(),
+    }
 
-    @staticmethod
-    def generate(phrase: str) -> Dict:
-        words = phrase.split()
-        scrambled = words.copy()
-        random.shuffle(scrambled)
 
-        data = {
-            "type": "unjumble",
-            "prompt": " ".join(scrambled),
-            "answer": phrase,
-            "resonance": _resonance_field(0.7),
-            "timestamp": time.time(),
-        }
-        logger.info(f"[UnjumbleExercise] Generated unjumble for phrase '{phrase}'")
-        return data
+def generate_find_match():
+    """Synonym/antonym resonance challenge."""
+    pairs = {
+        "happy": ("joyful", "sad"),
+        "bright": ("luminous", "dim"),
+        "fast": ("quick", "slow"),
+        "calm": ("peaceful", "angry"),
+    }
+    word = random.choice(list(pairs.keys()))
+    synonym, antonym = pairs[word]
+    mode = random.choice(["synonym", "antonym"])
+    correct = synonym if mode == "synonym" else antonym
+    options = random.sample([synonym, antonym, "neutral", "random"], 4)
+    return {
+        "type": "find_match",
+        "prompt": f"Select the {mode} of '{word}'",
+        "options": options,
+        "answer": correct,
+        "resonance": _resonance(),
+        "timestamp": time.time(),
+    }
 
-# ----------------------------------------------------------------
-def generate_sample_batch() -> List[Dict]:
-    """Produce a small batch of demo exercises."""
-    return [
-        MatchUpExercise.generate("happy", ["joyful", "sad", "angry", "content"]),
-        AnagramExercise.generate("planet"),
-        UnjumbleExercise.generate("quantum wave resonance"),
+
+def generate_spin_wheel():
+    """Adaptive linguistic creativity challenge."""
+    contexts = [
+        ("river", "Describe a wave using this context."),
+        ("music", "Relate resonance to this domain."),
+        ("emotion", "Express 'energy' in this context."),
+        ("light", "Imagine what color represents this feeling."),
     ]
+    topic, instruction = random.choice(contexts)
+    hint = random.choice(["flow", "vibration", "intensity", "tone"])
+    return {
+        "type": "spin_wheel",
+        "prompt": f"{instruction}",
+        "options": [topic, hint, "skip"],
+        "answer": topic,  # open-ended symbolic response
+        "resonance": _resonance(),
+        "timestamp": time.time(),
+    }
 
+
+# ================================================================
+# 🚀 Test Harness
+# ================================================================
 if __name__ == "__main__":
-    batch = generate_sample_batch()
-    for ex in batch:
-        print(ex)
+    logging.basicConfig(level=logging.INFO)
+    gens = [
+        generate_matchup,
+        generate_anagram,
+        generate_unjumble,
+        generate_flashcard,
+        generate_find_match,
+        generate_spin_wheel,
+    ]
+    for gen in gens:
+        ex = gen()
+        print(f"\n▶ {ex['type'].upper()} :: {ex['prompt']}")
+        print(json.dumps(ex, indent=2))

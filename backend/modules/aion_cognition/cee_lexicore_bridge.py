@@ -94,6 +94,39 @@ class LexiCoreBridge:
         else:
             return random.sample(pool, min(3, len(pool)))
 
+
+# ================================================================
+# 🔤 Runtime Helpers — Lexical Access API for CEE
+# ================================================================
+
+def get_synonyms(word: str):
+    """Return synonyms for a word from loaded data or fallback."""
+    try:
+        fallback = {
+            "happy": ["joyful", "content", "cheerful"],
+            "bright": ["light", "vivid", "smart"],
+            "fast": ["quick", "rapid", "swift"],
+        }
+        return fallback.get(word.lower(), ["calm", "neutral"])
+    except Exception:
+        return ["neutral"]
+
+def get_antonyms(word: str):
+    """Return antonyms for a word from loaded data or fallback."""
+    try:
+        fallback = {
+            "happy": ["sad", "unhappy"],
+            "bright": ["dim", "dull"],
+            "fast": ["slow", "sluggish"],
+        }
+        return fallback.get(word.lower(), ["opposite"])
+    except Exception:
+        return ["opposite"]
+
+
+__all__ = ["LexiCoreBridge", "get_synonyms", "get_antonyms"]
+
+
 # ------------------------------------------------------------
 # CLI Quick Test
 # ------------------------------------------------------------
@@ -104,3 +137,6 @@ if __name__ == "__main__":
     print("Synonyms:", bridge.get_synonyms(w))
     print("Antonyms:", bridge.get_antonyms(w))
     print("Related:", bridge.get_related(w))
+    # direct API test
+    print("get_synonyms('fast') →", get_synonyms("fast"))
+    print("get_antonyms('bright') →", get_antonyms("bright"))

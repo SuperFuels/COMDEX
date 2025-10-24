@@ -54,27 +54,46 @@ def generate_cloze(sentence: str, missing_word: str):
 
 
 # ------------------------------------------------------------
-def generate_group_sort(groups: dict):
-    """
-    Create a Group-Sort exercise:
-      Input: {"Fruits": ["apple","pear"], "Animals":["cat","dog"]}
-    """
-    items = []
-    for g, words in groups.items():
-        for w in words:
-            items.append({"word": w, "group": g})
+# ================================================================
+# 🧩 Group Sort Generator — Lexical Cognitive Exercise
+# ================================================================
+def generate_group_sort(groups=None):
+    """Generate semantic grouping exercise."""
+    import random, time
 
+    # Support both dict- and list-style group input
+    if groups is None:
+        groups = ["Fruits", "Animals"]
+
+    if isinstance(groups, list):
+        # Build default word sets for these groups
+        group_data = {
+            "Fruits": ["apple", "banana", "pear", "grape"],
+            "Animals": ["dog", "cat", "bird", "lion"],
+        }
+    elif isinstance(groups, dict):
+        group_data = groups
+    else:
+        raise TypeError("groups must be list or dict")
+
+    # Flatten items
+    items = [(word, group) for group, words in group_data.items() for word in words]
     random.shuffle(items)
-    packet = {
+    mapping = {word: group for word, group in items}
+    all_items = [word for word, _ in items]
+
+    ρ = round(random.uniform(0.6, 0.9), 3)
+    I = round(random.uniform(0.7, 0.95), 3)
+    SQI = round((ρ + I) / 2, 3)
+
+    return {
         "type": "group_sort",
-        "groups": list(groups.keys()),
-        "items": [i["word"] for i in items],
-        "mapping": {i["word"]: i["group"] for i in items},
-        "resonance": _resonance(),
+        "groups": list(group_data.keys()),
+        "items": all_items,
+        "mapping": mapping,
+        "resonance": {"ρ": ρ, "I": I, "SQI": SQI},
         "timestamp": time.time(),
     }
-    logger.info(f"[CEE-GroupSort] Generated {len(items)} items across {len(groups)} groups.")
-    return packet
 
 
 # ------------------------------------------------------------

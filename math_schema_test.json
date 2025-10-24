@@ -1,0 +1,21 @@
+{
+  "type": "equation_match",
+  "prompt": "Simplify or match: (x + 1)**2",
+  "options": [
+    "x**2 + 1",
+    "x**2 + x + 1",
+    "(x + 2)**2",
+    "x**2 + 2*x + 1"
+  ],
+  "answer": "x**2 + 2*x + 1",
+  "resonance": {
+    "\u03c1": 0.147,
+    "I": 0.839,
+    "SQI": 0.959
+  },
+  "timestamp": 1761342734.2208178,
+  "meta": {
+    "difficulty": "medium",
+    "topic": "algebra"
+  }
+}
