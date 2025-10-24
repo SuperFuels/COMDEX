@@ -51,6 +51,34 @@ class GoalEngine:
         self.active_goals: dict[str, Goal] = {}
         self._load_state()
 
+    # ─────────────────────────────────────────────
+    def create(self, goal_name, priority=0.5, source="system", metadata=None):
+        """
+        Register a new goal into the active goal pool.
+        This allows InstructionInterpreter and other modules
+        to spawn intent nodes that Aion can act upon or track.
+        """
+        if not goal_name:
+            return None
+
+        goal = {
+            "name": goal_name,
+            "priority": priority,
+            "source": source,
+            "timestamp": time.time(),
+            "metadata": metadata or {},
+            "status": "active"
+        }
+
+        # Store or append to the goal registry
+        if not hasattr(self, "goals"):
+            self.goals = []
+
+        self.goals.append(goal)
+
+        print(f"[GoalEngine] 🎯 Created goal: {goal_name} (priority={priority}, source={source})")
+        return goal
+
     # ─────────────────────────────────────────
     def _load_state(self):
         if GOAL_STATE.exists():

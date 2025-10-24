@@ -117,6 +117,33 @@ class MeaningFieldEngine:
         return self.field
 
     # ─────────────────────────────────────────
+    def register(self, concept: str, data: dict):
+        """
+        Phase 41A.3 — Register lexical or semantic entry.
+        Inserts or updates a concept node in the Meaning Field.
+        """
+        if not hasattr(self, "field"):
+            self.field = {"timestamp": __import__('time').time(), "clusters": []}
+
+        cluster = {
+            "center": concept,
+            "definition": data.get("definition", ""),
+            "synonyms": data.get("synonyms", []),
+            "antonyms": data.get("antonyms", []),
+            "emotion_bias": data.get("emotion_bias", 0.5),
+            "goal_alignment": data.get("goal_alignment", 0.0),
+            "semantic_strength": data.get("semantic_strength", 1.0),
+            "timestamp": __import__('time').time(),
+        }
+
+        # Replace if concept already exists
+        existing = next((c for c in self.field["clusters"] if c["center"] == concept), None)
+        if existing:
+            existing.update(cluster)
+        else:
+            self.field["clusters"].append(cluster)
+
+    # ─────────────────────────────────────────
     def get_clusters(self, min_links: int = 1):
         """Return clusters above a minimum link threshold."""
         if not self.field or not self.field.get("clusters"):

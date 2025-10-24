@@ -1,0 +1,23 @@
+[
+  {
+    "goal": "focus_equilibrium",
+    "status": "satisfied",
+    "old_weight": 0.5,
+    "new_weight": 0.575,
+    "timestamp": 1761300761.3131316
+  },
+  {
+    "goal": "stabilize_drift",
+    "status": "satisfied",
+    "old_weight": 0.5,
+    "new_weight": 0.575,
+    "timestamp": 1761300761.3134546
+  },
+  {
+    "goal": "forecast_harmonic",
+    "status": "satisfied",
+    "old_weight": 0.5,
+    "new_weight": 0.575,
+    "timestamp": 1761300761.313769
+  }
+]

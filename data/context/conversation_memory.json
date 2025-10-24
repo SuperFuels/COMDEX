@@ -1,0 +1,142 @@
+[
+  {
+    "timestamp": 1761302517.1588814,
+    "user_text": "Could it self-correct?",
+    "system_response": "Curious\u2014running prediction.",
+    "emotion_state": "curious",
+    "semantic_field": "exploration"
+  },
+  {
+    "timestamp": 1761302612.7181458,
+    "user_text": "System feels balanced.",
+    "system_response": "Affirming equilibrium.",
+    "emotion_state": "calm",
+    "semantic_field": "stability"
+  },
+  {
+    "timestamp": 1761302612.7186773,
+    "user_text": "Analyze the resonance pattern.",
+    "system_response": "Computing harmonic spectrum.",
+    "emotion_state": "analytical",
+    "semantic_field": "resonance"
+  },
+  {
+    "timestamp": 1761302612.719102,
+    "user_text": "Could it self-correct?",
+    "system_response": "Curious \u2014 evaluating self-regulation.",
+    "emotion_state": "curious",
+    "semantic_field": "adaptation"
+  },
+  {
+    "timestamp": 1761302677.9524765,
+    "user_text": "System feels balanced.",
+    "system_response": "Affirming equilibrium.",
+    "emotion_state": "calm",
+    "semantic_field": "stability"
+  },
+  {
+    "timestamp": 1761302677.9529777,
+    "user_text": "Analyze the resonance pattern.",
+    "system_response": "Computing harmonic spectrum.",
+    "emotion_state": "analytical",
+    "semantic_field": "resonance"
+  },
+  {
+    "timestamp": 1761302677.9533985,
+    "user_text": "Could it self-correct?",
+    "system_response": "Curious \u2014 evaluating self-regulation.",
+    "emotion_state": "curious",
+    "semantic_field": "adaptation"
+  },
+  {
+    "timestamp": 1761302805.1892152,
+    "user_text": "System feels balanced.",
+    "system_response": "Affirming equilibrium.",
+    "emotion_state": "calm",
+    "semantic_field": "stability"
+  },
+  {
+    "timestamp": 1761302805.189777,
+    "user_text": "Analyze the resonance pattern.",
+    "system_response": "Computing harmonic spectrum.",
+    "emotion_state": "analytical",
+    "semantic_field": "resonance"
+  },
+  {
+    "timestamp": 1761302805.1902115,
+    "user_text": "Could it self-correct?",
+    "system_response": "Curious \u2014 evaluating self-regulation.",
+    "emotion_state": "curious",
+    "semantic_field": "adaptation"
+  },
+  {
+    "timestamp": 1761302861.424326,
+    "user_text": "System feels balanced.",
+    "system_response": "Affirming equilibrium.",
+    "emotion_state": "calm",
+    "semantic_field": "stability"
+  },
+  {
+    "timestamp": 1761302861.4248416,
+    "user_text": "Analyze the resonance pattern.",
+    "system_response": "Computing harmonic spectrum.",
+    "emotion_state": "analytical",
+    "semantic_field": "resonance"
+  },
+  {
+    "timestamp": 1761302861.4252255,
+    "user_text": "Could it self-correct?",
+    "system_response": "Curious \u2014 evaluating self-regulation.",
+    "emotion_state": "curious",
+    "semantic_field": "adaptation"
+  },
+  {
+    "timestamp": 1761302935.5283852,
+    "user_text": "System feels balanced.",
+    "system_response": "Affirming equilibrium.",
+    "emotion_state": "calm",
+    "semantic_field": "stability"
+  },
+  {
+    "timestamp": 1761302935.528894,
+    "user_text": "Analyze the resonance pattern.",
+    "system_response": "Computing harmonic spectrum.",
+    "emotion_state": "analytical",
+    "semantic_field": "resonance"
+  },
+  {
+    "timestamp": 1761302935.5292752,
+    "user_text": "Could it self-correct?",
+    "system_response": "Curious \u2014 evaluating self-regulation.",
+    "emotion_state": "curious",
+    "semantic_field": "adaptation"
+  },
+  {
+    "timestamp": 1761303167.4509566,
+    "user_text": "The system feels steady.",
+    "system_response": "Affirming equilibrium.",
+    "emotion_state": "calm",
+    "semantic_field": null
+  },
+  {
+    "timestamp": 1761303167.451406,
+    "user_text": "Resonance field is varying.",
+    "system_response": "Analytical monitoring.",
+    "emotion_state": "analytical",
+    "semantic_field": null
+  },
+  {
+    "timestamp": 1761303222.0335727,
+    "user_text": "The system feels steady.",
+    "system_response": "Affirming equilibrium.",
+    "emotion_state": "calm",
+    "semantic_field": null
+  },
+  {
+    "timestamp": 1761303222.0340538,
+    "user_text": "Resonance field is varying.",
+    "system_response": "Analytical monitoring.",
+    "emotion_state": "analytical",
+    "semantic_field": null
+  }
+]

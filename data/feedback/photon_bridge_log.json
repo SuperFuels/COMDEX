@@ -34,6 +34,79 @@
       "target": "concept:resonant_equilibrium",
       "amplitude": 0.85,
       "phase": 0.0
+    },
+    {
+      "timestamp": 1761265188.580163,
+      "type": "attention_focus",
+      "target": "concept:equilibrium",
+      "amplitude": 0.85,
+      "phase": 0.0
+    },
+    {
+      "timestamp": 1761300539.6620202,
+      "type": "attention_focus",
+      "target": "concept:equilibrium",
+      "amplitude": 0.85,
+      "phase": 0.0
+    },
+    {
+      "timestamp": 1761300642.2506766,
+      "type": "attention_focus",
+      "target": "concept:equilibrium",
+      "amplitude": 0.85,
+      "phase": 0.0
+    },
+    {
+      "timestamp": 1761300761.304523,
+      "type": "attention_focus",
+      "target": "concept:equilibrium",
+      "amplitude": 0.85,
+      "phase": 0.0
+    },
+    {
+      "timestamp": 1761302677.9540339,
+      "topics": [],
+      "dominant_topic": null,
+      "tone": "neutral",
+      "energy": 0.5,
+      "confidence": 0.0,
+      "recent_messages": [],
+      "session_id": 489250,
+      "resonance_score": 0.35,
+      "coherence_index": 0.0
+    },
+    {
+      "timestamp": 1761302861.4258728,
+      "topics": [],
+      "dominant_topic": null,
+      "tone": "neutral",
+      "energy": 0.5,
+      "confidence": 0.0,
+      "recent_messages": [],
+      "session_id": 489250,
+      "resonance_score": 0.35,
+      "coherence_index": 0.0,
+      "type": "unlabeled",
+      "target": "unknown",
+      "source": "ContextAKGBridge"
+    },
+    {
+      "type": "context_snapshot",
+      "target": "AKG",
+      "payload": {
+        "timestamp": 1761302935.5299253,
+        "topics": [],
+        "dominant_topic": null,
+        "tone": "neutral",
+        "energy": 0.5,
+        "confidence": 0.0,
+        "recent_messages": [],
+        "session_id": 489250,
+        "resonance_score": 0.35,
+        "coherence_index": 0.0
+      },
+      "timestamp": 1761302935.5299497,
+      "source": "ContextAKGBridge"
     }
   ]
 }

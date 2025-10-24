@@ -125,29 +125,48 @@ class PhotonAKGBridge:
     # ─────────────────────────────────────────
     # Phase 40C — Harmonic Emission Interface
     # ─────────────────────────────────────────
-    def emit(self, packet: dict):
+    def emit(self, event_type=None, payload=None):
         """
-        Accepts a correction or photon-field packet and logs it for QQC relay.
-        This provides a unified entry point for the HSE to transmit feedback.
+        Unified emission interface for PhotonAKGBridge.
+        Supports:
+        • emit(packet_dict)
+        • emit("context_snapshot", payload_dict)
         """
-        packet["timestamp"] = packet.get("timestamp", time.time())
-        msg = f"[PAB] Emitting {packet.get('type')} → {packet.get('target', 'unknown')}"
-        logger.info(msg)
-        print(msg)
+        import time, json
+        from pathlib import Path
 
-        # append to persistent log
-        self.emission_log.parent.mkdir(parents=True, exist_ok=True)
-        if self.emission_log.exists():
-            with open(self.emission_log) as f:
-                data = json.load(f)
+        # Normalize and guarantee 'type' exists
+        if payload is None and isinstance(event_type, dict):
+            packet = event_type
+            packet.setdefault("type", packet.get("event_type", "unlabeled"))
         else:
-            data = {"packets": []}
-        data["packets"].append(packet)
+            packet = payload or {}
+            packet["type"] = event_type or packet.get("type", "unlabeled")
+
+        # Safe defaults
+        packet["timestamp"] = packet.get("timestamp", time.time())
+        packet.setdefault("target", "unknown")
+        packet.setdefault("source", "ContextAKGBridge")
+
+        msg = f"[PAB] Emitting {packet.get('type', 'unlabeled')} → {packet.get('target', 'unknown')}"
+        print(msg)
+        try:
+            logger.info(msg)
+        except Exception:
+            pass
+
+        # Persistent log
+        self.emission_log = getattr(self, "emission_log", Path("data/akg/photon_emissions.json"))
+        self.emission_log.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            existing = json.load(open(self.emission_log)) if self.emission_log.exists() else {"packets": []}
+        except Exception:
+            existing = {"packets": []}
+        existing["packets"].append(packet)
         with open(self.emission_log, "w") as f:
-            json.dump(data, f, indent=2)
+            json.dump(existing, f, indent=2)
+
         return True
-
-
 # ─────────────────────────────────────────────
 try:
     PAB

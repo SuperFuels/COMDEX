@@ -145,6 +145,29 @@ class LanguageAtomBuilder:
         logger.info(f"[LAB→AKG] Reinforced {reinforced} concepts from photon-derived atoms.")
         return reinforced
 
+    # ─────────────────────────────────────────
+    def create_atom(self, lexeme: str, definition: str | None = None):
+        """
+        Phase 41A.2 — Lexical Atom Constructor
+        Creates a new Language Atom from a lexeme and optional definition.
+        Returns a dict reference usable by MFG and AKG.
+        """
+        atom = {
+            "id": f"atom:{lexeme}",
+            "lexeme": lexeme,
+            "definition": definition or "",
+            "glyphs": [],
+            "neighbors": [],
+            "resonance": 0.8,
+            "emotion_bias": 0.5,
+            "goal_alignment": 0.0,
+            "timestamp": __import__('time').time(),
+        }
+        # Append to internal atom list if not already present
+        if not any(a["lexeme"] == lexeme for a in getattr(self, "atoms", [])):
+            self.atoms.append(atom)
+        return atom
+
     # ─────────────────────────────────────────────
     def rebuild_from_photons(self, photons: list):
         """

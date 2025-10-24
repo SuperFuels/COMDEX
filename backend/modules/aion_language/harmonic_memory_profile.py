@@ -14,6 +14,7 @@ HMP_PATH = Path("data/analysis/harmonic_memory.json")
 class HarmonicMemoryProfile:
     def __init__(self):
         self.events = []
+        self.memory_log = []
         self.load()
 
     # ─────────────────────────────────────────────
@@ -23,6 +24,15 @@ class HarmonicMemoryProfile:
         self.events.append(record)
         logger.info(f"[HMP] Logged harmonic event for {record.get('target')}")
         self.save()
+
+    def log_entry(self, entry: dict):
+        """Append a reinforcement or learning event into harmonic memory."""
+        if not isinstance(entry, dict):
+            return
+        entry["timestamp"] = entry.get("timestamp", time.time())
+        self.memory_log.append(entry)
+        self._save()
+        print(f"[HMP] 🧩 Logged memory entry for {entry.get('goal', 'unknown')} ({entry.get('status')})")
 
     # ─────────────────────────────────────────────
     def average_gain(self):
@@ -39,11 +49,18 @@ class HarmonicMemoryProfile:
         return sum(e.get("drift_mag", 0.0) for e in self.events[-20:]) / min(len(self.events), 20)
 
     # ─────────────────────────────────────────────
-    def save(self):
+    def _save(self):
+        """Persist harmonic memory (events + reinforcement entries)."""
         HMP_PATH.parent.mkdir(parents=True, exist_ok=True)
         with open(HMP_PATH, "w") as f:
-            json.dump({"timestamp": time.time(), "events": self.events[-200:]}, f, indent=2)
-
+            json.dump(
+                {
+                    "timestamp": time.time(),
+                    "events": self.events[-200:],
+                },
+                f,
+                indent=2,
+            )
     # ─────────────────────────────────────────────
     def load(self):
         if HMP_PATH.exists():
