@@ -1,0 +1,70 @@
+{
+  "timestamp": 1761324091.172495,
+  "wikigraph": {
+    "nodes": {
+      "photon": {
+        "title": "Photon",
+        "categories": [
+          "Quantum"
+        ],
+        "links": [
+          "Wave",
+          "Light"
+        ],
+        "resonance": {
+          "\u03a6_semantic": null,
+          "\u03c8_phonetic": null,
+          "\u03b7_etymic": null
+        }
+      },
+      "wave": {
+        "title": "Wave",
+        "categories": [
+          "Physics"
+        ],
+        "links": [
+          "Photon"
+        ],
+        "resonance": {
+          "\u03a6_semantic": null,
+          "\u03c8_phonetic": null,
+          "\u03b7_etymic": null
+        }
+      }
+    },
+    "edges": [
+      {
+        "source": "photon",
+        "target": "wave",
+        "type": "concept_link",
+        "weight": 1.0,
+        "resonance": {
+          "\u03a6_link": null
+        }
+      },
+      {
+        "source": "photon",
+        "target": "light",
+        "type": "concept_link",
+        "weight": 1.0,
+        "resonance": {
+          "\u03a6_link": null
+        }
+      },
+      {
+        "source": "wave",
+        "target": "photon",
+        "type": "concept_link",
+        "weight": 1.0,
+        "resonance": {
+          "\u03a6_link": null
+        }
+      }
+    ]
+  },
+  "meta": {
+    "schema": "wikigraph.v1",
+    "source": "Wikipedia",
+    "ready_for_atomization": true
+  }
+}

@@ -3,6 +3,7 @@ Adaptive Reasoning Refiner — Phase 44C
 -------------------------------------
 Links EmotionalToneModulator → reasoning control.
 Dynamically scales reasoning depth, exploration, and response style.
+Now includes persistent bias_state for introspective habit and goal alignment.
 
 Author: Tessaris Research Group
 Date: Phase 44C — October 2025
@@ -17,6 +18,7 @@ class AdaptiveReasoningRefiner:
     def __init__(self):
         self.last_adjustment = None
         self.reasoning_bias = {"depth": 1.0, "exploration": 1.0, "verbosity": 1.0}
+        self.bias_state = self.reasoning_bias.copy()  # ✅ Persistent copy
         print("🧮 AdaptiveReasoningRefiner global instance initialized as REASON")
 
     def compute_bias(self):
@@ -48,16 +50,16 @@ class AdaptiveReasoningRefiner:
             bias[k] = round(bias[k] * (0.8 + 0.4 * scale), 2)
 
         self.reasoning_bias = bias
+        self.bias_state = bias  # ✅ Persist for access by HabitEngine, Alignment layers
         self.last_adjustment = time.time()
         print(f"[AdaptiveReasoningRefiner] 🧭 Bias set → {bias}")
         return bias
 
     def refine_reasoning(self, query: str):
-        """Apply bias before reasoning through MFG."""
+        """Apply bias before reasoning through MeaningFieldEngine."""
         bias = self.compute_bias()
         print(f"[AdaptiveReasoningRefiner] 🧠 Refining reasoning for tone '{TONE.state['tone']}'")
 
-        # Example: modify query or reasoning behavior
         reasoning_depth = bias["depth"]
         exploration = bias["exploration"]
 
@@ -65,7 +67,7 @@ class AdaptiveReasoningRefiner:
         GOALS.log_reasoning_event(query, result, bias)
         return {"query": query, "result": result, "bias": bias}
 
-# Global instance
+# 🔄 Global instance
 try:
     REASON
 except NameError:

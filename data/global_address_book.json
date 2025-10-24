@@ -169,5 +169,51 @@
     "meta": {
       "address": "ucs://local/5b548bd2-d226-4351-a42f-38b3844b6574#container"
     }
+  },
+  "light": {
+    "id": "light",
+    "name": "Light",
+    "geometry": "Unknown",
+    "type": "knowledge_atom",
+    "meta": {
+      "address": "ucs://local/light#atom"
+    }
+  },
+  "photon": {
+    "id": "photon",
+    "name": "Photon",
+    "geometry": "Unknown",
+    "type": "knowledge_atom",
+    "meta": {
+      "address": "ucs://local/photon#atom"
+    }
+  },
+  "wave": {
+    "id": "wave",
+    "name": "Wave",
+    "geometry": "Unknown",
+    "type": "knowledge_atom",
+    "meta": {
+      "address": "ucs://local/wave#atom"
+    }
+  },
+  "HOB-hoberman_knowledge_sphere": {
+    "id": "HOB-hoberman_knowledge_sphere",
+    "name": "HOB-hoberman_knowledge_sphere",
+    "geometry": "Hoberman Sphere",
+    "type": "container",
+    "meta": {
+      "address": "ucs://local/HOB-hoberman_knowledge_sphere#container"
+    }
+  },
+  "hoberman_knowledge_sphere": {
+    "id": "hoberman_knowledge_sphere",
+    "name": "HOB-hoberman_knowledge_sphere",
+    "geometry": "Hoberman Sphere",
+    "type": "container",
+    "meta": {
+      "address": "ucs://local/hoberman_knowledge_sphere#container",
+      "kind": "hoberman"
+    }
   }
 }

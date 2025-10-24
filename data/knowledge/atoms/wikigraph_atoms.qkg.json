@@ -1,0 +1,81 @@
+{
+  "timestamp": 1761319809.1319132,
+  "atom_count": 3,
+  "hash": "8cd2156398e360aa2f69c37af7356caa428929752fb55a653a9fa8b04d1e12f5",
+  "atoms": [
+    {
+      "id": "light",
+      "kind": "knowledge_atom",
+      "title": "Light",
+      "caps": [
+        "semantic",
+        "knowledge",
+        "resonant"
+      ],
+      "requires": [],
+      "produces": [],
+      "tags": [
+        "Physics",
+        "Optics"
+      ],
+      "nodes": [
+        "photon"
+      ],
+      "address": null,
+      "meta": {
+        "resonance": {},
+        "origin": "wikigraph",
+        "timestamp": 1761319809.1283345
+      }
+    },
+    {
+      "id": "photon",
+      "kind": "knowledge_atom",
+      "title": "Photon",
+      "caps": [
+        "semantic",
+        "knowledge",
+        "resonant"
+      ],
+      "requires": [],
+      "produces": [],
+      "tags": [
+        "Quantum Physics"
+      ],
+      "nodes": [
+        "light",
+        "wave"
+      ],
+      "address": null,
+      "meta": {
+        "resonance": {},
+        "origin": "wikigraph",
+        "timestamp": 1761319809.1292398
+      }
+    },
+    {
+      "id": "wave",
+      "kind": "knowledge_atom",
+      "title": "Wave",
+      "caps": [
+        "semantic",
+        "knowledge",
+        "resonant"
+      ],
+      "requires": [],
+      "produces": [],
+      "tags": [
+        "Physics"
+      ],
+      "nodes": [
+        "light"
+      ],
+      "address": null,
+      "meta": {
+        "resonance": {},
+        "origin": "wikigraph",
+        "timestamp": 1761319809.1299915
+      }
+    }
+  ]
+}

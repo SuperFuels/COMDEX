@@ -1,20 +1,4 @@
 {
-  "timestamp": 1761264621.9533968,
-  "matrix": {
-    "resonance": {
-      "harmony": 0.621,
-      "frequency": 0.621,
-      "dissonance": -0.621
-    },
-    "balance": {
-      "stability": 0.621,
-      "harmony": 0.621,
-      "imbalance": -0.621
-    },
-    "light": {
-      "illumination": 0.621,
-      "radiance": 0.621,
-      "darkness": -0.621
-    }
-  }
+  "timestamp": null,
+  "matrix": {}
 }

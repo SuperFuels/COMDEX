@@ -75,3 +75,10 @@ try:
 except NameError:
     LRM = ThesaurusLinker()
     print("🔗 ThesaurusLinker global instance initialized as LRM")
+
+if __name__ == "__main__":
+    from backend.modules.aion_language.meaning_field_engine import MFG
+    print("🔗 Building Language Resonance Matrix (LRM)…")
+    LRM.build_from_MFG()
+    LRM.export()
+    print("✅ ThesaurusLinker completed and exported successfully.")
