@@ -81,21 +81,25 @@ def generate_anagram():
     }
 
 
-def generate_unjumble():
-    """Reorder words into a correct phrase."""
-    phrase = random.choice([
-        "quantum field resonance",
-        "light wave interaction",
-        "semantic energy exchange"
-    ])
-    words = phrase.split()
-    random.shuffle(words)
+def generate_unjumble(word=None):
+    """Unscramble a given or random word."""
+    import random, time
+
+    if not word:
+        word = random.choice(["resonance", "quantum", "wave", "field", "light"])
+
+    scrambled = "".join(random.sample(word, len(word)))
+
     return {
         "type": "unjumble",
-        "prompt": " ".join(words),
-        "options": words,
-        "answer": phrase,
-        "resonance": _resonance(),
+        "prompt": f"Unscramble the word: {scrambled}",
+        "options": [scrambled, word],
+        "answer": word,
+        "resonance": {
+            "ρ": round(random.uniform(0.6, 0.9), 3),
+            "I": round(random.uniform(0.8, 1.0), 3),
+            "SQI": round(random.uniform(0.7, 0.95), 3),
+        },
         "timestamp": time.time(),
     }
 

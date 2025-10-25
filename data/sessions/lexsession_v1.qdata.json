@@ -1,12 +1,12 @@
 {
-  "timestamp": 1761345950.2569718,
-  "session": "LEX-1761345950",
-  "entries": 9,
+  "timestamp": 1761347433.2324812,
+  "session": "LEX-1761347433",
+  "entries": 10,
   "averages": {
-    "\u03c1\u0304": 0.727,
-    "\u012a": 0.892,
-    "SQI\u0304": 0.806,
-    "performance": 0.111
+    "\u03c1\u0304": 0.746,
+    "\u012a": 0.877,
+    "SQI\u0304": 0.815,
+    "performance": 0.4
   },
   "schema": "LexSession.v1"
 }

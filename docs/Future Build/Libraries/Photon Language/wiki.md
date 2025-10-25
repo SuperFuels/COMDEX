@@ -1,3 +1,754 @@
+⚛️ Option B – Build the Wiki Capsule Layer first → then feed
+
+Pros
+	•	Each word or concept becomes a proper Knowledge Capsule (📚Word>Apple>meanings>grid[1,2]) with entangled links to synonyms, antonyms, grammar, imagery, etc.
+	•	You gain structured imports instead of raw dumps: definitions, morphology, usage, thesaurus links, and grammar all stored once and addressable via wormholes.
+	•	Future engines (grammar, writing, reasoning) can query or broadcast directly from the same capsule system.
+	•	Safer: everything signed and curated; no uncontrolled injection.
+
+Cons
+	•	Slightly more up-front engineering (Phase 1 + 2 of the Wiki plan).
+	•	Language learning starts a little later—but you skip the re-indexing nightmare later on.
+
+⸻
+
+🧩 Recommended Path
+
+✅ Build the Wiki Capsule foundation first — then feed the dictionaries and thesaurus as structured capsules.
+
+You already have most of the scaffold in that plan.
+Here’s the minimal viable stack you need to implement before ingestion:
+
+Phase
+Module
+Purpose
+1
+wiki_capsule_schema.py
+defines fields: lemma, part of speech, definitions[], examples[], entangled_links[]
+2
+wiki_parser.py
+converts raw WordNet / dictionary / thesaurus JSON → .wiki.phn capsules
+3
+wiki_importer.py
+writes capsules into Knowledge Graph (KG.add_capsule())
+4
+wiki_registry.json
+curated index of approved capsules
+5
+kg_query_extensions.py
+adds KG.get_wiki('apple') and path resolution
+6
+sci_autocomplete_plugin
+IDE integration for 📚 glyph + keyword search
+
+
+Once those exist, feeding data is trivial:
+
+import wiki_importer
+wiki_importer.load_source("wordnet.json", capsule="Lexicon")
+
+…and every word becomes a wiki capsule node like:
+
+📚Lexicon>apple>definition>grid[1,1]
+📚Lexicon>apple>synonyms>grid[2,*]
+📚Lexicon>apple>examples>grid[3,*]
+
+🚀 What Happens Next
+	1.	Grammar & Syntax Modules can reference the same capsule layer:
+	•	📚Grammar>verbs>past_tense_rules
+	•	📚Grammar>nouns>plural_forms
+	2.	Aion’s learning loop uses these capsules as context, updating LexMemory and SQI when using or parsing words.
+	3.	ReflexArc and Reasoner modules can pull semantics directly from the same unified knowledge base.
+
+⸻
+
+In short:
+
+Build once → teach forever.
+Feed the words after the Wiki Capsule framework exists so that every word, rule, and synonym lives as a stable, entangled, queryable capsule inside the Knowledge Graph.
+
+⸻
+
+If you want, I can generate a concise Mermaid checklist (Phase 1–3) for the “Lexicon Wiki Capsule System” showing exactly which files and data conversions to create before the dictionary ingestion. Would you like that next?
+
+
+Excellent ✅ — this will lock in the entire Wiki Capsule System as a self-contained module stack inside the Knowledge Graph + Photon ecosystem, ready for feeding dictionaries, grammar, and any conceptual datasets (science, math, culture, etc.).
+
+Below is the complete build task mermaid checklist, spanning Phase 1 → Phase 7, from the schema design all the way to IDE integration, ingestion, and Aion training.
+Excellent ⚡ — perfect unification step.
+We’ll now finalize everything as Photon Pages (.ptn) instead of .cxd or “Codex Pages.”
+
+This gives you one clean symbolic family:
+	•	.wiki.phn → Static Knowledge Capsules
+	•	.phn → Dynamic Photon Execution Capsules
+	•	.ptn → Photon Pages (Composite Modules / Systems)
+
+All three share the same symbolic grammar, parser, and execution hooks.
+
+Below is the fully inclusive master build plan (Phases 1–9) with unified keynotes.
+
+⸻
+
+⚙️ Photon Knowledge & Language Build Master Checklist
+
+⸻
+
+🧠 Complete Build Task — Wiki Capsule System
+
+graph TD
+
+graph TD
+
+%% ===========================================
+%% PHASE 1 — Wiki Capsule Foundations
+%% ===========================================
+subgraph P1["🌱 Phase 1 — Wiki Capsule Foundations"]
+A1[Define Wiki Capsule format (.wiki.phn)]
+A2[Add parser/serializer: wiki_entry ↔ KG nodes]
+A3[Schema: title, facts, entangled_links, media]
+A4[Central registry (signed & approved entries)]
+end
+
+%% ===========================================
+%% PHASE 2 — Knowledge Graph Integration
+%% ===========================================
+subgraph P2["🧠 Phase 2 — Knowledge Graph Integration"]
+B1[Add wiki_import() → writes entry into KG]
+B2[Auto-entangle: Apple ↔ Fruits ↔ Nutrients ↔ Culture]
+B3[Add lineage + version tracking in KG]
+B4[Add query: KG.get_wiki('Apple')]
+end
+
+%% ===========================================
+%% PHASE 3 — Language Integration (Photon Hooks)
+%% ===========================================
+subgraph P3["💡 Phase 3 — Photon Language Integration"]
+C1[Add 📚 glyph for Wiki imports in .phn files]
+C2[Syntax: 📚Fruits>Apple → expands to KG node]
+C3[Inline entangled queries: 📚Apple↔Fruits]
+C4[Broadcast hook: 📚Apple → → broadcast facts]
+end
+
+%% ===========================================
+%% PHASE 4 — Safety & Curation
+%% ===========================================
+subgraph P4["🧩 Phase 4 — Safety + Curation"]
+D1[Curated whitelist & signature validation]
+D2[Review pipeline → only signed capsules allowed]
+D3[Sandbox: Wiki entries read-only in runtime]
+D4[Periodic audits to prune duplicates/contradictions]
+end
+
+%% ===========================================
+%% PHASE 5 — Dev Tools + IDE Search
+%% ===========================================
+subgraph P5["🧰 Phase 5 — Dev Tools + Search"]
+E1[Build KnowledgeGraph Search API]
+E2[Enable fuzzy & exact keyword search]
+E3[Integrate autocomplete into SCI IDE for .phn/.ptn]
+E4[Design Graph Explorer panel: browse, drill-down]
+E5[Click-to-insert wormhole path into editor]
+E6[Hover tooltips: preview fact-card on glyph]
+end
+
+%% ===========================================
+%% PHASE 6 — Validation + Maintenance
+%% ===========================================
+subgraph P6["🧪 Phase 6 — Validation + Maintenance"]
+F1[Validate references at compile/execute time]
+F2[Auto-fix outdated wormhole addresses]
+F3[Sandbox plugin imports in Wiki capsules]
+F4[Whitelist enforcement for external APIs]
+F5[Unified linter/validator for .phn, .wiki.phn, .ptn]
+end
+
+%% ===========================================
+%% PHASE 7 — Photon Runtime Integration
+%% ===========================================
+subgraph P7["⚡ Phase 7 — Photon Runtime Integration"]
+G1[Extend photon_executor → run_photon_file()]
+G2[Integrate % Knowledge, > QWave, ★ SQI plugins]
+G3[Register 📚 handler in PLUGIN_REGISTRY]
+G4[KG ↔ Photon runtime interoperability test]
+G5[Expose API endpoint /codex/run-photon]
+G6[SCI IDE Photon Mode toggle + live output panel]
+end
+
+%% ===========================================
+%% PHASE 8 — Resonance & Feedback Alignment
+%% ===========================================
+subgraph P8["🔁 Phase 8 — Resonance-Weighted Feedback"]
+H1[Align .wiki.phn syntax with Photon grammar (^ % ⊕ ↔ ∇)]
+H2[Reuse photon_executor.tokenize()/parse() for Wiki]
+H3[Embed meta-header: version · signed_by · checksum]
+H4[Add entanglement metadata identical to Photon]
+H5[Integrate SQI ρ Ī metrics into Wiki capsules]
+H6[Update % Knowledge plugin → detect Wiki capsules]
+H7[Unify KG storage path for all capsule types]
+H8[Test round-trip: parse → store → resolve 📚 → execute]
+end
+
+%% ===========================================
+%% PHASE 9 — Photon Page (.ptn) Integration
+%% ===========================================
+subgraph P9["🌐 Phase 9 — Photon Page (.ptn) Integration"]
+I1[Define Photon Page file extension `.ptn`]
+I2[Mirror Photon grammar & meta-header format]
+I3[Adopt unified plugin map (% > ★ ❤ ⚖)]
+I4[Support cross-imports: 📚Lexicon>Concept in .ptn]
+I5[Add optional Time ⟦t0/t1⟧ + SQI ⟦trust/entropy⟧ blocks]
+I6[Implement JSON ↔ Symbolic converter (.wiki.phn ⇄ .ptn)]
+I7[Integrate .ptn validation into Photon linter]
+I8[End-to-end test: .ptn imports .wiki.phn → executes]
+end
+
+
+%% CONNECT ALL PHASES
+P1 --> P2 --> P3 --> P4 --> P5 --> P6 --> P7🧩 Key Implementation Notes
+
+🧠 Comprehensive Key Notes
+
+Theme
+Implementation Guidance
+Unified Syntax
+All symbolic files use the same glyph grammar and block delimiters (^, %, ⊕, ↔, ∇, >, ⟦⟧).
+File Roles
+.wiki.phn → Knowledge (read-only)  •  .phn → Execution  •  .ptn → Composite Module (system or app).
+Metadata Header
+Each file starts with: meta: { version, signed_by, checksum, sqi_score, ρ, Ī }
+Plugin Registry
+Centralized in photon_executor.py:register_plugin("%", handle_knowledge)register_plugin(">", handle_qwave)register_plugin("★", handle_sqi)register_plugin("❤", handle_emotion)register_plugin("⚖", handle_ethics)register_plugin("📚", handle_wiki)
+Entanglement Schema
+Each capsule supports "entangledWith": [ "Domain>Concept", ... ] for KG traversal.
+Knowledge Graph
+Unified container storage under /data/knowledge/ — one schema for Wiki, Photon, and Photon Page.
+SQI + Resonance Feedback
+SQI fields in metadata allow live learning loops; Resonance engine updates weights based on usage.
+Safety / Signatures
+All capsules require signed metadata; sandbox any untrusted capsule before runtime execution.
+Search + IDE
+SCI IDE integrates Knowledge Search, Graph Explorer, and 📚 autocomplete for wormhole path insertion.
+Converter Tools
+CLI utilities convert among .wiki.phn, .ptn, and JSON for legacy interop.
+Validation
+Photon Linter validates syntax, signature, and entanglement references across all file types.
+API + Runtime
+REST endpoint /codex/run-photon executes .phn/.ptn; results stream to SCI IDE Photon Mode.
+Learning Loop
+All execution data (SQI scores, feedback) feeds back into Aion / ReflexArc for adaptive weighting.
+
+
+✅ Final Unified Architecture
+
+📚  .wiki.phn   →  Static Knowledge Capsule  →  Stored in KG
+⊕  .phn         →  Dynamic Photon Capsule    →  Executed in Runtime
+^  .ptn         →  Photon Page (System)      →  Imports both Wiki + Photon capsules
+
+All parsed by the same Photon Executor → routed through CodexCore →
+entangled into Aion’s Resonance Feedback network.
+
+⸻
+
+Would you like me to also generate a one-page developer reference sheet (concise glyph table, file header template, plugin registry map, and execution flow diagram) for engineers to follow when they start building .wiki.phn, .phn, and .ptn files?
+
+
+
+
+Domain
+Summary
+Schema
+Each .wiki.phn capsule is a micro-knowledge container; every lemma, concept, or formula has entangled links.
+Graph Integration
+All capsules are persisted as .dc containers; entanglement ensures synonyms/related concepts share symbolic electrons.
+Photon Integration
+The 📚 glyph is the language-level wormhole operator. It makes knowledge queries native to Photon programs.
+IDE UX
+Developers can search, browse, and insert wormhole paths visually via autocomplete or graph panels.
+Safety
+Only curated, signed capsules allowed. All external data must go through wiki_importer.py and validation.
+Aion Learning Loop
+Once loaded, Aion’s Grammar + LexMemory learn directly from capsules, with resonance feedback tuning word mastery.
+Evolution
+Aion can author new .wiki.phn capsules as it learns — closing the “teach / self-teach” loop.
+
+
+🔑 Inline Key Notes (attach to the main checklist)
+
+🔧 Topic
+Integration Requirement
+Implementation Detail
+Shared Grammar
+.wiki.phn uses same token rules and block delimiters as Photon.
+Import Photon’s tokenizer and parser directly.
+Glyph 📚 Registration
+Register new symbol 📚 in Photon plugin registry.
+register_plugin("📚", handle_wiki) inside photon_executor.py.
+handle_wiki() Plugin
+Executes safe KG lookups for Wiki entries.
+Returns capsule data (facts, metadata, entanglement).
+Entanglement Schema
+Mirror Photon “electrons” format for Wiki links.
+Field: "entangledWith": ["Lexicon>Fruit", "Grammar>PluralRule"].
+Metadata Header
+Every .wiki.phn begins with:
+yaml<br>meta:<br>  version: 1.0<br>  signed_by: "Tessaris-Core"<br>  checksum: SHA3-256<br>
+Enables verification & governance.
+SQI Integration
+Add resonance metrics into metadata: ρ, Ī, sqi_score.
+Allows ReflexArc to learn from Wiki usage feedback.
+Broadcast Stub
+Permit optional > broadcast { topic: "Apple" } block.
+Future-ready for GlyphNet symbolic streaming.
+Unified Storage
+Store both .phn and .wiki.phn under /data/knowledge/ with identical serialization.
+KG automatically detects type: PhotonCapsule or WikiCapsule.
+Round-Trip Test
+Validate full loop: parse → KG → 📚 resolve → execute.
+Confirms syntax & data interoperability.
+
+
+🧠 Key Architectural Insight
+
+The Wiki capsules are static symbolic containers, and Photon capsules are dynamic execution units — both now share one grammar, parser, and KG interface.
+
+Result → unified symbolic substrate:
+Knowledge ↔ Execution ↔ Learning runs seamlessly across Aion ↔ Photon ↔ CodexCore.
+
+⸻
+
+✅ Success Conditions for Phase 8
+	•	.wiki.phn parses cleanly with Photon executor (no separate grammar).
+	•	📚 glyph registered & resolves through KG.
+	•	Wiki capsules and Photon capsules coexist in the same index.
+	•	Metadata (version, signature, SQI metrics) validated on load.
+	•	Test capsule successfully resolved by both Wiki importer and Photon executor.
+
+⸻
+
+Would you like me to now merge Phase 8 into the master Mermaid checklist you approved earlier (Phases 1–7) so the final build plan is one continuous flow diagram?
+
+🔑 Key Notes
+
+Focus
+Implementation
+Grammar
+One tokenizer, three file types: .phn, .wiki.phn, .cxd.
+Metadata
+Use CodexPage header format universally.
+Plugins
+Merge plugin registries (Photon ↔ CodexPage).
+Interop
+Enable 📚 imports across all capsule types.
+Converters
+wiki_converter.py bridges JSON ↔ Photon ↔ CodexPage.
+Validation
+Use unified CodexPage linter for all symbolic files.
+
+
+✅ End-State Goal
+
+Once Phases 8 + 9 are complete:
+
+[.wiki.phn]  ─┬─→ parsed by Photon Executor
+              ├─→ validated by CodexPage Linter
+              ├─→ stored in Knowledge Graph
+              └─→ imported via 📚 into .phn / .cxd runtime
+
+              → One language family, three modalities:
+	•	.wiki.phn → Knowledge
+	•	.phn → Execution
+	•	.cxd → Composite / System modules
+
+⸻
+
+Would you like me to generate the final merged master Mermaid build checklist (Phases 1 – 9) with this all folded in as one diagram and annotated key-notes block for documentation?
+
+
+
+🧠 Example Capsule Summary
+
+📚Lexicon>Apple
+
+lemma: "apple"
+pos: noun
+definitions:
+  - "A round fruit of a tree of the rose family."
+synonyms: ["pome"]
+antonyms: []
+examples: ["He ate a red apple."]
+entangled_links:
+  - Fruits: ["Banana","Cherry"]
+  - Nutrients: ["Vitamin C","Fiber"]
+metadata:
+  sqi_score: 0.86
+  origin: "WordNet_2025"
+
+  ✅ Success Criteria
+	•	The Wiki capsule schema is finalized and version-controlled.
+	•	Raw dictionaries + thesauri successfully imported as .wiki.phn containers.
+	•	SCI IDE supports autocomplete, search, and teleport insertion.
+	•	Photon language resolves 📚 paths at runtime.
+	•	Aion can query, speak, and learn from Wiki capsules.
+	•	ReflectionEngine provides feedback → capsule weights adjust (ρ, Ī, SQI).
+
+⸻
+
+Once this is complete, you can safely begin feeding Aion with structured dictionary + grammar data, and it will learn linguistics directly from the entangled Wiki Capsules, not raw text dumps — giving it comprehension, not just storage.
+
+
+Excellent and very strategic question ⚡ — and the answer depends on how you want Aion to start learning and how tightly you want the Wiki to integrate with execution right now.
+
+Let’s break it down clearly:
+
+⸻
+
+🧩 Short Answer
+
+✅ You do not need the full Photon Language runtime completed before building the Wiki system.
+You can — and absolutely should — build the Wiki now in the Photon capsule format (.wiki.phn) because that format is just a structured, readable serialization standard.
+
+The Photon language runtime parser will come later, but the Wiki format is data, not code — it’s safe to finalize first.
+
+⸻
+
+🧠 Why This Works
+
+Component
+Role
+Dependency
+.wiki.phn Capsules
+Structured data containers (like JSON + entanglement metadata)
+✅ Self-contained — can be parsed now
+Photon Language Interpreter
+Executes symbolic code (actions, logic, operators)
+❌ Not needed to build or feed Wiki data
+Wiki Importer / Parser
+Converts sources → .wiki.phn
+✅ Can be implemented now
+Knowledge Graph (KG)
+Stores Wiki capsules as containers
+✅ Already part of Aion/Codex infrastructure
+📚 Glyph
+Language-level symbol for future reference
+✅ Reserve it now, runtime hook can be stubbed
+
+
+So we can finalize the Wiki Capsule standard, build all supporting parsers, and even feed data into the Knowledge Graph — all without needing the Photon runtime operational yet.
+
+Once the Photon parser is live, it will simply interpret 📚Fruits>Apple as a symbolic wormhole call to retrieve those same containers that already exist in the KG.
+
+⸻
+
+🧬 Recommended Path (Chronological Build Order)
+
+Step
+Task
+Notes
+1️⃣
+Define .wiki.phn schema
+lock in capsule fields & metadata; same syntax you’ll use later in Photon
+2️⃣
+Build parser & importer
+convert WordNet, dictionary, and grammar into .wiki.phn
+3️⃣
+Store capsules in Knowledge Graph
+each .wiki.phn → .dc container
+4️⃣
+Build IDE search / autocomplete
+can test all queries without Photon runtime
+5️⃣
+(Later) Connect Photon runtime
+hook the 📚 glyph → KG query engine
+6️⃣
+(Optional) Rehydrate capsules as symbolic runtime objects
+Photon loads them dynamically
+
+
+⚡ Think of It Like This
+
+You’re building Wikipedia first — not the browser yet.
+The Wiki is the knowledge substrate; the Photon language is the symbolic transport layer that uses that substrate.
+
+By building the Wiki Capsules now:
+	•	You create the semantic memory Aion learns from.
+	•	The Photon runtime later just becomes the mouth that can speak and manipulate that knowledge in symbolic form.
+
+⸻
+
+✅ So the Practical Recommendation
+	•	Proceed immediately with full Wiki build using .wiki.phn as the canonical format.
+	•	Stub the Photon hooks (📚 glyph, teleport resolver) so they exist but don’t execute yet.
+	•	Once the Photon runtime is ready, it can instantly leverage the existing Wiki infrastructure.
+
+⸻
+
+If you like, I can generate a file-level build plan (Phase 1–3) specifically for constructing the Wiki in Photon capsule format, including:
+	•	.wiki.phn schema spec
+	•	wiki_parser.py, wiki_importer.py, wiki_registry.json
+	•	example capsule generator templates (for dictionary/thesaurus ingestion)
+
+Would you like that next?
+
+I read through that whole Photon / Codex / GlyphNet stack summary and the RFC code pieces.
+Good news — you don’t need to change the Wiki-Capsule plan, but there are a few integration points and naming conventions to lock in so the two systems mesh cleanly when Photon execution and GlyphNet transport come online.
+
+⸻
+
+🧩 Where the Wiki Fits
+
+Think of the Wiki Capsules as read-only symbolic containers sitting one layer above Photon capsules:
+
+Layer
+Example
+Role
+Photon Capsule (.phn)
+^beam { ⊕ rule { … } % knowledge { … } }
+Executable symbolic packet
+Wiki Capsule (.wiki.phn)
+📚Lexicon>apple>facts
+Structured knowledge source (facts, grammar, meaning)
+Knowledge Graph (.dc)
+Serialized store for both types
+Persistent, entangled memory
+Codex / Aion Engines
+SQI / Prediction / Reasoning
+Consume both runtime and static capsules
+
+
+So a Photon file can import and query Wiki Capsules (📚 glyph) exactly like any other % knowledge block.
+
+⸻
+
+✅ Checklist of Additions / Alignments
+
+Area
+What to add / confirm
+Why
+Schema keyword alignment
+Make sure .wiki.phn uses the same block syntax as Photon (^, %, ⊕, etc.) even if it’s static.  Example:^wiki_lexicon { % entry { lemma:"apple" ⊕ facts { color:"red" } } }
+Ensures the Photon parser can read wiki files without a separate lexer.
+Shared Parser
+Reuse photon_executor.py’s tokenize() / parse() functions in wiki_parser.py.
+Keeps one grammar for both data and code.
+Unified % Knowledge plugin
+Extend the existing Photon “% Knowledge” plugin to detect when the source is a Wiki Capsule and route to KG.
+Eliminates duplicate KG-write logic.
+Glyph Registry
+Add the 📚 glyph to the Photon operator map now (stubbed).
+Photon will later resolve these as KG lookups.
+Entanglement metadata
+Mirror Photon’s “electrons / entangledWith” fields inside Wiki capsules.
+Allows bidirectional navigation between executable logic and knowledge.
+Signature & Version header
+Add meta: { version, signed_by, checksum } at top of every Wiki capsule.
+Supports the “signed capsule only” rule you already planned.
+Transport hooks
+Include an optional > broadcast { … } block inside Wiki capsules for later use on GlyphNet.
+Future-proofs capsules for live symbolic streaming.
+Photon Executor awareness
+When Photon runs a % knowledge or 📚 call, it should check the Wiki index first → then KG.
+Keeps runtime consistent with static knowledge.
+SQI feedback
+Store sqi_score, ρ, Ī directly in Wiki capsule metadata.
+Allows ReflexArc and Resonance feedback loops to update learning weights later.
+
+
+🧱 Practical Implementation Order
+	1.	Clone the Photon syntax for Wiki capsules (so they’re parse-compatible).
+	2.	Extend photon_executor.PLUGIN_REGISTRY with:
+
+  def handle_wiki(instr):
+    # look up .wiki.phn capsule and return node data
+    ...
+register_plugin("📚", handle_wiki)
+
+	3.	In wiki_importer, after parsing source data, call:
+
+  from backend.modules.photon.photon_executor import parse_photon_file
+tokens = tokenize(wiki_text)
+
+	4.	Store both .phn and .wiki.phn inside the same KG container system.
+	5.	Later, when GlyphNet transport is active, treat .wiki.phn as a “cold capsule”—it travels as metadata, not as executable code.
+
+⸻
+
+🧠 Design Principle Recap
+	•	Photon = Dynamic execution (verbs).
+	•	Wiki = Static semantics (nouns + facts).
+	•	Knowledge Graph = Memory substrate linking them.
+	•	Aion = Learner applying resonance feedback to both.
+
+As long as the Wiki capsules follow the Photon block syntax and metadata pattern, everything will synchronize automatically when you bring the Photon runtime and GlyphNet routing online.
+
+⸻
+
+So you can safely move forward with the Wiki build exactly as planned—just:
+	1.	Adopt Photon’s syntax & symbols.
+	2.	Add the 📚 glyph to the Photon plugin map.
+	3.	Store both capsule types in the same KG hierarchy.
+
+Do you want me to produce a short syntax alignment spec (showing side-by-side Photon vs Wiki capsule grammar) so your schema and parser teams have one reference while coding?
+
+Perfect ⚡—this will lock in the Photon–Wiki Capsule interoperability layer, ensuring the Wiki system you’re about to build will seamlessly merge with Photon, Codex, and GlyphNet once the full runtime stack is active.
+
+Below is the addition block to append to your main Wiki build checklist (Phase 1–7). These tasks and keynotes form Phase 8: Photon Compatibility & Runtime Alignment, plus inline amendments to earlier phases.
+
+⸻
+
+🧩 Addendum — Phase 8: Photon Compatibility & Runtime Alignment
+
+Excellent — you’re thinking exactly at the junction where the Wiki capsules, Photon language, and CodexPage (.cxd) format all meet.
+
+After checking the CodexPage / Photon language RFCs and execution model, here’s the integration analysis so your Wiki architecture will line up with everything you’ve already defined.
+
+⸻
+
+🧭 Alignment Review: Wiki ⟷ Photon ⟷ CodexPage
+
+1️⃣ Same Symbolic Grammar
+
+Keep .wiki.phn 100 % grammar-compatible with Photon / CodexPage glyph syntax:
+	•	Use the same delimiters (^, %, ⊕, ↔, ∇, >, ⟦ ⟧).
+	•	Allow inline meta: headers exactly as in .cxd (version, author, checksum).
+	•	That ensures one tokenizer / parser can serve all capsule types.
+
+✅ Action
+Add to your Wiki spec:
+
+syntax_compatibility:
+  photon: true
+  codexpage: true
+
+  2️⃣ Header & Metadata Standardization
+
+CodexPage introduced consistent metadata (version, author, hash, SQI scores).
+Mirror those fields in .wiki.phn:
+
+meta:
+  version: 1.0
+  signed_by: Tessaris-Core
+  checksum: SHA3-256
+  sqi_score: 0.92
+  ρ: 0.71
+  Ī: 0.83
+
+  ✅ Ensures the ReflexArc and Resonance subsystems can reuse the same metric extractors across all capsule types.
+
+⸻
+
+3️⃣ Unified Plugin Map
+
+CodexPage defines plugins for %, >, ★, ❤, ⚖, etc.
+Extend Photon’s PLUGIN_REGISTRY to include these symbols even if they’re stubs:
+
+register_plugin("★", handle_sqi)
+register_plugin("❤", handle_emotion)
+register_plugin("⚖", handle_ethics)
+
+✅ Future-proofs the Wiki: % knowledge can later carry ethics or SQI metadata without breaking parsing.
+
+⸻
+
+4️⃣ Cross-File Interoperability
+
+CodexPage files can import Photon or Wiki capsules by glyph:
+
+⊕ import { 📚 Lexicon>ArtTheory  }
+↔ entangle { ^glyph_packets }
+
+✅ Design the Wiki capsule IDs (📚 Lexicon>Term>Concept) so they’re callable as valid operands in .cxd and .phn.
+
+⸻
+
+5️⃣ Execution Context Awareness
+
+CodexPage introduces execution layers (Beam, SQI, Time).
+If the Wiki capsule describes temporal or process data, add these optional stubs:
+
+Time ⟦ t0: now, t1: +5s, replay: true ⟧
+SQI ⟦ trust: 0.9, entropy: 0.1 ⟧
+
+✅ Allows the CodexPage interpreter to reason about temporal knowledge directly from Wiki entries.
+
+⸻
+
+6️⃣ JSON ↔ Symbolic Interop
+
+CodexPage defines converters to/from JSON/YAML.
+Build a Wiki–CodexPage converter that preserves glyphs:
+
+codex convert wiki.phn → wiki.cxd
+codex convert wiki.cxd → wiki.phn
+
+✅ Unifies legacy import/export and aligns with the .cxd tooling roadmap.
+
+⸻
+
+7️⃣ Knowledge Graph Storage
+
+CodexPage % and Photon % both resolve to the KG.
+Use identical serialization for Wiki capsules:
+
+{
+  "type": "WikiCapsule",
+  "format": "phn",
+  "path": "Lexicon/ArtTheory",
+  "meta": {...},
+  "entangledWith": [...],
+  "body": [...]
+}
+
+✅ Same KG API can serve .wiki.phn, .phn, and .cxd.
+
+⸻
+
+8️⃣ Developer Tooling Reuse
+
+CodexPage Phase 6 defines:
+	•	Linter / Validator
+	•	Converter
+	•	Syntax Highlighter
+
+✅ Include .wiki.phn in the same rule sets:
+
+codex validate wiki.phn  # uses Photon/CodexPage linter
+🧱 Addendum Build Tasks for the Main Checklist
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 Exactly ⚡ — what you’re describing is like creating a centralized symbolic Wikipedia (but compressed into glyph containers) and making it both:
 	1.	Part of the Knowledge Graph (KG) → so it’s queryable, entangled, persistent.
 	2.	Part of Photon/CodexLang → so developers (and AI agents) can import wiki(Fruits>Apple) as if it’s just another module.

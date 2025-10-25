@@ -27,21 +27,30 @@ def _resonance():
 
 
 # ------------------------------------------------------------
-def generate_cloze(sentence: str, missing_word: str):
+def generate_cloze(sentence: str, missing_word: str, bridge: LexiCoreBridge | None = None):
     """
-    Create a Cloze-type exercise:
-      Input: "The sky is ____", "blue"
-      Output: dict with prompt, options, answer, resonance
+    Generate a cloze (fill-in-the-blank) exercise.
+    Always includes `missing_word` in options.
+    If LexiCore/ThesauriNet are unavailable, falls back to default distractors.
     """
-    bridge = LexiCoreBridge()
-    distractors = bridge.get_antonyms(missing_word) + bridge.get_related(missing_word)
-    options = [missing_word] + random.sample(
-        distractors or ["red", "green", "dark", "bright"],
-        k=min(3, len(distractors) or 3),
-    )
+    bridge = bridge or LexiCoreBridge()
+
+    try:
+        syns = bridge.get_synonyms(missing_word)
+        ants = bridge.get_antonyms(missing_word)
+        rels = bridge.get_related(missing_word)
+    except Exception:
+        syns, ants, rels = [], [], []
+
+    fallback = ["dark", "bright", "fast", "slow", "east", "west", "violin", "drum", "guitar", "degrees"]
+    pool = list({*syns, *ants, *rels, *fallback})
+    pool = [w for w in pool if w.lower() != missing_word.lower()]
+
+    distractors = random.sample(pool, k=min(3, len(pool))) if pool else []
+    options = [missing_word] + distractors
     random.shuffle(options)
 
-    packet = {
+    return {
         "type": "cloze",
         "prompt": sentence.replace(missing_word, "_____"),
         "options": options,
@@ -49,49 +58,25 @@ def generate_cloze(sentence: str, missing_word: str):
         "resonance": _resonance(),
         "timestamp": time.time(),
     }
-    logger.info(f"[CEE-Cloze] Generated prompt for '{missing_word}' → {options}")
-    return packet
 
 
 # ------------------------------------------------------------
-# ================================================================
-# 🧩 Group Sort Generator — Lexical Cognitive Exercise
-# ================================================================
-def generate_group_sort(groups=None):
-    """Generate semantic grouping exercise."""
-    import random, time
-
-    # Support both dict- and list-style group input
-    if groups is None:
-        groups = ["Fruits", "Animals"]
-
-    if isinstance(groups, list):
-        # Build default word sets for these groups
-        group_data = {
-            "Fruits": ["apple", "banana", "pear", "grape"],
-            "Animals": ["dog", "cat", "bird", "lion"],
-        }
-    elif isinstance(groups, dict):
-        group_data = groups
-    else:
-        raise TypeError("groups must be list or dict")
-
-    # Flatten items
-    items = [(word, group) for group, words in group_data.items() for word in words]
+def generate_group_sort(groups: dict[str, list[str]]):
+    """
+    Generate a Group-Sort exercise:
+      Input: {"Fruits": ["apple", "pear"], "Animals": ["dog", "cat"]}
+      Output: exercise with randomized items and labeled groups.
+    """
+    items = [(word, group) for group, words in groups.items() for word in words]
     random.shuffle(items)
-    mapping = {word: group for word, group in items}
-    all_items = [word for word, _ in items]
-
-    ρ = round(random.uniform(0.6, 0.9), 3)
-    I = round(random.uniform(0.7, 0.95), 3)
-    SQI = round((ρ + I) / 2, 3)
 
     return {
         "type": "group_sort",
-        "groups": list(group_data.keys()),
-        "items": all_items,
-        "mapping": mapping,
-        "resonance": {"ρ": ρ, "I": I, "SQI": SQI},
+        "prompt": "Sort the words into their correct categories.",
+        "groups": list(groups.keys()),
+        "items": [w for w, _ in items],
+        "answer": {g: v for g, v in groups.items()},
+        "resonance": _resonance(),
         "timestamp": time.time(),
     }
 
@@ -103,7 +88,7 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
 
     # Cloze example
-    c = generate_cloze("The sky is blue", "blue")
+    c = generate_cloze("The sun rises in the east", "east")
     print(c)
 
     # Group-Sort example

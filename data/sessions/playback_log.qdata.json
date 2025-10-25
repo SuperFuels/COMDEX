@@ -1,9 +1,9 @@
 {
-  "timestamp": 1761346550.3304834,
-  "session": "PLAY-1761346550",
+  "timestamp": 1761407123.5719202,
+  "session": "PLAY-1761407121",
   "mode": "simulate",
-  "entries": 2,
-  "performance": 0.5,
-  "avg_SQI": 0.808,
+  "entries": 4,
+  "performance": 0.667,
+  "avg_SQI": 0.835,
   "schema": "CEEPlayback.v1"
 }

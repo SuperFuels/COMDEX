@@ -31,7 +31,7 @@ gcloud run deploy comdex-api \
   --timeout=300s
 
 git add .
-git commit -m "AION Intelligence intelligence 46"
+git commit -m "AION Intelligence intelligence Wordwall LLM "
 git push origin main
 
 
