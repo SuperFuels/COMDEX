@@ -1,0 +1,65 @@
+^wiki_capsule {
+meta:
+  version: 1.0
+  signed_by: Tessaris-Core
+  checksum: SHA3-256
+  sqi_score: 0.91
+  ρ: 0.68
+  Ī: 0.81
+
+lemma: "verb"
+pos: "noun"
+
+definitions:
+  - "A word that expresses an action, occurrence, or state of being."
+  - "One of the main parts of speech in linguistic grammar."
+
+examples:
+  - "Run, jump, and think are verbs."
+  - "The verb agrees with the subject in number and person."
+
+synonyms:
+  - "action word"
+  - "predicate"
+
+antonyms:
+  - "noun"
+
+entangled_links:
+  Grammar>Syntax: "classification"
+  Lexicon>Language: "relation"
+}
+
+
+********************
+
+^wiki_capsule {
+meta:
+  version: 1.0
+  signed_by: Tessaris-Core
+  checksum: SHA3-256:2c1d54a01f0e98ccbe9e7af24e8f1a935e316b1b1de1a3f7c5d542bbbe16c92a
+  timestamp: 1735175210.56
+  sqi_score: 0.88
+  ρ: 0.69
+  Ī: 0.81
+
+lemma: Verbs
+pos: plural noun
+
+definitions:
+  - Words expressing actions, occurrences, or states of being.
+  - Core linguistic operators driving semantic movement within syntax.
+
+examples:
+  - “Run,” “think,” and “resonate” are verbs.
+  - In Photon syntax, ⊕ verbs represent state propagation.
+
+synonyms: [actions, predicates, operations]
+antonyms: [nouns]
+entangled_links:
+  Lexicon:
+    - Grammar
+    - Syntax
+  Photon:
+    - Operators
+}

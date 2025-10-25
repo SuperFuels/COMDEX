@@ -1,0 +1,10 @@
+{
+  "timestamp": 1761417232.3495274,
+  "\u03c1_next": 0.018498,
+  "\u012a_next": 0.997368,
+  "SQI_next": 0.507933,
+  "harmonic_freq": 0.01667,
+  "harmonic_strength": 1.0,
+  "confidence": 0.95,
+  "schema": "ResonantForecast.v1"
+}

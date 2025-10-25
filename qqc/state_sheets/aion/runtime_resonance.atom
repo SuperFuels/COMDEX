@@ -1,0 +1,15 @@
+{
+  "timestamp": 1761413849.5125058,
+  "schema": "SymaticsRuntime.v1",
+  "operators": {
+    "\u2295": 0.11962,
+    "\u2194": 0.455,
+    "\u27f2": 0.59
+  },
+  "source": "Aion-ReasonField",
+  "metadata": {
+    "depth": 1.068,
+    "tone": 0.112,
+    "exploration": 0.09
+  }
+}

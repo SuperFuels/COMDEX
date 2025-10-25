@@ -208,6 +208,7 @@ class SymbolicPatternEngine:
         """
         return json.dumps([p.to_dict() for p in self.registry.get_all_patterns()], indent=2)
 
+
 # Singleton instance for external use
 _pattern_engine = SymbolicPatternEngine()
 
@@ -218,3 +219,20 @@ def detect_patterns_from_logic(logic: str) -> List[Dict[str, Any]]:
     """
     glyphs = [{"text": logic, "id": "temp"}]
     return _pattern_engine.detect_patterns(glyphs)
+
+    def update_resonance_weights(coherence: float, entanglement: float) -> None:
+        """
+        Global update for all registered patterns' resonance-weighted SQI values.
+        Used by Aion↔QQC coupling loop.
+        """
+        from backend.modules.patterns.pattern_registry import registry
+        for pattern in registry.get_all_patterns():
+            base = pattern.sqi_score or 0.3
+            pattern.sqi_score = round(base * (1 + coherence * 0.2) * (1 + entanglement * 0.1), 4)
+            pattern.metadata["last_resonance_update"] = {
+                "coherence": coherence,
+                "entanglement": entanglement,
+                "updated": time.time(),
+            }
+        registry.save()
+        logger.info(f"[PatternEngine] Resonance weights updated for {len(registry.get_all_patterns())} patterns.")

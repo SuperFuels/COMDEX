@@ -1,0 +1,9 @@
+{
+  "timestamp": 1761413849.515146,
+  "adaptive_decay": 0.00316,
+  "coherence_gain": 0.34198,
+  "habit_coupling": -0.0049,
+  "intensity_mod": 0.0224,
+  "SQI_target": 0.8365,
+  "schema": "DynamicEqualizer.v1"
+}

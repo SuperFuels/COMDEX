@@ -1,0 +1,10 @@
+{
+  "tone":        { "type": "float", "range": [0,1], "desc": "affective field amplitude" },
+  "bias.depth":  { "type": "float", "desc": "reasoning recursion depth" },
+  "bias.explore":{ "type": "float", "desc": "exploration vs precision bias" },
+  "bias.verbose":{ "type": "float", "desc": "verbosity modulation" },
+  "resonance":   { "type": "dict",  "desc": "ρ, Ī, SQI composite" },
+  "timestamp":   { "type": "float", "desc": "epoch seconds" },
+  "coherence":   { "type": "float", "desc": "QQC feedback metric" },
+  "stability":   { "type": "float", "desc": "field drift stability" }
+}

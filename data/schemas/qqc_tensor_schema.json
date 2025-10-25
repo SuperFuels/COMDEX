@@ -1,0 +1,11 @@
+{
+  "tone": "float \u2208 [0,1] \u2014 emotional resonance amplitude",
+  "bias.depth": "float \u2014 reasoning intensity bias",
+  "bias.exploration": "float \u2014 exploratory variance",
+  "bias.phase": "float \u2014 phase alignment for feedback loop",
+  "resonance": "float \u2014 global field coherence (\u03c1)",
+  "timestamp": "float \u2014 Unix time",
+  "coherence": "float \u2014 QQC field coherence metric",
+  "stability": "float \u2014 drift stability coefficient",
+  "drift": "float \u2014 delta change since last coupling"
+}

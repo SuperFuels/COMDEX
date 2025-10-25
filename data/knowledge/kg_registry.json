@@ -1,0 +1,20 @@
+{
+  "Lexicon": {
+    "Nova": {
+      "path": "/tmp/pytest-of-codespace/pytest-24/test_run_photon_file_with_impo0/Nova.wiki.phn",
+      "meta": {
+        "signed_by": "Tessaris-Core",
+        "version": "1.0",
+        "timestamp": 1761423020.4874234
+      }
+    },
+    "Photon": {
+      "path": "/tmp/pytest-of-codespace/pytest-24/test_simulate_photon_runtime0/Photon.wiki.phn",
+      "meta": {
+        "signed_by": "Tessaris-Core",
+        "version": "1.0",
+        "timestamp": 1761423020.4911113
+      }
+    }
+  }
+}
