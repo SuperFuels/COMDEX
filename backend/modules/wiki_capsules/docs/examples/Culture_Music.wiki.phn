@@ -2,67 +2,36 @@
 meta:
   version: 1.0
   signed_by: Tessaris-Core
-  checksum: SHA3-256
-  sqi_score: 0.96
-  ρ: 0.79
-  Ī: 0.88
-
-lemma: "music"
-pos: "noun"
-
-definitions:
-  - "The art of arranging sounds in time to produce melody, harmony, rhythm, and timbre."
-  - "A universal form of expression found in all human cultures."
-
-examples:
-  - "Music can alter mood and synchronize brainwave coherence."
-  - "Classical music often employs structured harmonic progressions."
-
-synonyms:
-  - "melody"
-  - "composition"
-  - "sound art"
-
-antonyms:
-  - "silence"
-
-entangled_links:
-  Culture>Art: "discipline"
-  Emotion>Harmony: "effect"
-  Science>Acoustics: "foundation"
-}
-
-
-******************
-
-^wiki_capsule {
-meta:
-  version: 1.0
-  signed_by: Tessaris-Core
   checksum: SHA3-256:9c3a8e8b1b1d24f613b45a67a95a08e53e1b9e74b5e56ac4a9a5e23ff571dc11
   timestamp: 1735175210.73
   sqi_score: 0.95
   ρ: 0.77
   Ī: 0.89
 
-lemma: Music
-pos: noun
+lemma: "music"
+pos: "noun"
 
 definitions:
-  - The art of arranging sound to produce harmony, rhythm, and expression.
-  - In Tessaris, music represents waveform coherence and symbolic resonance.
+  - "The art of arranging sound to produce harmony, rhythm, and expression."
+  - "In Tessaris, music represents waveform coherence and symbolic resonance."
 
 examples:
-  - Music bridges human emotion and mathematical pattern.
-  - The Resonance Engine tunes SQI coherence like harmonic modulation.
+  - "Music bridges human emotion and mathematical pattern."
+  - "The Resonance Engine tunes SQI coherence like harmonic modulation."
 
-synonyms: [melody, harmony, rhythm]
-antonyms: [silence]
+synonyms:
+  - "melody"
+  - "harmony"
+  - "rhythm"
+
+antonyms:
+  - "silence"
+
 entangled_links:
   Culture:
-    - Art
-    - Emotion
+    - "Art"
+    - "Emotion"
   Resonance:
-    - Frequency
-    - Harmony
+    - "Frequency"
+    - "Harmony"
 }

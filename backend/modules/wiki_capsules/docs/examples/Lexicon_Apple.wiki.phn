@@ -2,65 +2,35 @@
 meta:
   version: 1.0
   signed_by: Tessaris-Core
-  checksum: SHA3-256
-  sqi_score: 0.94
-  ρ: 0.77
-  Ī: 0.89
-
-lemma: "apple"
-pos: "noun"
-
-definitions:
-  - "A round fruit produced by the apple tree (Malus domestica), usually red, green, or yellow."
-  - "A metaphor for knowledge and temptation in classical literature."
-
-examples:
-  - "The apple fell from the tree, inspiring Newton’s law of gravity."
-  - "She offered him an apple as a gesture of peace."
-
-synonyms:
-  - "pome"
-  - "fruit"
-
-antonyms: []
-
-entangled_links:
-  Lexicon>Fruit: "category"
-  Culture>Symbolism: "representation"
-}
-
-
-
-
-********************
-
-^wiki_capsule {
-meta:
-  version: 1.0
-  signed_by: Tessaris-Core
   checksum: SHA3-256:8d4b29e117b61cf6d57a48aaefc3d7a5b2d8c1fce99a0f4e672a9b6d437ae2f0
   timestamp: 1735175210.42
   sqi_score: 0.91
   ρ: 0.72
   Ī: 0.86
 
-lemma: Apple
-pos: noun
+lemma: "apple"
+pos: "noun"
 
 definitions:
-  - A round fruit produced by the apple tree (Malus domestica).
-  - A symbol of knowledge, health, and inspiration in multiple cultures.
+  - "A round fruit produced by the apple tree (Malus domestica)."
+  - "A symbol of knowledge, health, and inspiration in multiple cultures."
 
 examples:
-  - The apple fell from the tree.
-  - Tessaris computes knowledge resonance like an apple ripening in light.
+  - "The apple fell from the tree, inspiring Newton’s law of gravity."
+  - "Tessaris computes knowledge resonance like an apple ripening in light."
 
-synonyms: [fruit, pomaceous, orb]
-antonyms: [stonefruit]
+synonyms:
+  - "fruit"
+  - "pomaceous"
+  - "orb"
+
+antonyms:
+  - "stonefruit"
+
 entangled_links:
   Lexicon:
-    - Fruit
-    - Seed
+    - "Fruit"
+    - "Seed"
   Culture:
-    - Symbolism
+    - "Symbolism"
 }

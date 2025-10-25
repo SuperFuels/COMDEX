@@ -1,14 +1,42 @@
-.env
-.env
-.env
-env.yaml
+#──────────────────────────────
+# 🧠 Tessaris Project GitIgnore
+#──────────────────────────────
 
-__pycache__/
-*.py[cod]
-*.so
-/backend/.env
-# local env files
+# Environment + Config
+.env
+*.env
 env.yaml
 env_vars.env
 cors_env.yaml
-*.env
+/backend/.env
+
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+*.so
+
+# Logs and runtime artifacts
+*.log
+*.tmp
+*.bak
+*.swp
+
+# Tessaris Knowledge / Wiki Data
+data/knowledge/
+data/wiki_seed/
+data/cache/
+data/tmp/
+*.wiki.phn
+*.qkg.json
+*.log.json
+
+# Notebooks / exports
+*.ipynb_checkpoints
+*.tar.gz
+*.zip
+
+# System files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

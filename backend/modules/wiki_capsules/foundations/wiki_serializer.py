@@ -1,22 +1,24 @@
 """
-📦 Wiki Capsule Serializer — Phase 1
-------------------------------------
-Converts WikiCapsule objects ↔ .wiki.phn text format.
+📦 Wiki Capsule Serializer — Phase 3.1 (YAML-safe + Symbolic Unified)
+--------------------------------------------------------------------
+Preserves symbolic ^wiki_capsule framing while keeping YAML strictly single-document
+for linter and importer validation.
 """
 
 from pathlib import Path
 from backend.modules.wiki_capsules.foundations.wiki_capsule_schema import WikiCapsule
-import yaml, json
+import yaml
+
 
 #───────────────────────────────────────────────
 # 🧠 Serializer
 #───────────────────────────────────────────────
 def serialize_to_phn(capsule: WikiCapsule) -> str:
-    """Serialize a WikiCapsule object into Photon-compatible .wiki.phn format (YAML-based)."""
+    """Serialize a WikiCapsule into a single YAML-valid .wiki.phn text block."""
 
-    # Support both dataclass and dict-based capsules
+    # Handle both dicts and dataclass objects
     if isinstance(capsule, dict):
-        meta = capsule.get("metadata", {})
+        meta = capsule.get("metadata") or capsule.get("meta", {}) or {}
         lemma = capsule.get("lemma", "")
         pos = capsule.get("pos", "")
         definitions = capsule.get("definitions", [])
@@ -25,19 +27,20 @@ def serialize_to_phn(capsule: WikiCapsule) -> str:
         antonyms = capsule.get("antonyms", [])
         entangled_links = capsule.get("entangled_links", {})
     else:
-        meta = getattr(capsule, "metadata", {}) or {}
-        meta["checksum"] = capsule.checksum() if hasattr(capsule, "checksum") else ""
-        lemma = capsule.lemma
-        pos = capsule.pos
-        definitions = capsule.definitions
-        examples = capsule.examples
-        synonyms = capsule.synonyms
-        antonyms = capsule.antonyms
-        entangled_links = capsule.entangled_links
+        meta = getattr(capsule, "metadata", {}) or getattr(capsule, "meta", {}) or {}
+        if hasattr(capsule, "checksum"):
+            meta["checksum"] = capsule.checksum()
+        lemma = getattr(capsule, "lemma", "")
+        pos = getattr(capsule, "pos", "")
+        definitions = getattr(capsule, "definitions", [])
+        examples = getattr(capsule, "examples", [])
+        synonyms = getattr(capsule, "synonyms", [])
+        antonyms = getattr(capsule, "antonyms", [])
+        entangled_links = getattr(capsule, "entangled_links", {})
 
-    # Construct YAML sections
-    header = yaml.dump({"meta": meta}, sort_keys=False)
-    body = {
+    # Merge meta + body into one YAML dict (single document)
+    capsule_dict = {
+        "meta": meta,
         "lemma": lemma,
         "pos": pos,
         "definitions": definitions,
@@ -46,16 +49,22 @@ def serialize_to_phn(capsule: WikiCapsule) -> str:
         "antonyms": antonyms,
         "entangled_links": entangled_links,
     }
-    body_yaml = yaml.dump(body, sort_keys=False)
 
-    return f"^wiki_capsule {{\n{header}\n{body_yaml}\n}}"
+    yaml_text = yaml.safe_dump(capsule_dict, sort_keys=False, allow_unicode=True)
+
+    # Symbolic framing kept as comments → YAML still valid
+    return (
+        "# ^wiki_capsule {\n"
+        f"{yaml_text}"
+        "# }\n"
+    )
 
 
 #───────────────────────────────────────────────
 # 💾 Save helper
 #───────────────────────────────────────────────
 def save_wiki_capsule(capsule: WikiCapsule, out_path: Path):
-    """Serialize and save a Wiki capsule to disk."""
+    """Serialize and save a Wiki capsule to disk safely."""
     out_path.parent.mkdir(parents=True, exist_ok=True)
     phn_text = serialize_to_phn(capsule)
     out_path.write_text(phn_text, encoding="utf-8")
