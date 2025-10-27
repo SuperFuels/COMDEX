@@ -1143,6 +1143,41 @@ class PredictionEngine:
                     return {"law_id": law["id"], "title": law["title"]}
         return None
 
+    # ─────────────────────────────────────────────
+    # 🌐 Compatibility Wrapper for Forecast API
+    # ─────────────────────────────────────────────
+    def forecast(self, query: str) -> dict:
+        """
+        Compatibility method for StrategyPlanner and Tessaris subsystems.
+        Ensures a uniform interface, even if the core model uses different naming.
+        """
+        try:
+            # Prefer an existing prediction method
+            if hasattr(self, "predict"):
+                result = self.predict(query)
+            elif hasattr(self, "generate_prediction"):
+                result = self.generate_prediction(query)
+            else:
+                # Fallback: simulated response
+                result = {
+                    "summary": f"Predicted outcome for '{query}'",
+                    "confidence": 0.5
+                }
+
+            # Normalize the structure
+            if isinstance(result, str):
+                return {"summary": result, "confidence": 0.5}
+            if isinstance(result, dict):
+                result.setdefault("summary", "No summary available")
+                result.setdefault("confidence", 0.5)
+                return result
+
+            return {"summary": str(result), "confidence": 0.5}
+
+        except Exception as e:
+            print(f"[PredictionEngine] ⚠️ forecast() failed: {e}")
+            return {"summary": "⚠️ Forecast unavailable", "confidence": 0.0}
+
     def _matches_dream_trace(self, glyph_text: str) -> bool:
         if not self.dream_core:
             return False

@@ -1,7 +1,7 @@
 #──────────────────────────────
 # 🌐 Tessaris Full-Stack GitIgnore
 #──────────────────────────────
-# Based on Next.js + Node + Yarn + Tessaris AI modules
+# Covers Next.js + Node + Yarn + Python + Symatics AI modules
 
 #──────────────────────────────
 # 📦 Dependencies
@@ -31,7 +31,7 @@
 /build
 
 #──────────────────────────────
-# 🌱 Environment Files
+# 🌱 Environment & Config Files
 #──────────────────────────────
 .env
 .env.local
@@ -69,19 +69,20 @@ google-cloud-sdk/
 *.zip
 
 #──────────────────────────────
-# 🧠 Tessaris Knowledge Graph
+# 🧠 Tessaris / Symatics Knowledge, Lexicons & Temporary Data
 #──────────────────────────────
 data/knowledge/
 data/wiki_seed/
 data/cache/
 data/tmp/
+tmp/
 *.wiki.phn
 *.qkg.json
 *.log.json
 backend/data/knowledge_index.jsonl
 
 #──────────────────────────────
-# 🧩 Misc & Debug
+# 🧩 Miscellaneous & Debug Artifacts
 #──────────────────────────────
 .DS_Store
 *.pem
@@ -90,11 +91,56 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 *.ipynb_checkpoints
+*.tar
+*.gz
+*.zip
 *.swp
+*.pid
+*.lock
 
 #──────────────────────────────
-# 💻 IDE / System
+# 💻 IDE / System Files
 #──────────────────────────────
 .idea/
 .vscode/
 Thumbs.db
+
+# AION runtime cache and locks
+data/memory/resonant_memory_cache.json
+data/memory/resonant_memory_cache.*bak
+data/memory/resonant_memory_cache.*lock
+
+#──────────────────────────────
+# 🧠 AION Runtime Outputs / Telemetry & Massive Data
+#──────────────────────────────
+data/aion/
+data/analysis/
+data/learning/
+data/control/
+data/telemetry/
+data/benchmarks/
+data/sources/
+data/tasks/
+logs/
+*.json.lock
+*.bak
+*.lexbak
+*.bak2
+*.bz2
+*.xml
+*.glyph
+
+# Individual heavy files to exclude (safety net)
+data/control/aqci_log.jsonl
+data/control/rqfs_feedback.jsonl
+data/learning/fusion_state.jsonl
+data/memory/cee_lex_memory.json
+data/memory/cee_lex_memory.lexbak
+data/memory/lex_memory.json
+data/memory/resonant_memory_cache.*
+data/sources/enwiktionary-pages-articles.xml.bz2
+data/sources/enwiktionary-sample.xml.bz2
+data/sources/gcide_full.xml
+data/symatics/symbolic_resonance_stream.glyph
+data/telemetry/meta_resonant_telemetry.jsonl
+backend/data/conceptnet/numberbatch-en-19.08.txt

@@ -25,7 +25,8 @@ import hashlib
 import asyncio  # ✅ Coroutine handling
 import threading  # ✅ Pause/resume lock
 from datetime import datetime, timezone 
-
+# ⚛ Resonance Heartbeat Integration
+from backend.modules.aion_resonance.resonance_heartbeat import ResonanceHeartbeat
 # ✅ Lean container support
 from backend.modules.lean.lean_utils import (
     is_lean_container,
@@ -49,6 +50,11 @@ except Exception:
 # ✅ Secure loading
 from backend.modules.dna_chain.dc_handler import load_dimension, load_dimension_by_file, get_dc_path
 from backend.modules.consciousness.personality_engine import PROFILE as PERSONALITY
+
+# 🧠 Resonant feedback + logging
+from backend.modules.aion_language.resonant_memory_cache import ResonantMemoryCache
+from pathlib import Path
+import time
 
 # ⏳ Time tracking
 from backend.modules.dimensions.time_controller import TimeController
@@ -94,6 +100,17 @@ class StateManager:
         self.paused = False
         self.pause_lock = threading.Lock()
 
+        # ⚛ Initialize Resonance Heartbeat
+        self.heartbeat = ResonanceHeartbeat(namespace="state_manager", base_interval=1.5)
+        self.heartbeat.register_listener(self._on_heartbeat_pulse)
+        self.heartbeat.start()
+        print("[⚛] Resonance Heartbeat linked to StateManager.")
+
+        # 🧠 Initialize ResonantMemoryCache + live log path
+        self.RMC = ResonantMemoryCache()
+        self.resonance_log = Path("data/analysis/state_resonance_log.jsonl")
+        self.resonance_log.parent.mkdir(parents=True, exist_ok=True)
+
     # ──────────────────────────────
     # ✅ Safe Active UCS Fetcher
     # ──────────────────────────────
@@ -131,6 +148,93 @@ class StateManager:
             self._tick = 0
         self._tick += 1
         return self._tick
+
+    # ──────────────────────────────
+    # ⚛ Resonance Pulse Handler
+    # ──────────────────────────────
+    def _on_heartbeat_pulse(self, pulse: dict):
+        """
+        Reacts to each Θ-pulse from the ResonanceHeartbeat.
+        Used to synchronize state updates, entropy decay,
+        and container rhythm with overall system coherence.
+        """
+        try:
+            coherence = pulse.get("Φ_coherence", 0.5)
+            entropy = pulse.get("Φ_entropy", 0.5)
+            sqi = pulse.get("sqi", 0.5)
+            freq = pulse.get("Θ_frequency", 1.0)
+
+            # Adaptive temporal modulation for containers
+            if self.current_container:
+                container_id = self.current_container.get("id", "unknown")
+                self.time_controller.tick(container_id, {
+                    "pulse": pulse,
+                    "coherence": coherence,
+                    "entropy": entropy,
+                    "sqi": sqi
+                })
+
+            # Adjust pause/resume behavior based on SQI thresholds
+            if sqi < 0.35 and not self.is_paused():
+                print(f"[⚠] SQI low ({sqi:.2f}) — pausing runtime.")
+                self.pause()
+            elif sqi > 0.6 and self.is_paused():
+                print(f"[✅] SQI stable ({sqi:.2f}) — resuming runtime.")
+                self.resume()
+
+            # Broadcast via WebSocket (optional)
+            if WS:
+                try:
+                    ws_payload = {
+                        "event": "heartbeat_update",
+                        "data": pulse
+                    }
+
+                    # Ensure event loop exists in this thread (fixes RuntimeError)
+                    import asyncio
+                    try:
+                        loop = asyncio.get_event_loop()
+                    except RuntimeError:
+                        loop = asyncio.new_event_loop()
+                        asyncio.set_event_loop(loop)
+
+                    # Run broadcast safely (works in daemon or main thread)
+                    if loop.is_running():
+                        asyncio.ensure_future(WS.broadcast(ws_payload))
+                    else:
+                        loop.run_until_complete(WS.broadcast(ws_payload))
+
+                except Exception as e:
+                    print(f"[⚛] Heartbeat handler error: {e}")
+
+            # 🧠 Feedback into RMC and log each pulse
+            try:
+                self.RMC.push_sample(rho=coherence, entropy=entropy, sqi=sqi, delta=abs(coherence - entropy))
+                self.RMC.save()
+
+                log_entry = {
+                    "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+                    "Φ_coherence": coherence,
+                    "Φ_entropy": entropy,
+                    "SQI": sqi,
+                    "Θ_frequency": freq
+                }
+                with open(self.resonance_log, "a") as f:
+                    f.write(json.dumps(log_entry) + "\n")
+            except Exception as log_err:
+                print(f"[⚛] RMC feedback error: {log_err}")
+
+        except Exception as e:
+            print(f"[⚛] Heartbeat handler error: {e}")
+
+    def stop_heartbeat(self):
+        """Gracefully stop the resonance heartbeat loop."""
+        try:
+            if hasattr(self, "heartbeat"):
+                self.heartbeat.stop()
+                print("[⚛] Resonance Heartbeat stopped cleanly.")
+        except Exception as e:
+            print(f"[⚛] Heartbeat stop error: {e}")
     # ──────────────────────────────
     # ✅ Pause/Resume Control
     # ──────────────────────────────

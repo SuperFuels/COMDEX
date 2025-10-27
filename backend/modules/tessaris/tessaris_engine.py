@@ -20,9 +20,13 @@ from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGrap
 from backend.modules.dimensions.container_expander import ContainerExpander
 from backend.modules.runtime.container_runtime import collapse_container
 from backend.modules.lean.auto_mutate_axioms import suggest_axiom_mutation
-
+from backend.modules.aion_resonance.resonance_heartbeat_monitor import ResonanceHeartbeat
+from backend.modules.aion_cognition.strategy_planner import ResonantStrategyPlanner
+from backend.modules.aion_cognition.action_switch import ActionSwitch
+from backend.modules.aion_resonance.reinforcement_mixin import ResonantReinforcementMixin
 from backend.modules.lean.lean_tactic_suggester import suggest_tactics
 from backend.modules.lean.auto_mutate_axioms import suggest_axiom_mutation
+from backend.modules.aion_resonance.resonant_optimizer import get_optimizer
 
 
 # Codex integration
@@ -60,11 +64,13 @@ def _summarize_tree(tree: Any) -> Dict[str, Any]:
 
     return {"depth": _depth(tree), "size": size}
 
-class TessarisEngine:
+class TessarisEngine(ResonantReinforcementMixin):
     def __init__(self, container_id="default"):
         self.container_id = container_id
         self.active_branches = []
         self.active_thoughts = {}
+
+        # 🧩 Core subsystems
         from backend.modules.skills.goal_engine import GoalEngine
         self.goal_engine = GoalEngine()
         self.boot_selector = BootSelector()
@@ -72,10 +78,73 @@ class TessarisEngine:
         self.glyph_generator = GlyphGenerator()
         self.kg_writer = KnowledgeGraphWriter(container_id=container_id)
 
+        # 🧬 Codex integration
         self.codex_mind = CodexMindModel()
         self.codex_metrics = CodexMetrics()
         self.codex_estimator = CodexCostEstimator()
 
+        # 🧭 Strategy Planning (P4)
+        self.strategy_planner = ResonantStrategyPlanner()
+        print("🧭 TessarisEngine linked to Resonant Strategy Planner.")
+
+        # ⚙️ Action Switch (P5)
+        from backend.modules.aion_cognition.action_switch import ActionSwitch
+        self.action_switch = ActionSwitch()
+        print("⚙️ Tessaris Action Switch initialized.")
+
+        super().__init__("tessaris_engine")
+        self.last_reflection_score = 0.0
+
+        self.optimizer = get_optimizer(tick_seconds=30.0)
+        self.optimizer.register("tessaris_reasoner", self)
+        self.optimizer.start()
+
+        # 💓 Resonance Heartbeat coupling
+        self.heartbeat = ResonanceHeartbeat(namespace="tessaris")
+        self.heartbeat.register_listener(self._on_heartbeat)
+        self.heartbeat.bind_jsonl("data/aion_field/resonant_heartbeat.jsonl")  # optional external feed
+        self.heartbeat.start()
+        print("💓 TessarisEngine linked to Resonance Heartbeat.")
+
+    def _on_heartbeat(self, pulse_data: dict):
+        """
+        🔁 Called each Resonance Heartbeat tick — evolve Tessaris reasoning weights.
+        """
+        try:
+            delta = pulse_data.get("resonance_delta", 0.0)
+            entropy = pulse_data.get("entropy", 0.0)
+
+            # Adjust Codex reasoning dynamics
+            if hasattr(self.codex_metrics, "update_entropy"):
+                self.codex_metrics.update_entropy(entropy)
+            if hasattr(self.codex_mind, "update_resonance"):
+                self.codex_mind.update_resonance(delta)
+
+            # Log to memory + KG
+            MEMORY.store({
+                "label": "tessaris_resonance_update",
+                "role": "tessaris",
+                "type": "heartbeat_sync",
+                "content": f"Updated reasoning weights (Δ={delta:.4f}, entropy={entropy:.4f})",
+                "data": pulse_data,
+            })
+
+            # 🧩 Safe KG logging
+            try:
+                self.kg_writer.log_event("resonance_heartbeat_sync", {
+                    "timestamp": datetime.utcnow().isoformat(),
+                    "status": "active",
+                    "source": "TessarisEngine"
+                })
+            except Exception as e:
+                print(f"[TessarisEngine] ⚠️ Failed to log resonance heartbeat: {e}")
+
+        except Exception as e:
+            print(f"[TessarisEngine] ⚠️ Heartbeat processing failed: {e}")
+
+    # ─────────────────────────────────────────────
+    # 🧠 Reflection Generator
+    # ─────────────────────────────────────────────
     def generate_reflection(self, glyph: str, context: dict = None, trace: list = None) -> str:
         """
         🌀 Generate a reasoning/reflection string for a glyph based on context and execution trace.
@@ -135,6 +204,14 @@ class TessarisEngine:
                 "context": context or {},
                 "trace_steps": trace or []
             })
+
+            # 🧠 Resonant reinforcement based on reflection quality
+            try:
+                clarity = max(0.1, min(1.0, len(reasoning_text) / 500.0))  # heuristic: longer = deeper reflection
+                self.update_resonance_feedback(outcome_score=clarity, reason="Reflection clarity")
+                self.last_reflection_score = clarity
+            except Exception as e:
+                print(f"[⚠️] Resonance feedback failed: {e}")
 
             return reasoning_text
 
@@ -208,6 +285,25 @@ class TessarisEngine:
         })
 
         for idx, glyph in enumerate(branch.glyphs):
+            # 🕊 Soul Law enforcement (global validator)
+            from backend.modules.glyphvault.soul_law_validator import soul_law_validator
+
+            if not soul_law_validator.verify_transition(branch.metadata or {}, glyph):
+                print(f"⚠️ SoulLaw violation: glyph {idx} blocked → {glyph}")
+                MEMORY.store({
+                    "label": "soul_law_violation",
+                    "role": "tessaris",
+                    "type": "ethics_block",
+                    "content": f"Glyph '{glyph}' blocked by SoulLaw.",
+                    "data": {"glyph": glyph, "branch_origin": branch.origin_id},
+                })
+                self.kg_writer.log_event("soul_law_violation", {
+                    "glyph": glyph,
+                    "branch_origin": branch.origin_id,
+                })
+                continue  # skip interpretation for this glyph
+
+            # ✅ only reach this if glyph is ethically safe
             try:
                 cost = self.codex_estimator.estimate_glyph_cost(glyph, {"source": "tessaris"})
                 MEMORY.store({
@@ -216,7 +312,6 @@ class TessarisEngine:
                     "cost": cost.total(),
                     "detail": vars(cost),
                 })
-
                 if cost.total() > 7:
                     MEMORY.store({
                         "label": "cost_warning",
@@ -602,6 +697,10 @@ class TessarisEngine:
             return None
 
     def extract_intents_from_glyphs(self, glyphs, metadata=None):
+        """
+        Parse glyphs into actionable intents, generate resonant plans, 
+        and route through the Action Switch for execution.
+        """
         for glyph in glyphs:
             parsed = self._parse_glyph(glyph)
             if not parsed:
@@ -637,20 +736,34 @@ class TessarisEngine:
                     "glyph": glyph,
                     "metadata": metadata or {},
                 }
+
+                # 🧩 Log extracted intent
                 self.kg_writer.log_event("intent_extracted", {
                     "intent_type": intent_type,
                     "glyph": glyph,
                     "payload": payload
                 })
+
+                # 🧭 Generate resonant plan and route through Action Switch
+                try:
+                    plan = self.strategy_planner.generate_plan(intent_data)
+                    self.strategy_planner.adaptive_refinement()
+                    self.strategy_planner.export_resonant_summary()
+
+                    print(f"🧭 Generated resonant plan for intent: {intent_data.get('type')}")
+                    # 💓 Reinforce based on planning success
+                    self.update_resonance_feedback(outcome_score=0.8, reason="Plan generation success")
+                    try:
+                        self.action_switch.route(plan)
+                    except Exception as route_err:
+                        print(f"⚠️ ActionSwitch routing failed: {route_err}")
+
+                except Exception as e:
+                    self.update_resonance_feedback(outcome_score=0.3, reason="Plan generation failure")
+                    print(f"⚠️ Plan generation failed for intent: {e}")
+
+                # 🧠 Always queue intent for downstream Aion/Tessaris executors
                 queue_tessaris_intent(intent_data)
-                self.memlog.log({
-                    "source": "tessaris_engine",
-                    "event": "intent_queued",
-                    "intent_type": intent_type,
-                    "glyph": glyph,
-                    "payload": payload,
-                    "metadata": metadata or {},
-                })
                 print(f"🧠 Queued Tessaris intent ({intent_type}): {payload}")
 
         # ---- Compatibility shim: allow executor to call tessaris.interpret(...) ----

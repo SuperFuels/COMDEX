@@ -1,19 +1,1212 @@
 {
   "Lexicon": {
-    "Nova": {
-      "path": "/tmp/pytest-of-codespace/pytest-24/test_run_photon_file_with_impo0/Nova.wiki.phn",
+    "'hood": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/'hood.wiki.phn",
       "meta": {
-        "signed_by": "Tessaris-Core",
+        "source": "wiki_ingest",
+        "timestamp": 1761499728.5004883,
         "version": "1.0",
-        "timestamp": 1761423020.4874234
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "SHA3-256:63580706665ee4d9537df005ad6ee209efed719b0a47ef0ca879edff57568c38"
       }
     },
-    "Photon": {
-      "path": "/tmp/pytest-of-codespace/pytest-24/test_simulate_photon_runtime0/Photon.wiki.phn",
+    "a bit": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/a bit.wiki.phn",
       "meta": {
-        "signed_by": "Tessaris-Core",
+        "source": "wiki_ingest",
+        "timestamp": 1761499728.6243286,
         "version": "1.0",
-        "timestamp": 1761423020.4911113
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "SHA3-256:aa4563e5a967b5c399244ede60a91edeac4b2939541992c2ecbecc2637ad111f"
+      }
+    },
+    "a cappella": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/a cappella.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499728.6355581,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "SHA3-256:ac13944ffdac77b7265664b7d27ee59088c04fba5379c1fd4be4ca29b2ab6596"
+      }
+    },
+    "a fortiori": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/a fortiori.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499728.6474621,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "SHA3-256:b3cd172e1dd41cdd4985a8caa297aef6adcd2e4d1edad45c1f079d7fd5fbb9b0"
+      }
+    },
+    "a la mode": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/a la mode.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499728.6597216,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "SHA3-256:fdbdbab7f82724a9f2a113600b11368fd9e64e12738acefb0c9d6340b5baabe4"
+      }
+    },
+    "a lot": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/a lot.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499728.6752253,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "SHA3-256:15abc4da223a30a30c657dcdee2df8fd529ae6e5a9564890327e1acc5da14cf3"
+      }
+    },
+    "a posteriori": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/a posteriori.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499728.6871896,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "SHA3-256:ea64d549025afad9efb0a7400ee399d1e36566d4e72c8ecf7457118822c83533"
+      }
+    },
+    "a priori": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/a priori.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499728.698564,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "SHA3-256:2511c90d390f4d4c63b16d52caf7e90609403aee5fc5e0b3aabfaf9299d43dc7"
+      }
+    },
+    "A-line": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/A-line.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499728.5997748,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "9b2d949740a9850f4c34bb894a7fc7dfa227e8f39039926b373d0f299491a969"
+      }
+    },
+    "A": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/A.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499728.6118112,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "3e02961cdf71d7ee50a22491c534fdf82dc401be45c30fdb594f07b2fb6d465b"
+      }
+    },
+    "aa": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/aa.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499728.7094874,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "SHA3-256:08229b2c5de2ac391e9677df0a001277fdbff78b2bea07c32355b65bf99885ff"
+      }
+    },
+    "Aachen": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/Aachen.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499728.7213185,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "SHA3-256:2c343ec9b280af2ca542b6609ac3028c912837ae1bac3b13752aebbbe4355552"
+      }
+    },
+    "aardvark": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/aardvark.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499728.732749,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "a73bcf3d35cb776ef5ed785558e7bad052e41a25f11d375f12e6829f22784f3a"
+      }
+    },
+    "aardwolf": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/aardwolf.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499728.744766,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "9bd9b4471037fbb562d5329a463a2adead64aabcb88f7a00c2fd139396c16e12"
+      }
+    },
+    "Aaron": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/Aaron.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499728.756496,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "SHA3-256:61b4329cb389d759b56ee0af6faad29167d729cfbdf37a1e31a1b70e2970212c"
+      }
+    },
+    "AB": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/AB.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499728.7715933,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "52b1a440e01ca899bb0a3470ddf82ac05c8767e6e4fdf8dd5f0dc67af4cab2fe"
+      }
+    },
+    "abaca": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abaca.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499728.7827637,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "SHA3-256:4e6fb64cd3c0f993565ee29f785838297117c74ec63d50cc12a497cf1f91148b"
+      }
+    },
+    "abacinate": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abacinate.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499728.795582,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "SHA3-256:804091845ee416d1aa4167730aa1fcdf7b172709cdeaa0d4aa3c76079d0b62ae"
+      }
+    },
+    "aback": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/aback.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499728.808703,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "52490c1be8fb0963d5776e7a9dd76a738fb662b793179e7309334844b700f89f"
+      }
+    },
+    "abactinal": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abactinal.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499728.8199077,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "c8f7aed8e8de8e5b6266f72d2cd026b0782853fb604e1dd1f4390a151f9d3a58"
+      }
+    },
+    "abacus": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abacus.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499728.831775,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "4e5e925e5fe7933714fd2121487b83c13e83ff62cf74c1dd529109c34472c150"
+      }
+    },
+    "abalone": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abalone.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499728.8435373,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "9d62f4b87692e024aa67f4a61cde37e356c35fc589b658e9bc0b50c5743a3071"
+      }
+    },
+    "abampere": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abampere.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499728.8601296,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "SHA3-256:d94aed148f0e386d58511ec01acc1f1131c1d959c8beb4c65a0a65587b79cf5e"
+      }
+    },
+    "abandon": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abandon.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499728.8735037,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "4872b749f09646f63909c65292623c6bdd3a8d4a47e8581b06cb2aed5ea90710"
+      }
+    },
+    "abandoned": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abandoned.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499728.8850088,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "fac2202db2456cef937ad9482ac7e68816f34ebddbbbc28ae2cb20100743eee9"
+      }
+    },
+    "abandonment": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abandonment.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499728.8963113,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "672320c4c0caba4a8d59066c065735207b06ad7d9ab1ced4ea007d0ffd2ef1f7"
+      }
+    },
+    "abarticulation": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abarticulation.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499728.9076018,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "SHA3-256:3cd26de7b8ecf2e728f1383ffca4cd7e2b21b19477d103d9c20523e2d0eaaeaa"
+      }
+    },
+    "abasement": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abasement.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499728.9223623,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "SHA3-256:a8c0f7924264cc6762b79111b94c3002037402adb728d4d6521158f2130d8f3c"
+      }
+    },
+    "abashed": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abashed.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499728.9356449,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "a8dc360647de06c53fe41a4ecf23470c7e09395534c7688c0df64204614199d6"
+      }
+    },
+    "abashment": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abashment.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499728.9471998,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "3994d7c27cbed1964b1611d33b3d79ba930b84aac6b442643c62ce14b853e94c"
+      }
+    },
+    "abasia": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abasia.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499728.9619794,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "SHA3-256:9a4ba0a859dfe06189248c07ea65cda0531adbe175d4f5c02862d38ebe147933"
+      }
+    },
+    "abatable": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abatable.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499728.9745126,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "2abfae10be34155eded41a5916d3c214f6c3911a428b4f7cb7be5d480b46e7be"
+      }
+    },
+    "abate": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abate.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499728.987198,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "SHA3-256:091f029431af0a0f4af30a4c4a2a3942e3f10a629fbd847c045690d54c424891"
+      }
+    },
+    "abatement": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abatement.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499729.0017972,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "39dc60202fd4da028bf5bb4280b66cb03b24b3565da091728c6a80bffa1d900a"
+      }
+    },
+    "abator": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abator.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499729.012786,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "SHA3-256:940dcd53b028d51cc26a0220ef53d993deb441321ee503723ce4267183aa64cb"
+      }
+    },
+    "abattis": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abattis.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499729.0239332,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "c09b9f5703c0bf75ae2aa59c02614c8daa3f3eadb9b0f2e5a6ef2222f328b941"
+      }
+    },
+    "abattoir": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abattoir.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499729.0351262,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "8d216c4ce961a0ab57110a50671a41c0e15ae016a22dce1dfd8bf64d0ff64043"
+      }
+    },
+    "abaxial": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abaxial.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499729.0464954,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "66875714b353ec266c5e7ab911213adb97bc723385742269ff585a6f972b0e0f"
+      }
+    },
+    "abbacy": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abbacy.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499729.0583262,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "SHA3-256:c434ab5dee2747d6893bba69f0e75ff2bc86253a28f39380b75bf70a4379fdc8"
+      }
+    },
+    "abbatial": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abbatial.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499729.0699222,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "876e0b15eb96ce325eed53d953b13cc6fb366c1ccb4b4fbc754dbbf02447697d"
+      }
+    },
+    "abbe": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abbe.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499729.0813417,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "SHA3-256:6be98523e6ea26b0b3f2cb26e7dc60f22034852c5080a3793b491d3e28b45187"
+      }
+    },
+    "abbess": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abbess.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499729.097381,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "SHA3-256:79ab867293da71ec8128e3b5c2ecceaa1a5e82d2ae11e8fa972124984c3456f3"
+      }
+    },
+    "abbey": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abbey.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499729.110361,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "f9644bc8d80a42c82eb525c38d9fe7208ee5a92afd730f5abe9f9283ee1f2df0"
+      }
+    },
+    "abbot": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abbot.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499729.1218953,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "SHA3-256:e87e32f817e047dbba64ba19abaf9549a82d33b01a93e80774aa92b18906bdc9"
+      }
+    },
+    "abbreviate": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abbreviate.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499729.133992,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "SHA3-256:53780a735548c4f493b951ff944642d38c7383a01ab4d4caa994b6e669e3bf8f"
+      }
+    },
+    "abbreviated": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abbreviated.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499729.1469164,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "d734ec6e1982239812bdc5ab1880fe6241e94afc260e720a5e4039821674e591"
+      }
+    },
+    "abbreviation": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abbreviation.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499729.158065,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "9520f4d4b9631cb7accac7ddaee24ec5d27df6d44eee9b80af15d6b8cb530d8c"
+      }
+    },
+    "abdicable": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abdicable.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499729.1695452,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "23298aaf69a5c424b9102fddffd11bb578e7884dc1736d8e04c6534f33bce577"
+      }
+    },
+    "abdicate": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abdicate.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499729.1808379,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "SHA3-256:0c5f715e871ad6c5a9e87d3c580b5b370657236f704ae0a8789e7f59d9532a5a"
+      }
+    },
+    "abdication": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abdication.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499729.1919055,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "7a39214cff09928adc0a4e9602b16e6cc325ed48b345f4911ede6353dcbd3272"
+      }
+    },
+    "abdicator": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abdicator.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499729.2031748,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "SHA3-256:866b9cacae03fb84ce45ffdd772cfedfd7a17e5a9180967402bdd672343f3199"
+      }
+    },
+    "abdomen": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abdomen.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499729.2146018,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "262a3407ca62071422d12c3f999a522cd4ff31ae9bfb3f5195067cc544a14929"
+      }
+    },
+    "abdominal": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abdominal.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499729.2258382,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "cbf080253a6d71db24b54590b03d4284944b99993a9a29a48a51517c1b07593d"
+      }
+    },
+    "abdominous": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abdominous.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499729.2374115,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "9560ab7bc5dd8333971716f28815c6d1a348d641851e4697ac8dfd36a7e7c91a"
+      }
+    },
+    "abdominousness": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abdominousness.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499729.248852,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "021f16f9e7251b6ba750afe8bb08e0d9271ff6b097d6a3505a4829f2a9f325d1"
+      }
+    },
+    "abducent": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abducent.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499729.2605343,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "c005407161e31d966fd3dfbc96a2f28e79badf915fc9b2497ab728a62f64ead2"
+      }
+    },
+    "abduct": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abduct.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499729.2735035,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "SHA3-256:4a9a7f575b77f74ca16992fa8204ccaa86190006e722f00802ac425ec9696355"
+      }
+    },
+    "abduction": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abduction.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499729.2857304,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "3c905d6b02136fb5adf0f53612c913a89b39108050399def256f2caec1f6dced"
+      }
+    },
+    "abductor": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abductor.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499729.2975762,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "5a2f43f4322f7226fc99c78a776b685e6b2ca57c30498c028217b23a91714ebc"
+      }
+    },
+    "abeam": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abeam.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499729.3099759,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "b9b58604ce7a3a863180f468dd5545dd9b6e2daa0624c7319e41f3109983f002"
+      }
+    },
+    "Abecedarian": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/Abecedarian.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499729.3217773,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "68f9c0d50b1d7c2c26c7a139c2f9c92953533348c7dd277d720ce4810893bd17"
+      }
+    },
+    "abed": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abed.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499729.3331516,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "56c5aa8d206ab44f023f163fe60cc5d6f950406e38a6700bb0dde9db5a8c126e"
+      }
+    },
+    "Abelmoschus": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/Abelmoschus.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499729.349268,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "SHA3-256:82a3adde1777108ebd01170205bc24faee8d0a279de28cccad02fef1c670f812"
+      }
+    },
+    "abelmosk": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abelmosk.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499729.3638694,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "SHA3-256:877b6a154df950c7e1882532bdbf1d7dd77b014acdc7deee450f697b2430d035"
+      }
+    },
+    "Aberdonian": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/Aberdonian.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499729.374999,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "cbd25d620e3091b518c07b78df9ffce1e23e1f77c28a859686c860fd2f5ed38a"
+      }
+    },
+    "aberrance": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/aberrance.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499729.387033,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "SHA3-256:a059cac74661dc38919966339022d53a944cebd40180f34e774273c3059a7d1a"
+      }
+    },
+    "aberrant": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/aberrant.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499729.4002967,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "a4b3f7e31e8c215cba3de755ebc94f24f695000ffaa9b6d304fdd09063a76fde"
+      }
+    },
+    "aberrate": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/aberrate.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499729.414694,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "SHA3-256:91ebc621e2e9cbba9c5101441a10b3c31dcc2e6fb6a53361501c512ebba16b08"
+      }
+    },
+    "aberration": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/aberration.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499729.4275732,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "SHA3-256:de5419856c023a7f1124684ff671550e586dc7c48669c5cc019edf2d88f12f95"
+      }
+    },
+    "abet": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abet.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499729.4425178,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "SHA3-256:f7b7c0ff4cb248bd70516e6d670782f1de204d10dcec09db51a8bd2c5b3cae32"
+      }
+    },
+    "abetment": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abetment.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499729.4530387,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "e56a1e599ac614d815e07b00b97f7b52dfc139c7e35eb46a732e3fd3a2c19256"
+      }
+    },
+    "abettor": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abettor.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499729.4642293,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "SHA3-256:429ebc2461343f9b5f5394b80b8c0fd18cb50e8f3cbf0f7e827e08f1f54359d9"
+      }
+    },
+    "abeyance": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abeyance.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499729.4755752,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "SHA3-256:f4564da0d68c5fd2e68980156209017d0200b2a99c3e8d0ff85095e721123d53"
+      }
+    },
+    "abeyant": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abeyant.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499729.4892,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "856b79c0c45b339e90cd298bcf54d6995c33cd265961d3a994fcad37f6f08b4c"
+      }
+    },
+    "abhor": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abhor.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499729.5008028,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "SHA3-256:06c80b28e05f8328bc3f6739b518e4a710c872c7f6bfad541a195131f9942e65"
+      }
+    },
+    "abhorrence": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abhorrence.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499729.5128953,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "6d35055f44fdd2de49200f185c6017d0c5f9acd2992d3a13ca11a36f50395db5"
+      }
+    },
+    "abhorrent": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abhorrent.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499729.5258768,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "e31ec76a6a9bb36d49dc69b18ba4b400a7b2c4964a9ddb6b840be15c5a0e6328"
+      }
+    },
+    "abhorrer": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abhorrer.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499729.5405989,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "SHA3-256:ffdbdf4a5ece67d59b6cd5d5b0188be0c9c783df30f5955f0e3c98c5755b61b2"
+      }
+    },
+    "abidance": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abidance.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499729.5519967,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "03d380bbe85a0cf34e01653ab5123c9179d3ee0fd11a5177de954d3b1d2f649a"
+      }
+    },
+    "abiding": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abiding.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499729.5632005,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "d00aa0047a3ba274b059658c4d86ae94ce30585582ed965539a48e5f7f7d7a60"
+      }
+    },
+    "Abidjan": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/Abidjan.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499729.577131,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "SHA3-256:d62d80236123b6e2c77bc24efbc8cbd5dd8ce6f487fde73f8771aa63914c00bb"
+      }
+    },
+    "Abies": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/Abies.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499729.591653,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "SHA3-256:fd9eab90fd7e2d0f9bb5e662bfb1819dee49989a4e49c42dd6472b2207d404b0"
+      }
+    },
+    "ability": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/ability.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499729.6036053,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "18a788233dec5270181a532206b992fde02e07ea6a49da854b4a29d65140408c"
+      }
+    },
+    "abiogenesis": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abiogenesis.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499729.6168587,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "SHA3-256:1881f988d3ea5c2f6bbfd3d5b627602286a12dfc84725f60b0d13ed4eee6bd09"
+      }
+    },
+    "abiogenetic": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abiogenetic.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499729.6289527,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "cfda0fd1333f38d558123838ea73e2b7a459ed3da4189b7cdcdf41c6742b66ac"
+      }
+    },
+    "abiogenist": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abiogenist.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499729.64062,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "SHA3-256:c9821f8a5975b13c17907ca2b648411002f8ed947cb8261d759175223fc93754"
+      }
+    },
+    "abject": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abject.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499729.6521373,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "c6531a4d51ed61bc2b659e5b6d40f0d8d0db9242f3cb9e74dbbd4928f1462e57"
+      }
+    },
+    "abjectly": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abjectly.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499729.6636333,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "a5bbc4666ddc74929129f4eac7998708f422473e84079739b4894be530f217ff"
+      }
+    },
+    "abjure": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abjure.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499729.6781564,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "SHA3-256:1e1226d915634f75db1d5cf3f7e606e7c5c2d1f2dccc4003e183f4282f1f4485"
+      }
+    },
+    "abjurer": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/abjurer.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499729.689266,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "SHA3-256:53c52d519b72229e79f40189a1ce0102ea2a8b5e0445057c66efc1f9856b7a4f"
+      }
+    },
+    "ablactation": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/ablactation.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499729.7032778,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "SHA3-256:6544324bb564d95c72325e5aca61157d55dc360cf9a7d1af87aeaa2d84f5bac8"
+      }
+    },
+    "ablation": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/ablation.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499729.7163963,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "9367177843c9a0de4359e2a40394498517f4179bc99eecc001cd2178d6a1c25e"
+      }
+    },
+    "ablative": {
+      "path": "/workspaces/COMDEX/data/knowledge/Lexicon/ablative.wiki.phn",
+      "meta": {
+        "source": "wiki_ingest",
+        "timestamp": 1761499729.7279737,
+        "version": "1.0",
+        "signed_by": "Tessaris-Core",
+        "sqi_score": 0.0,
+        "ρ": 0.0,
+        "Ī": 0.0,
+        "checksum": "57c9d9c1a1295710756a3cd27a8ccdea94860c4a5c50b9413e085f11d6ec5a4e"
       }
     }
   }

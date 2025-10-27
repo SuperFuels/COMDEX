@@ -1,3 +1,4 @@
+
 #!/usr/bin/env bash
 echo "🚀 Launching Tessaris Resonant Cognitive Stack..."
 echo "🧹 Cleaning up old processes..."
@@ -27,6 +28,12 @@ PYTHONPATH=. nohup python backend/modules/aion_integrity/meta_resonant_telemetry
 
 echo "🔁 Starting Resonant Quantum Feedback Synchronizer (RQFS)"
 PYTHONPATH=. nohup python backend/modules/aion_integrity/resonant_quantum_feedback_synchronizer.py > "$LOG_DIR/rqfs.log" 2>&1 &
+
+echo "⚙️ Starting Resonant Optimizer Loop (ROL)"
+PYTHONPATH=. nohup python backend/modules/aion_resonance/resonant_optimizer_loop.py > "$LOG_DIR/rol.log" 2>&1 &
+
+echo "🌀 Starting Resonant Feedback Daemon (RFD)"
+PYTHONPATH=. nohup python backend/modules/aion_resonance/resonant_feedback_daemon.py > "$LOG_DIR/rfd.log" 2>&1 &
 
 echo "🧠 Starting Tessaris Cognitive Fusion Kernel (TCFK) [port 8005]"
 PYTHONPATH=. nohup python backend/modules/aion_cognition/tessaris_cognitive_fusion_kernel.py > "$LOG_DIR/tcfk.log" 2>&1 &

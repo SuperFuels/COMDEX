@@ -1,0 +1,10 @@
+{
+  "lexicon_dir": "/data/knowledge/Lexicon",
+  "out_dir": "/data/knowledge/Lexicon_enriched",
+  "gcide_xml": "/data/sources/gcide.xml",
+  "wiktionary_xml": "/data/sources/enwiktionary-pages.xml",
+  "signers": [
+    "Tessaris-Core",
+    "Aion-Node"
+  ]
+}

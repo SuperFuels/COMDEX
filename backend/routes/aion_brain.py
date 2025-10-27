@@ -565,6 +565,17 @@ async def aion_brain_dashboard():
     return HTMLResponse(content=html)
 
 # ==========================================================
+# 🧠 AION Optimizer State Endpoint
+# ==========================================================
+@router.get("/api/aion/optimizer/state")
+async def optimizer_state():
+    from backend.modules.aion_language.resonant_memory_cache import ResonantMemoryCache
+    rmc = ResonantMemoryCache()
+    last = rmc.get("resonant_optimizer_last") or {}
+    advisories = rmc.get("resonant_optimizer_advisories") or []
+    return {"last": last, "advisories": advisories}
+
+# ==========================================================
 # 🧠 AION Thought Stream WebSocket
 # ==========================================================
 from fastapi import WebSocket

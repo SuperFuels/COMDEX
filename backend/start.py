@@ -14,7 +14,8 @@ except Exception as e:
     print(f"[Start] ⚠️ BeamStore init failed: {e}")
 
 # import the FastAPI instance from main.py
-from main import app
+# from main import app
+from backend.main import app
 
 if __name__ == "__main__":
     # Cloud Run will inject PORT; default to 8080 for local dev

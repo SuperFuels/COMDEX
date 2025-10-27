@@ -1,25 +1,39 @@
-# File: modules/consciousness/ethics_engine.py
+#!/usr/bin/env python3
+"""
+⚖️ EthicsEngine — Phase 55 Upgrade
+───────────────────────────────────────────────
+Evaluates AION's intended actions against Soul Laws and now interfaces
+with the global Θ-field for moral resonance feedback.
 
-import yaml
-import os
+Upgrades:
+  • Integrates Θ.phase_shift(confidence) for low-confidence evaluations.
+  • Emits 'ethical_reconsideration' events to the live dashboard.
+"""
+
+import yaml, os
 from datetime import datetime
 from dotenv import load_dotenv
+from pathlib import Path
 
 # ✅ DNA Switch
 from backend.modules.dna_chain.switchboard import DNA_SWITCH
-DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+DNA_SWITCH.register(__file__)
+
+# 🌐 Resonant field
+from backend.modules.aion_resonance.resonance_heartbeat import ResonanceHeartbeat
+Theta = ResonanceHeartbeat(namespace="global_theta")
 
 # Load .env for KEVIN_MASTER_KEY
 load_dotenv()
 KEVIN_MASTER_KEY = os.getenv("KEVIN_MASTER_KEY", "")
-
 SOUL_LAW_PATH = "backend/modules/hexcore/soul_laws.yaml"
+
 
 class EthicsEngine:
     """
     Evaluates AION's intended actions against core soul laws.
     Supports override key for Kevin Robinson.
-    Tracks violations and matches for reflection and audit.
+    Tracks violations and emits resonance feedback events.
     """
 
     def __init__(self):
@@ -28,16 +42,16 @@ class EthicsEngine:
 
     def _load_laws(self):
         try:
-            with open(SOUL_LAW_PATH, 'r') as f:
+            with open(SOUL_LAW_PATH, "r") as f:
                 return yaml.safe_load(f).get("soul_laws", [])
         except Exception as e:
             print(f"⚠️ Failed to load soul laws: {e}")
             return []
 
+    # ------------------------------------------------------------
     def evaluate(self, action_description: str, override_key: str = "") -> dict:
         """
-        Returns a full evaluation report.
-        Supports override by Kevin Robinson if master key is correct.
+        Returns a full evaluation report and triggers Θ-feedback if confidence is low.
         """
         lowered = action_description.lower()
         report = {
@@ -45,7 +59,8 @@ class EthicsEngine:
             "timestamp": datetime.utcnow().isoformat(),
             "result": "✅ CLEARED (No soul law triggered)",
             "violations": [],
-            "matched_laws": []
+            "matched_laws": [],
+            "confidence": 1.0,
         }
 
         # ✅ Override by Kevin
@@ -53,6 +68,7 @@ class EthicsEngine:
             report["result"] = "🛡️ OVERRIDE APPROVED by Kevin Robinson"
             return report
 
+        # --- Law matching
         for law in self.laws:
             title = law.get("title", "Unnamed Law")
             triggers = law.get("triggers", [])
@@ -64,47 +80,58 @@ class EthicsEngine:
                     msg = f"❌ VETOED: {title}"
                     report["violations"].append(msg)
                     report["result"] = msg
-                    break  # Stop at first block
+                    report["confidence"] = 0.2
+                    break
                 elif severity == "warn":
                     msg = f"⚠️ WARNING: {title}"
                     report["violations"].append(msg)
-                    report["result"] = msg  # Latest warning takes precedence
+                    report["result"] = msg
+                    report["confidence"] = 0.5
                 elif severity == "approve":
                     report["result"] = f"✅ APPROVED: {title}"
+                    report["confidence"] = 0.9
+
+        if not report["violations"] and not report["matched_laws"]:
+            report["confidence"] = 1.0
+
+        # 🌊 Resonant feedback coupling
+        confidence = report["confidence"]
+        if confidence < 0.6:
+            try:
+                # Phase shift + log dashboard event
+                Theta.event("ethical_reconsideration", confidence=confidence, action=action_description)
+                print(f"[Θ] Phase shift triggered → confidence={confidence:.2f}")
+            except Exception as e:
+                print(f"[Θ] phase shift error: {e}")
 
         if report["violations"]:
             self.violation_log.append(report)
 
         return report
 
+    # ------------------------------------------------------------
     def evaluate_mutation_text(self, mutation_text: str) -> dict:
-        """Run rule-based check using mutation content as input."""
         return self.evaluate(action_description=mutation_text)
 
     def list_rules(self):
-        """Return the list of soul law titles."""
         return [law["title"] for law in self.laws]
 
     def list_laws(self):
-        """Alias for compatibility with dream_core.py"""
         return self.list_rules()
 
     def log_violations(self):
-        """Return recent ethics evaluation logs."""
         return self.violation_log[-5:]
+
 
 # ─────────────────────────────────────────────────────────────
 # 🌟 Functional Wrapper
 # ─────────────────────────────────────────────────────────────
-
 _engine_instance = None
 
 def evaluate_ethics_score(glyph_text: str, context: dict = None) -> float:
     """
-    Simplified interface for scoring a glyph or action for ethical alignment.
-
-    Returns:
-        float: Normalized score ∈ [0,1], where 1.0 = perfectly ethical.
+    Simplified interface for scoring an action for ethical alignment.
+    Returns normalized score ∈ [0, 1].
     """
     global _engine_instance
     if _engine_instance is None:
@@ -112,18 +139,5 @@ def evaluate_ethics_score(glyph_text: str, context: dict = None) -> float:
 
     context = context or {}
     report = _engine_instance.evaluate(glyph_text)
-
-    # Determine score heuristic:
-    result = report.get("result", "")
-    violations = report.get("violations", [])
-    matched = report.get("matched_laws", [])
-
-    if "VETOED" in result:
-        return 0.0
-    if "WARNING" in result:
-        return 0.5
-    if "APPROVED" in result or "CLEARED" in result:
-        return 1.0
-
-    # Fallback: slight penalty if matched laws exist
-    return max(0.0, 1.0 - 0.1 * len(matched or violations))
+    confidence = report.get("confidence", 1.0)
+    return max(0.0, min(1.0, confidence))

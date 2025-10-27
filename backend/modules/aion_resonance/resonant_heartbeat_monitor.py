@@ -22,7 +22,82 @@ INTERVAL = 60.0  # seconds between heartbeats
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s")
+class ResonanceHeartbeat:
+    """
+    🫀 ResonanceHeartbeat — live coherence monitor + feedback broadcaster
+    Used by all AION/Tessaris subsystems for resonant feedback coupling.
+    """
 
+    def __init__(self, namespace="default"):
+        self.namespace = namespace
+        self.listeners = []
+        self.running = False
+
+        # 🩺 Resonance state attributes
+        self.coherence = 0.85      # current Φ-coherence level (0–1)
+        self.entropy = 0.15        # recent entropy snapshot (0–1)
+        self.last_pulse = None
+
+    # ------------------------------------------------------------
+    def register_listener(self, callback):
+        """Register a function to receive heartbeat pulse data."""
+        if callable(callback):
+            self.listeners.append(callback)
+
+    # ------------------------------------------------------------
+    def emit(self, delta: float = 0.0):
+        """Emit a resonance heartbeat pulse to all listeners."""
+        self.last_pulse = {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "resonance_delta": delta,
+            "entropy": self.entropy,
+        }
+        for cb in self.listeners:
+            try:
+                cb(self.last_pulse)
+            except Exception as e:
+                print(f"[⚠️] Heartbeat listener error: {e}")
+
+    # ------------------------------------------------------------
+    def bind_jsonl(self, path: str):
+        """
+        Optionally bind to a live JSONL stream of coherence readings.
+        This allows external generators (like the Tessaris Resonant Heartbeat Generator)
+        to feed data directly into this heartbeat object.
+        """
+        from pathlib import Path
+        self.jsonl_path = Path(path)
+        if not self.jsonl_path.exists():
+            self.jsonl_path.parent.mkdir(parents=True, exist_ok=True)
+            self.jsonl_path.touch()
+        print(f"🔗 Bound ResonanceHeartbeat to {path}")
+
+    # ------------------------------------------------------------
+    def start(self):
+        """Begin emitting simulated heartbeats (background)."""
+        import threading, time, math, random
+
+        if self.running:
+            return
+        self.running = True
+
+        def _loop():
+            t0 = time.time()
+            while self.running:
+                t = time.time() - t0
+                delta = math.sin(t / 20) * 0.05 + random.uniform(-0.02, 0.02)
+                self.coherence = min(1.0, max(0.0, self.coherence + delta))
+                self.entropy = max(0.0, min(1.0, abs(math.sin(t / 15)) * 0.3))
+                self.emit(delta)
+                time.sleep(5.0)
+
+        threading.Thread(target=_loop, daemon=True).start()
+        print(f"💓 ResonanceHeartbeat[{self.namespace}] started.")
+
+    # ------------------------------------------------------------
+    def stop(self):
+        self.running = False
+        print(f"💤 ResonanceHeartbeat[{self.namespace}] stopped.")
 
 async def compute_heartbeat():
     """Read recent telemetry, compute mean stability and field variance."""

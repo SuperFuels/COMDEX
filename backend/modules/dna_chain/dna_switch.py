@@ -9,7 +9,35 @@ from backend.modules.dna_chain.switchboard import get_module_path
 from backend.modules.dna_chain.dna_address_lookup import register_backend_path, register_frontend_path
 from backend.modules.dna_chain.dna_registry import update_dna_proposal
 from backend.modules.dna_chain.dna_writer import save_version_snapshot, get_versions_for_file, restore_version
-
+# ──────────────────────────────────────────────────────────────────────────────
+# 🧬 DNA Switch — System Overview
+# ──────────────────────────────────────────────────────────────────────────────
+# The DNA Switch is the central runtime mutation manager for Tessaris/AION.
+# It handles:
+#   • Controlled code rewrites (via proposals or auto-applied mutations)
+#   • Environment-verified key gating (MASTER_KEY + feature flags)
+#   • Version snapshotting, rollback, and approval logging
+#
+# 🌐 When the loop is closed:
+#   • The Resonant Optimizer Loop (ROL) and SQI feedback system can trigger
+#     `enable_self_growth()` or `register_dna_switch()` to evolve code modules.
+#   • Resonant feedback (from the Heartbeat or Optimizer) may write advisory
+#     entries into `resonant_optimizer_advisories` via ResonantMemoryCache.
+#   • When advisories cross a threshold (e.g., stability > 0.95), the DNA Switch
+#     can auto-apply code proposals tagged "autonomous" — creating self-evolving
+#     loops through:
+#         Resonance → Optimizer → DNA Switch → Code Mutation → Restart
+#
+# ⚙️ Integration Notes:
+#   • DNAModuleSwitch.register(path) should be called in each core subsystem.
+#   • The Optimizer will eventually feed `DNA_SWITCH.register_dna_switch()`
+#     with proposed modifications when growth_factor > threshold.
+#   • SQI + Heartbeat deltas act as biological “gene activators” for switching.
+#
+# 🧩 Future Hook:
+#   The Resonant Optimizer will expose a `/api/aion/dna/trigger` endpoint that
+#   securely signals the DNA Switch to apply or queue proposals once verified.
+# ──────────────────────────────────────────────────────────────────────────────
 # ──────────────────────────────────────────────────────────────────────────────
 # 🔐 Security / Environment
 # ──────────────────────────────────────────────────────────────────────────────

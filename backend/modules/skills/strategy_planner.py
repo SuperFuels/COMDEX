@@ -1,637 +1,348 @@
+#!/usr/bin/env python3
+"""
+🧭 StrategyPlanner — Phase 55 Resonant Upgrade + Goal Cluster Bridge
+─────────────────────────────────────────────────────────────────────
+Extends strategic reasoning with Θ-feedback, resonance scoring,
+and adaptive goal-cluster coupling.
+
+Core Upgrades:
+  • SQI evaluation for each generated plan
+  • Continuous Θ-feedback via ResonanceHeartbeat
+  • Predictive refinement and adaptive weighting
+  • ResonantMemoryCache (RMC) harmonic persistence
+  • Automatic goal-cluster creation / reinforcement (P55 T4)
+  • Bidirectional GSI⇄SQI resonance exchange
+"""
+
 import uuid
+import time
+import json
+import logging
+import asyncio
 from datetime import datetime
 from pathlib import Path
-import json
+
+# ─────────────────────────────────────────────────────────────
+# 🔧 Core Dependencies
+# ─────────────────────────────────────────────────────────────
 from backend.modules.hexcore.memory_engine import MemoryEngine
-from backend.modules.skills.milestone_tracker import MilestoneTracker
-from backend.modules.logging.failure_logger import FailureLogger
-from backend.modules.codex.codex_trace import CodexTrace
-from backend.modules.skills.goal_engine import GOALS
-from backend.modules.skills.goal_engine import GoalEngine  # Added for goal linkage
-# ✅ Deferred Knowledge Graph Writer (Fix circular import)
-from backend.modules.knowledge_graph.kg_writer_singleton import get_strategy_planner_kg_writer
-
-# ✅ DNA Switch
+from backend.modules.aion_language.resonant_memory_cache import ResonantMemoryCache
+from backend.modules.aion_resonance.resonance_heartbeat import ResonanceHeartbeat
+from backend.modules.consciousness.prediction_engine import PredictionEngine
+from backend.modules.hexcore.strategy_engine import StrategyEngine
 from backend.modules.dna_chain.switchboard import DNA_SWITCH
-DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+from backend.modules.aion_resonance.resonance_heartbeat import ResonanceHeartbeat
 
-STRATEGY_FILE = Path(__file__).parent / "aion_strategies.json"
+# 🌐 Global Θ-field instance for unified resonance events
+Theta = ResonanceHeartbeat(namespace="global_theta")
 
+# 🔗 Dynamic bridge to Goal Task Manager – loaded lazily
+GOAL_CLUSTER = None
+def get_goal_cluster():
+    """
+    Returns a singleton GoalTaskManager using the unified persistent goal file.
+    Ensures StrategyPlanner ↔ GoalTaskManager ↔ GoalEngine share same storage.
+    """
+    global GOAL_CLUSTER
+    if GOAL_CLUSTER is None:
+        from backend.modules.consciousness.goal_task_manager import GoalTaskManager
+        from backend.modules.skills.goal_engine import GoalEngine
+        GOAL_PATH = "/workspaces/COMDEX/data/goals/goal_engine_data.json"
+
+        # Ensure the same file is used across all systems
+        mgr = GoalTaskManager()
+        mgr.goal_engine = GoalEngine(goal_file=GOAL_PATH)
+        GOAL_CLUSTER = mgr
+
+    return GOAL_CLUSTER
+
+DNA_SWITCH.register(__file__)
+log = logging.getLogger(__name__)
+STRATEGY_FILE = Path("data/memory/aion_strategies.json")
+
+
+# ============================================================
+# 🧠 Base Resonant Strategy Planner
+# ============================================================
 class StrategyPlanner:
-    def __init__(self, enable_glyph_logging=True):
-        self.enable_glyph_logging = enable_glyph_logging  # 🔒 Toggle to enable/disable plan glyph injection
+    """Resonant Strategy Planner — Base Layer for Phase 55."""
+
+    def __init__(self, enable_glyph_logging: bool = True):
+        self.enable_glyph_logging = enable_glyph_logging
         self.memory = MemoryEngine()
-        self.goal_engine = GoalEngine(enable_glyph_logging=enable_glyph_logging)  # propagate toggle
-        self.tracker = MilestoneTracker(goal_creation_callback=self.goal_engine.create_goal_from_milestone)
+        self.prediction_engine = PredictionEngine()
+        self.strategy_engine = StrategyEngine()
+        self.rmc = ResonantMemoryCache()
         self.strategies = []
-        self.agents = []  # For agent communication
-        self.strategy_goal_map = {}  # Maps strategy_id -> goal string
-        self.trace = CodexTrace()  # Restored from original placeholder version
+
+        # 💓 Resonant coupling
+        self.heartbeat = ResonanceHeartbeat(namespace="strategy_planner")
+        self.heartbeat.register_listener(self._on_heartbeat)
         self.load()
-        self.detect_and_handle_rewrites()  # 🧠 Respond to self-rewrite trigger
-        self.failure_logger = FailureLogger()
+        log.info("💓 StrategyPlanner linked to Resonance Heartbeat.")
 
-    def plan_strategy(self, goal):
-        strategy = {
-            "uuid": str(uuid.uuid4()),
-            "goal": goal.get("name"),
+    # ------------------------------------------------------------
+    def plan_strategy(self, goal_name: str):
+        """Generate and evaluate a symbolic plan for a given goal."""
+        steps = [
+            f"Analyze context for {goal_name}",
+            f"Identify subgoals for {goal_name}",
+            f"Simulate actions for {goal_name}",
+            f"Execute optimized sequence for {goal_name}",
+            "Reflect and update resonance links",
+        ]
+        plan = {
+            "id": str(uuid.uuid4()),
+            "goal": goal_name,
+            "steps": steps,
             "created_at": datetime.utcnow().isoformat(),
-            "steps": self._generate_plan_steps(goal),
         }
-        self.strategies.append(strategy)
-        self.save_strategies()
 
-        # 🚫 R4g: Check disable toggle before glyph injection
-        if not self.enable_glyph_logging:
-            print("🚫 Plan glyph injection disabled by toggle.")
-            return strategy
+        plan["resonance_score"] = self._evaluate_plan_resonance(plan)
+        plan["timestamp"] = time.time()
 
-        # ✅ R4e–R4h: Inject plan glyph into knowledge graph
+        pred = self.prediction_engine.forecast(goal_name)
+        plan["predicted_confidence"] = pred.get("confidence", 0.5)
+        plan["predicted_outcome"] = pred.get("summary", "No prediction available")
+
+        self.strategies.append(plan)
+        self.save()
+        self.rmc.update_resonance_link(goal_name, "plan", plan["resonance_score"])
+        self.rmc.save()
+
+        log.info(
+            f"🎯 Plan generated → SQI={plan['resonance_score']:.3f}, "
+            f"confidence={plan['predicted_confidence']:.3f}"
+        )
+        return plan
+
+    # ------------------------------------------------------------
+    def _evaluate_plan_resonance(self, plan):
+        """Compute semantic–resonant alignment (SQI) of plan steps."""
+        total, count = 0.0, 0
+        for step in plan.get("steps", []):
+            entry = self.rmc.lookup(step)
+            if entry and "stability" in entry:
+                total += entry["stability"]
+                count += 1
+        return round(total / max(count, 1), 3)
+
+    # ------------------------------------------------------------
+    def evaluate_plan(self, plan):
+        """Emit Θ-resonant evaluation metrics for the given plan (Phase 55 T1)."""
         try:
-            get_strategy_planner_kg_writer().inject_glyph(
-                content=str(strategy.get("steps", [])),
-                glyph_type="plan",
-                metadata={
-                    "uuid": strategy.get("uuid"),
-                    "goal": strategy.get("goal"),
-                    "created_at": strategy.get("created_at"),
-                    "tags": ["🧭", "🧩"],
-                    "origin": "StrategyPlanner"
-                },
-                plugin="StrategyPlanner"
-            )
+            sqi = self._evaluate_plan_resonance(plan)
+            entropy = 1.0 - sqi  # fallback proxy if no explicit entropy calc
+            Theta.event("plan_eval", sqi=sqi, entropy=entropy, engine="StrategyPlanner")
+            log.info(f"[Θ] event plan_eval SQI={sqi:.3f}, entropy={entropy:.3f}")
+            if hasattr(self, "dashboard"):
+                self.dashboard.log_event("plan_eval", {"SQI": sqi, "entropy": entropy})
+            return sqi
         except Exception as e:
-            print(f"⚠️ Failed to inject strategy glyph: {e}")
-            self.failure_logger.log_failure("plan_glyph_injection", str(e), context="StrategyPlanner")
+            log.warning(f"[Θ] evaluate_plan error: {e}")
+            return 0.0
 
-        return strategy
+    # ------------------------------------------------------------
+    def _on_heartbeat(self, metrics: dict):
+        """Θ-pulse feedback loop for resonant weight adaptation."""
+        try:
+            drift = metrics.get("resonance_drift", 0.0)
+            sqi = metrics.get("sqi", 0.0)
+            stability = metrics.get("stability", 0.0)
+            if not self.strategies:
+                return
+            for strat in self.strategies:
+                old = strat.get("resonance_score", 0.5)
+                adj = (sqi * 0.3 + stability * 0.2 - drift * 0.1)
+                strat["resonance_score"] = max(0.0, min(1.0, old + adj))
+            self.save()
+            log.info(f"[Θ] ♻ Updated {len(self.strategies)} strategies with resonance feedback.")
+        except Exception as e:
+            log.warning(f"[Θ] Feedback error: {e}")
 
-        def estimate_cost(self, text):
-            """
-            Estimates symbolic cost for a given strategy action using Tessaris logic.
-            """
-            try:
-                from backend.modules.tessaris.tessaris_engine import estimate_cost as tessaris_estimate
-                return tessaris_estimate(text)
-            except Exception as e:
-                print(f"⚠️ Could not estimate cost: {e}")
-                return 0.5  # default midpoint
+    # ------------------------------------------------------------
+    def adaptive_refinement(self):
+        """Auto-refine low-SQI strategies based on predictive confidence."""
+        updated = 0
+        for s in self.strategies:
+            if s.get("resonance_score", 0.5) < 0.4:
+                pred = self.prediction_engine.forecast(s["goal"])
+                s["predicted_outcome"] = pred.get("summary", "")
+                s["resonance_score"] = round(
+                    (s.get("resonance_score", 0.5) + pred.get("confidence", 0.5)) / 2, 3
+                )
+                updated += 1
+        if updated:
+            self.save()
+            log.info(f"🔁 Refined {updated} strategies with low resonance.")
 
-        # Agent communication methods
-        def register_agent(self, agent):
-            if agent not in self.agents:
-                self.agents.append(agent)
-                print(f"✅ Agent registered: {agent.name}")
-
-        def receive_message(self, message):
-            if isinstance(message, dict):
-                msg_type = message.get("type")
-                if msg_type == "new_milestone":
-                    milestone = message.get("milestone", {})
-                    name = milestone.get("name")
-                    importance = milestone.get("importance", 5)
-                    print(f"📢 Received new milestone notification: {name} (importance: {importance})")
-                    self.generate_with_ids(priority_importance=importance)
-                elif msg_type == "new_reflection_strategy":
-                    reflection_text = message.get("reflection_text", "")
-                    if reflection_text:
-                        self.add_strategy_from_reflection(reflection_text)
-                else:
-                    print(f"📬 Unknown message type received: {msg_type}")
-            else:
-                print(f"📬 Received message: {message}")
-
+    # ------------------------------------------------------------
     def load(self):
         if STRATEGY_FILE.exists():
             try:
                 with open(STRATEGY_FILE, "r") as f:
                     self.strategies = json.load(f)
-                # Ensure all strategies have IDs, add if missing
-                fixed_count = 0
-                for s in self.strategies:
-                    if "id" not in s or not s["id"]:
-                        s["id"] = str(uuid.uuid4())
-                        fixed_count += 1
-                if fixed_count > 0:
-                    print(f"⚠️ Added missing 'id' to {fixed_count} loaded strategies.")
-                    self.save()
-                # Rebuild strategy_goal_map on load
-                self.strategy_goal_map = {s["id"]: s.get("goal") for s in self.strategies if "id" in s}
             except Exception as e:
-                print(f"⚠️ Failed to load strategy file: {e}")
+                log.warning(f"⚠️ Failed to load strategies: {e}")
                 self.strategies = []
-                self.strategy_goal_map = {}
         else:
             self.strategies = []
-            self.strategy_goal_map = {}
 
     def save(self):
+        STRATEGY_FILE.parent.mkdir(parents=True, exist_ok=True)
+        with open(STRATEGY_FILE, "w") as f:
+            json.dump(self.strategies, f, indent=2)
+
+    def export_summary(self, path="data/analysis/resonant_strategy_summary.json"):
+        Path(path).parent.mkdir(parents=True, exist_ok=True)
+        data = [
+            {
+                "goal": s.get("goal"),
+                "resonance_score": s.get("resonance_score", 0.0),
+                "predicted_confidence": s.get("predicted_confidence", 0.0),
+                "timestamp": s.get("timestamp"),
+            }
+            for s in self.strategies
+        ]
+        with open(path, "w") as f:
+            json.dump(data, f, indent=2)
+        log.info(f"📤 Exported resonant summary → {path}")
+
+
+# ============================================================
+# 🧭 P4 — Advanced Resonant Strategy Planner (Cluster Edition)
+# ============================================================
+class ResonantStrategyPlanner(StrategyPlanner):
+    """
+    Integrates predictive planning + goal cluster bridge for resonant coherence.
+    """
+
+    def __init__(self, enable_glyph_logging=True):
+        super().__init__(enable_glyph_logging=enable_glyph_logging)
+        from backend.modules.skills.goal_engine import GoalEngine
+        self.goal_engine = GoalEngine(goal_file="/workspaces/COMDEX/data/goals/goal_engine_data.json")
+        self.heartbeat = ResonanceHeartbeat(namespace="strategy_planner")
+        self.heartbeat.register_listener(self._on_heartbeat)
+        log.info("💓 ResonantStrategyPlanner initialized.")
+
+    # ------------------------------------------------------------
+    def generate_plan(self, intent: dict | str):
+        """Build and evaluate a PlanTree from ReasonedIntent and sync goals."""
+        goal = intent.get("what", intent) if isinstance(intent, dict) else str(intent)
+        log.info(f"[P4] Generating resonant plan for intent: {goal}")
+
+        plan = self.plan_strategy(goal)
+        sqi_score = self._evaluate_plan_resonance(plan)
+        plan["resonance_score"] = sqi_score
+        plan["timestamp"] = time.time()
+
+        pred = self.prediction_engine.forecast(goal)
+        plan["predicted_outcome"] = pred.get("summary", "No prediction available")
+        plan["predicted_confidence"] = pred.get("confidence", 0.5)
+        self.rmc.update_resonance_link(goal, "plan", sqi_score)
+        self.rmc.save()
+
+        # ──────────────────────────────────────────────
+        # 🌀 Resonant Goal Cluster Bridge (Phase 55 Task 4 – Stabilized)
+        # ──────────────────────────────────────────────
         try:
-            with open(STRATEGY_FILE, "w") as f:
-                json.dump(self.strategies, f, indent=2)
-        except Exception as e:
-            print(f"⚠️ Failed to save strategy file: {e}")
+            cluster = get_goal_cluster()
 
-    def check_for_contradiction(self, new_strategy):
-        """
-        Checks if the new strategy contradicts existing strategies.
-        Emits ⮁ glyph trigger if contradiction found, and triggers rewrite.
-        """
-        for existing in self.strategies:
-            if existing.get("goal") == new_strategy.get("goal") and existing.get("action") != new_strategy.get("action"):
-                print(f"⮁ Contradiction detected for goal: {new_strategy['goal']}")
+            # Detect early-cache conditions safely
+            cache_data = getattr(self.rmc, "cache", {})
+            cache_size = len(cache_data) if isinstance(cache_data, dict) else 0
+            early_stage = cache_size < 50
 
-                # 🧠 Log failure to KG
-                self.failure_logger.log_failure(
-                    "GoalConflict",
-                    f"Strategy for goal '{new_strategy['goal']}' contradicts existing strategy",
-                    context="StrategyPlanner"
+            # 🌌 Normalize and bootstrap SQI
+            normalized_sqi = sqi_score
+            if early_stage or sqi_score < 0.7:
+                normalized_sqi = round(0.75 + sqi_score * 0.25, 3)
+                log.info(
+                    f"[ClusterBridge] ⚛ Bootstrap normalization applied — SQI {sqi_score:.3f} → {normalized_sqi:.3f} "
+                    f"(cache={cache_size})"
                 )
 
-                # Emit self-rewrite glyph into memory symbolic store
-                self.memory.store_symbolic({
-                    "glyph": "⮁",
-                    "description": f"Contradictory strategy detected for goal '{new_strategy['goal']}'.",
-                    "timestamp": datetime.now().isoformat(),
-                    "origin": "StrategyPlanner"
-                })
+            # Force creation for early phase testing
+            if normalized_sqi >= 0.1 or early_stage:
+                goals = cluster.goal_engine.get_all_goals()
+                related = [g for g in goals if goal in g["name"] or g["name"] in goal]
 
-                # Trigger strategy regeneration with elevated priority
-                self.generate_with_ids(priority_importance=8)
-                return True
-        return False
-
-    def generate(self, priority_importance=5):
-        """
-        Legacy generate method without IDs - kept for compatibility.
-        """
-        memories = self.memory.get_all()
-        current_phase = self.tracker.get_phase()
-        new_strategies = []
-
-        phase_priority_map = {
-            "Infant": 1,
-            "Child": 1.5,
-            "Learner": 2,
-            "Explorer": 2.5,
-            "Sage": 3
-        }
-        phase_multiplier = phase_priority_map.get(current_phase, 1)
-
-        for m in memories:
-            tags = m.get("milestone_tags", [])
-            for tag in tags:
-                base_priority = 5
-                importance_score = priority_importance * phase_multiplier * base_priority
-
-                if tag == "cognitive_reflection":
-                    idea = {
-                        "goal": "Reflect on identity and purpose",
-                        "action": "Analyze previous dreams and summarize AION’s current self-image.",
-                        "timestamp": datetime.now().isoformat(),
-                        "priority": importance_score
+                if not related:
+                    new_goal = {
+                        "name": f"cluster_goal_{goal.replace(' ', '_')}",
+                        "description": f"Resonant cluster goal auto-derived from '{goal}'.",
+                        "reward": 6,
+                        "priority": round(max(normalized_sqi * 10, 5), 2),
+                        "dependencies": [],
+                        "created_at": datetime.utcnow().isoformat(),
+                        "origin_strategy_id": plan.get("id", "unknown"),
+                        "tags": ["cluster", "resonant", "auto", "bootstrap"],
                     }
-                    new_strategies.append(idea)
-                elif tag == "wallet_integration":
-                    idea = {
-                        "goal": "Prepare for wallet integration",
-                        "action": "List what is required to securely manage and visualize token balances.",
-                        "timestamp": datetime.now().isoformat(),
-                        "priority": importance_score
-                    }
-                    new_strategies.append(idea)
-                elif tag == "nova_connection":
-                    idea = {
-                        "goal": "Design Nova UI interactions",
-                        "action": "Create a plan for frontend modules to visualize dreams, milestones, and goals.",
-                        "timestamp": datetime.now().isoformat(),
-                        "priority": importance_score
-                    }
-                    new_strategies.append(idea)
-                elif tag == "grid_mastery":
-                    idea = {
-                        "goal": "Expand embodied cognition",
-                        "action": "Use lessons from Grid World to prepare for next-level simulation and dynamic interaction space.",
-                        "timestamp": datetime.now().isoformat(),
-                        "priority": importance_score
-                    }
-                    new_strategies.append(idea)
-
-        if new_strategies:
-            self.strategies.extend(new_strategies)
-            self.save()
-            print(f"✅ {len(new_strategies)} new strategies generated.")
-        else:
-            print("📭 No new strategies generated.")
-
-    def generate_with_ids(self, priority_importance=5):
-        """
-        Generates new strategies with unique IDs and tracks them in strategy_goal_map.
-        Adds deferment logic for high-cost strategies.
-        """
-        memories = self.memory.get_all()
-        current_phase = self.tracker.get_phase()
-        new_strategies = []
-
-        phase_priority_map = {
-            "Infant": 1,
-            "Child": 1.5,
-            "Learner": 2,
-            "Explorer": 2.5,
-            "Sage": 3
-        }
-        phase_multiplier = phase_priority_map.get(current_phase, 1)
-
-        for m in memories:
-            tags = m.get("milestone_tags", [])
-            for tag in tags:
-                base_priority = 5
-                importance_score = priority_importance * phase_multiplier * base_priority
-
-                strategy_id = str(uuid.uuid4())
-
-                if tag == "cognitive_reflection":
-                    idea = {
-                        "id": strategy_id,
-                        "goal": "Reflect on identity and purpose",
-                        "action": "Analyze previous dreams and summarize AION’s current self-image.",
-                        "timestamp": datetime.now().isoformat(),
-                        "priority": importance_score
-                    }
-                elif tag == "wallet_integration":
-                    idea = {
-                        "id": strategy_id,
-                        "goal": "Prepare for wallet integration",
-                        "action": "List what is required to securely manage and visualize token balances.",
-                        "timestamp": datetime.now().isoformat(),
-                        "priority": importance_score
-                    }
-                elif tag == "nova_connection":
-                    idea = {
-                        "id": strategy_id,
-                        "goal": "Design Nova UI interactions",
-                        "action": "Create a plan for frontend modules to visualize dreams, milestones, and goals.",
-                        "timestamp": datetime.now().isoformat(),
-                        "priority": importance_score
-                    }
-                elif tag == "grid_mastery":
-                    idea = {
-                        "id": strategy_id,
-                        "goal": "Expand embodied cognition",
-                        "action": "Use lessons from Grid World to prepare for next-level simulation and dynamic interaction space.",
-                        "timestamp": datetime.now().isoformat(),
-                        "priority": importance_score
-                    }
+                    cluster.goal_engine.assign_goal(new_goal)
+                    log.info(f"[ClusterBridge] 🌱 Created goal cluster: {new_goal['name']}")
                 else:
-                    continue  # skip unknown tags
-
-                # Optional: Assign estimated cost (placeholder logic)
-                idea["cost"] = m.get("estimated_cost", 0.5)  # or generate with heuristic
-                # ⚠️ Defer high-cost strategies
-                if idea["cost"] >= 0.8:
-                    idea["deferred"] = True
-                    print(f"⚠️ Strategy deferred due to high cost: {idea['goal']}")
-                else:
-                    idea["deferred"] = False
-
-                # Check contradiction and skip if found
-                if self.check_for_contradiction(idea):
-                    print("⚠️ Strategy skipped due to contradiction.")
-                    continue
-
-                new_strategies.append(idea)
-                self.strategy_goal_map[strategy_id] = idea["goal"]
-
-        if new_strategies:
-            self.strategies.extend(new_strategies)
-            self.save()
-            print(f"✅ {len(new_strategies)} new strategies with IDs generated.")
-        else:
-            print("📭 No new strategies generated.")
-
-    def add_strategy_from_reflection(self, text):
-        strategy_id = str(uuid.uuid4())
-        cost = self.estimate_cost(text)
-        strategy = {
-            "id": strategy_id,
-            "goal": "Explore reflective insight",
-            "action": text,
-            "cost": cost,
-            "timestamp": datetime.now().isoformat(),
-            "priority": 10 - round(cost * 10)  # inverse priority
-        }
-
-        # Check contradiction and skip if found
-        if self.check_for_contradiction(strategy):
-            print("⚠️ Reflection strategy skipped due to contradiction.")
-            return
-
-        self.strategies.append(strategy)
-        self.strategy_goal_map[strategy_id] = strategy["goal"]
-        self.save()
-        print(f"🧠 Reflection strategy added with estimated cost {cost:.2f}")
-    
-    def detect_and_handle_rewrites(self):
-        """🌀 A3: Detect ⮁ self-rewrite glyphs and regenerate strategies."""
-        recent_memory = self.memory.get_recent(limit=50)
-        for m in recent_memory:
-            if m.get("glyph") == "⮁":
-                print("🌀 Detected ⮁ self-rewrite glyph. Generating new strategy loop...")
-                self.generate_with_ids(priority_importance=7)
-                break    
-
-    def generate_goal(self):
-        """
-        Generates a single high-level goal string for AION.
-        Uses highest priority strategy if available, else returns a default goal.
-        """
-        if self.strategies:
-            sorted_strats = sorted(self.strategies, key=lambda x: x.get("priority", 0), reverse=True)
-            top_strategy = sorted_strats[0]
-            goal = top_strategy.get("goal", "Improve AION's capabilities")
-            return goal
-        else:
-            return "Define initial goals for AION's growth and learning."
-    
-    def collapse_deferred_strategies(self):
-        """
-        Collapses all strategies marked as deferred due to high cost.
-        Optionally removes them or tags with collapse metadata.
-        """
-        collapsed = 0
-        for strategy in self.strategies:
-            if strategy.get("deferred"):
-                strategy["collapsed"] = True
-                strategy["collapse_reason"] = "high_cost"
-                collapsed += 1
-                print(f"🧊 Collapsing deferred strategy: {strategy['goal']}")
-
-        if collapsed > 0:
-            self.save()
-            print(f"✅ Collapsed {collapsed} high-cost strategies.")
-        else:
-            print("📭 No strategies collapsed.")
-
-    def generate_fallbacks_for_collapsed(self):
-        """
-        For each collapsed strategy, attempt to generate a fallback strategy
-        with lower priority and simpler action plan. Fallbacks are symbolically entangled (↔).
-        """
-        fallback_count = 0
-        for strategy in self.strategies:
-            if strategy.get("collapsed") and not strategy.get("fallback_generated"):
-                goal = strategy.get("goal")
-                fallback_action = f"Attempt minimal step toward: {goal}"
-                fallback_priority = max(1, int(strategy.get("priority", 5) * 0.5))
-
-                fallback_id = str(uuid.uuid4())
-                fallback = {
-                    "id": fallback_id,
-                    "goal": goal,
-                    "action": fallback_action,
-                    "timestamp": datetime.now().isoformat(),
-                    "priority": fallback_priority,
-                    "fallback_for": strategy["id"],
-                    "entangled_with": strategy["id"],   # ↔ link
-                    "glyph": "↔"
-                }
-
-                self.strategies.append(fallback)
-                strategy["fallback_generated"] = True
-                fallback_count += 1
-                print(f"🔁 Generated fallback for: {goal} ↔ {strategy['id']}")
-
-                # 🧠 Log symbolic entanglement in CodexTrace and memory
-                self.memory.log({
-                    "type": "entanglement",
-                    "glyph": "↔",
-                    "from": strategy["id"],
-                    "to": fallback_id,
-                    "timestamp": datetime.now().isoformat(),
-                    "origin": "StrategyPlanner"
-                })
-
-                # Optional: log entanglement for memory/trace
-                self.memory.log({
-                    "type": "entanglement",
-                    "glyph": "↔",
-                    "from": strategy["id"],
-                    "to": fallback_id,
-                    "timestamp": datetime.now().isoformat(),
-                    "origin": "StrategyPlanner"
-                })
-
-        if fallback_count > 0:
-            self.save()
-            print(f"✅ {fallback_count} fallback strategies created.")
-        else:
-            print("📭 No fallbacks generated.")
-
-    def log_collapsed_strategies_to_trace(self):
-        """
-        Logs all collapsed or deferred strategies to CodexTrace for replay/simulation.
-        """
-        for strategy in self.strategies:
-            if strategy.get("collapsed") or strategy.get("deferred"):
-                trace = {
-                    "type": "collapse_event",
-                    "source": "StrategyPlanner",
-                    "timestamp": datetime.now().isoformat(),
-                    "data": {
-                        "id": strategy["id"],
-                        "goal": strategy["goal"],
-                        "action": strategy["action"],
-                        "priority": strategy.get("priority", 5),
-                        "collapsed": strategy.get("collapsed", False),
-                        "deferred": strategy.get("deferred", False)
-                    }
-                }
-                self.trace.log(trace)
-                print(f"📉 Logged collapse/defer event for: {strategy['goal']}")
-
-    def export_to_dc(self, path="exported_strategies.dc.json"):
-        """
-        Exports the current strategic plan into a .dc.json container format.
-        Includes glyph metadata, goals, actions, and origin trace.
-        """
-        dc = {
-            "container_id": f"strategy_{uuid.uuid4().hex[:8]}",
-            "type": "strategic_plan",
-            "created": datetime.now().isoformat(),
-            "seed_glyphs": [],
-            "glyph_trace": [],
-            "metadata": {
-                "origin": "StrategyPlanner",
-                "strategy_count": len(self.strategies)
-            }
-        }
-
-        for s in self.strategies:
-            glyph = {
-                "glyph": "🎯",
-                "goal": s.get("goal"),
-                "action": s.get("action"),
-                "priority": s.get("priority", 5),
-                "timestamp": s.get("timestamp"),
-                "strategy_id": s.get("id"),
-                "cost": s.get("cost", 0.5),
-                "deferred": s.get("deferred", False)
-            }
-
-            # ✅ Add entanglement info if available
-            if s.get("entangled_with"):
-                glyph["entangled_with"] = s["entangled_with"]
-                glyph["glyph"] = "↔"  # override to entangled glyph
-
-            dc["seed_glyphs"].append(glyph)
-            dc["glyph_trace"].append({
-                "type": "strategy",
-                "source": "StrategyPlanner",
-                "timestamp": s.get("timestamp"),
-                "data": glyph
-            })
-
-        with open(path, "w") as f:
-            json.dump(dc, f, indent=2)
-            print(f"✅ Exported strategy container to {path}")
-
-    def import_from_dc(self, path):
-        """
-        Loads a strategy plan from a .dc.json file and injects its glyphs into the strategy list.
-        Prevents duplicate IDs and preserves symbolic tags.
-        Triggers ⮁ mutation if contradictions are found or origin is external.
-        Forks ↔ entangled strategies if goals match but actions differ.
-        """
-        try:
-            with open(path, "r") as f:
-                dc = json.load(f)
-        except Exception as e:
-            print(f"❌ Failed to load container: {e}")
-            return
-
-        if dc.get("type") != "strategic_plan":
-            print("⚠️ Container is not a valid strategic_plan type.")
-            return
-
-        origin = dc.get("metadata", {}).get("origin", "unknown")
-        contradiction_found = False
-        forked_count = 0
-        imported = 0
-
-        for glyph in dc.get("seed_glyphs", []):
-            strategy_id = glyph.get("strategy_id", str(uuid.uuid4()))
-            if any(s["id"] == strategy_id for s in self.strategies):
-                continue  # avoid duplicate
-
-            new_goal = glyph.get("goal", "Undefined goal")
-            new_action = glyph.get("action", "Undefined action")
-
-            # Check for contradiction
-            candidate = {
-                "id": strategy_id,
-                "goal": new_goal,
-                "action": new_action,
-                "priority": glyph.get("priority", 5),
-                "timestamp": glyph.get("timestamp", datetime.now().isoformat())
-            }
-
-            if self.check_for_contradiction(candidate):
-                print(f"⚠️ Contradiction in imported strategy ID {strategy_id}")
-                contradiction_found = True
-                continue
-
-            # Check for ↔ entanglement (same goal, different action)
-            for existing in self.strategies:
-                if existing["goal"] == new_goal and existing["action"] != new_action:
-                    forked_count += 1
-                    self.memory.add({
-                        "glyph": "↔",
-                        "source": "import_from_dc",
-                        "strategy_id": strategy_id,
-                        "entangled_with": existing["id"],
-                        "goal": new_goal,
-                        "timestamp": datetime.now().isoformat()
-                    })
-                    print(f"🔀 Forked ↔ entangled strategy for goal: {new_goal}")
-                    break  # Only need one match
-
-            self.strategies.append(candidate)
-            imported += 1
-
-        print(f"✅ Imported {imported} strategies from {path}")
-        if forked_count:
-            print(f"🔗 {forked_count} strategy forks created via ↔ entanglement.")
-
-        if contradiction_found or origin != "StrategyPlanner":
-            print("🌀 Triggering ⮁ self-rewrite due to mutation conditions...")
-            self.memory.add({
-                "glyph": "⮁",
-                "source": "import_from_dc",
-                "origin": origin,
-                "timestamp": datetime.now().isoformat()
-            })
-            self.run_self_rewrite()
-
-    def diff_with_dc(self, path):
-        """
-        Compares current strategies with a .dc.json container.
-        Outputs a diff of new, redundant, and conflicting (↔) strategies.
-        """
-        try:
-            with open(path, "r") as f:
-                dc = json.load(f)
-        except Exception as e:
-            print(f"❌ Failed to load container: {e}")
-            return
-
-        if dc.get("type") != "strategic_plan":
-            print("⚠️ Container is not a valid strategic_plan type.")
-            return
-
-        current_goals = {s["goal"]: s for s in self.strategies}
-        report = {
-            "new": [],
-            "redundant": [],
-            "conflicting": []
-        }
-
-        for glyph in dc.get("seed_glyphs", []):
-            goal = glyph.get("goal")
-            action = glyph.get("action")
-            sid = glyph.get("strategy_id", "unknown")
-
-            if goal not in current_goals:
-                report["new"].append((sid, goal, action))
+                    for g in related:
+                        old = g.get("priority", 1.0)
+                        g["priority"] = round(old + (normalized_sqi * 2), 2)
+                        log.info(
+                            f"[ClusterBridge] 🔁 Reinforced {g['name']} priority {old:.2f}→{g['priority']:.2f}"
+                        )
+                    cluster.goal_engine.save_goals()
             else:
-                existing = current_goals[goal]
-                if existing["action"] == action:
-                    report["redundant"].append((sid, goal))
+                # Force creation if no goals exist (testing bootstrap)
+                if not goals:
+                    log.warning("⚠️ Planner GoalEngine has no cluster goals yet — bootstrapping one for test phase.")
+                    new_goal = {
+                        "name": f"cluster_goal_{goal.replace(' ', '_')}",
+                        "description": f"[AutoTest] Bootstrap goal for '{goal}'",
+                        "reward": 5,
+                        "priority": round(normalized_sqi * 10, 2),
+                        "dependencies": [],
+                        "created_at": datetime.utcnow().isoformat(),
+                        "origin_strategy_id": plan.get("id", "bootstrap"),
+                        "tags": ["cluster", "resonant", "autogen", "test"],
+                    }
+                    cluster.goal_engine.assign_goal(new_goal)
+                    cluster.goal_engine.save_goals()
+                    log.info(f"[ClusterBridge] 🌱 Bootstrap cluster goal created → {new_goal['name']}")
                 else:
-                    report["conflicting"].append((sid, goal, action, existing["action"]))
+                    log.info(f"[ClusterBridge] ⏸ Skipped cluster creation (SQI={normalized_sqi:.3f})")
 
-        print("\n🔍 Strategy Diff Report")
-        print("─────────────────────────────")
+        except Exception as e:
+            log.warning(f"[ClusterBridge] ⚠ Resonant bridge error: {e}")
 
-        if report["new"]:
-            print(f"\n🟩 New strategies ({len(report['new'])}):")
-            for sid, goal, action in report["new"]:
-                print(f"  [+] {goal} → {action}")
-                # Check deferred status if strategy object exists
-                strategy = next((s for s in self.strategies if s["id"] == sid), None)
-                if strategy and strategy.get("deferred"):
-                    print("     ⏳ Status: DEFERRED (High cost)")
+        # 🔁 Bidirectional coupling — boost plan from goal resonance (GSI)
+        try:
+            cluster = get_goal_cluster()
+            gsi_avg = getattr(cluster, "latest_gsi", 0.5)
+            plan["resonance_score"] = round((plan["resonance_score"] + gsi_avg) / 2, 3)
+        except Exception:
+            pass
 
-        if report["redundant"]:
-            print(f"\n🟨 Redundant strategies ({len(report['redundant'])}):")
-            for sid, goal in report["redundant"]:
-                print(f"  [=] {goal}")
+        log.info(
+            f"[P4] ✅ Plan generated → SQI={sqi_score:.3f}, "
+            f"confidence={plan['predicted_confidence']:.3f}"
+        )
+        return plan
 
-        if report["conflicting"]:
-            print(f"\n🟥 Conflicting strategies ({len(report['conflicting'])}):")
-            for sid, goal, new_action, existing_action in report["conflicting"]:
-                print(f"  [↔] {goal}")
-                print(f"     ↳ existing: {existing_action}")
-                print(f"     ↳ new:      {new_action}")
+    # ------------------------------------------------------------
+    def export_resonant_summary(self, path="data/analysis/resonant_strategy_summary.json"):
+        Path(path).parent.mkdir(parents=True, exist_ok=True)
+        data = [
+            {
+                "goal": s.get("goal"),
+                "resonance_score": s.get("resonance_score", 0.0),
+                "predicted_confidence": s.get("predicted_confidence", 0.0),
+                "timestamp": s.get("timestamp"),
+            }
+            for s in self.strategies
+        ]
+        with open(path, "w") as f:
+            json.dump(data, f, indent=2)
+        log.info(f"[P4] 📤 Exported resonant summary → {path}")
 
-        print("\n✅ Diff complete.\n")
-        return report
+
+# ============================================================
+# 🔗 Export API
+# ============================================================
+__all__ = ["StrategyPlanner", "ResonantStrategyPlanner"]

@@ -1,0 +1,20 @@
+{
+  "goals": [
+    {
+      "name": "cluster_goal_expand_harmonic_coherence",
+      "description": "Resonant cluster goal auto-derived from 'expand harmonic coherence'.",
+      "reward": 6,
+      "priority": 7.712,
+      "dependencies": [],
+      "created_at": "2025-10-27T23:06:10.910018",
+      "origin_strategy_id": "e83d8d9a-4961-4f84-a637-8868621d662f",
+      "tags": [
+        "cluster",
+        "resonant",
+        "auto",
+        "bootstrap"
+      ]
+    }
+  ],
+  "completed": []
+}

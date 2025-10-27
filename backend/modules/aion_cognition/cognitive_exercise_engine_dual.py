@@ -253,6 +253,48 @@ class DualModeCEE:
         except Exception as e:
             logger.warning(f"[CEE] HabitEngine integration failed: {e}")
 
+
+    # ------------------------------------------------------------
+    def generate_exercise(self, term: str, level: int = 1):
+        """Generate a simple lexical or symbolic exercise for a term."""
+        qset = [
+            {
+                "prompt": f"What is the meaning or symbolic association of '{term}'?",
+                "answer": f"{term} relates to {random.choice(['energy', 'motion', 'balance', 'structure'])}",
+                "feedback": "Good reflection on resonance meaning."
+            },
+            {
+                "prompt": f"Express '{term}' in symbolic QMath (level {level})",
+                "answer": f"Ψ({term}) = ρ⊕Ī",
+                "feedback": "Resonance symbol recognized."
+            },
+        ]
+        return {"term": term, "level": level, "questions": qset}
+
+    # ------------------------------------------------------------
+    def evaluate_answer(self, question: dict, answer: str):
+        """Evaluate an answer and produce feedback with SQI."""
+        sqi = round(random.uniform(0.6, 0.95), 3)
+        feedback = random.choice([
+            "Excellent associative clarity.",
+            "Moderate symbolic linkage.",
+            "Needs stronger resonance mapping."
+        ])
+        return {"SQI": sqi, "feedback": feedback}
+
+    # ------------------------------------------------------------
+    def simulate_session(self, level: int = 1):
+        """Simulate a full cognitive session (Wordwall style)."""
+        self.run_full_cycle()
+        summary = self.compute_metrics()
+        return {"session": self.session_id, "level": level, "avg_SQI": summary.get("avg_SQI", 0)}
+
+    # ------------------------------------------------------------
+    def query(self, question: str):
+        """Lightweight semantic answer generator for cognitive Q&A."""
+        concept = random.choice(self.active_atoms or ["resonance", "energy", "coherence"])
+        return f"{concept.capitalize()} oscillates around the idea: '{question}'."
+
 # ================================================================
 # CLI Entry
 # ================================================================

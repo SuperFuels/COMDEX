@@ -2,41 +2,104 @@
 # 🧠 Tessaris Project GitIgnore
 #──────────────────────────────
 
-# Environment + Config
+#──────────────────────────────
+# 🌱 Environment & Config Files
+#──────────────────────────────
 .env
 *.env
 env.yaml
 env_vars.env
 cors_env.yaml
 /backend/.env
+/backend/.env.local
 
-# Byte-compiled / cache
+#──────────────────────────────
+# 🐍 Python Bytecode & Caches
+#──────────────────────────────
 __pycache__/
 *.py[cod]
 *.so
+*.pyo
+*.pyd
 
-# Logs and runtime artifacts
+#──────────────────────────────
+# 🧩 Logs, Temp Files & Runtime Artifacts
+#──────────────────────────────
 *.log
 *.tmp
 *.bak
 *.swp
+*.db
+*.pid
+*.lock
 
-# Tessaris Knowledge / Wiki Data
+#──────────────────────────────
+# 🧠 Tessaris / Symatics Knowledge & Temporary Data
+#──────────────────────────────
 data/knowledge/
 data/wiki_seed/
 data/cache/
 data/tmp/
+tmp/
 *.wiki.phn
 *.qkg.json
 *.log.json
+backend/data/knowledge_index.jsonl
 
-# Notebooks / exports
+#──────────────────────────────
+# 📘 Notebooks & Export Archives
+#──────────────────────────────
 *.ipynb_checkpoints
+*.tar
 *.tar.gz
+*.gz
 *.zip
 
-# System files
+#──────────────────────────────
+# 💻 IDE / OS System Files
+#──────────────────────────────
 .DS_Store
 Thumbs.db
 .idea/
 .vscode/
+
+# AION runtime cache and locks
+data/memory/resonant_memory_cache.json
+data/memory/resonant_memory_cache.*bak
+data/memory/resonant_memory_cache.*lock
+
+
+#──────────────────────────────
+# 🧠 AION Runtime Outputs / Telemetry & Massive Data
+#──────────────────────────────
+data/aion/
+data/analysis/
+data/learning/
+data/control/
+data/telemetry/
+data/benchmarks/
+data/sources/
+data/tasks/
+logs/
+*.json.lock
+*.bak
+*.lexbak
+*.bak2
+*.bz2
+*.xml
+*.glyph
+
+# Individual heavy files to exclude (safety net)
+data/control/aqci_log.jsonl
+data/control/rqfs_feedback.jsonl
+data/learning/fusion_state.jsonl
+data/memory/cee_lex_memory.json
+data/memory/cee_lex_memory.lexbak
+data/memory/lex_memory.json
+data/memory/resonant_memory_cache.*
+data/sources/enwiktionary-pages-articles.xml.bz2
+data/sources/enwiktionary-sample.xml.bz2
+data/sources/gcide_full.xml
+data/symatics/symbolic_resonance_stream.glyph
+data/telemetry/meta_resonant_telemetry.jsonl
+backend/data/conceptnet/numberbatch-en-19.08.txt

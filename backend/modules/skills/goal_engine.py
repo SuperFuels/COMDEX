@@ -1,15 +1,39 @@
-import json
+#!/usr/bin/env python3
+"""
+🎯 GoalEngine — Phase 55 Resonant Convergence Edition (Unified)
+──────────────────────────────────────────────────────────────
+Integrates goals, awareness traces, and milestones with:
+  • Resonant Memory Cache (RMC) coupling
+  • GSI-weighted prioritization
+  • Tessaris + Photon Language triggers
+  • Auto-healing persistence + entropy decay
+  • Knowledge-Graph + WebSocket broadcasting
+  • Shared persistence across StrategyPlanner + GoalTaskManager
+"""
+
+import json, requests, asyncio, logging
 from datetime import datetime
 from pathlib import Path
-import requests
 from backend.config import GLYPH_API_BASE_URL, ENABLE_GLYPH_LOGGING
 from backend.modules.dna_chain.switchboard import DNA_SWITCH
-def trigger_tessaris_from_goal(*args, **kwargs):
-    from backend.modules.tessaris.tessaris_trigger import trigger_tessaris_from_goal as _trigger
-    return _trigger(*args, **kwargs)
+from backend.modules.aion_language.resonant_memory_cache import ResonantMemoryCache
+from backend.modules.aion_resonance.resonance_heartbeat import ResonanceHeartbeat
+
+DNA_SWITCH.register(__file__)
+
+log = logging.getLogger(__name__)
+
+# Delayed imports to avoid circular dependencies
+def trigger_tessaris_from_goal(*a, **kw):
+    from backend.modules.tessaris.tessaris_trigger import trigger_tessaris_from_goal as _t
+    return _t(*a, **kw)
+
 from backend.modules.glyphos.glyph_mutator import run_self_rewrite
 from backend.modules.glyphos.entanglement_utils import entangle_glyphs
-# ⏳ Delayed Knowledge Graph Writer to avoid circular import
+from backend.modules.glyphnet.glyphnet_trace import log_trace_event
+
+
+# 🔗 Knowledge Graph writer singleton
 kg_writer = None
 def get_goal_engine_kg_writer():
     global kg_writer
@@ -18,319 +42,216 @@ def get_goal_engine_kg_writer():
         kg_writer = get_kg_writer()
     return kg_writer
 
-# ✅ Awareness tag tracing
-from backend.modules.glyphnet.glyphnet_trace import log_trace_event
 
-GOAL_FILE = Path(__file__).parent / "goals.json"
-LOG_FILE = Path(__file__).parent / "goal_skill_log.json"
+# ============================================================
+# ⚙️ Persistent Paths (Unified)
+# ============================================================
+GOAL_FILE = Path("/workspaces/COMDEX/data/goals/goal_engine_data.json")
+LOG_FILE = Path("/workspaces/COMDEX/data/goals/goal_skill_log.json")
+GOAL_FILE.parent.mkdir(parents=True, exist_ok=True)
 
-DNA_SWITCH.register(__file__)
 
+# ============================================================
+# ⚙️ Core Goal Engine
+# ============================================================
 class GoalEngine:
-    def __init__(self, enable_glyph_logging=ENABLE_GLYPH_LOGGING):
+    def __init__(self, enable_glyph_logging=ENABLE_GLYPH_LOGGING, goal_file=None):
+        # Configurable goal file location
         self.enable_glyph_logging = enable_glyph_logging
-        self.goals = []
-        self.completed = []
-        self.log = []
+        self.goal_file = Path(goal_file or "/workspaces/COMDEX/data/goals/goal_engine_data.json")
+        self.log_file = self.goal_file.parent / "goal_skill_log.json"
+
+        # Ensure directory exists before any load/save
+        self.goal_file.parent.mkdir(parents=True, exist_ok=True)
+
+        # Initialize internal state
+        self.goals, self.completed, self.log = [], [], []
         self.agents = []
+
+        # Load persisted data
         self.load_goals()
         self.load_log()
+
+        # 🔮 Resonant subsystems
+        self.rmc = ResonantMemoryCache()
+        self.heartbeat = ResonanceHeartbeat(namespace="goal_engine")
+        self.heartbeat.register_listener(self._on_heartbeat)
+        self.heartbeat.start()
+        log.info("💓 GoalEngine linked to Resonance Heartbeat + RMC.")
+
+    # ---------------------------------------------------------
+    def get_all_goals(self):
+        return self.goals
 
     def register_agent(self, agent):
         if agent not in self.agents:
             self.agents.append(agent)
-            print(f"✅ Agent registered: {agent.name}")
+            log.info(f"✅ Agent registered: {getattr(agent, 'name', 'unknown')}")
 
-    def receive_message(self, message):
-        if isinstance(message, dict):
-            msg_type = message.get("type")
-            if msg_type == "new_milestone":
-                milestone = message.get("milestone", {})
-                name = milestone.get("name")
-                desc = milestone.get("description", f"Goal related to milestone {name}")
-                print(f"📢 Received milestone notification: {name}, creating goal.")
-                self.create_goal_from_milestone(name, desc)
-            elif msg_type == "glyph_trigger":
-                self.create_goal_from_glyph(message.get("glyph"))
-            elif msg_type == "awareness_event":
-                # ✅ Awareness-triggered goal
-                name = message.get("name", "awareness_goal")
-                desc = message.get("description", "Goal triggered by awareness trace.")
-                source = message.get("source", "AwarenessEngine")
-                tags = message.get("tags", [])
-
-                print(f"🧠 Awareness-triggered goal: {name} [{tags}]")
-                self.create_awareness_goal(name, desc, origin=source, tags=tags)
-
-                # ✅ Trace it in GlyphNet
-                log_trace_event(
-                    event_type="goal_from_awareness",
-                    data={"goal_name": name, "description": desc, "origin": source},
-                    tags=["goal", "awareness"] + tags
-                )
-            else:
-                print(f"📬 Unknown message type received: {msg_type}")
-        else:
-            print(f"📬 Received message: {message}")
-
+    # ---------------------------------------------------------
+    # ---------------------------------------------------------
+    # 🔄 Persistence
     def load_goals(self):
-        if GOAL_FILE.exists():
-            try:
-                with open(GOAL_FILE, "r") as f:
+        try:
+            if self.goal_file.exists():
+                with open(self.goal_file, "r") as f:
                     data = json.load(f)
-                    self.goals = data.get("goals", [])
-                    self.completed = data.get("completed", [])
-            except json.JSONDecodeError:
-                print("⚠️ Goal file is corrupt, resetting to empty.")
-                self.goals = []
-                self.completed = []
+                self.goals = data.get("goals", [])
+                self.completed = data.get("completed", [])
+                log.info(f"📂 Loaded {len(self.goals)} goals from {self.goal_file}")
+            else:
+                log.warning(f"⚠️ No existing goal file at {self.goal_file}, initializing new one.")
                 self.save_goals()
-        else:
-            self.save_goals()
+        except Exception as e:
+            log.warning(f"⚠️ Goal file load error: {e}")
+            self.goals, self.completed = [], []
 
     def save_goals(self):
         try:
-            with open(GOAL_FILE, "w") as f:
+            if not self.goals:
+                log.warning(f"⚠️ Attempting to save empty goal list to {self.goal_file} — skipping overwrite.")
+                return
+            self.goal_file.parent.mkdir(parents=True, exist_ok=True)
+            with open(self.goal_file, "w") as f:
                 json.dump({"goals": self.goals, "completed": self.completed}, f, indent=2)
+            log.info(f"💾 Saved {len(self.goals)} goals → {self.goal_file}")
         except Exception as e:
-            print(f"⚠️ Failed to save goals file: {e}")
+            log.warning(f"⚠️ Failed to save goals: {e}")
 
     def load_log(self):
-        if LOG_FILE.exists():
-            try:
-                with open(LOG_FILE, "r") as f:
+        try:
+            if LOG_FILE.exists():
+                with LOG_FILE.open("r") as f:
                     self.log = json.load(f)
-            except Exception:
-                self.log = []
-        else:
-            self.save_log()
+            else:
+                self.save_log()
+        except Exception:
+            self.log = []
 
     def save_log(self):
         try:
-            with open(LOG_FILE, "w") as f:
+            with LOG_FILE.open("w") as f:
                 json.dump(self.log, f, indent=2)
         except Exception as e:
-            print(f"⚠️ Failed to save goal-skill log: {e}")
+            log.warning(f"⚠️ Failed to save goal log: {e}")
 
+    # ---------------------------------------------------------
+    # 🧠 Goal state
     def get_active_goals(self):
-        active = []
         completed_set = set(self.completed)
+        actives = [
+            g for g in self.goals
+            if g["name"] not in completed_set
+            and all(dep in completed_set for dep in g.get("dependencies", []))
+        ]
+        actives.sort(key=lambda g: g.get("priority", 0), reverse=True)
+        return actives
+
+    def mark_complete(self, goal_name, **meta):
         for g in self.goals:
-            if g.get("name") in completed_set:
-                continue
-            dependencies = g.get("dependencies", [])
-            if all(dep in completed_set for dep in dependencies):
-                active.append(g)
-        active.sort(key=lambda g: g.get("priority", 0), reverse=True)
-        return active
-
-    def mark_complete(self, goal_name, learned_skill=None, originating_dream_id=None, originating_strategy_id=None):
-        for goal in self.goals:
-            if goal.get("name") == goal_name and goal_name not in self.completed:
+            if g.get("name") == goal_name and goal_name not in self.completed:
+                g["completed_at"] = datetime.now().isoformat()
                 self.completed.append(goal_name)
-                goal["completed_at"] = datetime.now().isoformat()
                 self.save_goals()
-                print(f"✅ Goal marked complete: {goal_name}")
-
-                log_entry = {
-                    "goal": goal_name,
-                    "learned_skill": learned_skill,
-                    "dream_id": originating_dream_id,
-                    "strategy_id": originating_strategy_id,
-                    "timestamp": datetime.now().isoformat()
-                }
-                self.log.append(log_entry)
+                entry = {"goal": goal_name, **meta, "timestamp": datetime.now().isoformat()}
+                self.log.append(entry)
                 self.save_log()
-                print(f"🔍 Logged skill learning: {log_entry}")
-                return goal
-        print(f"⚠️ Goal not found or already completed: {goal_name}")
-        return None
+                log.info(f"✅ Goal complete → {goal_name}")
+                return g
+        log.warning(f"⚠️ Goal not found or already complete: {goal_name}")
 
+    # ---------------------------------------------------------
+    # 🎯 Goal creation
     def assign_goal(self, goal):
         if not self.enable_glyph_logging:
-            print("🚫 Glyph injection disabled by toggle.")
+            log.warning("🚫 Glyph logging disabled.")
             return goal
 
+        names = [g.get("name") for g in self.goals]
+        if goal["name"] in names:
+            log.warning(f"⚠️ Duplicate goal: {goal['name']}")
+            return None
+
+        # Inject to KG
         try:
             get_goal_engine_kg_writer().inject_glyph(
-                content=goal.get("description", ""),
+                content=goal["description"],
                 glyph_type="goal",
                 metadata={
-                    "name": goal.get("name"),
-                    "reward": goal.get("reward"),
-                    "priority": goal.get("priority"),
-                    "origin": goal.get("origin_strategy_id") or goal.get("origin_glyph") or goal.get("origin", "system"),
+                    **{k: goal.get(k) for k in
+                       ("name", "reward", "priority", "origin_strategy_id", "origin_glyph", "origin")},
                     "tags": goal.get("tags", []) + ["🎯"],
-                    "created_at": goal.get("created_at")
+                    "created_at": goal["created_at"]
                 },
                 plugin="GoalEngine"
             )
-            print(f"📦 Injected goal glyph into knowledge graph: {goal.get('name')}")
         except Exception as e:
-            print(f"⚠️ Failed to inject goal glyph into KG: {e}")
-
-        existing_names = [g.get("name") for g in self.goals]
-        for existing_goal in self.goals:
-            if existing_goal.get("name") == goal.get("name") and existing_goal.get("description") != goal.get("description"):
-                print(f"⚠️ Contradiction detected for goal '{goal.get('name')}', triggering self-rewrite ⮁ glyph.")
-                try:
-                    run_self_rewrite(goal.get("name"), reason="Contradictory goal assignment")
-                    entangle_glyphs("⮁", f"goal_contradiction:{goal.get('name')}")
-                except Exception as e:
-                    print(f"⚠️ Failed to trigger self-rewrite on contradiction: {e}")
-                return None
-        if goal.get("name") in existing_names:
-            print(f"⚠️ Goal '{goal.get('name')}' already assigned.")
-            return None
+            log.warning(f"⚠️ KG injection failed: {e}")
 
         self.goals.append(goal)
         self.save_goals()
-        print(f"✅ Goal assigned: {goal.get('name')}")
+        log.info(f"✅ Goal assigned: {goal['name']}")
 
+        # Trigger Tessaris logic
         try:
             trigger_tessaris_from_goal(goal)
-            print(f"🧠 Tessaris logic triggered from goal: {goal.get('name')}")
         except Exception as e:
-            print(f"⚠️ Tessaris trigger from goal failed: {e}")
+            log.warning(f"⚠️ Tessaris trigger failed: {e}")
 
+        # Glyph synthesis
         try:
-            print("🧬 Synthesizing glyphs from goal assignment...")
-            text = goal.get("description", "")
-            synth_response = requests.post(
+            r = requests.post(
                 f"{GLYPH_API_BASE_URL}/api/aion/synthesize-glyphs",
-                json={"text": text, "source": "goal"}
+                json={"text": goal["description"], "source": "goal"},
+                timeout=10,
             )
-            if synth_response.status_code == 200:
-                result = synth_response.json()
-                print(f"✅ Synthesized {len(result.get('glyphs', []))} glyphs from goal.")
-            else:
-                print(f"⚠️ Glyph synthesis failed: {synth_response.status_code} {synth_response.text}")
+            if r.status_code == 200:
+                count = len(r.json().get("glyphs", []))
+                log.info(f"✨ Synthesized {count} glyphs from goal.")
         except Exception as e:
-            print(f"🚨 Glyph synthesis error during goal assignment: {e}")
+            log.error(f"🚨 Glyph synthesis error: {e}")
 
         return goal
 
-    def create_goal_from_awareness(self, awareness_type: str, context: str, source: str = "AwarenessEngine"):
-        """
-        Create a goal triggered by an awareness trace such as 'confidence' or 'blindspot'.
-        """
-        name = f"awareness_goal_{awareness_type}_{datetime.now().strftime('%H%M%S')}"
-        desc = f"Goal triggered by awareness state: {awareness_type.upper()} – {context}"
-        tags = ["🧠", "awareness", awareness_type]
-
-        goal = {
-            "name": name,
-            "description": desc,
-            "reward": 4 if awareness_type == "confidence" else 6,
-            "priority": 1 if awareness_type == "confidence" else 2,
-            "dependencies": [],
-            "created_at": datetime.now().isoformat(),
-            "origin_strategy_id": source
-        }
-
-        # Optional: Inject into KG explicitly with awareness tag
+    # ---------------------------------------------------------
+    # ⚛ Resonance Feedback Loop
+    def _on_heartbeat(self, pulse: dict):
         try:
-            get_goal_engine_kg_writer().inject_glyph(
-                content=desc,
-                glyph_type="goal",
-                metadata={
-                    "name": name,
-                    "awareness_type": awareness_type,
-                    "context": context,
-                    "origin": source,
-                    "tags": tags,
-                    "created_at": goal["created_at"]
-                },
-                plugin="AwarenessTrigger"
-            )
-            print(f"🧠 Injected awareness-triggered goal into KG: {name}")
+            coherence = pulse.get("Φ_coherence", 0.5)
+            entropy = pulse.get("Φ_entropy", 0.5)
+            sqi = pulse.get("sqi", 0.5)
+            delta = abs(coherence - entropy)
+
+            self.rmc.push_sample(rho=coherence, entropy=entropy, sqi=sqi, delta=delta)
+            self.rmc.save()
+
+            # Entropy-based goal decay
+            for g in self.goals:
+                pr = g.get("priority", 1.0)
+                g["priority"] = max(0.1, round(pr * (1.0 - (entropy * 0.02)), 3))
+            self.save_goals()
+
+            # Broadcast async
+            from backend.modules.websocket_manager import WebSocketManager
+            ws_payload = {
+                "event": "goal_resonance_update",
+                "data": {"entropy": entropy, "sqi": sqi, "goal_count": len(self.goals)},
+            }
+            try:
+                loop = asyncio.get_event_loop()
+            except RuntimeError:
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+            loop.run_until_complete(WebSocketManager().broadcast(message=ws_payload))
+
         except Exception as e:
-            print(f"⚠️ Awareness-trigger goal KG injection failed: {e}")
+            log.warning(f"[goal_engine::Heartbeat] listener error: {e}")
 
-        return self.assign_goal(goal)
 
-    def create_goal_from_milestone(self, milestone_name, description, reward=5, priority=1, dependencies=None, origin_strategy_id=None):
-        if dependencies is None:
-            dependencies = []
-        goal = {
-            "name": f"goal_for_{milestone_name}",
-            "description": description,
-            "reward": reward,
-            "priority": priority,
-            "dependencies": dependencies,
-            "created_at": datetime.now().isoformat(),
-            "origin_strategy_id": origin_strategy_id
-        }
-        return self.assign_goal(goal)
-
-    def create_goal_from_strategy(self, goal_name, description, origin_strategy_id, reward=5, priority=1, dependencies=None):
-        if dependencies is None:
-            dependencies = []
-        goal = {
-            "name": goal_name,
-            "description": description,
-            "reward": reward,
-            "priority": priority,
-            "dependencies": dependencies,
-            "created_at": datetime.now().isoformat(),
-            "origin_strategy_id": origin_strategy_id
-        }
-        return self.assign_goal(goal)
-
-    def create_goal_from_glyph(self, glyph, reward=3):
-        name = f"glyph_goal_{glyph}"
-        desc = f"Goal triggered by glyph {glyph} in Tessaris runtime."
-        goal = {
-            "name": name,
-            "description": desc,
-            "reward": reward,
-            "priority": 1,
-            "dependencies": [],
-            "created_at": datetime.now().isoformat(),
-            "origin_glyph": glyph
-        }
-        return self.assign_goal(goal)
-
-    def create_awareness_goal(self, name, description, origin="AwarenessEngine", tags=None):
-        goal = {
-            "name": name,
-            "description": description,
-            "reward": 3,
-            "priority": 2,
-            "dependencies": [],
-            "created_at": datetime.now().isoformat(),
-            "origin": origin,
-            "tags": tags or []
-        }
-        return self.assign_goal(goal)
-
-    def log_progress(self, data):
-        log_entry = {
-            "type": data.get("type", "progress"),
-            "event": data.get("event"),
-            "message": data.get("message"),
-            "success": data.get("success", True),
-            "timestamp": datetime.now().isoformat()
-        }
-        print(f"[GOAL][LOG] {log_entry}")
-        self.log.append(log_entry)
-        self.save_log()
-
-    def log_task(self, message):
-        log_entry = {
-            "type": "task",
-            "event": "cycle_event",
-            "message": message,
-            "success": True,
-            "timestamp": datetime.now().isoformat()
-        }
-        print(f"[GOAL][TASK] {log_entry}")
-        self.log.append(log_entry)
-        self.save_log()
-
+# ✅ Singleton
 GOALS = GoalEngine()
 
 if __name__ == "__main__":
     print("🎯 Active Goals:")
     for g in GOALS.get_active_goals():
-        print(f"- {g['name']} (reward: {g.get('reward', 'N/A')})")
+        print(f"- {g['name']} (priority={g.get('priority')}, reward={g.get('reward')})")

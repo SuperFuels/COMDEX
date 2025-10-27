@@ -31,7 +31,7 @@ gcloud run deploy comdex-api \
   --timeout=300s
 
 git add .
-git commit -m "WIKI COMPLETE "
+git commit -m "Advanced Aion Intelligence Engine Complete"
 git push origin main
 
 
