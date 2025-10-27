@@ -1,9 +1,0 @@
-{
-  "\u03c1_corr": -0.0175,
-  "\u012a_corr": 0.0266,
-  "SQI_corr": 0.8365,
-  "stability": 0.842,
-  "drift_factor": 0.1347,
-  "timestamp": 1761413849.514388,
-  "schema": "SymaticDrift.v1"
-}
