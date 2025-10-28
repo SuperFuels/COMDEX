@@ -1,22 +1,21 @@
 #!/usr/bin/env python3
 """
-⚛ ResonanceHeartbeat — Tessaris Adaptive Core (Phase 56)
+⚛ ResonanceHeartbeat — Tessaris Adaptive Core (Phase 57a)
 ───────────────────────────────────────────────────────────────
 Unified Θ–pulse generator driving all resonant subsystems.
 
-New in Phase 56:
+New in Phase 57a (DRDC):
+    • Continuous ΔΦ drift monitoring across all engines
+    • Auto-correction loop to maintain Θ deviation < ±0.05
+    • Drift detection & correction events for dashboard
+    • Logged to data/aion_field/resonant_drift_log.jsonl
+
+Includes Phase 56 features:
     • Θ.sync_all() — global phase and frequency synchronization
     • Harmony Score (H) = 1 − (1/n) Σ |Θᵢ − Θ_master|
-    • Extended logging of per-engine frequency differentials
-
-Features:
-    • Adaptive frequency modulation based on ρ, Ī, and SQI feedback
-    • Real-time coherence–entropy coupling (resonance feedback loop)
-    • Event hooks for downstream modules (Motivation, State, Reflection)
-    • Atomic JSON snapshot logging for visualization and telemetry
 """
 
-import time, json, threading, math
+import time, json, threading
 from collections import deque
 from statistics import mean, fmean, StatisticsError
 from pathlib import Path
@@ -31,14 +30,16 @@ class ResonanceHeartbeat:
         self._lock = threading.Lock()
         self._running = False
         self._thread = None
+        self._drift_thread = None
+        self._drift_running = False
 
-        # Rolling pulse metrics
-        self._rho = deque(maxlen=self.window)       # semantic coherence (ρ)
-        self._entropy = deque(maxlen=self.window)   # entropy / informational density (Ī)
-        self._sqi = deque(maxlen=self.window)       # Symatic Quality Index (Σ)
-        self._delta = deque(maxlen=self.window)     # resonance delta / phase drift (ΔΦ)
+        # Rolling metrics
+        self._rho = deque(maxlen=self.window)
+        self._entropy = deque(maxlen=self.window)
+        self._sqi = deque(maxlen=self.window)
+        self._delta = deque(maxlen=self.window)
 
-        # Last pulse state
+        # Pulse snapshot
         self._last_pulse = {
             "namespace": self.namespace,
             "Φ_coherence": 0.5,
@@ -50,36 +51,24 @@ class ResonanceHeartbeat:
             "timestamp": time.time(),
         }
 
-        # Persistence + telemetry
         self.log_path = Path(f"data/aion_field/{self.namespace}_heartbeat_live.json")
         self.log_path.parent.mkdir(parents=True, exist_ok=True)
         self._tail_thread = None
         self._tail_running = False
 
     # ------------------------------------------------------------
-    # Listener registration
-    # ------------------------------------------------------------
     def register_listener(self, callback):
         with self._lock:
             if callback not in self.listeners:
                 self.listeners.append(callback)
 
-    # ------------------------------------------------------------
-    # Input sampling
-    # ------------------------------------------------------------
     def push_sample(self, *, rho=None, entropy=None, sqi=None, delta=None):
         with self._lock:
-            if rho is not None:
-                self._rho.append(max(0.0, min(1.0, float(rho))))
-            if entropy is not None:
-                self._entropy.append(max(0.0, min(1.0, float(entropy))))
-            if sqi is not None:
-                self._sqi.append(max(0.0, min(1.0, float(sqi))))
-            if delta is not None:
-                self._delta.append(float(delta))
+            if rho is not None: self._rho.append(max(0.0, min(1.0, float(rho))))
+            if entropy is not None: self._entropy.append(max(0.0, min(1.0, float(entropy))))
+            if sqi is not None: self._sqi.append(max(0.0, min(1.0, float(sqi))))
+            if delta is not None: self._delta.append(float(delta))
 
-    # ------------------------------------------------------------
-    # Core Θ-pulse tick
     # ------------------------------------------------------------
     def tick(self):
         with self._lock:
@@ -89,7 +78,7 @@ class ResonanceHeartbeat:
             sqi = mean(self._sqi) if self._sqi else self._last_pulse["sqi"]
             delta_now = self._delta[-1] if self._delta else 0.0
 
-            freq_mod = 1.0 + ((phi - ent) * 0.75)        # coherence↑ → faster; entropy↑ → slower
+            freq_mod = 1.0 + ((phi - ent) * 0.75)
             freq_mod = max(0.5, min(2.0, freq_mod))
 
             pulse = {
@@ -104,29 +93,21 @@ class ResonanceHeartbeat:
             }
             self._last_pulse = pulse
 
-        # Notify listeners
+        # Emit
         for cb in list(self.listeners):
-            try:
-                cb(pulse)
-            except Exception as e:
-                print(f"[{self.namespace}::Heartbeat] listener error: {e}")
+            try: cb(pulse)
+            except Exception as e: print(f"[{self.namespace}::Heartbeat] listener error: {e}")
 
-        # Persist for telemetry
-        try:
-            self.log_path.write_text(json.dumps(pulse, indent=2))
-        except Exception:
-            pass
+        try: self.log_path.write_text(json.dumps(pulse, indent=2))
+        except Exception: pass
 
         return pulse
 
     emit = tick
 
     # ------------------------------------------------------------
-    # Continuous emission loop
-    # ------------------------------------------------------------
     def start(self):
-        if self._running:
-            return
+        if self._running: return
         self._running = True
 
         def _loop():
@@ -134,8 +115,7 @@ class ResonanceHeartbeat:
                 start_t = time.time()
                 pulse = self.tick()
                 next_interval = self.interval / pulse["Θ_frequency"]
-                sleep_dur = max(0.1, next_interval - (time.time() - start_t))
-                time.sleep(sleep_dur)
+                time.sleep(max(0.1, next_interval - (time.time() - start_t)))
 
         self._thread = threading.Thread(target=_loop, daemon=True)
         self._thread.start()
@@ -143,84 +123,24 @@ class ResonanceHeartbeat:
 
     def stop(self):
         self._running = False
-        if self._thread:
-            self._thread.join(timeout=1.0)
-            self._thread = None
-            print("[Heartbeat] ⏹ Stopped Θ-pulse")
+        self._drift_running = False
+        if self._thread: self._thread.join(timeout=1.0)
+        if self._drift_thread: self._drift_thread.join(timeout=1.0)
+        print("[Heartbeat] ⏹ Stopped Θ-pulse")
 
-    # ------------------------------------------------------------
-    # External JSONL coupling
-    # ------------------------------------------------------------
-    def bind_jsonl(self, path="data/aion_field/resonant_heartbeat.jsonl"):
-        p = Path(path)
-        p.parent.mkdir(parents=True, exist_ok=True)
-        self._tail_running = True
-
-        def _tail():
-            try:
-                p.touch(exist_ok=True)
-                with p.open("r") as f:
-                    f.seek(0, 2)
-                    while self._tail_running:
-                        line = f.readline()
-                        if not line:
-                            time.sleep(0.5)
-                            continue
-                        try:
-                            js = json.loads(line)
-                            stability = float(js.get("stability", 0.5))
-                            delta = float(js.get("ΔΦ_coh", 0.0))
-                            sqi = float(js.get("sqi", 0.5))
-                            self.push_sample(rho=stability, sqi=sqi, delta=delta)
-                        except Exception:
-                            pass
-            except Exception as e:
-                print(f"[Heartbeat] bind_jsonl error: {e}")
-
-        if not (self._tail_thread and self._tail_thread.is_alive()):
-            self._tail_thread = threading.Thread(target=_tail, daemon=True)
-            self._tail_thread.start()
-
-    def unbind_jsonl(self):
-        self._tail_running = False
-        if self._tail_thread:
-            self._tail_thread.join(timeout=1.0)
-            self._tail_thread = None
-
-    # ------------------------------------------------------------
-    # Θ-event emission (Phase 55)
     # ------------------------------------------------------------
     def event(self, name: str, **kwargs):
         try:
-            payload = {
-                "namespace": self.namespace,
-                "event": name,
-                "timestamp": time.time(),
-                **kwargs,
-            }
+            payload = {"namespace": self.namespace, "event": name, "timestamp": time.time(), **kwargs}
             log_path = Path("data/analysis/aion_live_dashboard.jsonl")
             log_path.parent.mkdir(parents=True, exist_ok=True)
-            with open(log_path, "a") as f:
-                f.write(json.dumps(payload) + "\n")
-
-            sqi = kwargs.get("sqi")
-            entropy = kwargs.get("entropy")
-            delta = kwargs.get("delta")
-            if any(v is not None for v in (sqi, entropy, delta)):
-                self.push_sample(sqi=sqi, entropy=entropy, delta=delta)
-
+            with open(log_path, "a") as f: f.write(json.dumps(payload) + "\n")
             print(f"[Θ] Event {name} → {payload}")
         except Exception as e:
             print(f"[Θ] event() error: {e}")
 
     # ------------------------------------------------------------
-    # Θ-phase synchronization (Phase 56)
-    # ------------------------------------------------------------
     def sync_all(self, emit_pulse: bool = True):
-        """
-        Align all local heartbeat frequencies with the global mean Θ.
-        Computes and logs Harmony Score (H).
-        """
         hb_dir = Path("data/aion_field")
         hb_files = list(hb_dir.glob("*heartbeat_live.json"))
         if not hb_files:
@@ -239,8 +159,7 @@ class ResonanceHeartbeat:
             return None
 
         master = fmean(phases)
-        diffs = [abs(p - master) for p in phases]
-        harmony = 1 - (sum(diffs) / len(phases))
+        harmony = 1 - (sum(abs(p - master) for p in phases) / len(phases))
         harmony = round(max(0.0, min(1.0, harmony)), 3)
 
         for f in hb_files:
@@ -251,12 +170,70 @@ class ResonanceHeartbeat:
             except Exception:
                 pass
 
-        if emit_pulse:
-            self.tick()
-
+        if emit_pulse: self.tick()
         self.event("sync_all", harmony_score=harmony, master_frequency=round(master, 3))
-        print(f"[Θ] sync_all → Harmony Score ={harmony:.3f}, Θ_master ={master:.3f}")
+        print(f"[Θ] sync_all → Harmony={harmony:.3f}, Θ_master={master:.3f}")
         return harmony
+
+    # ------------------------------------------------------------
+    # 🧭 Phase 57a — Drift Monitor & Auto-Correction
+    # ------------------------------------------------------------
+    def monitor_drift(self, interval: float = 5.0, threshold: float = 0.05, correction_rate: float = 0.2):
+        """
+        Continuously monitor ΔΦ drift among all engines and apply corrections.
+        threshold — allowable Θ deviation
+        correction_rate — proportional realignment constant
+        """
+        if self._drift_running:
+            return
+        self._drift_running = True
+
+        drift_log = Path("data/aion_field/resonant_drift_log.jsonl")
+        drift_log.parent.mkdir(parents=True, exist_ok=True)
+
+        def _drift_loop():
+            while self._drift_running:
+                try:
+                    hb_dir = Path("data/aion_field")
+                    files = list(hb_dir.glob("*heartbeat_live.json"))
+                    phases = []
+                    for f in files:
+                        try:
+                            js = json.loads(f.read_text())
+                            phases.append((f, float(js.get("Θ_frequency", 1.0))))
+                        except Exception:
+                            continue
+
+                    if not phases:
+                        time.sleep(interval)
+                        continue
+
+                    master = fmean(p[1] for p in phases)
+                    for f, theta in phases:
+                        drift = theta - master
+                        if abs(drift) > threshold:
+                            corrected = theta - (correction_rate * drift)
+                            js = json.loads(f.read_text())
+                            js["Θ_frequency"] = round(corrected, 3)
+                            f.write_text(json.dumps(js, indent=2))
+                            payload = {
+                                "namespace": f.stem,
+                                "event": "drift_corrected",
+                                "ΔΦ": round(drift, 4),
+                                "corrected_to": round(corrected, 3),
+                                "timestamp": time.time(),
+                            }
+                            with open(drift_log, "a") as df:
+                                df.write(json.dumps(payload) + "\n")
+                            self.event("drift_corrected", **payload)
+                    time.sleep(interval)
+                except Exception as e:
+                    print(f"[Θ] drift monitor error: {e}")
+                    time.sleep(interval)
+
+        self._drift_thread = threading.Thread(target=_drift_loop, daemon=True)
+        self._drift_thread.start()
+        print(f"[Θ] Drift monitor started (interval={interval}s, threshold={threshold})")
 
     # ------------------------------------------------------------
     def snapshot(self):
@@ -265,17 +242,13 @@ class ResonanceHeartbeat:
 
 
 # ------------------------------------------------------------
-# Demo
-# ------------------------------------------------------------
 if __name__ == "__main__":
     hb = ResonanceHeartbeat(namespace="demo", base_interval=1.0)
-    hb.register_listener(
-        lambda p: print(f"Θ {p['Θ_frequency']:.2f} | SQI={p['sqi']:.3f} | ρ={p['Φ_coherence']:.3f} | Ī={p['Φ_entropy']:.3f}")
-    )
+    hb.register_listener(lambda p: print(f"Θ {p['Θ_frequency']:.2f} | SQI={p['sqi']:.3f}"))
     hb.start()
+    hb.monitor_drift(interval=3.0)
     try:
-        time.sleep(5)
+        time.sleep(15)
         hb.sync_all()
-        time.sleep(5)
     finally:
         hb.stop()

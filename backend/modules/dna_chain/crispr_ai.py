@@ -1,83 +1,143 @@
-import difflib
-import json
-import os
-import datetime
+#!/usr/bin/env python3
+# ================================================================
+# 🧬 CRISPR-AI Reflex Bridge — Phase R10
+# ================================================================
+# Connects Reflex → DNA mutation proposals → CRISPR-AI executor
+# for safe, ethics-validated symbolic evolution.
+# ================================================================
 
-from backend.modules.dna_chain.switchboard import get_module_path, read_module_file
-from backend.modules.dna_chain.llm_mutator import query_gpt4  # ✅ Updated path to LLM interface
+import json, time, logging, datetime
+from pathlib import Path
+from backend.modules.dna_chain import crispr_ai
 from backend.modules.dna_chain.dna_registry import store_proposal
-from backend.modules.soul.soul_laws import validate_ethics  # ✅ Ethics hook (C5)
+from backend.modules.soul.soul_laws import validate_ethics
+from backend.modules.aion_resonance.resonance_heartbeat import ResonanceHeartbeat
 
+logger = logging.getLogger(__name__)
+PROPOSALS = Path("data/analysis/dna_autoproposals.json")
+OUT = Path("data/analysis/crispr_mutation_results.json")
 
-def score_mutation(original_code, new_code):
-    """Basic scoring logic for mutation impact + confidence."""
-    impact_score = round(min(1.0, len(new_code) / max(1, len(original_code))), 2)
-    confidence_score = 0.85 if "def " in new_code else 0.5  # placeholder logic
-    safety_score = 1.0 if "os.remove" not in new_code else 0.3
-    return impact_score, safety_score, confidence_score
+Theta = ResonanceHeartbeat(namespace="crispr_bridge")
 
+class CRISPRBridge:
+    def __init__(self, live_mode=False):
+        self.live_mode = live_mode
+        self.results = []
 
-def generate_mutation_proposal(module_key, prompt_reason, override_path=None, dry_run=True):
-    path = override_path or get_module_path(module_key)
-    if not path or not os.path.exists(path):
-        raise FileNotFoundError(f"❌ Could not locate file for key '{module_key}'.")
+    # ------------------------------------------------------------
+    def load_pending_proposals(self):
+        if not PROPOSALS.exists():
+            logger.warning("[CRISPR-AI] No pending proposals found.")
+            return []
+        try:
+            proposals = json.loads(PROPOSALS.read_text())
+            return [p for p in proposals if not p.get("approved")]
+        except Exception:
+            return []
 
-    original_code = read_module_file(module_key) if not override_path else open(path, "r", encoding="utf-8").read()
+    # ------------------------------------------------------------
+    # CRISPR–AI symbolic mutation proposal (Tessaris)
+    # ------------------------------------------------------------
+    import random
+    import time
 
-    # 🔍 Construct prompt
-    full_prompt = f"""You are CRISPR-AI. Your task is to intelligently mutate Python code.
+    def generate_mutation_proposal(sequence: str, context: dict = None) -> dict:
+        """
+        Generates a symbolic mutation proposal for a given DNA sequence.
+        Used by SymbolicRNA and higher symbolic biology layers.
+        """
+        bases = ["A", "T", "C", "G"]
+        if not sequence:
+            return {"mutation": None, "confidence": 0.0, "note": "empty sequence"}
 
-Reason for mutation:
-{prompt_reason}
+        position = random.randint(0, len(sequence) - 1)
+        original = sequence[position]
+        candidates = [b for b in bases if b != original]
+        mutated = random.choice(candidates)
 
---- ORIGINAL CODE START ---
-{original_code}
---- ORIGINAL CODE END ---
+        mutation = {
+            "timestamp": time.time(),
+            "position": position,
+            "original": original,
+            "mutated": mutated,
+            "mutation_type": "symbolic_shift",
+            "confidence": round(random.uniform(0.7, 0.95), 3),
+            "context": context or {},
+        }
+        return mutation
 
-Return the new code ONLY, with improved structure or logic.
-"""
+    # ------------------------------------------------------------
+    def execute_mutations(self):
+        """Run CRISPR-AI mutation cycle for all pending DNA proposals."""
+        proposals = self.load_pending_proposals()
+        if not proposals:
+            logger.info("[CRISPR-AI] No new mutation proposals.")
+            return
 
-    mutated_code = query_gpt4(full_prompt).strip()
+        logger.info(f"[CRISPR-AI] Processing {len(proposals)} mutation candidates...")
 
-    # 🛡️ Soul Law validation (C5)
-    if not validate_ethics(mutated_code):
-        raise ValueError("❌ Mutation violates Soul Laws.")
+        for p in proposals:
+            reason = p.get("reason", "autonomous reflex adaptation")
+            target_context = p.get("file", "unknown_module")
+            try:
+                result = crispr_ai.generate_mutation_proposal(
+                    module_key=target_context,
+                    prompt_reason=reason,
+                    dry_run=not self.live_mode
+                )
 
-    # 🔄 Compute diff
-    diff = "\n".join(difflib.unified_diff(
-        original_code.splitlines(),
-        mutated_code.splitlines(),
-        fromfile="original.py",
-        tofile="mutated.py",
-        lineterm=""
-    ))
+                # Re-validate post-mutation
+                valid = validate_ethics(result["new_code"])
+                result["ethics_valid"] = valid
+                result["timestamp"] = datetime.datetime.utcnow().isoformat()
 
-    # 📊 Score mutation (C3)
-    impact_score, safety_score, confidence_score = score_mutation(original_code, mutated_code)
+                # Emit resonance pulse for awareness tracking
+                Theta.event("dna_mutation_attempt", impact=result["impact_score"], safety=result["safety_score"])
 
-    # 🧬 Build proposal object
-    proposal = {
-        "proposal_id": f"{module_key}_{datetime.datetime.utcnow().isoformat()}",
-        "file": path,
-        "reason": prompt_reason,
-        "replaced_code": original_code,
-        "new_code": mutated_code,
-        "diff": diff,
-        "approved": False,
-        "timestamp": datetime.datetime.utcnow().isoformat(),
-        "impact_score": impact_score,
-        "safety_score": safety_score,
-        "confidence": confidence_score,
-        "tests_passed": None,  # Will be updated post-validation (C6)
-        "tokens_used": None
+                store_proposal(result)
+                self.results.append(result)
+
+                logger.info(f"[CRISPR-AI] Mutation executed for {target_context} — valid={valid}")
+
+            except Exception as e:
+                logger.error(f"[CRISPR-AI] Mutation failed for {target_context}: {e}")
+
+        self.save_results()
+
+    # ------------------------------------------------------------
+    def save_results(self):
+        OUT.parent.mkdir(parents=True, exist_ok=True)
+        OUT.write_text(json.dumps(self.results, indent=2))
+        logger.info(f"[CRISPR-AI] Wrote mutation cycle results → {OUT}")
+        return True
+
+# ================================================================
+# 🧬 Standalone CRISPR-AI symbolic mutation generator
+# ================================================================
+import random
+import time
+
+def generate_mutation_proposal(sequence: str, context: dict = None) -> dict:
+    """
+    Top-level CRISPR–AI symbolic mutation generator.
+    Accessible to SymbolicRNA and other biological modules.
+    """
+    bases = ["A", "T", "C", "G"]
+    if not sequence:
+        return {"mutation": None, "confidence": 0.0, "note": "empty sequence"}
+
+    position = random.randint(0, len(sequence) - 1)
+    original = sequence[position]
+    candidates = [b for b in bases if b != original]
+    mutated = random.choice(candidates)
+
+    mutation = {
+        "timestamp": time.time(),
+        "position": position,
+        "original": original,
+        "mutated": mutated,
+        "mutation_type": "symbolic_shift",
+        "confidence": round(random.uniform(0.7, 0.95), 3),
+        "context": context or {},
     }
-
-    # 💾 Save proposal to registry
-    store_proposal(proposal)
-
-    if dry_run:
-        print("✅ Proposal stored (dry-run mode).")
-    else:
-        print("⚠️ Live write is disabled for now — use DNA approval flow.")
-
-    return proposal
+    return mutation

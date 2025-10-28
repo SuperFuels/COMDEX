@@ -11,7 +11,7 @@ Features:
   • Ethics influence → bias correction for moral alignment
   • Plan coherence scoring → symbolic + semantic evaluation
 """
-
+import time
 import math
 import random
 import json
@@ -143,6 +143,14 @@ class StrategyEngine:
             "last_ethics": self.last_ethics
         }
 
+    def execute_plan(self, plan: dict):
+        """Executes a symbolic plan (stub until full strategy logic is linked)."""
+        goal = plan.get("goal", "undefined")
+        print(f"[StrategyEngine] 🧭 Executing plan goal='{goal}' ...")
+        # placeholder for real execution logic
+        time.sleep(0.3)
+        result = {"goal": goal, "status": "executed", "timestamp": time.time()}
+        return result
 
 # 🧪 Local diagnostic run
 if __name__ == "__main__":

@@ -17,7 +17,7 @@ Inputs:
 Outputs:
     data/memory/resonant_memory_cache.json
 """
-
+from typing import Any
 import json, os, time, tempfile, logging
 from pathlib import Path
 from statistics import mean
@@ -385,6 +385,19 @@ class ResonantMemoryCache:
     def recall(self, wid: str):
         """Retrieve stabilized tensor or photon entry for given id."""
         return self.cache.get(wid.lower())
+
+    def set(self, key: str, value: Any):
+        """Store a value in the in-memory cache and persist to disk."""
+        self.cache[key] = value
+        try:
+            self.save()  # if your class already has save()
+            print(f"[RMC] 💾 Set key='{key}'")
+        except Exception as e:
+            print(f"[RMC] ⚠️ Failed to persist key='{key}': {e}")
+
+    def get(self, key: str, default: Any = None) -> Any:
+        """Retrieve a value from cache (with default)."""
+        return self.cache.get(key, default)
 
     def export(self):
         """Export unified cache with schema + timestamp under a file lock."""

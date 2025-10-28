@@ -11,7 +11,7 @@ import math
 import json
 import time
 from datetime import datetime, timezone
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, Union
 
 import logging
 logger = logging.getLogger(__name__)
@@ -68,6 +68,7 @@ def get_estimate_codex_cost():
 
 class PredictionEngine:
     def __init__(self, container_id: str = "global", memory_engine=None, tessaris_engine=None, dream_core=None):
+        log.info("[PredictionEngine] Initialized — ready for feasibility assessments.")
         self.container_id = container_id
         self.memory_engine = memory_engine or (MemoryEngine() if MemoryEngine else None)
         self.tessaris_engine = tessaris_engine or (TessarisEngine() if TessarisEngine else None)
@@ -112,6 +113,24 @@ class PredictionEngine:
             "resonance": round(random.uniform(0.2, 0.9), 3),
             "entropy": round(random.uniform(0.1, 0.7), 3),
         }
+
+
+    def assess_feasibility(self, goal: Union[str, dict]) -> float:
+        """
+        Returns a pseudo-probabilistic feasibility score (0–1)
+        based on symbolic goal complexity and random harmonics.
+        """
+        if not goal:
+            return 0.0
+
+        goal_text = goal if isinstance(goal, str) else str(goal)
+        complexity = min(len(goal_text) / 64.0, 1.0)  # heuristic: long goals = harder
+        base_resonance = 1.0 - (complexity * 0.5)
+        noise = random.uniform(-0.1, 0.1)
+
+        feasibility = max(0.0, min(1.0, base_resonance + noise))
+        log.info(f"[PredictionEngine] Feasibility({goal_text}) = {feasibility:.3f}")
+        return feasibility
 
     def _run_prediction_on_ast(self, ast_or_raw: dict) -> dict:
         from backend.modules.codex.codex_metrics import CodexMetrics
@@ -1253,6 +1272,32 @@ def run_prediction_on_container(container: Dict[str, Any]) -> Dict[str, Any]:
 # ✅ Public wrapper for AST-level prediction
 def run_prediction_on_ast(ast_or_raw: dict) -> dict:
     return get_prediction_engine()._run_prediction_on_ast(ast_or_raw)
+
+import random, logging
+log = logging.getLogger(__name__)
+
+def assess_feasibility(self, goal):
+    """
+    Returns a pseudo-probabilistic feasibility score (0–1)
+    based on symbolic goal complexity and random harmonics.
+    """
+    if not goal:
+        return 0.0
+
+    goal_text = goal if isinstance(goal, str) else str(goal)
+    complexity = min(len(goal_text) / 64.0, 1.0)  # heuristic: longer = harder
+    base_resonance = 1.0 - (complexity * 0.5)
+    noise = random.uniform(-0.1, 0.1)
+    feasibility = max(0.0, min(1.0, base_resonance + noise))
+    log.info(f"[PredictionEngine] Feasibility({goal_text}) = {feasibility:.3f}")
+    return feasibility
+
+# Attach dynamically if missing
+try:
+    if not hasattr(PredictionEngine, "assess_feasibility"):
+        PredictionEngine.assess_feasibility = assess_feasibility
+except NameError:
+    pass
 
 __all__ = [
     "run_prediction_on_container",

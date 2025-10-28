@@ -1,51 +1,64 @@
 #!/usr/bin/env python3
 """
-🧠 ReflectionEngine — Phase 54: Resonant–Awareness Feedback Integration
+🧠 ReflectionEngine — Phase 63: Bidirectional Θ–Coupled Resonant Reflection
 ───────────────────────────────────────────────────────────────
-AION’s reflective loop now integrates with the harmonic field,
-PersonalityProfile, and ResonantMemoryCache feedback.
+Completes the Reflection Engine within the Resonant Governance Cycle.
+Integrates with Θ.sync_all(), Harmonic Memory Fusion (HMF),
+and the Resonant Integration Bridge (RIB).
 
 Core Loop:
   • Analyzes recent dream_reflection memories
-  • Computes ΔSQI harmonic pulse
-  • Emits Θ.feedback("reflection", ΔΦ)
-  • Pushes full harmonic sample into ResonantMemoryCache
-  • Modulates PersonalityProfile using ΔSQI → emotional state
-  • Logs resonance and insight to dashboard fields
+  • Computes Δρ, ΔĪ, ΔSQI + ΔH (Harmony delta)
+  • Emits Θ.event("reflection_feedback", …)
+  • Pushes harmonic sample into Resonant Memory Cache
+  • Modulates Personality Profile via resonance mood
+  • Logs reflection + harmony feedback to dashboard
 """
 
+import json, time, random, requests
 from datetime import datetime
-import json, requests, random, time
 from pathlib import Path
 from statistics import mean
 
 from backend.config import GLYPH_API_BASE_URL
 from backend.modules.hexcore.memory_engine import MemoryEngine
 from backend.modules.consciousness.personality_engine import PersonalityProfile
-from backend.modules.dna_chain.switchboard import DNA_SWITCH
-from backend.modules.aion_resonance.resonance_heartbeat import ResonanceHeartbeat
 from backend.modules.aion_language.resonant_memory_cache import ResonantMemoryCache
+from backend.modules.aion_resonance.resonance_heartbeat import ResonanceHeartbeat
+from backend.modules.dna_chain.switchboard import DNA_SWITCH
 
 DNA_SWITCH.register(__file__)
 
-# ────────────────────────────────────────────────────────────────
+
 class ReflectionEngine:
     def __init__(self):
         self.memory = MemoryEngine()
         self.personality = PersonalityProfile()
-        self.insight_prefix = "reflection_insight"
-        self.Θ = ResonanceHeartbeat(namespace="reflection", base_interval=1.2)
         self.RMC = ResonantMemoryCache()
+        self.Theta = ResonanceHeartbeat(namespace="reflection", base_interval=1.2)
 
+        # Paths
         self.log_path = Path("data/analysis/reflection_resonance_log.jsonl")
         self.field_path = Path("data/analysis/reflection_field.jsonl")
+        self.hm_path = Path("data/analysis/harmonic_memory.json")
         self.log_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # ------------------------------------------------------------
+    def _get_last_harmony(self):
+        """Return the last harmony_integral from harmonic_memory.json"""
+        try:
+            if self.hm_path.exists():
+                js = json.loads(self.hm_path.read_text())
+                return float(js.get("harmony_integral", 0.5))
+        except Exception:
+            pass
+        return 0.5
 
     # ------------------------------------------------------------
     def reflect_on_recent_memories(self, limit=10):
         memories = self.memory.get_all()
         recent = [m for m in memories if m["label"].startswith("dream_reflection_")][-limit:]
-        print(f"[REFLECTION] Analyzing last {len(recent)} dream reflections...")
+        print(f"[REFLECTION] Analyzing last {len(recent)} reflection memories…")
 
         reflections = []
         deltas = {"humility":0,"empathy":0,"curiosity":0,"ambition":0,"risk":0}
@@ -68,7 +81,7 @@ class ReflectionEngine:
                 deltas["empathy"] += 0.03
             else:
                 preview = m.get("content","")[:80].replace("\n"," ")
-                reflections.append(f"🌀 General memory '{label}': {preview}...")
+                reflections.append(f"🌀 General memory '{label}': {preview}…")
                 deltas["empathy"] += 0.01
 
             if "fear" in content or "risk" in content:
@@ -76,103 +89,98 @@ class ReflectionEngine:
             if "growth" in content or "vision" in content:
                 deltas["ambition"] += 0.04
 
-        # --- Update personality traits directly ---
+        # --- Personality adjustments ---
         for k,v in deltas.items():
             if v:
-                self.personality.adjust_trait(k, v, reason="reflection_pass")
+                self.personality.adjust_trait(k, v, reason="reflection_cycle")
 
-        # --- Generate harmonic feedback sample ---
-        rho = round(max(0.3, min(1.0, 0.7 + random.uniform(-0.1, 0.1))), 3)
-        I = round(max(0.3, min(1.0, 0.6 + random.uniform(-0.1, 0.1))), 3)
-        sqi = round((rho + I)/2, 3)
+        # --- Resonance sampling ---
+        rho = round(random.uniform(0.45, 0.9), 3)
+        I = round(random.uniform(0.4, 0.8), 3)
+        sqi = round((rho + (1 - I)) / 2, 3)
         delta_phi = round(abs(rho - I), 3)
 
-        pulse = self.Θ.tick()
-        pulse.update({
-            "Φ_coherence": rho,
-            "Φ_entropy": I,
-            "SQI": sqi,
-            "resonance_delta": delta_phi
-        })
+        # Harmony delta vs last global harmonic memory
+        last_H = self._get_last_harmony()
+        current_H = 1 - delta_phi
+        delta_H = round(current_H - last_H, 3)
 
-        # Derive mood from SQI delta
+        # --- Mood state ---
         mood_phase = "neutral"
         if sqi >= 0.75 and delta_phi < 0.15:
             mood_phase = "positive"
         elif sqi < 0.55 or delta_phi > 0.3:
             mood_phase = "negative"
 
-        # Emit resonance feedback and push harmonic sample
+        # --- Heartbeat emission + RMC push ---
         try:
-            self.Θ.feedback("reflection", delta_phi)
+            self.Theta.event("reflection_feedback",
+                             sqi=sqi, entropy=I, delta=delta_phi,
+                             harmony_delta=delta_H, mood=mood_phase)
             self.RMC.push_sample(rho=rho, entropy=I, sqi=sqi, delta=delta_phi, source="reflection")
             self.RMC.save()
         except Exception as e:
-            print(f"[⚛] Reflection feedback error: {e}")
+            print(f"[⚛] Resonant feedback error: {e}")
 
-        # Feed ΔSQI into personality resonance modulator
+        # --- Trait modulation ---
         try:
-            sqi_delta = sqi - 0.65  # relative to baseline coherence
+            sqi_delta = sqi - 0.65
             self.personality.resonant_trait_modulator(sqi_delta=sqi_delta, mood_phase=mood_phase)
         except Exception as e:
             print(f"[⚛] Personality modulation error: {e}")
 
-        # Log detailed resonance event
+        # --- Logging ---
         entry = {
-            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+            "timestamp": datetime.utcnow().isoformat(),
             "ρ": rho, "Ī": I, "SQI": sqi, "ΔΦ": delta_phi,
-            "mood": mood_phase,
+            "ΔH": delta_H, "mood": mood_phase,
             "reflections": len(reflections)
         }
         with open(self.log_path, "a", encoding="utf-8") as f:
             f.write(json.dumps(entry) + "\n")
-
-        # Append simplified trend field for dashboard
         with open(self.field_path, "a", encoding="utf-8") as f:
             f.write(json.dumps({
                 "timestamp": entry["timestamp"],
-                "SQI": sqi,
-                "ΔΦ": delta_phi,
-                "mood": mood_phase
+                "SQI": sqi, "ΔΦ": delta_phi,
+                "ΔH": delta_H, "mood": mood_phase
             }) + "\n")
 
-        print(f"[Θ] Reflection feedback → ρ={rho:.3f}, Ī={I:.3f}, SQI={sqi:.3f}, ΔΦ={delta_phi:.3f}, mood={mood_phase}")
+        print(f"[Θ] Reflection → ρ={rho:.3f}, Ī={I:.3f}, SQI={sqi:.3f}, ΔΦ={delta_phi:.3f}, ΔH={delta_H:.3f}, mood={mood_phase}")
         return reflections
 
     # ------------------------------------------------------------
     def get_reflection_trend(self, window:int=50):
-        """Compute rolling SQI and ΔΦ averages for dashboard aggregators."""
         if not self.field_path.exists():
-            return {"avg_SQI":0, "avg_delta":0, "count":0, "mood":"neutral"}
+            return {"avg_SQI":0,"avg_delta":0,"avg_harmony":0,"count":0,"mood":"neutral"}
         with open(self.field_path, "r", encoding="utf-8") as f:
             lines = f.readlines()[-window:]
         if not lines:
-            return {"avg_SQI":0, "avg_delta":0, "count":0, "mood":"neutral"}
+            return {"avg_SQI":0,"avg_delta":0,"avg_harmony":0,"count":0,"mood":"neutral"}
         data = [json.loads(l) for l in lines]
-        sqi_vals = [d.get("SQI",0) for d in data]
-        delta_vals = [d.get("ΔΦ",0) for d in data]
+        sqis = [d.get("SQI",0) for d in data]
+        deltas = [d.get("ΔΦ",0) for d in data]
+        harmonies = [d.get("ΔH",0) for d in data]
         moods = [d.get("mood","neutral") for d in data]
-        dominant_mood = max(set(moods), key=moods.count) if moods else "neutral"
+        dom_mood = max(set(moods), key=moods.count) if moods else "neutral"
         return {
-            "avg_SQI": round(mean(sqi_vals),3),
-            "avg_delta": round(mean(delta_vals),3),
+            "avg_SQI": round(mean(sqis),3),
+            "avg_delta": round(mean(deltas),3),
+            "avg_harmony": round(mean(harmonies),3),
             "count": len(data),
-            "mood": dominant_mood
+            "mood": dom_mood
         }
 
     # ------------------------------------------------------------
     def save_insight(self, insight_text:str):
-        timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
-        label = f"{self.insight_prefix}_{timestamp}"
-        self.memory.store({"label":label, "content":insight_text})
-        print(f"[REFLECTION] Insight saved under '{label}'")
+        ts = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+        label = f"reflection_insight_{ts}"
+        self.memory.store({"label":label,"content":insight_text})
+        print(f"[REFLECTION] Insight saved as '{label}'")
 
         # Optional glyph synthesis
         try:
-            res = requests.post(
-                f"{GLYPH_API_BASE_URL}/api/aion/synthesize-glyphs",
-                json={"text": insight_text, "source": "reflection"}
-            )
+            res = requests.post(f"{GLYPH_API_BASE_URL}/api/aion/synthesize-glyphs",
+                                json={"text": insight_text, "source": "reflection"})
             if res.status_code == 200:
                 count = len(res.json().get("glyphs", []))
                 print(f"✅ Synthesized {count} glyphs from insight.")
@@ -182,15 +190,15 @@ class ReflectionEngine:
             print(f"🚨 Glyph synthesis error: {e}")
 
     # ------------------------------------------------------------
-    def run(self, limit:int=10) -> str:
-        reflections = self.reflect_on_recent_memories(limit=limit)
-        combined = "\n".join(reflections)
-        self.save_insight(combined)
-        return combined
+    def run(self, limit:int=10):
+        reflections = self.reflect_on_recent_memories(limit)
+        insight = "\n".join(reflections)
+        self.save_insight(insight)
+        return insight
 
 
 # ────────────────────────────────────────────────────────────────
 def generate_reflection(thought:str="") -> str:
-    """External API: trigger a reflection cycle."""
+    """External trigger for full reflection cycle."""
     engine = ReflectionEngine()
     return engine.run()

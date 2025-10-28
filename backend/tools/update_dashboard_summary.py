@@ -1,18 +1,14 @@
 #!/usr/bin/env python3
 """
-📊 AION Live Dashboard Aggregator — Phase 56 Systemic Resonant Synchronization
+📊 AION Live Dashboard Aggregator — Phase 57a Dynamic Resonance Drift Compensation
 ──────────────────────────────────────────────────────────────────────────────
-Collects and summarizes live resonance events and synchronizes Θ-phases
-across all active engines.
+Extends systemic Θ-synchronization with ΔΦ drift monitoring and correction metrics.
 
-New Features:
-  • Θ.sync_all() → aligns local heartbeat frequencies + entropy drift
-  • Harmony Score metric:
-        H = 1 - (1/n) * Σ |Θᵢ − Θ_master|
-  • Aggregated stream telemetry:
-        - plan_eval
-        - phase_shift (ethical reconsiderations)
-        - resonance_tension (goal alignment drift)
+New in Phase 57a:
+  • Integrates "drift_corrected" telemetry from ResonanceHeartbeat.monitor_drift()
+  • Reads resonant_drift_log.jsonl for ΔΦ correction events
+  • Adds drift summary: total corrections + average ΔΦ deviation
+  • Retains Phase 56 Harmony Score & per-engine Θ synchronization
 
 Outputs → data/analysis/aion_live_dashboard.json
 """
@@ -23,16 +19,16 @@ from pathlib import Path
 from statistics import fmean, StatisticsError
 from backend.modules.aion_resonance.resonance_heartbeat import ResonanceHeartbeat
 
-# Global Θ controller (master phase anchor)
+# Global Θ controller
 Theta = ResonanceHeartbeat(namespace="global_theta")
 
 LOG = Path("data/analysis/aion_live_dashboard.jsonl")
+DRIFT_LOG = Path("data/aion_field/resonant_drift_log.jsonl")
 OUT = Path("data/analysis/aion_live_dashboard.json")
-STREAMS = ["plan_eval", "phase_shift", "resonance_tension"]
 
+# Extended telemetry streams
+STREAMS = ["plan_eval", "phase_shift", "resonance_tension", "drift_corrected"]
 
-# ---------------------------------------------------------------------
-# Utility helpers
 # ---------------------------------------------------------------------
 def safe_mean(values):
     try:
@@ -42,7 +38,6 @@ def safe_mean(values):
 
 
 def compute_harmony(phases):
-    """Compute Harmony Score from list of Θ frequencies."""
     if not phases:
         return None
     master = fmean(phases)
@@ -52,13 +47,9 @@ def compute_harmony(phases):
 
 
 # ---------------------------------------------------------------------
-# Θ.sync_all — Phase synchronization
+# Θ-sync & drift coupling
 # ---------------------------------------------------------------------
 def sync_all_engines():
-    """
-    Scans for all active heartbeat snapshot files and synchronizes them.
-    Returns list of engine phases and the harmony score.
-    """
     hb_dir = Path("data/aion_field")
     hb_files = list(hb_dir.glob("*heartbeat_live.json"))
     phases = []
@@ -71,10 +62,7 @@ def sync_all_engines():
         except Exception:
             continue
 
-    # Compute harmony score before sync
     harmony = compute_harmony(phases)
-
-    # Perform sync — normalize each heartbeat file toward global master
     if phases:
         master_freq = fmean(phases)
         for f in hb_files:
@@ -84,50 +72,45 @@ def sync_all_engines():
                 f.write_text(json.dumps(js, indent=2))
             except Exception:
                 pass
-
-        Theta.tick()  # emit master Θ pulse post-sync
+        Theta.tick()
 
     return phases, harmony
 
 
 # ---------------------------------------------------------------------
-# Dashboard Aggregation
+# Main dashboard aggregation
 # ---------------------------------------------------------------------
 def main():
-    if not LOG.exists():
-        print("No dashboard log yet.")
-        return
-
     rows = []
-    with open(LOG, "r", encoding="utf-8") as f:
-        for line in f:
-            line = line.strip()
-            if not line:
-                continue
-            try:
-                js = json.loads(line)
-                rows.append(js)
-            except Exception:
-                continue
+    if LOG.exists():
+        with open(LOG, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    js = json.loads(line)
+                    rows.append(js)
+                except Exception:
+                    continue
 
     if not rows:
-        print("⚠️ No valid events in dashboard log.")
+        print("⚠️ No valid dashboard events.")
         return
 
-    # Group by stream type
     groups = {s: [] for s in STREAMS}
     for r in rows:
         evt = r.get("event") or r.get("type") or r.get("name")
         if evt in groups:
             groups[evt].append(r)
 
-    # Aggregate stream metrics
     summary = {
         "events_total": len(rows),
         "streams": {},
         "last_event": rows[-1] if rows else None,
     }
 
+    # Stream aggregates
     for name, items in groups.items():
         if not items:
             continue
@@ -151,15 +134,39 @@ def main():
                 "count": len(items),
                 "avg_delta": safe_mean(deltas),
             }
+        elif name == "drift_corrected":
+            drifts = [i.get("ΔΦ") for i in items if isinstance(i.get("ΔΦ"), (int, float))]
+            summary["streams"][name] = {
+                "count": len(items),
+                "avg_ΔΦ": safe_mean(drifts),
+            }
 
     # -----------------------------------------------------------------
-    # Phase 56 — Global Synchronization + Harmony Score
+    # Phase 56–57 synchronization and drift data
     # -----------------------------------------------------------------
     phases, harmony = sync_all_engines()
     summary["engine_phases"] = phases
     summary["harmony_score"] = harmony
 
-    # Save output
+    # Include drift log review
+    drift_rows = []
+    if DRIFT_LOG.exists():
+        with open(DRIFT_LOG, "r", encoding="utf-8") as f:
+            for line in f:
+                try:
+                    drift_rows.append(json.loads(line))
+                except Exception:
+                    continue
+
+    if drift_rows:
+        deltas = [r.get("ΔΦ") for r in drift_rows if isinstance(r.get("ΔΦ"), (int, float))]
+        summary["drift_monitor"] = {
+            "total_corrections": len(drift_rows),
+            "avg_ΔΦ": safe_mean(deltas),
+            "last_correction": drift_rows[-1],
+        }
+
+    # -----------------------------------------------------------------
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(summary, indent=2))
     print("📤 Wrote synchronized dashboard summary →", OUT)
