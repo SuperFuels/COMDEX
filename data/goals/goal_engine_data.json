@@ -4,10 +4,70 @@
       "name": "cluster_goal_expand_harmonic_coherence",
       "description": "Resonant cluster goal auto-derived from 'expand harmonic coherence'.",
       "reward": 6,
-      "priority": 6.905,
+      "priority": 0.1,
       "dependencies": [],
       "created_at": "2025-10-27T23:06:10.910018",
       "origin_strategy_id": "e83d8d9a-4961-4f84-a637-8868621d662f",
+      "tags": [
+        "cluster",
+        "resonant",
+        "auto",
+        "bootstrap"
+      ]
+    },
+    {
+      "name": "cluster_goal_{'confidence':_0.5,_'entropy':_0.5,_'\u0394\u03a6':_0.1}",
+      "description": "Resonant cluster goal auto-derived from '{'confidence': 0.5, 'entropy': 0.5, '\u0394\u03a6': 0.1}'.",
+      "reward": 6,
+      "priority": 0.1,
+      "dependencies": [],
+      "created_at": "2025-10-28T19:07:56.018837",
+      "origin_strategy_id": "20ca2fad-afcd-4c81-993f-3c35494a66eb",
+      "tags": [
+        "cluster",
+        "resonant",
+        "auto",
+        "bootstrap"
+      ]
+    },
+    {
+      "name": "cluster_goal_decision_conf_0.50",
+      "description": "Resonant cluster goal auto-derived from 'decision_conf_0.50'.",
+      "reward": 6,
+      "priority": 0.1,
+      "dependencies": [],
+      "created_at": "2025-10-28T19:22:41.905466",
+      "origin_strategy_id": "98c98513-28e9-4506-af37-a48d9ef7310c",
+      "tags": [
+        "cluster",
+        "resonant",
+        "auto",
+        "bootstrap"
+      ]
+    },
+    {
+      "name": "cluster_goal_undefined",
+      "description": "Resonant cluster goal auto-derived from 'undefined'.",
+      "reward": 6,
+      "priority": 0.1,
+      "dependencies": [],
+      "created_at": "2025-10-28T19:27:24.500601",
+      "origin_strategy_id": "836b7125-5385-4d85-8b1e-6ad01ff6987c",
+      "tags": [
+        "cluster",
+        "resonant",
+        "auto",
+        "bootstrap"
+      ]
+    },
+    {
+      "name": "cluster_goal_decision_conf_0.78",
+      "description": "Resonant cluster goal auto-derived from 'decision_conf_0.78'.",
+      "reward": 6,
+      "priority": 7.6,
+      "dependencies": [],
+      "created_at": "2025-10-28T19:34:48.277510",
+      "origin_strategy_id": "2fce68a9-9125-43f5-8436-b8f6e76ee8c0",
       "tags": [
         "cluster",
         "resonant",

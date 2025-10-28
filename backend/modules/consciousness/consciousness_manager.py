@@ -6,7 +6,7 @@ from backend.modules.consciousness.time_engine import TimeEngine
 from backend.modules.consciousness.state_manager import StateManager
 from backend.modules.consciousness.awareness_engine import AwarenessEngine
 from backend.modules.consciousness.decision_engine import DecisionEngine
-from backend.modules.consciousness.reflection_engine import ReflectionEngine
+from backend.modules.aion_reflection.reflection_engine import ReflectionEngine
 from backend.modules.skills.goal_engine import GoalEngine
 from backend.modules.consciousness.energy_engine import EnergyEngine
 from backend.modules.consciousness.situational_engine import SituationalEngine

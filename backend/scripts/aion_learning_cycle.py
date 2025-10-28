@@ -17,7 +17,7 @@ from backend.modules.hexcore.ai_wallet import AIWallet
 from backend.modules.skills.boot_selector import BootSelector
 from backend.modules.skills.strategy_planner import StrategyPlanner
 from backend.modules.skills.goal_engine import GoalEngine
-from backend.modules.consciousness.reflection_engine import ReflectionEngine
+from backend.modules.aion_reflection.reflection_engine import ReflectionEngine
 from backend.modules.skills.boot_archiver import archive_learned_skills
 
 # ✅ DNA Switch

@@ -13,7 +13,9 @@ Functions:
   • Adjust Θ frequencies and trait drift in real time
   • Persist all feedbacks → resonant_feedback_stream.jsonl
 """
+import os
 
+AION_SILENT = os.getenv("AION_SILENT_MODE", "0") == "1"
 import json
 import time
 import asyncio
@@ -130,4 +132,8 @@ def run_daemon():
 
 # ─────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
-    run_daemon()
+    import os
+    if os.getenv("AION_SILENT_MODE", "0") == "1":
+        print("🌀 [RFD] Silent mode enabled — feedback daemon not started.")
+    else:
+        run_daemon()

@@ -248,5 +248,65 @@
     "confidence": 0.636,
     "entropy": 0.627,
     "sqi": 0.956
+  },
+  {
+    "what": "item_3",
+    "why": "goal",
+    "how": "optimize known plan",
+    "when": "2025-10-28 13:15:27",
+    "priority": 0.4,
+    "confidence": 0.537,
+    "entropy": 0.5,
+    "sqi": 0.5,
+    "status": "coherent",
+    "clarity": 0.634
+  },
+  {
+    "what": "item_1",
+    "why": "curiosity",
+    "how": "explore new pattern",
+    "when": "2025-10-28 13:15:28",
+    "priority": 0.363,
+    "confidence": 0.643,
+    "entropy": 0.5,
+    "sqi": 0.5,
+    "status": "coherent",
+    "clarity": 0.695
+  },
+  {
+    "what": "item_2",
+    "why": "curiosity",
+    "how": "explore new pattern",
+    "when": "2025-10-28 13:15:28",
+    "priority": 0.406,
+    "confidence": 0.729,
+    "entropy": 0.5,
+    "sqi": 0.5,
+    "status": "coherent",
+    "clarity": 0.724
+  },
+  {
+    "what": "item_2",
+    "why": "need",
+    "how": "stabilize resource flow",
+    "when": "2025-10-28 13:15:29",
+    "priority": 0.373,
+    "confidence": 0.51,
+    "entropy": 0.5,
+    "sqi": 0.5,
+    "status": "coherent",
+    "clarity": 0.622
+  },
+  {
+    "what": "item_0",
+    "why": "curiosity",
+    "how": "explore new pattern",
+    "when": "2025-10-28 13:15:29",
+    "priority": 0.348,
+    "confidence": 0.665,
+    "entropy": 0.5,
+    "sqi": 0.5,
+    "status": "coherent",
+    "clarity": 0.725
   }
 ]

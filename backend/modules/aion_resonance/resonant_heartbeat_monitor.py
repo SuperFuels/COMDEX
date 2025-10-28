@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
 Tessaris AION Resonant Heartbeat Monitor (RHM)
 Phase 6D — Stability Pulse & Self-Observation Layer
@@ -9,6 +10,7 @@ stability and harmonic health.
 Author: Tessaris Symbolic Intelligence Lab, 2025
 """
 
+import os
 import asyncio
 import json
 import logging
@@ -16,12 +18,28 @@ import statistics
 from datetime import datetime, timezone
 from pathlib import Path
 
+# ────────────────────────────────────────────────────────────────
+# 🔇 Silent Mode Handling
+# ────────────────────────────────────────────────────────────────
+SILENT = os.getenv("AION_SILENT_MODE", "0") == "1"
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(
+    level=logging.WARNING if SILENT else logging.INFO,
+    format="%(asctime)s %(message)s"
+)
+
+# ────────────────────────────────────────────────────────────────
+# File Paths and Constants
+# ────────────────────────────────────────────────────────────────
 TELEMETRY_FILE = Path("data/resonant_coupling_daemon.jsonl")
 HEARTBEAT_FILE = Path("data/resonant_heartbeat.jsonl")
 INTERVAL = 60.0  # seconds between heartbeats
 
-logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s")
+
+# ────────────────────────────────────────────────────────────────
+# 🫀 ResonanceHeartbeat Class
+# ────────────────────────────────────────────────────────────────
 class ResonanceHeartbeat:
     """
     🫀 ResonanceHeartbeat — live coherence monitor + feedback broadcaster
@@ -56,21 +74,18 @@ class ResonanceHeartbeat:
             try:
                 cb(self.last_pulse)
             except Exception as e:
-                print(f"[⚠️] Heartbeat listener error: {e}")
+                if not SILENT:
+                    print(f"[⚠️] Heartbeat listener error: {e}")
 
     # ------------------------------------------------------------
     def bind_jsonl(self, path: str):
-        """
-        Optionally bind to a live JSONL stream of coherence readings.
-        This allows external generators (like the Tessaris Resonant Heartbeat Generator)
-        to feed data directly into this heartbeat object.
-        """
-        from pathlib import Path
+        """Bind to a live JSONL stream of coherence readings."""
         self.jsonl_path = Path(path)
         if not self.jsonl_path.exists():
             self.jsonl_path.parent.mkdir(parents=True, exist_ok=True)
             self.jsonl_path.touch()
-        print(f"🔗 Bound ResonanceHeartbeat to {path}")
+        if not SILENT:
+            print(f"🔗 Bound ResonanceHeartbeat to {path}")
 
     # ------------------------------------------------------------
     def start(self):
@@ -92,19 +107,26 @@ class ResonanceHeartbeat:
                 time.sleep(5.0)
 
         threading.Thread(target=_loop, daemon=True).start()
-        print(f"💓 ResonanceHeartbeat[{self.namespace}] started.")
+        if not SILENT:
+            print(f"💓 ResonanceHeartbeat[{self.namespace}] started.")
 
     # ------------------------------------------------------------
     def stop(self):
+        """Stop the simulated heartbeat."""
         self.running = False
-        print(f"💤 ResonanceHeartbeat[{self.namespace}] stopped.")
+        if not SILENT:
+            print(f"💤 ResonanceHeartbeat[{self.namespace}] stopped.")
 
+
+# ────────────────────────────────────────────────────────────────
+# 🧮 Telemetry Aggregation
+# ────────────────────────────────────────────────────────────────
 async def compute_heartbeat():
     """Read recent telemetry, compute mean stability and field variance."""
     if not TELEMETRY_FILE.exists():
         return None
 
-    with TELEMETRY_FILE.open() as f:
+    with TELEMETRY_FILE.open("r", encoding="utf-8") as f:
         lines = f.readlines()[-60:]  # last ~6 min (if 6 s intervals)
     if not lines:
         return None
@@ -134,28 +156,37 @@ async def compute_heartbeat():
     }
 
     # persist heartbeat
-    with HEARTBEAT_FILE.open("a") as f:
+    HEARTBEAT_FILE.parent.mkdir(parents=True, exist_ok=True)
+    with HEARTBEAT_FILE.open("a", encoding="utf-8") as f:
         f.write(json.dumps(heartbeat) + "\n")
 
     return heartbeat
 
 
+# ────────────────────────────────────────────────────────────────
+# ♻️ Heartbeat Loop
+# ────────────────────────────────────────────────────────────────
 async def heartbeat_loop():
-    logger.info("💓 Starting Tessaris Resonant Heartbeat Monitor (RHM)...")
+    if not SILENT:
+        logger.info("💓 Starting Tessaris Resonant Heartbeat Monitor (RHM)...")
     while True:
         hb = await compute_heartbeat()
-        if hb:
+        if hb and not SILENT:
             logger.info(
                 f"💓 Resonant heartbeat — stability={hb['mean_stability']:.4f}, "
                 f"ΔΦ_coherence={hb['mean_coherence_delta']:+.4f}"
             )
-        else:
+        elif not hb and not SILENT:
             logger.info("💤 Waiting for telemetry...")
         await asyncio.sleep(INTERVAL)
 
 
+# ────────────────────────────────────────────────────────────────
+# 🏁 Entrypoint
+# ────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
     try:
         asyncio.run(heartbeat_loop())
     except KeyboardInterrupt:
-        logger.info("🧩 Resonant Heartbeat Monitor stopped manually.")
+        if not SILENT:
+            logger.info("🧩 Resonant Heartbeat Monitor stopped manually.")

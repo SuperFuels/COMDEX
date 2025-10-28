@@ -14,7 +14,9 @@ Additions in this version:
     • Safe wiring to KnowledgeIndex via knowledge_bus_adapter.ingest_bus_event
     • Relation linking: if payload.entry.meta.relates_to is provided, create KG edges
 """
+import os
 
+SILENT = os.getenv("AION_SILENT_MODE", "0") == "1"
 import os
 import time
 import threading
@@ -262,7 +264,8 @@ def emit_sqi_event(event_type: str, payload: Optional[dict] = None) -> None:
     Emit an SQI event, pulsing GPIO (if available) and notifying listeners.
     """
     payload = payload or {}
-    _log("info", f"[SQI Event] {event_type} | Payload: {payload}")
+    if not SILENT:
+        _log("info", f"[SQI Event] {event_type} | Payload: {payload}")
 
     # Hardware pulse or simulated notice
     if GPIO_AVAILABLE and event_type in DEFAULT_PINS:

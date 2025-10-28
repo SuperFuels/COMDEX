@@ -18,7 +18,7 @@ from backend.modules.consciousness.decision_engine import DecisionEngine
 from backend.modules.consciousness.planning_engine import PlanningEngine
 from backend.modules.consciousness.prediction_engine import PredictionEngine
 from backend.modules.consciousness.logic_prediction_utils import LogicPredictionUtils
-from backend.modules.consciousness.reflection_engine import ReflectionEngine
+from backend.modules.aion_reflection.reflection_engine import ReflectionEngine
 from backend.modules.aion.recursive_learner import RecursiveLearner
 from backend.modules.aion.rewrite_engine import RewriteEngine
 from backend.modules.consciousness.awareness_engine import AwarenessEngine

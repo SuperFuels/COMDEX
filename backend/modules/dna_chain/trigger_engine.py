@@ -2,7 +2,7 @@
 
 from backend.modules.dna_chain.dc_handler import load_dc_container
 from backend.modules.dimensions.universal_container_system.ucs_runtime import ucs_runtime
-from backend.modules.consciousness.reflection_engine import ReflectionEngine
+from backend.modules.aion_reflection.reflection_engine import ReflectionEngine
 from backend.modules.consciousness.state_manager import StateManager
 
 

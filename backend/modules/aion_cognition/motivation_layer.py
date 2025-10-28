@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # ───────────────────────────────────────────────
-# 🧩 Motivation Layer — Phase 63: Harmonic-Coupled Resonant Cognition
+# 🧩 Motivation Layer — Phase 64: Entropy-Linked Drive Feedback
 # Generates DriveVectors (curiosity, goal, need)
-# Integrates Harmony feedback (ΔH) from Θ and reflection fields.
-# Persists MotivationHistory.json for long-term learning trends.
+# Integrates entropy + reflection feedback (Δρ, ΔSQI, ΔH)
+# Persists MotivationHistory.json for adaptive motivation tracking.
 # ───────────────────────────────────────────────
 
 import os, json, time, math, random
@@ -13,6 +13,7 @@ from backend.modules.aion_language.resonant_memory_cache import ResonantMemoryCa
 from backend.modules.aion_resonance.reinforcement_mixin import ResonantReinforcementMixin
 from backend.modules.aion_resonance.resonance_heartbeat import ResonanceHeartbeat
 
+
 class MotivationLayer(ResonantReinforcementMixin):
     def __init__(self, cache_path: str = "data/memory/resonant_memory_cache.json"):
         super().__init__(name="motivation_layer", learning_rate=0.05)
@@ -21,20 +22,70 @@ class MotivationLayer(ResonantReinforcementMixin):
         self.log_path = Path("data/memory/motivation_history.json")
         os.makedirs(self.log_path.parent, exist_ok=True)
 
-        # Heartbeat reference for SQI + Θ feedback coupling
         self.Theta = ResonanceHeartbeat(namespace="motivation", base_interval=1.0)
 
-        # Initialize drive states
-        self.drives = {"curiosity": 0.0, "goal": 0.0, "need": 0.0}
+        # Initial drive states
+        self.drives = {"curiosity": 0.4, "goal": 0.4, "need": 0.2}
         self.last_entropy = 0.0
         self.last_sqi = 0.6
         self.last_harmony = 0.5
 
-        # Path to harmonic memory (for ΔH tracking)
         self.hmf_path = Path("data/analysis/harmonic_memory.json")
 
     # ───────────────────────────────────────────
-    # Compute entropy + harmony feedback
+    # Reflection-driven update
+    # ───────────────────────────────────────────
+    def update_from_reflection(self, feedback: dict):
+        """
+        Adjusts drive intensities based on reflection feedback (Δρ, ΔSQI, entropy).
+        """
+        delta_rho = float(feedback.get("Δρ", 0.0))
+        delta_sqi = float(feedback.get("ΔSQI", 0.0))
+        entropy = float(feedback.get("entropy", self.last_entropy))
+
+        # Learning coefficients
+        α, β, γ = 0.4, 0.3, 0.35
+
+        self.drives["curiosity"] += α * (entropy + max(delta_sqi, 0))
+        self.drives["goal"] += β * (1.0 - abs(delta_rho))
+        self.drives["need"] += γ * (entropy + abs(min(delta_rho, 0)))
+
+        # Normalize and clamp
+        total = sum(self.drives.values())
+        self.drives = {k: round(max(0.0, min(1.0, v / total)), 3) for k, v in self.drives.items()}
+
+        self.last_entropy = entropy
+        self._log_feedback(feedback)
+        print(f"[MotivationLayer] Δ-feedback → drives: {self.drives}")
+
+    def _log_feedback(self, feedback: dict):
+        """Append feedback coupling entry to motivation history (robust JSON-safe)."""
+        try:
+            history = []
+            if self.log_path.exists():
+                try:
+                    with open(self.log_path, "r", encoding="utf-8") as f:
+                        raw = f.read().strip()
+                        if raw:
+                            history = json.loads(raw)
+                except Exception:
+                    # corrupted or partially written file → ignore and reset
+                    history = []
+
+            history.append({
+                "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+                "feedback": feedback,
+                "drives": self.drives,
+            })
+
+            with open(self.log_path, "w", encoding="utf-8") as f:
+                json.dump(history[-500:], f, indent=2)
+
+        except Exception as e:
+            print(f"[MotivationLayer] ⚠ Failed to log feedback: {e}")
+
+    # ───────────────────────────────────────────
+    # Core drive computation
     # ───────────────────────────────────────────
     def compute_entropy(self) -> float:
         """Compute environmental entropy from RMC (fallback to stochastic noise)."""
@@ -64,15 +115,8 @@ class MotivationLayer(ResonantReinforcementMixin):
         return 0.0
 
     # ───────────────────────────────────────────
-    # Drive Vector computation
-    # ───────────────────────────────────────────
     def generate_drive_vector(self) -> dict:
-        """
-        Generates a normalized DriveVector influenced by entropy, SQI, ΔH, and reinforcement feedback.
-        - Curiosity grows with entropy + positive ΔH.
-        - Goal stabilizes with coherence (inverse entropy).
-        - Need rises when SQI is low or ΔH < 0 (harmonic drift).
-        """
+        """Generates a normalized DriveVector influenced by entropy, SQI, and ΔH."""
         entropy = self.compute_entropy()
         sqi = float(getattr(self.Theta, "_last_pulse", {}).get("sqi", 0.6))
         delta_h = self.get_harmony_delta()
@@ -91,13 +135,8 @@ class MotivationLayer(ResonantReinforcementMixin):
         return self.drives
 
     # ───────────────────────────────────────────
-    # Output vector + reinforcement loop
-    # ───────────────────────────────────────────
     def output_vector(self) -> dict:
-        """
-        Outputs DriveVector, logs it, updates resonance feedback, and
-        emits Θ.event() for synchronization monitoring.
-        """
+        """Outputs DriveVector, logs it, updates resonance feedback, and emits Θ event."""
         vector = {
             "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
             "drives": self.generate_drive_vector(),
@@ -106,14 +145,11 @@ class MotivationLayer(ResonantReinforcementMixin):
             "ΔH": self.get_harmony_delta(),
         }
 
-        # Balance-based alignment score
         balance = 1.0 - abs(max(vector["drives"].values()) - min(vector["drives"].values()))
         alignment_score = round((balance + (1.0 - vector["entropy"]) + vector["sqi"]) / 3.0, 3)
 
-        # Reinforce behavior
         self.update_resonance_feedback(outcome_score=alignment_score, reason="Drive vector alignment")
 
-        # Emit event to Θ field
         try:
             self.Theta.event("motivation_update",
                              drives=vector["drives"],
@@ -124,32 +160,23 @@ class MotivationLayer(ResonantReinforcementMixin):
         except Exception as e:
             print(f"[MotivationLayer] ⚠ Θ event emission failed: {e}")
 
-        # Persist motivation history
-        try:
-            history = []
-            if self.log_path.exists():
-                with open(self.log_path, "r", encoding="utf-8") as f:
-                    history = json.load(f)
-                    if not isinstance(history, list):
-                        history = []
-            history.append(vector)
-            with open(self.log_path, "w", encoding="utf-8") as f:
-                json.dump(history[-500:], f, indent=2)
-        except Exception as e:
-            print(f"[MotivationLayer] ⚠ Failed to record drive vector: {e}")
+        self._log_feedback({"entropy": self.last_entropy, "sqi": self.last_sqi, "ΔH": vector["ΔH"]})
 
         print(f"[🧩 Motivation] curiosity={vector['drives']['curiosity']:.3f}  "
               f"goal={vector['drives']['goal']:.3f}  need={vector['drives']['need']:.3f}  "
               f"SQI={vector['sqi']:.3f}  ΔH={vector['ΔH']:.3f}")
         return vector
 
+    # ───────────────────────────────────────────
+    def get_drive_vector(self) -> dict:
+        """Expose latest DriveVector for Intent Engine."""
+        return self.drives
 
-# ───────────────────────────────────────────────
-# Demo mode
+
 # ───────────────────────────────────────────────
 if __name__ == "__main__":
     layer = MotivationLayer()
-    print("🧩 AION Motivation Layer — Resonant DriveVectors (Phase 63)\n")
+    print("🧩 AION Motivation Layer — Phase 64 (Entropy-Linked Feedback)\n")
     for i in range(5):
         v = layer.output_vector()
-        time.sleep(0.6)
+        time.sleep(0.8)

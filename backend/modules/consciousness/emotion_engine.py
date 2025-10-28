@@ -38,7 +38,7 @@ TIME = TimeController()
 # ⚛ Resonance Core
 from backend.modules.aion_resonance.resonance_heartbeat import ResonanceHeartbeat
 from backend.modules.aion_language.resonant_memory_cache import ResonantMemoryCache
-from backend.modules.aion_resonance.resonant_reinforcement_mixin import ResonantReinforcementMixin
+from backend.modules.aion_resonance.reinforcement_mixin import ResonantReinforcementMixin
 
 # 🧠 Awareness Coupling
 try:
@@ -55,8 +55,10 @@ def get_current_tick() -> int:
 class EmotionEngine(ResonantReinforcementMixin):
     """Symbolic Emotion ↔ Resonance Bridge with Awareness feedback."""
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, name: str = "emotion_engine"):
+        # ✅ initialize resonance reinforcement properly
+        super().__init__(name=name)
+
         self.current_emotion = "neutral"
         self.history = []
         self.graph = get_kg_writer()

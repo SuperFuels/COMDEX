@@ -10,7 +10,7 @@ from backend.modules.websocket_manager import websocket_manager
 from backend.modules.glyphos.glyph_summary import summarize_glyphs
 from backend.modules.codex.codex_trace import CodexTrace
 from backend.modules.aion.dream_core import run_dream
-from backend.modules.consciousness.reflection_engine import generate_reflection
+from backend.modules.aion_reflection.reflection_engine import generate_reflection
 from backend.modules.dna_chain.dna_proposer import propose_dna_mutation
 from backend.modules.glyphos.glyph_mutator import run_self_rewrite
 from backend.modules.glyphos.entanglement_utils import entangle_glyphs

@@ -119,6 +119,22 @@ class ReflectionEngine:
                              harmony_delta=delta_H, mood=mood_phase)
             self.RMC.push_sample(rho=rho, entropy=I, sqi=sqi, delta=delta_phi, source="reflection")
             self.RMC.save()
+
+            # --- Feedback coupling → Motivation Layer ---
+            try:
+                from backend.modules.aion_cognition.motivation_layer import MotivationLayer
+                motive = MotivationLayer()
+                feedback_payload = {
+                    "Δρ": delta_phi,
+                    "ΔSQI": sqi - self.RMC.get("last_sqi", 0.65) if hasattr(self.RMC, "get") else sqi - 0.65,
+                    "entropy": I,
+                    "ΔH": delta_H
+                }
+                motive.update_from_reflection(feedback_payload)
+                print(f"[ReflectionEngine] ⚡ Sent feedback to MotivationLayer → {feedback_payload}")
+            except Exception as e:
+                print(f"[ReflectionEngine] ⚠️ Motivation feedback link failed: {e}")
+
         except Exception as e:
             print(f"[⚛] Resonant feedback error: {e}")
 
@@ -202,3 +218,8 @@ def generate_reflection(thought:str="") -> str:
     """External trigger for full reflection cycle."""
     engine = ReflectionEngine()
     return engine.run()
+
+if __name__ == "__main__":
+    engine = ReflectionEngine()
+    print("🧠 Running ReflectionEngine full cycle (Phase 63)...")
+    engine.run(limit=5)

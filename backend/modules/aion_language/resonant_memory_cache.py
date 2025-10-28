@@ -22,7 +22,7 @@ import json, os, time, tempfile, logging
 from pathlib import Path
 from statistics import mean
 from filelock import FileLock, Timeout
-
+QUIET = os.getenv("AION_QUIET_MODE", "0") == "1"
 log = logging.getLogger(__name__)
 
 # Optional — reinforcement hook
@@ -33,7 +33,8 @@ except Exception:
 
 ADAPTED_QTENSOR_PATH = Path("data/qtensor/langfield_resonance_adapted.qdata.json")
 CACHE_PATH = Path(__file__).resolve().parents[3] / "data/memory/resonant_memory_cache.json"
-print(f"[RMC] Using cache path: {CACHE_PATH.resolve()}")
+if not QUIET:
+    print(f"[RMC] Using cache path: {CACHE_PATH.resolve()}")
 LOCK_PATH = Path(str(CACHE_PATH) + ".lock")
 
 # ================================================================
@@ -61,7 +62,8 @@ def atomic_write_json(path: Path, data: dict):
                 return False
 
             os.replace(tmp.name, path)
-            log.info(f"[RMC] ✅ Atomic save verified → {path}")
+            if not QUIET:
+                log.info(f"[RMC] 💾 Backup created → {bak}")
             return True
 
     except Timeout:
@@ -109,7 +111,8 @@ def _auto_recover_json(path: Path, fallback: dict = None):
             log.warning(f"[Recovery] Unexpected JSON root type ({type(data)}), using fallback.")
             data = fallback
 
-        log.info(f"[RMC] Loaded {len(data)} entries (from structured cache)")
+        if not QUIET:
+            log.info(f"[RMC] Loaded {len(data)} entries (from structured cache)")
         return data
 
     except Exception as e:
@@ -194,7 +197,8 @@ class ResonantMemoryCache:
             self.cache = {}
             self.last_update = time.time()
 
-        log.info(f"[RMC] ✅ Initialized ResonantMemoryCache with {len(self.cache)} entries")
+        if not QUIET:
+            log.info(f"[RMC] ✅ Initialized ResonantMemoryCache with {len(self.cache)} entries")
 
     # ------------------------------------------------------------
     def save(self):
@@ -219,7 +223,8 @@ class ResonantMemoryCache:
             bak = CACHE_PATH.with_suffix(".bak")
             try:
                 os.replace(CACHE_PATH, bak)
-                log.info(f"[RMC] 💾 Backup created → {bak}")
+                if not QUIET:
+                    log.info(f"[RMC] 💾 Backup created → {bak}")
             except Exception as e:
                 log.warning(f"[RMC] ⚠ Could not backup cache: {e}")
 
@@ -272,27 +277,64 @@ class ResonantMemoryCache:
             self.cache[cid] = entry
 
         self.save()
-        log.info(f"[RMC] Updated cache with {len(photons)} photon entries.")
+        if not QUIET:
+            log.info(f"[RMC] Updated cache with {len(photons)} photon entries.")
         return self.cache
 
     # ------------------------------------------------------------
-    def update_resonance_link(self, a: str, b: str, sqi: float):
-        """Create or reinforce resonance link a↔b."""
+    def update_resonance_link(self, a: str, b: str, sqi: float, *, weight: float = 1.0, save: bool = True):
+        """
+        Create or reinforce a resonance link a↔b.
+
+        - Canonicalizes the key so a↔b == b↔a (sorted, lowercased).
+        - SQI is clamped to [0, 1].
+        - 'weight' lets you up/down-weight this sample (default 1.0).
+        - Persists immediately unless save=False.
+        """
         try:
+            # Normalize / canonicalize (avoid self-links)
+            a_norm = (a or "").strip().lower()
+            b_norm = (b or "").strip().lower()
+            if not a_norm or not b_norm or a_norm == b_norm:
+                return
+
+            key = "↔".join(sorted((a_norm, b_norm)))
             links = self.cache.setdefault("links", {})
-            key = f"{a}↔{b}"
+
+            # Ensure structure
             entry = links.get(key, {"count": 0, "SQI_avg": 0.0})
-            c = entry["count"] + 1
-            entry["SQI_avg"] = round((entry["SQI_avg"] * entry["count"] + sqi) / c, 3)
-            entry["count"] = c
+
+            # Clamp inputs
+            sqi = max(0.0, min(1.0, float(sqi)))
+            w = max(0.0, float(weight))
+
+            # Incremental weighted mean
+            prev_count = float(entry.get("count", 0))
+            prev_avg = float(entry.get("SQI_avg", 0.0))
+            new_count = prev_count + w if w > 0 else prev_count
+            if new_count == 0:
+                new_avg = sqi
+                new_count = w if w > 0 else 1.0
+            else:
+                new_avg = (prev_avg * prev_count + sqi * w) / new_count
+
+            # Update entry
+            entry.update({
+                "SQI_avg": round(new_avg, 3),
+                "count": new_count,
+                "last_sqi": sqi,
+                "last_updated": time.time(),
+            })
             links[key] = entry
-            self.save()
-            log.info(
-                f"[RMC] Linked {a}↔{b} → SQI_avg={entry['SQI_avg']}, count={entry['count']}"
-            )
+
+            if save:
+                self.save()
+
+            if not QUIET:
+                log.info(f"[RMC] Linked {a_norm}↔{b_norm} → SQI_avg={entry['SQI_avg']}, count={entry['count']:.2f}")
+
         except Exception as e:
             log.warning(f"[RMC] Failed to link {a}↔{b}: {e}")
-
     # ------------------------------------------------------------
     def reinforce_AKG(self, weight: float = 0.2):
         """Apply persistent reinforcement to AKG."""
@@ -307,7 +349,8 @@ class ResonantMemoryCache:
                 weight * entry.get("coherence", 0.5) * entry.get("count", 1) / 5,
             )
             akg.add_triplet(cid, "resonance_weight", str(round(w, 3)))
-        log.info(f"[RMC] Reinforced {len(self.cache)} cached concepts in AKG.")
+        if not QUIET:
+            log.info(f"[RMC] Reinforced {len(self.cache)} cached concepts in AKG.")
 
     # ------------------------------------------------------------
     def _safe_load(self, path: Path):
@@ -369,7 +412,8 @@ class ResonantMemoryCache:
             }
         self.last_update = timestamp
         self.save()
-        log.info(f"[RMC] Ingested {len(tensor)} tensor entries into cache.")
+        if not QUIET:
+            log.info(f"[RMC] Ingested {len(tensor)} tensor entries into cache.")
 
     def stabilize(self, decay_rate: float = 0.001):
         """Apply slow decay to simulate semantic drift stabilization."""
@@ -380,7 +424,8 @@ class ResonantMemoryCache:
             if isinstance(m, dict) and "stability" in m:
                 m["stability"] = round(m["stability"] * (1 - decay_rate), 6)
         self.save()
-        log.info(f"[RMC] Applied stability decay: rate={decay_rate}")
+        if not QUIET:
+            log.info(f"[RMC] Applied stability decay: rate={decay_rate}")
 
     def recall(self, wid: str):
         """Retrieve stabilized tensor or photon entry for given id."""
@@ -414,9 +459,11 @@ class ResonantMemoryCache:
         try:
             with lock.acquire(timeout=30):
                 atomic_write_json(CACHE_PATH, data)
-                log.info(f"[RMC] ✅ Exported unified cache → {CACHE_PATH}")
+                if not QUIET:
+                    log.info(f"[RMC] ✅ Exported unified cache → {CACHE_PATH}")
         except Timeout:
-            log.warning(f"[RMC] ⚠ Cache locked — export skipped.")
+            if not QUIET:
+                log.warning(f"[RMC] ⚠ Cache locked — export skipped.")
 
     # ------------------------------------------------------------
     # 🌀 Phase 53 — Harmonic Resonance Tracking
@@ -425,8 +472,13 @@ class ResonantMemoryCache:
         """
         Append a resonance feedback sample (ρ, Ī, SQI, ΔΦ) into cache history.
         Each source (reflection/personality/awareness) maintains its own rolling list.
+        Auto-saves every 5 seconds (rate-limited) to prevent excessive writes.
         """
         try:
+            # Initialize throttle timer if missing
+            if not hasattr(self, "_last_save"):
+                self._last_save = 0.0
+
             src = f"harmonics::{source}"
             entry = self.cache.get(src, {"samples": [], "avg": {}})
 
@@ -454,8 +506,16 @@ class ResonantMemoryCache:
 
             self.cache[src] = entry
             self.last_update = time.time()
-            self.save()
-            log.info(f"[RMC] ↑ Pushed harmonic sample from {source} → SQI={sqi:.3f}, ΔΦ={delta:.3f}")
+
+            # 🔄 Throttled save (only every 5 seconds)
+            now = time.time()
+            if now - self._last_save > 5:
+                self.save()
+                self._last_save = now
+
+            if not QUIET:
+                log.info(f"[RMC] ↑ Pushed harmonic sample from {source} → SQI={sqi:.3f}, ΔΦ={delta:.3f}")
+
         except Exception as e:
             log.warning(f"[RMC] push_sample error ({source}): {e}")
 
@@ -519,6 +579,27 @@ class ResonantMemoryCache:
             "overall_SQI": overall_sqi,
             "overall_ΔΦ": overall_delta,
         }
+
+    def summary(self) -> dict:
+        """Return a compact snapshot summary of the current RMC state."""
+        return {
+            "entries": len(self.cache),
+            "last_update": getattr(self, "last_update", None),
+            "avg_stability": self.get_average("stability"),
+            "avg_entropy": self.get_average("entropy"),
+            "avg_sqi": self.get_average("SQI"),
+        }
+
+    def get_average(self, key: str) -> float:
+        """Compute the mean value of a given numeric field across all cache entries."""
+        vals = []
+        for v in self.cache.values():
+            if isinstance(v, dict) and key in v:
+                try:
+                    vals.append(float(v[key]))
+                except (ValueError, TypeError):
+                    continue
+        return sum(vals) / len(vals) if vals else None
 
 # ------------------------------------------------------------
 # CLI Entry

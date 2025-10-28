@@ -91,3 +91,6 @@ class RuleRecipeEngine:
             "avg_coherence": round(avg_rho, 3),
             "avg_SQI": round(avg_sqi, 3)
         }
+
+    def load_active_rules(self):
+        return []  # placeholder; return current cognitive ruleset later

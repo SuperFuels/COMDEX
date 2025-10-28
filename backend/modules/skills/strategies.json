@@ -1,0 +1,10 @@
+{
+  "strategies": [
+    {
+      "id": "default_resonance_alignment",
+      "name": "Default Resonance Alignment",
+      "description": "Maintains baseline coherence across SQI subsystems.",
+      "enabled": true
+    }
+  ]
+}

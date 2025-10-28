@@ -12,7 +12,7 @@ from backend.modules.consciousness.situational_engine import SituationalEngine
 from backend.modules.aion_language.resonant_memory_cache import ResonantMemoryCache
 from backend.modules.aion_resonance.resonant_heartbeat_monitor import ResonanceHeartbeat
 from backend.modules.aion_cognition.action_switch import ActionSwitch
-from backend.modules.aion_cognition.strategy_planner import ResonantStrategyPlanner
+from backend.modules.skills.strategy_planner import ResonantStrategyPlanner
 from backend.modules.aion_resonance.resonant_optimizer import get_optimizer
 
 from backend.modules.dna_chain.switchboard import DNA_SWITCH

@@ -1,463 +1,96 @@
-
 %% ============================================================
-%% 🧠  TESSARIS–AION COGNITIVE RESONANCE SYSTEM – BUILD CHECKLIST
-%% ============================================================
-
-graph TD
-    A0[⚛ P0 – Resonance Heartbeat (Θ)\n• create heartbeat loop\n• output ρ, Ī, SQI telemetry]:::done
-
-    subgraph CORE_COGNITION [Core Cognitive Chain]
-        A1[🧩 P1 – Motivation Layer\n• generate DriveVector\n• curiosity/goal sampling]:::todo
-        A2[🎯 P2 – Intent Engine\n• fuse drives+context → IntentObject\n• meta-questioning (what/why/how/when)]:::todo
-        A3[⚖ P3 – Tessaris Reasoner\n• logical/ethical validation\n• contradiction detection]:::todo
-        A4[🧮 P4 – Strategy Planner + PlanTree\n• decompose ReasonedIntent → PlanTree\n• integrate prediction]:::todo
-        A5[⚙ P5 – ActionSwitch + HexCore bridge\n• DecisionEngine routing\n• Reflex vs Deep loop execution]:::todo
-        A6[🔁 P6 – Reflection Engine\n• compare predicted vs actual\n• update SQI, ρ, Ī\n• learning feedback]:::todo
-        A7[🛑 P7 – Interruption Manager\n• external & self interrupts\n• pause/resume context snapshot]:::todo
-        A8[🧠 P8 – Thinking Loop (Θ orchestrator)\n• heartbeat-driven cognition\n• auto-intent generation]:::todo
-    end
-
-    subgraph HEXCORE [💠 HexCore Subsystems]
-        H1[🔮 PredictionEngine\n• forecast outcomes]:::todo
-        H2[♟ StrategyEngine\n• plan ranking & adaptation]:::todo
-        H3[🎨 CreativeCore\n• mutate / improve plans]:::todo
-        H4[🧩 CodexExecutor\n• commit symbolic / physical action]:::todo
-        H5[🧠 DecisionEngine\n• complexity / ethics routing]:::todo
-    end
-
-    subgraph SSE [🧩 Strategic Simulation Engine]
-        S1[🌳 Build multi-branch scenario trees\n• “what-if” modeling\n• SQI + ethics weighting]:::todo
-        S2[🔁 Integrate reflection feedback\n• outcome delta correction]:::todo
-    end
-
-    subgraph MEMORY [📚 Knowledge & Reflex Memory]
-        M1[RuleBookTree + RuleRecipes]:::todo
-        M2[KnowledgeGraph Containers (.dc)]:::todo
-        M3[Reflex Memory Library]:::todo
-        M4[Motivation History + Drives Log]:::todo
-    end
-
-    subgraph OBS [👁 Observability + Visualization]
-        O1[GHX Overlay / HUD Trace]:::todo
-        O2[Resonance Graph Visualization]:::todo
-        O3[Thought Replay / Reflex Trace Viewer]:::todo
-    end
-
-%% LINKS
-    A0 --> A1 --> A2 --> A3 --> A4 --> A5 --> A6 --> A7 --> A8 --> A0
-    A5 --> HEXCORE
-    H5 --> SSE
-    SSE --> A6
-    A3 --> M1
-    A5 --> M2
-    A6 --> M4
-    A0 -.sync.-> A8
-    HEXCORE --> OBS
-    A6 --> OBS
-    A7 --> OBS
-
-classDef done fill:#c7ffd6,stroke:#0a0;
-classDef todo fill:#f9f9f9,stroke:#777,stroke-width:1px;
-
-%% ============================================================
-%% 🧠  TESSARIS–AION COGNITIVE RESONANCE SYSTEM – MASTER BUILD TASKS
+%% 🧠  TESSARIS–AION COGNITIVE RESONANCE SYSTEM – REMAINING BUILD CHECKLIST
 %% ============================================================
 
 graph TD
 
-%% CORE SEQUENCE
-A0[⚛ Θ Resonance Heartbeat] --> A1[🧩 Motivation Layer]
-A1 --> A2[🎯 Intent Engine]
-A2 --> A3[⚖ Tessaris Reasoner]
-A3 --> A4[🧮 Strategy Planner]
-A4 --> A5[⚙ ActionSwitch + 💠 HexCore]
-A5 --> A6[🔁 Reflection Engine]
-A6 --> A7[🛑 Interruption Manager]
-A7 --> A8[📚 Knowledge & Memory]
-A8 --> A9[👁 Observability + Visualization]
-A9 --> A0
+%% CORE COGNITION LOOP
+✅A0[⚛ Θ Resonance Heartbeat\n✅ complete — drives timing + SQI/ρ emission]:::done
+✅A1[💡 P1 Motivation Layer\n⚙ add entropy→drive feedback loop\n⚙ link reflection feedback → DriveVector gain]:::todo
+✅A2[🎯 P2 Intent Engine\n⚙ fuse Motivation + Memory context\n⚙ add meta-questioning / goal coherence validation]:::todo
+✅A3[⚖ P3 Tessaris Reasoner\n⚙ expand contradiction + ethical weighting system\n⚙ unify with RuleBookTree scoring]:::todo
+A4[🧮 P4 Strategy Planner\n⚙ add Strategic Simulation Engine (SSE)\n⚙ enable multi-branch “what-if” modeling]:::todo
+✅A5[⚙ P5 ActionSwitch + HexCore\n✅ operational (Reflex–Deep routing, R4–R6, HexCore bridge)]:::done
+✅A6[🔁 P6 Reflection Engine\n⚙ connect Δρ, ΔSQI feedback → MotivationLayer\n⚙ persist reflection metrics]:::todo
+✅A7[🛑 P7 Interruption / Override AI\n🚧 build conscious override decision engine\n⚙ ethical vs goal arbitration]:::todo
+✅A8[🧠 P8 Thinking Loop (Θ Orchestrator)\n🚧 implement main orchestration loop\n⚙ synchronize P0–P7 per Θ tick]:::todo
 
-%% =======================================
-%% ⚛ RESONANCE HEARTBEAT
-%% =======================================
-subgraph HB [⚛ Resonance Heartbeat (resonance_heartbeat.py)]
-    HB1[✅ Define Θ pulse generator class]
-    HB2[✅ Integrate SQI, ρ, Ī averaging]
-    HB3[✅ Add adaptive frequency modulation]
-    HB4[✅ Emit event hooks to ThinkingLoop]
-end
-A0 --> HB
-
-%% =======================================
-%% 🧩 MOTIVATION LAYER
-%% =======================================
-subgraph M [🧩 Motivation Layer (motivation_layer.py)]
-✅    M1[Compute DriveVectors: curiosity, goal, need]
-✅    M2[Sample from observation/memory entropy]
-✅    M3[Output MotivationVector to Intent Engine]
-✅    M4[Maintain MotivationHistory.json]
-end
-A1 --> M
-
-%% =======================================
-%% 🎯 INTENT ENGINE
-%% =======================================
-subgraph I [🎯 Intent Engine (intent_engine.py)]
-    I1[✅ Fuse MotivationVector + Memory context]
-    I2[✅ Form IntentObject (what/why/how/when)]
-    I3[✅ Perform meta-questioning & validation]
-    I4[✅ Output ReasonedIntent to Tessaris Reasoner]
-end
-end
-A2 --> I
-
-%% =======================================
-%% ⚖ TESSARIS REASONER
-%% =======================================
-subgraph R [⚖ Tessaris Reasoner (tessaris_reasoner.py)]
-    R1[✅ Load RuleBookTree + KnowledgeGraph]
-    R2[✅ Run ethical/logical validation]
-    R3[✅ Predict contradiction probability]
-    R4[✅ Output ValidatedIntent or trigger interrupt]
-end
-A3 --> R
-
-%% =======================================
-%% 🧮 STRATEGY PLANNER
-%% =======================================
-subgraph S [🧮 Strategy Planner (strategy_engine.py + plan_tree.py)]
-    S1[✅ Decompose Intent → PlanTree]
-    S2[✅ Use PredictionEngine to score branches]
-    S3[✅ Select optimal PlanNodeSet]
-    S4[✅ Feed plan to ActionSwitch]
-end
-A4 --> S
-
-%% =======================================
-%% ⚙ ACTION SWITCH + HEXCORE
-%% =======================================
-subgraph A [⚙ ActionSwitch + 💠 HexCore (action_switch.py + hexcore.py)]
-    A1[✅ DecisionEngine: Reflex vs Deep Resonance route]
-    A2[✅ Integrate Prediction, Strategy, Creative, Codex subsystems]
-    A3[✅ Validate RuleRecipes before execution]
-    A4[✅ Commit action traces to .dc containers]
-    A5[✅ Emit execution telemetry]
-end
-end
-A5 --> A
-
-%% =======================================
-%% 🔁 REFLECTION ENGINE
-%% =======================================
-subgraph F [🔁 Reflection Engine (reflection_engine.py)]
-✅    F1[Compare predicted vs actual outcomes]
-✅    F2[Compute Δρ, ΔĪ, ΔSQI]
-✅    F3[Update learning weights + Motivation history]
-✅    F4[Emit feedback to Heartbeat Θ]
-end
-A6 --> F
-
-%% =======================================
-%% 🛑 INTERRUPTION MANAGER
-%% =======================================
-subgraph INT [🛑 Interruption Layer (interruption_manager.py)]
-✅    INT1[Monitor external stop/override signals]
-✅    INT2[Detect internal contradiction triggers]
-✅    INT3[Pause and snapshot current context]
-✅    INT4[Send re-evaluation to Tessaris Reasoner]
-✅    INT5[Resume or abort ActionSwitch execution]
-end
-A7 --> INT
-
-%% =======================================
-%% 📚 KNOWLEDGE + MEMORY
-%% =======================================
-subgraph MEM [📚 Knowledge & Memory (rulebook_tree.py, rulebook_index.py)]
-  ✅  MEM1[✅ Maintain RuleBookTree / RuleRecipes]
-  ✅  MEM2[✅ Manage KnowledgeGraph containers (.dc)]
-   ✅ MEM3[Track Reflex Memory Library]
-   ✅ MEM4[Store Motivation & Reflection logs]
-end
-A8 --> MEM
-
-%% =======================================
-%% 👁 OBSERVABILITY + VISUALIZATION
-%% =======================================
-subgraph OBS [👁 Observability (ghx_overlay.py, resonance_viz.py)]
-    O1[Display GHX HUD traces (ρ, Ī, SQI, Θ)]
-    O2[Render Resonance & Thinking line overlay]
-    O3[Stream Reflex / Reason loops visually]
-    O4[Integrate Telemetry from ReflectionEngine]
-end
-A9 --> OBS
-
-
-%% ============================================================
-%% 🧠  TESSARIS–AION  FULL COGNITIVE BUILD CHECKLIST
-%% ============================================================
-
-graph TD
-    A0[⚛ Θ Resonance Heartbeat\n• timing + ρ,Ī,SQI emission\n• sync fast/slow loops]:::done
-    A1[💡 Motivation Layer\n• generate DriveVector\n• log drives→MotivationHistory]:::todo
-    A2[🎯 Intent Engine\n• form IntentObject (what/why/how/when)\n• entropy & curiosity bias]:::todo
-    A3[⚖ Tessaris Reasoner\n• logic/ethics validator\n• contradiction & safety gate]:::todo
-    A4[🧮 Strategy Planner\n• expand ReasonedIntent→PlanTree\n• uses PredictionEngine + GameTheory]:::todo
-    A5[⚙ ActionSwitch + HexCore Bridge\n• DecisionEngine routing\n• Reflex↔Deep loop control]:::todo
-    A6[🔁 Reflection Engine\n• compare predicted vs. actual\n• Δρ,ΔSQI feedback]:::todo
-    A7[🛑 Interruption Manager\n• handle external/self interrupts\n• context snapshot + resume]:::todo
-    A8[🧠 Thinking Loop (Θ-Driven)\n• orchestrate Motivation→Reflection\n• adjust heartbeat freq.]:::todo
-
-    %% FAST vs SLOW
-    subgraph FAST_LOOP [⚡ ReflexArc – Fast Cognitive Loop]
-        F1[Stimulus Capture]
-        F2[DecisionEngine(route)]
-        F3[ReflexArc Execution]
-        F4[HexCore Micro-Action]
-        F5[Reflex Memory Update]
-        F1 --> F2 --> F3 --> F4 --> F5 --> A6
-    end
-
-    subgraph SLOW_LOOP [🌌 Deep Resonance Loop – Strategic Reasoning]
-        S1[Motivation]
-        S2[Intent]
-        S3[Reasoner]
-        S4[Strategy Planner]
-        S5[ActionSwitch + HexCore]
-        S6[Reflection]
-        S1 --> S2 --> S3 --> S4 --> S5 --> S6
-    end
-
-    %% ACTION SWITCH DETAIL
-    subgraph ACTIONSWITCH [⚙ ActionSwitch Subtasks]
-        AS1[🧭 DecisionEngine\n• analyze complexity/ethics\n• choose Reflex or DeepLoop]:::todo
-        AS2[📏 RuleStream Validator\n• stream RuleBookTree checks]:::todo
-        AS3[🔀 ReflexArc Executor\n• run micro-actions\n• update reflex memory]:::todo
-        AS4[🔁 ResonantLoop Dispatcher\n• forward to Tessaris/Strategy]:::todo
-        AS5[💠 HexCore Bridge\n• call Prediction/Strategy/Creative/Codex]:::todo
-        AS6[🧩 SSE Integrator\n• run Strategic Simulation Engine]:::todo
-        AS7[🛑 Interruption Hook\n• trigger pause/resume on contradiction]:::todo
-        AS8[📡 Telemetry Logger\n• record route, SQI, latency]:::todo
-        AS1 --> AS2 --> AS3 --> AS5 --> AS8
-        AS2 --> AS6 --> AS4
-        AS5 --> AS7
-    end
-
-    %% HEXCORE
-    subgraph HEXCORE [💠 HexCore]
-        H1[🔮 PredictionEngine\n• forecast outcomes]:::todo
-        H2[♟ StrategyEngine\n• rank plan branches]:::todo
-        H3[🎨 CreativeCore\n• mutate / generate alternatives]:::todo
-        H4[🧩 CodexExecutor\n• perform symbolic / physical action]:::todo
-        H5[🧠 DecisionEngine(core)\n• ethical & performance balance]:::todo
-    end
-    AS5 --> HEXCORE
-    H5 --> A6
-
-    %% SSE
-    subgraph SSE [🧩 Strategic Simulation Engine]
-        Sse1[🌳 Build Scenario Trees\n• multi-branch what-if models]:::todo
-        Sse2[⚖ Evaluate branches (SQI+Ethics+Curiosity)]:::todo
-        Sse3[🔁 Integrate Reflection feedback\n• adjust probabilities]:::todo
-        Sse4[📚 Store learned strategies]:::todo
-        Sse1 --> Sse2 --> Sse3 --> Sse4
-    end
-    AS6 --> SSE --> H1
-
-    %% REFLECTION & INTERRUPTION DETAIL
-    subgraph REFLECT [🔁 Reflection / Interruption]
-        R1[📈 Measure Δρ,ΔSQI]:::todo
-        R2[🪞 Compare prediction vs actual]:::todo
-        R3[💾 Update KnowledgeGraph / RuleBooks]:::todo
-        R4[⚠ Detect contradiction → Interruption]:::todo
-        R1 --> R2 --> R3 --> R4
-    end
-    A6 --> REFLECT
-    R4 --> A7
-
-    subgraph INTERRUPTION [🛑 Override Layer]
-        I1[External Command]:::todo
-        I2[Internal Contradiction]:::todo
-        I3[Context Snapshot]:::todo
-        I4[Reasoner Re-Eval]:::todo
-        I5[Resume / Abort]:::todo
-        I1 --> I3 --> I4 --> I5
-        I2 --> I3
-    end
-    A7 --> INTERRUPTION
-
-    %% MEMORY + OBSERVABILITY
-    subgraph MEMORY [📚 Knowledge Systems]
-        M1[RuleBookTree / RuleRecipes]:::todo
-        M2[KnowledgeGraph Containers (.dc)]:::todo
-        M3[Reflex Memory Library]:::todo
-        M4[Motivation History / Drives Log]:::todo
-        M5[Reflection Logs / SQI Metrics]:::todo
-        M1 --> M2 --> M3 --> M4 --> M5
-    end
-    A3 --> M1
-    A5 --> M2
-    A6 --> M5
-    F5 --> M3
-
-    subgraph OBS [👁 Visualization]
-        O1[GHX HUD Trace]:::todo
-        O2[GWave / Teleport Streams]:::todo
-        O3[Resonance Graph Viz]:::todo
-        O4[Thought Replay Viewer]:::todo
-        O1 --> O2 --> O3 --> O4
-    end
-    HEXCORE --> OBS
-    A6 --> OBS
-    FAST_LOOP --> OBS
-    SLOW_LOOP --> OBS
-
-    %% SYNCHRONIZATION
-    A0 -.sync.-> FAST_LOOP
-    A0 -.sync.-> SLOW_LOOP
-    A0 -.adjusts ρ,Ī,SQI→.-> MEMORY
-
-classDef done fill:#c7ffd6,stroke:#0a0;
-classDef todo fill:#f9f9f9,stroke:#777,stroke-width:1px;
-
-
-
-graph TD
-graph TD
-    AS0[⚙ P5 – ActionSwitch + HexCore Integration]:::section
-
-    subgraph ACTIONSWITCH [ActionSwitch Core]
-      AS1[🧭 DecisionEngine\n• analyze input complexity\n• route Reflex ↔ Deep Loop]:::done
-      AS2[📏 RuleStream Validator\n• apply RuleBookTree checks\n• handle ethics/logic filters]:::done
-      AS3[🔀 ReflexArc Executor\n• rapid micro-actions\n• reflex memory update]:::done
-      AS4[🔁 ResonantLoop Dispatcher\n• forward to Tessaris Reasoner / Strategy]:::done
-      AS5[🧩 HexCore Bridge\n• call Prediction, Strategy, Creative, Codex engines]:::done
-      AS6[🛑 Interruption Hook\n• emit stop / pause on contradiction]:::done
-      AS7[📡 Telemetry Writer\n• log decision, route, latency, SQI]:::done
-    end
-
-    subgraph HEXCORE [💠 HexCore Subsystems]
-        H1[🔮 PredictionEngine\n– forecast outcomes\n– SQI probability map]:::done
-        H2[♟ StrategyEngine\n– optimize PlanTree branches]:::done
-        H3[🎨 CreativeCore\n– mutate or generate alternatives]:::done
-        H4[🧩 CodexExecutor\n– commit symbolic / physical action]:::done
-    end
-    end
-
-    AS1 --> AS2 --> AS3 --> AS5 --> AS7
-    AS2 --> AS6
-    AS5 --> HEXCORE
-
-
-
-
-
-
-
-
-Perfect — this will be the Master Build Task Graph for Aion’s full cognitive architecture — including:
-	•	⚛ Resonance Heartbeat
-	•	🧠 Motivation → Intent → Reasoner → Strategy → ActionSwitch + HexCore → Reflection
-	•	⚡ Dual Cognitive Loops (Fast Reflex / Slow Resonant)
-	•	🎛 Decision Engine inside ActionSwitch
-	•	🛑 Interruption + Conscious Override
-
-
-%% ============================================================
-%% 🧠  TESSARIS–AION COGNITIVE RESONANCE SYSTEM – MASTER BUILD PLAN
-%% ============================================================
-
-graph TD
-
-%% CORE PULSE
-A0[⚛ Θ Resonance Heartbeat]
-    --> A1[🧩 Motivation Layer]
-    --> A2[🎯 Intent Engine]
-    --> A3[⚖ Tessaris Reasoner]
-    --> A4[🧮 Strategy Planner]
-    --> A5[⚙ ActionSwitch + HexCore]
-    --> A6[🔁 Reflection Engine]
-    --> A0
-
-%% SUBSYSTEMS
+%% FAST vs SLOW LOOPS
 subgraph FAST_LOOP [⚡ ReflexArc – Fast Cognitive Loop]
-    F1[Input Stimulus]
-    F2[ActionSwitch.DecisionEngine (route)]
-    F3[ReflexArc Execution]
-    F4[HexCore Micro-Action]
-    F5[Reflex Memory Update]
-    F1 --> F2 --> F3 --> F4 --> F5 --> A0
+✅    F1[Stimulus Capture]:::done
+✅    F2[DecisionEngine Route]:::done
+✅    F3[ReflexArc Execution]:::done
+✅    F4[Reflex Memory Update]:::done
 end
 
 subgraph SLOW_LOOP [🌌 Deep Resonance Loop – Strategic Reasoning]
-    S1[Motivation Layer]
-    S2[Intent Engine]
-    S3[Tessaris Reasoner]
-    S4[Strategy Planner]
-    S5[ActionSwitch + HexCore]
-    S6[Reflection Engine]
-    S1 --> S2 --> S3 --> S4 --> S5 --> S6 --> A0
+✅    S1[Motivation]:::todo
+✅    S2[Intent]:::todo
+✅    S3[Reasoner]:::todo
+✅    S4[Strategy Planner]:::todo
+✅    S5[Reflection Feedback]:::todo
 end
 
-%% DECISION ROUTER
-A_decision[🧭 ActionSwitch.DecisionEngine]
-A_input[🛰 Input/Perception Stream]
-A_input --> A_decision
-A_decision -->|low complexity| FAST_LOOP
-A_decision -->|high complexity / ethical risk| SLOW_LOOP
 
-%% SUPPORT MODULES
+subgraph SSE [🧩 Strategic Simulation Engine]
+    Sse1[🌳 Build scenario trees]:::todo
+    Sse2[⚖ Evaluate branches (SQI+ethics)]:::todo
+    Sse3[🔁 Integrate Reflection feedback]:::todo
+end
+A4 --> SSE
+
+A0 --> A1 --> A2 --> A3 --> A4 --> A5 --> A6 --> A7 --> A8 --> A0
+A5 --> FAST_LOOP
+A5 --> SLOW_LOOP
+
+%% SUBSYSTEMS
 subgraph HEXCORE [💠 HexCore Subsystems]
-    H1[🔮 PredictionEngine]
-    H2[♟ StrategyEngine]
-    H3[🎨 CreativeCore]
-    H4[🧩 CodexExecutor]
-    H5[🧠 DecisionEngine]
-    H1:::hex --> H2:::hex --> H3:::hex --> H4:::hex --> H5:::hex
+    H1[🔮 PredictionEngine – ✅ complete]:::done
+    H2[♟ StrategyEngine – ✅ complete]:::done
+    H3[🎨 CreativeCore – 🚧 pending mutation logic]:::todo
+    H4[🧩 CodexExecutor – 🚧 pending symbolic action commit]:::todo
+    H5[🧠 DecisionEngine(core) – ⚙ unify ethics/complexity scoring]:::todo
 end
-
 A5 --> HEXCORE
-F4 --> HEXCORE
-classDef hex fill:#dff0ff,stroke:#0077aa;
 
-%% INTERRUPTION + OVERRIDE
-subgraph INTERRUPTION [🛑 Interruption / Override Layer]
-    I1[External Command (e.g., "Stop")]
-    I2[Internal Contradiction Trigger]
-    I3[Context Snapshot + Pause]
-    I4[Re-Evaluation via Tessaris Reasoner]
-    I5[Resume / Abort Decision]
-    I1 --> I3
-    I2 --> I3
-    I3 --> I4 --> I5 --> A_decision
+
+subgraph MEMORY [📚 Knowledge & Memory Systems]
+    M1[RuleBookTree / Index – ✅ complete]:::done
+    M2[KnowledgeGraph Containers (.dc) – 🚧 pending persistence interface]:::todo
+    M3[Reflex Memory + RMC – ✅ integrated]:::done
+    M4[Motivation History / Drives Log – ✅ functional]:::done
+    M5[Reflection Logs + SQI Metrics – ⚙ refine structure]:::todo
 end
-
-%% KNOWLEDGE + MEMORY
-subgraph MEMORY [📚 Knowledge & Rule Systems]
-    M1[RuleBookTree / RuleRecipes]
-    M2[KnowledgeGraph Containers (.dc)]
-    M3[Reflex Memory Library]
-    M4[Motivation History & Drives]
-    M5[Reflection Logs + SQI Metrics]
-    M1 --> M2 --> M3 --> M4 --> M5
-end
-
 A3 --> M1
-A5 --> M2
 A6 --> M5
-F5 --> M3
+
+subgraph OBS [👁 Observability + Visualization]
+    O1[GHX HUD / Overlay – 🚧 build live view]:::todo
+    O2[Resonance Graph Visualization – 🚧 render from RMC telemetry]:::todo
+    O3[Thought Replay / Reflex Trace Viewer – 🚧 link ReflexMemory logs]:::todo
+end
+A0 --> OBS
+A6 --> OBS
 
 %% SYNCHRONIZATION
-A0 -.syncs heartbeat→.-> FAST_LOOP
-A0 -.syncs heartbeat→.-> SLOW_LOOP
-A0 -.adjusts ρ, Ī, SQI→.-> MEMORY
+A0 -.Θ sync.-> FAST_LOOP
+A0 -.Θ sync.-> SLOW_LOOP
+A6 -.feedback.-> A1
+A6 -.feedback.-> M4
+A8 -.orchestrates.-> A0
 
-%% VISUAL / OBSERVABILITY
-subgraph OBS [👁 Observability + Visualization]
-    O1[GHX / HUD Trace Overlay]
-    O2[GWave Streams & Teleport Links]
-    O3[Resonance Graph Visualization]
-    O4[Thought Replay / Reflex Trace Viewer]
-    O1 --> O2 --> O3 --> O4
+classDef done fill:#c7ffd6,stroke:#0a0,stroke-width:1px;
+classDef todo fill:#f9f9f9,stroke:#777,stroke-width:1px;
+
+
+
+
+
+
+
+
+
+************************FINAL LIST ABOVE****************************
 end
 
 HEXCORE --> OBS

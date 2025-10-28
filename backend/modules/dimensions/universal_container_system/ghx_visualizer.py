@@ -17,6 +17,10 @@ class GHXVisualizer:
         self.geometries[name] = meta or {}
         logger.debug(f"[GHXVisualizer] Added geometry {name}")
 
+    def update_resonance(self, *args, **kwargs):
+        # Placeholder to avoid warning spam
+        return None
+
     # ─────────────────────────────────────────────
     #  🌊 Resonance Feedback Hook
     # ─────────────────────────────────────────────

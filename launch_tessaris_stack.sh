@@ -38,6 +38,9 @@ PYTHONPATH=. nohup python backend/modules/aion_resonance/resonant_feedback_daemo
 echo "🧠 Starting Tessaris Cognitive Fusion Kernel (TCFK) [port 8005]"
 PYTHONPATH=. nohup python backend/modules/aion_cognition/tessaris_cognitive_fusion_kernel.py > "$LOG_DIR/tcfk.log" 2>&1 &
 
+echo "🧠 Starting Θ Orchestrator (Thinking Loop Controller)"
+PYTHONPATH=. nohup python backend/modules/aion_thinking/theta_orchestrator.py > "$LOG_DIR/theta_orchestrator.log" 2>&1 &
+
 echo "🧬 Starting Adaptive Quantum Control Interface (AQCI) [port 8004]"
 PYTHONPATH=. nohup python backend/modules/aion_control/adaptive_quantum_control_interface.py > "$LOG_DIR/aqci.log" 2>&1 &
 

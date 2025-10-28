@@ -12,6 +12,7 @@ from pathlib import Path
 from backend.modules.aion_language.resonant_memory_cache import ResonantMemoryCache
 from backend.modules.aion_cognition.motivation_layer import MotivationLayer
 from backend.modules.aion_resonance.reinforcement_mixin import ResonantReinforcementMixin
+from backend.modules.aion_resonance.resonance_heartbeat import ResonanceHeartbeat
 
 
 INTENT_LOG = Path("data/memory/intent_history.json")
@@ -26,12 +27,14 @@ class IntentEngine(ResonantReinforcementMixin):
         super().__init__(name="intent_engine")
         self.rmc = ResonantMemoryCache()
         self.motivation = MotivationLayer()
+        self.Theta = ResonanceHeartbeat(namespace="intent")
 
     # ───────────────────────────────────────────
     def generate_intent(self) -> dict:
         """
         Fuse DriveVector + memory snapshot → IntentObject.
         Reinforces coherence based on clarity, entropy, and drive balance.
+        Emits Θ event for synchronization.
         """
         motive = self.motivation.output_vector()
         drives = motive["drives"]
@@ -55,10 +58,17 @@ class IntentEngine(ResonantReinforcementMixin):
         drive_balance = 1.0 - abs(max(drives.values()) - min(drives.values()))
         clarity = round(((intent["confidence"] * 0.5) + (drive_balance * 0.3) + (sqi * 0.2)), 3)
 
-        # Update reinforcement feedback
+        # 🧭 Meta-coherence validation
+        intent["status"] = "coherent" if clarity >= 0.45 and entropy <= 0.7 else "unstable"
+        intent["clarity"] = clarity
+
+        # 🔁 Reinforcement feedback
         self.update_resonance_feedback(outcome_score=clarity, reason="Intent clarity and resonance alignment")
 
-        # Log for dashboard tracking
+        # 🔔 Θ event emission
+        self.Theta.event("intent_generated", clarity=clarity, dominant=dominant, context=context, status=intent["status"])
+
+        # 💾 Log for dashboard tracking
         self._log_intent(intent)
 
         return intent
@@ -108,8 +118,9 @@ if __name__ == "__main__":
     for i in range(5):
         intent = engine.generate_intent()
         print(
-            f"[{i+1}] what={intent['what']}  why={intent['why']}  "
-            f"how={intent['how']}  conf={intent['confidence']:.3f}  "
-            f"priority={intent['priority']:.3f}  entropy={intent['entropy']:.3f}  sqi={intent['sqi']:.3f}"
+            f"[{i+1}] what={intent['what']}  why={intent['why']}  how={intent['how']}  "
+            f"clarity={intent['clarity']:.3f}  status={intent['status']}  "
+            f"conf={intent['confidence']:.3f}  priority={intent['priority']:.3f}  "
+            f"entropy={intent['entropy']:.3f}  sqi={intent['sqi']:.3f}"
         )
         time.sleep(0.5)

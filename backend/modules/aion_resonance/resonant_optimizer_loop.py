@@ -18,7 +18,9 @@
 #
 # 🔁 Frequency: ~60s cycle
 # ============================================================
+import os
 
+AION_SILENT = os.getenv("AION_SILENT_MODE", "0") == "1"
 import asyncio
 import json
 import statistics
@@ -110,8 +112,12 @@ class ResonantOptimizerLoop:
 # ⏯️ Launch Loop
 # ============================================================
 if __name__ == "__main__":
-    try:
-        loop = ResonantOptimizerLoop()
-        asyncio.run(loop.run())
-    except KeyboardInterrupt:
-        print("🧩 [ROL] Stopped manually.")
+    import os
+    if os.getenv("AION_SILENT_MODE", "0") == "1":
+        print("⚙️ [ROL] Silent mode enabled — optimizer loop not started.")
+    else:
+        try:
+            loop = ResonantOptimizerLoop()
+            asyncio.run(loop.run())
+        except KeyboardInterrupt:
+            print("🧩 [ROL] Stopped manually.")

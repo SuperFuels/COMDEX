@@ -208,7 +208,7 @@ def broadcast_tick(data: dict):
     Avoids circular imports by dispatching through send_codex_ws_event_sync lazily.
     """
     try:
-        from backend.modules.codex.codex_websocket_interface import send_codex_ws_event_sync
+        # direct reference instead of re-importing
         send_codex_ws_event_sync("tick", data)
     except Exception as e:
         print(f"[WS] Tick broadcast failed: {e}")

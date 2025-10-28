@@ -218,3 +218,24 @@ def stats_summary():
         f"Stability={round(s.get('avg_stability', 0), 3)}, "
         f"MCI={round(s.get('avg_MCI', 0), 3)}"
     )
+
+# ──────────────────────────────────────────────
+# Resonant Field Visualization (new)
+# ──────────────────────────────────────────────
+def map_resonance_field(concept: str = "general"):
+    """
+    Visualize the resonance field connections for a given concept.
+    Usage: Aion🧠> map resonance field [concept]
+    """
+    try:
+        from backend.modules.aion_language.resonant_memory_cache import ResonantMemoryCache
+        from backend.modules.visualization.resonance_field_mapper import plot_resonance_field
+    except ImportError:
+        return "⚠️ Visualization module unavailable (missing resonance_field_mapper)."
+
+    cache = ResonantMemoryCache()
+    field_data = cache.query_field(concept)
+    if not field_data:
+        return f"❌ No resonance data found for '{concept}'."
+    plot_resonance_field(field_data)
+    return f"🧭 Resonance field mapped for '{concept}'."

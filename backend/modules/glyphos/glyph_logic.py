@@ -2,7 +2,7 @@
 from typing import Optional
 from typing import Any, Dict, List, Union, Tuple
 from backend.modules.skills.boot_selector import BootSelector
-from backend.modules.consciousness.reflection_engine import ReflectionEngine
+from backend.modules.aion_reflection.reflection_engine import ReflectionEngine
 from backend.modules.dna_chain.switchboard import DNA_SWITCH
 
 # ✅ NEW imports for KG-driven reasoning

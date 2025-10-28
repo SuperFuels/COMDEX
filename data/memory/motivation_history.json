@@ -525,5 +525,83 @@
     "entropy": 0.5,
     "sqi": 0.5,
     "\u0394H": 0.0
+  },
+  {
+    "timestamp": "2025-10-28 19:43:12",
+    "feedback": {
+      "entropy": 0.5,
+      "sqi": 0.879,
+      "\u0394H": 0.0
+    },
+    "drives": {
+      "curiosity": 0.283,
+      "goal": 0.375,
+      "need": 0.342
+    }
+  },
+  {
+    "timestamp": "2025-10-28 20:43:15",
+    "feedback": {
+      "entropy": 0.5,
+      "sqi": 0.878,
+      "\u0394H": 0.0
+    },
+    "drives": {
+      "curiosity": 0.369,
+      "goal": 0.256,
+      "need": 0.375
+    }
+  },
+  {
+    "timestamp": "2025-10-28 21:44:36",
+    "feedback": {
+      "entropy": 0.427,
+      "sqi": 0.88,
+      "\u0394H": 0.0
+    },
+    "drives": {
+      "curiosity": 0.303,
+      "goal": 0.4,
+      "need": 0.297
+    }
+  },
+  {
+    "timestamp": "2025-10-28 22:00:13",
+    "feedback": {
+      "entropy": 0.444,
+      "sqi": 0.88,
+      "\u0394H": 0.0
+    },
+    "drives": {
+      "curiosity": 0.376,
+      "goal": 0.317,
+      "need": 0.307
+    }
+  },
+  {
+    "timestamp": "2025-10-28 22:08:29",
+    "feedback": {
+      "entropy": 0.448,
+      "sqi": 0.88,
+      "\u0394H": 0.0
+    },
+    "drives": {
+      "curiosity": 0.379,
+      "goal": 0.314,
+      "need": 0.307
+    }
+  },
+  {
+    "timestamp": "2025-10-28 22:16:19",
+    "feedback": {
+      "entropy": 0.451,
+      "sqi": 0.88,
+      "\u0394H": 0.0
+    },
+    "drives": {
+      "curiosity": 0.381,
+      "goal": 0.312,
+      "need": 0.306
+    }
   }
 ]

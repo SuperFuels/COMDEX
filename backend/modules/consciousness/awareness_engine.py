@@ -31,7 +31,7 @@ from backend.modules.consciousness.personality_engine import PersonalityProfile
 # ⚛ Resonance Core
 from backend.modules.aion_resonance.resonance_heartbeat import ResonanceHeartbeat
 from backend.modules.aion_language.resonant_memory_cache import ResonantMemoryCache
-from backend.modules.aion_resonance.resonant_reinforcement_mixin import ResonantReinforcementMixin
+from backend.modules.aion_resonance.reinforcement_mixin import ResonantReinforcementMixin
 
 # 🧬 DNA Switch
 from backend.modules.dna_chain.switchboard import DNA_SWITCH
@@ -53,8 +53,12 @@ from backend.modules.knowledge_graph.indexes.introspection_index import add_intr
 class AwarenessEngine(ResonantReinforcementMixin):
     """AION’s Harmonic Awareness Coordinator (Phase 54)."""
 
-    def __init__(self, memory_engine=None, container=None):
-        super().__init__()
+    def __init__(self, memory_engine=None, container=None, name: str = "awareness_engine"):
+        # ✅ initialize the resonance reinforcement mixin properly
+        super().__init__(name=name)
+
+        self.memory_engine = memory_engine
+        self.container = container
         self.awake_time = datetime.datetime.utcnow().isoformat()
         self.system_info = self._gather_system_info()
         self.boot_id = str(uuid.uuid4())[:8]

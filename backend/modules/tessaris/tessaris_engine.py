@@ -20,12 +20,11 @@ from backend.modules.knowledge_graph.knowledge_graph_writer import KnowledgeGrap
 from backend.modules.dimensions.container_expander import ContainerExpander
 from backend.modules.runtime.container_runtime import collapse_container
 from backend.modules.lean.auto_mutate_axioms import suggest_axiom_mutation
-from backend.modules.aion_resonance.resonance_heartbeat_monitor import ResonanceHeartbeat
-from backend.modules.aion_cognition.strategy_planner import ResonantStrategyPlanner
+from backend.modules.aion_resonance.resonant_heartbeat_monitor import ResonanceHeartbeat
+from backend.modules.skills.strategy_planner import ResonantStrategyPlanner
 from backend.modules.aion_cognition.action_switch import ActionSwitch
 from backend.modules.aion_resonance.reinforcement_mixin import ResonantReinforcementMixin
 from backend.modules.lean.lean_tactic_suggester import suggest_tactics
-from backend.modules.lean.auto_mutate_axioms import suggest_axiom_mutation
 from backend.modules.aion_resonance.resonant_optimizer import get_optimizer
 
 
@@ -36,7 +35,18 @@ from backend.modules.codex.codex_cost_estimator import CodexCostEstimator
 
 from typing import Dict, Any, Optional
 from backend.modules.skills.goal_engine import GoalEngine
+import builtins
 
+def _quiet_print(*args, **kwargs):
+    txt = " ".join(map(str, args))
+    if "Synthesizing glyphs" in txt or "connection error" in txt:
+        return
+    builtins._orig_print(*args, **kwargs)
+
+if not hasattr(builtins, "_orig_print"):
+    builtins._orig_print = builtins.print
+    builtins.print = _quiet_print
+    
 # Register the module to the DNA switch system
 DNA_SWITCH.register(__file__)
 
@@ -65,7 +75,7 @@ def _summarize_tree(tree: Any) -> Dict[str, Any]:
     return {"depth": _depth(tree), "size": size}
 
 class TessarisEngine(ResonantReinforcementMixin):
-    def __init__(self, container_id="default"):
+    def __init__(self, container_id: str = "tessaris_engine"):
         self.container_id = container_id
         self.active_branches = []
         self.active_thoughts = {}
@@ -120,7 +130,7 @@ class TessarisEngine(ResonantReinforcementMixin):
             if hasattr(self.codex_mind, "update_resonance"):
                 self.codex_mind.update_resonance(delta)
 
-            # Log to memory + KG
+            # Log to memory
             MEMORY.store({
                 "label": "tessaris_resonance_update",
                 "role": "tessaris",
@@ -131,13 +141,20 @@ class TessarisEngine(ResonantReinforcementMixin):
 
             # 🧩 Safe KG logging
             try:
-                self.kg_writer.log_event("resonance_heartbeat_sync", {
-                    "timestamp": datetime.utcnow().isoformat(),
+                event_data = {
+                    "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
                     "status": "active",
                     "source": "TessarisEngine"
-                })
-            except Exception as e:
-                print(f"[TessarisEngine] ⚠️ Failed to log resonance heartbeat: {e}")
+                }
+
+                if hasattr(self.kg_writer, "log_event"):
+                    self.kg_writer.log_event("resonance_heartbeat_sync", event_data)
+                elif hasattr(self.kg_writer, "append_entry"):
+                    self.kg_writer.append_entry("resonance_heartbeat_sync", event_data)
+                else:
+                    print("[TessarisEngine] ℹ️ KG writer has no log_event or append_entry — skipping KG log.")
+            except Exception as inner_e:
+                print(f"[TessarisEngine] ⚠️ Failed to log resonance heartbeat: {inner_e}")
 
         except Exception as e:
             print(f"[TessarisEngine] ⚠️ Heartbeat processing failed: {e}")

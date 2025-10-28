@@ -8,7 +8,8 @@ and introduces long-term Resonant Recall via LexMemory + ResonantMemoryCache.
 Usage:
     PYTHONPATH=. python backend/simulations/run_aion_cognitive_bridge.py
 """
-
+import os
+os.environ["AION_QUIET_MODE"] = "1"
 import json, time, readline, random
 from pathlib import Path
 import plotly.graph_objects as go
@@ -24,6 +25,8 @@ from backend.modules.aion_cognition.cee_lex_memory import update_lex_memory
 from backend.simulations import aion_bridge_commands as cmds
 # ─── Resonance Heartbeat integration ───────────────────────────
 from backend.modules.aion_resonance.resonance_heartbeat import ResonanceHeartbeat
+from backend.modules.aion_thinking.theta_orchestrator import ThinkingLoop as ThetaOrchestrator
+from backend.modules.aion_cognition.interruption_manager import InterruptionManager
 
 # Cognitive layer
 from backend.modules.aion_cognition.cognitive_exercise_engine_dual import DualModeCEE as CognitiveExerciseEngine
@@ -213,6 +216,9 @@ def log_bridge_event(cmd, pulse):
 # ─────────────────────────────────────────────────────────────
 def main():
     cee = CognitiveExerciseEngine()
+    # Initialize Θ Orchestrator in passive mode (no auto-tick spam)
+    theta = ThetaOrchestrator(auto_tick=False)
+    interrupt = InterruptionManager()
     print("🌐 AION Cognitive Bridge — Phase 13 (Resonant Recall Ready)")
     print("Type 'help' for commands. Ctrl-D or 'exit' to quit.\n")
 
@@ -288,6 +294,10 @@ Commands:
             print(cmds.unjumble_word(cmd.split(" ", 1)[1]))
             log_bridge_event(cmd, {})
 
+        elif cmd.startswith("map "):
+            concept = " ".join(args[2:]) if len(args) > 2 else "general"
+            print(commands.map_resonance_field(concept))
+
         elif cmd.startswith("anagram "):
             word = cmd.split(" ", 1)[1].strip()
             print(cmds.anagram_word(word))
@@ -360,6 +370,40 @@ Commands:
             LAST_PULSE = pulse
             print(f"✅ Memory coherence stabilized → SQI={pulse['sqi']:.3f}, ΔΦ={pulse['resonance_delta']:.3f}")
             log_bridge_event(cmd, LAST_PULSE)
+
+        elif cmd.startswith("think slow"):
+            topic = cmd.replace("think slow", "").strip()
+            print(f"🧘 Engaging Θ Orchestrator (slow loop) → {topic or 'general reflection'}")
+            theta.run_loop(mode="slow", topic=topic)
+
+        elif cmd.startswith("think fast"):
+            topic = cmd.replace("think fast", "").strip()
+            print(f"⚡ Reflex loop activation → {topic or 'quick reasoning'}")
+            theta.run_loop(mode="fast", topic=topic)
+
+        elif cmd.startswith("reflect"):
+            print("🔁 Initiating reflection cycle...")
+            theta.reflect_cycle()
+
+        elif cmd.startswith(("override", "interrupt")):
+            reason = cmd.split(" ", 1)[-1] if " " in cmd else "manual"
+            print(f"🛑 Triggering override → {reason}")
+            interrupt.trigger(reason=reason, source="aion_cli")
+
+        elif cmd == "status":
+            print("📊 Cognitive System Status:")
+            print(f" - Θ Orchestrator active: {getattr(theta, 'active', True)}")
+            print(f" - Override flag: {getattr(interrupt, 'override_flag', False)}")
+
+        elif cmd.startswith(("override", "interrupt")):
+            reason = cmd.split(" ", 1)[-1] if " " in cmd else "manual"
+            print(f"🛑 Triggering override → {reason}")
+            interrupt.trigger(reason=reason, source="aion_cli")
+
+        elif cmd == "status":
+            print("📊 Cognitive System Status:")
+            print(f" - Θ Orchestrator active: {getattr(theta, 'active', True)}")
+            print(f" - Override flag: {getattr(interrupt, 'override_flag', False)}")
 
         else:
             print(f"❓ Unknown command: {cmd}")

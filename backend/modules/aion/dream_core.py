@@ -21,7 +21,7 @@ from backend.modules.consciousness.ethics_engine import EthicsEngine
 from backend.modules.consciousness.privacy_vault import PrivacyVault
 from backend.modules.skills.boot_selector import BootSelector
 from backend.modules.consciousness.state_manager import STATE as STATE_MANAGER
-from backend.modules.consciousness.reflection_engine import ReflectionEngine
+from backend.modules.aion_reflection.reflection_engine import ReflectionEngine
 from backend.modules.consciousness.personality_engine import PersonalityProfile
 from backend.modules.consciousness.situational_engine import SituationalEngine
 from backend.modules.skills.dream_post_processor import DreamPostProcessor

@@ -103,6 +103,13 @@ class ActionSwitch:
         act, theta = self.intent_loop.tick(rho=rho, drift=drift, memory_stats=memory_stats, sqi=sqi)
         return act, theta
 
+    def current_action(self):
+        """Return the currently active or last executed action for snapshot context."""
+        try:
+            return getattr(self, "active_action", None) or {"state": "idle"}
+        except Exception:
+            return {"state": "unknown"}
+
     def _teleport(self, domain: str):
         log.info(f"[Teleport] Jumping to rulebook domain: {domain}")
         self.rule_index.increment_usage(domain)
@@ -166,6 +173,20 @@ class ActionSwitch:
             print(f"💤 Deferred plan stored: {plan.get('goal')}")
         except Exception as e:
             print(f"⚠️ Failed to store deferred plan: {e}")
+
+    def pause_all(self):
+        """Temporarily pause all ongoing action threads or beams."""
+        self.active = False
+        self.log.info("[ActionSwitch] ⚙️ All actions paused (manual override).")
+
+    def resume_all(self):
+        """Resume action execution after override release."""
+        self.active = True
+        self.log.info("[ActionSwitch] ⚙️ All actions resumed post-override.")    
+    
+    def log(self, msg: str, level: str = "info"):
+        import logging
+        getattr(logging, level, logging.info)(f"[ActionSwitch] {msg}")
 
     # ============================================================
     # 💓 Resonance Coupling (Θ-feedback)
