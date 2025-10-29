@@ -1,0 +1,9 @@
+{
+  "name": "Harmonic_Resonance",
+  "imports": [],
+  "body": "⊕ logic { beam('⊕', target='codexcore') }",
+  "metadata": {
+    "author": "Tessaris",
+    "description": "Test Photon Page for harmonic resonance evaluation"
+  }
+}

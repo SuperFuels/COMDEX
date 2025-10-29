@@ -62,6 +62,14 @@ def atomic_write_json(path: Path, data: dict):
                 return False
 
             os.replace(tmp.name, path)
+
+            # Create a simple backup copy
+            bak = path.with_suffix(".bak")
+            try:
+                Path(path).write_text(Path(path).read_text(encoding="utf-8"), encoding="utf-8")
+            except Exception:
+                pass
+
             if not QUIET:
                 log.info(f"[RMC] 💾 Backup created → {bak}")
             return True

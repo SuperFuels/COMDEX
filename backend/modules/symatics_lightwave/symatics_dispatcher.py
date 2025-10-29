@@ -69,3 +69,49 @@ class SymaticsDispatcher:
         result = self.runtime.execute_capsule(capsule, mode="projection")
         capsule.wave_state.coherence *= 0.95
         return result
+
+"""
+Photon–Symatics Bridge
+─────────────────────────────────────────────
+Connects Photon executor operators (⊕, ↔, μ, ⟲, π)
+to the Symatics runtime (Lightwave or Symbolic).
+"""
+
+from backend.modules.symatics_lightwave.symatics_dispatcher import SymaticsDispatcher
+
+_dispatcher = SymaticsDispatcher()
+
+
+def run_symatics_wavecapsule(spec):
+    """
+    Entry point called by photon_executor plugin handlers.
+
+    Args:
+        spec (dict): {"opcode": "⊕", "args": ["ψ1", "ψ2"], "engine": "symbolic"|"lightwave"}
+    Returns:
+        dict: Result envelope {"status", "engine", "opcode", ...}
+    """
+
+    try:
+        # ─────────────────────────────────────────────
+        # 🔀 Runtime selector: symbolic vs. lightwave
+        # ─────────────────────────────────────────────
+        if spec.get("engine") == "symbolic":
+            # Use the original algebraic Symatics core
+            from backend.symatics.symatics_dispatcher import evaluate_symatics_expr
+            return evaluate_symatics_expr(spec)
+
+        # Default to Lightwave (photonic) dispatcher
+        result = _dispatcher.dispatch(spec)
+
+        if isinstance(result, dict):
+            result.setdefault("engine", "symatics_lightwave")
+            result.setdefault("opcode", spec.get("opcode"))
+        return result
+
+    except Exception as e:
+        return {
+            "status": "error",
+            "engine": spec.get("engine", "symatics_lightwave"),
+            "error": str(e),
+        }

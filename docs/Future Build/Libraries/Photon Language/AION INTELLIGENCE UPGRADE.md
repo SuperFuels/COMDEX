@@ -33,9 +33,9 @@ end
 
 
 subgraph SSE [🧩 Strategic Simulation Engine]
-    Sse1[🌳 Build scenario trees]:::todo
-    Sse2[⚖ Evaluate branches (SQI+ethics)]:::todo
-    Sse3[🔁 Integrate Reflection feedback]:::todo
+✅    Sse1[🌳 Build scenario trees]:::todo
+✅    Sse2[⚖ Evaluate branches (SQI+ethics)]:::todo
+✅    Sse3[🔁 Integrate Reflection feedback]:::todo
 end
 A4 --> SSE
 

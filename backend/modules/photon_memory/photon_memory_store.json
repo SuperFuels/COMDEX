@@ -1,0 +1,193 @@
+[
+  {
+    "uid": "2c522c70-48f2-4fa0-b0ac-90906c9adfd3",
+    "wave_id": "Harmonic_Resonance_1761693283",
+    "amplitude": 1.0,
+    "phase": 0.5,
+    "coherence": 0.8200000000000001,
+    "entropy": 0.17999999999999994,
+    "operator": "\u2295",
+    "metadata": {
+      "capsule_name": "Harmonic_Resonance",
+      "results": [
+        "[Logic] Executing \u2295 block with id=None"
+      ],
+      "engine": "symatics"
+    },
+    "timestamp": 1761693283.0149758
+  },
+  {
+    "uid": "b4df843f-e180-4659-8b88-85cabafabef1",
+    "wave_id": "BridgeValidation_1761727954",
+    "amplitude": 1.0,
+    "phase": 0.5,
+    "coherence": 0.8600000000000001,
+    "entropy": 0.1399999999999999,
+    "operator": "\u2295",
+    "metadata": {
+      "capsule_name": "BridgeValidation",
+      "results": [
+        null,
+        null,
+        null
+      ],
+      "engine": "symatics"
+    },
+    "timestamp": 1761727954.5804818
+  },
+  {
+    "uid": "377fb5a7-5d84-4f81-bc16-705480673f05",
+    "wave_id": "BridgeValidation_1761728225",
+    "amplitude": 1.0,
+    "phase": 0.5,
+    "coherence": 0.8600000000000001,
+    "entropy": 0.1399999999999999,
+    "operator": "\u2295",
+    "metadata": {
+      "capsule_name": "BridgeValidation",
+      "results": [
+        null,
+        null,
+        null
+      ],
+      "engine": "symatics"
+    },
+    "timestamp": 1761728225.0169148
+  },
+  {
+    "uid": "1fc2a01b-6763-43db-916a-63b927ea3eb9",
+    "wave_id": "BridgeValidation_1761728297",
+    "amplitude": 1.0,
+    "phase": 0.5,
+    "coherence": 0.8600000000000001,
+    "entropy": 0.1399999999999999,
+    "operator": "\u2295",
+    "metadata": {
+      "capsule_name": "BridgeValidation",
+      "results": [
+        null,
+        null,
+        null
+      ],
+      "engine": "symatics"
+    },
+    "timestamp": 1761728297.0380096
+  },
+  {
+    "uid": "9d336af0-9250-48d4-a7f3-c8514728b66a",
+    "wave_id": "BridgeValidation_1761728452",
+    "amplitude": 1.0,
+    "phase": 0.5,
+    "coherence": 0.8600000000000001,
+    "entropy": 0.1399999999999999,
+    "operator": "\u2295",
+    "metadata": {
+      "capsule_name": "BridgeValidation",
+      "results": [
+        {
+          "op": "\u2295",
+          "args": [
+            "\u03c81",
+            "\u03c82"
+          ],
+          "result": "\u03c81 \u03c82 \u2295"
+        },
+        {
+          "op": "\u2194",
+          "args": [
+            "\u03c83",
+            "\u03c84"
+          ],
+          "result": "\u03c83 \u03c84 \u2194"
+        },
+        {
+          "op": "\u03bc",
+          "args": [
+            "\u03c85"
+          ],
+          "result": "\u03c85 \u03bc"
+        }
+      ],
+      "engine": "symatics"
+    },
+    "timestamp": 1761728452.3509173
+  },
+  {
+    "uid": "dc7d3ed3-7f4b-4aff-a979-5c2fe7c52e52",
+    "wave_id": "Lightwave_Test_1761728936",
+    "amplitude": 1.0,
+    "phase": 0.5,
+    "coherence": 0.8400000000000001,
+    "entropy": 0.15999999999999992,
+    "operator": "\u2295",
+    "metadata": {
+      "capsule_name": "Lightwave_Test",
+      "results": [
+        {
+          "op": "\u2295",
+          "args": [],
+          "result": " \u2295"
+        },
+        {
+          "op": "\u2194",
+          "args": [],
+          "result": " \u2194"
+        }
+      ],
+      "engine": "symatics"
+    },
+    "timestamp": 1761728936.2462094
+  },
+  {
+    "uid": "c1427393-04e4-435d-b650-b379033fc4cb",
+    "wave_id": "Lightwave_Test_1761729026",
+    "amplitude": 1.0,
+    "phase": 0.5,
+    "coherence": 0.8400000000000001,
+    "entropy": 0.15999999999999992,
+    "operator": "\u2295",
+    "metadata": {
+      "capsule_name": "Lightwave_Test",
+      "results": [
+        {
+          "op": "\u2295",
+          "args": [],
+          "result": " \u2295"
+        },
+        {
+          "op": "\u2194",
+          "args": [],
+          "result": " \u2194"
+        }
+      ],
+      "engine": "symatics"
+    },
+    "timestamp": 1761729026.3864527
+  },
+  {
+    "uid": "435d6a78-f202-433d-aac9-96ab18329372",
+    "wave_id": "Lightwave_Test_1761729178",
+    "amplitude": 1.0,
+    "phase": 0.5,
+    "coherence": 0.8400000000000001,
+    "entropy": 0.15999999999999992,
+    "operator": "\u2295",
+    "metadata": {
+      "capsule_name": "Lightwave_Test",
+      "results": [
+        {
+          "op": "\u2295",
+          "args": [],
+          "result": " \u2295"
+        },
+        {
+          "op": "\u2194",
+          "args": [],
+          "result": " \u2194"
+        }
+      ],
+      "engine": "symatics"
+    },
+    "timestamp": 1761729178.2237465
+  }
+]

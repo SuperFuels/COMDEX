@@ -1,0 +1,5 @@
+^ Lightwave_Test {
+    ⊕ combine ψ1 ψ2
+    ↔ entangle ψ3 ψ4
+    μ measure ψ5
+}

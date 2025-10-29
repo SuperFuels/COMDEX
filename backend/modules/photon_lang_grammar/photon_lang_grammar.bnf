@@ -1,0 +1,51 @@
+; PhotonLang v0.1 — hybrid Python/Photon grammar (concise core)
+
+program           ::= (stmt NEWLINE)* EOF
+
+stmt              ::= import_stmt
+                    | from_import_stmt
+                    | wormhole_import_stmt
+                    | glyph_init_stmt
+                    | assignment
+                    | call_stmt
+                    | send_stmt
+                    | save_stmt
+
+import_stmt       ::= "import" IDENT ("," IDENT)*
+from_import_stmt  ::= "from" dotted_name version_opt "import" import_list
+wormhole_import_stmt ::= "from" "(" "wormhole:" URI ")" "import" IDENT
+
+glyph_init_stmt   ::= GLYPHSEQ          ; e.g., ⊕μ↔ (any combo of ⊕ ↔ ⟲ μ π ⇒ ∇)
+
+assignment        ::= IDENT "=" expr
+call_stmt         ::= expr
+send_stmt         ::= "send" expr "through" "wormhole" STRING
+save_stmt         ::= "save" "as" (IDENT | STRING)            ; STRING must end with .ptn
+
+expr              ::= primary (trailer)*
+primary           ::= IDENT
+                    | STRING
+                    | NUMBER
+                    | constructor
+
+constructor       ::= IDENT "(" (arg_list)? ")"
+
+trailer           ::= "." IDENT "(" (arg_list)? ")"
+                    | "." IDENT
+                    | "(" (arg_list)? ")"
+
+arg_list          ::= arg ("," arg)*
+arg                ::= IDENT "=" expr | expr
+
+dotted_name       ::= IDENT ("." IDENT)*
+version_opt       ::= NUMBER?                                 ; e.g., "from .atom_sheet 42 import SymPy"
+
+import_list       ::= IDENT ("," IDENT)*
+
+GLYPHSEQ          ::= /[⊕↔⟲μπ⇒∇]+/
+IDENT             ::= /[A-Za-z_][A-Za-z0-9_]*/
+NUMBER            ::= /[0-9]+(\.[0-9]+)?/
+STRING            ::= /"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'/
+URI               ::= /[A-Za-z0-9+._/:-]+/
+NEWLINE           ::= /\r?\n+/
+EOF               ::= <<end of input>>

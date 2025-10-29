@@ -65,3 +65,27 @@ export async function mutateGlyph(glyph: {
   const res = await api.post('/aion/mutate-glyph', glyph);
   return res.data;
 }
+
+// 🧠 ───────────────────────────────────────────────────────────────
+// PHOTON + CODEX EXECUTION HELPERS
+// ─────────────────────────────────────────────────────────────────
+
+// ⚙️ Run Codex Scroll (.cxs or inline scroll text)
+export async function runCodexScroll(scroll: string, context: Record<string, any> = {}) {
+  const res = await api.post('/codex/scroll', { scroll, context });
+  return res.data;
+}
+
+// 💡 Run Photon Capsule (.phn)
+export async function runPhotonCapsule(capsule: Record<string, any> | string) {
+  // capsule can be JSON or path string
+  const res = await api.post('/codex/run-photon', { capsule });
+  return res.data;
+}
+
+// 🔷 Run Photon Page (.ptn)
+export async function runPhotonPage(content: Record<string, any> | string) {
+  // frontend passes JSON object representing the page
+  const res = await api.post('/codex/run-ptn', { content });
+  return res.data;
+}

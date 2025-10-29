@@ -162,6 +162,16 @@ class ReflectionEngine:
             }) + "\n")
 
         print(f"[Θ] Reflection → ρ={rho:.3f}, Ī={I:.3f}, SQI={sqi:.3f}, ΔΦ={delta_phi:.3f}, ΔH={delta_H:.3f}, mood={mood_phase}")
+        # ─────────────────────────────────────────────────────────────
+        # 🔄 Integrate Photon Memory Grid feedback (ΔSQI / ΔH)
+        # ─────────────────────────────────────────────────────────────
+        try:
+            from backend.modules.aion.reflection_feedback import AION_FEEDBACK
+            feedback = AION_FEEDBACK.compute_feedback()
+            print(f"[PMG↔Aion] ΔSQI={feedback['ΔSQI']:+.4f} ΔH={feedback['ΔH']:+.4f} "
+                  f"(coh={feedback['avg_coherence']:.3f}, ent={feedback['avg_entropy']:.3f})")
+        except Exception as e:
+            print(f"[PMG↔Aion] ⚠️ Feedback integration failed: {e}")
         return reflections
 
     # ------------------------------------------------------------
