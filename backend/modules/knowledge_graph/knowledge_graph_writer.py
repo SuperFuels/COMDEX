@@ -1547,8 +1547,67 @@ def export_qwave_beams(container: dict, beams: list, context: dict = None):
         })
 
 # ──────────────────────────────
+# Harmonized Atom Commit Adapter
+# ──────────────────────────────
+def commit_atom_to_graph(label: str,
+                         container_id: str,
+                         sqi: float,
+                         waveform: dict,
+                         user_id: str = "default") -> dict:
+    """
+    Adapted bridge: commit high-SQI photon state as a Harmonic Atom.
+    Uses get_kg_writer() to ensure the singleton instance is used (CRDT-safe).
+    """
+    try:
+        from backend.modules.knowledge_graph.kg_writer_singleton import get_kg_writer
+        kgw = get_kg_writer()
+
+        metadata = {
+            "container_id": container_id,
+            "sqi_score": sqi,
+            "waveform_summary": list(waveform.keys()) if isinstance(waveform, dict) else "raw_state",
+            "committed_by": user_id,
+            "label": label,
+            "timestamp": datetime.datetime.utcnow().isoformat(timespec="milliseconds") + "Z",
+            "tags": ["HarmonicAtom", "AutoCommit", "SQI"],
+        }
+
+        glyph_id = kgw.inject_glyph(
+            content=f"HarmonicAtom:{label} SQI={sqi:.3f}",
+            glyph_type="harmonic_atom",
+            metadata=metadata,
+            plugin="SCI",
+            region="auto_commit",
+            agent_id=user_id,
+        )
+
+        # Optional: broadcast for frontend HUD
+        try:
+            from backend.routes.ws.glyphnet_ws import broadcast_event
+            import inspect, asyncio
+            evt = {
+                "type": "atom_commit",
+                "atom_label": label,
+                "sqi": sqi,
+                "glyph_id": glyph_id,
+                "container_id": container_id,
+                "timestamp": metadata["timestamp"],
+            }
+            if inspect.iscoroutinefunction(broadcast_event):
+                asyncio.create_task(broadcast_event(evt))
+            else:
+                broadcast_event(evt)
+        except Exception as e:
+            print(f"[KGWriter] ⚠️ Broadcast skipped: {e}")
+
+        print(f"🧠 [KGWriter] Harmonic Atom committed via singleton → {label} (SQI={sqi:.3f})")
+        return {"ref": f"{label}@{container_id}", "glyph_id": glyph_id, "status": "ok"}
+
+    except Exception as e:
+        print(f"❌ [KGWriter] Atom commit failed: {e}")
+        return {"ref": label, "status": "error", "error": str(e)}
+# ──────────────────────────────
 # Global KG Writer Instance
 # ──────────────────────────────
-
 __all__ = ["kg_writer", "store_generated_glyph"]
 kg_writer = KnowledgeGraphWriter()

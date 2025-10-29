@@ -334,7 +334,11 @@ from backend.modules.aion_resonance import symatic_bridge
 from backend.modules.aion_resonance import thought_stream
 from backend.modules.aion_resonance.thought_stream import thought_stream_router
 from backend.routes.aion_synthesize_glyphs import router as synth_router
-
+from backend.api.api_sci_memory import router as sci_memory_router
+from backend.api.api_sci_ide import router as sci_ide_router
+from backend.api.api_sci_commit import router as sci_commit_router
+from backend.api import api_sci_commit_atom
+from backend.routes.api import sci_commit_atom
 
 # ===== Atomsheet / LightCone / QFC wiring =====
 from backend.routes.dev import glyphwave_test_router        # dev-only routes (mounted elsewhere in your file)  # noqa: F401
@@ -525,6 +529,11 @@ app.include_router(aion_llm_bridge.router, prefix="/api/aion")
 app.include_router(symatic_bridge.router, prefix="/api/aion")
 app.include_router(thought_stream_router)
 app.include_router(synth_router)
+app.include_router(sci_memory_router)
+app.include_router(sci_ide_router)
+app.include_router(sci_commit_router)
+app.include_router(api_sci_commit_atom.router)
+app.include_router(sci_commit_atom.router)
 seed_builtin_patterns()
 install_deprecation_hook()
 
@@ -718,7 +727,6 @@ if __name__ == "__main__":
         port=int(os.environ.get("PORT", 8080)),
         reload=(ENV != "production"),
         forwarded_allow_ips="*",
-        redirect_slashes=False,
     )
 
 # ── 22) 💤 Start AION scheduler (best effort)

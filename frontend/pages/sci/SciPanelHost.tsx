@@ -10,8 +10,10 @@ import { getPanel, listPanels } from '@/lib/sci/panel_registry';
 import '@/lib/sci/register_atomsheet';
 import '@/lib/sci/register_sqs';
 import '@/lib/sci/register_goals';
+import '@/lib/sci/register_memory';
+import '@/lib/sci/register_editor';
 
-type PanelType = "atomsheet" | "sqs" | "goals";
+import type { PanelTypeId as PanelType } from "@/lib/sci/panel_registry";
 
 type Tab = {
   tabId: string;
@@ -138,11 +140,12 @@ export default function SciPanelHost(props: {
           >
             + SQS
           </button>
+          {/* 🧠 New Memory Panel Button */}
           <button
             className="px-3 py-1 rounded-lg bg-neutral-800 border border-neutral-700 text-sm"
-            onClick={() => openTab("goals")}
+            onClick={() => openTab("memory")}
           >
-            + Goals
+            + Memory
           </button>
         </div>
 
