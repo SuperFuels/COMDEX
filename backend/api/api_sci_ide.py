@@ -9,15 +9,15 @@ import json
 import time
 
 # Internal modules
-from backend.modules.sci.sci_runtime_gateway import SCIRuntimeGateway
+from backend.modules.sci.sci_core import SCIRuntimeGateway
 from backend.modules.sci.sci_replay_injector import SCIReplayInjector
 from backend.modules.aion_language.resonant_memory_cache import ResonantMemoryCache
 
 router = APIRouter(prefix="/api/sci", tags=["sci_ide"])
 
 # Global singletons
-RMC = ResonantMemoryCache.get_instance()
-RUNTIME = SCIRuntimeGateway.get_instance()
+RMC = ResonantMemoryCache()
+RUNTIME = SCIRuntimeGateway(container_id="sci_ide_runtime")
 REPLAY = SCIReplayInjector()
 
 

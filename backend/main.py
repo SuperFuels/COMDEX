@@ -338,7 +338,9 @@ from backend.api.api_sci_memory import router as sci_memory_router
 from backend.api.api_sci_ide import router as sci_ide_router
 from backend.api.api_sci_commit import router as sci_commit_router
 from backend.api import api_sci_commit_atom
-from backend.routes.api import sci_commit_atom
+from backend.api import api_sci_commit_atom as sci_commit_atom
+from backend.api.sci_export_lean_atoms import router as sci_export_lean_atoms_router
+from backend.api.api_sci_sync_proof_links import router as sci_sync_router
 
 # ===== Atomsheet / LightCone / QFC wiring =====
 from backend.routes.dev import glyphwave_test_router        # dev-only routes (mounted elsewhere in your file)  # noqa: F401
@@ -534,6 +536,9 @@ app.include_router(sci_ide_router)
 app.include_router(sci_commit_router)
 app.include_router(api_sci_commit_atom.router)
 app.include_router(sci_commit_atom.router)
+app.include_router(sci_export_lean_atoms_router)
+app.include_router(sci_sync_router)
+
 seed_builtin_patterns()
 install_deprecation_hook()
 

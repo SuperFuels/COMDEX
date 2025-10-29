@@ -10,7 +10,8 @@ export type PanelTypeId =
   | "atomsheet"
   | "sqs"
   | "goals"
-  | "memory"; // newly added Memory Scrolls panel
+  | "memory"  // newly added Memory Scrolls panel
+  | "editor";
 
 export type PanelRegistration = {
   id: PanelTypeId;

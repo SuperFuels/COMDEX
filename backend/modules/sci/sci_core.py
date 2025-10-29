@@ -71,9 +71,23 @@ try:
     from backend.modules.sci.sci_qfc_export_bridge import broadcast_qfc_event
 except Exception:
     async def broadcast_qfc_event(payload):
-        print(f"[StubBroadcast] {json.dumps(payload, indent=2)}")
+        try:
+            # resolve any coroutine values in payload
+            for k, v in list(payload.items()):
+                if asyncio.iscoroutine(v):
+                    payload[k] = await v
+            print(f"[StubBroadcast] {json.dumps(payload, indent=2)}")
+        except Exception as e:
+            print(f"[StubBroadcast] ⚠️ Could not serialize payload: {e}")
 
+class SCIRuntimeGateway:
+    _instance = None
 
+    @classmethod
+    def get_instance(cls):
+        if cls._instance is None:
+            cls._instance = cls(container_id="sci_runtime_default")
+        return cls._instance
 # ============================================================
 # 🧩 Spatial Cognition Interface
 # ============================================================
@@ -164,9 +178,16 @@ class SCIRuntimeGateway:
     def __init__(self, container_id: str = "default_sci_container"):
         self.container_id = container_id
 
-    # ------------------------------------------------------------
+    # ============================================================
     # ▶ Execute Photon Source
-    # ------------------------------------------------------------
+    # ============================================================
+    import asyncio
+    import json
+    import os
+    import traceback
+    from datetime import datetime
+    from typing import Any, Dict, Optional
+
     async def run_photon_source(self, source: str, *, label: Optional[str] = "photon_exec") -> Dict[str, Any]:
         """Execute PhotonLang code from the SCI IDE editor."""
         print(f"⚙️ [SCI Runtime] Running Photon source ({len(source)} chars)...")
@@ -176,6 +197,9 @@ class SCIRuntimeGateway:
             # 1️⃣ Execute Photon source through interpreter
             # ------------------------------------------------------------
             result = run_source(source)
+            if asyncio.iscoroutine(result):
+                result = await result  # resolve coroutine safely
+
             if not isinstance(result, dict):
                 result = {"status": "error", "result": str(result)}
 
@@ -246,10 +270,12 @@ class SCIRuntimeGateway:
             # ------------------------------------------------------------
             try:
                 from backend.modules.resonant_memory.resonant_memory_saver import save_scroll_to_memory
+                if asyncio.iscoroutine(state):
+                    state = await state
                 save_scroll_to_memory(
                     user_id=self.container_id,
                     label=f"photon_exec::{label}",
-                    content=json.dumps(state, ensure_ascii=False),
+                    content=json.dumps(state, ensure_ascii=False, default=str),
                     metadata={
                         "glyph_boot": glyph_boot,
                         "telemetry_path": telemetry_path,
@@ -294,6 +320,20 @@ class SCIRuntimeGateway:
             err = traceback.format_exc()
             print(f"❌ [SCI Runtime Error]: {e}\n{err}")
             return {"ok": False, "error": str(e)}
+
+
+    # ============================================================
+    # 🧠 Workspace Update Stub (Safe for Async + Tests)
+    # ============================================================
+    async def update_active_workspace(container_id, state):
+        """Safe async workspace state updater for SCI IDE / QFC."""
+        if asyncio.iscoroutine(state):
+            state = await state
+        if not isinstance(state, dict):
+            print(f"[StubSCI] ⚠ Unexpected state type: {type(state)}")
+            state = {"_raw": str(state)}
+        print(f"[StubSCI] Updated workspace {container_id} with new state {list(state.keys())}")
+        return state
 # ------------------------------------------------------------
 # 🧠 FieldTabManager Stub (for SCI IDE multi-field sessions)
 # ------------------------------------------------------------

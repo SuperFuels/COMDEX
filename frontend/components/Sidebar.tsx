@@ -75,13 +75,40 @@ const SECTIONS: Section[] = [
     ],
   },
   {
-    title: 'SCI Panels',
-    items: [
-      { label: 'Sci Panel Host', href: '/sci/SciPanelHost', emoji: '🗂️' },
-      { label: 'SQS Panel', href: '/sci/sci_sqs_panel', emoji: '📨' },
-      { label: 'AtomSheet Panel', href: '/sci/sci_atomsheet_panel', emoji: '📄' },
-    ],
-  },
+  title: 'SCI IDE / PhotonLang',
+  items: [
+    {
+      label: 'PhotonLang IDE (Text Editor)',
+      href: '/sci/PhotonLangIDE',
+      emoji: '💡',
+    },
+    {
+      label: 'PhotonLens Overlay (Visualizer)',
+      href: '/sci/PhotonLensOverlay',
+      emoji: '🪞',
+    },
+    {
+      label: 'Memory Scrolls',
+      href: '/sci/SciMemoryPanel',
+      emoji: '📜',
+    },
+    {
+      label: 'Lean Proof Export',
+      href: '/sci/LeanExportPanel',
+      emoji: '📐',
+    },
+    {
+      label: 'Resonant Telemetry',
+      href: '/sci/ResonantTelemetry',
+      emoji: '📡',
+    },
+    {
+      label: 'Workspace Sync',
+      href: '/sci/WorkspaceSync',
+      emoji: '🔄',
+    },
+  ],
+},
 {
   title: 'Tessaris Dashboards',
   items: [

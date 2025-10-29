@@ -90,6 +90,20 @@ async def commit_atom(body: CommitAtomIn):
             "timestamp": atom_node["timestamp"],
         }
 
+        from backend.modules.lean.lean_prover_bridge import link_lean_to_kg
+
+        # --- Step 3: Push to Lean (formalization bridge)
+        lean_out = push_to_lean({
+            "label": body.label,
+            "sqi": body.sqi,
+            "container_id": body.container_id,
+            "waveform": body.waveform,
+            "timestamp": atom_node["timestamp"],
+        })
+
+        # --- Step 4: Link the Lean proof into Knowledge Graph
+        link_lean_to_kg(atom_ref, lean_out)
+
     except Exception as e:
         err = traceback.format_exc()
         print(f"[CommitAtom] ❌ Error committing atom: {e}\n{err}")
