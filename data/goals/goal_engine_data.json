@@ -64,7 +64,7 @@
       "name": "cluster_goal_decision_conf_0.78",
       "description": "Resonant cluster goal auto-derived from 'decision_conf_0.78'.",
       "reward": 6,
-      "priority": 7.6,
+      "priority": 7.228,
       "dependencies": [],
       "created_at": "2025-10-28T19:34:48.277510",
       "origin_strategy_id": "2fce68a9-9125-43f5-8436-b8f6e76ee8c0",

@@ -36,8 +36,8 @@ TOK_SPEC = [
     ("NUMBER", r"[0-9]+(?:\.[0-9]+)?"),
     ("STRING", r"\"(?:[^\"\\]|\\.)*\"|'(?:[^'\\]|\\.)*'"),
 
-    # Identifiers and URIs
-    ("URI",   r"[A-Za-z0-9+._/:\\-]+"),
+    # Identifiers and URIs (⚙️ corrected)
+    ("URI",   r"[A-Za-z_][A-Za-z0-9+.\-]*://[A-Za-z0-9_\-./]+"),
     ("IDENT", r"[A-Za-z_][A-Za-z0-9_]*"),
 ]
 
@@ -148,16 +148,35 @@ class Parser:
 
         # from ...
         if self.accept("KW_FROM"):
-            if self.accept("LPAREN"):
-                # from (wormhole: URI) import X
-                self.accept("KW_WORMHOLE") or self.expect("IDENT")
-                self.expect("COLON")
-                uri = self.expect("URI").val
-                self.expect("RPAREN")
+            # detect wormhole imports — either '(' or inline 'wormhole:' URI
+            if self.cur().typ in ("LPAREN", "URI") and (
+                self.cur().typ == "LPAREN" or self.cur().val.startswith("wormhole:")
+            ):
+                # Handle wrapped wormhole form: from (wormhole: quantum://...) import X
+                if self.accept("LPAREN"):
+                    if self.cur().typ in ("KW_WORMHOLE", "IDENT"):
+                        self.i += 1  # consume 'wormhole'
+                    if self.cur().typ == "COLON":
+                        self.i += 1
+                    if self.cur().typ not in ("URI", "STRING"):
+                        raise SyntaxError(f"Expected URI after wormhole:, got {self.cur().typ}")
+                    uri = self.cur().val
+                    self.i += 1
+                    self.expect("RPAREN")
+                else:
+                    # Inline style: from wormhole: quantum://... import X
+                    val = self.cur().val
+                    if val.startswith("wormhole:"):
+                        uri = val.split("wormhole:", 1)[1]
+                        self.i += 1
+                    else:
+                        raise SyntaxError(f"Invalid inline wormhole syntax at {self.cur().pos}")
+
                 self.expect("KW_IMPORT")
                 name = self.expect("IDENT").val
                 return WormholeImport(uri, name)
-            # from .atom_sheet 42 import SymPy
+
+            # fallback to normal from-import
             module = self.dotted()
             ver = None
             if self.cur().typ == "NUMBER":
@@ -190,7 +209,7 @@ class Parser:
                 return SaveAs(Literal(self.expect("STRING").val.strip("\"'")))
             return SaveAs(Name(self.expect("IDENT").val))
 
-        # assignment
+        # assignment or expression
         if self.cur().typ == "IDENT":
             t = self.cur()
             self.i += 1
@@ -207,7 +226,15 @@ class Parser:
     # Expression handling
     # --------------------------------------------------------
     def dotted(self) -> str:
-        parts = [self.expect("IDENT").val]
+        parts = []
+        # Allow leading dot for relative imports (e.g. `from .module import X`)
+        while self.accept("DOT"):
+            parts.append("")  # placeholder for each leading dot
+        # Expect first identifier
+        if self.cur().typ != "IDENT":
+            raise SyntaxError(f"Expected IDENT at {self.cur().pos}, got {self.cur().typ}")
+        parts.append(self.expect("IDENT").val)
+        # Accept further `.ident` chains
         while self.accept("DOT"):
             parts.append(self.expect("IDENT").val)
         return ".".join(parts)
@@ -264,7 +291,6 @@ class Parser:
             self.expect("RPAREN")
             break
         return args
-
 
 # ============================================================
 # Helper
