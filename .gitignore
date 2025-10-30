@@ -133,4 +133,7 @@ data/sources/enwiktionary-sample.xml.bz2
 data/sources/gcide_full.xml
 data/symatics/symbolic_resonance_stream.glyph
 data/telemetry/meta_resonant_telemetry.jsonl
-backend/data/conceptnet/numberbatch-en-19.08.txt
+backend/data/conceptnet/numberbatch-en-19.08.txtbackend/modules/dimensions/containers_saved/*.dc.json
+backend/modules/dimensions/containers_saved/*.dc.json
+backend/modules/dimensions/containers_saved/*.kg.json
+backend/modules/dimensions/containers_saved/kg_exports/*.kg.json
