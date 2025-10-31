@@ -1,3 +1,0 @@
-{"mode": "sim", "event": "loopback_init", "timestamp": "2025-10-19T17:18:58.910103+00:00"}
-{"phase_bias": 0.5235987755982988, "intensity": 0.5574885331072986, "event": "loopback_transmit", "timestamp": "2025-10-19T17:18:58.911267+00:00"}
-{"\u03a6_measured": 0.5574885331072986, "\u0394\u03a6_est": 0.27874426655364926, "timestamp": "2025-10-19T17:18:58.911371+00:00", "event": "resonant_propagation"}

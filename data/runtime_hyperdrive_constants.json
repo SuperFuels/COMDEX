@@ -1,7 +1,0 @@
-{
-    "harmonic_gain": 0.9,
-    "harmonic_decay": 0.995,
-    "damping_factor": 0.98,
-    "drift_threshold": 8.711723292255693,
-    "thermal_slope_max": 5.0
-}

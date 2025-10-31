@@ -1,3 +1,0 @@
-{"id": "entry_0b988c5872", "timestamp": 1760997652.7963421, "observer": "startup", "tensor": {"psi": 0.0, "kappa": 0.0, "T": 0.0, "coherence": 0.0, "gradient": 0.0, "stability": 0.0}, "meta": {}, "link": null, "psi": 0.0, "phi": 0.0, "coherence": 0.0}
-{"id": "entry_098aa53e48", "timestamp": 1760997662.0681107, "observer": "aion_bridge", "tensor": {"psi": 0.0, "kappa": 0.0, "T": 0.0, "coherence": 0.0, "gradient": 0.0, "stability": 0.0}, "meta": {}, "link": null, "psi": 0.0, "phi": 0.0, "coherence": 0.0}
-{"id": "entry_c8e91fe7ab", "timestamp": 1760997662.0718377, "observer": "aion_bridge", "tensor": {"psi": 0.0, "kappa": 0.0, "T": 0.0, "coherence": 0.0, "gradient": 0.0, "stability": 0.0}, "meta": {}, "link": null, "psi": 0.0, "phi": 0.0, "coherence": 0.0}
