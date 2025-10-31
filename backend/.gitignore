@@ -1,105 +1,108 @@
-#──────────────────────────────
-# 🧠 Tessaris Project GitIgnore
-#──────────────────────────────
+############################################
+# 🧠 Tessaris / Photon / Symatics Project GitIgnore
+############################################
 
-#──────────────────────────────
-# 🌱 Environment & Config Files
-#──────────────────────────────
+########## Environment & Secrets ##########
 .env
 *.env
+.env.local
+.env.*.local
 env.yaml
 env_vars.env
 cors_env.yaml
-/backend/.env
-/backend/.env.local
+backend/.env
+backend/.env.local
 
-#──────────────────────────────
-# 🐍 Python Bytecode & Caches
-#──────────────────────────────
+########## Python Caches ##########
 __pycache__/
 *.py[cod]
-*.so
 *.pyo
 *.pyd
+*.so
+*.egg-info/
 
-#──────────────────────────────
-# 🧩 Logs, Temp Files & Runtime Artifacts
-#──────────────────────────────
-*.log
+########## Temp / Locks / Process markers ##########
 *.tmp
 *.bak
+*.bak2
+*.lexbak
 *.swp
-*.db
 *.pid
 *.lock
+*.log
+*.json.lock
 
-#──────────────────────────────
-# 🧠 Tessaris / Symatics Knowledge & Temporary Data
-#──────────────────────────────
-data/knowledge/
-data/wiki_seed/
+########## AION / Photon Runtime & Cognitive State ##########
+data/aion/
+data/aion_field/**
+data/analysis/
+data/control/
+data/learning/
+data/memory/
+data/memory_logs/**
 data/cache/
 data/tmp/
 tmp/
+data/metrics/**/*.jsonl
+data/metrics/**/*.json
+data/traces/**/*.json
+data/traces/**/*.jsonl
+data/telemetry/
+data/tasks/
+data/benchmarks/
+data/sources/
+logs/
+backend/state/**/*.json
+backend/state/**/*.jsonl
+backend/logs/**/*.json
+backend/logs/**/*.jsonl
+
+########## Wikidata / Symatics / Photon capsules ##########
 *.wiki.phn
 *.qkg.json
-*.log.json
-backend/data/knowledge_index.jsonl
+*.glyph
+*.trace.json
+*.photo
+*.phn
+*.ptn
+*.recon.txt
 
-#──────────────────────────────
-# 📘 Notebooks & Export Archives
-#──────────────────────────────
+backend/data/knowledge_index.jsonl
+backend/data/conceptnet/numberbatch-en-19.08.txt
+
+########## Large / Heavy data exclusions ##########
+data/control/aqci_log.jsonl
+data/control/rqfs_feedback.jsonl
+data/learning/fusion_state.jsonl
+data/memory/lex_memory.json
+data/memory/resonant_memory_cache.*
+data/system/
+data/symatics/symbolic_resonance_stream.glyph
+data/sources/enwiktionary-pages-articles.xml.bz2
+data/sources/enwiktionary-sample.xml.bz2
+data/sources/gcide_full.xml
+data/telemetry/meta_resonant_telemetry.jsonl
+
+########## CRDT / Yjs ##########
+data/crdt/**
+*.ydoc
+*.yjs
+*.sync
+
+########## IDE / OS Noise ##########
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+########## Notebook / Archive Dumps ##########
 *.ipynb_checkpoints
 *.tar
 *.tar.gz
 *.gz
 *.zip
 
-#──────────────────────────────
-# 💻 IDE / OS System Files
-#──────────────────────────────
-.DS_Store
-Thumbs.db
-.idea/
-.vscode/
-
-# AION runtime cache and locks
-data/memory/resonant_memory_cache.json
-data/memory/resonant_memory_cache.*bak
-data/memory/resonant_memory_cache.*lock
-
-
-#──────────────────────────────
-# 🧠 AION Runtime Outputs / Telemetry & Massive Data
-#──────────────────────────────
-data/aion/
-data/analysis/
-data/learning/
-data/control/
-data/telemetry/
-data/benchmarks/
-data/sources/
-data/tasks/
-logs/
-*.json.lock
-*.bak
-*.lexbak
-*.bak2
-*.bz2
-*.xml
-*.glyph
-
-# Individual heavy files to exclude (safety net)
-data/control/aqci_log.jsonl
-data/control/rqfs_feedback.jsonl
-data/learning/fusion_state.jsonl
-data/memory/cee_lex_memory.json
-data/memory/cee_lex_memory.lexbak
-data/memory/lex_memory.json
-data/memory/resonant_memory_cache.*
-data/sources/enwiktionary-pages-articles.xml.bz2
-data/sources/enwiktionary-sample.xml.bz2
-data/sources/gcide_full.xml
-data/symatics/symbolic_resonance_stream.glyph
-data/telemetry/meta_resonant_telemetry.jsonl
-backend/data/conceptnet/numberbatch-en-19.08.txt
+########## Build / Temp artifacts ##########
+dist/
+build/
+coverage/

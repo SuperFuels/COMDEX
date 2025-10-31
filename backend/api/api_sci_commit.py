@@ -8,8 +8,36 @@
 from fastapi import APIRouter, HTTPException, Request
 from datetime import datetime
 import json
+from pathlib import Path
 
 router = APIRouter(prefix="/api/sci", tags=["SCI Knowledge Graph"])
+
+# ------------------------------------------------------------
+# Photon mirror setup (lite-safe)
+# ------------------------------------------------------------
+try:
+    from backend.modules.glyphos.glyph_synthesis_engine import compress_to_glyphs
+except Exception:
+    compress_to_glyphs = None
+
+PHOTON_SCI_DIR = Path("data/photon_sci/events/")
+PHOTON_SCI_DIR.mkdir(parents=True, exist_ok=True)
+
+def mirror_sci_to_photon(event_type: str, payload: dict):
+    """Append SCI event to Photon archive (.photo) — graceful fallback"""
+    if not compress_to_glyphs:
+        return
+
+    try:
+        txt = f"{event_type}: {json.dumps(payload, ensure_ascii=False)}"
+        capsule = compress_to_glyphs(txt, source="SCI")
+        ts = capsule["timestamp"].replace(":", "_").replace(".", "_")
+        out = PHOTON_SCI_DIR / f"sci_{ts}.photo"
+        out.write_text(json.dumps(capsule, indent=2, ensure_ascii=False))
+        print(f"[SCI→Photon] 📦 {out.name}")
+    except Exception as e:
+        print(f"[SCI→Photon mirror] ⚠️ {e}")
+
 
 # ------------------------------------------------------------
 #  Commit Atom / Scroll Snapshot
@@ -42,6 +70,16 @@ async def commit_atom(request: Request):
             content=json.dumps(frame, ensure_ascii=False),
             metadata=metadata,
         )
+
+        # ✅ add Photon mirror (does NOT block)
+        try:
+            mirror_sci_to_photon("commit_atom", {
+                "label": label,
+                "container_id": container_id,
+                "frame": frame
+            })
+        except Exception:
+            pass
 
         print(f"[SCI Commit] 💾 Stored Atom '{label}' in container {container_id}")
         return {"ok": True, "label": label, "metadata": metadata}
