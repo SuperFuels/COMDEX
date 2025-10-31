@@ -1,0 +1,15 @@
+[
+  {
+    "timestamp": 1761303222.034689,
+    "comment": "Resonance drift detected; coherence low.",
+    "metrics": {
+      "timestamp": 1761303222.034689,
+      "tone": "neutral",
+      "confidence": 0.0,
+      "energy": 0.5,
+      "resonance": 0.0,
+      "dominant_topic": null,
+      "goal_status": {}
+    }
+  }
+]

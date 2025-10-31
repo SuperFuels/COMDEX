@@ -14,6 +14,14 @@ from backend.modules.consciousness.memory_bridge import MemoryBridge
 
 from time import perf_counter
 
+# -----------------------------
+# ✅ SCI overlay hook (safe stub)
+# -----------------------------
+try:
+    from backend.modules.aion_language.sci_overlay import sci_emit
+except Exception:
+    def sci_emit(*a, **k): pass
+
 INTENT_QUEUE_FILE = "data/tessaris/intent_queue.json"
 
 
@@ -47,7 +55,20 @@ def execute_glyph_packet(packet):
     """Safe execution wrapper for glyph packets."""
     from backend.modules.tessaris.tessaris_engine import TessarisEngine  # Deferred
     engine = TessarisEngine()
-    return engine.execute_packet(packet)
+    # ✅ Unified glyph execution adapter
+    if hasattr(engine, "execute_packet"):
+        return engine.execute_packet(packet)   # legacy
+
+    if hasattr(engine, "execute_glyphs"):
+        return engine.execute_glyphs(packet)   # modern final
+
+    if hasattr(engine, "execute"):
+        return engine.execute(packet)          # dispatcher variant
+
+    if hasattr(engine, "interpret"):
+        return engine.interpret(packet)        # symbolic interpreter
+
+    raise AttributeError("TessarisEngine has no execution entrypoint for glyph packets")
 
 
 def execute_intents():
@@ -108,6 +129,12 @@ def route_intent(intent):
         dt = perf_counter() - t0
         store_memory(f"✅ Executed intent: {kind} in {dt:.3f}s — {payload}")
         log_intent(intent, "executed")
+
+        # ✅ symbolic intent trace (after successful execution)
+        sci_emit(
+            "tessaris_intent",
+            f"Intent executed: {kind} | glyph={glyph} | data={payload}"
+        )
 
         memlog = MemoryBridge(container_id=container_id)
         memlog.log({

@@ -1,0 +1,578 @@
+[
+  {
+    "timestamp": "2025-09-17T22:34:45.964423Z",
+    "message": "[Token Metrics] exec_time=0.001518s"
+  },
+  {
+    "timestamp": "2025-09-17T22:40:28.805026Z",
+    "message": "[Token Metrics] exec_time=0.002004s"
+  },
+  {
+    "timestamp": "2025-09-17T22:40:28.809726Z",
+    "message": "[Token Metrics] exec_time=0.002047s"
+  },
+  {
+    "timestamp": "2025-09-17T22:40:28.813471Z",
+    "message": "[Token Metrics] exec_time=0.002122s"
+  },
+  {
+    "timestamp": "2025-09-17T22:40:28.817051Z",
+    "message": "[Token Metrics] exec_time=0.002438s"
+  },
+  {
+    "timestamp": "2025-09-17T22:40:28.820775Z",
+    "message": "[Token Metrics] exec_time=0.002494s"
+  },
+  {
+    "timestamp": "2025-09-17T22:50:32.759528Z",
+    "message": "[Token Metrics] exec_time=0.002411s"
+  },
+  {
+    "timestamp": "2025-09-17T22:50:32.764140Z",
+    "message": "[Token Metrics] exec_time=0.003084s"
+  },
+  {
+    "timestamp": "2025-09-17T22:50:32.768689Z",
+    "message": "[Token Metrics] exec_time=0.003077s"
+  },
+  {
+    "timestamp": "2025-09-17T22:50:32.773015Z",
+    "message": "[Token Metrics] exec_time=0.002794s"
+  },
+  {
+    "timestamp": "2025-09-17T22:50:32.777624Z",
+    "message": "[Token Metrics] exec_time=0.002988s"
+  },
+  {
+    "timestamp": "2025-09-18T08:02:21.395783Z",
+    "message": "[Token Metrics] exec_time=0.050798s"
+  },
+  {
+    "timestamp": "2025-09-18T08:02:21.441043Z",
+    "message": "[Token Metrics] exec_time=0.043776s"
+  },
+  {
+    "timestamp": "2025-09-18T08:02:21.444532Z",
+    "message": "[Token Metrics] exec_time=0.002054s"
+  },
+  {
+    "timestamp": "2025-09-18T08:02:21.448117Z",
+    "message": "[Token Metrics] exec_time=0.002028s"
+  },
+  {
+    "timestamp": "2025-09-18T08:02:21.451936Z",
+    "message": "[Token Metrics] exec_time=0.002062s"
+  },
+  {
+    "timestamp": "2025-09-18T08:04:51.507931Z",
+    "message": "[Token Metrics] exec_time=0.001886s"
+  },
+  {
+    "timestamp": "2025-09-18T08:04:51.511808Z",
+    "message": "[Token Metrics] exec_time=0.002125s"
+  },
+  {
+    "timestamp": "2025-09-18T08:04:51.515486Z",
+    "message": "[Token Metrics] exec_time=0.001955s"
+  },
+  {
+    "timestamp": "2025-09-18T08:04:51.519459Z",
+    "message": "[Token Metrics] exec_time=0.002096s"
+  },
+  {
+    "timestamp": "2025-09-18T08:04:51.523319Z",
+    "message": "[Token Metrics] exec_time=0.001917s"
+  },
+  {
+    "timestamp": "2025-09-18T08:09:44.577767Z",
+    "message": "[Token Metrics] exec_time=0.001976s"
+  },
+  {
+    "timestamp": "2025-09-18T08:09:44.581856Z",
+    "message": "[Token Metrics] exec_time=0.002299s"
+  },
+  {
+    "timestamp": "2025-09-18T08:09:44.585703Z",
+    "message": "[Token Metrics] exec_time=0.002065s"
+  },
+  {
+    "timestamp": "2025-09-18T08:09:44.589486Z",
+    "message": "[Token Metrics] exec_time=0.001982s"
+  },
+  {
+    "timestamp": "2025-09-18T08:09:44.593416Z",
+    "message": "[Token Metrics] exec_time=0.002053s"
+  },
+  {
+    "timestamp": "2025-09-18T08:14:57.347535Z",
+    "message": "[Token Metrics] exec_time=0.002200s"
+  },
+  {
+    "timestamp": "2025-09-18T08:14:57.351703Z",
+    "message": "[Token Metrics] exec_time=0.002383s"
+  },
+  {
+    "timestamp": "2025-09-18T08:14:57.355718Z",
+    "message": "[Token Metrics] exec_time=0.002266s"
+  },
+  {
+    "timestamp": "2025-09-18T08:14:57.359898Z",
+    "message": "[Token Metrics] exec_time=0.002284s"
+  },
+  {
+    "timestamp": "2025-09-18T08:14:57.364018Z",
+    "message": "[Token Metrics] exec_time=0.002065s"
+  },
+  {
+    "timestamp": "2025-09-18T08:28:12.898912Z",
+    "message": "[Token Metrics] exec_time=0.002625s"
+  },
+  {
+    "timestamp": "2025-09-18T08:28:12.903369Z",
+    "message": "[Token Metrics] exec_time=0.002559s"
+  },
+  {
+    "timestamp": "2025-09-18T08:28:12.908697Z",
+    "message": "[Token Metrics] exec_time=0.002804s"
+  },
+  {
+    "timestamp": "2025-09-18T08:28:12.913334Z",
+    "message": "[Token Metrics] exec_time=0.002411s"
+  },
+  {
+    "timestamp": "2025-09-18T08:28:12.917417Z",
+    "message": "[Token Metrics] exec_time=0.002131s"
+  },
+  {
+    "timestamp": "2025-09-18T08:33:28.486227Z",
+    "message": "[Token Metrics] exec_time=0.002745s"
+  },
+  {
+    "timestamp": "2025-09-18T08:33:28.490907Z",
+    "message": "[Token Metrics] exec_time=0.002685s"
+  },
+  {
+    "timestamp": "2025-09-18T08:33:28.495624Z",
+    "message": "[Token Metrics] exec_time=0.002639s"
+  },
+  {
+    "timestamp": "2025-09-18T08:33:28.500332Z",
+    "message": "[Token Metrics] exec_time=0.002658s"
+  },
+  {
+    "timestamp": "2025-09-18T08:33:28.504922Z",
+    "message": "[Token Metrics] exec_time=0.002579s"
+  },
+  {
+    "timestamp": "2025-09-18T08:37:08.098189Z",
+    "message": "[Token Metrics] exec_time=0.002931s"
+  },
+  {
+    "timestamp": "2025-09-18T08:37:08.103331Z",
+    "message": "[Token Metrics] exec_time=0.002896s"
+  },
+  {
+    "timestamp": "2025-09-18T08:37:08.108263Z",
+    "message": "[Token Metrics] exec_time=0.002828s"
+  },
+  {
+    "timestamp": "2025-09-18T08:37:08.113312Z",
+    "message": "[Token Metrics] exec_time=0.002912s"
+  },
+  {
+    "timestamp": "2025-09-18T08:37:08.118188Z",
+    "message": "[Token Metrics] exec_time=0.002751s"
+  },
+  {
+    "timestamp": "2025-09-18T08:50:42.898420Z",
+    "message": "[Token Metrics] exec_time=0.002794s"
+  },
+  {
+    "timestamp": "2025-09-18T08:50:42.903970Z",
+    "message": "[Token Metrics] exec_time=0.003219s"
+  },
+  {
+    "timestamp": "2025-09-18T08:50:42.909747Z",
+    "message": "[Token Metrics] exec_time=0.003459s"
+  },
+  {
+    "timestamp": "2025-09-18T08:50:42.915176Z",
+    "message": "[Token Metrics] exec_time=0.002911s"
+  },
+  {
+    "timestamp": "2025-09-18T08:50:42.921364Z",
+    "message": "[Token Metrics] exec_time=0.003324s"
+  },
+  {
+    "timestamp": "2025-09-18T08:56:55.470090Z",
+    "message": "[Token Metrics] exec_time=0.003470s"
+  },
+  {
+    "timestamp": "2025-09-18T08:56:55.477548Z",
+    "message": "[Token Metrics] exec_time=0.004261s"
+  },
+  {
+    "timestamp": "2025-09-18T08:56:55.484914Z",
+    "message": "[Token Metrics] exec_time=0.004186s"
+  },
+  {
+    "timestamp": "2025-09-18T08:56:55.491958Z",
+    "message": "[Token Metrics] exec_time=0.003974s"
+  },
+  {
+    "timestamp": "2025-09-18T08:56:55.498896Z",
+    "message": "[Token Metrics] exec_time=0.003878s"
+  },
+  {
+    "timestamp": "2025-09-18T09:08:38.976031Z",
+    "message": "[Token Metrics] exec_time=0.003393s"
+  },
+  {
+    "timestamp": "2025-09-18T09:08:38.982629Z",
+    "message": "[Token Metrics] exec_time=0.003694s"
+  },
+  {
+    "timestamp": "2025-09-18T09:08:38.989649Z",
+    "message": "[Token Metrics] exec_time=0.003629s"
+  },
+  {
+    "timestamp": "2025-09-18T09:08:38.995914Z",
+    "message": "[Token Metrics] exec_time=0.003340s"
+  },
+  {
+    "timestamp": "2025-09-18T09:08:39.001843Z",
+    "message": "[Token Metrics] exec_time=0.003325s"
+  },
+  {
+    "timestamp": "2025-09-18T09:14:36.760773Z",
+    "message": "[Token Metrics] exec_time=0.004831s"
+  },
+  {
+    "timestamp": "2025-09-18T09:14:36.806059Z",
+    "message": "[Token Metrics] exec_time=0.004070s"
+  },
+  {
+    "timestamp": "2025-09-18T09:14:36.842208Z",
+    "message": "[Token Metrics] exec_time=0.003496s"
+  },
+  {
+    "timestamp": "2025-09-18T09:14:36.875481Z",
+    "message": "[Token Metrics] exec_time=0.003267s"
+  },
+  {
+    "timestamp": "2025-09-18T09:14:36.908161Z",
+    "message": "[Token Metrics] exec_time=0.003626s"
+  },
+  {
+    "timestamp": "2025-09-18T10:11:39.091479Z",
+    "message": "[Token Metrics] exec_time=0.001624s"
+  },
+  {
+    "timestamp": "2025-09-18T10:11:39.110127Z",
+    "message": "[Token Metrics] exec_time=0.001497s"
+  },
+  {
+    "timestamp": "2025-09-18T10:31:59.008500Z",
+    "message": "[Token Metrics] exec_time=0.002880s"
+  },
+  {
+    "timestamp": "2025-09-18T10:31:59.035117Z",
+    "message": "[Token Metrics] exec_time=0.002512s"
+  },
+  {
+    "timestamp": "2025-09-18T10:50:10.832990Z",
+    "message": "[Token Metrics] exec_time=0.001578s"
+  },
+  {
+    "timestamp": "2025-09-18T10:50:37.538823Z",
+    "message": "[Token Metrics] exec_time=0.001642s"
+  },
+  {
+    "timestamp": "2025-09-18T10:52:25.491345Z",
+    "message": "[Token Metrics] exec_time=0.002451s"
+  },
+  {
+    "timestamp": "2025-09-18T10:52:53.181006Z",
+    "message": "[Token Metrics] exec_time=0.002176s"
+  },
+  {
+    "timestamp": "2025-09-18T10:53:18.613957Z",
+    "message": "[Token Metrics] exec_time=0.001708s"
+  },
+  {
+    "timestamp": "2025-09-18T10:53:18.639645Z",
+    "message": "[Token Metrics] exec_time=0.001415s"
+  },
+  {
+    "timestamp": "2025-09-18T10:54:00.070732Z",
+    "message": "[Token Metrics] exec_time=0.003625s"
+  },
+  {
+    "timestamp": "2025-09-18T10:54:00.101596Z",
+    "message": "[Token Metrics] exec_time=0.003285s"
+  },
+  {
+    "timestamp": "2025-09-18T11:15:46.702335Z",
+    "message": "[Token Metrics] exec_time=0.004641s"
+  },
+  {
+    "timestamp": "2025-09-18T11:15:46.758536Z",
+    "message": "[Token Metrics] exec_time=0.002359s"
+  },
+  {
+    "timestamp": "2025-09-18T11:15:46.858884Z",
+    "message": "[Token Metrics] exec_time=0.002064s"
+  },
+  {
+    "timestamp": "2025-09-18T11:21:16.325014Z",
+    "message": "[Token Metrics] exec_time=0.004281s"
+  },
+  {
+    "timestamp": "2025-09-18T11:21:16.409925Z",
+    "message": "[Token Metrics] exec_time=0.003085s"
+  },
+  {
+    "timestamp": "2025-09-18T11:21:16.449285Z",
+    "message": "[Token Metrics] exec_time=0.002405s"
+  },
+  {
+    "timestamp": "2025-09-18T11:21:16.484894Z",
+    "message": "[Token Metrics] exec_time=0.001927s"
+  },
+  {
+    "timestamp": "2025-09-18T11:26:09.632822Z",
+    "message": "[Token Metrics] exec_time=0.005328s"
+  },
+  {
+    "timestamp": "2025-09-18T11:26:09.730968Z",
+    "message": "[Token Metrics] exec_time=0.003748s"
+  },
+  {
+    "timestamp": "2025-09-18T11:26:09.774091Z",
+    "message": "[Token Metrics] exec_time=0.003337s"
+  },
+  {
+    "timestamp": "2025-09-18T11:26:09.813402Z",
+    "message": "[Token Metrics] exec_time=0.002357s"
+  },
+  {
+    "timestamp": "2025-09-18T13:41:11.903674Z",
+    "message": "[Token Metrics] exec_time=0.176127s"
+  },
+  {
+    "timestamp": "2025-09-18T13:41:12.063765Z",
+    "message": "[Token Metrics] exec_time=0.046180s"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:21.693373Z",
+    "message": "[Token Metrics] exec_time=0.005238s"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:21.740706Z",
+    "message": "[Token Metrics] exec_time=0.004331s"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:21.846994Z",
+    "message": "[Token Metrics] exec_time=0.009462s"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:21.945943Z",
+    "message": "[Token Metrics] exec_time=0.003777s"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:21.998389Z",
+    "message": "[Token Metrics] exec_time=0.003941s"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:22.048835Z",
+    "message": "[Token Metrics] exec_time=0.004965s"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:22.107800Z",
+    "message": "[Token Metrics] exec_time=0.006017s"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:22.164975Z",
+    "message": "[Token Metrics] exec_time=0.006599s"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:22.224905Z",
+    "message": "[Token Metrics] exec_time=0.001641s"
+  },
+  {
+    "timestamp": "2025-09-18T14:13:22.228019Z",
+    "message": "[Token Metrics] exec_time=0.002054s"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.338959Z",
+    "message": "[Token Metrics] exec_time=0.006706s"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.400740Z",
+    "message": "[Token Metrics] exec_time=0.005327s"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.525510Z",
+    "message": "[Token Metrics] exec_time=0.007687s"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.634798Z",
+    "message": "[Token Metrics] exec_time=0.004259s"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.689234Z",
+    "message": "[Token Metrics] exec_time=0.003844s"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.746543Z",
+    "message": "[Token Metrics] exec_time=0.007949s"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.821102Z",
+    "message": "[Token Metrics] exec_time=0.009868s"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.890084Z",
+    "message": "[Token Metrics] exec_time=0.007509s"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.964974Z",
+    "message": "[Token Metrics] exec_time=0.003410s"
+  },
+  {
+    "timestamp": "2025-09-18T14:20:55.970622Z",
+    "message": "[Token Metrics] exec_time=0.004161s"
+  },
+  {
+    "timestamp": "2025-09-18T14:32:27.970754Z",
+    "message": "[Token Metrics] exec_time=0.001448s"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:05.513481Z",
+    "message": "[Token Metrics] exec_time=0.009631s"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:05.695718Z",
+    "message": "[Token Metrics] exec_time=0.007367s"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.098205Z",
+    "message": "[Token Metrics] exec_time=0.074083s"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.275335Z",
+    "message": "[Token Metrics] exec_time=0.058727s"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.392795Z",
+    "message": "[Token Metrics] exec_time=0.059261s"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.512996Z",
+    "message": "[Token Metrics] exec_time=0.068203s"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.595203Z",
+    "message": "[Token Metrics] exec_time=0.009265s"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.669142Z",
+    "message": "[Token Metrics] exec_time=0.008357s"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.949656Z",
+    "message": "[Token Metrics] exec_time=0.004664s"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:06.956095Z",
+    "message": "[Token Metrics] exec_time=0.004771s"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:07.116927Z",
+    "message": "[Token Metrics] exec_time=0.001763s"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:07.206257Z",
+    "message": "[Token Metrics] exec_time=0.009341s"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:07.279502Z",
+    "message": "[Token Metrics] exec_time=0.001914s"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:37.701546Z",
+    "message": "[Token Metrics] exec_time=0.009683s"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:37.789035Z",
+    "message": "[Token Metrics] exec_time=0.009363s"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:37.974905Z",
+    "message": "[Token Metrics] exec_time=0.011566s"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.110133Z",
+    "message": "[Token Metrics] exec_time=0.005401s"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.175757Z",
+    "message": "[Token Metrics] exec_time=0.006366s"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.241385Z",
+    "message": "[Token Metrics] exec_time=0.008931s"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.326960Z",
+    "message": "[Token Metrics] exec_time=0.011191s"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.412923Z",
+    "message": "[Token Metrics] exec_time=0.010243s"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.508806Z",
+    "message": "[Token Metrics] exec_time=0.007054s"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.516943Z",
+    "message": "[Token Metrics] exec_time=0.006164s"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.720668Z",
+    "message": "[Token Metrics] exec_time=0.002224s"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.832575Z",
+    "message": "[Token Metrics] exec_time=0.012073s"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.928258Z",
+    "message": "[Token Metrics] exec_time=0.002492s"
+  },
+  {
+    "timestamp": "2025-09-18T20:22:43.735729Z",
+    "message": "[Token Metrics] exec_time=0.001383s"
+  },
+  {
+    "timestamp": "2025-09-18T20:22:43.893273Z",
+    "message": "[Token Metrics] exec_time=0.001728s"
+  },
+  {
+    "timestamp": "2025-09-19T23:55:36.088881Z",
+    "message": "[Token Metrics] exec_time=0.011534s"
+  },
+  {
+    "timestamp": "2025-09-19T23:55:36.208124Z",
+    "message": "[Token Metrics] exec_time=0.013634s"
+  },
+  {
+    "timestamp": "2025-10-18T11:24:01.450470Z",
+    "message": "[Token Metrics] exec_time=0.014359s"
+  },
+  {
+    "timestamp": "2025-10-18T11:30:54.328278Z",
+    "message": "[Token Metrics] exec_time=0.015099s"
+  }
+]

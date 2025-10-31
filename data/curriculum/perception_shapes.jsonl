@@ -1,0 +1,6 @@
+{"prompt":"select the square","options":["■","●","▲"],"answer":"■"}
+{"prompt":"select the circle","options":["●","■","▲"],"answer":"●"}
+{"prompt":"select the triangle","options":["▲","●","■"],"answer":"▲"}
+{"prompt":"select the square","options":["■","●","▲","◆"],"answer":"■"}
+{"prompt":"select the circle","options":["●","■","▲","◆"],"answer":"●"}
+{"prompt":"select the diamond","options":["◆","●","■","▲"],"answer":"◆"}

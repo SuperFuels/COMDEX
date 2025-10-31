@@ -3,30 +3,44 @@
     "name": "XOR Pattern",
     "pattern_id": "pattern-5a7b37ec",
     "glyphs": [
-      { "type": "variable" },
-      { "type": "operator", "value": "⊕" },
-      { "type": "variable" }
+      {
+        "type": "variable"
+      },
+      {
+        "type": "operator",
+        "value": "\u2295"
+      },
+      {
+        "type": "variable"
+      }
     ],
     "type": "expression",
-    "trigger_logic": "a ⊕ b",
+    "trigger_logic": "a \u2295 b",
     "prediction": [],
     "sqi_score": 0.8,
     "source_container": "test_container_001",
     "metadata": {},
-    "signature": "1a53920047dd6e2b",
-    "entropy": 0.0,
-    "symmetry": 0.3333333333333333
+    "signature": "a13105de54755dee",
+    "entropy": 0.33333333333333337,
+    "symmetry": 1.0
   },
   {
     "name": "XOR Pattern",
     "pattern_id": "pattern-68d4c387",
     "glyphs": [
-      { "type": "variable" },
-      { "type": "operator", "value": "⊕" },
-      { "type": "variable" }
+      {
+        "type": "variable"
+      },
+      {
+        "type": "operator",
+        "value": "\u2295"
+      },
+      {
+        "type": "variable"
+      }
     ],
     "type": "logic",
-    "trigger_logic": "a ⊕ b",
+    "trigger_logic": "a \u2295 b",
     "prediction": [],
     "sqi_score": 0.85,
     "source_container": null,
@@ -39,9 +53,16 @@
     "name": "Addition Pattern",
     "pattern_id": "pattern-add-001",
     "glyphs": [
-      { "type": "variable" },
-      { "type": "operator", "value": "+" },
-      { "type": "number" }
+      {
+        "type": "variable"
+      },
+      {
+        "type": "operator",
+        "value": "+"
+      },
+      {
+        "type": "number"
+      }
     ],
     "type": "expression",
     "trigger_logic": "x + 2",
@@ -49,18 +70,29 @@
     "sqi_score": 0.9,
     "source_container": "math_core",
     "metadata": {},
-    "signature": "add01x2",
-    "entropy": 0.1,
-    "symmetry": 1.0
+    "signature": "d18fa57d013b1f8a",
+    "entropy": 0.0,
+    "symmetry": 0.3333333333333333
   },
   {
     "name": "Sine Pattern",
     "pattern_id": "pattern-sin-001",
     "glyphs": [
-      { "type": "function", "value": "sin" },
-      { "type": "paren", "value": "(" },
-      { "type": "variable" },
-      { "type": "paren", "value": ")" }
+      {
+        "type": "function",
+        "value": "sin"
+      },
+      {
+        "type": "paren",
+        "value": "("
+      },
+      {
+        "type": "variable"
+      },
+      {
+        "type": "paren",
+        "value": ")"
+      }
     ],
     "type": "function",
     "trigger_logic": "sin(y)",
@@ -68,17 +100,24 @@
     "sqi_score": 0.95,
     "source_container": "math_core",
     "metadata": {},
-    "signature": "sin(y)",
-    "entropy": 0.2,
-    "symmetry": 1.0
+    "signature": "4b9c6890c7cd3276",
+    "entropy": 0.0,
+    "symmetry": 0.0
   },
   {
     "name": "Power Pattern",
     "pattern_id": "pattern-pow-001",
     "glyphs": [
-      { "type": "variable" },
-      { "type": "operator", "value": "**" },
-      { "type": "number" }
+      {
+        "type": "variable"
+      },
+      {
+        "type": "operator",
+        "value": "**"
+      },
+      {
+        "type": "number"
+      }
     ],
     "type": "expression",
     "trigger_logic": "x ** 2",
@@ -86,23 +125,46 @@
     "sqi_score": 0.88,
     "source_container": "math_core",
     "metadata": {},
-    "signature": "pow-x2",
-    "entropy": 0.15,
-    "symmetry": 1.0
+    "signature": "54ef9c02904d0e55",
+    "entropy": 0.0,
+    "symmetry": 0.3333333333333333
   },
   {
     "name": "If Return Pattern",
     "pattern_id": "pattern-ifret-001",
     "glyphs": [
-      { "type": "keyword", "value": "if" },
-      { "type": "variable" },
-      { "type": "operator", "value": ">" },
-      { "type": "number" },
-      { "type": "symbol", "value": ":" },
-      { "type": "keyword", "value": "return" },
-      { "type": "variable" },
-      { "type": "operator", "value": "**" },
-      { "type": "number" }
+      {
+        "type": "keyword",
+        "value": "if"
+      },
+      {
+        "type": "variable"
+      },
+      {
+        "type": "operator",
+        "value": ">"
+      },
+      {
+        "type": "number"
+      },
+      {
+        "type": "symbol",
+        "value": ":"
+      },
+      {
+        "type": "keyword",
+        "value": "return"
+      },
+      {
+        "type": "variable"
+      },
+      {
+        "type": "operator",
+        "value": "**"
+      },
+      {
+        "type": "number"
+      }
     ],
     "type": "logic",
     "trigger_logic": "if x > 0: return x**2",
@@ -110,27 +172,77 @@
     "sqi_score": 0.85,
     "source_container": "logic_core",
     "metadata": {},
-    "signature": "ifret-x2",
-    "entropy": 0.5,
-    "symmetry": 0.8
+    "signature": "bc8b88712a09ebbf",
+    "entropy": 0.2222222222222222,
+    "symmetry": 0.1111111111111111
   },
   {
     "name": "Memory Overwrite Flag",
     "pattern_id": "pattern-mem-001",
     "glyphs": [
-      { "type": "function", "value": "overwrite" },
-      { "type": "paren", "value": "(" },
-      { "type": "string", "value": "memory" },
-      { "type": "paren", "value": ")" }
+      {
+        "type": "function",
+        "value": "overwrite"
+      },
+      {
+        "type": "paren",
+        "value": "("
+      },
+      {
+        "type": "string",
+        "value": "memory"
+      },
+      {
+        "type": "paren",
+        "value": ")"
+      }
     ],
     "type": "ethics",
     "trigger_logic": "overwrite('memory')",
     "prediction": [],
     "sqi_score": 0.1,
     "source_container": "ethics_monitor",
-    "metadata": { "block": true },
-    "signature": "overwrite_mem",
-    "entropy": 0.95,
+    "metadata": {
+      "block": true
+    },
+    "signature": "b4981034e2deeb95",
+    "entropy": 0.0,
     "symmetry": 0.0
+  },
+  {
+    "name": "TestPattern",
+    "pattern_id": "pattern-08cc0b51",
+    "glyphs": [
+      {
+        "text": "A"
+      }
+    ],
+    "type": "test",
+    "trigger_logic": "",
+    "prediction": [],
+    "sqi_score": 0.005,
+    "source_container": "manual",
+    "metadata": {},
+    "signature": "ece6be2c5c7de9ee",
+    "entropy": 0.0,
+    "symmetry": 1.0
+  },
+  {
+    "name": "OmegaSeed",
+    "pattern_id": "pattern-f9e7194b",
+    "glyphs": [
+      {
+        "text": "\u03a9"
+      }
+    ],
+    "type": "manual",
+    "trigger_logic": "",
+    "prediction": [],
+    "sqi_score": 0.005,
+    "source_container": "cli",
+    "metadata": {},
+    "signature": "a4c77b3b964700b4",
+    "entropy": 0.0,
+    "symmetry": 1.0
   }
 ]

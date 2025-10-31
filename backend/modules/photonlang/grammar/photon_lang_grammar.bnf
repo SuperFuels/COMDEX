@@ -1,5 +1,5 @@
 %%──────────────────────────────────────────────
-%% PhotonLang v0.1 — Hybrid Python / Photon Grammar
+%% PhotonLang v0.2 — Operator Complete Extension
 %%──────────────────────────────────────────────
 
 program ::= (stmt NEWLINE)* EOF
@@ -26,7 +26,7 @@ wormhole_import_stmt ::= "from" "(" "wormhole" ":" URI ")" "import" IDENT
     ; example → from (wormhole: quantum://glyphnet/channel_7) import QuantumFieldCanvas
 
 dotted_name ::= IDENT ("." IDENT)*
-version_opt ::= NUMBER?   ; e.g.  from .atom_sheet 42 import SymPy
+version_opt ::= NUMBER? 
 import_list ::= IDENT ("," IDENT)*
 
 %%──────────────────────────────────────────────
@@ -34,14 +34,14 @@ import_list ::= IDENT ("," IDENT)*
 %%──────────────────────────────────────────────
 
 glyph_init_stmt ::= GLYPHSEQ
-    ; initializes symbolic–quantum interface (⊕, ↔, ⟲, μ, π, ⇒, ∇)
+    ; initializes symbolic–quantum interface 
+    ; operators: ⊕ ↔ ⟲ μ π ⇒ ∇ ⧖
 
 assignment ::= IDENT "=" expr
 
 call_stmt ::= expr
 
 send_stmt ::= "send" expr "through" "wormhole" (STRING | URI)
-    ; example → send sheet through wormhole "glyphnet://aion-reflection"
 
 save_stmt ::= "save" "as" (IDENT | STRING)
     ; STRING must end with ".ptn"
@@ -73,10 +73,29 @@ arg ::= IDENT "=" expr | expr
 %% Token Definitions
 %%──────────────────────────────────────────────
 
-GLYPHSEQ ::= /[⊕↔⟲μπ⇒∇]+/
+; Added ⧖ (modulate) operator for Photon Resonance modulation
+
+GLYPHSEQ ::= /[⊕↔⟲μπ⇒∇⧖]+/
 IDENT    ::= /[A-Za-z_][A-Za-z0-9_]*/
 NUMBER   ::= /[0-9]+(\.[0-9]+)?/
 STRING   ::= /"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'/
 URI      ::= /[A-Za-z]+:\/\/[A-Za-z0-9+._\/:-]+/
 NEWLINE  ::= /\r?\n+/
 EOF      ::= <<end of input>>
+
+%% Photon pure-glyph block
+glyphstmt ::= GLYPHSEQ ( "{" param_list "}" )?
+param_list ::= param ("," param)*
+param ::= IDENT "=" NUMBER
+
+%%──────────────────────────────────────────────
+%% Semantic Binding Notes (not parsed)
+%%──────────────────────────────────────────────
+; ⊕  → photon.superpose()
+; ↔  → photon.entangle()
+; ⟲  → photon.resonate()
+; μ  → photon.measure()
+; π  → photon.project()
+; ⇒  → photon.trigger()
+; ∇  → photon.collapse()
+; ⧖  → photon.modulate(freq=, amp=)

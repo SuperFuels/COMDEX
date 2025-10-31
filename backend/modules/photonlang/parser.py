@@ -24,19 +24,21 @@ TOK_SPEC = [
     # Symbols
     ("LPAREN", r"\("),
     ("RPAREN", r"\)"),
+    ("LBRACE", r"\{"),
+    ("RBRACE", r"\}"),
     ("COMMA",  r","),
     ("DOT",    r"\."),
     ("EQ",     r"="),
     ("COLON",  r":"),
 
-    # Photon symbolic operators
+    # Photon symbolic operators — v0.2 extended (⧖ included)
     ("GLYPHSEQ", r"[⊕↔⟲μπ⇒∇⊗✦→⧖≈]+"),
 
     # Literals
     ("NUMBER", r"[0-9]+(?:\.[0-9]+)?"),
     ("STRING", r"\"(?:[^\"\\]|\\.)*\"|'(?:[^'\\]|\\.)*'"),
 
-    # Identifiers and URIs (⚙️ corrected)
+    # Identifiers & URIs
     ("URI",   r"[A-Za-z_][A-Za-z0-9+.\-]*://[A-Za-z0-9_\-./]+"),
     ("IDENT", r"[A-Za-z_][A-Za-z0-9_]*"),
 ]
@@ -82,6 +84,8 @@ class WormholeImport(Node): uri: str; name: str
 @dataclass
 class GlyphInit(Node): seq: str
 @dataclass
+class GlyphStmt(Node): seq: str; params: dict   # ⧖ {freq=1.1} etc
+@dataclass
 class Assign(Node): name: str; expr: Node
 @dataclass
 class Call(Node): func: Node; args: List[Tuple[Optional[str], Node]]
@@ -119,16 +123,17 @@ class Parser:
     def expect(self, t: str) -> Token:
         tok = self.accept(t)
         if not tok:
-            raise SyntaxError(f"Expected {t} at position {self.cur().pos}, got {self.cur().typ}")
+            raise SyntaxError(
+                f"Expected {t} at {self.cur().pos}, got {self.cur().typ}"
+            )
         return tok
 
     # --------------------------------------------------------
-    # Parse Entry
+    # Entry: program
     # --------------------------------------------------------
     def parse(self) -> Program:
         stmts: List[Node] = []
         while self.cur().typ != "EOF":
-            # Skip comments, whitespace, stray glyphs
             if self.cur().typ in ("WS", "COMMENT", "NEWLINE"):
                 self.i += 1
                 continue
@@ -136,7 +141,7 @@ class Parser:
         return Program(stmts)
 
     # --------------------------------------------------------
-    # Statement-level parsing
+    # Statement-level grammar
     # --------------------------------------------------------
     def stmt(self) -> Node:
         # import X[, Y]
@@ -148,35 +153,35 @@ class Parser:
 
         # from ...
         if self.accept("KW_FROM"):
-            # detect wormhole imports — either '(' or inline 'wormhole:' URI
+            # wormhole form
             if self.cur().typ in ("LPAREN", "URI") and (
                 self.cur().typ == "LPAREN" or self.cur().val.startswith("wormhole:")
             ):
-                # Handle wrapped wormhole form: from (wormhole: quantum://...) import X
+                # "(wormhole: uri)" form
                 if self.accept("LPAREN"):
                     if self.cur().typ in ("KW_WORMHOLE", "IDENT"):
-                        self.i += 1  # consume 'wormhole'
-                    if self.cur().typ == "COLON":
                         self.i += 1
+                    if self.cur().typ == "COLON": self.i += 1
                     if self.cur().typ not in ("URI", "STRING"):
-                        raise SyntaxError(f"Expected URI after wormhole:, got {self.cur().typ}")
+                        raise SyntaxError(
+                            f"Expected URI after wormhole:, got {self.cur().typ}"
+                        )
                     uri = self.cur().val
                     self.i += 1
                     self.expect("RPAREN")
                 else:
-                    # Inline style: from wormhole: quantum://... import X
+                    # "wormhole:uri" form
                     val = self.cur().val
-                    if val.startswith("wormhole:"):
-                        uri = val.split("wormhole:", 1)[1]
-                        self.i += 1
-                    else:
-                        raise SyntaxError(f"Invalid inline wormhole syntax at {self.cur().pos}")
+                    if not val.startswith("wormhole:"):
+                        raise SyntaxError(f"Invalid wormhole syntax @ {self.cur().pos}")
+                    uri = val.split("wormhole:", 1)[1]
+                    self.i += 1
 
                 self.expect("KW_IMPORT")
                 name = self.expect("IDENT").val
                 return WormholeImport(uri, name)
 
-            # fallback to normal from-import
+            # normal from-import
             module = self.dotted()
             ver = None
             if self.cur().typ == "NUMBER":
@@ -187,12 +192,22 @@ class Parser:
                 names.append(self.expect("IDENT").val)
             return FromImport(module, ver, names)
 
-        # symbolic glyph init line
+        # glyph init (no params)
         if self.cur().typ == "GLYPHSEQ":
             seq = self.expect("GLYPHSEQ").val
+            # check for ⧖ {freq=...}
+            if self.accept("LBRACE"):
+                params = {}
+                while not self.accept("RBRACE"):
+                    name = self.expect("IDENT").val
+                    self.expect("EQ")
+                    val = float(self.expect("NUMBER").val)
+                    params[name] = val
+                    self.accept("COMMA")
+                return GlyphStmt(seq, params)
             return GlyphInit(seq)
 
-        # send ... through wormhole "..."
+        # send ... through wormhole
         if self.cur().typ == "KW_SEND":
             self.expect("KW_SEND")
             obj = self.expr()
@@ -201,7 +216,7 @@ class Parser:
             uri = self.expect("STRING").val.strip("\"'")
             return SendThrough(obj, uri)
 
-        # save as "..."
+        # save as
         if self.cur().typ == "KW_SAVE":
             self.expect("KW_SAVE")
             self.expect("KW_AS")
@@ -209,93 +224,137 @@ class Parser:
                 return SaveAs(Literal(self.expect("STRING").val.strip("\"'")))
             return SaveAs(Name(self.expect("IDENT").val))
 
-        # assignment or expression
+        # assignment or expr
         if self.cur().typ == "IDENT":
             t = self.cur()
             self.i += 1
             if self.accept("EQ"):
                 expr = self.expr()
                 return Assign(t.val, expr)
-            else:
-                self.i -= 1
-                return self.expr()
+            self.i -= 1
+            return self.expr()
 
         return self.expr()
-
     # --------------------------------------------------------
     # Expression handling
     # --------------------------------------------------------
     def dotted(self) -> str:
         parts = []
-        # Allow leading dot for relative imports (e.g. `from .module import X`)
+
+        # allow relative import: from .foo import X
         while self.accept("DOT"):
-            parts.append("")  # placeholder for each leading dot
-        # Expect first identifier
+            parts.append("")  # mark relative depth
+
         if self.cur().typ != "IDENT":
-            raise SyntaxError(f"Expected IDENT at {self.cur().pos}, got {self.cur().typ}")
+            raise SyntaxError(
+                f"Expected IDENT in dotted path at {self.cur().pos}, got {self.cur().typ}"
+            )
+
         parts.append(self.expect("IDENT").val)
-        # Accept further `.ident` chains
+
         while self.accept("DOT"):
             parts.append(self.expect("IDENT").val)
+
         return ".".join(parts)
 
+    # --------------------------------------------------------
+    # Expression / trailers: foo, foo(), foo.bar(), foo().x
+    # --------------------------------------------------------
     def expr(self) -> Node:
         node = self.primary()
+
         while True:
+            # attribute or method call:  x.y / x.y()
             if self.accept("DOT"):
                 name = self.expect("IDENT").val
+                # x.y(...)
                 if self.accept("LPAREN"):
                     args = self.arg_list_opt()
                     node = Call(Attr(node, name), args)
                 else:
+                    # x.y
                     node = Attr(node, name)
                 continue
+
+            # function call:  x(...)
             if self.accept("LPAREN"):
                 args = self.arg_list_opt()
                 node = Call(node, args)
                 continue
+
             break
+
         return node
 
+    # --------------------------------------------------------
+    # Primary expressions
+    # --------------------------------------------------------
     def primary(self) -> Node:
         t = self.cur()
+
+        # identifier reference
         if t.typ == "IDENT":
             self.i += 1
             return Name(t.val)
+
+        # quoted literal
         if t.typ == "STRING":
             self.i += 1
-            return Literal(t.val.strip("\"'"))
+            val = t.val.strip("\"'")
+            return Literal(val)
+
+        # numeric literal
         if t.typ == "NUMBER":
             self.i += 1
-            return Literal(float(t.val) if "." in t.val else int(t.val))
+            if "." in t.val:
+                return Literal(float(t.val))
+            return Literal(int(t.val))
+
         raise SyntaxError(f"Unexpected token {t.typ} at {t.pos}")
 
+    # --------------------------------------------------------
+    # Argument list parsing: (a, b=3, x(4))
+    # --------------------------------------------------------
     def arg_list_opt(self) -> List[Tuple[Optional[str], Node]]:
         args: List[Tuple[Optional[str], Node]] = []
+
+        # Empty call "()"
         if self.accept("RPAREN"):
             return args
+
         while True:
+            # key=value vs bare expr
             if self.cur().typ == "IDENT":
                 name_tok = self.cur()
                 self.i += 1
+
                 if self.accept("EQ"):
                     val = self.expr()
                     args.append((name_tok.val, val))
                 else:
+                    # not assignment; revert & parse expr
                     self.i -= 1
                     args.append((None, self.expr()))
             else:
                 args.append((None, self.expr()))
+
+            # comma = more args
             if self.accept("COMMA"):
                 continue
+
+            # close call
             self.expect("RPAREN")
             break
+
         return args
 
 # ============================================================
-# Helper
+# Helper Entry
 # ============================================================
 
 def parse_source(src: str) -> Program:
-    """Entry point for external modules (e.g., interpreter)."""
+    """
+    Public entrypoint for Parser.
+    Clean wrapper for interpreter and test harness.
+    """
     return Parser(tokenize(src)).parse()

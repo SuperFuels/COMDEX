@@ -37,6 +37,12 @@ from typing import Dict, Any, Optional
 from backend.modules.skills.goal_engine import GoalEngine
 import builtins
 
+# ✅ SCI cognition layer
+try:
+    from backend.modules.aion_language.sci_overlay import sci_emit
+except Exception:
+    def sci_emit(*a, **k): pass
+
 def _quiet_print(*args, **kwargs):
     txt = " ".join(map(str, args))
     if "Synthesizing glyphs" in txt or "connection error" in txt:
@@ -157,6 +163,7 @@ class TessarisEngine(ResonantReinforcementMixin):
                 print(f"[TessarisEngine] ⚠️ Failed to log resonance heartbeat: {inner_e}")
 
         except Exception as e:
+            sci_emit("tessaris_error", f"{str(e)[:200]}")
             print(f"[TessarisEngine] ⚠️ Heartbeat processing failed: {e}")
 
     # ─────────────────────────────────────────────
@@ -196,6 +203,7 @@ class TessarisEngine(ResonantReinforcementMixin):
                 cost = self.codex_estimator.estimate_glyph_cost(glyph, context or {})
                 reasoning_parts.append(f"Cost → {cost.total():.2f} (E:{cost.energy} / R:{cost.ethics_risk})")
             except Exception as e:
+                sci_emit("tessaris_error", f"{str(e)[:200]}")
                 reasoning_parts.append(f"Cost → unavailable ({e})")
 
             # Join reasoning parts
@@ -228,11 +236,13 @@ class TessarisEngine(ResonantReinforcementMixin):
                 self.update_resonance_feedback(outcome_score=clarity, reason="Reflection clarity")
                 self.last_reflection_score = clarity
             except Exception as e:
+                sci_emit("tessaris_error", f"{str(e)[:200]}")
                 print(f"[⚠️] Resonance feedback failed: {e}")
 
             return reasoning_text
 
         except Exception as e:
+            sci_emit("tessaris_error", f"{str(e)[:200]}")
             print(f"[⚠️] TessarisEngine.generate_reflection failed: {e}")
             return "Reflection unavailable."
             
@@ -267,6 +277,7 @@ class TessarisEngine(ResonantReinforcementMixin):
             expand_container(self.container_id)
             print(f"🔵 Expanded Hoberman container {self.container_id}")
         except Exception as e:
+            sci_emit("tessaris_error", f"{str(e)[:200]}")
             print(f"[⚠️] Failed to expand container: {e}")
 
     def collapse_hoberman(self):
@@ -274,6 +285,7 @@ class TessarisEngine(ResonantReinforcementMixin):
             collapse_container(self.container_id)
             print(f"🔻 Collapsed Hoberman container {self.container_id}")
         except Exception as e:
+            sci_emit("tessaris_error", f"{str(e)[:200]}")
             print(f"[⚠️] Failed to collapse container: {e}")
 
     def process_triggered_cube(self, cube: dict, source: str = "unknown"):
@@ -302,6 +314,7 @@ class TessarisEngine(ResonantReinforcementMixin):
         })
 
         for idx, glyph in enumerate(branch.glyphs):
+            sci_emit("tessaris_step", f"Glyph {idx} → {glyph}")
             # 🕊 Soul Law enforcement (global validator)
             from backend.modules.glyphvault.soul_law_validator import soul_law_validator
 
@@ -391,6 +404,7 @@ class TessarisEngine(ResonantReinforcementMixin):
                             else:
                                 print("⚠️ Fallback rewrite returned no results.")
                         except Exception as e:
+                            sci_emit("tessaris_error", f"{str(e)[:200]}")
                             print(f"⚠️ Fallback rewrite failed: {e}")
 
                 self.codex_mind.observe(glyph)
@@ -416,6 +430,7 @@ class TessarisEngine(ResonantReinforcementMixin):
                             else:
                                 print("⚠️ Self-rewrite returned no results.")
                         except Exception as e:
+                            sci_emit("tessaris_error", f"{str(e)[:200]}")
                             print(f"⚠️ Lean-based self-rewrite failed: {e}")
 
                         # 🧠 Tactic suggestion
@@ -430,6 +445,7 @@ class TessarisEngine(ResonantReinforcementMixin):
                                         "coord": coord,
                                     })
                             except Exception as e:
+                                sci_emit("tessaris_error", f"{str(e)[:200]}")
                                 print(f"⚠️ Tactic suggestion failed: {e}")
 
                         # 🧬 Axiom mutation
@@ -444,6 +460,7 @@ class TessarisEngine(ResonantReinforcementMixin):
                                         "coord": coord,
                                     })
                             except Exception as e:
+                                sci_emit("tessaris_error", f"{str(e)[:200]}")
                                 print(f"⚠️ Axiom mutation suggestion failed: {e}")
 
                         # 🔁 Fallback rewriter
@@ -470,6 +487,7 @@ class TessarisEngine(ResonantReinforcementMixin):
                 self._maybe_suggest_boot(glyph, branch)
 
             except Exception as e:
+                sci_emit("tessaris_error", f"{str(e)[:200]}")
                 print(f"  ⚠️ Error interpreting glyph {glyph}: {e}")
                 self.codex_metrics.record_error()
 
@@ -508,6 +526,7 @@ class TessarisEngine(ResonantReinforcementMixin):
                         else:
                             print("⚠️ Lean rewrite returned no replacements.")
                     except Exception as e:
+                        sci_emit("tessaris_error", f"{str(e)[:200]}")
                         print(f"⚠️ Lean rewrite failed: {e}")
 
                     if glyph.strip().startswith("⟦ Mutate"):
@@ -521,6 +540,7 @@ class TessarisEngine(ResonantReinforcementMixin):
                                     "coord": coord,
                                 })
                         except Exception as e:
+                            sci_emit("tessaris_error", f"{str(e)[:200]}")
                             print(f"⚠️ Tactic suggestion failed: {e}")
 
                     if "⊥" in str(result):
@@ -534,6 +554,7 @@ class TessarisEngine(ResonantReinforcementMixin):
                                     "coord": coord,
                                 })
                         except Exception as e:
+                            sci_emit("tessaris_error", f"{str(e)[:200]}")
                             print(f"⚠️ Axiom mutation failed: {e}")
 
                     self.kg_writer.log_event("self_rewrite_triggered", {
@@ -559,6 +580,7 @@ class TessarisEngine(ResonantReinforcementMixin):
                 self._maybe_suggest_boot(glyph, branch)
 
             except Exception as e:
+                sci_emit("tessaris_error", f"{str(e)[:200]}")
                 print(f"  ⚠️ Error interpreting glyph {glyph}: {e}")
                 self.codex_metrics.record_error()
 
@@ -597,6 +619,7 @@ class TessarisEngine(ResonantReinforcementMixin):
                             print("⚠️ Lean rewrite returned no replacements.")
                             success = False
                     except Exception as e:
+                        sci_emit("tessaris_error", f"{str(e)[:200]}")
                         print(f"⚠️ Lean rewrite failed: {e}")
 
                         # 🧠 Tactic suggestion for ⟦ Mutate glyphs
@@ -611,6 +634,7 @@ class TessarisEngine(ResonantReinforcementMixin):
                                         "coord": coord,
                                     })
                             except Exception as e:
+                                sci_emit("tessaris_error", f"{str(e)[:200]}")
                                 print(f"⚠️ Tactic suggestion failed: {e}")
 
                         # 🧬 Axiom mutation fallback on contradiction
@@ -625,6 +649,7 @@ class TessarisEngine(ResonantReinforcementMixin):
                                         "coord": coord,
                                     })
                             except Exception as e:
+                                sci_emit("tessaris_error", f"{str(e)[:200]}")
                                 print(f"⚠️ Axiom mutation failed: {e}")
 
                         # 🔁 Final fallback: symbolic self-rewrite
@@ -652,6 +677,7 @@ class TessarisEngine(ResonantReinforcementMixin):
             else:
                 print(f"[⚠️] Synthesis failed: {response.status_code}")
         except Exception as e:
+            sci_emit("tessaris_error", f"{str(e)[:200]}")
             print(f"[❌] Glyph synthesis error: {e}")
 
     def _generate_from_branch(self, branch: ThoughtBranch):
@@ -662,6 +688,7 @@ class TessarisEngine(ResonantReinforcementMixin):
             )
             print(f"[🧬] Re-generated glyphs: {generated}")
         except Exception as e:
+            sci_emit("tessaris_error", f"{str(e)[:200]}")
             print(f"[❌] Glyph generation error: {e}")
 
     def _maybe_create_goal(self, glyph: str, branch: ThoughtBranch):
@@ -710,6 +737,7 @@ class TessarisEngine(ResonantReinforcementMixin):
                 "action": action
             }
         except Exception as e:
+            sci_emit("tessaris_error", f"{str(e)[:200]}")
             print(f"[⚠️] Glyph parse failed: {e}")
             return None
 
@@ -746,6 +774,7 @@ class TessarisEngine(ResonantReinforcementMixin):
                 }
 
             if intent_type:
+                sci_emit("tessaris_action", f"Intent → {intent_type} | {payload}")
                 intent_data = {
                     "type": intent_type,
                     "data": payload,
@@ -776,6 +805,7 @@ class TessarisEngine(ResonantReinforcementMixin):
                         print(f"⚠️ ActionSwitch routing failed: {route_err}")
 
                 except Exception as e:
+                    sci_emit("tessaris_error", f"{str(e)[:200]}")
                     self.update_resonance_feedback(outcome_score=0.3, reason="Plan generation failure")
                     print(f"⚠️ Plan generation failed for intent: {e}")
 
@@ -790,30 +820,42 @@ class TessarisEngine(ResonantReinforcementMixin):
         Tries existing methods if present; otherwise returns a shallow echo result.
         """
         ctx = context or {}
+        sci_emit("tessaris_start", f"Instruction → {str(instruction_tree)[:240]}")
 
         # Prefer an existing concrete method if you already implemented one
         if hasattr(self, "execute") and callable(getattr(self, "execute")):
+            sci_emit("tessaris_parse", json.dumps({"tree": instruction_tree}, ensure_ascii=False))
             try:
-                return self.execute(instruction_tree, ctx)
+                result = self.execute(instruction_tree, ctx)
+                sci_emit("tessaris_output", json.dumps({"result": result}, ensure_ascii=False))
+                return result
             except Exception as e:
+                sci_emit("tessaris_error", f"{str(e)[:200]}")
                 return {"status": "error", "error": f"Tessaris.execute failed: {e}"}
 
         if hasattr(self, "run") and callable(getattr(self, "run")):
+            sci_emit("tessaris_parse", json.dumps({"tree": instruction_tree}, ensure_ascii=False))
             try:
-                return self.run(instruction_tree, ctx)
+                result = self.run(instruction_tree, ctx)
+                sci_emit("tessaris_output", json.dumps({"result": result}, ensure_ascii=False))
+                return result
             except Exception as e:
+                sci_emit("tessaris_error", f"{str(e)[:200]}")
                 return {"status": "error", "error": f"Tessaris.run failed: {e}"}
 
         # Fallback: shallow interpretation (structure-only echo)
         try:
-            return {
+            fallback = {
                 "status": "ok",
                 "result": {
                     "op": "interpret",
                     "summary": _summarize_tree(instruction_tree),
                 },
             }
+            sci_emit("tessaris_output", json.dumps({"result": fallback}, ensure_ascii=False))
+            return fallback
         except Exception as e:
+            sci_emit("tessaris_error", f"{str(e)[:200]}")
             return {"status": "error", "error": f"Tessaris fallback failed: {e}"}
 
     def clear(self):
@@ -836,12 +878,14 @@ class TessarisEngine(ResonantReinforcementMixin):
                 if suggestion:
                     mutated.append(suggestion)
             except Exception as e:
+                sci_emit("tessaris_error", f"{str(e)[:200]}")
                 print(f"⚠️ Lean tactic suggestion failed: {e}")
 
         try:
             axiom_mutations = mutate_axioms_for_glyph(glyph)
             mutated.extend(axiom_mutations)
         except Exception as e:
+            sci_emit("tessaris_error", f"{str(e)[:200]}")
             print(f"⚠️ Axiom mutation failed: {e}")
 
         return mutated

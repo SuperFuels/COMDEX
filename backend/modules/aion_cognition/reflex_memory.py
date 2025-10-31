@@ -18,6 +18,12 @@ from typing import Dict, Any, List, Optional
 
 from backend.modules.aion_language.resonant_memory_cache import ResonantMemoryCache
 
+# 🔁 SCI dual-trace hook (safe fallback in lite mode or missing module)
+try:
+    from backend.modules.aion_language.sci_overlay import sci_emit
+except Exception:
+    def sci_emit(*a, **k): pass
+
 logger = logging.getLogger(__name__)
 
 OUT = Path("data/telemetry/reflex_memory.jsonl")
@@ -63,6 +69,17 @@ class ReflexMemory:
             logger.info(f"[ReflexMemory] Recorded {action} Θ={decision.get('theta', 0):.3f}")
         except Exception as e:
             logger.warning(f"[ReflexMemory] Failed to write trace: {e}")
+
+        # ✅ SCI symbolic replay
+        try:
+            desc = (
+                f"Reflex memory recorded: {action}, "
+                f"sqi={outcome.get('sqi')}, ΔΦ={outcome.get('delta_phi')}, "
+                f"entropy={outcome.get('entropy')}"
+            )
+            sci_emit("reflex_memory", desc)
+        except Exception:
+            pass
 
         # Update resonance metrics
         try:

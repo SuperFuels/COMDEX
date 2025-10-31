@@ -5,6 +5,14 @@
 
 from typing import Any, Callable, Dict
 
+# ================================================================
+# 🔄 Auto-load Glyph Registry
+# ================================================================
+try:
+    from backend.modules.glyphos.glyph_registry_updater import update_glyph_registry
+    update_glyph_registry()
+except Exception as e:
+    print(f"⚠️ [GlyphOS] Glyph registry update skipped: {e}")
 
 class GlyphInstruction:
     def __init__(self, symbol: str, name: str, func: Callable, description: str = ""):

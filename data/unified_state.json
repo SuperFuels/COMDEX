@@ -1,0 +1,23 @@
+{
+  "timestamp": "2025-10-21T14:00:57.725723+00:00",
+  "reflection": "Coherence=0.70, Entropy=0.22, Flux=0.12, Load=0.11. Tone=stable.",
+  "tone": "stable",
+  "\u03a6_state": {
+    "\u03a6_coherence": 0.7,
+    "\u03a6_entropy": 0.21999999999999992,
+    "\u03a6_flux": 0.12000000000000002,
+    "\u03a6_load": 0.11000000000000001
+  },
+  "\u0394\u03a6": {
+    "\u03a6_coherence": 0.0,
+    "\u03a6_entropy": -0.004,
+    "\u03a6_flux": 0.001,
+    "\u03a6_load": 0.0005
+  },
+  "belief": {
+    "stability": 0.6,
+    "curiosity": 0.5,
+    "trust": 0.5,
+    "clarity": 0.5
+  }
+}

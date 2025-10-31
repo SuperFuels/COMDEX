@@ -32,7 +32,10 @@ from backend.modules.lean.lean_utils import (
     is_lean_container,
     is_lean_universal_container_system
 )
-
+try:
+    from backend.modules.aion_language.sci_overlay import sci_emit
+except:
+    def sci_emit(*a, **k): pass
 # ✅ DNA Switch
 from backend.modules.dna_chain.switchboard import DNA_SWITCH
 DNA_SWITCH.register(__file__)
@@ -392,6 +395,11 @@ class StateManager:
     def set_current_container(self, container: dict):
         self.current_container = container
         print(f"[STATE] Current container set to: {container.get('id', 'unknown')}")
+        # 🧠 SCI symbolic trace — container/mental state switch
+        try:
+            sci_emit("state_transition", f"State change → {container.get('id')}")
+        except Exception:
+            pass
 
         # ✅ Normalize container type
         ctype = "unknown"

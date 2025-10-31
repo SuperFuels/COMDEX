@@ -7,6 +7,7 @@ import React, { useEffect, useRef, useState } from "react";
 import Editor, { loader } from "@monaco-editor/react";
 import PhotonLensOverlay from "@/components/sci/PhotonLensOverlay";
 import SQIEnergyMeter from "@/components/sci/SQIEnergyMeter";
+import PhotonTranslatorPanel from "@/components/PhotonTranslatorPanel";
 
 // Dynamically load Monaco from CDN
 loader.config({
@@ -23,6 +24,7 @@ export default function SciEditorPanel({
   userId?: string;
 }) {
   const [code, setCode] = useState<string>("");
+  const [translated, setTranslated] = useState<string>("");
   const [status, setStatus] = useState<string>("");
   const [running, setRunning] = useState(false);
   const [result, setResult] = useState<any>(null);
@@ -30,38 +32,68 @@ export default function SciEditorPanel({
   const [highlightReady, setHighlightReady] = useState(false);
   const runBtnRef = useRef<HTMLButtonElement | null>(null);
 
-  // Load & persist code between sessions
+  // ========================================
+  // 🔁 Load & Persist Editor State
+  // ========================================
   useEffect(() => {
     const saved = localStorage.getItem("sci.editor.last");
     if (saved) setCode(saved);
   }, []);
+
   useEffect(() => {
     localStorage.setItem("sci.editor.last", code);
-    if (autoRun && highlightReady) runPhotonSource();
+    if (autoRun && highlightReady) runPhotonExecution("bridge");
+    if (code.trim()) translatePhotonLine(code);
   }, [code]);
 
   // ========================================
-  // ⚙️ Execute PhotonLang Source
+  // 🌊 Translation (Human → Glyph)
   // ========================================
-  async function runPhotonSource() {
-    if (!code.trim()) return;
-    setRunning(true);
-    setStatus("⏳ Executing PhotonLang…");
-
+  async function translatePhotonLine(line: string) {
     try {
-      const res = await fetch("/api/sci/run", {
+      const res = await fetch("/api/photon/translate_line", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code, container_id: containerId, user_id: userId }),
+        body: JSON.stringify({ line }),
+      });
+      const data = await res.json();
+      setTranslated(data.translated || "");
+    } catch (e) {
+      console.error("Translation failed:", e);
+    }
+  }
+
+  // ========================================
+  // ⚛ Execute Glyph Code via PhotonSymaticsBridge
+  // ========================================
+  async function runPhotonExecution(mode: "local" | "bridge" = "bridge") {
+    if (!translated.trim()) {
+      setStatus("⚠️ No translated glyph code available to execute.");
+      return;
+    }
+
+    setRunning(true);
+    setStatus("⚡ Executing via Photon–Symatics Bridge…");
+
+    try {
+      const res = await fetch("/api/photon/execute_raw", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ source: translated }),
       });
 
       const data = await res.json();
-      if (!data.ok) throw new Error(data.error || "Execution failed");
+      if (!data.ok) throw new Error(data.detail || data.error || "Execution failed");
 
-      setResult(data.result);
-      setStatus(`✅ Executed successfully → Scroll: ${data.label}`);
+      setResult(data.results);
+      setStatus(`✅ Executed ${data.count} line(s) through bridge`);
+
+      // 🌀 Fire visual overlay event
+      window.dispatchEvent(
+        new CustomEvent("photon:run", { detail: { source: translated } })
+      );
     } catch (e: any) {
-      setStatus(`❌ Error: ${e.message}`);
+      setStatus(`❌ Bridge Error: ${e.message}`);
     } finally {
       setRunning(false);
     }
@@ -111,7 +143,7 @@ export default function SciEditorPanel({
   }
 
   // ========================================
-  // 🧩 Component Layout
+  // 🧩 Layout
   // ========================================
   return (
     <div className="flex flex-col h-full bg-neutral-950 text-zinc-200">
@@ -129,7 +161,7 @@ export default function SciEditorPanel({
           </label>
           <button
             ref={runBtnRef}
-            onClick={runPhotonSource}
+            onClick={() => runPhotonExecution("bridge")} // ✅ clean TS handler
             disabled={running}
             className={`px-3 py-1 rounded border border-blue-500 text-sm transition ${
               running
@@ -137,60 +169,43 @@ export default function SciEditorPanel({
                 : "bg-blue-700 hover:bg-blue-600"
             }`}
           >
-            {running ? "Running…" : "▶ Run"}
+            {running ? "Running…" : "► Run"}
           </button>
         </div>
       </div>
-      
-      {/* Monaco Editor */}
-      <div className="flex-1">
-        <Editor
-          height="100%"
-          defaultLanguage="photonlang"
-          value={code}
-          onChange={(v) => setCode(v || "")}
-          beforeMount={definePhotonLang}
-          theme="photonTheme"
-          options={{
-            fontFamily: "JetBrains Mono, monospace",
-            fontSize: 13,
-            lineNumbers: "on",
-            minimap: { enabled: false },
-            smoothScrolling: true,
-            automaticLayout: true,
-            scrollBeyondLastLine: false,
-            contextmenu: true,
-            cursorBlinking: "smooth",
-          }}
-        />
-      </div>
-      <div className="flex flex-row flex-1 overflow-hidden">
-        {/* Left: Editor */}
-      <div className="flex-1">
-        <Editor
-          height="100%"
-          defaultLanguage="photonlang"
-          value={code}
-          onChange={(v) => setCode(v || "")}
-          beforeMount={definePhotonLang}
-          theme="photonTheme"
-          options={{
-            fontFamily: "JetBrains Mono, monospace",
-            fontSize: 13,
-            lineNumbers: "on",
-            minimap: { enabled: false },
-            smoothScrolling: true,
-            automaticLayout: true,
-            scrollBeyondLastLine: false,
-          }}
-        />
-      </div>
 
-        {/* Right: PhotonLens */}
+      {/* Editor + Overlay */}
+      <div className="flex flex-row flex-1 overflow-hidden">
+        <div className="flex-1">
+          <Editor
+            height="100%"
+            defaultLanguage="photonlang"
+            value={code}
+            onChange={(v) => setCode(v || "")}
+            beforeMount={definePhotonLang}
+            theme="photonTheme"
+            options={{
+              fontFamily: "JetBrains Mono, monospace",
+              fontSize: 13,
+              lineNumbers: "on",
+              minimap: { enabled: false },
+              smoothScrolling: true,
+              automaticLayout: true,
+              scrollBeyondLastLine: false,
+            }}
+          />
+        </div>
+
+        {/* Right: PhotonLens Visualization */}
         <PhotonLensOverlay containerId={containerId} />
       </div>
 
-      {/* Status + Results */}
+      {/* Translator Panel */}
+      <div className="border-t border-neutral-800 bg-neutral-900/60 p-2">
+        <PhotonTranslatorPanel input={code} translation={translated} />
+      </div>
+
+      {/* Status */}
       {status && (
         <div
           className={`px-4 py-2 text-xs border-t ${
@@ -205,18 +220,15 @@ export default function SciEditorPanel({
         </div>
       )}
 
+      {/* Results */}
       {result && (
         <pre className="p-3 text-xs bg-neutral-900 border-t border-neutral-800 overflow-x-auto text-zinc-300">
           {JSON.stringify(result, null, 2)}
         </pre>
       )}
-      <div className="flex flex-col h-full bg-neutral-950 text-zinc-200">
-        {/* ... existing header + editor + PhotonLens ... */}
 
-        {/* Footer: Live SQI Meter */}
-        <SQIEnergyMeter containerId={containerId} />
-      </div>
+      {/* SQI Meter */}
+      <SQIEnergyMeter containerId={containerId} />
     </div>
-    
   );
 }

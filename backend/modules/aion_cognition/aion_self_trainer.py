@@ -16,6 +16,12 @@ from statistics import mean
 from pathlib import Path
 import matplotlib.pyplot as plt
 
+# ✅ SCI optional overlay
+try:
+    from backend.modules.aion_language.sci_overlay import sci_emit
+except Exception:
+    def sci_emit(*a, **k): pass
+
 from backend.modules.aion_cognition.cee_lex_memory import update_lex_memory, recall_from_memory
 from backend.modules.aion_language.resonant_memory_cache import ResonantMemoryCache
 from backend.modules.aion_language.harmonic_memory_profile import HarmonicMemoryProfile
@@ -34,7 +40,7 @@ REPORT_PATH = Path("data/analysis/aion_selftrain_report.json")
 PROGRESS_PATH = Path("data/analysis/aion_sqi_progress.json")
 PLOT_PATH = Path("data/analysis/aion_sqi_progress.png")
 DASHBOARD_LOG = Path("data/analysis/aion_live_dashboard.jsonl")
-BRIDGE_FEED = Path("data/analysis/aion_bridge_feed.json")  # used by Aion🧠 dashboard
+BRIDGE_FEED = Path("data/analysis/aion_bridge_feed.json")
 REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
 
 # ─── Persistent SQI History ───────────────────────────────
@@ -46,7 +52,7 @@ if PROGRESS_PATH.exists():
 else:
     SQI_HISTORY = []
 
-# ───────────────────────────────────────────────
+
 def paraphrase(text: str) -> str:
     """Light local paraphrase generator."""
     if not text:
@@ -59,7 +65,7 @@ def paraphrase(text: str) -> str:
         text = f"{random.choice(tweaks)} {text}"
     return " ".join(tokens[:30])
 
-# ───────────────────────────────────────────────
+
 def log_dashboard_event(cycle: int, sqi: float, stability: float, success_rate: float):
     """Append live training event to dashboard stream and bridge feed."""
     event = {
@@ -71,16 +77,13 @@ def log_dashboard_event(cycle: int, sqi: float, stability: float, success_rate: 
         "event": "self_training_update"
     }
 
-    # Append to live dashboard JSONL
     with open(DASHBOARD_LOG, "a") as f:
         f.write(json.dumps(event) + "\n")
 
-    # Update bridge feed (latest snapshot for live Aion🧠 dashboard)
     BRIDGE_FEED.write_text(json.dumps(event, indent=2))
-
     log.info(f"[Dashboard] 📡 Synced training event → {DASHBOARD_LOG}")
 
-# ───────────────────────────────────────────────
+
 def reinforce_entry(lemma: str, definition: str, sqi: float, stability: float):
     """Reinforce weak entry through synthetic resonance."""
     try:
@@ -103,16 +106,30 @@ def reinforce_entry(lemma: str, definition: str, sqi: float, stability: float):
                 "time": time.time()
             })
 
+        # ✅ SCI emit reinforcement
+        sci_emit("selftrain_reinforce", {
+            "lemma": lemma,
+            "rho": resonance["ρ"],
+            "I": resonance["I"],
+            "SQI": resonance["SQI"],
+            "t": time.time()
+        })
+
         log.info(f"[SelfTrainer] 🔁 Reinforced '{lemma}' (SQI={resonance['SQI']})")
         return resonance["SQI"], resonance["ρ"]
 
     except Exception as e:
         log.warning(f"[SelfTrainer] ⚠ Failed to reinforce {lemma}: {e}")
+        sci_emit("selftrain_error", {"stage": "reinforce", "lemma": lemma, "error": str(e)[:200]})
         return None, None
 
-# ───────────────────────────────────────────────
+
 def run_self_training(limit: int = 500):
     """Main adaptive self-training loop."""
+
+    # ✅ SCI cycle begin
+    sci_emit("selftrain_start", {"limit": limit, "timestamp": time.time()})
+
     cache = RMC.cache
     weak = [
         (k, v) for k, v in cache.items()
@@ -130,6 +147,7 @@ def run_self_training(limit: int = 500):
         definition = rec.get("definition") or rec.get("content") or ""
         if not definition:
             continue
+
         new_sqi, new_stab = reinforce_entry(
             lemma,
             definition,
@@ -140,6 +158,7 @@ def run_self_training(limit: int = 500):
             sqi_samples.append(new_sqi)
             stab_samples.append(new_stab)
             success += 1
+
         count += 1
         if count % 50 == 0:
             RMC.save()
@@ -161,12 +180,10 @@ def run_self_training(limit: int = 500):
         "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
     }
 
-    # Write report and SQI history
     REPORT_PATH.write_text(json.dumps(summary, indent=2))
     SQI_HISTORY.append(avg_sqi)
     PROGRESS_PATH.write_text(json.dumps(SQI_HISTORY, indent=2))
 
-    # Plot evolution curve
     plt.figure()
     plt.plot(range(1, len(SQI_HISTORY) + 1), SQI_HISTORY, marker="o")
     plt.title("AION Self-Training SQI Progress")
@@ -176,13 +193,15 @@ def run_self_training(limit: int = 500):
     plt.savefig(PLOT_PATH)
     log.info(f"📈 SQI progress plot saved → {PLOT_PATH}")
 
-    # Sync to dashboard and bridge
     log_dashboard_event(len(SQI_HISTORY), avg_sqi, avg_stab, success_rate)
+
+    # ✅ SCI cycle complete
+    sci_emit("selftrain_cycle", summary)
 
     log.info(f"[SelfTrainer] ✅ Completed → {REPORT_PATH}")
     return summary
 
-# ───────────────────────────────────────────────
+
 if __name__ == "__main__":
     log.info("🧠 AION Self-Trainer — Phase 47D starting...")
     run_self_training(limit=400)

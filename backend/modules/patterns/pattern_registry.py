@@ -205,3 +205,7 @@ class PatternMatcher:
 
 # ✅ Singleton instance export (used by test files and CodexLang)
 registry = PatternRegistry()
+
+# canonical alias for consistency
+pattern_registry = registry
+__all__ = ["pattern_registry", "registry", "Pattern", "PatternRegistry"]

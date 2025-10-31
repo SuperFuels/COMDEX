@@ -4,12 +4,9 @@
 Ingests LexMemory, patternfield, and motivfield data to bias reasoning
 depth, exploration, and tone dynamically during cognitive cycles.
 
-Inputs :
-    - data/memory/lex_memory.json
-    - data/telemetry/patternfield.qdata.json
-    - data/telemetry/motivfield.qdata.json
-Outputs:
-    - data/telemetry/reasonfield.qdata.json
+Now includes SCI photon telemetry emissions:
+- reasonfield_bias
+- reasonfield_export
 """
 
 import json, time, math, logging, statistics
@@ -17,6 +14,12 @@ from pathlib import Path
 from typing import Dict, Any
 
 logger = logging.getLogger(__name__)
+
+# ✅ SCI overlay — optional, silent fallback
+try:
+    from backend.modules.aion_language.sci_overlay import sci_emit
+except Exception:
+    def sci_emit(*a, **k): pass
 
 #───────────────────────────────────────────────
 # 📂 Paths
@@ -55,6 +58,7 @@ def compute_reasoning_bias(
     Combine symbolic (LexMemory), affective (Motivator), and structural (PatternEngine)
     fields to derive reasoning bias tensors.
     """
+
     # --- Motivator fields ---
     tone_amp = _extract_numeric(motiv_data.get("tone", 0.0))
     depth    = _extract_numeric(motiv_data.get("bias", {}).get("depth", 1.0))
@@ -96,6 +100,13 @@ def compute_reasoning_bias(
     logger.info(
         f"[ResonantReasoner] SQĪ={mean_SQI}, coherence={coherence}, lex_count={len(lex_data)}"
     )
+
+    # ✅ SCI emit reasoning bias state capsule
+    try:
+        sci_emit("reasonfield_bias", json.dumps(field, ensure_ascii=False))
+    except Exception:
+        pass
+
     return field
 
 
@@ -121,6 +132,16 @@ def reasoner_cycle() -> Dict[str, Any]:
         json.dump(reasonfield, f, indent=2)
 
     logger.info(f"[ResonantReasoner] Exported reasonfield → {REASONFIELD}")
+
+    # ✅ SCI emit export event
+    try:
+        sci_emit("reasonfield_export", json.dumps({
+            "path": str(REASONFIELD),
+            "reasonfield": reasonfield
+        }, ensure_ascii=False))
+    except Exception:
+        pass
+
     return reasonfield
 
 

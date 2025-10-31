@@ -13,7 +13,6 @@ from backend.symatics.operators.project import project_op
 from backend.symatics.operators.cancel import cancel_op
 from backend.symatics.operators.collapse import collapse_op
 
-
 # ---------------------------------------------------------------------------
 # Helper: normalize output into Signature
 # ---------------------------------------------------------------------------
@@ -197,6 +196,10 @@ OPS: Dict[str, Operator] = {
     "¬": Operator("¬", 1, lambda a, ctx=None, **kw: ("¬", a)),
 }
 
+from .collapse_wave import collapse_wave
+
+# after OPS = {...}
+OPS["∇"] = collapse_wave
 
 # ---------------------------------------------------------------------------
 # Legacy COMDEX compatibility (for test_operator_registry.py)

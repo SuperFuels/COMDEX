@@ -11,6 +11,7 @@ QFC (Quantum Field Computation) payloads from container data.
 import argparse
 import json
 import logging
+from collections import deque, defaultdict
 from typing import Any, Dict, Optional
 
 from backend.modules.qfield.qfc_utils import build_qfc_view
@@ -22,10 +23,28 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 
+# ============================================================
+# 🔄 Live Pulse Smoothing Buffers
+# ============================================================
 
-# ──────────────────────────────────────────────
+_QFC_SMOOTH = defaultdict(lambda: {
+    "sqi": deque(maxlen=5),
+    "coherence": deque(maxlen=5),
+})
+
+def _smooth(value, buf, default=1.0):
+    if value is None:
+        value = default
+    try:
+        value = float(value)
+    except Exception:
+        value = default
+    buf.append(value)
+    return sum(buf) / len(buf)
+
+# ============================================================
 #  Core Bridge Class
-# ──────────────────────────────────────────────
+# ============================================================
 class QFCBridge:
     """Runtime-accessible bridge for QFC view generation and broadcast."""
 
@@ -35,13 +54,24 @@ class QFCBridge:
         logger.info("[QFCBridge] Initialized quantum field bridge.")
 
     def generate_view(self, container: Dict[str, Any], mode: str = "test") -> Dict[str, Any]:
-        """Generate a QFC payload view for a container."""
+        """Generate a QFC payload view for a container + smooth SQI/Coherence."""
         try:
             payload = build_qfc_view(container, mode=mode)
             self.last_payload = payload
             self.last_mode = mode
+
+            cid = container.get("id") or "global"
+            bufs = _QFC_SMOOTH[cid]
+
+            sqi = payload.get("sqi")
+            coh = payload.get("coherence") or payload.get("coh")
+
+            payload["sqi_smoothed"] = _smooth(sqi, bufs["sqi"])
+            payload["coherence_smoothed"] = _smooth(coh, bufs["coherence"])
+
             logger.debug(f"[QFCBridge] Generated QFC payload in mode={mode}.")
             return payload
+
         except Exception as e:
             logger.error(f"[QFCBridge] Failed to generate QFC view: {e}")
             raise
@@ -73,10 +103,9 @@ class QFCBridge:
             logger.error(f"[QFCBridge] Failed to save QFC view: {e}")
             raise
 
-
-# ──────────────────────────────────────────────
+# ============================================================
 #  CLI Entrypoint (Preserved)
-# ──────────────────────────────────────────────
+# ============================================================
 def main():
     parser = argparse.ArgumentParser(description="🧪 Preview or broadcast QFC structure for a .dc.json container.")
     parser.add_argument("cid", help="Container ID or path to .dc.json file")

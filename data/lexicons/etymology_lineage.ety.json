@@ -1,0 +1,27 @@
+{
+  "timestamp": 1761324582.6269603,
+  "lineage": {
+    "photon": {
+      "root": "ph\u014ds",
+      "origin": "Greek \u03c6\u1ff6\u03c2 (light)",
+      "depth": 1,
+      "resonance": 0.6823
+    },
+    "wave": {
+      "root": "wafian",
+      "origin": "Old English wafian (to move)",
+      "depth": 2,
+      "resonance": 0.4513
+    },
+    "light": {
+      "root": "leuk",
+      "origin": "Proto-Indo-European *leuk- (bright)",
+      "depth": 3,
+      "resonance": 0.2202
+    }
+  },
+  "meta": {
+    "schema": "etym.v1",
+    "ready_for_resonance": true
+  }
+}

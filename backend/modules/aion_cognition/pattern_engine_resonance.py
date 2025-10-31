@@ -14,8 +14,15 @@ from pathlib import Path
 from typing import Dict, Any
 from backend.modules.patterns.symbolic_pattern_engine import SymbolicPatternEngine
 
+# ✅ SCI emit safe overlay
+try:
+    from backend.modules.aion_language.sci_overlay import sci_emit
+except Exception:
+    def sci_emit(*a, **k): pass
+
 logger = logging.getLogger(__name__)
 OUT_PATH = Path("data/telemetry/patternfield.qdata.json")
+
 
 #───────────────────────────────────────────────
 # Core cycle
@@ -25,6 +32,18 @@ def pattern_cycle(aion_state: Dict[str, Any], qqc_result: Dict[str, Any]) -> Dic
     Applies QQC resonance metrics to Aion pattern engine.
     Returns patternfield summary.
     """
+
+    # ✅ SCI — cycle begin
+    try:
+        sci_emit("pattern_cycle_start", {
+            "coherence": qqc_result.get("coherence"),
+            "entanglement": qqc_result.get("entanglement"),
+            "drift": qqc_result.get("drift"),
+            "timestamp": time.time()
+        })
+    except Exception:
+        pass
+
     engine = SymbolicPatternEngine()
     coherence = qqc_result.get("coherence", 0.0)
     entanglement = qqc_result.get("entanglement", 0.0)
@@ -49,11 +68,29 @@ def pattern_cycle(aion_state: Dict[str, Any], qqc_result: Dict[str, Any]) -> Dic
             pattern_summary.append(
                 {"pattern_id": pattern.pattern_id, "name": pattern.name, "sqi": pattern.sqi_score}
             )
+
+            # ✅ SCI per pattern update
+            try:
+                sci_emit("pattern_update", {
+                    "pattern_id": pattern.pattern_id,
+                    "name": pattern.name,
+                    "new_sqi": pattern.sqi_score,
+                    "coherence": coherence,
+                    "entanglement": entanglement
+                })
+            except Exception:
+                pass
+
         # Save updated pattern registry state
         engine.registry.save()
         logger.info(f"[PatternEngine] Computed {len(pattern_summary)} resonance-matched weights")
+
     except Exception as e:
         logger.warning(f"[PatternEngine] Resonance update failed: {e}")
+        try:
+            sci_emit("pattern_error", {"error": str(e)[:200]})
+        except Exception:
+            pass
 
     # Export patternfield data
     field_data = {
@@ -70,6 +107,12 @@ def pattern_cycle(aion_state: Dict[str, Any], qqc_result: Dict[str, Any]) -> Dic
     OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     json.dump(field_data, open(OUT_PATH, "w"), indent=2)
     logger.info(f"[PatternEngine] Exported pattern field → {OUT_PATH}")
+
+    # ✅ SCI — pattern field export
+    try:
+        sci_emit("pattern_export", field_data)
+    except Exception:
+        pass
 
     return field_data
 

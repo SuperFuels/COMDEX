@@ -284,6 +284,26 @@ class ResonantMemoryCache:
             entry["last_seen"] = now
             self.cache[cid] = entry
 
+            # === ✅ Semantic resonance overlay ===
+            sem = p.get("semantics", {})
+            if isinstance(sem, dict):
+                rho = sem.get("rho")
+                I = sem.get("I")
+                sqi = sem.get("SQI")
+
+                if rho is not None:
+                    entry["rho"] = round(float(rho), 4)
+                if I is not None:
+                    entry["intensity"] = round(float(I), 4)
+                if sqi is not None:
+                    entry["SQI"] = round(float(sqi), 4)
+
+                # Inject into resonance link map if atom→atom
+                lemma = p.get("lemma") or cid
+                glyph = p.get("glyph") or cid
+                if glyph != lemma and sqi is not None:
+                    self.update_resonance_link(lemma, glyph, sqi, save=False)
+
         self.save()
         if not QUIET:
             log.info(f"[RMC] Updated cache with {len(photons)} photon entries.")

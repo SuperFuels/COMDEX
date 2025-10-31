@@ -5,11 +5,23 @@ Tessaris Phase 18 — Symbolic Forecasting & Resonant Anticipation Engine (SFAE)
 Reads symbolic memories (ASM) and recent resonance weights (RFC/RQFS),
 forecasts the next likely glyph transition, and emits a predictive photon control
 vector.  Completes Tessaris' cognitive feedback loop from perception → prediction → action.
+
+Now includes SCI emission hooks:
+- sci_emit("forecast_cycle_start")
+- sci_emit("forecast_predict")
+- sci_emit("forecast_photo")
+- sci_emit("forecast_accuracy")
 """
 
 import json, math, time, random
 from datetime import datetime, timezone
 from pathlib import Path
+
+# ✅ SCI overlay (safe fallback)
+try:
+    from backend.modules.aion_language.sci_overlay import sci_emit
+except Exception:
+    def sci_emit(*a, **k): pass
 
 # ── Paths ───────────────────────────────────────────────────────────────────────
 ASM_PATH = Path("data/cognition/asm_memory.jsonl")
@@ -23,7 +35,6 @@ for p in [FORECAST_STREAM, FORECAST_METRICS, PHOTO_OUT]:
 # ── Parameters ──────────────────────────────────────────────────────────────────
 WINDOW = 50
 SLEEP_INTERVAL = 5.0
-
 
 # ── Utilities ───────────────────────────────────────────────────────────────────
 def load_recent_memory(limit=WINDOW):
@@ -40,7 +51,6 @@ def load_recent_memory(limit=WINDOW):
             continue
     return mem
 
-
 def load_latest_weights():
     """Load last RFC weight state."""
     if not RFC_WEIGHTS.exists():
@@ -51,7 +61,6 @@ def load_latest_weights():
         return json.loads(lines[-1])
     except Exception:
         return {"nu_bias": 0.0, "phase_offset": 0.0, "amp_gain": 1.0}
-
 
 # ── Forecast Core ───────────────────────────────────────────────────────────────
 def extract_temporal_signature(mem):
@@ -64,11 +73,8 @@ def extract_temporal_signature(mem):
         return 5.0
     return sum(deltas) / len(deltas)
 
-
 def forecast_next_symbol(mem, weights):
     """Predict next glyph using simple weighted symbolic recurrence."""
-    if not mem:
-        return {"glyph": "⊕", "confidence": 0.5, "period": 5.0}
 
     last = mem[-1]
     seq = last.get("sequence", "")
@@ -86,8 +92,22 @@ def forecast_next_symbol(mem, weights):
     period = extract_temporal_signature(mem)
     bias = weights.get("nu_bias", 0.0)
     conf = max(0.5, min(1.0, base_conf - abs(bias) * 0.05))
-    return {"glyph": next_glyph, "confidence": conf, "period": period}
 
+    pred = {"glyph": next_glyph, "confidence": conf, "period": period}
+
+    # ✅ sci emit forecast prediction
+    try:
+        sci_emit("forecast_predict", {
+            "last_glyph": recent,
+            "next_glyph": next_glyph,
+            "confidence": conf,
+            "period": period,
+            "bias": bias
+        })
+    except Exception:
+        pass
+
+    return pred
 
 def emit_forecast_photo(pred, weights):
     """Emit a forecast .photo vector for anticipatory resonance correction."""
@@ -110,11 +130,16 @@ def emit_forecast_photo(pred, weights):
         json.dump(data, f)
     print(f"💡 Emitted forecast photon → {fname.name} (glyph={pred['glyph']} conf={pred['confidence']:.2f})")
 
+    # ✅ sci emit photon emission
+    try:
+        sci_emit("forecast_photo", data)
+    except Exception:
+        pass
+
     # Log to forecast stream
     with open(FORECAST_STREAM, "a") as f:
         f.write(json.dumps(data) + "\n")
     return data
-
 
 def update_metrics(pred, actual_glyph):
     """Store prediction accuracy entry."""
@@ -130,6 +155,11 @@ def update_metrics(pred, actual_glyph):
         f.write(json.dumps(entry) + "\n")
     print(f"📈 Forecast accuracy={correct:.2f}")
 
+    # ✅ sci emit accuracy metric
+    try:
+        sci_emit("forecast_accuracy", entry)
+    except Exception:
+        pass
 
 # ── Runtime Loop ────────────────────────────────────────────────────────────────
 def run_forecasting_engine():
@@ -139,6 +169,16 @@ def run_forecasting_engine():
     while True:
         mem = load_recent_memory()
         weights = load_latest_weights()
+
+        # ✅ SCI emit cycle start
+        try:
+            sci_emit("forecast_cycle_start", {
+                "mem_count": len(mem),
+                "weights": weights,
+                "time": time.time()
+            })
+        except Exception:
+            pass
 
         if not mem:
             print("⚠️ Waiting for symbolic memory entries…")
@@ -156,10 +196,8 @@ def run_forecasting_engine():
 
         time.sleep(pred["period"])
 
-
 def main():
     run_forecasting_engine()
-
 
 if __name__ == "__main__":
     main()

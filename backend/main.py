@@ -16,6 +16,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from starlette.responses import RedirectResponse
 from sqlalchemy.exc import OperationalError
+from backend.AION.trace_bus import trace_emit, subscribe
+from backend.replay.reducer import ReplayReducer
 from sqlalchemy import text
 import uvicorn
 # ── Boot imports
@@ -74,6 +76,19 @@ app = FastAPI(
 )
 app.router.redirect_slashes = False
 
+# 🧠 Attach AION Trace Bus subscriber → Replay Reducer
+def on_trace_event(event: dict):
+    """
+    Called whenever a cognition event is emitted.
+    Used to feed ReplayReducer or live HUD updates.
+    """
+    try:
+        ReplayReducer.journal_event(event)
+    except Exception as e:
+        print(f"[TraceBus] ⚠️ Replay journal failed: {e}")
+
+subscribe(on_trace_event)
+print("✅ AION Trace Bus attached to ReplayReducer")
 # ── Manually re-enable OpenAPI + ReDoc routes
 from fastapi.openapi.docs import get_redoc_html
 from fastapi.openapi.utils import get_openapi
@@ -341,6 +356,14 @@ from backend.api import api_sci_commit_atom
 from backend.api import api_sci_commit_atom as sci_commit_atom
 from backend.api.sci_export_lean_atoms import router as sci_export_lean_atoms_router
 from backend.api.api_sci_sync_proof_links import router as sci_sync_router
+from backend.api import photon_api
+from backend.api import photon_reverse_router
+from backend.api.trace import router as trace_router
+from backend.routes.atom_save import router as atom_save_router
+from backend.api import replay
+from backend.routes.replay_apply import router as replay_apply_router
+from backend.routes.replay_ws import router as replay_ws_router
+from backend.routes.replay_log import router as replay_log_router
 
 # ===== Atomsheet / LightCone / QFC wiring =====
 from backend.routes.dev import glyphwave_test_router        # dev-only routes (mounted elsewhere in your file)  # noqa: F401
@@ -538,7 +561,14 @@ app.include_router(api_sci_commit_atom.router)
 app.include_router(sci_commit_atom.router)
 app.include_router(sci_export_lean_atoms_router)
 app.include_router(sci_sync_router)
-
+app.include_router(photon_api.router)
+app.include_router(photon_reverse_router)
+app.include_router(trace_router)
+app.include_router(atom_save_router)
+app.include_router(replay.router, prefix="/api")
+app.include_router(replay_apply_router)
+app.include_router(replay_ws_router)
+app.include_router(replay_log_router)
 seed_builtin_patterns()
 install_deprecation_hook()
 

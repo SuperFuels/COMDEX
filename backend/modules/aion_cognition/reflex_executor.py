@@ -7,6 +7,7 @@
 #   • Measures SQI / ΔΦ / entropy drift post-action.
 #   • Sends results to ReflexMemory + TessarisReasoner.
 #   • Emits Θ-pulse feedback via ResonanceHeartbeat.
+#   • (Now) Emits SCI photon capsules for reflex cognition trace
 # ============================================================
 
 import json, time, random, logging
@@ -18,6 +19,12 @@ from backend.modules.aion_language.resonant_memory_cache import ResonantMemoryCa
 from backend.modules.aion_resonance.resonance_heartbeat import ResonanceHeartbeat
 from backend.modules.aion_reasoning.tessaris_reasoner import TessarisReasoner
 from backend.modules.aion_cognition.reflex_memory import ReflexMemory
+
+# ✅ SCI hook — safe fallback if overlay unavailable or in lite mode
+try:
+    from backend.modules.aion_language.sci_overlay import sci_emit
+except Exception:
+    def sci_emit(*a, **k): pass
 
 log = logging.getLogger(__name__)
 
@@ -62,9 +69,25 @@ class ReflexExecutor:
         self.rmc.push_sample(sqi=sqi, delta=delta_phi, entropy=entropy, source="reflex_executor")
         self.rmc.save()
 
+        # ✅ SCI symbolic trace: reflex event
+        try:
+            msg = (
+                f"Reflex executed: {action} | "
+                f"sqi={sqi}, ΔΦ={delta_phi}, entropy={entropy}"
+            )
+            sci_emit("reflex_executor", msg)
+        except Exception:
+            pass
+
         # — Emit Θ feedback + Reasoner update
         self.heartbeat.tick()
         self.reasoner.feedback_from_reflex(result)
+
+        # ✅ SCI symbolic trace: resonance heartbeat tick
+        try:
+            sci_emit("reflex_theta_tick", f"Θ pulse after reflex: {action}")
+        except Exception:
+            pass
 
         # — Log trace
         with open(self.log_path, "a", encoding="utf-8") as f:

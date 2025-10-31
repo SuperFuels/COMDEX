@@ -21,6 +21,12 @@ import websockets
 from datetime import datetime, timezone
 from pathlib import Path
 
+# ✅ SCI overlay for symbolic cognition trace (safe fallback)
+try:
+    from backend.modules.aion_language.sci_overlay import sci_emit
+except Exception:
+    def sci_emit(*a, **k): pass
+
 # ─────────────────────────────────────────────
 # Configuration
 # ─────────────────────────────────────────────
@@ -98,6 +104,18 @@ async def heartbeat_broadcast():
                 "timestamp": datetime.now(timezone.utc).isoformat(),
             }
             await asyncio.gather(*(c.send(json.dumps(heartbeat_packet)) for c in list(CLIENTS)))
+
+            # ✅ send symbolic cognition event for heartbeat coherence trace
+            try:
+                sci_emit(
+                    "fusion_heartbeat",
+                    f"Φ={fusion_state['fusion_coherence']:.3f}, "
+                    f"S={fusion_state['stability']:.3f}, "
+                    f"H={fusion_state['entropy']:.3f}"
+                )
+            except Exception:
+                pass
+
         await asyncio.sleep(5.0)
 
 
@@ -171,6 +189,16 @@ async def fusion_loop():
             "delta_coherence": delta,
             "timestamp": datetime.now(timezone.utc).isoformat()
         })
+
+        # ✅ symbolic cognition event for fusion update
+        try:
+            sci_emit(
+                "fusion_update",
+                f"Fusion coherence={coherence:.3f}, Δ={delta:+.4f}, "
+                f"S={stability:.3f}, H={entropy:.3f}, Csig={cognition_signal:.3f}"
+            )
+        except Exception:
+            pass
 
         # Log
         with open(FUSION_LOG, "a") as f:

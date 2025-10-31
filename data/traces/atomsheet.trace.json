@@ -1,0 +1,78 @@
+[
+  {
+    "timestamp": "2025-09-18T15:38:07.196540Z",
+    "message": "[Load] id=sheet_atoms_test cells=2 dims=[1, 1, 1, 1]"
+  },
+  {
+    "timestamp": "2025-09-18T15:38:07.338227Z",
+    "message": "[Execute] id=sheet_atoms_test cells=2 result_keys=['c1', 'c2']"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.819820Z",
+    "message": "[Schema] sqs.schema.json not found \u2014 skipping validation"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:38.820116Z",
+    "message": "[Load] id=sheet_atoms_test cells=2 dims=[1, 1, 1, 1]"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:39.006448Z",
+    "message": "[Execute] sheet=sheet_atoms_test cells=2"
+  },
+  {
+    "timestamp": "2025-09-18T15:42:39.006794Z",
+    "message": "[Export] id=sheet_atoms_test cells=2"
+  },
+  {
+    "timestamp": "2025-09-18T20:22:43.476758Z",
+    "message": "[Load] id=parent_sheet ext=.atom (or legacy) cells=1 dims=[1, 1, 1, 1]"
+  },
+  {
+    "timestamp": "2025-09-18T20:22:43.481562Z",
+    "message": "[Load] id=parent_sheet ext=.atom (or legacy) cells=1 dims=[1, 1, 1, 1]"
+  },
+  {
+    "timestamp": "2025-09-18T20:22:43.687159Z",
+    "message": "[Load] id=child_sheet ext=.atom (or legacy) cells=1 dims=[1, 1, 1, 1]"
+  },
+  {
+    "timestamp": "2025-09-18T20:22:43.860349Z",
+    "message": "[Execute] sheet=child_sheet cells=1"
+  },
+  {
+    "timestamp": "2025-09-18T20:22:43.860652Z",
+    "message": "[Execute] sheet=parent_sheet cells=1"
+  },
+  {
+    "timestamp": "2025-09-18T20:22:43.862881Z",
+    "message": "[Load] id=parent_sheet ext=.atom (or legacy) cells=1 dims=[1, 1, 1, 1]"
+  },
+  {
+    "timestamp": "2025-09-18T20:22:43.891125Z",
+    "message": "[Load] id=child_sheet ext=.atom (or legacy) cells=1 dims=[1, 1, 1, 1]"
+  },
+  {
+    "timestamp": "2025-09-18T20:22:43.940617Z",
+    "message": "[Execute] sheet=child_sheet cells=1"
+  },
+  {
+    "timestamp": "2025-09-18T20:22:43.940927Z",
+    "message": "[Execute] sheet=parent_sheet cells=1"
+  },
+  {
+    "timestamp": "2025-10-18T11:24:01.776311Z",
+    "message": "[Execute] sheet=test_sheet_001 cells=2"
+  },
+  {
+    "timestamp": "2025-10-18T11:24:01.776876Z",
+    "message": "[Export] id=test_sheet_001 cells=2"
+  },
+  {
+    "timestamp": "2025-10-18T11:30:54.401939Z",
+    "message": "[Execute] sheet=test_sheet_001 cells=2"
+  },
+  {
+    "timestamp": "2025-10-18T11:30:54.402427Z",
+    "message": "[Export] id=test_sheet_001 cells=2"
+  }
+]
