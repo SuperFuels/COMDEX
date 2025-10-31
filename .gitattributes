@@ -25,3 +25,7 @@ node_modules/@next/swc-darwin-arm64/next-swc.darwin-arm64.node filter=lfs diff=l
 # Ignore whitespace changes in diffs for these
 *.py diff=python
 *.js diff=javascript
+
+*.photon filter=photon
+
+photon_src/*.py filter=photonlangphoton_src/*.py filter=photonlang

@@ -3,11 +3,79 @@
     "source": "memory",
     "raw_input": "\"Movement registered. Coherence steady, curiosity intact. (tone: curious) [Agent explored grid...]\"",
     "glyphs": [
-      "\u2726"
+      "✦"
     ],
     "inferred_grammar": [],
     "grammar_summary": [],
     "hash": "3191b52693ec28b46f8276b6de7f2f42b7edb5c63042afd9df27540f8caa0721",
     "timestamp": "2025-10-21T13:20:32.858684"
+  },
+  "90e5e70778e3182ee1caed2e61e21009eb3088ecad29b63151e394a3a5755fe2": {
+    "source": "gpt",
+    "raw_input": "Mephitinae: 'subdivision not used in some classifications: skunks'",
+    "glyphs": [
+      "✹"
+    ],
+    "inferred_grammar": [],
+    "grammar_summary": [],
+    "hash": "90e5e70778e3182ee1caed2e61e21009eb3088ecad29b63151e394a3a5755fe2",
+    "timestamp": "2025-10-31T18:47:30.107065",
+    "semantics": {
+      "rho": 0.885,
+      "I": 0.317,
+      "SQI": 0.53
+    },
+    "registry_reason": "created"
+  },
+  "bf0e823c81b87c5de79676155debf20a29b52d6d7eb7e77deda73a56d0afbaaa": {
+    "source": "gpt",
+    "raw_input": "go down: be recorded or remembered",
+    "glyphs": [
+      "❊"
+    ],
+    "inferred_grammar": [],
+    "grammar_summary": [],
+    "hash": "bf0e823c81b87c5de79676155debf20a29b52d6d7eb7e77deda73a56d0afbaaa",
+    "timestamp": "2025-10-31T18:47:39.828733",
+    "semantics": {
+      "rho": 0.862,
+      "I": 0.542,
+      "SQI": 0.683
+    },
+    "registry_reason": "created"
+  },
+  "70476a8cd1cefe54b026e385bae23c8c3af288c7dda57448bf10b7a168f59f0e": {
+    "source": "gpt",
+    "raw_input": "avulsion: an abrupt change in the course of a stream that forms the boundary between two parcels",
+    "glyphs": [
+      "❆"
+    ],
+    "inferred_grammar": [],
+    "grammar_summary": [],
+    "hash": "70476a8cd1cefe54b026e385bae23c8c3af288c7dda57448bf10b7a168f59f0e",
+    "timestamp": "2025-10-31T18:47:48.753594",
+    "semantics": {
+      "rho": 0.416,
+      "I": 0.592,
+      "SQI": 0.496
+    },
+    "registry_reason": "created"
+  },
+  "c3dafe97536ac80c9176a8de7ff941aed2f56d03daca2e35ceae1d5c979925cd": {
+    "source": "gpt",
+    "raw_input": "trekker: a traveler who makes a long arduous journey (as hiking through mountainous country)",
+    "glyphs": [
+      "⧖"
+    ],
+    "inferred_grammar": [],
+    "grammar_summary": [],
+    "hash": "c3dafe97536ac80c9176a8de7ff941aed2f56d03daca2e35ceae1d5c979925cd",
+    "timestamp": "2025-10-31T18:49:26.740374",
+    "semantics": {
+      "rho": 0.609,
+      "I": 0.423,
+      "SQI": 0.508
+    },
+    "registry_reason": "created"
   }
 }

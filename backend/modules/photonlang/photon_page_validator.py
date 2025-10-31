@@ -71,3 +71,9 @@ def validate_page_entanglement(page: Dict[str, Any]) -> bool:
         raise ValueError("entropy_signature must be string")
 
     return True
+
+def validate_page(parsed):
+    if not parsed.blocks:
+        raise ValueError("Empty Photon Page")
+    # future: resonance adjacency, entanglement graph rules
+    return True

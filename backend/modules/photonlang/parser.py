@@ -1,12 +1,35 @@
+# backend/modules/photonlang/parser.py
 from __future__ import annotations
-import re
+import re, json
+from pathlib import Path
 from dataclasses import dataclass
 from typing import Any, List, Optional, Tuple
+
+# === Load operator runes from photon_reserved_map.json ===
+_PH_MAP = Path(__file__).parent / "photon_reserved_map.json"
+def _op_class() -> str:
+    try:
+        data = json.loads(_PH_MAP.read_text(encoding="utf-8"))
+        ops = data.get("ops", {})
+        runes = set()
+        for arr in ops.values():
+            for token in arr:
+                for ch in token:  # split "μπ" into μ, π
+                    runes.add(ch)
+        # IMPORTANT: do NOT include DEFAULT "✦" as an operator.
+        runes.discard("✦")
+        # Escape for regex character class
+        esc = "".join(re.escape(c) for c in sorted(runes))
+        return f"[{esc}]+"
+    except Exception:
+        # Fallback – keep small, safe set
+        return r"[⊕↔⟲μπ⇒∇⊗→⧖≈]+"
+
+GLYPHSEQ_RE = _op_class()
 
 # ============================================================
 # TOKENIZER
 # ============================================================
-
 TOK_SPEC = [
     ("NEWLINE",   r"\r?\n+"),
     ("WS",        r"[ \t]+"),
@@ -31,8 +54,8 @@ TOK_SPEC = [
     ("EQ",     r"="),
     ("COLON",  r":"),
 
-    # Photon symbolic operators — v0.2 extended (⧖ included)
-    ("GLYPHSEQ", r"[⊕↔⟲μπ⇒∇⊗✦→⧖≈]+"),
+    # Photon symbolic operators — built from JSON
+    ("GLYPHSEQ", GLYPHSEQ_RE),
 
     # Literals
     ("NUMBER", r"[0-9]+(?:\.[0-9]+)?"),

@@ -31,7 +31,15 @@ if not logger.handlers:
 
 # ──────────────────────────────
 # Early registration of v0.3 physical operators (⟲, μ)
+# Only attempt if the method actually exists.
 # ──────────────────────────────
+if getattr(registry_bridge, "add", None):
+    registry_bridge.add("symatics:⟲", _symatics_resonance, namespace="symatics")
+    registry_bridge.add("symatics:μ", _symatics_measure, namespace="symatics")
+    logger.info("[Symatics] Registered ⟲ (resonance) and μ (collapse) operators via .add")
+else:
+    logger.debug("[Symatics] RegistryBridge has no .add; skipping early registration.")
+
 def _symatics_resonance(a, b, context=None):
     """Resonance operator ⟲(a,b): applies resonance damping law."""
     SR.law_resonance_damping(a, b)
@@ -140,7 +148,17 @@ def evaluate_symatics_expr(expr: Any, context: Dict = None) -> Dict[str, Any]:
         # 🔍 v0.3 theorem verification + trace emission
         # ────────────────────────────────────────────────
         try:
-            law_check = SR.check_all_laws(op, *args, context=context)
+            # Seed context for unary/binary laws to avoid missing-arg errors
+            ctx = dict(context or {})
+            if len(args) > 0:
+                ctx.setdefault("a", args[0])
+            if len(args) > 1:
+                ctx.setdefault("b", args[1])
+
+            # Ensure at least one positional is passed for unary laws (e.g., μ)
+            call_args = args if len(args) > 0 else (ctx.get("a", None),)
+
+            law_check = SR.check_all_laws(op, *call_args, context=ctx)
             result["law_check"] = law_check
 
             trace.log({
@@ -186,10 +204,13 @@ def evaluate_symatics_expr(expr: Any, context: Dict = None) -> Dict[str, Any]:
                 logger.warning("[Symatics] ⊕ failed associativity law check.")
         if op == "⟲" and len(args) >= 2:
             SR.law_resonance_damping(args[0], args[1])   # ✅ v0.3 resonance
-        if op == "μ":
+        if op == "μ" and len(args) >= 1:
             SR.law_collapse_conservation(args[0])        # ✅ v0.3 collapse
         if op == "π":
             SR.law_projection_consistency(expr)
+
+        # ✅ Ensure success path returns the envelope
+        return result
 
     except Exception as e:
         logger.error(f"[SymaticsDispatcher] evaluation failed: {e}")
@@ -205,7 +226,13 @@ def evaluate_symatics_expr(expr: Any, context: Dict = None) -> Dict[str, Any]:
 
         # Run a fallback law check for diagnostics
         try:
-            law_check = SR.check_all_laws(op, *args, context=context)
+            ctx = dict(context or {})
+            if len(args) > 0:
+                ctx.setdefault("a", args[0])
+            if len(args) > 1:
+                ctx.setdefault("b", args[1])
+            call_args = args if len(args) > 0 else (ctx.get("a", None),)
+            law_check = SR.check_all_laws(op, *call_args, context=ctx)
         except Exception as e_law:
             law_check = {"error": str(e_law), "summary": "law check failed"}
         result["law_check"] = law_check
@@ -224,6 +251,8 @@ def evaluate_symatics_expr(expr: Any, context: Dict = None) -> Dict[str, Any]:
             })
         except Exception as e2:
             logger.warning(f"[SymaticsDispatcher] Failed to emit CodexTrace fallback: {e2}")
+
+        return result
 
         # ────────────────────────────────────────────────
         # 🔹 Post-evaluation Symatics Law Validation
@@ -350,8 +379,15 @@ def symatics_measure(a, context=None):
 
 
 # ──────────────────────────────
-# ✅ Register Physical Operators in Runtime Registry (always executes on import)
+# ✅ Register Physical Operators in Runtime Registry (only if supported)
 # ──────────────────────────────
+if getattr(registry_bridge, "register", None):
+    registry_bridge.register("symatics:⟲", symatics_resonance)
+    registry_bridge.register("symatics:μ",  symatics_measure)
+    logger.info("[Symatics] Registered ⟲ (resonance) and μ (collapse) operators via .register")
+else:
+    logger.debug("[Symatics] RegistryBridge has no .register; skipping runtime registration.")
+    
 try:
     registry_bridge.register("symatics:⟲", symatics_resonance)
     registry_bridge.register("symatics:μ", symatics_measure)
