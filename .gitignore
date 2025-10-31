@@ -9,6 +9,8 @@ backend/node_modules/
 # ⚙️ Next.js Build + Cache
 #──────────────────────────────
 .next/
+out/
+dist/
 
 #──────────────────────────────
 # 🌱 Environment Files
@@ -25,6 +27,7 @@ backend/.env.local
 #──────────────────────────────
 # 🐍 Python Virtual Environments
 #──────────────────────────────
+.venv/
 venv*/
 backend/venv*/
 backend/venv_test*/
@@ -85,6 +88,7 @@ backend/data/knowledge_index.jsonl
 *.gz
 *.zip
 *.swp
+workspace-backup-*.tgz
 
 #──────────────────────────────
 # 💻 IDE / System Files
@@ -94,16 +98,19 @@ Thumbs.db
 .idea/
 .vscode/
 
+#──────────────────────────────
 # AION runtime cache and locks
+#──────────────────────────────
 data/memory/resonant_memory_cache.json
 data/memory/resonant_memory_cache.*bak
 data/memory/resonant_memory_cache.*lock
 
-
 #──────────────────────────────
 # 🧠 AION Runtime Outputs / Telemetry & Massive Data
+# (fine-grained so we don't hide legit source/config)
 #──────────────────────────────
-data/aion/
+logs/
+data/aion_field/*.json
 data/analysis/
 data/learning/
 data/control/
@@ -111,38 +118,43 @@ data/telemetry/
 data/benchmarks/
 data/sources/
 data/tasks/
-logs/
 *.json.lock
-*.bak
 *.lexbak
 *.bak2
 *.bz2
 *.xml
 *.glyph
 
-# Individual heavy files to exclude (safety net)
+# Explicit heavy files to exclude (safety net)
 data/control/aqci_log.jsonl
 data/control/rqfs_feedback.jsonl
 data/learning/fusion_state.jsonl
 data/memory/cee_lex_memory.json
 data/memory/cee_lex_memory.lexbak
 data/memory/lex_memory.json
-data/memory/resonant_memory_cache.*
+data/telemetry/meta_resonant_telemetry.jsonl
+data/ledger/*.jsonl
+data/traces/*.json
 data/sources/enwiktionary-pages-articles.xml.bz2
 data/sources/enwiktionary-sample.xml.bz2
 data/sources/gcide_full.xml
-data/symatics/symbolic_resonance_stream.glyph
-data/telemetry/meta_resonant_telemetry.jsonl
-backend/data/conceptnet/numberbatch-en-19.08.txtbackend/modules/dimensions/containers_saved/*.dc.json
+
+# ConceptNet model (keep out of Git)
+backend/data/conceptnet/numberbatch-en-19.08.txt
+backend/data/conceptnet/numberbatch-en-*.txt
+
+#──────────────────────────────
+# Dimension containers (generated)
+#──────────────────────────────
 backend/modules/dimensions/containers_saved/*.dc.json
 backend/modules/dimensions/containers_saved/*.kg.json
 backend/modules/dimensions/containers_saved/kg_exports/*.kg.json
 
-
-data/
+#──────────────────────────────
+# Repo-local data/state we don't want in VCS
+#──────────────────────────────
 backend/state/
 *.photo
 *.trace.json
 *.jsonl
 dev.db
-.logs/backend/data/conceptnet/numberbatch-en-19.08.txt
