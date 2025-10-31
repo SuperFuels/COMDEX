@@ -137,3 +137,12 @@ backend/data/conceptnet/numberbatch-en-19.08.txtbackend/modules/dimensions/conta
 backend/modules/dimensions/containers_saved/*.dc.json
 backend/modules/dimensions/containers_saved/*.kg.json
 backend/modules/dimensions/containers_saved/kg_exports/*.kg.json
+
+
+data/
+backend/state/
+*.photo
+*.trace.json
+*.jsonl
+dev.db
+.logs/backend/data/conceptnet/numberbatch-en-19.08.txt
