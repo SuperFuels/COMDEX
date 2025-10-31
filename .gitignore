@@ -158,3 +158,6 @@ backend/state/
 *.trace.json
 *.jsonl
 dev.db
+# Local backups
+*.tgz
+workspace-backup-*.tgz
